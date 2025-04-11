@@ -90,76 +90,69 @@ void NavigationSystem::DestroyNavData()
 
 
 
-void NavigationSystem::GenerateNavData()
+void NavigationSystem::GenerateNavData() 
 {
-    // Clear any existing navigation data
     DestroyNavData();
 
-    // Retrieve the static obstacles mesh from the current level
     auto mesh = Level::Current->GetStaticNavObstaclesMesh();
 
-    // Ensure thread safety during generation
     std::lock_guard<std::mutex> lock(mainLock);
 
-    // Extract vertices and indices from the mesh
+    // Define sample geometry: a flat square
     std::vector<glm::vec3> vertices = mesh.vertices;
     std::vector<uint32_t> indices = mesh.indices;
 
 
-    // Compute the bounding box of the level geometry
+
+    // Compute bounding box
     glm::vec3 bmin = vertices[0];
     glm::vec3 bmax = vertices[0];
     for (const auto& v : vertices) {
         bmin = glm::min(bmin, v);
         bmax = glm::max(bmax, v);
     }
-    bmin -= glm::vec3(5); // Expand by 5 units
-    bmax += glm::vec3(5);
 
-    // Set up Recast configuration
+
+    bmin -= vec3(5);
+
+    bmax += vec3(5);
+
+    // Recast configuration
     rcConfig cfg;
     memset(&cfg, 0, sizeof(cfg));
-    cfg.cs = 0.25f;                          // Cell size
-    cfg.ch = 0.2f;                           // Cell height
-    cfg.walkableSlopeAngle = 45.0f;          // Max slope angle
-    cfg.walkableHeight = static_cast<int>(ceilf(2.0f / cfg.ch)); // Agent height in cells
-    cfg.walkableClimb = static_cast<int>(ceilf(0.5f / cfg.ch));  // Max climb height in cells
-    cfg.walkableRadius = static_cast<int>(ceilf(0.5f / cfg.cs)); // Agent radius in cells
-    cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);              // Max edge length
-    cfg.maxSimplificationError = 0.2f;      // Simplification error
-    cfg.minRegionArea = 25;                  // Min region size
-    cfg.mergeRegionArea = 100 * 100;         // Region merge size
-    cfg.maxVertsPerPoly = 6;                 // Max vertices per polygon
-
-    // Dynamically compute tile size to target ~16 tiles along the largest axis
-    float span_x = bmax.x - bmin.x;
-    float span_z = bmax.z - bmin.z;
-    float max_span = std::max(span_x, span_z);
-    int desired_ntiles = 16;
-    float desired_tileWidth = max_span / desired_ntiles;
-    cfg.tileSize = static_cast<int>(ceil(desired_tileWidth / cfg.cs));
-    cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 5; // Border for tile overlap
+    cfg.cs = 0.1f;                    // Cell size (voxel size in X/Z)
+    cfg.ch = 0.2f;                    // Cell height
+    cfg.walkableSlopeAngle = 45.0f;   // Max slope angle
+    cfg.walkableHeight = static_cast<int>(ceilf(2.0f / cfg.ch)); // Agent height (~2m)
+    cfg.walkableClimb = static_cast<int>(ceilf(0.9f / cfg.ch));  // Max climb height (~0.9m)
+    cfg.walkableRadius = static_cast<int>(ceilf(0.5f / cfg.cs)); // Agent radius (~0.5m)
+    cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);
+    cfg.maxSimplificationError = 0.05f;
+    cfg.minRegionArea = 25;      // Min region size
+    cfg.mergeRegionArea = 100 * 100;  // Merge region size
+    cfg.maxVertsPerPoly = 6;
+    cfg.tileSize = 64;                // Tile size in cells
+    cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 1;  // ~3-4 cells
     cfg.width = cfg.tileSize + cfg.borderSize * 2;
     cfg.height = cfg.tileSize + cfg.borderSize * 2;
-    cfg.detailSampleDist = 6.0f;             // Detail mesh sampling distance
-    cfg.detailSampleMaxError = 1.0f;         // Detail mesh max error
+    cfg.detailSampleDist = 6.0f;
+    cfg.detailSampleMaxError = 1.0f;
 
-    // Calculate tile grid dimensions
+    // Compute tile grid
     const float tileWidth = cfg.tileSize * cfg.cs;
     const int ntilesX = static_cast<int>(ceilf((bmax.x - bmin.x) / tileWidth));
     const int ntilesZ = static_cast<int>(ceilf((bmax.z - bmin.z) / tileWidth));
     const int maxTiles = ntilesX * ntilesZ * 10;
 
-    // Initialize nav mesh parameters
+    // Initialize nav mesh
     dtNavMeshParams navParams;
     memset(&navParams, 0, sizeof(navParams));
     rcVcopy(navParams.orig, &bmin.x);
     navParams.tileWidth = tileWidth;
     navParams.tileHeight = tileWidth;
     navParams.maxTiles = maxTiles;
-    navParams.maxPolys = 65535;              // Max polygons per tile
+    navParams.maxPolys = 16384;
 
-    // Allocate and initialize the nav mesh
     navMesh = dtAllocNavMesh();
     if (!navMesh || dtStatusFailed(navMesh->init(&navParams))) {
         std::cerr << "Failed to initialize navMesh" << std::endl;
@@ -168,10 +161,11 @@ void NavigationSystem::GenerateNavData()
         return;
     }
 
-    // Set up tile cache parameters
+    // Initialize tile cache
     dtTileCacheParams tcParams;
     memset(&tcParams, 0, sizeof(tcParams));
     rcVcopy(tcParams.orig, &bmin.x);
+
     tcParams.cs = cfg.cs;
     tcParams.ch = cfg.ch;
     tcParams.width = cfg.tileSize;
@@ -181,13 +175,11 @@ void NavigationSystem::GenerateNavData()
     tcParams.walkableClimb = cfg.walkableClimb;
     tcParams.maxSimplificationError = cfg.maxSimplificationError;
     tcParams.maxTiles = maxTiles;
-    tcParams.maxObstacles = 256;             // Max dynamic obstacles
+    tcParams.maxObstacles = 256;
 
-    // Allocate memory management objects with increased size
-    talloc = new LinearAllocator(1024 * 1024 * 100); // 100MB
+    talloc = new LinearAllocator(1024 * 1024 * 5); // 1MB
     tcomp = new FastLZCompressor();
 
-    // Initialize the tile cache
     tileCache = dtAllocTileCache();
     if (!tileCache || dtStatusFailed(tileCache->init(&tcParams, talloc, tcomp, nullptr))) {
         std::cerr << "Failed to initialize tileCache" << std::endl;
@@ -198,7 +190,7 @@ void NavigationSystem::GenerateNavData()
         return;
     }
 
-    // Prepare geometry for Recast
+    // Convert geometry to Recast format
     rcContext* ctx = new rcContext();
     std::vector<float> vertFloats(vertices.size() * 3);
     for (size_t i = 0; i < vertices.size(); ++i) {
@@ -209,31 +201,30 @@ void NavigationSystem::GenerateNavData()
     std::vector<int> triInts(indices.begin(), indices.end());
     const int ntris = indices.size() / 3;
 
-    // Process each tile
+    // Tile generation loop
     for (int tz = 0; tz < ntilesZ; ++tz) {
         for (int tx = 0; tx < ntilesX; ++tx) {
-            // Define tile bounding box
             float tbmin[3] = {
                 navParams.orig[0] + tx * tileWidth,
-                bmin.y - 0.1f, // Extend slightly below
+                bmin.y - 0.1f, // Extend below
                 navParams.orig[2] + tz * tileWidth
             };
             float tbmax[3] = {
                 navParams.orig[0] + (tx + 1) * tileWidth,
-                bmax.y + 0.1f, // Extend slightly above
+                bmax.y + 0.1f, // Extend above
                 navParams.orig[2] + (tz + 1) * tileWidth
             };
             rcVcopy(cfg.bmin, tbmin);
             rcVcopy(cfg.bmax, tbmax);
 
-            // Create heightfield for the tile
+            // Build heightfield
             rcHeightfield hf;
             if (!rcCreateHeightfield(ctx, hf, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch)) {
                 std::cerr << "Failed to create heightfield for tile (" << tx << "," << tz << ")" << std::endl;
                 continue;
             }
 
-            // Rasterize triangles into the heightfield
+            // Rasterize triangles
             unsigned char* triareas = new unsigned char[ntris];
             rcMarkWalkableTriangles(ctx, cfg.walkableSlopeAngle, vertFloats.data(), vertices.size(),
                 triInts.data(), ntris, triareas);
@@ -252,23 +243,21 @@ void NavigationSystem::GenerateNavData()
                 continue;
             }
 
-            // Erode walkable areas
+            // Erode walkable area to account for agent radius
             if (!rcErodeWalkableArea(ctx, cfg.walkableRadius, chf)) {
                 std::cerr << "Failed to erode walkable area for tile (" << tx << "," << tz << ")" << std::endl;
                 continue;
             }
 
-            // Build regions using watershed partitioning
-            if (!rcBuildDistanceField(ctx, chf)) {
-                std::cerr << "Failed to build distance field for tile (" << tx << "," << tz << ")" << std::endl;
+            // Erode and build regions
+            if (!rcBuildRegionsMonotone(ctx, chf, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea)) {
+                std::cerr << "Failed to erode walkable area for tile (" << tx << "," << tz << ")" << std::endl;
                 continue;
             }
-            if (!rcBuildRegions(ctx, chf, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea)) {
-                std::cerr << "Failed to build regions for tile (" << tx << "," << tz << ")" << std::endl;
-                continue;
-            }
+            rcBuildDistanceField(ctx, chf);
+            rcBuildRegions(ctx, chf, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea);
 
-            // Build heightfield layers
+            // Build layers
             rcHeightfieldLayerSet* layers = rcAllocHeightfieldLayerSet();
             if (!layers || !rcBuildHeightfieldLayers(ctx, chf, cfg.borderSize, cfg.walkableHeight, *layers)) {
                 std::cerr << "Failed to build heightfield layers for tile (" << tx << "," << tz << ")" << std::endl;
@@ -276,11 +265,12 @@ void NavigationSystem::GenerateNavData()
                 continue;
             }
 
-            // Process each layer in the tile
+
+            // Process each layer
             for (int i = 0; i < layers->nlayers; ++i) {
                 const rcHeightfieldLayer& layer = layers->layers[i];
 
-                // Set up tile cache layer header
+                // Prepare layer header
                 dtTileCacheLayerHeader header;
                 header.magic = DT_TILECACHE_MAGIC;
                 header.version = DT_TILECACHE_VERSION;
@@ -300,16 +290,39 @@ void NavigationSystem::GenerateNavData()
                 int lmaxh = static_cast<int>(ceil((layer.hmax - cfg.bmin[1]) / cfg.ch));
                 header.hmax = static_cast<unsigned short>(lmaxh);
 
-                // Allocate memory for layer data
+                // Allocate and copy layer data
                 const int gridSize = layer.width * layer.height;
+                unsigned char* heights = static_cast<unsigned char*>(talloc->alloc(gridSize * sizeof(unsigned short)));
+                unsigned char* areas = static_cast<unsigned char*>(talloc->alloc(gridSize));
+                unsigned char* cons = static_cast<unsigned char*>(talloc->alloc(gridSize));
 
+                if (!heights || !areas || !cons) {
+                    std::cerr << "Allocation failed for tile (" << tx << "," << tz << ") layer " << i << std::endl;
+                    talloc->free(heights);
+                    talloc->free(areas);
+                    talloc->free(cons);
+                    continue;
+                }
 
+                memcpy(heights, layer.heights, gridSize * sizeof(unsigned short));
+                memcpy(areas, layer.areas, gridSize);
+                memcpy(cons, layer.cons, gridSize);
 
-                // Build compressed tile data
+                // Debug layer data
+                int walkableCount = 0;
+                for (int j = 0; j < gridSize; ++j) {
+                    if (areas[j] == DT_TILECACHE_WALKABLE_AREA) walkableCount++;
+                }
+
+                // Build compressed layer
                 unsigned char* outData = nullptr;
                 int outDataSize = 0;
-                dtStatus status = dtBuildTileCacheLayer(tcomp, &header, layer.heights, layer.areas, layer.cons, &outData, &outDataSize);
-
+                dtStatus status = dtBuildTileCacheLayer(tcomp, &header,
+                    heights, areas, cons,
+                    &outData, &outDataSize);
+                talloc->free(heights);
+                talloc->free(areas);
+                talloc->free(cons);
 
                 if (dtStatusFailed(status)) {
                     std::cerr << "Failed to build tile cache layer for tile (" << tx << "," << tz << ") layer " << i
@@ -318,8 +331,9 @@ void NavigationSystem::GenerateNavData()
                     continue;
                 }
 
-                // Add tile to the tile cache
+                // Add to tile cache
                 dtCompressedTileRef tileRef;
+
                 status = tileCache->addTile(outData, outDataSize, DT_COMPRESSEDTILE_FREE_DATA, &tileRef);
                 if (dtStatusFailed(status)) {
                     std::cerr << "Failed to add tile to cache for tile (" << tx << "," << tz << ") layer " << i
@@ -328,24 +342,25 @@ void NavigationSystem::GenerateNavData()
                     continue;
                 }
 
-                // Build the nav mesh tile
+                // Build nav mesh tile
                 status = tileCache->buildNavMeshTile(tileRef, navMesh);
                 if (dtStatusFailed(status)) {
                     std::cerr << "Failed to build navmesh tile for tile (" << tx << "," << tz << ") layer " << i
                         << " (status: " << status << ")" << std::endl;
                 }
+
             }
             rcFreeHeightfieldLayerSet(layers);
         }
     }
 
-    // Clean up
     delete ctx;
-    // Note: talloc and tcomp are freed in DestroyNavData
+    // Note: talloc and tcomp are managed in DestroyNavData
 }
 
 bool HasLineOfSight(const vec3& pointA, const vec3& pointB)
 {
+    return false;
     return Physics::SphereTrace(pointA, pointB, 0.4, BodyType::World).hasHit == false;
 }
 
@@ -403,10 +418,10 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
 
     // Find the nearest polygon to the start and target positions.
     dtPolyRef startRef, endRef;
-    float extents[3] = { 1, 4, 1 };  // search extents in each axis
+    float extents[3] = { 0.4, 1.5, 0.4 };  // search extents in each axis
 
-    float startPos[3] = { start.x, start.y, start.z };
-    float targetPos[3] = { target.x, target.y, target.z };
+    float startPos[3] = { start.x, start.y - 0.5, start.z };
+    float targetPos[3] = { target.x, target.y - 0.5, target.z };
 
     status = navQuery->findNearestPoly(startPos, extents, &filter, &startRef, nullptr);
     if (dtStatusFailed(status) || !startRef)

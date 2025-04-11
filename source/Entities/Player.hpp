@@ -218,7 +218,7 @@ public:
 
             path.insert(path.begin(), Position);
 
-            DebugDraw::Path(path, 5);
+            DebugDraw::Path(path, 10);
 
         }
 
