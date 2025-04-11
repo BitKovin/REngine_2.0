@@ -73,6 +73,9 @@ namespace roj
 		std::unordered_map<glm::vec3, glm::vec3> vertexNormals; // position and normal
 		std::unordered_map<glm::vec3, float> vertexNormalsN; // position and normal num
 
+		std::string m_lastLoadedPath;
+		const aiScene* m_cachedScene;
+
 	private:
 
 		

@@ -42,7 +42,7 @@ public:
 		delete(model);
 	}
 
-	static vector<BrushFaceMesh*> GetMeshesFromName(string filePath, string name)
+	static vector<BrushFaceMesh*> GetMeshesFromName(string filePath, string name, roj::ModelLoader<roj::SkinnedMesh>* modelLoader)
 	{
 
 		roj::LoaderGlobalParams::MeshNameLimit = name;
@@ -50,13 +50,11 @@ public:
 
 		vector<BrushFaceMesh*> faces;
 
-		roj::ModelLoader<roj::SkinnedMesh> modelLoader;
+		modelLoader->load(filePath);
 
-		modelLoader.load(filePath);
+		Logger::Log(modelLoader->getInfoLog());
 
-		Logger::Log(modelLoader.getInfoLog());
-
-		auto model = modelLoader.get();
+		auto model = modelLoader->get();
 
 		for (auto mesh : model.meshes)
 		{

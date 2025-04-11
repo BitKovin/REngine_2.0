@@ -263,6 +263,8 @@ namespace roj
 		}
 	}
 
+
+
 	template<>
 	bool ModelLoader<SkinnedMesh>::load(const std::string& path)
 	{
@@ -270,16 +272,30 @@ namespace roj
 
 		Assimp::Importer importer;
 
-		const aiScene* scene = m_import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+		const aiScene* m_scene;
+
+		// Check if the requested scene is the same as the cached one
+		if (path == m_lastLoadedPath && m_cachedScene != nullptr) {
+			// Reuse the cached scene
+			m_scene = m_cachedScene;
+			
+		}
+		else
+		{
+			m_scene = m_import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+			m_cachedScene = m_scene;
+			m_lastLoadedPath = path;
+		}
+		
 		m_relativeDir = "GameData/";//static_cast<std::filesystem::path>(path).parent_path().string();
 
-		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+		if (!m_scene || m_scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !m_scene->mRootNode)
 		{
 			m_infoLog += m_import.GetErrorString();
 			return false;
 		}
-		m_model.globalInversed = glm::inverse(toGlmMat4(scene->mRootNode->mTransformation));
-		m_model.sceneCamera = (scene->HasCameras()) ? scene->mCameras[0] : nullptr;
+		m_model.globalInversed = glm::inverse(toGlmMat4(m_scene->mRootNode->mTransformation));
+		m_model.sceneCamera = (m_scene->HasCameras()) ? m_scene->mCameras[0] : nullptr;
 
 		//processNodeVertices(scene->mRootNode, scene);
 
@@ -288,7 +304,7 @@ namespace roj
 			vertexNormals[v.first] = v.second / vertexNormalsN[v.first];
 		}
 
-		processNode(scene->mRootNode, scene);
+		processNode(m_scene->mRootNode, m_scene);
 
 		for (SkinnedMesh& mesh : m_model)
 		{
@@ -297,7 +313,7 @@ namespace roj
 
 
 
-		extractAnimations(scene, m_model);
+		extractAnimations(m_scene, m_model);
 
 		m_model.boundingSphere = BoudingSphere::FromPoints(vertexPositions);
 

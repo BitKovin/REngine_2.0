@@ -29,7 +29,7 @@
 // Must be 255 or smaller (not 256) because layer IDs are stored as
 // a byte where 255 is a special value.
 #ifndef RC_MAX_LAYERS_DEF
-#define RC_MAX_LAYERS_DEF 63
+#define RC_MAX_LAYERS_DEF 255
 #endif
 
 #if RC_MAX_LAYERS_DEF > 255

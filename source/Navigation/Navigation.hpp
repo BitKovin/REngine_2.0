@@ -1,5 +1,7 @@
 #pragma once
 
+#define RC_MAX_LAYERS_DEF 255
+
 #include "Recast/Recast.h"
 #include "Detour/DetourNavMesh.h"
 #include "Detour/DetourNavMeshBuilder.h"

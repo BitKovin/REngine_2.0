@@ -229,6 +229,8 @@ EntityData* GetEntityDataFromClass(MapData& mapData, const std::string& classNam
 void MapData::LoadToLevel()
 {
 
+    roj::ModelLoader<roj::SkinnedMesh> loader;
+
     string modelPath = Path.substr(0, Path.length()-3) + "obj";
 
     for (EntityData entityData : Entities)
@@ -253,7 +255,7 @@ void MapData::LoadToLevel()
 
                 string meshName = "entity" + entityData.name + "_brush" + brushData.Name;
 
-                auto faces = BrushFaceMesh::GetMeshesFromName(modelPath, meshName);
+                auto faces = BrushFaceMesh::GetMeshesFromName(modelPath, meshName, &loader);
 
                 for (auto face : faces)
                 {

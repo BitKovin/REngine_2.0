@@ -133,7 +133,7 @@ public:
 
         UiRenderer::Init();
 
-        Level::OpenLevel("GameData/Maps/test.map");
+        Level::OpenLevel("GameData/Maps/e1m1.map");
 
         initDemo();
 
