@@ -188,7 +188,7 @@ public:
         Level::Current->FinalizeFrame();
         Viewport.FinalizeChildren();
 
-        //NavigationSystem::DrawNavmesh();
+        NavigationSystem::DrawNavmesh();
 
         DebugDraw::Finalize();
 

@@ -360,7 +360,6 @@ void NavigationSystem::GenerateNavData()
 
 bool HasLineOfSight(const vec3& pointA, const vec3& pointB)
 {
-    return false;
     return Physics::SphereTrace(pointA, pointB, 0.4, BodyType::World).hasHit == false;
 }
 
@@ -388,7 +387,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
 
     if (HasLineOfSight(start, target))
     {
-        //return { target };
+        return { target };
     }
 
     std::vector<glm::vec3> outPath;
@@ -420,8 +419,8 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
     dtPolyRef startRef, endRef;
     float extents[3] = { 0.4, 1.5, 0.4 };  // search extents in each axis
 
-    float startPos[3] = { start.x, start.y - 0.5, start.z };
-    float targetPos[3] = { target.x, target.y - 0.5, target.z };
+    float startPos[3] = { start.x, start.y - 0.5f, start.z };
+    float targetPos[3] = { target.x, target.y - 0.5f, target.z };
 
     status = navQuery->findNearestPoly(startPos, extents, &filter, &startRef, nullptr);
     if (dtStatusFailed(status) || !startRef)
@@ -446,7 +445,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
     if (dtStatusFailed(status) || polyPathCount == 0)
     {
         dtFreeNavMeshQuery(navQuery);
-        return outPath;
+        return {target};
     }
 
     // Compute the straight path (a series of waypoints) from the polygon path.
@@ -461,7 +460,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
     if (dtStatusFailed(status))
     {
         dtFreeNavMeshQuery(navQuery);
-        return outPath;
+        return { target };
     }
 
     // Convert the computed straight path into a vector of glm::vec3 points.
