@@ -133,11 +133,13 @@ public:
 
         UiRenderer::Init();
 
-        Level::OpenLevel("GameData/Maps/e1m1.map");
+        InitInputs();
+
+        Level::OpenLevel("GameData/Maps/test.map");
 
         initDemo();
 
-        InitInputs();
+
 
 
         img = make_shared<UiButton>();

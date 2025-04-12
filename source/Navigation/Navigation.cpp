@@ -124,7 +124,7 @@ void NavigationSystem::GenerateNavData()
     cfg.ch = 0.2f;                    // Cell height
     cfg.walkableSlopeAngle = 45.0f;   // Max slope angle
     cfg.walkableHeight = static_cast<int>(ceilf(2.0f / cfg.ch)); // Agent height (~2m)
-    cfg.walkableClimb = static_cast<int>(ceilf(0.9f / cfg.ch));  // Max climb height (~0.9m)
+    cfg.walkableClimb = static_cast<int>(ceilf(0.6f / cfg.ch));  // Max climb height (~0.9m)
     cfg.walkableRadius = static_cast<int>(ceilf(0.5f / cfg.cs)); // Agent radius (~0.5m)
     cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);
     cfg.maxSimplificationError = 0.05f;

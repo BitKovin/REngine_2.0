@@ -34,6 +34,9 @@ protected:
 
 	ShaderProgram* forward_shader_program = nullptr;
 
+	int numInstances = -1;
+
+
 public:
 
 	roj::SkinnedModel* model = nullptr;
@@ -184,7 +187,16 @@ public:
 			}
 
 			mesh.VAO->Bind();
-			glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0);
+
+			if (mesh.VAO->IsInstanced())
+			{
+				glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0, mesh.VAO->GetInstanceCount());
+			}
+			else if(numInstances < 0)
+			{
+				glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0);
+			}
+			
 		}
 
 

@@ -7,6 +7,7 @@
 
 #include "model.hpp"
 
+
 #include "MeshUtils.hpp"
 
 #include <unordered_map> // Required for unordered_map
@@ -62,6 +63,14 @@ public:
 			BrushFaceMesh* face = new BrushFaceMesh();
 
 			roj::SkinnedModel* newModel = new roj::SkinnedModel();
+
+            mesh.textures.clear();
+
+            roj::MeshTexture texture;
+            texture.type = aiTextureType_BASE_COLOR;
+            texture.src = mesh.materialName + ".png";
+
+            mesh.textures.push_back(texture);
 
 			newModel->meshes.push_back(mesh);
 

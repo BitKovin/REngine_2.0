@@ -17,4 +17,10 @@ void EngineMain::InitInputs()
 
     Input::AddAction("attack")->AddButton(5)->LMB = true;
 
+    int maxUniforms;
+
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxUniforms);
+
+    printf("max uniforms: %i \n", maxUniforms);
+
 }
