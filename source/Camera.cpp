@@ -25,7 +25,7 @@
     Frustum Camera::frustum = Frustum(mat4(1.0f));
     float Camera::FOV = 80.0f;
     float Camera::ViewmodelFOV = 60.0f;
-    float Camera::FarPlane = 3000.0f;
+    float Camera::FarPlane = 2000.0f;
 
     int Camera::ScreenHeight = 720;
 
