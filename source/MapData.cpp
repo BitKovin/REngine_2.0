@@ -271,8 +271,6 @@ void MapData::LoadToLevel()
                 for (auto face : faces)
                 {
 
-                    
-
                     entBrushes.push_back(face);
                 }
 
@@ -287,6 +285,16 @@ void MapData::LoadToLevel()
             for (auto face : entBrushes)
             {
                 face->StaticNavigation = ent->Static;
+
+                if (face->material.ends_with("_t"))
+                {
+                    face->Transparent = true;
+                    face->DepthTest = false;
+                }
+                    
+
+                face->TexturesLocation = "GameData/Textures/";
+
                 ent->Drawables.push_back(face);
             }
         }

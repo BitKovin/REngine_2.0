@@ -85,7 +85,7 @@ public:
 
 			face->material = mesh.materialName;
 
-			face->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
+			//face->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
 			faces.push_back(face);
 
@@ -136,6 +136,14 @@ public:
             mergedMesh.vertexLocations = merged.vertices; // Assign merged vertices
             mergedMesh.vertexIndices = merged.indices;   // Assign merged indices
 
+            mergedMesh.textures.clear();
+
+            roj::MeshTexture texture;
+            texture.type = aiTextureType_BASE_COLOR;
+            texture.src = material + ".png";
+
+            mergedMesh.textures.push_back(texture);
+
             mergedMesh.vertices = new VertexBuffer(mergedMesh.vertexLocations, VertexData::Declaration(), GL_STATIC_DRAW);
             mergedMesh.indices = new IndexBuffer(mergedMesh.vertexIndices, GL_STATIC_DRAW);
 
@@ -168,7 +176,7 @@ public:
 
             // Add the merged BrushFaceMesh to the result vector
 
-            mergedFace->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
+            //mergedFace->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
             mergedFaces.push_back(mergedFace);
         }

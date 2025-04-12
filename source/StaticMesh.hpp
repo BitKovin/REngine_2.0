@@ -49,6 +49,10 @@ public:
 	vec3 Rotation = vec3(0);
 	vec3 Scale = vec3(1);
 
+	string TexturesLocation = "GameData/Textures/";
+
+	bool DepthWrite = true;
+
 	StaticMesh()
 	{
 
@@ -133,6 +137,15 @@ public:
 	{
 
 		
+		if (DepthWrite)
+		{
+			glDepthMask(GL_TRUE);
+		}
+		else
+		{
+			glDepthMask(GL_FALSE);
+		}
+
 		if(forward_shader_program == nullptr)
 			forward_shader_program = ShaderManager::GetShaderProgram("skeletal", PixelShader);
 
@@ -172,7 +185,7 @@ public:
 				
 				if (mesh.cachedBaseColor == nullptr)
 				{
-					const string textureRoot = "GameData/Textures/";
+					const string textureRoot = TexturesLocation;
 
 					mesh.cachedBaseColor = AssetRegistry::GetTextureFromFile(textureRoot + baseTextureName);
 				}
