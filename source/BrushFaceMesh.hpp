@@ -25,6 +25,8 @@ public:
 
 	string material;
 	
+    int closestLightSource = -1;
+
 	BrushFaceMesh()
 	{
 
@@ -105,7 +107,7 @@ public:
         std::unordered_map<std::string, std::vector<BrushFaceMesh*>> materialToMeshes;
         for (auto face : faces)
         {
-            std::string material = face->material;
+            std::string material = face->material + "|" + to_string(face->closestLightSource);
             materialToMeshes[material].push_back(face);
         }
 
@@ -114,6 +116,16 @@ public:
         for (const auto& pair : materialToMeshes)
         {
             std::string material = pair.first;
+
+            for (int i = 0; i < material.size(); i++)
+            {
+                if (material[i] == '|')
+                {
+                    material = material.substr(0, i);
+                    break;
+                }
+            }
+
             std::vector<BrushFaceMesh*> meshesToMerge = pair.second;
 
             // Collect vertices and indices from all meshes in this material group

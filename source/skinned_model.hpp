@@ -74,6 +74,8 @@ namespace roj
 		std::unordered_map<std::string, BoneInfo> boneInfoMap;
 		std::unordered_map<std::string, Animation> animations;
 
+		BoneNode defaultRoot;
+
 		BoudingSphere boundingSphere;
 
 		std::vector<SkinnedMesh>::iterator begin();

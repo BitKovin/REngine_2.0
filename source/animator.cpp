@@ -169,13 +169,7 @@ std::unordered_map<std::string, mat4> roj::Animator::GetBonePoseArray()
 void roj::Animator::ApplyBonePoseArray(std::unordered_map<std::string, mat4> pose)
 {
 
-    if (m_currAnim == nullptr)
-    {
-        set(m_model.animations.begin()->first);
-
-    }
-
-    ApplyNodePose(m_currAnim->rootBone, glm::mat4(1.0f), pose);
+    ApplyNodePose(m_model.defaultRoot, glm::mat4(1.0f), pose);
 }
 
 void roj::Animator::PopulateBonePoseArray(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& outVector)

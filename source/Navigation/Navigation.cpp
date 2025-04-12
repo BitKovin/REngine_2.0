@@ -292,37 +292,23 @@ void NavigationSystem::GenerateNavData()
 
                 // Allocate and copy layer data
                 const int gridSize = layer.width * layer.height;
-                unsigned char* heights = static_cast<unsigned char*>(talloc->alloc(gridSize * sizeof(unsigned short)));
-                unsigned char* areas = static_cast<unsigned char*>(talloc->alloc(gridSize));
-                unsigned char* cons = static_cast<unsigned char*>(talloc->alloc(gridSize));
 
-                if (!heights || !areas || !cons) {
-                    std::cerr << "Allocation failed for tile (" << tx << "," << tz << ") layer " << i << std::endl;
-                    talloc->free(heights);
-                    talloc->free(areas);
-                    talloc->free(cons);
-                    continue;
-                }
-
-                memcpy(heights, layer.heights, gridSize * sizeof(unsigned short));
-                memcpy(areas, layer.areas, gridSize);
-                memcpy(cons, layer.cons, gridSize);
 
                 // Debug layer data
                 int walkableCount = 0;
                 for (int j = 0; j < gridSize; ++j) {
-                    if (areas[j] == DT_TILECACHE_WALKABLE_AREA) walkableCount++;
+                    if (layer.areas[j] == DT_TILECACHE_WALKABLE_AREA) walkableCount++;
                 }
 
                 // Build compressed layer
                 unsigned char* outData = nullptr;
                 int outDataSize = 0;
                 dtStatus status = dtBuildTileCacheLayer(tcomp, &header,
-                    heights, areas, cons,
+                    layer.heights, layer.areas, layer.cons,
                     &outData, &outDataSize);
-                talloc->free(heights);
-                talloc->free(areas);
-                talloc->free(cons);
+                talloc->free(layer.heights);
+                talloc->free(layer.areas);
+                talloc->free(layer.cons);
 
                 if (dtStatusFailed(status)) {
                     std::cerr << "Failed to build tile cache layer for tile (" << tx << "," << tz << ") layer " << i
