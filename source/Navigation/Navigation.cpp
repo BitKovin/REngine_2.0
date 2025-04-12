@@ -132,7 +132,7 @@ void NavigationSystem::GenerateNavData()
     cfg.mergeRegionArea = 100 * 100;  // Merge region size
     cfg.maxVertsPerPoly = 6;
     cfg.tileSize = 64;                // Tile size in cells
-    cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 1;  // ~3-4 cells
+    cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 3;  // ~3-4 cells
     cfg.width = cfg.tileSize + cfg.borderSize * 2;
     cfg.height = cfg.tileSize + cfg.borderSize * 2;
     cfg.detailSampleDist = 6.0f;

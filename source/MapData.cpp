@@ -289,7 +289,7 @@ void MapData::LoadToLevel()
                 if (face->material.ends_with("_t"))
                 {
                     face->Transparent = true;
-                    face->DepthTest = false;
+                    face->DepthWrite = false;
                 }
                     
 
