@@ -76,7 +76,12 @@ void UiElement::Update()
 
     float screenToViewportRatio = Camera::ScreenHeight / 1080.0F;
 
+
+
     glm::vec2 mousePos = Input::MousePos / screenToViewportRatio; // assume scaled to screen
+
+    //printf("%f   %f \n", mousePos.x, mousePos.y);
+
     glm::vec2 p = position + offset;
     glm::vec2 sz = GetSize();
 

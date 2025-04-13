@@ -32,6 +32,8 @@ public:
 
     static void DestroyNavData();
 
+    static bool DebugDrawNavMeshEnabled;
+
     static void Update()
     {
         
@@ -56,6 +58,9 @@ public:
 // It uses the dtNavMesh's internal tile storage to iterate over all polygons.
     static void DrawNavmesh()
     {
+
+        if (DebugDrawNavMeshEnabled == false) return;
+
         if (!navMesh)
             return;
 
@@ -99,7 +104,7 @@ public:
                     if (distance(Camera::position, p1) > 20)
                         continue;
 
-                    DebugDraw::Line(p0, p1, 0.2f, Time::DeltaTimeF/2); // longer duration for better visibility
+                    DebugDraw::Line(p0, p1, Time::DeltaTimeF / 2, 0.01); // longer duration for better visibility
                 }
             }
         }

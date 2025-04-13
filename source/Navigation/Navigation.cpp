@@ -13,7 +13,7 @@
 
 // Recast and Detour includes
 
-
+bool NavigationSystem::DebugDrawNavMeshEnabled = false;
 
 // Static member initialization
 dtNavMesh* NavigationSystem::navMesh = nullptr;
@@ -373,7 +373,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
 
     if (HasLineOfSight(start, target))
     {
-        return { target };
+        //return { target };
     }
 
     std::vector<glm::vec3> outPath;
@@ -458,7 +458,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
 
     dtFreeNavMeshQuery(navQuery);
 
-    
+    /*
     // ---------------------------------------------------------------------
     // Post-process the path by testing redundancy on the second and
     // second-from-last points based on line-of-sight.
@@ -484,7 +484,8 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
             outPath.erase(outPath.end()-1);
         }
     }
-    
+    */
+
     outPath.push_back(target);
 
     return outPath;

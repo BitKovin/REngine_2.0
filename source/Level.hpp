@@ -112,6 +112,16 @@ public:
 		entityArrayLock.unlock();
 	}
 
+	void DevUiUpdate()
+	{
+		entityArrayLock.lock();
+		for (auto var : LevelObjects)
+		{
+			var->UpdateDebugUI();
+		}
+		entityArrayLock.unlock();
+	}
+
 	void FinalizeFrame()
 	{
 

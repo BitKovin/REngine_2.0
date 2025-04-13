@@ -17,6 +17,8 @@
 
 #include "../SkeletalMesh.hpp"
 
+#include "../imgui/imgui.h"
+
 class Player : public Entity
 {
 
@@ -30,6 +32,8 @@ private:
     vec3 velocity = vec3(0);
 
     vec3 cameraRotation = vec3(0);
+
+    vec3 weaponOffset = vec3(0.023, 0.013, -0.13);
 
     Delay jumpDelay;
 
@@ -144,20 +148,92 @@ public:
 
 	}
 
+    dtObstacleRef playerObstacle = 0;
+
+    void UpdateDebugUI()
+    {
+
+        ImGui::Begin("navigation");
+
+        ImGui::Checkbox("draw nav mesh", &NavigationSystem::DebugDrawNavMeshEnabled);
+
+		if (ImGui::Button("PlaceObstacle"))
+		{
+			NavigationSystem::RemoveObstacle(playerObstacle);
+			playerObstacle = NavigationSystem::CreateObstacleBox(Position - vec3(1, 1, 1), Position + vec3(1, 1, 1));
+		}
+
+		if (ImGui::Button("place start location"))
+		{
+			testStart = Position;
+			DebugDraw::Line(Position, Position - vec3(0, 1, 0), 2, 0.1);
+		}
+
+		if (ImGui::Button("calculate path to player"))
+		{
+			auto path = NavigationSystem::FindSimplePath(Position, testStart);
+
+			path.insert(path.begin(), Position);
+
+			DebugDraw::Path(path, 15, 0.05);
+		}
+
+        ImGui::End();
+
+        ImGui::Begin("weapon");
+
+
+        ImGui::DragFloat3("offset", &weaponOffset.x, 0.01);
+
+
+        ImGui::End();
+    }
+
     bool OnGround = false;
 
-    dtObstacleRef playerObstacle = 0;
+
 
 	void Update()
 	{
 
-        //NavigationSystem::RemoveObstacle(playerObstacle);
-        //playerObstacle = NavigationSystem::CreateObstacleBox(Position - vec3(0.4, 1, 0.4), Position + vec3(0.4, 1, 0.4));
+
 
         OnGround = CheckGroundAt(Position);
 
-        cameraRotation.y += Input::MouseDelta.x;
-        cameraRotation.x -= Input::MouseDelta.y;
+        if (Input::LockCursor) 
+        {
+            cameraRotation.y += Input::MouseDelta.x;
+            cameraRotation.x -= Input::MouseDelta.y;
+
+
+            if (OnGround)
+                if (Input::GetAction("jump")->Holding())
+                {
+                    Jump();
+
+                }
+
+
+
+            if (Input::GetAction("attack")->Pressed())
+            {
+                viewmodel->PlayAnimation("attack");
+                Camera::AddCameraShake(CameraShake(
+                    0.13f,                            // interpIn
+                    1.2f,                            // duration
+                    vec3(0.0f, 0.0f, -0.2f),         // positionAmplitude
+                    vec3(0.0f, 0.0f, 6.4f),          // positionFrequency
+                    vec3(-8, 0.15f, 0.0f),        // rotationAmplitude
+                    vec3(-5.0f, 28.8f, 0.0f),        // rotationFrequency
+                    1.2f,                            // falloff
+                    CameraShake::ShakeType::SingleWave // shakeType
+                ));
+
+            }
+
+        }
+        
+            
 
 		vec2 input = Input::GetLeftStickPosition();
 
@@ -201,44 +277,7 @@ public:
 
 		LeadBody->SetLinearVelocity(ToPhysics(velocity));
 
-        if (Input::GetAction("test")->Pressed())
-        {
-            testStart = Position;
-        }
 
-        if(OnGround)
-        if (Input::GetAction("jump")->Holding())
-        {
-            Jump();
-            //NavigationSystem::CreateObstacleBox(Position - vec3(1.1, 3, 1.1), Position + vec3(1.1, 3, 1.1));
-
-            DebugDraw::Line(Position, testStart);
-
-            auto path = NavigationSystem::FindSimplePath(Position, testStart);
-
-            path.insert(path.begin(), Position);
-
-            DebugDraw::Path(path, 10);
-
-        }
-
-		
-
-        if (Input::GetAction("attack")->Pressed())
-        {
-            viewmodel->PlayAnimation("attack");
-            Camera::AddCameraShake(CameraShake(
-                0.13f,                            // interpIn
-                1.2f,                            // duration
-                vec3(0.0f, 0.0f, -0.2f),         // positionAmplitude
-                vec3(0.0f, 0.0f, 6.4f),          // positionFrequency
-                vec3(-8, 0.15f, 0.0f),        // rotationAmplitude
-                vec3(-5.0f, 28.8f, 0.0f),        // rotationFrequency
-                1.2f,                            // falloff
-                CameraShake::ShakeType::SingleWave // shakeType
-            ));
-
-        }
 
         Camera::position = Position + vec3(0, 0.7, 0);
         Camera::rotation = cameraRotation;
@@ -247,7 +286,7 @@ public:
 
         arms->PasteAnimationPose(viewmodel->GetAnimationPose());
 
-        viewmodel->Position = Camera::position;
+        viewmodel->Position = Camera::position + (mat3)Camera::GetRotationMatrix() * weaponOffset;
         viewmodel->Rotation = cameraRotation;
 
         arms->Position = viewmodel->Position;

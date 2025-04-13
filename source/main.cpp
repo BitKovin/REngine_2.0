@@ -21,8 +21,6 @@ SDL_Window *window;
 
 void update_screen_size(int w, int h)
 {
-    glViewport(0, 0, w, h);
-
     SDL_SetWindowSize(window, w, h);
 }
 
@@ -156,15 +154,6 @@ void ShutdownDirectInput() {
 
 #if DESKTOP == FALSE
 
-//not an error. Visual studio lies to you. Belive me. I'm catboy
-EM_JS(int, canvas_get_width, (), {
-  return canvas.width;
-    });
-
-EM_JS(int, canvas_get_height, (), {
-  return canvas.height;
-    });
-
 #endif // 
 
 
@@ -233,27 +222,6 @@ void emscripten_render_loop()
 
     SDL_GetRelativeMouseState(&x, &y);
 
-
-#if DESKTOP == FALSE
-
-
-
-    int width = canvas_get_width();
-    int height = canvas_get_height();
-
-    if (width != curW || height != curH)
-    {
-        update_screen_size(width, height);
-        //Logger::Log(std::to_string(width) + "  " + std::to_string(height));
-    }
-    
-
-    curW = width;
-    curH = height;
-
-    
-
-#endif // DESKTOP == FALSE
 
     if (abs(x) > 500 || abs(y) > 500) 
     {
@@ -408,12 +376,15 @@ int main(int argc, char* args[])
 #else
 
 
-    EmscriptenFullscreenStrategy strategy;
-    strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
-    strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
-    strategy.canvasResizedCallback = 0;
-    emscripten_enter_soft_fullscreen("canvas", &strategy); //not an error. Visual studio lies to you. Belive me. I'm catboy
-
+    
+    
+        EmscriptenFullscreenStrategy strategy;
+        strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_STRETCH;
+        strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
+        strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
+        strategy.canvasResizedCallback = 0;
+        emscripten_enter_soft_fullscreen("canvas", &strategy); //not an error. Visual studio lies to you. Belive me. I'm catboy
+    
 
     emscripten_set_main_loop(emscripten_render_loop, 0, 1);
 #endif

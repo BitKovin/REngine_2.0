@@ -56,6 +56,13 @@ private:
             glGenerateMipmap(GL_TEXTURE_2D);
         }
 
+        // Anisotropic filtering (if supported)
+        GLfloat maxAniso = 0.0f;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+        if (maxAniso > 0.0f) {
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+        }
+
         SDL_FreeSurface(converted_surface);
 
         valid = true;

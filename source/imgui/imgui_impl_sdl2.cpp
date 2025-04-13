@@ -98,6 +98,9 @@
 #ifndef IMGUI_DISABLE
 #include "imgui_impl_sdl2.h"
 
+#include "../EngineMain.h"
+#include "../Input.h"
+
 // Clang warnings with -Weverything
 #if defined(__clang__)
 #pragma clang diagnostic push
@@ -367,7 +370,7 @@ bool ImGui_ImplSDL2_ProcessEvent(const SDL_Event* event)
                 return false;
             ImVec2 mouse_pos((float)event->motion.x, (float)event->motion.y);
             io.AddMouseSourceEvent(event->motion.which == SDL_TOUCH_MOUSEID ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
-            io.AddMousePosEvent(mouse_pos.x, mouse_pos.y);
+            io.AddMousePosEvent(Input::MousePos.x, Input::MousePos.y);
             return true;
         }
         case SDL_MOUSEWHEEL:
@@ -652,7 +655,8 @@ static void ImGui_ImplSDL2_UpdateMouseData()
             int window_x, window_y, mouse_x_global, mouse_y_global;
             SDL_GetGlobalMouseState(&mouse_x_global, &mouse_y_global);
             SDL_GetWindowPosition(bd->Window, &window_x, &window_y);
-            io.AddMousePosEvent((float)(mouse_x_global - window_x), (float)(mouse_y_global - window_y));
+            io.AddMousePosEvent((float)(Input::MousePos.x), (float)(Input::MousePos.y));
+            printf("im gui mouse \n");
         }
     }
 }
@@ -798,12 +802,20 @@ void ImGui_ImplSDL2_NewFrame()
     int w, h;
     int display_w, display_h;
     SDL_GetWindowSize(bd->Window, &w, &h);
+
+    w = EngineMain::MainInstance->ScreenSize.x;
+    h = EngineMain::MainInstance->ScreenSize.y;
+
     if (SDL_GetWindowFlags(bd->Window) & SDL_WINDOW_MINIMIZED)
         w = h = 0;
     if (bd->Renderer != nullptr)
         SDL_GetRendererOutputSize(bd->Renderer, &display_w, &display_h);
     else
         SDL_GL_GetDrawableSize(bd->Window, &display_w, &display_h);
+
+    display_w = w;
+    display_h = h;
+
     io.DisplaySize = ImVec2((float)w, (float)h);
     if (w > 0 && h > 0)
         io.DisplayFramebufferScale = ImVec2((float)display_w / w, (float)display_h / h);

@@ -22,6 +22,8 @@ public:
 
 	virtual void Start() {}
 
+	virtual void UpdateDebugUI() {};
+
 	virtual void Finalize()
 	{
 

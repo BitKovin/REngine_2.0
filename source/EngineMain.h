@@ -60,6 +60,8 @@ public:
 
     static UiViewport Viewport;
 
+    ivec2 ScreenSize = ivec2();
+
 	EngineMain(SDL_Window* window)
 	{
 		Window = window;
@@ -68,6 +70,11 @@ public:
 	{
 
 	}
+
+
+
+
+    void UpdateScreenSize();
 
     ThreadPool MainThreadPool;
 
@@ -158,12 +165,12 @@ public:
 
         text = make_shared<UiText>();
 
-        text->position = vec2(0, 0);
+        text->position = vec2(20, -20);
 
         text->origin = vec2(0, 1);
         text->pivot = vec2(0, 1);
 
-        text->text = "text text";
+        text->text = "press T to lock/unlock cursor";
 
         Viewport.AddChild(img);
         Viewport.AddChild(text);
@@ -194,12 +201,11 @@ public:
 
         DebugDraw::Finalize();
 
-        int x, y;
-        SDL_GetWindowSize(Window, &x, &y);
+        UpdateScreenSize();
 
-        Camera::ScreenHeight = y;
+        Camera::ScreenHeight = ScreenSize.y;
 
-        float AspectRatio = static_cast<float>(x) / static_cast<float>(y);
+        float AspectRatio = static_cast<float>(ScreenSize.x) / static_cast<float>(ScreenSize.y);
         Camera::AspectRatio = AspectRatio;
 
         
@@ -260,10 +266,6 @@ public:
             //ToggleFullscreen(window);
             printf("framerate: %f  \n", (1 / Time::DeltaTime));
 
-            GLint samples = 0;
-            glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &samples);
-            std::cout << "Samples: " << samples << std::endl;
-
             Input::LockCursor = !Input::LockCursor;
 
             msaa = !msaa;
@@ -275,12 +277,7 @@ public:
 
 	void Render()
 	{
-
-        int x, y;
-        SDL_GetWindowSize(Window, &x, &y);
-        glViewport(0, 0, x, y);
-
-        
+        glViewport(0, 0, ScreenSize.x, ScreenSize.y);
 
         // Enable depth testing
         glEnable(GL_DEPTH_TEST);
@@ -320,15 +317,14 @@ public:
 
         DebugDraw::Draw();
 
-        bool showdemo = true;
-
-        ImGui::ShowDemoWindow(&showdemo);
 
         glDisable(GL_DEPTH_TEST);
 
         Viewport.Update();
 
         Viewport.Draw();
+
+        Level::Current->DevUiUpdate();
 
         RenderImGui();
 

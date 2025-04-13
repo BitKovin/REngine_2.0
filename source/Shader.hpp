@@ -71,6 +71,7 @@ public:
             std::string infoLog(logLength, ' ');
             glGetShaderInfoLog(shaderPointer, logLength, &logLength, &infoLog[0]);
             Logger::Log("Shader compilation failed:\n" + infoLog);
+            Logger::Log(shaderCode);
         }
     }
 };
