@@ -11,6 +11,8 @@
 #include "../SkeletalMesh.hpp"
 #include "../AssetRegisty.h"
 
+#include "../Navigation/PathFollowQuery.h"
+
 class TestNpc : public Entity
 {
 
@@ -19,6 +21,7 @@ private:
 	vec3 desiredDirection;
 	vec3 movingDirection;
 
+	PathFollowQuery pathFollow;
 
 public:
 
@@ -62,6 +65,8 @@ public:
 
 		desiredDirection = MathHelper::XZ(MathHelper::GetForwardVector(Rotation));
 		movingDirection = desiredDirection;
+
+		pathFollow.CalculatePathOnThread();
 
 	}
 

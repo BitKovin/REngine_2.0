@@ -17,16 +17,15 @@ void TestNpc::AsyncUpdate()
 
 	if (target)
 	{
-		auto path = NavigationSystem::FindSimplePath(Position, target->Position);
-
-		if (path.size()) 
-		{
-
-			desiredDirection = MathHelper::XZ(MathHelper::GetForwardVector(MathHelper::FindLookAtRotation(Position, path[0])));
-
-		}
+		pathFollow.UpdateStartAndTarget(Position, target->Position);
+		pathFollow.TryPerform();
 
 	}
+	if (pathFollow.FoundTarget)
+	{
+		desiredDirection = MathHelper::FastNormalize(MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position));
+	}
+	
 
 	movingDirection = mix(movingDirection, desiredDirection, Time::DeltaTime*5);
 

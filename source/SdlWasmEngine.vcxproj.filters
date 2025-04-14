@@ -225,6 +225,9 @@
     <ClCompile Include="Entities\TestNpc.cpp">
       <Filter>Header Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="Navigation\PathFollowQuery.cpp">
+      <Filter>Source Files\Navigation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SoundSystem\SoundInstance.hpp">
@@ -436,6 +439,9 @@
     </ClInclude>
     <ClInclude Include="MeshUtils.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Navigation\PathFollowQuery.h">
+      <Filter>Header Files\Navigation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
