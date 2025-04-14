@@ -362,6 +362,9 @@ bool ImGui_ImplSDL2_ProcessEvent(const SDL_Event* event)
     IM_ASSERT(bd != nullptr && "Context or backend not initialized! Did you call ImGui_ImplSDL2_Init()?");
     ImGuiIO& io = ImGui::GetIO();
 
+    Input::UpdateMousePosition();
+    io.AddMousePosEvent(Input::MousePos.x, Input::MousePos.y);
+
     switch (event->type)
     {
         case SDL_MOUSEMOTION:
@@ -370,7 +373,7 @@ bool ImGui_ImplSDL2_ProcessEvent(const SDL_Event* event)
                 return false;
             ImVec2 mouse_pos((float)event->motion.x, (float)event->motion.y);
             io.AddMouseSourceEvent(event->motion.which == SDL_TOUCH_MOUSEID ? ImGuiMouseSource_TouchScreen : ImGuiMouseSource_Mouse);
-            io.AddMousePosEvent(Input::MousePos.x, Input::MousePos.y);
+            
             return true;
         }
         case SDL_MOUSEWHEEL:
@@ -841,6 +844,10 @@ void ImGui_ImplSDL2_NewFrame()
 
     // Update game controllers (if enabled and available)
     ImGui_ImplSDL2_UpdateGamepads();
+
+    Input::UpdateMousePosition();
+    io.AddMousePosEvent(Input::MousePos.x, Input::MousePos.y);
+
 }
 
 //-----------------------------------------------------------------------------

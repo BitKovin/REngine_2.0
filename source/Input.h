@@ -58,6 +58,8 @@ public:
     // Update mouse state.
     static void UpdateMouse();
 
+    static void UpdateMousePosition();
+
     // Adds the mouse delta to a rolling average.
     static void AddMouseInput(const glm::vec2& delta);
 

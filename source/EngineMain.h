@@ -187,11 +187,13 @@ public:
     void MainLoop() {
 
 
-        ImStartFrame();
+        
 
         // Wait for game update here
         Time::Update();
         Input::Update();
+
+        ImStartFrame();
 
         Camera::Update(Time::DeltaTime);
         Level::Current->FinalizeFrame();

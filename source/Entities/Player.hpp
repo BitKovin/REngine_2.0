@@ -200,10 +200,12 @@ public:
 
         OnGround = CheckGroundAt(Position);
 
+        cameraRotation.y += Input::MouseDelta.x;
+        cameraRotation.x -= Input::MouseDelta.y;
+
         if (Input::LockCursor) 
         {
-            cameraRotation.y += Input::MouseDelta.x;
-            cameraRotation.x -= Input::MouseDelta.y;
+
 
 
             if (OnGround)

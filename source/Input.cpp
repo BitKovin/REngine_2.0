@@ -32,6 +32,10 @@ static float Distance(const glm::vec2& a, const glm::vec2& b) {
 }
 
 void Input::Update() {
+
+
+    UpdateMousePosition();
+
     // Calculate delta time. 
     Uint32 currentTime = SDL_GetTicks();
 
@@ -46,6 +50,26 @@ void Input::Update() {
 
     // Show or hide the cursor based on LockCursor.
     SDL_ShowCursor(LockCursor ? SDL_DISABLE : SDL_ENABLE);
+}
+
+void Input::UpdateMousePosition()
+{
+    int x, y;
+
+    int w, h;
+
+    SDL_GetMouseState(&x, &y);
+
+    SDL_GetWindowSize(EngineMain::MainInstance->Window, &w, &h);
+
+    glm::vec2 mousePos(static_cast<float>(x), static_cast<float>(y));
+
+    MouseDelta = PendingMouseDelta / 5.0f * sensitivity * -1.0f;
+
+    mousePos /= vec2(w, h);
+    mousePos *= vec2(EngineMain::MainInstance->ScreenSize.x, EngineMain::MainInstance->ScreenSize.y);
+
+    MousePos = mousePos;
 }
 
 
@@ -100,22 +124,7 @@ EM_JS(void, lock_cursor_js, (), {
 
  
 void Input::UpdateMouse() {
-    int x, y;
 
-    int w, h;
-
-    SDL_GetMouseState(&x, &y);
-
-    SDL_GetWindowSize(EngineMain::MainInstance->Window, &w, &h);
-
-    glm::vec2 mousePos(static_cast<float>(x), static_cast<float>(y));
-
-    MouseDelta = PendingMouseDelta / 5.0f * sensitivity * -1.0f;
-
-    mousePos /= vec2(w,h);
-    mousePos *= vec2(EngineMain::MainInstance->ScreenSize.x, EngineMain::MainInstance->ScreenSize.y);
-
-    MousePos = mousePos;
 
     
 
