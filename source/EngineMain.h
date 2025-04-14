@@ -118,7 +118,7 @@ public:
 
         InitInputs();
 
-        Level::OpenLevel("GameData/Maps/test.map");
+        
 
         initDemo();
 

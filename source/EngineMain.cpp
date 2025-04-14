@@ -45,6 +45,8 @@ void EngineMain::UpdateScreenSize()
 void EngineMain::initDemo()
 {
 
+    Level::OpenLevel("GameData/Maps/test2.map");
+
     auto sound = SoundManager::GetSoundFromPath("GameData/bass_beat.wav");
 
     sound.Loop = true;
@@ -55,7 +57,13 @@ void EngineMain::initDemo()
 
     for (size_t i = 0; i < 1500; i++)
     {
-        Level::Current->AddEntity(new TestNpc(vec3(2, 3 + i*1.2, 1)));
+        float angle = i * 0.1f; // Angle step controls tightness of the spiral
+        float radius = 0.5f * i; // Radius increases over time
+        float x = radius * cos(angle);
+        float y = radius * sin(angle);
+        float z = 1.0f + 0.05f * i; // Optional: slowly increase Z to make a helix
+
+        Level::Current->AddEntity(new TestNpc(vec3(x, y, z)));
     }
 
 }

@@ -53,6 +53,8 @@ void TestNpc::AsyncUpdate()
 	// Apply the calculated force to the body
 	LeadBody->AddForce(ToPhysics(horizontalForce));
 
+	Physics::Activate(LeadBody);
+
 	mesh->Rotation = vec3(0,MathHelper::FindLookAtRotation(vec3(), realMoveDirection).y, 0);
 
 }
