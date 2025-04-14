@@ -18,7 +18,7 @@ bool NavigationSystem::DebugDrawNavMeshEnabled = false;
 // Static member initialization
 dtNavMesh* NavigationSystem::navMesh = nullptr;
 dtTileCache* NavigationSystem::tileCache = nullptr;
-std::mutex NavigationSystem::mainLock;
+std::recursive_mutex NavigationSystem::mainLock;
 std::vector<dtObstacleRef> NavigationSystem::obstacles;
 
 // Custom allocator for tile cache
@@ -65,7 +65,7 @@ void NavigationSystem::DestroyNavData()
 {
 
 
-	std::lock_guard<std::mutex> lock(mainLock);
+	std::lock_guard<std::recursive_mutex> lock(mainLock);
 
     for (auto obstacle : obstacles)
     {
@@ -96,7 +96,7 @@ void NavigationSystem::GenerateNavData()
 
     auto mesh = Level::Current->GetStaticNavObstaclesMesh();
 
-    std::lock_guard<std::mutex> lock(mainLock);
+    std::lock_guard<std::recursive_mutex> lock(mainLock);
 
     // Define sample geometry: a flat square
     std::vector<glm::vec3> vertices = mesh.vertices;
@@ -381,7 +381,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
     if (!navMesh)
         return outPath;
 
-    std::lock_guard<std::mutex> lock(mainLock);
+    std::lock_guard<std::recursive_mutex> lock(mainLock);
 
     // Create a navmesh query instance.
     dtNavMeshQuery* navQuery = dtAllocNavMeshQuery();

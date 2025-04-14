@@ -15,6 +15,8 @@
 
 #include "MapData.h"
 
+#include "Level.hpp"
+
 using namespace std;
 
 class Entity : public LevelObject
@@ -35,6 +37,7 @@ public:
 
 	string Name = "";
 
+	bool Destroyed = false;
 
 	Entity()
 	{
@@ -65,10 +68,14 @@ public:
 
 	void Finalize()
 	{
-		for (IDrawMesh* mesh : Drawables)
-		{
-			mesh->FinalizeFrameData();
-		}
+
+	}
+
+	virtual void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr){}
+
+	virtual void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone = "", Entity* DamageCauser = nullptr, Entity* Weapon = nullptr)
+	{
+		OnDamage(Damage, DamageCauser, Weapon);
 	}
 
 	vector<IDrawMesh*> GetDrawMeshes()
@@ -86,9 +93,16 @@ public:
 		Drawables.clear();
 	}
 
-	void virtual Destroy()
+	void FinalLevelRemove()
 	{
 		DestroyDrawables();
+	}
+
+	void virtual Destroy()
+	{
+
+		Destroyed = true;
+
 		Physics::DestroyBody(LeadBody);
 		LeadBody = nullptr;
 		for (Body* body : Bodies)
@@ -96,6 +110,9 @@ public:
 			Physics::DestroyBody(body);
 		}
 		Bodies.clear();
+
+		Level::Current->RemoveEntity(this);
+
 	}
 
 protected:

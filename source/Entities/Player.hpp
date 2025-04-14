@@ -124,7 +124,7 @@ public:
     void FromData(EntityData data)
     {
         Entity::FromData(data);
-        cameraRotation.y = data.GetPropertyFloat("angle") - 90;
+        cameraRotation.y = data.GetPropertyFloat("angle") + 90;
     }
 
 	void Start()
@@ -191,7 +191,7 @@ public:
 
     bool OnGround = false;
 
-
+    void PerformAttack();
 
 	void Update()
 	{
@@ -219,17 +219,8 @@ public:
 
             if (Input::GetAction("attack")->Pressed())
             {
-                viewmodel->PlayAnimation("attack");
-                Camera::AddCameraShake(CameraShake(
-                    0.13f,                            // interpIn
-                    1.2f,                            // duration
-                    vec3(0.0f, 0.0f, -0.2f),         // positionAmplitude
-                    vec3(0.0f, 0.0f, 6.4f),          // positionFrequency
-                    vec3(-8, 0.15f, 0.0f),        // rotationAmplitude
-                    vec3(-5.0f, 28.8f, 0.0f),        // rotationFrequency
-                    1.2f,                            // falloff
-                    CameraShake::ShakeType::SingleWave // shakeType
-                ));
+
+                PerformAttack();
 
             }
 
@@ -284,6 +275,8 @@ public:
         Camera::position = Position + vec3(0, 0.7, 0);
         Camera::rotation = cameraRotation;
 
+        Camera::ApplyCameraShake(Time::DeltaTimeF);
+
         viewmodel->Update();
 
         arms->PasteAnimationPose(viewmodel->GetAnimationPose());
@@ -294,7 +287,7 @@ public:
         arms->Position = viewmodel->Position;
         arms->Rotation = viewmodel->Rotation;
 
-        Camera::ApplyCameraShake(Time::DeltaTimeF);
+
 
 	}
 

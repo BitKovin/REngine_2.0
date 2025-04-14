@@ -5,6 +5,8 @@
 
 #include "Physics.h"
 
+
+
 Level* Level::Current = nullptr;
 
 void Level::CloseLevel()
@@ -16,8 +18,11 @@ void Level::CloseLevel()
 	}
 	Current->LevelObjects.clear();
 
+	Current->RemovePendingEntities();
+
 	Physics::DestroyAllBodies();
 
+	Current->RemovePendingEntities();
 }
 
 Level* Level::OpenLevel(string filePath)
@@ -51,4 +56,20 @@ Level* Level::OpenLevel(string filePath)
 	printf("generated nav mesh");
 
 	return newLevel;
+}
+
+void Level::AsyncUpdate()
+{
+
+	RemovePendingEntities();
+
+	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+	for (auto var : LevelObjects)
+	{
+		asyncUpdateThreadPool->QueueJob([var]() {var->AsyncUpdate(); });
+	}
+
+	asyncUpdateThreadPool->WaitForFinish();
+
+	RemovePendingEntities();
 }

@@ -15,18 +15,18 @@ class TestCube : public Entity
 {
 public:
 
-	StaticMesh* mesh;
+	SkeletalMesh* mesh;
 
 	TestCube()
 	{
-		mesh = new StaticMesh();
+		mesh = new SkeletalMesh();
 	}
 
 	TestCube(vec3 pos)
 	{
 		Position = pos;
 
-		mesh = new StaticMesh();
+		mesh = new SkeletalMesh();
 
 		Start();
 
@@ -41,7 +41,9 @@ public:
 
 	void Start()
 	{
-		mesh->LoadFromFile("GameData/cube.obj");
+		mesh->LoadFromFile("GameData/dog.glb");
+		mesh->PlayAnimation("run");
+		mesh->SetLooped(true);
 		mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
 		Drawables.push_back(mesh);
@@ -50,9 +52,19 @@ public:
 
 	}
 
-	void Update()
+	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr)
 	{
-		mesh->Position = Position;
+		Destroy();
+	}
+
+	void AsyncUpdate()
+	{
+
+		mesh->UpdatePose = mesh->WasRended;
+
+		mesh->Update();
+
+		mesh->Position = Position - MathHelper::GetUpVector(Rotation)*0.5f;
 		mesh->Rotation = Rotation;
 	}
 

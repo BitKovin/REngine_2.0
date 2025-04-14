@@ -12,6 +12,8 @@
 
 #include "MeshUtils.hpp"
 
+#include "ThreadPool.h"
+
 using namespace std;
 
 class Level : EObject
@@ -19,8 +21,12 @@ class Level : EObject
 
 private:
 	vector<LevelObject*> LevelObjects = vector<LevelObject*>();
+	vector<LevelObject*> PendingRemoveLevelObjects = vector<LevelObject*>();
+	vector<LevelObject*> PendingMemoryCleanObjects = vector<LevelObject*>();
 
-	mutex entityArrayLock = mutex();
+	std::recursive_mutex entityArrayLock = std::recursive_mutex();
+
+	ThreadPool* asyncUpdateThreadPool;
 
 public:
 
@@ -28,14 +34,18 @@ public:
 
 	vector<IDrawMesh*> VissibleRenderList = vector<IDrawMesh*>();
 
+
+
 	Level()
 	{
-
+		asyncUpdateThreadPool = new ThreadPool();
+		asyncUpdateThreadPool->Start();
 	}
 
 	~Level()
 	{
-
+		asyncUpdateThreadPool->Stop();
+		delete(asyncUpdateThreadPool);
 	}
 
 	static void CloseLevel();
@@ -44,7 +54,7 @@ public:
 
 	MeshUtils::PositionVerticesIndices GetStaticNavObstaclesMesh()
 	{
-		entityArrayLock.lock();
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 
 		vector<MeshUtils::PositionVerticesIndices> meshes;
 
@@ -63,7 +73,6 @@ public:
 			}
 		}
 
-		entityArrayLock.unlock();
 
 
 		MeshUtils::PositionVerticesIndices resultMesh = MeshUtils::MergeMeshes(meshes);
@@ -74,52 +83,97 @@ public:
 	
 	void AddEntity(LevelObject* entity)
 	{
-		entityArrayLock.lock();
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
 		LevelObjects.push_back(entity);
-		entityArrayLock.unlock();
+
 	}
 
 	void RemoveEntity(LevelObject* entity)
 	{
-		entityArrayLock.lock();
-		auto it = std::find(LevelObjects.begin(), LevelObjects.end(), entity);
-		if (it != LevelObjects.end())
-		{
-			LevelObjects.erase(it);
-		}
-		entityArrayLock.unlock();
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
+		PendingRemoveLevelObjects.push_back(entity);
+
+		
+
 	}
 
+	void RemovePendingEntities()
+	{
 
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
+		for (auto entity : PendingRemoveLevelObjects)
+		{
+			auto it = std::find(LevelObjects.begin(), LevelObjects.end(), entity);
+			if (it != LevelObjects.end())
+			{
+				LevelObjects.erase(it);
+			}
+
+			PendingMemoryCleanObjects.push_back(entity);
+
+		}
+
+		PendingRemoveLevelObjects.clear();
+		
+	}
+
+	void MemoryCleanPendingEntities()
+	{
+
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
+		for (auto entity : PendingMemoryCleanObjects)
+		{
+
+			entity->FinalLevelRemove();
+
+		}
+
+		PendingMemoryCleanObjects.clear();
+
+	}
 
 	void UpdatePhysics()
 	{
-		entityArrayLock.lock();
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
 		for (auto var : LevelObjects)
 		{
 			var->UpdatePhysics();
 		}
-		entityArrayLock.unlock();
+
 	}
 
 	void Update()
 	{
-		entityArrayLock.lock();
+
+		RemovePendingEntities();
+
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 		for (auto var : LevelObjects)
 		{
 			var->Update();
 		}
-		entityArrayLock.unlock();
+
+		RemovePendingEntities();
+
 	}
+
+	void AsyncUpdate();
 
 	void DevUiUpdate()
 	{
-		entityArrayLock.lock();
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 		for (auto var : LevelObjects)
 		{
 			var->UpdateDebugUI();
 		}
-		entityArrayLock.unlock();
+
+		RemovePendingEntities();
+
 	}
 
 	void FinalizeFrame()
@@ -130,31 +184,40 @@ public:
 		vector<IDrawMesh*> opaque;
 		vector<IDrawMesh*> transparent;
 
-		entityArrayLock.lock();
-		for (auto var : LevelObjects)
-		{	
+		{
 
-			for (IDrawMesh* mesh : var->GetDrawMeshes())
+			std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
+			for (auto var : LevelObjects)
 			{
-				if (mesh->IsCameraVisible())
+
+				for (IDrawMesh* mesh : var->GetDrawMeshes())
 				{
-					if (mesh->Transparent)
+					if (mesh->IsCameraVisible())
 					{
-						transparent.push_back(mesh);
+						if (mesh->Transparent)
+						{
+							transparent.push_back(mesh);
+						}
+						else
+						{
+							opaque.push_back(mesh);
+						}
+
+						mesh->FinalizeFrameData();
+
+						mesh->LastRenderedTime = Time::GameTime;
+						mesh->WasRended = true;
 					}
 					else
 					{
-						opaque.push_back(mesh);
+						mesh->WasRended = false;
 					}
-
-					var->Finalize();
-
 				}
+
 			}
-
 		}
-
-		entityArrayLock.unlock();
+		
 
 
 		// Sort opaque objects from closest to farthest (ascending order by distance).

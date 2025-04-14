@@ -195,7 +195,10 @@ void roj::Animator::update(float dt)
         m_playing  = (m_loopEnabled) ? true : (m_currTime < m_currAnim->duration);
         m_currTime = m_currTime + (m_currAnim->ticksPerSec * dt);
 
-        calcBoneTransform(m_currAnim->rootBone, glm::mat4(1.0f));
+        if (UpdatePose) 
+        {
+            calcBoneTransform(m_currAnim->rootBone, glm::mat4(1.0f));
+        }
     }
 }
 

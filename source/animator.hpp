@@ -40,6 +40,9 @@ public:
 	Animator(SkinnedModel* model);
     void play();
     void set(const std::string& name);
+
+    bool UpdatePose = true;
+
     std::vector<std::string> get();
     std::vector<glm::mat4>& getBoneMatrices();
 

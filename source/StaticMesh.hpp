@@ -36,6 +36,10 @@ protected:
 
 	int numInstances = -1;
 
+	void OnDispose()
+	{
+
+	}
 
 public:
 

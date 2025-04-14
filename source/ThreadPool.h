@@ -21,6 +21,8 @@ public:
     void Stop();
     bool IsBusy();
 
+    void WaitForFinish();
+
     static inline bool Supported()
     {
 #ifdef DISABLE_TREADPOOL

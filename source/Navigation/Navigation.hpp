@@ -24,7 +24,7 @@ private:
 	static dtNavMesh* navMesh;
 	static dtTileCache* tileCache;
 
-    static mutex mainLock;
+    static std::recursive_mutex mainLock;
 
     static vector<dtObstacleRef> obstacles;
 
@@ -37,7 +37,7 @@ public:
     static void Update()
     {
         
-        std::lock_guard<std::mutex> lock(mainLock);
+        std::lock_guard<std::recursive_mutex> lock(mainLock);
 
         bool upToDate = false;
         auto status = tileCache->update(Time::DeltaTimeF, navMesh, &upToDate);
@@ -64,7 +64,7 @@ public:
         if (!navMesh)
             return;
 
-        std::lock_guard<std::mutex> lock(mainLock);
+        std::lock_guard<std::recursive_mutex> lock(mainLock);
 
         const int maxTiles = navMesh->getMaxTiles();
         for (int i = 0; i < maxTiles; ++i)
@@ -115,7 +115,7 @@ public:
         if (!tileCache || obstacleRef == 0)
             return;
 
-        std::lock_guard<std::mutex> lock(mainLock);
+        std::lock_guard<std::recursive_mutex> lock(mainLock);
 
 
 

@@ -94,7 +94,7 @@ struct BodyData
 
 	~BodyData()
 	{
-		printf("deleting body data");
+		
 	}
 
 	BodyType group;
@@ -312,7 +312,7 @@ private:
 
 	static vector<Body*> existingBodies;
 
-	static mutex physicsMainLock;
+	static std::recursive_mutex physicsMainLock;
 
 public:
 	
@@ -482,6 +482,11 @@ public:
 		bodyInterface->SetGravityFactor(body->GetID(), factor);
 	}
 
+	static void SetBodyCCDEnabled(Body* body, bool enabled)
+	{
+		bodyInterface->SetMotionQuality(body->GetID(), enabled ? EMotionQuality::LinearCast : EMotionQuality::Discrete);
+	}
+
 	/**
  * Creates a MeshShape for a static mesh in Jolt Physics.
  * @param vertices A vector of 3D vertex positions (vec3).
@@ -531,6 +536,7 @@ public:
 		// Return the successfully created shape
 		return result.Get();
 	}
+
 
 	static RefConst<Shape> CreateConvexHullFromPoints(const std::vector<glm::vec3>& points)
 	{
@@ -644,8 +650,10 @@ public:
 			ToPhysics(Position),
 			JPH::Quat::sIdentity(),
 			JPH::EMotionType::Dynamic,  // Dynamic body type
-			Layers::MOVING              // Use moving layer
+			Layers::MOVING             // Use moving layer
 		);
+
+		body_settings.mMotionQuality = EMotionQuality::LinearCast;
 
 		// Lock rotation in all axes
 		body_settings.mAllowedDOFs = JPH::EAllowedDOFs::TranslationX | JPH::EAllowedDOFs::TranslationY | JPH::EAllowedDOFs::TranslationZ;  // Allow only translation
@@ -674,6 +682,7 @@ public:
 		vec3 normal;     // World space hit normal.
 		const JPH::Body* hitbody; // ID of the hit body.
 		float fraction;  // Fraction along the ray where the hit occurred.
+		Entity* entity;
 	};
 
 	static HitResult LineTrace(const vec3 start, const vec3 end, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {})
@@ -729,6 +738,11 @@ public:
 
 			// Record the hit body and shape.
 			hit.hitbody = body;
+
+			auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
+
+			hit.entity = props->OwnerEntity;
+
 		}
 		else
 		{
@@ -737,6 +751,7 @@ public:
 			hit.position = end;
 			hit.normal = vec3(0, 0, 0);
 			hit.hitbody = nullptr; // Invalid body ID.
+			hit.entity = nullptr;
 		}
 
 		//physicsMainLock.unlock();
@@ -838,6 +853,10 @@ public:
 				hit.normal = vec3(0, 0, 0);
 			}
 
+			auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
+
+			hit.entity = props->OwnerEntity;
+
 			// Record the hit body.
 			hit.hitbody = body;
 			hit.hasHit = true;
@@ -850,6 +869,9 @@ public:
 			hit.normal = vec3(0, 0, 0);
 			hit.hitbody = nullptr;
 			hit.hasHit = false;
+
+			hit.entity = nullptr;
+
 		}
 
 		//physicsMainLock.unlock();

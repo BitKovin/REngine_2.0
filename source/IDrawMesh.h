@@ -24,6 +24,9 @@ public:
 
 	bool StaticNavigation = false;
 
+	double LastRenderedTime = 0;
+	bool WasRended = true;
+
 	virtual ~IDrawMesh() {}
 
 	virtual float GetDistanceToCamera()

@@ -42,6 +42,24 @@ void EngineMain::UpdateScreenSize()
 #endif // __EMSCRIPTEN__
 }
 
+void EngineMain::initDemo()
+{
+
+    auto sound = SoundManager::GetSoundFromPath("GameData/bass_beat.wav");
+
+    sound.Loop = true;
+
+
+    texture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
+
+
+    for (size_t i = 0; i < 1500; i++)
+    {
+        Level::Current->AddEntity(new TestCube(vec3(2, 3 + i*1.2, 1)));
+    }
+
+}
+
 void EngineMain::InitInputs()
 {
     Input::AddAction("forward")->AddKeyboardKey(SDL_GetScancodeFromKey(SDL_KeyCode::SDLK_w));

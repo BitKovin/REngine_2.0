@@ -86,31 +86,7 @@ public:
         SDL_ShowCursor(SDL_ENABLE);
     }
 
-    void initDemo()
-    {
-        auto sound = SoundManager::GetSoundFromPath("GameData/bass_beat.wav");
-
-        sound.Loop = true;
-
-
-        texture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
-
-
-        //auto player = new Player();
-
-        //Level::Current->AddEntity(player);
-
-        //player->Position = vec3(0,3,0);
-
-        //player->Start();
-
-        Level::Current->AddEntity(new TestCube(vec3(2, 3, 1)));
-        Level::Current->AddEntity(new TestCube(vec3(2, 4, 1)));
-        Level::Current->AddEntity(new TestCube(vec3(2, 4, 0.5)));
-        Level::Current->AddEntity(new TestCube(vec3(2, 5, 1)));
-        Level::Current->AddEntity(new TestCube(vec3(1, 5, 1)));
-
-    }
+    void initDemo();
 
     void InitInputs();
 
@@ -177,23 +153,11 @@ public:
 
 	}
 
-    // Toggle asynchronous GameUpdate.
-    bool asyncGameUpdate = true;
+    void FinishFrame()
+    {
 
-    // Store the future of the async update.
-    std::future<void> gameUpdateFuture;
-
-    // Main game loop.
-    void MainLoop() {
-
-
-        
-
-        // Wait for game update here
-        Time::Update();
-        Input::Update();
-
-        ImStartFrame();
+        Level::Current->RemovePendingEntities();
+        Level::Current->MemoryCleanPendingEntities();
 
         Camera::Update(Time::DeltaTime);
         Level::Current->FinalizeFrame();
@@ -209,7 +173,31 @@ public:
 
         float AspectRatio = static_cast<float>(ScreenSize.x) / static_cast<float>(ScreenSize.y);
         Camera::AspectRatio = AspectRatio;
+    }
 
+    // Toggle asynchronous GameUpdate.
+    bool asyncGameUpdate = true;
+
+    // Store the future of the async update.
+    std::future<void> gameUpdateFuture;
+
+    // Main game loop.
+    void MainLoop() 
+    {
+
+        // Wait for game update here
+       
+
+        ImStartFrame();
+
+        if (asyncGameUpdate)
+        {
+            FinishFrame();
+        }
+        
+
+        Time::Update();
+        Input::Update();
         
         Input::UpdateMouse();
 
@@ -223,6 +211,11 @@ public:
         else {
             // Run GameUpdate on the main thread.
             GameUpdate();
+        }
+
+        if (asyncGameUpdate == false)
+        {
+            FinishFrame();
         }
 
         Render();
@@ -262,6 +255,8 @@ public:
         Level::Current->UpdatePhysics();
 
         Level::Current->Update();
+
+        Level::Current->AsyncUpdate();
 
         if (Input::GetAction("test")->Pressed())
         {

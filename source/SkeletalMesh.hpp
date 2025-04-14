@@ -76,6 +76,8 @@ private:
 
 	bool firstAnimation = true;
 
+
+
 	float GetBlendInProgress()
 	{
 		double currentTime = Time::GameTime;
@@ -103,6 +105,9 @@ protected:
 	}
 
 public:
+
+
+	bool UpdatePose = true;
 
 	AnimationPose GetAnimationPose()
 	{
@@ -137,6 +142,8 @@ public:
 		if (firstAnimation || animator.m_currAnim == nullptr)
 		{
 			interpIn = 0;
+			blendStartTime = -1;
+			blendEndTime = 0;
 			firstAnimation = false;
 		}
 
@@ -152,7 +159,12 @@ public:
 
 	void Update(float timeScale = 1)
 	{
+
+		animator.UpdatePose = UpdatePose;
+
 		animator.update(Time::DeltaTimeF * timeScale);
+
+		if (UpdatePose == false) return;
 
 		float blendProgress = GetBlendInProgress();
 

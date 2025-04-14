@@ -659,7 +659,6 @@ static void ImGui_ImplSDL2_UpdateMouseData()
             SDL_GetGlobalMouseState(&mouse_x_global, &mouse_y_global);
             SDL_GetWindowPosition(bd->Window, &window_x, &window_y);
             io.AddMousePosEvent((float)(Input::MousePos.x), (float)(Input::MousePos.y));
-            printf("im gui mouse \n");
         }
     }
 }
