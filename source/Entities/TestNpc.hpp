@@ -11,18 +11,25 @@
 #include "../SkeletalMesh.hpp"
 #include "../AssetRegisty.h"
 
-class TestCube : public Entity
+class TestNpc : public Entity
 {
+
+private:
+
+	vec3 desiredDirection;
+	vec3 movingDirection;
+
+
 public:
 
 	SkeletalMesh* mesh;
 
-	TestCube()
+	TestNpc()
 	{
 		mesh = new SkeletalMesh();
 	}
 
-	TestCube(vec3 pos)
+	TestNpc(vec3 pos)
 	{
 		Position = pos;
 
@@ -32,7 +39,7 @@ public:
 
 	}
 
-	~TestCube()
+	~TestNpc()
 	{
 
 	}
@@ -46,9 +53,15 @@ public:
 		mesh->SetLooped(true);
 		mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
+		mesh->Position = Position;
+		mesh->Rotation = Rotation;
+
 		Drawables.push_back(mesh);
 
-		LeadBody = Physics::CreateBoxBody(this, Position, vec3(1), 10, false);
+		LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 2, 50);
+
+		desiredDirection = MathHelper::XZ(MathHelper::GetForwardVector(Rotation));
+		movingDirection = desiredDirection;
 
 	}
 
@@ -57,18 +70,9 @@ public:
 		Destroy();
 	}
 
-	void AsyncUpdate()
-	{
-
-		mesh->UpdatePose = mesh->WasRended;
-
-		mesh->Update();
-
-		mesh->Position = Position - MathHelper::GetUpVector(Rotation)*0.5f;
-		mesh->Rotation = Rotation;
-	}
+	void AsyncUpdate();
 
 
-private:
+
 
 };

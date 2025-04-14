@@ -2,6 +2,8 @@
 
 REGISTER_LEVEL_OBJECT(Player, "info_player_start")
 
+Player* Player::Instance = nullptr;
+
 void Player::PerformAttack()
 {
     viewmodel->PlayAnimation("attack");
@@ -16,7 +18,8 @@ void Player::PerformAttack()
         CameraShake::ShakeType::SingleWave // shakeType
     ));
 
-    auto hit = Physics::LineTrace(Camera::position, Camera::position + Camera::Forward() * 1000.0f, BodyType::GroupHitTest | BodyType::CharacterCapsule, { LeadBody });
+    auto hit = Physics::LineTrace(Camera::position, Camera::position + Camera::Forward() * 1000.0f, 
+        BodyType::GroupHitTest | BodyType::CharacterCapsule, { LeadBody });
 
     if (hit.hasHit)
     {

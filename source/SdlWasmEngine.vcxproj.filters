@@ -222,6 +222,9 @@
     <ClCompile Include="Entities\WorldSpawn.cpp">
       <Filter>Header Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="Entities\TestNpc.cpp">
+      <Filter>Header Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SoundSystem\SoundInstance.hpp">
@@ -302,7 +305,7 @@
     <ClInclude Include="PhysicsConverter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Entities\TestCube.hpp">
+    <ClInclude Include="Entities\TestNpc.hpp">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
     <ClInclude Include="ThreadPool.h">

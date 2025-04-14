@@ -14,7 +14,7 @@
 #include "Level.hpp"
 
 #include "Entities/Player.hpp"
-#include "Entities/TestCube.hpp"
+#include "Entities/TestNpc.hpp"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

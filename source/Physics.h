@@ -482,6 +482,11 @@ public:
 		bodyInterface->SetGravityFactor(body->GetID(), factor);
 	}
 
+	static void SetLinearVelocity(Body* body, vec3 velocity)
+	{
+		bodyInterface->SetLinearVelocity(body->GetID(), Vec3(velocity.x, velocity.y, velocity.z));
+	}
+
 	static void SetBodyCCDEnabled(Body* body, bool enabled)
 	{
 		bodyInterface->SetMotionQuality(body->GetID(), enabled ? EMotionQuality::LinearCast : EMotionQuality::Discrete);

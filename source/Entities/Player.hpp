@@ -121,6 +121,8 @@ public:
 
 	float Speed = 5;
 
+    static Player* Instance;
+
     void FromData(EntityData data)
     {
         Entity::FromData(data);
@@ -129,7 +131,10 @@ public:
 
 	void Start()
 	{
-		LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 1.8, 70);
+
+        Instance = this;
+
+		LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 1.8, 90);
         Physics::SetGravityFactor(LeadBody, 3);
 
         viewmodel->LoadFromFile("GameData/testViewmodel.glb");
@@ -147,6 +152,14 @@ public:
         Drawables.push_back(arms);
 
 	}
+
+    void Destroy()
+    {
+        Entity::Destroy();
+
+        Instance = nullptr;
+
+    }
 
     dtObstacleRef playerObstacle = 0;
 

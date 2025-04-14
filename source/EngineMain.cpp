@@ -55,7 +55,7 @@ void EngineMain::initDemo()
 
     for (size_t i = 0; i < 1500; i++)
     {
-        Level::Current->AddEntity(new TestCube(vec3(2, 3 + i*1.2, 1)));
+        Level::Current->AddEntity(new TestNpc(vec3(2, 3 + i*1.2, 1)));
     }
 
 }

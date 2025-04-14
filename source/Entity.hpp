@@ -98,7 +98,7 @@ public:
 		DestroyDrawables();
 	}
 
-	void virtual Destroy()
+	virtual void Destroy()
 	{
 
 		Destroyed = true;

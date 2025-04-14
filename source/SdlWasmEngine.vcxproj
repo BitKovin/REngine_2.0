@@ -236,6 +236,7 @@
     <ClCompile Include="DebugDraw.cpp" />
     <ClCompile Include="EngineMain.cpp" />
     <ClCompile Include="Entities\Player.cpp" />
+    <ClCompile Include="Entities\TestNpc.cpp" />
     <ClCompile Include="Entities\WorldSpawn.cpp" />
     <ClCompile Include="Entity.hpp" />
     <ClCompile Include="EObject.hpp" />
@@ -297,7 +298,7 @@
     <ClInclude Include="Delay.hpp" />
     <ClInclude Include="EngineMain.h" />
     <ClInclude Include="Entities\Player.hpp" />
-    <ClInclude Include="Entities\TestCube.hpp" />
+    <ClInclude Include="Entities\TestNpc.hpp" />
     <ClInclude Include="Entities\WorldSpawn.h" />
     <ClInclude Include="FrustrumCull.hpp" />
     <ClInclude Include="gl.h" />
