@@ -27,16 +27,16 @@ void TestNpc::AsyncUpdate()
 	}
 	
 
-	movingDirection = mix(movingDirection, desiredDirection, Time::DeltaTime*5);
+	movingDirection = mix(movingDirection, desiredDirection, Time::DeltaTime*3);
 
-	vec3 realMoveDirection = MathHelper::FastNormalize(movingDirection);
+	movingDirection = MathHelper::FastNormalize(movingDirection);
 
 	// Get the current horizontal velocity (preserving the vertical component from physics)
 	vec3 currentVelocity = FromPhysics(LeadBody->GetLinearVelocity());
 	vec3 currentHorizontalVel(currentVelocity.x, 0.0f, currentVelocity.z);
 
 	// Determine the desired horizontal velocity (5.0f is the intended speed)
-	vec3 desiredHorizontalVel = realMoveDirection * 5.0f;
+	vec3 desiredHorizontalVel = movingDirection * 5.0f;
 
 	// Calculate the change in velocity you need to achieve over the current frame
 	// Using Time::DeltaTime (dt) to convert velocity difference to the required acceleration
@@ -55,6 +55,6 @@ void TestNpc::AsyncUpdate()
 
 	Physics::Activate(LeadBody);
 
-	mesh->Rotation = vec3(0,MathHelper::FindLookAtRotation(vec3(), realMoveDirection).y, 0);
+	mesh->Rotation = vec3(0,MathHelper::FindLookAtRotation(vec3(), movingDirection).y, 0);
 
 }

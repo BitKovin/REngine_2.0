@@ -63,6 +63,8 @@ public:
 
 		LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 2, 50);
 
+		Physics::SetGravityFactor(LeadBody, 4);
+
 		desiredDirection = MathHelper::XZ(MathHelper::GetForwardVector(Rotation));
 		movingDirection = desiredDirection;
 
