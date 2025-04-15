@@ -5,12 +5,15 @@
 
 #include "Physics.h"
 
-
+#include "EngineMain.h"
 
 Level* Level::Current = nullptr;
 
 void Level::CloseLevel()
 {
+
+	EngineMain::MainInstance->MainThreadPool.Stop();
+
 	for (LevelObject* obj : Current->LevelObjects)
 	{
 		obj->Dispose();
@@ -39,6 +42,8 @@ Level* Level::OpenLevel(string filePath)
 	Level* newLevel = new Level();
 
 	Current = newLevel;
+
+	EngineMain::MainInstance->MainThreadPool.Start();
 
 	MapData mapData = MapParser::ParseMap(filePath);
 

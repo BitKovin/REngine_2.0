@@ -22,7 +22,11 @@ public:
 
 	bool FoundTarget = false;
 
+
+
 private:
+
+	bool Canceled = false;
 
 	std::recursive_mutex targetLocationsMutex;
 

@@ -405,14 +405,20 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
     dtPolyRef startRef, endRef;
     float extents[3] = { 0.4, 1.5, 0.4 };  // search extents in each axis
 
+    float extentsSmall[3] = { 0.05, 1.5, 0.05 };  // search extents in each axis
+
     float startPos[3] = { start.x, start.y - 0.5f, start.z };
     float targetPos[3] = { target.x, target.y - 0.5f, target.z };
 
-    status = navQuery->findNearestPoly(startPos, extents, &filter, &startRef, nullptr);
+    status = navQuery->findNearestPoly(startPos, extentsSmall, &filter, &startRef, nullptr);
     if (dtStatusFailed(status) || !startRef)
     {
-        dtFreeNavMeshQuery(navQuery);
-        return outPath;
+        status = navQuery->findNearestPoly(startPos, extents, &filter, &startRef, nullptr);
+        if (dtStatusFailed(status) || !startRef)
+        {
+            dtFreeNavMeshQuery(navQuery);
+            return outPath;
+        }
     }
 
     status = navQuery->findNearestPoly(targetPos, extents, &filter, &endRef, nullptr);

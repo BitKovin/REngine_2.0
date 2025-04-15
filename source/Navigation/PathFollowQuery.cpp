@@ -8,13 +8,23 @@ PathFollowQuery::PathFollowQuery()
 {
 }
 
-PathFollowQuery::~PathFollowQuery()
+PathFollowQuery::~PathFollowQuery()//since it's very rate that enemy will die and just get destroyed at the same time
 {
+
+	Canceled = true;
+
+	while (Performing)
+	{
+
+	}
 }
 
 void PathFollowQuery::TryPerform()
 {
+
 	if (Performing) return;
+
+	if (Canceled) return;
 
 	Performing = true;
 
@@ -31,6 +41,15 @@ void PathFollowQuery::CalculatePathOnThread()
 	s = desiredStart;
 	t = desiredTarget;
 	targetLocationsMutex.unlock();
+
+	if (Canceled)
+	{
+		Performing = false;
+
+		printf("I have doubt that it will ever trigger, so I print text to see if it ever happens. \n");
+
+		return;
+	}
 
 	auto path = NavigationSystem::FindSimplePath(s, t);
 	if (path.size())

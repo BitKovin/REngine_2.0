@@ -129,6 +129,7 @@ public:
 		{
 
 			entity->FinalLevelRemove();
+			delete(entity);
 
 		}
 
