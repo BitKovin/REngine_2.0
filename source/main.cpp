@@ -16,6 +16,10 @@
 #include "gl.h"
 
 
+#include <deque>
+#include <algorithm>
+#include <array>
+
 
 SDL_Window *window;
 
@@ -215,53 +219,64 @@ void InitImGui()
 
 int curH, curW = -1;
 
-void emscripten_render_loop()
-{
+// Mouse delta history for filtering
+std::deque<vec2> delta_history;
+const size_t history_size = 3;
 
-    int x, y;
+void emscripten_render_loop() {
+    // Reset pending delta each frame
+    Input::PendingMouseDelta = vec2(0, 0);
 
-    SDL_GetRelativeMouseState(&x, &y);
-
-
-    if (abs(x) > 500 || abs(y) > 500) 
-    {
-        Logger::Log(std::to_string(x) + "  " + std::to_string(x));
-    }
-    else
-    {
-        Input::PendingMouseDelta = vec2(x, y) * 2.0F;
-    }
-
+    // Process SDL events
     SDL_Event event;
-    while (SDL_PollEvent(&event))
-	{
+    while (SDL_PollEvent(&event)) {
         ImGui_ImplSDL2_ProcessEvent(&event);
 
-        switch (event.type)
-        {
-            break;
+        switch (event.type) {
         case SDL_WINDOWEVENT:
-            if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-            {
+            if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 update_screen_size(event.window.data1, event.window.data2);
-
             }
+            break;
+        case SDL_MOUSEMOTION:
+            // Accumulate raw mouse delta
+            Input::PendingMouseDelta += vec2(event.motion.xrel, event.motion.yrel) * 3.0f;
             break;
         default:
             break;
         }
-
-        if (event.type == SDL_MOUSEMOTION)
-        {
-
-            //Input::PendingMouseDelta += vec2(event.motion.xrel, event.motion.yrel);
-
-        }
-
     }
 
+    // Store this frame's delta in history
+    delta_history.push_back(Input::PendingMouseDelta);
+    if (delta_history.size() > history_size) {
+        delta_history.pop_front();
+    }
+
+    // Apply median filter if we have enough history
+    vec2 filtered_delta = Input::PendingMouseDelta;
+    if (delta_history.size() == history_size) {
+        std::array<float, history_size> x_deltas;
+        std::array<float, history_size> y_deltas;
+        for (size_t i = 0; i < history_size; ++i) {
+            x_deltas[i] = delta_history[i].x;
+            y_deltas[i] = delta_history[i].y;
+        }
+        std::sort(x_deltas.begin(), x_deltas.end());
+        std::sort(y_deltas.begin(), y_deltas.end());
+        filtered_delta.x = x_deltas[history_size / 2]; // Median
+        filtered_delta.y = y_deltas[history_size / 2];
+    }
+
+    // Temporarily set PendingMouseDelta to filtered value for engine
+    vec2 original_delta = Input::PendingMouseDelta;
+    Input::PendingMouseDelta = filtered_delta;
+
+    // Call engine main loop
     engine->MainLoop();
 
+    // Restore original delta (if engine doesn't consume it)
+    Input::PendingMouseDelta = original_delta;
 }
 
 int main(int argc, char* args[]) 

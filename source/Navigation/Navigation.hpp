@@ -101,7 +101,7 @@ public:
                     if (glm::distance(p0, p1) < 0.001f)
                         continue;
 
-                    if (distance(Camera::position, p1) > 20)
+                    if (distance(Camera::position, p1) > 100)
                         continue;
 
                     DebugDraw::Line(p0, p1, Time::DeltaTimeF / 2, 0.01); // longer duration for better visibility

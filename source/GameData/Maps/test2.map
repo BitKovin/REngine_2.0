@@ -3,7 +3,7 @@
 // entity 0
 {
 "classname" "worldspawn"
-"_tb_textures" "textures/brushes"
+"_tb_textures" "textures/brushes;textures\brushes\libreQuake;textures\brushes\libreQuake\lq_terra"
 "globalLightBrightness" "1.5"
 "directLightBrightness" "3"
 "dynamicSunShadowsEnabled" "true"
@@ -10782,12 +10782,12 @@
 }
 // brush 1150
 {
-( -11856 11072 16 ) ( -11856 -9184 16 ) ( -11856 -9184 -16 ) brushes/tiling 0 0 0 0.03 0.03
-( -11856 -9184 16 ) ( 7984 -9184 16 ) ( 7984 -9184 -16 ) brushes/tiling 0 0 0 0.03 0.03
-( 7984 -9184 -16 ) ( 7984 11072 -16 ) ( -11856 11072 -16 ) brushes/tiling 0 0 0 0.03 0.03
-( -11856 11072 16 ) ( 7984 11072 16 ) ( 7984 -9184 16 ) brushes/tiling 0 0 0 0.03 0.03
-( 7984 11072 -16 ) ( 7984 11072 16 ) ( -11856 11072 16 ) brushes/tiling 0 0 0 0.03 0.03
-( 7984 -9184 16 ) ( 7984 11072 16 ) ( 7984 11072 -16 ) brushes/tiling 0 0 0 0.03 0.03
+( -11856 11072 16 ) ( -11856 -9184 16 ) ( -11856 -9184 -16 ) brushes/libreQuake/lq_terra/badlawn 0 0 0 1 1
+( -11856 -9184 16 ) ( 7984 -9184 16 ) ( 7984 -9184 -16 ) brushes/libreQuake/lq_terra/badlawn 0 0 0 1 1
+( 7984 -9184 -16 ) ( 7984 11072 -16 ) ( -11856 11072 -16 ) brushes/libreQuake/lq_terra/badlawn 0 0 0 1 1
+( -11856 11072 16 ) ( 7984 11072 16 ) ( 7984 -9184 16 ) brushes/libreQuake/lq_terra/badlawn 0 0 0 1 1
+( 7984 11072 -16 ) ( 7984 11072 16 ) ( -11856 11072 16 ) brushes/libreQuake/lq_terra/badlawn 0 0 0 1 1
+( 7984 -9184 16 ) ( 7984 11072 16 ) ( 7984 11072 -16 ) brushes/libreQuake/lq_terra/badlawn 0 0 0 1 1
 }
 // brush 1151
 {
@@ -11577,12 +11577,12 @@
 "_tb_layer" "2"
 // brush 0
 {
-( -320 528 1120 ) ( -320 -672 1120 ) ( -320 -672 16 ) brushes/hole_t 0 0 0 0.5 0.5
-( -320 -672 1120 ) ( 512 -672 1120 ) ( 512 -672 16 ) brushes/hole_t 0 0 0 0.5 0.5
-( 512 -672 16 ) ( 512 528 16 ) ( -320 528 16 ) brushes/hole_t 0 0 0 0.5 0.5
-( -320 528 1120 ) ( 512 528 1120 ) ( 512 -672 1120 ) brushes/hole_t 0 0 0 0.5 0.5
-( 512 528 16 ) ( 512 528 1120 ) ( -320 528 1120 ) brushes/hole_t 0 0 0 0.5 0.5
-( 512 -672 1120 ) ( 512 528 1120 ) ( 512 528 16 ) brushes/hole_t 0 0 0 0.5 0.5
+( -320 528 -240 ) ( -320 -672 -240 ) ( -320 -672 -1344 ) brushes/hole_t 0 -32 0 0.5 0.5
+( -320 -672 -240 ) ( 512 -672 -240 ) ( 512 -672 -1344 ) brushes/hole_t 0 -32 0 0.5 0.5
+( 512 -672 -1344 ) ( 512 528 -1344 ) ( -320 528 -1344 ) brushes/hole_t 0 0 0 0.5 0.5
+( -320 528 -240 ) ( 512 528 -240 ) ( 512 -672 -240 ) brushes/hole_t 0 0 0 0.5 0.5
+( 512 528 -1344 ) ( 512 528 -240 ) ( -320 528 -240 ) brushes/hole_t 0 -32 0 0.5 0.5
+( 512 -672 -240 ) ( 512 528 -240 ) ( 512 528 -1344 ) brushes/hole_t 0 -32 0 0.5 0.5
 }
 }
 // entity 90

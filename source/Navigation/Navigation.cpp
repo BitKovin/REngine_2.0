@@ -127,7 +127,7 @@ void NavigationSystem::GenerateNavData()
     cfg.walkableClimb = static_cast<int>(ceilf(0.6f / cfg.ch));  // Max climb height (~0.9m)
     cfg.walkableRadius = static_cast<int>(ceilf(0.5f / cfg.cs)); // Agent radius (~0.5m)
     cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);
-    cfg.maxSimplificationError = 0.05f;
+    cfg.maxSimplificationError = 0.5f;
     cfg.minRegionArea = 25;      // Min region size
     cfg.mergeRegionArea = 100 * 100;  // Merge region size
     cfg.maxVertsPerPoly = 6;

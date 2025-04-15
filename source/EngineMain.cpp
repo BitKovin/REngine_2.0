@@ -58,10 +58,10 @@ void EngineMain::initDemo()
     for (size_t i = 0; i < 1500; i++)
     {
         float angle = i * 0.1f; // Angle step controls tightness of the spiral
-        float radius = 0.5f * i; // Radius increases over time
+        float radius = 5 + 0.3f * i; // Radius increases over time
         float x = radius * cos(angle);
-        float y = radius * sin(angle);
-        float z = 1.0f + 0.05f * i; // Optional: slowly increase Z to make a helix
+        float y = 10;
+        float z = radius * sin(angle);
 
         Level::Current->AddEntity(new TestNpc(vec3(x, y, z)));
     }

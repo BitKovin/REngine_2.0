@@ -1,0 +1,16 @@
+System.ArgumentNullException: Value cannot be null. (Parameter 'texture')
+   at Microsoft.Xna.Framework.Graphics.SpriteBatch.CheckValid(Texture2D texture)
+   at Microsoft.Xna.Framework.Graphics.SpriteBatch.Draw(Texture2D texture, Rectangle destinationRectangle, Color color)
+   at RetroEngine.GameMain.DrawSplash() in F:\Git\RetroEngine\RetroEngine\GameMain.cs:line 560
+   at RetroEngine.GameMain.DrawSplashIfNeed() in F:\Git\RetroEngine\RetroEngine\GameMain.cs:line 540
+   at RetroEngine.GameMain.Draw(GameTime gameTime) in F:\Git\RetroEngine\RetroEngine\GameMain.cs:line 465
+   at Microsoft.Xna.Framework.Game.DoDraw(GameTime gameTime)
+   at Microsoft.Xna.Framework.Game.Tick()
+   at MonoGame.Framework.WinFormsGameWindow.TickOnIdle(Object sender, EventArgs e)
+   at System.Windows.Forms.Application.ThreadContext.Interop.Mso.IMsoComponent.FDoIdle(msoidlef grfidlef)
+   at System.Windows.Forms.Application.ComponentManager.Interop.Mso.IMsoComponentManager.FPushMessageLoop(UIntPtr dwComponentID, msoloop uReason, Void* pvLoopData)
+   at System.Windows.Forms.Application.ThreadContext.RunMessageLoopInner(msoloop reason, ApplicationContext context)
+   at System.Windows.Forms.Application.ThreadContext.RunMessageLoop(msoloop reason, ApplicationContext context)
+   at MonoGame.Framework.WinFormsGameWindow.RunLoop()
+   at Microsoft.Xna.Framework.Game.Run(GameRunBehavior runBehavior)
+   at Program.Main(String[] args) in F:\Git\RetroEngine\RetroEngine.Windows\Program.cs:line 32
