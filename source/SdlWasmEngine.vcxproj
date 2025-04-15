@@ -278,6 +278,8 @@
     <ClCompile Include="Navigation\Recast\RecastMeshDetail.cpp" />
     <ClCompile Include="Navigation\Recast\RecastRasterization.cpp" />
     <ClCompile Include="Navigation\Recast\RecastRegion.cpp" />
+    <ClCompile Include="ParticleSystems\HitBlood.cpp" />
+    <ClCompile Include="Particle\GlobalParticleSystem.cpp" />
     <ClCompile Include="Particle\ParticleEmitter.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Physics.h" />
@@ -343,6 +345,7 @@
     <ClInclude Include="Navigation\Recast\Recast.h" />
     <ClInclude Include="Navigation\Recast\RecastAlloc.h" />
     <ClInclude Include="Navigation\Recast\RecastAssert.h" />
+    <ClInclude Include="Particle\GlobalParticleSystem.hpp" />
     <ClInclude Include="Particle\ParticleEmitter.h" />
     <ClInclude Include="Particle\ParticleSystem.hpp" />
     <ClInclude Include="PhysicsConverter.h" />

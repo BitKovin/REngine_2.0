@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Particle/ParticleSystem.hpp"
+#include "../Particle/GlobalParticleSystem.hpp"
 
 class TestParticleEmitter : public ParticleEmitter
 {
@@ -8,7 +8,7 @@ public:
 	
 	TestParticleEmitter()
 	{
-		texture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
+		texture = "GameData/cat.png";
 		InitialSpawnCount = 0;
 		SpawnRate = 0;
 		Duration = 100000000;
@@ -30,7 +30,7 @@ private:
 };
 
 
-class TestParticleSystem : public ParticleSystem
+class TestParticleSystem : public GlobalParticleSystem
 {
 
 private:
@@ -43,18 +43,6 @@ public:
 	{
 		emitters.push_back(new TestParticleEmitter());
 	}
-
-	static void SpawnParticleAt(vec3 position, vec3 rotation, vec3 scale);
-
-	void Destroy()
-	{
-		ParticleSystem::Destroy();
-
-		Instance = nullptr;
-
-	}
-
-	void SpawnParticleAtInst(vec3 position, vec3 rotation, vec3 scale);
 
 
 };

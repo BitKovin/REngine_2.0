@@ -7,6 +7,13 @@
 #include <stdexcept>
 #include <cmath>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 class MathHelper
 {
 public:
@@ -24,7 +31,22 @@ public:
 	// Constructs a quaternion from a rotation vector (pitch, yaw, roll)
 	// following the XNA convention: Y (yaw), X (pitch), Z (roll)
 	inline static glm::quat GetRotationQuaternion(const glm::vec3& rotation) {
-		return quat(rotation / 180.0f * pi<float>());
+		// Convert angles from degrees to radians.
+	// Convert angles from degrees to radians.
+		glm::vec3 radians = glm::radians(rotation);
+
+		// Create individual quaternions for yaw, pitch, and roll.
+		// Yaw: rotation about Y-axis (radians.y)
+		glm::quat qYaw = glm::angleAxis(radians.y, glm::vec3(0.0f, 1.0f, 0.0f));
+		// Pitch: rotation about X-axis (radians.x)
+		glm::quat qPitch = glm::angleAxis(radians.x, glm::vec3(1.0f, 0.0f, 0.0f));
+		// Roll: rotation about Z-axis (radians.z)
+		glm::quat qRoll = glm::angleAxis(radians.z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+		// Combine them so that the order of multiplication is:
+		// yaw * pitch * roll
+		// Note: The order of multiplication matters significantly because quaternion multiplication is non-commutative.
+		return qYaw * qPitch * qRoll;
 	}
 
 	// Transforms the given vector by the quaternion

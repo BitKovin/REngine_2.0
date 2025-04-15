@@ -17,6 +17,7 @@
 
 struct Particle {
 	glm::vec3 position{};
+	glm::vec3 position2{};
 	glm::vec3 velocity{};
 	float lifeTime = 0.0f;
 	float deathTime = 5.0f;  // example default lifetime
@@ -29,8 +30,15 @@ struct Particle {
 
 	bool UseWorldRotation = false;
 
+	float Transparency = 1;
+
 	float Size = 1;
 	float rotation = 0;
+
+	float UserValue1;
+	float UserValue2;
+	float UserValue3;
+	float UserValue4;
 
 	vec4 Color = vec4(1);
 
@@ -186,11 +194,14 @@ public:
 	glm::vec3 Rotation;   // emitter's rotation; could be represented by a quaternion (glm::quat) if preferred.
 	glm::vec3 Scale = vec3(1);
 
-	Texture* texture = nullptr;
+	string texture = "";
 
 	static void InitBilboardVaoIfNeeded();
 
 private:
+
+	Texture* savedTexture = nullptr;
+	string savedTextureName = "";
 
 	static VertexArrayObject* bilboardVAO;
 

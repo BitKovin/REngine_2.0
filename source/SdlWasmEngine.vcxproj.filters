@@ -58,6 +58,9 @@
     <Filter Include="Header Files\Particle">
       <UniqueIdentifier>{fc4fa2b5-2047-478c-9619-313f80e822b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ParticleSystems">
+      <UniqueIdentifier>{acee09af-009f-411e-b833-306aae4ea8ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -239,6 +242,12 @@
     </ClCompile>
     <ClCompile Include="Entities\TestParticleSystem.cpp">
       <Filter>Header Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle\GlobalParticleSystem.cpp">
+      <Filter>Source Files\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystems\HitBlood.cpp">
+      <Filter>Source Files\ParticleSystems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -463,6 +472,9 @@
     </ClInclude>
     <ClInclude Include="Entities\TestParticleSystem.hpp">
       <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle\GlobalParticleSystem.hpp">
+      <Filter>Header Files\Particle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

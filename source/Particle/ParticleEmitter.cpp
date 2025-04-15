@@ -17,6 +17,12 @@ mat4 GetWorldMatrix(const Particle& particle)
 void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
 {
 
+    if (savedTextureName != texture)
+    {
+        savedTexture = AssetRegistry::GetTextureFromFile(texture);
+        savedTextureName = texture;
+    }
+
 	glDepthMask(GL_FALSE);
 	
     glDisable(GL_CULL_FACE);
@@ -33,7 +39,7 @@ void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
 
     forward_shader_program->SetUniform("isViewmodel", false);
 
-    forward_shader_program->SetTexture("u_texture", texture);
+    forward_shader_program->SetTexture("u_texture", savedTexture);
 
     SetInstanceData(instances);
 
@@ -75,11 +81,13 @@ void ParticleEmitter::FinalizeFrameData()
             continue;
 
         mat4x4 world;
-        if (particle.UseWorldRotation) {
+        if (particle.UseWorldRotation) 
+        {
             // Placeholder: Implement custom world matrix if needed
-            world = mat4x4(1.0f); // Identity or custom logic
+            world = GetWorldMatrix(particle);
         }
-        else {
+        else 
+        {
             // Billboard matrix ensures the particle faces the camera
             world = MathHelper::CreateBillboardMatrix(
                 particle.position,
@@ -95,6 +103,7 @@ void ParticleEmitter::FinalizeFrameData()
         InstanceData data;
         data.ModelMatrix = world;
         data.Color = particle.Color;
+        data.Color.a *= particle.Transparency;
         instances.push_back(data);
     }
 }
