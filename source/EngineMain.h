@@ -44,6 +44,8 @@
 
 #include "MapParser.h"
 
+#include "Particle/ParticleEmitter.h"
+
 class EngineMain
 {
 private:
@@ -115,6 +117,8 @@ public:
         Physics::Init();
 
         UiRenderer::Init();
+
+        ParticleEmitter::InitBilboardVaoIfNeeded();
 
         InitInputs();
 

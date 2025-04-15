@@ -237,6 +237,7 @@
     <ClCompile Include="EngineMain.cpp" />
     <ClCompile Include="Entities\Player.cpp" />
     <ClCompile Include="Entities\TestNpc.cpp" />
+    <ClCompile Include="Entities\TestParticleSystem.cpp" />
     <ClCompile Include="Entities\WorldSpawn.cpp" />
     <ClCompile Include="Entity.hpp" />
     <ClCompile Include="EObject.hpp" />
@@ -277,6 +278,7 @@
     <ClCompile Include="Navigation\Recast\RecastMeshDetail.cpp" />
     <ClCompile Include="Navigation\Recast\RecastRasterization.cpp" />
     <ClCompile Include="Navigation\Recast\RecastRegion.cpp" />
+    <ClCompile Include="Particle\ParticleEmitter.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Physics.h" />
     <ClCompile Include="ShaderManager.cpp" />
@@ -300,6 +302,7 @@
     <ClInclude Include="EngineMain.h" />
     <ClInclude Include="Entities\Player.hpp" />
     <ClInclude Include="Entities\TestNpc.hpp" />
+    <ClInclude Include="Entities\TestParticleSystem.hpp" />
     <ClInclude Include="Entities\WorldSpawn.h" />
     <ClInclude Include="FrustrumCull.hpp" />
     <ClInclude Include="gl.h" />
@@ -340,6 +343,8 @@
     <ClInclude Include="Navigation\Recast\Recast.h" />
     <ClInclude Include="Navigation\Recast\RecastAlloc.h" />
     <ClInclude Include="Navigation\Recast\RecastAssert.h" />
+    <ClInclude Include="Particle\ParticleEmitter.h" />
+    <ClInclude Include="Particle\ParticleSystem.hpp" />
     <ClInclude Include="PhysicsConverter.h" />
     <ClInclude Include="PhysicsHelper.h" />
     <ClInclude Include="RegisterLevelObject.h" />

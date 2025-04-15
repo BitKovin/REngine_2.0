@@ -52,6 +52,12 @@
     <Filter Include="Header Files\Navigation\Detour">
       <UniqueIdentifier>{2a08328d-36f0-4dec-a10e-73d1805b99a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Particle">
+      <UniqueIdentifier>{fb47bbde-8471-44a0-af57-41131fbc7dee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Particle">
+      <UniqueIdentifier>{fc4fa2b5-2047-478c-9619-313f80e822b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -227,6 +233,12 @@
     </ClCompile>
     <ClCompile Include="Navigation\PathFollowQuery.cpp">
       <Filter>Source Files\Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle\ParticleEmitter.cpp">
+      <Filter>Source Files\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\TestParticleSystem.cpp">
+      <Filter>Header Files\Entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -442,6 +454,15 @@
     </ClInclude>
     <ClInclude Include="Navigation\PathFollowQuery.h">
       <Filter>Header Files\Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle\ParticleEmitter.h">
+      <Filter>Header Files\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle\ParticleSystem.hpp">
+      <Filter>Header Files\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\TestParticleSystem.hpp">
+      <Filter>Header Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

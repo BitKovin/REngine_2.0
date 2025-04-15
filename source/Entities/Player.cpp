@@ -1,5 +1,7 @@
 #include "Player.hpp"
 
+#include "TestParticleSystem.hpp"
+
 REGISTER_LEVEL_OBJECT(Player, "info_player_start")
 
 Player* Player::Instance = nullptr;
@@ -24,6 +26,11 @@ void Player::PerformAttack()
     if (hit.hasHit)
     {
         hit.entity->OnPointDamage(10, hit.position, MathHelper::FastNormalize(hit.position - Camera::position), "", this, this);
+
+
+        TestParticleSystem::SpawnParticleAt(hit.position + hit.normal*0.1f, vec3(0), vec3(1));
+
+
     }
 
 }

@@ -27,6 +27,8 @@ public:
 
 	vec3 Rotation = vec3();
 
+	vec3 Scale = vec3(1);
+
 	vector<IDrawMesh*> Drawables;
 
 	Body* LeadBody = nullptr;

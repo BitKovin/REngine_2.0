@@ -305,6 +305,48 @@ public:
 		return glm::vec4(matrix[0][row], matrix[1][row], matrix[2][row], matrix[3][row]);
 	}
 
+
+	// Generates a world matrix for a spherical billboard with optional rotation (in radians)
+	inline static glm::mat4 CreateBillboardMatrix(
+		const glm::vec3& billboardPos,
+		const glm::vec3& camPos,         // included for typical API symmetry (unused here)
+		const glm::vec3& camForward,
+		const glm::vec3& camRight,
+		const glm::vec3& camUp,
+		const glm::vec3& scale = glm::vec3(1.0f),
+		float rotation = 0.0f // rotation (in radians) applied around the view direction
+	) {
+		// For a 2D billboard (sprite), we want its face to be perpendicular to the view direction.
+		// So we define the billboard’s forward as opposite to the camera's forward.
+		glm::vec3 billboardForward = -camForward;
+
+		// Start with the camera’s right and up vectors, which will form the local X and Y axes.
+		glm::vec3 billboardRight = camRight;
+		glm::vec3 billboardUp = camUp;
+
+		// Apply an extra rotation about the view (forward) axis.
+		if (rotation != 0.0f) {
+			billboardRight = glm::rotate(camRight, rotation, camForward);
+			billboardUp = glm::rotate(camUp, rotation, camForward);
+		}
+
+		// Build the rotation matrix from the three axes.
+		// The resulting billboard will have:
+		//   - its local X axis pointing along billboardRight,
+		//   - its local Y axis pointing along billboardUp,
+		//   - and its local Z axis (the "face" normal) along billboardForward.
+		glm::mat4 rotationMat(1.0f);
+		rotationMat[0] = glm::vec4(billboardRight * scale.x, 0.0f);   // X axis (right)
+		rotationMat[1] = glm::vec4(billboardUp * scale.y, 0.0f);        // Y axis (up)
+		rotationMat[2] = glm::vec4(billboardForward * scale.z, 0.0f);   // Z axis (facing, note the minus sign)
+
+		// Create a translation matrix from the billboard's position.
+		glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), billboardPos);
+
+		// The final model matrix is translation * rotation.
+		return translationMat * rotationMat;
+	}
+
 	// Decomposes a transformation matrix into translation, rotation (in degrees) and scale.
 	inline static Transform DecomposeMatrix(const glm::mat4& matrix) {
 		Transform transform;

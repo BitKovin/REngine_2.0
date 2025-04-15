@@ -45,7 +45,7 @@ void EngineMain::UpdateScreenSize()
 void EngineMain::initDemo()
 {
 
-    Level::OpenLevel("GameData/Maps/test2.map");
+    Level::OpenLevel("GameData/Maps/test.map");
 
     auto sound = SoundManager::GetSoundFromPath("GameData/bass_beat.wav");
 
@@ -55,7 +55,7 @@ void EngineMain::initDemo()
     texture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
 
-    for (size_t i = 0; i < 1500; i++)
+    for (size_t i = 0; i < 00; i++)
     {
         float angle = i * 0.1f; // Angle step controls tightness of the spiral
         float radius = 5 + 0.3f * i; // Radius increases over time

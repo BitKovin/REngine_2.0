@@ -47,9 +47,16 @@ public:
 
     // New method to update buffer data
     template<typename T>
-    void UpdateData(const std::vector<T>& data, size_t offset = 0) {
+    void UpdateData(const std::vector<T>& data, size_t offset = 0, GLenum usage = GL_DYNAMIC_DRAW) {
         Bind();
-        glBufferSubData(GL_ARRAY_BUFFER, offset * sizeof(T), data.size() * sizeof(T), data.data());
+        // If the new data size differs from the currently allocated one, reallocate the buffer.
+        if (data.size() != m_vertexCount) {
+            m_vertexCount = data.size();
+            glBufferData(GL_ARRAY_BUFFER, m_vertexCount * sizeof(T), data.data(), usage);
+        }
+        else {
+            glBufferSubData(GL_ARRAY_BUFFER, offset * sizeof(T), data.size() * sizeof(T), data.data());
+        }
     }
 
 private:

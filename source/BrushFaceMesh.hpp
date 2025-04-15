@@ -55,8 +55,6 @@ public:
 
 		modelLoader->load(filePath);
 
-		Logger::Log(modelLoader->getInfoLog());
-
 		auto model = modelLoader->get();
 
 		for (auto mesh : model.meshes)
