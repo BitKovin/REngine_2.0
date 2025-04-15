@@ -11,6 +11,9 @@ public:
 		InitialSpawnCount = 0;
 		SpawnRate = 0;	
         texture = "GameData/Textures/particles/smoke.png";
+
+        DepthSorting = false;
+
 	}
 	
     // Override UpdateParticle.
@@ -63,8 +66,169 @@ public:
         return particle;
     }
 
+     float GetDistanceToCamera() override
+     {
+         return 100000000;
+     }
+
 private:
 
+};
+
+class particle_hitBloodDrips : public ParticleEmitter
+{
+public:
+    particle_hitBloodDrips()
+    {
+        texture = "GameData/Textures/particles/blood.png";
+        InitialSpawnCount = 0;
+        SpawnRate = 0;
+        Emitting = true;
+
+        Duration = 1000000;
+
+    }
+
+    Particle UpdateParticle(Particle particle, float deltaTime) override
+    {
+        particle.velocity -= glm::vec3(0, 6.0f, 0) * (deltaTime / 2.0f);
+        particle = ParticleEmitter::UpdateParticle(particle, deltaTime);
+        particle.velocity -= glm::vec3(0, 6.0f, 0) * (deltaTime / 2.0f);
+        particle.Transparency = std::max(particle.Transparency - (deltaTime / 1.5f), 0.0f);
+        return particle;
+    }
+
+    Particle GetNewParticle() override
+    {
+        Particle particle = ParticleEmitter::GetNewParticle();
+        particle.velocity = Rotation;
+        particle.Size = glm::mix(0.15f, 0.2f, RandomFloat()) * 2;
+        particle.Transparency = 1;
+        particle.deathTime = 1.0f;
+        particle.rotation = RandomFloat() * 500.0f;
+        particle.Color = glm::vec4(0.55f, 0.55f, 0.55f, 1.0f);
+        return particle;
+    }
+
+private:
+    float RandomFloat() const { return static_cast<float>(rand()) / RAND_MAX; }
+};
+
+class particle_hitBloodPieces : public ParticleEmitter
+{
+public:
+    particle_hitBloodDrips* drips;
+
+    particle_hitBloodPieces()
+    {
+        texture = "GameData/Textures/particles/blood.png";
+        InitialSpawnCount = 0;
+        SpawnRate = 0;
+        Emitting = true;
+
+        Duration = 1000000;
+
+    }
+
+    Particle UpdateParticle(Particle particle, float deltaTime) override
+    {
+
+
+        vec3 oldPos = particle.position;
+
+        if (particle.lifeTime < 3.5f)
+            particle.UserValue1 += deltaTime;
+
+        const float spawnInterval = 0.07f;
+        if (particle.UserValue1 > spawnInterval)
+        {
+            particle.UserValue1 -= spawnInterval;
+            drips->Position = particle.position;
+            drips->Rotation = particle.velocity / 3.0f;
+            drips->SpawnParticles(1);
+            
+        }
+
+        particle.velocity -= glm::vec3(0, 10.0f, 0) * (deltaTime / 2.0f);
+        particle = ParticleEmitter::UpdateParticle(particle, deltaTime);
+
+        if (particle.UserValue2 < 2)
+        {
+            
+                glm::vec3 dir = glm::normalize(particle.velocity);
+				auto hit = Physics::LineTrace(
+					oldPos,
+					particle.position,
+					BodyType::World
+				);
+				if (hit.hasHit && glm::distance(hit.position, particle.position2) > 0.25f)
+				{
+
+					if (RandomFloat() < ((particle.UserValue2 == 0) ? 0.5f : 0.5f))
+					{
+
+						GlobalParticleSystem::SpawnParticleAt("decal_blood", hit.position, hit.normal, vec3(1));
+
+						if (particle.UserValue2 < 1)
+						{
+							particle.position.y = particle.UserValue3 + particle.CollisionRadius;
+							particle.velocity.y *= -particle.BouncePower;
+						}
+						particle.UserValue2++;
+
+					}
+				}
+		}
+
+        particle.velocity -= glm::vec3(0, 10.0f, 0) * (deltaTime / 2.0f);
+        particle.Transparency = std::max(particle.Transparency - (deltaTime / 3.0f), 0.0f);
+        return particle;
+    }
+
+    Particle GetNewParticle() override
+    {
+        Particle particle = ParticleEmitter::GetNewParticle();
+        particle.BouncePower = 0.5f;
+        particle.CollisionRadius = 0.2f;
+        particle.Size = 0.6f * 1.2;
+
+        particle.position2 = Position;
+
+        glm::vec3 randPos = RandomPosition(0.1f);
+        particle.position += randPos;
+
+        glm::vec3 randomDir = RandomPosition(1.0f);
+        glm::vec3 velocity = glm::normalize(randomDir) * 2.5f;
+        velocity.y += 2.0f * glm::mix(1.0f, 2.0f, RandomFloat());
+        velocity += GetForwardFromRotation(Rotation) * 2.5f;
+        velocity *= glm::mix(0.3f, 1.0f, RandomFloat());
+
+        particle.position += velocity * 0.2f;
+
+        particle.velocity = velocity;
+        particle.Transparency = 1.7f;
+        particle.deathTime = 3.0f;
+        particle.rotation = RandomFloat() * 500.0f;
+        particle.Color = glm::vec4(0.65f, 0.65f, 0.65f, 1.0f);
+
+        return particle;
+    }
+
+private:
+    float RandomFloat() const { return static_cast<float>(rand()) / RAND_MAX; }
+
+    glm::vec3 RandomPosition(float radius) const {
+        return glm::vec3(
+            (RandomFloat() - 0.5f) * 2.0f * radius,
+            (RandomFloat() - 0.5f) * 2.0f * radius,
+            (RandomFloat() - 0.5f) * 2.0f * radius
+        );
+    }
+
+    glm::vec3 GetForwardFromRotation(const glm::vec3& eulerDegrees) const {
+        glm::quat rotation = glm::quat(glm::radians(eulerDegrees));
+        return rotation * glm::vec3(0.0f, 0.0f, 1.0f);
+    }
 };
 
 class BloodDecalSystem : public GlobalParticleSystem
@@ -92,9 +256,8 @@ public:
 
             emitter->Position = position;
             emitter->Rotation = rotation;
-            emitter->Scale = scale;
 
-            emitter->AddParticle(emitter->GetNewParticle());
+            emitter->SpawnParticles(1);
         }
     }
 
@@ -103,5 +266,50 @@ private:
 
 };
 
+class BloodPieceSystem : public GlobalParticleSystem
+{
+public:
+
+    particle_hitBloodPieces* particle_blood;
+    particle_hitBloodDrips* particle_bloodDrips;
+
+    BloodPieceSystem()
+    {
+
+        particle_blood = new particle_hitBloodPieces();
+        particle_bloodDrips = new particle_hitBloodDrips();
+
+        particle_blood->drips = particle_bloodDrips;
+
+        emitters.push_back(particle_blood);
+        emitters.push_back(particle_bloodDrips);
+    }
+
+
+
+
+private:
+
+    void SpawnParticleAtInst(vec3 position, vec3 rotation, vec3 scale)
+    {
+        Position = position;
+        Rotation = rotation;
+        Scale = scale;
+
+
+
+        particle_blood->Position = position;
+        particle_blood->Rotation = rotation;
+        particle_blood->Scale = scale;
+
+
+
+        particle_blood->SpawnParticles(ceil(scale.x));
+
+    }
+
+};
+
 
 REGISTER_LEVEL_OBJECT(BloodDecalSystem, "decal_blood")
+REGISTER_LEVEL_OBJECT(BloodPieceSystem, "hit_flesh")

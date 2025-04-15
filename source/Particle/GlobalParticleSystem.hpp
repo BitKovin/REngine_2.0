@@ -65,7 +65,7 @@ public:
 
 private:
 
-	void SpawnParticleAtInst(vec3 position, vec3 rotation, vec3 scale)
+	virtual void SpawnParticleAtInst(vec3 position, vec3 rotation, vec3 scale)
 	{
 		Position = position;
 		Rotation = rotation;

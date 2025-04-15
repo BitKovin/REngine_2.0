@@ -28,7 +28,7 @@ void Player::PerformAttack()
         hit.entity->OnPointDamage(10, hit.position, MathHelper::FastNormalize(hit.position - Camera::position), "", this, this);
 
 
-        GlobalParticleSystem::SpawnParticleAt("decal_blood", hit.position, hit.normal, vec3(1));
+        GlobalParticleSystem::SpawnParticleAt("hit_flesh", hit.position, MathHelper::FindLookAtRotation(vec3(0), hit.normal), vec3(10));
 
 
     }

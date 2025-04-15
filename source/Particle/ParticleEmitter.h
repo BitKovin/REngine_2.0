@@ -35,10 +35,10 @@ struct Particle {
 	float Size = 1;
 	float rotation = 0;
 
-	float UserValue1;
-	float UserValue2;
-	float UserValue3;
-	float UserValue4;
+	float UserValue1 = 0;
+	float UserValue2 = 0;
+	float UserValue3 = 0;
+	float UserValue4 = 0;
 
 	vec4 Color = vec4(1);
 
@@ -195,6 +195,8 @@ public:
 	glm::vec3 Scale = vec3(1);
 
 	string texture = "";
+
+	bool DepthSorting = true;
 
 	static void InitBilboardVaoIfNeeded();
 

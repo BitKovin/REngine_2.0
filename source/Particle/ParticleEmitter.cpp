@@ -63,14 +63,17 @@ void ParticleEmitter::FinalizeFrameData()
     vec3 cameraRight = MathHelper::GetRightVector(cameraRotation);
     vec3 cameraUp = MathHelper::GetUpVector(cameraRotation);
 
-    // Sort particles back-to-front (farthest first)
-    std::sort(finalizedParticles.begin(), finalizedParticles.end(),
-        [cameraForward, cameraPosition](const Particle& a, const Particle& b) {
-            float depthA = glm::dot(cameraForward, a.position - cameraPosition);
-            float depthB = glm::dot(cameraForward, b.position - cameraPosition);
-            return depthA > depthB; // Farther particles first
-        });
+    if (DepthSorting) 
+    {
 
+        // Sort particles back-to-front (farthest first)
+        std::sort(finalizedParticles.begin(), finalizedParticles.end(),
+            [cameraForward, cameraPosition](const Particle& a, const Particle& b) {
+                float depthA = glm::dot(cameraForward, a.position - cameraPosition);
+                float depthB = glm::dot(cameraForward, b.position - cameraPosition);
+                return depthA > depthB; // Farther particles first
+            });
+    }
     // Prepare instance data
     instances.clear();
     instances.reserve(finalizedParticles.size());
