@@ -11,10 +11,10 @@ add_definitions(-std=c++20 -O3)
 
 
 
-file(GLOB_RECURSE ALL_SOURCES "source/*.cpp")
+file(GLOB_RECURSE ALL_SOURCES "source/Engine/*.cpp")
 set(SOURCES "")
 foreach(source_file IN LISTS ALL_SOURCES)
-    if(NOT source_file MATCHES "source/glm/")
+    if(NOT source_file MATCHES "source/Engine/glm/")
         list(APPEND SOURCES ${source_file})
     endif()
 endforeach()
