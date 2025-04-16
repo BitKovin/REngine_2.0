@@ -55,6 +55,11 @@ public:
 
 		modelLoader->load(filePath);
 
+        string log = modelLoader->getInfoLog();
+
+        if (log.size() > 1)
+            Logger::Log(log);
+
 		auto model = modelLoader->get();
 
 		for (auto mesh : model.meshes)

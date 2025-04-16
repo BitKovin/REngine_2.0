@@ -63,7 +63,7 @@ void EngineMain::initDemo()
         float y = 50;
         float z = radius * sin(angle);
 
-        Level::Current->AddEntity(new TestNpc(vec3(x, y, z)));
+        //Level::Current->AddEntity(new TestNpc(vec3(x, y, z)));
     }
 
 }
