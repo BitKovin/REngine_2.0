@@ -1,5 +1,6 @@
 #include "EngineMain.h"
 
+#include "LevelObjectFactory.h"
 
 
 EngineMain* EngineMain::MainInstance = nullptr;
@@ -55,7 +56,7 @@ void EngineMain::initDemo()
     texture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
 
-    for (size_t i = 0; i < 00; i++) 
+    for (size_t i = 0; i < 100; i++) 
     {
         float angle = i * 0.1f; // Angle step controls tightness of the spiral
         float radius = 1 + 0.05f * i; // Radius increases over time
@@ -63,7 +64,12 @@ void EngineMain::initDemo()
         float y = 50;
         float z = radius * sin(angle);
 
-        //Level::Current->AddEntity(new TestNpc(vec3(x, y, z)));
+        Entity* ent = LevelObjectFactory::instance().create("testnpc");
+
+        ent->Position = vec3(x, y, z);
+        ent->Start();
+
+        Level::Current->AddEntity(ent);
     }
 
 }

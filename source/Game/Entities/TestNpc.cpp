@@ -1,5 +1,5 @@
 #include "TestNpc.hpp"
-
+#include "Player/Player.hpp"
 
 #include <Navigation/Navigation.hpp>
 
@@ -12,7 +12,7 @@ void TestNpc::AsyncUpdate()
 	mesh->Position = Position - vec3(0,1,0);
 	
 
-	Entity* target = nullptr;// Player::Instance;
+	Entity* target = Player::Instance;
 
 	if (target)
 	{
@@ -57,3 +57,5 @@ void TestNpc::AsyncUpdate()
 	mesh->Rotation = vec3(0,MathHelper::FindLookAtRotation(vec3(), movingDirection).y, 0);
 
 }
+
+REGISTER_LEVEL_OBJECT(TestNpc, "testnpc")

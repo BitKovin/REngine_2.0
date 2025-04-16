@@ -131,7 +131,7 @@ void NavigationSystem::GenerateNavData()
     cfg.minRegionArea = 25;      // Min region size
     cfg.mergeRegionArea = 100 * 100;  // Merge region size
     cfg.maxVertsPerPoly = 6;
-    cfg.tileSize = 128;                // Tile size in cells
+    cfg.tileSize = 64;                // Tile size in cells
     cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 3;  // ~3-4 cells
     cfg.width = cfg.tileSize + cfg.borderSize * 2;
     cfg.height = cfg.tileSize + cfg.borderSize * 2;
@@ -368,13 +368,18 @@ class CustomFilter : public dtQueryFilter
     // second and second-from-last points are redundant. If there is a clear line
     // of sight skipping those points, then they are removed.
     // =====================================================================
-std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, const glm::vec3& target)
+std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, const glm::vec3& target)
 {
 
     if (HasLineOfSight(start, target))
     {
         return { target };
     }
+
+    auto hit = Physics::LineTrace(start, start - vec3(0, 3, 0), BodyType::World);
+
+    if(hit.hasHit)
+        start = hit.position;
 
     std::vector<glm::vec3> outPath;
 
@@ -407,8 +412,8 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
 
     float extentsSmall[3] = { 0.05, 1.5, 0.05 };  // search extents in each axis
 
-    float startPos[3] = { start.x, start.y - 0.5f, start.z };
-    float targetPos[3] = { target.x, target.y - 0.5f, target.z };
+    float startPos[3] = { start.x, start.y, start.z };
+    float targetPos[3] = { target.x, target.y, target.z };
 
     status = navQuery->findNearestPoly(startPos, extentsSmall, &filter, &startRef, nullptr);
     if (dtStatusFailed(status) || !startRef)
@@ -429,7 +434,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(const glm::vec3& start, 
     }
 
     // Compute the polygon path.
-    const int MAX_POLYS = 256;
+    const int MAX_POLYS = 512;
     dtPolyRef polyPath[MAX_POLYS];
     int polyPathCount = 0;
     status = navQuery->findPath(startRef, endRef, startPos, targetPos, &filter,
