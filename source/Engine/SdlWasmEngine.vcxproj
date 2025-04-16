@@ -114,19 +114,22 @@
     <IncludePath>$(SolutionDir)../libraries/;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)../Lib/;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(ShortProjectName)\$(Configuration)\</IntDir>
+    <IntDir>..\Intermediage\$(ShortProjectName)\$(Configuration)\</IntDir>
+    <AllProjectIncludesArePublic>false</AllProjectIncludesArePublic>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)../libraries/;$(IncludePath)</IncludePath>
     <LibraryPath>F:\Git\SdlWasmEngine\Lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(ShortProjectName)\$(Configuration)\</IntDir>
+    <IntDir>..\Intermediage\$(ShortProjectName)\$(Configuration)\</IntDir>
+    <AllProjectIncludesArePublic>false</AllProjectIncludesArePublic>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='emscripten|x64'">
     <IncludePath>$(SolutionDir)../libraries/;$(IncludePath)</IncludePath>
     <LibraryPath>F:\Git\SdlWasmEngine\Lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir>$(ShortProjectName)\$(Configuration)\</IntDir>
+    <IntDir>..\Intermediage\$(ShortProjectName)\$(Configuration)\</IntDir>
+    <AllProjectIncludesArePublic>false</AllProjectIncludesArePublic>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -220,6 +223,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>__EMSCRIPTEN__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

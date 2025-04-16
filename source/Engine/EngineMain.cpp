@@ -55,12 +55,12 @@ void EngineMain::initDemo()
     texture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
 
-    for (size_t i = 0; i < 00; i++)
+    for (size_t i = 0; i < 00; i++) 
     {
         float angle = i * 0.1f; // Angle step controls tightness of the spiral
-        float radius = 5 + 0.3f * i; // Radius increases over time
-        float x = radius * cos(angle);
-        float y = 10;
+        float radius = 1 + 0.05f * i; // Radius increases over time
+        float x = radius * cos(angle) + 10;
+        float y = 50;
         float z = radius * sin(angle);
 
         Level::Current->AddEntity(new TestNpc(vec3(x, y, z)));
