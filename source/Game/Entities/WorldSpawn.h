@@ -8,6 +8,7 @@ public:
 	{
 		Static = true;
 	}
+	~WorldSpawn() = default;
 	
 	void FromData(EntityData data)
 	{

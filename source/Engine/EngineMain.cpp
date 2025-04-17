@@ -56,7 +56,7 @@ void EngineMain::initDemo()
     texture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
 
-    for (size_t i = 0; i < 100; i++) 
+    for (size_t i = 0; i < 00; i++) 
     {
         float angle = i * 0.1f; // Angle step controls tightness of the spiral
         float radius = 1 + 0.05f * i; // Radius increases over time

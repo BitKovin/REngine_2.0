@@ -17,15 +17,17 @@ void Level::CloseLevel()
 	for (LevelObject* obj : Current->LevelObjects)
 	{
 		obj->Dispose();
-		delete(obj);
 	}
-	Current->LevelObjects.clear();
+	
 
 	Current->RemovePendingEntities();
+	Current->MemoryCleanPendingEntities();
 
 	Physics::DestroyAllBodies();
 
 	Current->RemovePendingEntities();
+
+	Current->MemoryCleanPendingEntities();
 }
 
 Level* Level::OpenLevel(string filePath)
@@ -54,11 +56,12 @@ Level* Level::OpenLevel(string filePath)
 		obj->Start();
 	}
 
-	printf("generating nav mesh");
+	printf("generating nav mesh\n");
 
 	NavigationSystem::GenerateNavData();
 
-	printf("generated nav mesh");
+	printf("generated nav mesh\n");
+
 
 	return newLevel;
 }

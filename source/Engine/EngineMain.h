@@ -46,6 +46,8 @@
 
 #include "Particle/ParticleEmitter.h"
 
+#include "Renderer/Renderer.h"
+
 class EngineMain
 {
 private:
@@ -53,6 +55,8 @@ private:
 	StaticMesh* mesh = nullptr;
 
     Texture* texture = 0;
+
+    Renderer* MainRenderer;
 
 public:
 
@@ -106,6 +110,8 @@ public:
 	void Init()
 	{
 
+        UpdateScreenSize();
+
         printf("init\n");
 
         MainThreadPool.Start();
@@ -115,6 +121,8 @@ public:
         Time::Init();
 
         Physics::Init();
+
+        MainRenderer = new Renderer();
 
         UiRenderer::Init();
 
@@ -301,23 +309,7 @@ public:
         glDisable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(1.0, 1.0);
 
-        glEnable(GL_CULL_FACE);
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-        //printf("renderin %i meshes\n", Level::Current->VissibleRenderList.size());
-
-        for (IDrawMesh* mesh : Level::Current->VissibleRenderList)
-        {
-
-            mat4 proj = mesh->IsViewmodel ? Camera::finalizedProjectionViewmodel : Camera::finalizedProjection;
-
-            mesh->DrawForward(Camera::finalizedView, proj);
-        }
-
-        DebugDraw::Draw();
-
+        MainRenderer->RenderLevel(Level::Current);
 
         glDisable(GL_DEPTH_TEST);
 

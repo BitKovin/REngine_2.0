@@ -12,6 +12,8 @@ public:
 		SpawnRate = 0;	
         texture = "GameData/Textures/particles/smoke.png";
 
+        Transparent = true;
+
         DepthSorting = false;
 
 	}
@@ -52,7 +54,7 @@ public:
         particle.globalRotation.z += randomAngle;
 
         // Slightly adjust particle position.
-        particle.position += normal * 0.005f;
+        particle.position += normal * 0.01f;
 
         particle.Size = 1.4f;
         //particle.MaxDrawDistance = 60.0f;

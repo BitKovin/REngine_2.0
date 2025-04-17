@@ -37,6 +37,8 @@ public:
     static void Update()
     {
         
+        if (tileCache == nullptr) return;
+
         std::lock_guard<std::recursive_mutex> lock(mainLock);
 
         bool upToDate = false;

@@ -58,4 +58,4 @@ void TestNpc::AsyncUpdate()
 
 }
 
-REGISTER_LEVEL_OBJECT(TestNpc, "testnpc")
+//REGISTER_LEVEL_OBJECT(TestNpc, "testnpc")
