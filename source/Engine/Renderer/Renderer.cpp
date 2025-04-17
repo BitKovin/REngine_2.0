@@ -6,13 +6,23 @@ Renderer::Renderer()
 {
 	ivec2 screenResolution = GetScreenResolution();
 
-	colorBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::RGB8, TextureType::Texture2DMultisample, GL_LINEAR, GL_LINEAR,
+    TextureFormat colorTextureFormat = TextureFormat::RGB16F;
+
+#if __EMSCRIPTEN__
+
+    colorTextureFormat = TextureFormat::RGB8;
+
+#endif // __EMSCRIPTEN__
+
+
+
+	colorBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2DMultisample, GL_LINEAR, GL_LINEAR,
 		GL_CLAMP_TO_EDGE, 1);
 
 	depthBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2DMultisample, GL_LINEAR, GL_LINEAR,
 		GL_CLAMP_TO_EDGE, 1);
 
-	colorResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::RGBA16F, TextureType::Texture2D);
+	colorResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2D);
 	depthResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2D);
 
 	forwardFBO.attachDepth(depthBuffer);
@@ -28,8 +38,8 @@ Renderer::Renderer()
     // resize all our buffers
     colorBuffer->resize(screenResolution.x, screenResolution.y);
     depthBuffer->resize(screenResolution.x, screenResolution.y);
-    colorBuffer->setSamples(2);
-    colorBuffer->setSamples(2);
+    colorBuffer->setSamples(4);
+    depthBuffer->setSamples(4);
 
     colorResolveBuffer->resize(screenResolution.x, screenResolution.y);
     depthResolveBuffer->resize(screenResolution.x, screenResolution.y);
@@ -69,8 +79,9 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     // resize all our buffers
     colorBuffer->resize(res.x, res.y);
     depthBuffer->resize(res.x, res.y);
-    colorBuffer->setSamples(2);
-    colorBuffer->setSamples(2);
+
+    colorBuffer->setSamples(8);
+    depthBuffer->setSamples(8);
 
     colorResolveBuffer->resize(res.x, res.y);
     depthResolveBuffer->resize(res.x, res.y);

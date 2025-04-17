@@ -30,4 +30,5 @@ void main()
 
     v_texcoord = TextureCoordinate;
     v_color = instanceColor;
+    v_color.rgb/=2.0;
 }

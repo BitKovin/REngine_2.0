@@ -151,7 +151,7 @@ public:
 		}
 
 		if(forward_shader_program == nullptr)
-			forward_shader_program = ShaderManager::GetShaderProgram("skeletal", PixelShader);
+			forward_shader_program = ShaderManager::GetShaderProgram("default_vertex", PixelShader);
 
 		forward_shader_program->UseProgram();
 
@@ -221,7 +221,7 @@ public:
 
 	void DrawDepth(mat4x4 view, mat4x4 projection)
 	{
-		ShaderProgram* shader_program = ShaderManager::GetShaderProgram("skeletal", "empty_pixel");
+		ShaderProgram* shader_program = ShaderManager::GetShaderProgram("default_vertex", "empty_pixel");
 
 		shader_program->UseProgram();
 
