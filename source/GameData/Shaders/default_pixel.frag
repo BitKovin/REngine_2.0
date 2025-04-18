@@ -6,7 +6,10 @@ in vec3 v_normal;
 in vec3 v_worldPosition;
 in vec4 v_clipPosition;
 
-in vec4 v_shadowCoords;
+in vec4 v_shadowCoords1;
+in vec4 v_shadowCoords2;
+in vec4 v_shadowCoords3;
+in vec4 v_shadowCoords4;
 
 out vec4 FragColor;
 uniform sampler2D u_texture;  // Changed from "texture" to avoid keyword conflict
@@ -16,7 +19,10 @@ uniform vec3 cameraPosition;
 uniform highp sampler2DShadow shadowMap;
 uniform int shadowMapSize;  // width, height of shadow map
 uniform vec3 lightDirection;   
-uniform float shadowDistance;
+uniform float shadowDistance1;
+uniform float shadowDistance2;
+uniform float shadowDistance3;
+uniform float shadowDistance4;
 
 uniform bool is_particle;
 
@@ -40,25 +46,26 @@ void main() {
     FragColor = vec4(color, alpha);
 }
 
-float GetDirectionalShadow()
+float GetDirectionalShadow(vec2 mapOffset, float shadowDistance, vec4 shadowCoords, int pcfRadius)
 {
     // 1) Project into [0,1] clip space
-    vec4 sc  = v_shadowCoords / v_shadowCoords.w;
+    vec4 sc  = shadowCoords / shadowCoords.w;
     vec3 pc  = sc.xyz * 0.5 + 0.5;
 
     pc *= vec3(0.5,0.5,1);
 
+    pc+= vec3(mapOffset*vec2(0.5),0);
+
     float worldBias = -0.05 / 20.0 * shadowDistance * 512.0 / float(shadowMapSize);
-    const int pcfRadius = 2;
 
     float shadowCameraFar = shadowDistance;
     const float shadowCameraNear = -100.0;
 
 // for a perspective shadow map:
-float linearDepth   = -v_shadowCoords.z / v_shadowCoords.w;  
+float linearDepth   = -shadowCoords.z / shadowCoords.w;  
 float depthScale    = (shadowCameraFar - shadowCameraNear)
                     / (shadowCameraFar * shadowCameraNear);
-float bias          = worldBias * depthScale / v_shadowCoords.w;
+float bias          = worldBias * depthScale / shadowCoords.w;
 
     // optional: if outside the map, consider fully lit
     if (pc.x < 0.0 || pc.x > 1.0 ||
@@ -93,14 +100,62 @@ float bias          = worldBias * depthScale / v_shadowCoords.w;
 
 vec3 CalculateDirectionalLight()
 {
-    float directionPower = 1.0;
-    
-    if(is_particle == false)
-    {
-        directionPower = clamp(dot(-v_normal, lightDirection),0.0,1.0);
-    }    
-    
-    directionPower*= GetDirectionalShadow();
+    // 1) Basic N·L
+    float directionPower = is_particle
+        ? 1.0
+        : clamp(dot(-v_normal, lightDirection), 0.0, 1.0);
 
-    return mix(vec3(0.2),vec3(1),directionPower);
+    // 2) Distance from the camera
+    float dist = distance(cameraPosition, v_worldPosition);
+
+    // 3) Pack your cascade parameters into arrays
+    float cascadeDist[4] = float[]( shadowDistance1,
+                                    shadowDistance2,
+                                    shadowDistance3,
+                                    shadowDistance4 );
+    vec2  cascadeOffset[4] = vec2[]( vec2(0,0),
+                                     vec2(1,0),
+                                     vec2(0,1),
+                                     vec2(1,1) );
+    vec4  cascadeCoords[4] = vec4[]( v_shadowCoords1,
+                                     v_shadowCoords2,
+                                     v_shadowCoords3,
+                                     v_shadowCoords4 );
+    int   cascadeBias[4]   = int[]( 2, 1, 0, 0 );
+
+    // 4) Figure out which cascade we're in
+    int  idx       = 0;
+    for(int i = 0; i < 4; ++i) {
+        if (dist > cascadeDist[i]) {
+            idx = i;
+        }
+    }
+    int nextIdx = min(idx + 1, 3);
+
+    // 5) Compute a blend factor around the boundary
+    //    You can tweak 'blendZoneRatio' (e.g. 0.2 = 20% of the cascade range)
+    float prevLimit = (idx == 0) ? 0.0 : cascadeDist[idx - 1];
+    float currLimit = cascadeDist[idx];
+    float blendZoneRatio = 0.2;
+    float fadeStart = mix(prevLimit, currLimit, 1.0 - blendZoneRatio);
+    float blendF = smoothstep(fadeStart, currLimit, dist);
+
+    // 6) Sample both cascades—and mix!
+    float sh0 = GetDirectionalShadow(
+        cascadeOffset[idx],
+        cascadeDist[idx],
+        cascadeCoords[idx],
+        cascadeBias[idx]
+    );
+    float sh1 = GetDirectionalShadow(
+        cascadeOffset[nextIdx],
+        cascadeDist[nextIdx],
+        cascadeCoords[nextIdx],
+        cascadeBias[nextIdx]
+    );
+    float shadow = mix(sh0, sh1, blendF);
+
+    // 7) Apply shadow and return your final light
+    directionPower *= shadow;
+    return mix(vec3(0.2), vec3(1.0), directionPower);
 }

@@ -4,12 +4,25 @@
 
 vec3 LightManager::LightDirection = vec3(-1,-1,1);
 
-float LightManager::LightDistance = 20;
+float LightManager::LightDistance1 = 15;
+float LightManager::LightDistance2 = 38;
+float LightManager::LightDistance3 = 100;
+float LightManager::LightDistance4 = 300;
+
 int LightManager::ShadowMapResolution = 512;
 float LightManager::LightDistanceMultiplier = 1;
 
-mat4 LightManager::lightView;
-mat4 LightManager::lightProjection;
+mat4 LightManager::lightView1;
+mat4 LightManager::lightProjection1;
+
+mat4 LightManager::lightView2;
+mat4 LightManager::lightProjection2;
+
+mat4 LightManager::lightView3;
+mat4 LightManager::lightProjection3;
+
+mat4 LightManager::lightView4;
+mat4 LightManager::lightProjection4;
 
 LightManager::LightManager()
 {
@@ -27,7 +40,10 @@ void LightManager::Update()
     // 1) Tweakable parameters
     LightDirection = glm::normalize(LightDirection);
     
-    CalculateLightMatrices(LightDistance, lightView, lightProjection);
+    CalculateLightMatrices(LightDistance1, lightView1, lightProjection1);
+    CalculateLightMatrices(LightDistance2, lightView2, lightProjection2);
+    CalculateLightMatrices(LightDistance3, lightView3, lightProjection3);
+    CalculateLightMatrices(LightDistance4, lightView4, lightProjection4);
 
 }
 

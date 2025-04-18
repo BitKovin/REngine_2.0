@@ -11,7 +11,10 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 world;
 	
-uniform mat4 lightMatrix;
+uniform mat4 lightMatrix1;
+uniform mat4 lightMatrix2;
+uniform mat4 lightMatrix3;
+uniform mat4 lightMatrix4;
 
 uniform float brightness;
 
@@ -27,7 +30,10 @@ out vec3 v_normal;
 out vec3 v_worldPosition;
 out vec4 v_clipPosition;
 
-out vec4 v_shadowCoords;
+out vec4 v_shadowCoords1;
+out vec4 v_shadowCoords2;
+out vec4 v_shadowCoords3;
+out vec4 v_shadowCoords4;
 	
 mat4 GetBoneTransforms()
 {
@@ -75,6 +81,9 @@ void main()
 
     v_texcoord = TextureCoordinate;
 
-	v_shadowCoords = lightMatrix * vertWorldTrans * vec4(Position, 1.0);
+	v_shadowCoords1 = lightMatrix1 * vertWorldTrans * vec4(Position, 1.0);
+	v_shadowCoords2 = lightMatrix2 * vertWorldTrans * vec4(Position, 1.0);
+	v_shadowCoords3 = lightMatrix3 * vertWorldTrans * vec4(Position, 1.0);
+	v_shadowCoords4 = lightMatrix4 * vertWorldTrans * vec4(Position, 1.0);
 
 }

@@ -16,7 +16,10 @@ uniform float brightness;
 uniform mat4 projection;
 uniform mat4 view;
 
-uniform mat4 lightMatrix;
+uniform mat4 lightMatrix1;
+uniform mat4 lightMatrix2;
+uniform mat4 lightMatrix3;
+uniform mat4 lightMatrix4;
 
 out vec2 v_texcoord;
 out vec4 v_color;
@@ -24,7 +27,10 @@ out vec3 v_normal;
 out vec3 v_worldPosition;
 out vec4 v_clipPosition;
 
-out vec4 v_shadowCoords;
+out vec4 v_shadowCoords1;
+out vec4 v_shadowCoords2;
+out vec4 v_shadowCoords3;
+out vec4 v_shadowCoords4;
 
 uniform bool is_decal;
 
@@ -54,7 +60,10 @@ void main()
         v_normal = forward;
     }
 
-    v_shadowCoords = lightMatrix * worldPosition;
+    v_shadowCoords1 = lightMatrix1 * worldPosition;
+    v_shadowCoords2 = lightMatrix2 * worldPosition;
+    v_shadowCoords3 = lightMatrix3 * worldPosition;
+    v_shadowCoords4 = lightMatrix4 * worldPosition;
 
 
 }

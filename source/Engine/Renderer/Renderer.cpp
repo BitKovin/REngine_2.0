@@ -196,10 +196,23 @@ void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderLis
 
     glViewport(0, 0, halfRes, halfRes);
     for (auto* mesh : ShadowRenderList) {
-        mesh->DrawShadow(LightManager::lightView, LightManager::lightProjection);
+        mesh->DrawShadow(LightManager::lightView1, LightManager::lightProjection1);
     }
 
+    glViewport(halfRes, 0, halfRes, halfRes);
+    for (auto* mesh : ShadowRenderList) {
+        mesh->DrawShadow(LightManager::lightView2, LightManager::lightProjection2);
+    }
 
+    glViewport(0, halfRes, halfRes, halfRes);
+    for (auto* mesh : ShadowRenderList) {
+        mesh->DrawShadow(LightManager::lightView3, LightManager::lightProjection3);
+    }
+
+    glViewport(halfRes, halfRes, halfRes, halfRes);
+    for (auto* mesh : ShadowRenderList) {
+        mesh->DrawShadow(LightManager::lightView4, LightManager::lightProjection4);
+    }
 
 }
 
@@ -231,9 +244,21 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
 
     shader->SetUniform("brightness", 1.0f);
 
-    shader->SetUniform("lightMatrix", LightManager::lightProjection * LightManager::lightView);
+    shader->AllowMissingUniforms = true;
+
+    shader->SetUniform("lightMatrix1", LightManager::lightProjection1 * LightManager::lightView1);
+    shader->SetUniform("lightMatrix2", LightManager::lightProjection2 * LightManager::lightView2);
+    shader->SetUniform("lightMatrix3", LightManager::lightProjection3 * LightManager::lightView3);
+    shader->SetUniform("lightMatrix4", LightManager::lightProjection4 * LightManager::lightView4);
+
+
     shader->SetTexture("shadowMap", EngineMain::MainInstance->MainRenderer->DirectionalShadowMap->id());
-    shader->SetUniform("shadowDistance", LightManager::LightDistance);
+    shader->SetUniform("shadowDistance1", LightManager::LightDistance1);
+    shader->SetUniform("shadowDistance2", LightManager::LightDistance2);
+    shader->SetUniform("shadowDistance3", LightManager::LightDistance3);
+    shader->SetUniform("shadowDistance4", LightManager::LightDistance4);
+
+    shader->AllowMissingUniforms = false;
 
     shader->SetUniform("cameraPosition", Camera::finalizedPosition);
     shader->SetUniform("shadowMapSize", LightManager::ShadowMapResolution/2);
