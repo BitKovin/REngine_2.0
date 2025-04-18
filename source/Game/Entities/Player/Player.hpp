@@ -163,44 +163,7 @@ public:
 
     dtObstacleRef playerObstacle = 0;
 
-    void UpdateDebugUI()
-    {
-
-        ImGui::Begin("navigation");
-
-        ImGui::Checkbox("draw nav mesh", &NavigationSystem::DebugDrawNavMeshEnabled);
-
-		if (ImGui::Button("PlaceObstacle"))
-		{
-			NavigationSystem::RemoveObstacle(playerObstacle);
-			playerObstacle = NavigationSystem::CreateObstacleBox(Position - vec3(1, 1, 1), Position + vec3(1, 1, 1));
-		}
-
-		if (ImGui::Button("place start location"))
-		{
-			testStart = Position;
-			DebugDraw::Line(Position, Position - vec3(0, 1, 0), 2, 0.1);
-		}
-
-		if (ImGui::Button("calculate path to player"))
-		{
-			auto path = NavigationSystem::FindSimplePath(Position, testStart);
-
-			path.insert(path.begin(), Position);
-
-			DebugDraw::Path(path, 15, 0.05);
-		}
-
-        ImGui::End();
-
-        ImGui::Begin("weapon");
-
-
-        ImGui::DragFloat3("offset", &weaponOffset.x, 0.01);
-
-
-        ImGui::End();
-    }
+    void UpdateDebugUI();
 
     bool OnGround = false;
 
@@ -209,17 +172,13 @@ public:
 	void Update()
 	{
 
-
-
         OnGround = CheckGroundAt(Position);
-
-        cameraRotation.y += Input::MouseDelta.x;
-        cameraRotation.x -= Input::MouseDelta.y;
 
         if (Input::LockCursor) 
         {
 
-
+            cameraRotation.y += Input::MouseDelta.x;
+            cameraRotation.x -= Input::MouseDelta.y;
 
             if (OnGround)
                 if (Input::GetAction("jump")->Holding())
@@ -227,8 +186,6 @@ public:
                     Jump();
 
                 }
-
-
 
             if (Input::GetAction("attack")->Pressed())
             {
@@ -239,7 +196,7 @@ public:
 
         }
         
-            
+        
 
 		vec2 input = Input::GetLeftStickPosition();
 

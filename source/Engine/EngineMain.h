@@ -56,9 +56,11 @@ private:
 
     Texture* texture = 0;
 
-    Renderer* MainRenderer;
+
 
 public:
+
+    Renderer* MainRenderer;
 
 	SDL_Window* Window = nullptr;
 
@@ -256,7 +258,6 @@ public:
 
     }
 
-    bool msaa = false;
 
 	void GameUpdate()
 	{
@@ -277,8 +278,6 @@ public:
 
             Input::LockCursor = !Input::LockCursor;
 
-            msaa = !msaa;
-
         }
 
 
@@ -290,21 +289,6 @@ public:
 
         // Enable depth testing
         glEnable(GL_DEPTH_TEST);
-
-#if DESKTOP
-
-
-
-        if (msaa)
-        {
-            glEnable(GL_MULTISAMPLE);
-        }
-        else
-        {
-            glDisable(GL_MULTISAMPLE);
-        }
-
-#endif // DESKTOP
 
         glDisable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(1.0, 1.0);

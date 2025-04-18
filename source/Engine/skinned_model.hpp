@@ -7,7 +7,8 @@
 
 #include "Texture.hpp"
 
-#include "BoudingSphere.hpp"
+#include "BoundingSphere.hpp"
+#include "BoundingBox.hpp"
 
 #define MAX_BONE_INFLUENCE 4
 
@@ -76,7 +77,8 @@ namespace roj
 
 		BoneNode defaultRoot;
 
-		BoudingSphere boundingSphere;
+		BoundingSphere boundingSphere;
+		BoundingBox boundingBox;
 
 		std::vector<SkinnedMesh>::iterator begin();
 		std::vector<SkinnedMesh>::iterator end();

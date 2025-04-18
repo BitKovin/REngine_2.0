@@ -12,6 +12,8 @@
 
 #include <unordered_map> // Required for unordered_map
 
+#include "DebugDraw.hpp"
+
 using namespace std;
 
 class BrushFaceMesh : public StaticMesh
@@ -44,6 +46,16 @@ public:
 
 		delete(model);
 	}
+
+    bool IsInFrustrum(Frustum frustrum) override
+    {
+
+        auto box = model->boundingBox.Transform(Position, Rotation, Scale);
+
+        DebugDraw::Bounds(box.Min, box.Max, 0.0);
+
+        return frustrum.IsBoxVisible(box.Min, box.Max);
+    };
 
 	static vector<BrushFaceMesh*> GetMeshesFromName(string filePath, string name, roj::ModelLoader<roj::SkinnedMesh>* modelLoader)
 	{
@@ -170,8 +182,8 @@ public:
             roj::SkinnedModel* newModel = new roj::SkinnedModel();
             newModel->meshes.push_back(mergedMesh);
 
-            newModel->boundingSphere = BoudingSphere::FromVertices(merged.vertices);
-
+            newModel->boundingSphere = BoundingSphere::FromVertices(merged.vertices);
+            newModel->boundingBox = BoundingBox::FromVertices(merged.vertices);
 
             // Create a new BrushFaceMesh and set its properties
             BrushFaceMesh* mergedFace = new BrushFaceMesh();

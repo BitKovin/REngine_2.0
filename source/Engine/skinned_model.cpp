@@ -315,7 +315,8 @@ namespace roj
 
 		extractAnimations(m_scene, m_model);
 
-		m_model.boundingSphere = BoudingSphere::FromPoints(vertexPositions);
+		m_model.boundingSphere = BoundingSphere::FromPoints(vertexPositions);
+		m_model.boundingBox = BoundingBox::FromPoints(vertexPositions);
 
 		if (m_model.boneCount > 0)
 		{

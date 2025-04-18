@@ -21,6 +21,10 @@ public:
 
 	void RenderFullscreenQuad(GLuint textureID);
 
+	static void SetSurfaceShaderUniforms(ShaderProgram* shader);
+
+	int MultiSampleCount = 1;
+
 private:
 
 	inline ivec2 GetScreenResolution() const;

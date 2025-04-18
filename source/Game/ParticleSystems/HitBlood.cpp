@@ -143,6 +143,8 @@ public:
         if (particle.lifeTime < 3.5f)
             particle.UserValue1 += deltaTime;
 
+        particle.UserValue3 -= deltaTime;
+
         const float spawnInterval = 0.07f;
         if (particle.UserValue1 > spawnInterval)
         {
@@ -156,16 +158,19 @@ public:
         particle.velocity -= glm::vec3(0, 10.0f, 0) * (deltaTime / 2.0f);
         particle = ParticleEmitter::UpdateParticle(particle, deltaTime);
 
-        if (particle.UserValue2 < 2)
+
+        if (particle.UserValue2 < 2 && particle.UserValue3<=0)
         {
             
+            particle.UserValue3 = 0.1;
+
                 glm::vec3 dir = glm::normalize(particle.velocity);
 				auto hit = Physics::LineTrace(
-					oldPos,
+                    particle.position2,
 					particle.position,
 					BodyType::World
 				);
-				if (hit.hasHit && glm::distance(hit.position, particle.position2) > 0.25f)
+				if (hit.hasHit)
 				{
 
 					if (RandomFloat() < ((particle.UserValue2 == 0) ? 0.5f : 0.5f))
@@ -182,6 +187,9 @@ public:
 
 					}
 				}
+
+                particle.position2 = particle.position;
+
 		}
 
         particle.velocity -= glm::vec3(0, 10.0f, 0) * (deltaTime / 2.0f);
@@ -214,6 +222,10 @@ public:
         particle.deathTime = 3.0f;
         particle.rotation = RandomFloat() * 500.0f;
         particle.Color = glm::vec4(0.65f, 0.65f, 0.65f, 1.0f);
+
+        particle.UserValue3 = RandomFloat() / 3;
+
+        particle.position2 = particle.position;
 
         return particle;
     }

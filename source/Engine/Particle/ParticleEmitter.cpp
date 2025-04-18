@@ -5,7 +5,9 @@
 #include "../ShaderManager.h"
 
 #include "../FrustrumCull.hpp"
-#include "../BoudingSphere.hpp"
+#include "../BoundingSphere.hpp"
+
+#include "../Renderer/Renderer.h"
 
 VertexArrayObject* ParticleEmitter::bilboardVAO = nullptr;
 
@@ -37,7 +39,11 @@ void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
     forward_shader_program->SetUniform("view", view);
     forward_shader_program->SetUniform("projection", projection);
 
+    forward_shader_program->SetUniform("is_particle", true);
+
     forward_shader_program->SetUniform("isViewmodel", false);
+
+    Renderer::SetSurfaceShaderUniforms(forward_shader_program);
 
     forward_shader_program->SetTexture("u_texture", savedTexture);
 
@@ -47,6 +53,8 @@ void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
 	
     int instanceCount = static_cast<int>(instances.size());
     glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(bilboardVAO->IndexCount), GL_UNSIGNED_INT, 0, instanceCount);
+
+    forward_shader_program->SetUniform("is_particle", false);
 
     glDepthMask(GL_TRUE);
     glEnable(GL_CULL_FACE);

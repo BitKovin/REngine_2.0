@@ -234,6 +234,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Entities\Brushes\DestructubleBrush.cpp" />
     <ClCompile Include="Entities\Player\Player.cpp" />
     <ClCompile Include="Entities\TestNpc.cpp" />
     <ClCompile Include="Entities\TestParticleSystem.cpp" />

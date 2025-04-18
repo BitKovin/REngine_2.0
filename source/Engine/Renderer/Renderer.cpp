@@ -38,8 +38,8 @@ Renderer::Renderer()
     // resize all our buffers
     colorBuffer->resize(screenResolution.x, screenResolution.y);
     depthBuffer->resize(screenResolution.x, screenResolution.y);
-    colorBuffer->setSamples(4);
-    depthBuffer->setSamples(4);
+    colorBuffer->setSamples(MultiSampleCount);
+    depthBuffer->setSamples(MultiSampleCount);
 
     colorResolveBuffer->resize(screenResolution.x, screenResolution.y);
     depthResolveBuffer->resize(screenResolution.x, screenResolution.y);
@@ -73,18 +73,39 @@ void Renderer::RenderLevel(Level* level)
 
 void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 {
-
     ivec2 res = GetScreenResolution();
 
+    #ifndef __EMSCRIPTEN__
+
+    if (MultiSampleCount)
+    {
+        glEnable(GL_MULTISAMPLE);
+    }
+    else
+    {
+        glDisable(GL_MULTISAMPLE);
+    }
+
+#endif // !__EMSCRIPTEN__
+
+    if (MultiSampleCount) 
+    {
+        colorBuffer->setSamples(MultiSampleCount);
+        depthBuffer->setSamples(MultiSampleCount);
+    }
+    else
+    {
+        colorBuffer->setSamples(1);
+        depthBuffer->setSamples(1);
+    }
     // resize all our buffers
     colorBuffer->resize(res.x, res.y);
     depthBuffer->resize(res.x, res.y);
 
-    colorBuffer->setSamples(8);
-    depthBuffer->setSamples(8);
-
     colorResolveBuffer->resize(res.x, res.y);
     depthResolveBuffer->resize(res.x, res.y);
+
+
 
     // 1) bind the one multisample FBO with both attachments
     forwardFBO.bind();
@@ -140,6 +161,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
         mesh->DrawForward(Camera::finalizedView, P);
     }
 
+    DebugDraw::Draw();
 
     forwardFBO.unbind();
 
@@ -167,6 +189,16 @@ void Renderer::RenderFullscreenQuad(GLuint textureID)
 	glBindVertexArray(0);
 
 	glEnable(GL_DEPTH_TEST);
+
+}
+
+void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
+{
+    if (shader == nullptr) return;
+
+    shader->SetUniform("lightDirection", vec3(0,-1,0));
+
+    shader->SetUniform("brightness", 1.0f);
 
 }
 

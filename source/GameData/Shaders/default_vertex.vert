@@ -11,6 +11,9 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 world;
 	
+
+uniform float brightness;
+
 const int MAX_BONES = 100;
 const int MAX_BONE_INFLUENCE = 4;
 uniform mat4 finalBonesMatrices[MAX_BONES];
@@ -19,6 +22,9 @@ uniform bool isViewmodel;
 
 out vec2 v_texcoord;
 out vec4 v_color;
+out vec3 v_normal;
+out vec3 v_worldPosition;
+out vec4 v_clipPosition;
 	
 mat4 GetBoneTransforms()
 {
@@ -51,14 +57,18 @@ void main()
 
     mat4 vertWorldTrans = world * boneTrans;
 
-    gl_Position = projection * view * vertWorldTrans * vec4(Position, 1.0);
-
-	v_color = vec4(1.0);
-
-	v_color.rgb/=2.0;
+    v_clipPosition = projection * view * vertWorldTrans * vec4(Position, 1.0);
 
 	if(isViewmodel)
-	gl_Position.z*=0.01;
+		v_clipPosition.z*=0.01;
+
+	gl_Position = v_clipPosition;
+	v_worldPosition = (vertWorldTrans * vec4(Position, 1.0)).xyz;
+	mat3 normalMatrix = transpose(inverse(mat3(vertWorldTrans)));
+	v_normal = normalize(normalMatrix * Normal);
+
+
+	v_color = vec4(brightness,brightness,brightness, 1);
 
     v_texcoord = TextureCoordinate;
 }
