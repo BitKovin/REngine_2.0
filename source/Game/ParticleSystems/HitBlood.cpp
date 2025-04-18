@@ -14,6 +14,7 @@ public:
 
         Transparent = true;
 
+        isDecal = true;
         DepthSorting = false;
 
 	}

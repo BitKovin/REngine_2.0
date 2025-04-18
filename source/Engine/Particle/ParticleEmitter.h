@@ -194,6 +194,8 @@ public:
 	glm::vec3 Rotation;   // emitter's rotation; could be represented by a quaternion (glm::quat) if preferred.
 	glm::vec3 Scale = vec3(1);
 
+	bool isDecal;
+
 	string texture = "";
 
 	bool DepthSorting = true;

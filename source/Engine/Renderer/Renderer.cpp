@@ -2,6 +2,8 @@
 
 #include "../EngineMain.h"
 
+#include "../LightSystem/LightManager.h"
+
 Renderer::Renderer()
 {
 	ivec2 screenResolution = GetScreenResolution();
@@ -44,6 +46,10 @@ Renderer::Renderer()
     colorResolveBuffer->resize(screenResolution.x, screenResolution.y);
     depthResolveBuffer->resize(screenResolution.x, screenResolution.y);
 
+
+    DirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
+    DirectionalShadowMapFBO.attachDepth(DirectionalShadowMap);
+
 	InitFullscreenVAO();
 
 }
@@ -60,9 +66,9 @@ Renderer::~Renderer()
 void Renderer::RenderLevel(Level* level)
 {
 
-	vector<IDrawMesh*> renderList = level->VissibleRenderList;
+    RenderDirectionalLightShadows(level->ShadowRenderList);
 
-	RenderCameraForward(renderList);
+	RenderCameraForward(level->VissibleRenderList);
 
 	//rendering to screen
 	ivec2 screenResolution = GetScreenResolution();
@@ -172,6 +178,27 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 
 }
 
+void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderList)
+{
+
+    DirectionalShadowMapFBO.bind();
+
+    glViewport(0, 0, LightManager::ShadowMapResolution, LightManager::ShadowMapResolution);
+
+    glEnable(GL_DEPTH_TEST);
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDepthMask(GL_TRUE);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glDepthFunc(GL_LESS);
+    glEnable(GL_CULL_FACE);
+
+
+    for (auto* mesh : ShadowRenderList) {
+        mesh->DrawShadow(LightManager::lightView, LightManager::lightProjection);
+    }
+
+}
+
 void Renderer::RenderFullscreenQuad(GLuint textureID)
 {
 
@@ -196,9 +223,18 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
 {
     if (shader == nullptr) return;
 
-    shader->SetUniform("lightDirection", vec3(0,-1,0));
+    shader->SetUniform("lightDirection", LightManager::LightDirection);
 
     shader->SetUniform("brightness", 1.0f);
+
+    shader->SetUniform("lightMatrix", LightManager::lightProjection * LightManager::lightView);
+    shader->SetTexture("shadowMap", EngineMain::MainInstance->MainRenderer->DirectionalShadowMap->id());
+    shader->SetUniform("shadowDistance", LightManager::LightDistance);
+
+    shader->SetUniform("cameraPosition", Camera::finalizedPosition);
+    shader->SetUniform("shadowMapSize", LightManager::ShadowMapResolution);
+
+
 
 }
 

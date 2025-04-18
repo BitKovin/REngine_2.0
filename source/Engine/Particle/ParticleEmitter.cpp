@@ -39,7 +39,8 @@ void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
     forward_shader_program->SetUniform("view", view);
     forward_shader_program->SetUniform("projection", projection);
 
-    forward_shader_program->SetUniform("is_particle", true);
+    forward_shader_program->SetUniform("is_particle", isDecal == false);
+    forward_shader_program->SetUniform("is_decal", isDecal);
 
     forward_shader_program->SetUniform("isViewmodel", false);
 
@@ -55,6 +56,7 @@ void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
     glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(bilboardVAO->IndexCount), GL_UNSIGNED_INT, 0, instanceCount);
 
     forward_shader_program->SetUniform("is_particle", false);
+    forward_shader_program->SetUniform("is_decal", false);
 
     glDepthMask(GL_TRUE);
     glEnable(GL_CULL_FACE);

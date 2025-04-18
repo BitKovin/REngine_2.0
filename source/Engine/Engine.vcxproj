@@ -252,6 +252,7 @@
     <ClCompile Include="Input.h" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="LevelObjectFactory.cpp" />
+    <ClCompile Include="LightSystem\LightManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapData.cpp" />
     <ClCompile Include="MapParser.cpp" />
@@ -323,6 +324,7 @@
     <ClInclude Include="LevelObject.hpp" />
     <ClInclude Include="Level.hpp" />
     <ClInclude Include="LevelObjectFactory.h" />
+    <ClInclude Include="LightSystem\LightManager.h" />
     <ClInclude Include="Logger.hpp" />
     <ClInclude Include="MapData.h" />
     <ClInclude Include="MapParser.h" />

@@ -44,7 +44,7 @@ void Player::UpdateDebugUI()
     ImGui::End();
 
     ImGui::Begin("graphic");
-    ImGui::SliderInt("multisample count",&EngineMain::MainInstance->MainRenderer->MultiSampleCount,0,16);
+    ImGui::SliderInt("multisample count",&EngineMain::MainInstance->MainRenderer->MultiSampleCount,0,8);
     ImGui::End();
 
 }

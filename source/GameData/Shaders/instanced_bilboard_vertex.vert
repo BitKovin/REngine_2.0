@@ -11,11 +11,22 @@ layout(location = 12) in vec4 instanceModel2;
 layout(location = 13) in vec4 instanceModel3;
 layout(location = 14) in vec4 instanceColor;
 
+uniform float brightness;
+
 uniform mat4 projection;
 uniform mat4 view;
 
+uniform mat4 lightMatrix;
+
 out vec2 v_texcoord;
 out vec4 v_color;
+out vec3 v_normal;
+out vec3 v_worldPosition;
+out vec4 v_clipPosition;
+
+out vec4 v_shadowCoords;
+
+uniform bool is_decal;
 
 void main()
 {
@@ -25,10 +36,25 @@ void main()
     // Compute world position using the instance model matrix.
     vec4 worldPosition = model * vec4(Position, 1.0);
 
+    v_worldPosition = worldPosition.xyz;
+
     // Compute clip space position.
     gl_Position = projection * view * worldPosition;
 
+    v_clipPosition = gl_Position;
+
     v_texcoord = TextureCoordinate;
-    v_color = instanceColor;
-    v_color.rgb/=2.0;
+    v_color = instanceColor * vec4(brightness,brightness,brightness, 1);
+
+    v_normal = vec3(0,1,0);
+
+    if(is_decal)
+    {
+        vec3 forward = normalize(model[2].xyz);
+        v_normal = forward;
+    }
+
+    v_shadowCoords = lightMatrix * worldPosition;
+
+
 }

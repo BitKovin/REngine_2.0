@@ -22,6 +22,10 @@ private:
 
 	mat4 finalizedWorld;
 
+	vec3 finalizedPosition = vec3(0);
+	vec3 finalizedRotation = vec3(0);
+	vec3 finalizedScale = vec3(1);
+
 protected:
 
 	virtual void ApplyAdditionalShaderParams(ShaderProgram* shader_program)
@@ -50,6 +54,7 @@ public:
 
 	vec3 Position = vec3(0);
 	vec3 Rotation = vec3(0);
+
 	vec3 Scale = vec3(1);
 
 	string TexturesLocation = "GameData/Textures/";
@@ -114,6 +119,9 @@ public:
 	void FinalizeFrameData()
 	{
 		finalizedWorld = GetWorldMatrix();
+		finalizedPosition = Position;
+		finalizedRotation = Rotation;
+		finalizedScale = Scale;
 	}
 
 
@@ -129,7 +137,7 @@ public:
 	bool IsInFrustrum(Frustum frustrum)
 	{
 
-		auto sphere = model->boundingSphere.Transform(Position, Rotation, Scale);
+		auto sphere = model->boundingSphere.Transform(finalizedPosition, finalizedRotation, finalizedScale);
 
 		return frustrum.IsSphereVisible(sphere.offset, sphere.Radius);
 	};
@@ -165,7 +173,7 @@ public:
 
 	void DrawShadow(mat4x4 view, mat4x4 projection)
 	{
-		ShaderProgram* shader_program = ShaderManager::GetShaderProgram("skeletal", "empty_pixel");
+		ShaderProgram* shader_program = ShaderManager::GetShaderProgram("default_vertex", "empty_pixel");
 
 		shader_program->UseProgram();
 

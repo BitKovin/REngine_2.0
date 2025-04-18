@@ -125,6 +125,11 @@ void RenderTexture::setParameters(GLenum minFilter,
     glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap);
     if (m_type == TextureType::Cubemap)
         glTexParameteri(target, GL_TEXTURE_WRAP_R, wrap);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+
+
     glBindTexture(target, 0);
 }
 

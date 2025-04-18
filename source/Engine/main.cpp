@@ -256,16 +256,17 @@ void emscripten_render_loop() {
     // Apply median filter if we have enough history
     vec2 filtered_delta = Input::PendingMouseDelta;
     if (delta_history.size() == history_size) {
-        std::array<float, history_size> x_deltas;
-        std::array<float, history_size> y_deltas;
+        std::array<float, history_size> x_deltas, y_deltas;
         for (size_t i = 0; i < history_size; ++i) {
             x_deltas[i] = delta_history[i].x;
             y_deltas[i] = delta_history[i].y;
         }
-        std::sort(x_deltas.begin(), x_deltas.end());
+        std::sort(x_deltas.begin(), x_deltas.end()); // ascending: [smallest, mid, largest]
         std::sort(y_deltas.begin(), y_deltas.end());
-        filtered_delta.x = x_deltas[history_size / 2]; // Median
-        filtered_delta.y = y_deltas[history_size / 2];
+
+        // drop the largest (index 2), average the two smallest (indices 0 and 1)
+        filtered_delta.x = (x_deltas[0] + x_deltas[1]) * 0.5f;
+        filtered_delta.y = (y_deltas[0] + y_deltas[1]) * 0.5f;
     }
 
     // Temporarily set PendingMouseDelta to filtered value for engine
@@ -275,8 +276,6 @@ void emscripten_render_loop() {
     // Call engine main loop
     engine->MainLoop();
 
-    // Restore original delta (if engine doesn't consume it)
-    Input::PendingMouseDelta = original_delta;
 }
 
 int main(int argc, char* args[]) 

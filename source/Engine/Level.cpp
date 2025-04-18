@@ -7,6 +7,8 @@
 
 #include "EngineMain.h"
 
+#include "LightSystem/LightManager.h"
+
 Level* Level::Current = nullptr;
 
 void Level::CloseLevel()
@@ -80,4 +82,84 @@ void Level::AsyncUpdate()
 	asyncUpdateThreadPool->WaitForFinish();
 
 	RemovePendingEntities();
+}
+
+void Level::FinalizeFrame()
+{
+
+	VissibleRenderList.clear();
+
+	vector<IDrawMesh*> opaque;
+	vector<IDrawMesh*> transparent;
+
+	vector<IDrawMesh*> allShadowCasters;
+
+	{
+
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
+		for (auto var : LevelObjects)
+		{
+
+			for (IDrawMesh* mesh : var->GetDrawMeshes())
+			{
+
+				mesh->FinalizeFrameData();
+
+				if (mesh->IsCameraVisible())
+				{
+					if (mesh->Transparent)
+					{
+						transparent.push_back(mesh);
+					}
+					else
+					{
+						opaque.push_back(mesh);
+					}
+
+					mesh->LastRenderedTime = Time::GameTime;
+					mesh->WasRended = true;
+				}
+				else
+				{
+					mesh->WasRended = false;
+				}
+
+				allShadowCasters.push_back(mesh);
+
+			}
+
+		}
+	}
+
+
+
+	// Sort opaque objects from closest to farthest (ascending order by distance).
+	std::sort(opaque.begin(), opaque.end(),
+		[](IDrawMesh* a, IDrawMesh* b) {
+			return a->GetDistanceToCamera() < b->GetDistanceToCamera();
+		});
+
+	// Sort transparent objects from farthest to closest (descending order by distance).
+	std::sort(transparent.begin(), transparent.end(),
+		[](IDrawMesh* a, IDrawMesh* b) {
+			return a->GetDistanceToCamera() > b->GetDistanceToCamera();
+		});
+
+	// Append sorted opaque objects first.
+	for (auto mesh : opaque)
+	{
+		VissibleRenderList.push_back(mesh);
+	}
+
+	// Append sorted transparent objects second.
+	for (auto mesh : transparent)
+	{
+		VissibleRenderList.push_back(mesh);
+	}
+
+	ShadowRenderList = allShadowCasters;
+
+	LightManager::Update();
+
 }
