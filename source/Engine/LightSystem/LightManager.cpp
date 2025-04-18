@@ -4,12 +4,12 @@
 
 vec3 LightManager::LightDirection = vec3(-1,-1,1);
 
-float LightManager::LightDistance1 = 15;
-float LightManager::LightDistance2 = 38;
-float LightManager::LightDistance3 = 100;
-float LightManager::LightDistance4 = 300;
+float LightManager::LightDistance1 = 30;
+float LightManager::LightDistance2 = 60;
+float LightManager::LightDistance3 = 120;
+float LightManager::LightDistance4 = 240;
 
-int LightManager::ShadowMapResolution = 512;
+int LightManager::ShadowMapResolution = 1024;
 float LightManager::LightDistanceMultiplier = 1;
 
 mat4 LightManager::lightView1;
