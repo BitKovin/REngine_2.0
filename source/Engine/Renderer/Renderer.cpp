@@ -183,7 +183,9 @@ void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderLis
 
     DirectionalShadowMapFBO.bind();
 
-    glViewport(0, 0, LightManager::ShadowMapResolution, LightManager::ShadowMapResolution);
+    int halfRes = LightManager::ShadowMapResolution / 2;
+
+    
 
     glEnable(GL_DEPTH_TEST);
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -192,10 +194,12 @@ void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderLis
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
 
-
+    glViewport(0, 0, halfRes, halfRes);
     for (auto* mesh : ShadowRenderList) {
         mesh->DrawShadow(LightManager::lightView, LightManager::lightProjection);
     }
+
+
 
 }
 
@@ -232,7 +236,7 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
     shader->SetUniform("shadowDistance", LightManager::LightDistance);
 
     shader->SetUniform("cameraPosition", Camera::finalizedPosition);
-    shader->SetUniform("shadowMapSize", LightManager::ShadowMapResolution);
+    shader->SetUniform("shadowMapSize", LightManager::ShadowMapResolution/2);
 
 
 

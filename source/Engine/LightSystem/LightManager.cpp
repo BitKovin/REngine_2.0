@@ -26,52 +26,51 @@ void LightManager::Update()
 {
     // 1) Tweakable parameters
     LightDirection = glm::normalize(LightDirection);
-    float lightDistance = LightManager::LightDistance;
-    float shadowRes = LightManager::ShadowMapResolution;  // e.g. 2048
-    float nearPlane = -100;
-    float farPlane = lightDistance;
+    
+    CalculateLightMatrices(LightDistance, lightView, lightProjection);
+
+}
+
+void LightManager::CalculateLightMatrices(
+    float lightDistance,
+    glm::mat4& outLightView,
+    glm::mat4& outLightProjection
+) {
+    // 1) prep
+    glm::vec3 cameraPos = Camera::finalizedPosition;
+    glm::vec3 L = glm::normalize(LightDirection);
     float halfSize = lightDistance;
+    float nearPlane = -100.0f;
+    float farPlane = lightDistance;
+    float shadowResH = ShadowMapResolution * 0.5f;
 
-    // 2) Position your “light camera” out along the light direction
-    glm::vec3 camPos = Camera::finalizedPosition;
-    glm::vec3 lightCamPos = camPos;
-
-    // 3) Build the raw view & projection
-    lightView = glm::lookAt(
-        lightCamPos,
-        lightCamPos + LightDirection,
+    // 2) build raw view + ortho
+    glm::mat4 view = glm::lookAt(
+        cameraPos,
+        cameraPos + L,
         glm::vec3(0, 0, 1)
     );
-    lightProjection = glm::ortho(
+    glm::mat4 proj = glm::ortho(
         -halfSize, +halfSize,
         -halfSize, +halfSize,
         nearPlane, farPlane
     );
 
-    //
-    // ——— 4) SNAP TO TEXEL GRID ———
-    // Instead of inverting matrices, we simply figure out
-    // how much to shift the view so that the origin of the
-    // light‐space grid lands on exact integer texel centers.
-    //
-    // (a) Transform world‐origin into light‐view space:
-    glm::vec4 originLS = lightView * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-    // (b) Figure out how many world‐space units each shadow‐map texel covers:
-    float worldUnitsPerTexel = (2.0f * halfSize) / shadowRes;
-
-    // (c) Round the x/y of that origin into exact texel increments:
-    float snappedX = std::floor(originLS.x / worldUnitsPerTexel) * worldUnitsPerTexel;
-    float snappedY = std::floor(originLS.y / worldUnitsPerTexel) * worldUnitsPerTexel;
-
-    // (d) Compute the small offset needed to move originLS → snapped:
-    glm::vec3 offset = glm::vec3(snappedX - originLS.x,
+    // 3) snap-to-texel-grid
+    glm::vec4 originLS = view * glm::vec4(0, 0, 0, 1);
+    float worldPerTexel = (2.0f * halfSize) / shadowResH;
+    float snappedX = std::floor(originLS.x / worldPerTexel) * worldPerTexel;
+    float snappedY = std::floor(originLS.y / worldPerTexel) * worldPerTexel;
+    glm::vec3 offset(
+        snappedX - originLS.x,
         snappedY - originLS.y,
-        0.0f);
+        0.0f
+    );
+    view = glm::translate(glm::mat4(1.0f), offset) * view;
 
-    // (e) Pre‑concatenate a translation so the entire view is shifted:
-    lightView = glm::translate(glm::mat4(1.0f), offset) * lightView;
-
+    // 4) output
+    outLightView = view;
+    outLightProjection = proj;
 }
 
 

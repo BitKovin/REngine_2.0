@@ -46,6 +46,8 @@ float GetDirectionalShadow()
     vec4 sc  = v_shadowCoords / v_shadowCoords.w;
     vec3 pc  = sc.xyz * 0.5 + 0.5;
 
+    pc *= vec3(0.5,0.5,1);
+
     float worldBias = -0.05 / 20.0 * shadowDistance * 512.0 / float(shadowMapSize);
     const int pcfRadius = 2;
 
@@ -69,7 +71,7 @@ float bias          = worldBias * depthScale / v_shadowCoords.w;
         return 1.0;
 
     // 4) compute one texel in normalized coords, then scale by your desired radius
-    vec2 texelSize = 1.0 / vec2(shadowMapSize,shadowMapSize);
+    vec2 texelSize = 0.5 / vec2(shadowMapSize,shadowMapSize);
     vec2 radiusUV = texelSize;
 
     // 5) PCF: average 3×3 samples

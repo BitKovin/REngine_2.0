@@ -21,7 +21,11 @@ public:
 
 private:
 
-
+	static void CalculateLightMatrices(
+		float lightDistance,
+		glm::mat4& outLightView,
+		glm::mat4& outLightProjection
+	);
 
 };
 
