@@ -55,7 +55,7 @@ void LightManager::CalculateLightMatrices(
     // 1) prep
     glm::vec3 cameraPos = Camera::finalizedPosition;
 
-    float hFactor = 1.0f;
+    float hFactor = 0;
 
     cameraPos += MathHelper::FastNormalize(MathHelper::XZ(MathHelper::GetForwardVector(Camera::finalizedRotation))) * lightDistance / 3.0f * hFactor;
 

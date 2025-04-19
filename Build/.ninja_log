@@ -72,3 +72,9 @@
 34	6850	7667226630585835	CMakeFiles/engine.dir/source/Engine/EngineMain.cpp.o	813fa27ebf778de0
 6850	7336	7667226698746125	libengine.a	88dfbbb07556e884
 7336	18741	7667226703606031	main.js	c58fca3dc7e007b2
+11	1089	7667244383323188	CMakeFiles/engine.dir/source/Engine/LightSystem/LightManager.cpp.o	96014d030cff7fab
+1090	1313	7667244394121316	libengine.a	88dfbbb07556e884
+1313	4469	7667244396351531	main.js	c58fca3dc7e007b2
+23	1151	7667245797837366	CMakeFiles/engine.dir/source/Engine/LightSystem/LightManager.cpp.o	96014d030cff7fab
+1152	1385	7667245809125337	libengine.a	88dfbbb07556e884
+1385	4453	7667245811454549	main.js	c58fca3dc7e007b2
