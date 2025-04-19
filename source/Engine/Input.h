@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_joystick.h>
@@ -19,6 +19,36 @@ class InputAction;
 class MouseMoveCalculator {
 public:
     virtual glm::vec2 GetMouseDelta() { return glm::vec2(); }
+};
+
+enum class GamepadButton : int {
+    Invalid = SDL_CONTROLLER_BUTTON_INVALID,   // usually -1
+    A = SDL_CONTROLLER_BUTTON_A,         // 0
+    B = SDL_CONTROLLER_BUTTON_B,         // 1
+    X = SDL_CONTROLLER_BUTTON_X,         // 2
+    Y = SDL_CONTROLLER_BUTTON_Y,         // 3
+    Back = SDL_CONTROLLER_BUTTON_BACK,      // 4
+    Guide = SDL_CONTROLLER_BUTTON_GUIDE,     // 5
+    Start = SDL_CONTROLLER_BUTTON_START,     // 6
+    LeftStick = SDL_CONTROLLER_BUTTON_LEFTSTICK, // 7
+    RightStick = SDL_CONTROLLER_BUTTON_RIGHTSTICK,// 8
+    LeftShoulder = SDL_CONTROLLER_BUTTON_LEFTSHOULDER,  // 9
+    RightShoulder = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, // 10
+    DPadUp = SDL_CONTROLLER_BUTTON_DPAD_UP,       // 11
+    DPadDown = SDL_CONTROLLER_BUTTON_DPAD_DOWN,     // 12
+    DPadLeft = SDL_CONTROLLER_BUTTON_DPAD_LEFT,     // 13
+    DPadRight = SDL_CONTROLLER_BUTTON_DPAD_RIGHT,    // 14
+    Misc1 = SDL_CONTROLLER_BUTTON_MISC1,     // 15, platform‑specific
+    Paddle1 = SDL_CONTROLLER_BUTTON_PADDLE1,   // 16
+    Paddle2 = SDL_CONTROLLER_BUTTON_PADDLE2,   // 17
+    Paddle3 = SDL_CONTROLLER_BUTTON_PADDLE3,   // 18
+    Paddle4 = SDL_CONTROLLER_BUTTON_PADDLE4,   // 19
+    Touchpad = SDL_CONTROLLER_BUTTON_TOUCHPAD,  // 20
+    Max = SDL_CONTROLLER_BUTTON_MAX,       // 21
+
+    LeftTrigger = 101,
+    RightTrigger = 102
+
 };
 
 class Input {
@@ -86,7 +116,7 @@ class InputAction : public EObject {
 public:
     std::vector<SDL_Scancode> keys;
     // For joystick buttons, we simply use int indices.
-    std::vector<int> buttons;
+    std::vector<GamepadButton> buttons;
     bool LMB = false;
     bool RMB = false;
     bool MMB = false;
@@ -97,8 +127,8 @@ public:
 
     InputAction* AddKeyboardKey(SDL_Scancode key);
     InputAction* RemoveKeyboardKey(SDL_Scancode key);
-    InputAction* AddButton(int button);
-    InputAction* RemoveButton(int button);
+    InputAction* AddButton(GamepadButton button);
+    InputAction* RemoveButton(GamepadButton button);
 
     // Returns true on the frame the action was pressed.
     bool Pressed() const;

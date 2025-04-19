@@ -281,12 +281,12 @@ InputAction* InputAction::RemoveKeyboardKey(SDL_Scancode key) {
     return this;
 }
 
-InputAction* InputAction::AddButton(int button) {
+InputAction* InputAction::AddButton(GamepadButton button) {
     buttons.push_back(button);
     return this;
 }
 
-InputAction* InputAction::RemoveButton(int button) {
+InputAction* InputAction::RemoveButton(GamepadButton button) {
     buttons.erase(std::remove(buttons.begin(), buttons.end(), button), buttons.end());
     return this;
 }
@@ -336,8 +336,37 @@ void InputAction::Update() {
 
     // Check joystick buttons.
     if (Input::joystick) {
-        for (auto button : buttons) {
-            if (SDL_JoystickGetButton(Input::joystick, button))
+
+        for (auto button : buttons) 
+        {
+
+            if (button == GamepadButton::LeftTrigger)
+            {
+                auto trigger = SDL_JoystickGetAxis(Input::joystick, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+                float ltNorm = trigger / 32767.0f;
+
+                bool ltPressed = (ltNorm > 0.3f);
+
+                if(ltPressed)
+                    pressing = true;
+
+                continue;
+            }
+
+            if (button == GamepadButton::RightTrigger)
+            {
+                auto trigger = SDL_JoystickGetAxis(Input::joystick, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+                float rtNorm = trigger / 32767.0f;
+
+                bool ltPressed = (rtNorm > 0.3f);
+
+                if (ltPressed)
+                    pressing = true;
+
+                continue;
+            }
+
+            if (SDL_JoystickGetButton(Input::joystick, (int)button))
                 pressing = true;
         }
     }

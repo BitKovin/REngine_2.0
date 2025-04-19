@@ -81,11 +81,11 @@ void EngineMain::InitInputs()
     Input::AddAction("left")->AddKeyboardKey(SDL_GetScancodeFromKey(SDL_KeyCode::SDLK_a));
     Input::AddAction("right")->AddKeyboardKey(SDL_GetScancodeFromKey(SDL_KeyCode::SDLK_d));
 
-    Input::AddAction("jump")->AddKeyboardKey(SDL_GetScancodeFromKey(SDL_KeyCode::SDLK_SPACE));
+    Input::AddAction("jump")->AddKeyboardKey(SDL_GetScancodeFromKey(SDL_KeyCode::SDLK_SPACE))->AddButton(GamepadButton::A);
 
     Input::AddAction("click")->LMB = true;
 
-    Input::AddAction("attack")->AddButton(5)->LMB = true;
+    Input::AddAction("attack")->AddButton(GamepadButton::RightTrigger)->LMB = true;
 
     int maxUniforms;
 
