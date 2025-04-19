@@ -37,6 +37,8 @@ private:
 
     Delay jumpDelay;
 
+    bool freeFly = false;
+
     glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
         vel = MathHelper::XZ(vel);
         float length = glm::length(vel);
@@ -216,6 +218,8 @@ public:
 
 		vec3 forward = MathHelper::GetForwardVector(vec3(0,Camera::rotation.y,0));
 
+        if (freeFly)
+            forward = Camera::Forward();
 
 		if (length(input) > 1)
 			input = normalize(input);
@@ -237,6 +241,9 @@ public:
         
 
         velocity.y = LeadBody->GetLinearVelocity().GetY();
+
+        if (freeFly)
+            velocity = movement * 20.0f;
 
 		LeadBody->SetLinearVelocity(ToPhysics(velocity));
 

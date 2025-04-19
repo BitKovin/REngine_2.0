@@ -56,7 +56,7 @@ float GetDirectionalShadow(vec2 mapOffset, float shadowDistance, vec4 shadowCoor
 
     pc+= vec3(mapOffset*vec2(0.5),0);
 
-float worldBias = -0.7* (shadowDistance * 2.0 / float(shadowMapSize));
+float worldBias = -0.16* (shadowDistance * 2.0 / float(shadowMapSize));
     float shadowCameraFar = shadowDistance;
     const float shadowCameraNear = -100.0;
 
@@ -108,10 +108,16 @@ vec3 CalculateDirectionalLight()
     float dist = distance(cameraPosition, v_worldPosition);
 
     // 3) Cascade parameters
-    float cascadeDist[4]   = float[]( shadowDistance1*1.0,
-                                      shadowDistance1+shadowDistance2*1.0,
-                                      shadowDistance1+shadowDistance2+shadowDistance3*1.0,
-                                      shadowDistance1+shadowDistance2+shadowDistance3+shadowDistance4*1.0 );
+    float cascadeDist[4]   = float[]( shadowDistance1,
+                                      shadowDistance1+(shadowDistance2)/1.5,
+                                      shadowDistance1+(shadowDistance2+shadowDistance3)/1.5,
+                                      shadowDistance1+(shadowDistance2+shadowDistance3+shadowDistance4)/1.5 );
+
+    float cascadeBiasRadius[4]   = float[]( shadowDistance1,
+                                      shadowDistance2,
+                                      shadowDistance3,
+                                      shadowDistance4*1.2);
+
     float blendR[4]        = float[]( 2.0,
                                       5.0,
                                       10.0,
@@ -139,13 +145,13 @@ vec3 CalculateDirectionalLight()
 
             float sh0 = GetDirectionalShadow(
                 cascadeOff[i],
-                cascadeDist[i],
+                cascadeBiasRadius[i],
                 cascadeCoords[i],
                 cascadePCF[i]
             );
             float sh1 = GetDirectionalShadow(
                 cascadeOff[i + 1],
-                cascadeDist[i + 1],
+                cascadeBiasRadius[i + 1],
                 cascadeCoords[i + 1],
                 cascadePCF[i + 1]
             );

@@ -4,10 +4,13 @@
 
 vec3 LightManager::LightDirection = vec3(-1,-1,1);
 
-float LightManager::LightDistance1 = 30;
-float LightManager::LightDistance2 = 60;
-float LightManager::LightDistance3 = 120;
-float LightManager::LightDistance4 = 240;
+const float cascadeExponent = 2;
+const float firstCascade = 20;
+
+float LightManager::LightDistance1 = firstCascade;
+float LightManager::LightDistance2 = LightDistance1 * cascadeExponent;
+float LightManager::LightDistance3 = LightDistance2 * cascadeExponent;
+float LightManager::LightDistance4 = LightDistance3 * cascadeExponent;
 
 int LightManager::ShadowMapResolution = 1024;
 float LightManager::LightDistanceMultiplier = 1;
@@ -57,11 +60,11 @@ void LightManager::CalculateLightMatrices(
 
     float hFactor = 0;
 
-    cameraPos += MathHelper::FastNormalize(Camera::Forward()*vec3(1,0.5,1)) * forwardOffset;
+    cameraPos += MathHelper::FastNormalize(Camera::Forward()*vec3(1,1,1)) * forwardOffset/1.5f;
 
     glm::vec3 L = glm::normalize(LightDirection);
     float halfSize = lightDistance;
-    float nearPlane = -100.0f;
+    float nearPlane = -1000.0f;
     float farPlane = lightDistance;
     float shadowResH = ShadowMapResolution * 0.5f;
 

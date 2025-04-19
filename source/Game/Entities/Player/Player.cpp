@@ -47,6 +47,12 @@ void Player::UpdateDebugUI()
     ImGui::SliderInt("multisample count",&EngineMain::MainInstance->MainRenderer->MultiSampleCount,0,8);
     ImGui::End();
 
+    ImGui::Begin("debug");
+    
+    ImGui::Checkbox("fly", &freeFly);
+
+    ImGui::End();
+
 }
 
 void Player::PerformAttack()
