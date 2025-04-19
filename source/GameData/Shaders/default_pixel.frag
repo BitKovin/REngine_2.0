@@ -66,18 +66,6 @@ float GetDirectionalShadow(
     pc *= vec3(0.5, 0.5, 1.0);
     pc += vec3(mapOffset * vec2(0.5), 0.0);
 
-    // ————— REPLACE EVERYTHING FROM HERE ↓ —————
-
-    // OLD (remove):
-    // float worldBias = -1.0 * (shadowDistance / float(shadowMapSize));
-    // float shadowCameraFar = shadowDistance;
-    // const float shadowCameraNear = -1000.0;
-    // float linearDepth = -shadowCoords.z / shadowCoords.w;
-    // float depthScale  = (shadowCameraFar - shadowCameraNear)
-    //                   / (shadowCameraFar * shadowCameraNear);
-    // float bias        = worldBias * depthScale / shadowCoords.w * biasScale;
-
-    // NEW orthographic + normal bias:
     //  • world units-per-texel:
     float worldTexelSize   = shadowDistance / float(shadowMapSize);
     //  • base bias in world units:
@@ -87,9 +75,8 @@ float GetDirectionalShadow(
                                          normalize(lightDirection)), 0.0, 1.0);
     float biasWorld        = biasWorldBase * (1.0 + (1.0 - NdotL));
     //  • convert to [0..1] depth bias:
-    float bias             = biasWorld / shadowDistance;
+    float bias             =  biasWorld / shadowDistance * 0.75;
 
-    // ————— UP TO HERE ↑ —————
 
     // 3) outside the map? fully lit
     if (pc.x < 0.0 || pc.x > 1.0 ||

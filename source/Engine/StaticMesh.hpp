@@ -194,7 +194,7 @@ public:
 		}
 	}
 
-
+	void PreloadAssets();
 
 
 private:

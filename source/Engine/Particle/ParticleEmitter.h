@@ -202,6 +202,11 @@ public:
 
 	static void InitBilboardVaoIfNeeded();
 
+	void PreloadAssets()
+	{
+		AssetRegistry::GetTextureFromFile(texture);
+	}
+
 private:
 
 	Texture* savedTexture = nullptr;

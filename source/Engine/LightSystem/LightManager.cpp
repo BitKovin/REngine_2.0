@@ -8,9 +8,9 @@
 
 vec3 LightManager::LightDirection = vec3(-1,-1,1);
 
-const float cascadeExponent = 5;
+const float cascadeExponent = 2;
 
-float LightManager::LightDistance = 1000;
+float LightManager::LightDistance = 70;
 
 float LightManager::LightDistance1 = 0;
 float LightManager::LightDistance2 = 0;
@@ -22,7 +22,7 @@ float LightManager::LightRadius2 = 0;
 float LightManager::LightRadius3 = 0;
 float LightManager::LightRadius4 = 0;
 
-int LightManager::ShadowMapResolution = 1024*2*2*2*2;
+int LightManager::ShadowMapResolution = 1024*2;
 float LightManager::LightDistanceMultiplier = 1;
 float LightManager::ShaddowOffsetScale = 1;
 

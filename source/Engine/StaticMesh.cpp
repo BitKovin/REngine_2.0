@@ -83,3 +83,34 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 
 
 }
+
+void StaticMesh::PreloadAssets()
+{
+	for (roj::SkinnedMesh& mesh : model->meshes)
+	{
+
+		if (ColorTexture == nullptr)
+		{
+
+			string baseTextureName;
+
+			for (auto texture : mesh.textures)
+			{
+				if (texture.type == aiTextureType_BASE_COLOR)
+				{
+					baseTextureName = texture.src;
+					break;
+				}
+			}
+
+			if (mesh.cachedBaseColor == nullptr)
+			{
+				const string textureRoot = TexturesLocation;
+
+				mesh.cachedBaseColor = AssetRegistry::GetTextureFromFile(textureRoot + baseTextureName);
+			}
+
+		}
+
+	}
+}

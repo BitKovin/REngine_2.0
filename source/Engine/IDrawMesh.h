@@ -52,4 +52,6 @@ public:
 
 	virtual void RemoveFromLevel(){}
 
+	virtual void PreloadAssets(){}
+
 };

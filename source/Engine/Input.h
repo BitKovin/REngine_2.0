@@ -127,6 +127,10 @@ public:
 
     InputAction* AddKeyboardKey(SDL_Scancode key);
     InputAction* RemoveKeyboardKey(SDL_Scancode key);
+
+    InputAction* AddKeyboardKey(SDL_KeyCode key);
+    InputAction* RemoveKeyboardKey(SDL_KeyCode key);
+
     InputAction* AddButton(GamepadButton button);
     InputAction* RemoveButton(GamepadButton button);
 

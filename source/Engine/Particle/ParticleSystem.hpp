@@ -37,6 +37,25 @@ public:
 		}
 	}
 
+	static void PreloadSystemAssets(string name)
+	{
+		Entity* ent = LevelObjectFactory::instance().create(name);
+
+		auto system = (ParticleSystem*)(ent);
+		if (system)
+		{
+			system->PreloadAssets();
+			delete(system);
+		}
+	}
+
+	void PreloadAssets()
+	{
+		for (auto emitter : emitters)
+		{
+			emitter->PreloadAssets();
+		}
+	}
 
 private:
 

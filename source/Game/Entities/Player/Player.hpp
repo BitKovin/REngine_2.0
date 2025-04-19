@@ -19,6 +19,8 @@
 
 #include <imgui/imgui.h>
 
+#include <Particle/ParticleSystem.hpp>
+
 class Player : public Entity
 {
 
@@ -152,6 +154,9 @@ public:
         arms->LoadFromFile("GameData/arms.glb");
         arms->IsViewmodel = true;
         Drawables.push_back(arms);
+
+        ParticleSystem::PreloadSystemAssets("decal_blood");
+        ParticleSystem::PreloadSystemAssets("hit_flesh");
 
 	}
 
