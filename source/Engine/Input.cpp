@@ -281,6 +281,16 @@ InputAction* InputAction::RemoveKeyboardKey(SDL_Scancode key) {
     return this;
 }
 
+InputAction* InputAction::AddKeyboardKey(SDL_KeyCode key)
+{
+    return AddKeyboardKey(SDL_GetScancodeFromKey(key));
+}
+
+InputAction* InputAction::RemoveKeyboardKey(SDL_KeyCode key)
+{
+    return RemoveKeyboardKey(SDL_GetScancodeFromKey(key));
+}
+
 InputAction* InputAction::AddButton(GamepadButton button) {
     buttons.push_back(button);
     return this;
