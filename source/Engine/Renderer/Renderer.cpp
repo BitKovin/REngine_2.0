@@ -263,7 +263,7 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
     shader->SetUniform("cameraPosition", Camera::finalizedPosition);
     shader->SetUniform("shadowMapSize", LightManager::ShadowMapResolution/2);
 
-
+    shader->SetUniform("shaddowOffsetScale", LightManager::ShaddowOffsetScale);
 
 }
 

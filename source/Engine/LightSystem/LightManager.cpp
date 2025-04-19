@@ -4,7 +4,7 @@
 
 vec3 LightManager::LightDirection = vec3(-1,-1,1);
 
-const float cascadeExponent = 2;
+const float cascadeExponent = 2.5;
 const float firstCascade = 20;
 
 float LightManager::LightDistance1 = firstCascade;
@@ -14,6 +14,7 @@ float LightManager::LightDistance4 = LightDistance3 * cascadeExponent;
 
 int LightManager::ShadowMapResolution = 1024;
 float LightManager::LightDistanceMultiplier = 1;
+float LightManager::ShaddowOffsetScale = 1;
 
 mat4 LightManager::lightView1;
 mat4 LightManager::lightProjection1;
@@ -43,6 +44,10 @@ void LightManager::Update()
     // 1) Tweakable parameters
     LightDirection = glm::normalize(LightDirection);
     
+    ShaddowOffsetScale = mix(4.0,10.0,abs(MathHelper::GetForwardVector(Camera::finalizedRotation).y));
+
+    printf("%f \n", ShaddowOffsetScale);
+
     CalculateLightMatrices(LightDistance1,0, lightView1, lightProjection1);
     CalculateLightMatrices(LightDistance2, LightDistance1, lightView2, lightProjection2);
     CalculateLightMatrices(LightDistance3, LightDistance1 + LightDistance2, lightView3, lightProjection3);
@@ -58,9 +63,7 @@ void LightManager::CalculateLightMatrices(
     // 1) prep
     glm::vec3 cameraPos = Camera::finalizedPosition;
 
-    float hFactor = 0;
-
-    cameraPos += MathHelper::FastNormalize(Camera::Forward()*vec3(1,1,1)) * forwardOffset/1.5f;
+    cameraPos += MathHelper::FastNormalize(Camera::Forward()*vec3(1,1,1)) * forwardOffset / ShaddowOffsetScale;
 
     glm::vec3 L = glm::normalize(LightDirection);
     float halfSize = lightDistance;

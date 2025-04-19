@@ -23,6 +23,7 @@ uniform float shadowDistance1;
 uniform float shadowDistance2;
 uniform float shadowDistance3;
 uniform float shadowDistance4;
+uniform float shaddowOffsetScale;
 
 uniform bool is_particle;
 
@@ -56,9 +57,9 @@ float GetDirectionalShadow(vec2 mapOffset, float shadowDistance, vec4 shadowCoor
 
     pc+= vec3(mapOffset*vec2(0.5),0);
 
-float worldBias = -0.16* (shadowDistance * 2.0 / float(shadowMapSize));
+    float worldBias = -0.6 * (shadowDistance / float(shadowMapSize));
     float shadowCameraFar = shadowDistance;
-    const float shadowCameraNear = -100.0;
+    const float shadowCameraNear = -1000.0;
 
 // for a perspective shadow map:
 float linearDepth   = -shadowCoords.z / shadowCoords.w;  
@@ -72,9 +73,7 @@ float bias          = worldBias * depthScale / shadowCoords.w;
         pc.z > 1.0)
         return 1.0;
 
-    // 2) cheap distance‐fade for far objects
-    if (distance(cameraPosition, v_worldPosition) > shadowDistance)
-        return 1.0;
+
 
     // 4) compute one texel in normalized coords, then scale by your desired radius
     vec2 texelSize = 0.5 / vec2(shadowMapSize,shadowMapSize);
@@ -109,14 +108,14 @@ vec3 CalculateDirectionalLight()
 
     // 3) Cascade parameters
     float cascadeDist[4]   = float[]( shadowDistance1,
-                                      shadowDistance1+(shadowDistance2)/1.5,
-                                      shadowDistance1+(shadowDistance2+shadowDistance3)/1.5,
-                                      shadowDistance1+(shadowDistance2+shadowDistance3+shadowDistance4)/1.5 );
+                                      shadowDistance2+(shadowDistance1)/shaddowOffsetScale,
+                                      shadowDistance3+(shadowDistance1+shadowDistance2)/shaddowOffsetScale,
+                                      shadowDistance4+(shadowDistance1+shadowDistance2+shadowDistance3)/shaddowOffsetScale );
 
     float cascadeBiasRadius[4]   = float[]( shadowDistance1,
                                       shadowDistance2,
                                       shadowDistance3,
-                                      shadowDistance4*1.2);
+                                      shadowDistance4);
 
     float blendR[4]        = float[]( 2.0,
                                       5.0,
@@ -136,7 +135,7 @@ vec3 CalculateDirectionalLight()
 
     // 4) Check blend zones between cascades 0–2 and blend if inside
     bool blended = false;
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 1; ++i) {
         float fadeStart = cascadeDist[i] - blendR[i];
         float fadeEnd   = cascadeDist[i];
 

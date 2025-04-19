@@ -19,6 +19,8 @@ public:
 	static int ShadowMapResolution;
 	static float LightDistanceMultiplier;
 
+	static float ShaddowOffsetScale;
+
 	static mat4 lightView1;
 	static mat4 lightProjection1;
 
