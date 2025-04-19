@@ -108,10 +108,10 @@ vec3 CalculateDirectionalLight()
     float dist = distance(cameraPosition, v_worldPosition);
 
     // 3) Cascade parameters
-    float cascadeDist[4]   = float[]( shadowDistance1,
-                                      shadowDistance2,
-                                      shadowDistance3,
-                                      shadowDistance4 );
+    float cascadeDist[4]   = float[]( shadowDistance1*1.3,
+                                      shadowDistance2*1.3,
+                                      shadowDistance3*1.3,
+                                      shadowDistance4*1.3 );
     float blendR[4]        = float[]( 2.0,
                                       5.0,
                                       10.0,
@@ -124,7 +124,7 @@ vec3 CalculateDirectionalLight()
                                       v_shadowCoords2,
                                       v_shadowCoords3,
                                       v_shadowCoords4 );
-    int   cascadeBias[4]   = int[]( 2, 1, 1, 1 );
+    int   cascadePCF[4]   = int[]( 2, 1, 1, 1 );
 
     float shadow = 1.0;
 
@@ -141,13 +141,13 @@ vec3 CalculateDirectionalLight()
                 cascadeOff[i],
                 cascadeDist[i],
                 cascadeCoords[i],
-                cascadeBias[i]
+                cascadePCF[i]
             );
             float sh1 = GetDirectionalShadow(
                 cascadeOff[i + 1],
                 cascadeDist[i + 1],
                 cascadeCoords[i + 1],
-                cascadeBias[i + 1]
+                cascadePCF[i + 1]
             );
 
             shadow = mix(sh0, sh1, blendF);

@@ -54,6 +54,11 @@ void LightManager::CalculateLightMatrices(
 ) {
     // 1) prep
     glm::vec3 cameraPos = Camera::finalizedPosition;
+
+    float hFactor = 1.0f;
+
+    cameraPos += MathHelper::FastNormalize(MathHelper::XZ(MathHelper::GetForwardVector(Camera::finalizedRotation))) * lightDistance / 3.0f * hFactor;
+
     glm::vec3 L = glm::normalize(LightDirection);
     float halfSize = lightDistance;
     float nearPlane = -100.0f;
