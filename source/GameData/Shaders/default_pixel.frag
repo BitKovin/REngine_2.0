@@ -170,7 +170,7 @@ vec3 CalculateDirectionalLight()
             cascadeOff[idx],
             cascadeDist[idx],
             cascadeCoords[idx],
-            cascadeBias[idx]
+            cascadePCF[idx]
         );
     }
 
