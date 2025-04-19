@@ -268,4 +268,8 @@ public:
 
 	}
 
+    void Serialize(json& target);
+
+    void Deserialize(json& source);
+
 };

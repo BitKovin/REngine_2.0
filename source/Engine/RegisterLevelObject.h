@@ -1,9 +1,9 @@
-#ifndef REGISTER_LEVELOBJECT_H
-#define REGISTER_LEVELOBJECT_H
+#ifndef F_REGISTER_LEVELOBJECT_H
+#define F_REGISTER_LEVELOBJECT_H
 
 #include "LevelObjectFactory.h"
 
-#define REGISTER_LEVEL_OBJECT(CLASS_NAME, TECH_NAME)                 \
+#define REGISTER_ENTITY(CLASS_NAME, TECH_NAME)                 \
 namespace {                                                          \
     Entity* create##CLASS_NAME() {                                   \
         return new CLASS_NAME();                                     \

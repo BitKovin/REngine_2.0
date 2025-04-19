@@ -1,3 +1,3 @@
 #include "TestParticleSystem.hpp"
 
-REGISTER_LEVEL_OBJECT(TestParticleSystem, "system_testhit")
+REGISTER_ENTITY(TestParticleSystem, "system_testhit")

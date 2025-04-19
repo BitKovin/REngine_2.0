@@ -1,3 +1,3 @@
 #include "WorldSpawn.h"
 
-REGISTER_LEVEL_OBJECT(WorldSpawn, "worldspawn")
+REGISTER_ENTITY(WorldSpawn, "worldspawn")

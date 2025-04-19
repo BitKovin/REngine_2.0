@@ -14,7 +14,7 @@ public:
 private:
 
 };
-REGISTER_LEVEL_OBJECT(DestructubleBrush,"destructible")
+REGISTER_ENTITY(DestructubleBrush,"destructible")
 
 DestructubleBrush::DestructubleBrush()
 {

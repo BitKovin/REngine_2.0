@@ -23,6 +23,10 @@ uniform float shadowDistance1;
 uniform float shadowDistance2;
 uniform float shadowDistance3;
 uniform float shadowDistance4;
+uniform float shadowRadius1;
+uniform float shadowRadius2;
+uniform float shadowRadius3;
+uniform float shadowRadius4;
 uniform float shaddowOffsetScale;
 
 uniform bool is_particle;
@@ -47,50 +51,68 @@ void main() {
     FragColor = vec4(color, alpha);
 }
 
-float GetDirectionalShadow(vec2 mapOffset, float shadowDistance, vec4 shadowCoords, int pcfRadius)
-{
+float GetDirectionalShadow(
+    vec2  mapOffset,
+    float shadowDistance,
+    vec4  shadowCoords,
+    int   pcfRadius,
+    float biasScale
+) {
     // 1) Project into [0,1] clip space
-    vec4 sc  = shadowCoords / shadowCoords.w;
-    vec3 pc  = sc.xyz * 0.5 + 0.5;
+    vec4 sc = shadowCoords / shadowCoords.w;
+    vec3 pc = sc.xyz * 0.5 + 0.5;
 
-    pc *= vec3(0.5,0.5,1);
+    // 2) Atlas-cell remap (half-scale)
+    pc *= vec3(0.5, 0.5, 1.0);
+    pc += vec3(mapOffset * vec2(0.5), 0.0);
 
-    pc+= vec3(mapOffset*vec2(0.5),0);
+    // ————— REPLACE EVERYTHING FROM HERE ↓ —————
 
-    float worldBias = -0.6 * (shadowDistance / float(shadowMapSize));
-    float shadowCameraFar = shadowDistance;
-    const float shadowCameraNear = -1000.0;
+    // OLD (remove):
+    // float worldBias = -1.0 * (shadowDistance / float(shadowMapSize));
+    // float shadowCameraFar = shadowDistance;
+    // const float shadowCameraNear = -1000.0;
+    // float linearDepth = -shadowCoords.z / shadowCoords.w;
+    // float depthScale  = (shadowCameraFar - shadowCameraNear)
+    //                   / (shadowCameraFar * shadowCameraNear);
+    // float bias        = worldBias * depthScale / shadowCoords.w * biasScale;
 
-// for a perspective shadow map:
-float linearDepth   = -shadowCoords.z / shadowCoords.w;  
-float depthScale    = (shadowCameraFar - shadowCameraNear)
-                    / (shadowCameraFar * shadowCameraNear);
-float bias          = worldBias * depthScale / shadowCoords.w;
+    // NEW orthographic + normal bias:
+    //  • world units-per-texel:
+    float worldTexelSize   = shadowDistance / float(shadowMapSize);
+    //  • base bias in world units:
+    float biasWorldBase    = biasScale * worldTexelSize;
+    //  • bump bias when N·L is small:
+    float NdotL            = clamp(dot(normalize(v_normal),
+                                         normalize(lightDirection)), 0.0, 1.0);
+    float biasWorld        = biasWorldBase * (1.0 + (1.0 - NdotL));
+    //  • convert to [0..1] depth bias:
+    float bias             = biasWorld / shadowDistance;
 
-    // optional: if outside the map, consider fully lit
+    // ————— UP TO HERE ↑ —————
+
+    // 3) outside the map? fully lit
     if (pc.x < 0.0 || pc.x > 1.0 ||
         pc.y < 0.0 || pc.y > 1.0 ||
         pc.z > 1.0)
         return 1.0;
 
+    // 4) PCF radius in UV
+    vec2 texelSize = 0.5 / vec2(shadowMapSize);
+    vec2 radiusUV  = texelSize * float(pcfRadius);
 
-
-    // 4) compute one texel in normalized coords, then scale by your desired radius
-    vec2 texelSize = 0.5 / vec2(shadowMapSize,shadowMapSize);
-    vec2 radiusUV = texelSize;
-
-    // 5) PCF: average 3×3 samples
+    // 5) PCF loop
     float sum = 0.0;
-    float n = 0.0;
-    for (int xo = -1 * pcfRadius; xo <= 1 * pcfRadius; ++xo) 
-    {
-        for (int yo = -1 * pcfRadius; yo <= 1 * pcfRadius; ++yo) 
-        {
+    float n   = 0.0;
+    for (int xo = -pcfRadius; xo <= pcfRadius; ++xo) {
+        for (int yo = -pcfRadius; yo <= pcfRadius; ++yo) {
             n++;
-            vec2 offs = vec2(xo, yo) * radiusUV;
-            sum += texture(shadowMap,
-                           vec3(pc.xy + offs,
-                                pc.z - bias));
+            vec2 offs = vec2(xo, yo) * texelSize;
+            sum += texture(
+                shadowMap,
+                vec3(pc.xy + offs,
+                     pc.z - bias)
+            );
         }
     }
     return sum / n;
@@ -104,7 +126,7 @@ vec3 CalculateDirectionalLight()
         : clamp(dot(-v_normal, lightDirection), 0.0, 1.0);
 
     // 2) Distance from the camera
-    float dist = distance(cameraPosition, v_worldPosition);
+    float dist = v_clipPosition.z;
 
     // 3) Cascade parameters
     float cascadeDist[4]   = float[]( shadowDistance1,
@@ -112,15 +134,22 @@ vec3 CalculateDirectionalLight()
                                       shadowDistance3+(shadowDistance1+shadowDistance2)/shaddowOffsetScale,
                                       shadowDistance4+(shadowDistance1+shadowDistance2+shadowDistance3)/shaddowOffsetScale );
 
-    float cascadeBiasRadius[4]   = float[]( shadowDistance1,
-                                      shadowDistance2,
-                                      shadowDistance3,
-                                      shadowDistance4);
+    float cascadeRadius[4]   = float[]( shadowRadius1,
+                                      shadowRadius2,
+                                      shadowRadius3,
+                                      shadowRadius4);
 
     float blendR[4]        = float[]( 2.0,
                                       5.0,
                                       10.0,
-                                      30.0 );
+                                      20.0 );
+    
+    float biasScales[4]        = float[]( 0.5,
+                                      0.7,
+                                      0.9,
+                                      1.2 );
+
+
     vec2  cascadeOff[4]    = vec2[]( vec2(0,0),
                                       vec2(1,0),
                                       vec2(0,1),
@@ -135,8 +164,8 @@ vec3 CalculateDirectionalLight()
 
     // 4) Check blend zones between cascades 0–2 and blend if inside
     bool blended = false;
-    for (int i = 0; i < 1; ++i) {
-        float fadeStart = cascadeDist[i] - blendR[i];
+    for (int i = 0; i < 3; ++i) {
+        float fadeStart = cascadeDist[i] - blendR[i]*2.0;
         float fadeEnd   = cascadeDist[i];
 
         if (dist >= fadeStart && dist <= fadeEnd) {
@@ -144,15 +173,17 @@ vec3 CalculateDirectionalLight()
 
             float sh0 = GetDirectionalShadow(
                 cascadeOff[i],
-                cascadeBiasRadius[i],
+                cascadeRadius[i],
                 cascadeCoords[i],
-                cascadePCF[i]
+                cascadePCF[i],
+                biasScales[i]
             );
             float sh1 = GetDirectionalShadow(
                 cascadeOff[i + 1],
-                cascadeBiasRadius[i + 1],
+                cascadeRadius[i + 1],
                 cascadeCoords[i + 1],
-                cascadePCF[i + 1]
+                cascadePCF[i + 1],
+                biasScales[i + 1]
             );
 
             shadow = mix(sh0, sh1, blendF);
@@ -175,7 +206,8 @@ vec3 CalculateDirectionalLight()
             cascadeOff[idx],
             cascadeDist[idx],
             cascadeCoords[idx],
-            cascadePCF[idx]
+            cascadePCF[idx],
+            biasScales[idx]
         );
     }
 

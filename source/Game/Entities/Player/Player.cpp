@@ -4,11 +4,11 @@
 
 #include <EngineMain.h>
 
-REGISTER_LEVEL_OBJECT(Player, "info_player_start")
+REGISTER_ENTITY(Player, "info_player_start")
 
 Player* Player::Instance = nullptr;
 
-
+string serializedPlayer = "";
 
 void Player::UpdateDebugUI()
 {
@@ -51,7 +51,33 @@ void Player::UpdateDebugUI()
     
     ImGui::Checkbox("fly", &freeFly);
 
+    
+
+    if (ImGui::Button("test serialization"))
+    {
+
+        json jPlayer;
+        Serialize(jPlayer);
+
+        serializedPlayer = jPlayer.dump(4);
+
+        Logger::Log(serializedPlayer);
+
+    }
+
+    if (ImGui::Button("test DEserialization"))
+    {
+
+        json jPlayer = json::parse(serializedPlayer);
+        Deserialize(jPlayer);
+
+        Logger::Log(jPlayer.dump(4));
+
+    }
+
     ImGui::End();
+
+
 
 }
 
@@ -81,5 +107,28 @@ void Player::PerformAttack()
 
 
     }
+
+}
+
+void Player::Serialize(json& target)
+{
+
+    Entity::Serialize(target);
+
+    SERIALIZE_FIELD(target, cameraRotation);
+    SERIALIZE_FIELD(target, velocity);
+
+}
+
+void Player::Deserialize(json& source)
+{
+
+    Entity::Deserialize(source);
+
+    DESERIALIZE_FIELD(source, cameraRotation);
+    DESERIALIZE_FIELD(source, velocity);
+
+    Physics::SetBodyPosition(LeadBody, Position);
+    Physics::SetLinearVelocity(LeadBody, velocity);
 
 }

@@ -46,7 +46,7 @@ void EngineMain::UpdateScreenSize()
 void EngineMain::initDemo()
 {
 
-    Level::OpenLevel("GameData/Maps/test2.map");
+    Level::OpenLevel("GameData/Maps/test.map");
 
     auto sound = SoundManager::GetSoundFromPath("GameData/bass_beat.wav");
 

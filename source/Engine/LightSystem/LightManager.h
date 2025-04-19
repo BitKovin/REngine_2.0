@@ -12,10 +12,18 @@ public:
 
 	static vec3 LightDirection;
 
+	static float LightDistance;
+
 	static float LightDistance1;
 	static float LightDistance2;
 	static float LightDistance3;
 	static float LightDistance4;
+
+	static float LightRadius1;
+	static float LightRadius2;
+	static float LightRadius3;
+	static float LightRadius4;
+
 	static int ShadowMapResolution;
 	static float LightDistanceMultiplier;
 
@@ -36,7 +44,7 @@ public:
 private:
 
 	static void CalculateLightMatrices(
-		float lightDistance, float forwardOffset,
+		float lightDistance, glm::vec3 cameraPos,
 		glm::mat4& outLightView,
 		glm::mat4& outLightProjection
 	);

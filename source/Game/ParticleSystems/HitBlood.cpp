@@ -328,5 +328,5 @@ private:
 };
 
 
-REGISTER_LEVEL_OBJECT(BloodDecalSystem, "decal_blood")
-REGISTER_LEVEL_OBJECT(BloodPieceSystem, "hit_flesh")
+REGISTER_ENTITY(BloodDecalSystem, "decal_blood")
+REGISTER_ENTITY(BloodPieceSystem, "hit_flesh")

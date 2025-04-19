@@ -39,6 +39,19 @@ public:
 
     }
 
+    static BoundingSphere FromPoints(const vector<vec4>& pointsV4)
+    {
+        vector<vec3> points;
+
+        for (auto v : pointsV4)
+        {
+            points.push_back(vec3(v.r, v.g, v.b));
+        }
+
+        return FromPoints(points);
+    }
+
+
     // Computes a bounding sphere that encloses all given points.
     // Uses a variant of Ritter's algorithm.
     static BoundingSphere FromPoints(const vector<vec3>& points)

@@ -117,6 +117,20 @@ public:
 
 	}
 
+	void Serialize(json& target)
+	{
+		SERIALIZE_FIELD(target, Position);
+		SERIALIZE_FIELD(target, Rotation);
+		SERIALIZE_FIELD(target, Scale);
+	}
+
+	void Deserialize(json& source)
+	{
+		DESERIALIZE_FIELD(source, Position);
+		DESERIALIZE_FIELD(source, Rotation);
+		DESERIALIZE_FIELD(source, Scale);
+	}
+
 protected:
 
 	void OnDispose()
