@@ -56,7 +56,7 @@ float GetDirectionalShadow(vec2 mapOffset, float shadowDistance, vec4 shadowCoor
 
     pc+= vec3(mapOffset*vec2(0.5),0);
 
-float worldBias = -0.9* (shadowDistance * 2.0 / float(shadowMapSize));
+float worldBias = -0.7* (shadowDistance * 2.0 / float(shadowMapSize));
     float shadowCameraFar = shadowDistance;
     const float shadowCameraNear = -100.0;
 
