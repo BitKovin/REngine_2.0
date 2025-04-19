@@ -34,7 +34,7 @@ public:
 private:
 
 	static void CalculateLightMatrices(
-		float lightDistance,
+		float lightDistance, float forwardOffset,
 		glm::mat4& outLightView,
 		glm::mat4& outLightProjection
 	);

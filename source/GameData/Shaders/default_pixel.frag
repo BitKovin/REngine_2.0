@@ -109,9 +109,9 @@ vec3 CalculateDirectionalLight()
 
     // 3) Cascade parameters
     float cascadeDist[4]   = float[]( shadowDistance1*1.0,
-                                      shadowDistance2*1.0,
-                                      shadowDistance3*1.0,
-                                      shadowDistance4*1.0 );
+                                      shadowDistance1+shadowDistance2*1.0,
+                                      shadowDistance1+shadowDistance2+shadowDistance3*1.0,
+                                      shadowDistance1+shadowDistance2+shadowDistance3+shadowDistance4*1.0 );
     float blendR[4]        = float[]( 2.0,
                                       5.0,
                                       10.0,

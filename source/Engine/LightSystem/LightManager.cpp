@@ -40,15 +40,15 @@ void LightManager::Update()
     // 1) Tweakable parameters
     LightDirection = glm::normalize(LightDirection);
     
-    CalculateLightMatrices(LightDistance1, lightView1, lightProjection1);
-    CalculateLightMatrices(LightDistance2, lightView2, lightProjection2);
-    CalculateLightMatrices(LightDistance3, lightView3, lightProjection3);
-    CalculateLightMatrices(LightDistance4, lightView4, lightProjection4);
+    CalculateLightMatrices(LightDistance1,0, lightView1, lightProjection1);
+    CalculateLightMatrices(LightDistance2, LightDistance1, lightView2, lightProjection2);
+    CalculateLightMatrices(LightDistance3, LightDistance1 + LightDistance2, lightView3, lightProjection3);
+    CalculateLightMatrices(LightDistance4, LightDistance1 + LightDistance2 + LightDistance3, lightView4, lightProjection4);
 
 }
 
 void LightManager::CalculateLightMatrices(
-    float lightDistance,
+    float lightDistance,float forwardOffset,
     glm::mat4& outLightView,
     glm::mat4& outLightProjection
 ) {
@@ -57,7 +57,7 @@ void LightManager::CalculateLightMatrices(
 
     float hFactor = 0;
 
-    cameraPos += MathHelper::FastNormalize(MathHelper::XZ(MathHelper::GetForwardVector(Camera::finalizedRotation))) * lightDistance / 3.0f * hFactor;
+    cameraPos += MathHelper::FastNormalize(Camera::Forward()*vec3(1,0.5,1)) * forwardOffset;
 
     glm::vec3 L = glm::normalize(LightDirection);
     float halfSize = lightDistance;
