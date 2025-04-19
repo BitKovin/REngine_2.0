@@ -244,7 +244,7 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
 
     shader->SetUniform("brightness", 1.0f);
 
-    shader->AllowMissingUniforms = true;
+    shader->AllowMissingUniforms = false;
 
     shader->SetUniform("lightMatrix1", LightManager::lightProjection1 * LightManager::lightView1);
     shader->SetUniform("lightMatrix2", LightManager::lightProjection2 * LightManager::lightView2);
@@ -263,7 +263,7 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
     shader->SetUniform("shadowRadius3", LightManager::LightRadius3);
     shader->SetUniform("shadowRadius4", LightManager::LightRadius4);
 
-    shader->AllowMissingUniforms = false;
+    shader->AllowMissingUniforms = true;
 
     shader->SetUniform("cameraPosition", Camera::finalizedPosition);
     shader->SetUniform("shadowMapSize", LightManager::ShadowMapResolution/2);

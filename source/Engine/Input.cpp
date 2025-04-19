@@ -360,6 +360,14 @@ void InputAction::Update() {
                 if(ltPressed)
                     pressing = true;
 
+#if __EMSCRIPTEN__
+
+                if (SDL_JoystickGetButton(Input::joystick, 6))
+                    pressing = true;
+
+#endif // __EMSCRIPTEN__
+
+
                 continue;
             }
 
@@ -368,10 +376,18 @@ void InputAction::Update() {
                 auto trigger = SDL_JoystickGetAxis(Input::joystick, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
                 float rtNorm = trigger / 32767.0f;
 
+
                 bool ltPressed = (rtNorm > 0.3f);
 
                 if (ltPressed)
                     pressing = true;
+
+#if __EMSCRIPTEN__
+
+                if (SDL_JoystickGetButton(Input::joystick, 7))
+                    pressing = true;
+
+#endif // __EMSCRIPTEN__
 
                 continue;
             }
