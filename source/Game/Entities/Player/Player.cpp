@@ -51,7 +51,12 @@ void Player::UpdateDebugUI()
     
     ImGui::Checkbox("fly", &freeFly);
 
-    
+    if (ImGui::Button("spawn test dog"))
+    {
+        Entity* entity = Spawn("testnpc");
+        entity->Position = Camera::position + Camera::Forward() * 2.0f;
+        entity->Start();
+    }
 
     if (ImGui::Button("test serialization"))
     {

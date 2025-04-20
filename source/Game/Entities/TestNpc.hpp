@@ -30,17 +30,12 @@ public:
 	TestNpc()
 	{
 		mesh = new SkeletalMesh();
-	}
 
-	TestNpc(vec3 pos)
-	{
-		Position = pos;
-
-		mesh = new SkeletalMesh();
-
-		Start();
+		ClassName = "testnpc";
+		SaveGame = true;
 
 	}
+
 
 	~TestNpc()
 	{
@@ -51,10 +46,7 @@ public:
 
 	void Start()
 	{
-		mesh->LoadFromFile("GameData/dog.glb");
-		mesh->PlayAnimation("run");
-		mesh->SetLooped(true);
-		mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
+		
 
 		mesh->Position = Position;
 		mesh->Rotation = Rotation;
@@ -79,7 +71,12 @@ public:
 
 	void AsyncUpdate();
 
+	void Serialize(json& target);
+	void Deserialize(json& source);
 
+protected:
+
+	void LoadAssets();
 
 
 };

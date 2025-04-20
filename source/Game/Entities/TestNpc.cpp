@@ -3,6 +3,8 @@
 
 #include <Navigation/Navigation.hpp>
 
+REGISTER_ENTITY(TestNpc, "testnpc")
+
 void TestNpc::AsyncUpdate()
 {
 	mesh->UpdatePose = mesh->WasRended;
@@ -58,4 +60,38 @@ void TestNpc::AsyncUpdate()
 
 }
 
-//REGISTER_LEVEL_OBJECT(TestNpc, "testnpc")
+void TestNpc::Serialize(json& target)
+{
+
+	Entity::Serialize(target);
+
+	Rotation = MathHelper::ToYawPitchRoll(FromPhysics(LeadBody->GetRotation()));
+
+	SERIALIZE_FIELD(target, Rotation)
+	SERIALIZE_FIELD(target, desiredDirection)
+	SERIALIZE_FIELD(target, movingDirection)
+
+}
+
+void TestNpc::Deserialize(json& source)
+{
+
+	Entity::Deserialize(source);
+
+	DESERIALIZE_FIELD(source, Rotation)
+	DESERIALIZE_FIELD(source, desiredDirection)
+	DESERIALIZE_FIELD(source, movingDirection)
+
+	Physics::SetBodyPosition(LeadBody, Position);
+
+}
+
+void TestNpc::LoadAssets()
+{
+	mesh->LoadFromFile("GameData/dog.glb");
+	mesh->PlayAnimation("run");
+	mesh->SetLooped(true);
+	mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
+}
+
+

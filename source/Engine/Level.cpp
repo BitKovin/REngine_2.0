@@ -20,7 +20,8 @@ string Level::pendingLoadLevelPath = "";
 void Level::CloseLevel()
 {
 
-	EngineMain::MainInstance->MainThreadPool.Stop();
+	EngineMain::MainInstance->MainThreadPool.WaitForFinish();
+
 
 	for (LevelObject* obj : Current->LevelObjects)
 	{
@@ -65,11 +66,13 @@ Level* Level::OpenLevel(string filePath)
 
 	Current = newLevel;
 
-	EngineMain::MainInstance->MainThreadPool.Start();
+	//EngineMain::MainInstance->MainThreadPool.Start();
 
 	MapData mapData = MapParser::ParseMap(filePath);
 
 	mapData.LoadToLevel();
+
+	Current->LoadAssets();
 
 	for (LevelObject* obj : Current->LevelObjects)
 	{
@@ -92,6 +95,8 @@ Level* Level::OpenLevel(string filePath)
 		LevelSaveSystem::pendingSave = LevelSaveData();
 
 	}
+
+	Current->LoadAssets();
 
 	return newLevel;
 }

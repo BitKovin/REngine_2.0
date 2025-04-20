@@ -46,6 +46,8 @@ public:
 
 	bool Destroyed = false;
 
+	bool AssetsLoaded = false;
+
 	Entity()
 	{
 
@@ -140,11 +142,39 @@ public:
 		DESERIALIZE_FIELD(source, Scale);
 	}
 
+	void LoadAssetsIfNeeded() 
+	{
+		if (AssetsLoaded == false)
+		{
+			LoadAssets();
+			AssetsLoaded = true;
+		}
+	}
+
+	static Entity* Spawn(std::string technicalName);
+
+	static void PreloadEntityType(std::string technicalName)
+	{
+		auto entity = Spawn(technicalName);
+
+		if (entity)
+		{
+			entity->LoadAssets();
+			delete(entity);
+		}
+
+	}
+
 protected:
 
 	void OnDispose()
 	{
 		Destroy();
+	}
+
+	virtual void LoadAssets()
+	{
+
 	}
 
 private:

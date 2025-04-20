@@ -11,7 +11,7 @@ public:
 	
 	std::vector<ParticleEmitter*> emitters;
 
-	void Start()
+	void Start() override
 	{
 		for (auto emitter : emitters)
 		{
@@ -26,7 +26,7 @@ public:
 		}
 	}
 
-	void AsyncUpdate()
+	void AsyncUpdate() override
 	{
 		for (auto emitter : emitters)
 		{
@@ -44,18 +44,21 @@ public:
 		auto system = (ParticleSystem*)(ent);
 		if (system)
 		{
-			system->PreloadAssets();
+			system->LoadAssetsIfNeeded();
 			delete(system);
 		}
 	}
 
-	void PreloadAssets()
+protected:
+
+	void LoadAssets() override
 	{
 		for (auto emitter : emitters)
 		{
 			emitter->PreloadAssets();
 		}
 	}
+
 
 private:
 

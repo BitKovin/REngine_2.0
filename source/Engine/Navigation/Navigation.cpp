@@ -370,13 +370,13 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, const g
 
     if (HasLineOfSight(start, target))
     {
-        return { target };
+        //return { target };
     }
 
-    auto hit = Physics::LineTrace(start, start - vec3(0, 3, 0), BodyType::World);
+    auto hit = Physics::LineTrace(start, start - vec3(0, 30, 0), BodyType::World);
 
     if(hit.hasHit)
-        start = hit.position;
+        start = hit.position + vec3(0,1,0);
 
     std::vector<glm::vec3> outPath;
 
@@ -406,8 +406,8 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, const g
     // Find the nearest polygon to the start and target positions.
     dtPolyRef startRef, endRef;
     float extents[3] = { 0.4, 1.5, 0.4 };  // search extents in each axis
-
-    float extentsSmall[3] = { 0.05, 1.5, 0.05 };  // search extents in each axis
+    float extentsLarge[3] = { 0.7, 1.5, 0.7 };  // search extents in each axis
+    float extentsSmall[3] = { 0.1, 1.5, 0.1 };  // search extents in each axis
 
     float startPos[3] = { start.x, start.y, start.z };
     float targetPos[3] = { target.x, target.y, target.z };
@@ -418,8 +418,13 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, const g
         status = navQuery->findNearestPoly(startPos, extents, &filter, &startRef, nullptr);
         if (dtStatusFailed(status) || !startRef)
         {
-            dtFreeNavMeshQuery(navQuery);
-            return outPath;
+            status = navQuery->findNearestPoly(startPos, extentsLarge, &filter, &startRef, nullptr);
+            if (dtStatusFailed(status) || !startRef)
+            {
+
+                dtFreeNavMeshQuery(navQuery);
+                return outPath;
+            }
         }
     }
 
@@ -495,6 +500,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, const g
     
 
     outPath.push_back(target);
+
 
     return outPath;
 }

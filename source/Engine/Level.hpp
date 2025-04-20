@@ -113,6 +113,14 @@ public:
 		return resultMesh;
 
 	}
+
+	void LoadAssets()
+	{
+		for (auto obj : LevelObjects)
+		{
+			obj->LoadAssetsIfNeeded();
+		}
+	}
 	
 	void AddEntity(LevelObject* obj);
 

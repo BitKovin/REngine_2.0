@@ -209,6 +209,7 @@ public:
 
         bool loadedlevel = Level::LoadPendingLevel();
 
+        Level::Current->LoadAssets();
 
         if (asyncGameUpdate)
         {

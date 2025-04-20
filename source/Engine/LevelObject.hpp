@@ -33,6 +33,8 @@ public:
 
 	}
 
+	virtual void LoadAssetsIfNeeded(){}
+
 	virtual vector<IDrawMesh*> GetDrawMeshes() { return vector<IDrawMesh*>(); }
 
 
