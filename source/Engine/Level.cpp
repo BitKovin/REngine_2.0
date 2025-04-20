@@ -81,6 +81,8 @@ Level* Level::OpenLevel(string filePath)
 		obj->Start();
 	}
 
+	Current->AddPendingLevelObjects();
+
 	if (isNewLevel) 
 	{
 		printf("generating nav mesh\n");
@@ -97,6 +99,7 @@ Level* Level::OpenLevel(string filePath)
 		LevelSaveSystem::pendingSave = LevelSaveData();
 
 	}
+
 
 	Current->LoadAssets();
 
