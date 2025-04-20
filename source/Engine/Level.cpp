@@ -72,6 +72,8 @@ Level* Level::OpenLevel(string filePath)
 
 	mapData.LoadToLevel();
 
+	Current->AddPendingLevelObjects();
+
 	Current->LoadAssets();
 
 	for (LevelObject* obj : Current->LevelObjects)
@@ -129,7 +131,7 @@ void Level::AddEntity(LevelObject* obj)
 
 	}
 
-	LevelObjects.push_back(obj);
+	pendingAddLevelObjects.push_back(obj);
 
 	
 }
@@ -159,7 +161,7 @@ void Level::RemoveEntity(LevelObject* obj)
 
 void Level::AsyncUpdate()
 {
-
+	AddPendingLevelObjects();
 	RemovePendingEntities();
 
 	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
@@ -169,7 +171,7 @@ void Level::AsyncUpdate()
 	}
 
 	asyncUpdateThreadPool->WaitForFinish();
-
+	AddPendingLevelObjects();
 	RemovePendingEntities();
 }
 
@@ -225,6 +227,7 @@ Entity* Level::FindEntityWithId(const std::string& id)
 
 void Level::FinalizeFrame()
 {
+	AddPendingLevelObjects();
 
 	VissibleRenderList.clear();
 

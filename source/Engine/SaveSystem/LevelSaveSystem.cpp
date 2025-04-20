@@ -179,7 +179,7 @@ EM_JS(void, WriteFileJS, (const char* relPath, const char* content), {
     (function ensureDir(fp) {
         var parts = fp.split('/');
         parts.pop();
-        var cur = '';
+        var cur = "";
         for (var i = 1; i < parts.length; i++) {
             cur += '/' + parts[i];
             try { FS.mkdir(cur); }

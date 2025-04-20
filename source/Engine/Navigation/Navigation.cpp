@@ -365,7 +365,7 @@ class CustomFilter : public dtQueryFilter
     // second and second-from-last points are redundant. If there is a clear line
     // of sight skipping those points, then they are removed.
     // =====================================================================
-std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, const glm::vec3& target)
+std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::vec3 target)
 {
 
     if (HasLineOfSight(start, target))
@@ -377,6 +377,11 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, const g
 
     if(hit.hasHit)
         start = hit.position + vec3(0,1,0);
+
+    hit = Physics::LineTrace(target, target - vec3(0, 30, 0), BodyType::World);
+
+    if (hit.hasHit)
+        target = hit.position + vec3(0, 1, 0);
 
     std::vector<glm::vec3> outPath;
 

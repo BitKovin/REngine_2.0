@@ -195,6 +195,6 @@ public:
 // returned as an array of 3D points (world coordinates) in outPath.
 // Returns true if a valid path was found.
 // =====================================================================
-    static std::vector<glm::vec3> FindSimplePath(glm::vec3 start, const glm::vec3& target);
+    static std::vector<glm::vec3> FindSimplePath(glm::vec3 start, glm::vec3 target);
 
 };

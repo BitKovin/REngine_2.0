@@ -36,6 +36,8 @@ private:
 
 	static string pendingLoadLevelPath;
 
+	vector<LevelObject*> pendingAddLevelObjects;
+
 public:
 
 	static Level* Current;
@@ -116,6 +118,10 @@ public:
 
 	void LoadAssets()
 	{
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
+		AddPendingLevelObjects();
+
 		for (auto obj : LevelObjects)
 		{
 			obj->LoadAssetsIfNeeded();
@@ -125,6 +131,16 @@ public:
 	void AddEntity(LevelObject* obj);
 
 	void RemoveEntity(LevelObject* obj);
+
+	void AddPendingLevelObjects()
+	{
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+		for (auto entity : pendingAddLevelObjects)
+		{
+			LevelObjects.push_back(entity);
+		}
+		pendingAddLevelObjects.clear();
+	}
 
 	void RemovePendingEntities()
 	{
@@ -172,7 +188,7 @@ public:
 		{
 			var->UpdatePhysics();
 		}
-
+		AddPendingLevelObjects();
 	}
 
 	void Update()
@@ -185,7 +201,7 @@ public:
 		{
 			var->Update();
 		}
-
+		AddPendingLevelObjects();
 		RemovePendingEntities();
 
 	}

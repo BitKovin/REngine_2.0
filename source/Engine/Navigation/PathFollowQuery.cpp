@@ -37,10 +37,10 @@ void PathFollowQuery::CalculatePathOnThread()
 
 	vec3 s, t;
 
-	targetLocationsMutex.lock();
+
 	s = desiredStart;
 	t = desiredTarget;
-	targetLocationsMutex.unlock();
+
 
 	if (Canceled)
 	{

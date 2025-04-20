@@ -1,0 +1,400 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "F:/Git/SdlWasmEngine/Build/main.exe"
+		},
+		{
+			"path" : "F:/Git/SdlWasmEngine/Build/main.pdb"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_options",
+			"target_link_libraries",
+			"add_definitions",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 78,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 92,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 86,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 39,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 12,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 17,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd   -O3 -std=c++20"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 5,
+					"define" : "NDEBUG"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 6,
+					"path" : "F:/Git/SdlWasmEngine/librariesEms"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "F:/Git/SdlWasmEngine/source/Engine"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 3,
+			"id" : "engine::@6890427a1f51a3e7e1df"
+		}
+	],
+	"id" : "game::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "/DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -MDd",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "/machine:x64 /debug /INCREMENTAL /subsystem:console",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "USE_SDL=2",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "USE_SDL_IMAGE=2",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "USE_SDL_TTF=2",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "USE_SDL_MIXER=2",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "SDL2_IMAGE_FORMATS=[png]",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "USE_WEBGL2=1",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "MIN_WEBGL_VERSION=2",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "MAX_WEBGL_VERSION=2",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "GL_PREINITIALIZED_CONTEXT=1",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "STACK_SIZE=500000",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "INITIAL_HEAP=83886080",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "ALLOW_MEMORY_GROWTH=1",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "NO_DISABLE_EXCEPTION_CATCHING",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "WASM=1",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "ASSERTIONS=1",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "--preload-file",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "F:/Git/SdlWasmEngine/source/GameData@/GameData",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-s",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lidbfs.js",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "engine.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "F:\\Git\\SdlWasmEngine\\libsEms\\libassimp.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "F:\\Git\\SdlWasmEngine\\libsEms\\libIrrXML.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 4,
+				"fragment" : "F:\\Git\\SdlWasmEngine\\libsEms\\libJolt.a",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "game",
+	"nameOnDisk" : "main.exe",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "source/Game/Entities/Brushes/DestructubleBrush.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "source/Game/Entities/Player/Player.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "source/Game/Entities/TestNpc.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "source/Game/Entities/TestParticleSystem.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "source/Game/Entities/WorldSpawn.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "source/Game/ParticleSystems/HitBlood.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

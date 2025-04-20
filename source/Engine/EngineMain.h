@@ -193,7 +193,7 @@ public:
     }
 
     // Toggle asynchronous GameUpdate.
-    bool asyncGameUpdate = true;
+    bool asyncGameUpdate = false;
 
     // Store the future of the async update.
     std::future<void> gameUpdateFuture;
