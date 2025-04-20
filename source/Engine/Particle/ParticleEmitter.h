@@ -123,7 +123,7 @@ public:
 			}
 
 			// Copy updated particles to finalizedParticles.
-			finalizedParticles = Particles;
+			
 
 			// If we are no longer emitting and there are no particles left, mark as destroyed.
 			if (!Emitting && Particles.empty())

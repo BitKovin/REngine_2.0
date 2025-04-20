@@ -64,6 +64,9 @@ void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
 
 void ParticleEmitter::FinalizeFrameData()
 {
+
+    finalizedParticles = Particles;
+
     // Use finalized camera data for consistency
     vec3 cameraPosition = Camera::finalizedPosition;
     vec3 cameraRotation = Camera::finalizedRotation;
