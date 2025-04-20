@@ -286,6 +286,7 @@
     <ClCompile Include="Renderer\Abstractions\FrameBuffer.cpp" />
     <ClCompile Include="Renderer\Abstractions\RenderTexture.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
+    <ClCompile Include="SaveSystem\LevelSaveSystem.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="skinned_model.cpp" />
     <ClCompile Include="SoundSystem\SoundManager.cpp" />
@@ -359,6 +360,9 @@
     <ClInclude Include="Renderer\Abstractions\FrameBuffer.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Abstractions\RenderTexture.h" />
+    <ClInclude Include="SaveSystem\EntitySaveData.h" />
+    <ClInclude Include="SaveSystem\LevelSaveData.h" />
+    <ClInclude Include="SaveSystem\LevelSaveSystem.h" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SkeletalMesh.hpp" />

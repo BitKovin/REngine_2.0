@@ -19,7 +19,16 @@ Entity* LevelObjectFactory::create(const std::string& technicalName) const
 {
 
     auto it = registry_.find(technicalName);
-    if (it != registry_.end())
-        return (it->second)();
+    if (it != registry_.end()) 
+    {
+        Entity* ent = (it->second)();
+
+        if (ent)
+        {
+            ent->ClassName = technicalName;
+        }
+        return ent;
+
+    }
     return nullptr;
 }

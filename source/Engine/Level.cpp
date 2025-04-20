@@ -3,13 +3,19 @@
 #include "MapData.h"
 #include "MapParser.h"
 
+#include "Entity.hpp"
+
 #include "Physics.h"
 
 #include "EngineMain.h"
 
 #include "LightSystem/LightManager.h"
 
+#include "SaveSystem/LevelSaveSystem.h"
+
 Level* Level::Current = nullptr;
+
+string Level::pendingLoadLevelPath = "";
 
 void Level::CloseLevel()
 {
@@ -30,12 +36,22 @@ void Level::CloseLevel()
 	Current->RemovePendingEntities();
 
 	Current->MemoryCleanPendingEntities();
+
+	NavigationSystem::DestroyAllObstacles();
+
 }
 
+///UNSAFE. Loads level as soon as gets called
 Level* Level::OpenLevel(string filePath)
 {
+
+	bool isNewLevel = true;
+
 	if (Current)
 	{
+
+		if (Current->filePath == filePath)
+			isNewLevel = false;
 
 		CloseLevel();
 
@@ -44,6 +60,8 @@ Level* Level::OpenLevel(string filePath)
 	}
 
 	Level* newLevel = new Level();
+
+	newLevel->filePath = filePath;
 
 	Current = newLevel;
 
@@ -58,14 +76,80 @@ Level* Level::OpenLevel(string filePath)
 		obj->Start();
 	}
 
-	printf("generating nav mesh\n");
+	if (isNewLevel) 
+	{
+		printf("generating nav mesh\n");
 
-	NavigationSystem::GenerateNavData();
+		NavigationSystem::GenerateNavData();
 
-	printf("generated nav mesh\n");
+		printf("generated nav mesh\n");
+	}
 
+	if (LevelSaveSystem::pendingSave.name == Current->filePath)
+	{
+		LevelSaveSystem::LoadLevelFromData(LevelSaveSystem::pendingSave);
+
+		LevelSaveSystem::pendingSave = LevelSaveData();
+
+	}
 
 	return newLevel;
+}
+
+void Level::AddEntity(LevelObject* obj)
+{
+
+	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
+	Entity* entity = (Entity*)obj;
+
+	if (entity)
+	{
+		string classname = entity->ClassName;
+
+		auto nId = nextId.find(classname);
+
+		if (nId == nextId.end())
+		{
+			nextId[classname] = 0;
+		}
+
+		int id = nextId[classname];
+
+		nextId[classname]++;
+
+		string entId = classname + "_" + to_string(id);
+
+		entity->Id = entId;
+
+	}
+
+	LevelObjects.push_back(obj);
+
+	
+}
+
+void Level::RemoveEntity(LevelObject* obj)
+{
+	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
+	Entity* entity = (Entity*)obj;
+
+	if (entity)
+	{
+
+		if (entity->Unique && entity->Name != "")
+		{
+			deletedNames.push_back(entity->Name);
+		}
+		else
+		{
+			deletedIDs.push_back(entity->Id);
+		}
+
+	}
+
+	PendingRemoveLevelObjects.push_back(obj);
 }
 
 void Level::AsyncUpdate()
@@ -82,6 +166,56 @@ void Level::AsyncUpdate()
 	asyncUpdateThreadPool->WaitForFinish();
 
 	RemovePendingEntities();
+}
+
+vector<Entity*> Level::FindAllEntitiesWithName(const std::string& name)
+{
+	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
+	vector<Entity*> result;
+
+	for (auto var : LevelObjects)
+	{
+		Entity* entity = (Entity*)var;
+
+		if (entity && entity->Name == name)
+		{
+			result.push_back(entity);
+		}
+
+	}
+
+	return result;
+}
+
+Entity* Level::FindEntityWithName(const std::string& name)
+{
+	auto result = FindAllEntitiesWithName(name);
+
+	if (result.size() == 1)
+	{
+		return result[0];
+	}
+
+	return nullptr;
+
+}
+
+Entity* Level::FindEntityWithId(const std::string& id)
+{
+	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+
+	for (auto var : LevelObjects)
+	{
+		Entity* entity = (Entity*)var;
+
+		if (entity && entity->Id == id)
+		{
+			return entity;
+		}
+
+	}
+	return nullptr;
 }
 
 void Level::FinalizeFrame()

@@ -16,25 +16,39 @@
 
 using namespace std;
 
+class Entity;
+
 class Level : EObject
 {
 
 private:
-	vector<LevelObject*> LevelObjects = vector<LevelObject*>();
+	
 	vector<LevelObject*> PendingRemoveLevelObjects = vector<LevelObject*>();
 	vector<LevelObject*> PendingMemoryCleanObjects = vector<LevelObject*>();
+
+
+
+
 
 	std::recursive_mutex entityArrayLock = std::recursive_mutex();
 
 	ThreadPool* asyncUpdateThreadPool;
 
+	static string pendingLoadLevelPath;
+
 public:
 
 	static Level* Current;
 
+	vector<LevelObject*> LevelObjects = vector<LevelObject*>(); //not safe to use outside of class
+	std::unordered_map<std::string, int> nextId;
+	std::vector<std::string> deletedNames;
+	std::vector<std::string> deletedIDs;
+
 	vector<IDrawMesh*> VissibleRenderList = vector<IDrawMesh*>();
 	vector<IDrawMesh*> ShadowRenderList = vector<IDrawMesh*>();
 
+	string filePath;
 
 	Level()
 	{
@@ -51,6 +65,25 @@ public:
 	static void CloseLevel();
 
 	static Level* OpenLevel(string filePath);
+
+	static void LoadLevelFromFile(string filePath)
+	{
+		pendingLoadLevelPath = filePath;
+	}
+
+	static bool LoadPendingLevel()
+	{
+		if (pendingLoadLevelPath != "")
+		{
+			OpenLevel(pendingLoadLevelPath);
+			pendingLoadLevelPath = "";
+
+			return true;
+		}
+
+		
+		return false;
+	}
 
 	MeshUtils::PositionVerticesIndices GetStaticNavObstaclesMesh()
 	{
@@ -81,23 +114,9 @@ public:
 
 	}
 	
-	void AddEntity(LevelObject* entity)
-	{
-		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+	void AddEntity(LevelObject* obj);
 
-		LevelObjects.push_back(entity);
-
-	}
-
-	void RemoveEntity(LevelObject* entity)
-	{
-		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
-
-		PendingRemoveLevelObjects.push_back(entity);
-
-		
-
-	}
+	void RemoveEntity(LevelObject* obj);
 
 	void RemovePendingEntities()
 	{
@@ -176,6 +195,10 @@ public:
 		RemovePendingEntities();
 
 	}
+
+	vector<Entity*> FindAllEntitiesWithName(const std::string& name);
+	Entity* FindEntityWithName(const std::string& name);
+	Entity* FindEntityWithId(const std::string& id);
 
 	void FinalizeFrame();
 

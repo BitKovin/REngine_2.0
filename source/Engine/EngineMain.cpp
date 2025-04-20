@@ -87,6 +87,10 @@ void EngineMain::InitInputs()
 
     Input::AddAction("attack")->AddButton(GamepadButton::RightTrigger)->LMB = true;
 
+    Input::AddAction("qSave")->AddKeyboardKey(SDL_KeyCode::SDLK_F5);
+    Input::AddAction("qLoad")->AddKeyboardKey(SDL_KeyCode::SDLK_F8);
+
+
     int maxUniforms;
 
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxUniforms);

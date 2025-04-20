@@ -21,6 +21,8 @@
 
 #include <Particle/ParticleSystem.hpp>
 
+#include <SaveSystem/LevelSaveSystem.h>
+
 class Player : public Entity
 {
 
@@ -120,6 +122,11 @@ public:
     {
         viewmodel = new SkeletalMesh();
         arms = new SkeletalMesh();
+
+        ClassName = "info_player_start";
+
+        SaveGame = true;
+
     }
 	~Player(){}
 
@@ -269,7 +276,15 @@ public:
         arms->Position = viewmodel->Position;
         arms->Rotation = viewmodel->Rotation;
 
+        if (Input::GetAction("qSave")->Pressed())
+        {
+            LevelSaveSystem::SaveLevelToFile("quicksave");
+        }
 
+        if (Input::GetAction("qLoad")->Pressed())
+        {
+            LevelSaveSystem::LoadLevelFromFile("quicksave");
+        }
 
 	}
 

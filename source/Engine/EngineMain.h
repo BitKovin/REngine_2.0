@@ -48,6 +48,8 @@
 
 #include "Renderer/Renderer.h"
 
+#include "SaveSystem/LevelSaveSystem.h"
+
 class EngineMain
 {
 private:
@@ -124,6 +126,7 @@ public:
 
         Physics::Init();
 
+        LevelSaveSystem::InitPersistence();
         MainRenderer = new Renderer();
 
         UiRenderer::Init();
@@ -203,6 +206,9 @@ public:
        
 
         ImStartFrame();
+
+        bool loadedlevel = Level::LoadPendingLevel();
+
 
         if (asyncGameUpdate)
         {

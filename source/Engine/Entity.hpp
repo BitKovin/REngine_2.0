@@ -35,7 +35,12 @@ public:
 
 	vector<Body*> Bodies;
 
+	bool Unique = false;
+
+	bool SaveGame = false;
+
 	string ClassName = "Entity";
+	string Id = "";
 
 	string Name = "";
 
@@ -65,6 +70,8 @@ public:
 		Name = data.GetPropertyString("targetName");
 
 		Position = data.GetPropertyVectorPosition("origin");
+
+		Unique = data.GetPropertyBool("unique", Unique);
 
 	}
 
@@ -119,6 +126,7 @@ public:
 
 	void Serialize(json& target)
 	{
+		SERIALIZE_FIELD(target, Name);
 		SERIALIZE_FIELD(target, Position);
 		SERIALIZE_FIELD(target, Rotation);
 		SERIALIZE_FIELD(target, Scale);
@@ -126,6 +134,7 @@ public:
 
 	void Deserialize(json& source)
 	{
+		DESERIALIZE_FIELD(source, Name);
 		DESERIALIZE_FIELD(source, Position);
 		DESERIALIZE_FIELD(source, Rotation);
 		DESERIALIZE_FIELD(source, Scale);

@@ -64,6 +64,7 @@ if (NOT JS_ONLY)
         "SHELL:-s ASSERTIONS=1"
         "SHELL:--preload-file ${CMAKE_SOURCE_DIR}/source/GameData@/GameData"
         "SHELL:-s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1"
+        "SHELL:-lidbfs.js"
     )
 endif()
 
@@ -106,5 +107,6 @@ if (NOT JS_ONLY)
         "SHELL:-s ASSERTIONS=1"
         "SHELL:--preload-file ${CMAKE_SOURCE_DIR}/source/GameData@/GameData"
         "SHELL:-s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1"
+        "SHELL:-lidbfs.js"
     )
 endif()

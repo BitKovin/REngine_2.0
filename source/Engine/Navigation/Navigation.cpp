@@ -67,10 +67,7 @@ void NavigationSystem::DestroyNavData()
 
 	std::lock_guard<std::recursive_mutex> lock(mainLock);
 
-    for (auto obstacle : obstacles)
-    {
-        RemoveObstacle(obstacle);
-    }
+    DestroyAllObstacles();
 
 	if (tileCache)
 		dtFreeTileCache(tileCache);

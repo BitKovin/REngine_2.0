@@ -34,6 +34,14 @@ public:
 
     static bool DebugDrawNavMeshEnabled;
 
+    static void DestroyAllObstacles()
+    {
+        for (auto obstacle : obstacles)
+        {
+            RemoveObstacle(obstacle);
+        }
+    }
+
     static void Update()
     {
         
