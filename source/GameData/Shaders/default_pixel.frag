@@ -153,7 +153,8 @@ vec3 CalculateDirectionalLight()
 
     float shadow = 1.0;
 
-    if(dist < shadowDistance4){
+    if(dist < shadowDistance4)
+    {
 
         // 4) Check blend zones between cascades 0–2 and blend if inside
         bool blended = false;

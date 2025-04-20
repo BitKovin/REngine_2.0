@@ -50,7 +50,7 @@ public:
 
 	}
 
-	double GetRemainTime()
+	double GetRemainTime() const
 	{
 		double time = Time::GameTime;
 

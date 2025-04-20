@@ -2,7 +2,24 @@
 #include "../json.hpp"
 #include "../glm.h"
 
+#include "../Delay.hpp"
+
 namespace nlohmann {
+
+
+    // Serialization
+    void to_json(json& j, const Delay& d) {
+        j = json{
+            {"remainTime", d.GetRemainTime()}
+        };
+    }
+
+    // Deserialization
+    void from_json(const json& j, Delay& d) {
+        if (j.contains("remainTime") && j["remainTime"].is_number()) {
+            d.AddDelay(j["remainTime"].get<double>());
+        }
+    }
 
     // vec2
     template<> struct adl_serializer<glm::vec2> {
@@ -140,5 +157,6 @@ namespace nlohmann {
                     m[col][row] = j.at("col" + std::to_string(col)).at(row).get<float>();
         }
     };
+
 
 } // namespace nlohmann

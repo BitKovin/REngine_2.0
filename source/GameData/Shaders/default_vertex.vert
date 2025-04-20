@@ -47,7 +47,7 @@ mat4 GetBoneTransforms()
 
 	float sum = weights.x + weights.y + weights.z + weights.w;
 
-	if (sum < 0.05f)
+	if (sum < 0.01f)
 		return identity;
 
 	mat4 mbones =
