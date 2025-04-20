@@ -63,12 +63,14 @@ public:
 	// Call once to initialize particles.
 	void Start()
 	{
+		std::lock_guard<std::recursive_mutex> lock(particlesMutex);
 		SpawnParticles(InitialSpawnCount);
 	}
 
 	// Spawn a given number of new particles.
 	void SpawnParticles(int num)
 	{
+		std::lock_guard<std::recursive_mutex> lock(particlesMutex);
 		for (int i = 0; i < num; i++) {
 			Particle particle = GetNewParticle();
 			AddParticle(particle);
@@ -87,7 +89,7 @@ public:
 	{
 		if (destroyed)
 			return;
-
+		std::lock_guard<std::recursive_mutex> lock(particlesMutex);
 		elapsedTime += deltaTime;
 		if (elapsedTime > Duration)
 			Emitting = false;
@@ -95,7 +97,7 @@ public:
 		// Spawn new particles at a fixed spawn rate.
 		float spawnInterval = (SpawnRate > 0.0f) ? (1.0f / SpawnRate) : 0.0f;
 		{
-			std::lock_guard<std::recursive_mutex> lock(particlesMutex);
+			
 			if (SpawnRate > 0.0f && Emitting) {
 				while (elapsedTime >= spawnInterval) {
 					Particle particle = GetNewParticle();
@@ -133,7 +135,8 @@ public:
 
 
 	// Update a single particle.
-	virtual Particle UpdateParticle(Particle particle, float deltaTime) {
+	virtual Particle UpdateParticle(Particle particle, float deltaTime) 
+	{
 		glm::vec3 oldPos = particle.position;
 		particle.position += particle.velocity * deltaTime;
 		particle.Collided = false;
@@ -157,7 +160,8 @@ public:
 	}
 
 	// Create and return a new Particle with a unique id and initial parameters.
-	virtual Particle GetNewParticle() {
+	virtual Particle GetNewParticle() 
+	{
 		// Locking here is optional if GetNewParticle() is only called within already locked sections.
 		// If there's any chance of a race condition with currentId, lock here.
 		std::lock_guard<std::recursive_mutex> lock(particlesMutex);
@@ -204,10 +208,12 @@ public:
 
 	void PreloadAssets()
 	{
+		std::lock_guard<std::recursive_mutex> lock(particlesMutex);
 		AssetRegistry::GetTextureFromFile(texture);
 	}
 
 private:
+
 
 	Texture* savedTexture = nullptr;
 	string savedTextureName = "";
