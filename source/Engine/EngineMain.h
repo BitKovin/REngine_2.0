@@ -278,6 +278,10 @@ public:
 
         Level::Current->AsyncUpdate();
 
+        Level::Current->LateUpdate();
+
+        SoundManager::Update();
+
         if (Input::GetAction("test")->Pressed())
         {
             //ToggleFullscreen(window);

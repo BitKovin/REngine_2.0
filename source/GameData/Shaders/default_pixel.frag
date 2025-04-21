@@ -135,10 +135,10 @@ vec3 CalculateDirectionalLight()
                                       10.0,
                                       20.0 );
     
-    float biasScales[4]        = float[]( 0.2,
-                                      0.3,
-                                      0.4,
-                                      0.5 );
+    float biasScales[4]        = float[]( 0.3,
+                                      0.5,
+                                      0.7,
+                                      1.3 );
 
 
     vec2  cascadeOff[4]    = vec2[]( vec2(0,0),

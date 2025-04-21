@@ -23,6 +23,9 @@
 
 #include <SaveSystem/LevelSaveSystem.h>
 
+#include <Entities/SoundPlayer.h>
+#include <SoundSystem/SoundManager.hpp>
+
 class Player : public Entity
 {
 
@@ -42,6 +45,8 @@ private:
     Delay jumpDelay;
 
     bool freeFly = false;
+
+    SoundPlayer* soundPlayer;
 
     glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
         vel = MathHelper::XZ(vel);
@@ -164,6 +169,10 @@ public:
 
         ParticleSystem::PreloadSystemAssets("decal_blood");
         ParticleSystem::PreloadSystemAssets("hit_flesh");
+
+        soundPlayer = new SoundPlayer();
+        Level::Current->AddEntity(soundPlayer);
+        soundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/mew.wav");
 
 	}
 

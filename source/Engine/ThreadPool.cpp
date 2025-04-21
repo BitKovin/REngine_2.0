@@ -1,5 +1,12 @@
 #include "ThreadPool.h"
 
+#ifndef DISABLE_TREADPOOL
+
+#include <thread>
+#include <chrono>
+using namespace std::chrono_literals;
+#endif
+
 void ThreadPool::Start() {
 #ifndef DISABLE_TREADPOOL
 	const uint32_t num_threads = (std::thread::hardware_concurrency()) / 1.5f; // Max # of threads the system supports
@@ -70,6 +77,7 @@ void ThreadPool::WaitForFinish()
 	{
 
 	}
+
 }
 
 void ThreadPool::Stop()

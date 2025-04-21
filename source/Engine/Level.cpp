@@ -22,6 +22,7 @@ void Level::CloseLevel()
 
 	EngineMain::MainInstance->MainThreadPool.WaitForFinish();
 
+
 	Current->AddPendingLevelObjects();
 
 	for (LevelObject* obj : Current->LevelObjects)

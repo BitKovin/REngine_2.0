@@ -52,7 +52,7 @@ public:
 
         auto box = model->boundingBox.Transform(Position, Rotation, Scale);
 
-        DebugDraw::Bounds(box.Min, box.Max, 0.0);
+        //DebugDraw::Bounds(box.Min, box.Max, 0.0);
 
         return frustrum.IsBoxVisible(box.Min, box.Max);
     };

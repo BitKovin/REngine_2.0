@@ -55,7 +55,7 @@ public:
         particle.globalRotation.z += randomAngle;
 
         // Slightly adjust particle position.
-        particle.position += normal * 0.01f;
+        particle.position += normal * 0.03f;
 
         particle.Size = 1.4f;
         //particle.MaxDrawDistance = 60.0f;

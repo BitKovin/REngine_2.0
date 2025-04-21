@@ -18,6 +18,7 @@ public:
 	~LevelObject(){}
 
 	virtual void Update() {}
+	virtual void LateUpdate() {}
 	virtual void UpdatePhysics() {}
 
 	virtual void AsyncUpdate(){}

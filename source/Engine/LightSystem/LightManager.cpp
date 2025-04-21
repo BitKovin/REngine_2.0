@@ -8,9 +8,9 @@
 
 vec3 LightManager::LightDirection = vec3(-1,-1,1);
 
-const float cascadeExponent = 2;
+const float cascadeExponent = 3;
 
-float LightManager::LightDistance = 70;
+float LightManager::LightDistance = 300;
 
 float LightManager::LightDistance1 = 0;
 float LightManager::LightDistance2 = 0;

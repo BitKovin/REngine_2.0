@@ -110,6 +110,13 @@ void Player::PerformAttack()
 
         GlobalParticleSystem::SpawnParticleAt("hit_flesh", hit.position, MathHelper::FindLookAtRotation(vec3(0), hit.normal), vec3(10));
 
+        soundPlayer->MinDistance = 0;
+
+        //soundPlayer->Sound->EnableReverb = true;
+        soundPlayer->Position = hit.position;
+        soundPlayer->Play();
+
+
 
     }
 
