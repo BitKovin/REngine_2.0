@@ -57,7 +57,7 @@ public:
     // ─── source cone ─────────────────────────────────────────────────────
     float ConeInnerAngle = 360.0f;
     float ConeOuterAngle = 360.0f;
-    float ConeOuterGain = 0.0f;
+    float ConeOuterGain = 1.0f;
 
     // ─── effect toggles ──────────────────────────────────────────────────
     bool EnableFilter = false;
@@ -191,13 +191,7 @@ public:
 
             // directional “blur”: tighten cone at close, flatten at far
             float dirFactor = 1.0f - t;
-            float inner = ConeInnerAngle * dirFactor + 360.0f * (1.0f - dirFactor);
-            float outer = ConeOuterAngle * dirFactor + 360.0f * (1.0f - dirFactor);
-            float oGain = ConeOuterGain * dirFactor + 1.0f * (1.0f - dirFactor);
 
-            alSourcef(sourceRef, AL_CONE_INNER_ANGLE, inner);
-            alSourcef(sourceRef, AL_CONE_OUTER_ANGLE, outer);
-            alSourcef(sourceRef, AL_CONE_OUTER_GAIN, oGain);
 
 #ifndef DISABLE_EFX
             // HF damping over distance
