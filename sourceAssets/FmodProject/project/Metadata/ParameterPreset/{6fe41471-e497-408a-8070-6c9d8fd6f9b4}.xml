@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.00.00">
+	<object class="ParameterPreset" id="{6fe41471-e497-408a-8070-6c9d8fd6f9b4}">
+		<property name="name">
+			<value>Auto-Stop</value>
+		</property>
+		<relationship name="folder">
+			<destination>{a0bd4fb7-a8cc-49c1-adfc-c2037026f39f}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{aebab073-cbb9-4b10-a724-9daa6698a7cd}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{aebab073-cbb9-4b10-a724-9daa6698a7cd}">
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{86f5710c-d984-488e-8c3a-2ffab182732f}</destination>
+		</relationship>
+	</object>
+	<object class="ADSRModulator" id="{86f5710c-d984-488e-8c3a-2ffab182732f}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>cursorPosition</value>
+		</property>
+		<property name="initialValue">
+			<value>100</value>
+		</property>
+		<property name="peakValue">
+			<value>100</value>
+		</property>
+		<property name="sustainValue">
+			<value>100</value>
+		</property>
+		<property name="releaseTime">
+			<value>2000</value>
+		</property>
+	</object>
+</objects>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.01.10.00">
+    <object class="AudioFile" id="{a6925868-56b6-4fa3-b118-5cefa17cff42}">
+        <property name="assetPath">
+            <value>Vehicles/Basic Engine/veh_lawnmower_1406_off_exh.ogg</value>
+        </property>
+        <property name="frequencyInKHz">
+            <value>48</value>
+        </property>
+        <property name="channelCount">
+            <value>1</value>
+        </property>
+        <property name="length">
+            <value>1.2130799999999999</value>
+        </property>
+        <relationship name="masterAssetFolder">
+            <destination>{4c43130b-9186-4fb6-9d65-a9acdac70927}</destination>
+        </relationship>
+    </object>
+</objects>

@@ -16,6 +16,7 @@
 #include <glm/gtc/reciprocal.hpp>
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/ext/scalar_common.hpp>
 #include <glm/geometric.hpp>
 
 #else
@@ -32,6 +33,7 @@
 #include "glm/gtx/compatibility.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 #include "glm/geometric.hpp"
+#include "glm/ext/scalar_common.hpp"
 #endif
 
 using namespace glm;

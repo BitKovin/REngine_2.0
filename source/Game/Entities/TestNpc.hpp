@@ -13,6 +13,9 @@
 
 #include <Navigation/PathFollowQuery.h>
 
+#include "SoundSystem/SoundManager.hpp"
+#include "Entities/SoundPlayer.h"
+
 class TestNpc : public Entity
 {
 
@@ -23,9 +26,20 @@ private:
 
 	PathFollowQuery pathFollow;
 
+	SoundPlayer* DeathSoundPlayer = nullptr;
+	SoundPlayer* HurtSoundPlayer = nullptr;
+	SoundPlayer* StunSoundPlayer = nullptr;
+	SoundPlayer* AttackSoundPlayer = nullptr;
+
+	bool dead = false;
+
+	AnimationState animationStateSaveData;
+
 public:
 
 	SkeletalMesh* mesh;
+
+
 
 	TestNpc()
 	{
@@ -48,7 +62,7 @@ public:
 	{
 		
 
-		mesh->Position = Position;
+		mesh->Position = Position - vec3(0, 1, 0);
 		mesh->Rotation = Rotation;
 
 		Drawables.push_back(mesh);
@@ -62,11 +76,28 @@ public:
 
 		pathFollow.CalculatePathOnThread();
 
+		DeathSoundPlayer = SoundPlayer::Create();
+		HurtSoundPlayer = SoundPlayer::Create();
+		StunSoundPlayer = SoundPlayer::Create();
+		AttackSoundPlayer = SoundPlayer::Create();
+
 	}
 
-	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr)
+	void Death();
+
+	void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone = "", Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
+
+	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
+
+	void Destroy()
 	{
-		Destroy();
+		Entity::Destroy();
+
+		DeathSoundPlayer->DestroyWithDelay(3);
+		HurtSoundPlayer->DestroyWithDelay(3);
+		StunSoundPlayer->DestroyWithDelay(3);
+		AttackSoundPlayer->DestroyWithDelay(3);
+
 	}
 
 	void AsyncUpdate();

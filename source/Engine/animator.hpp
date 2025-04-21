@@ -14,13 +14,17 @@ public :
 
     bool Loop = false;
 
+    float m_currTime{ 0.0f };
+
+    bool m_playing = false;
+
 private:
 
     std::vector<glm::mat4> m_boneMatrices;
     
     SkinnedModel m_model;
-    float m_currTime{0.0f};
-    bool m_playing = false;
+
+
     bool m_loopEnabled = false;
 private:
     int getKeyTransformIdx(std::vector<float>& timestamps);
@@ -35,6 +39,8 @@ private:
 public:
 
     Animation* m_currAnim{ nullptr };
+
+    string currentAnimationName = "";
 
     Animator() = default;
 	Animator(SkinnedModel* model);
@@ -55,6 +61,7 @@ public:
 
     void PopulateBonePoseArray(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& outVector);
 
+    void UpdateAnimationPose();
 
     void update(float dt);
     void reset();

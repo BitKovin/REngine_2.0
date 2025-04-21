@@ -2,6 +2,7 @@
 
 
 #include <vector>
+#include <string>
 
 #include "ShaderManager.h"
 
@@ -20,6 +21,9 @@
 #include "StaticMesh.hpp"
 
 #include "Time.hpp"
+
+#include "json.hpp"
+#include "Helpers/JsonHelper.hpp"
 
 using namespace std;
 
@@ -58,6 +62,17 @@ struct AnimationPose
 		return result;
 
 	}
+
+};
+
+struct AnimationState
+{
+	bool playing;
+	string animationName;
+	float animationTime;
+	bool looping;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(AnimationState, playing, animationName, animationTime, looping)
 
 };
 
@@ -124,8 +139,9 @@ public:
 		boneTransforms = animator.getBoneMatrices();
 	}
 
-	void PlayAnimation(string name, float interpIn = 0.12)
+	void PlayAnimation(string name, bool Loop = false,float interpIn = 0.12)
 	{
+		SetLooped(Loop);
 		animator.set(name);
 		PlayAnimation(interpIn);
 	}
@@ -206,5 +222,29 @@ public:
 
 		animator = roj::Animator(model);
 	}
+
+	void SetAnimationState(const AnimationState& animationState)
+	{
+		animator.Loop = animationState.looping;
+		animator.set(animationState.animationName);
+		animator.play();
+		animator.m_currTime = animationState.animationTime;
+		animator.UpdateAnimationPose();
+		animator.m_playing = animationState.playing;
+	}
+
+	AnimationState GetAnimationState()
+	{
+		AnimationState animationState;
+
+		animationState.looping = animator.Loop;
+		animationState.animationName = animator.currentAnimationName;
+		animationState.animationTime = animator.m_currTime;
+		animationState.playing = animator.m_playing;
+
+		return animationState;
+	}
+
+
 
 };

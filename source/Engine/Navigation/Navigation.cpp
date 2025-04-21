@@ -442,10 +442,13 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
 
     // Compute the polygon path.
     const int MAX_POLYS = 512;
+
+    int maxPolythPath = glm::ceil(glm::clamp(distance(start, target)/3.0f, 2.0f, 512.0f));
+
     dtPolyRef polyPath[MAX_POLYS];
     int polyPathCount = 0;
     status = navQuery->findPath(startRef, endRef, startPos, targetPos, &filter,
-        polyPath, &polyPathCount, MAX_POLYS);
+        polyPath, &polyPathCount, maxPolythPath);
     if (dtStatusFailed(status) || polyPathCount == 0)
     {
         dtFreeNavMeshQuery(navQuery);

@@ -108,13 +108,16 @@ void Player::PerformAttack()
         hit.entity->OnPointDamage(10, hit.position, MathHelper::FastNormalize(hit.position - Camera::position), "", this, this);
 
 
-        GlobalParticleSystem::SpawnParticleAt("hit_flesh", hit.position, MathHelper::FindLookAtRotation(vec3(0), hit.normal), vec3(10));
+        
+
+        //soundPlayer->Sound->EnableReverb = true;
+        //soundPlayer->Sound->ReverbDecayTime = 5;
 
         soundPlayer->MaxDistance = 100;
 
         //soundPlayer->Sound->EnableReverb = true;
         soundPlayer->Position = hit.position;
-        soundPlayer->Play();
+        //soundPlayer->Play();
 
 
 

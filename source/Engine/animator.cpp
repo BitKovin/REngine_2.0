@@ -138,6 +138,7 @@ void roj::Animator::set(const std::string& name)
     if (it != m_model.animations.end()) {
         m_currAnim = &it->second;
         m_currTime = 0.0f;
+        currentAnimationName = name;
     }
 }
 std::vector<std::string> roj::Animator::get()
@@ -183,6 +184,15 @@ void roj::Animator::PopulateBonePoseArray(BoneNode& node, glm::mat4 offset, std:
     }
 }
 
+void roj::Animator::UpdateAnimationPose()
+{
+    if (m_currAnim)
+    {
+        calcBoneTransform(m_currAnim->rootBone, glm::mat4(1.0f));
+    }
+    
+}
+
 void roj::Animator::update(float dt)
 {
     if (m_currAnim && m_playing) 
@@ -192,7 +202,7 @@ void roj::Animator::update(float dt)
             if (m_currTime >= m_currAnim->duration)
                 m_currTime -= m_currAnim->duration;
 
-        m_playing  = (m_loopEnabled) ? true : (m_currTime < m_currAnim->duration);
+        m_playing  = (Loop) ? true : (m_currTime < m_currAnim->duration);
         m_currTime = m_currTime + (m_currAnim->ticksPerSec * dt);
 
         if (UpdatePose) 

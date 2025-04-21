@@ -44,6 +44,8 @@ public:
 
 	string Name = "";
 
+	float Health = 0;
+
 	bool Destroyed = false;
 
 	bool AssetsLoaded = false;
@@ -132,6 +134,7 @@ public:
 		SERIALIZE_FIELD(target, Position);
 		SERIALIZE_FIELD(target, Rotation);
 		SERIALIZE_FIELD(target, Scale);
+		SERIALIZE_FIELD(target, Health);
 	}
 
 	void Deserialize(json& source)
@@ -140,6 +143,7 @@ public:
 		DESERIALIZE_FIELD(source, Position);
 		DESERIALIZE_FIELD(source, Rotation);
 		DESERIALIZE_FIELD(source, Scale);
+		DESERIALIZE_FIELD(source, Health);
 	}
 
 	void LoadAssetsIfNeeded() 

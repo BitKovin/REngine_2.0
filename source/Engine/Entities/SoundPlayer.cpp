@@ -29,6 +29,12 @@ void SoundPlayer::LateUpdate()
 
 		Sound->Update();
 	}
+
+	if (destroyDelay.Wait() == false)
+	{
+		Destroy();
+	}
+
 }
 
 void SoundPlayer::Play()
@@ -53,4 +59,21 @@ void SoundPlayer::Stop()
 	{
 		Sound->Stop();
 	}
+}
+
+void SoundPlayer::DestroyWithDelay(float delay)
+{
+	destroyDelay.AddDelay(delay);
+}
+
+SoundPlayer* SoundPlayer::Create()
+{
+
+	SoundPlayer* player = new SoundPlayer();
+
+	Level::Current->AddEntity(player);
+	player->Start();
+
+	return player;
+
 }

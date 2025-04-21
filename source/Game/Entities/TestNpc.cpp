@@ -1,17 +1,71 @@
 #include "TestNpc.hpp"
 #include "Player/Player.hpp"
 
+#include <Particle/GlobalParticleSystem.hpp>
+
 #include <Navigation/Navigation.hpp>
 
 REGISTER_ENTITY(TestNpc, "testnpc")
 
+void TestNpc::Death()
+{
+
+	if (dead) return;
+
+	mesh->PlayAnimation("death");
+	Physics::SetLinearVelocity(LeadBody, vec3(0));
+	DeathSoundPlayer->Play();
+
+	Physics::DestroyBody(LeadBody);
+	LeadBody = nullptr;
+
+	dead = true;
+
+}
+
+void TestNpc::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon)
+{
+	Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
+
+	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point, MathHelper::FindLookAtRotation(vec3(0), Direction), vec3(10));
+
+}
+
+void TestNpc::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
+{
+
+	Health -= Damage;
+
+	if (Health <= 0)
+	{
+		Death();
+	}
+
+
+}
+
 void TestNpc::AsyncUpdate()
 {
+
+	DeathSoundPlayer->Position = Position;
+	HurtSoundPlayer->Position = Position;
+	StunSoundPlayer->Position = Position;
+	AttackSoundPlayer->Position = Position;
+
 	mesh->UpdatePose = mesh->WasRended;
 
 	mesh->Update();
 
-	mesh->Position = Position - vec3(0,1,0);
+	mesh->Position = Position - vec3(0, 1, 0);
+
+	if (dead) return;
+
+	DeathSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
+	HurtSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
+	StunSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
+	AttackSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
+
+
 	
 
 	Entity* target = Player::Instance;
@@ -28,7 +82,7 @@ void TestNpc::AsyncUpdate()
 	}
 	
 
-	movingDirection = mix(movingDirection, desiredDirection, Time::DeltaTime*3);
+	movingDirection = mix(movingDirection, desiredDirection, Time::DeltaTime*5);
 
 	movingDirection = MathHelper::FastNormalize(movingDirection);
 
@@ -65,12 +119,15 @@ void TestNpc::Serialize(json& target)
 
 	Entity::Serialize(target);
 
-	Rotation = MathHelper::ToYawPitchRoll(FromPhysics(LeadBody->GetRotation()));
+	animationStateSaveData = mesh->GetAnimationState();
+
+	Rotation = mesh->Rotation;
 
 	SERIALIZE_FIELD(target, Rotation)
 	SERIALIZE_FIELD(target, desiredDirection)
 	SERIALIZE_FIELD(target, movingDirection)
-
+	SERIALIZE_FIELD(target, dead)
+	SERIALIZE_FIELD(target, animationStateSaveData)
 }
 
 void TestNpc::Deserialize(json& source)
@@ -81,17 +138,37 @@ void TestNpc::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, Rotation)
 	DESERIALIZE_FIELD(source, desiredDirection)
 	DESERIALIZE_FIELD(source, movingDirection)
+	DESERIALIZE_FIELD(source, dead)
+	DESERIALIZE_FIELD(source, animationStateSaveData)
 
 	Physics::SetBodyPosition(LeadBody, Position);
+
+
+	if (dead)
+	{
+		Physics::DestroyBody(LeadBody);
+	}
+
+
+	mesh->Rotation = Rotation;
+
+	mesh->SetAnimationState(animationStateSaveData);
 
 }
 
 void TestNpc::LoadAssets()
 {
 	mesh->LoadFromFile("GameData/dog.glb");
-	mesh->PlayAnimation("run");
+	mesh->PlayAnimation("run",true);
 	mesh->SetLooped(true);
 	mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
+
+	DeathSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
+	HurtSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
+	StunSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
+	AttackSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
+
+
 }
 
 

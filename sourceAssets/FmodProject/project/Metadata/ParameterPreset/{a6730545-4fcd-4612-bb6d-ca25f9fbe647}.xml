@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="ParameterPreset" id="{a6730545-4fcd-4612-bb6d-ca25f9fbe647}">
+		<property name="name">
+			<value>pistol_right_hand</value>
+		</property>
+		<relationship name="folder">
+			<destination>{0ff6cbf6-c18d-4587-b376-cae3e18335c2}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{d26758d5-9a79-4b2a-b362-26f7ac9a5015}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{d26758d5-9a79-4b2a-b362-26f7ac9a5015}">
+		<property name="minimum">
+			<value>-1</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

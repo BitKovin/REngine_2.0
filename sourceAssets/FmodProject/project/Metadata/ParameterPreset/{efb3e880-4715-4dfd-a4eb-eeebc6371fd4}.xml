@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.00.00">
+	<object class="ParameterPreset" id="{efb3e880-4715-4dfd-a4eb-eeebc6371fd4}">
+		<property name="name">
+			<value>Walla</value>
+		</property>
+		<relationship name="folder">
+			<destination>{6aa8d7fb-2516-4568-a9b8-00b66d27f502}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{95b9b67d-4a1e-45ab-806f-e46ce640bf5a}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{95b9b67d-4a1e-45ab-806f-e46ce640bf5a}">
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+		<property name="seekSpeed">
+			<value>0.50000005960464478</value>
+		</property>
+	</object>
+</objects>

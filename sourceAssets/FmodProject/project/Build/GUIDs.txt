@@ -1,0 +1,75 @@
+{d100ffc4-9718-41d7-b641-181373b55498} bank:/Dialogue
+{816d4737-171a-41e7-a9f0-32996ece71cb} bank:/Master
+{197067e3-6661-0da5-2fb9-b8679f3d7753} bank:/Master.strings
+{9ad4be16-4f5a-4e4c-a013-f35de106f106} bank:/Music
+{561cd480-bd2b-4c2e-b919-d775f9c4f409} bank:/SFX
+{d6e4340a-dfdb-4393-b4dc-b55091d858cd} bank:/VO
+{34f54f36-2a90-4a3c-a280-e09632cf8257} bank:/Vehicles
+{af9d027a-3a1f-49a8-a9ef-4cbe20673632} bus:/
+{7e33a2b3-db05-4b7a-ba1e-e862f2bfde36} bus:/Music
+{d320eb98-3d4a-4cd9-a001-fdb4e071c58e} bus:/SFX
+{d9982c58-a056-4e6c-b8e3-883854b4bffb} bus:/SFX/Ambience
+{3e1d1653-8bd5-4dbc-865e-cba8e8ded970} bus:/SFX/Character
+{da23c66c-e512-4a93-98dc-02d6f58e4c5a} bus:/SFX/Explosions
+{009ebac0-e5a9-4e69-8d37-6bdc9d8c6f45} bus:/SFX/Objects
+{524ae5a9-928c-4391-9635-34b41d4602af} bus:/SFX/Reverb
+{37ebea86-d649-4a7a-b7b5-25701bfce8e9} bus:/SFX/Vehicles
+{dd124d8d-1ccd-4871-a160-5024e3e3f116} bus:/SFX/Weapons
+{670390e5-527e-4f22-8654-b0326c9cc0c6} bus:/UI
+{69d0d47a-7f4b-4d6c-bfc3-bda91e9f7f1f} bus:/VO
+{bb98917e-d65b-41f0-a0ca-c50756da3f0e} event:/Ambience/City
+{249ac74e-6ea4-4648-81da-206c4e22b801} event:/Ambience/Country
+{477410e5-4a6d-462e-bd1e-4d558ce488ec} event:/Ambience/Forest
+{9aa2ecc5-ea4b-4ebe-85c3-054b11b21dcd} event:/Character/Dialogue
+{43108f44-285c-4877-a785-4ae97ed0fb3d} event:/Character/Door Close
+{62855218-a8f3-470f-ab7a-8af8f7df77bb} event:/Character/Door Open
+{14b5293f-f69e-48e5-a7ae-ce02710ca3d9} event:/Character/Enemy Footsteps
+{22f3fed6-2b45-4fff-aa85-5351bc5fe9cd} event:/Character/Health
+{e905d401-76f5-4741-a885-f7844b244671} event:/Character/Player Footsteps
+{43c41f87-701f-4c25-a9a1-c619ca106412} event:/Character/Radio Dialogue
+{c42c2240-c4b6-42ed-a473-1a47f19945ea} event:/Interactables/Barrel Roll
+{be6203d8-c8d8-41c5-8ce6-bce0de95807b} event:/Interactables/Wooden Collision
+{74bbba7c-76e8-488c-9cf9-67f000df1ffd} event:/Music/Level 01
+{c7f946fd-d695-499b-a820-752799c4921d} event:/Music/Level 02
+{ec16145a-3712-4b1c-9944-ce26875a548b} event:/Music/Level 03
+{b36aaf9f-2f14-4c45-8cf0-fc622a0ea38a} event:/Music/Radio Station
+{2a3e48e6-94fc-4363-9468-33d2dd4d7b00} event:/UI/Cancel
+{92479e97-94c6-4564-9e33-efbeec59b34a} event:/UI/Okay
+{a7b81216-fb0b-4b9c-9e7d-b897825d9821} event:/VO/Main Menu
+{d7eabb29-abd9-4057-b408-eef937d66f2a} event:/VO/Welcome
+{0c8363b4-23af-4f9c-af4b-0951bfd37d84} event:/Vehicles/Car Engine
+{7aa5e8f1-8ec2-42c6-b465-1241a603a055} event:/Vehicles/Ride-on Mower
+{1f687138-e06c-40f5-9bac-57f84bbcedd3} event:/Weapons/Explosion
+{e9b7aafa-2df0-4193-b32e-a74e5753cfa0} event:/Weapons/Machine Gun
+{03c85dcf-c4eb-4094-83c7-7839b5d058e8} event:/Weapons/Pistol
+{b8b3154f-b7b5-47d7-b7c6-a020b1f48e76} parameter:/Ambience/City/Event Orientation
+{35dee4f7-9565-4215-8ca7-3eb446a2ab8c} parameter:/Ambience/City/Traffic
+{95b9b67d-4a1e-45ab-806f-e46ce640bf5a} parameter:/Ambience/City/Walla
+{362127ac-a587-47da-868a-fc86d66a6677} parameter:/Ambience/Cover
+{c5f5903c-d11f-4e44-8f2a-5563c7ed0f20} parameter:/Ambience/Hour
+{4ad59307-2c9a-498d-b318-3a35d01c3b9c} parameter:/Ambience/Rain
+{aa37dcda-6161-459d-bdf5-9400828f7ed3} parameter:/Ambience/Wind
+{b1dc55b5-1863-4645-a918-a52d80cb9c65} parameter:/Character/Health
+{5decf701-7e48-4848-b796-416ec40eb26c} parameter:/Character/Surface
+{b7450daa-aea2-40e5-9aec-40ae4936a328} parameter:/Character/VO Sidechain
+{6fbe4ad6-7ed5-43c8-94ac-fe278fcdbe03} parameter:/Interactables/Speed
+{20a22b40-454b-4333-98b6-eee0b54cc783} parameter:/Music/Area
+{96d6cd3d-ea4f-4baa-b368-2f1d98940b31} parameter:/Music/Intensity
+{25a540fc-fedb-48d6-8e2f-c51e3cbea5b0} parameter:/Music/Progression
+{07534c48-7d66-4b77-93a5-90f0821e092c} parameter:/Music/Radio/Freq
+{e38d3ac3-5b68-4f54-94c8-0d4bfa3809c2} parameter:/Music/Radio/Spatializer
+{b045090a-b061-4c45-90d8-54a5c15e2188} parameter:/Music/Stinger
+{e25821f0-cab8-48f7-94c9-fef8b0f68286} parameter:/Vehicles/Car Engine/RPM
+{3e8e56fe-6058-430e-af80-ca44be8ee759} parameter:/Vehicles/Load
+{27917f63-d316-4f46-95a0-a271283fb8ad} parameter:/Vehicles/Ride-on Mower/RPM
+{aebab073-cbb9-4b10-a724-9daa6698a7cd} parameter:/Weapons/Auto-Stop
+{b53728c5-53bd-4679-bdb1-cd4395b4dbc9} parameter:/Weapons/Distance
+{2860903d-d2a5-4ff6-826d-77426e47a44f} parameter:/Weapons/Size
+{87ea4134-fff1-4e9d-8f8b-294a2b518223} snapshot:/Health Low
+{e305a498-2b18-461d-b35c-6eaea45fafd6} snapshot:/Pause
+{b695eec0-fe78-4755-b806-9690c06dfc0b} snapshot:/Reverb/Cave Reverb
+{c107e28e-873b-4caa-9492-68fe72210c48} snapshot:/Reverb/Sewer Reverb
+{6e8d8d09-12e0-48cf-b620-f9cc3bc478a3} snapshot:/Slow-Motion
+{3f0b7d64-e765-400e-ae74-c2d973ad4ca1} vca:/Environment
+{bf15a3f1-6824-492a-8cb1-db2383349f1b} vca:/Equipment
+{62d29c9d-bd2f-46ac-8dea-c37c666f3cfd} vca:/Player

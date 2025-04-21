@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="Event" id="{9aa2ecc5-ea4b-4ebe-85c3-054b11b21dcd}">
+		<property name="note">
+			<value>This is an example of a simple one-shot programmer instrument event.
+
+The programmer instrument is an instrument that generates callbacks when triggered and untriggered. These callbacks can be used to play any audio files the programmer chooses, including audio files not a part of the FMOD Studio project.
+
+This is especially useful for games that have a lot of dialogue. Rather than having an event for each line of dialogue, which can make a project very large, all loose dialogue files are bundled into an audio table. This audio table is built into a single bank file. The audio files in an audio table can be used by the programmer instrument when needed.
+
+Audio files (such as dialogue lines) can be of differing lengths, so in these situations it's important to set the programmer instrument to asynchronous to allow the audio file provided to play out in full.
+
+In the banks browser, you can find a folder named "Localization". This folder contains three banks ("Dialogue_CN", "Dialogue_EN", "Dialogue_JP"), each containing an audio table. Using a "keys.txt" file provided with each audio table, it is possible to customize what the key needed to call each audio file is. This is useful for localization where a single key can correspond to each language's required audio file. For example, setting the key to playback as "welcome" can mean "cn_welcome.ogg", "en_welcome.ogg", or "jp_welcome.ogg", depending on which bank is currently loaded.
+
+The loose audio files and keys.txt files can be found in the "Dialogue" folder found in the root folder of this project.
+
+You can see an example of how programmer instruments and audio tables work together in code in the "programmer_sound.cpp" example provided in the FMOD Studio API installation folder.
+
+https://www.fmod.com/docs/studio/working-with-instruments.html#programmer-instruments
+
+https://www.fmod.com/docs/studio/advanced-topics.html#audio-tables
+
+https://www.fmod.com/docs/studio/advanced-topics.html#keys-file</value>
+		</property>
+		<property name="name">
+			<value>Dialogue</value>
+		</property>
+		<property name="outputFormat">
+			<value>2</value>
+		</property>
+		<relationship name="folder">
+			<destination>{33020bd4-6815-4ed7-b787-bc0035017be4}</destination>
+		</relationship>
+		<relationship name="tags">
+			<destination>{b25c4f9d-1f47-4b94-89e1-8b05ecc39502}</destination>
+			<destination>{bdccd9d1-5ce9-49be-94c0-ba0a070cb181}</destination>
+			<destination>{8b9f00f3-0328-4a96-8fa7-84477875d85a}</destination>
+		</relationship>
+		<relationship name="mixer">
+			<destination>{73b006c1-0dff-4c01-8383-8ab31c3f0b4c}</destination>
+		</relationship>
+		<relationship name="masterTrack">
+			<destination>{9f584589-d8a3-4251-a0e2-dc3d5ac990c0}</destination>
+		</relationship>
+		<relationship name="mixerInput">
+			<destination>{03f92815-b960-4318-aeca-8034c13ec3f2}</destination>
+		</relationship>
+		<relationship name="automatableProperties">
+			<destination>{6107d850-42ea-4834-9e99-dac880058b70}</destination>
+		</relationship>
+		<relationship name="markerTracks">
+			<destination>{f33d8aa5-2f0f-460e-abce-745f42b3d638}</destination>
+		</relationship>
+		<relationship name="groupTracks">
+			<destination>{a2c8c9e2-e8c4-4ad7-957d-7463089b62ed}</destination>
+		</relationship>
+		<relationship name="timeline">
+			<destination>{deaf5049-0e49-4b1e-aae6-94f81db0b13b}</destination>
+		</relationship>
+		<relationship name="banks">
+			<destination>{561cd480-bd2b-4c2e-b919-d775f9c4f409}</destination>
+		</relationship>
+	</object>
+	<object class="EventMixer" id="{73b006c1-0dff-4c01-8383-8ab31c3f0b4c}">
+		<relationship name="masterBus">
+			<destination>{30e63582-32fe-4cfc-bc0a-ddae1d2272d4}</destination>
+		</relationship>
+	</object>
+	<object class="MasterTrack" id="{9f584589-d8a3-4251-a0e2-dc3d5ac990c0}">
+		<relationship name="mixerGroup">
+			<destination>{30e63582-32fe-4cfc-bc0a-ddae1d2272d4}</destination>
+		</relationship>
+	</object>
+	<object class="MixerInput" id="{03f92815-b960-4318-aeca-8034c13ec3f2}">
+		<relationship name="masters">
+			<destination>{62d29c9d-bd2f-46ac-8dea-c37c666f3cfd}</destination>
+		</relationship>
+		<relationship name="effectChain">
+			<destination>{c22e5355-cc4a-43b4-988c-d26d18e70f4a}</destination>
+		</relationship>
+		<relationship name="panner">
+			<destination>{7589b205-d939-45b9-876e-d919a3042e6f}</destination>
+		</relationship>
+		<relationship name="output">
+			<destination>{3e1d1653-8bd5-4dbc-865e-cba8e8ded970}</destination>
+		</relationship>
+	</object>
+	<object class="EventAutomatableProperties" id="{6107d850-42ea-4834-9e99-dac880058b70}">
+		<property name="priority">
+			<value>3</value>
+		</property>
+	</object>
+	<object class="MarkerTrack" id="{f33d8aa5-2f0f-460e-abce-745f42b3d638}" />
+	<object class="GroupTrack" id="{a2c8c9e2-e8c4-4ad7-957d-7463089b62ed}">
+		<relationship name="modules">
+			<destination>{004144b0-8106-4783-b4f6-701edacbf497}</destination>
+		</relationship>
+		<relationship name="mixerGroup">
+			<destination>{de21aff8-f9ff-4c99-bec5-6e7387639aab}</destination>
+		</relationship>
+	</object>
+	<object class="Timeline" id="{deaf5049-0e49-4b1e-aae6-94f81db0b13b}">
+		<relationship name="modules">
+			<destination>{004144b0-8106-4783-b4f6-701edacbf497}</destination>
+		</relationship>
+	</object>
+	<object class="EventMixerMaster" id="{30e63582-32fe-4cfc-bc0a-ddae1d2272d4}">
+		<relationship name="effectChain">
+			<destination>{ab56c049-fb9f-430f-bc6d-3f1ad15d42d5}</destination>
+		</relationship>
+		<relationship name="panner">
+			<destination>{e9190bba-df27-47a1-bf32-c00df66ca392}</destination>
+		</relationship>
+		<relationship name="mixer">
+			<destination>{73b006c1-0dff-4c01-8383-8ab31c3f0b4c}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusEffectChain" id="{c22e5355-cc4a-43b4-988c-d26d18e70f4a}">
+		<relationship name="effects">
+			<destination>{742cf130-5307-4481-bd9f-8eb9768d50e4}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusPanner" id="{7589b205-d939-45b9-876e-d919a3042e6f}" />
+	<object class="ProgrammerSound" id="{004144b0-8106-4783-b4f6-701edacbf497}">
+		<property name="isAsync">
+			<value>true</value>
+		</property>
+		<property name="name">
+			<value>welcome</value>
+		</property>
+		<relationship name="placeholder">
+			<destination>{77ec3f05-d9fc-41af-8644-c371efdb068c}</destination>
+		</relationship>
+	</object>
+	<object class="EventMixerGroup" id="{de21aff8-f9ff-4c99-bec5-6e7387639aab}">
+		<property name="name">
+			<value>Dialogue</value>
+		</property>
+		<relationship name="effectChain">
+			<destination>{24a5f8e5-1241-4398-9034-5e95b557f9bc}</destination>
+		</relationship>
+		<relationship name="panner">
+			<destination>{c5657276-6879-4571-b34a-3fc198c978b0}</destination>
+		</relationship>
+		<relationship name="output">
+			<destination>{30e63582-32fe-4cfc-bc0a-ddae1d2272d4}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusEffectChain" id="{ab56c049-fb9f-430f-bc6d-3f1ad15d42d5}">
+		<relationship name="effects">
+			<destination>{c74da000-473f-4416-85d3-85ecbcdf03a3}</destination>
+			<destination>{21ed8a7c-8342-4362-ab3b-3605160dc5e1}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusPanner" id="{e9190bba-df27-47a1-bf32-c00df66ca392}" />
+	<object class="MixerBusFader" id="{742cf130-5307-4481-bd9f-8eb9768d50e4}" />
+	<object class="MixerBusEffectChain" id="{24a5f8e5-1241-4398-9034-5e95b557f9bc}">
+		<relationship name="effects">
+			<destination>{310ce75c-b1b8-4ff0-8063-2aafd6569528}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusPanner" id="{c5657276-6879-4571-b34a-3fc198c978b0}" />
+	<object class="MixerBusFader" id="{c74da000-473f-4416-85d3-85ecbcdf03a3}" />
+	<object class="ProxyEffect" id="{21ed8a7c-8342-4362-ab3b-3605160dc5e1}">
+		<property name="inputFormat">
+			<value>0</value>
+		</property>
+		<relationship name="preset">
+			<destination>{3eae0edd-4f73-005f-09e3-f727ff075640}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusFader" id="{310ce75c-b1b8-4ff0-8063-2aafd6569528}" />
+</objects>

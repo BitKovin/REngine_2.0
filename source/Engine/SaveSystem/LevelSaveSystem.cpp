@@ -106,6 +106,7 @@ void LevelSaveSystem::LoadLevelFromData(LevelSaveData data)
     for (auto entity : createdEntities)
     {
         entity->Start();
+        entity->LoadAssetsIfNeeded();
     }
 
     Level::Current->AddPendingLevelObjects();

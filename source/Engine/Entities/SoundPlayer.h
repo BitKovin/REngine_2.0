@@ -1,6 +1,9 @@
+#pragma once
 #include "../Entity.hpp"
 #include "../SoundSystem/SoundInstance.hpp"
 #include "../SoundSystem/SoundManager.hpp"
+
+#include "../Delay.hpp"
 
 class SoundPlayer: public Entity
 {
@@ -23,6 +26,12 @@ public:
 	void Pause();
 	void Stop();
 
+	void DestroyWithDelay(float delay);
+
+	static SoundPlayer* Create();
+
 private:
+
+	Delay destroyDelay = Delay(10000000);
 
 };

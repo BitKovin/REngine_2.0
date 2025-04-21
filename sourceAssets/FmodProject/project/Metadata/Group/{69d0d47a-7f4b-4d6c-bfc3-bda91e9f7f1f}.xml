@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.01.00">
+	<object class="MixerGroup" id="{69d0d47a-7f4b-4d6c-bfc3-bda91e9f7f1f}">
+		<property name="name">
+			<value>VO</value>
+		</property>
+		<relationship name="effectChain">
+			<destination>{b0f041e6-438e-47b5-b1b0-0ddaf314033a}</destination>
+		</relationship>
+		<relationship name="panner">
+			<destination>{d97cc1b6-d8f7-4971-b19e-18973d1ca2d5}</destination>
+		</relationship>
+		<relationship name="output">
+			<destination>{af9d027a-3a1f-49a8-a9ef-4cbe20673632}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusEffectChain" id="{b0f041e6-438e-47b5-b1b0-0ddaf314033a}">
+		<relationship name="effects">
+			<destination>{623c72f2-91b0-441a-aaef-1b6108364a42}</destination>
+			<destination>{d89c162f-d43b-46b5-a5c2-36c22f6abaf8}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusPanner" id="{d97cc1b6-d8f7-4971-b19e-18973d1ca2d5}">
+		<property name="surroundPanDirection">
+			<value>-0.0250957999</value>
+		</property>
+		<property name="disabledSpeakers">
+			<value>51</value>
+		</property>
+	</object>
+	<object class="Sidechain" id="{623c72f2-91b0-441a-aaef-1b6108364a42}" />
+	<object class="MixerBusFader" id="{d89c162f-d43b-46b5-a5c2-36c22f6abaf8}" />
+</objects>
