@@ -693,6 +693,13 @@ public:
 	static HitResult LineTrace(const vec3 start, const vec3 end, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {})
 	{
 		HitResult hit;
+		hit.fraction = 1.0f;
+		hit.position = end;
+		hit.normal = vec3(0, 0, 0);
+		hit.hitbody = nullptr;
+		hit.hasHit = false;
+		hit.shapePosition = end;
+		hit.entity = nullptr;
 
 		// Convert start and end from your own vector type to Jolt's coordinate system.
 		JPH::Vec3 startLoc = ToPhysics(start);
@@ -718,13 +725,7 @@ public:
 
 		if (hasHit)
 		{
-			// Calculate fraction of the hit along the ray.
-			hit.fraction = result.mFraction;
 
-			hit.shapePosition = mix(start, end, hit.fraction);
-
-			// Compute the hit position in physics space and convert it back to your coordinate system.
-			hit.position = FromPhysics(ray.GetPointOnRay(result.mFraction));
 
 			// Lock the body using the BodyLockInterface to safely access it.
 			JPH::BodyLockRead body_lock(physics_system->GetBodyLockInterface(), result.mBodyID);
@@ -732,34 +733,33 @@ public:
 			// Retrieve the hit body's surface normal.
 			// The method GetWorldSpaceSurfaceNormal requires the sub-shape ID and the hit position.
 			const JPH::Body* body = &body_lock.GetBody();
-			if (body)
+
+			if (body) 
 			{
+
+
+				// Calculate fraction of the hit along the ray.
+				hit.fraction = result.mFraction;
+
+				hit.shapePosition = mix(start, end, hit.fraction);
+
+				// Compute the hit position in physics space and convert it back to your coordinate system.
+				hit.position = FromPhysics(ray.GetPointOnRay(result.mFraction));
+
 				hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(result.mSubShapeID2, ray.GetPointOnRay(result.mFraction)));
+
+
+				// Record the hit body and shape.
+				hit.hitbody = body;
+
+				auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
+
+				hit.entity = props->OwnerEntity;
 			}
-			else
-			{
-				hit.normal = vec3(0, 0, 0);
-			}
-
-			// Record the hit body and shape.
-			hit.hitbody = body;
-
-			auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
-
-			hit.entity = props->OwnerEntity;
-
-		}
-		else
-		{
-			// No hit: return the end point, a fraction of 1.0 and zero normal.
-			hit.fraction = 1.0f;
-			hit.position = end;
-			hit.normal = vec3(0, 0, 0);
-			hit.hitbody = nullptr; // Invalid body ID.
-			hit.entity = nullptr;
 		}
 
-		//physicsMainLock.unlock();
+
+		
 
 		hit.hasHit = hasHit;
 
@@ -793,6 +793,15 @@ public:
 	static HitResult SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {})
 	{
 		HitResult hit;
+
+
+		hit.fraction = 1.0f;
+		hit.position = end;
+		hit.normal = vec3(0, 0, 0);
+		hit.hitbody = nullptr;
+		hit.hasHit = false;
+		hit.shapePosition = end;
+		hit.entity = nullptr;
 
 		// Convert start and end from your own vector type to Jolt's coordinate system.
 		JPH::Vec3 startLoc = ToPhysics(start);
@@ -836,13 +845,7 @@ public:
 		physics_system->GetNarrowPhaseQuery().CastShape(shape_cast, JPH::ShapeCastSettings(), JPH::Vec3::sZero(), collector, {}, {}, filter);
 		if (collector.HadHit())
 		{
-			// Calculate fraction of the hit along the path.
-			hit.fraction = collector.GetHit().mFraction;
 
-			hit.shapePosition = mix(start, end, hit.fraction);
-
-			// Compute the hit position in physics space (point on the hit body) and convert it back to your coordinate system.
-			hit.position = FromPhysics(collector.GetHit().mContactPointOn2);
 
 			// Lock the body using the BodyLockInterface to safely access it.
 			JPH::BodyLockRead body_lock(physics_system->GetBodyLockInterface(), collector.GetHit().mBodyID2);
@@ -852,31 +855,23 @@ public:
 			if (body)
 			{
 				hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(collector.GetHit().mSubShapeID2, collector.GetHit().mContactPointOn2));
+
+				// Calculate fraction of the hit along the path.
+				hit.fraction = collector.GetHit().mFraction;
+
+				hit.shapePosition = mix(start, end, hit.fraction);
+
+				// Compute the hit position in physics space (point on the hit body) and convert it back to your coordinate system.
+				hit.position = FromPhysics(collector.GetHit().mContactPointOn2);
+
+				auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
+
+				hit.entity = props->OwnerEntity;
+
+				// Record the hit body.
+				hit.hitbody = body;
+				hit.hasHit = true;
 			}
-			else
-			{
-				hit.normal = vec3(0, 0, 0);
-			}
-
-			auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
-
-			hit.entity = props->OwnerEntity;
-
-			// Record the hit body.
-			hit.hitbody = body;
-			hit.hasHit = true;
-		}
-		else
-		{
-			// No hit: return the end point, a fraction of 1.0 and zero normal.
-			hit.fraction = 1.0f;
-			hit.position = end;
-			hit.normal = vec3(0, 0, 0);
-			hit.hitbody = nullptr;
-			hit.hasHit = false;
-
-			hit.entity = nullptr;
-
 		}
 
 		//physicsMainLock.unlock();
