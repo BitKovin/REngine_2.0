@@ -56,7 +56,12 @@ public:
 
 	}
 
-
+	void SetupSoundPlayer(SoundPlayer* soundPlayer)
+	{
+		soundPlayer->MaxDistance = 100;
+		soundPlayer->Volume = 0.3;
+		soundPlayer->MinDistance = 0.5;
+	}
 
 	void Start()
 	{
@@ -80,6 +85,11 @@ public:
 		HurtSoundPlayer = SoundPlayer::Create();
 		StunSoundPlayer = SoundPlayer::Create();
 		AttackSoundPlayer = SoundPlayer::Create();
+
+		SetupSoundPlayer(DeathSoundPlayer);
+		SetupSoundPlayer(HurtSoundPlayer);
+		SetupSoundPlayer(StunSoundPlayer);
+		SetupSoundPlayer(AttackSoundPlayer);
 
 	}
 

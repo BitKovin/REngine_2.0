@@ -14,6 +14,8 @@ void TestNpc::Death()
 
 	mesh->PlayAnimation("death");
 	Physics::SetLinearVelocity(LeadBody, vec3(0));
+	DeathSoundPlayer->Sound->EnableReverb = true;
+
 	DeathSoundPlayer->Play();
 
 	Physics::DestroyBody(LeadBody);
@@ -147,6 +149,7 @@ void TestNpc::Deserialize(json& source)
 	if (dead)
 	{
 		Physics::DestroyBody(LeadBody);
+		LeadBody = nullptr;
 	}
 
 

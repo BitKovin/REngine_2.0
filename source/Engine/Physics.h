@@ -336,7 +336,7 @@ public:
 
 		physicsMainLock.lock();
 
-		bodyInterface->RemoveBody(body->GetID());
+		
 
 		// Retrieve and delete collision properties if present.
 		auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
@@ -344,8 +344,10 @@ public:
 		{
 			delete props;
 		}
-			
 
+		body->SetUserData(0);
+			
+		bodyInterface->RemoveBody(body->GetID());
 		bodyInterface->DestroyBody(body->GetID());
 
 		// Remove body from existingBodies
