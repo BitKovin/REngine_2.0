@@ -7,6 +7,14 @@
 
 REGISTER_ENTITY(TestNpc, "testnpc")
 
+void TestNpc::Attack()
+{
+
+	inAttackDelay.AddDelay(1.5f);
+	mesh->PlayAnimation("attackLookback");
+
+}
+
 void TestNpc::Death()
 {
 
@@ -54,9 +62,25 @@ void TestNpc::AsyncUpdate()
 	StunSoundPlayer->Position = Position;
 	AttackSoundPlayer->Position = Position;
 
-	mesh->UpdatePose = mesh->WasRended;
+	DebugDraw::Line(Position - vec3(0, 1, 0), Position + vec3(0, 2, 0), 0.001f, 0.2);
+
+	//mesh->UpdatePose = mesh->WasRended;
 
 	mesh->Update();
+
+	auto rootMotion = mesh->PullRootMotion();
+
+	Physics::MoveBody(LeadBody, rootMotion.Position);
+	if (rootMotion.Rotation != vec3())
+	{
+		mesh->Rotation += rootMotion.Rotation;
+		movingDirection = MathHelper::GetForwardVector(mesh->Rotation);
+	}
+
+	if (rootMotion.Position != vec3())
+	{
+		Physics::SetLinearVelocity(LeadBody, vec3(0,LeadBody->GetLinearVelocity().GetY(), 0));
+	}
 
 	mesh->Position = Position - vec3(0, 1, 0);
 
@@ -67,10 +91,29 @@ void TestNpc::AsyncUpdate()
 	StunSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
 	AttackSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
 
-
-	
-
 	Entity* target = Player::Instance;
+
+	if (inAttackDelay.Wait())
+	{
+
+		if (target)
+		{
+			pathFollow.UpdateStartAndTarget(Position, target->Position);
+			pathFollow.TryPerform();
+
+		}
+
+		return;
+	}
+
+	vec3 lookAtDir = MathHelper::FastNormalize(target->Position - Position);
+
+	if (distance(target->Position, Position) < 5 
+		&& dot(MathHelper::GetForwardVector(mesh->Rotation), lookAtDir) > 0.7)
+	{
+		
+		Attack();
+	}
 
 	if (target)
 	{

@@ -1,7 +1,7 @@
 #ifndef ANIMATOR_HPP
 #define ANIMATOR_HPP
 #include "skinned_model.hpp"
-
+#include "MathHelper.hpp"
 #include <unordered_map>
 #include <string>
 
@@ -17,6 +17,12 @@ public :
     float m_currTime{ 0.0f };
 
     bool m_playing = false;
+
+    MathHelper::Transform oldRootBoneTransform;
+    MathHelper::Transform rootBoneTransform;
+
+    vec3 totalRootMotionPosition = vec3();
+    vec3 totalRootMotionRotation = vec3();
 
 private:
 
@@ -64,6 +70,9 @@ public:
     void UpdateAnimationPose();
 
     void update(float dt);
+
+    void updateRootMotion();
+
     void reset();
     
 };

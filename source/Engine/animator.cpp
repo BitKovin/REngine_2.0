@@ -1,5 +1,7 @@
 #include "animator.hpp"
 
+
+
 #include "glm.h"
 
 
@@ -85,6 +87,14 @@ void roj::Animator::calcBoneTransform(BoneNode& node, glm::mat4 offset)
     {
         currentPose[node.name] = node.transform;
         offset *= node.transform;
+    }
+
+    if (node.name == "root")
+    {
+        auto trans = MathHelper::DecomposeMatrix(offset);
+
+        rootBoneTransform = trans;
+
     }
 
     auto it2 = m_model.boneInfoMap.find(node.name);
@@ -195,6 +205,7 @@ void roj::Animator::UpdateAnimationPose()
 
 void roj::Animator::update(float dt)
 {
+
     if (m_currAnim && m_playing) 
     {
 
@@ -208,8 +219,27 @@ void roj::Animator::update(float dt)
         if (UpdatePose) 
         {
             calcBoneTransform(m_currAnim->rootBone, glm::mat4(1.0f));
+            updateRootMotion();
         }
+
+
     }
+
+}
+
+void roj::Animator::updateRootMotion()
+{
+
+    vec3 motionPos = rootBoneTransform.Position - oldRootBoneTransform.Position;
+    vec3 motionRot = MathHelper::ToYawPitchRoll(inverse(oldRootBoneTransform.RotationQuaternion) * rootBoneTransform.RotationQuaternion);
+
+
+    totalRootMotionPosition += motionPos;
+    totalRootMotionRotation += motionRot;
+
+    oldRootBoneTransform = rootBoneTransform;
+    
+
 }
 
 void roj::Animator::play()

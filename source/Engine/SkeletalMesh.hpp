@@ -43,8 +43,17 @@ struct AnimationPose
 
 		for (auto bonePose : a.boneTransforms)
 		{
+
+			
+
 			mat4 aMat = a.boneTransforms[bonePose.first];
 			mat4 bMat = b.boneTransforms[bonePose.first];
+
+			if (bonePose.first == "root")
+			{
+				resultPose[bonePose.first] = bMat;
+				continue;
+			}
 
 			auto aTrans = MathHelper::DecomposeMatrix(aMat);
 			auto bTrans = MathHelper::DecomposeMatrix(bMat);
@@ -91,7 +100,10 @@ private:
 
 	bool firstAnimation = true;
 
+	vec3 oldRootMotionPos = vec3();
+	vec3 oldRootMotionRot = vec3();
 
+	float oldAnimTime = 0;
 
 	float GetBlendInProgress()
 	{
@@ -144,12 +156,40 @@ public:
 		SetLooped(Loop);
 		animator.set(name);
 		PlayAnimation(interpIn);
+		oldRootMotionPos = vec3();
+		oldRootMotionRot = vec3();
+		animator.totalRootMotionPosition = vec3();
+		animator.totalRootMotionRotation = vec3();
+		//Update(0);
+		//PullRootMotion();
 	}
 
 	void FinalizeFrameData()
 	{
 		StaticMesh::FinalizeFrameData();
 		finalizedBoneTransforms = boneTransforms;
+	}
+
+	MathHelper::Transform PullRootMotion()
+	{
+		vec3 rootMotionPos = animator.totalRootMotionPosition - oldRootMotionPos;
+		vec3 rootMotionRot = animator.totalRootMotionRotation - oldRootMotionRot;
+
+		oldRootMotionPos = animator.totalRootMotionPosition;
+		oldRootMotionRot = animator.totalRootMotionRotation;
+
+		positionOffset = -animator.totalRootMotionPosition;
+		rotationOffset = -animator.totalRootMotionRotation;
+
+
+		MathHelper::Transform transform;
+
+		transform.Position = MathHelper::TransformVector(rootMotionPos, MathHelper::GetRotationQuaternion(-rotationOffset));
+		transform.Rotation = rootMotionRot;
+
+		transform.Position = MathHelper::TransformVector(transform.Position, MathHelper::GetRotationQuaternion(Rotation));
+
+		return transform;
 	}
 
 	void PlayAnimation(float interpIn = 0.12)
@@ -179,6 +219,15 @@ public:
 		animator.UpdatePose = UpdatePose;
 
 		animator.update(Time::DeltaTimeF * timeScale);
+
+		if (animator.m_currTime < oldAnimTime)
+		{
+			oldRootMotionPos = vec3();
+			oldRootMotionRot = vec3();
+			animator.totalRootMotionPosition = vec3();
+			animator.totalRootMotionRotation = vec3();
+		}
+		oldAnimTime = animator.m_currTime;
 
 		if (UpdatePose == false) return;
 

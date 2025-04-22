@@ -13,8 +13,9 @@
 
 #include <Navigation/PathFollowQuery.h>
 
-#include "SoundSystem/SoundManager.hpp"
-#include "Entities/SoundPlayer.h"
+#include <SoundSystem/SoundManager.hpp>
+#include <Entities/SoundPlayer.h>
+#include <Delay.hpp>
 
 class TestNpc : public Entity
 {
@@ -34,6 +35,8 @@ private:
 	bool dead = false;
 
 	AnimationState animationStateSaveData;
+
+	Delay inAttackDelay;
 
 public:
 
@@ -92,6 +95,8 @@ public:
 		SetupSoundPlayer(AttackSoundPlayer);
 
 	}
+
+	void Attack();
 
 	void Death();
 

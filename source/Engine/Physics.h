@@ -328,6 +328,18 @@ public:
 
 	}
 
+	static void MoveBody(Body* body, vec3 offset)
+	{
+		if (body == nullptr) return;
+
+		auto currentPos = body->GetPosition();
+		auto targetPos = FromPhysics(currentPos) + offset;
+
+		
+		SetBodyPosition(body, targetPos);
+
+	}
+
 	static void DestroyBody(Body* body)
 	{
 

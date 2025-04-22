@@ -26,6 +26,8 @@ private:
 	vec3 finalizedRotation = vec3(0);
 	vec3 finalizedScale = vec3(1);
 
+
+
 protected:
 
 	virtual void ApplyAdditionalShaderParams(ShaderProgram* shader_program)
@@ -43,6 +45,9 @@ protected:
 	{
 
 	}
+
+	vec3 positionOffset;
+	vec3 rotationOffset;
 
 public:
 
@@ -80,7 +85,11 @@ public:
 
 	mat4 GetWorldMatrix()
 	{
-		return translate(Position) * MathHelper::GetRotationMatrix(Rotation) * scale(Scale);
+
+		mat4 posOffset = translate(positionOffset);
+		mat4 rotOffset = MathHelper::GetRotationMatrix(rotationOffset);
+
+		return translate(Position) * rotOffset * MathHelper::GetRotationMatrix(Rotation) * scale(Scale) * posOffset;
 	}
 
 	vector<MeshUtils::PositionVerticesIndices> GetNavObstacleMeshes()
