@@ -51,6 +51,8 @@ void Player::UpdateDebugUI()
     
     ImGui::Checkbox("fly", &freeFly);
 
+    ImGui::Checkbox("draw physics", &Physics::DebugDraw);
+
     if (ImGui::Button("spawn test dog"))
     {
         Entity* entity = Spawn("testnpc");

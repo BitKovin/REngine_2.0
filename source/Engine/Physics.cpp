@@ -18,3 +18,7 @@ BodyInterface* Physics::bodyInterface = nullptr;
 
 vector<Body*> Physics::existingBodies = vector<Body*>();
 recursive_mutex Physics::physicsMainLock = recursive_mutex();
+
+bool Physics::DebugDraw = false;
+MyDebugRenderer* Physics::debugRenderer = nullptr;
+BodyType Physics::DebugDrawMask = BodyType::GroupAll & ~BodyType::CharacterCapsule;

@@ -160,10 +160,9 @@ public:
         particle = ParticleEmitter::UpdateParticle(particle, deltaTime);
 
 
-        if (particle.UserValue2 < 2 && particle.UserValue3<=0)
+        if (particle.UserValue2 < 2)
         {
             
-            particle.UserValue3 = 0.1;
 
                 glm::vec3 dir = glm::normalize(particle.velocity);
 				auto hit = Physics::LineTrace(

@@ -271,6 +271,7 @@ public:
 
         NavigationSystem::Update();
         Physics::Simulate();
+        Physics::Update();
 
         Level::Current->UpdatePhysics();
 

@@ -37,7 +37,7 @@ public:
 
         DrawTime = Delay(duration);
 
-        lineMesh.LoadFromFile("GameData/cube.obj");
+        
         lineMesh.SetPixelShader("solidRed_pixel");
 
         lineMesh.Position = mix(s, e, 0.5);
@@ -55,6 +55,11 @@ public:
     void Draw() override
     {
         
+        if (lineMesh.model == nullptr) 
+        {
+            lineMesh.LoadFromFile("GameData/cube.obj");
+        }
+
         lineMesh.DrawForward(Camera::finalizedView, Camera::finalizedProjection);
     }
 };

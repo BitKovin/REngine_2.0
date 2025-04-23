@@ -22,9 +22,11 @@ void TestNpc::Death()
 
 	mesh->PlayAnimation("death");
 	Physics::SetLinearVelocity(LeadBody, vec3(0));
-	DeathSoundPlayer->Sound->EnableReverb = true;
 
 	DeathSoundPlayer->Play();
+
+	//Physics::SetBodyType(LeadBody, BodyType::None);
+	//Physics::SetCollisionMask(LeadBody, BodyType::World);
 
 	Physics::DestroyBody(LeadBody);
 	LeadBody = nullptr;
@@ -68,9 +70,21 @@ void TestNpc::AsyncUpdate()
 
 	mesh->Update();
 
+	mesh->Position = Position - vec3(0, 1, 0);
+
+
+
 	auto rootMotion = mesh->PullRootMotion();
 
-	Physics::MoveBody(LeadBody, rootMotion.Position);
+	if (LeadBody != nullptr)
+	{
+		Physics::MoveBody(LeadBody, rootMotion.Position);
+	}
+	else
+	{
+		Position += rootMotion.Position;
+	}
+	
 	if (rootMotion.Rotation != vec3())
 	{
 		mesh->Rotation += rootMotion.Rotation;
@@ -79,10 +93,8 @@ void TestNpc::AsyncUpdate()
 
 	if (rootMotion.Position != vec3())
 	{
-		Physics::SetLinearVelocity(LeadBody, vec3(0,LeadBody->GetLinearVelocity().GetY(), 0));
+		Physics::SetLinearVelocity(LeadBody, vec3(0, LeadBody->GetLinearVelocity().GetY(), 0));
 	}
-
-	mesh->Position = Position - vec3(0, 1, 0);
 
 	if (dead) return;
 
@@ -199,6 +211,7 @@ void TestNpc::Deserialize(json& source)
 	mesh->Rotation = Rotation;
 
 	mesh->SetAnimationState(animationStateSaveData);
+	mesh->PullRootMotion();
 
 }
 

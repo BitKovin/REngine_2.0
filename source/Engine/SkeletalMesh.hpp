@@ -280,6 +280,7 @@ public:
 		animator.m_currTime = animationState.animationTime;
 		animator.UpdateAnimationPose();
 		animator.m_playing = animationState.playing;
+		Update(0);
 	}
 
 	AnimationState GetAnimationState()

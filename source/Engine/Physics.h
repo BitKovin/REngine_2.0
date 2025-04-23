@@ -5,7 +5,13 @@
 #define NDEBUG 1
 #define JPH_OBJECT_STREAM 1
 
+#else
+
+#define JPH_DEBUG_RENDERER	
+
 #endif // __EMSCRIPTEN__
+
+
 
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
@@ -30,6 +36,10 @@
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Core/Reference.h>
 
+#include "DebugDraw.hpp"
+
+#include <Jolt/Renderer/DebugRendererSimple.h>
+
 #include "PhysicsConverter.h"
 
 #include "glm.h"
@@ -41,6 +51,8 @@
 #include "Logger.hpp"
 
 #include "MathHelper.hpp"
+
+#include "Camera.h"
 
 using namespace JPH;
 
@@ -289,6 +301,81 @@ public:
 	}
 };
 
+class DrawFilter : public BodyDrawFilter
+{
+public:
+
+	// List of bodies to ignore during the ray cast.
+	std::vector<Body*> ignoreList = {};
+	// Collision mask to filter out bodies that don't belong to the desired groups.
+	BodyType mask = BodyType::GroupAll & ~ BodyType::CharacterCapsule;
+
+	/// Filter function. Returns true if inBody should be rendered
+	bool ShouldDraw([[maybe_unused]] const Body& inBody) const override
+	{
+		// Check if the body is in the ignore list.
+		for (Body* ignored : ignoreList)
+		{
+			if (ignored == &inBody)
+				return false;
+		}
+
+		// Retrieve collision properties from the body's user data.
+		// It is assumed that user data points to a CollisionProperties struct.
+		auto* properties = reinterpret_cast<BodyData*>(inBody.GetUserData());
+		if (properties)
+		{
+			// Check if the body's group is included in our filter's mask.
+			// If the bitwise AND of mask and the body's group is zero, they don't match.
+			if ((static_cast<uint32_t>(mask) & static_cast<uint32_t>(properties->group)) == 0)
+				return false;
+		}
+
+		// Accept the collision if no condition rejects it.
+		return true;
+	}
+};
+
+class MyDebugRenderer : public JPH::DebugRendererSimple
+{
+public:
+	MyDebugRenderer()
+	{
+		// Must call Initialize() to set sInstance
+		Initialize();
+	}
+	~MyDebugRenderer() override
+	{
+		if (sInstance == this)
+			sInstance = nullptr;
+	}
+
+	// 1) Wireframe line
+	void DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor) override
+	{
+
+		vec3 start = FromPhysics(inFrom);
+		vec3 end = FromPhysics(inTo);
+
+		if (distance(Camera::position, start) > 100 && distance(Camera::position, end) > 100) return;
+
+		DebugDraw::Line(start, end, Time::DeltaTimeF*2.5f, 0.02);
+	}
+
+	/*
+	// 2) Filled triangle (optional—Simple already falls back to DrawLine)
+	void DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, ECastShadow inCastShadow) override
+	{
+		DrawDebugTriangle(Convert(inV1), Convert(inV2), Convert(inV3), Convert(inColor));
+	}
+	*/
+	// 3) 3D text (optional)
+	void DrawText3D(JPH::RVec3Arg inPos, const std::string_view& inString, JPH::ColorArg inColor, float inHeight) override
+	{
+		// e.g. DrawDebugText3D(...)
+	}
+};
+
 class Physics
 {
 
@@ -314,8 +401,14 @@ private:
 
 	static std::recursive_mutex physicsMainLock;
 
+	static MyDebugRenderer* debugRenderer;
+
+	static BodyType DebugDrawMask;
+
 public:
 	
+	static bool DebugDraw;
+
 	static void AddBody(Body* body)
 	{
 		physicsMainLock.lock();
@@ -370,6 +463,58 @@ public:
 		physicsMainLock.unlock();
 	}
 
+	static void SetBodyType(Body* body, BodyType bodyType)
+	{
+		if (body == nullptr) return;
+
+		auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
+		if (props)
+		{
+			props->group = bodyType;
+		}
+
+	}
+
+	static BodyType GetBodyType(Body* body)
+	{
+		if (body == nullptr) return BodyType::None;
+
+		auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
+		if (props)
+		{
+			return props->group;
+		}
+
+		return BodyType::None;
+
+	}
+
+	static void SetCollisionMask(Body* body, BodyType mask)
+	{
+		if (body == nullptr) return;
+
+		auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
+		if (props)
+		{
+			props->mask = mask;
+		}
+
+	}
+
+	static BodyType GetCollisionMask(Body* body)
+	{
+		if (body == nullptr) return BodyType::None;
+
+		auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
+		if (props)
+		{
+			return props->mask;
+		}
+
+		return BodyType::None;
+
+	}
+
 	static void DestroyAllBodies()
 	{
 		physicsMainLock.lock();
@@ -418,6 +563,8 @@ public:
 
 		bodyInterface = &physics_system->GetBodyInterface();
 		
+		debugRenderer = new MyDebugRenderer();
+
 
 	}
 
@@ -445,7 +592,22 @@ public:
 
 	static void Update()
 	{
+		if (DebugDraw)
+		{
 
+			BodyManager::DrawSettings draw_settings;
+			draw_settings.mDrawShape = true;
+			draw_settings.mDrawShapeWireframe = true;
+
+			DrawFilter filter;
+			filter.mask = DebugDrawMask;
+
+			physics_system->DrawBodies(draw_settings, debugRenderer, &filter);      // draws all bodies
+			physics_system->DrawConstraints(debugRenderer);
+			physics_system->DrawConstraintLimits(debugRenderer);
+			physics_system->DrawConstraintReferenceFrame(debugRenderer);
+			//physics_system->DrawConstraints();  // draws joints, etc.
+		}
 	}
 
 	static Body* CreateBoxBody(Entity* owner, vec3 Position, vec3 Size, float Mass = 10, bool Static = false,
