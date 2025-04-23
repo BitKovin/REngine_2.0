@@ -18,6 +18,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/ext/scalar_common.hpp>
 #include <glm/geometric.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 #else
 #include "glm/glm.hpp"
@@ -34,6 +35,7 @@
 #include "glm/gtx/rotate_vector.hpp"
 #include "glm/geometric.hpp"
 #include "glm/ext/scalar_common.hpp"
+#include "glm/gtx/euler_angles.hpp"
 #endif
 
 using namespace glm;

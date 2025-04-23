@@ -22,7 +22,7 @@ public:
 		Entity::Spawn("freecamera");
 		Entity::Spawn("skeletal_editor");
 
-		
+		EngineMain::MainInstance->asyncGameUpdate = false;
 
 	}
 

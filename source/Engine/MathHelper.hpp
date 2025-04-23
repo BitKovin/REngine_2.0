@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 #include "glm.h"
 
@@ -22,25 +22,15 @@ public:
 		return glm::degrees(radians);
 	}
 
+
+
 	// Constructs a quaternion from a rotation vector (pitch, yaw, roll)
 	// following the XNA convention: Y (yaw), X (pitch), Z (roll)
-	inline static glm::quat GetRotationQuaternion(const glm::vec3& rotation) {
-		// Convert angles from degrees to radians.
-	// Convert angles from degrees to radians.
-		glm::vec3 radians = glm::radians(rotation);
-
-		// Create individual quaternions for yaw, pitch, and roll.
-		// Yaw: rotation about Y-axis (radians.y)
-		glm::quat qYaw = glm::angleAxis(radians.y, glm::vec3(0.0f, 1.0f, 0.0f));
-		// Pitch: rotation about X-axis (radians.x)
-		glm::quat qPitch = glm::angleAxis(radians.x, glm::vec3(1.0f, 0.0f, 0.0f));
-		// Roll: rotation about Z-axis (radians.z)
-		glm::quat qRoll = glm::angleAxis(radians.z, glm::vec3(0.0f, 0.0f, 1.0f));
-
-		// Combine them so that the order of multiplication is:
-		// yaw * pitch * roll
-		// Note: The order of multiplication matters significantly because quaternion multiplication is non-commutative.
-		return qYaw * qPitch * qRoll;
+	inline static glm::quat GetRotationQuaternion(const glm::vec3& rotationDeg)
+	{
+		glm::vec3 r = glm::radians(rotationDeg);
+		// note: yawPitchRoll takes (yaw, pitch, roll)
+		return glm::yawPitchRoll(r.y, r.x, r.z);
 	}
 
 	// Transforms the given vector by the quaternion
@@ -68,7 +58,7 @@ public:
 		return glm::vec3(vector.x, 0.f, vector.z);
 	}
 
-	// Fast inverse square root using the ìQuake IIIî method.
+	// Fast inverse square root using the ‚ÄúQuake III‚Äù method.
 	inline static float InvSqrt(float x) {
 		float xhalf = 0.5f * x;
 		int i = *reinterpret_cast<int*>(&x);
@@ -164,13 +154,22 @@ public:
 
 
 	// Returns Euler angles (in degrees) in the order (pitch, yaw, roll) from a quaternion.
-	inline static glm::vec3 ToYawPitchRoll(const glm::quat& q) 
+	inline static glm::vec3 ToYawPitchRoll(const glm::quat& q)
 	{
+		// Convert the quaternion to a rotation matrix in order to call the
+// next function.  (Presumably this entire procedure could be
+// optimized by inlining and simplifying the arithmetic.)
+		glm::mat4 m = mat4_cast(q);
 
-		return glm::vec3(
-			glm::degrees(glm::pitch(q)),
-			glm::degrees(glm::yaw(q)),
-			glm::degrees(glm::roll(q)));
+		// Now get the YPR angles.  The `euler_angles.hpp` header contains
+		// many similar functions, but this one is the inverse of its
+		// `yawPitchRoll` function.
+		float x, y, z;
+		glm::extractEulerAngleYXZ(m, y,x,z);
+
+		// Package them as a vector for interface similarity with
+		// `glm::eulerAngles` (but the order is different!).
+		return glm::degrees(glm::vec3{ x,y,z });
 	}
 
 
@@ -333,10 +332,10 @@ public:
 		float rotation = 0.0f // rotation (in radians) applied around the view direction
 	) {
 		// For a 2D billboard (sprite), we want its face to be perpendicular to the view direction.
-		// So we define the billboardís forward as opposite to the camera's forward.
+		// So we define the billboard‚Äôs forward as opposite to the camera's forward.
 		glm::vec3 billboardForward = -camForward;
 
-		// Start with the cameraís right and up vectors, which will form the local X and Y axes.
+		// Start with the camera‚Äôs right and up vectors, which will form the local X and Y axes.
 		glm::vec3 billboardRight = camRight;
 		glm::vec3 billboardUp = camUp;
 
@@ -380,7 +379,7 @@ public:
 		transform.Scale = scale;
 		transform.RotationQuaternion = rotation;
 		transform.Rotation = ToYawPitchRoll(rotation);
-		transform.Rotation = NormalizeAngles(transform.Rotation);
+		//transform.Rotation = NormalizeAngles(transform.Rotation);
 		return transform;
 	}
 
