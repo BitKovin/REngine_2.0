@@ -63,9 +63,6 @@ void EngineMain::initDemo()
     Level::OpenLevel("GameData/Maps/test2.map");
 
 
-    texture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
-
-
     for (size_t i = 0; i < 000; i++) 
     {
         float angle = i * 0.1f; // Angle step controls tightness of the spiral

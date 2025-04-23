@@ -5,6 +5,8 @@
 void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 {
 
+	if (model == nullptr) return;
+
 	if (DepthWrite)
 	{
 		glDepthMask(GL_TRUE);
@@ -78,6 +80,8 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 		{
 			glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0);
 		}
+
+		VertexArrayObject::Unbind();
 
 	}
 

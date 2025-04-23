@@ -234,6 +234,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Entities\FreeCamera.cpp" />
     <ClCompile Include="Entities\SkeletalEditorEntity.cpp" />
     <ClCompile Include="GameStart.cpp" />
   </ItemGroup>

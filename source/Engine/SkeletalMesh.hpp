@@ -25,6 +25,8 @@
 #include "json.hpp"
 #include "Helpers/JsonHelper.hpp"
 
+#include "Physics.h"
+
 using namespace std;
 
 struct AnimationPose 
@@ -106,10 +108,10 @@ struct AnimationData
 
 struct HitboxData
 {
-	string boneName;
-	vec3 size;
-	vec3 rotation;
-	vec3 position;
+	string boneName = "";
+	vec3 size = vec3(0.2);
+	vec3 rotation = vec3(0);
+	vec3 position = vec3(0);
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(HitboxData, boneName, size, rotation, position)
 };
@@ -123,6 +125,8 @@ struct SkeletalMeshMetaData
 
 
 };
+
+class Entity;
 
 class SkeletalMesh : public StaticMesh
 {
@@ -161,6 +165,10 @@ private:
 		return static_cast<float>(progress);
 	}
 	AnimationPose blendStartPose;
+
+	std::vector<Body*> hitboxBodies;
+
+	std::recursive_mutex hitboxMutex;
 
 protected:
 
@@ -254,6 +262,14 @@ public:
 
 	mat4 GetBoneMatrixWorld(string boneName);
 
+	void ClearHitboxes();
+
+	void CreateHitbox(Entity* owner, HitboxData data);
+
+	void CreateHitboxesFromData(Entity* owner, SkeletalMeshMetaData data);
+
+	void UpdateHitboxes();
+
 	void SetAnimationState(const AnimationState& animationState)
 	{
 		animator.Loop = animationState.looping;
@@ -264,6 +280,8 @@ public:
 		animator.m_playing = animationState.playing;
 		Update(0);
 	}
+
+
 
 	AnimationState GetAnimationState()
 	{

@@ -236,6 +236,7 @@
   <ItemGroup>
     <ClCompile Include="animator.cpp" />
     <ClCompile Include="AssetRegistry.cpp" />
+    <ClCompile Include="AssetRegisty.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DebugDraw.cpp" />
     <ClCompile Include="EngineMain.cpp" />

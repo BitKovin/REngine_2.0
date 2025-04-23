@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #if __EMSCRIPTEN__ // i'm too tired right now to figure proper way
 
@@ -22,6 +22,8 @@
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision/Shape/OffsetCenterOfMassShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
@@ -113,6 +115,8 @@ struct BodyData
 	BodyType mask;
 
 	Entity* OwnerEntity;
+
+	string hitboxName = "";
 
 };
 
@@ -359,11 +363,11 @@ public:
 
 		if (distance(Camera::position, start) > 100 && distance(Camera::position, end) > 100) return;
 
-		DebugDraw::Line(start, end, Time::DeltaTimeF*2.5f, 0.02);
+		DebugDraw::Line(start, end, 0.01, 0.02);
 	}
 
 	/*
-	// 2) Filled triangle (optional�Simple already falls back to DrawLine)
+	// 2) Filled triangle (optional—Simple already falls back to DrawLine)
 	void DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, ECastShadow inCastShadow) override
 	{
 		DrawDebugTriangle(Convert(inV1), Convert(inV2), Convert(inV3), Convert(inColor));
@@ -461,6 +465,12 @@ public:
 			existingBodies.erase(it);
 
 		physicsMainLock.unlock();
+	}
+
+	static BodyData* GetBodyData(Body* body)
+	{
+		auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
+		return props;
 	}
 
 	static void SetBodyType(Body* body, BodyType bodyType)
@@ -645,6 +655,67 @@ public:
 
 		return dynamic_body;
 	}
+
+	static Body* CreateHitBoxBody(Entity* owner, string hitboxName,
+		vec3             PositionOffset,
+		quat        RotationOffset,   // now a quaternion
+		vec3             Size,
+		float            Mass = 10.0f,
+		BodyType         group = BodyType::HitBox,
+		BodyType         mask = BodyType::None)
+	{
+		// 1) Base box, centered at its own origin
+		auto box_settings = new JPH::BoxShapeSettings();
+		box_settings->SetEmbedded();
+		box_settings->mHalfExtent = ToPhysics(Size) * 0.5f;
+
+		// 2) Rotate & translate that box in shape‐local space
+		auto geo_settings = new JPH::RotatedTranslatedShapeSettings(
+			ToPhysics(PositionOffset),   // translate
+			ToPhysics(RotationOffset),               // rotate
+			box_settings                  // child shape
+		);
+		geo_settings->SetEmbedded();
+
+		// 3) Shift the COM back so it stays at the body‐origin
+		auto com_settings = new JPH::OffsetCenterOfMassShapeSettings(
+			-ToPhysics(PositionOffset),  // counter‐translate the computed COM
+			geo_settings                  // wrapped shape
+		);
+		com_settings->SetEmbedded();
+
+		// 4) Create the final shape
+		JPH::Shape::ShapeResult sr = com_settings->Create();
+		if (sr.HasError())
+			Logger::Log(sr.GetError().c_str());
+		JPH::Ref<JPH::Shape> final_shape = sr.Get();
+
+		// 5) Use the entity’s world‐space position as the body‐COM
+		JPH::RVec3 world_com = RVec3();
+
+		// 6) Build the body
+		JPH::BodyCreationSettings bcs(
+			final_shape,
+			world_com,
+			JPH::Quat::sIdentity(),                     // shape‐rotation baked in already
+			JPH::EMotionType::Kinematic,
+			Layers::TRACE_ONLY
+		);
+
+		bcs.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+		bcs.mMassPropertiesOverride.mMass = Mass;
+		bcs.mFriction = 0.5f;
+
+		BodyData* props = new BodyData{ group, mask, owner, hitboxName};
+		bcs.mUserData = reinterpret_cast<uintptr_t>(props);
+
+		// 7) Create & register
+		JPH::Body* body = bodyInterface->CreateBody(bcs);
+		AddBody(body);
+
+		return body;
+	}
+
 
 
 	static void Activate(Body* body)
@@ -864,6 +935,7 @@ public:
 		const JPH::Body* hitbody; // ID of the hit body.
 		float fraction;  // Fraction along the ray where the hit occurred.
 		Entity* entity;
+		string hitboxName;
 	};
 
 	static HitResult LineTrace(const vec3 start, const vec3 end, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {})
@@ -876,6 +948,7 @@ public:
 		hit.hasHit = false;
 		hit.shapePosition = end;
 		hit.entity = nullptr;
+		hit.hitboxName = "";
 
 		// Convert start and end from your own vector type to Jolt's coordinate system.
 		JPH::Vec3 startLoc = ToPhysics(start);
@@ -931,13 +1004,14 @@ public:
 				auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
 
 				hit.entity = props->OwnerEntity;
+				hit.hitboxName = props->hitboxName;
 			}
 		}
 
 
 		
 
-		hit.hasHit = hasHit;
+		hit.hasHit = hasHit && hit.entity != nullptr;
 
 		return hit;
 	}
@@ -999,6 +1073,7 @@ public:
 			hit.shapePosition = end;
 			hit.normal = vec3(0, 0, 0);
 			hit.hitbody = nullptr;
+			hit.hitboxName = "";
 			delete sphere_shape_settings;
 			return hit;
 		}
@@ -1047,6 +1122,7 @@ public:
 				// Record the hit body.
 				hit.hitbody = body;
 				hit.hasHit = true;
+				hit.hitboxName = props->hitboxName;
 			}
 		}
 

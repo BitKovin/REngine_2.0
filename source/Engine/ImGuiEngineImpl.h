@@ -8,11 +8,21 @@
 
 inline void ImStartFrame()
 {
+
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+
+
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
 
     ImGui::NewFrame();
+
+    ImGui::PushStyleColor(ImGuiCol_DockingEmptyBg, ImVec4(0,0,0,0));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+    ImGui::DockSpaceOverViewport();
+    ImGui::PopStyleColor(2);
 }
 
 inline void RenderImGui()

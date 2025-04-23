@@ -25,9 +25,9 @@ public:
 
 	virtual void Start() {}
 
-	virtual void UpdateDebugUI() {};
+	virtual void UpdateDebugUI() {}
 
-	virtual void FinalLevelRemove() {};
+	virtual void FinalLevelRemove() {}
 
 	virtual void Finalize()
 	{

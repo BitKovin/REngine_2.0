@@ -93,3 +93,55 @@ mat4 SkeletalMesh::GetBoneMatrixWorld(string boneName)
 {
 	return GetWorldMatrix() * GetBoneMatrix(boneName);
 }
+
+void SkeletalMesh::ClearHitboxes()
+{
+	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
+
+	for (Body* body : hitboxBodies)
+	{
+		Physics::DestroyBody(body);
+	}
+
+	hitboxBodies.clear();
+
+}
+
+void SkeletalMesh::CreateHitbox(Entity* owner,HitboxData data)
+{
+	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
+
+	Body* body = Physics::CreateHitBoxBody(owner, data.boneName, data.position, MathHelper::GetRotationQuaternion(data.rotation), data.size);
+
+	hitboxBodies.push_back(body);
+
+}
+
+void SkeletalMesh::CreateHitboxesFromData(Entity* owner, SkeletalMeshMetaData data)
+{
+
+	ClearHitboxes();
+
+	for (auto hitbox : data.hitboxes)
+	{
+		CreateHitbox(owner, hitbox);
+	}
+
+}
+
+void SkeletalMesh::UpdateHitboxes()
+{
+
+	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
+
+	for (Body* body : hitboxBodies)
+	{
+		string boneName = Physics::GetBodyData(body)->hitboxName;
+
+		MathHelper::Transform boneTrans = MathHelper::DecomposeMatrix(GetBoneMatrixWorld(boneName));
+
+		Physics::SetBodyPositionAndRotation(body, boneTrans.Position, boneTrans.Rotation);
+
+	}
+
+}
