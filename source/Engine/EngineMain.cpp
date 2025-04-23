@@ -46,6 +46,20 @@ void EngineMain::UpdateScreenSize()
 void EngineMain::initDemo()
 {
 
+
+    Entity* ent = LevelObjectFactory::instance().create("gamestart");
+
+    if (ent == nullptr)
+    {
+        Logger::Log("failed to create gamestart entity");
+        return;
+    }
+    Level::Current = new Level();
+    Level::Current->AddEntity(ent);
+    ent->Start();
+
+    return;
+
     Level::OpenLevel("GameData/Maps/test2.map");
 
 

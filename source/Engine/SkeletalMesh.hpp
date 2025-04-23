@@ -85,6 +85,45 @@ struct AnimationState
 
 };
 
+struct AnimationEvent
+{
+	string eventName;
+	float time;
+	string userData1;
+	string userData2;
+	string userData3;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(AnimationEvent, eventName, time, userData1, userData2, userData3)
+};
+
+struct AnimationData
+{
+	string animationName;
+	vector<AnimationData> animationEvents;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(AnimationData, animationName, animationEvents)
+};
+
+struct HitboxData
+{
+	string boneName;
+	vec3 size;
+	vec3 rotation;
+	vec3 position;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(HitboxData, boneName, size, rotation, position)
+};
+
+struct SkeletalMeshMetaData
+{
+	vector<HitboxData> hitboxes;
+	vector<AnimationData> animations;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(SkeletalMeshMetaData, hitboxes, animations)
+
+
+};
+
 class SkeletalMesh : public StaticMesh
 {
 private:
@@ -151,18 +190,7 @@ public:
 		boneTransforms = animator.getBoneMatrices();
 	}
 
-	void PlayAnimation(string name, bool Loop = false,float interpIn = 0.12)
-	{
-		SetLooped(Loop);
-		animator.set(name);
-		PlayAnimation(interpIn);
-		oldRootMotionPos = vec3();
-		oldRootMotionRot = vec3();
-		animator.totalRootMotionPosition = vec3();
-		animator.totalRootMotionRotation = vec3();
-		//Update(0);
-		//PullRootMotion();
-	}
+	void PlayAnimation(string name, bool Loop = false, float interpIn = 0.12);
 
 	void FinalizeFrameData()
 	{
@@ -170,27 +198,7 @@ public:
 		finalizedBoneTransforms = boneTransforms;
 	}
 
-	MathHelper::Transform PullRootMotion()
-	{
-		vec3 rootMotionPos = animator.totalRootMotionPosition - oldRootMotionPos;
-		vec3 rootMotionRot = animator.totalRootMotionRotation - oldRootMotionRot;
-
-		oldRootMotionPos = animator.totalRootMotionPosition;
-		oldRootMotionRot = animator.totalRootMotionRotation;
-
-		positionOffset = -animator.totalRootMotionPosition;
-		rotationOffset = -animator.totalRootMotionRotation;
-
-
-		MathHelper::Transform transform;
-
-		transform.Position = MathHelper::TransformVector(rootMotionPos, MathHelper::GetRotationQuaternion(-rotationOffset));
-		transform.Rotation = rootMotionRot;
-
-		transform.Position = MathHelper::TransformVector(transform.Position, MathHelper::GetRotationQuaternion(Rotation));
-
-		return transform;
-	}
+	MathHelper::Transform PullRootMotion();
 
 	void PlayAnimation(float interpIn = 0.12)
 	{
@@ -213,39 +221,7 @@ public:
 		animator.play();
 	}
 
-	void Update(float timeScale = 1)
-	{
-
-		animator.UpdatePose = UpdatePose;
-
-		animator.update(Time::DeltaTimeF * timeScale);
-
-		if (animator.m_currTime < oldAnimTime)
-		{
-			oldRootMotionPos = vec3();
-			oldRootMotionRot = vec3();
-			animator.totalRootMotionPosition = vec3();
-			animator.totalRootMotionRotation = vec3();
-		}
-		oldAnimTime = animator.m_currTime;
-
-		if (UpdatePose == false) return;
-
-		float blendProgress = GetBlendInProgress();
-
-		if (blendProgress < 0.995)
-		{
-			AnimationPose currentPose = GetAnimationPose();
-
-
-			AnimationPose newPose = AnimationPose::Lerp(blendStartPose, currentPose, blendProgress);
-
-			PasteAnimationPose(newPose);
-
-		}
-
-		boneTransforms = animator.getBoneMatrices();
-	}
+	void Update(float timeScale = 1);
 
 	void SetLooped(bool looped)
 	{
@@ -271,6 +247,12 @@ public:
 
 		animator = roj::Animator(model);
 	}
+
+	mat4 GetWorldMatrixNoOffsets();
+
+	mat4 GetBoneMatrix(string boneName);
+
+	mat4 GetBoneMatrixWorld(string boneName);
 
 	void SetAnimationState(const AnimationState& animationState)
 	{

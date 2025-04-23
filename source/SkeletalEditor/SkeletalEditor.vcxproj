@@ -29,7 +29,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{20812A9D-5CE8-485F-8814-7499BCB5FB04}</ProjectGuid>
+    <ProjectGuid>{8A221747-7EFF-4885-9B18-0261C4DBFCBB}</ProjectGuid>
     <RootNamespace>Game</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -234,19 +234,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Entities\Brushes\DestructubleBrush.cpp" />
-    <ClCompile Include="Entities\Player\Player.cpp" />
-    <ClCompile Include="Entities\TestNpc.cpp" />
-    <ClCompile Include="Entities\TestParticleSystem.cpp" />
-    <ClCompile Include="Entities\WorldSpawn.cpp" />
+    <ClCompile Include="Entities\SkeletalEditorEntity.cpp" />
     <ClCompile Include="GameStart.cpp" />
-    <ClCompile Include="ParticleSystems\HitBlood.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Entities\Player\Player.hpp" />
-    <ClInclude Include="Entities\TestNpc.hpp" />
-    <ClInclude Include="Entities\TestParticleSystem.hpp" />
-    <ClInclude Include="Entities\WorldSpawn.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">

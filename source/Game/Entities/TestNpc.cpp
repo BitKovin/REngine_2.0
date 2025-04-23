@@ -64,7 +64,7 @@ void TestNpc::AsyncUpdate()
 	StunSoundPlayer->Position = Position;
 	AttackSoundPlayer->Position = Position;
 
-	DebugDraw::Line(Position - vec3(0, 1, 0), Position + vec3(0, 2, 0), 0.001f, 0.2);
+	
 
 	//mesh->UpdatePose = mesh->WasRended;
 
@@ -72,7 +72,9 @@ void TestNpc::AsyncUpdate()
 
 	mesh->Position = Position - vec3(0, 1, 0);
 
+	auto testTrans = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("Bone.013"));
 
+	DebugDraw::Line(testTrans.Position - vec3(0, 1, 0), testTrans.Position + vec3(0, 2, 0), 0.005f, 0.2);
 
 	auto rootMotion = mesh->PullRootMotion();
 

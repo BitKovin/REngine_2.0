@@ -99,7 +99,7 @@ void NavigationSystem::GenerateNavData()
     std::vector<glm::vec3> vertices = mesh.vertices;
     std::vector<uint32_t> indices = mesh.indices;
 
-
+    if (vertices.size() < 3) return;
 
     // Compute bounding box
     glm::vec3 bmin = vertices[0];
