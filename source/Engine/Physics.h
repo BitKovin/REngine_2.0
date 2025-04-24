@@ -699,7 +699,7 @@ public:
 			world_com,
 			JPH::Quat::sIdentity(),                     // shape‐rotation baked in already
 			JPH::EMotionType::Kinematic,
-			Layers::TRACE_ONLY
+			Layers::MOVING
 		);
 
 		bcs.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;

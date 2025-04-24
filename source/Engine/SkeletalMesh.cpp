@@ -1,4 +1,4 @@
-#include "SkeletalMesh.hpp"
+﻿#include "SkeletalMesh.hpp"
 
 void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 {
@@ -9,29 +9,47 @@ void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 	oldRootMotionRot = vec3();
 	animator.totalRootMotionPosition = vec3();
 	animator.totalRootMotionRotation = vec3();
+	rootMotionBasisQuat = quat();
 }
 
+// In your SkeletalMesh:
 MathHelper::Transform SkeletalMesh::PullRootMotion()
 {
-	vec3 rootMotionPos = animator.totalRootMotionPosition - oldRootMotionPos;
-	vec3 rootMotionRot = animator.totalRootMotionRotation - oldRootMotionRot;
+	// 1) grab the raw deltas from the animator
+	glm::vec3 deltaPos = animator.totalRootMotionPosition - oldRootMotionPos;
+	glm::vec3 deltaRot = animator.totalRootMotionRotation - oldRootMotionRot;
 
+	// 2) stash totals for next frame:
 	oldRootMotionPos = animator.totalRootMotionPosition;
 	oldRootMotionRot = animator.totalRootMotionRotation;
 
+	// 3) apply the offsets back to the skeleton (unchanged)
 	positionOffset = -animator.totalRootMotionPosition;
 	rotationOffset = -animator.totalRootMotionRotation;
 
+	// 4) build the output transform:
+	MathHelper::Transform t;
 
-	MathHelper::Transform transform;
+	rootMotionBasisQuat = MathHelper::GetRotationQuaternion(Rotation + rotationOffset);
 
-	transform.Position = MathHelper::TransformVector(rootMotionPos, MathHelper::GetRotationQuaternion(-rotationOffset));
-	transform.Rotation = rootMotionRot;
+	// — USE the fixed “basis” quat for _all_ translation:
+	//   this freezes the walk-direction in world-space
+	glm::quat basis = true
+		? rootMotionBasisQuat
+		: MathHelper::GetRotationQuaternion(Rotation);
 
-	transform.Position = MathHelper::TransformVector(transform.Position, MathHelper::GetRotationQuaternion(Rotation));
+	t.Position = MathHelper::TransformVector(deltaPos, basis);
 
-	return transform;
+	// — but still spin each frame by whatever the animator gave you:
+	t.Rotation = deltaRot;
+
+	return t;
 }
+
+
+
+
+
 
 void SkeletalMesh::Update(float timeScale)
 {
@@ -126,6 +144,8 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 	{
 		CreateHitbox(owner, hitbox);
 	}
+
+	UpdateHitboxes();
 
 }
 

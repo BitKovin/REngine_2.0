@@ -25,7 +25,7 @@ public:
 
 	void Update()
 	{
-		mesh->CreateHitboxes(this, mesh->metaData);
+		mesh->CreateHitboxes(this);
 		mesh->Update();
 		mesh->UpdateHitboxes();
 	}
@@ -70,9 +70,15 @@ public:
 			hitbox->boneName = std::string(buffer);  // Update std::string only if user edited the input
 		}
 
-		ImGui::DragFloat3("position", &hitbox->position.x, 0.1f);
+		ImGui::DragFloat3("position", &hitbox->position.x, 0.001f);
 		ImGui::DragFloat3("rotation", &hitbox->rotation.x, 0.1f);
 		ImGui::DragFloat3("size", &hitbox->size.x, 0.1f, 0.001);
+
+		hitbox->size.x = abs(hitbox->size.x);
+		hitbox->size.y = abs(hitbox->size.y);
+		hitbox->size.z = abs(hitbox->size.z);
+
+		ImGui::InputFloat("damage multiplier", &hitbox->damageMultiplier);
 
 		ImGui::End();
 	}

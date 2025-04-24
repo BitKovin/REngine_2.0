@@ -10,7 +10,7 @@ REGISTER_ENTITY(TestNpc, "testnpc")
 void TestNpc::Attack()
 {
 
-	inAttackDelay.AddDelay(1.5f);
+	inAttackDelay.AddDelay(2.5f);
 	mesh->PlayAnimation("attackLookback");
 
 }

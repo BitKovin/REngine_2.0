@@ -83,7 +83,7 @@ struct AnimationState
 	float animationTime;
 	bool looping;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(AnimationState, playing, animationName, animationTime, looping)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(AnimationState, playing, animationName, animationTime, looping)
 
 };
 
@@ -95,7 +95,7 @@ struct AnimationEvent
 	string userData2;
 	string userData3;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(AnimationEvent, eventName, time, userData1, userData2, userData3)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(AnimationEvent, eventName, time, userData1, userData2, userData3)
 };
 
 struct AnimationData
@@ -103,7 +103,7 @@ struct AnimationData
 	string animationName;
 	vector<AnimationData> animationEvents;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(AnimationData, animationName, animationEvents)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(AnimationData, animationName, animationEvents)
 };
 
 struct HitboxData
@@ -112,8 +112,9 @@ struct HitboxData
 	vec3 size = vec3(0.2);
 	vec3 rotation = vec3(0);
 	vec3 position = vec3(0);
+	float damageMultiplier = 1;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(HitboxData, boneName, size, rotation, position)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(HitboxData, boneName, size, rotation, position, damageMultiplier)
 };
 
 struct SkeletalMeshMetaData
@@ -121,7 +122,7 @@ struct SkeletalMeshMetaData
 	vector<HitboxData> hitboxes;
 	vector<AnimationData> animations;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(SkeletalMeshMetaData, hitboxes, animations)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(SkeletalMeshMetaData, hitboxes, animations)
 
 
 };
@@ -149,6 +150,8 @@ private:
 	float oldAnimTime = 0;
 
 	string filePath = "";
+
+	quat rootMotionBasisQuat;
 
 	float GetBlendInProgress()
 	{
