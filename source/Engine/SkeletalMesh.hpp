@@ -81,9 +81,10 @@ struct AnimationState
 	bool playing;
 	string animationName;
 	float animationTime;
+	float oldAnimationEventTime;
 	bool looping;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(AnimationState, playing, animationName, animationTime, looping)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(AnimationState, playing, animationName, animationTime, oldAnimationEventTime,looping)
 
 };
 
@@ -101,7 +102,7 @@ struct AnimationEvent
 struct AnimationData
 {
 	string animationName;
-	vector<AnimationData> animationEvents;
+	vector<AnimationEvent> animationEvents;
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(AnimationData, animationName, animationEvents)
 };
@@ -153,6 +154,8 @@ private:
 
 	quat rootMotionBasisQuat;
 
+	float oldAnimationEventTime = 0;
+
 	float GetBlendInProgress()
 	{
 		double currentTime = Time::GameTime;
@@ -175,6 +178,8 @@ private:
 
 	std::recursive_mutex hitboxMutex;
 
+	std::vector<AnimationEvent> pendingAnimationEvents;
+
 protected:
 
 	void ApplyAdditionalShaderParams(ShaderProgram* shader_program)
@@ -186,6 +191,7 @@ protected:
 public:
 
 	SkeletalMeshMetaData metaData;
+	AnimationData* currentAnimationData = nullptr;
 
 	bool UpdatePose = true;
 
@@ -247,6 +253,10 @@ public:
 		return animator.Loop;
 	}
 
+	float GetAnimationDuration();
+	float GetAnimationTime();
+	void SetAnimationTime(float time);
+
 	void LoadFromFile(string path)
 	{
 
@@ -279,8 +289,15 @@ public:
 
 	void UpdateHitboxes();
 
+	void UpdateAnimationEvents();
+	vector<AnimationEvent> PullAnimationEvents();
+
 	void SaveMetaToFile();
 	void LoadMetaFromFile();
+
+	static void ClearMetaDataCache();
+
+	AnimationData* GetAnimationDataFromName(string name);
 
 	void SetAnimationState(const AnimationState& animationState)
 	{
@@ -290,6 +307,7 @@ public:
 		animator.m_currTime = animationState.animationTime;
 		animator.UpdateAnimationPose();
 		animator.m_playing = animationState.playing;
+		oldAnimationEventTime = animationState.oldAnimationEventTime;
 		Update(0);
 	}
 
@@ -303,6 +321,7 @@ public:
 		animationState.animationName = animator.currentAnimationName;
 		animationState.animationTime = animator.m_currTime;
 		animationState.playing = animator.m_playing;
+		animationState.oldAnimationEventTime = oldAnimationEventTime;
 
 		return animationState;
 	}

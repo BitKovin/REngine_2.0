@@ -11,7 +11,13 @@ public:
 
 	string filePath = "GameData/dog.glb";
 
-	int selectedHitbox = -1;
+	int selectedHitbox = 0;
+	int selectedAnimation = 0;
+	int selectedAnimationEvent = 0;
+
+	float animationTime = 0;
+
+	bool animationPlaying = false;
 
 	SkeletalEditorEntity()
 	{
@@ -26,8 +32,16 @@ public:
 	void Update()
 	{
 		mesh->CreateHitboxes(this);
-		mesh->Update();
+		mesh->Update((int)animationPlaying);
 		mesh->UpdateHitboxes();
+
+		auto events = mesh->PullAnimationEvents();
+
+		for (auto event : events)
+		{
+			Logger::Log(event.eventName);
+		}
+
 	}
 
 	// Callback to resize the std::string buffer when editing
@@ -57,6 +71,7 @@ public:
 		return hitboxes;
 	}
 
+
 	void HitboxWindow(HitboxData* hitbox)
 	{
 		ImGui::Begin("hitbox editor");
@@ -83,9 +98,32 @@ public:
 		ImGui::End();
 	}
 
+	vector<const char*> GetAnimationNames()
+	{
+		vector<const char*> animations;
+		animations.reserve(mesh->model->animations.size());
+		for (const auto& animation : mesh->model->animations) 
+		{ 
+			animations.push_back(animation.first.c_str());
+		}
+		return animations;
+	}
+
+	vector<const char*> GetAnimationEventsNames(AnimationData* data)
+	{
+		vector<const char*> events;
+		events.reserve(data->animationEvents.size());
+		for (const auto& event : data->animationEvents)
+		{
+			events.push_back(event.eventName.c_str());
+		}
+		return events;
+	}
+
 	void UpdateDebugUI()
 	{
-		ImGui::Begin("hitbox editor");
+
+		ImGui::Begin("file");
 
 		static char buffer[256];  // Fixed-size buffer (adjust size as needed)
 		strncpy_s(buffer, filePath.c_str(), sizeof(buffer));
@@ -107,6 +145,11 @@ public:
 		}
 
 		ImGui::Spacing();
+
+		ImGui::End();
+
+		ImGui::Begin("hitbox editor");
+
 		ImGui::Spacing();
 
 		vector<const char*> names = GetHitboxNames();
@@ -116,7 +159,7 @@ public:
 
 		if (ImGui::Button("add"))
 		{
-			mesh->metaData.hitboxes.push_back(HitboxData{"none"});
+			mesh->metaData.hitboxes.push_back(HitboxData{ "none" });
 		}
 
 		ImGui::SameLine();
@@ -142,6 +185,108 @@ public:
 		{
 			HitboxWindow(selectedHitboxRef);
 		}
+
+
+		ImGui::Begin("Animation Editor");
+
+		auto animationNames = GetAnimationNames();
+
+		if (ImGui::ListBox("animations:", &selectedAnimation, animationNames.data(), animationNames.size()))
+		{
+			mesh->PlayAnimation(animationNames[selectedAnimation], true, 0.2);
+		}
+
+		ImGui::Checkbox("playing", &animationPlaying);
+
+		float animationTime = mesh->GetAnimationTime();
+
+		if (ImGui::SliderFloat("time", &animationTime, 0, mesh->GetAnimationDuration()))
+		{
+			mesh->SetAnimationTime(animationTime);
+		}
+
+		AnimationData* selectedAnimationRef = mesh->currentAnimationData;
+
+		if (selectedAnimationRef)
+		{
+			auto eventNames = GetAnimationEventsNames(selectedAnimationRef);
+
+			if (ImGui::ListBox("events:", &selectedAnimationEvent, eventNames.data(), eventNames.size()))
+			{
+				
+			}
+
+			if (ImGui::Button("add event"))
+			{
+
+				AnimationEvent newEvent;
+				newEvent.eventName = "event_" + to_string(floor(animationTime / 10.f));
+				newEvent.time = animationTime;
+
+				selectedAnimationRef->animationEvents.push_back(newEvent);
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("remove event"))
+			{
+				if (selectedAnimationEvent >= 0 && selectedAnimationEvent < selectedAnimationRef->animationEvents.size())
+				{
+					selectedAnimationRef->animationEvents.erase(selectedAnimationRef->animationEvents.begin() + selectedAnimationEvent);
+				}
+			}
+
+			if (eventNames.size() > 0)
+			{
+				AnimationEvent* selectedAnimationEventRef = &selectedAnimationRef->animationEvents[selectedAnimationEvent];
+
+				if (selectedAnimationEventRef)
+				{
+					strncpy_s(buffer, selectedAnimationEventRef->eventName.c_str(), sizeof(buffer));
+					buffer[sizeof(buffer) - 1] = '\0';  // Ensure null termination
+
+					if (ImGui::InputText("event name", buffer, sizeof(buffer)))
+					{
+						selectedAnimationEventRef->eventName = std::string(buffer);  // Update std::string only if user edited the input
+					}
+
+					ImGui::DragFloat("event time", &selectedAnimationEventRef->time,1,0, mesh->GetAnimationDuration());
+
+
+
+					strncpy_s(buffer, selectedAnimationEventRef->userData1.c_str(), sizeof(buffer));
+					buffer[sizeof(buffer) - 1] = '\0';  // Ensure null termination
+
+					if (ImGui::InputText("event data 1", buffer, sizeof(buffer)))
+					{
+						selectedAnimationEventRef->userData1 = std::string(buffer);  // Update std::string only if user edited the input
+					}
+
+
+					strncpy_s(buffer, selectedAnimationEventRef->userData2.c_str(), sizeof(buffer));
+					buffer[sizeof(buffer) - 1] = '\0';  // Ensure null termination
+
+					if (ImGui::InputText("event data 2", buffer, sizeof(buffer)))
+					{
+						selectedAnimationEventRef->userData2 = std::string(buffer);  // Update std::string only if user edited the input
+					}
+
+					static char buffer[256];  // Fixed-size buffer (adjust size as needed)
+					strncpy_s(buffer, selectedAnimationEventRef->userData3.c_str(), sizeof(buffer));
+					buffer[sizeof(buffer) - 1] = '\0';  // Ensure null termination
+
+					if (ImGui::InputText("event data 3", buffer, sizeof(buffer)))
+					{
+						selectedAnimationEventRef->userData3 = std::string(buffer);  // Update std::string only if user edited the input
+					}
+
+				}
+
+			}
+
+		}
+
+		ImGui::End();
 
 	}
 

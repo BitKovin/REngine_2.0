@@ -1,4 +1,5 @@
 ﻿#include "SkeletalMesh.hpp"
+#include <algorithm>
 
 void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 {
@@ -10,6 +11,7 @@ void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 	animator.totalRootMotionPosition = vec3();
 	animator.totalRootMotionRotation = vec3();
 	rootMotionBasisQuat = quat();
+	currentAnimationData = GetAnimationDataFromName(name);
 }
 
 // In your SkeletalMesh:
@@ -47,16 +49,13 @@ MathHelper::Transform SkeletalMesh::PullRootMotion()
 }
 
 
-
-
-
-
 void SkeletalMesh::Update(float timeScale)
 {
 
 	animator.UpdatePose = UpdatePose;
 
 	animator.update(Time::DeltaTimeF * timeScale);
+	UpdateAnimationEvents();
 
 	if (animator.m_currTime < oldAnimTime)
 	{
@@ -83,6 +82,36 @@ void SkeletalMesh::Update(float timeScale)
 	}
 
 	boneTransforms = animator.getBoneMatrices();
+
+}
+
+float SkeletalMesh::GetAnimationDuration()
+{
+	if (model == nullptr) return 0;
+
+	if (animator.m_currAnim == nullptr) return 0;
+
+
+	return animator.m_currAnim->duration;
+
+}
+
+float SkeletalMesh::GetAnimationTime()
+{
+	if (model == nullptr) return 0;
+
+	if (animator.m_currAnim == nullptr) return 0;
+
+	return animator.m_currTime;
+}
+
+void SkeletalMesh::SetAnimationTime(float time)
+{
+	if (model == nullptr) return;
+
+	if (animator.m_currAnim == nullptr) return;
+
+	animator.m_currTime = time;
 
 }
 
@@ -166,7 +195,57 @@ void SkeletalMesh::UpdateHitboxes()
 
 }
 
+void SkeletalMesh::UpdateAnimationEvents()
+{
+	if (currentAnimationData == nullptr) return;
+
+	float currentAnimationTime = GetAnimationTime();
+
+	if (currentAnimationTime == oldAnimationEventTime) return;
+
+	if (oldAnimationEventTime > currentAnimationTime)
+	{
+		oldAnimationEventTime = 0;
+	}
+
+	vector<AnimationEvent> pendingEvents;
+
+	for (const auto& event : currentAnimationData->animationEvents)
+	{
+		if (event.time > oldAnimationEventTime && event.time <= currentAnimationTime)
+		{
+			pendingEvents.push_back(event);
+		}
+	}
+
+	// Sort events from earliest to latest by time
+	std::sort(pendingEvents.begin(), pendingEvents.end(), [](const AnimationEvent& a, const AnimationEvent& b) {
+		return a.time < b.time;
+		});
+
+	// Push sorted events to the queue
+	for (const auto& event : pendingEvents)
+	{
+		pendingAnimationEvents.push_back(event);
+	}
+
+	oldAnimationEventTime = currentAnimationTime;
+}
+
+vector<AnimationEvent> SkeletalMesh::PullAnimationEvents()
+{
+	vector<AnimationEvent> result = pendingAnimationEvents;
+	pendingAnimationEvents.clear();
+	return result;
+
+}
+
 unordered_map<string, SkeletalMeshMetaData> loaded_metas;
+
+void SkeletalMesh::ClearMetaDataCache()
+{
+	loaded_metas.clear();
+}
 
 void SkeletalMesh::SaveMetaToFile()
 {
@@ -186,7 +265,9 @@ void SkeletalMesh::SaveMetaToFile()
 	catch (const std::exception& e) {
 		// log or throw
 	}
-	std::ofstream ofs(metaFilePath, std::ios::binary);
+	std::ofstream ofs(metaFilePath, std::ios::out 
+		| std::ios::binary 
+		| std::ios::trunc);
 	if (!ofs) return;
 	ofs.write(content.data(), content.size());
 
@@ -227,4 +308,18 @@ void SkeletalMesh::LoadMetaFromFile()
 	metaData = data;
 
 
+}
+
+AnimationData* SkeletalMesh::GetAnimationDataFromName(string name)
+{
+	for (AnimationData& data : metaData.animations)
+	{
+		if (data.animationName == name)
+		{
+			return &data;
+		}
+	}
+
+	metaData.animations.push_back(AnimationData{ name });
+	return GetAnimationDataFromName(name);
 }
