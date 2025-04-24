@@ -1,4 +1,4 @@
-#include <Entity.hpp>
+﻿#include <Entity.hpp>
 #include <SkeletalMesh.hpp>
 #include <Physics.h>
 
@@ -8,8 +8,6 @@ class SkeletalEditorEntity : public Entity
 {
 public:
 	SkeletalMesh* mesh = new SkeletalMesh();
-
-	SkeletalMeshMetaData data;
 
 	string filePath = "GameData/dog.glb";
 
@@ -27,7 +25,7 @@ public:
 
 	void Update()
 	{
-		mesh->CreateHitboxesFromData(this, data);
+		mesh->CreateHitboxes(this, mesh->metaData);
 		mesh->Update();
 		mesh->UpdateHitboxes();
 	}
@@ -52,14 +50,10 @@ public:
 
 	vector<const char*> GetHitboxNames()
 	{
-
 		vector<const char*> hitboxes;
-
-		for (auto hitbox : data.hitboxes)
-		{
+		hitboxes.reserve(mesh->metaData.hitboxes.size());
+		for (const auto& hitbox : mesh->metaData.hitboxes)  // ← note const auto&
 			hitboxes.push_back(hitbox.boneName.c_str());
-		}
-
 		return hitboxes;
 	}
 
@@ -101,6 +95,11 @@ public:
 			LoadModel();
 		}
 
+		if (ImGui::Button("save model"))
+		{
+			mesh->SaveMetaToFile();
+		}
+
 		ImGui::Spacing();
 		ImGui::Spacing();
 
@@ -111,7 +110,7 @@ public:
 
 		if (ImGui::Button("add"))
 		{
-			data.hitboxes.push_back(HitboxData{"none"});
+			mesh->metaData.hitboxes.push_back(HitboxData{"none"});
 		}
 
 		ImGui::SameLine();
@@ -120,7 +119,7 @@ public:
 		{
 			if (selectedHitbox >= 0 && selectedHitbox < names.size())
 			{
-				data.hitboxes.erase(data.hitboxes.begin() + selectedHitbox);
+				mesh->metaData.hitboxes.erase(mesh->metaData.hitboxes.begin() + selectedHitbox);
 			}
 		}
 
@@ -128,7 +127,7 @@ public:
 
 		if (selectedHitbox >= 0 && selectedHitbox < names.size())
 		{
-			selectedHitboxRef = &data.hitboxes[selectedHitbox];
+			selectedHitboxRef = &mesh->metaData.hitboxes[selectedHitbox];
 		}
 
 		ImGui::End();

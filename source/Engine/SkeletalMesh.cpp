@@ -117,12 +117,12 @@ void SkeletalMesh::CreateHitbox(Entity* owner,HitboxData data)
 
 }
 
-void SkeletalMesh::CreateHitboxesFromData(Entity* owner, SkeletalMeshMetaData data)
+void SkeletalMesh::CreateHitboxes(Entity* owner)
 {
 
 	ClearHitboxes();
 
-	for (auto hitbox : data.hitboxes)
+	for (auto hitbox : metaData.hitboxes)
 	{
 		CreateHitbox(owner, hitbox);
 	}
@@ -143,5 +143,68 @@ void SkeletalMesh::UpdateHitboxes()
 		Physics::SetBodyPositionAndRotation(body, boneTrans.Position, boneTrans.Rotation);
 
 	}
+
+}
+
+unordered_map<string, SkeletalMeshMetaData> loaded_metas;
+
+void SkeletalMesh::SaveMetaToFile()
+{
+	if (model == nullptr) return;
+
+	string metaFilePath = filePath + ".skmm";
+
+	json jsonData = json(metaData);
+	string content = jsonData.dump(4);
+
+	try {
+		auto parent = std::filesystem::path(metaFilePath).parent_path();
+		if (!parent.empty() && !std::filesystem::exists(parent)) {
+			std::filesystem::create_directories(parent);
+		}
+	}
+	catch (const std::exception& e) {
+		// log or throw
+	}
+	std::ofstream ofs(metaFilePath, std::ios::binary);
+	if (!ofs) return;
+	ofs.write(content.data(), content.size());
+
+}
+
+void SkeletalMesh::LoadMetaFromFile()
+{
+	if (model == nullptr) return;
+
+	string metaFilePath = filePath + ".skmm";
+
+	auto foundData = loaded_metas.find(metaFilePath);
+
+	SkeletalMeshMetaData data;
+
+	if (foundData != loaded_metas.end())
+	{
+		data = foundData->second;
+	}
+	else
+	{
+		string file = AssetRegistry::ReadFileToString(metaFilePath);
+
+		if (file.size() < 3)
+		{
+			return;
+		}
+			
+
+		json jsonData = json::parse(file);
+
+		data = jsonData.get<SkeletalMeshMetaData>();
+
+		loaded_metas[metaFilePath] = data;
+
+	}
+	
+	metaData = data;
+
 
 }

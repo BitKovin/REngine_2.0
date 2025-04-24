@@ -148,6 +148,8 @@ private:
 
 	float oldAnimTime = 0;
 
+	string filePath = "";
+
 	float GetBlendInProgress()
 	{
 		double currentTime = Time::GameTime;
@@ -180,6 +182,7 @@ protected:
 
 public:
 
+	SkeletalMeshMetaData metaData;
 
 	bool UpdatePose = true;
 
@@ -245,6 +248,7 @@ public:
 	{
 
 		StaticMesh::LoadFromFile(path);
+		filePath = path;
 
 		boneTransforms.resize(model->boneInfoMap.size());
 
@@ -254,6 +258,8 @@ public:
 		}
 
 		animator = roj::Animator(model);
+
+		LoadMetaFromFile();
 	}
 
 	mat4 GetWorldMatrixNoOffsets();
@@ -266,9 +272,12 @@ public:
 
 	void CreateHitbox(Entity* owner, HitboxData data);
 
-	void CreateHitboxesFromData(Entity* owner, SkeletalMeshMetaData data);
+	void CreateHitboxes(Entity* owner);
 
 	void UpdateHitboxes();
+
+	void SaveMetaToFile();
+	void LoadMetaFromFile();
 
 	void SetAnimationState(const AnimationState& animationState)
 	{

@@ -20,6 +20,7 @@ void TestNpc::Death()
 
 	if (dead) return;
 
+	mesh->ClearHitboxes();
 	mesh->PlayAnimation("death");
 	Physics::SetLinearVelocity(LeadBody, vec3(0));
 
@@ -69,12 +70,13 @@ void TestNpc::AsyncUpdate()
 	//mesh->UpdatePose = mesh->WasRended;
 
 	mesh->Update();
+	
 
 	mesh->Position = Position - vec3(0, 1, 0);
 
-	auto testTrans = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("Bone.013"));
+	//auto testTrans = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("Bone.013"));
 
-	DebugDraw::Line(testTrans.Position - vec3(0, 1, 0), testTrans.Position + vec3(0, 2, 0), 0.005f, 0.2);
+	//DebugDraw::Line(testTrans.Position - vec3(0, 1, 0), testTrans.Position + vec3(0, 2, 0), 0.005f, 0.2);
 
 	auto rootMotion = mesh->PullRootMotion();
 
@@ -97,6 +99,7 @@ void TestNpc::AsyncUpdate()
 	{
 		Physics::SetLinearVelocity(LeadBody, vec3(0, LeadBody->GetLinearVelocity().GetY(), 0));
 	}
+	mesh->UpdateHitboxes();
 
 	if (dead) return;
 
@@ -207,6 +210,7 @@ void TestNpc::Deserialize(json& source)
 	{
 		Physics::DestroyBody(LeadBody);
 		LeadBody = nullptr;
+		mesh->ClearHitboxes();
 	}
 
 
@@ -220,6 +224,7 @@ void TestNpc::Deserialize(json& source)
 void TestNpc::LoadAssets()
 {
 	mesh->LoadFromFile("GameData/dog.glb");
+	mesh->CreateHitboxes(this);
 	mesh->PlayAnimation("run",true);
 	mesh->SetLooped(true);
 	mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");

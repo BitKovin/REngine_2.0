@@ -165,7 +165,7 @@ public:
 		// many similar functions, but this one is the inverse of its
 		// `yawPitchRoll` function.
 		float x, y, z;
-		glm::extractEulerAngleYXZ(m, y,x,z);
+		glm::extractEulerAngleYXZ(m, y, x, z);
 
 		// Package them as a vector for interface similarity with
 		// `glm::eulerAngles` (but the order is different!).

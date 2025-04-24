@@ -103,7 +103,7 @@ void Player::PerformAttack()
     ));
 
     auto hit = Physics::LineTrace(Camera::position, Camera::position + Camera::Forward() * 1000.0f, 
-        BodyType::GroupHitTest | BodyType::CharacterCapsule, { LeadBody });
+        BodyType::GroupHitTest, { LeadBody });
 
     if (hit.hasHit)
     {
