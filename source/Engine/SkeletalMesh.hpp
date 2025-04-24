@@ -309,6 +309,7 @@ public:
 		animator.m_playing = animationState.playing;
 		oldAnimationEventTime = animationState.oldAnimationEventTime;
 		Update(0);
+		PullAnimationEvents();
 	}
 
 
