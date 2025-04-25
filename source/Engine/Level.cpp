@@ -75,6 +75,8 @@ Level* Level::OpenLevel(string filePath)
 	mapData.LoadToLevel();
 
 	Current->AddPendingLevelObjects();
+	Current->RemovePendingEntities();
+	Current->MemoryCleanPendingEntities();
 
 	Current->LoadAssets();
 
@@ -84,6 +86,8 @@ Level* Level::OpenLevel(string filePath)
 	}
 
 	Current->AddPendingLevelObjects();
+	Current->RemovePendingEntities();
+	Current->MemoryCleanPendingEntities();
 
 	if (isNewLevel) 
 	{
@@ -104,6 +108,10 @@ Level* Level::OpenLevel(string filePath)
 
 
 	Current->LoadAssets();
+
+	Current->AddPendingLevelObjects();
+	Current->RemovePendingEntities();
+	Current->MemoryCleanPendingEntities();
 
 	return newLevel;
 }

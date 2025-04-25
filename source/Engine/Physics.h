@@ -41,7 +41,9 @@
 
 #include "DebugDraw.hpp"
 
+#ifdef JPH_DEBUG_RENDERER
 #include <Jolt/Renderer/DebugRendererSimple.h>
+#endif
 
 #include "PhysicsConverter.h"
 
@@ -304,6 +306,8 @@ public:
 	}
 };
 
+#ifdef JPH_DEBUG_RENDERER
+
 class DrawFilter : public BodyDrawFilter
 {
 public:
@@ -338,6 +342,7 @@ public:
 		return true;
 	}
 };
+
 
 class MyDebugRenderer : public JPH::DebugRendererSimple
 {
@@ -379,6 +384,10 @@ public:
 	}
 };
 
+#endif // JPH_DEBUG_RENDERER
+
+
+
 class Physics
 {
 
@@ -394,7 +403,7 @@ private:
 
 	static ObjectLayerPairFilterImpl* object_vs_object_layer_filter;
 
-
+	static unordered_map<BodyID, Body*> bodyIdMap;
 
 	static MyContactListener* contact_listener;
 
@@ -402,17 +411,28 @@ private:
 
 	static vector<Body*> existingBodies;
 
-	static std::recursive_mutex physicsMainLock;
 
+#ifdef JPH_DEBUG_RENDERER
 	static MyDebugRenderer* debugRenderer;
+#endif
 
 	static BodyType DebugDrawMask;
 
 public:
 
+	struct PendingBodyEnterPair
+	{
+		Entity* target;
+
+		Entity* entity;
+	};
+
+	static std::recursive_mutex physicsMainLock;
+
 	static PhysicsSystem* physics_system;
 	
-	static std::vector<SubShapeIDPair> gRemovals;
+	static std::vector<Physics::PendingBodyEnterPair> gRemovals;
+	static std::vector<Physics::PendingBodyEnterPair> gAdds;
 
 	static bool DebugDraw;
 
@@ -424,7 +444,22 @@ public:
 
 		bodyInterface->AddBody(body->GetID(), JPH::EActivation::Activate);
 
+		bodyIdMap[body->GetID()] = body;
+
 		physicsMainLock.unlock();
+
+	}
+
+	static Body* GetBodyFromId(BodyID id)
+	{
+		auto res = bodyIdMap.find(id);
+
+		if (res != bodyIdMap.end())
+		{
+			return res->second;
+		}
+
+		return nullptr;
 
 	}
 
@@ -461,6 +496,8 @@ public:
 			
 		bodyInterface->RemoveBody(body->GetID());
 		bodyInterface->DestroyBody(body->GetID());
+
+		bodyIdMap.erase(body->GetID());
 
 		// Remove body from existingBodies
 		auto it = std::find(existingBodies.begin(), existingBodies.end(), body);
@@ -576,7 +613,9 @@ public:
 
 		bodyInterface = &physics_system->GetBodyInterface();
 		
+#ifdef JPH_DEBUG_RENDERER
 		debugRenderer = new MyDebugRenderer();
+#endif
 
 
 	}
@@ -596,18 +635,18 @@ public:
 		bodyInterface->SetPositionAndRotation(body->GetID(), ToPhysics(pos), ToPhysics(MathHelper::GetRotationQuaternion(rot)), JPH::EActivation::Activate);
 	}
 
-	static void UpdatePendingBodyExits();
+	static void UpdatePendingBodyExitsEnters();
 
 	static void Simulate()
 	{
-		//physicsMainLock.lock();
 		physics_system->Update(Time::DeltaTime, 1, tempMemAllocator, threadPool);
-		UpdatePendingBodyExits();
+		UpdatePendingBodyExitsEnters();
 		
 	}
 
 	static void Update()
 	{
+#ifdef JPH_DEBUG_RENDERER
 		if (DebugDraw)
 		{
 
@@ -624,6 +663,7 @@ public:
 			physics_system->DrawConstraintReferenceFrame(debugRenderer);
 			//physics_system->DrawConstraints();  // draws joints, etc.
 		}
+#endif
 	}
 
 	static Body* CreateBoxBody(Entity* owner, vec3 Position, vec3 Size, float Mass = 10, bool Static = false,

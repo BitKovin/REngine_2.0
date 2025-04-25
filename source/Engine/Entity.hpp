@@ -50,6 +50,8 @@ public:
 
 	bool AssetsLoaded = false;
 
+	string OwnerId = "";
+
 	vector<string> Tags;
 
 	Entity()
@@ -73,7 +75,7 @@ public:
 	virtual void FromData(EntityData data)
 	{
 
-		Name = data.GetPropertyString("targetName");
+		Name = data.GetPropertyString("targetname");
 
 		Position = data.GetPropertyVectorPosition("origin");
 
@@ -117,6 +119,15 @@ public:
 	{
 
 		Destroyed = true;
+
+		if (OwnerId != "")
+		{
+			Entity* ownerRef = Level::Current->FindEntityWithId(OwnerId);
+			if (ownerRef)
+			{
+				ownerRef->OnAction("despawned");
+			}
+		}
 
 		Physics::DestroyBody(LeadBody);
 		LeadBody = nullptr;
@@ -178,14 +189,30 @@ public:
 
 	static Entity* Spawn(std::string technicalName);
 
+	static void CallActionOnEveryEntityWithName(std::string name, std::string action)
+	{
+
+		if (name == "") return;
+
+		auto entities = Level::Current->FindAllEntitiesWithName(name);
+
+		for (Entity* entity : entities)
+		{
+			entity->OnAction(action);
+		}
+
+	}
+
 	static void PreloadEntityType(std::string technicalName)
 	{
 		auto entity = Spawn(technicalName);
 
 		if (entity)
 		{
+			entity->Start();
 			entity->LoadAssets();
-			delete(entity);
+			entity->SaveGame = false;
+			entity->Destroy();
 		}
 
 	}

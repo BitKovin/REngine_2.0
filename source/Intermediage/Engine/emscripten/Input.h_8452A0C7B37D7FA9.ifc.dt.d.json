@@ -484,6 +484,8 @@
             "f:\\git\\sdlwasmengine\\source\\engine\\glm\\gtx\\compatibility.inl",
             "f:\\git\\sdlwasmengine\\source\\engine\\glm\\gtx\\rotate_vector.hpp",
             "f:\\git\\sdlwasmengine\\source\\engine\\glm\\gtx\\rotate_vector.inl",
+            "f:\\git\\sdlwasmengine\\source\\engine\\glm\\gtx\\euler_angles.hpp",
+            "f:\\git\\sdlwasmengine\\source\\engine\\glm\\gtx\\euler_angles.inl",
             "f:\\git\\sdlwasmengine\\source\\engine\\eobject.hpp",
             "f:\\git\\sdlwasmengine\\source\\engine\\json.hpp",
             "d:\\program files\\visual studio\\vc\\tools\\msvc\\14.38.33130\\include\\algorithm",
@@ -553,6 +555,8 @@
             "d:\\program files\\visual studio\\vc\\tools\\msvc\\14.38.33130\\include\\numeric",
             "d:\\program files\\visual studio\\vc\\tools\\msvc\\14.38.33130\\include\\any",
             "f:\\git\\sdlwasmengine\\source\\engine\\helpers\\jsonhelper.hpp",
+            "f:\\git\\sdlwasmengine\\source\\engine\\delay.hpp",
+            "f:\\git\\sdlwasmengine\\source\\engine\\time.hpp",
             "f:\\git\\sdlwasmengine\\source\\engine\\helpers\\jsonmacros.hpp",
             "f:\\git\\sdlwasmengine\\source\\engine\\logger.hpp"
         ],

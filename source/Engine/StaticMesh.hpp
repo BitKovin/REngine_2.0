@@ -46,8 +46,8 @@ protected:
 
 	}
 
-	vec3 positionOffset;
-	vec3 rotationOffset;
+	vec3 positionOffset = vec3();
+	vec3 rotationOffset = vec3();
 
 public:
 
