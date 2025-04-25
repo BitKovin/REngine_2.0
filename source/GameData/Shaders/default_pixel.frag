@@ -83,7 +83,7 @@ float NdotL         = clamp(dot(normalize(v_normal),
 float biasWorld     = biasWorldBase * (1.0 + (1.0 - NdotL));
 
 //  • normalized depth-bias [0..1]:
-float bias          = biasWorld / (shadowDistance + 100.0) * (float(pcfRadius)+0.5) * 1.0;
+float bias          = biasWorld / (shadowDistance + 1000.0) * (float(pcfRadius)+0.5) * 1.0;
 
 //  • PCF radius in UV:
 vec2 texelSize      = 0.5 / vec2(shadowMapSize);
@@ -134,7 +134,7 @@ vec3 CalculateDirectionalLight()
     int   cascadePCF[4]    = int[](2, 1, 1, 1);
 
     float shadow = 1.0;
-    float blendPercent = 0.2; // 20% overlap for all cascades
+    float blendPercent = 0.1; // 10% overlap for all cascades
 
     if(dist < cascadeDist[3]) {
         bool blended = false;

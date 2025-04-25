@@ -8,7 +8,7 @@ public:
 
 	void Start()
 	{
-		Level::LoadLevelFromFile("GameData/Maps/test.map");
+		Level::LoadLevelFromFile("GameData/Maps/test2.map");
 	}
 
 private:
