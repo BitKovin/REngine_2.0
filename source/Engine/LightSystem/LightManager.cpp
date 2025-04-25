@@ -10,7 +10,7 @@ vec3 LightManager::LightDirection = vec3(-1,-1,1);
 
 const float cascadeExponent = 3;
 
-float LightManager::LightDistance = 300;
+float LightManager::LightDistance = 200;
 
 float LightManager::LightDistance1 = 0;
 float LightManager::LightDistance2 = 0;
@@ -126,8 +126,8 @@ void LightManager::Update()
 void LightManager::CalculateLightMatrices(
     float lightDistance, glm::vec3 cameraPos,
     glm::mat4& outLightView,
-    glm::mat4& outLightProjection
-) {
+    glm::mat4& outLightProjection) 
+{
 
     glm::vec3 L = glm::normalize(LightDirection);
     float halfSize = lightDistance;

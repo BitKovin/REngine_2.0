@@ -1,4 +1,4 @@
-#include "MapData.h"
+﻿#include "MapData.h"
 #include <sstream>
 #include <algorithm>
 #include <stdexcept>
@@ -193,25 +193,35 @@ std::string EntityData::GetPropertyString(const std::string& propName, const std
  * Converts an imported rotation vector to a usable format.
  * Adjusts based on whether it's for a model or not.
  */
-glm::vec3 EntityData::ConvertRotation(glm::vec3 importRot, bool notForModel) {
+glm::vec3 EntityData::ConvertRotation(glm::vec3 importRot, bool notForModel) 
+{
+    // Step 1: Adjust yaw for models
     if (!notForModel) {
-        importRot += glm::vec3(0.0f, 180.0f, 0.0f);
+        importRot.y += 180.0f; // Add 180 degrees to yaw
     }
-    // Convert to radians
+
+
     importRot = glm::radians(importRot);
 
-    // Create the rotation matrix with the specified order
-    glm::mat4 rotM = glm::rotate(glm::mat4(1.0f), -importRot.z, glm::vec3(1, 0, 0));
-    rotM = glm::rotate(rotM, importRot.x, glm::vec3(0, 0, 1));
-    rotM = glm::rotate(rotM, importRot.y, glm::vec3(0, 1, 0));
+    // Step 3: Construct rotation matrix: rotX(-roll) * rotZ(pitch) * rotY(yaw)
+    // GLM: rotate(radians, axis) applies rotation around the specified axis
+    glm::mat4 rotM = 
+        glm::rotate(importRot.y, glm::vec3(0.0f, 1.0f, 0.0f))*
+        glm::rotate(importRot.x, glm::vec3(0.0f, 0.0f, 1.0f))*
+        glm::rotate(-importRot.z, glm::vec3(1.0f, 0.0f, 0.0f))
+        ;  
 
-    // Decompose using quaternion conversion
-    glm::quat q = glm::quat_cast(rotM);
-    glm::vec3 rotation = glm::eulerAngles(q);
 
+    rotM = rotM* MathHelper::GetRotationMatrix(vec3(0, 180, 0));
+
+    glm::vec3 rotation = MathHelper::DecomposeMatrix(rotM).Rotation; // Returns radians, XYZ order (pitch, yaw, roll)
+
+    // Step 5: Adjust yaw for non-models
     if (notForModel) {
-        rotation += glm::vec3(0.0f, glm::radians(90.0f), 0.0f);
+        rotation.y += 90.0f; // Add 90 degrees to yaw
     }
+
+    // Step 6: Convert back to degrees and return
     return rotation;
 }
 
