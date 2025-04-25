@@ -37,6 +37,7 @@
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Core/Reference.h>
+#include <Jolt/Physics/Body/BodyLockMulti.h>
 
 #include "DebugDraw.hpp"
 
@@ -252,20 +253,11 @@ public:
 	}
 
 
-	virtual void			OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
-	{
-		//cout << "A contact was added" << endl;
-	}
+	void			OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override;
 
-	virtual void			OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
-	{
-		//cout << "A contact was persisted" << endl;
-	}
+	void			OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override;
 
-	virtual void			OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
-	{
-		//cout << "A contact was removed" << endl;
-	}
+	void			OnContactRemoved(const SubShapeIDPair& inSubShapePair) override;
 };
 
 class TraceBodyFilter : public BodyFilter
@@ -282,6 +274,9 @@ public:
 	/// Filter function when the Body is locked.
 	virtual bool ShouldCollideLocked(const Body& inBody) const override
 	{
+
+		
+
 		// Check if the body is in the ignore list.
 		for (Body* ignored : ignoreList)
 		{
@@ -294,6 +289,10 @@ public:
 		auto* properties = reinterpret_cast<BodyData*>(inBody.GetUserData());
 		if (properties)
 		{
+
+			if (inBody.IsSensor() && properties->group != BodyType::Liquid)
+				return false;
+
 			// Check if the body's group is included in our filter's mask.
 			// If the bitwise AND of mask and the body's group is zero, they don't match.
 			if ((static_cast<uint32_t>(mask) & static_cast<uint32_t>(properties->group)) == 0)
@@ -395,7 +394,7 @@ private:
 
 	static ObjectLayerPairFilterImpl* object_vs_object_layer_filter;
 
-	static PhysicsSystem* physics_system;
+
 
 	static MyContactListener* contact_listener;
 
@@ -410,7 +409,11 @@ private:
 	static BodyType DebugDrawMask;
 
 public:
+
+	static PhysicsSystem* physics_system;
 	
+	static std::vector<SubShapeIDPair> gRemovals;
+
 	static bool DebugDraw;
 
 	static void AddBody(Body* body)
@@ -467,7 +470,7 @@ public:
 		physicsMainLock.unlock();
 	}
 
-	static BodyData* GetBodyData(Body* body)
+	static BodyData* GetBodyData(const Body* body)
 	{
 		auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
 		return props;
@@ -485,7 +488,7 @@ public:
 
 	}
 
-	static BodyType GetBodyType(Body* body)
+	static BodyType GetBodyType(const Body* body)
 	{
 		if (body == nullptr) return BodyType::None;
 
@@ -499,7 +502,7 @@ public:
 
 	}
 
-	static void SetCollisionMask(Body* body, BodyType mask)
+	static void SetCollisionMask(const Body* body, BodyType mask)
 	{
 		if (body == nullptr) return;
 
@@ -593,11 +596,14 @@ public:
 		bodyInterface->SetPositionAndRotation(body->GetID(), ToPhysics(pos), ToPhysics(MathHelper::GetRotationQuaternion(rot)), JPH::EActivation::Activate);
 	}
 
+	static void UpdatePendingBodyExits();
+
 	static void Simulate()
 	{
 		//physicsMainLock.lock();
 		physics_system->Update(Time::DeltaTime, 1, tempMemAllocator, threadPool);
-		//physicsMainLock.unlock();
+		UpdatePendingBodyExits();
+		
 	}
 
 	static void Update()

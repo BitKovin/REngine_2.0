@@ -83,7 +83,7 @@ float NdotL         = clamp(dot(normalize(v_normal),
 float biasWorld     = biasWorldBase * (1.0 + (1.0 - NdotL));
 
 //  • normalized depth-bias [0..1]:
-float bias          = biasWorld / (2.0 * shadowDistance);
+float bias          = biasWorld / (shadowDistance + 100.0) * (float(pcfRadius)+0.5) * 1.0;
 
 //  • PCF radius in UV:
 vec2 texelSize      = 0.5 / vec2(shadowMapSize);
@@ -119,52 +119,38 @@ vec3 CalculateDirectionalLight()
     // 2) Distance from the camera
     float dist = v_clipPosition.z;
 
-    // 3) Cascade parameters
-    float cascadeDist[4]   = float[]( shadowDistance1,
-                                      shadowDistance2,
-                                      shadowDistance3,
-                                      shadowDistance4 );
-
-    float cascadeRadius[4]   = float[]( shadowRadius1,
-                                      shadowRadius2,
-                                      shadowRadius3,
-                                      shadowRadius4);
-
-    float blendR[4]        = float[]( 2.0,
-                                      5.0,
-                                      10.0,
-                                      20.0 );
     
-    float biasScales[4]        = float[]( 0.3,
-                                      0.5,
-                                      0.7,
-                                      1.3 );
+    float biasScales[4]        = float[]( 1.0,
+                                      1.0,
+                                      1.0,
+                                      1.0 );
 
 
-    vec2  cascadeOff[4]    = vec2[]( vec2(0,0),
-                                      vec2(1,0),
-                                      vec2(0,1),
-                                      vec2(1,1) );
-    vec4  cascadeCoords[4] = vec4[]( v_shadowCoords1,
-                                      v_shadowCoords2,
-                                      v_shadowCoords3,
-                                      v_shadowCoords4 );
-    int   cascadePCF[4]   = int[]( 2, 1, 1, 1 );
+    // Cascade parameters (unchanged)
+    float cascadeDist[4]   = float[](shadowDistance1, shadowDistance2, shadowDistance3, shadowDistance4);
+    float cascadeRadius[4] = float[](shadowRadius1,   shadowRadius2,   shadowRadius3,   shadowRadius4);
+    vec2  cascadeOff[4]    = vec2[](vec2(0,0), vec2(1,0), vec2(0,1), vec2(1,1));
+    vec4  cascadeCoords[4] = vec4[](v_shadowCoords1, v_shadowCoords2, v_shadowCoords3, v_shadowCoords4);
+    int   cascadePCF[4]    = int[](2, 1, 1, 1);
 
     float shadow = 1.0;
+    float blendPercent = 0.2; // 20% overlap for all cascades
 
-    if(dist < shadowDistance4)
-    {
-
-        // 4) Check blend zones between cascades 0–2 and blend if inside
+    if(dist < cascadeDist[3]) {
         bool blended = false;
+
+        // Blend between cascades 0–1, 1–2, 2–3
         for (int i = 0; i < 3; ++i) {
-            float fadeStart = cascadeDist[i] - blendR[i]*2.0;
-            float fadeEnd   = cascadeDist[i];
+            float prevDist   = (i == 0) ? 0.0 : cascadeDist[i-1];
+            float depthSpan  = cascadeDist[i] - prevDist;
+            float fadeSize   = depthSpan * blendPercent;
+            float fadeStart  = cascadeDist[i] - fadeSize;
+            float fadeEnd    = cascadeDist[i];
 
             if (dist >= fadeStart && dist <= fadeEnd) {
                 float blendF = smoothstep(fadeStart, fadeEnd, dist);
 
+                // Sample both cascades using their correct radii
                 float sh0 = GetDirectionalShadow(
                     cascadeOff[i],
                     cascadeRadius[i],
@@ -173,20 +159,19 @@ vec3 CalculateDirectionalLight()
                     biasScales[i]
                 );
                 float sh1 = GetDirectionalShadow(
-                    cascadeOff[i + 1],
-                    cascadeRadius[i + 1],
-                    cascadeCoords[i + 1],
-                    cascadePCF[i + 1],
-                    biasScales[i + 1]
+                    cascadeOff[i+1],
+                    cascadeRadius[i+1],
+                    cascadeCoords[i+1],
+                    cascadePCF[i+1],
+                    biasScales[i+1]
                 );
-
                 shadow = mix(sh0, sh1, blendF);
                 blended = true;
                 break;
             }
         }
 
-        // 5) If not blended, just find the appropriate cascade directly
+        // If not in a fade region, pick the matching cascade
         if (!blended) {
             int idx = 0;
             for (int i = 0; i < 4; ++i) {
@@ -195,18 +180,16 @@ vec3 CalculateDirectionalLight()
                     break;
                 }
             }
-
             shadow = GetDirectionalShadow(
                 cascadeOff[idx],
-                cascadeDist[idx],
+                cascadeRadius[idx],
                 cascadeCoords[idx],
                 cascadePCF[idx],
                 biasScales[idx]
             );
         }
     }
-        // 6) Final light
+
     directionPower *= shadow;
     return mix(vec3(0.2), vec3(1.0), directionPower);
 }
-

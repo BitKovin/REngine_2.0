@@ -238,6 +238,7 @@
     <ClCompile Include="Entities\Player\Player.cpp" />
     <ClCompile Include="Entities\TestNpc.cpp" />
     <ClCompile Include="Entities\TestParticleSystem.cpp" />
+    <ClCompile Include="Entities\TriggerBase.cpp" />
     <ClCompile Include="Entities\WorldSpawn.cpp" />
     <ClCompile Include="GameStart.cpp" />
     <ClCompile Include="ParticleSystems\HitBlood.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="Entities\Player\Player.hpp" />
     <ClInclude Include="Entities\TestNpc.hpp" />
     <ClInclude Include="Entities\TestParticleSystem.hpp" />
+    <ClInclude Include="Entities\TriggerBase.hpp" />
     <ClInclude Include="Entities\WorldSpawn.h" />
   </ItemGroup>
   <ItemGroup>

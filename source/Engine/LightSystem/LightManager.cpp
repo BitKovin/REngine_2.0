@@ -131,7 +131,7 @@ void LightManager::CalculateLightMatrices(
 
     glm::vec3 L = glm::normalize(LightDirection);
     float halfSize = lightDistance;
-    float nearPlane = -1000.0f;
+    float nearPlane = -100.0f;
     float farPlane = lightDistance;
     float shadowResH = ShadowMapResolution * 0.5f;
 

@@ -132,6 +132,8 @@ public:
 
         SaveGame = true;
 
+        Tags = {"player"};
+
     }
 	~Player(){}
 

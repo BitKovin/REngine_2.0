@@ -50,6 +50,8 @@ public:
 
 	bool AssetsLoaded = false;
 
+	vector<string> Tags;
+
 	Entity()
 	{
 
@@ -154,6 +156,25 @@ public:
 			AssetsLoaded = true;
 		}
 	}
+
+	bool HasTag(string tag)
+	{
+
+		for (auto t : Tags)
+		{
+			if (tag == t)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	virtual void OnBodyEntered(Body* body, Entity* entity){}
+	virtual void OnBodyExited(Body* body, Entity* entity){}
+
+	virtual void OnAction(string action){}
 
 	static Entity* Spawn(std::string technicalName);
 
