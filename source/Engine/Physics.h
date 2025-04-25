@@ -483,21 +483,21 @@ public:
 
 		physicsMainLock.lock();
 
-		
+		bodyIdMap.erase(body->GetID());
 
 		// Retrieve and delete collision properties if present.
 		auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
-		if (props) 
-		{
-			delete props;
-		}
+
 
 		body->SetUserData(0);
 			
 		bodyInterface->RemoveBody(body->GetID());
 		bodyInterface->DestroyBody(body->GetID());
 
-		bodyIdMap.erase(body->GetID());
+		if (props)
+		{
+			delete props;
+		}
 
 		// Remove body from existingBodies
 		auto it = std::find(existingBodies.begin(), existingBodies.end(), body);
@@ -569,7 +569,9 @@ public:
 	{
 		physicsMainLock.lock();
 
-		for (Body* body : existingBodies)
+		auto bodiesToDelete = existingBodies;
+
+		for (Body* body : bodiesToDelete)
 		{
 			DestroyBody(body);
 		}
