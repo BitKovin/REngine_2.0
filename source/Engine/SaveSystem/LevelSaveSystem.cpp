@@ -12,6 +12,8 @@
 
 #include "../LevelObjectFactory.h"
 
+#include "../Physics.h"
+
 using namespace nlohmann;
 
 LevelSaveData LevelSaveSystem::pendingSave;
@@ -108,6 +110,8 @@ void LevelSaveSystem::LoadLevelFromData(LevelSaveData data)
         entity->Start();
         entity->LoadAssetsIfNeeded();
     }
+
+    Physics::Simulate();
 
     Level::Current->AddPendingLevelObjects();
 

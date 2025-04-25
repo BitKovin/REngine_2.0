@@ -780,6 +780,7 @@ public:
 	static void SetLinearVelocity(Body* body, vec3 velocity)
 	{
 		bodyInterface->SetLinearVelocity(body->GetID(), Vec3(velocity.x, velocity.y, velocity.z));
+		body->SetLinearVelocity(ToPhysics(velocity));
 	}
 
 	static void SetBodyCCDEnabled(Body* body, bool enabled)
