@@ -35,7 +35,9 @@ void ThreadPool::ThreadLoop() {
 			job = jobs.front();
 			jobs.pop();
 		}
+		performingJobs++;
 		job();
+		performingJobs--;
 	}
 
 #endif // !DISABLE_TREADPOOL
@@ -67,7 +69,7 @@ bool ThreadPool::IsBusy() {
 		std::unique_lock<std::mutex> lock(queue_mutex);
 		poolbusy = !jobs.empty();
 	}
-	return poolbusy;
+	return poolbusy && performingJobs;
 #endif
 }
 

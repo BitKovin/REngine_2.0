@@ -36,13 +36,16 @@
     <ClCompile Include="GameStart.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Entities\TriggerBase.cpp">
+    <ClCompile Include="Entities\Brushes\TriggerBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Entities\Spawner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Entities\StaticMeshEntity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Brushes\TriggerOnce.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,7 +62,7 @@
     <ClInclude Include="Entities\WorldSpawn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Entities\TriggerBase.hpp">
+    <ClInclude Include="Entities\Brushes\TriggerBase.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

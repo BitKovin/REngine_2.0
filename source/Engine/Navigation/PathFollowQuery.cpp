@@ -28,7 +28,7 @@ void PathFollowQuery::TryPerform()
 
 	Performing = true;
 
-	EngineMain::MainInstance->MainThreadPool.QueueJob([this]() {this->CalculatePathOnThread(); });
+	EngineMain::MainInstance->MainThreadPool->QueueJob([this]() {this->CalculatePathOnThread(); });
 
 }
 

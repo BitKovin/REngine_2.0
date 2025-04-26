@@ -20,8 +20,8 @@ string Level::pendingLoadLevelPath = "";
 void Level::CloseLevel()
 {
 
-	EngineMain::MainInstance->MainThreadPool.WaitForFinish();
-
+	EngineMain::MainInstance->MainThreadPool->Stop();
+	delete(EngineMain::MainInstance->MainThreadPool);
 
 	Current->AddPendingLevelObjects();
 
@@ -62,13 +62,19 @@ Level* Level::OpenLevel(string filePath)
 		delete(Current);
 	}
 
+	Time::Update();
+	Time::DeltaTime = 0;
+	Time::DeltaTimeF = 0;
+
 	Level* newLevel = new Level();
 
 	newLevel->filePath = filePath;
 
 	Current = newLevel;
 
-	//EngineMain::MainInstance->MainThreadPool.Start();
+	EngineMain::MainInstance->MainThreadPool = new ThreadPool();
+
+	EngineMain::MainInstance->MainThreadPool->Start();
 
 	MapData mapData = MapParser::ParseMap(filePath);
 
@@ -98,6 +104,12 @@ Level* Level::OpenLevel(string filePath)
 		printf("generated nav mesh\n");
 	}
 
+	Time::Update();
+	Time::DeltaTime = 0;
+	Time::DeltaTimeF = 0;
+	Time::GameTime = 0;
+	Time::GameTimeNoPause = 0;
+
 	if (LevelSaveSystem::pendingSave.name == Current->filePath)
 	{
 		LevelSaveSystem::LoadLevelFromData(LevelSaveSystem::pendingSave);
@@ -112,6 +124,12 @@ Level* Level::OpenLevel(string filePath)
 	Current->AddPendingLevelObjects();
 	Current->RemovePendingEntities();
 	Current->MemoryCleanPendingEntities();
+
+	Time::Update();
+	Time::DeltaTime = 0;
+	Time::DeltaTimeF = 0;
+	Time::GameTime = 0;
+	Time::GameTimeNoPause = 0;
 
 	return newLevel;
 }

@@ -137,6 +137,14 @@ void Player::Serialize(json& target)
 
 }
 
+void Player::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon)
+{
+    Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
+
+    GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point, MathHelper::FindLookAtRotation(vec3(0), Direction), vec3(10));
+
+}
+
 void Player::Deserialize(json& source)
 {
 

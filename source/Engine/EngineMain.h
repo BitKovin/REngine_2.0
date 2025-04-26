@@ -86,7 +86,7 @@ public:
 
     void UpdateScreenSize();
 
-    ThreadPool MainThreadPool;
+    ThreadPool* MainThreadPool;
 
     void ToggleFullscreen(SDL_Window* Window)
     {
@@ -118,7 +118,9 @@ public:
 
         printf("init\n");
 
-        MainThreadPool.Start();
+        MainThreadPool = new ThreadPool();
+
+        MainThreadPool->Start();
 
         SoundManager::Initialize();
 

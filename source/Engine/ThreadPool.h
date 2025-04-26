@@ -21,6 +21,8 @@ public:
     void Stop();
     bool IsBusy();
 
+    int performingJobs = 0;
+
     void WaitForFinish();
 
     static inline bool Supported()

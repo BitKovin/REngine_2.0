@@ -301,9 +301,7 @@ public:
 
 	void SetAnimationState(const AnimationState& animationState)
 	{
-		animator.Loop = animationState.looping;
-		animator.set(animationState.animationName);
-		animator.play();
+		PlayAnimation(animationState.animationName, animationState.looping, 0);
 		animator.m_currTime = animationState.animationTime;
 		animator.UpdateAnimationPose();
 		animator.m_playing = animationState.playing;

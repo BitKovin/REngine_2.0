@@ -38,6 +38,11 @@ private:
 
 	Delay inAttackDelay;
 
+	bool attacking = false;
+	bool stuned = false;
+
+	bool attackingDamage = false;
+
 public:
 
 	SkeletalMesh* mesh;
@@ -66,6 +71,8 @@ public:
 		soundPlayer->MinDistance = 0.5;
 	}
 
+	void ProcessAnimationEvent(AnimationEvent& event);
+
 	void Start()
 	{
 		
@@ -76,6 +83,8 @@ public:
 		Drawables.push_back(mesh);
 
 		LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 2, 50);
+
+		Logger::Log("started npc\n");
 
 		Physics::SetGravityFactor(LeadBody, 4);
 
@@ -103,6 +112,8 @@ public:
 	void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone = "", Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
 
 	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
+
+	void UpdateAttackDamage();
 
 	void Destroy()
 	{

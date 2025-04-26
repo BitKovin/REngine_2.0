@@ -152,7 +152,7 @@ public:
 
         Instance = this;
 
-		LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 1.8, 90);
+		LeadBody = Physics::CreateCharacterBody(this, Position, 0.75, 1.8, 90);
         Physics::SetGravityFactor(LeadBody, 3);
 
         viewmodel->LoadFromFile("GameData/testViewmodel.glb");
@@ -300,6 +300,8 @@ public:
 	}
 
     void Serialize(json& target);
+
+    void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon);
 
     void Deserialize(json& source);
 

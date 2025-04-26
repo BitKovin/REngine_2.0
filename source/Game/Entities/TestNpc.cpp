@@ -7,11 +7,31 @@
 
 REGISTER_ENTITY(TestNpc, "testnpc")
 
+void TestNpc::ProcessAnimationEvent(AnimationEvent& event)
+{
+	
+	Logger::Log(event.eventName);
+
+	if (event.eventName == "attack_start")
+	{
+		attackingDamage = true;
+	}
+
+	if (event.eventName == "attack_end")
+	{
+		mesh->PlayAnimation("run", true, 0.2f);
+		attacking = false;
+		attackingDamage = false;
+	}
+
+}
+
 void TestNpc::Attack()
 {
 
 	inAttackDelay.AddDelay(2.5f);
-	mesh->PlayAnimation("attackLookback");
+	mesh->PlayAnimation("attack");
+	attacking = true;
 
 }
 
@@ -57,6 +77,25 @@ void TestNpc::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
 
 }
 
+void TestNpc::UpdateAttackDamage()
+{
+
+	if (attackingDamage == false) return;
+
+	auto hit = Physics::SphereTrace(Position, MathHelper::GetForwardVector(mesh->Rotation)*0.75f + Position, 0.2f, BodyType::World | BodyType::CharacterCapsule, { LeadBody });
+
+	if (hit.hasHit)
+	{
+		if (hit.entity->HasTag("player"))
+		{
+			hit.entity->OnPointDamage(20, hit.shapePosition, MathHelper::FastNormalize(hit.shapePosition - Position), "", this, this);
+			attackingDamage = false;
+			Logger::Log(hit.entity->ClassName);
+		}
+	}
+
+}
+
 void TestNpc::AsyncUpdate()
 {
 
@@ -71,6 +110,14 @@ void TestNpc::AsyncUpdate()
 
 	mesh->Update();
 	
+	printf("%f \n", mesh->GetAnimationTime());
+
+	auto animEvents = mesh->PullAnimationEvents();
+
+	for (auto& event : animEvents)
+	{
+		ProcessAnimationEvent(event);
+	}
 
 	mesh->Position = Position - vec3(0, 1, 0);
 
@@ -83,6 +130,12 @@ void TestNpc::AsyncUpdate()
 	if (LeadBody != nullptr)
 	{
 		Physics::MoveBody(LeadBody, rootMotion.Position);
+
+		if (rootMotion.Position != vec3())
+		{
+			Physics::SetLinearVelocity(LeadBody, vec3(0, LeadBody->GetLinearVelocity().GetY(), 0));
+		}
+
 	}
 	else
 	{
@@ -95,13 +148,12 @@ void TestNpc::AsyncUpdate()
 		movingDirection = MathHelper::GetForwardVector(mesh->Rotation);
 	}
 
-	if (rootMotion.Position != vec3())
-	{
-		Physics::SetLinearVelocity(LeadBody, vec3(0, LeadBody->GetLinearVelocity().GetY(), 0));
-	}
+
 	mesh->UpdateHitboxes();
 
 	if (dead) return;
+
+	UpdateAttackDamage();
 
 	DeathSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
 	HurtSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
@@ -110,7 +162,7 @@ void TestNpc::AsyncUpdate()
 
 	Entity* target = Player::Instance;
 
-	if (inAttackDelay.Wait())
+	if (attacking)
 	{
 
 		if (target)
@@ -190,6 +242,9 @@ void TestNpc::Serialize(json& target)
 	SERIALIZE_FIELD(target, movingDirection)
 	SERIALIZE_FIELD(target, dead)
 	SERIALIZE_FIELD(target, animationStateSaveData)
+	SERIALIZE_FIELD(target, attacking)
+	SERIALIZE_FIELD(target, stuned)
+	SERIALIZE_FIELD(target, attackingDamage)
 }
 
 void TestNpc::Deserialize(json& source)
@@ -202,6 +257,10 @@ void TestNpc::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, movingDirection)
 	DESERIALIZE_FIELD(source, dead)
 	DESERIALIZE_FIELD(source, animationStateSaveData)
+	DESERIALIZE_FIELD(source, attacking)
+	DESERIALIZE_FIELD(source, stuned)
+	DESERIALIZE_FIELD(source, attackingDamage)
+
 
 	Physics::SetBodyPosition(LeadBody, Position);
 
@@ -217,6 +276,7 @@ void TestNpc::Deserialize(json& source)
 	mesh->Rotation = Rotation;
 
 	mesh->SetAnimationState(animationStateSaveData);
+	mesh->Update(0);
 	mesh->PullRootMotion();
 
 }

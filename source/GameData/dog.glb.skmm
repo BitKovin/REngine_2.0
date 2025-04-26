@@ -7,7 +7,7 @@
         {
             "animationEvents": [
                 {
-                    "eventName": "atack_start",
+                    "eventName": "attack_start",
                     "time": 139.28599548339844,
                     "userData1": "",
                     "userData2": "",

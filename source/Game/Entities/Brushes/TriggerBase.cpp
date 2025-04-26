@@ -18,7 +18,6 @@ void TriggerBase::FromData(EntityData data)
 
 void TriggerBase::OnBodyEntered(Body* body, Entity* entity)
 {
-	Logger::Log(entity->ClassName + "entered trigger");
 	if (entity->HasTag("player"))
 	{
 		CallActionOnEveryEntityWithName(targetName, onEnterAction);
@@ -28,8 +27,6 @@ void TriggerBase::OnBodyEntered(Body* body, Entity* entity)
 
 void TriggerBase::OnBodyExited(Body* body, Entity* entity)
 {
-
-	Logger::Log(entity->ClassName + "exited trigger");
 
 	if (entity->HasTag("player"))
 	{

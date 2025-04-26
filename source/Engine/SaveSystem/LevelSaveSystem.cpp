@@ -124,6 +124,8 @@ void LevelSaveSystem::LoadLevelFromData(LevelSaveData data)
 
     }
 
+    Physics::Simulate();
+    Logger::Log("save loaded\n");
 }
 
 const string saveDataPath = "SaveData/";
