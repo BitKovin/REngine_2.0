@@ -19,7 +19,7 @@ void TestNpc::ProcessAnimationEvent(AnimationEvent& event)
 
 	if (event.eventName == "attack_end")
 	{
-		mesh->PlayAnimation("run", true, 0.2f);
+		mesh->PlayAnimation("run", true, 0.5f);
 		attacking = false;
 		attackingDamage = false;
 	}

@@ -572,6 +572,22 @@ build CMakeFiles/game.dir/source/Game/Entities/Brushes/DestructubleBrush.cpp.o: 
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Brushes
 
+build CMakeFiles/game.dir/source/Game/Entities/Brushes/TriggerBase.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Brushes/TriggerBase.cpp || cmake_object_order_depends_target_game
+  DEFINES = -DNDEBUG
+  DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Brushes\TriggerBase.cpp.o.d
+  FLAGS = -std=gnu++20   -O3 -std=c++20
+  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\game.dir
+  OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Brushes
+
+build CMakeFiles/game.dir/source/Game/Entities/Brushes/TriggerOnce.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Brushes/TriggerOnce.cpp || cmake_object_order_depends_target_game
+  DEFINES = -DNDEBUG
+  DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Brushes\TriggerOnce.cpp.o.d
+  FLAGS = -std=gnu++20   -O3 -std=c++20
+  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\game.dir
+  OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Brushes
+
 build CMakeFiles/game.dir/source/Game/Entities/Player/Player.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Player/Player.cpp || cmake_object_order_depends_target_game
   DEFINES = -DNDEBUG
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Player\Player.cpp.o.d
@@ -588,6 +604,14 @@ build CMakeFiles/game.dir/source/Game/Entities/Spawner.cpp.o: CXX_COMPILER__game
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities
 
+build CMakeFiles/game.dir/source/Game/Entities/StaticMeshEntity.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/StaticMeshEntity.cpp || cmake_object_order_depends_target_game
+  DEFINES = -DNDEBUG
+  DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\StaticMeshEntity.cpp.o.d
+  FLAGS = -std=gnu++20   -O3 -std=c++20
+  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\game.dir
+  OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities
+
 build CMakeFiles/game.dir/source/Game/Entities/TestNpc.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/TestNpc.cpp || cmake_object_order_depends_target_game
   DEFINES = -DNDEBUG
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\TestNpc.cpp.o.d
@@ -599,14 +623,6 @@ build CMakeFiles/game.dir/source/Game/Entities/TestNpc.cpp.o: CXX_COMPILER__game
 build CMakeFiles/game.dir/source/Game/Entities/TestParticleSystem.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/TestParticleSystem.cpp || cmake_object_order_depends_target_game
   DEFINES = -DNDEBUG
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\TestParticleSystem.cpp.o.d
-  FLAGS = -std=gnu++20   -O3 -std=c++20
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
-  OBJECT_DIR = CMakeFiles\game.dir
-  OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities
-
-build CMakeFiles/game.dir/source/Game/Entities/TriggerBase.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/TriggerBase.cpp || cmake_object_order_depends_target_game
-  DEFINES = -DNDEBUG
-  DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\TriggerBase.cpp.o.d
   FLAGS = -std=gnu++20   -O3 -std=c++20
   INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
@@ -636,6 +652,14 @@ build CMakeFiles/game.dir/source/Game/ParticleSystems/HitBlood.cpp.o: CXX_COMPIL
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\ParticleSystems
 
+build CMakeFiles/game.dir/source/Game/UI/Player/PlayerHud.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/UI/Player/PlayerHud.cpp || cmake_object_order_depends_target_game
+  DEFINES = -DNDEBUG
+  DEP_FILE = CMakeFiles\game.dir\source\Game\UI\Player\PlayerHud.cpp.o.d
+  FLAGS = -std=gnu++20   -O3 -std=c++20
+  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\game.dir
+  OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\UI\Player
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target game
@@ -644,7 +668,7 @@ build CMakeFiles/game.dir/source/Game/ParticleSystems/HitBlood.cpp.o: CXX_COMPIL
 #############################################
 # Link the executable main.js
 
-build main.js: CXX_EXECUTABLE_LINKER__game_ CMakeFiles/game.dir/source/Game/Entities/Brushes/DestructubleBrush.cpp.o CMakeFiles/game.dir/source/Game/Entities/Player/Player.cpp.o CMakeFiles/game.dir/source/Game/Entities/Spawner.cpp.o CMakeFiles/game.dir/source/Game/Entities/TestNpc.cpp.o CMakeFiles/game.dir/source/Game/Entities/TestParticleSystem.cpp.o CMakeFiles/game.dir/source/Game/Entities/TriggerBase.cpp.o CMakeFiles/game.dir/source/Game/Entities/WorldSpawn.cpp.o CMakeFiles/game.dir/source/Game/GameStart.cpp.o CMakeFiles/game.dir/source/Game/ParticleSystems/HitBlood.cpp.o | libengine.a F$:/Git/SdlWasmEngine/libsEms/libassimp.a F$:/Git/SdlWasmEngine/libsEms/libIrrXML.a F$:/Git/SdlWasmEngine/libsEms/libJolt.a || libengine.a
+build main.js: CXX_EXECUTABLE_LINKER__game_ CMakeFiles/game.dir/source/Game/Entities/Brushes/DestructubleBrush.cpp.o CMakeFiles/game.dir/source/Game/Entities/Brushes/TriggerBase.cpp.o CMakeFiles/game.dir/source/Game/Entities/Brushes/TriggerOnce.cpp.o CMakeFiles/game.dir/source/Game/Entities/Player/Player.cpp.o CMakeFiles/game.dir/source/Game/Entities/Spawner.cpp.o CMakeFiles/game.dir/source/Game/Entities/StaticMeshEntity.cpp.o CMakeFiles/game.dir/source/Game/Entities/TestNpc.cpp.o CMakeFiles/game.dir/source/Game/Entities/TestParticleSystem.cpp.o CMakeFiles/game.dir/source/Game/Entities/WorldSpawn.cpp.o CMakeFiles/game.dir/source/Game/GameStart.cpp.o CMakeFiles/game.dir/source/Game/ParticleSystems/HitBlood.cpp.o CMakeFiles/game.dir/source/Game/UI/Player/PlayerHud.cpp.o | libengine.a F$:/Git/SdlWasmEngine/libsEms/libassimp.a F$:/Git/SdlWasmEngine/libsEms/libIrrXML.a F$:/Git/SdlWasmEngine/libsEms/libJolt.a || libengine.a
   LINK_FLAGS = -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 -s USE_SDL_MIXER=2 -s SDL2_IMAGE_FORMATS=[png] -s USE_WEBGL2=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s GL_PREINITIALIZED_CONTEXT=1 -s STACK_SIZE=500000 -s INITIAL_HEAP=83886080 -s ALLOW_MEMORY_GROWTH=1 -s NO_DISABLE_EXCEPTION_CATCHING -s WASM=1 -s ASSERTIONS=1 --preload-file F:/Git/SdlWasmEngine/source/GameData@/GameData -s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1 -lidbfs.js
   LINK_LIBRARIES = libengine.a  F:/Git/SdlWasmEngine/libsEms/libassimp.a  F:/Git/SdlWasmEngine/libsEms/libIrrXML.a  F:/Git/SdlWasmEngine/libsEms/libJolt.a
   OBJECT_DIR = CMakeFiles\game.dir

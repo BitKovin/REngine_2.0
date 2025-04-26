@@ -12,6 +12,8 @@ void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 	animator.totalRootMotionRotation = vec3();
 	rootMotionBasisQuat = quat();
 	currentAnimationData = GetAnimationDataFromName(name);
+	Update(0);
+	PullRootMotion();
 }
 
 // In your SkeletalMesh:

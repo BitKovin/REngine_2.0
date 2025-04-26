@@ -35,10 +35,8 @@ struct AnimationPose
 
 	static AnimationPose Lerp(AnimationPose a, AnimationPose b, float progress)
 	{
-		if (progress < 0.002)
-			return a;
 
-		if (progress > 0.995)
+		if (progress > 0.995) // not doing same with small value since root bone should always be blended to B
 			return b;
 
 		std::unordered_map<std::string, mat4> resultPose;
