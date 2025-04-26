@@ -29,6 +29,8 @@ void TestNpc::ProcessAnimationEvent(AnimationEvent& event)
 void TestNpc::Attack()
 {
 
+	AttackSoundPlayer->Play();
+
 	inAttackDelay.AddDelay(2.5f);
 	mesh->PlayAnimation("attack");
 	attacking = true;
