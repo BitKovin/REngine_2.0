@@ -141,7 +141,7 @@ public:
         Health = 100;
 
     }
-	~Player(){}
+    ~Player() { Logger::Log("player destructor"); }
 
 	float Speed = 5;
 

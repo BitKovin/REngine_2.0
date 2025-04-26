@@ -206,13 +206,13 @@ glm::vec3 EntityData::ConvertRotation(glm::vec3 importRot, bool notForModel)
     // Step 3: Construct rotation matrix: rotX(-roll) * rotZ(pitch) * rotY(yaw)
     // GLM: rotate(radians, axis) applies rotation around the specified axis
     glm::mat4 rotM = 
-        glm::rotate(importRot.y, glm::vec3(0.0f, 1.0f, 0.0f))*
-        glm::rotate(importRot.x, glm::vec3(0.0f, 0.0f, 1.0f))*
+        glm::rotate(importRot.y, glm::vec3(0.0f, 1.0f, 0.0f)) *
+        glm::rotate(importRot.x, glm::vec3(0.0f, 0.0f, 1.0f)) *
         glm::rotate(-importRot.z, glm::vec3(1.0f, 0.0f, 0.0f))
         ;  
 
 
-    rotM = rotM* MathHelper::GetRotationMatrix(vec3(0, 180, 0));
+    rotM = rotM * MathHelper::GetRotationMatrix(vec3(0, 180, 0));
 
     glm::vec3 rotation = MathHelper::DecomposeMatrix(rotM).Rotation; // Returns radians, XYZ order (pitch, yaw, roll)
 

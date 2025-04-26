@@ -58,10 +58,8 @@ public:
 	{
 
 	}
-	~Entity()
-	{
+	virtual ~Entity() { /* ... */ }
 
-	}
 
 	void UpdatePhysics()
 	{

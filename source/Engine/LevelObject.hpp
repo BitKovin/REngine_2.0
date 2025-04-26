@@ -15,7 +15,7 @@ public:
 	bool Static = false;
 
 	LevelObject(){}
-	~LevelObject(){}
+	virtual ~LevelObject(){}
 
 	virtual void Update() {}
 	virtual void LateUpdate() {}
