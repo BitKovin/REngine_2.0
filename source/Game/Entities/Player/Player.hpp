@@ -26,6 +26,8 @@
 #include <Entities/SoundPlayer.h>
 #include <SoundSystem/SoundManager.hpp>
 
+#include "../../UI/Player/PlayerHud.hpp"
+
 class Player : public Entity
 {
 
@@ -45,6 +47,8 @@ private:
     Delay jumpDelay;
 
     bool freeFly = false;
+
+    PlayerHud Hud;
 
     SoundPlayer* soundPlayer;
 
@@ -134,6 +138,8 @@ public:
 
         Tags = {"player"};
 
+        Health = 100;
+
     }
 	~Player(){}
 
@@ -176,6 +182,8 @@ public:
         Level::Current->AddEntity(soundPlayer);
         soundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/mew.wav");
 
+        Hud.Init(this);
+
 	}
 
     void Destroy()
@@ -194,113 +202,11 @@ public:
 
     void PerformAttack();
 
-	void Update()
-	{
-
-        OnGround = CheckGroundAt(Position);
-
-        if (Input::LockCursor) 
-        {
-
-            cameraRotation.y += Input::MouseDelta.x;
-            cameraRotation.x -= Input::MouseDelta.y;
-
-            if (OnGround)
-                if (Input::GetAction("jump")->Holding())
-                {
-                    Jump();
-
-                }
-
-            if (Input::GetAction("attack")->Pressed())
-            {
-
-                PerformAttack();
-
-            }
-
-        }
-        
-        
-
-		vec2 input = Input::GetLeftStickPosition();
-
-		if (Input::GetAction("forward")->Holding())
-			input += vec2(0,1);
-
-		if (Input::GetAction("backward")->Holding())
-			input += vec2(0, -1);
-
-		if (Input::GetAction("left")->Holding())
-			input += vec2(-1, 0);
-
-		if (Input::GetAction("right")->Holding())
-			input += vec2(1, 0);
-
-		vec3 right = MathHelper::GetRightVector(Camera::rotation);
-
-		vec3 forward = MathHelper::GetForwardVector(vec3(0,Camera::rotation.y,0));
-
-        if (freeFly)
-            forward = Camera::Forward();
-
-		if (length(input) > 1)
-			input = normalize(input);
-
-		vec3 movement = input.x * right + input.y * forward;
-
-		Physics::Activate(LeadBody);
-
-        velocity = FromPhysics(LeadBody->GetLinearVelocity());
-
-        if (OnGround)
-        {
-            velocity = UpdateGroundVelocity(movement, velocity);
-        }
-        else
-        {
-            velocity = UpdateAirVelocity(movement, velocity);
-        }
-        
-
-        velocity.y = LeadBody->GetLinearVelocity().GetY();
-
-        if (freeFly)
-            velocity = movement * 20.0f;
-
-		LeadBody->SetLinearVelocity(ToPhysics(velocity));
-
-
-
-        Camera::position = Position + vec3(0, 0.7, 0);
-        Camera::rotation = cameraRotation;
-
-        Camera::ApplyCameraShake(Time::DeltaTimeF);
-
-        viewmodel->Update();
-
-        arms->PasteAnimationPose(viewmodel->GetAnimationPose());
-
-        viewmodel->Position = Camera::position + (mat3)Camera::GetRotationMatrix() * weaponOffset;
-        viewmodel->Rotation = cameraRotation;
-
-        arms->Position = viewmodel->Position;
-        arms->Rotation = viewmodel->Rotation;
-
-        if (Input::GetAction("qSave")->Pressed())
-        {
-            LevelSaveSystem::SaveLevelToFile("quicksave");
-        }
-
-        if (Input::GetAction("qLoad")->Pressed())
-        {
-            LevelSaveSystem::LoadLevelFromFile("quicksave");
-        }
-
-	}
+    void Update();
+    void LateUpdate();
 
     void Serialize(json& target);
-
+    void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
     void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon);
 
     void Deserialize(json& source);

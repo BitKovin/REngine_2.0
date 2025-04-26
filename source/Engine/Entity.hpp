@@ -88,7 +88,10 @@ public:
 
 	}
 
-	virtual void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr){}
+	virtual void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr) 
+	{
+		Health -= Damage; 
+	}
 
 	virtual void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone = "", Entity* DamageCauser = nullptr, Entity* Weapon = nullptr)
 	{

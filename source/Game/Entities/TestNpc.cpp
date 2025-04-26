@@ -110,7 +110,6 @@ void TestNpc::AsyncUpdate()
 
 	mesh->Update();
 	
-	printf("%f \n", mesh->GetAnimationTime());
 
 	auto animEvents = mesh->PullAnimationEvents();
 

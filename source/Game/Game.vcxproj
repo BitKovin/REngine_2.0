@@ -245,6 +245,7 @@
     <ClCompile Include="Entities\WorldSpawn.cpp" />
     <ClCompile Include="GameStart.cpp" />
     <ClCompile Include="ParticleSystems\HitBlood.cpp" />
+    <ClCompile Include="UI\Player\PlayerHud.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp" />
@@ -252,6 +253,7 @@
     <ClInclude Include="Entities\TestParticleSystem.hpp" />
     <ClInclude Include="Entities\Brushes\TriggerBase.hpp" />
     <ClInclude Include="Entities\WorldSpawn.h" />
+    <ClInclude Include="UI\Player\PlayerHud.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">

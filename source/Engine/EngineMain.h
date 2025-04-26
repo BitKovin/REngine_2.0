@@ -102,9 +102,7 @@ public:
 
 
 
-    std::shared_ptr<UiButton> img;
 
-    std::shared_ptr<UiText> text;
 
     void click()
     {
@@ -140,35 +138,6 @@ public:
         
 
         initDemo();
-
-
-
-
-        img = make_shared<UiButton>();
-
-        // Define a lambda function
-        auto clickHandler = []() {
-            std::cout << "Button clicked!" << std::endl;
-            };
-
-        // Assign it to the pointer (needs dynamic allocation)
-        img->onClick = new std::function<void()>(clickHandler);
-
-
-        img->position = vec2(100,100);
-        img->size = vec2(100);
-
-        text = make_shared<UiText>();
-
-        text->position = vec2(20, -20);
-
-        text->origin = vec2(0, 1);
-        text->pivot = vec2(0, 1);
-
-        text->text = "press T to lock/unlock cursor";
-
-        Viewport.AddChild(img);
-        Viewport.AddChild(text);
 
 	}
 

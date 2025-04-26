@@ -48,6 +48,9 @@
     <ClCompile Include="Entities\Brushes\TriggerOnce.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UI\Player\PlayerHud.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp">
@@ -63,6 +66,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Brushes\TriggerBase.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Player\PlayerHud.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
