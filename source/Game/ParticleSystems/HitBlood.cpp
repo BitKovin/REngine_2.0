@@ -144,7 +144,6 @@ public:
         if (particle.lifeTime < 3.5f)
             particle.UserValue1 += deltaTime;
 
-        particle.UserValue3 -= deltaTime;
 
         const float spawnInterval = 0.07f;
         if (particle.UserValue1 > spawnInterval)
@@ -180,7 +179,7 @@ public:
 
 						if (particle.UserValue2 < 1)
 						{
-							particle.position.y = particle.UserValue3 + particle.CollisionRadius;
+							particle.position.y = hit.position.y + particle.CollisionRadius;
 							particle.velocity.y *= -particle.BouncePower;
 						}
 						particle.UserValue2++;

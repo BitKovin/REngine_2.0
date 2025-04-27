@@ -23,6 +23,22 @@ void TestNpc::ProcessAnimationEvent(AnimationEvent& event)
 		attacking = false;
 		attackingDamage = false;
 	}
+	if (event.eventName == "stun_end")
+	{
+		stuned = false;
+		mesh->PlayAnimation("run", true, 0.5f);
+	}
+
+}
+
+void TestNpc::Stun(Entity* DamageCauser, Entity* Weapon)
+{
+	stuned = true;
+	mesh->PlayAnimation("stun");
+	attacking = false;
+	attackingDamage = false;
+
+	StunSoundPlayer->Play();
 
 }
 
@@ -74,6 +90,16 @@ void TestNpc::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
 	if (Health <= 0)
 	{
 		Death();
+	}
+	else if(attacking)
+	{
+		Stun(DamageCauser, Weapon);
+	}
+
+	if (LeadBody)
+	{
+		LeadBody->SetLinearVelocity(LeadBody->GetLinearVelocity() / 2.0f);
+		speed /= 2.0f;
 	}
 
 
@@ -152,7 +178,7 @@ void TestNpc::AsyncUpdate()
 
 	mesh->UpdateHitboxes();
 
-	if (dead) return;
+	if (dead || stuned) return;
 
 	UpdateAttackDamage();
 
@@ -179,7 +205,7 @@ void TestNpc::AsyncUpdate()
 	vec3 lookAtDir = MathHelper::FastNormalize(target->Position - Position);
 
 	if (distance(target->Position, Position) < 5 
-		&& dot(MathHelper::GetForwardVector(mesh->Rotation), lookAtDir) > 0.7)
+		&& dot(MathHelper::GetForwardVector(mesh->Rotation), lookAtDir) > 0.9)
 	{
 		
 		Attack();
@@ -196,6 +222,9 @@ void TestNpc::AsyncUpdate()
 		desiredDirection = MathHelper::FastNormalize(MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position));
 	}
 	
+	speed += Time::DeltaTimeF * 1.5f;
+
+	speed = glm::clamp(speed, 0.0f, maxSpeed);
 
 	movingDirection = mix(movingDirection, desiredDirection, Time::DeltaTime*5);
 
@@ -206,7 +235,7 @@ void TestNpc::AsyncUpdate()
 	vec3 currentHorizontalVel(currentVelocity.x, 0.0f, currentVelocity.z);
 
 	// Determine the desired horizontal velocity (5.0f is the intended speed)
-	vec3 desiredHorizontalVel = movingDirection * 5.0f;
+	vec3 desiredHorizontalVel = movingDirection * speed;
 
 	// Calculate the change in velocity you need to achieve over the current frame
 	// Using Time::DeltaTime (dt) to convert velocity difference to the required acceleration
@@ -214,7 +243,7 @@ void TestNpc::AsyncUpdate()
 	vec3 neededAcceleration = (desiredHorizontalVel - currentHorizontalVel) / dt;
 
 	// Retrieve the body mass to calculate the needed force (F = m * a)
-	float mass = 50;
+	float mass = 10;
 	vec3 forceToApply = neededAcceleration * mass;
 
 	// Only apply horizontal forces to avoid interfering with the vertical (gravity, jump, etc.)
@@ -241,6 +270,7 @@ void TestNpc::Serialize(json& target)
 	SERIALIZE_FIELD(target, Rotation)
 	SERIALIZE_FIELD(target, desiredDirection)
 	SERIALIZE_FIELD(target, movingDirection)
+	SERIALIZE_FIELD(target, speed)
 	SERIALIZE_FIELD(target, dead)
 	SERIALIZE_FIELD(target, animationStateSaveData)
 	SERIALIZE_FIELD(target, attacking)
@@ -256,6 +286,7 @@ void TestNpc::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, Rotation)
 	DESERIALIZE_FIELD(source, desiredDirection)
 	DESERIALIZE_FIELD(source, movingDirection)
+	DESERIALIZE_FIELD(source, speed)
 	DESERIALIZE_FIELD(source, dead)
 	DESERIALIZE_FIELD(source, animationStateSaveData)
 	DESERIALIZE_FIELD(source, attacking)

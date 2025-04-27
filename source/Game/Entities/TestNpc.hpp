@@ -32,6 +32,9 @@ private:
 	SoundPlayer* StunSoundPlayer = nullptr;
 	SoundPlayer* AttackSoundPlayer = nullptr;
 
+	float maxSpeed = 8;
+	float speed = 1;
+
 	bool dead = false;
 
 	AnimationState animationStateSaveData;
@@ -55,6 +58,8 @@ public:
 
 		ClassName = "testnpc";
 		SaveGame = true;
+
+		Health = 50;
 
 	}
 
@@ -104,6 +109,8 @@ public:
 		SetupSoundPlayer(AttackSoundPlayer);
 
 	}
+
+	void Stun(Entity* DamageCauser, Entity* Weapon);
 
 	void Attack();
 
