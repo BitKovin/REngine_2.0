@@ -28,6 +28,8 @@
 
 #include "../../UI/Player/PlayerHud.hpp"
 
+#include "Weapons/WeaponBase.h"
+
 class Player : public Entity
 {
 
@@ -51,6 +53,10 @@ private:
     PlayerHud Hud;
 
     SoundPlayer* soundPlayer;
+
+    Weapon* currentWeapon = nullptr;
+
+    std::vector<WeaponSlotData> weaponSlots;
 
     glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
         vel = MathHelper::XZ(vel);
@@ -123,14 +129,12 @@ private:
 
     vec3 testStart;
 
-    SkeletalMesh* viewmodel;
-    SkeletalMesh* arms;
+
 
 public:
 	Player()
     {
-        viewmodel = new SkeletalMesh();
-        arms = new SkeletalMesh();
+
 
         ClassName = "info_player_start";
 
@@ -161,19 +165,7 @@ public:
 		LeadBody = Physics::CreateCharacterBody(this, Position, 0.75, 1.8, 90);
         Physics::SetGravityFactor(LeadBody, 3);
 
-        viewmodel->LoadFromFile("GameData/testViewmodel.glb");
 
-        viewmodel->PlayAnimation("draw");
-
-        viewmodel->Transparent = true;
-
-        viewmodel->IsViewmodel = true;
-
-        Drawables.push_back(viewmodel);
-
-        arms->LoadFromFile("GameData/arms.glb");
-        arms->IsViewmodel = true;
-        Drawables.push_back(arms);
 
         ParticleSystem::PreloadSystemAssets("decal_blood");
         ParticleSystem::PreloadSystemAssets("hit_flesh");
@@ -184,7 +176,12 @@ public:
 
         Hud.Init(this);
 
+        CreateWeapon("weapon_shotgun");
+
 	}
+
+    void CreateWeapon(const string& className);
+    void DestroyWeapon();
 
     void Destroy()
     {
@@ -195,6 +192,8 @@ public:
     }
 
     dtObstacleRef playerObstacle = 0;
+
+    void UpdateWeapon();
 
     void UpdateDebugUI();
 

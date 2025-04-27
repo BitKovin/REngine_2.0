@@ -237,6 +237,7 @@
     <ClCompile Include="Entities\Brushes\DestructubleBrush.cpp" />
     <ClCompile Include="Entities\Brushes\TriggerOnce.cpp" />
     <ClCompile Include="Entities\Player\Player.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\weapon_shotgun.cpp" />
     <ClCompile Include="Entities\Spawner.cpp" />
     <ClCompile Include="Entities\StaticMeshEntity.cpp" />
     <ClCompile Include="Entities\TestNpc.cpp" />
@@ -249,6 +250,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp" />
+    <ClInclude Include="Entities\Player\Weapons\WeaponBase.h" />
     <ClInclude Include="Entities\TestNpc.hpp" />
     <ClInclude Include="Entities\TestParticleSystem.hpp" />
     <ClInclude Include="Entities\Brushes\TriggerBase.hpp" />

@@ -10,6 +10,36 @@ Player* Player::Instance = nullptr;
 
 string serializedPlayer = "";
 
+void Player::CreateWeapon(const string& className)
+{
+
+    Weapon* weap = (Weapon*)Spawn(className);
+
+    weap->Start();
+    weap->LoadAssetsIfNeeded();
+
+    currentWeapon = weap;
+
+}
+
+void Player::DestroyWeapon()
+{
+    if (currentWeapon)
+    {
+        currentWeapon->Destroy();
+        currentWeapon = nullptr;
+    }
+}
+
+void Player::UpdateWeapon()
+{
+    if (currentWeapon == nullptr) return;
+
+    currentWeapon->Position = Camera::position;
+    currentWeapon->Rotation = cameraRotation;
+
+}
+
 void Player::UpdateDebugUI()
 {
     ImGui::Begin("navigation");
@@ -90,40 +120,7 @@ void Player::UpdateDebugUI()
 
 void Player::PerformAttack()
 {
-    viewmodel->PlayAnimation("attack");
-    Camera::AddCameraShake(CameraShake(
-        0.13f,                            // interpIn
-        1.2f,                            // duration
-        vec3(0.0f, 0.0f, -0.2f),         // positionAmplitude
-        vec3(0.0f, 0.0f, 6.4f),          // positionFrequency
-        vec3(-8, 0.15f, 0.0f),        // rotationAmplitude
-        vec3(-5.0f, 28.8f, 0.0f),        // rotationFrequency
-        1.2f,                            // falloff
-        CameraShake::ShakeType::SingleWave // shakeType
-    ));
 
-    auto hit = Physics::LineTrace(Camera::position, Camera::position + Camera::Forward() * 1000.0f, 
-        BodyType::GroupHitTest, { LeadBody });
-
-    if (hit.hasHit)
-    {
-        hit.entity->OnPointDamage(10, hit.position, MathHelper::FastNormalize(hit.position - Camera::position), "", this, this);
-
-
-        
-
-        //soundPlayer->Sound->EnableReverb = true;
-        //soundPlayer->Sound->ReverbDecayTime = 5;
-
-        soundPlayer->MaxDistance = 100;
-
-        //soundPlayer->Sound->EnableReverb = true;
-        soundPlayer->Position = hit.position;
-        //soundPlayer->Play();
-
-
-
-    }
 
 }
 
@@ -144,12 +141,6 @@ void Player::Update()
 
             }
 
-        if (Input::GetAction("attack")->Pressed())
-        {
-
-            PerformAttack();
-
-        }
 
     }
 
@@ -209,10 +200,8 @@ void Player::Update()
 
     Camera::ApplyCameraShake(Time::DeltaTimeF);
 
-    viewmodel->Update();
 
-    arms->PasteAnimationPose(viewmodel->GetAnimationPose());
-
+    UpdateWeapon();
 
 
     if (Input::GetAction("qSave")->Pressed())
@@ -228,12 +217,6 @@ void Player::Update()
 
 void Player::LateUpdate()
 {
-
-    viewmodel->Position = Camera::position + (mat3)Camera::GetRotationMatrix() * weaponOffset;
-    viewmodel->Rotation = cameraRotation;
-
-    arms->Position = viewmodel->Position;
-    arms->Rotation = viewmodel->Rotation;
 
     Hud.Update();
 
