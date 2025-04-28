@@ -54,6 +54,9 @@
     <ClCompile Include="Entities\Player\Weapons\weapon_shotgun.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\Bullet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp">
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Player\Weapons\WeaponBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Player\Weapons\Projectiles\Bullet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

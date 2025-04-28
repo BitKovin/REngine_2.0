@@ -1,6 +1,8 @@
 #include "WeaponBase.h"
 #include "../Player.hpp"
 
+#include "Projectiles/Bullet.h"
+
 class weapon_shotgun : public Weapon
 {
 public:
@@ -31,6 +33,9 @@ public:
 		arms->LoadFromFile("GameData/arms.glb");
 		arms->IsViewmodel = true;
 		Drawables.push_back(arms);
+
+		PreloadEntityType("bullet");
+
 	}
 
 	void Update()
@@ -55,14 +60,17 @@ public:
 			CameraShake::ShakeType::SingleWave // shakeType
 		));
 
-		auto hit = Physics::LineTrace(Camera::position, Camera::position + Camera::Forward() * 1000.0f,
-			BodyType::GroupHitTest, { LeadBody });
+		Bullet* bullet = new Bullet();
+		Level::Current->AddEntity(bullet);
 
-		if (hit.hasHit)
-		{
-			hit.entity->OnPointDamage(10, hit.position, MathHelper::FastNormalize(hit.position - Camera::position), "", this, this);
+		mat4 boneMat = viewmodel->GetBoneMatrixWorld("muzzle");
 
-		}
+		bullet->Position = MathHelper::DecomposeMatrix(boneMat).Position;
+		bullet->Rotation = Rotation;
+		bullet->Start();
+		bullet->LoadAssetsIfNeeded();
+
+
 	}
 
 	void AsyncUpdate()

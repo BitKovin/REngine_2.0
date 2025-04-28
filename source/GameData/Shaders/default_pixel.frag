@@ -134,7 +134,7 @@ vec2 radiusUV       = texelSize * float(pcfRadius);
 
     float directFactorNotDetail = directFactor;
 
-    directFactor = 1.0 - min(((1.0 - directFactor) + (1.0 - indirectFactor)), 1.0);
+    directFactor = mix(0.0,directFactor, indirectFactor);
 
     indirectFactor = mix(indirectFactor/2.0 + 0.5,1.0,directFactorNotDetail);
 

@@ -372,7 +372,7 @@ public:
 		glm::vec4 perspective;
 
 		// glm::decompose returns true if successful.
-		if (!glm::decompose(matrix, scale, rotation, translation, skew, perspective))
+		if (!glm::detail::decomposeMod(matrix, scale, rotation, translation, skew, perspective))
 			return transform; // return default transform on failure
 
 		transform.Position = translation;
