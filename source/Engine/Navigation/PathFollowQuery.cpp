@@ -24,11 +24,21 @@ void PathFollowQuery::TryPerform()
 
 	if (Performing) return;
 
+	if (ThreadPool::Supported() == false)
+	{
+		if (isPerformingDelay.Wait()) return;
+	}
+
 	if (Canceled) return;
 
 	Performing = true;
 
 	EngineMain::MainInstance->MainThreadPool->QueueJob([this]() {this->CalculatePathOnThread(); });
+
+	if (ThreadPool::Supported() == false)
+	{
+		isPerformingDelay.AddDelay(distance(desiredStart, desiredTarget)/300.0f+0.03);
+	}
 
 }
 

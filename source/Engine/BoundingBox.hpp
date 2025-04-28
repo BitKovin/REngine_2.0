@@ -12,8 +12,8 @@ using namespace std;
 class BoundingBox
 {
 public:
-    vec3 Min;  // minimum corner
-    vec3 Max;  // maximum corner
+    vec3 Min = vec3(0);  // minimum corner
+    vec3 Max = vec3(0);  // maximum corner
 
     BoundingBox()
         : Min(std::numeric_limits<float>::max()),

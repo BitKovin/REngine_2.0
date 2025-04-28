@@ -49,6 +49,7 @@ public:
 
 	vector<IDrawMesh*> VissibleRenderList = vector<IDrawMesh*>();
 	vector<IDrawMesh*> ShadowRenderList = vector<IDrawMesh*>();
+	vector<IDrawMesh*> DetailShadowRenderList = vector<IDrawMesh*>();
 
 	string filePath;
 

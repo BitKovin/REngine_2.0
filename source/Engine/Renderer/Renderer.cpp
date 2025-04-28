@@ -50,6 +50,9 @@ Renderer::Renderer()
     DirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
     DirectionalShadowMapFBO.attachDepth(DirectionalShadowMap);
 
+    DetailDirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
+    DetailDirectionalShadowMapFBO.attachDepth(DetailDirectionalShadowMap);
+
 	InitFullscreenVAO();
 
 }
@@ -66,7 +69,8 @@ Renderer::~Renderer()
 void Renderer::RenderLevel(Level* level)
 {
 
-    RenderDirectionalLightShadows(level->ShadowRenderList);
+    RenderDirectionalLightShadows(level->ShadowRenderList, DirectionalShadowMapFBO, 4);
+    RenderDirectionalLightShadows(level->DetailShadowRenderList, DetailDirectionalShadowMapFBO, 3);
 
 	RenderCameraForward(level->VissibleRenderList);
 
@@ -178,10 +182,10 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 
 }
 
-void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderList)
+void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderList, Framebuffer& fbo, int numCascades)
 {
 
-    DirectionalShadowMapFBO.bind();
+    fbo.bind();
 
     int halfRes = LightManager::ShadowMapResolution / 2;
 
@@ -193,6 +197,7 @@ void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderLis
     glClear(GL_DEPTH_BUFFER_BIT);
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
+
 
     glViewport(0, 0, halfRes, halfRes);
     for (auto* mesh : ShadowRenderList) {
@@ -253,6 +258,7 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
 
 
     shader->SetTexture("shadowMap", EngineMain::MainInstance->MainRenderer->DirectionalShadowMap->id());
+    shader->SetTexture("shadowMapDetail", EngineMain::MainInstance->MainRenderer->DetailDirectionalShadowMap->id());
     shader->SetUniform("shadowDistance1", LightManager::LightDistance1);
     shader->SetUniform("shadowDistance2", LightManager::LightDistance2);
     shader->SetUniform("shadowDistance3", LightManager::LightDistance3);
@@ -266,7 +272,7 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
     shader->AllowMissingUniforms = true;
 
     shader->SetUniform("cameraPosition", Camera::finalizedPosition);
-    shader->SetUniform("shadowMapSize", LightManager::ShadowMapResolution/2);
+    shader->SetUniform("shadowMapSize", LightManager::ShadowMapResolution);
 
     shader->SetUniform("shaddowOffsetScale", LightManager::ShaddowOffsetScale);
 

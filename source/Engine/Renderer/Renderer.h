@@ -19,7 +19,7 @@ public:
 
 	void RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList);
 
-	void RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderList);
+	void RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderList, Framebuffer& fbo, int numCascades);
 
 	void RenderFullscreenQuad(GLuint textureID);
 
@@ -47,6 +47,9 @@ private:
 
 	RenderTexture* DirectionalShadowMap;
 	Framebuffer DirectionalShadowMapFBO;
+
+	RenderTexture* DetailDirectionalShadowMap;
+	Framebuffer DetailDirectionalShadowMapFBO;
 
 	ShaderProgram* fullscreenShader;
 

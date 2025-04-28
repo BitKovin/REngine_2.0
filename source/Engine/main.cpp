@@ -306,7 +306,7 @@ int main(int argc, char* args[])
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);  // 4x MSAA
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);  // 2x MSAA
 
 #endif
 
@@ -372,7 +372,7 @@ int main(int argc, char* args[])
     SDL_GL_SetSwapInterval(0);
 
     engine = new EngineMain(window);
-
+    engine->asyncGameUpdate = false;
 #if __EMSCRIPTEN__
 
     engine->asyncGameUpdate = false;

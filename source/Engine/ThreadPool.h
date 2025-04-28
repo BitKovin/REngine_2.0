@@ -5,7 +5,7 @@
 #define DISABLE_TREADPOOL
 
 #endif // __EMSCRIPTEN__
-
+#define DISABLE_TREADPOOL
 
 
 

@@ -265,7 +265,8 @@ void Level::FinalizeFrame()
 	vector<IDrawMesh*> opaque;
 	vector<IDrawMesh*> transparent;
 
-	vector<IDrawMesh*> allShadowCasters;
+	vector<IDrawMesh*> ShadowCasters;
+	vector<IDrawMesh*> DetailShadowCasters;
 
 	{
 
@@ -298,7 +299,21 @@ void Level::FinalizeFrame()
 					mesh->WasRended = false;
 				}
 
-				allShadowCasters.push_back(mesh);
+				if (mesh->IsShadowVisible())
+				{
+
+					if (mesh->IsDetailShadow())
+					{
+						DetailShadowCasters.push_back(mesh);
+					}
+					else
+					{
+						ShadowCasters.push_back(mesh);
+					}
+
+					
+				}
+				
 
 			}
 
@@ -331,7 +346,8 @@ void Level::FinalizeFrame()
 		VissibleRenderList.push_back(mesh);
 	}
 
-	ShadowRenderList = allShadowCasters;
+	ShadowRenderList = ShadowCasters;
+	DetailShadowRenderList = DetailShadowCasters;
 
 	LightManager::Update();
 

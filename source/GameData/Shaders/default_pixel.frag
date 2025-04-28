@@ -17,6 +17,7 @@ uniform sampler2D u_texture;  // Changed from "texture" to avoid keyword conflic
 uniform vec3 cameraPosition;
 
 uniform highp sampler2DShadow shadowMap;
+uniform highp sampler2DShadow shadowMapDetail;
 uniform int shadowMapSize;  // width, height of shadow map
 uniform vec3 lightDirection;   
 uniform float shadowDistance1;
@@ -51,7 +52,7 @@ void main() {
     FragColor = vec4(color, alpha);
 }
 
-float GetDirectionalShadow(
+vec2 GetDirectionalShadow(
     vec2  mapOffset,
     float shadowDistance, //radius
     vec4  shadowCoords,
@@ -83,7 +84,7 @@ float NdotL         = clamp(dot(normalize(v_normal),
 float biasWorld     = biasWorldBase * (1.0 + (1.0 - NdotL));
 
 //  • normalized depth-bias [0..1]:
-float bias          = biasWorld / (shadowDistance + 1000.0) * (float(pcfRadius)+0.5) * 1.0;
+float bias          = biasWorld / (shadowDistance + 1000.0) * (float(pcfRadius)+1.0) * 1.0;
 
 //  • PCF radius in UV:
 vec2 texelSize      = 0.5 / vec2(shadowMapSize);
@@ -93,20 +94,51 @@ vec2 radiusUV       = texelSize * float(pcfRadius);
 
 
     // 5) PCF loop
-    float sum = 0.0;
-    float n   = 0.0;
+    float sumDirect = 0.0;
+
+    float n = 0.0;
     for (int xo = -pcfRadius; xo <= pcfRadius; ++xo) {
         for (int yo = -pcfRadius; yo <= pcfRadius; ++yo) {
             n++;
             vec2 offs = vec2(xo, yo) * texelSize;
-            sum += texture(
+            sumDirect += texture(
                 shadowMap,
                 vec3(pc.xy + offs,
                      pc.z - bias)
             );
+
         }
     }
-    return sum / n;
+
+    float directFactor = sumDirect/n;
+
+    float sumIndirect = 0.0;
+    float sampleScale = mix(4.0,1.0, directFactor);
+    n=0.0;
+
+    for (int xo = -pcfRadius; xo <= pcfRadius; ++xo) 
+    {
+        for (int yo = -pcfRadius; yo <= pcfRadius; ++yo) 
+        {
+            n++;
+            vec2 offs = vec2(xo, yo) * texelSize * sampleScale;
+            sumIndirect += texture(
+                shadowMapDetail,
+                vec3(pc.xy + offs,
+                     pc.z - bias * sampleScale)
+            );
+        }
+    }
+
+    float indirectFactor = sumIndirect/n;
+
+    float directFactorNotDetail = directFactor;
+
+    directFactor = 1.0 - min(((1.0 - directFactor) + (1.0 - indirectFactor)), 1.0);
+
+    indirectFactor = mix(indirectFactor/2.0 + 0.5,1.0,directFactorNotDetail);
+
+    return vec2(directFactor, indirectFactor);
 }
 
 vec3 CalculateDirectionalLight()
@@ -133,8 +165,8 @@ vec3 CalculateDirectionalLight()
     vec4  cascadeCoords[4] = vec4[](v_shadowCoords1, v_shadowCoords2, v_shadowCoords3, v_shadowCoords4);
     int   cascadePCF[4]    = int[](2, 1, 1, 1);
 
-    float shadow = 1.0;
-    float blendPercent = 0.1; // 10% overlap for all cascades
+    vec2 shadow = vec2(1.0);
+    float blendPercent = 0.15; // 15% overlap for all cascades
 
     if(dist < cascadeDist[3]) {
         bool blended = false;
@@ -151,14 +183,14 @@ vec3 CalculateDirectionalLight()
                 float blendF = smoothstep(fadeStart, fadeEnd, dist);
 
                 // Sample both cascades using their correct radii
-                float sh0 = GetDirectionalShadow(
+                vec2 sh0 = GetDirectionalShadow(
                     cascadeOff[i],
                     cascadeRadius[i],
                     cascadeCoords[i],
                     cascadePCF[i],
                     biasScales[i]
                 );
-                float sh1 = GetDirectionalShadow(
+                vec2 sh1 = GetDirectionalShadow(
                     cascadeOff[i+1],
                     cascadeRadius[i+1],
                     cascadeCoords[i+1],
@@ -190,6 +222,7 @@ vec3 CalculateDirectionalLight()
         }
     }
 
-    directionPower *= shadow;
-    return mix(vec3(0.2), vec3(1.0), directionPower);
+    directionPower *= shadow.x;
+    float indirectPower = shadow.y;
+    return mix(vec3(0.2*indirectPower), vec3(1.0), directionPower);
 }

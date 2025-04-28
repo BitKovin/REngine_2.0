@@ -21,8 +21,8 @@ public:
     }
     ~BoundingSphere() {}
 
-    vec3 offset; // center of the sphere
-    float Radius; // sphere radius
+    vec3 offset = vec3(); // center of the sphere
+    float Radius = 0; // sphere radius
 
     static BoundingSphere FromVertices(const vector<VertexData>& vertices)
     {

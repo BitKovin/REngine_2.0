@@ -38,7 +38,7 @@ private:
     glm::mat4 interpolatePosition(FrameBoneTransform& boneTransform);
     glm::mat4 interpolateRotation(FrameBoneTransform& boneTransform);
     glm::mat4 interpolateScaling(FrameBoneTransform& boneTransform);
-    void calcBoneTransform(BoneNode& node, glm::mat4 offset);
+    void calcBoneTransform(BoneNode& node, glm::mat4 offset, bool stopAfterRoot);
 
     void ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& pose);
 

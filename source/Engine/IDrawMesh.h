@@ -47,6 +47,7 @@ public:
 
 	virtual bool IsCameraVisible() { return IsInFrustrum(Camera::frustum); }
 	virtual bool IsShadowVisible() { return true; }
+	virtual bool IsDetailShadow() { return true; }
 
 	virtual bool IsInFrustrum(Frustum frustrum) { return true; };
 

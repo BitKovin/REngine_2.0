@@ -69,7 +69,7 @@ glm::mat4 roj::Animator::interpolateScaling( roj::FrameBoneTransform& boneTransf
     return glm::scale(glm::mat4(1.0f), finalScale);
 }
 
-void roj::Animator::calcBoneTransform(BoneNode& node, glm::mat4 offset)
+void roj::Animator::calcBoneTransform(BoneNode& node, glm::mat4 offset, bool stopAfterRoot)
 {
     auto it = m_currAnim->animationFrames.find(node.name);
     if (it != m_currAnim->animationFrames.end())
@@ -89,13 +89,7 @@ void roj::Animator::calcBoneTransform(BoneNode& node, glm::mat4 offset)
         offset *= node.transform;
     }
 
-    if (node.name == "root")
-    {
-        auto trans = MathHelper::DecomposeMatrix(offset);
 
-        rootBoneTransform = trans;
-
-    }
 
     auto it2 = m_model.boneInfoMap.find(node.name);
     if (it2 != m_model.boneInfoMap.end())
@@ -104,9 +98,20 @@ void roj::Animator::calcBoneTransform(BoneNode& node, glm::mat4 offset)
         m_boneMatrices[boneInfo.id] = offset * boneInfo.offset;
     }
 
+    if (node.name == "root")
+    {
+        auto trans = MathHelper::DecomposeMatrix(offset);
+
+        rootBoneTransform = trans;
+
+        if (stopAfterRoot)
+            return;
+
+    }
+
     for (roj::BoneNode& child : node.children)
     {
-        calcBoneTransform(child, offset);
+        calcBoneTransform(child, offset, stopAfterRoot);
     }
 }
 
@@ -198,7 +203,7 @@ void roj::Animator::UpdateAnimationPose()
 {
     if (m_currAnim)
     {
-        calcBoneTransform(m_currAnim->rootBone, glm::mat4(1.0f));
+        calcBoneTransform(m_currAnim->rootBone, glm::mat4(1.0f), false);
     }
     
 }
@@ -216,11 +221,9 @@ void roj::Animator::update(float dt)
         m_playing  = (Loop) ? true : (m_currTime < m_currAnim->duration);
         m_currTime = m_currTime + (m_currAnim->ticksPerSec * dt);
 
-        if (UpdatePose) 
-        {
-            calcBoneTransform(m_currAnim->rootBone, glm::mat4(1.0f));
-            updateRootMotion();
-        }
+        calcBoneTransform(m_currAnim->rootBone, glm::mat4(1.0f), UpdatePose == false);
+        updateRootMotion();
+
 
 
     }

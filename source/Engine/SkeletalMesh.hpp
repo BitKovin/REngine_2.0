@@ -193,6 +193,11 @@ public:
 
 	bool UpdatePose = true;
 
+	SkeletalMesh()
+	{
+		CastDetailShadows = true;
+	}
+
 	AnimationPose GetAnimationPose()
 	{
 

@@ -1,5 +1,5 @@
 #include "ThreadPool.h"
-
+#define DISABLE_TREADPOOL
 #ifndef DISABLE_TREADPOOL
 
 #include <thread>

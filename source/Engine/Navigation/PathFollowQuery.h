@@ -2,6 +2,8 @@
 
 #include <mutex>
 
+#include "../Delay.hpp"
+
 #include "../glm.h"
 
 class PathFollowQuery
@@ -22,7 +24,7 @@ public:
 
 	bool FoundTarget = false;
 
-
+	Delay isPerformingDelay;
 
 private:
 

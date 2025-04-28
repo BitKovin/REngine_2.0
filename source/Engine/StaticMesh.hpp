@@ -66,6 +66,11 @@ public:
 
 	bool DepthWrite = true;
 
+	bool CastShadows = true;
+	bool Visible = true;
+	bool CastHiddenShadows = false;
+	bool CastDetailShadows = false;
+
 	StaticMesh()
 	{
 
@@ -146,12 +151,40 @@ public:
 	bool IsInFrustrum(Frustum frustrum)
 	{
 
+		if (model == nullptr) return false;
+
 		auto sphere = model->boundingSphere.Transform(finalizedPosition, finalizedRotation, finalizedScale);
 
 		return frustrum.IsSphereVisible(sphere.offset, sphere.Radius);
 	};
 	
+	virtual bool isVisible()
+	{
 
+		if (model == nullptr)
+			return false;
+
+		return Visible;
+	}
+
+	bool IsCameraVisible() 
+	{ 
+
+		if (model == nullptr)
+			return false;
+
+		return IsInFrustrum(Camera::frustum) && isVisible(); 
+	}
+	bool IsShadowVisible() 
+	{
+
+		if (model == nullptr)
+			return false;
+
+		return (isVisible() && CastShadows) || CastHiddenShadows;
+	}
+
+	bool IsDetailShadow() { return CastDetailShadows; }
 
 	void DrawForward(mat4x4 view, mat4x4 projection);
 
