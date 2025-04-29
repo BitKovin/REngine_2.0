@@ -321,11 +321,13 @@ void TestNpc::LoadAssets()
 	mesh->SetLooped(true);
 	mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
-	DeathSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
-	HurtSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
-	StunSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
-	AttackSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
-
+	if (DeathSoundPlayer) 
+	{
+		DeathSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
+		HurtSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
+		StunSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
+		AttackSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
+	}
 
 }
 

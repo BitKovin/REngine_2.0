@@ -18,7 +18,7 @@
 
 #include "animator.hpp"
 
-#include "StaticMesh.hpp"
+#include "StaticMesh.h"
 
 #include "Time.hpp"
 

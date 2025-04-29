@@ -77,6 +77,11 @@ public:
     ~IndexBuffer() { glDeleteBuffers(1, &m_id); }
     void Bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id); }
     static void Unbind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
+    void UpdateData(const std::vector<GLuint>& data, GLenum usage = GL_STREAM_DRAW) {
+        Bind();
+        m_indexCount = data.size();
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexCount * sizeof(GLuint), data.data(), usage);
+    }
     size_t GetIndexCount() const { return m_indexCount; }
 
 private:

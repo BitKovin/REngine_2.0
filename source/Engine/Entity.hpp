@@ -210,7 +210,7 @@ public:
 
 		if (entity)
 		{
-			entity->Start();
+			//entity->Start();
 			entity->LoadAssets();
 			entity->SaveGame = false;
 			entity->Destroy();

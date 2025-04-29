@@ -6,8 +6,7 @@ REGISTER_ENTITY(Bullet, "bullet")
 
 Bullet::Bullet()
 {
-	mesh = new StaticMesh();
-	Drawables.push_back(mesh);
+
 }
 
 Bullet::~Bullet()
@@ -17,14 +16,13 @@ Bullet::~Bullet()
 void Bullet::Update()
 {
 
-	mesh->Position = Position;
-	mesh->Rotation = Rotation;
-
 	float travelDistance = Speed * Time::DeltaTimeF;
 
 	traveledDistance += travelDistance;
 
 	Position += MathHelper::GetForwardVector(Rotation) * travelDistance;
+
+	trail->Position = Position;
 
 	auto hit = Physics::LineTrace(oldPos, Position, BodyType::GroupHitTest);
 
@@ -33,7 +31,18 @@ void Bullet::Update()
 		hit.entity->OnPointDamage(Damage, hit.position, MathHelper::FastNormalize(Position - oldPos), hit.hitboxName, this, this);
 
 		Destroy();
+		trail->Position = hit.position;
+		trail->StopAll();
+		trail = nullptr;
 
+	}
+
+	if (traveledDistance > MaxDistance)
+	{
+		Destroy();
+		trail->Position = hit.position;
+		trail->StopAll();
+		trail = nullptr;
 	}
 
 	oldPos = Position;

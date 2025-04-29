@@ -1,0 +1,40 @@
+#pragma once
+
+#include "ParticleEmitter.h"
+#include "../VertexData.h"
+#include "../Camera.h"
+#include "../glm.h"
+#include <vector>
+
+class RibbonEmitter : public ParticleEmitter {
+public:
+    RibbonEmitter();
+    ~RibbonEmitter();
+
+
+    void RenderRibbon(const std::vector<Particle>& particles);
+
+    int GetPrimitiveCount() const { return primitiveCount; }
+
+    void FinalizeFrameData();
+
+    void DrawForward(mat4x4 view, mat4x4 projection);
+
+    bool IsCameraVisible() { return true; }
+
+private:
+    void GenerateIndices(std::vector<GLuint>& dst, int count);
+
+
+    std::vector<VertexData> verts;
+    std::vector<GLuint>     idxs;
+
+    VertexArrayObject* vao = nullptr;
+
+    VertexDeclaration decl;
+    VertexBuffer* vb = nullptr;
+    IndexBuffer* ib = nullptr;
+
+    int lastCount = 0;
+    int primitiveCount = 0;
+};

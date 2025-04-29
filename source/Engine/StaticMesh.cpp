@@ -1,4 +1,4 @@
-#include "StaticMesh.hpp"
+#include "StaticMesh.h"
 
 #include "Renderer/Renderer.h"
 
@@ -86,6 +86,54 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 	}
 
 
+}
+
+void StaticMesh::DrawDepth(mat4x4 view, mat4x4 projection)
+{
+	ShaderProgram* shader_program = ShaderManager::GetShaderProgram("default_vertex", "empty_pixel");
+
+	shader_program->UseProgram();
+
+	mat4x4 world = finalizedWorld;
+
+	shader_program->SetUniform("view", view);
+	shader_program->SetUniform("projection", projection);
+
+	shader_program->SetUniform("world", world);
+
+	shader_program->SetUniform("isViewmodel", IsViewmodel);
+
+	ApplyAdditionalShaderParams(shader_program);
+
+
+	for (const roj::SkinnedMesh& mesh : model->meshes)
+	{
+		mesh.VAO->Bind();
+		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0);
+	}
+}
+
+void StaticMesh::DrawShadow(mat4x4 view, mat4x4 projection)
+{
+	ShaderProgram* shader_program = ShaderManager::GetShaderProgram("default_vertex", "empty_pixel");
+
+	shader_program->UseProgram();
+
+	mat4x4 world = finalizedWorld;
+
+	shader_program->SetUniform("view", view);
+	shader_program->SetUniform("projection", projection);
+
+	shader_program->SetUniform("world", world);
+
+	ApplyAdditionalShaderParams(shader_program);
+
+
+	for (const roj::SkinnedMesh& mesh : model->meshes)
+	{
+		mesh.VAO->Bind();
+		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0);
+	}
 }
 
 void StaticMesh::PreloadAssets()

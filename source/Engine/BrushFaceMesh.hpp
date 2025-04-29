@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StaticMesh.hpp"
+#include "StaticMesh.h"
 
 #include <vector>
 #include <string>

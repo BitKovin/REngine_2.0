@@ -8,7 +8,7 @@
 class ParticleSystem : public Entity
 {
 public:
-	
+
 	std::vector<ParticleEmitter*> emitters;
 
 	void Start() override
@@ -26,6 +26,14 @@ public:
 		}
 	}
 
+	void StopAll()
+	{
+		for (auto emitter : emitters)
+		{
+			emitter->Emitting = false;
+		}
+	}
+
 	void AsyncUpdate() override
 	{
 		for (auto emitter : emitters)
@@ -35,6 +43,14 @@ public:
 			emitter->Scale = Scale;
 			emitter->Update(Time::DeltaTimeF);
 		}
+
+		for (auto emitter : emitters)
+		{
+			if (emitter->destroyed == false) return;
+		}
+
+		Destroy();
+
 	}
 
 	static void PreloadSystemAssets(string name)

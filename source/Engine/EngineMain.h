@@ -1,7 +1,5 @@
 #include <SDL2/SDL_video.h>
 
-#include "StaticMesh.hpp"
-
 #include "AssetRegisty.h"
 
 #include "SoundSystem/SoundManager.hpp"
@@ -25,7 +23,6 @@
 
 #include "ShaderManager.h"
 
-#include "SkeletalMesh.hpp"
 
 #include "ThreadPool.h"
 

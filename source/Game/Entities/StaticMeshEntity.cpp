@@ -1,4 +1,5 @@
 #include <Entity.hpp>
+#include <StaticMesh.h>
 
 class StaticMeshEntity : public Entity
 {

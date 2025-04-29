@@ -41,7 +41,6 @@ void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
 
     forward_shader_program->SetUniform("is_particle", isDecal == false);
     forward_shader_program->SetUniform("is_decal", isDecal);
-
     forward_shader_program->SetUniform("isViewmodel", false);
 
     Renderer::SetSurfaceShaderUniforms(forward_shader_program);
@@ -171,6 +170,10 @@ void ParticleEmitter::InitBilboardVaoIfNeeded()
 
     // Create the VAO using the vertex buffer, index buffer, and instance buffer (if any)
     bilboardVAO = new VertexArrayObject(*vb, *ib, instanceBuffer);
+
+    VertexArrayObject::Unbind();
+    IndexBuffer::Unbind();
+    VertexBuffer::Unbind();
 
 }
 

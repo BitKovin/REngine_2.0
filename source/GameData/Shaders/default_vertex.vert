@@ -6,6 +6,7 @@ layout(location = 2) in vec2 TextureCoordinate;
 layout(location = 5) in ivec4 boneIds; 
 layout(location = 6) in vec4 weights;
 layout(location = 7) in vec3 smoothNormals;
+layout(location = 8) in vec4 color;
 	
 uniform mat4 projection;
 uniform mat4 view;
@@ -77,7 +78,7 @@ void main()
 	v_normal = normalize(normalMatrix * Normal);
 
 
-	v_color = vec4(brightness,brightness,brightness, 1);
+	v_color = vec4(brightness,brightness,brightness, 1) * color;
 
     v_texcoord = TextureCoordinate;
 

@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include "StaticMesh.hpp"
+#include "StaticMesh.h"
 #include "glm.h"
 #include "gl.h"
 #include "Delay.hpp"
