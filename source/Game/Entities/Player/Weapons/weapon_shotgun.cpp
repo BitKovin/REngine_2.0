@@ -60,15 +60,32 @@ public:
 			CameraShake::ShakeType::SingleWave // shakeType
 		));
 
-		Bullet* bullet = new Bullet();
-		Level::Current->AddEntity(bullet);
+
 
 		mat4 boneMat = viewmodel->GetBoneMatrixWorld("muzzle");
 
-		bullet->Position = MathHelper::DecomposeMatrix(boneMat).Position;
-		bullet->Rotation = Rotation;
-		bullet->Start();
-		bullet->LoadAssetsIfNeeded();
+		vec3 startLoc = MathHelper::DecomposeMatrix(boneMat).Position - Camera::Forward() * 0.5f;
+
+		for (float y = -4; y <= 4; y += 2.0f)
+			for (float x = -4; x <= 4; x += 2.0f)
+			{
+
+				if (length(vec2(x, y)) > 4.7f)
+					continue;
+
+				Bullet* bullet = new Bullet();
+				Level::Current->AddEntity(bullet);
+
+				vec4 offset = MathHelper::GetRotationMatrix(Rotation) * vec4(x,y,0,1);
+
+				vec3 endLoc = Position + MathHelper::GetForwardVector(Rotation) * 80.0f + vec3(offset);
+
+				bullet->Position = startLoc;
+				bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
+				bullet->Start();
+				bullet->LoadAssetsIfNeeded();
+				bullet->Damage = 50.0f / 20.0f;
+			}
 
 
 	}

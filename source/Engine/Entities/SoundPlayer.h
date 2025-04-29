@@ -26,12 +26,10 @@ public:
 	void Pause();
 	void Stop();
 
-	void DestroyWithDelay(float delay);
 
 	static SoundPlayer* Create();
 
 private:
 
-	Delay destroyDelay = Delay(10000000);
 
 };

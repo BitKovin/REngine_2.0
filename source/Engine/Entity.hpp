@@ -54,6 +54,8 @@ public:
 
 	vector<string> Tags;
 
+	Delay destroyDelay = Delay(1000000000);
+
 	Entity()
 	{
 
@@ -116,6 +118,19 @@ public:
 		DestroyDrawables();
 	}
 
+	void UpdateDestroyDelay()
+	{
+		if (destroyDelay.Wait() == false)
+		{
+			Destroy();
+		}
+	}
+
+	virtual void DestroyWithDelay(float delay)
+	{
+		destroyDelay.AddDelay(delay);
+	}
+
 	virtual void Destroy()
 	{
 
@@ -149,6 +164,7 @@ public:
 		SERIALIZE_FIELD(target, Rotation);
 		SERIALIZE_FIELD(target, Scale);
 		SERIALIZE_FIELD(target, Health);
+		SERIALIZE_FIELD(target, destroyDelay);
 	}
 
 	void Deserialize(json& source)
@@ -158,6 +174,7 @@ public:
 		DESERIALIZE_FIELD(source, Rotation);
 		DESERIALIZE_FIELD(source, Scale);
 		DESERIALIZE_FIELD(source, Health);
+		DESERIALIZE_FIELD(source, destroyDelay)
 	}
 
 	void LoadAssetsIfNeeded() 

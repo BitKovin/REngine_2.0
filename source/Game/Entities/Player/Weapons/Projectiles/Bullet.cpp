@@ -32,7 +32,7 @@ void Bullet::Update()
 
 		Destroy();
 		trail->Position = hit.position;
-		trail->StopAll();
+		trail->StopAll(1);
 		trail = nullptr;
 
 	}
@@ -41,7 +41,7 @@ void Bullet::Update()
 	{
 		Destroy();
 		trail->Position = hit.position;
-		trail->StopAll();
+		trail->StopAll(1);
 		trail = nullptr;
 	}
 

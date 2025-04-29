@@ -78,7 +78,7 @@ void TestNpc::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bon
 {
 	Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
 
-	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point, MathHelper::FindLookAtRotation(vec3(0), Direction), vec3(10));
+	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point, MathHelper::FindLookAtRotation(vec3(0), Direction), vec3(Damage/10.0f));
 
 }
 
@@ -100,6 +100,7 @@ void TestNpc::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
 	{
 		LeadBody->SetLinearVelocity(LeadBody->GetLinearVelocity() / 2.0f);
 		speed /= 2.0f;
+		HurtSoundPlayer->Play();
 	}
 
 

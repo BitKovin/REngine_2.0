@@ -2,7 +2,7 @@
 
 #include <Entity.hpp>
 #include <json.hpp>
-#include <JsonHelper.hpp>
+#include <Helpers/JsonHelper.hpp>
 
 struct WeaponSlotData
 {

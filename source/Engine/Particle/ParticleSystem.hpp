@@ -11,6 +11,8 @@ public:
 
 	std::vector<ParticleEmitter*> emitters;
 
+	Delay StopDelay = Delay(1000000000);
+
 	void Start() override
 	{
 		for (auto emitter : emitters)
@@ -26,12 +28,21 @@ public:
 		}
 	}
 
-	void StopAll()
+	void StopAll(float delay = 0)
 	{
-		for (auto emitter : emitters)
+
+		if (delay <= 0)
 		{
-			emitter->Emitting = false;
+			for (auto emitter : emitters)
+			{
+				emitter->Emitting = false;
+			}
 		}
+		else
+		{
+			StopDelay.AddDelay(delay);
+		}
+
 	}
 
 	void AsyncUpdate() override
@@ -44,12 +55,25 @@ public:
 			emitter->Update(Time::DeltaTimeF);
 		}
 
+		if (StopDelay.Wait() == false)
+		{
+			StopAll();
+			StopDelay.AddDelay(1000000);
+		}
+
 		for (auto emitter : emitters)
 		{
 			if (emitter->destroyed == false) return;
 		}
 
 		Destroy();
+
+		UpdateDestroyDelay();
+
+	}
+
+	void DestroyWithDelay(float delay = 2.0f)
+	{
 
 	}
 
