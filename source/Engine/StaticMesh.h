@@ -71,14 +71,6 @@ public:
 	bool CastHiddenShadows = false;
 	bool CastDetailShadows = false;
 
-	StaticMesh()
-	{
-
-	}
-	~StaticMesh()
-	{
-
-	}
 
 	void SetPixelShader(string name)
 	{

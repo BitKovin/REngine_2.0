@@ -198,9 +198,14 @@ public:
 		CastDetailShadows = true;
 	}
 
+	~SkeletalMesh()
+	{
+		ClearHitboxes();
+	}
+
 	AnimationPose GetAnimationPose()
 	{
-
+		if (model == nullptr) return AnimationPose();
 		AnimationPose pose;
 		pose.boneTransforms = animator.GetBonePoseArray();
 
@@ -262,7 +267,7 @@ public:
 
 	void LoadFromFile(string path)
 	{
-
+		
 		StaticMesh::LoadFromFile(path);
 		filePath = path;
 

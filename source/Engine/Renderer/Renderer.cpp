@@ -132,8 +132,12 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
 
-    for (auto* mesh : VissibleRenderList) {
-        if (mesh->Transparent) continue;
+    for (auto* mesh : VissibleRenderList) 
+    {
+        if (mesh->Transparent)
+        {
+            //continue;
+        }
         const mat4& P = mesh->IsViewmodel
             ? Camera::finalizedProjectionViewmodel
             : Camera::finalizedProjection;
@@ -162,7 +166,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // draw transparent with normal depth test
-    glDepthFunc(GL_LESS);
+    glDepthFunc(GL_LEQUAL);
     for (auto* mesh : VissibleRenderList) {
         if (!mesh->Transparent) continue;
         const mat4& P = mesh->IsViewmodel

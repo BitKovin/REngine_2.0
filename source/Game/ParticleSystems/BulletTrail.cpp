@@ -8,9 +8,9 @@ public:
 	TrailEmitter() : RibbonEmitter()
 	{
 		texture = "GameData/Textures/Particles/trail.png";
-		SpawnRate = 60;
+		SpawnRate = 20;
 		Emitting = true;
-		InitialSpawnCount = 2;
+		InitialSpawnCount = 1;
 
 	}
 

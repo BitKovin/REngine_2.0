@@ -28,7 +28,7 @@ private:
 
     std::vector<glm::mat4> m_boneMatrices;
     
-    SkinnedModel m_model;
+    SkinnedModel* m_model;
 
 
     bool m_loopEnabled = false;
@@ -50,6 +50,7 @@ public:
 
     Animator() = default;
 	Animator(SkinnedModel* model);
+    ~Animator();
     void play();
     void set(const std::string& name);
 

@@ -70,7 +70,7 @@ void main()
     v_clipPosition = projection * view * vertWorldTrans * vec4(Position, 1.0);
 
 	if(isViewmodel)
-		v_clipPosition.z*=0.01;
+		v_clipPosition.z*=0.00005;
 
 	gl_Position = v_clipPosition;
 	v_worldPosition = (vertWorldTrans * vec4(Position, 1.0)).xyz;

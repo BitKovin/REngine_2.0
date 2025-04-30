@@ -91,8 +91,8 @@ void roj::Animator::calcBoneTransform(BoneNode& node, glm::mat4 offset, bool sto
 
 
 
-    auto it2 = m_model.boneInfoMap.find(node.name);
-    if (it2 != m_model.boneInfoMap.end())
+    auto it2 = m_model->boneInfoMap.find(node.name);
+    if (it2 != m_model->boneInfoMap.end())
     {
         auto& boneInfo = it2->second;
         m_boneMatrices[boneInfo.id] = offset * boneInfo.offset;
@@ -121,8 +121,8 @@ void roj::Animator::ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unorder
     currentPose[node.name] = pose[node.name];
     offset *= currentPose[node.name];
 
-    auto it2 = m_model.boneInfoMap.find(node.name);
-    if (it2 != m_model.boneInfoMap.end())
+    auto it2 = m_model->boneInfoMap.find(node.name);
+    if (it2 != m_model->boneInfoMap.end())
     {
         auto& boneInfo = it2->second;
 
@@ -136,7 +136,7 @@ void roj::Animator::ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unorder
 }
 
 roj::Animator::Animator(SkinnedModel* model)
-    : m_model(*model)
+    : m_model(model)
 {
     m_boneMatrices.resize(model->boneInfoMap.size());
 
@@ -147,10 +147,15 @@ roj::Animator::Animator(SkinnedModel* model)
 
 }
 
+roj::Animator::~Animator()
+{
+    printf("destroying animator");
+}
+
 void roj::Animator::set(const std::string& name)
 {
-    auto it = m_model.animations.find(name);
-    if (it != m_model.animations.end()) {
+    auto it = m_model->animations.find(name);
+    if (it != m_model->animations.end()) {
         m_currAnim = &it->second;
         m_currTime = 0.0f;
         currentAnimationName = name;
@@ -159,8 +164,8 @@ void roj::Animator::set(const std::string& name)
 std::vector<std::string> roj::Animator::get()
 {
     std::vector<std::string> animNames;
-    animNames.reserve(m_model.animations.size());
-    for (auto& anim : m_model.animations)
+    animNames.reserve(m_model->animations.size());
+    for (auto& anim : m_model->animations)
     {
         animNames.emplace_back(anim.first);
     }
@@ -185,7 +190,7 @@ std::unordered_map<std::string, mat4> roj::Animator::GetBonePoseArray()
 void roj::Animator::ApplyBonePoseArray(std::unordered_map<std::string, mat4> pose)
 {
 
-    ApplyNodePose(m_model.defaultRoot, glm::mat4(1.0f), pose);
+    ApplyNodePose(m_model->defaultRoot, glm::mat4(1.0f), pose);
 }
 
 void roj::Animator::PopulateBonePoseArray(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& outVector)

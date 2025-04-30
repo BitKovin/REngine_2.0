@@ -126,6 +126,8 @@ public:
 	{
 		Entity::Destroy();
 
+		mesh->ClearHitboxes();
+
 		if (DeathSoundPlayer) 
 		{
 			DeathSoundPlayer->DestroyWithDelay(3);

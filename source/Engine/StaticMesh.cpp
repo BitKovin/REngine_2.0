@@ -90,7 +90,10 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 
 void StaticMesh::DrawDepth(mat4x4 view, mat4x4 projection)
 {
-	ShaderProgram* shader_program = ShaderManager::GetShaderProgram("default_vertex", "empty_pixel");
+
+	bool mask = Transparent;
+
+	ShaderProgram* shader_program = ShaderManager::GetShaderProgram("default_vertex", mask ? "mask_pixel" : "empty_pixel");
 
 	shader_program->UseProgram();
 
@@ -106,16 +109,64 @@ void StaticMesh::DrawDepth(mat4x4 view, mat4x4 projection)
 	ApplyAdditionalShaderParams(shader_program);
 
 
-	for (const roj::SkinnedMesh& mesh : model->meshes)
+	for (roj::SkinnedMesh& mesh : model->meshes)
 	{
+		if (mask)
+		{
+			if (ColorTexture == nullptr)
+			{
+
+				string baseTextureName;
+
+				for (auto texture : mesh.textures)
+				{
+					if (texture.type == aiTextureType_BASE_COLOR)
+					{
+						baseTextureName = texture.src;
+						break;
+					}
+				}
+
+
+
+				if (mesh.cachedBaseColor == nullptr)
+				{
+					const string textureRoot = TexturesLocation;
+
+					mesh.cachedBaseColor = AssetRegistry::GetTextureFromFile(textureRoot + baseTextureName);
+				}
+
+				Texture* texture = mesh.cachedBaseColor;
+
+				shader_program->SetTexture("u_texture", texture);
+			}
+			else
+			{
+				shader_program->SetTexture("u_texture", ColorTexture);
+			}
+		}
 		mesh.VAO->Bind();
-		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0);
+
+		if (mesh.VAO->IsInstanced())
+		{
+			glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0, mesh.VAO->GetInstanceCount());
+		}
+		else if (numInstances < 0)
+		{
+			glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0);
+		}
+
+		VertexArrayObject::Unbind();
+
 	}
 }
 
 void StaticMesh::DrawShadow(mat4x4 view, mat4x4 projection)
 {
-	ShaderProgram* shader_program = ShaderManager::GetShaderProgram("default_vertex", "empty_pixel");
+
+	bool mask = Transparent;
+
+	ShaderProgram* shader_program = ShaderManager::GetShaderProgram("default_vertex", mask ? "mask_pixel" : "empty_pixel");
 
 	shader_program->UseProgram();
 
@@ -126,13 +177,62 @@ void StaticMesh::DrawShadow(mat4x4 view, mat4x4 projection)
 
 	shader_program->SetUniform("world", world);
 
+	shader_program->SetUniform("isViewmodel", false);
+
 	ApplyAdditionalShaderParams(shader_program);
 
 
-	for (const roj::SkinnedMesh& mesh : model->meshes)
+	for (roj::SkinnedMesh& mesh : model->meshes)
 	{
+
+		if (mask)
+		{
+
+			if (ColorTexture == nullptr)
+			{
+
+				string baseTextureName;
+
+				for (auto texture : mesh.textures)
+				{
+					if (texture.type == aiTextureType_BASE_COLOR)
+					{
+						baseTextureName = texture.src;
+						break;
+					}
+				}
+
+
+
+				if (mesh.cachedBaseColor == nullptr)
+				{
+					const string textureRoot = TexturesLocation;
+
+					mesh.cachedBaseColor = AssetRegistry::GetTextureFromFile(textureRoot + baseTextureName);
+				}
+
+				Texture* texture = mesh.cachedBaseColor;
+
+				shader_program->SetTexture("u_texture", texture);
+			}
+			else
+			{
+				shader_program->SetTexture("u_texture", ColorTexture);
+			}
+		}
 		mesh.VAO->Bind();
-		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0);
+
+		if (mesh.VAO->IsInstanced())
+		{
+			glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0, mesh.VAO->GetInstanceCount());
+		}
+		else if (numInstances < 0)
+		{
+			glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0);
+		}
+
+		VertexArrayObject::Unbind();
+
 	}
 }
 

@@ -80,7 +80,7 @@ public:
 
 				vec3 endLoc = Position + MathHelper::GetForwardVector(Rotation) * 80.0f + vec3(offset);
 
-				bullet->Position = startLoc;
+				bullet->Position = startLoc + vec3(offset) * 0.002f;
 				bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
 				bullet->Start();
 				bullet->LoadAssetsIfNeeded();
