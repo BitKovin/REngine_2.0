@@ -12,6 +12,8 @@
 
 #define MAX_BONE_INFLUENCE 4
 
+#define MAX_SKINNED_BONES 128
+
 namespace roj
 {
 	

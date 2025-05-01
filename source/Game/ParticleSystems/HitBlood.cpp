@@ -89,7 +89,7 @@ public:
         InitialSpawnCount = 0;
         SpawnRate = 0;
         Emitting = true;
-
+        DepthSorting = false;
         Duration = 1000000;
 
     }

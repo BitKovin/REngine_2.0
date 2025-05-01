@@ -149,7 +149,7 @@ roj::Animator::Animator(SkinnedModel* model)
 
 roj::Animator::~Animator()
 {
-    printf("destroying animator");
+
 }
 
 void roj::Animator::set(const std::string& name)

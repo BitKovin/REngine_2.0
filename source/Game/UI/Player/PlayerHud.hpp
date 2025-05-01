@@ -5,6 +5,7 @@
 #include <UI/UiText.hpp>
 #include <UI/UiHorizontalBox.hpp>
 #include <UI/UiButton.hpp>
+#include <UI/UiImage.hpp>
 #include <Entity.hpp>
 
 class Player;
@@ -23,8 +24,10 @@ private:
 
 	Player* player = nullptr;
 
-	std::shared_ptr<UiButton> img;
+	std::shared_ptr<UiCanvas> hudCanvas;
 
+	std::shared_ptr<UiButton> img;
 	std::shared_ptr<UiText> text;
+	std::shared_ptr<UiImage> crosshair;
 
 };

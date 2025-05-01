@@ -128,13 +128,7 @@ public:
 
 		mesh->ClearHitboxes();
 
-		if (DeathSoundPlayer) 
-		{
-			DeathSoundPlayer->DestroyWithDelay(3);
-			HurtSoundPlayer->DestroyWithDelay(3);
-			StunSoundPlayer->DestroyWithDelay(3);
-			AttackSoundPlayer->DestroyWithDelay(3);
-		}
+
 	}
 
 	void AsyncUpdate();

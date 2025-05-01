@@ -11,6 +11,8 @@
 #include <SDL2/SDL_audio.h>
 #include <unordered_map>
 
+#include <memory>
+
 using namespace std;
 
 class SoundManager
@@ -139,7 +141,7 @@ public:
 	}
 
 
-	static SoundInstance* GetSoundFromPath(string path)
+	static shared_ptr<SoundInstance> GetSoundFromPath(string path)
 	{
 
 		ALuint buffer = LoadOrGetSoundFileBuffer(path);
@@ -150,9 +152,9 @@ public:
 		alGenSources(1, &source);
 		alSourcei(source, AL_BUFFER, buffer);
 
-		SoundInstance* soundInstance = new SoundInstance(source);
+        
 
-		return soundInstance;
+		return make_shared<SoundInstance>(source);
 
 	}
 

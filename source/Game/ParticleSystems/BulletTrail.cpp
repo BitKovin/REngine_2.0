@@ -8,10 +8,18 @@ public:
 	TrailEmitter() : RibbonEmitter()
 	{
 		texture = "GameData/Textures/Particles/trail.png";
-		SpawnRate = 20;
+		SpawnRate = 100;
 		Emitting = true;
 		InitialSpawnCount = 1;
 
+	}
+
+	Particle UpdateParticle(Particle particle, float deltaTime) override
+	{
+		
+		particle.Transparency = (particle.deathTime - particle.lifeTime) / particle.deathTime;
+		particle.Size = mix(0.0f, 0.03f, (particle.deathTime - particle.lifeTime) / particle.deathTime);
+		return particle;
 	}
 
 	Particle GetNewParticle() override
@@ -21,7 +29,7 @@ public:
 		particle.Size = 0.1f;
 		particle.Color = vec4(0.5, 0, 0, 0.8);
 		particle.Transparency = 0.8;
-		particle.deathTime = 1;
+		particle.deathTime = 0.1f;
 
 		return particle;
 	}

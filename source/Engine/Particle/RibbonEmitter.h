@@ -11,6 +11,7 @@ public:
     RibbonEmitter();
     ~RibbonEmitter();
 
+    bool SimpleRibbon = false;
 
     void RenderRibbon(const std::vector<Particle>& particles);
 

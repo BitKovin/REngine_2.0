@@ -8,10 +8,12 @@ SoundPlayer::SoundPlayer()
 
 SoundPlayer::~SoundPlayer()
 {
-	if (Sound)
-	{
-		delete(Sound);
-	}
+
+}
+
+void SoundPlayer::SetSound(shared_ptr<SoundInstance> sound)
+{
+	Sound = sound;
 }
 
 void SoundPlayer::LateUpdate()

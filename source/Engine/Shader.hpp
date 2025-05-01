@@ -306,4 +306,77 @@ public:
         if (location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
     }
 
+    // Set uniform array of floats
+    void SetUniform(const std::string& name, const std::vector<float>& values)
+    {
+        GLint location = GetUniformLocation(name);
+        if (location != -1)
+            glUniform1fv(location, static_cast<GLsizei>(values.size()), values.data());
+    }
+
+    // Set uniform array of ints
+    void SetUniform(const std::string& name, const std::vector<int>& values)
+    {
+        GLint location = GetUniformLocation(name);
+        if (location != -1)
+            glUniform1iv(location, static_cast<GLsizei>(values.size()), values.data());
+    }
+
+    // Set uniform array of vec2
+    void SetUniform(const std::string& name, const std::vector<glm::vec2>& values)
+    {
+        GLint location = GetUniformLocation(name);
+        if (location != -1)
+            glUniform2fv(location, static_cast<GLsizei>(values.size()), glm::value_ptr(values[0]));
+    }
+
+    // Set uniform array of vec3
+    void SetUniform(const std::string& name, const std::vector<glm::vec3>& values)
+    {
+        GLint location = GetUniformLocation(name);
+        if (location != -1)
+            glUniform3fv(location, static_cast<GLsizei>(values.size()), glm::value_ptr(values[0]));
+    }
+
+    // Set uniform array of vec4
+    void SetUniform(const std::string& name, const std::vector<glm::vec4>& values)
+    {
+        GLint location = GetUniformLocation(name);
+        if (location != -1)
+            glUniform4fv(location, static_cast<GLsizei>(values.size()), glm::value_ptr(values[0]));
+    }
+
+    // Set uniform array of mat2
+    void SetUniform(const std::string& name, const std::vector<glm::mat2>& values)
+    {
+        GLint location = GetUniformLocation(name);
+        if (location != -1)
+            glUniformMatrix2fv(location,
+                static_cast<GLsizei>(values.size()),
+                GL_FALSE,
+                glm::value_ptr(values[0]));
+    }
+
+    // Set uniform array of mat3
+    void SetUniform(const std::string& name, const std::vector<glm::mat3>& values)
+    {
+        GLint location = GetUniformLocation(name);
+        if (location != -1)
+            glUniformMatrix3fv(location,
+                static_cast<GLsizei>(values.size()),
+                GL_FALSE,
+                glm::value_ptr(values[0]));
+    }
+
+    // Set uniform array of mat4 
+    void SetUniform(const std::string& name, const std::vector<glm::mat4>& values)
+    {
+        GLint location = GetUniformLocation(name);
+        if (location != -1)
+            glUniformMatrix4fv(location,
+                static_cast<GLsizei>(values.size()),
+                GL_FALSE,
+                glm::value_ptr(values[0]));
+    }
+
 };

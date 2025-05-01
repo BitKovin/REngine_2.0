@@ -97,6 +97,9 @@ public:
     ~SoundInstance()
     {
         if (alIsSource(sourceRef)) alDeleteSources(1, &sourceRef);
+
+        Logger::Log("deleted sound instance");
+
 #ifndef DISABLE_EFX
         if (filterLP)       alDeleteFilters(1, &filterLP);
         if (effectEcho) {

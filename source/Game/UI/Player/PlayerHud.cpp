@@ -9,13 +9,16 @@ PlayerHud::PlayerHud()
 
 PlayerHud::~PlayerHud()
 {
-    EngineMain::Viewport.RemoveChild(img);
-    EngineMain::Viewport.RemoveChild(text);
+    EngineMain::Viewport.RemoveChild(hudCanvas);
 }
 
 void PlayerHud::Init(Player* playerRef)
 {
+
+
 	player = playerRef;
+
+    hudCanvas = make_shared<UiCanvas>();
 
     img = make_shared<UiButton>();
 
@@ -40,8 +43,10 @@ void PlayerHud::Init(Player* playerRef)
 
     text->text = std::to_string((int)player->Health);
 
-    EngineMain::Viewport.AddChild(img);
-    EngineMain::Viewport.AddChild(text);
+    hudCanvas->AddChild(img);
+    hudCanvas->AddChild(text);
+
+    EngineMain::Viewport.AddChild(hudCanvas);
 
 }
 

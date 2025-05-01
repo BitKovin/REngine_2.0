@@ -57,6 +57,13 @@ void RibbonEmitter::RenderRibbon(const std::vector<Particle>& inParticles)
 
     }
 
+    if (SimpleRibbon) 
+    {
+        std::vector<Particle> cParticles = particles;
+        particles.clear();
+        particles.push_back(cParticles[0]);
+        particles.push_back(cParticles[cParticles.size() - 1]);
+    }
     int n = static_cast<int>(particles.size());
     int vCount = n * 2;          // Two vertices per particle (ribbon width)
     int idxCount = (n - 1) * 6;  // Six indices per segment (two triangles)
@@ -83,13 +90,13 @@ void RibbonEmitter::RenderRibbon(const std::vector<Particle>& inParticles)
 
         // Vertex on one side of the ribbon
         verts[b + 0].Position = P + perp * half;
-        verts[b + 0].TextureCoordinate = glm::vec2(static_cast<float>(i) / (n - 1), 0.0f);
-        verts[b + 0].Color = p.Color;
+		verts[b + 0].TextureCoordinate = glm::vec2(static_cast<float>(i) / (n - 1), 0.0f);
+		verts[b + 0].Color = p.Color * vec4(1, 1, 1, p.Transparency);
 
         // Vertex on the other side
         verts[b + 1].Position = P - perp * half;
         verts[b + 1].TextureCoordinate = glm::vec2(static_cast<float>(i) / (n - 1), 1.0f);
-        verts[b + 1].Color = p.Color;
+        verts[b + 1].Color = p.Color * vec4(1, 1, 1, p.Transparency);
     }
 
     primitiveCount = idxCount / 3;

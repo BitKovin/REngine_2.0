@@ -27,6 +27,8 @@
 
 #include "Physics.h"
 
+
+
 using namespace std;
 
 struct AnimationPose 
@@ -182,8 +184,7 @@ protected:
 
 	void ApplyAdditionalShaderParams(ShaderProgram* shader_program)
 	{
-		for (int i = 0; i < finalizedBoneTransforms.size(); ++i)
-			shader_program->SetUniform("finalBonesMatrices[" + std::to_string(i) + "]", finalizedBoneTransforms[i]);
+		shader_program->SetUniform("finalBonesMatrices", finalizedBoneTransforms);
 	}
 
 public:

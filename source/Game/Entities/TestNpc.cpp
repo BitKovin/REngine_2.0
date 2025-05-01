@@ -72,6 +72,18 @@ void TestNpc::Death()
 
 	dead = true;
 
+	if (DeathSoundPlayer)
+	{
+		DeathSoundPlayer->DestroyWithDelay(3);
+		HurtSoundPlayer->DestroyWithDelay(3);
+		StunSoundPlayer->DestroyWithDelay(3);
+		AttackSoundPlayer->DestroyWithDelay(3);
+		DeathSoundPlayer = nullptr;
+		HurtSoundPlayer = nullptr;
+		StunSoundPlayer = nullptr;
+		AttackSoundPlayer = nullptr;
+	}
+
 }
 
 void TestNpc::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon)
@@ -303,6 +315,16 @@ void TestNpc::Deserialize(json& source)
 		Physics::DestroyBody(LeadBody);
 		LeadBody = nullptr;
 		mesh->ClearHitboxes();
+
+		DeathSoundPlayer->Destroy();
+		HurtSoundPlayer->Destroy();
+		StunSoundPlayer->Destroy();
+		AttackSoundPlayer->Destroy();
+		DeathSoundPlayer = nullptr;
+		HurtSoundPlayer = nullptr;
+		StunSoundPlayer = nullptr;
+		AttackSoundPlayer = nullptr;
+
 	}
 
 
@@ -322,13 +344,10 @@ void TestNpc::LoadAssets()
 	mesh->SetLooped(true);
 	mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
-	if (DeathSoundPlayer) 
-	{
-		DeathSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
-		HurtSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
-		StunSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
-		AttackSoundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav");
-	}
+	SET_SOUND_SAFE(DeathSoundPlayer, SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav"));
+	SET_SOUND_SAFE(HurtSoundPlayer, SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav"));
+	SET_SOUND_SAFE(StunSoundPlayer, SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav"));
+	SET_SOUND_SAFE(AttackSoundPlayer, SoundManager::GetSoundFromPath("GameData/Sounds/Dog/Death.wav"));
 
 }
 
