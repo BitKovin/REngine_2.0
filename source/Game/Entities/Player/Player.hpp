@@ -180,6 +180,9 @@ public:
 
 	}
 
+    void UpdateWalkMovement(vec2 input);
+    void UpdateBikeMovement(vec2 input);
+
     void CreateWeapon(const string& className);
     void DestroyWeapon();
 

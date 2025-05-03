@@ -10,6 +10,90 @@ Player* Player::Instance = nullptr;
 
 string serializedPlayer = "";
 
+void Player::UpdateWalkMovement(vec2 input)
+{
+
+    vec3 right = MathHelper::GetRightVector(Camera::rotation);
+
+    vec3 forward = MathHelper::GetForwardVector(vec3(0, Camera::rotation.y, 0));
+
+    if (freeFly)
+        forward = Camera::Forward();
+
+    vec3 movement = input.x * right + input.y * forward;
+
+    Physics::Activate(LeadBody);
+
+    velocity = FromPhysics(LeadBody->GetLinearVelocity());
+
+    if (OnGround)
+    {
+        velocity = UpdateGroundVelocity(movement, velocity);
+    }
+    else
+    {
+        velocity = UpdateAirVelocity(movement, velocity);
+    }
+
+
+    velocity.y = LeadBody->GetLinearVelocity().GetY();
+
+    if (freeFly)
+        velocity = movement * 20.0f;
+
+    LeadBody->SetLinearVelocity(ToPhysics(velocity));
+
+    if (OnGround) 
+    {
+        if (Input::GetAction("jump")->Holding())
+        {
+            Jump();
+
+        }
+    }
+}
+
+void Player::UpdateBikeMovement(vec2 input)
+{
+    // Bike movement parameters
+    const float maxSpeed = 15.0f;
+    const float acceleration = 15.0f;
+    const float lateralFriction = 0.7f;
+    const float deltaTime = Time::DeltaTimeF; // Implement time handling
+
+    // Get bike's forward direction (based on camera yaw)
+    vec3 forward = MathHelper::GetForwardVector(vec3(0, Camera::rotation.y, 0));
+    vec3 right = MathHelper::GetRightVector(Camera::rotation);
+
+    // Always move forward (override input)
+    input = vec2(0, 1);
+    vec3 movementDirection = input.x * right + input.y * forward;
+
+    Physics::Activate(LeadBody);
+    vec3 velocity = FromPhysics(LeadBody->GetLinearVelocity());
+
+    // Separate vertical and horizontal components
+    float verticalVelocity = velocity.y;
+    vec3 horizontalVelocity = vec3(velocity.x, 0.0f, velocity.z);
+
+    // Calculate forward speed and lateral velocity
+    float currentForwardSpeed = glm::dot(horizontalVelocity, forward);
+    vec3 lateralVelocity = horizontalVelocity - (forward * currentForwardSpeed);
+
+    // Apply forward acceleration with speed cap
+    currentForwardSpeed = glm::min(currentForwardSpeed + acceleration * deltaTime, maxSpeed);
+
+    // Apply lateral friction (drift effect)
+    lateralVelocity *= glm::max(1.0f - lateralFriction * deltaTime, 0.0f);
+
+    // Combine new velocity components
+    vec3 newHorizontalVelocity = (forward * currentForwardSpeed) + lateralVelocity;
+    vec3 newVelocity = vec3(newHorizontalVelocity.x, verticalVelocity, newHorizontalVelocity.z);
+
+    // Update physics body velocity
+    LeadBody->SetLinearVelocity(ToPhysics(newVelocity));
+}
+
 void Player::CreateWeapon(const string& className)
 {
 
@@ -134,14 +218,6 @@ void Player::Update()
         cameraRotation.y += Input::MouseDelta.x;
         cameraRotation.x -= Input::MouseDelta.y;
 
-        if (OnGround)
-            if (Input::GetAction("jump")->Holding())
-            {
-                Jump();
-
-            }
-
-
     }
 
 
@@ -160,39 +236,12 @@ void Player::Update()
     if (Input::GetAction("right")->Holding())
         input += vec2(1, 0);
 
-    vec3 right = MathHelper::GetRightVector(Camera::rotation);
-
-    vec3 forward = MathHelper::GetForwardVector(vec3(0, Camera::rotation.y, 0));
-
-    if (freeFly)
-        forward = Camera::Forward();
-
     if (length(input) > 1)
         input = normalize(input);
 
-    vec3 movement = input.x * right + input.y * forward;
+    //UpdateWalkMovement(input);
 
-    Physics::Activate(LeadBody);
-
-    velocity = FromPhysics(LeadBody->GetLinearVelocity());
-
-    if (OnGround)
-    {
-        velocity = UpdateGroundVelocity(movement, velocity);
-    }
-    else
-    {
-        velocity = UpdateAirVelocity(movement, velocity);
-    }
-
-
-    velocity.y = LeadBody->GetLinearVelocity().GetY();
-
-    if (freeFly)
-        velocity = movement * 20.0f;
-
-    LeadBody->SetLinearVelocity(ToPhysics(velocity));
-
+    UpdateBikeMovement(input);
 
 
     Camera::position = Position + vec3(0, 0.7, 0);
