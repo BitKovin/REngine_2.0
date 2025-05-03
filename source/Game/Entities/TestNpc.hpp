@@ -31,6 +31,7 @@ private:
 	SoundPlayer* HurtSoundPlayer = nullptr;
 	SoundPlayer* StunSoundPlayer = nullptr;
 	SoundPlayer* AttackSoundPlayer = nullptr;
+	SoundPlayer* AttackHitSoundPlayer = nullptr;
 
 	float maxSpeed = 8;
 	float speed = 1;
@@ -72,43 +73,13 @@ public:
 	void SetupSoundPlayer(SoundPlayer* soundPlayer)
 	{
 		soundPlayer->MaxDistance = 100;
-		soundPlayer->Volume = 0.3;
+		soundPlayer->Volume = 1.0;
 		soundPlayer->MinDistance = 0.5;
 	}
 
 	void ProcessAnimationEvent(AnimationEvent& event);
 
-	void Start()
-	{
-		
-
-		mesh->Position = Position - vec3(0, 1, 0);
-		mesh->Rotation = Rotation;
-
-		Drawables.push_back(mesh);
-
-		LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 2, 50);
-
-		Logger::Log("started npc\n");
-
-		Physics::SetGravityFactor(LeadBody, 4);
-
-		desiredDirection = MathHelper::XZ(MathHelper::GetForwardVector(Rotation));
-		movingDirection = desiredDirection;
-
-		pathFollow.CalculatePathOnThread();
-
-		DeathSoundPlayer = SoundPlayer::Create();
-		HurtSoundPlayer = SoundPlayer::Create();
-		StunSoundPlayer = SoundPlayer::Create();
-		AttackSoundPlayer = SoundPlayer::Create();
-
-		SetupSoundPlayer(DeathSoundPlayer);
-		SetupSoundPlayer(HurtSoundPlayer);
-		SetupSoundPlayer(StunSoundPlayer);
-		SetupSoundPlayer(AttackSoundPlayer);
-
-	}
+	void Start();
 
 	void Stun(Entity* DamageCauser, Entity* Weapon);
 

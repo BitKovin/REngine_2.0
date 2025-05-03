@@ -66,6 +66,8 @@ public:
 
 		vec3 startLoc = MathHelper::DecomposeMatrix(boneMat).Position - Camera::Forward() * 0.5f;
 
+		int n = 0;
+
 		for (float y = -4; y <= 4; y += 2.0f)
 			for (float x = -4; x <= 4; x += 2.0f)
 			{
@@ -84,9 +86,11 @@ public:
 				bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
 				bullet->Start();
 				bullet->LoadAssetsIfNeeded();
-				bullet->Damage = 50.0f / 20.0f;
-			}
+				bullet->Damage = 50.0f / 21.0f;
 
+				n++;
+
+			}
 
 	}
 

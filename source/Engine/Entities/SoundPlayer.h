@@ -17,6 +17,8 @@ public:
 	float MinDistance = 1;
 	float MaxDistance = 20;
 
+	bool IsMusic = false;
+
 	SoundPlayer();
 	~SoundPlayer();
 
@@ -33,6 +35,7 @@ public:
 
 private:
 
+	float CalculateVolume();
 
 };
 

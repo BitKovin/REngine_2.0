@@ -18,13 +18,13 @@ void SoundPlayer::SetSound(shared_ptr<SoundInstance> sound)
 
 void SoundPlayer::LateUpdate()
 {
-	if (Sound)
+	if (Sound.get())
 	{
 
 		Sound->Position = Position;
 		Sound->Direction = MathHelper::GetForwardVector(Rotation);
 
-		Sound->Volume = Volume;
+		Sound->Volume = CalculateVolume();
 		Sound->Pitch = Pitch;
 		Sound->MinDistance = MinDistance;
 		Sound->MaxDistance = MaxDistance;
@@ -38,10 +38,16 @@ void SoundPlayer::LateUpdate()
 
 void SoundPlayer::Play()
 {
-	if (Sound)
+	if (Sound.get())
 	{
+		LateUpdate();
 		Sound->Play();
 	}
+}
+
+float SoundPlayer::CalculateVolume()
+{
+	return Volume * SoundManager::GlobalVolume * (IsMusic ? SoundManager::MusicVolume : SoundManager::SfxVolume);
 }
 
 void SoundPlayer::Pause()

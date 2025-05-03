@@ -72,11 +72,6 @@ public:
 
 	}
 
-	void DestroyWithDelay(float delay = 2.0f)
-	{
-
-	}
-
 	static void PreloadSystemAssets(string name)
 	{
 		Entity* ent = LevelObjectFactory::instance().create(name);
