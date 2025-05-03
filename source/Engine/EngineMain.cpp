@@ -83,20 +83,8 @@ void EngineMain::initDemo()
 
 void EngineMain::InitInputs()
 {
-    Input::AddAction("forward")->AddKeyboardKey(SDL_KeyCode::SDLK_w);
-    Input::AddAction("backward")->AddKeyboardKey(SDL_KeyCode::SDLK_s);
-    Input::AddAction("left")->AddKeyboardKey(SDL_KeyCode::SDLK_a);
-    Input::AddAction("right")->AddKeyboardKey(SDL_KeyCode::SDLK_d);
-
-    Input::AddAction("jump")->AddKeyboardKey(SDL_KeyCode::SDLK_SPACE)->AddButton(GamepadButton::A);
 
     Input::AddAction("click")->LMB = true;
-
-    Input::AddAction("attack")->AddButton(GamepadButton::RightTrigger)->LMB = true;
-
-    Input::AddAction("qSave")->AddKeyboardKey(SDL_KeyCode::SDLK_F5);
-    Input::AddAction("qLoad")->AddKeyboardKey(SDL_KeyCode::SDLK_F8);
-
 
     int maxUniforms;
 

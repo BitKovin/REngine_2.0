@@ -58,7 +58,7 @@ void Player::UpdateBikeMovement(vec2 input)
     // Bike movement parameters
     const float maxSpeed = 15.0f;
     const float acceleration = 15.0f;
-    const float lateralFriction = 0.7f;
+    const float lateralFriction = 1.5f;
     const float deltaTime = Time::DeltaTimeF; // Implement time handling
 
     // Get bike's forward direction (based on camera yaw)
@@ -70,7 +70,7 @@ void Player::UpdateBikeMovement(vec2 input)
     vec3 movementDirection = input.x * right + input.y * forward;
 
     Physics::Activate(LeadBody);
-    vec3 velocity = FromPhysics(LeadBody->GetLinearVelocity());
+    velocity = FromPhysics(LeadBody->GetLinearVelocity());
 
     // Separate vertical and horizontal components
     float verticalVelocity = velocity.y;
@@ -92,6 +92,33 @@ void Player::UpdateBikeMovement(vec2 input)
 
     // Update physics body velocity
     LeadBody->SetLinearVelocity(ToPhysics(newVelocity));
+
+    bikeMesh->Rotation.z = -dot(velocity, right)*2.5f;
+    bikeMesh->Rotation.y -= bikeMesh->Rotation.z * 0.2f;
+
+
+    AnimationPose pose = bikeMesh->GetAnimationPose();
+
+    MathHelper::Transform frontRot = pose.GetBoneTransform("front");
+	MathHelper::Transform wheelRot = pose.GetBoneTransform("wheel_front");
+
+	frontRot.Rotation -= vec3(0, bikeMesh->Rotation.z * 1.0, 0);
+	wheelRot.Rotation += vec3(Time::GameTime * 1000.0f, 0, 0);
+
+	pose.SetBoneTransformEuler("front", frontRot);
+	pose.SetBoneTransformEuler("wheel_front", wheelRot);
+
+    bikeMesh->PasteAnimationPose(pose);
+
+    if (OnGround)
+    {
+        if (Input::GetAction("jump")->Holding())
+        {
+            Jump();
+
+        }
+    }
+
 }
 
 void Player::CreateWeapon(const string& className)
@@ -239,9 +266,21 @@ void Player::Update()
     if (length(input) > 1)
         input = normalize(input);
 
-    //UpdateWalkMovement(input);
+    if (on_bike == false)
+    {
+        UpdateWalkMovement(input);
+    }
 
-    UpdateBikeMovement(input);
+    bikeMesh->Position = Position - vec3(0, 0.9f - 0.8f, 0);
+    bikeMesh->Rotation = vec3(0, cameraRotation.y, 0);
+    bikeMesh->Update();
+    if (on_bike)
+    {
+        UpdateBikeMovement(input);
+    }
+    
+
+
 
 
     Camera::position = Position + vec3(0, 0.7, 0);
@@ -252,6 +291,14 @@ void Player::Update()
 
     UpdateWeapon();
 
+    if (Input::GetAction("bike")->Holding() && OnGround)
+    {
+        StartBike();
+    }
+    else
+    {
+        StopBike();
+    }
 
     if (Input::GetAction("qSave")->Pressed())
     {
@@ -305,4 +352,40 @@ void Player::Deserialize(json& source)
     Physics::SetBodyPosition(LeadBody, Position);
     Physics::SetLinearVelocity(LeadBody, velocity);
 
+}
+
+void Player::StartBike()
+{
+    if (on_bike) return;
+
+    bikeMesh->PlayAnimation("draw", true, 0.7f);
+    on_bike = true;
+}
+
+void Player::StopBike()
+{
+    if (on_bike == false) return;
+
+    bikeMesh->PlayAnimation("hide", true, 0.7f);
+    on_bike = false;
+}
+
+void Player::ToggleBike()
+{
+    if (on_bike)
+    {
+        StopBike();
+    }
+    else
+    {
+        StartBike();
+    }
+}
+
+void Player::LoadAssets()
+{
+    bikeMesh->LoadFromFile("GameData/Models/Player/Bike/bike.glb");
+    bikeMesh->TexturesLocation = "GameData/Models/Player/Bike/Textures/";
+    bikeMesh->PreloadAssets();
+    bikeMesh->PlayAnimation("hide",true);
 }

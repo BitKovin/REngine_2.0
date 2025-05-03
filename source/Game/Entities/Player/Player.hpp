@@ -58,6 +58,10 @@ private:
 
     std::vector<WeaponSlotData> weaponSlots;
 
+    SkeletalMesh* bikeMesh = nullptr;
+
+    bool on_bike = false;
+
     glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
         vel = MathHelper::XZ(vel);
         float length = glm::length(vel);
@@ -135,6 +139,8 @@ public:
 	Player()
     {
 
+        bikeMesh = new SkeletalMesh();
+        Drawables.push_back(bikeMesh);
 
         ClassName = "info_player_start";
 
@@ -212,5 +218,13 @@ public:
     void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon);
 
     void Deserialize(json& source);
+
+    void StartBike();
+    void StopBike();
+    void ToggleBike();
+
+    protected:
+
+        void LoadAssets();
 
 };

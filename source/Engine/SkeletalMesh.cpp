@@ -13,7 +13,7 @@ void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 	rootMotionBasisQuat = quat();
 	currentAnimationData = GetAnimationDataFromName(name);	
 	Update(0);
-	animator.UpdateAnimationPose();
+	//animator.UpdateAnimationPose();
 	boneTransforms = animator.getBoneMatrices();
 }
 

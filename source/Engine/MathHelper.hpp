@@ -283,6 +283,16 @@ public:
 			glm::mat4 S = glm::scale(Scale);
 			return T * R * S;
 		}
+
+		// Converts the transform to a matrix.
+// Note: In GLM the typical order is T * R * S. Adjust if needed.
+		inline glm::mat4 ToMatrixEuler() const {
+			// It is common to use translation * rotation * scale.
+			glm::mat4 T = glm::translate(Position);
+			glm::mat4 R = MathHelper::GetRotationMatrix(Rotation);
+			glm::mat4 S = glm::scale(Scale);
+			return T * R * S;
+		}
 	};
 
 	// Normalizes an angle to the range [-180, 180].

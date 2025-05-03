@@ -148,6 +148,16 @@ vec3 CalculateDirectionalLight()
         ? 1.0
         : clamp(dot(-v_normal, lightDirection), 0.0, 1.0);
 
+    float indirectPower = dot(-v_normal, vec3(0, -1, 0)) / 2.0f + 0.5f;
+
+    if(is_particle)
+    {
+        indirectPower = 1.0;
+    }
+
+    
+    indirectPower = mix(0.1,0.2,indirectPower);
+
     // 2) Distance from the camera
     float dist = v_clipPosition.z;
 
@@ -222,7 +232,10 @@ vec3 CalculateDirectionalLight()
         }
     }
 
+    
+
     directionPower *= shadow.x;
-    float indirectPower = shadow.y;
-    return mix(vec3(0.2*indirectPower), vec3(1.0), directionPower);
+    indirectPower *= shadow.y;
+
+    return mix(vec3(indirectPower), vec3(1.0), directionPower);
 }

@@ -46,8 +46,6 @@ struct AnimationPose
 		for (auto bonePose : a.boneTransforms)
 		{
 
-			
-
 			mat4 aMat = a.boneTransforms[bonePose.first];
 			mat4 bMat = b.boneTransforms[bonePose.first];
 
@@ -72,6 +70,32 @@ struct AnimationPose
 
 		return result;
 
+	}
+
+	void SetBoneTransform(std::string bone, mat4 transform)
+	{
+		boneTransforms[bone] = transform;
+	}
+
+	void SetBoneTransform(std::string bone, MathHelper::Transform transform)
+	{
+		boneTransforms[bone] = transform.ToMatrix();
+	}
+
+	void SetBoneTransformEuler(std::string bone, MathHelper::Transform transform)
+	{
+		boneTransforms[bone] = transform.ToMatrixEuler();
+	}
+
+	MathHelper::Transform GetBoneTransform(std::string bone)
+	{
+		auto res = boneTransforms.find(bone);
+		if (res != boneTransforms.end())
+		{
+			return MathHelper::DecomposeMatrix(res->second);
+		}
+
+		return MathHelper::Transform();
 	}
 
 };
