@@ -75,30 +75,31 @@ void Input::UpdateMousePosition()
 
 
 void Input::JoystickCamera() {
-
-    if (joystick == nullptr)
-    {
+    // Initialize joystick if not already opened
+    if (joystick == nullptr) {
         int joysticks = SDL_NumJoysticks();
-
-        // If there are joysticks connected, open one up for reading
-        if (joysticks > 0)
-        {
-
+        if (joysticks > 0) {
             joystick = SDL_JoystickOpen(0);
-
-            if (joystick == NULL)
-            {
-                printf("There was an error reading from the joystick.\n");
+            if (joystick == nullptr) {
+                SDL_Log("Error opening joystick 0: %s", SDL_GetError());
             }
         }
     }
 
+    // If joystick is open, check if it's still attached
     if (joystick) {
+        if (!SDL_JoystickGetAttached(joystick)) {
+            // Joystick was disconnected; close and reset
+            SDL_JoystickClose(joystick);
+            joystick = nullptr;
+            SDL_Log("Joystick disconnected. Closed and reset reference.");
+            return;
+        }
 
-
-        vec2 stickDelta = GetRightStickPosition() * vec2(-1,1);
-
-        MouseDelta = MouseDelta + stickDelta * ((float)Time::DeltaTime * 200.f);
+        // Read stick position (invert X and Y as needed)
+        vec2 stickDelta = GetRightStickPosition() * vec2(-1, 1);
+        // Apply camera movement based on stick input
+        MouseDelta += stickDelta * (static_cast<float>(Time::DeltaTime) * 200.0f);
     }
 }
 
