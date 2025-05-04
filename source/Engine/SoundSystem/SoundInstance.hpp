@@ -58,7 +58,11 @@ public:
     void Stop();
 
     /// Must be called every frame to advance virtual playhead and reclaim sources
-    void Update(float deltaTime) {
+    void Update(float deltaTime) 
+    {
+
+        SourcePool::globalTimestamp = Time::GameTimeNoPause;
+
         if (!_active) return;
 
         if (_source) {
@@ -92,6 +96,8 @@ public:
 
     // ─── Public Properties ──────────────────────────────────────────────
 
+    float Priority = 0.0f;    // higher = more important
+
     bool   Is2D           = false;
     bool   IsUISound      = false;
     bool   Loop           = false;
@@ -109,7 +115,7 @@ public:
     float  ConeOuterAngle = 360.0f;
     float  ConeOuterGain  = 1.0f;
 
-#ifndef DISABLE_EFX
+
     bool   EnableFilter   = false;
     float  LowPassGain    = 1.0f;
     float  LowPassGainHF  = 1.0f;
@@ -126,7 +132,7 @@ public:
     float  ReverbGain     = 0.5f;
     float  ReverbGainHF   = 0.3f;
     float  ReverbDecayTime= 1.0f;
-#endif
+
 
     /// Set the total duration of this sound (in seconds), used for virtual timing
     void SetDuration(float seconds) { _duration = seconds; }
@@ -158,7 +164,7 @@ private:
         if (_source != 0) return;
         if (!_active)    return;
 
-        _source = SourcePool::Acquire(_isStereo);
+        _source = SourcePool::Acquire(_isStereo, this);
         if (_source) {
             // attach buffer now
             alSourcei(_source, AL_BUFFER, _buffer);
@@ -169,7 +175,7 @@ private:
 
     void ReleaseSource() {
         if (_source == 0) return;
-        SourcePool::Release(_source, _isStereo);
+        SourcePool::Release(_source, _isStereo, this);
         _source = 0;
     }
 
@@ -275,10 +281,17 @@ private:
         inline static size_t               maxMono = 0, maxStereo = 0;
         inline static bool                 initialized = false;
 
+        struct OwnerInfo {
+            SoundInstance* inst;
+            uint64_t       timestamp;
+        };
+        inline static std::unordered_map<ALuint, OwnerInfo> liveOwners;
+        inline static uint64_t globalTimestamp = 0;
+
         static void Init();
 
-        static ALuint Acquire(bool stereo);
+        static ALuint Acquire(bool stereo, SoundInstance* requester);
 
-        static void Release(ALuint src, bool stereo);
+        static void Release(ALuint src, bool stereo, SoundInstance* inst);
     };
 };

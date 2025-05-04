@@ -14,6 +14,10 @@
 #include <vector>
 #include <functional>
 
+#ifndef DISABLE_TREADPOOL
+#include <atomic> // add this
+#endif
+
 class ThreadPool {
 public:
     void Start();
@@ -21,7 +25,9 @@ public:
     void Stop();
     bool IsBusy();
 
-    int performingJobs = 0;
+    std::atomic<int> performingJobs{ 0 };
+
+    std::condition_variable finished_condition;
 
     void WaitForFinish();
 

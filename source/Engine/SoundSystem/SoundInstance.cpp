@@ -1,5 +1,7 @@
 ﻿#include "SoundInstance.hpp"
 
+#define SOUND_POOL_DEBUG
+
 std::recursive_mutex mtx;
 
 void SoundInstance::SourcePool::Init()
@@ -20,84 +22,88 @@ void SoundInstance::SourcePool::Init()
             << ", maxStereo=" << maxStereo << "\n";
     }
 
-    // Fallback: probe total sources until failure
-    if (maxMono == 0 && maxStereo == 0) {
-        std::vector<ALuint> tempSources;
-        ALuint src;
-        while (true) {
-            alGenSources(1, &src);
-            ALenum err = alGetError();
-            if (err != AL_NO_ERROR) {
-                std::cerr << "[SourcePool] Probing failed with error: 0x"
-                    << std::hex << alGetString(err) << std::dec << "\n";
-                break;
-            }
-            tempSources.push_back(src);
-        }
-        if (!tempSources.empty()) {
-            freeMono = std::move(tempSources);
-            maxMono = freeMono.size();
-            std::cerr << "[SourcePool] Probed maxMono=" << maxMono << "\n";
-        }
-        else {
-            // Fallback to a reasonable minimum for Emscripten
-            maxMono = 16;  // Common minimum for WebAudio-backed OpenAL
-            std::cerr << "[SourcePool] No sources probed; defaulting to maxMono="
-                << maxMono << "\n";
-        }
-    }
+    printf("max mono: %i \n", maxMono);
+    printf("max stereo: %i \n", maxStereo);
 
     // Ensure at least a minimum limit
     if (maxMono < 8) maxMono = 8;  // Arbitrary safe minimum
     if (maxStereo == 0) maxStereo = maxMono;  // Default stereo to mono limit
 }
 
-ALuint SoundInstance::SourcePool::Acquire(bool stereo)
+ALuint SoundInstance::SourcePool::Acquire(bool stereo, SoundInstance* requester)
 {
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
-    // 1) Try to reuse a released source
     auto& pool = stereo ? freeStereo : freeMono;
+    auto& alloc = stereo ? allocatedStereo : allocatedMono;
+    size_t limit = stereo ? maxStereo : maxMono;
+    size_t used = alloc - pool.size();
+
+    // 1) Reuse
     if (!pool.empty()) {
-        ALuint s = pool.back();
-        pool.pop_back();
-        std::cerr << "[SourcePool] Reusing source: " << s << "\n";
+        ALuint s = pool.back(); pool.pop_back();
+        liveOwners[s] = { requester, ++globalTimestamp };
         return s;
     }
 
-    // 2) No free source in pool → try to gen a new one (up to limit)
-    size_t& allocated = stereo ? allocatedStereo : allocatedMono;
-    size_t  limit = stereo ? maxStereo : maxMono;
-    size_t  usedCount = allocated - /* unused */ pool.size();
-    if (usedCount < limit) {
+    // 2) Gen new if under limit
+    if (used < limit) {
         ALuint s = 0;
         alGenSources(1, &s);
-        ALenum err = alGetError();
-        if (err == AL_NO_ERROR) {
-            ++allocated;
-            std::cerr << "[SourcePool] Generated new source: " << s << "\n";
+        if (alGetError() == AL_NO_ERROR) {
+            ++alloc;
+            liveOwners[s] = { requester, ++globalTimestamp };
             return s;
         }
-        std::cerr << "[SourcePool] alGenSources failed: 0x"
-            << std::hex << err << std::dec << "\n";
     }
 
-    // 3) Out of capacity
-    std::cerr << "[SourcePool] Out of sources (" << usedCount
-        << "/" << limit << ")\n";
+    // 3) Steal oldest lowest-prio non-looping
+    ALuint victimSrc = 0;
+    float  victimPrio = std::numeric_limits<float>::infinity();
+    uint64_t victimTime = UINT64_MAX;
+
+    for (auto& [src, info] : liveOwners) {
+        auto* inst = info.inst;
+        if (inst->Loop) continue;            // skip looping
+        float pr = inst->Priority;
+        uint64_t ts = info.timestamp;
+        // choose if lower priority, or equal pr & older timestamp
+        if (pr < victimPrio ||
+            (pr == victimPrio && ts < victimTime))
+        {
+            victimPrio = pr;
+            victimTime = ts;
+            victimSrc = src;
+        }
+    }
+
+    if (victimSrc) {
+        // steal it
+        alSourceStop(victimSrc);
+        liveOwners.erase(victimSrc);
+        liveOwners[victimSrc] = { requester, ++globalTimestamp };
+        return victimSrc;
+    }
+
+    // 4) none to steal
     return 0;
 }
 
-
-void SoundInstance::SourcePool::Release(ALuint src, bool stereo)
+void SoundInstance::SourcePool::Release(ALuint src, bool stereo, SoundInstance* inst)
 {
     std::lock_guard<std::recursive_mutex> lock(mtx);
     alSourceStop(src);
     alSourcei(src, AL_BUFFER, 0);
+    liveOwners.erase(src);
     auto& pool = stereo ? freeStereo : freeMono;
     pool.push_back(src);
-    std::cerr << "[SourcePool] Released source: " << src << "\n";
+
+#ifdef SOUND_POOL_DEBUG
+    std::cerr << "[SourcePool::Release] Released source " << src
+        << " back to " << (stereo ? "stereo" : "mono") << " pool\n";
+#endif
 }
+
 
 void SoundInstance::Play()
 {

@@ -18,7 +18,13 @@ void SoundManager::Initialize()
         return;
     }
 
-    context = alcCreateContext(device, nullptr);
+    ALCint ctxAttrs[] = {
+    ALC_MONO_SOURCES,   256,
+    ALC_STEREO_SOURCES,  64,
+    0  // terminator
+    };
+
+    context = alcCreateContext(device, ctxAttrs);
     if (!context || alcMakeContextCurrent(context) == ALC_FALSE) {
         Logger::Log("Failed to create or make current OpenAL context.\n");
         if (context) alcDestroyContext(context);

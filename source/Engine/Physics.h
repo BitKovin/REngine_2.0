@@ -438,10 +438,22 @@ public:
 	{
 		if (body == nullptr) return;
 
+		auto data = GetBodyData(body);
+
+		if (data == nullptr) return;
+
+		
+
 		auto currentPos = body->GetPosition();
 		auto targetPos = FromPhysics(currentPos) + offset;
 
+		auto hit = SphereTrace(FromPhysics(currentPos), targetPos, 0.3, data->mask, {body});
 		
+		if (hit.hasHit)
+		{
+			targetPos = hit.shapePosition;
+		}
+
 		SetBodyPosition(body, targetPos);
 
 	}

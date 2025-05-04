@@ -63,7 +63,7 @@ void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
 
 void ParticleEmitter::FinalizeFrameData()
 {
-
+    std::lock_guard<std::recursive_mutex> lock(particlesMutex);
     finalizedParticles = Particles;
 
     // Use finalized camera data for consistency

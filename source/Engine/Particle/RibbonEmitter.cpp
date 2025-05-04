@@ -116,6 +116,7 @@ void RibbonEmitter::RenderRibbon(const std::vector<Particle>& inParticles)
 
 void RibbonEmitter::FinalizeFrameData()
 {
+    std::lock_guard<std::recursive_mutex> lock(particlesMutex);
     finalizedParticles = Particles;
 }
 

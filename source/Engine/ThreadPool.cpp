@@ -19,9 +19,7 @@ void ThreadPool::Start() {
 
 
 void ThreadPool::ThreadLoop() {
-
 #ifndef DISABLE_TREADPOOL
-
 	while (true) {
 		std::function<void()> job;
 		{
@@ -29,20 +27,28 @@ void ThreadPool::ThreadLoop() {
 			mutex_condition.wait(lock, [this] {
 				return !jobs.empty() || should_terminate;
 				});
-			if (should_terminate) {
+
+			if (should_terminate && jobs.empty()) {
 				return;
 			}
-			job = jobs.front();
+
+			job = std::move(jobs.front());
 			jobs.pop();
+			performingJobs++;
 		}
-		performingJobs++;
+
 		job();
-		performingJobs--;
+		{
+			std::unique_lock<std::mutex> lock(queue_mutex);
+			performingJobs--;
+			if (jobs.empty() && performingJobs == 0) {
+				finished_condition.notify_all();
+			}
+		}
 	}
-
-#endif // !DISABLE_TREADPOOL
-
+#endif
 }
+
 
 void ThreadPool::QueueJob(const std::function<void()>& job)
 {
@@ -62,25 +68,22 @@ void ThreadPool::QueueJob(const std::function<void()>& job)
 bool ThreadPool::IsBusy() {
 #ifdef DISABLE_TREADPOOL
 	return false;
-
 #else
-	bool poolbusy;
-	{
-		std::unique_lock<std::mutex> lock(queue_mutex);
-		poolbusy = !jobs.empty();
-	}
-	return poolbusy && performingJobs;
+	// Simply check the conditions without locking here
+	return !jobs.empty() || performingJobs > 0;
 #endif
 }
 
-void ThreadPool::WaitForFinish()
-{
-	while (IsBusy())
-	{
 
-	}
-
+void ThreadPool::WaitForFinish() {
+#ifndef DISABLE_TREADPOOL
+	std::unique_lock<std::mutex> lock(queue_mutex);
+	finished_condition.wait(lock, [this] {
+		return !IsBusy();
+		});
+#endif
 }
+
 
 void ThreadPool::Stop()
 {
