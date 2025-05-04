@@ -35,196 +35,199 @@ class Player : public Entity
 
 private:
 
-    float maxSpeed = 7;
-    float maxSpeedAir = 2;
-    float acceleration = 90;
-    float airAcceleration = 30;
+	float maxSpeed = 7;
+	float maxSpeedAir = 2;
+	float acceleration = 90;
+	float airAcceleration = 30;
 
-    vec3 velocity = vec3(0);
+	vec3 velocity = vec3(0);
 
-    vec3 cameraRotation = vec3(0);
+	vec3 cameraRotation = vec3(0);
 
-    vec3 weaponOffset = vec3(0.023, 0.013, -0.13);
+	vec3 weaponOffset = vec3(0.023, 0.013, -0.13);
 
-    Delay jumpDelay;
+	Delay jumpDelay;
 
-    bool freeFly = false;
+	bool freeFly = false;
 
-    PlayerHud Hud;
+	PlayerHud Hud;
 
-    SoundPlayer* soundPlayer;
+	SoundPlayer* soundPlayer;
 
-    Weapon* currentWeapon = nullptr;
+	Weapon* currentWeapon = nullptr;
 
-    std::vector<WeaponSlotData> weaponSlots;
+	std::vector<WeaponSlotData> weaponSlots;
 
-    SkeletalMesh* bikeMesh = nullptr;
+	SkeletalMesh* bikeMesh = nullptr;
+	SkeletalMesh* bikeArmsMesh = nullptr;
 
-    bool on_bike = false;
+	bool on_bike = false;
 
-    glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
-        vel = MathHelper::XZ(vel);
-        float length = glm::length(vel);
+	glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
+		vel = MathHelper::XZ(vel);
+		float length = glm::length(vel);
 
-        // Avoid division by zero: if length is positive, normalize; otherwise return zero vector.
-        glm::vec3 direction = (length > 0.0f) ? glm::normalize(vel) : glm::vec3(0.0f);
+		// Avoid division by zero: if length is positive, normalize; otherwise return zero vector.
+		glm::vec3 direction = (length > 0.0f) ? glm::normalize(vel) : glm::vec3(0.0f);
 
-        length -= factor * Time::DeltaTimeF;
-        length = std::max(0.0f, length);
+		length -= factor * Time::DeltaTimeF;
+		length = std::max(0.0f, length);
 
-        return direction * length;
-    }
+		return direction * length;
+	}
 
-    glm::vec3 UpdateGroundVelocity(glm::vec3 withDir, glm::vec3 vel) {
-        vel = MathHelper::XZ(vel);
-        vel = Friction(vel);
+	glm::vec3 UpdateGroundVelocity(glm::vec3 withDir, glm::vec3 vel) {
+		vel = MathHelper::XZ(vel);
+		vel = Friction(vel);
 
-        // Project current velocity onto the direction
-        float currentSpeed = glm::dot(vel, withDir);
+		// Project current velocity onto the direction
+		float currentSpeed = glm::dot(vel, withDir);
 
-        // Clamp the additional speed so that it does not exceed what can be accelerated in the frame.
-        float addSpeed = glm::clamp(maxSpeed - currentSpeed, 0.0f, acceleration * Time::DeltaTimeF);
+		// Clamp the additional speed so that it does not exceed what can be accelerated in the frame.
+		float addSpeed = glm::clamp(maxSpeed - currentSpeed, 0.0f, acceleration * Time::DeltaTimeF);
 
-        if (false) {
-            if (currentSpeed + addSpeed > maxSpeed)
-                addSpeed = maxSpeed - currentSpeed;
-        }
+		if (false) {
+			if (currentSpeed + addSpeed > maxSpeed)
+				addSpeed = maxSpeed - currentSpeed;
+		}
 
-        return vel + addSpeed * withDir;
-    }
+		return vel + addSpeed * withDir;
+	}
 
-    glm::vec3 UpdateAirVelocity(glm::vec3 wishdir, glm::vec3 vel) {
-        vel = MathHelper::XZ(vel);
+	glm::vec3 UpdateAirVelocity(glm::vec3 wishdir, glm::vec3 vel) {
+		vel = MathHelper::XZ(vel);
 
-        float currentSpeed = glm::dot(vel, wishdir);
-        float wishspeed = maxSpeedAir;
-        float addSpeed = wishspeed - currentSpeed;
+		float currentSpeed = glm::dot(vel, wishdir);
+		float wishspeed = maxSpeedAir;
+		float addSpeed = wishspeed - currentSpeed;
 
-        if (addSpeed <= 0.0f) {
-            return vel;
-        }
+		if (addSpeed <= 0.0f) {
+			return vel;
+		}
 
-        float accelspeed = airAcceleration * Time::DeltaTimeF * wishspeed;
+		float accelspeed = airAcceleration * Time::DeltaTimeF * wishspeed;
 
-        if (accelspeed > addSpeed) {
-            accelspeed = addSpeed;
-        }
+		if (accelspeed > addSpeed) {
+			accelspeed = addSpeed;
+		}
 
-        return vel + accelspeed * wishdir;
-    }
+		return vel + accelspeed * wishdir;
+	}
 
-    void Jump()
-    {
-        LeadBody->SetLinearVelocity(JPH::Vec3(velocity.x, 9.5, velocity.z));
-        jumpDelay.AddDelay(0.2);
-    }
+	void Jump()
+	{
+		LeadBody->SetLinearVelocity(JPH::Vec3(velocity.x, 9.5, velocity.z));
+		jumpDelay.AddDelay(0.2);
+	}
 
-    bool CheckGroundAt(vec3 location)
-    {
+	bool CheckGroundAt(vec3 location)
+	{
 
-        if (jumpDelay.Wait())
-            return false;
+		if (jumpDelay.Wait())
+			return false;
 
-        auto result = Physics::LineTrace(location, location - vec3(0, 0.92, 0), BodyType::GroupCollisionTest, {LeadBody});
+		auto result = Physics::LineTrace(location, location - vec3(0, 0.92, 0), BodyType::GroupCollisionTest, { LeadBody });
 
-        return result.hasHit;
+		return result.hasHit;
 
-    }
+	}
 
-    vec3 testStart;
+	vec3 testStart;
 
 
 
 public:
 	Player()
-    {
+	{
 
-        bikeMesh = new SkeletalMesh();
-        Drawables.push_back(bikeMesh);
+		bikeMesh = new SkeletalMesh();
+		Drawables.push_back(bikeMesh);
+		bikeArmsMesh = new SkeletalMesh();
+		Drawables.push_back(bikeArmsMesh);
 
-        ClassName = "info_player_start";
+		ClassName = "info_player_start";
 
-        SaveGame = true;
+		SaveGame = true;
 
-        Tags = {"player"};
+		Tags = { "player" };
 
-        Health = 100;
+		Health = 100;
 
-    }
-    ~Player() { Logger::Log("player destructor"); }
+	}
+	~Player() { Logger::Log("player destructor"); }
 
 	float Speed = 5;
 
-    static Player* Instance;
+	static Player* Instance;
 
-    void FromData(EntityData data)
-    {
-        Entity::FromData(data);
-        cameraRotation.y = data.GetPropertyFloat("angle") + 90;
-    }
+	void FromData(EntityData data)
+	{
+		Entity::FromData(data);
+		cameraRotation.y = data.GetPropertyFloat("angle") + 90;
+	}
 
 	void Start()
 	{
 
-        Instance = this;
+		Instance = this;
 
 		LeadBody = Physics::CreateCharacterBody(this, Position, 0.75, 1.8, 90);
-        Physics::SetGravityFactor(LeadBody, 3);
+		Physics::SetGravityFactor(LeadBody, 3);
 
 
 
-        ParticleSystem::PreloadSystemAssets("decal_blood");
-        ParticleSystem::PreloadSystemAssets("hit_flesh");
+		ParticleSystem::PreloadSystemAssets("decal_blood");
+		ParticleSystem::PreloadSystemAssets("hit_flesh");
 
-        soundPlayer = new SoundPlayer();
-        Level::Current->AddEntity(soundPlayer);
-        soundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/mew.wav");
+		soundPlayer = new SoundPlayer();
+		Level::Current->AddEntity(soundPlayer);
+		soundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/mew.wav");
 
-        Hud.Init(this);
+		Hud.Init(this);
 
-        CreateWeapon("weapon_shotgun");
+		CreateWeapon("weapon_shotgun");
 
 	}
 
-    void UpdateWalkMovement(vec2 input);
-    void UpdateBikeMovement(vec2 input);
+	void UpdateWalkMovement(vec2 input);
+	void UpdateBikeMovement(vec2 input);
 
-    void CreateWeapon(const string& className);
-    void DestroyWeapon();
+	void CreateWeapon(const string& className);
+	void DestroyWeapon();
 
-    void Destroy()
-    {
-        Entity::Destroy();
+	void Destroy()
+	{
+		Entity::Destroy();
 
-        Instance = nullptr;
+		Instance = nullptr;
 
-    }
+	}
 
-    dtObstacleRef playerObstacle = 0;
+	dtObstacleRef playerObstacle = 0;
 
-    void UpdateWeapon();
+	void UpdateWeapon();
 
-    void UpdateDebugUI();
+	void UpdateDebugUI();
 
-    bool OnGround = false;
+	bool OnGround = false;
 
-    void PerformAttack();
+	void PerformAttack();
 
-    void Update();
-    void LateUpdate();
+	void Update();
+	void LateUpdate();
 
-    void Serialize(json& target);
-    void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
-    void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon);
+	void Serialize(json& target);
+	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
+	void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon);
 
-    void Deserialize(json& source);
+	void Deserialize(json& source);
 
-    void StartBike();
-    void StopBike();
-    void ToggleBike();
+	void StartBike();
+	void StopBike();
+	void ToggleBike();
 
-    protected:
+protected:
 
-        void LoadAssets();
+	void LoadAssets();
 
 };

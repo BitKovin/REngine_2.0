@@ -61,9 +61,13 @@ void Player::UpdateBikeMovement(vec2 input)
     const float lateralFriction = 1.5f;
     const float deltaTime = Time::DeltaTimeF; // Implement time handling
 
+    vec3 moveRot = vec3(0, Camera::rotation.y - (input.x * 45.0 * 0), 0);
+
     // Get bike's forward direction (based on camera yaw)
-    vec3 forward = MathHelper::GetForwardVector(vec3(0, Camera::rotation.y, 0));
-    vec3 right = MathHelper::GetRightVector(Camera::rotation);
+    vec3 forward = MathHelper::GetForwardVector(moveRot);
+    vec3 right = MathHelper::GetRightVector(moveRot);
+
+    
 
     // Always move forward (override input)
     input = vec2(0, 1);
@@ -99,16 +103,19 @@ void Player::UpdateBikeMovement(vec2 input)
 
     AnimationPose pose = bikeMesh->GetAnimationPose();
 
-    MathHelper::Transform frontRot = pose.GetBoneTransform("front");
+    MathHelper::Transform frontRot = pose.GetBoneTransform("pelvis");
 	MathHelper::Transform wheelRot = pose.GetBoneTransform("wheel_front");
 
 	frontRot.Rotation -= vec3(0, bikeMesh->Rotation.z * 1.0, 0);
 	wheelRot.Rotation += vec3(Time::GameTime * 1000.0f, 0, 0);
 
-	pose.SetBoneTransformEuler("front", frontRot);
+	pose.SetBoneTransformEuler("pelvis", frontRot);
 	pose.SetBoneTransformEuler("wheel_front", wheelRot);
 
     bikeMesh->PasteAnimationPose(pose);
+    bikeArmsMesh->PasteAnimationPose(bikeMesh->GetAnimationPose());
+    bikeArmsMesh->Rotation = bikeMesh->Rotation;
+
 
     if (OnGround)
     {
@@ -245,6 +252,13 @@ void Player::Update()
         cameraRotation.y += Input::MouseDelta.x;
         cameraRotation.x -= Input::MouseDelta.y;
 
+        cameraRotation.x = glm::clamp(cameraRotation.x, -89.0f,89.0f);
+
+        if (on_bike)
+        {
+            cameraRotation.x = glm::clamp(cameraRotation.x, -50.0f, 59.0f);
+        }
+
     }
 
 
@@ -278,8 +292,9 @@ void Player::Update()
     {
         UpdateBikeMovement(input);
     }
-    
-
+    bikeArmsMesh->Rotation = bikeMesh->Rotation;
+    bikeArmsMesh->Position = bikeMesh->Position;
+    bikeArmsMesh->PasteAnimationPose(bikeMesh->GetAnimationPose());
 
 
 
@@ -388,4 +403,8 @@ void Player::LoadAssets()
     bikeMesh->TexturesLocation = "GameData/Models/Player/Bike/Textures/";
     bikeMesh->PreloadAssets();
     bikeMesh->PlayAnimation("hide",true);
+
+    bikeArmsMesh->LoadFromFile("GameData/arms.glb");
+    bikeArmsMesh->PreloadAssets();
+
 }

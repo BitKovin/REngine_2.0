@@ -294,6 +294,9 @@ void roj::Animator::UpdateAnimationPose()
 
 void roj::Animator::update(float dt)
 {
+
+    if (m_model == nullptr) return;
+
     if (m_currAnim && m_playing)
     {
         m_currTime += m_currAnim->ticksPerSec * dt;

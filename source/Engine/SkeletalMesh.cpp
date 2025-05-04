@@ -3,6 +3,9 @@
 
 void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 {
+
+	if (model == nullptr) return;
+
 	SetLooped(Loop);
 	animator.set(name);
 	PlayAnimation(interpIn);
@@ -20,6 +23,7 @@ void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 // In your SkeletalMesh:
 MathHelper::Transform SkeletalMesh::PullRootMotion()
 {
+
 	// 1) grab the raw deltas from the animator
 	glm::vec3 deltaPos = animator.totalRootMotionPosition - oldRootMotionPos;
 	glm::vec3 deltaRot = animator.totalRootMotionRotation - oldRootMotionRot;

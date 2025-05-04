@@ -30,7 +30,7 @@ GameStart::GameStart()
     Input::AddAction("qSave")->AddKeyboardKey(SDL_KeyCode::SDLK_F5);
     Input::AddAction("qLoad")->AddKeyboardKey(SDL_KeyCode::SDLK_F8);
 
-    Input::AddAction("bike")->AddKeyboardKey(SDL_KeyCode::SDLK_LSHIFT);
+    Input::AddAction("bike")->AddKeyboardKey(SDL_KeyCode::SDLK_LSHIFT)->AddButton(GamepadButton::LeftShoulder);
 
 }
 
