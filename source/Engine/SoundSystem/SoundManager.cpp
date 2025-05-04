@@ -1,5 +1,7 @@
 #include "SoundManager.hpp"
 
+#include <AL/alext.h>
+
 std::unordered_map<std::string, ALuint> SoundManager::loadedBuffers;
 ALCdevice* SoundManager::device = nullptr;
 ALCcontext* SoundManager::context = nullptr;
@@ -23,39 +25,30 @@ void SoundManager::Initialize()
         alcCloseDevice(device);
         return;
     }
+
     printf("Vendor:   %s\n", alGetString(AL_VENDOR));
     printf("Renderer: %s\n", alGetString(AL_RENDERER));
 
-    // Enable HRTF if supported
     if (!alcIsExtensionPresent(device, "ALC_SOFT_HRTF"))
-    {
         fprintf(stderr, "Error: ALC_SOFT_HRTF not supported\n");
-    }
 
     if (!alcIsExtensionPresent(device, "ALC_EXT_EFX"))
-    {
         fprintf(stderr, "Error: ALC_EXT_EFX not supported\n");
-    }
 
     ALboolean hasFloat32 = alIsExtensionPresent("AL_EXT_float32");
-    if (!hasFloat32) {
+    if (!hasFloat32)
         printf("AL_EXT_float32 not supported\n");
-        // Fall back to a different format or handle the error
-    }
 
-    // Set global distance model
     alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 }
 
 void SoundManager::Close()
 {
-    // Clear loaded buffer cache
     for (auto& kv : loadedBuffers) {
         alDeleteBuffers(1, &kv.second);
     }
     loadedBuffers.clear();
 
-    // Destroy context and device
     alcMakeContextCurrent(nullptr);
     if (context) alcDestroyContext(context);
     context = nullptr;
@@ -65,11 +58,10 @@ void SoundManager::Close()
 
 void SoundManager::Update()
 {
-    // Update listener transform based on camera
     vec3 camPos = Camera::position;
     vec3 camForward = Camera::Forward();
     vec3 camUp = Camera::Up();
-    vec3 camVel = Camera::velocity; // if available
+    vec3 camVel = Camera::velocity;
 
     alListener3f(AL_POSITION, camPos.x, camPos.y, camPos.z);
     alListener3f(AL_VELOCITY, camVel.x, camVel.y, camVel.z);
@@ -83,12 +75,11 @@ void SoundManager::Update()
 
 ALuint SoundManager::LoadOrGetSoundFileBuffer(std::string path)
 {
-    alGetError();//in case if there is unrelated error
+    alGetError();
 
-    auto foundBuffer = loadedBuffers.find(path);
-    if (foundBuffer != loadedBuffers.end())
-    {
-        return foundBuffer->second;
+    auto found = loadedBuffers.find(path);
+    if (found != loadedBuffers.end()) {
+        return found->second;
     }
 
     SDL_AudioSpec wavSpec;
@@ -100,22 +91,18 @@ ALuint SoundManager::LoadOrGetSoundFileBuffer(std::string path)
         return 0;
     }
 
-    // Optional: Debug print to verify audio specs
     printf("Loading WAV: channels=%d, format=%d, freq=%d\n",
         wavSpec.channels, wavSpec.format, wavSpec.freq);
 
     ALenum format;
 
     if (wavSpec.channels == 1) {
-        if (wavSpec.format == AUDIO_U8) {
+        if (wavSpec.format == AUDIO_U8)
             format = AL_FORMAT_MONO8;
-        }
-        else if (wavSpec.format == AUDIO_S16LSB || wavSpec.format == AUDIO_S16MSB) {
+        else if (wavSpec.format == AUDIO_S16LSB || wavSpec.format == AUDIO_S16MSB)
             format = AL_FORMAT_MONO16;
-        }
-        else if (wavSpec.format == AUDIO_F32LSB || wavSpec.format == AUDIO_F32MSB) {
+        else if (wavSpec.format == AUDIO_F32LSB || wavSpec.format == AUDIO_F32MSB)
             format = AL_FORMAT_MONO_FLOAT32;
-        }
         else {
             printf("Unsupported format: %d\n", wavSpec.format);
             SDL_FreeWAV(wavBuffer);
@@ -123,15 +110,12 @@ ALuint SoundManager::LoadOrGetSoundFileBuffer(std::string path)
         }
     }
     else if (wavSpec.channels == 2) {
-        if (wavSpec.format == AUDIO_U8) {
+        if (wavSpec.format == AUDIO_U8)
             format = AL_FORMAT_STEREO8;
-        }
-        else if (wavSpec.format == AUDIO_S16LSB || wavSpec.format == AUDIO_S16MSB) {
+        else if (wavSpec.format == AUDIO_S16LSB || wavSpec.format == AUDIO_S16MSB)
             format = AL_FORMAT_STEREO16;
-        }
-        else if (wavSpec.format == AUDIO_F32LSB || wavSpec.format == AUDIO_F32MSB) {
+        else if (wavSpec.format == AUDIO_F32LSB || wavSpec.format == AUDIO_F32MSB)
             format = AL_FORMAT_STEREO_FLOAT32;
-        }
         else {
             printf("Unsupported format: %d\n", wavSpec.format);
             SDL_FreeWAV(wavBuffer);
@@ -143,8 +127,6 @@ ALuint SoundManager::LoadOrGetSoundFileBuffer(std::string path)
         SDL_FreeWAV(wavBuffer);
         return 0;
     }
-
-
 
     ALuint buffer;
     alGenBuffers(1, &buffer);
@@ -172,14 +154,11 @@ ALuint SoundManager::LoadOrGetSoundFileBuffer(std::string path)
 shared_ptr<SoundInstance> SoundManager::GetSoundFromPath(string path)
 {
     ALuint buffer = LoadOrGetSoundFileBuffer(path);
+    if (!buffer) return nullptr;
 
     ALuint source;
+    //alGenSources(1, &source);
+    //alSourcei(source, AL_BUFFER, buffer);
 
-    // Set up OpenAL source
-    alGenSources(1, &source);
-    alSourcei(source, AL_BUFFER, buffer);
-
-
-
-    return make_shared<SoundInstance>(source);
+    return make_shared<SoundInstance>(buffer);
 }

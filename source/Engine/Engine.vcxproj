@@ -294,6 +294,7 @@
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="SkeletalMesh.cpp" />
     <ClCompile Include="skinned_model.cpp" />
+    <ClCompile Include="SoundSystem\SoundInstance.cpp" />
     <ClCompile Include="SoundSystem\SoundManager.cpp" />
     <ClCompile Include="StaticMesh.cpp" />
     <ClCompile Include="ThreadPool.cpp" />

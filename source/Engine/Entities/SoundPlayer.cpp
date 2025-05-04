@@ -29,7 +29,7 @@ void SoundPlayer::LateUpdate()
 		Sound->MinDistance = MinDistance;
 		Sound->MaxDistance = MaxDistance;
 
-		Sound->Update();
+		Sound->Update(Time::DeltaTimeF);
 	}
 
 	UpdateDestroyDelay();

@@ -31,6 +31,7 @@ private:
 
 
 	std::recursive_mutex entityArrayLock = std::recursive_mutex();
+	std::recursive_mutex pendingEntityArrayLock = std::recursive_mutex();
 
 	ThreadPool* asyncUpdateThreadPool;
 
@@ -136,6 +137,7 @@ public:
 	void AddPendingLevelObjects()
 	{
 		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+		std::lock_guard<std::recursive_mutex> lockP(pendingEntityArrayLock);
 		for (auto entity : pendingAddLevelObjects)
 		{
 			LevelObjects.push_back(entity);
@@ -147,6 +149,7 @@ public:
 	{
 
 		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+		std::lock_guard<std::recursive_mutex> lockP(pendingEntityArrayLock);
 
 		for (auto entity : PendingRemoveLevelObjects)
 		{
@@ -168,6 +171,7 @@ public:
 	{
 
 		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+		std::lock_guard<std::recursive_mutex> lockP(pendingEntityArrayLock);
 
 		for (auto entity : PendingMemoryCleanObjects)
 		{

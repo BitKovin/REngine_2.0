@@ -9,7 +9,24 @@ public:
 
 	void Start()
 	{
-		Level::LoadLevelFromFile("GameData/Maps/test.map");
+		Level::OpenLevel("GameData/Maps/test.map");
+
+        for (size_t i = 0; i < 200; i++)
+        {
+            float angle = i * 0.1f; // Angle step controls tightness of the spiral
+            float radius = 1 + 0.05f * i; // Radius increases over time
+            float x = radius * cos(angle) + 10;
+            float y = 50;
+            float z = radius * sin(angle);
+
+            Entity* ent = LevelObjectFactory::instance().create("testnpc");
+
+            ent->Position = vec3(x, y, z);
+            ent->Start();
+
+            Level::Current->AddEntity(ent);
+        }
+
 	}
 
 private:

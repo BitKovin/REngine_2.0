@@ -137,7 +137,7 @@ Level* Level::OpenLevel(string filePath)
 void Level::AddEntity(LevelObject* obj)
 {
 
-	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+	std::lock_guard<std::recursive_mutex> lock(pendingEntityArrayLock);
 
 	Entity* entity = (Entity*)obj;
 
@@ -169,7 +169,7 @@ void Level::AddEntity(LevelObject* obj)
 
 void Level::RemoveEntity(LevelObject* obj)
 {
-	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+	std::lock_guard<std::recursive_mutex> lock(pendingEntityArrayLock);
 
 	Entity* entity = (Entity*)obj;
 
@@ -212,7 +212,9 @@ vector<Entity*> Level::FindAllEntitiesWithName(const std::string& name)
 
 	vector<Entity*> result;
 
-	for (auto var : LevelObjects)
+	auto curLevelObjects = LevelObjects;
+
+	for (auto var : curLevelObjects)
 	{
 		Entity* entity = (Entity*)var;
 
@@ -241,9 +243,11 @@ Entity* Level::FindEntityWithName(const std::string& name)
 
 Entity* Level::FindEntityWithId(const std::string& id)
 {
-	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+	//std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 
-	for (auto var : LevelObjects)
+	auto curLevelObjects = LevelObjects;
+
+	for (auto var : curLevelObjects)
 	{
 		Entity* entity = (Entity*)var;
 
