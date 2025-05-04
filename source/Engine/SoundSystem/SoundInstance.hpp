@@ -36,6 +36,9 @@ public:
     SoundInstance(ALuint buffer, bool isStereo = false)
       : _buffer(buffer), _isStereo(isStereo)
     {
+
+     
+
         // Ensure pool is initialized once
         SourcePool::Init();
 
@@ -164,18 +167,31 @@ private:
         if (_source != 0) return;
         if (!_active)    return;
 
-        _source = SourcePool::Acquire(_isStereo, this);
-        if (_source) {
-            // attach buffer now
-            alSourcei(_source, AL_BUFFER, _buffer);
+#ifdef __EMSCRIPTEN__
+        // On Web builds, always gen a fresh source (no pooling)
+        ALuint src = 0;
+        alGenSources(1, &src);
+        if (alGetError() == AL_NO_ERROR) {
+            _source = src;
         }
+#else
+        // Desktop: pooled path
+        _source = SourcePool::Acquire(_isStereo, this);
+#endif
+
+        if (_source) alSourcei(_source, AL_BUFFER, _buffer);
     }
 
     // ─── Release back to pool ────────────────────────────────────────────
 
-    void ReleaseSource() {
-        if (_source == 0) return;
+    void ReleaseSource() 
+    {
+        if (!_source) return;
+#ifdef __EMSCRIPTEN__
+        alDeleteSources(1, &_source);
+#else
         SourcePool::Release(_source, _isStereo, this);
+#endif
         _source = 0;
     }
 

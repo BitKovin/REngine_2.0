@@ -22,8 +22,14 @@ void SoundInstance::SourcePool::Init()
             << ", maxStereo=" << maxStereo << "\n";
     }
 
-    printf("max mono: %i \n", maxMono);
-    printf("max stereo: %i \n", maxStereo);
+    if (maxMono > 512)
+        maxMono = 512;
+
+    if(maxStereo > 256)
+        maxStereo = 256;
+
+    printf("max mono: %zu \n", maxMono);
+    printf("max stereo: %zu \n", maxStereo);
 
     // Ensure at least a minimum limit
     if (maxMono < 8) maxMono = 8;  // Arbitrary safe minimum
@@ -91,11 +97,13 @@ ALuint SoundInstance::SourcePool::Acquire(bool stereo, SoundInstance* requester)
 
 void SoundInstance::SourcePool::Release(ALuint src, bool stereo, SoundInstance* inst)
 {
+    return;
     std::lock_guard<std::recursive_mutex> lock(mtx);
     alSourceStop(src);
     alSourcei(src, AL_BUFFER, 0);
     liveOwners.erase(src);
     auto& pool = stereo ? freeStereo : freeMono;
+    
     pool.push_back(src);
 
 #ifdef SOUND_POOL_DEBUG
