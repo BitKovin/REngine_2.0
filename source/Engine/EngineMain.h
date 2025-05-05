@@ -167,71 +167,7 @@ public:
     std::future<void> gameUpdateFuture;
 
     // Main game loop.
-    void MainLoop() 
-    {
-
-        // Wait for game update here
-       
-
-        ImStartFrame();
-
-        bool loadedlevel = Level::LoadPendingLevel();
-
-        Level::Current->LoadAssets();
-
-        if (asyncGameUpdate)
-        {
-            FinishFrame();
-        }
-        
-
-        Time::Update();
-        Input::Update();
-        
-        Input::UpdateMouse();
-
-        // Start GameUpdate here, either asynchronously or synchronously.
-        if (asyncGameUpdate) {
-            // Optionally, check if a previous async GameUpdate is still running.
-
-            // Launch GameUpdate asynchronously.
-            gameUpdateFuture = std::async(std::launch::async, &EngineMain::GameUpdate, this);
-        }
-        else {
-            // Run GameUpdate on the main thread.
-            GameUpdate();
-        }
-
-        if (asyncGameUpdate == false)
-        {
-            FinishFrame();
-        }
-
-        Render();
-
-
-        if (asyncGameUpdate)
-        {
-            if (gameUpdateFuture.valid()) {
-                // If it's not done yet, wait (or you could choose to skip/warn).
-                if (gameUpdateFuture.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
-                    gameUpdateFuture.wait();
-                }
-            }
-        }
-
-
-        if (Input::GetAction("fullscreen")->Pressed())
-        {
-            //ToggleFullscreen(Window);
-
-            Level::OpenLevel("GameData/Maps/test.map");
-
-        }
-
-
-
-    }
+    void MainLoop();
 
 
 	void GameUpdate()

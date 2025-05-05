@@ -135,7 +135,7 @@ void RibbonEmitter::DrawForward(mat4x4 view, mat4x4 projection)
     ShaderProgram* forward_shader_program = nullptr;
 
     if (forward_shader_program == nullptr)
-        forward_shader_program = ShaderManager::GetShaderProgram();
+        forward_shader_program = ShaderManager::GetShaderProgram("default_vertex", PixelShader);
 
     forward_shader_program->UseProgram();
 

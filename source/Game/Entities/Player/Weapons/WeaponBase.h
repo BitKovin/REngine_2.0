@@ -15,6 +15,7 @@ class Weapon : public Entity
 {
 public:
 
+	float HideWeapon = 0;
 
 
 private:

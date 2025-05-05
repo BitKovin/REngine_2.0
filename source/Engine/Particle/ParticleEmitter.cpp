@@ -32,7 +32,7 @@ void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
 	ShaderProgram* forward_shader_program = nullptr;
 
 	if (forward_shader_program == nullptr)
-		forward_shader_program = ShaderManager::GetShaderProgram("instanced_bilboard_vertex");
+		forward_shader_program = ShaderManager::GetShaderProgram("instanced_bilboard_vertex", PixelShader);
 
 	forward_shader_program->UseProgram();
 

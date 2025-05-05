@@ -17,7 +17,9 @@ uniform sampler2D u_texture;  // Changed from "texture" to avoid keyword conflic
 uniform vec3 cameraPosition;
 
 uniform highp sampler2DShadow shadowMap;
+uniform highp sampler2D      shadowMapRaw; 
 uniform highp sampler2DShadow shadowMapDetail;
+uniform highp sampler2D      shadowMapDetailRaw; 
 uniform int shadowMapSize;  // width, height of shadow map
 uniform vec3 lightDirection;   
 uniform float shadowDistance1;
@@ -31,8 +33,10 @@ uniform float shadowRadius4;
 uniform float shaddowOffsetScale;
 
 uniform bool is_particle;
+uniform bool is_decal;
 
-
+//#define USE_PCSS_DIRECT
+#define USE_PCSS_INDIRECT
 
 vec3 CalculateDirectionalLight();
 
@@ -52,93 +56,224 @@ void main() {
     FragColor = vec4(color, alpha);
 }
 
+//—— 1) project + atlas remap → [0..1] ——
+vec3 projectPC(vec4 sc, vec2 mapOffset) {
+    vec3 pc = sc.xyz / sc.w * 0.5 + 0.5;
+    pc.xy   = pc.xy * 0.5 + mapOffset * 0.5;
+    return pc;
+}
+
+//—— 2) original bias calculation ——
+float computeBias(
+    float shadowDistance,
+    int   pcfRadius,
+    float biasScale,
+    float NdotL
+) {
+    float worldTexel = (2.0 * shadowDistance) / float(shadowMapSize);
+    float worldBase  = biasScale * worldTexel;
+    float worldBias  = worldBase * (1.0 + (1.0 - NdotL));
+    return worldBias / (shadowDistance + 1000.0) * (float(pcfRadius) + 1.0);
+}
+
+//—— 3a) fixed‑radius PCF — returns [0..1] ——
+float computePCF(
+    highp sampler2DShadow mapCmp,
+    vec3            pc,
+    vec2            texelSize,
+    float           bias,
+    int             radius,
+    vec2            tileMin,
+    vec2            tileMax
+) {
+    float sum = 0.0;
+    float n   = 0.0;
+    
+    for (int xo = -radius; xo <= radius; ++xo) {
+        for (int yo = -radius; yo <= radius; ++yo) {
+            n += 1.0;
+            vec2 uv = clamp(
+                pc.xy + vec2(xo,yo) * texelSize,
+                tileMin, tileMax
+            );
+            sum += texture(
+                mapCmp,
+                vec3(uv, pc.z - bias)
+            );
+        }
+    }
+    return sum / n;
+}
+
+//—— 3b) PCSS — returns [0..1] ——
+float computePCSS(
+    sampler2D       mapRaw,
+    highp sampler2DShadow mapCmp,
+    vec3            pc,
+    vec2            texelSize,
+    float           baseBias,
+    int             pcfRadius,
+    float           shadowDistance,
+    vec2            tileMin,
+    vec2            tileMax,
+    float           lightRadius,
+    float           hideStart,
+    float           hideEnd
+) {
+    // 3b.1) Blocker search (3×3)
+    const int br = 3;
+    float sumB = 0.0;
+    int   cntB = 0;
+    for (int xo = -br; xo <= br; ++xo) {
+        for (int yo = -br; yo <= br; ++yo) {
+            vec2 uv = clamp(
+                pc.xy + vec2(xo, yo) * texelSize * length(vec2(xo, yo)) * 5.0,
+                tileMin, tileMax
+            );
+            float d = texture(mapRaw, uv).r;
+            if (d < pc.z - baseBias) {
+                sumB += d;
+                cntB++;
+            }
+        }
+    }
+    if (cntB == 0) return 1.0; // No blockers, fully lit
+
+    float avgB = sumB / float(cntB);
+
+    // 3b.2) Linearize into world-space [0..maxDepth]
+    float maxDepth = shadowDistance + 1000.0;
+    float rWS = pc.z * maxDepth;
+    float bWS = avgB * maxDepth;
+
+    // 3b.3) Penumbra width in world units
+    float penWS = lightRadius * (rWS - bWS) / bWS;
+
+    // 3b.4) To texel radius
+    float penUV = penWS / (2.0 * shadowDistance);
+    float rTex = penUV * float(shadowMapSize);
+    float maxR = float(pcfRadius) * 8.0;
+    rTex = clamp(rTex, 2.0, maxR);
+    int r = int(ceil(rTex));
+
+    // 3b.5) Dynamic bias
+    float dratio = (rWS - bWS) / bWS;
+    float dynBias = baseBias * max(dratio, 1.0);
+
+    // 3b.6) PCF compare pass
+    float sumS = 0.0;
+    int   cntS = 0;
+    for (int xo = -r; xo <= r; ++xo) {
+        for (int yo = -r; yo <= r; ++yo) {
+            vec2 uv = clamp(
+                pc.xy + vec2(xo, yo) * texelSize,
+                tileMin, tileMax
+            );
+            sumS += texture(
+                mapCmp,
+                vec3(uv, pc.z - dynBias)
+            );
+            cntS++;
+        }
+    }
+
+    float pcssFactor = sumS / float(cntS);
+
+    // Apply fade based on distance to caster
+    float depthDiffWS = rWS - bWS;
+    float fadeT = clamp((depthDiffWS - hideStart) / (hideEnd - hideStart), 0.0, 1.0);
+    fadeT = smoothstep(0.0, 1.0, fadeT);
+    float fadedPcssFactor = mix(pcssFactor, 1.0, fadeT);
+
+    return fadedPcssFactor;
+}
+
+//—— your entry point (header unchanged) ——
 vec2 GetDirectionalShadow(
     vec2  mapOffset,
-    float shadowDistance, //radius
+    float shadowDistance,
     vec4  shadowCoords,
     int   pcfRadius,
     float biasScale
 ) {
-    // 1) Project into [0,1] clip space
-    vec4 sc = shadowCoords / shadowCoords.w;
-    vec3 pc = sc.xyz * 0.5 + 0.5;
-
-    // 2) Atlas-cell remap (half-scale)
-    pc *= vec3(0.5, 0.5, 1.0);
-    pc += vec3(mapOffset * vec2(0.5), 0.0);
 
 
 
-// --- before your PCF loop ---
-    
-//  • world units-per-texel (full 2×distance frustum):
-float worldTexelSize = (2.0 * shadowDistance) / float(shadowMapSize);
+    // 1) project
+    vec3 pc = projectPC(shadowCoords, mapOffset);
 
-//  • base bias in world units:
-float biasWorldBase  = biasScale * worldTexelSize;
-
-//  • bump bias on grazing angles:
-float NdotL         = clamp(dot(normalize(v_normal),
-                                normalize(lightDirection)),
+    // 2) prep bias & NdotL & tile bounds
+    float NdotL    = clamp(dot(normalize(v_normal),
+                               normalize(lightDirection)),
                            0.0, 1.0);
-float biasWorld     = biasWorldBase * (1.0 + (1.0 - NdotL));
+    float baseBias = computeBias(shadowDistance, pcfRadius, biasScale, NdotL);
+    vec2  texelSz  = vec2(0.5) / float(shadowMapSize);
+    vec2  tileMin  = mapOffset * 0.5;
+    vec2  tileMax  = tileMin + vec2(0.5);
 
-//  • normalized depth-bias [0..1]:
-float bias          = biasWorld / (shadowDistance + 1000.0) * (float(pcfRadius)+1.0) * 1.0;
+    // 3) direct pass
+    float direct;
+    #ifdef USE_PCSS_DIRECT
+    direct = computePCSS(
+        shadowMapRaw, shadowMap,
+        pc, texelSz,
+        baseBias,
+        pcfRadius,
+        shadowDistance,
+        tileMin, tileMax,
+    );
+    #else
 
-//  • PCF radius in UV:
-vec2 texelSize      = 0.5 / vec2(shadowMapSize);
-vec2 radiusUV       = texelSize * float(pcfRadius);
+    direct = computePCF(
+        shadowMap,
+        pc, texelSz,
+        baseBias,
+        pcfRadius,
+        tileMin, tileMax
+    );
+    
 
-// --- now your PCF loop as before ---
+    #endif
+
+    float directNoDetail = direct;
+
+    // 4) indirect pass
+    float indirect;
+    #ifdef USE_PCSS_INDIRECT
+    
+
+        indirect = computePCSS(
+            shadowMapDetailRaw, shadowMapDetail,
+            pc, texelSz,
+            baseBias,
+            pcfRadius,
+            shadowDistance,
+            tileMin, tileMax, 
+            mix(200.0, 40.0, directNoDetail),
+            0.0,mix(5.0, 50.0, directNoDetail)
+        );
+    
 
 
-    // 5) PCF loop
-    float sumDirect = 0.0;
+    #else
+        float sampleScale = mix(4.0, 1.0, directNoDetail);
+        int   ir          = int(ceil(float(pcfRadius) * sampleScale));
+        float indirectBias= baseBias; // no over‑scale
+        indirect = computePCF(
+            shadowMapDetail,
+            pc,
+            texelSz * sampleScale,
+            indirectBias,
+            ir,
+            tileMin, tileMax
+        );
+    #endif
 
-    float n = 0.0;
-    for (int xo = -pcfRadius; xo <= pcfRadius; ++xo) {
-        for (int yo = -pcfRadius; yo <= pcfRadius; ++yo) {
-            n++;
-            vec2 offs = vec2(xo, yo) * texelSize;
-            sumDirect += texture(
-                shadowMap,
-                vec3(pc.xy + offs,
-                     pc.z - bias)
-            );
+    // 5) mix exactly like your original PCF
+    float finalDirect   = mix(0.0, directNoDetail, indirect);
+    float finalIndirect = mix(indirect * 0.7 + 0.3, 1.0, directNoDetail);
 
-        }
-    }
-
-    float directFactor = sumDirect/n;
-
-    float sumIndirect = 0.0;
-    float sampleScale = mix(4.0,1.0, directFactor);
-    n=0.0;
-
-    for (int xo = -pcfRadius; xo <= pcfRadius; ++xo) 
-    {
-        for (int yo = -pcfRadius; yo <= pcfRadius; ++yo) 
-        {
-            n++;
-            vec2 offs = vec2(xo, yo) * texelSize * sampleScale;
-            sumIndirect += texture(
-                shadowMapDetail,
-                vec3(pc.xy + offs,
-                     pc.z - bias * sampleScale)
-            );
-        }
-    }
-
-    float indirectFactor = sumIndirect/n;
-
-    float directFactorNotDetail = directFactor;
-
-    directFactor = mix(0.0,directFactor, indirectFactor);
-
-    indirectFactor = mix(indirectFactor/2.0 + 0.5,1.0,directFactorNotDetail);
-
-    return vec2(directFactor, indirectFactor);
+    return vec2(finalDirect, finalIndirect);
 }
 
 vec3 CalculateDirectionalLight()
@@ -156,7 +291,7 @@ vec3 CalculateDirectionalLight()
     }
 
     
-    indirectPower = mix(0.1,0.2,indirectPower);
+    indirectPower = mix(0.2,0.35,indirectPower);
 
     // 2) Distance from the camera
     float dist = v_clipPosition.z;

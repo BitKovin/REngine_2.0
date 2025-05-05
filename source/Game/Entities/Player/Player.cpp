@@ -105,12 +105,19 @@ void Player::UpdateBikeMovement(vec2 input)
 
     MathHelper::Transform frontRot = pose.GetBoneTransform("pelvis");
 	MathHelper::Transform wheelRot = pose.GetBoneTransform("wheel_front");
+    MathHelper::Transform rightArm = pose.GetBoneTransform("upperarm_r");
 
 	frontRot.Rotation -= vec3(0, bikeMesh->Rotation.z * 1.0, 0);
 	wheelRot.Rotation += vec3(Time::GameTime * 1000.0f, 0, 0);
 
+    if (currentWeapon)
+    {
+        rightArm.Scale = vec3(0);
+    }
+
 	pose.SetBoneTransformEuler("pelvis", frontRot);
 	pose.SetBoneTransformEuler("wheel_front", wheelRot);
+    pose.SetBoneTransformEuler("upperarm_r", rightArm);
 
     bikeMesh->PasteAnimationPose(pose);
     bikeArmsMesh->PasteAnimationPose(bikeMesh->GetAnimationPose());
@@ -153,8 +160,9 @@ void Player::UpdateWeapon()
 {
     if (currentWeapon == nullptr) return;
 
+    currentWeapon->HideWeapon = bike_progress;
     currentWeapon->Position = Camera::position;
-    currentWeapon->Rotation = cameraRotation;
+    currentWeapon->Rotation = cameraRotation;// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 
 }
 
@@ -285,6 +293,17 @@ void Player::Update()
         UpdateWalkMovement(input);
     }
 
+    if (on_bike)
+    {
+        bike_progress += Time::DeltaTimeF * 3;
+    }
+    else
+    {
+        bike_progress -= Time::DeltaTimeF * 3;
+    }
+
+    bike_progress = glm::clamp(bike_progress, 0.0f, 1.0f);
+
     bikeMesh->Position = Position - vec3(0, 0.9f - 0.8f, 0);
     bikeMesh->Rotation = vec3(0, cameraRotation.y, 0);
     bikeMesh->Update();
@@ -298,8 +317,12 @@ void Player::Update()
 
 
 
-    Camera::position = Position + vec3(0, 0.7, 0);
+    Camera::position = Position + vec3(0, 0.7, 0) - vec3(0,0.25f,0) * bike_progress;
     Camera::rotation = cameraRotation;
+
+    vec3 right = MathHelper::GetRightVector(Camera::rotation);
+
+    Camera::rotation.z = -dot(velocity, right) * mix(-0.2f, 0.3f, bike_progress);
 
     Camera::ApplyCameraShake(Time::DeltaTimeF);
 

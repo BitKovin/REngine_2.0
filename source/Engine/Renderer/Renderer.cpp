@@ -263,6 +263,8 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
 
     shader->SetTexture("shadowMap", EngineMain::MainInstance->MainRenderer->DirectionalShadowMap->id());
     shader->SetTexture("shadowMapDetail", EngineMain::MainInstance->MainRenderer->DetailDirectionalShadowMap->id());
+    shader->SetTexture("shadowMapRaw", EngineMain::MainInstance->MainRenderer->DirectionalShadowMap->id());
+    shader->SetTexture("shadowMapDetailRaw", EngineMain::MainInstance->MainRenderer->DetailDirectionalShadowMap->id());
     shader->SetUniform("shadowDistance1", LightManager::LightDistance1);
     shader->SetUniform("shadowDistance2", LightManager::LightDistance2);
     shader->SetUniform("shadowDistance3", LightManager::LightDistance3);

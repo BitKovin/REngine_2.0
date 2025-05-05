@@ -202,6 +202,8 @@ public:
 
 	string texture = "";
 
+	string PixelShader = "default_pixel_simple";
+
 	bool DepthSorting = true;
 
 	static void InitBilboardVaoIfNeeded();

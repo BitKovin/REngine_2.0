@@ -11,7 +11,7 @@ public:
 	{
 		Level::OpenLevel("GameData/Maps/test.map");
 
-        for (size_t i = 0; i < 200; i++)
+        for (size_t i = 0; i < 00; i++)
         {
             float angle = i * 0.1f; // Angle step controls tightness of the spiral
             float radius = 1 + 0.05f * i; // Radius increases over time

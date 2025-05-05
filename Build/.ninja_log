@@ -102,3 +102,8 @@
 96	6536	7680857936719982	CMakeFiles/game.dir/source/Game/Entities/TestNpc.cpp.o	dc0d593e8962f78c
 82	7231	7680857936583049	CMakeFiles/game.dir/source/Game/Entities/Player/Player.cpp.o	49e83c0a7d46e854
 7231	10588	7680858008066839	main.js	2b6d4217b9c15ff1
+51	7246	7681106929848174	CMakeFiles/engine.dir/source/Engine/LightSystem/LightManager.cpp.o	96014d030cff7fab
+130	8630	7681106930643098	CMakeFiles/engine.dir/source/Engine/Renderer/Renderer.cpp.o	5d7813976e5d9ff7
+194	9077	7681106931280339	CMakeFiles/game.dir/source/Game/GameStart.cpp.o	7d68c0ebb5d4f0c8
+8630	9631	7681107015645432	libengine.a	a12716d2ae7253da
+9631	24205	7681107025649661	main.js	2b6d4217b9c15ff1

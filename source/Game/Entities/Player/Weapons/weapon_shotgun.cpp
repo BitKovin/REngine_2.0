@@ -64,7 +64,9 @@ public:
 
 		mat4 boneMat = viewmodel->GetBoneMatrixWorld("muzzle");
 
-		vec3 startLoc = MathHelper::DecomposeMatrix(boneMat).Position - Camera::Forward() * 0.5f;
+		vec3 startLoc = MathHelper::DecomposeMatrix(boneMat).Position;
+
+		startLoc = mix(startLoc, Camera::position, 0.6f);
 
 		int n = 0;
 
@@ -97,7 +99,14 @@ public:
 	void AsyncUpdate()
 	{
 		viewmodel->Update();
-		arms->PasteAnimationPose(viewmodel->GetAnimationPose());
+		auto pose = viewmodel->GetAnimationPose();
+
+		auto leftHandPose = pose.GetBoneTransform("clavicle_l");
+
+		leftHandPose.Rotation += vec3(50,0,0) * HideWeapon;
+
+		pose.SetBoneTransformEuler("clavicle_l", leftHandPose);
+		arms->PasteAnimationPose(pose);
 	}
 
 	void LateUpdate()
