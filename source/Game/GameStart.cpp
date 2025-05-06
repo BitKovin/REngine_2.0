@@ -1,6 +1,8 @@
 #include <Entity.hpp>
 #include <Input.h>
 
+#include <BSP/Quake3Bsp.h>
+
 class GameStart : public Entity
 {
 public:
@@ -9,6 +11,12 @@ public:
 
 	void Start()
 	{
+
+        CQuake3BSP bsp;
+        bsp.LoadBSP("GameData/Maps/oa_dm1.bsp");
+        bsp.BuildVBO();
+        bsp.GenerateTexture();
+        bsp.GenerateLightmap();
 		Level::OpenLevel("GameData/Maps/test.map");
 
         for (size_t i = 0; i < 00; i++)

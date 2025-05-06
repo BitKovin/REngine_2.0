@@ -1,0 +1,5 @@
+LOG::
+
+lm START ID: 7
+--------------
+m_numOfLightmaps 14

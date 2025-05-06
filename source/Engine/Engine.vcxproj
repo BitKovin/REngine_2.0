@@ -237,6 +237,7 @@
     <ClCompile Include="animator.cpp" />
     <ClCompile Include="AssetRegistry.cpp" />
     <ClCompile Include="AssetRegisty.cpp" />
+    <ClCompile Include="BSP\Quake3Bsp.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DebugDraw.cpp" />
     <ClCompile Include="EngineMain.cpp" />
@@ -309,6 +310,7 @@
     <ClInclude Include="BoundingSphere.hpp" />
     <ClInclude Include="BoundingBox.hpp" />
     <ClInclude Include="BrushFaceMesh.hpp" />
+    <ClInclude Include="BSP\Quake3Bsp.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DebugDraw.hpp" />
     <ClInclude Include="Delay.hpp" />
