@@ -193,6 +193,7 @@ class CQuake3BSP : public IDrawMesh
   public:
     // Our constructor
     CQuake3BSP();
+    ~CQuake3BSP();
 
     // This loads a .bsp file by it's file name (Returns true if successful)
     bool LoadBSP(const char* filename);
@@ -272,30 +273,10 @@ class CQuake3BSP : public IDrawMesh
         return (byteValue & (1 << bitIndex)) != 0;
     }
 
-    void DrawForward(mat4x4 view, mat4x4 projection)
-    {
-
-    }
+    void DrawForward(mat4x4 view, mat4x4 projection);
 
     // Optimized rendering loop
-    void RenderBSP(const glm::vec3& cameraPos) {
-        // 1. Find camera's cluster via BSP tree traversal
-        int cameraCluster = FindCameraCluster(cameraPos);
-
-        // 2. Iterate through all leaves
-        for (const tBSPLeaf& leaf : leafs) {
-            if (leaf.cluster < 0) continue; // Skip invalid clusters
-
-            // 3. Check visibility using visdata
-            if (!IsClusterVisible(cameraCluster, leaf.cluster)) continue;
-
-            // 4. Render visible leaf's faces
-            for (int i = 0; i < leaf.n_leaffaces; i++) {
-                int faceIndex = leafFaces[leaf.leafface + i];
-                RenderSingleFace(faceIndex);
-            }
-        }
-    }
+    void RenderBSP(const glm::vec3& cameraPos);
 
 };
 #endif

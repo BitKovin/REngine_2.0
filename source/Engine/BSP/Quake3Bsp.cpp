@@ -27,6 +27,12 @@ CQuake3BSP::CQuake3BSP() {
     m_pIndices = NULL;
 }
 
+CQuake3BSP::~CQuake3BSP()
+{
+    delete[] pTextures;
+    delete[] pLightmaps;
+}
+
 bool CQuake3BSP::LoadBSP(const char* filename) {
 
     if (!filename) {
@@ -144,15 +150,43 @@ bool CQuake3BSP::LoadBSP(const char* filename) {
     // that Y-axis is pointing up (like normal!) :)
     // Go through all of the vertices that need to be read
     for (int i = 0; i < m_numOfVerts; i++) {
-        // Read in the current vertex
         fread(&m_pVerts[i], 1, sizeof(tBSPVertex), fp);
-        // Swap the y and z values, and negate the new z so Y is up.
+        // Swap Y/Z and negate Z for vertex position
         float temp = m_pVerts[i].vPosition.y;
         m_pVerts[i].vPosition.y = m_pVerts[i].vPosition.z;
         m_pVerts[i].vPosition.z = -temp;
+
+        // Also swap normal coordinates
+        temp = m_pVerts[i].vNormal.y;
+        m_pVerts[i].vNormal.y = m_pVerts[i].vNormal.z;
+        m_pVerts[i].vNormal.z = -temp;
     }
 
-    tBSPTexture* pTextures = new tBSPTexture[m_numOfTextures];
+    // Add plane coordinate conversion after loading planes:
+    for (auto& plane : planes) {
+        // Swap Y/Z and negate Z for plane normal
+        float temp = plane.normal.y;
+        plane.normal.y = plane.normal.z;
+        plane.normal.z = -temp;
+
+        // Recalculate plane distance with new normal
+        glm::vec3 oldNormal(plane.normal.x, plane.normal.z, -plane.normal.y);
+        plane.dist = glm::dot(oldNormal, glm::vec3(0, 0, 0)) - plane.dist;
+    }
+
+    // Convert model bounds after loading models:
+    for (auto& model : models) {
+        // Swap Y/Z and negate Z for mins/maxs
+        float temp = model.mins[1];
+        model.mins[1] = model.mins[2];
+        model.mins[2] = -temp;
+
+        temp = model.maxs[1];
+        model.maxs[1] = model.maxs[2];
+        model.maxs[2] = -temp;
+    }
+
+    pTextures = new tBSPTexture[m_numOfTextures];
 
     fseek(fp, lumps[kIndices].offset, SEEK_SET);                // Seek the index information
     fread(m_pIndices, m_numOfIndices, sizeof(int), fp);         // index information
@@ -180,8 +214,7 @@ bool CQuake3BSP::LoadBSP(const char* filename) {
         fread(&pLightmaps[i], 1, sizeof(tBSPLightmap), fp);
         Rbuffers.G_lightMaps.push_back(pLightmaps[i]);
     }
-    delete[] pTextures;
-    delete[] pLightmaps;
+
 
     fclose(fp);
     return (fp);
@@ -269,34 +302,75 @@ glm::vec3 CQuake3BSP::GetLightvolColor(const glm::vec3& position)
     return ambient + directional;
 }
 
-int CQuake3BSP::FindCameraCluster(const glm::vec3& cameraPos)
-{
-    // Start at root node (index 0 for world model)
-    int nodeIndex = 0;
+int CQuake3BSP::FindCameraCluster(const glm::vec3& cameraPos) {
+    printf("Camera position: %.2f, %.2f, %.2f\n",
+        cameraPos.x, cameraPos.y, cameraPos.z);
 
-    while (nodeIndex >= 0) {
+    int nodeIndex = 0;
+    int depth = 0;
+
+    while (nodeIndex >= 0 && depth < 100) { // Prevent infinite loops
         const tBSPNode& node = nodes[nodeIndex];
         const tBSPPlane& plane = planes[node.plane];
 
-        // Calculate signed distance to plane
+        printf("Node %d - Plane normal: %.2f, %.2f, %.2f Dist: %.2f\n",
+            nodeIndex, plane.normal.x, plane.normal.y, plane.normal.z, plane.dist);
+
         float distance = glm::dot(cameraPos, plane.normal) - plane.dist;
-
-        // Choose front (0) or back (1) child based on distance
         int childIndex = distance >= 0 ? 0 : 1;
-
-        // Get next node/leaf index from chosen child
         int nextChild = node.children[childIndex];
 
-        if (nextChild < 0) { // Found a leaf
+        printf("Distance: %.2f, Child: %d, Next: %d\n",
+            distance, childIndex, nextChild);
+
+        if (nextChild < 0) {
             int leafIndex = -(nextChild + 1);
+            printf("Found leaf %d, cluster %d\n",
+                leafIndex, leafs[leafIndex].cluster);
             return leafs[leafIndex].cluster;
         }
 
-        // Continue traversal with child node
         nodeIndex = nextChild;
+        depth++;
     }
 
-    return -1; // Invalid cluster (outside map)
+    printf("Failed to find cluster after %d iterations\n", depth);
+    return -1;
+}
+
+void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
+{
+    RenderBSP(Camera::finalizedPosition * 16.0f);
+}
+
+void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos)
+{
+
+
+    // 1. Find camera's cluster via BSP tree traversal
+    int cameraCluster = FindCameraCluster(cameraPos);
+
+    int drawnFaces = 0;
+
+    // 2. Iterate through all leaves
+    for (const tBSPLeaf& leaf : leafs) {
+        if (leaf.cluster < 0) 
+            continue; // Skip invalid clusters
+
+        // 3. Check visibility using visdata
+        if (!IsClusterVisible(cameraCluster, leaf.cluster)) 
+            continue;
+
+        // 4. Render visible leaf's faces
+        for (int i = 0; i < leaf.n_leaffaces; i++) {
+            int faceIndex = leafFaces[leaf.leafface + i];
+            RenderSingleFace(faceIndex);
+            drawnFaces++;
+        }
+    }
+
+    printf("drawn %i faces\n", cameraCluster);
+
 }
 
 void CQuake3BSP::BSPDebug(int index) {
@@ -314,49 +388,67 @@ void CQuake3BSP::BSPDebug(int index) {
     printf("EndFace.\n");
 }
 
-void CQuake3BSP::CreateRenderBuffers(int index) {
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+void CQuake3BSP::CreateRenderBuffers(int index)
+{
+    // 1) generate & bind a VAO for this face, store it
+    glGenVertexArrays(1, &FB_array.FB_Idx[index].VAO);
+    glBindVertexArray(FB_array.FB_Idx[index].VAO);
 
-    glGenBuffers(1, &(FB_array.FB_Idx[index].VBO));
+    // 2) upload your vertex data into a VBO
+    glGenBuffers(1, &FB_array.FB_Idx[index].VBO);
     glBindBuffer(GL_ARRAY_BUFFER, FB_array.FB_Idx[index].VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * Rbuffers.v_faceVBOs[index].size(), &Rbuffers.v_faceVBOs[index].front(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,
+        sizeof(GLfloat) * Rbuffers.v_faceVBOs[index].size(),
+        Rbuffers.v_faceVBOs[index].data(),
+        GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(0); // vertex
-    glEnableVertexAttribArray(1); // texture
-    glEnableVertexAttribArray(2); // lightmap
+    // 3) upload your index data into an EBO
+    glGenBuffers(1, &FB_array.FB_Idx[index].EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, FB_array.FB_Idx[index].EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+        sizeof(int) * Rbuffers.v_faceIDXs[index].size(),
+        Rbuffers.v_faceIDXs[index].data(),
+        GL_STATIC_DRAW);
+
+    // 4) set up your attribute pointers once and for all
+    //    each vertex: [ x y z | u v | lm_u lm_v ] = 3+2+2 = 7 floats
+    glEnableVertexAttribArray(0); // pos
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+        7 * sizeof(GLfloat), (void*)(0));
+
+    glEnableVertexAttribArray(1); // texture coords
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
+        7 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+
+    glEnableVertexAttribArray(2); // lightmap coords
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+        7 * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat)));
+
+    // 5) unbind VAO to lock in state
+    glBindVertexArray(0);
+
+    // optional: unbind VBO/EBO to keep clean
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void CQuake3BSP::RenderSingleFace(int index) 
+void CQuake3BSP::RenderSingleFace(int index)
 {
-
     ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", "bsp");
     shader->UseProgram();
 
+    // bind the face's VAO (which has its VBO/EBO & attribs)
+    glBindVertexArray(FB_array.FB_Idx[index].VAO);
+
+    // bind your textures as before
     tBSPFace* pFace = &m_pFaces[index];
-
-    string textureName = std::string(pTextures[pFace->textureID].strName);
-    // GLuint LmID = Rbuffers.lm_ID[index];
-
-    Texture* faceTexture = AssetRegistry::GetTextureFromFile(textureName);
-
-    GLuint lightmapId;
-
-    if (pFace->lightmapID >= 0)
-        lightmapId = m_lightmap_gen_IDs[pFace->lightmapID];
-    else
-        lightmapId = missing_LM_id;
-
-    glBindBuffer(GL_ARRAY_BUFFER, FB_array.FB_Idx[index].VBO);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)0);                     // position attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); // texture attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat))); // lightmap attribute
+    Texture* faceTexture = AssetRegistry::GetTextureFromFile("GameData/Textures/brushes/cat.png");
+    GLuint lightmapId = (pFace->lightmapID >= 0)
+        ? m_lightmap_gen_IDs[pFace->lightmapID]
+        : missing_LM_id;
 
     shader->SetTexture("s_bspTexture", faceTexture);
     shader->SetTexture("s_bspLightmap", lightmapId);
-
     shader->SetUniform("view", Camera::finalizedView);
     shader->SetUniform("projection", Camera::finalizedProjection);
     shader->SetUniform("model", glm::scale(vec3(1.0f / 16.0f)));
@@ -364,7 +456,21 @@ void CQuake3BSP::RenderSingleFace(int index)
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
 
-    glDrawElements(GL_TRIANGLES, pFace->numOfIndices, GL_UNSIGNED_INT, &m_pIndices[pFace->startIndex]);
+
+    glDepthMask(GL_TRUE);
+
+
+    // draw using the EBO already bound in the VAO; offset = 0
+    glDrawElements(GL_TRIANGLES,
+        pFace->numOfIndices,
+        GL_UNSIGNED_INT,
+        0);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    // unbind for cleanliness
+    glBindVertexArray(0);
 }
 
 void CQuake3BSP::GenerateTexture() 
@@ -400,6 +506,7 @@ void CQuake3BSP::GenerateLightmap() {
 
     logfile << "lm START ID: " << missing_LM_id << "\n";
     logfile << "--------------\n";
+
 
     // generate lightmaps
     m_lightmap_gen_IDs = new GLuint[m_numOfLightmaps];

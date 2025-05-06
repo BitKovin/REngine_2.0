@@ -15,5 +15,5 @@ void main()
     vec4 o_texture  = texture(s_bspTexture,  g_TexCoord);
     vec4 o_lightmap = texture(s_bspLightmap, g_LmapCoord);
 
-    FragColor = o_texture * o_lightmap * 3;
+    FragColor = o_texture * o_lightmap * 1;
 }

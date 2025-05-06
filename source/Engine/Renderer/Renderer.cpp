@@ -153,7 +153,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     glClear(GL_COLOR_BUFFER_BIT);
 
     // draw opaque where depth ==
-    glDepthFunc(GL_EQUAL);
+    glDepthFunc(GL_LEQUAL);
     for (auto* mesh : VissibleRenderList) {
         if (mesh->Transparent) continue;
         const mat4& P = mesh->IsViewmodel

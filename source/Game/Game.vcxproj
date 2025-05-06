@@ -254,6 +254,7 @@
     <ClInclude Include="Entities\Player\Player.hpp" />
     <ClInclude Include="Entities\Player\Weapons\Projectiles\Bullet.h" />
     <ClInclude Include="Entities\Player\Weapons\WeaponBase.h" />
+    <ClInclude Include="Entities\TestBsp.h" />
     <ClInclude Include="Entities\TestNpc.hpp" />
     <ClInclude Include="Entities\TestParticleSystem.hpp" />
     <ClInclude Include="Entities\Brushes\TriggerBase.hpp" />
