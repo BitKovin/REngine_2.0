@@ -12,7 +12,7 @@
 #include "../gl.h"
 
 #include "../glm.h"
-
+#include "../ShaderManager.h"
 
 #define FACE_POLYGON 1
 #define MAX_TEXTURES 1000
@@ -212,7 +212,7 @@ class CQuake3BSP : public IDrawMesh
     // r3c:: new functions
     void GenerateTexture();
     void GenerateLightmap();
-    void RenderSingleFace(int index);
+    void RenderSingleFace(int index, ShaderProgram* shader);
     void renderFaces();
     void VBOFiller(int index);
     void BuildVBO();
@@ -258,20 +258,14 @@ class CQuake3BSP : public IDrawMesh
     std::vector<tBSPLightvol> lightVols;
     tBSPVisData visData;
 
+    glm::vec3 originalMins; // Original model bounds in Z-up (before transformation)
+    glm::vec3 originalMaxs;
+
     // Get lighting for a dynamic object at position (x, y, z)
     glm::vec3 GetLightvolColor(const glm::vec3& position);
     int FindCameraCluster(const glm::vec3& cameraPos);
 
-    bool IsClusterVisible(int sourceCluster, int testCluster) {
-        if (sourceCluster < 0 || testCluster < 0) return true;
-
-        int byteIndex = (sourceCluster * visData.sz_vecs) + (testCluster / 8);
-        int bitIndex = testCluster % 8;
-
-        // Convert std::byte to unsigned integer for bitwise operations
-        unsigned char byteValue = std::to_integer<unsigned char>(visData.vecs[byteIndex]);
-        return (byteValue & (1 << bitIndex)) != 0;
-    }
+    bool IsClusterVisible(int sourceCluster, int testCluster);
 
     void DrawForward(mat4x4 view, mat4x4 projection);
 

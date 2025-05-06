@@ -9,7 +9,7 @@
 #include <string>
 
 #include "../AssetRegisty.h"
-#include "../ShaderManager.h"
+
 #include "../Camera.h"
 
 
@@ -34,7 +34,6 @@ CQuake3BSP::~CQuake3BSP()
 }
 
 bool CQuake3BSP::LoadBSP(const char* filename) {
-
     if (!filename) {
         printf("ERROR:: You must specify BSP file as parameter");
         return 0;
@@ -67,6 +66,14 @@ bool CQuake3BSP::LoadBSP(const char* filename) {
     fseek(fp, lumps[kPlanes].offset, SEEK_SET);
     fread(planes.data(), sizeof(tBSPPlane), planes.size(), fp);
 
+    for (auto& plane : planes) {
+        // Quake3 uses Z-up, convert to Y-up
+        float oldY = plane.normal.y;
+        plane.normal.y = plane.normal.z;
+        plane.normal.z = -oldY;
+        // Do not recalculate plane distance; keep original
+    }
+
     // Read Nodes
     nodes.resize(lumps[kNodes].length / sizeof(tBSPNode));
     fseek(fp, lumps[kNodes].offset, SEEK_SET);
@@ -91,6 +98,24 @@ bool CQuake3BSP::LoadBSP(const char* filename) {
     models.resize(lumps[kModels].length / sizeof(tBSPModel));
     fseek(fp, lumps[kModels].offset, SEEK_SET);
     fread(models.data(), sizeof(tBSPModel), models.size(), fp);
+
+    // Store original bounds before transformation
+    if (!models.empty()) {
+        originalMins = glm::vec3(models[0].mins[0], models[0].mins[1], models[0].mins[2]);
+        originalMaxs = glm::vec3(models[0].maxs[0], models[0].maxs[1], models[0].maxs[2]);
+    }
+
+    for (auto& model : models) {
+        // Convert mins
+        float temp = model.mins[1];
+        model.mins[1] = model.mins[2];
+        model.mins[2] = -temp;
+
+        // Convert maxs
+        temp = model.maxs[1];
+        model.maxs[1] = model.maxs[2];
+        model.maxs[2] = -temp;
+    }
 
     // Read Brushes
     brushes.resize(lumps[kBrushes].length / sizeof(tBSPBrush));
@@ -139,65 +164,34 @@ bool CQuake3BSP::LoadBSP(const char* filename) {
     m_pIndices = new int[m_numOfIndices];
 
     // Allocate memory to read in the texture information.
-    // We create a local pointer of tBSPTextures because we don't need
-    // that information once we create texture maps from it.
     m_numOfTextures = lumps[kTextures].length / sizeof(tBSPTexture);
 
     // Seek to the position in the file that stores the vertex information
     fseek(fp, lumps[kVertices].offset, SEEK_SET);
 
-    // Since Quake has the Z-axis pointing up, we want to convert the data so
-    // that Y-axis is pointing up (like normal!) :)
-    // Go through all of the vertices that need to be read
+    // Convert vertices to Y-up
     for (int i = 0; i < m_numOfVerts; i++) {
         fread(&m_pVerts[i], 1, sizeof(tBSPVertex), fp);
-        // Swap Y/Z and negate Z for vertex position
         float temp = m_pVerts[i].vPosition.y;
         m_pVerts[i].vPosition.y = m_pVerts[i].vPosition.z;
         m_pVerts[i].vPosition.z = -temp;
 
-        // Also swap normal coordinates
         temp = m_pVerts[i].vNormal.y;
         m_pVerts[i].vNormal.y = m_pVerts[i].vNormal.z;
         m_pVerts[i].vNormal.z = -temp;
     }
 
-    // Add plane coordinate conversion after loading planes:
-    for (auto& plane : planes) {
-        // Swap Y/Z and negate Z for plane normal
-        float temp = plane.normal.y;
-        plane.normal.y = plane.normal.z;
-        plane.normal.z = -temp;
-
-        // Recalculate plane distance with new normal
-        glm::vec3 oldNormal(plane.normal.x, plane.normal.z, -plane.normal.y);
-        plane.dist = glm::dot(oldNormal, glm::vec3(0, 0, 0)) - plane.dist;
-    }
-
-    // Convert model bounds after loading models:
-    for (auto& model : models) {
-        // Swap Y/Z and negate Z for mins/maxs
-        float temp = model.mins[1];
-        model.mins[1] = model.mins[2];
-        model.mins[2] = -temp;
-
-        temp = model.maxs[1];
-        model.maxs[1] = model.maxs[2];
-        model.maxs[2] = -temp;
-    }
-
     pTextures = new tBSPTexture[m_numOfTextures];
 
-    fseek(fp, lumps[kIndices].offset, SEEK_SET);                // Seek the index information
-    fread(m_pIndices, m_numOfIndices, sizeof(int), fp);         // index information
-    fseek(fp, lumps[kFaces].offset, SEEK_SET);                  // Seek the face information
-    fread(m_pFaces, m_numOfFaces, sizeof(tBSPFace), fp);        // face information
-    fseek(fp, lumps[kTextures].offset, SEEK_SET);               // Seek the texture information
-    fread(pTextures, m_numOfTextures, sizeof(tBSPTexture), fp); // texture information
+    fseek(fp, lumps[kIndices].offset, SEEK_SET);
+    fread(m_pIndices, m_numOfIndices, sizeof(int), fp);
+    fseek(fp, lumps[kFaces].offset, SEEK_SET);
+    fread(m_pFaces, m_numOfFaces, sizeof(tBSPFace), fp);
+    fseek(fp, lumps[kTextures].offset, SEEK_SET);
+    fread(pTextures, m_numOfTextures, sizeof(tBSPTexture), fp);
 
-    // Create a texture from the image
+    // Create textures
     for (int i = 0; i < m_numOfTextures; i++) {
-        // Find the extension if any and append it to the file name
         strcpy_s(tname[i], pTextures[i].strName);
         strcat_s(tname[i], ".jpg");
         printf("loading: %s \n", tname[i]);
@@ -205,16 +199,12 @@ bool CQuake3BSP::LoadBSP(const char* filename) {
 
     m_numOfLightmaps = lumps[kLightmaps].length / sizeof(tBSPLightmap);
     tBSPLightmap* pLightmaps = new tBSPLightmap[m_numOfLightmaps];
-    // Seek to the position in the file that stores the lightmap information
     fseek(fp, lumps[kLightmaps].offset, SEEK_SET);
 
-    // Go through all of the lightmaps and read them in
     for (int i = 0; i < m_numOfLightmaps; i++) {
-        // Read in the RGB data for each lightmap
         fread(&pLightmaps[i], 1, sizeof(tBSPLightmap), fp);
         Rbuffers.G_lightMaps.push_back(pLightmaps[i]);
     }
-
 
     fclose(fp);
     return (fp);
@@ -261,29 +251,38 @@ void CQuake3BSP::CreateIndices(int index) {
 
 glm::vec3 CQuake3BSP::GetLightvolColor(const glm::vec3& position)
 {
-    // Get world bounds from base model (convert float[3] to glm::vec3)
-    glm::vec3 modelMins(models[0].mins[0], models[0].mins[1], models[0].mins[2]);
-    glm::vec3 modelMaxs(models[0].maxs[0], models[0].maxs[1], models[0].maxs[2]);
+    // Transform position from Y-up (engine) to Z-up (Quake 3)
+    glm::vec3 pos_quake(position.x, -position.z, position.y);
 
-    // Calculate grid dimensions according to Q3 BSP specs
+    // Use original bounds in Z-up
+    glm::vec3 modelMins = originalMins;
+    glm::vec3 modelMaxs = originalMaxs;
+
+    // Calculate grid dimensions according to Quake 3 specs (Z-up)
     glm::ivec3 lightVolGridDims(
-        static_cast<int>(std::floor(modelMaxs.x / 64.0f) - std::ceil(modelMins.x / 64.0f) + 1,
-            static_cast<int>(std::floor(modelMaxs.y / 64.0f) - std::ceil(modelMins.y / 64.0f) + 1,
-                static_cast<int>(std::floor(modelMaxs.z / 128.0f) - std::ceil(modelMins.z / 128.0f) + 1
-                    ))));
+        static_cast<int>(std::floor(modelMaxs.x / 64.0f) - std::ceil(modelMins.x / 64.0f) + 1),
+        static_cast<int>(std::floor(modelMaxs.y / 64.0f) - std::ceil(modelMins.y / 64.0f) + 1),
+        static_cast<int>(std::floor(modelMaxs.z / 128.0f) - std::ceil(modelMins.z / 128.0f) + 1)
+    );
 
-    // Calculate grid indices from world position
-    int nx = static_cast<int>((position.x - modelMins.x) / 64.0f);
-    int ny = static_cast<int>((position.y - modelMins.y) / 64.0f);
-    int nz = static_cast<int>((position.z - modelMins.z) / 128.0f);
+    // Calculate grid indices from position in Z-up
+    int nx = static_cast<int>((pos_quake.x - modelMins.x) / 64.0f);
+    int ny = static_cast<int>((pos_quake.y - modelMins.y) / 64.0f);
+    int nz = static_cast<int>((pos_quake.z - modelMins.z) / 128.0f);
 
-    // Clamp to grid dimensions using scalar clamp
+    // Clamp to grid dimensions
     nx = glm::clamp(nx, 0, lightVolGridDims.x - 1);
     ny = glm::clamp(ny, 0, lightVolGridDims.y - 1);
     nz = glm::clamp(nz, 0, lightVolGridDims.z - 1);
 
+    // Debug output
+    printf("Position (engine): %.2f, %.2f, %.2f, (quake): %.2f, %.2f, %.2f\n",
+        position.x, position.y, position.z, pos_quake.x, pos_quake.y, pos_quake.z);
+    printf("Grid dims: %d, %d, %d, Indices: %d, %d, %d\n",
+        lightVolGridDims.x, lightVolGridDims.y, lightVolGridDims.z, nx, ny, nz);
+
     // Get the light volume at this grid cell
-    const tBSPLightvol & vol = lightVols[nz * (lightVolGridDims.x * lightVolGridDims.y) +
+    const tBSPLightvol& vol = lightVols[nz * (lightVolGridDims.x * lightVolGridDims.y) +
         ny * lightVolGridDims.x + nx];
 
     // Convert byte values (0-255) to float (0.0-1.0)
@@ -299,58 +298,65 @@ glm::vec3 CQuake3BSP::GetLightvolColor(const glm::vec3& position)
         static_cast<float>(vol.directional[2]) / 255.0f
     );
 
-    return ambient + directional;
+    glm::vec3 result = ambient + directional;
+    printf("Light color: %.2f, %.2f, %.2f\n", result.x, result.y, result.z);
+
+    return result;
 }
 
 int CQuake3BSP::FindCameraCluster(const glm::vec3& cameraPos) {
-    printf("Camera position: %.2f, %.2f, %.2f\n",
-        cameraPos.x, cameraPos.y, cameraPos.z);
 
     int nodeIndex = 0;
     int depth = 0;
-
-    while (nodeIndex >= 0 && depth < 100) { // Prevent infinite loops
+    while (nodeIndex >= 0 && depth < 100) { // Add depth limit to prevent infinite loops
         const tBSPNode& node = nodes[nodeIndex];
         const tBSPPlane& plane = planes[node.plane];
-
-        printf("Node %d - Plane normal: %.2f, %.2f, %.2f Dist: %.2f\n",
-            nodeIndex, plane.normal.x, plane.normal.y, plane.normal.z, plane.dist);
-
         float distance = glm::dot(cameraPos, plane.normal) - plane.dist;
+
         int childIndex = distance >= 0 ? 0 : 1;
         int nextChild = node.children[childIndex];
-
-        printf("Distance: %.2f, Child: %d, Next: %d\n",
-            distance, childIndex, nextChild);
-
         if (nextChild < 0) {
-            int leafIndex = -(nextChild + 1);
-            printf("Found leaf %d, cluster %d\n",
-                leafIndex, leafs[leafIndex].cluster);
+            int leafIndex = -nextChild - 1;
+
             return leafs[leafIndex].cluster;
         }
-
         nodeIndex = nextChild;
         depth++;
     }
-
-    printf("Failed to find cluster after %d iterations\n", depth);
+    printf("Failed to find cluster\n");
     return -1;
+}
+
+bool CQuake3BSP::IsClusterVisible(int sourceCluster, int testCluster)
+{
+
+    if (sourceCluster < 0) return false;
+
+    if (sourceCluster < 0 || testCluster < 0) return true;
+
+    int byteIndex = (sourceCluster * visData.sz_vecs) + (testCluster / 8);
+    int bitIndex = testCluster % 8;
+
+    // Convert std::byte to unsigned integer for bitwise operations
+    unsigned char byteValue = std::to_integer<unsigned char>(visData.vecs[byteIndex]);
+    return (byteValue & (1 << bitIndex)) != 0;
 }
 
 void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
 {
-    RenderBSP(Camera::finalizedPosition * 16.0f);
+    RenderBSP(Camera::finalizedPosition*16.0f);
+
 }
 
 void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos)
 {
-
-
     // 1. Find camera's cluster via BSP tree traversal
     int cameraCluster = FindCameraCluster(cameraPos);
 
     int drawnFaces = 0;
+
+    ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", "bsp");
+    shader->UseProgram();
 
     // 2. Iterate through all leaves
     for (const tBSPLeaf& leaf : leafs) {
@@ -364,12 +370,16 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos)
         // 4. Render visible leaf's faces
         for (int i = 0; i < leaf.n_leaffaces; i++) {
             int faceIndex = leafFaces[leaf.leafface + i];
-            RenderSingleFace(faceIndex);
+            RenderSingleFace(faceIndex, shader);
+            
             drawnFaces++;
         }
     }
 
-    printf("drawn %i faces\n", cameraCluster);
+    printf("drawn %i faces\n", drawnFaces);
+
+    vec3 light = GetLightvolColor(cameraPos);
+    printf("light : %f, %f, %f \n", light.x, light.y, light.z);
 
 }
 
@@ -432,10 +442,9 @@ void CQuake3BSP::CreateRenderBuffers(int index)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void CQuake3BSP::RenderSingleFace(int index)
+void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader)
 {
-    ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", "bsp");
-    shader->UseProgram();
+
 
     // bind the face's VAO (which has its VBO/EBO & attribs)
     glBindVertexArray(FB_array.FB_Idx[index].VAO);
@@ -533,5 +542,5 @@ void CQuake3BSP::GenerateLightmap() {
 
 void CQuake3BSP::renderFaces() {
     for (auto& f : Rbuffers.v_faceVBOs)
-        RenderSingleFace(f.first);
+        RenderSingleFace(f.first, nullptr);
 }
