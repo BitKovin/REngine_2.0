@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!--
+build commands
+[RadiantPath]: path to Radiant .. C:\Program Files\Gtkradiant
+[EnginePath]: path to the engine .. C:\kingpin\ C:\Program Files\Kingpin\ /usr/local/games/kingpin/
+-->
+<project version="2.0">
+  <var name="kpbsp">"[EnginePath]kprad/kpbsp"<cond value="[MonitorAddress]"> -connect [MonitorAddress]</cond></var>
+  <var name="kpvis">"[EnginePath]kprad/kpvis"<cond value="[MonitorAddress]"> -connect [MonitorAddress]</cond></var>
+  <var name="kprad">"[EnginePath]kprad/kprad" -gamedir "[EnginePath]main"<cond value="[MonitorAddress]"> -connect [MonitorAddress]</cond></var>
+  
+  <build name="Bsp only (novis/norad)">
+    <command>[kpbsp] "[MapFile]"</command>
+  </build>
+  
+  <build name="Entities only">
+    <command>[kpbsp] -onlyents "[MapFile]"</command>
+  </build>
+
+  <build name="Relight kprad">
+    <command>[kpbsp] -onlyents "[MapFile]"</command>
+	<command>[kprad] "[MapFile]"</command>
+  </build>
+
+  <build name="FullVis (No kprad)">
+    <command>[kpbsp] "[MapFile]"</command>
+	<command>[kpvis] "[MapFile]"</command>
+  </build>
+  
+  <build name="FullVis">
+    <command>[kpbsp] "[MapFile]"</command>
+	<command>[kpvis] "[MapFile]"</command>
+	<command>[kprad] "[MapFile]"</command>
+  </build>
+
+  <build name="FullVis (kprad -extra)">
+    <command>[kpbsp] "[MapFile]"</command>
+	<command>[kpvis] "[MapFile]"</command>
+	<command>[kprad] -extra "[MapFile]"</command>
+  </build>
+
+  <build name="FastVis">
+    <command>[kpbsp] "[MapFile]"</command>
+	<command>[kpvis] -fast "[MapFile]"</command>
+	<command>[kprad] "[MapFile]"</command>
+  </build>
+  
+  <build name="FastVis (bleed)">
+    <command>[kpbsp] "[MapFile]"</command>
+	<command>[kpvis] -fast "[MapFile]"</command>
+	<command>[kprad] -nostopbleed "[MapFile]"</command>
+  </build>
+
+
+</project>
+
+

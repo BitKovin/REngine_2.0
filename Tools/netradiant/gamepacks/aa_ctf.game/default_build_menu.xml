@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<project version="2.0">
+<var name="qbsp3">&quot;[RadiantPath]qbsp3.[ExecutableType]&quot;</var>
+<var name="qvis3">&quot;[RadiantPath]qvis3.[ExecutableType]&quot;</var>
+<var name="qrad3">&quot;[RadiantPath]qrad3.[ExecutableType]&quot;</var>
+<build name="Structure: Low Light, Normal VIS">
+<command>[qbsp3] &quot;[MapFile]&quot;</command>
+<command>[qvis3] -threads 8 &quot;[MapFile]&quot;</command>
+<command>[qrad3] -threads 8 -bounce 0 -subdiv 128 &quot;[MapFile]&quot;</command>
+</build>
+<build name="Texture: Medium Light, Fast VIS">
+<command>[qbsp3] &quot;[MapFile]&quot;</command>
+<command>[qvis3] -threads 8 -fast &quot;[MapFile]&quot;</command>
+<command>[qrad3] -threads 8 -bounce 2 -subdiv 128 &quot;[MapFile]&quot;</command>
+</build>
+<build name="Light: Good Light, Fast VIS">
+<command>[qbsp3] &quot;[MapFile]&quot;</command>
+<command>[qvis3] -threads 8 -fast &quot;[MapFile]&quot;</command>
+<command>[qrad3] -threads 8 -bounce 4 -subdiv 128 &quot;[MapFile]&quot;</command>
+</build>
+<build name="Light: Best Light, Normal VIS">
+<command>[qbsp3] &quot;[MapFile]&quot;</command>
+<command>[qvis3] -threads 8 &quot;[MapFile]&quot;</command>
+<command>[qrad3] -threads 8 -bounce 4 &quot;[MapFile]&quot;</command>
+</build>
+<build name="Entities: Rebuild Entities Only">
+<command>[qbsp3] -onlyents &quot;[MapFile]&quot;</command>
+</build>
+<build name="Lightmap: Generate Lightmap">
+<command>[qrad3] -threads 8 -refine 8 -blur -texcheck &quot;[MapFile]&quot;</command>
+</build>
+<build name="Custom: Custom Settings">
+<command>[qbsp3] &quot;[MapFile]&quot;</command>
+<command>[qvis3] -threads 8 &quot;[MapFile]&quot;</command>
+<command>[qrad3] -threads 8 &quot;[MapFile]&quot;</command>
+</build>
+</project>

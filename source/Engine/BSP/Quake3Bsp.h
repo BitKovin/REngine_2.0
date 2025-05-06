@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <cstddef> // For std::byte operations
+#include "../VertexData.h"
 
 #include "../IDrawMesh.h"
 
@@ -13,6 +14,7 @@
 
 #include "../glm.h"
 #include "../ShaderManager.h"
+
 
 #define FACE_POLYGON 1
 #define MAX_TEXTURES 1000
@@ -36,7 +38,7 @@ struct tBSPVertex {
     glm::vec2 vTextureCoord;  // (u, v) texture coordinate
     glm::vec2 vLightmapCoord; // (u, v) lightmap coordinate
     glm::vec3 vNormal;        // (x, y, z) normal vector
-    std::byte      color[4];       // RGBA color for the vertex
+    std::byte color[4];       // RGBA color for the vertex
 };
 
 // This is our BSP face structure
@@ -144,9 +146,9 @@ struct tBSPVisData {
 };
 
 struct FaceBuffers {
-    GLuint VAO;
-    GLuint VBO;
-    GLuint EBO;
+    std::unique_ptr<VertexArrayObject> VAO;
+    std::unique_ptr<VertexBuffer> VBO;
+    std::unique_ptr<IndexBuffer> EBO;
 };
 
 struct FaceBuffArray {
@@ -155,13 +157,20 @@ struct FaceBuffArray {
 
 struct RenderBuffers // m_renderBuffers.m_faceVBOs[idx].m_vertexBuffer
 {
-    std::map<int, std::vector<GLfloat>> v_faceVBOs;
-    std::map<int, std::vector<GLuint>>  v_faceIDXs;
+    std::map<int, std::vector<VertexData>> v_faceVBOs; // Changed to VertexData
+    std::map<int, std::vector<GLuint>> v_faceIDXs;
     std::map<int, std::string>          texvec;
     std::vector<tBSPLightmap>           G_lightMaps;
 
     std::map<GLuint, GLuint> tx_ID; // optimized texture IDs
     std::map<GLuint, GLuint> lm_ID; // optimized lightmap IDs
+};
+
+struct LightVolPointData
+{
+    vec3 directColor;
+    vec3 ambientColor;
+    vec3 direction;
 };
 
 // This is our lumps enumeration
@@ -185,6 +194,8 @@ enum eLumps {
     kVisData,      // Stores PVS and cluster info (visibility)
     kMaxLumps      // A constant to store the number of lumps
 };
+
+
 
 // This is our Quake3 BSP class
 class CQuake3BSP : public IDrawMesh
@@ -212,7 +223,7 @@ class CQuake3BSP : public IDrawMesh
     // r3c:: new functions
     void GenerateTexture();
     void GenerateLightmap();
-    void RenderSingleFace(int index, ShaderProgram* shader);
+    void RenderSingleFace(int index, ShaderProgram* shader, bool lightmap, LightVolPointData lightData);
     void renderFaces();
     void VBOFiller(int index);
     void BuildVBO();
@@ -262,7 +273,7 @@ class CQuake3BSP : public IDrawMesh
     glm::vec3 originalMaxs;
 
     // Get lighting for a dynamic object at position (x, y, z)
-    glm::vec3 GetLightvolColor(const glm::vec3& position);
+    LightVolPointData GetLightvolColor(const glm::vec3& position);
     int FindCameraCluster(const glm::vec3& cameraPos);
 
     bool IsClusterVisible(int sourceCluster, int testCluster);
@@ -270,7 +281,28 @@ class CQuake3BSP : public IDrawMesh
     void DrawForward(mat4x4 view, mat4x4 projection);
 
     // Optimized rendering loop
-    void RenderBSP(const glm::vec3& cameraPos);
+    void RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool useClusterVis, bool lightmap);
 
 };
+
+class BrushRef
+{
+    CQuake3BSP* bsp = nullptr;
+
+    int id = -1;
+
+    vector<VertexData> GetVertices();
+    vector<int> GetIndices();
+};
+
+class BSPModelRef
+{
+    CQuake3BSP* bsp = nullptr;
+
+    int id = -1;
+
+
+
+};
+
 #endif

@@ -1,0 +1,3 @@
+<?xml version="1.0" ?>
+<game entityclasstype="xml" index="1" name="Unvanquished" basegamename="Unvanquished" unknowngamename="Custom Unvanquished modification" basegame="pkg" type="unvanquished" q3map2_type="unvanquished" enginepath_linux="/usr/lib/unvanquished/" engine_linux="daemon" enginepath_macos="/Applications/Unvanquished/" engine_macos="daemon.app" enginepath_win32="C:/Program Files/Unvanquished/" engine_win32="daemon.exe" prefix=".unvanquished" entities="quake3" entityclass="quake3" archivetypes="pk3" modeltypes="iqm md5mesh md3 ase lwo obj 3ds picoterrain" maptypes="mapq3" brushtypes="quake3" patchtypes="quake3" shaders="quake3" shaderpath="scripts" texturetypes="webp png tga jpg dds crn ktx"/>
+

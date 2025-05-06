@@ -1,0 +1,3809 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<stock>
+		<texture path="textures/assault/awall_m01">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/assault_rock/concrete_m02">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/awf/awf_w_m10">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/awf/floor_m4">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/awf_props/tool_m02">
+			<tag>Metal</tag>
+		</texture>
+		<texture path="textures/battery_wall/wall01_mid">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/battery_wall/wall01_top">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/battery_wall/wall01_trench">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/battery_wall/wall02_bot">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/battery_wall/wall02_mid">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/battery_wall/wall02_top">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/battery_wall/wall03_bot">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/battery_wall/wall03_mid">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/battery_wall/wall03_top">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/battery_wall/wall03_trench">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/battery_wall/wall04_mid">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/broken_castle/wall_c03d">
+			<tag>Rock</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/broken_castle/wall_c04">
+			<tag>Rock</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/broken_castle/wall_c05">
+			<tag>Rock</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/bunker_sd/concrete_c07bcmp_sand">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/bunker_sd/int_wall01">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/bunker_sd/int_wall01_rusty">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/bunker_sd/int_wall01_white">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/bunker_sd/int_wall07">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/castle_wall/castle_c09_2">
+			<tag>Bricks</tag>
+		<tag>Concrete</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/castle_wall/castle_c17">
+			<tag>Rock</tag>
+		<tag>Concrete</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/castle_wall/castle_c31_a">
+			<tag>Bricks</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/castle_wall/castle_m03_step_grave_03">
+			<tag>Rock</tag>
+		<tag>Pavement</tag>
+		</texture>
+		<texture path="textures/castle_wall/castle_m03a_step">
+			<tag>Bricks</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/cathedrale_wall/cathedrale_c09">
+			<tag>Rock</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/cathedrale_wall/cathedrale_c13">
+			<tag>Bricks</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/chat/bedlinen_c02">
+			<tag>Furniture</tag>
+		</texture>
+		<texture path="textures/chat/bedlinenpillow_c02">
+			<tag>Furniture</tag>
+		</texture>
+		<texture path="textures/chat/desk1">
+			<tag>Furniture</tag>
+		</texture>
+		<texture path="textures/chateau/bricktrim_c06">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/chateau/walltest_c04">
+      <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/chateau/walltest_c07a">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/common/dirtymirror">
+		  <tag>SFX</tag>
+    </texture>
+		<texture path="textures/common/dirtymirror2">
+		  <tag>SFX</tag>
+    </texture>
+		<texture path="textures/common/s_glass">
+		  <tag>Glass</tag>
+    </texture>
+		<texture path="textures/common/terrain_sand">
+		</texture>
+		<texture path="textures/decals/s_ident_required_2r">
+		  <tag>SFX</tag>
+    </texture>
+		<texture path="textures/desert_sd/floor_inside_1">
+			<tag>Pavement</tag>
+		</texture>
+		<texture path="textures/desert_sd/grass_desert_flat">
+			<tag>Grass</tag>
+		<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/desert_sd/grass_sand_flat">
+			<tag>Sand</tag>
+		<tag>Grass</tag>
+		<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/desert_sd/pavement_quad_sandy">
+			<tag>Pavement</tag>
+		<tag>Sand</tag>
+		</texture>
+		<texture path="textures/desert_sd/pavement_tris_sandy">
+			<tag>Sand</tag>
+		  <tag>Pavement</tag>
+		</texture>
+		<texture path="textures/desert_sd/road_dirty_gravel">
+			<tag>Terrain</tag>
+		<tag>Gravel</tag>
+		</texture>
+		<texture path="textures/desert_sd/rock_edged_smooth">
+			<tag>Rock</tag>
+		</texture>
+		<texture path="textures/desert_sd/sand_dirt_medium">
+			<tag>Terrain</tag>
+		<tag>Sand</tag>
+		</texture>
+		<texture path="textures/desert_sd/sand_disturb_desert">
+			<tag>Terrain</tag>
+		<tag>Sand</tag>
+		</texture>
+		<texture path="textures/desert_sd/sand_gravels_bright">
+			<tag>Terrain</tag>
+		<tag>Sand</tag>
+		</texture>
+		<texture path="textures/desert_sd/sand_patchy">
+			<tag>Terrain</tag>
+		<tag>Sand</tag>
+		</texture>
+		<texture path="textures/desert_sd/sand_wave_desert">
+		<tag>Sand</tag>
+		</texture>
+		<texture path="textures/detail_sd/sanddetail">
+		  <tag>Terrain</tag>
+      <tag>Snow</tag>
+    </texture>
+		<texture path="textures/detail_sd/snowdetail">
+		  <tag>Snow</tag>
+      <tag>Terrain</tag>
+    </texture>
+		<texture path="textures/detail_sd/snowdetail_heavy">
+		  <tag>Snow</tag>
+      <tag>Terrain</tag>
+    </texture>
+		<texture path="textures/effects/envmap_gold">
+		  <tag>SFX</tag>
+    </texture>
+		<texture path="textures/effects/envmap_ice2">
+			<tag>SFX</tag>
+		</texture>
+		<texture path="textures/effects/envmap_radar">
+			<tag>SFX</tag>
+		</texture>
+		<texture path="textures/effects/envmap_slate">
+			<tag>SFX</tag>
+		</texture>
+		<texture path="textures/effects/envmap_slate_90">
+			<tag>SFX</tag>
+		</texture>
+		<texture path="textures/effects/tinfx">
+			<tag>SFX</tag>
+		</texture>
+		<texture path="textures/effects/wdfx_W">
+			<tag>SFX</tag>
+		</texture>
+		<texture path="textures/effects/wdfx4">
+			<tag>SFX</tag>
+		</texture>
+		<texture path="textures/egypt_floor_sd/afloor_m02">
+			<tag>Tiles</tag>
+		</texture>
+		<texture path="textures/egypt_floor_sd/block-16sq">
+			<tag>Tiles</tag>
+		</texture>
+		<texture path="textures/egypt_floor_sd/dirt_cracked_01">
+			<tag>Terrain</tag>
+		<tag>Pavement</tag>
+		</texture>
+		<texture path="textures/egypt_floor_sd/marblefloor_c04">
+			<tag>Rock</tag>
+		<tag>Tiles</tag>
+		</texture>
+		<texture path="textures/egypt_floor_sd/sandygrass_b">
+			<tag>Grass</tag>
+		<tag>Sand</tag>
+		<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/egypt_floor_sd/siwa_rubble_1">
+			<tag>Rock</tag>
+		</texture>
+		<texture path="textures/egypt_props_sd/siwa_book1">
+			<tag>Furniture</tag>
+		</texture>
+		<texture path="textures/egypt_props_sd/siwa_book2">
+			<tag>Furniture</tag>
+		</texture>
+		<texture path="textures/egypt_props_sd/siwa_coran1">
+			<tag>Furniture</tag>
+		<tag>Cloth</tag>
+		</texture>
+		<texture path="textures/egypt_props_sd/siwa_coran2">
+			<tag>Cloth</tag>
+		<tag>Furniture</tag>
+		</texture>
+		<texture path="textures/egypt_props_sd/siwa_cushion1">
+			<tag>Furniture</tag>
+		<tag>Cloth</tag>
+		</texture>
+		<texture path="textures/egypt_trim_sd/banktrim01">
+			<tag>Trim</tag>
+		</texture>
+		<texture path="textures/egypt_trim_sd/banktrim03">
+			<tag>Trim</tag>
+		</texture>
+		<texture path="textures/egypt_trim_sd/banktrim04">
+			<tag>Trim</tag>
+		</texture>
+		<texture path="textures/egypt_trim_sd/trim_c03b">
+			<tag>Rock</tag>
+		<tag>Trim</tag>
+		</texture>
+		<texture path="textures/egypt_trim_sd/trim_c03c">
+			<tag>Trim</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/egypt_walls_sd/bankwall01">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/bigblock02">
+			<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/egypt_walls_sd/concrete_m03">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/egypt_walls_sd/debri_m05">
+			<tag>Rock</tag>
+		<tag>Dirt</tag>
+		</texture>
+		<texture path="textures/egypt_walls_sd/mat_wall1">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/roughbrick01">
+			<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/egypt_walls_sd/roughbrick02">
+			<tag>Rock</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/egypt_walls_sd/roughbrick03">
+			<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/egypt_walls_sd/roughbrick03a">
+			<tag>Window</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/egypt_walls_sd/roughedge01">
+			<tag>Sand</tag>
+		<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/egypt_walls_sd/stripedbrick01">
+			<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/egypt_walls_sd/stucco01">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/stucco01_decor01">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/stucco02_rough">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/stucco02_rough2">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/stucco03_dark">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/stucco03b">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/stucco07_trim03">
+		  <tag>Trim</tag>
+      <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/stucco07f">
+		  <tag>Trim</tag>
+      <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/stucco09_bigexp">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/stucco09g">
+		  <tag>Bricks</tag>
+      <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/stucco09h">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/white01">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/white01var01">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/white01var02">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </texture>
+		<texture path="textures/egypt_walls_sd/white01var03">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </texture>
+		<texture path="textures/egypt_walls_xp/column_top_01">
+			<tag>Trim</tag>
+		</texture>
+		<texture path="textures/egypt_walls_xp/large_block-4sq">
+			<tag>Tiles</tag>
+		</texture>
+		<texture path="textures/egypt_windows_sd/siwa_windows2">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/egypt_windows_sd/siwa_windows5">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/egypt_windows_sd/siwa_windows6">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/egypt_windows_sd/siwa_windows7">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/egypt_windows_sd/siwa_windows8">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/egypt_windows_sd/window02a">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/forest_sd/door_m01asml_axis">
+			<tag>Door</tag>
+		<tag>Metal</tag>
+		</texture>
+		<texture path="textures/fueldump_sd/door_m01asml">
+			<tag>Metal</tag>
+		<tag>Door</tag>
+		</texture>
+		<texture path="textures/fueldump_sd/door_m01asml_axis">
+			<tag>Door</tag>
+		<tag>Metal</tag>
+		</texture>
+		<texture path="textures/graveyard/gy_ml03a">
+			<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/lights/light_m11">
+			<tag>Red</tag>
+		<tag>Light</tag>
+		</texture>
+		<texture path="textures/lights/light_m15">
+			<tag>Light</tag>
+		</texture>
+		<texture path="textures/lights/light_m16">
+			<tag>Light</tag>
+		<tag>White</tag>
+		</texture>
+		<texture path="textures/lights/light_m20">
+			<tag>Light</tag>
+		<tag>White</tag>
+		</texture>
+		<texture path="textures/lights/light_m21">
+			<tag>Light</tag>
+		<tag>White</tag>
+		</texture>
+		<texture path="textures/lights/light_m32">
+			<tag>Light</tag>
+		<tag>White</tag>
+		</texture>
+		<texture path="textures/lights/light_m5">
+			<tag>Light</tag>
+		<tag>Red</tag>
+		</texture>
+		<texture path="textures/lights/light_m6">
+			<tag>Light</tag>
+		<tag>White</tag>
+		</texture>
+		<texture path="textures/lights/test">
+			<tag>Light</tag>
+		<tag>Green</tag>
+		</texture>
+		<texture path="textures/lights/test2">
+			<tag>Red</tag>
+		<tag>Light</tag>
+		</texture>
+		<texture path="textures/lights/light_tp_m05o">
+		</texture>
+		<texture path="textures/lights/light_tp_m05off">
+		</texture>
+		<texture path="textures/lights/light_tp_m06o">
+		</texture>
+		<texture path="textures/lights/light_tp_m06off">
+		</texture>
+		<texture path="textures/lights/light_tp_m07off">
+		</texture>
+		<texture path="textures/lights/light_tp_m08off">
+		</texture>
+		<texture path="textures/lights/light_xlight_01">
+		</texture>
+		<texture path="textures/lights/light_xlight_02">
+			<tag>Light</tag>
+		</texture>
+		<texture path="textures/lights/light_xlight_03">
+		</texture>
+		<texture path="textures/liquids_sd/puddle_specular">
+		  <tag>SFX</tag>
+    </texture>
+		<texture path="textures/liquids_sd/sea_bright_na">
+		  <tag>Water</tag>
+    </texture>
+		<texture path="textures/liquids_sd/seawall_foam">
+		  <tag>Water</tag>
+    </texture>
+		<texture path="textures/liquids_sd/seawall_ripple1">
+		  <tag>Water</tag>
+    </texture>
+		<texture path="textures/liquids_sd/seawall_specular">
+		  <tag>SFX</tag>
+      <tag>Water</tag>
+    </texture>
+		<texture path="textures/liquids_sd/siwa_shimshim1">
+		  <tag>Dirt</tag>
+      <tag>Terrain</tag>
+    </texture>
+		<texture path="textures/metal_misc/ametal_m03_bak">
+      <tag>Metal</tag>
+    </texture>
+		<texture path="textures/metal_misc/ametal_m03man">
+		  <tag>Metal</tag>
+    </texture>
+		<texture path="textures/metals_sd/detail_b">
+		  <tag>Metal</tag>
+    </texture>
+		<texture path="textures/miltary_door/miltarydr_m01">
+      <tag>Door</tag>
+      <tag>Wood</tag>
+    </texture>
+		<texture path="textures/miltary_wall/concrete_c02">
+		  <tag>Concrete</tag>
+    </texture>
+		<texture path="textures/miltary_wall/concrete_c05">
+		  <tag>Concrete</tag>
+    </texture>
+		<texture path="textures/miltary_wall/concrete_c07bcmp">
+		  <tag>Concrete</tag>
+    </texture>
+		<texture path="textures/miltary_wall/concrete_m01">
+		  <tag>Concrete</tag>
+    </texture>
+		<texture path="textures/miltary_wall/concrete_m02w">
+		  <tag>Concrete</tag>
+    </texture>
+		<texture path="textures/miltary_wall/concrete_m05c">
+		  <tag>Concrete</tag>
+    </texture>
+		<texture path="textures/miltary_wall/guardh_I03">
+		  <tag>Cloth</tag>
+    </texture>
+		<texture path="textures/miltary_wall/miltary_m04">
+		  <tag>Metal</tag>
+      <tag>Trim</tag>
+    </texture>
+		<texture path="textures/occult/menhir_c02a">
+		  <tag>Concrete</tag>
+      <tag>Rock</tag>
+    </texture>
+		<texture path="textures/props/bags_m01">
+		  <tag>Sand</tag>
+      <tag>Cloth</tag>
+    </texture>
+		<texture path="textures/props/barrel_m02d">
+		  <tag>Metal</tag>
+    </texture>
+		<texture path="textures/props/base_lamp">
+		  <tag>Light</tag>
+      <tag>Metal</tag>
+    </texture>
+		<texture path="textures/props/board_cl02m">
+		  <tag>Sign</tag>
+      <tag>Wood</tag>
+      <tag>Furniture</tag>
+    </texture>
+		<texture path="textures/props/controlpanel_c02">
+		  <tag>Panel</tag>
+      <tag>Metal</tag>
+    </texture>
+		<texture path="textures/props/controlpanel_c06">
+		  <tag>Panel</tag>
+      <tag>Metal</tag>
+    </texture>
+		<texture path="textures/props/rope_m01">
+      <tag>Cloth</tag>
+    </texture>
+		<texture path="textures/props/sawblade">
+		  <tag>Alpha</tag>
+      <tag>Metal</tag>
+    </texture>
+		<texture path="textures/props/sign_c18">
+		  <tag>Sign</tag>
+    </texture>
+		<texture path="textures/props/sign_m2dm">
+		  <tag>Sign</tag>
+    </texture>
+		<texture path="textures/props/train1">
+		  <tag>Panel</tag>
+      <tag>Metal</tag>
+    </texture>
+		<texture path="textures/props_sd/basketsand">
+		  <tag>Rock</tag>
+      <tag>Terrain</tag>
+    </texture>
+		<texture path="textures/props_sd/sign_radar">
+		  <tag>Sign</tag>
+    </texture>
+		<texture path="textures/props_sd/trim_c01w">
+		  <tag>Plaster</tag>
+      <tag>Trim</tag>
+    </texture>
+		<texture path="textures/props_sd/trim_c03w">
+		  <tag>Plaster</tag>
+      <tag>Trim</tag>
+    </texture>
+		<texture path="textures/props_sd/trim_c10w">
+		  <tag>Plaster</tag>
+      <tag>Trim</tag>
+    </texture>
+		<texture path="textures/rubble/debri_m01">
+		  <tag>Gravel</tag>
+      <tag>Rock</tag>
+    </texture>
+		<texture path="textures/rubble/debri_m05">
+		  <tag>Rock</tag>
+      <tag>Gravel</tag>
+    </texture>
+		<texture path="textures/seawall_wall/wall02_mid">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/seawall_wall/wall03_mid">
+		  <tag>Concrete</tag>
+    </texture>
+		<texture path="textures/seawall_wall/wall03_top">
+		  <tag>Concrete</tag>
+    </texture>
+		<texture path="textures/sfx/beam_1">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </texture>
+		<texture path="textures/sfx/construction">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </texture>
+		<texture path="textures/sfx/flame1">
+		  <tag>SFX</tag>
+      <tag>Alpha</tag>
+    </texture>
+		<texture path="textures/sfx/flame2">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </texture>
+		<texture path="textures/sfx/flame3">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </texture>
+		<texture path="textures/sfx/flame4">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </texture>
+		<texture path="textures/sfx/flame5">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </texture>
+		<texture path="textures/sfx/flame6">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </texture>
+		<texture path="textures/sfx/flame7">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </texture>
+		<texture path="textures/sfx/flame8">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </texture>
+		<texture path="textures/sfx/flameball">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </texture>
+		<texture path="textures/skies/fueldump_clouds">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/skies/nightsky1">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/skies/sky_1">
+		</texture>
+		<texture path="textures/skies/sky_2">
+		</texture>
+		<texture path="textures/skies/sky_3">
+		</texture>
+		<texture path="textures/skies/sky_4">
+		</texture>
+		<texture path="textures/skies/sky_5">
+		</texture>
+		<texture path="textures/skies/sky_6">
+		</texture>
+		<texture path="textures/skies/sky_7">
+		</texture>
+		<texture path="textures/skies/sky_8">
+		</texture>
+		<texture path="textures/skies/sky_9">
+		</texture>
+		<texture path="textures/skies/sky_10">
+		</texture>
+		<texture path="textures/skies_sd/battery_clouds">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/skies_sd/battery_mask_ydnar">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/skies_sd/colditz_mask">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/skies_sd/goldrush_clouds">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/skies_sd/goldrush_mask">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/skies_sd/siwa_mask">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/skies_sd/siwasun">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/skies_sd/wurzburg_clouds">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/skies_sd/wurzburg_env/sky_bk">
+		</texture>
+		<texture path="textures/skies_sd/wurzburg_env/sky_dn">
+		</texture>
+		<texture path="textures/skies_sd/wurzburg_env/sky_ft">
+		</texture>
+		<texture path="textures/skies_sd/wurzburg_env/sky_lf">
+		</texture>
+		<texture path="textures/skies_sd/wurzburg_env/sky_rt">
+		</texture>
+		<texture path="textures/skies_sd/wurzburg_env/sky_up">
+		</texture>
+		<texture path="textures/skies_sd/wurzburg_fogmask">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/skies_sd/ydnar_lightning">
+		  <tag>Sky</tag>
+    </texture>
+		<texture path="textures/sleepy/wall_c01">
+		  <tag>Concrete</tag>
+      <tag>Bricks</tag>
+    </texture>
+		<texture path="textures/snow/alpha_ice2s">
+			<tag>Ice</tag>
+		<tag>Snow</tag>
+		<tag>Alpha</tag>
+		</texture>
+		<texture path="textures/snow/s_castle_c02">
+			<tag>Bricks</tag>
+		<tag>Snow</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/snow/s_castle_c16d">
+			<tag>Rock</tag>
+		<tag>Snow</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/snow/s_castle_c46_on_grid">
+			<tag>Bricks</tag>
+		<tag>Snow</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/snow/s_castle_m03_step">
+			<tag>Snow</tag>
+		<tag>Rock</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/snow/s_cathedrale_c06">
+			<tag>Rock</tag>
+		<tag>Snow</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/snow/s_cathedrale_c24b">
+			<tag>Bricks</tag>
+		<tag>Rock</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow/s_dirt_m03i_alpha">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow/s_dirt_m03i_alphatree">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow/s_dirt_m03i_2_phong">
+		</texture>
+		<texture path="textures/snow/s_door_c10b">
+			<tag>Bricks</tag>
+		<tag>Door</tag>
+		<tag>Rock</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow/s_floor_l_01">
+			<tag>Pavement</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow/s_metal_m04dg2">
+		  <tag>Ice</tag>
+      <tag>Alpha</tag>
+      <tag>Metal</tag>
+    </texture>
+		<texture path="textures/snow/s_roof_c04dm">
+			<tag>Roof</tag>
+		<tag>Snow</tag>
+		<tag>Wood</tag>
+		</texture>
+		<texture path="textures/snow/s_town_c91">
+			<tag>Bricks</tag>
+		<tag>Rock</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow/s_town_m_c01_trim">
+			<tag>Snow</tag>
+		<tag>Rock</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/snow/s_window_c05a">
+			<tag>Window</tag>
+		<tag>Snow</tag>
+		<tag>Rock</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/snow_sd/bigrock_rounded_faint">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/snow_sd/coal_snow">
+			<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow_sd/concretec05_snow">
+			<tag>Snow</tag>
+		<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/snow_sd/icelake3">
+			<tag>Snow</tag>
+		<tag>Ice</tag>
+		</texture>
+		<texture path="textures/snow_sd/miltary_m04_snow">
+			<tag>Snow</tag>
+		<tag>Panel</tag>
+		<tag>Metal</tag>
+		</texture>
+		<texture path="textures/snow_sd/mxrock4b_snow">
+			<tag>Rock</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow_sd/river_edge_snowy">
+			<tag>Ice</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow_sd/s_castle_m03a_trim">
+			<tag>Bricks</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow_sd/s_dirt_m03i_2_big">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow_sd/s_grass_ml03b_big">
+			<tag>Grass</tag>
+		<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow_sd/snow_muddy">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		<tag>Grass</tag>
+		</texture>
+		<texture path="textures/snow_sd/snow_noisy">
+			<tag>Snow</tag>
+		<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/snow_sd/snow_track03">
+			<tag>SFX</tag>
+      <tag>Alpha</tag>
+		</texture>
+		<texture path="textures/snow_sd/snow_track03_end">
+		<tag>SFX</tag>
+      <tag>Alpha</tag>
+		</texture>
+		<texture path="textures/snow_sd/snow_var01">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow_sd/snow_var01_big">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/snow_sd/snow_var02">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/stone/mxdebri0_riverbed">
+			<tag>Rock</tag>
+		<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/stone/mxrock3_a">
+			<tag>Terrain</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/stone/mxrock3h_snow">
+			<tag>Snow</tag>
+		<tag>Terrain</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/stone/mxsnow2">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/stone/mxsnow3">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</texture>
+		<texture path="textures/swf/spipe_03">
+			<tag>Metal</tag>
+		<tag>Pipe</tag>
+		</texture>
+		<texture path="textures/temperate_sd/dirt_m03icmp_brown">
+			<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/temperate_sd/dirt_m04cmp_brown">
+			<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/temperate_sd/dirt3">
+			<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/temperate_sd/grass_dense1">
+			<tag>Grass</tag>
+		<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/temperate_sd/grass_path1">
+			<tag>Terrain</tag>
+		<tag>Grass</tag>
+		</texture>
+		<texture path="textures/temperate_sd/master_grass_dirt3">
+			<tag>Terrain</tag>
+		<tag>Grass</tag>
+		</texture>
+		<texture path="textures/temperate_sd/road_bigpuddle">
+			<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/temperate_sd/road_puddle1">
+		  <tag>Concrete</tag>
+      <tag>Gravel</tag>
+    </texture>
+		<texture path="textures/temperate_sd/rock_graynoise">
+			<tag>Rock</tag>
+		<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/temperate_sd/rock_grayvar">
+			<tag>Rock</tag>
+		<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/temperate_sd/rock_ugly_brown">
+			<tag>Rock</tag>
+		<tag>Terrain</tag>
+		</texture>
+		<texture path="textures/temperate_sd/rocky_sand">
+			<tag>Terrain</tag>
+		<tag>Rock</tag>
+		<tag>Sand</tag>
+		</texture>
+		<texture path="textures/temperate_sd/sand_bubbles_bright">
+			<tag>Terrain</tag>
+		<tag>Sand</tag>
+		</texture>
+		<texture path="textures/temperate_sd/sand_disturb_bright">
+			<tag>Terrain</tag>
+		<tag>Sand</tag>
+		</texture>
+		<texture path="textures/temperate_sd/sand_patchnoise">
+		<tag>Terrain</tag>
+		<tag>Sand</tag>
+		</texture>
+		<texture path="textures/temperate_sd/sand_wave_bright">
+			<tag>Terrain</tag>
+		<tag>Sand</tag>
+		</texture>
+		<texture path="textures/terrain/dirt_m03g3">
+		<tag>Gravel</tag>
+		</texture>
+		<texture path="textures/tobruk_roof_sd/tobruk_roof2">
+		  <tag>Roof</tag>
+    </texture>
+		<texture path="textures/tobruk_wall_sd/tobruk_wall_base1">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/tobruk_wall_sd/tobruk_wall_base2">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/tobruk_wall_sd/tobruk_wall_base3">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/tobruk_wall_sd/tobruk_wall_base4">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/tobruk_wall_sd/tobruk_wall_base7">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/tobruk_wall_sd/tobruk_wall_base8">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/tobruk_wall_sd/tobruk_wall_base9">
+		  <tag>Plaster</tag>
+    </texture>
+		<texture path="textures/tobruk_windows_sd/tobruk_lwind1">
+			<tag>Window</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/tobruk_windows_sd/tobruk_lwind2">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/tobruk_windows_sd/tobruk_mwind1">
+			<tag>Bricks</tag>
+		<tag>Window</tag>
+		</texture>
+		<texture path="textures/tobruk_windows_sd/tobruk_mwind2">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/tobruk_windows_sd/tobruk_windows_off">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/tobruk_windows_sd/tobruk_windows_on1">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/tobruk_windows_sd/tobruk_windows_on2">
+			<tag>Window</tag>
+		</texture>
+		<texture path="textures/town_floor/floor_d01">
+		  <tag>Rock</tag>
+      <tag>Concrete</tag>
+      <tag>Pavement</tag>
+      <tag>Bricks</tag>
+    </texture>
+		<texture path="textures/town_roof/roof_c02">
+			<tag>Wood</tag>
+		</texture>
+		<texture path="textures/town_roof/roof_c03a">
+			<tag>Wood</tag>
+		</texture>
+		<texture path="textures/town_wall/church_c01dm">
+			<tag>Bricks</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/town_wall/town_c38a">
+			<tag>Rock</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/town_wall/town_c61a">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/town_wall/town_c91">
+			<tag>Rock</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/town_wall/town_m_c01">
+			<tag>Bricks</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/town_window/window_c05a">
+			<tag>Rock</tag>
+		<tag>Window</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/town_wood/wood_c08">
+			<tag>Wood</tag>
+		</texture>
+		<texture path="textures/village/vill2_win_m2">
+			<tag>Window</tag>
+		<tag>Rock</tag>
+		<tag>Bricks</tag>
+		</texture>
+		<texture path="textures/village/villwin_c08dm">
+			<tag>Window</tag>
+		<tag>Bricks</tag>
+		<tag>Rock</tag>
+		</texture>
+		<texture path="textures/village/villwin_c12m">
+			<tag>Window</tag>
+		<tag>Glass</tag>
+		</texture>
+		<texture path="textures/village_interior/inter_c11_ba">
+		  <tag>Plaster</tag>
+      <tag>Cloth</tag>
+    </texture>
+		<texture path="textures/wood/wood_m15">
+			<tag>Wood</tag>
+		</texture>
+		<texture path="textures/xlab_floor/xfloor_c01">
+		  <tag>Metal</tag>
+      <tag>Concrete</tag>
+    </texture>
+		<texture path="textures/xlab_floor/xfloor_c05">
+		  <tag>Tiles</tag>
+    </texture>
+		<texture path="textures/xlab_floor/xfloor_c07">
+		  <tag>Tiles</tag>
+    </texture>
+		<texture path="textures/xlab_props/xradio_c02">
+			<tag>Panel</tag>
+		<tag>Metal</tag>
+		</texture>
+		<texture path="textures/xlab_wall/xconcrete_c54">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/xlab_wall/xconcrete_c54_c">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/xlab_wall/xconcrete_c58">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/xlab_wall/xconcrete_c58m">
+			<tag>Concrete</tag>
+		</texture>
+		<texture path="textures/xlab_wall/XTRIM_C07">
+      <tag>Metal</tag>
+      <tag>Trim</tag>
+    </texture>
+		<texture path="textures/xlab_wall/xwall_c09">
+		  <tag>Concrete</tag>
+      <tag>Bricks</tag>
+    </texture>
+		<texture path="textures/xlab_wall/xwall_c10">
+		  <tag>Trim</tag>
+      <tag>Metal</tag>
+      <tag>Concrete</tag>
+    </texture>
+		<shader path="textures/alpha/barb_wire">
+		<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/barb_wire_clip">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/bars_m01">
+		<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/bel_orn_m01">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/chateau_c06a">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/chateau_c06a_clipmissle">
+		<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/chateau_c07">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/chateau_c07_clipmissle">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/chateau_c08">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/chateau_c08_wils">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/chateau_c09">
+		</shader>
+		<shader path="textures/alpha/chateau_c11">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/chateau_c11_clipmissle">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/chateau_c14">
+		</shader>
+		<shader path="textures/alpha/cweb_m01a">
+		</shader>
+		<shader path="textures/alpha/fence_c05">
+		</shader>
+		<shader path="textures/alpha/fence_c10">
+		<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/fence_c11">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/fence_c11fd">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/fence_c14">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/fence_c14_clipmissle">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/fence_m01">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/fence_m01b">
+		</shader>
+		<shader path="textures/alpha/fence_m02">
+		</shader>
+		<shader path="textures/alpha/fence_m03">
+		</shader>
+		<shader path="textures/alpha/fence_m04">
+		</shader>
+		<shader path="textures/alpha/fence_m06">
+		<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/fence_m06b">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/hay">
+		  <tag>Alpha</tag>
+    </shader>
+		<shader path="textures/alpha/ladder">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/mesh_c02">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/mesh_c02_clipmissle">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/mesh_c03">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/truss_m03">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/truss_m06">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/truss_m06a">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/truss_m06r">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/alpha/truss_m07">
+		</shader>
+		<shader path="textures/alpha_sd/truss_m06grn">
+		</shader>
+		<shader path="textures/assault/atool_m02">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/assault/atruss_m06a">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/assault/machine_c01b">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/assault/machine_c03a">
+		</shader>
+		<shader path="textures/assault/machine_c03e">
+		</shader>
+		<shader path="textures/assault/machine_c04b">
+		</shader>
+		<shader path="textures/assault/machine_c05b">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/assault/machine_c06b">
+		</shader>
+		<shader path="textures/assault/machine_c07">
+		</shader>
+		<shader path="textures/assault/machine_cl01">
+		</shader>
+		<shader path="textures/assault/metal_c06">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/assault/metal_c07a">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/assault/metal_c07ans">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/assault/trim_c01">
+		</shader>
+		<shader path="textures/assault_rock/ground_c07a">
+		</shader>
+		<shader path="textures/assault_rock/ground_c09a">
+		</shader>
+		<shader path="textures/assault_rock/haze_vil_night">
+		</shader>
+		<shader path="textures/assault_rock/haze2">
+		</shader>
+		<shader path="textures/assault_rock/hazz">
+		</shader>
+		<shader path="textures/awf/awf_w_m11">
+			<tag>Window</tag>
+		</shader>
+		<shader path="textures/awf/awf_w_m11_nlm">
+		</shader>
+		<shader path="textures/awf_props/tool_m01">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/awf_props/tool_m06">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/awf_props/tool_m07">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/battery/fog_water">
+		</shader>
+		<shader path="textures/battery/ocean_0">
+		</shader>
+		<shader path="textures/battery/ocean_0to1">
+		</shader>
+		<shader path="textures/battery/ocean_1">
+		</shader>
+		<shader path="textures/battery/ocean_base">
+		</shader>
+		<shader path="textures/battery/ocean_terrain">
+		</shader>
+		<shader path="textures/battery/rock_graynoise">
+			<tag>Terrain</tag>
+		<tag>Rock</tag>
+		</shader>
+		<shader path="textures/battery/sand_disturb">
+			<tag>Terrain</tag>
+		</shader>
+		<shader path="textures/battery/terrain_0">
+		</shader>
+		<shader path="textures/battery/terrain_0to1">
+		</shader>
+		<shader path="textures/battery/terrain_0to2">
+		</shader>
+		<shader path="textures/battery/terrain_0to3">
+		</shader>
+		<shader path="textures/battery/terrain_0to4">
+		</shader>
+		<shader path="textures/battery/terrain_0to5">
+		</shader>
+		<shader path="textures/battery/terrain_1">
+		</shader>
+		<shader path="textures/battery/terrain_1to2">
+		</shader>
+		<shader path="textures/battery/terrain_1to3">
+		</shader>
+		<shader path="textures/battery/terrain_1to4">
+		</shader>
+		<shader path="textures/battery/terrain_1to5">
+		</shader>
+		<shader path="textures/battery/terrain_2">
+		</shader>
+		<shader path="textures/battery/terrain_2to3">
+		</shader>
+		<shader path="textures/battery/terrain_2to4">
+		</shader>
+		<shader path="textures/battery/terrain_2to5">
+		</shader>
+		<shader path="textures/battery/terrain_3">
+		</shader>
+		<shader path="textures/battery/terrain_3to4">
+		</shader>
+		<shader path="textures/battery/terrain_3to5">
+		</shader>
+		<shader path="textures/battery/terrain_4">
+		</shader>
+		<shader path="textures/battery/terrain_4to5">
+		</shader>
+		<shader path="textures/battery/terrain_5">
+		</shader>
+		<shader path="textures/battery/terrain_base">
+		</shader>
+		<shader path="textures/battery/water_fog">
+		</shader>
+		<shader path="textures/battery/water_nodraw">
+		</shader>
+		<shader path="textures/battery_wall/metal_trim1">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/blimp/runway_m01_sm">
+		</shader>
+		<shader path="textures/bunker_sd/extwall01_sand">
+		</shader>
+		<shader path="textures/bunker_sd/extwall02_sand">
+		</shader>
+		<shader path="textures/bunker_sd/girder01">
+		</shader>
+		<shader path="textures/bunker_sd/girder02">
+			<tag>Trim</tag>
+      <tag>Metal</tag>
+		</shader>
+		<shader path="textures/bunker_sd/girder03">
+			<tag>Trim</tag>
+      <tag>Metal</tag>
+		</shader>
+		<shader path="textures/bunker_sd/tinroof01">
+		</shader>
+		<shader path="textures/bunker_sd/wirefence01">
+		</shader>
+		<shader path="textures/castle_door/door_c17">
+			<tag>Wood</tag>
+		<tag>Door</tag>
+		</shader>
+		<shader path="textures/castle_door/door_m01">
+    </shader>
+		<shader path="textures/castle_floor/floor_c10">
+		</shader>
+		<shader path="textures/castle_window/cashudder_c01">
+		</shader>
+		<shader path="textures/castle_wood/cwood_c10">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/castle_wood/cwood_c18">
+		</shader>
+		<shader path="textures/castle_wood/cwood_mo2s1">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/castle_wood/cwood_mo5c">
+		</shader>
+		<shader path="textures/castle_wood/cwood_mo5cb">
+		</shader>
+		<shader path="textures/castle_wood/cwood_mo6">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/chat/bedlinen_c04">
+			<tag>Furniture</tag>&gt;
+		</shader>
+		<shader path="textures/chat/book_c02">
+			<tag>Furniture</tag>
+		</shader>
+		<shader path="textures/chat/book_c03">
+		</shader>
+		<shader path="textures/chat/book_c05">
+			<tag>Furniture</tag>
+		</shader>
+		<shader path="textures/chat/carpet_c02">
+		</shader>
+		<shader path="textures/chat/carpet_c03">
+		<tag>Cloth</tag>
+		</shader>
+		<shader path="textures/chat/carpet_c08">
+		</shader>
+		<shader path="textures/chat/carpet_c10">
+		</shader>
+		<shader path="textures/chat/carpet_c10trim">
+		</shader>
+		<shader path="textures/chat/carpet_c11">
+		</shader>
+		<shader path="textures/chat/carpet_c14trim">
+		</shader>
+		<shader path="textures/chat/office_c03">
+		</shader>
+		<shader path="textures/chat/picture_05">
+			<tag>Furniture</tag>
+		</shader>
+		<shader path="textures/chat/wd_sr_va7">
+			<tag>Furniture</tag>
+		</shader>
+		<shader path="textures/chat_window/chwindow_c05">
+		</shader>
+		<shader path="textures/chat_window/chwindow_c06">
+		</shader>
+		<shader path="textures/chat_wood/chwood_c02">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/chat_wood/chwood_c04">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/chateau/desk_c03">
+		</shader>
+		<shader path="textures/chateau/desk_c04">
+			<tag>Furniture</tag>
+		</shader>
+		<shader path="textures/chateau/door_c01">
+			<tag>Wood</tag>
+		<tag>Door</tag>
+		</shader>
+		<shader path="textures/chateau/fireplace_01">
+		</shader>
+		<shader path="textures/chateau/floor_c04">
+		</shader>
+		<shader path="textures/chateau/floor_c05">
+		</shader>
+		<shader path="textures/chateau/floor_c06">
+		</shader>
+		<shader path="textures/chateau/floor_c10">
+			<tag>Cloth</tag>
+		</shader>
+		<shader path="textures/chateau/floor_c10a">
+			<tag>Cloth</tag>
+		</shader>
+		<shader path="textures/chateau/pillar_temp_rf">
+			<tag>Concrete</tag>
+		</shader>
+		<shader path="textures/chateau/stair_c01">
+		</shader>
+		<shader path="textures/chateau/stair_c03">
+		</shader>
+		<shader path="textures/chateau/trim_c01">
+		</shader>
+		<shader path="textures/chateau/trim_c03">
+		</shader>
+		<shader path="textures/chateau/trim_c08">
+		</shader>
+		<shader path="textures/chateau/trim_c09">
+		  <tag>Wood</tag>
+    </shader>
+		<shader path="textures/chateau/trim_c10">
+		</shader>
+		<shader path="textures/chateau/trim_c14">
+		</shader>
+		<shader path="textures/chateau/walltest_c07a_vertex">
+		</shader>
+		<shader path="textures/chateau/window_c03a">
+		</shader>
+		<shader path="textures/chateau/window_c03a_1250">
+		</shader>
+		<shader path="textures/chateau/window_c03a_2500">
+		</shader>
+		<shader path="textures/chateau/window_c03a_750">
+		</shader>
+		<shader path="textures/chateau/window_c03a_nolight">
+		</shader>
+		<shader path="textures/chateau/window_c04a">
+		</shader>
+		<shader path="textures/chateau/window_c07a">
+		</shader>
+		<shader path="textures/chateau/window_director">
+		</shader>
+		<shader path="textures/chateau/wood_c05">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/chateau/wood_c06">
+		</shader>
+		<shader path="textures/chateau/wood_c07">
+		</shader>
+		<shader path="textures/chateau/wood_c09">
+		</shader>
+		<shader path="textures/chateau/wood_c20">
+		</shader>
+		<shader path="textures/chateau/wood_test">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/common/ai_nopass">
+		</shader>
+		<shader path="textures/common/ai_nopasslarge">
+		</shader>
+		<shader path="textures/common/ai_nosight">
+		</shader>
+		<shader path="textures/common/ai_nosight_shoot_through">
+		</shader>
+		<shader path="textures/common/antiportal">
+		</shader>
+		<shader path="textures/common/areaportal">
+		</shader>
+		<shader path="textures/common/caulk">
+		</shader>
+		<shader path="textures/common/caulkterrain">
+		</shader>
+		<shader path="textures/common/clip">
+		</shader>
+		<shader path="textures/common/clip_metal">
+		</shader>
+		<shader path="textures/common/clipfull">
+		</shader>
+		<shader path="textures/common/clipmissile">
+		</shader>
+		<shader path="textures/common/clipmonster">
+		</shader>
+		<shader path="textures/common/clipmonster2">
+		</shader>
+		<shader path="textures/common/clipshot">
+		</shader>
+		<shader path="textures/common/clipweap">
+		</shader>
+		<shader path="textures/common/clipweap_metal">
+		</shader>
+		<shader path="textures/common/clipweap_wood">
+		</shader>
+		<shader path="textures/common/clipweapmetal">
+		</shader>
+		<shader path="textures/common/clusterportal">
+		</shader>
+		<shader path="textures/common/cushion">
+		</shader>
+		<shader path="textures/common/hint">
+		</shader>
+		<shader path="textures/common/hullcaulk">
+		</shader>
+		<shader path="textures/common/ladder">
+		</shader>
+		<shader path="textures/common/leakoil">
+		</shader>
+		<shader path="textures/common/leaksteam">
+		</shader>
+		<shader path="textures/common/leakwater">
+		</shader>
+		<shader path="textures/common/lightgrid">
+		</shader>
+		<shader path="textures/common/lmterrain_sand_marks">
+		</shader>
+		<shader path="textures/common/lmterrain_snow_marks">
+		</shader>
+		<shader path="textures/common/nodraw">
+		</shader>
+		<shader path="textures/common/nodrawnonsolid">
+		</shader>
+		<shader path="textures/common/nodrawwater">
+		</shader>
+		<shader path="textures/common/nodrop">
+		</shader>
+		<shader path="textures/common/origin">
+		</shader>
+		<shader path="textures/common/skip">
+		</shader>
+		<shader path="textures/common/slick">
+		</shader>
+		<shader path="textures/common/slip_c_e">
+		</shader>
+		<shader path="textures/common/slip_c_n">
+		</shader>
+		<shader path="textures/common/slip_c_ne">
+		</shader>
+		<shader path="textures/common/slip_c_nw">
+		</shader>
+		<shader path="textures/common/slip_c_s">
+		</shader>
+		<shader path="textures/common/slip_c_se">
+		</shader>
+		<shader path="textures/common/slip_c_sw">
+		</shader>
+		<shader path="textures/common/slip_c_w">
+		</shader>
+		<shader path="textures/common/slip_e">
+		</shader>
+		<shader path="textures/common/slip_g_e">
+		</shader>
+		<shader path="textures/common/slip_g_n">
+		</shader>
+		<shader path="textures/common/slip_g_ne">
+		</shader>
+		<shader path="textures/common/slip_g_nw">
+		</shader>
+		<shader path="textures/common/slip_g_s">
+		</shader>
+		<shader path="textures/common/slip_g_se">
+		</shader>
+		<shader path="textures/common/slip_g_sw">
+		</shader>
+		<shader path="textures/common/slip_g_w">
+		</shader>
+		<shader path="textures/common/slip_m_e">
+		</shader>
+		<shader path="textures/common/slip_m_n">
+		</shader>
+		<shader path="textures/common/slip_m_ne">
+		</shader>
+		<shader path="textures/common/slip_m_nw">
+		</shader>
+		<shader path="textures/common/slip_m_s">
+		</shader>
+		<shader path="textures/common/slip_m_se">
+		</shader>
+		<shader path="textures/common/slip_m_sw">
+		</shader>
+		<shader path="textures/common/slip_m_w">
+		</shader>
+		<shader path="textures/common/slip_n">
+		</shader>
+		<shader path="textures/common/slip_ne">
+		</shader>
+		<shader path="textures/common/slip_nw">
+		</shader>
+		<shader path="textures/common/slip_s">
+		</shader>
+		<shader path="textures/common/slip_se">
+		</shader>
+		<shader path="textures/common/slip_sw">
+		</shader>
+		<shader path="textures/common/slip_w">
+		</shader>
+		<shader path="textures/common/slip_w_e">
+		</shader>
+		<shader path="textures/common/slip_w_n">
+		</shader>
+		<shader path="textures/common/slip_w_ne">
+		</shader>
+		<shader path="textures/common/slip_w_nw">
+		</shader>
+		<shader path="textures/common/slip_w_s">
+		</shader>
+		<shader path="textures/common/slip_w_se">
+		</shader>
+		<shader path="textures/common/slip_w_sw">
+		</shader>
+		<shader path="textures/common/slip_w_w">
+		</shader>
+		<shader path="textures/common/subtlehint">
+		</shader>
+		<shader path="textures/common/terrain">
+		</shader>
+		<shader path="textures/common/terrain_snow">
+		</shader>
+		<shader path="textures/common/terrain_snow_wils">
+		</shader>
+		<shader path="textures/common/terrain2">
+		</shader>
+		<shader path="textures/common/trigger">
+		</shader>
+		<shader path="textures/decals/blood1">
+		</shader>
+		<shader path="textures/decals/blood1_drag">
+		</shader>
+		<shader path="textures/decals/blood1_red">
+		</shader>
+		<shader path="textures/decals/blood2">
+		</shader>
+		<shader path="textures/decals/blood3">
+		</shader>
+		<shader path="textures/decals/blood4">
+		</shader>
+		<shader path="textures/decals/blood5">
+		</shader>
+		<shader path="textures/decals/burnm_01a">
+		</shader>
+		<shader path="textures/decals/candle1">
+		</shader>
+		<shader path="textures/decals/corrosive_sign">
+		</shader>
+		<shader path="textures/decals/drain">
+		</shader>
+		<shader path="textures/decals/hay">
+		</shader>
+		<shader path="textures/decals/light_c01_10k">
+			<tag>Metal</tag>
+		<tag>Light</tag>
+		</shader>
+		<shader path="textures/decals/light_c01_d">
+			<tag>Metal</tag>
+		<tag>Light</tag>
+		</shader>
+		<shader path="textures/decals/light_m01b">
+		</shader>
+		<shader path="textures/decals/light_m11_redd">
+		  <tag>Light</tag>
+      <tag>Red</tag>
+    </shader>
+		<shader path="textures/decals/light_m16_10kd">
+			<tag>White</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/decals/light_m32">
+		</shader>
+		<shader path="textures/decals/maps">
+		</shader>
+		<shader path="textures/decals/oil_slick">
+		  <tag>SFX</tag>
+    </shader>
+		<shader path="textures/decals/one">
+		</shader>
+		<shader path="textures/decals/paper_c01">
+		</shader>
+		<shader path="textures/decals/paper_c10">
+		</shader>
+		<shader path="textures/decals/s_attention">
+		</shader>
+		<shader path="textures/decals/s_danger">
+		</shader>
+		<shader path="textures/decals/s_donot_enter">
+		</shader>
+		<shader path="textures/decals/s_ident_required_2r">
+		</shader>
+		<shader path="textures/decals/s_ident_required_2w">
+		</shader>
+		<shader path="textures/decals/skidmarks">
+		</shader>
+		<shader path="textures/decals/stripe_blue">
+		</shader>
+		<shader path="textures/decals/stripe_haz">
+		</shader>
+		<shader path="textures/decals/stripe_wht">
+		</shader>
+		<shader path="textures/decals/stripe_wht_dot">
+		</shader>
+		<shader path="textures/decals/stripe_ylw">
+		</shader>
+		<shader path="textures/decals/three">
+		</shader>
+		<shader path="textures/decals/trim_m01">
+		  <tag>Trim</tag>
+    </shader>
+		<shader path="textures/decals/two">
+		</shader>
+		<shader path="textures/decals/vent">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/decals/vent2">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/decals/water_stain">
+		</shader>
+		<shader path="textures/decals/water_stain_100">
+		</shader>
+		<shader path="textures/doors/door_c01b">
+			<tag>Wood</tag>
+		<tag>Door</tag>
+		</shader>
+		<shader path="textures/doors/door_c05">
+		</shader>
+		<shader path="textures/doors/door_c08">
+		</shader>
+		<shader path="textures/doors/door_c13">
+			<tag>Door</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/doors/door_m01asml">
+			<tag>Metal</tag>
+		<tag>Door</tag>
+		</shader>
+		<shader path="textures/doors/door_m01asml_axis">
+			<tag>Metal</tag>
+		<tag>Door</tag>
+		</shader>
+		<shader path="textures/doors/door_m04">
+		</shader>
+		<shader path="textures/doors/heavy_door_01">
+			<tag>Metal</tag>
+		<tag>Door</tag>
+		</shader>
+		<shader path="textures/eerie/darkness">
+		</shader>
+		<shader path="textures/eerie/floor3_3dark">
+		</shader>
+		<shader path="textures/eerie/lavafogshader">
+		</shader>
+		<shader path="textures/egypt_door_sd/door_c05">
+			<tag>Door</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/egypt_door_sd/heavy_door_01">
+		</shader>
+		<shader path="textures/egypt_door_sd/siwa_door_axis">
+			<tag>Wood</tag>
+		<tag>Door</tag>
+		</shader>
+		<shader path="textures/egypt_door_sd/siwa_door_neutral">
+			<tag>Door</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/egypt_door_sd/siwa_door2">
+			<tag>Door</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/egypt_door_sd/siwa_door3">
+			<tag>Door</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/egypt_floor_sd/carpet_c02">
+			<tag>Cloth</tag>
+		</shader>
+		<shader path="textures/egypt_floor_sd/desertsand_light">
+		</shader>
+		<shader path="textures/egypt_floor_sd/floor_c06">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/egypt_floor_sd/floor_c06">
+		</shader>
+		<shader path="textures/egypt_floor_sd/mudroad01">
+		</shader>
+		<shader path="textures/egypt_floor_sd/mudroad01_trim">
+		</shader>
+		<shader path="textures/egypt_floor_sd/sandy_dirt_01">
+			<tag>Dirt</tag>
+		<tag>Sand</tag>
+		<tag>Terrain</tag>
+		</shader>
+		<shader path="textures/egypt_floor_sd/sandy_dirt_02">
+			<tag>Terrain</tag>
+		<tag>Sand</tag>
+		<tag>Dirt</tag>
+		</shader>
+		<shader path="textures/egypt_floor_sd/siwa_sandy1">
+		</shader>
+		<shader path="textures/egypt_floor_sd/siwa_sandygrass">
+		</shader>
+		<shader path="textures/egypt_floor_sd/wood_c13">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/egypt_props_sd/siwa_canvas1">
+			<tag>Cloth</tag>
+		</shader>
+		<shader path="textures/egypt_props_sd/siwa_canvas2">
+			<tag>Cloth</tag>
+		</shader>
+		<shader path="textures/egypt_props_sd/siwa_carpet1">
+			<tag>Alpha</tag>
+		<tag>Cloth</tag>
+		</shader>
+		<shader path="textures/egypt_props_sd/siwa_carpet1anim">
+			<tag>Alpha</tag>
+		<tag>Cloth</tag>
+		</shader>
+		<shader path="textures/egypt_props_sd/siwa_carpet2">
+			<tag>Cloth</tag>
+		<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/egypt_props_sd/siwa_carpet3">
+			<tag>Cloth</tag>
+		<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/egypt_props_sd/siwa_carpet3anim">
+			<tag>Cloth</tag>
+		<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/egypt_props_sd/siwa_carpet4">
+			<tag>Cloth</tag>
+		<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/egypt_props_sd/siwa_carpet5">
+			<tag>Cloth</tag>
+		<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/egypt_rock_sd/layered_rock_01">
+		</shader>
+		<shader path="textures/egypt_rock_sd/layered_rock_01_btrim_01">
+		</shader>
+		<shader path="textures/egypt_rock_sd/layered_rock_01_btrim_01_nero">
+		</shader>
+		<shader path="textures/egypt_rock_sd/layered_rock_01_nero">
+		</shader>
+		<shader path="textures/egypt_rock_sd/layered_rock_01_ttrim_01">
+		</shader>
+		<shader path="textures/egypt_rock_sd/layered_rock_01_ttrim_01_nero">
+		</shader>
+		<shader path="textures/egypt_rock_sd/sandstone_01">
+		</shader>
+		<shader path="textures/egypt_trim_sd/ctrim_c01">
+			<tag>Trim</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/egypt_trim_sd/ctrim_c03">
+			<tag>Trim</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/egypt_trim_sd/trim_c14">
+			<tag>Trim</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/egypt_walls_sd/stucco01_decor01_phong">
+		</shader>
+		<shader path="textures/egypt_walls_sd/stucco01_phong">
+		</shader>
+		<shader path="textures/egypt_walls_sd/stucco02">
+		  <tag>Plaster</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco02_04blend">
+		  <tag>Plaster</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco03">
+		  <tag>Plaster</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco04">
+		  <tag>Plaster</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco07a">
+		  <tag>Plaster</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco07a_nonsolid">
+		</shader>
+		<shader path="textures/egypt_walls_sd/stucco07b">
+		  <tag>Plaster</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco07c">
+		  <tag>Plaster</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco07d">
+		  <tag>Plaster</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco08a">
+			<tag>Bricks</tag>
+		</shader>
+		<shader path="textures/egypt_walls_sd/stucco08b">
+			<tag>Bricks</tag>
+		</shader>
+		<shader path="textures/egypt_walls_sd/stucco08c">
+			<tag>Bricks</tag>
+		</shader>
+		<shader path="textures/egypt_walls_sd/stucco08d">
+		  <tag>Sand</tag>
+      <tag>Plaster</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco08e">
+			<tag>Bricks</tag>
+		</shader>
+		<shader path="textures/egypt_walls_sd/stucco09a">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco09b">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco09c">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco09d">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco09e">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/stucco09f">
+		  <tag>Plaster</tag>
+      <tag>Sand</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/wood_c05">
+		  <tag>Wood</tag>
+    </shader>
+		<shader path="textures/egypt_walls_sd/wood_c06">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/egypt_walls_sd/wood_test">
+			<tag>Wood</tag>&gt;
+		</shader>
+		<shader path="textures/egypt_windows_sd/windowtrim01">
+			<tag>Trim</tag>
+		<tag>Window</tag>
+		</shader>
+		<shader path="textures/egypt_wood_sd/wood1a">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/egypt_wood_sd/wood1b">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/factory_sd/metal_wall1">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/fueldump/alphatree">
+			<tag>Snow</tag>
+		</shader>
+		<shader path="textures/fueldump/atruss_m06a">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/fueldump/cave_dark">
+			<tag>Terrain</tag>
+		<tag>Rock</tag>&gt;
+		</shader>
+		<shader path="textures/fueldump/cave_floor">
+			<tag>Terrain</tag>
+		<tag>Gravel</tag>
+		<tag>Dirt</tag>
+		</shader>
+		<shader path="textures/fueldump/cave_floorblend">
+		</shader>
+		<shader path="textures/fueldump/door_m01asml">
+			<tag>Door</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/fueldump/door_m01asml_axis">
+			<tag>Door</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/fueldump/fueldumpsky">
+		  <tag>Sky</tag>
+    </shader>
+		<shader path="textures/fueldump/icelake_bottom">
+			<tag>Terrain</tag>
+		<tag>Ice</tag>
+		</shader>
+		<shader path="textures/fueldump/icelake_top">
+			<tag>Terrain</tag>
+		<tag>Ice</tag>
+		</shader>
+		<shader path="textures/fueldump/riverbed">
+			<tag>Terrain</tag>
+		<tag>Rock</tag>
+		<tag>Gravel</tag>
+		</shader>
+		<shader path="textures/fueldump/snow_floor">
+		</shader>
+		<shader path="textures/fueldump/terrain_base">
+		</shader>
+		<shader path="textures/fueldump/terrain1_0">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/fueldump/terrain1_0to1">
+			<tag>Snow</tag>
+		<tag>Terrain</tag>
+		</shader>
+		<shader path="textures/fueldump/terrain1_0to2">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/fueldump/terrain1_0to3">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/fueldump/terrain1_1">
+			<tag>Dirt</tag>
+		<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/fueldump/terrain1_1to2">
+			<tag>Snow</tag>
+		<tag>Terrain</tag>
+		<tag>Dirt</tag>
+		</shader>
+		<shader path="textures/fueldump/terrain1_1to3">
+			<tag>Snow</tag>
+		<tag>Terrain</tag>
+		<tag>Dirt</tag>
+		</shader>
+		<shader path="textures/fueldump/terrain1_2">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/fueldump/terrain1_2to3">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/fueldump/terrain1_3">
+			<tag>Rock</tag>
+		<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/goldrush/camp_map">
+      <tag>Furniture</tag>
+    </shader>
+		<shader path="textures/goldrush/canvas_nondeform">
+			<tag>Cloth</tag>
+		</shader>
+		<shader path="textures/goldrush/lmterrain_0">
+		</shader>
+		<shader path="textures/goldrush/lmterrain_0to1">
+		</shader>
+		<shader path="textures/goldrush/lmterrain_0to2">
+		</shader>
+		<shader path="textures/goldrush/lmterrain_0to3">
+		</shader>
+		<shader path="textures/goldrush/lmterrain_1">
+		</shader>
+		<shader path="textures/goldrush/lmterrain_1to2">
+		</shader>
+		<shader path="textures/goldrush/lmterrain_1to3">
+		</shader>
+		<shader path="textures/goldrush/lmterrain_2">
+		</shader>
+		<shader path="textures/goldrush/lmterrain_2to3">
+		</shader>
+		<shader path="textures/goldrush/lmterrain_3">
+		</shader>
+		<shader path="textures/goldrush/lmterrain_base">
+		</shader>
+		<shader path="textures/goldrush/pavement_quad">
+			<tag>Pavement</tag>
+		</shader>
+		<shader path="textures/goldrush/sandygrass_b_phong">
+			<tag>Grass</tag>
+		<tag>Terrain</tag>
+		</shader>
+		<shader path="textures/lights/light_c01">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_c01_10k">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_c01_10k_noblock">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_c01_2k">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_c01_8k">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_c02">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_c02_10000">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_c02_20000">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_c04">
+			<tag>Light</tag>&gt;
+		</shader>
+		<shader path="textures/lights/light_c04_10000">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_c04_20000">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_c04_nolight">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_c06">
+		</shader>
+		<shader path="textures/lights/light_c06_10000">
+		</shader>
+		<shader path="textures/lights/light_c06_20000">
+		</shader>
+		<shader path="textures/lights/light_c06_25000">
+		</shader>
+		<shader path="textures/lights/light_m11_max">
+      <tag>Red</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m11_red">
+      <tag>Red</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m11_red_2500">
+			<tag>Red</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m15_small">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m16_10k">
+			<tag>White</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m16_15k">
+			<tag>White</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m16_20k">
+			<tag>White</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m16_5k">
+			<tag>White</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m16_small">
+			<tag>White</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m1r">
+		</shader>
+		<shader path="textures/lights/light_m20_5000">
+		</shader>
+		<shader path="textures/lights/light_m20_fb">
+		</shader>
+		<shader path="textures/lights/light_m21_5000">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m21_fb">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m25b">
+		</shader>
+		<shader path="textures/lights/light_m25b_2k">
+		</shader>
+		<shader path="textures/lights/light_m25blue">
+		</shader>
+		<shader path="textures/lights/light_m25r">
+			<tag>Red</tag>
+      <tag>Metal</tag>
+		<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m30">
+		</shader>
+		<shader path="textures/lights/light_m30r">
+		</shader>
+		<shader path="textures/lights/light_m4">
+			<tag>White</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m4_white">
+			<tag>White</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m5_red">
+			<tag>Red</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m5_red20k">
+			<tag>Red</tag>
+      <tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_m6_100">
+		</shader>
+		<shader path="textures/lights/light_m6_bwhite">
+		</shader>
+		<shader path="textures/lights/light_sd1">
+		</shader>
+		<shader path="textures/lights/light_tp_m05">
+		</shader>
+		<shader path="textures/lights/light_tp_m06">
+		</shader>
+		<shader path="textures/lights/light_tp_m07">
+		</shader>
+		<shader path="textures/lights/light_tp_m08">
+		</shader>
+		<shader path="textures/lights/light_xlight_03_2500">
+		</shader>
+		<shader path="textures/lights/light_xlight_1500">
+			<tag>Metal</tag>
+		<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_xlight_2500">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_xlight_4000">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_xlight_5500">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_xlight_700">
+			<tag>Light</tag>
+		</shader>
+		<shader path="textures/lights/light_xlight_750">
+		</shader>
+		<shader path="textures/lights/light_xlight3_4000">
+		</shader>
+		<shader path="textures/lights/light_xlight3_5500">
+		</shader>
+		<shader path="textures/lights/mlight_10k">
+		  <tag>Light</tag>
+    </shader>
+		<shader path="textures/lights/mlight_30k">
+		  <tag>Light</tag>
+    </shader>
+		<shader path="textures/lights/mlight_5k">
+		  <tag>Light</tag>
+    </shader>
+		<shader path="textures/lights/mlight_6k">
+		  <tag>Light</tag>
+    </shader>
+		<shader path="textures/lights/mlight_7k">
+		  <tag>Light</tag>
+    </shader>
+		<shader path="textures/lights/mlight_8k">
+		  <tag>Light</tag>
+    </shader>
+		<shader path="textures/lights/mlight_9k">
+		  <tag>Light</tag>
+    </shader>
+		<shader path="textures/liquids/lake_m01">
+		</shader>
+		<shader path="textures/liquids/lake_m01_bak">
+		</shader>
+		<shader path="textures/liquids/river_m01">
+		</shader>
+		<shader path="textures/liquids/water_beach">
+		</shader>
+		<shader path="textures/liquids/water_beach_fast">
+		</shader>
+		<shader path="textures/liquids/water_beach_nerve">
+		</shader>
+		<shader path="textures/liquids/water_calm2">
+		</shader>
+		<shader path="textures/liquids/water_dam">
+		</shader>
+		<shader path="textures/liquids/water_ripple1">
+		</shader>
+		<shader path="textures/liquids/water_ripple3">
+		</shader>
+		<shader path="textures/liquids/water_xlab_op">
+		</shader>
+		<shader path="textures/liquids_sd/siwa_water">
+		  <tag>Water</tag>
+    </shader>
+		<shader path="textures/liquids_sd/siwa_water_2">
+		  <tag>Water</tag>
+    </shader>
+		<shader path="textures/liquids_sd/siwa_waternodraw">
+		</shader>
+		<shader path="textures/mapfx/translucent">
+		  <tag>SFX</tag>
+    </shader>
+		<shader path="textures/mapfx/translucent_red">
+		  <tag>SFX</tag>
+    </shader>
+		<shader path="textures/metal_misc/ametal_m01">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/metal_misc/ametal_m01ns">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/metal_misc/ametal_m02">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/metal_misc/ametal_m03">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/metal_misc/ametal_m03_nonsolid">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/ametal_m03_nonsolid_wils">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/ametal_m03_slick">
+		</shader>
+		<shader path="textures/metal_misc/ametal_m03a">
+		</shader>
+		<shader path="textures/metal_misc/ametal_m03dm">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/ametal_m03ns">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/ametal_m04a">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/metal_misc/ametal_m04r2">
+		</shader>
+		<shader path="textures/metal_misc/ametal_m06a">
+		</shader>
+		<shader path="textures/metal_misc/ametal_m07a">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/diamond_c_01">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/metal_misc/diamond_c_01b">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/diamond_m_01">
+		</shader>
+		<shader path="textures/metal_misc/diamond_m_02">
+		</shader>
+		<shader path="textures/metal_misc/diamond_m03">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/metal_c02">
+		</shader>
+		<shader path="textures/metal_misc/metal_m01_blood">
+		</shader>
+		<shader path="textures/metal_misc/metal_m02ss">
+		</shader>
+		<shader path="textures/metal_misc/metal_m03">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/metal_m04dg">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/metal_misc/metal_m04dg2">
+		</shader>
+		<shader path="textures/metal_misc/metal_m04dr2">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/metal_m04g2">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/metal_m04g2-r">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/metal_m04r2">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metal_misc/metal_m04ss">
+		</shader>
+		<shader path="textures/metal_misc/metal_m04ss_osa">
+		</shader>
+		<shader path="textures/metal_misc/metal_m06">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metals_sd/door_a">
+			<tag>Door</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/metals_sd/duct_a2">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/metals_sd/grate_a">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metals_sd/grate_b">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/metals_sd/wall_b">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/miltary_door/mdoor_c03">
+		  <tag>Door</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/miltary_door/mdoor_c04">
+		</shader>
+		<shader path="textures/miltary_door/mdoor_m01">
+		</shader>
+		<shader path="textures/miltary_door/mdoor_m01b">
+		  <tag>Metal</tag>
+      <tag>Door</tag>
+    </shader>
+		<shader path="textures/miltary_door/mdoor_m08a">
+		</shader>
+		<shader path="textures/miltary_trim/basewd_m02">
+		</shader>
+		<shader path="textures/miltary_wall/brick_l_01">
+      <tag>Bricks</tag>
+    </shader>
+		<shader path="textures/miltary_wall/miltary_m01">
+		</shader>
+		<shader path="textures/miltary_wall/miltary_m06">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/miltary_wall/miltary_m06_cloth">
+		</shader>
+		<shader path="textures/miltary_wall/mroof_m01a">
+		  <tag>Roof</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/miltary_wall/window_m03">
+		  <tag>Glass</tag>
+      <tag>Window</tag>
+    </shader>
+		<shader path="textures/mp_colditz/tool_m07">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/mp_goldrush/camp_map">
+		  <tag>Furniture</tag>
+    </shader>
+		<shader path="textures/mp_goldrush/canvas_nondeform">
+		  <tag>Cloth</tag>
+    </shader>
+		<shader path="textures/mp_goldrush/lmterrain_0">
+		</shader>
+		<shader path="textures/mp_goldrush/lmterrain_0to1">
+		</shader>
+		<shader path="textures/mp_goldrush/lmterrain_0to2">
+		</shader>
+		<shader path="textures/mp_goldrush/lmterrain_0to3">
+		</shader>
+		<shader path="textures/mp_goldrush/lmterrain_1">
+		</shader>
+		<shader path="textures/mp_goldrush/lmterrain_1to2">
+		</shader>
+		<shader path="textures/mp_goldrush/lmterrain_1to3">
+		</shader>
+		<shader path="textures/mp_goldrush/lmterrain_2">
+		</shader>
+		<shader path="textures/mp_goldrush/lmterrain_2to3">
+		</shader>
+		<shader path="textures/mp_goldrush/lmterrain_3">
+		</shader>
+		<shader path="textures/mp_goldrush/lmterrain_base">
+		</shader>
+		<shader path="textures/mp_goldrush/pavement_quad">
+		  <tag>Terrain</tag>
+      <tag>Pavement</tag>
+    </shader>
+		<shader path="textures/mp_goldrush/sandygrass_b_phong">
+		  <tag>Terrain</tag>
+      <tag>Sand</tag>
+      <tag>Grass</tag>
+    </shader>
+		<shader path="textures/mp_guns/mp_guns_sky">
+		</shader>
+		<shader path="textures/mp_guns/terrain_0">
+		</shader>
+		<shader path="textures/mp_guns/terrain_0to1">
+		</shader>
+		<shader path="textures/mp_guns/terrain_0to2">
+		</shader>
+		<shader path="textures/mp_guns/terrain_0to3">
+		</shader>
+		<shader path="textures/mp_guns/terrain_0to4">
+		</shader>
+		<shader path="textures/mp_guns/terrain_1">
+		</shader>
+		<shader path="textures/mp_guns/terrain_1to2">
+		</shader>
+		<shader path="textures/mp_guns/terrain_1to3">
+		</shader>
+		<shader path="textures/mp_guns/terrain_2">
+		</shader>
+		<shader path="textures/mp_guns/terrain_3">
+		</shader>
+		<shader path="textures/mp_guns/terrain_4">
+		</shader>
+		<shader path="textures/mp_railgun/cable">
+		  <tag>Metal</tag>
+      <tag>Trim</tag>
+    </shader>
+		<shader path="textures/mp_railgun/fog">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_0">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_0to1">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_0to2">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_0to3">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_0to4">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_0to5">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_0to6">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_1">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_1to2">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_1to3">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_1to4">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_1to5">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_1to6">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_2">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_2to3">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_2to4">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_2to5">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_2to6">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_3">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_3to4">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_3to5">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_3to6">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_4">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_4to5">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_4to6">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_5">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_5to6">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_6">
+		</shader>
+		<shader path="textures/mp_railgun/lmterrain_base">
+		</shader>
+		<shader path="textures/mp_railgun/sky">
+		</shader>
+		<shader path="textures/mp_rocket/fence_c10_light">
+		</shader>
+		<shader path="textures/mp_seawall/fog_water">
+		</shader>
+		<shader path="textures/mp_seawall/ocean_0">
+		</shader>
+		<shader path="textures/mp_seawall/ocean_0to1">
+		</shader>
+		<shader path="textures/mp_seawall/ocean_1">
+		</shader>
+		<shader path="textures/mp_seawall/ocean_base">
+		</shader>
+		<shader path="textures/mp_seawall/ocean_terrain">
+		</shader>
+		<shader path="textures/mp_seawall/rock_graynoise">
+		  <tag>Terrain</tag>
+      <tag>Rock</tag>
+    </shader>
+		<shader path="textures/mp_seawall/sand_disturb">
+		  <tag>Terrain</tag>
+      <tag>Sand</tag>
+    </shader>
+		<shader path="textures/mp_seawall/terrain_0">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_0to1">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_0to2">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_0to3">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_0to4">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_0to5">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_1">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_1to2">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_1to3">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_1to4">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_1to5">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_2">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_2to3">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_2to4">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_2to5">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_3">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_3to4">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_3to5">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_3to6">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_4">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_4to5">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_5">
+		</shader>
+		<shader path="textures/mp_seawall/terrain_base">
+		</shader>
+		<shader path="textures/mp_seawall/water_fog">
+		</shader>
+		<shader path="textures/mp_seawall/water_nodraw">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_0">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_0to1">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_0to2">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_0to3">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_0to4">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_0to5">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_0to6">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_0to7">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_1">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_1to2">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_1to3">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_1to4">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_1to5">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_1to6">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_1to7">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_2">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_2to3">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_2to4">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_2to5">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_2to6">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_2to7">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_3">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_3to4">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_3to5">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_3to6">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_3to7">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_4">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_4to5">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_4to6">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_4to7">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_5">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_5to6">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_5to7">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_6">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_6to7">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_7">
+		</shader>
+		<shader path="textures/mp_siwa/lmterrain_base">
+		</shader>
+		<shader path="textures/mp_siwa/rock_edged">
+		  <tag>Terrain</tag>
+      <tag>Rock</tag>
+      <tag>Sand</tag>
+    </shader>
+		<shader path="textures/mp_siwa/sand_dirt">
+		  <tag>Terrain</tag>
+      <tag>Sand</tag>
+    </shader>
+		<shader path="textures/mp_siwa/sky">
+		</shader>
+		<shader path="textures/mp_wurzburg/borderroad">
+		  <tag>Gravel</tag>
+      <tag>Grass</tag>
+    </shader>
+		<shader path="textures/mp_wurzburg/debri_m05_wet">
+		  <tag>Rock</tag>
+    </shader>
+		<shader path="textures/mp_wurzburg/dirt_m03icmp_brown">
+		  <tag>Gravel</tag>
+      <tag>Dirt</tag>
+    </shader>
+		<shader path="textures/mp_wurzburg/dirt_m04cmp_brown">
+		  <tag>Gravel</tag>
+      <tag>Grass</tag>
+    </shader>
+		<shader path="textures/mp_wurzburg/fog">
+		</shader>
+		<shader path="textures/mp_wurzburg/gy_ml03a_wet">
+		  <tag>Rock</tag>
+      <tag>Pavement</tag>
+      <tag>Grass</tag>
+    </shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_0">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_0to1">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_0to2">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_0to3">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_0to4">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_0to5">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_1">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_1to2">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_1to3">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_1to4">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_1to5">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_2">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_2to3">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_2to4">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_2to5">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_3">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_3to4">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_3to5">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_4">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_4to5">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_5">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_base">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_foliage_base">
+		</shader>
+		<shader path="textures/mp_wurzburg/lmterrain2_foliage_fade">
+		</shader>
+		<shader path="textures/mp_wurzburg/metal_wet1">
+		</shader>
+		<shader path="textures/mp_wurzburg/metal_wet2">
+		</shader>
+		<shader path="textures/mp_wurzburg/road">
+		  <tag>Concrete</tag>
+      <tag>Gravel</tag>
+    </shader>
+		<shader path="textures/mp_wurzburg/road_bigpuddle">
+		  <tag>Gravel</tag>
+      <tag>Concrete</tag>
+    </shader>
+		<shader path="textures/mp_wurzburg/road_puddle1">
+		  <tag>Concrete</tag>
+      <tag>Gravel</tag>
+    </shader>
+		<shader path="textures/mp_wurzburg/road_wet">
+		  <tag>Gravel</tag>
+      <tag>Concrete</tag>
+    </shader>
+		<shader path="textures/mp_wurzburg/wall_c01_wet">
+		  <tag>Rock</tag>
+      <tag>Bricks</tag>
+    </shader>
+		<shader path="textures/mp_wurzburg/wood_m02_wet">
+		  <tag>Wood</tag>
+    </shader>
+		<shader path="textures/mp_wurzburg/wood_m16_wet">
+		  <tag>Wood</tag>
+    </shader>
+		<shader path="textures/props/barrel_m01">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/barrel_m02">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/base_lamp_1">
+		  <tag>Light</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/base_lamp_1_oasis">
+		  <tag>Light</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/board_c01">
+		  <tag>Furniture</tag>
+      <tag>Wood</tag>
+    </shader>
+		<shader path="textures/props/board_c03">
+		  <tag>Wood</tag>
+      <tag>Furniture</tag>
+    </shader>
+		<shader path="textures/props/board_cl01">
+		</shader>
+		<shader path="textures/props/board_cl01m">
+		</shader>
+		<shader path="textures/props/board_m01">
+		</shader>
+		<shader path="textures/props/box_c01">
+			<tag>Box</tag>
+		</shader>
+		<shader path="textures/props/box_c02">
+			<tag>Box</tag>
+		</shader>
+		<shader path="textures/props/box_c03">
+			<tag>Box</tag>
+		</shader>
+		<shader path="textures/props/box_m01">
+			<tag>Box</tag>
+		</shader>
+		<shader path="textures/props/box_m02">
+			<tag>Box</tag>
+		</shader>
+		<shader path="textures/props/box_m03">
+			<tag>Box</tag>
+		</shader>
+		<shader path="textures/props/box_m04">
+		  <tag>Wood</tag>
+    </shader>
+		<shader path="textures/props/box_m04a">
+			<tag>Wood</tag>
+		<tag>Box</tag>
+		</shader>
+		<shader path="textures/props/box_m04a_sd">
+			<tag>Wood</tag>
+		<tag>Box</tag>
+		</shader>
+		<shader path="textures/props/box_m05">
+		  <tag>Wood</tag>
+    </shader>
+		<shader path="textures/props/box_m05a">
+		  <tag>Wood</tag>
+    </shader>
+		<shader path="textures/props/box_t_m01">
+		  <tag>Box</tag>
+      <tag>Wood</tag>
+    </shader>
+		<shader path="textures/props/box_t_m01a">
+		  <tag>Wood</tag>
+      <tag>Box</tag>
+    </shader>
+		<shader path="textures/props/box_t_m02">
+		</shader>
+		<shader path="textures/props/box_t_m04">
+		  <tag>Wood</tag>
+      <tag>Box</tag>
+    </shader>
+		<shader path="textures/props/box_t_m04a">
+		  <tag>Wood</tag>
+      <tag>Box</tag>
+    </shader>
+		<shader path="textures/props/box_t_m04b">
+		  <tag>Wood</tag>
+      <tag>Box</tag>
+    </shader>
+		<shader path="textures/props/cable_m01">
+		  <tag>Trim</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/file_cab_m01">
+		  <tag>Furniture</tag>
+      <tag>Panel</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/flag_l_m01">
+		</shader>
+		<shader path="textures/props/flag_l_m01_tad">
+		</shader>
+		<shader path="textures/props/flag_l_m01nomove">
+		</shader>
+		<shader path="textures/props/flags_m1">
+		</shader>
+		<shader path="textures/props/flags_m1_fac">
+		</shader>
+		<shader path="textures/props/flags_m1_snow">
+		</shader>
+		<shader path="textures/props/freeze_glass">
+		</shader>
+		<shader path="textures/props/fwindow1">
+		  <tag>SFX</tag>
+    </shader>
+		<shader path="textures/props/fwindow1_1">
+		  <tag>SFX</tag>
+    </shader>
+		<shader path="textures/props/fwindow1_1_oasis">
+		  <tag>SFX</tag>
+    </shader>
+		<shader path="textures/props/hay">
+      <tag>Grass</tag>
+    </shader>
+		<shader path="textures/props/hayd">
+		</shader>
+		<shader path="textures/props/lockers_c01">
+		  <tag>Furniture</tag>
+      <tag>Panel</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/lockers_c02">
+		  <tag>Metal</tag>
+      <tag>Panel</tag>
+      <tag>Furniture</tag>
+    </shader>
+		<shader path="textures/props/panel_d03">
+		  <tag>Metal</tag>
+      <tag>Panel</tag>
+    </shader>
+		<shader path="textures/props/panel_d04">
+		</shader>
+		<shader path="textures/props/panel_tram2">
+		  <tag>Panel</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/panel_tram3">
+		  <tag>Panel</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/panelside_d01">
+		  <tag>Panel</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/rail_side_wils">
+      <tag>Trim</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/rail_top_wils">
+		  <tag>Metal</tag>
+      <tag>Trim</tag>
+    </shader>
+		<shader path="textures/props/refer_light">
+		</shader>
+		<shader path="textures/props/sho_box_c01">
+		  <tag>Metal</tag>
+      <tag>Box</tag>
+    </shader>
+		<shader path="textures/props/sho_box_c02">
+		  <tag>Box</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/sho_box_c03">
+		  <tag>Box</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/sign_c01">
+		</shader>
+		<shader path="textures/props/sign_c05">
+		</shader>
+		<shader path="textures/props/sign_c06">
+		  <tag>Sign</tag>
+    </shader>
+		<shader path="textures/props/sign_c26">
+		  <tag>Sign</tag>
+    </shader>
+		<shader path="textures/props/sign_c27">
+		  <tag>Sign</tag>
+    </shader>
+		<shader path="textures/props/sub1">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/table">
+		</shader>
+		<shader path="textures/props/torch_ember">
+		</shader>
+		<shader path="textures/props/train_m01">
+		  <tag>Panel</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/train_m02">
+		  <tag>Panel</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/train_m03">
+		</shader>
+		<shader path="textures/props/train_m04">
+		</shader>
+		<shader path="textures/props/train_m05">
+		  <tag>Panel</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/train_m06">
+		  <tag>Trim</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/props/wine_c01">
+		</shader>
+		<shader path="textures/props/wine_c02">
+		</shader>
+		<shader path="textures/props_sd/barrel_m01_rednwhite">
+		</shader>
+		<shader path="textures/props_sd/board_cl01m">
+		  <tag>Wood</tag>
+      <tag>Sign</tag>
+    </shader>
+		<shader path="textures/props_sd/board_cl02m">
+		  <tag>Furniture</tag>
+      <tag>Sign</tag>
+      <tag>Wood</tag>
+    </shader>
+		<shader path="textures/props_sd/s_ammo01">
+		  <tag>Sign</tag>
+    </shader>
+		<shader path="textures/props_sd/s_casemate01">
+		  <tag>Sign</tag>
+    </shader>
+		<shader path="textures/props_sd/s_casemate02">
+		  <tag>Sign</tag>
+    </shader>
+		<shader path="textures/props_sd/s_generator01">
+		  <tag>Sign</tag>
+    </shader>
+		<shader path="textures/props_sd/s_gun01">
+		  <tag>Sign</tag>
+    </shader>
+		<shader path="textures/props_sd/wires">
+		  <tag>Alpha</tag>
+      <tag>Trim</tag>
+    </shader>
+		<shader path="textures/props_sd/wires01">
+		  <tag>Metal</tag>
+    </shader>
+		<shader path="textures/radar/borderroad">
+		  <tag>Grass</tag>
+      <tag>Gravel</tag>
+    </shader>
+		<shader path="textures/radar/debri_m05_wet">
+		  <tag>Rock</tag>
+      <tag>Gravel</tag>
+    </shader>
+		<shader path="textures/radar/dirt_m03icmp_brown">
+		  <tag>Concrete</tag>
+      <tag>Gravel</tag>
+    </shader>
+		<shader path="textures/radar/dirt_m04cmp_brown">
+		  <tag>Gravel</tag>
+      <tag>Grass</tag>
+    </shader>
+		<shader path="textures/radar/fog">
+		</shader>
+		<shader path="textures/radar/gy_ml03a_wet">
+		  <tag>Grass</tag>
+    </shader>
+		<shader path="textures/radar/lmterrain2_0">
+		</shader>
+		<shader path="textures/radar/lmterrain2_0to1">
+		</shader>
+		<shader path="textures/radar/lmterrain2_0to2">
+		</shader>
+		<shader path="textures/radar/lmterrain2_0to3">
+		</shader>
+		<shader path="textures/radar/lmterrain2_0to4">
+		</shader>
+		<shader path="textures/radar/lmterrain2_0to5">
+		</shader>
+		<shader path="textures/radar/lmterrain2_1">
+		</shader>
+		<shader path="textures/radar/lmterrain2_1to2">
+		</shader>
+		<shader path="textures/radar/lmterrain2_1to3">
+		</shader>
+		<shader path="textures/radar/lmterrain2_1to4">
+		</shader>
+		<shader path="textures/radar/lmterrain2_1to5">
+		</shader>
+		<shader path="textures/radar/lmterrain2_2">
+		</shader>
+		<shader path="textures/radar/lmterrain2_2to3">
+		</shader>
+		<shader path="textures/radar/lmterrain2_2to4">
+		</shader>
+		<shader path="textures/radar/lmterrain2_2to5">
+		</shader>
+		<shader path="textures/radar/lmterrain2_3">
+		</shader>
+		<shader path="textures/radar/lmterrain2_3to4">
+		</shader>
+		<shader path="textures/radar/lmterrain2_3to5">
+		</shader>
+		<shader path="textures/radar/lmterrain2_4">
+		</shader>
+		<shader path="textures/radar/lmterrain2_4to5">
+		</shader>
+		<shader path="textures/radar/lmterrain2_5">
+		</shader>
+		<shader path="textures/radar/lmterrain2_base">
+		</shader>
+		<shader path="textures/radar/lmterrain2_foliage_base">
+		</shader>
+		<shader path="textures/radar/lmterrain2_foliage_fade">
+		</shader>
+		<shader path="textures/radar/metal_wet1">
+		</shader>
+		<shader path="textures/radar/metal_wet2">
+		</shader>
+		<shader path="textures/radar/road">
+		  <tag>Gravel</tag>
+      <tag>Concrete</tag>
+    </shader>
+		<shader path="textures/radar/road_bigpuddle">
+		  <tag>Concrete</tag>
+      <tag>Gravel</tag>
+    </shader>
+		<shader path="textures/radar/road_puddle1">
+		  <tag>Concrete</tag>
+      <tag>Gravel</tag>
+    </shader>
+		<shader path="textures/radar/road_wet">
+		  <tag>Concrete</tag>
+      <tag>Gravel</tag>
+    </shader>
+		<shader path="textures/radar/wall_c01_wet">
+		  <tag>Concrete</tag>
+      <tag>Bricks</tag>
+    </shader>
+		<shader path="textures/radar/wood_m02_wet">
+		  <tag>Wood</tag>
+    </shader>
+		<shader path="textures/radar/wood_m16_wet">
+		  <tag>Wood</tag>
+    </shader>
+		<shader path="textures/railgun_props/tug_side">
+		  <tag>Panel</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/railway_sd/d_cross">
+		</shader>
+		<shader path="textures/railway_sd/d_label01">
+		</shader>
+		<shader path="textures/railway_sd/d_label02">
+		</shader>
+		<shader path="textures/railway_sd/d_skull">
+		</shader>
+		<shader path="textures/railway_sd/metaltrim_a">
+		</shader>
+		<shader path="textures/railway_sd/metalwall_a">
+		</shader>
+		<shader path="textures/railway_sd/metalwall_b">
+		</shader>
+		<shader path="textures/railway_sd/metalwall_c">
+		</shader>
+		<shader path="textures/railway_sd/panel_001a">
+		</shader>
+		<shader path="textures/railway_sd/panel_001b">
+		</shader>
+		<shader path="textures/railway_sd/panel_001c">
+		</shader>
+		<shader path="textures/railway_sd/panel_001d">
+		</shader>
+		<shader path="textures/railway_sd/panel_001e">
+		</shader>
+		<shader path="textures/railway_sd/panel_trim001">
+		</shader>
+		<shader path="textures/railway_sd/support001">
+		</shader>
+		<shader path="textures/railway_sd/support003">
+		</shader>
+		<shader path="textures/region">
+		</shader>
+		<shader path="textures/rock/dam_m01a">
+		</shader>
+		<shader path="textures/rubble/burn_flr_m01">
+		  <tag>Wood</tag>
+    </shader>
+		<shader path="textures/rubble/burn_flr_m01a">
+		</shader>
+		<shader path="textures/rubble/burn_flr_m01b">
+		</shader>
+		<shader path="textures/rubble/burn_flr_m01c">
+		</shader>
+		<shader path="textures/rubble/rebar_m01">
+		</shader>
+		<shader path="textures/seawall_wall/metal_trim1">
+		  <tag>Trim</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/sfx/beam_dusty2">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </shader>
+		<shader path="textures/sfx/construction">
+		</shader>
+		<shader path="textures/sfx/fan">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </shader>
+		<shader path="textures/sfx/fan_static">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </shader>
+		<shader path="textures/sfx/fog_water">
+		</shader>
+		<shader path="textures/sfx/glass">
+		  <tag>Glass</tag>
+    </shader>
+		<shader path="textures/sfx/lightmap">
+		</shader>
+		<shader path="textures/sfx/safety_glass">
+		  <tag>Glass</tag>
+    </shader>
+		<shader path="textures/sfx/tramglass2">
+		  <tag>Glass</tag>
+    </shader>
+		<shader path="textures/sfx/wilsflame1">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </shader>
+		<shader path="textures/sfx/wilsflame2">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </shader>
+		<shader path="textures/siwa_fx_sd/siwa_waternodraw">
+		</shader>
+		<shader path="textures/siwa_props_sd/siwa_carpet2">
+		</shader>
+		<shader path="textures/siwa_props_sd/siwa_carpet4">
+		</shader>
+		<shader path="textures/siwa_props_sd/siwa_carpet5">
+		</shader>
+		<shader path="textures/siwa_skyboxes_sd/sd_siwa">
+		</shader>
+		<shader path="textures/skies/sd_batteryfog">
+		</shader>
+		<shader path="textures/skies/sd_batterysky">
+		  <tag>Sky</tag>
+    </shader>
+		<shader path="textures/skies/sd_batteryunderseasky">
+		</shader>
+		<shader path="textures/skies/sd_goldrush">
+		</shader>
+		<shader path="textures/skies/sd_railgun">
+		</shader>
+		<shader path="textures/skies/sd_seawallfog">
+		</shader>
+		<shader path="textures/skies/sd_seawallsky">
+		  <tag>Sky</tag>
+    </shader>
+		<shader path="textures/skies/sd_seawallunderseasky">
+		</shader>
+		<shader path="textures/skies/sd_siwa">
+		</shader>
+		<shader path="textures/skies/sd_siwafog">
+		</shader>
+		<shader path="textures/skies/sd_wurzburgsky">
+		</shader>
+		<shader path="textures/skies/sky_goldrush">
+		</shader>
+		<shader path="textures/skies_sd/batterysunfog">
+		  <tag>Sky</tag>
+    </shader>
+		<shader path="textures/skies_sd/full_moon">
+		</shader>
+		<shader path="textures/skies_sd/full_moon2">
+		  <tag>Sky</tag>
+    </shader>
+		<shader path="textures/skies_sd/sd_siwasky">
+		</shader>
+		<shader path="textures/skies_sd/seawallsunfog">
+		</shader>
+		<shader path="textures/skies_sd/siwasunbright">
+		</shader>
+		<shader path="textures/skies_sd/small_moon">
+		  <tag>Sky</tag>
+    </shader>
+		<shader path="textures/snow/alpha_ice2">
+		</shader>
+		<shader path="textures/snow/s_bars_m01">
+			<tag>Metal</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow/s_cashudder_c01">
+			<tag>Wood</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow/s_castle_m03a_step">
+			<tag>Bricks</tag>
+		<tag>Rock</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow/s_cwood_mo5c">
+			<tag>Snow</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/snow/s_diamond_c01a">
+			<tag>Snow</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/snow/s_dirt_m03i_2">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow/s_fence_c07">
+		</shader>
+		<shader path="textures/snow/s_floor_c10_a2">
+			<tag>Snow</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/snow/s_grass_ml03b">
+		</shader>
+		<shader path="textures/snow/s_wood_c13a">
+			<tag>Snow</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/snow_sd/alphatree_snow">
+		</shader>
+		<shader path="textures/snow_sd/alphatree_snow2">
+		</shader>
+		<shader path="textures/snow_sd/alphatree_snow3">
+		</shader>
+		<shader path="textures/snow_sd/alphatree_snow4">
+		</shader>
+		<shader path="textures/snow_sd/alphatreeline_snow">
+		</shader>
+		<shader path="textures/snow_sd/ametal_m03_snow">
+			<tag>Snow</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/snow_sd/ametal_m04a_snow">
+			<tag>Snow</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/snow_sd/ametal_m04a_snowfade">
+			<tag>Snow</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/snow_sd/bunkertrim_snow">
+			<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow_sd/bunkertrim3_snow">
+			<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow_sd/bunkerwall_lrg02">
+			<tag>Snow</tag>
+		<tag>Concrete</tag>
+		</shader>
+		<shader path="textures/snow_sd/fuse_box_snow">
+		<tag>Metal</tag>
+		<tag>Snow</tag>
+		<tag>Panel</tag>
+		</shader>
+		<shader path="textures/snow_sd/icelake2">
+			<tag>Ice</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow_sd/icelake2_opaque">
+			<tag>Ice</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow_sd/icey_lake">
+		</shader>
+		<shader path="textures/snow_sd/mesh_c03_snow">
+			<tag>Snow</tag>
+		<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/snow_sd/metal_m04g2_snow">
+			<tag>Metal</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow_sd/mroof_snow">
+			<tag>Snow</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/snow_sd/river_edge_snowy">
+		</shader>
+		<shader path="textures/snow_sd/snow_path01">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow_sd/snow_road01">
+			<tag>Terrain</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow_sd/snow_track03">
+		</shader>
+		<shader path="textures/snow_sd/snow_track03_end">
+		</shader>
+		<shader path="textures/snow_sd/snow_track03_end_faint">
+		  <tag>Alpha</tag>
+      <tag>SFX</tag>
+    </shader>
+		<shader path="textures/snow_sd/snow_track03_faint">
+			<tag>Alpha</tag>
+		</shader>
+		<shader path="textures/snow_sd/sub1_snow">
+			<tag>Metal</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow_sd/sub1_snow2">
+			<tag>Metal</tag>
+		<tag>Snow</tag>
+		</shader>
+		<shader path="textures/snow_sd/wirefence01_snow">
+		</shader>
+		<shader path="textures/snow_sd/wood_m05a_snow">
+			<tag>Snow</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/snow_sd/wood_m06b_snow">
+		</shader>
+		<shader path="textures/snow_sd/xmetal_m02_snow">
+			<tag>Snow</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/snow_sd/xmetal_m02t_snow">
+			<tag>Snow</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/stone/mxrock1aa">
+			<tag>Terrain</tag>
+		<tag>Rock</tag>
+		</shader>
+		<shader path="textures/swf/ametal_m01sm">
+		</shader>
+		<shader path="textures/swf/ametal_m08">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/swf/door_loper">
+			<tag>Door</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/swf/door_m01aaaaswf">
+			<tag>Door</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/swf/door_m01aswf">
+			<tag>Metal</tag>
+		<tag>Door</tag>
+		</shader>
+		<shader path="textures/swf/door_m01swf">
+			<tag>Metal</tag>
+		<tag>Door</tag>
+		</shader>
+		<shader path="textures/swf/fuse_box">
+			<tag>Panel</tag>
+		<tag>Furniture</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/swf/fuse_box_ad">
+		</shader>
+		<shader path="textures/swf/fuse_box1a">
+			<tag>Panel</tag>
+		<tag>Metal</tag>
+		<tag>Furniture</tag>
+		</shader>
+		<shader path="textures/swf/fuse_box2">
+			<tag>Panel</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/swf/metal_m01">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/swf/metal_m02">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/swf/metal_m03">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/swf/spipe_02">
+			<tag>Pipe</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/swf/spipe_04">
+			<tag>Pipe</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/swf/spipe_05a">
+			<tag>Pipe</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/swf/xtrim_cm05">
+		  <tag>Trim</tag>
+    </shader>
+		<shader path="textures/temperate_sd/rock_worn_brown_moss">
+		</shader>
+		<shader path="textures/terrain/dirt_m03i">
+		  <tag>Dirt</tag>
+      <tag>Gravel</tag>
+    </shader>
+		<shader path="textures/terrain/grass_dm01">
+		</shader>
+		<shader path="textures/terrain/grass_dm01_phong">
+		</shader>
+		<shader path="textures/terrain/grass_dm01_wils">
+		</shader>
+		<shader path="textures/terrain/grass_trainwreck">
+		</shader>
+		<shader path="textures/test_autosprite">
+		</shader>
+		<shader path="textures/test_autosprite2">
+		</shader>
+		<shader path="textures/tobruk_wall_base7_phong">
+		</shader>
+		<shader path="textures/tobruk_wall_sd/tobruk_wall_base7_phong">
+		</shader>
+		<shader path="textures/tobruk_windows_sd/tobruk_moucha1">
+		  <tag>Alpha</tag>
+      <tag>Metal</tag>
+    </shader>
+		<shader path="textures/tobruk_windows_sd/tobruk_shutterbrown">
+			<tag>Window</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/tobruk_windows_sd/tobruk_tobruk_lwind">
+			<tag>Bricks</tag>
+		<tag>Window</tag>
+		</shader>
+		<shader path="textures/tobruk_windows_sd/tobruk_tobruk_mwind">
+			<tag>Window</tag>
+		<tag>Bricks</tag>
+		</shader>
+		<shader path="textures/tobruk_windows_sd/tobruk_windows_bright">
+			<tag>Window</tag>
+		</shader>
+		<shader path="textures/tobruk_windows_sd/tobruk_windows_medium">
+			<tag>Window</tag>
+		</shader>
+		<shader path="textures/town_props/streetname_c01">
+		</shader>
+		<shader path="textures/town_roof/roof_c05">
+		</shader>
+		<shader path="textures/town_wall/store_c01">
+		</shader>
+		<shader path="textures/town_wall/store_c02">
+		</shader>
+		<shader path="textures/town_wall/store_c03_a">
+		</shader>
+		<shader path="textures/town_window/shudder_c04">
+			<tag>Window</tag>
+		<tag>Wood</tag>
+		</shader>
+		<shader path="textures/town_wood/trenchwood">
+		</shader>
+		<shader path="textures/town_wood/wood_c01">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/town_wood/wood_c02">
+		</shader>
+		<shader path="textures/town_wood/wood_c11">
+		</shader>
+		<shader path="textures/tree/tree_m02dm">
+		</shader>
+		<shader path="textures/tree/tree_m02s">
+		</shader>
+		<shader path="textures/tree/tree_m07_lod">
+		</shader>
+		<shader path="textures/tree/tree_m08">
+		</shader>
+		<shader path="textures/tree/trunck3">
+		</shader>
+		<shader path="textures/tree/trunck3a">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/villa_sd/villawindow_a">
+		</shader>
+		<shader path="textures/village/villwin_c12m_glass">
+			<tag>Window</tag>
+		<tag>Glass</tag>
+		</shader>
+		<shader path="textures/village/villwin_c15">
+			<tag>Bricks</tag>
+		<tag>Window</tag>
+		<tag>Rock</tag>
+		</shader>
+		<shader path="textures/village/villwin_c18">
+		</shader>
+		<shader path="textures/wood/wood_c01">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m01_usat">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m02">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m02a">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m05">
+		</shader>
+		<shader path="textures/wood/wood_m05_usata">
+		</shader>
+		<shader path="textures/wood/wood_m05a_usat">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m05a_usat_snow">
+		</shader>
+		<shader path="textures/wood/wood_m05a_usata">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m05a_usata_dm">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m06">
+		</shader>
+		<shader path="textures/wood/wood_m06_usat">
+		</shader>
+		<shader path="textures/wood/wood_m06a">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m06b">
+		</shader>
+		<shader path="textures/wood/wood_m08">
+    </shader>
+		<shader path="textures/wood/wood_m08_usat">
+		</shader>
+		<shader path="textures/wood/wood_m09">
+		</shader>
+		<shader path="textures/wood/wood_m09_usat">
+		</shader>
+		<shader path="textures/wood/wood_m11">
+		</shader>
+		<shader path="textures/wood/wood_m12">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m12_usat">
+		</shader>
+		<shader path="textures/wood/wood_m12a">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m13">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m13_usat">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m16">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m16cm">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/wood/wood_m18">
+			<tag>Wood</tag>
+		</shader>
+		<shader path="textures/xlab_door/xdoor_m01">
+		</shader>
+		<shader path="textures/xlab_door/xdoor_m01f">
+		</shader>
+		<shader path="textures/xlab_props/panel_m01">
+			<tag>Panel</tag>
+		<tag>Light</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/xlab_props/panel_m01_light">
+			<tag>Panel</tag>
+		<tag>Light</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/xlab_props/xdrawers_c03">
+			<tag>Furniture</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/xlab_props/xgrid_c01">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/xlab_props/xpanel_c02dm">
+			<tag>Metal</tag>
+		<tag>Panel</tag>
+		</shader>
+		<shader path="textures/xlab_props/xpanel_c05_light_half">
+			<tag>Metal</tag>
+		<tag>Panel</tag>
+		</shader>
+		<shader path="textures/xlab_props/xpanel_c08">
+			<tag>Metal</tag>
+		<tag>Panel</tag>
+		</shader>
+		<shader path="textures/xlab_props/xpanel_c10_light">
+			<tag>Panel</tag>
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/xlab_wall/x_metalwall_m01">
+		</shader>
+		<shader path="textures/xlab_wall/xmetal_c03">
+		<tag>Metal</tag>
+		</shader>
+		<shader path="textures/xlab_wall/xmetal_c03_phong">
+		</shader>
+		<shader path="textures/xlab_wall/xmetal_m02">
+		</shader>
+		<shader path="textures/xlab_wall/xmetal_m02a">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/xlab_wall/xmetal_m02a_trim">
+		</shader>
+		<shader path="textures/xlab_wall/xmetal_m02f">
+		</shader>
+		<shader path="textures/xlab_wall/xmetal_m03l">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/xlab_wall/xtrim_c02">
+		</shader>
+		<shader path="textures/xlab_wall/xtrim_c04">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/xlab_wall/xtrim_c05">
+		</shader>
+		<shader path="textures/xlab_wall/xtrim_c06">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/xlab_wall/xtrim_c07">
+			<tag>Metal</tag>
+		</shader>
+		<shader path="textures/xlab_wall/xwall_c07">
+		</shader>
+	</stock>
+	<custom>
+    <shader path="textures/lights/light_m11_red">
+    </shader>
+    <shader path="textures/lights/light_m11_max">
+    </shader>
+  </custom>
+</root>

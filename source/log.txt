@@ -2,4 +2,4 @@ LOG::
 
 lm START ID: 15
 --------------
-m_numOfLightmaps 9
+m_numOfLightmaps 11

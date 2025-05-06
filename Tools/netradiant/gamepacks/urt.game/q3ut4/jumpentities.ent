@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+
+<!-- 
+// Urban Terror jump entity definition file for Radiant
+// jumpentities.ent optimised for NetRadiant Custom
+// Updated by quak
+// Last Updat: 2023-10-09
+// Adds the new checkpoint entities
+// Only works on jump servers that supports them or with the jump client
+-->
+
+<classes>
+
+<list name="precipIndex">
+  <item name="None" value="0"/>
+  <item name="Rain" value="1"/>
+  <item name="Snow" value="2"/>
+</list>
+
+<list name="staminaIndex">
+  <item name="Normal/Recharge" value="1"/>
+  <item name="Normal/Vanilla 4.1" value="0"/>
+  <item name="Infinit" value="2"/>
+</list>
+
+<list name="colorIndex">
+  <item name="Black" value="0"/>
+  <item name="Red" value="1"/>
+  <item name="Green" value="2"/>
+  <item name="Yellow" value="3"/>
+  <item name="Blue" value="4"/>
+  <item name="Cyan" value="5"/>
+  <item name="Magenta" value="6"/>
+  <item name="White" value="7"/>
+</list>
+
+<list name="obIndex">
+  <item name="Disabled" value="0"/>
+  <item name="URT [Enabled]" value="1"/>
+  <item name="VQ3 [Enabled]" value="2"/>
+</list>
+
+<!-- 
+//=============================================================================
+// CHECKPOINT ENTITYS
+//=============================================================================
+-->
+
+<point name="target_checkpoint" color="0.0 0.3 0.6" box="-16 -16 -16 16 16 16">
+Checkpoint of timer. It's intended for detailed comparison of a run with the best one.
+Utmost number of checkpoints is 30 for each different type (31st is the end).
+Same as ut_jumpcheckpoint, added for df compatability
+-------- KEYS --------
+<string key="type" name="Type">Way's number.</string>
+<targetname key="targetname" name="Target Name">The activating trigger points to this.</targetname>
+<integer key="points" name="Points Given" value="0">This checkpoint will reward a running player this amount of points when they hit this checkpoint.</integer>
+</point>
+
+
+<point name="ut_jumpcheckpoint" color="0.0 0.3 0.6" box="-16 -16 -16 16 16 16">
+Checkpoint of timer. It's intended for detailed comparison of a run with the best one.
+Utmost number of checkpoints is 30 for each different type (31st is the end).
+-------- KEYS --------
+<string key="type" name="Type">Way's number.</string>
+<targetname key="targetname" name="Target Name">The activating trigger points to this.</targetname>
+<integer key="points" name="Points Given" value="0">This checkpoint will reward a running player this amount of points when they hit this checkpoint.</integer>
+</point>
+
+<!-- 
+//=============================================================================
+// UPDATED JUMP ENTITIES 
+//=============================================================================
+-->
+
+<point name="ut_jumpstart" color="0.500000 0.000000 0.700000" box="-16 -16 -16 16 16 16">
+Start line for jump maps.Attach this entity to a trigger where you want the timer to be tripped at the beginning of the jump route. 
+-------- KEYS --------
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+<string key="name" name="View Name">Name of the way that the gamer will see when they crosses the start line.</string>
+<integer key="type" name="Way Number">Way number for multiple timers.</integer>
+<integer key="total" name="Total Points Visual" value="0">(Optional) This sets the amount points that the client will show as required for the run. Note: This number have no effect on the actual amount of points required.</integer>
+<colorIndex key="color" name="Run Time Color" value="7">If not used, it will default to white.
+Valid color numbers are:
+	0 : black 
+	1 : red
+	2 : green
+	3 : yellow
+	4 : blue
+	5 : cyan
+	6 : magenta
+	7 : white (default)
+	8 : orange (Bugged on q3e will show as black)
+	9 : olive (Bugged on q3e will show as red)
+</colorIndex>
+</point>
+
+<point name="ut_jumpstop" color="1.000000 0.000000 0.000000" box="-16 -16 -16 16 16 16">
+Stop line for jump maps. Attach this entity to a trigger where you want the timer to stop at the end of the jump route.
+-------- KEYS --------
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+<string key="name" name="View Name">Name of the way that the gamer will see when they crosses the start line.</string>
+<integer key="type" name="Way Number">Way number for multiple timers.</integer>
+<integer key="total" name="Total Points Required" value="0">Players will need to acquire this amount of points before they can finish the run, at this jumpstop.</integer>
+<colorIndex key="color" name="Run Time Color" value="7">If not used, it will default to white.
+Valid color numbers are:
+	0 : black 
+	1 : red
+	2 : green
+	3 : yellow
+	4 : blue
+	5 : cyan
+	6 : magenta
+	7 : white (default)
+	8 : orange (Bugged on q3e will show as black)
+	9 : olive (Bugged on q3e will show as red)
+</colorIndex>
+</point>
+
+<!-- 
+//=============================================================================
+// WORLDSPAWN ENTITY
+//=============================================================================
+-->
+
+<group name="worldspawn" color="0.000000 0.000000 0.000000">
+Only used for the world.
+-------- KEYS --------
+<string key="message" name="Logon Message">Text to print at user logon. Used for name of level.</string>
+music: Path/name of looping .wav file used for level&apos;s music (e.g. music/sonic5.wav). [Disabled in UrT!]
+<precipIndex key="enablePrecip" name="EnablePrecip" value="0">0 - (default) none, 1 - rain, 2 - snow</precipIndex>
+<string key="precipAmount" name="PrecipAmount">up to 1024, number of flakes, seems to only effect snow and not rain?</string>
+gravity: Don&apos;t use this! Gravity of level (default 800 = normal gravity). [Do NOT put this at anything other than 800 or mess with gravity for servers on other maps!!!] Use trigger_gravity instead!
+-------- VIS KEYS --------
+<integer key="_blocksize" name="BSP Block Size" value="1024 1024 1024">Q3Map always splits the BSP tree along the planes X=_blocksize*n and Y=_blocksize*n. Increase the blocksize using larger powers of 2 to reduce compile times on very large maps with a low structural brush density (default 1024 1024 1024, 0 values = disable). </integer>
+<integer key="gridsize" name="Dynamic Light Granularity" value="64 64 128">Granularity of the lightgrid, created by q3map, which is used to dynamically light certain game objects, like players and items. Value is three integers separated by spaces, representing number of units between grid points in X Y Z. Default gridsize value is 64 64 128. Use larger powers of 2 to reduce BSP size and compile time on very large maps.</integer>
+-------- JUMP MODE KEYS --------
+Note: These keys only work with the jump client.
+<staminaIndex key="stamina" name="Stamina" value="1">Automatically controls g_stamina for certain jump servers. Defaults to 1.
+Note: This key only work with the jump client.</staminaIndex>
+<obIndex key="overbounces" name="Enable Overbounces" value="1">Turns off overbounces. Defaults to 1 (ON).
+0 = All overbounces disabled!
+1 = Overbounces enabled. Overbounces will happen unless you use either &apos;-noob&apos; compile (on bsp) or use &apos;surfaceparm noob&apos; (common_ob/noob)
+2 = Overbounces enabled + Allows vanila quake3 overbounce physics
+Note: This key only work with the jump client.</obIndex>
+<integer key="walljumps" name="Walljumps" value="3">Automatically controls g_walljumps for certain jump servers. Defaults to 3. (3-100)
+Note: This key only work with the jump client.</integer>
+-------- LIGHT KEYS --------
+<real key="_lightmapscale" name="Lightmap Scale" value="1">Floating point value scales the resolution of lightmaps on brushes/patches in the world. Can be overridden in func_group (or other entities) (default 1.0).</real>
+<real key="_ambient" name="Ambient Intensity" value="0">(OR ambient) Adds a constant value to overall lighting. Use is not recommended. Ambient light will have a tendency to flatten out variations in light and shade.</real>
+<color key="_color" name="Ambient Color" value="1 1 1">RGB value for ambient light color (default 1 1 1).</color>
+<string key="_floodlight" name="Floodlight">RGB distance intensity eg; 1 1 1 512 32. Adds radiosity lighting.</string>
+<real key="_minlight" name="Min Lightmap Intensity" value="0">Minimum light value, levelwide. Uses the _color key to set color. Does not add, unlike ambient.</real>
+<real key="_minvertexlight" name="Min Vertex Intensityt" value="0">Minimum vertex lighting, levelwide.</real>
+<real key="_mingridlight" name="Min Dynamic Intensity" value="0">Minimum lightgrid (dynamic entity lighting) levelwide.</real>
+<string key="lightdensity" name="Lightdensity" value="1">[Broken?]New key that allows the mapper to brighten the textures more than is possible normally. You can test this in game by starting a devmap and using /r_lightdensity 1.3 (or whatever value you like).</string>
+<boolean key="_noshadersun" name="Ignore Shader Sun">Ignore q3map_sun/sun directives in sky shaders and ONLY use entity sun lights.</boolean>
+<integer key="_cs" name="Shadow Caster Level" value="1">(OR _castshadows ) Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
+<integer key="_rs" name="Shadow Receiver Level" value="1">(OR _receiveshadows) Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
+-------- OTHER KEYS --------
+globalfog: RGB density eg: .25 .25 0 0.00001 Adds a soft global haze. Not to be used for conventional fog. This can be tested in game by starting a devmap and using r_fogdensity 0.0001 r_fog_r .25 r_fog_g .25 r_fog_b .25. (Not working in UrT?)
+<real key="_farplanedist" name="Far Clip Distance">Limit on how many units the vis phase of compilation can see. Used in combination with level-wide fog, it can help reduce r_speeds on large, open maps.</real>
+<texture key="_foghull" name="Fog Hull Shader">Shader to use for fog hull. Foghull shader should be a sky shader. Omit the textures/ prefix.</texture>
+<boolean key="_keeplights" name="Keep Light Entities">Keep light entities in the BSP. Normally stripped out by the BSP process and read from the .map file by the lighting phase.</boolean>
+<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: Omit the textures/ prefix. Overridable in entities.</texture>
+<!-- 
+<string key="_styleNalphaGen" name="_styleNalphaGen">*IMPORTANT* Replace N in the key _styleNalphaGen with an integer between 1 and 31 as your style index. Values takes standard shader waveform functions (e.g. wave sin 0.5 0.3 0.25 1.5) [Disabled in UrT 4.2/3!]</string>
+<string key="_styleNrgbGen" name="_styleNrgbGen">*IMPORTANT* Replace N in the key _styleNrgbGen with an integer between 1 and 31 as your style index. Values take standard shader waveform functions (e.g. wave sin 0.5 0.3 0.25 1.5) [Disabled in UrT 4.2/3!]</string>
+-->
+-------- Q3MAP2 TERRAIN KEYS --------
+<texture key="alphamap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
+<integer key="layers" name="Terrain Layers">Integer value denotes number of unique root shaders that will be used on the terrain.</integer>
+<texture key="shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the textures/ prefix.</texture>
+</group>
+
+</classes>

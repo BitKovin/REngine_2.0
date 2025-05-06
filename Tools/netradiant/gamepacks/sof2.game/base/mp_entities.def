@@ -1,0 +1,620 @@
+/*QUAKED item_***** ( 0 0 0 ) (-16 -16 -16) (16 16 16) suspended
+DO NOT USE THIS CLASS, IT JUST HOLDS GENERAL INFORMATION.
+The suspended flag will allow items to hang in the air, otherwise they are dropped to the next surface.
+
+If an item is the target of another entity, it will not spawn in until fired.
+
+An item fires all of its targets when it is picked up.  If the toucher can't carry it, the targets won't be fired.
+
+"notfree" if set to 1, don't spawn in free for all games
+"notteam" if set to 1, don't spawn in team games
+"notsingle" if set to 1, don't spawn in single player games
+"wait"	override the default wait before respawning.  -1 = never respawn automatically, which can be used with targeted spawning.
+"random" random number of plus or minus seconds varied from the respawn time
+"count" override quantity or duration on most items.
+*/
+
+
+/*QUAKED pickup_armor_big (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED pickup_armor_medium (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED pickup_armor_small (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED pickup_health_big (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED pickup_health_small (0 .6 .6) (-15 -15 -15) (15 15 15)
+*/
+
+/*QUAKED pickup_weapon_silvertalon (0 .6 .6) (-15 -15 -15) (15 15 15)
+Silver Talon Pistol, uses 45mm rounds
+*/
+
+
+/*QUAKED pickup_weapon_US_SOCOM (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Pistol, uses 45 rounds
+*/
+
+
+/*QUAKED pickup_weapon_M19 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Pistol, uses 45 rounds
+*/
+
+
+/*QUAKED pickup_weapon_microuzi (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Sub-Machinegun, uses 9mm rounds
+*/
+
+
+/*QUAKED pickup_weapon_M3A1 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Sub-Machinegun, uses 45 rounds
+*/
+
+
+/*QUAKED pickup_weapon_USAS_12 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Shotgun, uses 12-gauge rounds
+ammo ---------- amount of ammo (defaults to 10)
+*/
+
+
+/*QUAKED pickup_weapon_M590 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Shotgun, uses 12-gauge rounds
+*/
+
+
+/*QUAKED pickup_weapon_MSG90A1 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Sniper Rifle, uses 7.62 rounds
+*/
+
+/*QUAKED pickup_weapon_SIG551 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+SIG Assault Rifle with scope, uses 5.56mm rounds
+*/
+
+
+/*QUAKED pickup_weapon_M4 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Assault Rifle, uses 5.56 rounds and 40mm grenades
+*/
+
+
+/*QUAKED pickup_weapon_AK_74 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Assault Rifle, uses 5.56 rounds
+*/
+
+
+/*QUAKED pickup_weapon_M60 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Machinegun, uses 7.62 rounds
+*/
+
+
+/*QUAKED pickup_weapon_RPG_7 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+RPG, uses 40mm rounds
+*/
+
+
+/*QUAKED pickup_weapon_MM_1 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Grenade Launcher, uses 40mm rounds
+*/
+
+
+/*QUAKED pickup_weapon_M84 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Grenade
+*/
+
+
+/*QUAKED pickup_weapon_SMOHG92 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Grenade
+*/
+
+
+/*QUAKED pickup_weapon_AN_M14 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Incendiary Grenade
+*/
+
+
+/*QUAKED pickup_weapon_M15 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+White Phosphorus Grenade
+*/
+
+
+/*QUAKED pickup_weapon_MP5 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+Sub-Machinegun, uses 9mm rounds
+*/
+
+
+/*QUAKED pickup_ammo_45 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED pickup_ammo_9mm (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED pickup_ammo_12gauge (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED pickup_ammo_762 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED pickup_ammo_556 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED pickup_ammo_40mm (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED pickup_ammo_rpg7 (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED pickup_backpack (0 .6 .6) (-15 -15 -15) (15 15 15) 
+*/
+
+
+/*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -46) (16 16 48) initial
+potential spawning position for deathmatch games.
+The first time a player enters the game, they will be at an 'initial' spot.
+Targets will be fired when someone spawns in on them.
+*/
+
+
+/*QUAKED info_player_intermission (1 0 1) (-16 -16 -46) (16 16 48)
+The intermission will be viewed from this point.  Target an info_notnull for the view direction.
+*/
+
+
+/*QUAKED gametype_player (0 1 0) (-16 -16 -46) (16 16 48) REDTEAM BLUETEAM
+Potential spawning position for red or blue team in custom gametype games.
+*/
+
+
+/*QUAKED gametype_trigger (0 0 .8) ? 
+*/
+
+
+/*QUAKED gametype_item (0 0 1) (-16 -16 -16) (16 16 16) 
+"name"			name of the item to spawn (defined in gametype script)
+*/
+
+
+/*QUAKED func_group (0 0 0) ?
+Used to group brushes together just for editor convenience.  They are turned into normal brushes by the utilities.
+*/
+
+
+/*QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
+Used as a positional target for in-game calculation, like jumppad targets.
+target_position does the same thing
+*/
+
+
+/*QUAKED misc_teleporter_dest (1 0 0) (-32 -32 -24) (32 32 -16)
+Point teleporters at these.
+Now that we don't have teleport destination pads, this is just
+an info_notnull
+*/
+
+
+/*QUAKED misc_model (1 0 0) (-16 -16 -16) (16 16 16) RMG
+this model is inserted into the bsp file
+"model"		arbitrary .md3 file to display
+*/
+
+
+/*QUAKED misc_G2model (1 0 0) (-16 -16 -16) (16 16 16)
+"model"		arbitrary .glm file to display
+*/
+
+
+/*QUAKED misc_portal_surface (0 0 1) (-8 -8 -8) (8 8 8)
+The portal surface nearest this entity will show a view from the targeted misc_portal_camera, or a mirror view if untargeted.
+This must be within 64 world units of the surface!
+*/
+
+
+/*QUAKED misc_portal_camera (0 0 1) (-8 -8 -8) (8 8 8) slowrotate fastrotate noswing
+The target for a misc_portal_director.  You can set either angles or target another entity to determine the direction of view.
+"roll" an angle modifier to orient the camera around the target vector;
+*/
+
+
+/*QUAKED misc_bsp (1 0 0) (-16 -16 -16) (16 16 16)
+"bspmodel"		arbitrary .bsp file to display
+*/
+
+
+/*QUAKED terrain (1.0 1.0 1.0) ?
+Terrain entity
+It will stretch to the full height of the brush
+
+numPatches - integer number of patches to split the terrain brush into (default 200)
+terxels - integer number of terxels on a patch side (default 4) (2 <= count <= 8)
+seed - integer seed for random terrain generation (default 0)
+textureScale - float scale of texture (default 0.005)
+heightMap - name of heightmap data image to use
+terrainDef - defines how the game textures the terrain (file is base/ext_data/*.terrain - default is grassyhills)
+instanceDef - defines which bsp instances appear
+miscentDef - defines which client models spawn on the terrain (file is base/ext_data/*.miscents)
+densityMap - how dense the client models are packed
+
+*/
+
+
+/*QUAKED fx_play_effect (.2 .5 .8) (-8 -8 -8) (8 8 8) START_OFF
+Plays specified effect file
+
+"effect"    name of .efx file
+"wait"      seconds between triggerings, default 0.3
+"random"    wait variance in seconds, default 0
+"target"    direction of effect, default up
+"count"     plays effect this many times then deletes itself, default -1 = infinite 
+
+
+START_OFF    fx starts off
+
+
+*/
+
+
+/*QUAKED func_door (0 .5 .8) ? START_OPEN x CRUSHER
+TOGGLE		wait in both the start and end states for a trigger event.
+START_OPEN	the door to moves to its destination when spawned, and operate in reverse.  It is used to temporarily or permanently close off an area when triggered (not useful for touch or takedamage doors).
+NOMONSTER	monsters will not trigger this door
+
+"model2"	.md3 model to also draw
+"angle"		determines the opening direction
+"targetname" if set, no touch field will be spawned and a remote button or trigger field activates the door.
+"speed"		movement speed (100 default)
+"wait"		wait before returning (3 default, -1 = never return)
+"lip"		lip remaining at end of move (8 default)
+"dmg"		damage to inflict when blocked (2 default)
+"health"	if set, the door must be shot open
+*/
+
+
+/*QUAKED func_plat (0 .5 .8) ?
+Plats are always drawn in the extended position so they will light correctly.
+
+"lip"		default 8, protrusion above rest position
+"height"	total height of movement, defaults to model height
+"speed"		overrides default 200.
+"dmg"		overrides default 2
+"model2"	.md3 model to also draw
+*/
+
+
+/*QUAKED func_button (0 .5 .8) ?
+When a button is touched, it moves some distance in the direction of it's angle, triggers all of it's targets, waits some time, then returns to it's original position where it can be triggered again.
+
+"model2"	.md3 model to also draw
+"angle"		determines the opening direction
+"target"	all entities with a matching targetname will be used
+"speed"		override the default 40 speed
+"wait"		override the default 1 second wait (-1 = never return)
+"lip"		override the default 4 pixel lip remaining at end of move
+"health"	if set, the button must be killed instead of touched
+*/
+
+
+/*QUAKED path_corner (.5 .3 0) (-8 -8 -8) (8 8 8)
+Train path corners.
+Target: next path corner and other targets to fire
+"speed" speed to move to the next corner
+"wait" seconds to wait before behining move to next corner
+*/
+
+
+/*QUAKED func_train (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS
+A train is a mover that moves between path_corner target points.
+Trains MUST HAVE AN ORIGIN BRUSH.
+The train spawns at the first target it is pointing at.
+"model2"	.md3 model to also draw
+"speed"		default 100
+"dmg"		default	2
+"noise"		looping sound to play when the train is in motion
+"target"	next path corner
+*/
+
+
+/*QUAKED func_static (0 .5 .8) ?
+A bmodel that just sits there, doing nothing.  Can be used for conditional walls and models.
+"model2"	.md3 model to also draw
+*/
+
+
+/*QUAKED func_wall (0 .5 .8) ? START_OFF
+A func wall can be turned off and on by targetting it.
+*/
+
+
+/*QUAKED func_rotating (0 .5 .8) ? START_ON - X_AXIS Y_AXIS
+You need to have an origin brush as part of this entity.  The center of that brush will be
+the point around which it is rotated. It will rotate around the Z axis by default.  You can
+check either the X_AXIS or Y_AXIS box to change that.
+
+"model2"	.md3 model to also draw
+"speed"		determines how fast it moves; default value is 100.
+"dmg"		damage to inflict when blocked (2 default)
+*/
+
+
+/*QUAKED func_bobbing (0 .5 .8) ? X_AXIS Y_AXIS
+Normally bobs on the Z axis
+"model2"	.md3 model to also draw
+"height"	amplitude of bob (32 default)
+"speed"		seconds to complete a bob cycle (4 default)
+"phase"		the 0.0 to 1.0 offset in the cycle to start at
+"dmg"		damage to inflict when blocked (2 default)
+*/
+
+
+/*QUAKED func_pendulum (0 .5 .8) ?
+You need to have an origin brush as part of this entity.
+Pendulums always swing north / south on unrotated models.  Add an angles field to the model to allow rotation in other directions.
+Pendulum frequency is a physical constant based on the length of the beam and gravity.
+"model2"	.md3 model to also draw
+"speed"		the number of degrees each way the pendulum swings, (30 default)
+"phase"		the 0.0 to 1.0 offset in the cycle to start at
+"dmg"		damage to inflict when blocked (2 default)
+*/
+
+
+/*QUAKED func_glass (0 .5 .8) ?
+Breakable glass
+*/
+
+
+/*QUAKED worldspawn (0 0 0) ?
+
+Every map should have exactly one worldspawn.
+"music"       path to WAV or MP3 files (e.g. "music\intro.mp3 music\loopfile.mp3")
+"gravity"     800 is default gravity, real world maps whould not require a gravity change,but it's there if u need it. :)
+"message"     Text to print during connection process. (map loading screen)
+
+"redteam" teamname of red team
+"blueteam" teamname of blue team
+
+The stock Raven teamnames are:
+civilian - A bunch of regular guys in regular clothes, used as the defending team on Raven Offices
+colombian - The Colombian Rebels, used as the defending team in Colombian Jungle
+finca - Manuel Vergara and his men, used as the defending team on Finca Housewarming
+hospital - A collection of doctors and patients, used as the Red Team on Hospital Roof
+marine - The Marines, used as the assaulting team on Finca Housewarming
+prometheus - The terrorist soldiers used as the assaulting team on The Shop Under Siege
+shop - The "Men In Black" (including Mullins) used as the defending team on The Shop Under Siege
+snow - The snow troopers, like those found in the RMG "snow" levels
+thug - The thugs from Hong Kong, including Alexi Nachrade
+
+"soundSet"   Ambient sound set,soundset name to use (do not combine with 'noise', ignores all other flags) 
+"ambientFog"   Set to 1 if the fog is purely for ambience and not for distance culling.
+"npcView"     View Distance for NPCs
+"emplacement"  player starts the map using this weapon
+"spawnscript"  runs on the player on entering level
+"rDmgScript"  if the player lobs a grenade or similar explosive device anywhere in the level, this script is run
+"deathScript"  called when player dies. if left blank, common/failed is used by default
+"hearscript"  the first time player sound is above 0.7 this will fire
+"mission"   Indicates which mission script file should be used to find the scripts for mission mode
+"soundlevel"  override the default 0.7 soundlevel that triggers hearscript
+"dynamic_music"  set to OFF to turn off all dynamic music on this level
+"vehicle"   is the player riding in a helicopter(1), truck(2), or nothing(0, the default)
+"vehicleWeapon"   use this in pra4, where the player will have a vehicle-mounted wpn but doesn't start the level attached to it
+"suit" set to 1 if you want to use the SET_SUIT Icarus command in this map
+
+BSP Options
+"gridsize"      size of lighting grid to "X Y Z". default="64 64 128"
+"ambient"       scale of global light (from _color)
+"fog"           shader name of the global fog texture - must include the full path, such as "textures/rj/fog1"
+"distancecull"  value for vis for the maximum viewing distance
+"chopsize"      value for bsp on the maximum polygon / portal size
+"SkyTexture"    shader name for the sky texture
+"SkyHeight"     z height of the sky
+"SkyIntensity"  intensity modifier (default of 1.0, range from 0.0 to 3.0)
+"SkyAmbient"    ambient light vector (default is calculated)
+"SkyMinimum"    minimum modifier (default of 0.5, range from 0.0 to 1.0)
+"SkyEdge"       world edge error deviation (default of 100.0)
+"ls_Xr"        override lightstyle X with this pattern for Red.
+"ls_Xg"        green (valid patterns are "a-z")
+"ls_Xb"        blue (a is OFF, z is ON)
+"ignoreleaks"   tells the bsp process to ignore any leaks, and continue on processing (for instances only)
+*/
+
+
+/*QUAKED model_static (1 0 0) (-16 -16 -16) (16 16 16) NO_MP
+"model"		arbitrary .md3 file to display
+*/
+
+
+/*QUAKED target_give (1 0 0) (-8 -8 -8) (8 8 8)
+Gives the activator all the items pointed to.
+*/
+
+
+/*QUAKED target_delay (1 0 0) (-8 -8 -8) (8 8 8)
+"wait" seconds to pause before firing targets.
+"random" delay variance, total delay = delay +/- random seconds
+*/
+
+
+/*QUAKED target_score (1 0 0) (-8 -8 -8) (8 8 8)
+"count" number of points to add, default 1
+
+The activator is given this many points.
+*/
+
+
+/*QUAKED target_print (1 0 0) (-8 -8 -8) (8 8 8) redteam blueteam private
+"message"	text to print
+If "private", only the activator gets the message.  If no checks, all clients get the message.
+*/
+
+
+/*QUAKED target_speaker (1 0 0) (-8 -8 -8) (8 8 8) looped-on looped-off global activator
+"noise"		wav file to play
+"soundSet"	soundset name to use (do not combine with 'noise', ignores all other flags)
+
+A global sound will play full volume throughout the level.
+Activator sounds will play on the player that activated the target.
+Global and activator sounds can't be combined with looping.
+Normal sounds play each time the target is used.
+Looped sounds will be toggled by use functions.
+Multiple identical looping sounds will just increase volume without any speed cost.
+"wait" : Seconds between auto triggerings, 0 = don't auto trigger
+"random"	wait variance, default is 0
+"radius"	radius of attenuation
+*/
+
+
+/*QUAKED target_laser (0 .5 .8) (-8 -8 -8) (8 8 8) START_ON
+When triggered, fires a laser.  You can either set a target or a direction.
+*/
+
+
+/*QUAKED target_teleporter (1 0 0) (-8 -8 -8) (8 8 8)
+The activator will be teleported away.
+*/
+
+
+/*QUAKED target_relay (.5 .5 .5) (-8 -8 -8) (8 8 8) RED_ONLY BLUE_ONLY RANDOM
+This doesn't perform any actions except fire its targets.
+The activator can be forced to be from a certain team.
+if RANDOM is checked, only one of the targets will be fired, not all of them
+*/
+
+
+/*QUAKED target_kill (.5 .5 .5) (-8 -8 -8) (8 8 8)
+Kills the activator.
+*/
+
+
+/*QUAKED target_position (0 0.5 0) (-4 -4 -4) (4 4 4)
+Used as a positional target for in-game calculation, like jumppad targets.
+*/
+
+
+/*QUAKED target_location (0 0.5 0) (-8 -8 -8) (8 8 8)
+Set "message" to the name of this location.
+
+Closest target_location in sight used for the location, if none
+in site, closest in distance
+*/
+
+
+/*QUAKED target_effect (0 0.5 0) (-8 -8 -8) (8 8 8)
+Plays an effect each time its targetted
+
+"effect"  effect to play
+"delay"	  delay in milliseconds before the effect plays
+*/
+
+
+/*QUAKED trigger_multiple (.5 .5 .5) ?
+"wait" : Seconds between triggerings, 0.5 default, -1 = one time only.
+"random"	wait variance, default is 0
+Variable sized repeatable trigger.  Must be targeted at one or more entities.
+so, the basic time between firing is a random time between
+(wait - random) and (wait + random)
+*/
+
+
+/*QUAKED trigger_always (.5 .5 .5) (-8 -8 -8) (8 8 8)
+This trigger will always fire.  It is activated by the world.
+*/
+
+
+/*QUAKED trigger_push (.5 .5 .5) ?
+Must point at a target_position, which will be the apex of the leap.
+This will be client side predicted, unlike target_push
+*/
+
+
+/*QUAKED target_push (.5 .5 .5) (-8 -8 -8) (8 8 8) bouncepad
+Pushes the activator in the direction.of angle, or towards a target apex.
+"speed"		defaults to 1000
+if "bouncepad", play bounce noise instead of windfly
+*/
+
+
+/*QUAKED trigger_teleport (.5 .5 .5) ? SPECTATOR
+Allows client side prediction of teleportation events.
+Must point at a target_position, which will be the teleport destination.
+
+If spectator is set, only spectators can use this teleport
+Spectator teleporters are not normally placed in the editor, but are created
+automatically near doors to allow spectators to move through them
+*/
+
+
+/*QUAKED trigger_hurt (.5 .5 .5) ? START_OFF - SILENT NO_PROTECTION SLOW
+Any entity that touches this will be hurt.
+It does dmg points of damage each server frame
+Targeting the trigger will toggle its on / off state.
+
+SILENT			supresses playing the sound
+SLOW			changes the damage rate to once per second
+NO_PROTECTION	*nothing* stops the damage
+
+"dmg"			default 5 (whole numbers only)
+
+*/
+
+
+/*QUAKED trigger_ladder (.5 .5 .5) ? 
+Indicates a ladder and its normal
+
+"angles"		angle ladder faces
+*/
+
+
+/*QUAKED func_timer (0.3 0.1 0.6) (-8 -8 -8) (8 8 8) START_ON
+This should be renamed trigger_timer...
+Repeatedly fires its targets.
+Can be turned on or off by using.
+
+"wait"			base time between triggering all targets, default is 1
+"random"		wait variance, default is 0
+so, the basic time between firing is a random time between
+(wait - random) and (wait + random)
+
+*/
+
+/*QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4) 
+Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay. 
+*/ 
+
+
+/*QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) nonlinear angle negative_spot negative_point q3map_non-dynamic 
+Non-displayed light. 
+"light" overrides the default 300 intensity. 
+Nonlinear checkbox gives inverse square falloff instead of linear 
+Lights pointed at a target will be spotlights. 
+"radius" overrides the default 64 unit radius of a spotlight at the target point. 
+"scale" light falloff, 4.5 was used in the example map. 
+"_color" rgb percentage - red is 1 0 0, decimals are allowed. 
+"target" the targetname of the info_null the light is pointing to 
+"targetname" for switching, the name of the light, switch would have same target. 
+"style" the style or appearance of the light given off. 
+    0 normal 
+    1 FLICKER (first variety) 
+    2 SLOW STRONG PULSE 
+    3 CANDLE (first variety) 
+    4 FAST STROBE 
+    5 GENTLE PULSE 1 
+    6 FLICKER (second variety) 
+    7 CANDLE (second variety) 
+    8 CANDLE (third variety) 
+    9 SLOW STROBE (fourth variety) 
+    10 FLUORESCENT FLICKER 
+    11 SLOW PULSE NOT FADE TO BLACK 
+    12 FAST PULSE 
+    13 Test Blending 
+*/ 

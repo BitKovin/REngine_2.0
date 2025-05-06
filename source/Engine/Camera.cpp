@@ -22,7 +22,7 @@
     mat4 Camera::finalizedProjectionViewmodel = mat4(1.0f);
     vec3 Camera::finalizedPosition = vec3(0.0f);
     vec3 Camera::finalizedRotation = vec3(0.0f);
-    Frustum Camera::frustum = Frustum(mat4(1.0f));
+    Frustum Camera::frustum = Frustum(mat4(1.0f), vec3(0));
     float Camera::FOV = 80.0f;
     float Camera::ViewmodelFOV = 60.0f;
     float Camera::FarPlane = 3000.0f;
@@ -91,7 +91,7 @@
 
         projectionViewmodel = perspective(radians(ViewmodelFOV), AspectRatio, 0.01f, 1.0f);
 
-        frustum = projection * view;
+        frustum = Frustum(projection * view, position);
         finalizedView = view;
         finalizedProjection = projection;
         finalizedProjectionViewmodel = projectionViewmodel;

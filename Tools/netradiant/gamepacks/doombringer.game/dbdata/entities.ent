@@ -1,0 +1,2508 @@
+<?xml version="1.0"?>
+<classes>
+<group name="worldspawn" color="0 0 0">
+The world.
+If you see this, the currently selected brush is not of an entity.
+-------- KEYS --------
+<string key="fog" name="fog">fog parameters of the map (density red green blue alpha mindist maxdist maxheight fade-height); works just like the &quot;fog&quot; console command</string>
+<real key="gravity" name="gravity">gravity of the map (default is 800)</real>
+<string key="message" name="message">Name of level, will be printed in the HUD at loadtime for Single player, and at the scoreboard for multiplayer.</string>
+<string key="gametype" name="gametype">Allows the author to force the game mode of a map. Predominantly used for Race maps.</string>
+<real key="sounds" name="intromusic">Intro music track to play during preamble.</real>
+<real key="music" name="music">Music track to play.</real>
+<real key="ambientmusic" name="ambientmusic">Ambient music track to play once the action dies down.</real>
+<real key="amusic_target" name="amusic_target">Number of monsters left in the map before the music is switched to the ambient track</real>
+<boolean key="nobolter" name="nobolter">Spawn player without a weapon</boolean>
+-------- Q3MAP2 KEYS --------
+<integer3 key="_blocksize" name="_blocksize">vector specifying the automatic vis subdivision block size (default: 1024 1024 1024)</integer3>
+<integer3 key="gridsize" name="gridsize">lightgrid granularity vector (default: 64 64 128)</integer3>
+<color key="_color" name="_color">color of the global light parameters</color>
+<real key="_ambient" name="_ambient">light added to all surfaces</real>
+<real key="_mingridlight" name="_mingridlight">minimum grid light</real>
+<real key="_minlight" name="_minlight">minimum light value on both surfaces and lightgrid</real>
+<boolean key="_keepLights" name="_keepLights">do not remove light entities from the map (only useful for realtime lighting without a .rtlights file)</boolean>
+<string key="_floodlight" name="_floodlight">flood light parameters (red green blue distance intensity), start with 240 240 255 1024 128</string>
+<real key="_farplanedist" name="_farplanedist">range after which everything is completely invisible by fog (when fog is being used)</real>
+<boolean key="_noshadersun" name="_noshadersun">turn off sun defined by shaders (useful if you defined your own light entity to be a sun)</boolean>
+<boolean key="_ignoreleaks" name="_ignoreleaks">ignore leaks when compiling</boolean>
+<real key="_lightmapscale" name="_lightmapscale">light map resolution factor</real>
+<boolean key="_castshadows" name="_castshadows">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting.1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</boolean>
+<boolean key="_receiveshadows" name="_receiveshadows">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</boolean>
+</group>
+
+
+
+<point name="ammo_cartridges" color=".3 .3 1" box="-30 -30 -24 30 30 32">
+Cartridges (Gotlung gun ammo)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 15)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="ammo_cartridges_small" color=".3 .3 1" box="-15 -15 -24 15 15 4">
+Small box of Cartridges (Gotlung gun ammo)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 15)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="ammo_shells" color=".3 .3 1" box="-30 -30 -24 30 30 32">
+Shotgun Shells (Shotgun ammo)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 15)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="ammo_shells_small" color=".3 .3 1" box="-15 -15 -24 15 15 4">
+Small box of Shotgun Shells (Shotgun ammo)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 15)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="ammo_rockets" color=".3 .3 1" box="-30 -30 -24 30 30 32">
+Rocket ammo
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 15)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="ammo_rockets_small" color=".3 .3 1" box="-15 -15 -24 15 15 4">
+Small box of Rocket ammo
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 15)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="ammo_cells" color=".3 .3 1" box="-30 -30 -24 30 30 32">
+Cells (Lightning gun ammo)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 15)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="ammo_cells_small" color=".3 .3 1" box="-15 -15 -24 15 15 4">
+Small box of Cells (Lightning gun ammo)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 15)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="ammo_slugs" color=".3 .3 1" box="-30 -30 -24 30 30 32">
+Slugs (Railgun ammo)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 15)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="ammo_slugs_small" color=".3 .3 1" box="-15 -15 -24 15 15 4">
+Small box of Slugs (Railgun ammo)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 15)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="ammo_backpack" color=".3 .3 1" box="-30 -30 -24 30 30 32">
+Doubles the player's carry ability.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 15)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="armor_shard" color=".4 .8 .4" box="-15 -15 -24 15 15 4">
+Armor Shard (5 units)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 25)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="armor_small" color=".4 .8 .4" box="-30 -30 -24 30 30 32">
+Small Armor (25 units)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 25)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="armor_medium" color=".4 .8 .4" box="-30 -30 -24 30 30 32">
+Medium Armor (50 units)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 25)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="armor_large" color=".4 .8 .4" box="-30 -30 -24 30 30 32">
+Large Armor (100 units)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 25)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="weapon_bolter" color="1 0 .5" box="-30 -30 -24 30 30 32">
+Bolter.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 30)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="weapon_shotgun" color="1 0 .5" box="-30 -30 -24 30 30 32">
+Shotgun.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 30)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="weapon_supershotgun" color="1 0 .5" box="-30 -30 -24 30 30 32">
+Double-barrelled Bolter.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 30)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="weapon_chaingun" color="1 0 .5" box="-30 -30 -24 30 30 32">
+Gotlung gun.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 30)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="weapon_grenadelauncher" color="1 0 .5" box="-30 -30 -24 30 30 32">
+Grenade launcher.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 30)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="weapon_rocketlauncher" color="1 0 .5" box="-30 -30 -24 30 30 32">
+Rocket launcher.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 30)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="weapon_lightning" color="1 0 .5" box="-30 -30 -24 30 30 32">
+Tesla Coil weapon.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 30)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="weapon_railgun" color="1 0 .5" box="-30 -30 -24 30 30 32">
+Rail gun.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 30)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="health_tiny" color=".9 .3 .3" box="-15 -15 -24 15 15 4">
+Tiny Health (5 units)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 25)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="health_small" color=".9 .3 .3" box="-30 -30 -24 30 30 32">
+Small Health (25 units)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 30)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="health_large" color=".9 .3 .3" box="-30 -30 -24 30 30 32">
+Large Health (50 units)
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 30)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="health_mega" color=".9 .3 .3" box="-30 -30 -24 30 30 32">
+Mega Health (100 units).
+Rots down to your maximum health limit.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 35)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="health_arcane" color=".9 .3 .3" box="-30 -30 -24 30 30 32">
+Arcane Health (200 units).
+Removes health rot.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 35)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="item_key1" color="0 .5 .8" box="-16 -16 -24 16 16 32">
+Yellow key. Doesn't spawn in Deathmatch.
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+</point>
+
+
+<point name="item_key2" color="0 .5 .8" box="-16 -16 -24 16 16 32">
+Blue key. Doesn't spawn in Deathmatch.
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+</point>
+
+
+<point name="item_key3" color="0 .5 .8" box="-16 -16 -24 16 16 32">
+Red key. Doesn't spawn in Deathmatch.
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+</point>
+
+<point name="powerup_berserk" color="0 .5 .8" box="-16 -16 -24 16 16 32">
+Berserk powerup. Forces fists and gives them AOE, gives 4x damage reduction and quad damage.   Lasts 30 seconds.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 120)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="powerup_invulnerability" color="0 .5 .8" box="-16 -16 -24 16 16 32">
+Invulnerability powerup.  Lasts 30 seconds.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 120)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="powerup_envirosuit" color="0 .5 .8" box="-16 -16 -24 16 16 32">
+Radiation suit, protects from lava and slime.  Lasts 30 seconds.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 30)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="powerup_leach" color="0 .5 .8" box="-16 -16 -24 16 16 32">
+Vampiric damage powerup, max out at 666 hp.  Lasts 30 seconds.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 120)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="powerup_super_damage" color="0 .5 .8" box="-16 -16 -24 16 16 32">
+Super damage powerup, gives 4x damage. Lasts 30 seconds.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 120)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+
+<point name="powerup_chaos" color="0 .5 .8" box="-16 -16 -24 16 16 32">
+Spread fire powerup, fires 2 extra shots on each side at a 45 degree angle from the player pov.  Lasts 30 seconds.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 120)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="powerup_adrenaline" color="0 .5 .8" box="-16 -16 -24 16 16 32">
+Super damage powerup. Lasts 30 seconds.
+------ KEYS --------
+<real key="respawntime" name="respawntime">time until it respawns (default: 120)</real>
+-------- SPAWNFLAGS --------
+<flag key="FLOATING" name="FLOATING" bit="0">the item will float in air, instead of dropping onto the floor</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="monster_thrall" color="1 0 0" box="-16 -16 -24 16 16 40">
+Thrall, 75 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_gorger" color="1 0 0" box="-32 -32 -40 32 32 32">
+Gorger, 300 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_aswang" color="1 0 0" box="-16 -16 -24 16 16 32">
+Aswang, 64 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_aswangmom" color="1 0 0" box="-24 -24 -28 24 24 40">
+Aswang Matriarch, 144 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_bishop" color="1 0 0" box="-16 -16 -24 16 16 40">
+Bishop, 200 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_cenobite" color="1 0 0" box="-32 -32 -24 32 32 64">
+Cenobite, 400 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_wizard" color="1 0 0" box="-16 -16 -24 16 16 40">
+Vizier, 80 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_golem" color="1 0 0" box="-16 -16 -32 16 16 40">
+Golem, 200 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_dreadnaught" color="1 0 0" box="-32 -32 -48 32 32 64">
+Dreadnaught, 400 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_imperator" color="1 0 0" box="-32 -32 -50 32 32 50">
+Imperator, 500 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+<flag key="SHIELD" name="Shield" bit="12">Spawn with shield.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_sentry" color="1 0 0" box="-12 -12 -8 12 12 24">
+Ghast, 45 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_pawn" color="1 0 0" box="-16 -16 -29 16 16 35">
+Pawn, 30 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_army" color="1 0 0" box="-16 -16 -29 16 16 35">
+Soldier, 60 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_enforcer" color="1 0 0" box="-16 -16 -29 16 16 35">
+Enforcer, 60 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_commander" color="1 0 0" box="-16 -16 -29 16 16 35">
+commander, 80 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_centurion" color="1 0 0" box="-16 -16 -29 16 16 35">
+Railgun, 60 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_troglodyte" color="1 0 0" box="-40 -40 -40 40 40 40">
+Troglodyte, 300 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_troglogorger" color="1 0 0" box="-48 -48 -48 48 48 48">
+Troglogorger, 500 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Normal" bit="9"/>
+<flag key="NOT_HARD" name="Not Hard" bit="10"/>
+<flag key="NOT_SPAWNED" name="Not Spawned" bit="11">Needs to be activated by a trigger before it spawns properly.</flag>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="monster_vizier" color="1 0 0" box="-32 -32 -24 32 32 64">
+Vizier, 400 health points.
+
+Flags:
+<flag key="ambush" name="Ambush" bit="0">the monster will only wake up on really seeing the player, not another monster getting angry</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<group name="func_bob" color="0 .5 .8">
+A SOLID bmodel that gently moves back and forth
+
+Flags:
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+
+Keys:
+<direction key="angle" name="Opening Direction">determines the opening direction</direction>
+<targetname key="targetname" name="Targetname">if set, no touch field will be spawned and a remote button or trigger field activates the door.</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="height" name="Height">Direction intensity (8 is default)</real>
+<real key="count" name="Timer">direction cycle timer (def=2s, minimum=1s)</real>
+<real key="waitmin" name="Speed up scale">Speed up scale (def=1) 1+=non linear</real>
+<real key="waitmin2" name="Slow down scale">Slow down scale (def=0.75)</real>
+<real key="delay" name="Delay">Starting time delay (def=0, -1=random)</real>
+<real key="style" name="Style">If set to 1, starts off and waits for trigger</real>
+</group>
+
+<group name="func_group" color="1 .6 .2">
+Editor entity, for easier selection of structures.
+</group>
+
+<group name="func_button" color="0 .5 .8">
+When a button is touched by a player, it moves in the direction set by the &quot;angle&quot; key, triggers all its targets, stays pressed by an amount of time set by the &quot;wait&quot; key, then returns to it's original position where it can be operated again.
+
+Flags:
+<flag key="YELLOW_KEY" name="Yellow Key" bit="3"/>
+<flag key="BLUE_KEY" name="Blue Key" bit="4"/>
+<flag key="RED_KEY" name="Red Key" bit="5"/>
+<flag key="ALL_KEY" name="3 Key Button" bit="6"/>
+<flag key="TOGGLE" name="Toggle" bit="7"> TOGGLE causes the button to wait in both the start and end states for a trigger event.</flag>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+
+-------- KEYS --------
+<direction key="angle" name="angle">determines the direction in which the button will move (up = -1, down = -2).</direction>
+<target key="target" name="target">all entities with a matching targetname will be triggered.</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="speed" name="speed">speed of button's displacement (default 40).</real>
+<real key="wait" name="wait">number of seconds button stays pressed (default 1, -1 = return immediately).</real>
+<real key="lip" name="lip">lip remaining at end of move (default 4 units).</real>
+<real key="health" name="health">if set to any non-zero value, the button must take damage (any amount) to activate.</real>
+</group>
+
+<group name="func_destructible" color="0 .5 .8">
+Destructible geometry. Ejects shrapnel
+
+Flags:
+<flag key="BOLTER" name="Bolter" bit="1">Bolter will damage</flag>
+<flag key="SHOTGUN" name="Shotgun" bit="2">Shotgun will damage</flag>
+<flag key="SSG" name="SSG" bit="3">Super Shotgun will damage</flag>
+<flag key="TESLA" name="Tesla" bit="4">Tesla Coil will damage</flag>
+<flag key="GRENADE" name="Grenade" bit="5">Grenades will damage</flag>
+<flag key="ROCKET" name="Rocket" bit="6">Rockets will damage</flag>
+<flag key="GOTLUNG" name="Gotlung" bit="7">Gotlung gun will damage</flag>
+<flag key="RAIL" name="Rail" bit="12">Railgun gun will damage</flag>
+<flag key="MEGA" name="Mega" bit="13">Mega weapon will damage</flag>
+
+Keys:
+<real key="wait" name="Return Delay"># of seconds before coming back</real>
+<targetname key="targetname" name="Targetname">If a secret door has a targetname, it will only be opened by its button or trigger, not by damage.</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<model key="mdl" name="Model">Model to use when destroyed. Default: "models/debris/rubble1.obj" .</model>
+<string key="message" name="Message">is printed when the door is touched if it is a trigger door and it hasn't been fired yet.</string>
+<string key="noise" name="Destruction Sound">Sound of entity being destroyed. Default: "sound/world/explosion_wall_rocks.ogg".</string>
+<string key="noise2" name="Bounce Sound">Sound of chunks bouncing. Default:  "sound/world/debris_rock_%d.ogg".</string>
+<target key="target" name="Target">if set, trigger entities with this target name as the door is activated.</target>
+<real key="health" name="Shootable">Health of func. Default: 5.</real>
+<real key="max_health" name="Max Health">Health of func when respawned. Default, same as Health.</real>
+<real key="cnt" name="Number of chunks">Number of chunks to spawn when destroyed.</real>
+</group>
+
+<group name="func_door" color="0 .5 .8">
+Normal door.
+If two doors touch, they are assumed to be connected and operate as a unit.
+
+Flags:
+<flag key="START_OPEN" name="Start Open" bit="0">causes the door to move to its destination when spawned, and operate in reverse. It is used to temporarily or permanently close off an area when triggered (not useful for touch or takedamage doors).</flag>
+<flag key="DOOR_DONT_LINK" name="Don't Link" bit="2"/>
+<flag key="YELLOW_KEY" name="Yellow Key" bit="3"/>
+<flag key="BLUE_KEY" name="Blue Key" bit="4"/>
+<flag key="RED_KEY" name="Red Key" bit="5"/>
+<flag key="ALL_KEY" name="3 Key Door" bit="6"/>
+<flag key="TOGGLE" name="Toggle" bit="7"> TOGGLE causes the door to wait in both the start and end states for a trigger event.</flag>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+
+Keys:
+<string key="message" name="Message">is printed when the door is touched if it is a trigger door and it hasn't been fired yet</string>
+<direction key="angle" name="Opening Direction">determines the opening direction</direction>
+<targetname key="targetname" name="Targetname">if set, no touch field will be spawned and a remote button or trigger field activates the door.</targetname>
+<target key="target" name="Target">if set, trigger entities with this target name as the door is activated.</target>
+<targetname key="targetcheck" name="Target Check Name">The entity checking point to this.</targetname>
+<target key="checkstate" name="Check state">Target entity to check state of</target>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<boolean key="statefire" name="State fire">State of entity being checked where lift can be activated</boolean>
+<boolean key="health" name="Shootable">if set, door must be shot open</boolean>
+<real key="speed" name="Move Speed">movement speed (100 default)</real>
+<real key="wait" name="Return Delay">wait before returning (3 is default, -1 = never return)</real>
+<real key="lip" name="Lip">lip remaining at end of move. 8 is default</real>
+<real key="dmg" name="Damage Inflicted">damage to inflict when blocked. 2 is default</real>
+</group>
+
+
+<group name="func_door_secret" color="0 .5 .8">
+Secret door. Slides back, then to the side. Angle determines direction.
+
+Flags:
+<flag key="OPEN_ONCE" name="Open Once" bit="0">stays open</flag>
+<flag key="1ST_LEFT" name="First Left" bit="1">1st move is left of arrow</flag>
+<flag key="1ST_DOWN" name="First Down" bit="2">1st move is down from arrow</flag>
+<flag key="NO_SHOOT" name="Not Shootable" bit="3">only opened by trigger</flag>
+<flag key="ALWAYS_SHOOT" name="Always Shootable" bit="4">even if targeted, keep shootable</flag>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+
+Keys:
+<real key="wait" name="Return Delay"># of seconds before coming back</real>
+<real key="t_width" name="First Distance">override Width to move back (or height if going down)</real>
+<real key="t_length" name="Second Distance">override Length to move sideways</real>
+<real key="dmg" name="Damage Inflicted">damage to inflisubstring(self.classname, 0, 5) == "ammo_"ct when blocked (2 default)</real>
+<targetname key="targetname" name="Targetname">If a secret door has a targetname, it will only be opened by its button or trigger, not by damage.</targetname>
+<string key="message" name="Message">is printed when the door is touched if it is a trigger door and it hasn't been fired yet</string>
+<direction key="angle" name="Opening Direction">determines the opening direction</direction>
+<target key="target" name="Target">if set, trigger entities with this target name as the door is activated.</target>
+<targetname key="targetcheck" name="Target Check Name">The entity checking point to this.</targetname>
+<target key="checkstate" name="Check state">Target entity to check state of</target>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<boolean key="statefire" name="State fire">State of entity being checked where lift can be activated</boolean>
+<boolean key="health" name="Shootable">if set, door must be shot open</boolean>
+<real key="speed" name="Move Speed">movement speed (100 default)</real>
+<real key="lip" name="Lip">lip remaining at end of move. 8 is default</real>
+</group>
+
+<point name="info_null" color="0 .5 0" box="-8 -8 -8 8 8 8">
+Aiming target for q3map2-internal entities like _decal or light.
+Removes itself when loaded, so it can NOT be used for in-game stuff!
+-------- KEYS --------
+<targetname key="targetname" name="targetname">the entity that requires an aiming direction points to this.</targetname>
+</point>
+
+
+<point name="info_notnull" color="0 .5 0" box="-8 -8 -8 8 8 8">
+Entity that does nothing, but may be targeted (e.g. to use its position)
+-------- KEYS --------
+<targetname key="targetname" name="targetname">must match the target key of entity that uses this for pointing.</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+</point>
+
+
+<point name="info_intermission" color="1 0.5 0.5" box="-16 -16 -16 16 16 16">
+This is the camera point for the intermission.
+Use angles to set pitch or roll as well as yaw.
+A random one is picked when more than one exists.
+If none exist, a player start will be used instead.
+
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="angles" name="angles">orientation of the camera</real>
+</point>
+
+
+<point name="info_player_start" color="0 1 0" box="-16 -16 -24 16 16 45">
+Normal player spawning location in single player games.
+Should touch the floor, but not the walls, and should point where
+the player should look when he spawns there.
+
+Keys:
+<real key="angles" name="angles">orientation of the player</real>
+</point>
+
+
+<point name="info_player_coop" color="0 1 0" box="-16 -16 -24 16 16 45">
+Player spawning location for cooperative (non-deathmatch) games.
+Should touch the floor, but not the walls, and should point where
+the player should look when he spawns there.
+
+Keys:
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="angles" name="angles">orientation of the player</real>
+</point>
+
+
+<point name="info_player_deathmatch" color="0 1 0" box="-16 -16 -24 16 16 45">
+Player spawning location in DeathMatch games.
+Should touch the floor, but not the walls, and should point where
+the player should look when he spawns there.
+-------- KEYS --------
+<real key="angles" name="angles">orientation of the player</real>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="cnt" name="cnt">weight of spawn point for random selection. Set to a lower value if you have many spawn points close together. Default value is 1.</real>
+<real key="restriction" name="restriction">when 1, only bots can spawn here; when 2, only humans can spawn here (be careful with these, or the game will crash because someone cannot spawn)</real>
+</point>
+
+
+<point name="info_spectator_start" color="0 1 0" box="-16 -16 -24 16 16 45">
+Spawning location for spectators.
+Should respect a normal player bbox (i.e. off the floor, away from walls).
+If none exist, a deathmatch or coop start will be used instead.
+</point>
+
+
+<point name="info_teleport_destination" color="0.5 0.5 0.5" box="-16 -16 -24 16 16 32">
+This is the destination marker for a teleporter.
+
+Keys:
+<targetname key="targetname" name="Targetname">value used by teleporter</targetname>
+<angle key="angle" name="Yaw Angle">new view angle after teleporting</angle>
+<real key="angles" name="angles">orientation of the player</real>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+</point>
+
+<point name="target_animation" color="0 .5 0" box="-8 -8 -8 8 8 8">
+Spawn an IQM/MD3/DPM model with animations.
+
+-------- KEYS --------
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<model key="model" name="model">file name of model to load</model>
+<real key="frame" name="frame">Framegroup of animation to run</real>
+<real key="frame2" name="frame">Framegroup of animation to run when triggered</real>
+</point>
+
+<point name="target_position" color="0 .5 0" box="-8 -8 -8 8 8 8">
+Aiming target for entities like light and trigger_push.
+-------- KEYS --------
+<targetname key="targetname" name="targetname">the entity that requires an aiming direction points to this.</targetname>
+<target key="target" name="target">target to activate when this is used</target>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+</point>
+
+<point name="target_emitter" color="0 .5 0" box="-8 -8 -8 8 8 8">
+Target spot for spawning a particle effect.
+-------- KEYS --------
+<direction key="angle" name="Opening Direction">determines the opening direction</direction>
+<real key="wait" name="Repeat Time">Delay in seconds between each time the particle is played.</real>
+<real key="rnd" name="Repeat Time Variance">Random time variance in seconds added or subtracted from "wait" delay ("wait" key must be set - see notes).</real>
+<real key="prtclname" name="Particle name">Name of particle to emit.</real>
+<targetname key="targetname" name="Target Name">The activating button or trigger points to this.</targetname>
+<target key="target" name="target">target to activate when this is used</target>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+-------- SPAWNFLAGS --------
+<flag key="SPFL_LOOPON" name="Loop on" bit="0">Looping, start on..</flag>
+<flag key="SPFL_LOOPOFF" name="Loop off" bit="1">Looping, start off. Need to be activated by a trigger</flag>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+-------- NOTES --------
+The combination of the "wait" and "random" keys can be used to play non-looping particles without requiring an activating trigger but both keys must be used together. The value of the "random" key is used to calculate a minimum and a maximum delay. The final time delay will be a random value anywhere between the minimum and maximum values: (min delay = wait - random) (max delay = wait + random).
+</point>
+
+<point name="target_explosion" color="0 .5 0" box="-8 -8 -8 8 8 8">
+Target spot for spawning an explosion.
+-------- KEYS --------
+<real key="wait" name="Repeat Time">Delay in seconds between each time the sound is played.</real>
+<real key="rnd" name="Repeat Time Variance">Random time variance in seconds added or subtracted from "wait" delay ("wait" key must be set - see notes).</real>
+<real key="volume" name="Volume">Volume of sound.</real>
+<real key="dmg" name="Damage">Damage of explosion.</real>
+<targetname key="targetname" name="Target Name">The activating button or trigger points to this.</targetname>
+<target key="target" name="target">target to activate when this is used</target>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+-------- SPAWNFLAGS --------
+<flag key="GLOBAL" name="No Distance Attenuation" bit="2">Same as aflag = -1 and overrides aflag key, Sound will play full volume throughout the level.</flag>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+-------- NOTES --------
+The combination of the "wait" and "random" keys can be used to play non-looping explosions without requiring an activating trigger but both keys must be used together. The value of the "random" key is used to calculate a minimum and a maximum delay. The final time delay will be a random value anywhere between the minimum and maximum values: (min delay = wait - random) (max delay = wait + random).
+</point>
+
+<point name="target_earthquake" color="0 .5 0" box="-8 -8 -8 8 8 8">
+Target spot for spawning an earthquake.
+-------- KEYS --------
+<real key="scale" name="Radius">Radius of earthquake from the target. A value of 64 will have a diameter of 128 around the target spot.</real>
+<real key="cnt" name="Duration Time">How long the earthquake will last in seconds.</real>
+<real key="cnt2" name="Intensity">How much the screen will shake.</real>
+<real key="wait" name="Repeat Time">Delay in seconds between each time the sound is played.</real>
+<real key="rnd" name="Repeat Time Variance">Random time variance in seconds added or subtracted from "wait" delay ("wait" key must be set - see notes).</real>
+<string key="noise" name="Sound">Sound of earthquake.  Default: none.</string>
+<real key="volume" name="Volume">Volume of sound.</real>
+<targetname key="targetname" name="Target Name">The activating button or trigger points to this.</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+-------- SPAWNFLAGS --------
+<flag key="GLOBAL" name="No Distance Attenuation" bit="2">Same as aflag = -1 and overrides aflag key, Sound will play full volume throughout the level.</flag>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+-------- NOTES --------
+The combination of the "wait" and "random" keys can be used to play non-looping explosions without requiring an activating trigger but both keys must be used together. The value of the "random" key is used to calculate a minimum and a maximum delay. The final time delay will be a random value anywhere between the minimum and maximum values: (min delay = wait - random) (max delay = wait + random).
+</point>
+
+<point name="target_speaker" color="0 .7 .7" box="-8 -8 -8 8 8 8">
+Sound generating entity that plays .wav/.ogg files. Normal non-looping sounds play each time the target_speaker is triggered. Looping sounds can be set to play by themselves (no activating trigger) or be toggled on/off by a trigger.
+-------- KEYS --------
+<sound key="noise" name="Sound File">Path/name of .wav file to play (e.g. sound/world/growl1.wav - see notes).</sound>
+<real key="wait" name="Wait Time">Wait time before the sound is played. Default 0 seconds</real>
+<real key="delay" name="Repeat Time">Delay in seconds between each time the sound is played and stopped. Default 1 second</real>
+<real key="rnd" name="Repeat Time Variance">Random time variance in seconds added or subtracted from "wait" delay ("wait" key must be set - see notes).</real>
+<real key="cnt" name="Count">Number of times a sound is repeated before being stopped. Default 0, set to -1 for unlimited.</real>
+<real key="volume" name="Volume">Volume of sound.</real>
+<real key="aflag" name="Attenuation">Attenuation of sound.</real>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+-------- SPAWNFLAGS --------
+<flag key="LOOPED_ON" name="Start loopin on" bit="0">Sound will loop forever. Intervals can be modified with delay and rnd</flag>
+<flag key="LOOPED_OFF" name="Loop, Triggered" bit="1">TODO - Sound will loop and initially start off in level (will toggle on/off when triggered).</flag>
+<flag key="GLOBAL" name="No Distance Attenuation" bit="2">Same as aflag = -1 and overrides aflag key, Sound will play full volume throughout the level.</flag>
+<flag key="ACTIVATOR" name="Audible Only To Activator" bit="3">TODO - Sound will play only for the player that activated the target.</flag>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+-------- NOTES --------
+The path portion value of the "noise" key can be replaced by the implicit folder character "*" for triggered sounds that belong to a particular player model. For example, if you want to create a "bottomless pit" in which the player screams and dies when he falls into, you would place a trigger_multiple over the floor of the pit and target a target_speaker with it. Then, you would set the "noise" key to "*falling1.wav". The * character means the current player model's sound folder. So if your current player model is Visor, * = sound/player/visor, if your current player model is Sarge, * = sound/player/sarge, etc. This cool feature provides an excellent way to create "player-specific" triggered sounds in your levels.
+
+The combination of the "delay" and "random" keys can be used to play non-looping sounds without requiring an activating trigger but both keys must be used together. The value of the "random" key is used to calculate a minimum and a maximum delay. The final time delay will be a random value anywhere between the minimum and maximum values: (min delay = wait - random) (max delay = wait + random).
+</point>
+
+<point name="target_spawnmonster" color="1 0 0" box="-16 -16 -16 16 16 16">
+A spawn point for monsters - Picks the first flagged monster in the roster.
+Mode switches between monster mentioned first and second.
+
+Flags:
+<flag key="Pawn/Enforcer" name="Pawn/Enforcer" bit="0"/>
+<flag key="Soldier/Commander" name="Soldier/Commander" bit="1"/>
+<flag key="Golem/Centurion" name="Golem/Centurion" bit="2"/>
+<flag key="Dread/Imperator" name="Dreadnaught/Imperator" bit="3"/>
+<flag key="Aswang/Matriarc" name="Aswang/Matriarc" bit="4"/>
+<flag key="Gorger/Troglodyte" name="Gorger/Troglodyte" bit="5"/>
+<flag key="Vizier/Cenobite" name="Vizier/Cenobite" bit="6"/>
+<flag key="Bishop/Inquisitor" name="Bishop/Inquisitor" bit="7"/>
+<flag key="Not Easy" name="Not Easy" bit="8"/>
+<flag key="Not Normal" name="Not Normal" bit="9"/>
+<flag key="Not Hard" name="Not Hard" bit="10"/>
+<flag key="Sentry/Ghast" name="Sentry/Ghast" bit="11"/>
+<flag key="empty" name="empty" bit="12"/>
+<flag key="empty" name="empty" bit="13"/>
+<flag key="empty" name="empty" bit="14"/>
+<flag key="empty" name="empty" bit="15"/>
+
+
+<boolean key="cnt" name="No spawnfog">If set, no spawn fog is spawned</boolean>
+<boolean key="mode" name="Tier 2">If set, spawn second tier enemy</boolean>
+<angle key="angle" name="Direction">facing angle of monster spawn</angle>
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="Targetname"/>
+</point>
+
+<point name="target_warpzone_position" color="1 0 1" box="-8 -8 -8 8 8 8">
+
+
+Keys:
+<real key="angles" name="angles">orientation of the warpzone</real>
+<real key="origin" name="origin">Origin of the warpzone</real>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+Flags:
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="light" color=".65 .65 1" box="-8 -8 -8 8 8 8">
+Non-displayed point light source.
+The -pointscale and -scale arguments to Q3Map2 affect the brightness of these lights.
+The -skyscale argument affects brightness of entity sun lights.
+Maximum intensity (in a radius 16 sphere around the light): regular lights have light/256, linear lights have light/8000-16*fade.
+Falloff radius to a negligible light amount: regular lights have light have 16*sqrt(light), linear lights have light/(fade*8000).
+By this you see that you HAVE to specify fade for a linear light... use values below 0.01 there.
+-------- KEYS --------
+<real key="light" name="light">intensity factor (default: 300). A linear</real>
+<color key="_color" name="_color">weighted RGB value of light color (default white - 1.0 1.0 1.0).</color>
+<target key="target" name="target">Lights pointed at a target will be spotlights.</target>
+<real key="radius" name="radius">radius of a spotlight at the target point (default: 64)</real>
+<real key="_anglescale" name="_anglescale">scales angle attenuation</real>
+<real key="fade" name="fade">Fade factor of light attenuation of linear lights. Linear lights completely vanish at distance light/(fade*8000), so if you want the light to vanish at distance X, specify light/(8000*X) here.</real>
+<real key="_filterradius" name="_filterradius">filter radius for this light, similar to -light -filter</real>
+<boolean key="_sun" name="_sun">if 1, this light is an infinite sun light</boolean>
+<integer key="_samples" name="_samples">number of samples to use to get soft shadows from a light</integer>
+<real key="_deviance" name="_deviance">position deviance of the samples of a regular light (distributes the light samples in a cube of side length 2*_deviance around the origin), or angle deviance of the sun light samples in radians</real>
+-------- SPAWNFLAGS --------
+<flag key="LINEAR" name="LINEAR" bit="0">Use a linear falloff. Default is inverse distance squared (more realistic).</flag>
+<flag key="NOANGLE" name="NOANGLE" bit="1">Ignore angle attenuation.</flag>
+<flag key="NOGRIDLIGHT" name="NOGRIDLIGHT" bit="4">Do not affect the light grid (dynamic entity lighting).</flag>
+</point>
+
+<point name="rtlight_free" color=".65 .65 1" box="-8 -8 -8 8 8 8">
+Real time light entity. Specifically used for attaching real time light effects to a moving target, like a moving platform. To plant static (world) light effects, use in game RT light editor instead.
+-------- KEYS --------
+<color key="color" name="color">weighted RGB value of light color (default white - 1.0 1.0 1.0). Also sets intensity</color>
+<real key="target" name="target">Target of the light to latch on to (lights will not spawn without this).</real>
+<real key="style" name="style">light style (like normal light entities, flickering torches or switchable, etc).</real>
+<real key="light_lev" name="radius">radius of light (default: 64)</real>
+<real key="skin" name="cubemap">cubemap filter number, can be 1-255 (0 is assumed to be none), this selects a projective light filter, a value of 1 loads cubemaps/1posx.tga and cubemaps/1negx.tga and posy, negy, posz, and negz, similar to skybox but some sides need to be rotated or flipped.</real>
+<real key="angles" name="angles">orientation of the light</real>
+<real key="effects" name="particles">particle effect</real>
+-------- SPAWNFLAGS --------
+<flag key="NOSHADOW" name="NOSHADOW" bit="0">Light does not cast any shadows.</flag>
+<flag key="CORONA" name="CORONA" bit="1">Corona effect on light source.</flag>
+<flag key="STARTOFF" name="STARTOFF" bit="2">Start light as off.</flag>
+</point>
+
+<point name="rtlight_attached" color=".65 .65 1" box="-8 -8 -8 8 8 8">
+Real time light entity. Specifically used for attaching real time light effects to a moving target, like a moving platform. To plant static (world) light effects, use in game RT light editor instead.
+-------- KEYS --------
+<color key="color" name="color">weighted RGB value of light color (default white - 1.0 1.0 1.0). Also sets intensity</color>
+<real key="target" name="target">Target of the light to latch on to (lights will not spawn without this).</real>
+<real key="style" name="style">light style (like normal light entities, flickering torches or switchable, etc).</real>
+<real key="light_lev" name="radius">radius of light (default: 64)</real>
+<real key="skin" name="cubemap">cubemap filter number, can be 1-255 (0 is assumed to be none), this selects a projective light filter, a value of 1 loads cubemaps/1posx.tga and cubemaps/1negx.tga and posy, negy, posz, and negz, similar to skybox but some sides need to be rotated or flipped.</real>
+<real key="angles" name="angles">orientation of the light</real>
+<real key="effects" name="particles">particle effect</real>
+-------- SPAWNFLAGS --------
+<flag key="NOSHADOW" name="NOSHADOW" bit="0">Light does not cast any shadows.</flag>
+<flag key="CORONA" name="CORONA" bit="1">Corona effect on light source.</flag>
+</point>
+
+
+<point name="rtlight_walltorch" color=".65 .65 1" box="-8 -8 -8 8 8 8">
+Wall torch particle source.
+
+Keys:
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+</point>
+
+
+<point name="misc_fireball" color="0 .5 .8" box="-8 -8 -8 8 8 8">
+Great Balls of Fire
+
+Keys:
+<real key="speed" name="Speed">speed of ball, default is 1000</real>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+</point>
+
+
+<point name="misc_explobox" color="0 .5 .8" box="-24 -24 0 24 24 64">
+Exploding box.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+
+Flags:
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="misc_explobox2" color="0 .5 .8" box="-24 -24 0 24 24 64">
+Smaller exploding box.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+
+Flags:
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="misc_explobox3" color="0 .5 .8" box="-8 -8 0 8 8 64">
+Smaller exploding box.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+
+Flags:
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="misc_explobox4" color="0 .5 .8" box="-8 -8 0 8 8 64">
+Smaller exploding box.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+
+Flags:
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="misc_explobox5" color="0 .5 .8" box="-8 -8 0 8 8 48">
+Smaller exploding box.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+
+Flags:
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="misc_explobox6" color="0 .5 .8" box="-8 -8 0 8 8 48">
+Smaller exploding box.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+
+Flags:
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="misc_explobox7" color="0 .5 .8" box="-24 -24 0 24 24 48">
+Smaller exploding box.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+
+Flags:
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="misc_explobox8" color="0 .5 .8" box="-24 -24 0 24 24 48">
+Smaller exploding box.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+
+Flags:
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<point name="air_bubbles" color="0 .5 .8" box="-8 -8 -8 8 8 8">
+Air bubbles. They disappear in Deathmatch.
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</point>
+
+<group name="func_fade" color="0 .5 .8">
+A solid brush entity that can fade in or out as it is triggered.
+-------- KEYS --------
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="modelscale" name="modelscale">scale factor of the model (range: 0.0625 to 15.9375)</real>
+<angles key="angles" name="angles">initial looking direction</angles>
+<real key="alpha" name="alpha">initial alpha. Can be between 0-1</real>
+<real key="state" name="fade in">initial fade stage. 1 to fade in. 0 to fade out</real>
+<real key="speed" name="fade speed">Speed of fading, default 0.04. 1 is instant.</real>
+-------- Q3MAP2 KEYS --------
+<boolean key="_castshadows" name="_castshadows">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</boolean>
+<boolean key="_receiveshadows" name="_receiveshadows">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</boolean>
+<real3 key="mins" name="mins">override automatically found minimum coordinate bounds</real3>
+<real3 key="maxs" name="maxs">override automatically found maximum coordinate bounds</real3>
+-------- SPAWNFLAGS --------------
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</group>
+
+<group name="func_wall" color="0 .5 .8">
+A solid brush entity. Use func_illusionary if you want it non-solid.
+-------- KEYS --------
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="modelscale" name="modelscale">scale factor of the model (range: 0.0625 to 15.9375)</real>
+<angles key="angles" name="angles">initial looking direction</angles>
+-------- Q3MAP2 KEYS --------
+<boolean key="_castshadows" name="_castshadows">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</boolean>
+<boolean key="_receiveshadows" name="_receiveshadows">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</boolean>
+<real3 key="mins" name="mins">override automatically found minimum coordinate bounds</real3>
+<real3 key="maxs" name="maxs">override automatically found maximum coordinate bounds</real3>
+-------- SPAWNFLAGS --------------
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</group>
+
+
+<group name="func_illusionary" color="0 .5 .8">
+A non-solid brush entity. Use func_wall if you want it solid.
+-------- KEYS --------
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="modelscale" name="modelscale">scale factor of the model (range: 0.0625 to 15.9375)</real>
+<angles key="angles" name="angles">initial looking direction</angles>
+-------- Q3MAP2 KEYS --------
+<boolean key="_castshadows" name="_castshadows">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</boolean>
+<boolean key="_receiveshadows" name="_receiveshadows">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</boolean>
+<real3 key="mins" name="mins">override automatically found minimum coordinate bounds</real3>
+<real3 key="maxs" name="maxs">override automatically found maximum coordinate bounds</real3>
+-------- FLAGS --------------
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</group>
+
+
+<point name="misc_gamemodel" color="0 .5 .8" box="-8 -8 -8 8 8 8">
+Adds a 3D model into the map.
+Is solid by default (FULLCOLLISION).
+-------- KEYS --------
+<model key="model" name="model">file name of model to load</model>
+<real key="frame" name="frame">animation frame to play (for self-animated DPM models)</real>
+<real key="skin" name="skin">number of skin to load (when model is used)</real>
+<real key="modelscale" name="modelscale">scale factor of the model (range: 0.0625 to 15.9375)</real>
+<real key="solid" name="solid">solidity: can be -1 = NOT, 2 = BBOX, 4 = FULLCOLLISION (the default)</real>
+<angles key="angles" name="angles">orientation of the model</angles>
+<real3 key="avelocity" name="avelocity">vector giving its angular velocity (useful for spinning models)</real3>
+<real key="effects" name="effects">sum of 1 = BRIGHTFIELD, 4 = BRIGHTLIGHT, 8 = DIMLIGHT, 32 = ADDITIVE, 64 = BLUE, 128 = RED, 512 = FULLBRIGHT, 1024 = FLAME, 2048 = STARDUST, 4096 = NOSHADOW, 8192 = NODEPTHTEST, 32768 = DOUBLESIDED, 8388608 = NOMODELFLAGS (ignores the following coming from a model file), 16777216 = ROCKET, 33554432 = GRENADE, 67108864 = GIB, 134217728 = ROTATE, 268435456 = TRACER, 536870912 = ZOMGIB, 1073741824 = TRACER2, -2147483648 = TRACER3</real>
+</point>
+
+
+<point name="misc_clientmodel" color="0 .5 .8" box="-8 -8 -8 8 8 8">
+Displays a 3D model on the map.
+Client-side only, hence is always non-solid.
+-------- KEYS --------
+<model key="model" name="model">file name of model to load</model>
+<real key="frame" name="frame">animation frame to play (for self-animated DPM models)</real>
+<real key="skin" name="skin">number of skin to load (when model is used)</real>
+<real key="modelscale" name="modelscale">scale factor of the model (range: 0.0625 to 15.9375)</real>
+<angles key="angles" name="angles">orientation of the model</angles>
+</point>
+
+
+<point name="misc_model" color="1 .5 .25" box="-16 -16 -16 16 16 16">
+Generic placeholder for adding a 3D model to the map.
+The model is added directly to the map geometry of the level (no entity for it will exist).
+If the map is compiled with Q3Map2, then ASE, 3DS, OBJ and other model formats are supported.
+-------- Q3MAP2 KEYS --------
+<target key="target" name="Target">Target entity to attach itself to</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<model key="model" name="model">file name of model to include</model>
+<integer key="_frame" name="_frame">frame of model to include</integer>
+<integer key="_skin" name="_skin">skin of model to include</integer>
+<array key="_remap" name="_remap">string of the form from;to specifying which texture name of the model to replace by which shader; * is allowed. Any key starting with this prefix will work, so if you need more remappings, create _remap2, etc.</array>
+<direction key="angle" name="angle">view direction of the model</direction>
+<angles key="angles" name="angles">view direction of the model in PITCH YAW ROLL</angles>
+<real key="modelscale" name="modelscale">scaling factor</real>
+<real3 key="modelscale_vec" name="modelscale_vec">scaling vector for non-uniform scaling</real3>
+<boolean key="_castshadows" name="_castshadows">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</boolean>
+<boolean key="_receiveshadows" name="_receiveshadows">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</boolean>
+<real key="_lightmapscale" name="_lightmapscale">light map resolution factor</real>
+-------- SPAWNFLAGS --------
+<flag key="SOLID" name="SOLID" bit="1">make the model solid</flag>
+<flag key="FORCE_META" name="FORCE_META" bit="2">force the model to go through the -meta pipeline and enable lightmapping</flag>
+<flag key="EXTRUDE_NORMALS" name="EXTRUDE_NORMALS" bit="3">for converting triangles to clip brushes, extrude along the model normals (by default, extrusion happens in a coordinate axis direction that is decided per triangle)</flag>
+<flag key="EXTRUDE_TERRAIN" name="EXTRUDE_TERRAIN" bit="4">always extrude downwards (for terrain)</flag>
+<flag key="COLOR_TO_ALPHA" name="COLOR_TO_ALPHA" bit="5">use the color value as alpha (for terrain blending)</flag>
+<flag key="DONT_FIX_NORMALS" name="DONT_FIX_NORMALS" bit="6">do not regenerate normals</flag>
+</point>
+
+
+<group name="func_rotating" color="0 .5 .8">
+Brush entity that spins in place on one axis (default Z).
+Use an origin brush to specify the rotation axis.
+Can supply a model instead of using brushes.
+-------- KEYS --------
+<real key="speed" name="speed">speed to rotate (in degrees per second, default: 100)</real>
+<real key="solid" name="solid">set to -1 to make it non-solid, otherwise leave as 0 to be solid</real>
+<real key="dmg" name="dmg">do this much dmg every frame when blocked</real>
+<model key="model" name="model">file name of model to load</model>
+<real key="frame" name="frame">animation frame to play (for self-animated DPM models)</real>
+<real key="skin" name="skin">number of skin to load (when model is used)</real>
+<real key="scale" name="scale">scale factor of the model (range: 0.0625 to 15.9375)</real>
+<angles key="angles" name="angles">orientation of the model</angles>
+-------- SPAWNFLAGS --------
+<flag key="SOLID" name="SOLID" bit="0">make the model solid</flag>
+<flag key="REVERSE" name="REVERSE" bit="1">spin the opposite way</flag>
+<flag key="X_AXIS" name="X_AXIS" bit="2">rotate around the X axis</flag>
+<flag key="Y_AXIS" name="Y_AXIS" bit="3">rotate around the Y axis</flag>
+</group>
+
+<group name="func_rotate" color="0 .5 .8">
+Rotating object. Adjustable speed (minus values rotates other way), time to rotate (-1 is infinite), as
+well as vector rotation on any axis
+
+Use an origin brush to specify the rotation axis.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="cnt" name="Range">How far to rotate, default is 1, -1 is infinite</real>
+<boolean key="cnt2" name="Reverse">If set object will reverse direction</boolean>
+<boolean key="count" name="Silent">If set don't play activate sound</boolean>
+<angles key="pos1" name="Move Angle/Speed">angle and speed of rotation. Default is : 0 350 0</angles>
+<sound key="noise" name="Start">path to sound file, if you want to play something else</sound>
+<sound key="noise2" name="Stop">path to sound file, if you want to play something else</sound>
+
+-------- SPAWNFLAGS --------
+<flag key="ONCE" name="Once" bit="0">only activate one time</flag>
+</group>
+
+<group name="func_plat" color="0 .5 .8">
+Lift / elevator.
+Plats are always drawn in the extended position, so they will light correctly.
+
+If the plat is the target of another trigger or button, it will start out disabled in the extended position until it is triggered, when it will lower and become a normal plat.
+If the no touch flag is checked it will only activate when a trigger activates it.
+
+Flags:
+<flag key="PLAT_LOW_TRIGGER" name="Low Trigger" bit="0"/>
+<flag key="PLAT_NO_TOUCH" name="No touch" bit="1"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+<flag key="START_DOWN" name="Start Down" bit="13">Always start down, even if targeted by a button.</flag>
+
+Keys:
+<targetname key="targetname" name="Target Name">The activating button or trigger points to this.</targetname>
+<target key="target" name="target">target to activate when this is used</target>
+<targetname key="targetcheck" name="Target Check Name">The entity checking point to this.</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<target key="checkstate" name="Check state">Target entity to check state of</target>
+<boolean key="statefire" name="State fire">State of entity being checked where lift can be activated</boolean>
+<real key="speed" name="Move Speed">moving speed, default is 150</real>
+<real key="height" name="Height">determines the amount the plat moves, instead of being implicitly determined by the model's height.</real>
+<sound key="noise" name="Start">path to sound file, if you want to play something else</sound>
+<sound key="noise1" name="Stop">path to sound file, if you want to play something else</sound>
+<sound key="noise2" name="Loop">path to sound file, if you want to play something else</sound>
+</group>
+
+
+<point name="path_corner" color=".5 .3 0" box="-8 -8 -8 8 8 8">
+Path corner entity that monsters pr func_train will follow.
+All path_corner entities of a train have to connect in a circular manner,
+while the func_train shall point to one of the path_corners
+(ideally the one at the train's starting point)
+-------- KEYS --------
+<target key="target" name="target">point to next path_corner in the path.</target>
+<targetname key="targetname" name="targetname">the train following the path or the previous path_corner in the path points to this.</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="speed" name="speed">speed of func_train while moving to this path corner. If unset, the value from the func_train will be used.</real>
+<real key="wait" name="wait">number of seconds func_train will pause on this path corner before moving to next path corner (default: 0.1; to not wait, set this to -1</real>
+</point>
+
+<group name="func_train" color="0 .5 .8">
+Trains are moving platforms that players can ride.
+The target's origin specifies the min point of the train at each corner.
+The train spawns at the first target it is pointing at.
+
+Use path_corner as targets.
+
+If the train itself is the target of a button or trigger, it will not begin moving until activated.
+
+Keys:
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="speed" name="Move Speed">moving speed, default is 100</real>
+<real key="dmg" name="Damage Inflicted">damage, default is 2</real>
+<sound key="noise" name="Stop">path to sound file, if you want to play something else</sound>
+<sound key="noise1" name="Loop">path to sound file, if you want to play something else</sound>
+</group>
+
+<group name="func_attachment" color="0 .5 .8">
+This is an invisible area like a trigger, which rain falls inside of.
+
+-------- KEYS --------
+<real key="velocity" name="velocity">Falling direction (should be something like '0 0 -700', use the X and Y velocity for wind)</real>
+<real key="solid" name="solid">set to -1 to make it non-solid, otherwise leave as 0 to be solid</real>
+<real key="cnt" name="cnt">Sets color of rain (default 12 - white)</real>
+<real key="count" name="count">Adjusts rain density, this many particles fall every second, experiment to see the effects (default is based on area size)</real>
+</group>
+
+<group name="func_fall" color="0 .5 .8">
+Falling brush by RennyC
+
+Flags:
+<flag key="PLAYER_ONLY" name="Player Only" bit="0">Player activated only.</flag>
+<flag key="MONSTER_ONLY" name="Monster Only" bit="1">Monster activated only.</flag>
+
+Keys:
+<targetname key="targetname" name="Targetname">if set, no touch field will be spawned and a remote button or trigger field activates the door.</targetname>
+<target key="target" name="Target">if set, trigger entities with this target name as the brush is activated.</target>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="wait" name="Delay">How long until the brush begins falling</real>
+<real key="noise" name="Activation sound">The sound to make when touched / activated</real>
+<real key="noise2" name="Removal Sound">The sound to make before it's removed, pain_finished of -1 disables noise2 as the object stays forever</real>
+<real key="cnt" name="Behavior">0 is default behavior (MOVETYPE_TOSS), 1 means collisions are disabled while falling (MOVETYPE_NOCLIP), 2 turns the brush into a bouncing entity (MOVETYPE_BOUNCE)</real>
+<real key="pain_finished" name="Removal delay">Default of 0.01, higher value has the object/brush fade out faster thus in turn affecting how long it stays. -1 stays forever</real>
+<real key="speed" name="Speed">Speed as to how fast something falls per game frame, default is 10, higher values mean faster falling. Only for cnt of 1 (MOVETYPE_NOCLIP). Recommended to use lip for max fall speed on MOVETYPE_TOSS/BOUNCE entities (cnt 0 and 2) as they follow Quake's default gravity</real>
+<real key="lip" name="Max Speed">Maximum fall speed that can be achieved, caps 'speed' variable. Default is -800</real>
+<real key="pos1" name="Spin Speed">X, Y, Z vectors to spin the object using avelocity</real>
+<real key="pos2" name="Velocity">Push the object using 'X, Y, Z' velocity vectors</real>
+<real key="avelocity" name="Spin">Have it spin when activated using X, Y, Z vector coordinates. MOVETYPE_BOUNCE ignores avelocity! Use an origin brush for proper spin!</real>
+</group>
+
+<group name="func_rain" color="0 .5 .8">
+This is an invisible area like a trigger, which rain falls inside of.
+
+Flags:
+<flag key="RANDOM_COLOR" name="Random Color" bit="3"/>
+
+-------- KEYS --------
+<real key="velocity" name="velocity">Falling direction (should be something like '0 0 -700', use the X and Y velocity for wind)</real>
+<real key="cnt" name="cnt">Sets color of rain (default 12 - white)</real>
+<real key="count" name="count">Adjusts rain density, this many particles fall every second, experiment to see the effects (default is based on area size)</real>
+</group>
+
+<group name="func_snow" color="0 .5 .8">
+This is an invisible area like a trigger, which snow falls inside of.
+
+Flags:
+<flag key="RANDOM_COLOR" name="Random Color" bit="3"/>
+
+-------- KEYS --------
+<real key="velocity" name="velocity">Falling direction (should be something like '0 0 -700', use the X and Y velocity for wind)</real>
+<real key="cnt" name="cnt">Sets color of snow (default 12 - white)</real>
+<real key="count" name="count">Adjusts snow density, this many particles fall every second, experiment to see the effects (default is based on area size)</real>
+</group>
+
+<group name="func_particlefield" color="0 .5 .8">
+This is an invisible area like a trigger, which particels spawns inside of.
+
+Flags:
+<flag key="RANDOM_COLOR" name="Random Color" bit="3"/>
+
+-------- KEYS --------
+<real key="velocity" name="velocity">Falling direction (should be something like '0 0 -700', use the X and Y velocity for wind)</real>
+<real key="cnt" name="cnt">Sets color of particles (default 12 - white)</real>
+<real key="cnt2" name="cnt2">Sets gravity</real>
+<real key="speed" name="speed">Sets jitter</real>
+<real key="count" name="count">Adjusts particels density, this many particles fall every second, experiment to see the effects (default is based on area size)</real>
+</group>
+
+<group name="race_start" color="0 .5 .8">
+This is an invisible area like a trigger, which sets the starting line of a race.
+
+-------- KEYS --------
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+
+</group>
+
+<group name="race_checkpoint" color="0 .5 .8">
+This is an invisible area like a trigger, which sets checkpoint line of a race.
+
+-------- KEYS --------
+<real key="count" name="count">Sets checkpoint number, this is necessary or the checkpoint won't spawn</real>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+-------- FLAGS --------
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+<group name="race_goal" color="0 .5 .8">
+This is an invisible area like a trigger, which sets the finishing line of a race.
+
+-------- KEYS --------
+<real key="count" name="count">Sets checkpoint number, this is necessary if the map got checkpoints or the goalpost won't trigger</real>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+-------- FLAGS --------
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+<group name="trigger_warpzone_position" color="1 0 1">
+
+Keys:
+<real key="angles" name="angles">orientation of the warpzone</real>
+<real key="origin" name="origin">Origin of the warpzone</real>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+Flags:
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</group>
+
+<group name="trigger_warpzone" color="1 0 1">
+
+Keys:
+<real key="angles" name="angles">orientation of the warpzone</real>
+<target key="target" name="Target">Pointing to an identical warp zone at another place in the map, with another killtarget to designate its orientation</target>
+<target key="killtarget" name="PointTarget">Pointing to a target_position with a direction arrow that points AWAY from the warp zone, and that is inside the warp zone trigger</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+Flags:
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+</group>
+
+<group name="trigger_gravity" color="0 .5 .8">
+This is an invisible area like a trigger, which sets the gravity of an entity.
+
+-------- KEYS --------
+<real key="grav" name="grav">Which gravity to give the entity, default is 800.</real>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+-------- FLAGS --------
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+<group name="trigger_activate" color="0.5 0.0 0.5">
+Variable sized trigger that sets the active flag on other triggers.
+It can contain targets, delays, and messages.
+
+Keys:
+<real key="delay" name="Delay">delay before firing (after being triggered)</real>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<string key="message" name="Message">displayed when fired</string>
+
+Flags:
+<flag key="NOTOUCH" name="No Touch" bit="0">only triggered by other entities, not by touching</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+<flag key="MON_ACTIVE" name="Monster Activate" bit="13">Only activated by a monster.</flag>
+</group>
+
+<group name="trigger_deactivate" color="0.5 0.0 0.5">
+Variable sized trigger that sets the active flag on other triggers.
+It can contain targets, delays, and messages.
+
+Keys:
+<real key="delay" name="Delay">delay before firing (after being triggered)</real>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<string key="message" name="Message">displayed when fired</string>
+
+Flags:
+<flag key="NOTOUCH" name="No Touch" bit="0">only triggered by other entities, not by touching</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+<flag key="MON_ACTIVE" name="Monster Activate" bit="13">Only activated by a monster.</flag>
+</group>
+
+<group name="trigger_switchactive" color="0.5 0.0 0.5">
+Variable sized trigger that sets the active flag on other triggers.
+It can contain targets, delays, and messages.
+Depending on if the active flag is set TRUE or FALSE, it will flip the flag.
+
+Keys:
+<real key="delay" name="Delay">delay before firing (after being triggered)</real>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<string key="message" name="Message">displayed when fired</string>
+
+Flags:
+<flag key="NOTOUCH" name="No Touch" bit="0">only triggered by other entities, not by touching</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+<group name="trigger_frame" color="0 .5 .8">
+This is an invisible area like a trigger, which sets animation frame of a target_animation.
+
+-------- KEYS --------
+<real key="count" name="count">Sets checkpoint number, this is necessary if the map got checkpoints or the goalpost won't trigger</real>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+-------- FLAGS --------
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+<group name="trigger_ladder" color="0.5 0.0 0.5" box="-8 -8 -8 8 8 8">
+Acts as a zero g space.
+
+Keys:
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+Flags:
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+<flag key="M_ONLY" name="Monsters Only" bit="13">Only monsters can activate.</flag>
+</group>
+
+<group name="trigger_once" color="0.5 0.0 0.5">
+Variable sized trigger.
+Triggers once then becomes inactive.
+Must be targeted at one or more other entities.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<boolean key="health" name="Shootable">can be shot to activate</boolean>
+<angle key="angle" name="Facing Direction">if set, the trigger will only fire when someone is facing the direction of the angle, use "360" for angle 0.</angle>
+<string key="message" name="Message">message text</string>
+<real key="delay" name="Delay">delay before firing (after being triggered)</real>
+
+Flags:
+<flag key="NOTOUCH" name="No Touch" bit="0">only triggered by other entities, not by touching</flag>
+<flag key="YELLOW_KEY" name="Yellow Key" bit="3"/>
+<flag key="BLUE_KEY" name="Blue Key" bit="4"/>
+<flag key="RED_KEY" name="Red Key" bit="5"/>
+<flag key="ALL_KEY" name="3 Key Door" bit="6"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+<flag key="MON_ACTIVE" name="Monster Activate" bit="13">Only activated by a monster.</flag>
+<flag key="NOMON_ACTIVE" name="No Monster Activate" bit="14">Only spawn if nomonsters is set.</flag>
+</group>
+
+<group name="trigger_multiple" color="0.5 0.0 0.5">
+Variable sized repeatable trigger.
+Must be targeted at one or more entities.
+
+Flags:
+<flag key="NOTOUCH" name="No Touch" bit="0">only triggered by other entities, not by touching</flag>
+<flag key="YELLOW_KEY" name="Yellow Key" bit="3"/>
+<flag key="BLUE_KEY" name="Blue Key" bit="4"/>
+<flag key="RED_KEY" name="Red Key" bit="5"/>
+<flag key="ALL_KEY" name="3 Key Door" bit="6"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+<flag key="MON_ACTIVE" name="Monster Activate" bit="13">Only activated by a monster.</flag>
+<flag key="NOMON_ACTIVE" name="No Monsters" bit="14">Only spawn if No monsters mode is on.</flag>
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<boolean key="health" name="Shootable">activated by shooting</boolean>
+<angle key="angle" name="Facing Direction">the trigger will only fire when someone is facing the direction of the angle, use "360" for angle 0.</angle>
+<string key="message" name="Message">message text</string>
+<real key="delay" name="Delay">delay before firing (after being triggered)</real>
+<real key="wait" name="Repeat Delay">delay between triggerings, default is 0.2</real>
+</group>
+
+
+<point name="trigger_relay" color="0.5 0.0 0.5" box="-8 -8 -8 8 8 8">
+This fixed size trigger cannot be touched, it can only be fired by other events.
+It can contain killtargets, targets, delays, and messages.
+
+Keys:
+<real key="delay" name="Delay">delay before firing (after being triggered)</real>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<boolean key="killtarget" name="Remove Target">removes target</boolean>
+<string key="message" name="Message">displayed when fired</string>
+
+Flags:
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</point>
+
+
+<group name="trigger_secret" color=".5 .5 .5">
+Variable sized secret trigger. Can target one or more entities.
+Basically, it's a trigger_once which counts of the number of secrets on the map.
+
+-------- NOTES --------
+You should create a common/trigger textured brush covering the entrance to a secret room/area.
+Trigger secret can only be trigger by a player's touch and can not be a target itself.
+
+-------- KEYS --------
+<sound key="noise" name="noise">path to sound file, if you want to play something else</sound>
+<target key="target" name="target">trigger all entities with this targetname when triggered</target>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<string key="message" name="message">print this message to the player who activated the trigger instead of the standard 'You found a secret!'</string>
+<target key="killtarget" name="killtarget">remove all entities with this targetname when triggered</target>
+
+-------- Flags --------
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+<point name="trigger_counter" color="0.5 0.0 0.5" box="-8 -8 -8 8 8 8">
+Acts as an intermediary for an action that takes multiple inputs.
+If nomessage is not set, it will print "1 more.. " etc. when triggered and "sequence complete" when finished.
+After the counter has been triggered "count" times, it will fire all of its targets and become inactive.
+
+Keys:
+<integer key="count" name="Count">number of triggers needed to fire, default is 2</integer>
+<target key="target" name="Target">target entity</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+
+
+-------- Flags --------
+<flag key="NOMESSAGE" name="No Message" bit="0">disables count display</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+<flag key="NOMON_ACTIVE" name="No Monsters" bit="14">Disable counter if No monsters mode is on.</flag>
+</point>
+
+
+<group name="trigger_teleport" color="0.5 0.0 0.5">
+Touching this will teleport a player or monster to the target entity
+(which is usually an info_teleport_destination).
+
+Keys:
+<target key="target" name="Target">name of info_teleport_destination</target>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+Flags:
+<flag key="PLAYER_ONLY" name="Player Only" bit="0">only players will teleport</flag>
+<flag key="SILENT" name="Silent" bit="1">silences teleporting</flag>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+<flag key="M_ONLY" name="Monsters Only" bit="13">Only monsters can activate.</flag>
+</group>
+
+
+<group name="trigger_setskill" color="0.5 0.0 0.5">
+Sets skill level to the value of "message".
+Only used on start map.
+
+Keys:
+<integer key="message" name="Skill Level">the skill level (0 to 3).</integer>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+Flags:
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+
+<group name="trigger_hurt" color=".5 .0 .5">
+Any object touching this will be hurt.
+-------- KEYS --------
+<real key="dmg" name="dmg">amount of damage to deal (default is 1000)</real>
+<real key="wait" name="Repeat Delay">delay between triggerings, default is 1.0 seconds</real>
+<string key="message" name="message">obituary message when someone gets killed by this</string>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+-------- FLAGS --------
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+
+<group name="trigger_jump" color="1 .5 0">
+Jump pad.
+Place a target_position where the player should land, and tune the
+height value to get a nice jump path.
+-------- KEYS --------
+<target key="target" name="target">point the player will fly to when using the jump pad (use a target_position here)</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<real key="height" name="height">extra height added to the jump path (default is 50).</real>
+<sound key="noise" name="noise">sound to play when jump pad is used; default is sound/misc/jumppad.wav; you can set it to &quot;&quot; to make the pad silent</sound>
+-------- FLAGS --------
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+<flag key="M_ONLY" name="Monsters Only" bit="13">Only push monsters.</flag>
+</group>
+
+
+<group name="trigger_changelevel" color="0.5 0.5 0.5">
+Loads another map when triggered. Mainly used for single player maps.
+
+Keys:
+<string key="map" name="Next Map">name of next map (e.g. e1m1)</string>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+Flags:
+<flag key="NO_INTERMISSION" name="No Intermission" bit="0"/>
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+<group name="trigger_changemusic" color="0.5 0.5 0.5">
+Tells the client to switch music over to ambient or lead track.
+Default: change to Ambient.
+
+<real key="cnt" name="Repeat">0 is trigger once, 1 is infinite</real>
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+
+Flags:
+<flag key="Change_Lead" name="Change To Lead" bit="0"/>
+<flag key="Silence_Music" name="Silence music" bit="1"/>
+<flag key="Reset_Music" name="Reset music" bit="2"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+<group name="trigger_wind" color="0.5 0.0 0.5">
+Pushes the player (and grenades) and plays a sound.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<direction key="angle" name="Direction">direction of push (-2 is down, -1 up)</direction>
+<real key="speed" name="Speed">speed of push, default is 1000</real>
+<sound key="noise" name="noise">path to sound file, if you want to play something else</sound>
+-------- FLAGS --------
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+
+<group name="trigger_nudge" color="0.5 0.0 0.5">
+Push players (etc) in the direction of the trigger's angle.
+
+Keys:
+<target key="target" name="Target">fires target when triggered</target>
+<targetname key="targetname" name="TargetName">Target name of entity</targetname>
+<target key="attachto" name="AttachTo">target entity to attach itself to</target>
+<angle key="angle" name="Direction">angle to nudge the player</angle>
+<real key="speed" name="Speed">the speed thrown forward. default is 200</real>
+-------- FLAGS --------
+<flag key="NOT_COOP" name="Not Coop" bit="2"/>
+<flag key="NOT_SINGLE" name="Not Single" bit="3"/>
+<flag key="NOT_FFA" name="Not FFA" bit="4"/>
+<flag key="NOT_TDM" name="Not Team" bit="5"/>
+<flag key="NOT_DUEL" name="Not Duel" bit="6"/>
+<flag key="NOT_RACE" name="Not Race" bit="7"/>
+<flag key="NOT_EASY" name="Not Easy" bit="8"/>
+<flag key="NOT_NORMAL" name="Not Hard" bit="9"/>
+<flag key="NOT_HARD" name="Not Normal" bit="10"/>
+<flag key="NOT_DM" name="Not Deathmatch" bit="11"/>
+<flag key="NOT_ACTIVE" name="Not Active" bit="12">Needs to be activated by a trigger_activate before it can be triggered.</flag>
+</group>
+
+
+<point name="_skybox" color="0.0 0.5 0.0" box="-8 -8 -8 8 8 8">
+Target location for a skyportal, only works with Q3BSP
+
+Keys:
+
+<real key="_scale" name="Scale">Scale of skyportal</real>
+<angles key="angles" name="angles">Orientation of skyportal</angles>
+</point>
+
+</classes>

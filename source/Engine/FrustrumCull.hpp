@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "glm.h"
 
@@ -8,7 +8,7 @@ public:
 	Frustum() {}
 
 	// m = ProjectionMatrix * ViewMatrix 
-	Frustum(glm::mat4 m);
+	Frustum(glm::mat4 m, vec3 cameraPos);
 
 	// http://iquilezles.org/www/articles/frustumcorrect/frustumcorrect.htm
 	bool IsBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const;
@@ -39,9 +39,12 @@ private:
 
 	glm::vec4   m_planes[Count];
 	glm::vec3   m_points[8];
+
+	glm::vec3 m_camPos;
+
 };
 
-inline Frustum::Frustum(glm::mat4 m)
+inline Frustum::Frustum(glm::mat4 m, vec3 cameraPos)
 {
 	m = glm::transpose(m);
 	m_planes[Left] = m[3] + m[0];
@@ -50,6 +53,8 @@ inline Frustum::Frustum(glm::mat4 m)
 	m_planes[Top] = m[3] - m[1];
 	m_planes[Near] = m[3] + m[2];
 	m_planes[Far] = m[3] - m[2];
+
+	m_camPos = cameraPos;
 
 	// Normalize the planes for accurate distance calculations.
 	for (int i = 0; i < Count; i++) {
@@ -89,49 +94,46 @@ inline Frustum::Frustum(glm::mat4 m)
 
 inline bool Frustum::IsBoxVisible(const glm::vec3& minp, const glm::vec3& maxp) const
 {
-	// check box outside/inside of frustum
-	for (int i = 0; i < Count; i++)
+	// 1) if camera is *inside* the box, we know it must be at least partially visible
+	if (glm::all(glm::greaterThanEqual(m_camPos, minp)) &&
+		glm::all(glm::lessThanEqual(m_camPos, maxp)))
 	{
-		if ((glm::dot(m_planes[i], glm::vec4(minp.x, minp.y, minp.z, 1.0f)) < 0.0) &&
-			(glm::dot(m_planes[i], glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) < 0.0) &&
-			(glm::dot(m_planes[i], glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) < 0.0) &&
-			(glm::dot(m_planes[i], glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) < 0.0) &&
-			(glm::dot(m_planes[i], glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) < 0.0) &&
-			(glm::dot(m_planes[i], glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) < 0.0) &&
-			(glm::dot(m_planes[i], glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) < 0.0) &&
-			(glm::dot(m_planes[i], glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) < 0.0))
+		return true;
+	}
+
+	// 2) classic frustum‐planes vs. box‐corners test
+	for (int i = 0; i < Count; ++i)
+	{
+		// test all 8 corners
+		if (glm::dot(m_planes[i], glm::vec4(minp.x, minp.y, minp.z, 1.0f)) < 0.0f &&
+			glm::dot(m_planes[i], glm::vec4(maxp.x, minp.y, minp.z, 1.0f)) < 0.0f &&
+			glm::dot(m_planes[i], glm::vec4(minp.x, maxp.y, minp.z, 1.0f)) < 0.0f &&
+			glm::dot(m_planes[i], glm::vec4(maxp.x, maxp.y, minp.z, 1.0f)) < 0.0f &&
+			glm::dot(m_planes[i], glm::vec4(minp.x, minp.y, maxp.z, 1.0f)) < 0.0f &&
+			glm::dot(m_planes[i], glm::vec4(maxp.x, minp.y, maxp.z, 1.0f)) < 0.0f &&
+			glm::dot(m_planes[i], glm::vec4(minp.x, maxp.y, maxp.z, 1.0f)) < 0.0f &&
+			glm::dot(m_planes[i], glm::vec4(maxp.x, maxp.y, maxp.z, 1.0f)) < 0.0f)
 		{
 			return false;
 		}
 	}
-
-	// check frustum outside/inside box
-	int out;
-	out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].x > maxp.x) ? 1 : 0); if (out == 8) return false;
-	out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].x < minp.x) ? 1 : 0); if (out == 8) return false;
-	out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].y > maxp.y) ? 1 : 0); if (out == 8) return false;
-	out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].y < minp.y) ? 1 : 0); if (out == 8) return false;
-	out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].z > maxp.z) ? 1 : 0); if (out == 8) return false;
-	out = 0; for (int i = 0; i < 8; i++) out += ((m_points[i].z < minp.z) ? 1 : 0); if (out == 8) return false;
 
 	return true;
 }
 
 inline bool Frustum::IsSphereVisible(const glm::vec3& center, float radius) const
 {
-	// Check against each plane in the frustum
-	for (int i = 0; i < Count; i++)
+	// 1) if camera is inside the sphere, it’s trivially visible
+	if (glm::distance(m_camPos, center) <= radius)
+		return true;
+
+	// 2) classic plane‐distance test
+	for (int i = 0; i < Count; ++i)
 	{
-		// Calculate the signed distance from the sphere center to the plane.
-		float distance = glm::dot(m_planes[i], glm::vec4(center, 1.0f));
-
-		// If the distance is less than -radius, the sphere is completely outside this plane.
-		if (distance < -radius)
-		{
+		float dist = glm::dot(m_planes[i], glm::vec4(center, 1.0f));
+		if (dist < -radius)
 			return false;
-		}
 	}
-
 	return true;
 }
 

@@ -184,6 +184,7 @@ struct VertexData {
     glm::vec4 BlendWeights = glm::vec4();
     glm::vec3 SmoothNormal = glm::vec3();
     glm::vec4 Color = glm::vec4(1);
+    glm::vec2 ShadowMapCoords = glm::vec4(1);
 
     static VertexDeclaration Declaration() {
         return VertexDeclaration({
@@ -195,7 +196,8 @@ struct VertexData {
             {5, 4, GL_INT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, BlendIndices), 0},
             {6, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, BlendWeights), 0},
             {7, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, SmoothNormal), 0},
-            {8, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, Color), 0}
+            {8, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, Color), 0},
+            { 9, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, ShadowMapCoords), 0 }
             });
     }
 };

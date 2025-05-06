@@ -1,0 +1,98 @@
+// Urban Terror measurement entiteis for Radiant
+// Updated by quak
+// Last Updat: 2022-01-12
+// Includes dumy entiteis that will not be used in the map but can be used to measure certain distances or sizes
+// None of these entities have any effect on the gameplay, but it is probably better to remove them before final compile
+
+
+/*QUAKED measure_perfect_player (0.6 0.4 0.4) (0 0 0) (30.250 30.250 69.375)
+Exact player sizes.
+-------- NOTES --------
+Exact: x=30.250 y=30.250 z=69.375
+Other measure sizes use the closest full unit for height and a slight wider 32x32 for width to make it more consistent.
+Since you should not go under grid size 1!
+*/
+
+/*QUAKED measure_step_up (0.4 0.4 0.6) (0 0 0) (32 32 18)
+Step up height. Max height a player can walk up without needing to jump.
+-------- NOTES --------
+Exact: 18.000
+*/
+
+/*QUAKED measure_player_stand (0.4 0.4 0.6) (0 0 0) (32 32 70)
+Standing player height.
+-------- NOTES --------
+Exact: 69.375
+*/
+
+/*QUAKED measure_player_crouch (0.4 0.4 0.6) (0 0 0) (32 32 49)
+Crouching player height.
+-------- NOTES --------
+Exact: 48.250
+*/
+
+/*QUAKED measure_jump_stationary (0.4 0.4 0.6) (0 0 0) (32 32 118)
+Lowest possible height you can jump under without hitting you head.
+-------- NOTES --------
+Exact: 117.xxx
+*/
+
+/*QUAKED measure_jump_crouch (0.4 0.4 0.6) (0 0 0) (32 32 97)
+Lowest possible height you can crouch-jump under without hitting you head. (Jump and instantly hit crocuh) [Tested with perfect crouch input using scripts]
+-------- NOTES --------
+Exact: 96.xxx
+*/
+
+/*QUAKED measure_jump_up (0.4 0.4 0.6) (0 0 0) (32 32 66)
+Max height you can jump up and land on top of a platform without grabing.
+-------- NOTES --------
+Exact: 66.500
+*/
+
+/*QUAKED measure_jump_grab_max (0.4 0.4 0.6) (0 0 0) (32 32 114)
+Max height you can jump up and grab a ledge, without walljumping on it.
+-------- NOTES --------
+Exact: 114.625
+*/
+
+/*QUAKED measure_jump_grab_max_wj (0.4 0.4 0.6) (0 0 0) (32 32 118)
+Max height you can jumping up and grab a ledge, while walljumping on it.
+-------- NOTES --------
+Exact: 118.750
+*/
+
+/*QUAKED measure_jump_grab_min (0.4 0.4 0.6) (0 0 0) (32 32 61)
+Minimun height you can jump up and grab a ledge.
+-------- NOTES --------
+Exact: 60.375
+*/
+
+/*QUAKED measure_fall_nohurt (0.4 0.4 0.6) (0 0 0) (32 32 200)
+Max fall distance, from where you can drop down with no damage taken.
+-------- NOTES --------
+Exact: 200.125
+*/
+
+/*QUAKED measure_fall_hurt1 (0.4 0.4 0.6) (0 0 0) (32 32 231)
+Max fall distance, from where you can drop down and barely take any damage, resulting in the "Healthy" range. (From full health)
+-------- NOTES --------
+
+*/
+
+/*QUAKED measure_fall_hurt2 (0.4 0.4 0.6) (0 0 0) (32 32 299)
+Max fall distance, from where you can drop down and take enough damage to be in the "Wounded" range. (From full health)
+-------- NOTES --------
+
+*/
+
+/*QUAKED measure_fall_hurt3 (0.4 0.4 0.6) (0 0 0) (32 32 394)
+Max fall distance, from where you can drop down and take enough damage to be in the "Near Death" range, from where they can still heal the bleeding before they bleed to death. (From full health)
+-------- NOTES --------
+
+*/
+
+/*QUAKED measure_fall_death (0.4 0.4 0.6) (0 0 0) (32 32 395)
+A fall from this, or higher, results in death.
+-------- NOTES --------
+Exact: 394.125
+*/

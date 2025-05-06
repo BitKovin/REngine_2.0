@@ -1,4 +1,4 @@
-
+﻿
 #include "Quake3Bsp.h"
 
 #include <algorithm> // std::sort
@@ -7,6 +7,8 @@
 #include <iostream>
 #include <map>
 #include <string>
+
+#include "../DebugDraw.hpp"
 
 #include "../AssetRegisty.h"
 
@@ -228,17 +230,26 @@ void CQuake3BSP::BuildVBO() {
 
 void CQuake3BSP::CreateVBO(int index) {
     tBSPFace* pFace = &m_pFaces[index];
+    auto& vertices = Rbuffers.v_faceVBOs[index]; // Now a vector<VertexData>
 
     for (int v = 0; v < pFace->numOfVerts; v++) {
-        Rbuffers.v_faceVBOs[index].push_back(m_pVerts[pFace->startVertIndex + v].vPosition.x);
-        Rbuffers.v_faceVBOs[index].push_back(m_pVerts[pFace->startVertIndex + v].vPosition.y);
-        Rbuffers.v_faceVBOs[index].push_back(m_pVerts[pFace->startVertIndex + v].vPosition.z);
+        const tBSPVertex& bspVert = m_pVerts[pFace->startVertIndex + v];
+        VertexData vd;
 
-        Rbuffers.v_faceVBOs[index].push_back(m_pVerts[pFace->startVertIndex + v].vTextureCoord.x);
-        Rbuffers.v_faceVBOs[index].push_back(m_pVerts[pFace->startVertIndex + v].vTextureCoord.y);
+        vd.Position = bspVert.vPosition;
+        vd.Normal = bspVert.vNormal;
+        vd.TextureCoordinate = bspVert.vTextureCoord;
+        vd.ShadowMapCoords = bspVert.vLightmapCoord; // Using ShadowMapCoords for lightmap
 
-        Rbuffers.v_faceVBOs[index].push_back(m_pVerts[pFace->startVertIndex + v].vLightmapCoord.x);
-        Rbuffers.v_faceVBOs[index].push_back(m_pVerts[pFace->startVertIndex + v].vLightmapCoord.y);
+        // Convert color from byte[4] to vec4
+        vd.Color = glm::vec4(
+            (float)bspVert.color[0] / 255.0f,
+            (float)bspVert.color[1] / 255.0f,
+            (float)bspVert.color[2] / 255.0f,
+            (float)bspVert.color[3] / 255.0f
+        );
+
+        vertices.push_back(vd);
     }
 }
 
@@ -249,7 +260,7 @@ void CQuake3BSP::CreateIndices(int index) {
         Rbuffers.v_faceIDXs[index].push_back(m_pIndices[j + pFace->startIndex]);
 }
 
-glm::vec3 CQuake3BSP::GetLightvolColor(const glm::vec3& position)
+LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
 {
     // Transform position from Y-up (engine) to Z-up (Quake 3)
     glm::vec3 pos_quake(position.x, -position.z, position.y);
@@ -275,11 +286,6 @@ glm::vec3 CQuake3BSP::GetLightvolColor(const glm::vec3& position)
     ny = glm::clamp(ny, 0, lightVolGridDims.y - 1);
     nz = glm::clamp(nz, 0, lightVolGridDims.z - 1);
 
-    // Debug output
-    printf("Position (engine): %.2f, %.2f, %.2f, (quake): %.2f, %.2f, %.2f\n",
-        position.x, position.y, position.z, pos_quake.x, pos_quake.y, pos_quake.z);
-    printf("Grid dims: %d, %d, %d, Indices: %d, %d, %d\n",
-        lightVolGridDims.x, lightVolGridDims.y, lightVolGridDims.z, nx, ny, nz);
 
     // Get the light volume at this grid cell
     const tBSPLightvol& vol = lightVols[nz * (lightVolGridDims.x * lightVolGridDims.y) +
@@ -298,10 +304,22 @@ glm::vec3 CQuake3BSP::GetLightvolColor(const glm::vec3& position)
         static_cast<float>(vol.directional[2]) / 255.0f
     );
 
-    glm::vec3 result = ambient + directional;
-    printf("Light color: %.2f, %.2f, %.2f\n", result.x, result.y, result.z);
+    // Calculate light direction from phi and theta
+    float phi = ((float)vol.dir[0]) * 2.0f * 3.1415926535f / 255.0f;   // Convert 0-255 to 0-2π
+    float theta = ((float)vol.dir[1]) * 3.1415926535f / 255.0f;        // Convert 0-255 to 0-π
 
-    return result;
+    // Compute direction vector in Z-up (Quake 3)
+    glm::vec3 dir_quake(
+        cos(theta) * sin(phi),
+        sin(theta) * sin(phi),
+        cos(phi)
+    );
+
+    // Transform direction to Y-up: (X, Y, Z) -> (X, Z, -Y)
+    glm::vec3 dir_engine(-dir_quake.x, dir_quake.z, dir_quake.y);
+
+
+    return LightVolPointData{directional, ambient, dir_engine };
 }
 
 int CQuake3BSP::FindCameraCluster(const glm::vec3& cameraPos) {
@@ -344,11 +362,30 @@ bool CQuake3BSP::IsClusterVisible(int sourceCluster, int testCluster)
 
 void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
 {
-    RenderBSP(Camera::finalizedPosition*16.0f);
+    
+    bool first = true;
+    for (auto& model : models)
+    {
+
+        vec3 min = vec3(model.mins[0], model.mins[1], model.mins[2]) / 16.0f;
+        vec3 max = vec3(model.maxs[0], model.maxs[1], model.maxs[2]) / 16.0f;
+
+        if (Camera::frustum.IsBoxVisible(min, max))
+        {
+            RenderBSP(Camera::finalizedPosition * 16.0f, model, first, first);
+        }
+
+        auto light = GetLightvolColor(Camera::finalizedPosition * 16.0f);
+        printf("light : %f, %f, %f \n", light.direction.x, light.direction.y, light.direction.z);
+
+        DebugDraw::Line(Camera::finalizedPosition + vec3(1,0,0), Camera::finalizedPosition + vec3(1, 0, 0) + light.direction, 0.01f);
+
+        first = false;
+    }
 
 }
 
-void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos)
+void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool useClusterVis, bool lightmap)
 {
     // 1. Find camera's cluster via BSP tree traversal
     int cameraCluster = FindCameraCluster(cameraPos);
@@ -358,28 +395,62 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos)
     ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", "bsp");
     shader->UseProgram();
 
-    // 2. Iterate through all leaves
-    for (const tBSPLeaf& leaf : leafs) {
-        if (leaf.cluster < 0) 
-            continue; // Skip invalid clusters
 
-        // 3. Check visibility using visdata
-        if (!IsClusterVisible(cameraCluster, leaf.cluster)) 
-            continue;
+	LightVolPointData lightData = { vec3(0),vec3(1) ,vec3(0) };
 
-        // 4. Render visible leaf's faces
-        for (int i = 0; i < leaf.n_leaffaces; i++) {
-            int faceIndex = leafFaces[leaf.leafface + i];
-            RenderSingleFace(faceIndex, shader);
-            
-            drawnFaces++;
+    if (lightmap == false)
+    {
+
+        vec3 min = vec3(model.mins[0], model.mins[1], model.mins[2]);
+        vec3 max = vec3(model.maxs[0], model.maxs[1], model.maxs[2]);
+
+		lightData = GetLightvolColor((min + max) / 2.0f);
+
+    }
+
+	if (useClusterVis)
+	{
+
+		// 2. Iterate through all leaves
+		for (const tBSPLeaf& leaf : leafs) {
+			if (leaf.cluster < 0)
+				continue; // Skip invalid clusters
+
+			// 3. Check visibility using visdata
+			if (!IsClusterVisible(cameraCluster, leaf.cluster))
+				continue;
+
+			// 4. Render visible leaf's faces
+			for (int i = 0; i < leaf.n_leaffaces; i++)
+			{
+
+				int faceIndex = leafFaces[leaf.leafface + i];
+
+				if (model.face <= faceIndex && faceIndex < model.face + model.n_faces)
+				{
+					RenderSingleFace(faceIndex, shader, lightmap, lightData);
+
+					drawnFaces++;
+				}
+			}
+		}
+
+    }
+    else
+    {
+		for (int i = model.face; i < model.face + model.n_faces; i++)
+		{
+
+			RenderSingleFace(i, shader, lightmap, lightData);
+
+			drawnFaces++;
+
         }
     }
 
-    printf("drawn %i faces\n", drawnFaces);
 
-    vec3 light = GetLightvolColor(cameraPos);
-    printf("light : %f, %f, %f \n", light.x, light.y, light.z);
+
+    printf("drawn %i faces\n", drawnFaces);
 
 }
 
@@ -398,56 +469,31 @@ void CQuake3BSP::BSPDebug(int index) {
     printf("EndFace.\n");
 }
 
-void CQuake3BSP::CreateRenderBuffers(int index)
-{
-    // 1) generate & bind a VAO for this face, store it
-    glGenVertexArrays(1, &FB_array.FB_Idx[index].VAO);
-    glBindVertexArray(FB_array.FB_Idx[index].VAO);
+void CQuake3BSP::CreateRenderBuffers(int index) {
+    auto& vertices = Rbuffers.v_faceVBOs[index];
+    auto& indices = Rbuffers.v_faceIDXs[index];
 
-    // 2) upload your vertex data into a VBO
-    glGenBuffers(1, &FB_array.FB_Idx[index].VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, FB_array.FB_Idx[index].VBO);
-    glBufferData(GL_ARRAY_BUFFER,
-        sizeof(GLfloat) * Rbuffers.v_faceVBOs[index].size(),
-        Rbuffers.v_faceVBOs[index].data(),
-        GL_STATIC_DRAW);
+    // Create buffers
+    FB_array.FB_Idx[index].VBO = std::make_unique<VertexBuffer>(
+        vertices, VertexData::Declaration()
+    );
+    FB_array.FB_Idx[index].EBO = std::make_unique<IndexBuffer>(indices);
 
-    // 3) upload your index data into an EBO
-    glGenBuffers(1, &FB_array.FB_Idx[index].EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, FB_array.FB_Idx[index].EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-        sizeof(int) * Rbuffers.v_faceIDXs[index].size(),
-        Rbuffers.v_faceIDXs[index].data(),
-        GL_STATIC_DRAW);
-
-    // 4) set up your attribute pointers once and for all
-    //    each vertex: [ x y z | u v | lm_u lm_v ] = 3+2+2 = 7 floats
-    glEnableVertexAttribArray(0); // pos
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-        7 * sizeof(GLfloat), (void*)(0));
-
-    glEnableVertexAttribArray(1); // texture coords
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
-        7 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-
-    glEnableVertexAttribArray(2); // lightmap coords
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-        7 * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat)));
-
-    // 5) unbind VAO to lock in state
-    glBindVertexArray(0);
-
-    // optional: unbind VBO/EBO to keep clean
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // Create VAO linking them
+    FB_array.FB_Idx[index].VAO = std::make_unique<VertexArrayObject>(
+        *FB_array.FB_Idx[index].VBO,
+        *FB_array.FB_Idx[index].EBO
+    );
 }
 
-void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader)
+void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightmap, LightVolPointData lightData)
 {
 
 
     // bind the face's VAO (which has its VBO/EBO & attribs)
-    glBindVertexArray(FB_array.FB_Idx[index].VAO);
+    auto& buffers = FB_array.FB_Idx[index];
+
+    buffers.VAO->Bind();
 
     // bind your textures as before
     tBSPFace* pFace = &m_pFaces[index];
@@ -455,6 +501,15 @@ void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader)
     GLuint lightmapId = (pFace->lightmapID >= 0)
         ? m_lightmap_gen_IDs[pFace->lightmapID]
         : missing_LM_id;
+
+    if (lightmap == false)
+    {
+        lightmapId = missing_LM_id;
+    }
+
+    shader->SetUniform("light_color", lightData.ambientColor);
+    shader->SetUniform("direct_light_color", lightData.directColor);
+    shader->SetUniform("direct_light_dir", lightData.direction);
 
     shader->SetTexture("s_bspTexture", faceTexture);
     shader->SetTexture("s_bspLightmap", lightmapId);
@@ -478,8 +533,7 @@ void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader)
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    // unbind for cleanliness
-    glBindVertexArray(0);
+    VertexArrayObject::Unbind();
 }
 
 void CQuake3BSP::GenerateTexture() 
@@ -542,5 +596,5 @@ void CQuake3BSP::GenerateLightmap() {
 
 void CQuake3BSP::renderFaces() {
     for (auto& f : Rbuffers.v_faceVBOs)
-        RenderSingleFace(f.first, nullptr);
+        RenderSingleFace(f.first, nullptr, true, LightVolPointData());
 }
