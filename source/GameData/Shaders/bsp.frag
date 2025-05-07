@@ -18,7 +18,7 @@ out vec4 FragColor;
 void main()
 {
     vec4 o_texture  = texture(s_bspTexture,  g_TexCoord);
-    o_texture = vec4(1);
+
     vec4 o_lightmap = texture(s_bspLightmap, g_LmapCoord) * vec4(light_color, 1);
 
     vec3 normal = normalize(g_normal);

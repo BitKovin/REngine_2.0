@@ -29,9 +29,7 @@
   patchtypes="quake3"
   default_scale="0.5"
   q3map2_type="quake3"
-  no_patch="0"
-  common_shaders_name="Common"
-  common_shaders_dir="common/"
+  no_patch="0" 
   no_bsp_monitor="0"
-  shader_trigger = "textures/common/trigger"
+
 />

@@ -12,7 +12,7 @@ public:
 
 	void Start()
 	{
-		Level::OpenLevel("GameData/Maps/test.bsp");
+		Level::OpenLevel("GameData/maps/test.bsp");
 
         for (size_t i = 0; i < 00; i++)
         {

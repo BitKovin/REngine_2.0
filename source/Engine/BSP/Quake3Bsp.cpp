@@ -21,6 +21,12 @@
 #include "../LevelObjectFactory.h"
 #include "../Level.hpp"
 
+#if __EMSCRIPTEN__
+
+#define strcpy_s strcpy
+#define strcat_s strcat
+
+#endif
 
 CQuake3BSP::CQuake3BSP() {
     m_numOfVerts = 0;
@@ -36,10 +42,18 @@ CQuake3BSP::CQuake3BSP() {
     m_pIndices = NULL;
 }
 
-CQuake3BSP::~CQuake3BSP()
-{
+CQuake3BSP::~CQuake3BSP() {
+    delete[] m_pVerts;
+    delete[] m_pFaces;
+    delete[] m_pIndices;
     delete[] pTextures;
     delete[] pLightmaps;
+    if (m_lightmap_gen_IDs) {
+        glDeleteTextures(m_numOfLightmaps, m_lightmap_gen_IDs);
+        delete[] m_lightmap_gen_IDs;
+    }
+
+    glDeleteTextures(1, &missing_LM_id);
 }
 
 bool CQuake3BSP::LoadBSP(const char* filename) {
@@ -49,7 +63,17 @@ bool CQuake3BSP::LoadBSP(const char* filename) {
     }
 
     FILE* fp = NULL;
+    
+#if __EMSCRIPTEN__
+
+    fp = fopen(filename, "rb");
+
+#else
+
     fopen_s(&fp, filename, "rb");
+
+#endif
+
     if (fp == NULL) {
         printf("ERROR:: cannot open BSP file: %s\n", filename);
         return 0;
@@ -203,11 +227,11 @@ bool CQuake3BSP::LoadBSP(const char* filename) {
     for (int i = 0; i < m_numOfTextures; i++) {
         strcpy_s(tname[i], pTextures[i].strName);
         strcat_s(tname[i], ".jpg");
-        printf("loading: %s \n", tname[i]);
+        //printf("loading: %s \n", tname[i]);
     }
 
     m_numOfLightmaps = lumps[kLightmaps].length / sizeof(tBSPLightmap);
-    tBSPLightmap* pLightmaps = new tBSPLightmap[m_numOfLightmaps];
+    pLightmaps = new tBSPLightmap[m_numOfLightmaps];
     fseek(fp, lumps[kLightmaps].offset, SEEK_SET);
 
     for (int i = 0; i < m_numOfLightmaps; i++) {
@@ -474,7 +498,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
 
 
 
-    printf("drawn %i faces\n", drawnFaces);
+    //printf("drawn %i faces\n", drawnFaces);
 
 }
 
@@ -572,11 +596,11 @@ void CQuake3BSP::BSPDebug(int index) {
     printf("\n");
     printf("Face:----> %d\n", index);
 
-    for (unsigned int x = 0; x < Rbuffers.v_faceVBOs[index].size(); x++)
-        printf(">- %f\n", Rbuffers.v_faceVBOs[index][x]);
+    //for (unsigned int x = 0; x < Rbuffers.v_faceVBOs[index].size(); x++)
+        //printf(">- %f\n", Rbuffers.v_faceVBOs[index][x]);
 
-    for (unsigned int x = 0; x < Rbuffers.v_faceIDXs[index].size(); x++)
-        printf("%d-\n", Rbuffers.v_faceIDXs[index][x]);
+    //for (unsigned int x = 0; x < Rbuffers.v_faceIDXs[index].size(); x++)
+        //printf("%d-\n", Rbuffers.v_faceIDXs[index][x]);
 
     //printf("VBuffer size=%lu(bytes)\n", sizeof(GLfloat) * Rbuffers.v_faceVBOs[index].size());
     //printf("IBuffer size=%lu(bytes)\n", sizeof(GLuint) * Rbuffers.v_faceIDXs[index].size());
@@ -610,7 +634,10 @@ void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
 
     // bind your textures as before
     tBSPFace* pFace = &m_pFaces[index];
-    Texture* faceTexture = AssetRegistry::GetTextureFromFile("GameData/Textures/brushes/cat.png");
+
+	string texturePath = "GameData/" + string(pTextures[pFace->textureID].strName) + ".png";
+
+    Texture* faceTexture = AssetRegistry::GetTextureFromFile(texturePath);
     GLuint lightmapId = (pFace->lightmapID >= 0)
         ? m_lightmap_gen_IDs[pFace->lightmapID]
         : missing_LM_id;

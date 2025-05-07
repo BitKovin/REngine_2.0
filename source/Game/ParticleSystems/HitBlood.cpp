@@ -10,7 +10,7 @@ public:
 		Duration = 10000000;
 		InitialSpawnCount = 0;
 		SpawnRate = 0;	
-        texture = "GameData/Textures/Particles/smoke.png";
+        texture = "GameData/textures/particles/smoke.png";
 
         Transparent = true;
 
@@ -85,7 +85,7 @@ class particle_hitBloodDrips : public ParticleEmitter
 public:
     particle_hitBloodDrips()
     {
-        texture = "GameData/Textures/Particles/blood.png";
+        texture = "GameData/textures/particles/blood.png";
         InitialSpawnCount = 0;
         SpawnRate = 0;
         Emitting = true;
@@ -126,7 +126,7 @@ public:
 
     particle_hitBloodPieces()
     {
-        texture = "GameData/Textures/Particles/blood.png";
+        texture = "GameData/textures/particles/blood.png";
         InitialSpawnCount = 0;
         SpawnRate = 0;
         Emitting = true;

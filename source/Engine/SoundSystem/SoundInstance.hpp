@@ -69,6 +69,7 @@ public:
         if (!_active) return;
 
         if (_source) {
+            UpdateSourceParams();
             ALint state;
             alGetSourcei(_source, AL_SOURCE_STATE, &state);
             if (state == AL_STOPPED) {

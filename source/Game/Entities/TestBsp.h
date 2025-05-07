@@ -21,7 +21,7 @@ private:
 TestBsp::TestBsp()
 {
 	bsp = new CQuake3BSP();
-	bsp->LoadBSP("GameData/Maps/test.bsp");
+	bsp->LoadBSP("GameData/maps/test.bsp");
 	bsp->BuildVBO();
 	bsp->GenerateTexture();
 	bsp->GenerateLightmap();

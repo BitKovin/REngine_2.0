@@ -18,7 +18,7 @@ void SoundPlayer::SetSound(shared_ptr<SoundInstance> sound)
 
 void SoundPlayer::LateUpdate()
 {
-	if (Sound.get())
+	if (Sound)
 	{
 
 		Sound->Position = Position;

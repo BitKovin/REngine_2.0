@@ -78,7 +78,7 @@
 <epair name="FixedSize">true</epair>
 <epair name="GUITheme">1</epair>
 <epair name="GameMode"></epair>
-<epair name="GameName">baseq3</epair>
+<epair name="GameName">base</epair>
 <epair name="GridDefault">7</epair>
 <epair name="GridMaxCoordPower">4</epair>
 <epair name="HideNonShadersInCommon">true</epair>

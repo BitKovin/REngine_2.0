@@ -422,8 +422,8 @@ void Player::ToggleBike()
 
 void Player::LoadAssets()
 {
-    bikeMesh->LoadFromFile("GameData/Models/Player/Bike/bike.glb");
-    bikeMesh->TexturesLocation = "GameData/Models/Player/Bike/Textures/";
+    bikeMesh->LoadFromFile("GameData/models/player/bike/bike.glb");
+    bikeMesh->TexturesLocation = "GameData/models/player/bike/textures/";
     bikeMesh->PreloadAssets();
     bikeMesh->PlayAnimation("hide",true);
 

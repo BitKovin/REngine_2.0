@@ -183,7 +183,7 @@ public:
 
 		soundPlayer = new SoundPlayer();
 		Level::Current->AddEntity(soundPlayer);
-		soundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/Sounds/mew.wav");
+		soundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/sounds/mew.wav");
 
 		Hud.Init(this);
 

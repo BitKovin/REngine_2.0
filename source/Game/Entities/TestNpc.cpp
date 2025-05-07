@@ -389,11 +389,11 @@ void TestNpc::LoadAssets()
 	mesh->SetLooped(true);
 	mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
-	SET_SOUND_SAFE(DeathSoundPlayer, SoundManager::GetSoundFromPath("GameData/Sounds/Dog/dog_death.wav"));
-	SET_SOUND_SAFE(HurtSoundPlayer, SoundManager::GetSoundFromPath("GameData/Sounds/Dog/dog_hit.wav"));
-	SET_SOUND_SAFE(StunSoundPlayer, SoundManager::GetSoundFromPath("GameData/Sounds/Dog/dog_stun.wav"));
-	SET_SOUND_SAFE(AttackSoundPlayer, SoundManager::GetSoundFromPath("GameData/Sounds/Dog/dog_attack_start.wav"));
-	SET_SOUND_SAFE(AttackHitSoundPlayer, SoundManager::GetSoundFromPath("GameData/Sounds/Dog/dog_attack.wav"));
+	SET_SOUND_SAFE(DeathSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_death.wav"));
+	SET_SOUND_SAFE(HurtSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_hit.wav"));
+	SET_SOUND_SAFE(StunSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_stun.wav"));
+	SET_SOUND_SAFE(AttackSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_attack_start.wav"));
+	SET_SOUND_SAFE(AttackHitSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_attack.wav"));
 
 }
 
