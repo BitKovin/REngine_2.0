@@ -136,9 +136,9 @@ RefConst<Shape> Physics::CreateMeshShape(const std::vector<vec3>& vertices, cons
 	for (size_t i = 0; i < indices.size(); i += 3)
 	{
 		IndexedTriangle tri;
-		tri.mIdx[0] = indices[i + 2];     // First vertex index of the triangle
+		tri.mIdx[0] = indices[i + 0];     // First vertex index of the triangle
 		tri.mIdx[1] = indices[i + 1]; // Second vertex index
-		tri.mIdx[2] = indices[i + 0]; // Third vertex index
+		tri.mIdx[2] = indices[i + 2]; // Third vertex index
 		joltTriangles.push_back(tri);
 	}
 

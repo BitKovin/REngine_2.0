@@ -386,42 +386,32 @@ default
 
 63 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/brushes/__TB_empty
-	entity 7
-	castShadows 0
-	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+	shader textures/NULL
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 64 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/brushes/__TB_empty
-	entity 7
-	castShadows 0
-	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+	shader textures/NULL
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 65 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/brushes/__TB_empty
-	entity 7
-	castShadows 0
-	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+	shader textures/NULL
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 66 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/brushes/__TB_empty
-	entity 7
-	castShadows 0
-	lightmapAxis ( 1.000000 0.000000 0.000000 )
+	shader textures/NULL
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 67 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/brushes/__TB_empty
-	entity 7
-	castShadows 0
-	lightmapAxis ( 0.000000 0.000000 1.000000 )
+	shader textures/NULL
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
 68 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -429,47 +419,47 @@ default
 	shader textures/brushes/__TB_empty
 	entity 7
 	castShadows 0
-	lightmapAxis ( 0.000000 1.000000 0.000000 )
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 69 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/brushes/__TB_empty
-	entity 8
+	entity 7
 	castShadows 0
-	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
 70 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/brushes/__TB_empty
-	entity 8
+	entity 7
 	castShadows 0
-	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 71 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/brushes/__TB_empty
-	entity 8
+	entity 7
 	castShadows 0
-	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
 72 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/brushes/__TB_empty
-	entity 8
+	entity 7
 	castShadows 0
-	lightmapAxis ( 1.000000 0.000000 0.000000 )
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 73 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/brushes/__TB_empty
-	entity 8
+	entity 7
 	castShadows 0
-	lightmapAxis ( 0.000000 0.000000 1.000000 )
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 74 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -477,10 +467,50 @@ default
 	shader textures/brushes/__TB_empty
 	entity 8
 	castShadows 0
-	lightmapAxis ( 0.000000 1.000000 0.000000 )
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 75 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/brushes/__TB_empty
+	entity 8
+	castShadows 0
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+}
+
+76 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/brushes/__TB_empty
+	entity 8
+	castShadows 0
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+}
+
+77 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/brushes/__TB_empty
+	entity 8
+	castShadows 0
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
+}
+
+78 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/brushes/__TB_empty
+	entity 8
+	castShadows 0
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
+}
+
+79 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/brushes/__TB_empty
+	entity 8
+	castShadows 0
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
+}
+
+80 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/brushes/trigger_t
 	entity 14
@@ -488,7 +518,7 @@ default
 	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
-76 // ESurfaceType::Meta V: 4 I: 6 planar
+81 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/brushes/trigger_t
 	entity 14
@@ -496,7 +526,7 @@ default
 	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
-77 // ESurfaceType::Meta V: 4 I: 6 planar
+82 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/brushes/trigger_t
 	entity 14
@@ -504,7 +534,7 @@ default
 	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
-78 // ESurfaceType::Meta V: 4 I: 6 planar
+83 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/brushes/trigger_t
 	entity 14
@@ -512,7 +542,7 @@ default
 	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
-79 // ESurfaceType::Meta V: 4 I: 6 planar
+84 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/brushes/trigger_t
 	entity 14
@@ -520,7 +550,7 @@ default
 	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
-80 // ESurfaceType::Meta V: 4 I: 6 planar
+85 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/brushes/trigger_t
 	entity 14

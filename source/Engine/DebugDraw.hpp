@@ -125,6 +125,7 @@ public:
         }
     }
 
+    static void IndexedMesh(vector<vec3> vertices, vector<uint32_t> indices, float duration = 10.0f, float thickness = 0.02f);
     // This method is called to produce a snapshot for the render thread. It:
     // 1. Removes expired commands from 'commands'
     // 2. Copies pointers to the remaining commands into 'finalizedCommands'

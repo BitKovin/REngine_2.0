@@ -98,7 +98,7 @@ public:
 	{
 		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 
-		vector<MeshUtils::PositionVerticesIndices> meshes;
+		 vector<MeshUtils::PositionVerticesIndices> meshes;
 
 		for (auto obj : LevelObjects)
 		{
@@ -109,6 +109,7 @@ public:
 				if (mesh->StaticNavigation == false) continue;
 
 				auto obstacles = mesh->GetNavObstacleMeshes();
+
 
 				meshes.insert(meshes.end(), obstacles.begin(), obstacles.end());
 

@@ -89,15 +89,17 @@ void NavigationSystem::DestroyNavData()
 
 void NavigationSystem::GenerateNavData() 
 {
-    DestroyNavData();
+    DestroyNavData(); 
 
-    auto mesh = Level::Current->GetStaticNavObstaclesMesh();
+    auto mesh = MeshUtils::RemoveDegenerates(Level::Current->GetStaticNavObstaclesMesh(),0.01f,0.01f);
 
     std::lock_guard<std::recursive_mutex> lock(mainLock);
 
     // Define sample geometry: a flat square
     std::vector<glm::vec3> vertices = mesh.vertices;
     std::vector<uint32_t> indices = mesh.indices;
+
+    //DebugDraw::IndexedMesh(vertices, indices, 200);
 
     if (vertices.size() < 3) return;
 

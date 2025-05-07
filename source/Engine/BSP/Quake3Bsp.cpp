@@ -654,9 +654,8 @@ void CQuake3BSP::GenerateTexture()
 void CQuake3BSP::GenerateLightmap() {
     // GLfloat aniso = 8.0f;
 
-    std::ofstream logfile;
-    logfile.open("log.txt");
-    logfile << "LOG::\n\n";
+
+
 
     // generate missing lightmap
     GLfloat white_lightmap[] =
@@ -676,8 +675,7 @@ void CQuake3BSP::GenerateLightmap() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    logfile << "lm START ID: " << missing_LM_id << "\n";
-    logfile << "--------------\n";
+
 
 
     // generate lightmaps
@@ -698,9 +696,6 @@ void CQuake3BSP::GenerateLightmap() {
         glGenerateMipmap(GL_TEXTURE_2D);
     }
 
-    logfile << "m_numOfLightmaps " << m_numOfLightmaps;
-
-    logfile.close();
 }
 
 void CQuake3BSP::renderFaces() {
@@ -717,7 +712,6 @@ vector<MeshUtils::PositionVerticesIndices> BSPModelRef::GetNavObstacleMeshes()
 {
     vector<MeshUtils::PositionVerticesIndices> result;
 
-
     mat3 world = GetWorldMatrix();
 
 
@@ -733,88 +727,42 @@ vector<MeshUtils::PositionVerticesIndices> BSPModelRef::GetNavObstacleMeshes()
 		meshData.vertices.push_back(vertex.Position / MAP_SCALE);
     }
 
+    meshData = MeshUtils::RemoveDegenerates(meshData, 0.01f, 0.01f);
+
+    //DebugDraw::IndexedMesh(meshData.vertices, meshData.indices, 100);
+
     result.push_back(meshData);
 
     return result;
 }
 
 std::vector<VertexData> BSPModelRef::GetVertices() {
-    std::vector<VertexData> vertices;
-    if (!bsp || id < 0 || id >= bsp->models.size()) {
-        return vertices;
+    std::vector<VertexData> result;
+    // Iterate over all faces of the model
+    for (int i = model.face; i < model.face + model.n_faces; i++) {
+        // Get the vertex array for face i
+        auto& faceVertices = bsp->Rbuffers.v_faceVBOs[i];
+        // Append all vertices from this face to the result
+        result.insert(result.end(), faceVertices.begin(), faceVertices.end());
     }
-
-    const tBSPModel& model = bsp->models[id];
-    for (int i = 0; i < model.n_faces; ++i) {
-        int faceIndex = model.face + i;
-        if (faceIndex < 0 || faceIndex >= bsp->m_numOfFaces) {
-            continue;
-        }
-
-        const tBSPFace& face = bsp->m_pFaces[faceIndex];
-        for (int v = 0; v < face.numOfVerts; ++v) {
-            int vertexIndex = face.startVertIndex + v;
-            if (vertexIndex < 0 || vertexIndex >= bsp->m_numOfVerts) {
-                continue;
-            }
-
-            const tBSPVertex& bspVert = bsp->m_pVerts[vertexIndex];
-            VertexData vd;
-
-            // Convert tBSPVertex to VertexData
-            vd.Position = bspVert.vPosition;
-            vd.Normal = bspVert.vNormal;
-            vd.TextureCoordinate = bspVert.vTextureCoord;
-            vd.ShadowMapCoords = bspVert.vLightmapCoord;
-
-            // Convert color from byte[4] to vec4 (normalized)
-            vd.Color = glm::vec4(
-                static_cast<float>(bspVert.color[0]) / 255.0f,
-                static_cast<float>(bspVert.color[1]) / 255.0f,
-                static_cast<float>(bspVert.color[2]) / 255.0f,
-                static_cast<float>(bspVert.color[3]) / 255.0f
-            );
-
-            vertices.push_back(vd);
-        }
-    }
-
-    return vertices;
+    return result;
 }
 
 std::vector<uint32_t> BSPModelRef::GetIndices() {
-    std::vector<uint32_t> indices;
-    if (!bsp || id < 0 || id >= bsp->models.size()) {
-        return indices;
-    }
-
-    const tBSPModel& model = bsp->models[id];
-    uint32_t vertexOffset = 0; // Tracks the starting index of each face's vertices in the combined list
-
-    for (int i = 0; i < model.n_faces; ++i) {
-        int faceIndex = model.face + i;
-        if (faceIndex < 0 || faceIndex >= bsp->m_numOfFaces) {
-            continue;
+    std::vector<uint32_t> result;
+    uint32_t vertexOffset = 0; // Tracks the number of vertices before the current face
+    // Iterate over all faces of the model
+    for (int i = model.face; i < model.face + model.n_faces; i++) {
+        // Get the index array for face i
+        auto& faceIndices = bsp->Rbuffers.v_faceIDXs[i];
+        // Add each index, adjusted by the current offset
+        for (auto idx : faceIndices) {
+            result.push_back(static_cast<uint32_t>(idx) + vertexOffset);
         }
-
-        const tBSPFace& face = bsp->m_pFaces[faceIndex];
-
-        // Add indices for this face, adjusting by current vertexOffset
-        for (int j = 0; j < face.numOfIndices; ++j) {
-            int meshVertIndex = face.startIndex + j;
-            if (meshVertIndex < 0 || meshVertIndex >= bsp->m_numOfIndices) {
-                continue;
-            }
-
-            uint32_t meshVertOffset = bsp->m_pIndices[meshVertIndex];
-            indices.push_back(vertexOffset + meshVertOffset);
-        }
-
-        // Update vertexOffset for next face
-        vertexOffset += face.numOfVerts;
+        // Update the offset by the number of vertices in this face
+        vertexOffset += static_cast<uint32_t>(bsp->Rbuffers.v_faceVBOs[i].size());
     }
-
-    return indices;
+    return result;
 }
 
 void BSPModelRef::DrawForward(mat4x4 view, mat4x4 projection)
