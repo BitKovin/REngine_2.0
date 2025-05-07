@@ -19,6 +19,7 @@
 #define FACE_POLYGON 1
 #define MAX_TEXTURES 1000
 
+#define MAP_SCALE 32.0f
 
 // This is our BSP header structure
 struct tBSPHeader {

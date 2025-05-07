@@ -367,15 +367,15 @@ void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
     for (auto& model : models)
     {
 
-        vec3 min = vec3(model.mins[0], model.mins[1], model.mins[2]) / 16.0f;
-        vec3 max = vec3(model.maxs[0], model.maxs[1], model.maxs[2]) / 16.0f;
+        vec3 min = vec3(model.mins[0], model.mins[1], model.mins[2]) / MAP_SCALE;
+        vec3 max = vec3(model.maxs[0], model.maxs[1], model.maxs[2]) / MAP_SCALE;
 
         if (Camera::frustum.IsBoxVisible(min, max))
         {
-            RenderBSP(Camera::finalizedPosition * 16.0f, model, first, first);
+            RenderBSP(Camera::finalizedPosition * MAP_SCALE, model, first, first);
         }
 
-        auto light = GetLightvolColor(Camera::finalizedPosition * 16.0f);
+        auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
         printf("light : %f, %f, %f \n", light.direction.x, light.direction.y, light.direction.z);
 
         DebugDraw::Line(Camera::finalizedPosition + vec3(1,0,0), Camera::finalizedPosition + vec3(1, 0, 0) + light.direction, 0.01f);
@@ -515,7 +515,7 @@ void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
     shader->SetTexture("s_bspLightmap", lightmapId);
     shader->SetUniform("view", Camera::finalizedView);
     shader->SetUniform("projection", Camera::finalizedProjection);
-    shader->SetUniform("model", glm::scale(vec3(1.0f / 16.0f)));
+    shader->SetUniform("model", glm::scale(vec3(1.0f / MAP_SCALE)));
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);

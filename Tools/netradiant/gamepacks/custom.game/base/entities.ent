@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<classes>
+    <!-- Worldspawn -->
+    <group name="worldspawn" color="0.5 0.5 0.5">
+        <real key="_color" name="Ambient Color" value="38 38 38">Global ambient light color</real>
+    </group>
+
+    <!-- Player Start -->
+    <point name="info_player_start" color="0 1 0" box="-16 -16 -24 16 16 32" model="models/mapobjects/players/start.md3">
+        <angle key="angle" name="Yaw Angle" value="0"></angle>
+    </point>
+
+    <!-- Light -->
+    <point name="light" color="1 0.8 0" box="-15 -15 -15 15 15 15">
+        <real key="light" name="Intensity" value="300">Light radius</real>
+        <color key="_color" name="Color" value="255 255 255">Light color</color>
+    </point>
+
+    <!-- Trigger -->
+    <group name="trigger" color="0 0.5 1">
+        <target key="target" name="Target"></target>
+        <string key="onEnterAction" name="On Enter" value="trigger_enter"></string>
+        <string key="onExitAction" name="On Exit" value="trigger_exit"></string>
+    </group>
+
+    <!-- Weapon Pickup -->
+    <point name="weaponPickup" color="1 0 0" box="-20 -20 -20 20 20 20">
+        <string key="type" name="Weapon Type" value="weapon_pistol_double"></string>
+    </point>
+
+    <!-- Custom Entities -->
+    <point name="ent_cat_point" color="1 0.2 0.8" box="-16 -16 -16 16 16 16">
+        <!-- Custom cat point entity -->
+    </point>
+
+    <point name="spawner" color="1 0.2 0.8" box="-16 -16 -32 16 16 16">
+        <string key="className" name="Class Name" value="npc_base"></string>
+        <target key="target" name="Target"></target>
+        <string key="onSpawned" name="On Spawn" value="spawned"></string>
+        <string key="onDespawned" name="On Despawn" value="despawned"></string>
+    </point>
+
+    <point name="counter" color="1 1 0.4" box="-16 -16 -32 16 16 16">
+        <integer key="startNum" name="Start Number" value="0"></integer>
+        <integer key="targetNum" name="Target Number" value="0"></integer>
+        <target key="target" name="Target"></target>
+        <string key="onReached" name="On Reached" value="reached"></string>
+    </point>
+
+    <!-- Destructible Brush -->
+    <group name="destructible" color="0.8 0.2 0.2">
+        <real key="health" name="Health" value="30"></real>
+        <string key="particleSystem" name="Particle System" value="destructionWood"></string>
+    </group>
+
+    <!-- Static Mesh -->
+    <point name="static_mesh" color="1 0 0" box="-5 -5 -5 5 5 5">
+        <string key="path" name="Model Path" value="models/test.obj"></string>
+        <string key="texture" name="Texture"></string>
+        <real key="scale" name="Scale" value="1"></real>
+        <angles key="angles" name="Rotation" value="0 0 0"></angles>
+    </point>
+
+    <!-- Audio -->
+    <point name="music_player" color="0.6 0.12 0.6" box="-15 -15 -15 15 15 15">
+        <string key="bankName" name="Sound Bank" value="Music.bank"></string>
+        <string key="eventName" name="Event Name"></string>
+        <real key="volume" name="Volume" value="0.5"></real>
+        <real key="fadeTime" name="Fade Time" value="1"></real>
+    </point>
+
+    <!-- Navigation -->
+    <group name="navBlock" color="0.2 0.2 0.2">
+        <!-- Blocks AI navigation -->
+    </group>
+</classes>

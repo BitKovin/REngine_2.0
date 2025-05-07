@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <qpref version="1.0">
 <epair name="gamePrompt">false</epair>
-<epair name="gamefile">Q3.game</epair>
+<epair name="gamefile">custom.game</epair>
 <epair name="log console">true</epair>
 </qpref>
