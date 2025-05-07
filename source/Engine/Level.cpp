@@ -44,6 +44,11 @@ void Level::CloseLevel()
 
 }
 
+inline bool endsWith(const std::string& str, const std::string& suffix) {
+	if (suffix.size() > str.size()) return false;
+	return str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
 ///UNSAFE. Loads level as soon as gets called
 Level* Level::OpenLevel(string filePath)
 {
@@ -72,13 +77,28 @@ Level* Level::OpenLevel(string filePath)
 
 	Current = newLevel;
 
+	
+
 	EngineMain::MainInstance->MainThreadPool = new ThreadPool();
 
 	EngineMain::MainInstance->MainThreadPool->Start();
 
-	MapData mapData = MapParser::ParseMap(filePath);
+	if (endsWith(filePath, ".bsp"))
+	{
+		Current->BspData.LoadBSP(filePath.c_str());
+		Current->BspData.BuildVBO();
+		Current->BspData.GenerateTexture();
+		Current->BspData.GenerateLightmap();
+		Current->BspData.LoadToLevel();
+	}
+	else
+	{
+		MapData mapData = MapParser::ParseMap(filePath);
 
-	mapData.LoadToLevel();
+		mapData.LoadToLevel();
+	}
+
+	
 
 	Current->AddPendingLevelObjects();
 	Current->RemovePendingEntities();

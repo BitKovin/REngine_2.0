@@ -12,7 +12,7 @@ public:
 
 	void Start()
 	{
-		Level::OpenLevel("GameData/Maps/test.map");
+		Level::OpenLevel("GameData/Maps/test.bsp");
 
         for (size_t i = 0; i < 00; i++)
         {
@@ -30,7 +30,7 @@ public:
             Level::Current->AddEntity(ent);
         }
 
-        Level::Current->AddEntity(new TestBsp());
+        //Level::Current->AddEntity(new TestBsp());
 
 	}
 

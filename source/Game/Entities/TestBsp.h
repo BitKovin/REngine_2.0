@@ -2,6 +2,8 @@
 #include <Entity.hpp>
 #include <BSP/Quake3Bsp.h>
 
+#include <MapParser.h>
+
 class TestBsp : public Entity
 {
 public:
@@ -24,6 +26,8 @@ TestBsp::TestBsp()
 	bsp->GenerateTexture();
 	bsp->GenerateLightmap();
 
+	auto entities = MapParser::ParseBSPEntities(bsp->entities);
+	
 
 	Drawables.push_back(bsp);
 }

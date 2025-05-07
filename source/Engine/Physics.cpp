@@ -113,6 +113,50 @@ void Physics::UpdatePendingBodyExitsEnters()
 
 }
 
+RefConst<Shape> Physics::CreateMeshShape(const std::vector<vec3>& vertices, const std::vector<uint32_t>& indices)
+{
+	// Validate that the number of indices is a multiple of 3 (required for triangles)
+	if (indices.size() % 3 != 0)
+	{
+		printf("Error: Number of indices (%zu) must be a multiple of 3 to form complete triangles.\n", indices.size());
+		return RefConst<Shape>(); // Return empty shape on error
+	}
+
+	// Convert vertices to Jolt's Float3 format
+	Array<Float3> joltVertices;
+	joltVertices.reserve(vertices.size()); // Reserve space to avoid reallocations
+	for (const auto& v : vertices)
+	{
+		joltVertices.push_back(Float3(v.x, v.y, v.z));
+	}
+
+	// Convert indices to Jolt's IndexedTriangle format
+	Array<IndexedTriangle> joltTriangles;
+	joltTriangles.reserve(indices.size() / 3); // Reserve space for the number of triangles
+	for (size_t i = 0; i < indices.size(); i += 3)
+	{
+		IndexedTriangle tri;
+		tri.mIdx[0] = indices[i + 2];     // First vertex index of the triangle
+		tri.mIdx[1] = indices[i + 1]; // Second vertex index
+		tri.mIdx[2] = indices[i + 0]; // Third vertex index
+		joltTriangles.push_back(tri);
+	}
+
+	// Create MeshShapeSettings with the converted data
+	MeshShapeSettings shapeSettings(joltVertices, joltTriangles);
+
+	// Attempt to create the shape
+	Shape::ShapeResult result = shapeSettings.Create();
+	if (result.HasError())
+	{
+		printf("Error creating mesh shape: %s\n", result.GetError().c_str());
+		return RefConst<Shape>(); // Return empty shape on error
+	}
+
+	// Return the successfully created shape
+	return result.Get();
+}
+
 Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const BodyType mask, const vector<Body*> ignoreList)
 {
 	HitResult hit;

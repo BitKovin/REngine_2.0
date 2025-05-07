@@ -50,6 +50,8 @@ public:
 
 	bool AssetsLoaded = false;
 
+	bool ConvexCollision = false;
+
 	string OwnerId = "";
 
 	vector<string> Tags;

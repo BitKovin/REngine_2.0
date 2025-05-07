@@ -137,6 +137,64 @@ namespace MapParser {
         return mapData;
     }
 
+    std::vector<EntityData> ParseBSPEntities(const std::string& entityString)
+    {
+        std::vector<EntityData> entities;
+        std::istringstream stream(entityString);
+        std::string line;
+        EntityData currentEntity;
+        bool inEntity = false;
+
+        while (std::getline(stream, line)) {
+            // Remove carriage returns if present
+            line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+
+            if (line.find('{') != std::string::npos) {
+                // Start new entity
+                inEntity = true;
+                currentEntity = EntityData();
+                continue;
+            }
+
+            if (line.find('}') != std::string::npos) {
+                // Finish current entity
+                if (inEntity) {
+                    // Store classname separately
+                    auto it = currentEntity.Properties.find("classname");
+                    if (it != currentEntity.Properties.end()) {
+                        currentEntity.Classname = it->second;
+                        currentEntity.Properties.erase(it);
+                    }
+
+                    entities.push_back(currentEntity);
+                    inEntity = false;
+                }
+                continue;
+            }
+
+            if (inEntity) {
+                // Parse key/value pairs
+                size_t quote1 = line.find('"');
+                size_t quote2 = line.find('"', quote1 + 1);
+                size_t quote3 = line.find('"', quote2 + 1);
+                size_t quote4 = line.find('"', quote3 + 1);
+
+                if (quote1 != std::string::npos &&
+                    quote2 != std::string::npos &&
+                    quote3 != std::string::npos &&
+                    quote4 != std::string::npos) {
+
+                    std::string key = line.substr(quote1 + 1, quote2 - quote1 - 1);
+                    std::string value = line.substr(quote3 + 1, quote4 - quote3 - 1);
+
+                    currentEntity.Properties[key] = value;
+                }
+            }
+        }
+
+        return entities;
+    }
+
     glm::vec3 CalculatePlaneNormal(const glm::vec3& point1,
         const glm::vec3& point2,
         const glm::vec3& point3) {

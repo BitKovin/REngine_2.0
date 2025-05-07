@@ -447,3 +447,9 @@
 "origin" "-264 72 24"
 "_tb_layer" "1"
 }
+// entity 30
+{
+"classname" "light"
+"origin" "-224 64 176"
+"light" "300"
+}

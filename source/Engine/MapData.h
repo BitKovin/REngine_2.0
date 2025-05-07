@@ -17,8 +17,8 @@ public:
 // EntityData: Holds properties, brushes and provides helper getters.
 class EntityData {
 public:
-    std::string Classname;
-    std::map<std::string, std::string> Properties;
+    std::string Classname; //variable from Properties
+    std::map<std::string, std::string> Properties; //parsed from input string
     std::vector<BrushData> Brushes;
     std::string name;
 

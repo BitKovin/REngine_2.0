@@ -34,7 +34,7 @@ void Bullet::Update()
 		trail->Position = hit.position;
 		trail->StopAll();
 		trail = nullptr;
-
+		return;
 	}
 
 	if (traveledDistance > MaxDistance)

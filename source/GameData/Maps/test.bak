@@ -309,7 +309,7 @@
 // entity 10
 {
 "classname" "light_point"
-"origin" "-245 117 171"
+"origin" "75 117 107"
 "radius" "6"
 "light_color" "1 0 0.0156863"
 }

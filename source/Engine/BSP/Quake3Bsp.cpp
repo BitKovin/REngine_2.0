@@ -14,6 +14,13 @@
 
 #include "../Camera.h"
 
+#include "../Level.hpp"
+
+#include "../MapParser.h"
+
+#include "../LevelObjectFactory.h"
+#include "../Level.hpp"
+
 
 CQuake3BSP::CQuake3BSP() {
     m_numOfVerts = 0;
@@ -255,10 +262,26 @@ void CQuake3BSP::CreateVBO(int index) {
 
 void CQuake3BSP::CreateIndices(int index) {
     tBSPFace* pFace = &m_pFaces[index];
-    // printf("idx: [%d]\n", index);
-    for (int j = 0; j < pFace->numOfIndices; j++)
-        Rbuffers.v_faceIDXs[index].push_back(m_pIndices[j + pFace->startIndex]);
+    int start = pFace->startIndex;
+    int count = pFace->numOfIndices;
+    auto& out = Rbuffers.v_faceIDXs[index];
+
+    // reserve once to avoid repeated reallocations
+    out.reserve(count);
+
+    // process each triangle (3 indices) and swap the last two
+    for (int j = 0; j < count; j += 3) {
+        unsigned short i0 = m_pIndices[start + j + 0];
+        unsigned short i1 = m_pIndices[start + j + 1];
+        unsigned short i2 = m_pIndices[start + j + 2];
+        // Original (CCW): i0, i1, i2
+        // Flipped (CW):    i0, i2, i1
+        out.push_back(i0);
+        out.push_back(i2);
+        out.push_back(i1);
+    }
 }
+
 
 LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
 {
@@ -322,7 +345,8 @@ LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
     return LightVolPointData{directional, ambient, dir_engine };
 }
 
-int CQuake3BSP::FindCameraCluster(const glm::vec3& cameraPos) {
+int CQuake3BSP::FindClusterAtPosition(const glm::vec3& cameraPos) 
+{
 
     int nodeIndex = 0;
     int depth = 0;
@@ -356,7 +380,7 @@ bool CQuake3BSP::IsClusterVisible(int sourceCluster, int testCluster)
     int bitIndex = testCluster % 8;
 
     // Convert std::byte to unsigned integer for bitwise operations
-    unsigned char byteValue = std::to_integer<unsigned char>(visData.vecs[byteIndex]);
+    unsigned char byteValue = (visData.vecs[byteIndex]);
     return (byteValue & (1 << bitIndex)) != 0;
 }
 
@@ -388,7 +412,7 @@ void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
 void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool useClusterVis, bool lightmap)
 {
     // 1. Find camera's cluster via BSP tree traversal
-    int cameraCluster = FindCameraCluster(cameraPos);
+    int cameraCluster = FindClusterAtPosition(cameraPos);
 
     int drawnFaces = 0;
 
@@ -454,6 +478,96 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
 
 }
 
+vector<BSPModelRef> CQuake3BSP::GetAllModelRefs()
+{
+    vector<BSPModelRef> refs;
+    for (size_t i = 0; i < models.size(); ++i)
+    {
+        BSPModelRef ref(this, static_cast<int>(i), models[i]);
+        refs.push_back(ref);             // Add the reference to the vector
+    }
+    return refs;
+}
+
+void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
+{
+    auto vertices = model.GetVertices();
+
+    vector<vec3> vertexPositions;
+
+    for (auto& vertex : vertices)
+    {
+        vertexPositions.push_back(vertex.Position / MAP_SCALE);
+    }
+
+    RefConst<Shape> shape;
+
+    if (entity->ConvexCollision)
+    {
+        shape = Physics::CreateConvexHullFromPoints(vertexPositions);
+    }
+    else
+    {
+        shape = Physics::CreateMeshShape(vertexPositions, model.GetIndices());
+    }
+
+    Body* body = Physics::CreateBodyFromShape(entity, vec3(0), shape,10,true,BodyType::World, BodyType::GroupCollisionTest);
+    entity->LeadBody = body;
+
+    model.StaticNavigation = entity->Static;
+
+}
+
+void CQuake3BSP::LoadToLevel()
+{
+    auto parsedEntities = MapParser::ParseBSPEntities(entities);
+    parsedEntities[0].Properties["classname"] = "worldspawn";
+
+    auto models = GetAllModelRefs();
+
+    for (auto& entityData : parsedEntities)
+    {
+
+        Entity* ent = LevelObjectFactory::instance().create(entityData.Classname);
+
+        if (ent == nullptr)
+            ent = new Entity();
+
+        ent->FromData(entityData);
+
+        string modelStr = entityData.GetPropertyString("model");
+
+        if (modelStr.size() > 1)
+        {
+            if (modelStr[0] == '*')
+            {
+
+                int modelId = stoi(modelStr.substr(1, modelStr.size() - 1));
+
+                BSPModelRef modelRef = models[modelId];
+
+                AddPhysicsBodyForEntityAndModel(ent, modelRef);
+
+                ent->Drawables.push_back(new BSPModelRef(modelRef));
+
+            }
+		}
+		else if (ent->ClassName == "worldspawn") //worldspawn always has 0 model
+		{
+			BSPModelRef modelRef = models[0];
+
+            AddPhysicsBodyForEntityAndModel(ent, modelRef);
+
+            ent->Drawables.push_back(new BSPModelRef(modelRef));
+
+		}
+
+        Level::Current->AddEntity(ent);
+
+	}
+
+}
+
 void CQuake3BSP::BSPDebug(int index) {
     printf("\n");
     printf("Face:----> %d\n", index);
@@ -489,7 +603,6 @@ void CQuake3BSP::CreateRenderBuffers(int index) {
 void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightmap, LightVolPointData lightData)
 {
 
-
     // bind the face's VAO (which has its VBO/EBO & attribs)
     auto& buffers = FB_array.FB_Idx[index];
 
@@ -517,8 +630,6 @@ void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
     shader->SetUniform("projection", Camera::finalizedProjection);
     shader->SetUniform("model", glm::scale(vec3(1.0f / MAP_SCALE)));
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
 
 
     glDepthMask(GL_TRUE);
@@ -530,8 +641,6 @@ void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
         GL_UNSIGNED_INT,
         0);
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
 
     VertexArrayObject::Unbind();
 }
@@ -597,4 +706,118 @@ void CQuake3BSP::GenerateLightmap() {
 void CQuake3BSP::renderFaces() {
     for (auto& f : Rbuffers.v_faceVBOs)
         RenderSingleFace(f.first, nullptr, true, LightVolPointData());
+}
+
+mat4 BSPModelRef::GetWorldMatrix()
+{
+	return translate(Position) * MathHelper::GetRotationMatrix(Rotation) * scale(Scale);
+}
+
+vector<MeshUtils::PositionVerticesIndices> BSPModelRef::GetNavObstacleMeshes()
+{
+    vector<MeshUtils::PositionVerticesIndices> result;
+
+
+    mat3 world = GetWorldMatrix();
+
+
+
+    MeshUtils::PositionVerticesIndices meshData;
+
+    meshData.indices = GetIndices();
+
+    auto vertices = GetVertices();
+
+    for (auto& vertex : vertices)
+    {
+		meshData.vertices.push_back(vertex.Position / MAP_SCALE);
+    }
+
+    result.push_back(meshData);
+
+    return result;
+}
+
+std::vector<VertexData> BSPModelRef::GetVertices() {
+    std::vector<VertexData> vertices;
+    if (!bsp || id < 0 || id >= bsp->models.size()) {
+        return vertices;
+    }
+
+    const tBSPModel& model = bsp->models[id];
+    for (int i = 0; i < model.n_faces; ++i) {
+        int faceIndex = model.face + i;
+        if (faceIndex < 0 || faceIndex >= bsp->m_numOfFaces) {
+            continue;
+        }
+
+        const tBSPFace& face = bsp->m_pFaces[faceIndex];
+        for (int v = 0; v < face.numOfVerts; ++v) {
+            int vertexIndex = face.startVertIndex + v;
+            if (vertexIndex < 0 || vertexIndex >= bsp->m_numOfVerts) {
+                continue;
+            }
+
+            const tBSPVertex& bspVert = bsp->m_pVerts[vertexIndex];
+            VertexData vd;
+
+            // Convert tBSPVertex to VertexData
+            vd.Position = bspVert.vPosition;
+            vd.Normal = bspVert.vNormal;
+            vd.TextureCoordinate = bspVert.vTextureCoord;
+            vd.ShadowMapCoords = bspVert.vLightmapCoord;
+
+            // Convert color from byte[4] to vec4 (normalized)
+            vd.Color = glm::vec4(
+                static_cast<float>(bspVert.color[0]) / 255.0f,
+                static_cast<float>(bspVert.color[1]) / 255.0f,
+                static_cast<float>(bspVert.color[2]) / 255.0f,
+                static_cast<float>(bspVert.color[3]) / 255.0f
+            );
+
+            vertices.push_back(vd);
+        }
+    }
+
+    return vertices;
+}
+
+std::vector<uint32_t> BSPModelRef::GetIndices() {
+    std::vector<uint32_t> indices;
+    if (!bsp || id < 0 || id >= bsp->models.size()) {
+        return indices;
+    }
+
+    const tBSPModel& model = bsp->models[id];
+    uint32_t vertexOffset = 0; // Tracks the starting index of each face's vertices in the combined list
+
+    for (int i = 0; i < model.n_faces; ++i) {
+        int faceIndex = model.face + i;
+        if (faceIndex < 0 || faceIndex >= bsp->m_numOfFaces) {
+            continue;
+        }
+
+        const tBSPFace& face = bsp->m_pFaces[faceIndex];
+
+        // Add indices for this face, adjusting by current vertexOffset
+        for (int j = 0; j < face.numOfIndices; ++j) {
+            int meshVertIndex = face.startIndex + j;
+            if (meshVertIndex < 0 || meshVertIndex >= bsp->m_numOfIndices) {
+                continue;
+            }
+
+            uint32_t meshVertOffset = bsp->m_pIndices[meshVertIndex];
+            indices.push_back(vertexOffset + meshVertOffset);
+        }
+
+        // Update vertexOffset for next face
+        vertexOffset += face.numOfVerts;
+    }
+
+    return indices;
+}
+
+void BSPModelRef::DrawForward(mat4x4 view, mat4x4 projection)
+{
+    bsp->RenderBSP(Camera::finalizedPosition, model, useBspVisibility, Static);
 }

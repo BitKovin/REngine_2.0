@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <cstddef> // For std::byte operations
+
 #include "../VertexData.h"
 
 #include "../IDrawMesh.h"
@@ -14,6 +14,8 @@
 
 #include "../glm.h"
 #include "../ShaderManager.h"
+
+#include <cstddef>
 
 
 #define FACE_POLYGON 1
@@ -39,7 +41,7 @@ struct tBSPVertex {
     glm::vec2 vTextureCoord;  // (u, v) texture coordinate
     glm::vec2 vLightmapCoord; // (u, v) lightmap coordinate
     glm::vec3 vNormal;        // (x, y, z) normal vector
-    std::byte color[4];       // RGBA color for the vertex
+    unsigned char color[4];       // RGBA color for the vertex
 };
 
 // This is our BSP face structure
@@ -68,7 +70,7 @@ struct tBSPTexture {
 };
 
 struct tBSPLightmap {
-    std::byte imageBits[128][128][3]; // The RGB data in a 128x128 image
+    unsigned char imageBits[128][128][3]; // The RGB data in a 128x128 image
 };
 
 // Plane structure
@@ -134,16 +136,16 @@ struct tBSPEffect {
 
 // Light volume structure
 struct tBSPLightvol {
-    std::byte ambient[3];
-    std::byte directional[3];
-    std::byte dir[2];
+    unsigned char ambient[3];
+    unsigned char directional[3];
+    unsigned char dir[2];
 };
 
 // Visdata structure
 struct tBSPVisData {
     int n_vecs;
     int sz_vecs;
-    std::vector<std::byte> vecs;
+    std::vector<unsigned char> vecs;
 };
 
 struct FaceBuffers {
@@ -197,7 +199,7 @@ enum eLumps {
 };
 
 
-
+class BSPModelRef;
 // This is our Quake3 BSP class
 class CQuake3BSP : public IDrawMesh
 {
@@ -275,7 +277,7 @@ class CQuake3BSP : public IDrawMesh
 
     // Get lighting for a dynamic object at position (x, y, z)
     LightVolPointData GetLightvolColor(const glm::vec3& position);
-    int FindCameraCluster(const glm::vec3& cameraPos);
+    int FindClusterAtPosition(const glm::vec3& cameraPos);
 
     bool IsClusterVisible(int sourceCluster, int testCluster);
 
@@ -284,25 +286,38 @@ class CQuake3BSP : public IDrawMesh
     // Optimized rendering loop
     void RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool useClusterVis, bool lightmap);
 
+    vector <BSPModelRef> GetAllModelRefs();
+
+    void LoadToLevel();
+
 };
 
-class BrushRef
+class BSPModelRef : public IDrawMesh
 {
+private:
     CQuake3BSP* bsp = nullptr;
-
     int id = -1;
+    tBSPModel& model;
+    
 
+public:
+
+    bool Static = true;
+    bool useBspVisibility = false;
+
+    vec3 Position = vec3(0);
+    vec3 Rotation = vec3(0);
+    vec3 Scale = vec3(1);
+
+    mat4 GetWorldMatrix();
+
+    BSPModelRef(CQuake3BSP* bsp_ptr, int model_id, tBSPModel& model_ref) : bsp(bsp_ptr), id(model_id),model(model_ref) {}
+
+    vector<MeshUtils::PositionVerticesIndices> GetNavObstacleMeshes();
     vector<VertexData> GetVertices();
-    vector<int> GetIndices();
-};
-
-class BSPModelRef
-{
-    CQuake3BSP* bsp = nullptr;
-
-    int id = -1;
-
-
+    vector<uint32_t> GetIndices();
+    
+    void DrawForward(mat4x4 view, mat4x4 projection);
 
 };
 

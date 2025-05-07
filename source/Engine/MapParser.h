@@ -11,6 +11,8 @@ namespace MapParser {
     // Reset and parse a map file into a MapData object.
     MapData ParseMap(const std::string& pathInput);
 
+    std::vector<EntityData> ParseBSPEntities(const std::string& entityString);
+
     // Utility math functions that mirror the C# implementation.
     glm::vec3 CalculatePlaneNormal(const glm::vec3& point1,
         const glm::vec3& point2,

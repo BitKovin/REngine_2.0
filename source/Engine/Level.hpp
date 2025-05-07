@@ -14,6 +14,9 @@
 
 #include "ThreadPool.h"
 
+#include "BSP/Quake3Bsp.h"
+
+
 using namespace std;
 
 class Entity;
@@ -53,6 +56,8 @@ public:
 	vector<IDrawMesh*> DetailShadowRenderList = vector<IDrawMesh*>();
 
 	string filePath;
+
+	CQuake3BSP BspData;
 
 	Level()
 	{
