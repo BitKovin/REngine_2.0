@@ -38,6 +38,8 @@ mat4 LightManager::lightProjection3;
 mat4 LightManager::lightView4;
 mat4 LightManager::lightProjection4;
 
+bool LightManager::DirectionalShadowsEnabled = false;
+
 LightManager::LightManager()
 {
 }

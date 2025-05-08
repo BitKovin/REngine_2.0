@@ -46,12 +46,15 @@ Renderer::Renderer()
     colorResolveBuffer->resize(screenResolution.x, screenResolution.y);
     depthResolveBuffer->resize(screenResolution.x, screenResolution.y);
 
+    if (LightManager::DirectionalShadowsEnabled)
+    {
+        DirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
+        DirectionalShadowMapFBO.attachDepth(DirectionalShadowMap);
 
-    //DirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
-    //DirectionalShadowMapFBO.attachDepth(DirectionalShadowMap);
+        DetailDirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
+        DetailDirectionalShadowMapFBO.attachDepth(DetailDirectionalShadowMap);
+    }
 
-    //DetailDirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
-    //DetailDirectionalShadowMapFBO.attachDepth(DetailDirectionalShadowMap);
 
 	InitFullscreenVAO();
 
@@ -68,10 +71,11 @@ Renderer::~Renderer()
 
 void Renderer::RenderLevel(Level* level)
 {
-
-    //RenderDirectionalLightShadows(level->ShadowRenderList, DirectionalShadowMapFBO, 4);
-    //RenderDirectionalLightShadows(level->DetailShadowRenderList, DetailDirectionalShadowMapFBO, 3);
-
+    if (LightManager::DirectionalShadowsEnabled)
+    {
+        RenderDirectionalLightShadows(level->ShadowRenderList, DirectionalShadowMapFBO, 4);
+        RenderDirectionalLightShadows(level->DetailShadowRenderList, DetailDirectionalShadowMapFBO, 3);
+    }
 	RenderCameraForward(level->VissibleRenderList);
 
 	//rendering to screen
@@ -255,25 +259,35 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
 
     shader->AllowMissingUniforms = false;
 
-    shader->SetUniform("lightMatrix1", LightManager::lightProjection1 * LightManager::lightView1);
-    shader->SetUniform("lightMatrix2", LightManager::lightProjection2 * LightManager::lightView2);
-    shader->SetUniform("lightMatrix3", LightManager::lightProjection3 * LightManager::lightView3);
-    shader->SetUniform("lightMatrix4", LightManager::lightProjection4 * LightManager::lightView4);
+    if (LightManager::DirectionalShadowsEnabled)
+    {
+        shader->SetUniform("lightMatrix1", LightManager::lightProjection1 * LightManager::lightView1);
+        shader->SetUniform("lightMatrix2", LightManager::lightProjection2 * LightManager::lightView2);
+        shader->SetUniform("lightMatrix3", LightManager::lightProjection3 * LightManager::lightView3);
+        shader->SetUniform("lightMatrix4", LightManager::lightProjection4 * LightManager::lightView4);
 
 
-    shader->SetTexture("shadowMap", EngineMain::MainInstance->MainRenderer->DirectionalShadowMap->id());
-    shader->SetTexture("shadowMapDetail", EngineMain::MainInstance->MainRenderer->DetailDirectionalShadowMap->id());
-    shader->SetTexture("shadowMapRaw", EngineMain::MainInstance->MainRenderer->DirectionalShadowMap->id());
-    shader->SetTexture("shadowMapDetailRaw", EngineMain::MainInstance->MainRenderer->DetailDirectionalShadowMap->id());
-    shader->SetUniform("shadowDistance1", LightManager::LightDistance1);
-    shader->SetUniform("shadowDistance2", LightManager::LightDistance2);
-    shader->SetUniform("shadowDistance3", LightManager::LightDistance3);
-    shader->SetUniform("shadowDistance4", LightManager::LightDistance4);
+        shader->SetTexture("shadowMap", EngineMain::MainInstance->MainRenderer->DirectionalShadowMap->id());
+        shader->SetTexture("shadowMapDetail", EngineMain::MainInstance->MainRenderer->DetailDirectionalShadowMap->id());
+        shader->SetTexture("shadowMapRaw", EngineMain::MainInstance->MainRenderer->DirectionalShadowMap->id());
+        shader->SetTexture("shadowMapDetailRaw", EngineMain::MainInstance->MainRenderer->DetailDirectionalShadowMap->id());
+        shader->SetUniform("shadowDistance1", LightManager::LightDistance1);
+        shader->SetUniform("shadowDistance2", LightManager::LightDistance2);
+        shader->SetUniform("shadowDistance3", LightManager::LightDistance3);
+        shader->SetUniform("shadowDistance4", LightManager::LightDistance4);
 
-    shader->SetUniform("shadowRadius1", LightManager::LightRadius1);
-    shader->SetUniform("shadowRadius2", LightManager::LightRadius2);
-    shader->SetUniform("shadowRadius3", LightManager::LightRadius3);
-    shader->SetUniform("shadowRadius4", LightManager::LightRadius4);
+        shader->SetUniform("shadowRadius1", LightManager::LightRadius1);
+        shader->SetUniform("shadowRadius2", LightManager::LightRadius2);
+        shader->SetUniform("shadowRadius3", LightManager::LightRadius3);
+        shader->SetUniform("shadowRadius4", LightManager::LightRadius4);
+    }
+    else
+    {
+        shader->SetTexture("shadowMap", nullptr);
+        shader->SetTexture("shadowMapDetail", nullptr);
+        shader->SetTexture("shadowMapRaw", nullptr);
+        shader->SetTexture("shadowMapDetailRaw", nullptr);
+    }
 
     shader->AllowMissingUniforms = true;
 

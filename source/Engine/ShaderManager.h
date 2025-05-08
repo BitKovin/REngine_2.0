@@ -2,7 +2,7 @@
 
 #include "Shader.hpp"
 
-#include "AssetRegisty.h"
+#include "AssetRegistry.h"
 
 class ShaderManager
 {

@@ -41,6 +41,8 @@ public:
 	static mat4 lightView4;
 	static mat4 lightProjection4;
 
+	static bool DirectionalShadowsEnabled;
+
 private:
 
 	static void CalculateLightMatrices(

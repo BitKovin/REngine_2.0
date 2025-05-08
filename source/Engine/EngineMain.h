@@ -1,6 +1,6 @@
 #include <SDL2/SDL_video.h>
 
-#include "AssetRegisty.h"
+#include "AssetRegistry.h"
 
 #include "SoundSystem/SoundManager.hpp"
 

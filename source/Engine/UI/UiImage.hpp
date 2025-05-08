@@ -5,7 +5,7 @@
 #include "UiRenderer.h"
 
 #include "../Texture.hpp"
-#include "../AssetRegisty.h"
+#include "../AssetRegistry.h"
 
 class UiImage : public UiElement
 {

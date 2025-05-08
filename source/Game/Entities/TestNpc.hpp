@@ -9,7 +9,7 @@
 #include <Camera.h>
 
 #include <SkeletalMesh.hpp>
-#include <AssetRegisty.h>
+#include <AssetRegistry.h>
 
 #include <Navigation/PathFollowQuery.h>
 

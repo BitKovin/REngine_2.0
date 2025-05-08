@@ -13,7 +13,7 @@
 
 #include "../VertexData.h"
 
-#include "../AssetRegisty.h"
+#include "../AssetRegistry.h"
 
 struct Particle {
 	glm::vec3 position{};

@@ -6,7 +6,7 @@
 #include <string>
 #include "../glm.h"
 
-#include "../AssetRegisty.h"
+#include "../AssetRegistry.h"
 
 class UiText : public UiElement {
 public:

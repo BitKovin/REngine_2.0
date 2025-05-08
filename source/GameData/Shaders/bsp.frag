@@ -24,7 +24,6 @@ void main()
     float vertexLightComp = 4.04;
 
 
-
     vec4 o_lightmap = texture(s_bspLightmap, g_LmapCoord) * vec4(light_color*3.0, 1) * vertexLightComp * g_color;
     o_lightmap.a = 1.0;
 

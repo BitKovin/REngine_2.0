@@ -236,7 +236,6 @@
   <ItemGroup>
     <ClCompile Include="animator.cpp" />
     <ClCompile Include="AssetRegistry.cpp" />
-    <ClCompile Include="AssetRegisty.cpp" />
     <ClCompile Include="BSP\Quake3Bsp.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DebugDraw.cpp" />
@@ -306,7 +305,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animator.hpp" />
-    <ClInclude Include="AssetRegisty.h" />
+    <ClInclude Include="AssetRegistry.h" />
     <ClInclude Include="BoundingSphere.hpp" />
     <ClInclude Include="BoundingBox.hpp" />
     <ClInclude Include="BrushFaceMesh.hpp" />

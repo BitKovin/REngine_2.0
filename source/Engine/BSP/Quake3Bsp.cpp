@@ -10,7 +10,7 @@
 
 #include "../DebugDraw.hpp"
 
-#include "../AssetRegisty.h"
+#include "../AssetRegistry.h"
 
 #include "../Camera.h"
 
@@ -514,7 +514,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
 {
 
     auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
-    printf("light : %f, %f, %f \n", light.directColor.x, light.directColor.y, light.directColor.z);
+    printf("light : %f, %f, %f \n", light.ambientColor.x, light.ambientColor.y, light.ambientColor.z);
 
     DebugDraw::Line(Camera::finalizedPosition + Camera::Forward(), Camera::finalizedPosition + Camera::Forward() + light.direction, 0.01f);
 
@@ -537,6 +537,8 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
         vec3 max = vec3(model.maxs[0], model.maxs[1], model.maxs[2]);
 
 		lightData = GetLightvolColor((min + max) / 2.0f);
+
+        //lightData.ambientColor = vec3(1);
 
         DebugDraw::Line((min + max) / 2.0f / MAP_SCALE + vec3(1, 0, 0), (min + max) / 2.0f / MAP_SCALE + vec3(1, 0, 0) + lightData.direction, 0.01f);
 
@@ -784,19 +786,30 @@ void CQuake3BSP::GenerateLightmap() {
     float b = 1.0f;
 
     // generate missing lightmap
-    GLfloat white_lightmap[] =
-        { b, b, b, 1.0f,
-          b, b, b, 1.0f,
-          b, b, b, 1.0f,
-          b, b, b, 1.0f};
+    GLubyte white_lightmap[] = {
+        255,255,255,255,   // pixel #1 (RGBA)
+        255,255,255,255,   // pixel #2
+        255,255,255,255,   // pixel #3
+        255,255,255,255    // pixel #4
+    };
 
     glGenTextures(1, &missing_LM_id);
     glBindTexture(GL_TEXTURE_2D, missing_LM_id);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGB, GL_FLOAT, &white_lightmap);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA,             // internalFormat
+        2, 2,
+        0,
+        GL_RGBA,             // format
+        GL_UNSIGNED_BYTE,    // type
+        white_lightmap       // data pointer
+    );
+    //glGenerateMipmap(GL_TEXTURE_2D);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -816,7 +829,8 @@ void CQuake3BSP::GenerateLightmap() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 128, 128, 0, GL_RGB, GL_UNSIGNED_BYTE, &Rbuffers.G_lightMaps[i].imageBits);
         glGenerateMipmap(GL_TEXTURE_2D);
