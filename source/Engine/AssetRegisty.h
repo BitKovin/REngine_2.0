@@ -54,7 +54,7 @@ public:
             return it->second; // Return cached shader
         }
 
-        std::string filePath = "GameData/Shaders/" + fileName;
+        std::string filePath = "GameData/shaders/" + fileName;
         std::string shaderCode = ReadFileToString(filePath);
 
         // Cache the newly loaded shader

@@ -306,6 +306,35 @@ void CQuake3BSP::CreateIndices(int index) {
     }
 }
 
+glm::vec3 computeLightDirection(const unsigned char vol_dir[2]) {
+    // Step 1: Scale angles to degrees
+    float yaw_deg = static_cast<float>(vol_dir[1]) * 360.0f / 255.0f;
+    float pitch_deg = 270.0f - static_cast<float>(vol_dir[0]) * 360.0f / 255.0f;
+
+    // Step 2: Convert angles to radians
+    float yaw_rad = glm::radians(yaw_deg);
+    float pitch_rad = glm::radians(pitch_deg);
+
+    // Step 3: Create rotation matrices
+    // Yaw around Z-axis
+    glm::mat4 yaw_matrix = glm::rotate(glm::mat4(1.0f), yaw_rad, glm::vec3(0.0f, 0.0f, 1.0f));
+    // Pitch around Y-axis
+    glm::mat4 pitch_matrix = glm::rotate(glm::mat4(1.0f), pitch_rad, glm::vec3(0.0f, 1.0f, 0.0f));
+
+    // Step 4: Combine rotations (pitch after yaw)
+    glm::mat4 rotation = pitch_matrix * yaw_matrix;
+
+    // Step 5: Apply rotation to initial vector (1, 0, 0)
+    glm::vec3 view_vector = glm::vec3(rotation * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+
+    // Step 6: Invert to get light direction in Quake coordinates
+    glm::vec3 light_dir_quake = -view_vector;
+
+    // Step 7: Transform to engine coordinates (assuming Y-up: X, Z, -Y)
+    glm::vec3 light_dir_engine = glm::vec3(light_dir_quake.x, light_dir_quake.z, light_dir_quake.y);
+
+    return light_dir_engine;
+}
 
 LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
 {
@@ -323,50 +352,102 @@ LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
         static_cast<int>(std::floor(modelMaxs.z / 128.0f) - std::ceil(modelMins.z / 128.0f) + 1)
     );
 
-    // Calculate grid indices from position in Z-up
-    int nx = static_cast<int>((pos_quake.x - modelMins.x) / 64.0f);
-    int ny = static_cast<int>((pos_quake.y - modelMins.y) / 64.0f);
-    int nz = static_cast<int>((pos_quake.z - modelMins.z) / 128.0f);
+    // Calculate grid indices and fractional offsets
+    float fx = (pos_quake.x - modelMins.x) / 64.0f;
+    float fy = (pos_quake.y - modelMins.y) / 64.0f;
+    float fz = (pos_quake.z - modelMins.z) / 128.0f;
 
-    // Clamp to grid dimensions
-    nx = glm::clamp(nx, 0, lightVolGridDims.x - 1);
-    ny = glm::clamp(ny, 0, lightVolGridDims.y - 1);
-    nz = glm::clamp(nz, 0, lightVolGridDims.z - 1);
+    // Get integer indices for the lower corner
+    int nx = static_cast<int>(std::floor(fx));
+    int ny = static_cast<int>(std::floor(fy));
+    int nz = static_cast<int>(std::floor(fz));
 
+    // Get fractional components for interpolation
+    fx = fx - nx; // Range [0,1]
+    fy = fy - ny;
+    fz = fz - nz;
 
-    // Get the light volume at this grid cell
-    const tBSPLightvol& vol = lightVols[nz * (lightVolGridDims.x * lightVolGridDims.y) +
-        ny * lightVolGridDims.x + nx];
+    // Clamp indices to prevent out-of-bounds access
+    int nx0 = glm::clamp(nx, 0, lightVolGridDims.x - 1);
+    int ny0 = glm::clamp(ny, 0, lightVolGridDims.y - 1);
+    int nz0 = glm::clamp(nz, 0, lightVolGridDims.z - 1);
+    int nx1 = glm::clamp(nx + 1, 0, lightVolGridDims.x - 1);
+    int ny1 = glm::clamp(ny + 1, 0, lightVolGridDims.y - 1);
+    int nz1 = glm::clamp(nz + 1, 0, lightVolGridDims.z - 1);
 
-    // Convert byte values (0-255) to float (0.0-1.0)
-    glm::vec3 ambient(
-        static_cast<float>(vol.ambient[0]) / 255.0f,
-        static_cast<float>(vol.ambient[1]) / 255.0f,
-        static_cast<float>(vol.ambient[2]) / 255.0f
-    );
+    // Fetch light volumes at the eight corners
+    auto getLightVolData = [&](int x, int y, int z) -> std::tuple<glm::vec3, glm::vec3, glm::vec3> {
+        int index = z * (lightVolGridDims.x * lightVolGridDims.y) + y * lightVolGridDims.x + x;
+        const tBSPLightvol& vol = lightVols[index];
+        glm::vec3 ambient(
+            static_cast<float>(vol.ambient[0]) / 255.0f,
+            static_cast<float>(vol.ambient[1]) / 255.0f,
+            static_cast<float>(vol.ambient[2]) / 255.0f
+        );
+        glm::vec3 directional(
+            static_cast<float>(vol.directional[0]) / 255.0f,
+            static_cast<float>(vol.directional[1]) / 255.0f,
+            static_cast<float>(vol.directional[2]) / 255.0f
+        );
+        glm::vec3 dir_engine = computeLightDirection(vol.dir);
+        return { ambient, directional, dir_engine };
+        };
 
-    glm::vec3 directional(
-        static_cast<float>(vol.directional[0]) / 255.0f,
-        static_cast<float>(vol.directional[1]) / 255.0f,
-        static_cast<float>(vol.directional[2]) / 255.0f
-    );
+    auto [amb000, dir000, vec000] = getLightVolData(nx0, ny0, nz0);
+    auto [amb100, dir100, vec100] = getLightVolData(nx1, ny0, nz0);
+    auto [amb010, dir010, vec010] = getLightVolData(nx0, ny1, nz0);
+    auto [amb110, dir110, vec110] = getLightVolData(nx1, ny1, nz0);
+    auto [amb001, dir001, vec001] = getLightVolData(nx0, ny0, nz1);
+    auto [amb101, dir101, vec101] = getLightVolData(nx1, ny0, nz1);
+    auto [amb011, dir011, vec011] = getLightVolData(nx0, ny1, nz1);
+    auto [amb111, dir111, vec111] = getLightVolData(nx1, ny1, nz1);
 
-    // Calculate light direction from phi and theta
-    float phi = ((float)vol.dir[0]) * 2.0f * 3.1415926535f / 255.0f;   // Convert 0-255 to 0-2π
-    float theta = ((float)vol.dir[1]) * 3.1415926535f / 255.0f;        // Convert 0-255 to 0-π
+    // Trilinear interpolation
+    auto lerp = [](float a, float b, float t) { return a + t * (b - a); };
+    auto lerpVec3 = [](const glm::vec3& a, const glm::vec3& b, float t) {
+        return a + t * (b - a);
+        };
 
-    // Compute direction vector in Z-up (Quake 3)
-    glm::vec3 dir_quake(
-        cos(theta) * sin(phi),
-        sin(theta) * sin(phi),
-        cos(phi)
-    );
+    // Interpolate along X for each plane
+    glm::vec3 amb_x00 = lerpVec3(amb000, amb100, fx);
+    glm::vec3 amb_x10 = lerpVec3(amb010, amb110, fx);
+    glm::vec3 amb_x01 = lerpVec3(amb001, amb101, fx);
+    glm::vec3 amb_x11 = lerpVec3(amb011, amb111, fx);
 
-    // Transform direction to Y-up: (X, Y, Z) -> (X, Z, -Y)
-    glm::vec3 dir_engine(-dir_quake.x, dir_quake.z, dir_quake.y);
+    glm::vec3 dir_x00 = lerpVec3(dir000, dir100, fx);
+    glm::vec3 dir_x10 = lerpVec3(dir010, dir110, fx);
+    glm::vec3 dir_x01 = lerpVec3(dir001, dir101, fx);
+    glm::vec3 dir_x11 = lerpVec3(dir011, dir111, fx);
 
+    glm::vec3 vec_x00 = lerpVec3(vec000, vec100, fx);
+    glm::vec3 vec_x10 = lerpVec3(vec010, vec110, fx);
+    glm::vec3 vec_x01 = lerpVec3(vec001, vec101, fx);
+    glm::vec3 vec_x11 = lerpVec3(vec011, vec111, fx);
 
-    return LightVolPointData{directional, ambient, dir_engine };
+    // Interpolate along Y
+    glm::vec3 amb_y0 = lerpVec3(amb_x00, amb_x10, fy);
+    glm::vec3 amb_y1 = lerpVec3(amb_x01, amb_x11, fy);
+
+    glm::vec3 dir_y0 = lerpVec3(dir_x00, dir_x10, fy);
+    glm::vec3 dir_y1 = lerpVec3(dir_x01, dir_x11, fy);
+
+    glm::vec3 vec_y0 = lerpVec3(vec_x00, vec_x10, fy);
+    glm::vec3 vec_y1 = lerpVec3(vec_x01, vec_x11, fy);
+
+    // Interpolate along Z
+    glm::vec3 ambient = lerpVec3(amb_y0, amb_y1, fz);
+    glm::vec3 directional = lerpVec3(dir_y0, dir_y1, fz);
+    glm::vec3 dir_engine = lerpVec3(vec_y0, vec_y1, fz);
+
+    // Normalize direction to ensure valid vector
+    if (glm::length(dir_engine) > 0.0f) {
+        dir_engine = glm::normalize(dir_engine);
+    }
+    else {
+        dir_engine = glm::vec3(0.0f, 1.0f, 0.0f); // Default direction (up)
+    }
+
+    return LightVolPointData{ directional, ambient, dir_engine };
 }
 
 int CQuake3BSP::FindClusterAtPosition(const glm::vec3& cameraPos) 
@@ -423,10 +504,6 @@ void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
             RenderBSP(Camera::finalizedPosition * MAP_SCALE, model, first, first);
         }
 
-        auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
-        printf("light : %f, %f, %f \n", light.direction.x, light.direction.y, light.direction.z);
-
-        DebugDraw::Line(Camera::finalizedPosition + vec3(1,0,0), Camera::finalizedPosition + vec3(1, 0, 0) + light.direction, 0.01f);
 
         first = false;
     }
@@ -435,6 +512,13 @@ void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
 
 void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool useClusterVis, bool lightmap)
 {
+
+    auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
+    printf("light : %f, %f, %f \n", light.directColor.x, light.directColor.y, light.directColor.z);
+
+    DebugDraw::Line(Camera::finalizedPosition + Camera::Forward(), Camera::finalizedPosition + Camera::Forward() + light.direction, 0.01f);
+
+
     // 1. Find camera's cluster via BSP tree traversal
     int cameraCluster = FindClusterAtPosition(cameraPos);
 
@@ -453,6 +537,8 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
         vec3 max = vec3(model.maxs[0], model.maxs[1], model.maxs[2]);
 
 		lightData = GetLightvolColor((min + max) / 2.0f);
+
+        DebugDraw::Line((min + max) / 2.0f / MAP_SCALE + vec3(1, 0, 0), (min + max) / 2.0f / MAP_SCALE + vec3(1, 0, 0) + lightData.direction, 0.01f);
 
     }
 
@@ -532,7 +618,16 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
     }
     else
     {
-        shape = Physics::CreateMeshShape(vertexPositions, model.GetIndices());
+
+        auto indices = model.GetIndices();
+
+        MeshUtils::PositionVerticesIndices mesh;
+
+        mesh.vertices = vertexPositions;
+        mesh.indices = indices;
+		mesh = MeshUtils::RemoveDegenerates(mesh, 0.01f, 0.00f);
+
+        shape = Physics::CreateMeshShape(mesh.vertices, mesh.indices);
     }
 
     Body* body = Physics::CreateBodyFromShape(entity, vec3(0), shape,10,true,BodyType::World, BodyType::GroupCollisionTest);
@@ -572,6 +667,8 @@ void CQuake3BSP::LoadToLevel()
 
                 AddPhysicsBodyForEntityAndModel(ent, modelRef);
 
+                modelRef.CalculateAveragePosition();
+
                 ent->Drawables.push_back(new BSPModelRef(modelRef));
 
             }
@@ -581,6 +678,8 @@ void CQuake3BSP::LoadToLevel()
 			BSPModelRef modelRef = models[0];
 
             AddPhysicsBodyForEntityAndModel(ent, modelRef);
+
+            modelRef.CalculateAveragePosition();
 
             ent->Drawables.push_back(new BSPModelRef(modelRef));
 
@@ -682,14 +781,14 @@ void CQuake3BSP::GenerateLightmap() {
     // GLfloat aniso = 8.0f;
 
 
-
+    float b = 1.0f;
 
     // generate missing lightmap
     GLfloat white_lightmap[] =
-        {1.0f, 1.0f, 1.0f, 1.0f,
-         1.0f, 1.0f, 1.0f, 1.0f,
-         1.0f, 1.0f, 1.0f, 1.0f,
-         1.0f, 1.0f, 1.0f, 1.0f};
+        { b, b, b, 1.0f,
+          b, b, b, 1.0f,
+          b, b, b, 1.0f,
+          b, b, b, 1.0f};
 
     glGenTextures(1, &missing_LM_id);
     glBindTexture(GL_TEXTURE_2D, missing_LM_id);
@@ -735,6 +834,21 @@ mat4 BSPModelRef::GetWorldMatrix()
 	return translate(Position) * MathHelper::GetRotationMatrix(Rotation) * scale(Scale);
 }
 
+
+void BSPModelRef::CalculateAveragePosition()
+{
+    auto vertices = GetVertices();
+
+    avgPosition = vec3(0);
+
+    for (auto& vertex : vertices)
+    {
+        avgPosition += vertex.Position / MAP_SCALE;
+    }
+
+    avgPosition /= (float)vertices.size();
+}
+
 vector<MeshUtils::PositionVerticesIndices> BSPModelRef::GetNavObstacleMeshes()
 {
     vector<MeshUtils::PositionVerticesIndices> result;
@@ -754,7 +868,7 @@ vector<MeshUtils::PositionVerticesIndices> BSPModelRef::GetNavObstacleMeshes()
 		meshData.vertices.push_back(vertex.Position / MAP_SCALE);
     }
 
-    meshData = MeshUtils::RemoveDegenerates(meshData, 0.01f, 0.01f);
+    meshData = MeshUtils::RemoveDegenerates(meshData, 0.01f, 0.00f);
 
     //DebugDraw::IndexedMesh(meshData.vertices, meshData.indices, 100);
 

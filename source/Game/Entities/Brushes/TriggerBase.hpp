@@ -13,6 +13,7 @@ public:
 	{
 		ClassName = "trigger";
 		SaveGame = true;
+		ConvexCollision = true;
 	}
 
 	void Start();

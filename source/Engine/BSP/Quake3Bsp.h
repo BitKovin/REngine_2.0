@@ -309,9 +309,13 @@ public:
     vec3 Rotation = vec3(0);
     vec3 Scale = vec3(1);
 
+    vec3 avgPosition = vec3(0);
+
     mat4 GetWorldMatrix();
 
     BSPModelRef(CQuake3BSP* bsp_ptr, int model_id, tBSPModel& model_ref) : bsp(bsp_ptr), id(model_id),model(model_ref) {}
+
+    void CalculateAveragePosition();
 
     vector<MeshUtils::PositionVerticesIndices> GetNavObstacleMeshes();
     vector<VertexData> GetVertices();

@@ -11,6 +11,20 @@ public:
 		Destroy();
 	}
 
+	void Start()
+	{
+		for (auto model : Drawables)
+		{
+			BSPModelRef* m = (BSPModelRef*)model;
+
+			if (m)
+			{
+				m->Static = false;
+			}
+
+		}
+	}
+
 private:
 
 };

@@ -153,6 +153,7 @@ RefConst<Shape> Physics::CreateMeshShape(const std::vector<vec3>& vertices, cons
 		return RefConst<Shape>(); // Return empty shape on error
 	}
 
+
 	// Return the successfully created shape
 	return result.Get();
 }

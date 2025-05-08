@@ -91,7 +91,9 @@ void NavigationSystem::GenerateNavData()
 {
     DestroyNavData(); 
 
-    auto mesh = MeshUtils::RemoveDegenerates(Level::Current->GetStaticNavObstaclesMesh(),0.01f,0.01f);
+    auto mesh = Level::Current->GetStaticNavObstaclesMesh();
+    mesh = MeshUtils::RemoveDegenerates(mesh, 0.1f, 0.00f);
+    mesh = MeshUtils::MergeMeshes({ MeshUtils::MergeCoplanarRegions(mesh) , mesh}); // too dirty + results in false walkable areas if not surrounded by walls. FIX ME
 
     std::lock_guard<std::recursive_mutex> lock(mainLock);
 
@@ -126,16 +128,16 @@ void NavigationSystem::GenerateNavData()
     cfg.walkableClimb = static_cast<int>(ceilf(0.6f / cfg.ch));  // Max climb height (~0.9m)
     cfg.walkableRadius = static_cast<int>(ceilf(0.5f / cfg.cs)); // Agent radius (~0.5m)
     cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);
-    cfg.maxSimplificationError = 0.5f;
-    cfg.minRegionArea = 25;      // Min region size
-    cfg.mergeRegionArea = 100 * 100;  // Merge region size
+    cfg.maxSimplificationError = 0.01f;
+    cfg.minRegionArea = 1;      // Min region size
+    cfg.mergeRegionArea = 200 * 200;  // Merge region size
     cfg.maxVertsPerPoly = 6;
     cfg.tileSize = 64;                // Tile size in cells
-    cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 3;  // ~3-4 cells
+    cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 2;  // ~3-4 cells
     cfg.width = cfg.tileSize + cfg.borderSize * 2;
     cfg.height = cfg.tileSize + cfg.borderSize * 2;
     cfg.detailSampleDist = 6.0f;
-    cfg.detailSampleMaxError = 1.0f;
+    cfg.detailSampleMaxError = 0.1f;
 
     // Compute tile grid
     const float tileWidth = cfg.tileSize * cfg.cs;
@@ -234,6 +236,8 @@ void NavigationSystem::GenerateNavData()
             rcFilterLowHangingWalkableObstacles(ctx, cfg.walkableClimb, hf);
             rcFilterLedgeSpans(ctx, cfg.walkableHeight, cfg.walkableClimb, hf);
             rcFilterWalkableLowHeightSpans(ctx, cfg.walkableHeight, hf);
+            
+            
 
             // Build compact heightfield
             rcCompactHeightfield chf;
@@ -242,17 +246,17 @@ void NavigationSystem::GenerateNavData()
                 continue;
             }
 
-            // Erode walkable area to account for agent radius
-            if (!rcErodeWalkableArea(ctx, cfg.walkableRadius, chf)) {
-                std::cerr << "Failed to erode walkable area for tile (" << tx << "," << tz << ")" << std::endl;
-                continue;
-            }
+			// Erode walkable area to account for agent radius
+			if (!rcErodeWalkableArea(ctx, cfg.walkableRadius, chf)) {
+				std::cerr << "Failed to erode walkable area for tile (" << tx << "," << tz << ")" << std::endl;
+				continue;
+			}
 
-            // Erode and build regions
-            if (!rcBuildRegionsMonotone(ctx, chf, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea)) {
-                std::cerr << "Failed to erode walkable area for tile (" << tx << "," << tz << ")" << std::endl;
-                continue;
-            }
+			// Erode and build regions
+			if (!rcBuildRegionsMonotone(ctx, chf, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea)) {
+				std::cerr << "Failed to erode walkable area for tile (" << tx << "," << tz << ")" << std::endl;
+				continue;
+			}
             rcBuildDistanceField(ctx, chf);
             rcBuildRegions(ctx, chf, cfg.borderSize, cfg.minRegionArea, cfg.mergeRegionArea);
 
@@ -348,6 +352,24 @@ bool HasLineOfSight(const vec3& pointA, const vec3& pointB)
     return Physics::SphereTrace(pointA, pointB, 0.4, BodyType::World).hasHit == false;
 }
 
+bool CollisionCheckPath(glm::vec3 start, std::vector<glm::vec3> path)
+{
+
+    vec3 oldPos = start;
+
+    for (auto pos : path)
+    {
+
+        auto hit = Physics::LineTrace(oldPos, pos, BodyType::World);
+
+        if (hit.hasHit)
+            return false;
+
+        oldPos = pos;
+    }
+    return true;
+}
+
 // Custom filter to check polygon area instead of flags
 class CustomFilter : public dtQueryFilter
 {
@@ -411,10 +433,10 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
     filter.setExcludeFlags(0);
 
     // Find the nearest polygon to the start and target positions.
-    dtPolyRef startRef, endRef;
+    dtPolyRef startRef, endRef = 0;
     float extents[3] = { 0.4, 1.5, 0.4 };  // search extents in each axis
     float extentsLarge[3] = { 0.7, 1.5, 0.7 };  // search extents in each axis
-    float extentsSmall[3] = { 0.1, 1.5, 0.1 };  // search extents in each axis
+    float extentsSmall[3] = { 0.2, 1.5, 0.2 };  // search extents in each axis
 
     float startPos[3] = { start.x, start.y, start.z };
     float targetPos[3] = { target.x, target.y, target.z };
@@ -511,6 +533,10 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
 
     outPath.push_back(target);
 
+    if (CollisionCheckPath(start, outPath) == false)
+    {
+        return { target };
+    }
 
     return outPath;
 }

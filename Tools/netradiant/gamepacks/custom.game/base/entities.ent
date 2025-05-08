@@ -2,9 +2,11 @@
 <classes>
 
     <!-- Player Start -->
-    <point name="info_player_start" color="0 1 0" box="-16 -16 -24 16 16 32" model="models/mapobjects/players/start.md3">
+    <point name="info_player_start" color="0 1 0" box="-16 -16 -24 16 16 32">
         <angle key="angle" name="Yaw Angle" value="0"></angle>
     </point>
+
+    <group name="func_group" color="0 .4375 .7">
 
     <!-- Trigger -->
     <group name="trigger" color="0 0.5 1">
