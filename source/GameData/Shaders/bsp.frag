@@ -24,12 +24,12 @@ void main()
     float vertexLightComp = 4.04;
 
 
-    vec4 o_lightmap = texture(s_bspLightmap, g_LmapCoord) * vec4(light_color*3.0, 1) * vertexLightComp * g_color;
+    vec4 o_lightmap = texture(s_bspLightmap, g_LmapCoord) * vec4(light_color, 1) * vertexLightComp * g_color;
     o_lightmap.a = 1.0;
 
     vec3 normal = normalize(g_normal);
 
-    o_lightmap += clamp(dot(normal, normalize(direct_light_dir))*0.7 + 0.3,0.0,1.0) * vertexLightComp * vertexLightComp * vec4(direct_light_color,0) ;
+    o_lightmap += clamp(dot(normal, normalize(direct_light_dir))*0.7 + 0.3,0.0,1.0) * vertexLightComp * vec4(direct_light_color,0) ;
 
     FragColor = o_texture * o_lightmap * 1.0;
 }

@@ -4,7 +4,7 @@
 "classname" "worldspawn"
 "_tb_textures" "textures/brushes"
 "_keeplights" "1"
-"_lightmapscale" "0.01"
+"_lightmapscale" "0.1"
 "_ambient" "30"
 // brush 0
 {
@@ -487,127 +487,102 @@
 }
 // entity 10
 {
-"classname" "triggerOnce"
-"onEnterAction" "trigger_enter"
-"onExitAction" "trigger_exit"
-"target" "sp1"
-// brush 0
-{
-( -104 -384 216 ) ( -104 -176 16 ) ( -104 -176 216 ) generic/trigger_t 0 0 0 1 1 0 0 0
-( 248 -384 216 ) ( -104 -384 16 ) ( -104 -384 216 ) generic/trigger_t 0 0 0 1 1 0 0 0
-( 248 -176 16 ) ( -104 -384 16 ) ( 248 -384 16 ) generic/trigger_t 0 0 0 1 1 0 0 0
-( 248 -176 216 ) ( -104 -384 216 ) ( -104 -176 216 ) generic/trigger_t 0 0 0 1 1 0 0 0
-( 248 -176 216 ) ( -104 -176 16 ) ( 248 -176 16 ) generic/trigger_t 0 0 0 1 1 0 0 0
-( 248 -176 216 ) ( 248 -384 16 ) ( 248 -384 216 ) generic/trigger_t 0 0 0 1 1 0 0 0
-}
-}
-// entity 11
-{
-"classname" "func_group"
-"_tb_type" "_tb_layer"
-"_tb_name" "navigation"
-"_tb_id" "1"
-"_tb_layer_sort_index" "0"
-"_tb_layer_hidden" "1"
-}
-// entity 12
-{
 "classname" "info.navpoint"
 "origin" "216 -584 24"
 "_tb_layer" "1"
 }
-// entity 13
+// entity 11
 {
 "classname" "info.navpoint"
 "origin" "-600 -840 24"
 "_tb_layer" "1"
 }
-// entity 14
+// entity 12
 {
 "classname" "info.navpoint"
 "origin" "840 -168 24"
 "_tb_layer" "1"
 }
-// entity 15
+// entity 13
 {
 "classname" "info.navpoint"
 "origin" "280 216 24"
 "_tb_layer" "1"
 }
-// entity 16
+// entity 14
 {
 "classname" "info.navpoint"
 "origin" "-184 456 24"
 "_tb_layer" "1"
 }
-// entity 17
+// entity 15
 {
 "classname" "info.navpoint"
 "origin" "648 744 24"
 "_tb_layer" "1"
 }
-// entity 18
+// entity 16
 {
 "classname" "info.navpoint"
 "origin" "856 -824 24"
 "_tb_layer" "1"
 }
-// entity 19
+// entity 17
 {
 "classname" "info.navpoint"
 "origin" "-184 -584 24"
 "_tb_layer" "1"
 }
-// entity 20
+// entity 18
 {
 "classname" "info.navpoint"
 "origin" "776 -520 24"
 "_tb_layer" "1"
 }
-// entity 21
+// entity 19
 {
 "classname" "info.navpoint"
 "origin" "-488 536 24"
 "_tb_layer" "1"
 }
-// entity 22
+// entity 20
 {
 "classname" "info.navpoint"
 "origin" "-632 -184 24"
 "_tb_layer" "1"
 }
-// entity 23
+// entity 21
 {
 "classname" "info.navpoint"
 "origin" "-808 -504 24"
 "_tb_layer" "1"
 }
-// entity 24
+// entity 22
 {
 "classname" "info.navpoint"
 "origin" "-88 72 24"
 "_tb_layer" "1"
 }
-// entity 25
+// entity 23
 {
 "classname" "info.navpoint"
 "origin" "-264 72 24"
 "_tb_layer" "1"
 }
-// entity 26
+// entity 24
 {
 "classname" "light"
 "origin" "-256 -112 128"
 "light" "200"
 "_color" "1 0 0"
 }
-// entity 27
+// entity 25
 {
 "classname" "info_player_start"
 "origin" "128 432 56"
 "angle" "270"
 }
-// entity 28
+// entity 26
 {
 "classname" "light"
 "origin" "-736 560 112"
@@ -616,10 +591,24 @@
 "scale" "1"
 "radius" "128"
 }
-// entity 29
+// entity 27
 {
 "classname" "light"
 "origin" "-256 176 128"
 "light" "200"
 "_color" "1 0 0"
+}
+// entity 28
+{
+"classname" "triggerOnce"
+"target" "sp1"
+// brush 0
+{
+( -104 -384 216 ) ( -104 -176 16 ) ( -104 -176 216 ) common/trigger 0 0 0 1 1 0 0 0
+( 248 -384 216 ) ( -104 -384 16 ) ( -104 -384 216 ) common/trigger 0 0 0 1 1 0 0 0
+( 248 -176 16 ) ( -104 -384 16 ) ( 248 -384 16 ) common/trigger 0 0 0 1 1 0 0 0
+( 248 -176 216 ) ( -104 -384 216 ) ( -104 -176 216 ) common/trigger 0 0 0 1 1 0 0 0
+( 248 -176 216 ) ( -104 -176 16 ) ( 248 -176 16 ) common/trigger 0 0 0 1 1 0 0 0
+( 248 -176 216 ) ( 248 -384 16 ) ( 248 -384 216 ) common/trigger 0 0 0 1 1 0 0 0
+}
 }

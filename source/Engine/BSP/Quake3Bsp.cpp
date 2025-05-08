@@ -614,7 +614,28 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
 
     RefConst<Shape> shape;
 
-    if (entity->ConvexCollision)
+    vec3 bodyPos = vec3(0);
+
+    if (model.model.face > 0 && model.model.n_faces == 0)
+    {
+
+        vec3 min = vec3(
+            model.model.mins[0], 
+            model.model.mins[1],
+            model.model.mins[2]) / MAP_SCALE;
+
+        vec3 max = vec3(
+            model.model.maxs[0], 
+            model.model.maxs[1], 
+            model.model.maxs[2]) / MAP_SCALE;
+
+        bodyPos = (min + max) / 2.0f;
+
+        shape = Physics::CreateBoxShape(abs(max-min));
+
+
+    }
+    else if (entity->ConvexCollision)
     {
         shape = Physics::CreateConvexHullFromPoints(vertexPositions);
     }
@@ -633,6 +654,9 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
     }
 
     Body* body = Physics::CreateBodyFromShape(entity, vec3(0), shape,10,true,BodyType::World, BodyType::GroupCollisionTest);
+
+    Physics::SetBodyPosition(body, bodyPos);
+
     entity->LeadBody = body;
 
     model.StaticNavigation = entity->Static;

@@ -6,18 +6,29 @@
         <angle key="angle" name="Yaw Angle" value="0"></angle>
     </point>
 
-    <group name="func_group" color="0 .4375 .7">
+    <group name="func_group" color="0 .4375 .7"> </group>
 
     <!-- Trigger -->
     <group name="trigger" color="0 0.5 1">
-        <target key="target" name="Target"></target>
-        <string key="onEnterAction" name="On Enter" value="trigger_enter"></string>
-        <string key="onExitAction" name="On Exit" value="trigger_exit"></string>
+        <target key="target" name="Target"/>
+        <boolean key="_cs" name="Cast Shadows" value="0"/>
+        <string key="onEnterAction" name="On Enter" value="trigger_enter"/>
+        <string key="onExitAction" name="On Exit" value="trigger_exit"/>
+        <string key="targetname" name="Name"></string>
     </group>
+
+    <group name="triggerOnce" color="0 0.5 1">
+        <target key="target" name="Target"/>
+        <string key="onEnterAction" name="On Enter" value="trigger_enter"/>
+        <boolean key="_cs" name="Cast Shadows" value="0"/>
+        <string key="targetname" name="Name"></string>
+    </group>
+
 
     <!-- Weapon Pickup -->
     <point name="weaponPickup" color="1 0 0" box="-20 -20 -20 20 20 20">
         <string key="type" name="Weapon Type" value="weapon_pistol_double"></string>
+        <string key="targetname" name="Name"></string>
     </point>
 
     <!-- Custom Entities -->
@@ -27,7 +38,10 @@
 
     <point name="spawner" color="1 0.2 0.8" box="-16 -16 -32 16 16 16">
         <string key="className" name="Class Name" value="npc_base"></string>
+        <string key="targetname" name="Name"></string>
         <target key="target" name="Target"></target>
+        <angles key="angles" name="Rotation" value="0 0 0"></angles>
+        <angle key="angle" name="Rotation" value="0"></angle>
         <string key="onSpawned" name="On Spawn" value="spawned"></string>
         <string key="onDespawned" name="On Despawn" value="despawned"></string>
     </point>
@@ -37,12 +51,14 @@
         <integer key="targetNum" name="Target Number" value="0"></integer>
         <target key="target" name="Target"></target>
         <string key="onReached" name="On Reached" value="reached"></string>
+        <string key="targetname" name="Name"></string>
     </point>
 
     <!-- Destructible Brush -->
     <group name="destructible" color="0.8 0.2 0.2">
         <real key="health" name="Health" value="30"></real>
         <string key="particleSystem" name="Particle System" value="destructionWood"></string>
+        <string key="targetname" name="Name"></string>
     </group>
 
     <!-- Static Mesh -->
@@ -51,6 +67,7 @@
         <string key="texture" name="Texture"></string>
         <real key="scale" name="Scale" value="1"></real>
         <angles key="angles" name="Rotation" value="0 0 0"></angles>
+        <string key="targetname" name="Name"></string>
     </point>
 
     <!-- Audio -->
@@ -59,6 +76,7 @@
         <string key="eventName" name="Event Name"></string>
         <real key="volume" name="Volume" value="0.5"></real>
         <real key="fadeTime" name="Fade Time" value="1"></real>
+        <string key="targetname" name="Name"></string>
     </point>
 
     <!-- Navigation -->

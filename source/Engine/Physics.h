@@ -687,6 +687,34 @@ public:
 		return dynamic_body;
 	}
 
+	static RefConst<Shape> CreateBoxShape(vec3 Size)
+	{
+		// Convert & halve once, up-front:
+		Vec3 halfExtent = ToPhysics(Size) * 0.5f;
+
+		// Sanity check:
+		if (halfExtent.GetX() <= 0 || halfExtent.GetY() <= 0 || halfExtent.GetZ() <= 0)
+		{
+			printf("CreateBoxShape: invalid half-extent (%f, %f, %f)\n",
+				halfExtent.GetX(), halfExtent.GetY(), halfExtent.GetZ());
+			return nullptr;
+		}
+
+		// Use the constructor that takes half extents; embed for efficiency
+		JPH::BoxShapeSettings boxSettings(halfExtent);
+		boxSettings.SetEmbedded();
+
+		// Try to create and catch any errors
+		auto result = boxSettings.Create();
+		if (result.HasError())
+		{
+			printf("Error creating box shape: %s\n", result.GetError().c_str());
+			return nullptr;
+		}
+
+		return result.Get();
+	}
+
 	static Body* CreateHitBoxBody(Entity* owner, string hitboxName,
 		vec3             PositionOffset,
 		quat        RotationOffset,   // now a quaternion

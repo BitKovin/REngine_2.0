@@ -297,10 +297,12 @@ class BSPModelRef : public IDrawMesh
 private:
     CQuake3BSP* bsp = nullptr;
     int id = -1;
-    tBSPModel& model;
+    
     
 
 public:
+
+    tBSPModel& model;
 
     bool Static = true;
     bool useBspVisibility = false;
