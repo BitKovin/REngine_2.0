@@ -47,11 +47,11 @@ Renderer::Renderer()
     depthResolveBuffer->resize(screenResolution.x, screenResolution.y);
 
 
-    DirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
-    DirectionalShadowMapFBO.attachDepth(DirectionalShadowMap);
+    //DirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
+    //DirectionalShadowMapFBO.attachDepth(DirectionalShadowMap);
 
-    DetailDirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
-    DetailDirectionalShadowMapFBO.attachDepth(DetailDirectionalShadowMap);
+    //DetailDirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
+    //DetailDirectionalShadowMapFBO.attachDepth(DetailDirectionalShadowMap);
 
 	InitFullscreenVAO();
 
@@ -69,8 +69,8 @@ Renderer::~Renderer()
 void Renderer::RenderLevel(Level* level)
 {
 
-    RenderDirectionalLightShadows(level->ShadowRenderList, DirectionalShadowMapFBO, 4);
-    RenderDirectionalLightShadows(level->DetailShadowRenderList, DetailDirectionalShadowMapFBO, 3);
+    //RenderDirectionalLightShadows(level->ShadowRenderList, DirectionalShadowMapFBO, 4);
+    //RenderDirectionalLightShadows(level->DetailShadowRenderList, DetailDirectionalShadowMapFBO, 3);
 
 	RenderCameraForward(level->VissibleRenderList);
 

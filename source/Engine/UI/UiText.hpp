@@ -16,7 +16,7 @@ public:
     glm::vec4 baseColor = glm::vec4(1.0f); // White (RGBA)
 
     UiText() {
-        font = AssetRegistry::GetFontFromFile("GameData/Fonts/Kingthings_Calligraphica_2.ttf", 72);
+        font = AssetRegistry::GetFontFromFile("GameData/fonts/Kingthings_Calligraphica_2.ttf", 72);
     }
 
     virtual ~UiText() = default;

@@ -115,6 +115,9 @@ void SoundInstance::SourcePool::Release(ALuint src, bool stereo, SoundInstance* 
 
 void SoundInstance::Play()
 {
+
+    _virtualOffset = 0;
+
     if (_active && _source != 0) {
         // already playing
         return;

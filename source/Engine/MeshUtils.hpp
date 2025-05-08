@@ -158,13 +158,8 @@ public:
         bool operator==(Edge const& o) const noexcept { return a == o.a && b == o.b; }
     };
 
-    struct EdgeHash
-    {
-        size_t operator()(Edge const& e) const noexcept
-        {
-            return (size_t(e.a) << 32) ^ e.b;
-        }
-    };
+	struct EdgeHash { size_t operator()(Edge const& e) const noexcept { return (uint64_t(e.a) << 32) ^ e.b; } };
+
 
     struct EdgeEq
     {
