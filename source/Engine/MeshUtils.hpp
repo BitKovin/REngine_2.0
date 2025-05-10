@@ -147,6 +147,8 @@ public:
         return PositionVerticesIndices{ newVerts, newIdxs };
     }
 
+    static PositionVerticesIndices ExpandHorizontalTriangles(const PositionVerticesIndices& mesh, float radius);
+
     // --------------------------------------------------
     // MergeCoplanarRegions: flood-fill + re-triangulate planar patches
     // --------------------------------------------------
@@ -158,10 +160,11 @@ public:
         bool operator==(Edge const& o) const noexcept { return a == o.a && b == o.b; }
     };
 
+
 	struct EdgeHash { size_t operator()(Edge const& e) const noexcept { return (uint64_t(e.a) << 32) ^ e.b; } };
 
 
-    struct EdgeEq
+    struct EdgeEq   
     {
         bool operator()(Edge const& l, Edge const& r) const noexcept
         {
@@ -170,83 +173,9 @@ public:
     };
 
 
-    static PositionVerticesIndices MergeCoplanarRegions(const PositionVerticesIndices& mesh, float normalTolerance = 0.99f)
-    {
-        PositionVerticesIndices result;
-        result.vertices = mesh.vertices;
-        size_t triCount = mesh.indices.size() / 3;
+    static PositionVerticesIndices MergeCoplanarRegions(const PositionVerticesIndices& mesh, float normalTolerance = 0.99f);
 
-        // Build edge->tris map
-        unordered_map<Edge, vector<uint32_t>, EdgeHash, EdgeEq> edgeMap;
-        edgeMap.reserve(triCount * 3);
-        for (uint32_t t = 0; t < triCount; ++t) {
-            auto v0 = mesh.indices[3 * t], v1 = mesh.indices[3 * t + 1], v2 = mesh.indices[3 * t + 2];
-            edgeMap[Edge(v0, v1)].push_back(t);
-            edgeMap[Edge(v1, v2)].push_back(t);
-            edgeMap[Edge(v2, v0)].push_back(t);
-        }
 
-        vector<bool> used(triCount, false);
-        auto getNormal = [&](uint32_t t) { vec3 A = mesh.vertices[mesh.indices[3 * t]]; vec3 B = mesh.vertices[mesh.indices[3 * t + 1]]; vec3 C = mesh.vertices[mesh.indices[3 * t + 2]]; return normalize(cross(B - A, C - A)); };
-
-        for (uint32_t seed = 0; seed < triCount; ++seed)
-        {
-            if (used[seed]) continue;
-            // only merge if surface is near-horizontal
-            vec3 baseN = getNormal(seed);
-            if (fabs(baseN.y) < 0.8) continue;  // skip non-horizontal regions
-
-            // flood-fill coplanar region
-            vector<uint32_t> region;
-            queue<uint32_t> q;
-            used[seed] = true; q.push(seed);
-            while (!q.empty()) {
-                uint32_t t = q.front(); q.pop(); region.push_back(t);
-                auto verts = array<uint32_t, 3>{ mesh.indices[3 * t], mesh.indices[3 * t + 1], mesh.indices[3 * t + 2] };
-                for (int e = 0; e < 3; ++e) {
-                    Edge ed(verts[e], verts[(e + 1) % 3]);
-                    for (uint32_t nbr : edgeMap[ed]) {
-                        if (!used[nbr] && dot(baseN, getNormal(nbr)) >= normalTolerance) { used[nbr] = true; q.push(nbr); }
-                    }
-                }
-            }
-
-            // Collect boundary vertices set
-            unordered_map<Edge, int, EdgeHash, EdgeEq> edgeCount;
-            for (uint32_t t : region) {
-                auto v0 = mesh.indices[3 * t], v1 = mesh.indices[3 * t + 1], v2 = mesh.indices[3 * t + 2];
-                edgeCount[Edge(v0, v1)]++;
-                edgeCount[Edge(v1, v2)]++;
-                edgeCount[Edge(v2, v0)]++;
-            }
-            vector<uint32_t> boundaryVerts;
-            unordered_set<uint32_t> seen;
-            for (auto& kv : edgeCount) { if (kv.second == 1) { if (seen.insert(kv.first.a).second) boundaryVerts.push_back(kv.first.a); if (seen.insert(kv.first.b).second) boundaryVerts.push_back(kv.first.b); } }
-
-            if (boundaryVerts.size() < 3) continue;
-
-            // Project boundary to 2D for hull
-            vec3 u = fabs(baseN.x) > fabs(baseN.z) ? normalize(cross(vec3(0, 1, 0), baseN)) : normalize(cross(vec3(1, 0, 0), baseN));
-            vec3 v = cross(baseN, u);
-            vector<pair<double, double>> pts2D(boundaryVerts.size());
-            for (size_t i = 0; i < boundaryVerts.size(); ++i) { auto P = result.vertices[boundaryVerts[i]]; pts2D[i] = { dot(P,u), dot(P,v) }; }
-
-            // Compute convex hull (Monotone chain)
-            vector<size_t> idx(boundaryVerts.size()); iota(idx.begin(), idx.end(), 0);
-            sort(idx.begin(), idx.end(), [&](size_t a, size_t b) { auto& A = pts2D[a], & B = pts2D[b]; return A.first < B.first || (A.first == B.first && A.second < B.second); });
-            vector<size_t> hull;
-            // lower
-            for (size_t i : idx) { while (hull.size() >= 2) { auto& p1 = pts2D[hull[hull.size() - 2]], & p2 = pts2D[hull.back()], & p3 = pts2D[i]; double cr = (p2.first - p1.first) * (p3.second - p1.second) - (p2.second - p1.second) * (p3.first - p1.first); if (cr <= 0) hull.pop_back(); else break; } hull.push_back(i); }
-            // upper
-            size_t lowerSize = hull.size();
-            for (auto it = idx.rbegin(); it != idx.rend(); ++it) { size_t i = *it; while (hull.size() > lowerSize) { auto& p1 = pts2D[hull[hull.size() - 2]], & p2 = pts2D[hull.back()], & p3 = pts2D[i]; double cr = (p2.first - p1.first) * (p3.second - p1.second) - (p2.second - p1.second) * (p3.first - p1.first); if (cr <= 0) hull.pop_back(); else break; } hull.push_back(i); }
-            hull.pop_back(); // last equals first
-
-            // Fan triangulate hull in 3D
-            for (size_t i = 1; i + 1 < hull.size(); ++i) { result.indices.push_back(boundaryVerts[hull[0]]); result.indices.push_back(boundaryVerts[hull[i]]); result.indices.push_back(boundaryVerts[hull[i + 1]]); }
-        }
-        return result;
-    }
 
 private:
     // Simple boundary chaining: pick a start and walk matching edges

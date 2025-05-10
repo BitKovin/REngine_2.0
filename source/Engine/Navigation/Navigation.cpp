@@ -1,4 +1,4 @@
-#include <vector>
+﻿#include <vector>
 #include <mutex>
 #include "../glm.h"
 #include <algorithm>
@@ -121,22 +121,22 @@ void NavigationSystem::GenerateNavData()
     // Recast configuration
     rcConfig cfg;
     memset(&cfg, 0, sizeof(cfg));
-    cfg.cs = 0.3f;                    // Cell size (voxel size in X/Z)
+    cfg.cs = 0.2f;                    // Cell size (voxel size in X/Z)
     cfg.ch = 0.3f;                    // Cell height
     cfg.walkableSlopeAngle = 45.0f;   // Max slope angle
     cfg.walkableHeight = static_cast<int>(ceilf(2.0f / cfg.ch)); // Agent height (~2m)
     cfg.walkableClimb = static_cast<int>(ceilf(0.6f / cfg.ch));  // Max climb height (~0.9m)
-    cfg.walkableRadius = static_cast<int>(ceilf(0.5f / cfg.cs)); // Agent radius (~0.5m)
+    cfg.walkableRadius = static_cast<int>(ceilf(0.35f / cfg.cs)); // Agent radius (~0.5m)
     cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);
     cfg.maxSimplificationError = 0.01f;
     cfg.minRegionArea = 1;      // Min region size
     cfg.mergeRegionArea = 200 * 200;  // Merge region size
-    cfg.maxVertsPerPoly = 6;
+    cfg.maxVertsPerPoly = 3;
     cfg.tileSize = 64;                // Tile size in cells
-    cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 2;  // ~3-4 cells
+    cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 3;  // ~3-4 cells
     cfg.width = cfg.tileSize + cfg.borderSize * 2;
     cfg.height = cfg.tileSize + cfg.borderSize * 2;
-    cfg.detailSampleDist = 6.0f;
+    cfg.detailSampleDist = 0.2f;
     cfg.detailSampleMaxError = 0.1f;
 
     // Compute tile grid
@@ -389,154 +389,133 @@ class CustomFilter : public dtQueryFilter
     // second and second-from-last points are redundant. If there is a clear line
     // of sight skipping those points, then they are removed.
     // =====================================================================
+static bool IsPointReallyOnPoly(dtNavMeshQuery* navQuery,
+    dtPolyRef        polyRef,
+    const float      pos[3],
+    float            horizTolSq = 0.0025f)
+{
+    if (!polyRef) return false;
+    float  closest[3];
+    bool inside = 0;
+    if (dtStatusFailed(navQuery->closestPointOnPoly(polyRef, pos, closest, &inside)))
+        return false;
+    if (!inside) return false;
+    const float dx = pos[0] - closest[0];
+    const float dz = pos[2] - closest[2];
+    return (dx * dx + dz * dz) <= horizTolSq;
+}
+
 std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::vec3 target)
 {
-
-    if (HasLineOfSight(start, target))
-    {
-        //return { target };
-    }
-
-    auto hit = Physics::LineTrace(start, start - vec3(0, 30, 0), BodyType::World);
-
-    if(hit.hasHit)
-        start = hit.position + vec3(0,1,0);
-
-    hit = Physics::LineTrace(target, target - vec3(0, 30, 0), BodyType::World);
-
-    if (hit.hasHit)
-        target = hit.position + vec3(0, 1, 0);
-
     std::vector<glm::vec3> outPath;
+    if (!navMesh) return outPath;
+    std::lock_guard<std::recursive_mutex> _lock(mainLock);
 
-    if (!navMesh)
-        return outPath;
-
-    std::lock_guard<std::recursive_mutex> lock(mainLock);
-
-    // Create a navmesh query instance.
+    // Allocate & init query
     dtNavMeshQuery* navQuery = dtAllocNavMeshQuery();
-    if (!navQuery)
-        return outPath;
-
-    // Initialize the query. The 2048 value is the maximum number of nodes to use.
-    dtStatus status = navQuery->init(navMesh, 2048);
-    if (dtStatusFailed(status))
+    if (!navQuery) return outPath;
+    if (dtStatusFailed(navQuery->init(navMesh, 2048)))
     {
         dtFreeNavMeshQuery(navQuery);
         return outPath;
     }
 
-    // Setup a basic query filter.
+    auto hit = Physics::LineTrace(start, start - vec3(0, 30, 0), BodyType::World);
+    if (hit.hasHit)
+        start = hit.position + vec3(0, 1, 0);
+
+    hit = Physics::LineTrace(target, target - vec3(0, 30, 0), BodyType::World);
+    if (hit.hasHit)
+        target = hit.position + vec3(0, 1, 0);
+
     CustomFilter filter;
     filter.setIncludeFlags(0xffff);
     filter.setExcludeFlags(0);
 
-    // Find the nearest polygon to the start and target positions.
-    dtPolyRef startRef, endRef = 0;
-    float extents[3] = { 0.4, 1.5, 0.4 };  // search extents in each axis
-    float extentsLarge[3] = { 0.7, 1.5, 0.7 };  // search extents in each axis
-    float extentsSmall[3] = { 0.2, 1.5, 0.2 };  // search extents in each axis
+    // --- 1) FindNearestPoly  (increment extents up to limit) ---
+    const std::vector<glm::vec3> EXTENTS = {
+        {0.30f, 1.5f, 0.30f},  // tight
+        {0.60f, 1.5f, 0.60f},  // med
+        {1.00f, 1.5f, 1.00f},  // wide
+        {1.50f, 1.5f, 1.50f},  // wide
+    };
+    dtPolyRef sRef = 0, gRef = 0;
+    float     sNearest[3], gNearest[3];
+    float     sPos[3] = { start.x,  start.y,  start.z };
+    float     gPos[3] = { target.x, target.y, target.z };
 
-    float startPos[3] = { start.x, start.y, start.z };
-    float targetPos[3] = { target.x, target.y, target.z };
-
-    status = navQuery->findNearestPoly(startPos, extentsSmall, &filter, &startRef, nullptr);
-    if (dtStatusFailed(status) || !startRef)
-    {
-        status = navQuery->findNearestPoly(startPos, extents, &filter, &startRef, nullptr);
-        if (dtStatusFailed(status) || !startRef)
+    auto findOnPoly = [&](const float pos[3], dtPolyRef& outRef, float outNearest[3]) {
+        for (auto& e : EXTENTS)
         {
-            status = navQuery->findNearestPoly(startPos, extentsLarge, &filter, &startRef, nullptr);
-            if (dtStatusFailed(status) || !startRef)
+            float ext[3] = { e.x, e.y, e.z };
+            if (dtStatusSucceed(navQuery->findNearestPoly(pos, ext, &filter, &outRef, outNearest)))
             {
-
-                dtFreeNavMeshQuery(navQuery);
-                return outPath;
+                if (IsPointReallyOnPoly(navQuery, outRef, pos))
+                    return true;
             }
         }
+        return false;
+        };
+
+    // attempt to pick start & goal polys
+    if (!findOnPoly(sPos, sRef, sNearest) || !findOnPoly(gPos, gRef, gNearest))
+    {
+        dtFreeNavMeshQuery(navQuery);
+        return outPath; // failed to localize start or goal
     }
 
-    status = navQuery->findNearestPoly(targetPos, extents, &filter, &endRef, nullptr);
-    if (dtStatusFailed(status) || !endRef)
+    // --- 2) FindPath (A*) across linked polys ---
+    const int MAX_POLYS = 512;
+    dtPolyRef polyPath[MAX_POLYS];
+    int       polyCount = 0;
+    if (dtStatusFailed(navQuery->findPath(sRef, gRef, sPos, gPos,
+        &filter,
+        polyPath, &polyCount, MAX_POLYS)) ||
+        polyCount == 0)
     {
         dtFreeNavMeshQuery(navQuery);
         return outPath;
     }
 
-    // Compute the polygon path.
-    const int MAX_POLYS = 512;
+    // --- 3) Clamp goal if partial ---
+    bool reached = (polyPath[polyCount - 1] == gRef);
+    if (!reached)
+        navQuery->closestPointOnPoly(polyPath[polyCount - 1], gPos, gNearest, nullptr);
 
-    int maxPolythPath = glm::ceil(glm::clamp(distance(start, target)/3.0f, 2.0f, 512.0f));
+    // --- 4) StringPull / StraightPath ---
+    const int MAX_STRAIGHT = 512;
+    float          straight[3 * MAX_STRAIGHT];
+    unsigned char  flags[MAX_STRAIGHT];
+    dtPolyRef      strPolys[MAX_STRAIGHT];
+    int            strCount = 0;
 
-    dtPolyRef polyPath[MAX_POLYS];
-    int polyPathCount = 0;
-    status = navQuery->findPath(startRef, endRef, startPos, targetPos, &filter,
-        polyPath, &polyPathCount, maxPolythPath);
-    if (dtStatusFailed(status) || polyPathCount == 0)
+    navQuery->findStraightPath(
+        sPos,
+        reached ? gPos : gNearest,
+        polyPath, polyCount,
+        straight, flags, strPolys,
+        &strCount, MAX_STRAIGHT);
+
+    // --- 5) Build glm path (skip the first point, it's the start) ---
+    outPath.reserve(strCount);
+    for (int i = 1; i < strCount; ++i)
     {
-        dtFreeNavMeshQuery(navQuery);
-        return {target};
+        outPath.emplace_back(
+            straight[i * 3 + 0],
+            straight[i * 3 + 1],
+            straight[i * 3 + 2]
+        );
     }
-
-    // Compute the straight path (a series of waypoints) from the polygon path.
-    const int MAX_STRAIGHT_PATH = 256;
-    float straightPath[MAX_STRAIGHT_PATH * 3];
-    unsigned char straightPathFlags[MAX_STRAIGHT_PATH];
-    dtPolyRef straightPathPolys[MAX_STRAIGHT_PATH];
-    int straightPathCount = 0;
-    status = navQuery->findStraightPath(startPos, targetPos, polyPath, polyPathCount,
-        straightPath, straightPathFlags, straightPathPolys,
-        &straightPathCount, MAX_STRAIGHT_PATH);
-    if (dtStatusFailed(status))
-    {
-        dtFreeNavMeshQuery(navQuery);
-        return { target };
-    }
-
-    // Convert the computed straight path into a vector of glm::vec3 points.
-    for (int i = 0; i < straightPathCount; ++i)
-    {
-        float* p = &straightPath[i * 3];
-        outPath.emplace_back(p[0], p[1], p[2]);
-    }
+    // final target or clamped point
+    outPath.emplace_back(
+        reached ? target : glm::vec3(gNearest[0], gNearest[1], gNearest[2])
+    );
 
     dtFreeNavMeshQuery(navQuery);
 
-    
-    // ---------------------------------------------------------------------
-    // Post-process the path by testing redundancy on the second and
-    // second-from-last points based on line-of-sight.
-    // ---------------------------------------------------------------------
-    if (outPath.size() >= 2)
-    {
-        // Check the second point (index 1). If there is a clear line of sight
-        // from the first point to the third point, then the second point is redundant.
-        if (HasLineOfSight(outPath[1], start))
-        {
-            outPath.erase(outPath.begin());
-        }
-    }
-    
-    if (outPath.size() >= 1)
-    {
-        // Check the second-from-last point. If there is a clear line of sight from
-        // the third-from-last point to the last point, then the second-from-last
-        // point is redundant.
-        size_t n = outPath.size();
-        if (HasLineOfSight(outPath[n - 1], target))
-        {
-            outPath.erase(outPath.end()-1);
-        }
-    }
-    
-
-    outPath.push_back(target);
-
-    if (CollisionCheckPath(start, outPath) == false)
-    {
-        return { target };
-    }
+    // --- 6) Collision sanity check ---
+    if (!CollisionCheckPath(start, outPath))
+        outPath.clear();
 
     return outPath;
 }

@@ -231,7 +231,7 @@ public:
 // An example contact listener
 class MyContactListener : public ContactListener
 {
-public:
+public:   
 	// See: ContactListener
 	virtual ValidateResult OnContactValidate(const Body& inBody1, const Body& inBody2,
 		RVec3Arg inBaseOffset,
@@ -247,7 +247,7 @@ public:
 			bool collide1 = (static_cast<uint32_t>(props1->group) & static_cast<uint32_t>(props2->mask)) != 0;
 			bool collide2 = (static_cast<uint32_t>(props2->group) & static_cast<uint32_t>(props1->mask)) != 0;
 
-			if (!collide1 || !collide2)
+			if (!collide1 && !collide2)
 				return ValidateResult::RejectContact;
 		}
 

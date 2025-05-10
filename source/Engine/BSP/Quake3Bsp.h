@@ -221,6 +221,8 @@ class CQuake3BSP : public IDrawMesh
     int    textureID; // The index into the texture array
     GLuint texture[MAX_TEXTURES];
 
+    string filePath = "";
+
     // private:
 
     // r3c:: new functions

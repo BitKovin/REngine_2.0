@@ -79,6 +79,7 @@ public:
         return textureCache[key]->valid ? textureCache[key] : nullptr;
     }
 
+
     static TTF_Font* GetFontFromFile(const char* filename, int fontSize) {
         std::string key = std::string(filename) + "_" + std::to_string(fontSize);
         auto it = fontCache.find(key);

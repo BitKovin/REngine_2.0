@@ -259,6 +259,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapData.cpp" />
     <ClCompile Include="MapParser.cpp" />
+    <ClCompile Include="MeshUtils.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="Navigation\Detour\DetourAlloc.cpp" />
     <ClCompile Include="Navigation\Detour\DetourAssert.cpp" />

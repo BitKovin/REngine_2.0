@@ -79,6 +79,8 @@ bool CQuake3BSP::LoadBSP(const char* filename) {
         return 0;
     }
 
+    filePath = filename;
+
     tBSPHeader header = { 0 };
     tBSPLump lumps[kMaxLumps] = { 0 };
 
@@ -148,6 +150,18 @@ bool CQuake3BSP::LoadBSP(const char* filename) {
         temp = model.maxs[1];
         model.maxs[1] = model.maxs[2];
         model.maxs[2] = -temp;
+    }
+
+    for (auto& leaf : leafs)
+    {
+        float temp = leaf.mins[1];
+        leaf.mins[1] = leaf.mins[2];
+        leaf.mins[2] = -temp;
+
+        // Convert maxs
+        temp = leaf.maxs[1];
+        leaf.maxs[1] = leaf.maxs[2];
+        leaf.maxs[2] = -temp;
     }
 
     // Read Brushes
@@ -456,7 +470,11 @@ int CQuake3BSP::FindClusterAtPosition(const glm::vec3& cameraPos)
     int nodeIndex = 0;
     int depth = 0;
     while (nodeIndex >= 0 && depth < 100) { // Add depth limit to prevent infinite loops
-        const tBSPNode& node = nodes[nodeIndex];
+		const tBSPNode& node = nodes[nodeIndex];
+
+		const vec3 min = vec3(node.mins[0], node.mins[1], node.mins[2]) / MAP_SCALE;
+		const vec3 max = vec3(node.maxs[0], node.maxs[1], node.maxs[2]) / MAP_SCALE;
+
         const tBSPPlane& plane = planes[node.plane];
         float distance = glm::dot(cameraPos, plane.normal) - plane.dist;
 
@@ -514,7 +532,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
 {
 
     auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
-    printf("light : %f, %f, %f \n", light.ambientColor.x, light.ambientColor.y, light.ambientColor.z);
+    //printf("light : %f, %f, %f \n", light.ambientColor.x, light.ambientColor.y, light.ambientColor.z);
 
     DebugDraw::Line(Camera::finalizedPosition + Camera::Forward(), Camera::finalizedPosition + Camera::Forward() + light.direction, 0.01f);
 
@@ -749,6 +767,24 @@ void CQuake3BSP::CreateRenderBuffers(int index) {
     );
 }
 
+string GetLightMapFilePathFromId(int id, const string& filePath)
+{
+    // Find the position of the last '/' and the last '.'
+    size_t lastSlash = filePath.find_last_of("/\\");
+    size_t lastDot = filePath.find_last_of('.');
+
+    // Extract mapname from the path
+    string mapName = filePath.substr(lastSlash + 1, lastDot - lastSlash - 1);
+
+    // Construct the folder path
+    string folder = filePath.substr(0, lastSlash + 1) + mapName + "/";
+
+    // Construct the filename
+    std::ostringstream oss;
+    oss << "lm_" << std::setw(4) << std::setfill('0') << id;
+
+    return folder + oss.str() + ".tga";
+}
 void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightmap, LightVolPointData lightData)
 {
 
@@ -766,6 +802,14 @@ void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
     GLuint lightmapId = (pFace->lightmapID >= 0)
         ? m_lightmap_gen_IDs[pFace->lightmapID]
         : missing_LM_id;
+
+    if (m_numOfLightmaps == 0)
+    {
+
+        string lightMapPath = GetLightMapFilePathFromId(pFace->lightmapID, filePath);
+
+        lightmapId = AssetRegistry::GetTextureFromFile(lightMapPath)->getID();
+    }
 
     if (lightmap == false)
     {
