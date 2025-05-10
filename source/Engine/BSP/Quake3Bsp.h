@@ -14,6 +14,7 @@
 
 #include "../glm.h"
 #include "../ShaderManager.h"
+#include "../BoundingBox.hpp"
 
 #include <cstddef>
 
@@ -272,6 +273,9 @@ class CQuake3BSP : public IDrawMesh
     std::vector<tBSPMeshVert> meshVerts;
     std::vector<tBSPEffect> effects;
     std::vector<tBSPLightvol> lightVols;
+
+    std::vector<BoundingBox> faceBounds;
+
     tBSPVisData visData;
 
     glm::vec3 originalMins; // Original model bounds in Z-up (before transformation)

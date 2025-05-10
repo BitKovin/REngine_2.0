@@ -106,6 +106,38 @@ public:
         return BoundingBox(newMin, newMax);
     }
 
+    BoundingBox Transform(const glm::mat4& matrix) const
+    {
+        // Define the 8 corners of the box
+        glm::vec3 corners[8] = {
+            {Min.x, Min.y, Min.z},
+            {Min.x, Min.y, Max.z},
+            {Min.x, Max.y, Min.z},
+            {Min.x, Max.y, Max.z},
+            {Max.x, Min.y, Min.z},
+            {Max.x, Min.y, Max.z},
+            {Max.x, Max.y, Min.z},
+            {Max.x, Max.y, Max.z}
+        };
+
+        BoundingBox result;
+        // Initialize result's min and max to extremes
+        result.Min = glm::vec3(std::numeric_limits<float>::max());
+        result.Max = glm::vec3(std::numeric_limits<float>::lowest());
+
+        // Transform each corner and update result's Min/Max
+        for (int i = 0; i < 8; ++i)
+        {
+            glm::vec4 transformed = matrix * glm::vec4(corners[i], 1.0f);
+            glm::vec3 pos = glm::vec3(transformed) / transformed.w;
+
+            result.Min = glm::min(result.Min, pos);
+            result.Max = glm::max(result.Max, pos);
+        }
+
+        return result;
+    }
+
     // Check intersection with a sphere
     bool Intersects(const vec3 offset, const float radius) const
     {

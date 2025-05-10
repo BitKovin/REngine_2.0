@@ -295,7 +295,15 @@ void CQuake3BSP::CreateVBO(int index) {
         );
 
         vertices.push_back(vd);
+        
     }
+
+    auto bounds = BoundingBox::FromVertices(vertices);
+    bounds.Min -= vec3(0.1f);
+    bounds.Max += vec3(0.1f);
+
+    faceBounds.push_back(bounds);
+
 }
 
 void CQuake3BSP::CreateIndices(int index) {
@@ -767,26 +775,55 @@ void CQuake3BSP::CreateRenderBuffers(int index) {
     );
 }
 
-string GetLightMapFilePathFromId(int id, const string& filePath)
-{
-    // Find the position of the last '/' and the last '.'
-    size_t lastSlash = filePath.find_last_of("/\\");
-    size_t lastDot = filePath.find_last_of('.');
+inline std::string GetLightMapFilePathFromId(int id, const std::string& filePath) noexcept {
+    const size_t len = filePath.size();
+    // filePath must end with ".bsp"
+    assert(len > 4 && filePath.compare(len - 4, 4, ".bsp") == 0);
 
-    // Extract mapname from the path
-    string mapName = filePath.substr(lastSlash + 1, lastDot - lastSlash - 1);
+    // Find last '/' or '\' in one pass
+    const char* str = filePath.data();
+    const char* end = str + len;
+    const char* p = end;
+    while (p > str && *(p - 1) != '/' && *(p - 1) != '\\') {
+        --p;
+    }
+    size_t prefixLen = p - str;             // includes the slash
+    size_t mapNameLen = len - prefixLen - 4; // minus ".bsp"
 
-    // Construct the folder path
-    string folder = filePath.substr(0, lastSlash + 1) + mapName + "/";
+    // Reserve exact capacity to avoid reallocations
+    // prefixLen + mapNameLen + 1 (slash) + 3 ("lm_") + 4 (digits) + 4 (".tga")
+    std::string result;
+    result.reserve(prefixLen + mapNameLen + 1 + 3 + 4 + 4);
 
-    // Construct the filename
-    std::ostringstream oss;
-    oss << "lm_" << std::setw(4) << std::setfill('0') << id;
+    // Append folder path and map name
+    result.append(str, prefixLen);
+    result.append(p, mapNameLen);
+    result.push_back('/');
 
-    return folder + oss.str() + ".tga";
+    // Append "lm_" + zero-padded 4-digit id + ".tga"
+    result += "lm_";
+
+    char digits[4];
+    int tmp = id;
+    for (int i = 3; i >= 0; --i) {
+        digits[i] = char('0' + (tmp % 10));
+        tmp /= 10;
+    }
+    result.append(digits, 4);
+    result += ".tga";
+
+    return result;
 }
 void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightmap, LightVolPointData lightData)
 {
+
+    mat4 model = glm::scale(vec3(1.0f / MAP_SCALE));
+
+    auto bounds = faceBounds[index];
+    bounds = bounds.Transform(model);
+
+    if (Camera::frustum.IsBoxVisible(bounds.Min, bounds.Max) == false) 
+        return;
 
     // bind the face's VAO (which has its VBO/EBO & attribs)
     auto& buffers = FB_array.FB_Idx[index];
@@ -795,6 +832,7 @@ void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
 
     // bind your textures as before
     tBSPFace* pFace = &m_pFaces[index];
+    
 
 	string texturePath = "GameData/" + string(pTextures[pFace->textureID].strName) + ".png";
 
@@ -824,7 +862,7 @@ void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
     shader->SetTexture("s_bspLightmap", lightmapId);
     shader->SetUniform("view", Camera::finalizedView);
     shader->SetUniform("projection", Camera::finalizedProjection);
-    shader->SetUniform("model", glm::scale(vec3(1.0f / MAP_SCALE)));
+    shader->SetUniform("model", model);
 
 
 
