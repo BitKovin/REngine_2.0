@@ -190,6 +190,8 @@ namespace UiRenderer {
             textTextureCache[text] = { textureID, currentTime, textureMemory, surface->w, surface->h };
             totalCacheMemory += textureMemory;
 
+            //printf("created texture %i from UiRenderer\n", textureID);
+
             textureWidth = surface->w;
             textureHeight = surface->h;
 
@@ -213,6 +215,7 @@ namespace UiRenderer {
                 glDeleteTextures(1, &it->second.textureID);
                 totalCacheMemory -= it->second.memorySize;
                 it = textTextureCache.erase(it);
+                //printf("deleted texture %i from UiRenderer\n", it->second.textureID);
             }
             else {
                 ++it;

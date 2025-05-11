@@ -32,16 +32,19 @@ private:
     void loadFromFile(const std::string& filename, bool generateMipmaps) 
     {
 
+        
+
         SDL_Surface* surface = IMG_Load(filename.c_str());
-        if (!surface) {
-            std::cerr << "Error loading image: " << IMG_GetError() << std::endl;
+        if (!surface) 
+        {
+            std::cerr << filename << "   Error loading image: " << IMG_GetError() << std::endl;
             return;
         }
 
         SDL_Surface* converted_surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
         SDL_FreeSurface(surface);
         if (!converted_surface) {
-            std::cerr << "Error converting surface: " << SDL_GetError() << std::endl;
+            std::cerr << filename  << "  Error converting surface: " << SDL_GetError() << std::endl;
             return;
         }
 

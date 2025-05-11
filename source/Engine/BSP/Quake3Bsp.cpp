@@ -543,7 +543,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
     auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
     //printf("light : %f, %f, %f \n", light.ambientColor.x, light.ambientColor.y, light.ambientColor.z);
 
-    DebugDraw::Line(Camera::finalizedPosition + Camera::Forward(), Camera::finalizedPosition + Camera::Forward() + light.direction, 0.01f);
+    //DebugDraw::Line(Camera::finalizedPosition + Camera::Forward(), Camera::finalizedPosition + Camera::Forward() + light.direction, 0.01f);
 
 
     // 1. Find camera's cluster via BSP tree traversal
@@ -567,7 +567,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
 
         //lightData.ambientColor = vec3(1);
 
-        DebugDraw::Line((min + max) / 2.0f / MAP_SCALE + vec3(1, 0, 0), (min + max) / 2.0f / MAP_SCALE + vec3(1, 0, 0) + lightData.direction, 0.01f);
+        //DebugDraw::Line((min + max) / 2.0f / MAP_SCALE + vec3(1, 0, 0), (min + max) / 2.0f / MAP_SCALE + vec3(1, 0, 0) + lightData.direction, 0.01f);
 
     }
 
@@ -864,6 +864,8 @@ bool CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
         string lightMapPath = GetLightMapFilePathFromId(pFace->lightmapID, filePath);
 
         lightmapId = AssetRegistry::GetTextureFromFile(lightMapPath)->getID();
+        //Logger::Log(lightMapPath);
+        //printf("%i \n", lightmapId);
     }
 
     if (lightmap == false)
