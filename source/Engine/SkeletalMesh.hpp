@@ -218,7 +218,7 @@ public:
 
 	bool UpdatePose = true;
 
-	SkeletalMesh()
+	SkeletalMesh(Entity* owner) : StaticMesh(owner)
 	{
 		CastDetailShadows = true;
 	}

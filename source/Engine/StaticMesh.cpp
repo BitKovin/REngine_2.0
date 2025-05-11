@@ -2,6 +2,24 @@
 
 #include "Renderer/Renderer.h"
 
+#include "Entity.hpp"
+
+LightVolPointData StaticMesh::GetLightVolData()
+{
+
+	if (OwnerEntity == nullptr || 
+		model == nullptr||
+		Level::Current->BspData.lightVols.size() == 0) return LightVolPointData{ vec3(0),vec3(1),vec3(0) };
+
+	vec3 samplePos = OwnerEntity->Position + vec3(0,0.6,0);
+
+	auto light = Level::Current->BspData.GetLightvolColor(samplePos * MAP_SCALE);
+
+	DebugDraw::Line(samplePos, samplePos + light.direction, 0.01f);
+	return light;
+
+}
+
 void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 {
 
@@ -24,6 +42,12 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 	Renderer::SetSurfaceShaderUniforms(forward_shader_program);
 
 	mat4x4 world = finalizedWorld;
+
+	auto lightData = GetLightVolData();
+
+	forward_shader_program->SetUniform("light_color", lightData.ambientColor);
+	forward_shader_program->SetUniform("direct_light_color", lightData.directColor);
+	forward_shader_program->SetUniform("direct_light_dir", lightData.direction);
 
 	forward_shader_program->SetUniform("view", view);
 	forward_shader_program->SetUniform("projection", projection);

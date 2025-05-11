@@ -11,7 +11,7 @@ public:
 	{
 		Entity::FromData(data);
 
-		mesh = new StaticMesh();
+		mesh = new StaticMesh(this);
 
 		mesh->LoadFromFile("GameData/" + data.GetPropertyString("path"));
 

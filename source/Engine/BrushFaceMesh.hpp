@@ -29,10 +29,10 @@ public:
 	
     int closestLightSource = -1;
 
-	BrushFaceMesh()
-	{
+    BrushFaceMesh(Entity* owner): StaticMesh(owner)
+    {
 
-	}
+    }
 
 	~BrushFaceMesh()
 	{
@@ -57,7 +57,7 @@ public:
         return frustrum.IsBoxVisible(box.Min, box.Max);
     };
 
-	static vector<BrushFaceMesh*> GetMeshesFromName(string filePath, string name, roj::ModelLoader<roj::SkinnedMesh>* modelLoader)
+	static vector<BrushFaceMesh*> GetMeshesFromName(Entity* owner, string filePath, string name, roj::ModelLoader<roj::SkinnedMesh>* modelLoader)
 	{
 
 		roj::LoaderGlobalParams::MeshNameLimit = name;
@@ -77,7 +77,7 @@ public:
 		for (auto mesh : model.meshes)
 		{
 			
-			BrushFaceMesh* face = new BrushFaceMesh();
+			BrushFaceMesh* face = new BrushFaceMesh(owner);
 
 			roj::SkinnedModel* newModel = new roj::SkinnedModel();
 
@@ -186,7 +186,7 @@ public:
             newModel->boundingBox = BoundingBox::FromVertices(merged.vertices);
 
             // Create a new BrushFaceMesh and set its properties
-            BrushFaceMesh* mergedFace = new BrushFaceMesh();
+            BrushFaceMesh* mergedFace = new BrushFaceMesh(faces[0]->OwnerEntity);
             mergedFace->model = newModel;
             mergedFace->material = material;
 

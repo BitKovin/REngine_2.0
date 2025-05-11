@@ -142,9 +142,9 @@ public:
 	Player()
 	{
 
-		bikeMesh = new SkeletalMesh();
+		bikeMesh = new SkeletalMesh(this);
 		Drawables.push_back(bikeMesh);
-		bikeArmsMesh = new SkeletalMesh();
+		bikeArmsMesh = new SkeletalMesh(this);
 		Drawables.push_back(bikeArmsMesh);
 
 		ClassName = "info_player_start";

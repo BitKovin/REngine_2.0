@@ -14,7 +14,11 @@
 
 #include "glm.h"
 
+#include "BSP/Quake3Bsp.h"
+
 using namespace std;
+
+class Entity;
 
 class StaticMesh : public IDrawMesh
 {
@@ -53,7 +57,7 @@ public:
 
 	roj::SkinnedModel* model = nullptr;
 
-
+	Entity* OwnerEntity = nullptr;
 
 	Texture* ColorTexture = nullptr;
 
@@ -72,6 +76,11 @@ public:
 	bool CastDetailShadows = false;
 
 
+	StaticMesh(Entity* owner)
+	{
+		OwnerEntity = owner;
+	}
+
 	void SetPixelShader(string name)
 	{
 		PixelShader = name;
@@ -88,6 +97,8 @@ public:
 
 		return translate(Position) * rotOffset * MathHelper::GetRotationMatrix(Rotation) * scale(Scale) * posOffset;
 	}
+
+	LightVolPointData GetLightVolData();
 
 	vector<MeshUtils::PositionVerticesIndices> GetNavObstacleMeshes()
 	{

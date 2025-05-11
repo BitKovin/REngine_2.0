@@ -55,7 +55,7 @@ public:
 
 	TestNpc()
 	{
-		mesh = new SkeletalMesh();
+		mesh = new SkeletalMesh(this);
 
 		ClassName = "testnpc";
 		SaveGame = true;

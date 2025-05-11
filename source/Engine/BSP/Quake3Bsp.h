@@ -170,11 +170,92 @@ struct RenderBuffers // m_renderBuffers.m_faceVBOs[idx].m_vertexBuffer
     std::map<GLuint, GLuint> lm_ID; // optimized lightmap IDs
 };
 
-struct LightVolPointData
-{
-    vec3 directColor;
-    vec3 ambientColor;
-    vec3 direction;
+struct LightVolPointData {
+    glm::vec3 directColor;
+    glm::vec3 ambientColor;
+    glm::vec3 direction;
+
+    // Addition
+    friend LightVolPointData operator+(const LightVolPointData& a, const LightVolPointData& b) {
+        return {
+            a.directColor + b.directColor,
+            a.ambientColor + b.ambientColor,
+            a.direction + b.direction
+        };
+    }
+
+    // Subtraction
+    friend LightVolPointData operator-(const LightVolPointData& a, const LightVolPointData& b) {
+        return {
+            a.directColor - b.directColor,
+            a.ambientColor - b.ambientColor,
+            a.direction - b.direction
+        };
+    }
+
+    // Multiply by scalar
+    friend LightVolPointData operator*(const LightVolPointData& v, float s) {
+        return {
+            v.directColor * s,
+            v.ambientColor * s,
+            v.direction * s
+        };
+    }
+    friend LightVolPointData operator*(float s, const LightVolPointData& v) {
+        return v * s;
+    }
+
+    // Divide by scalar
+    friend LightVolPointData operator/(const LightVolPointData& v, float s) {
+        return {
+            v.directColor / s,
+            v.ambientColor / s,
+            v.direction / s
+        };
+    }
+
+    // Compound-assignment versions
+    LightVolPointData& operator+=(const LightVolPointData& o) {
+        directColor += o.directColor;
+        ambientColor += o.ambientColor;
+        direction += o.direction;
+        return *this;
+    }
+    LightVolPointData& operator-=(const LightVolPointData& o) {
+        directColor -= o.directColor;
+        ambientColor -= o.ambientColor;
+        direction -= o.direction;
+        return *this;
+    }
+    LightVolPointData& operator*=(float s) {
+        directColor *= s;
+        ambientColor *= s;
+        direction *= s;
+        return *this;
+    }
+    LightVolPointData& operator/=(float s) {
+        directColor /= s;
+        ambientColor /= s;
+        direction /= s;
+        return *this;
+    }
+
+    // Lerp between two LightVolPointData:
+// - directColor & ambientColor: linear interpolation
+// - direction: spherical linear interpolation (then normalized)
+    static LightVolPointData Lerp(const LightVolPointData& a,
+        const LightVolPointData& b,
+        float t)
+    {
+        LightVolPointData result;
+        // linear interp for colors
+        result.directColor = glm::mix(a.directColor, b.directColor, t);
+        result.ambientColor = glm::mix(a.ambientColor, b.ambientColor, t);
+        // spherical interp for direction
+        result.direction = glm::normalize(glm::slerp(a.direction, b.direction, t));
+        return result;
+    }
+
 };
 
 // This is our lumps enumeration
@@ -282,6 +363,7 @@ class CQuake3BSP : public IDrawMesh
     glm::vec3 originalMaxs;
 
     // Get lighting for a dynamic object at position (x, y, z)
+    LightVolPointData GetLightvolColorPoint(const glm::vec3& position);
     LightVolPointData GetLightvolColor(const glm::vec3& position);
     int FindClusterAtPosition(glm::vec3 cameraPos);
 

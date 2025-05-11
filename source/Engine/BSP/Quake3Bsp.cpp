@@ -329,36 +329,23 @@ void CQuake3BSP::CreateIndices(int index) {
 }
 
 glm::vec3 computeLightDirection(const unsigned char vol_dir[2]) {
-    // Step 1: Scale angles to degrees
-    float yaw_deg = static_cast<float>(vol_dir[1]) * 360.0f / 255.0f;
-    float pitch_deg = 270.0f - static_cast<float>(vol_dir[0]) * 360.0f / 255.0f;
+    // Quake 3 encodes pitch (elevation) from 0 (up) to 255 (down)
+    float pitch = glm::radians((static_cast<float>(vol_dir[0]) / 255.0f) * 180.0f);
+    float yaw = glm::radians((static_cast<float>(vol_dir[1]) / 255.0f) * 360.0f);
 
-    // Step 2: Convert angles to radians
-    float yaw_rad = glm::radians(yaw_deg);
-    float pitch_rad = glm::radians(pitch_deg);
+    // Convert from spherical coordinates to Cartesian
+    float x = sinf(pitch) * cosf(yaw);
+    float y = sinf(pitch) * sinf(yaw);
+    float z = cosf(pitch);
 
-    // Step 3: Create rotation matrices
-    // Yaw around Z-axis
-    glm::mat4 yaw_matrix = glm::rotate(glm::mat4(1.0f), yaw_rad, glm::vec3(0.0f, 0.0f, 1.0f));
-    // Pitch around Y-axis
-    glm::mat4 pitch_matrix = glm::rotate(glm::mat4(1.0f), pitch_rad, glm::vec3(0.0f, 1.0f, 0.0f));
+    // Quake uses Z-up, your engine uses Y-up: map (x, y, z) → (x, z, -y)
+    glm::vec3 quake_vec(x, y, z);
+    glm::vec3 engine_vec = glm::vec3(quake_vec.x, quake_vec.z, -quake_vec.y);
 
-    // Step 4: Combine rotations (pitch after yaw)
-    glm::mat4 rotation = pitch_matrix * yaw_matrix;
-
-    // Step 5: Apply rotation to initial vector (1, 0, 0)
-    glm::vec3 view_vector = glm::vec3(rotation * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
-
-    // Step 6: Invert to get light direction in Quake coordinates
-    glm::vec3 light_dir_quake = -view_vector;
-
-    // Step 7: Transform to engine coordinates (assuming Y-up: X, Z, -Y)
-    glm::vec3 light_dir_engine = glm::vec3(light_dir_quake.x, light_dir_quake.z, light_dir_quake.y);
-
-    return light_dir_engine;
+    return glm::normalize(engine_vec);
 }
 
-LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
+LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
 {
     // Transform position from Y-up (engine) to Z-up (Quake 3)
     glm::vec3 pos_quake(position.x, -position.z, position.y);
@@ -472,6 +459,19 @@ LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
     return LightVolPointData{ directional, ambient, dir_engine };
 }
 
+LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
+{
+    auto data = GetLightvolColorPoint(position);
+    float radius = MAP_SCALE * 0.5f;
+    data += GetLightvolColorPoint(position + vec3(radius,0,0));
+    data += GetLightvolColorPoint(position + vec3(-radius, 0, 0));
+    data += GetLightvolColorPoint(position + vec3(0, 0, radius));
+    data += GetLightvolColorPoint(position + vec3(0, 0, -radius));
+
+    return data / 5.0f;
+}
+
+
 int CQuake3BSP::FindClusterAtPosition(glm::vec3 cameraPos) 
 {
     cameraPos *= MAP_SCALE;
@@ -543,7 +543,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
     auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
     //printf("light : %f, %f, %f \n", light.ambientColor.x, light.ambientColor.y, light.ambientColor.z);
 
-    //DebugDraw::Line(Camera::finalizedPosition + Camera::Forward(), Camera::finalizedPosition + Camera::Forward() + light.direction, 0.01f);
+    DebugDraw::Line(Camera::finalizedPosition + Camera::Forward(), Camera::finalizedPosition + Camera::Forward() + light.direction, 0.01f);
 
 
     // 1. Find camera's cluster via BSP tree traversal

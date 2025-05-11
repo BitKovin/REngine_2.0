@@ -265,7 +265,7 @@ void MapData::LoadToLevel()
 
                 string meshName = "entity" + entityData.name + "_brush" + brushData.Name;
 
-                auto faces = BrushFaceMesh::GetMeshesFromName(modelPath, meshName, &loader);
+                auto faces = BrushFaceMesh::GetMeshesFromName(ent,modelPath, meshName, &loader);
 
                 for (auto face : faces)
                 {

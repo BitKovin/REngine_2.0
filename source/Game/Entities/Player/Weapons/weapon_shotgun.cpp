@@ -14,8 +14,8 @@ public:
 
 	weapon_shotgun()
 	{
-		viewmodel = new SkeletalMesh();
-		arms = new SkeletalMesh();
+		viewmodel = new SkeletalMesh(this);
+		arms = new SkeletalMesh(this);
 	}
 
 	void LoadAssets()

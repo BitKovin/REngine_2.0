@@ -51,7 +51,7 @@
 <epair name="ColorGridWorldspawn">0 0 0</epair>
 <epair name="ColorModBroBackground">0.25 0.25 0.25</epair>
 <epair name="ColorTexBroBackground">0.25 0.25 0.25</epair>
-<epair name="Count">1</epair>
+<epair name="Count">2</epair>
 <epair name="CubicClipping">false</epair>
 <epair name="CubicScale">14</epair>
 <epair name="CustomShaderEditorCommand"></epair>
@@ -66,7 +66,7 @@
 <epair name="ExtraResourcePath3"></epair>
 <epair name="ExtraResourcePath4"></epair>
 <epair name="File0">F:/Git/SdlWasmEngine/source/GameData/Maps/test.map</epair>
-<epair name="File1"></epair>
+<epair name="File1">D:/Games/Quake 3 Arena/baseq3/maps/test.map</epair>
 <epair name="File2"></epair>
 <epair name="File3"></epair>
 <epair name="File4"></epair>
