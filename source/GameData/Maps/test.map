@@ -585,7 +585,7 @@
 // entity 26
 {
 "classname" "light"
-"origin" "-80 560 112"
+"origin" "-80 640 112"
 "light" "3000"
 "_color" "1 0 0"
 "scale" "1"

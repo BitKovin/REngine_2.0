@@ -448,13 +448,9 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
     glm::vec3 directional = lerpVec3(dir_y0, dir_y1, fz);
     glm::vec3 dir_engine = lerpVec3(vec_y0, vec_y1, fz);
 
-    // Normalize direction to ensure valid vector
-    if (glm::length(dir_engine) > 0.0f) {
-        dir_engine = glm::normalize(dir_engine);
-    }
-    else {
-        dir_engine = glm::vec3(0.0f, 1.0f, 0.0f); // Default direction (up)
-    }
+
+	dir_engine = glm::normalize(dir_engine);
+
 
     return LightVolPointData{ directional, ambient, dir_engine };
 }
@@ -462,13 +458,18 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
 LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
 {
     auto data = GetLightvolColorPoint(position);
-    float radius = MAP_SCALE * 0.5f;
+    auto centerData = data;
+    float radius = MAP_SCALE * 1.5f;
     data += GetLightvolColorPoint(position + vec3(radius,0,0));
     data += GetLightvolColorPoint(position + vec3(-radius, 0, 0));
     data += GetLightvolColorPoint(position + vec3(0, 0, radius));
     data += GetLightvolColorPoint(position + vec3(0, 0, -radius));
 
-    return data / 5.0f;
+    centerData.direction = data.direction;
+
+    centerData.direction = normalize(centerData.direction);
+
+    return centerData;
 }
 
 

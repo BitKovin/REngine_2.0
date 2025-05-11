@@ -15,7 +15,7 @@ LightVolPointData StaticMesh::GetLightVolData()
 
 	auto light = Level::Current->BspData.GetLightvolColor(samplePos * MAP_SCALE);
 
-	DebugDraw::Line(samplePos, samplePos + light.direction, 0.01f);
+	//DebugDraw::Line(samplePos, samplePos + light.direction, 0.01f);
 	return light;
 
 }
