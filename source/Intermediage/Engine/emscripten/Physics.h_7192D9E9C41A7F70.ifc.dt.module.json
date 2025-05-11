@@ -1,9 +1,22 @@
 {
-    "Version": "1.1",
-    "Data": {
-        "Source": "f:\\git\\sdlwasmengine\\source\\engine\\physics.h",
-        "ProvidedModule": "",
-        "ImportedModules": [],
-        "ImportedHeaderUnits": []
-    }
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "..\\Intermediage\\Engine\\emscripten\\Physics.obj",
+            "outputs": [
+                "..\\Intermediage\\Engine\\emscripten\\Physics.h_7192D9E9C41A7F70.ifc.dt.module.json",
+                "..\\Intermediage\\Engine\\emscripten\\Physics.h_7192D9E9C41A7F70.ifc.dt.d.json",
+                "..\\Intermediage\\Engine\\emscripten\\Physics.h.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "F:\\Git\\SdlWasmEngine\\source\\Engine\\Physics.h",
+                    "source-path": "f:\\git\\sdlwasmengine\\source\\engine\\physics.h",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
 }

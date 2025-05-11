@@ -472,8 +472,9 @@ LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
     return LightVolPointData{ directional, ambient, dir_engine };
 }
 
-int CQuake3BSP::FindClusterAtPosition(const glm::vec3& cameraPos) 
+int CQuake3BSP::FindClusterAtPosition(glm::vec3 cameraPos) 
 {
+    cameraPos *= MAP_SCALE;
 
     int nodeIndex = 0;
     int depth = 0;
@@ -527,7 +528,7 @@ void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
 
         if (Camera::frustum.IsBoxVisible(min, max))
         {
-            RenderBSP(Camera::finalizedPosition * MAP_SCALE, model, first, first);
+            RenderBSP(Camera::finalizedPosition, model, first, first);
         }
 
 
@@ -570,33 +571,46 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
 
     }
 
-	if (useClusterVis)
-	{
 
-		// 2. Iterate through all leaves
-		for (const tBSPLeaf& leaf : leafs) {
-			if (leaf.cluster < 0)
-				continue; // Skip invalid clusters
+    if (useClusterVis)
+    {
+        // Initialize a boolean array to track rendered faces for this model
+        std::vector<bool> renderedFaces(model.n_faces, false);
 
-			// 3. Check visibility using visdata
-			if (!IsClusterVisible(cameraCluster, leaf.cluster))
-				continue;
+        // 2. Iterate through all leaves
+        for (const tBSPLeaf& leaf : leafs) {
+            if (leaf.cluster < 0)
+                continue; // Skip invalid clusters
 
-			// 4. Render visible leaf's faces
-			for (int i = 0; i < leaf.n_leaffaces; i++)
-			{
+            // 3. Check visibility using visdata
+            if (!IsClusterVisible(cameraCluster, leaf.cluster))
+                continue;
 
-				int faceIndex = leafFaces[leaf.leafface + i];
+            // 4. Render visible leaf's faces
+            for (int i = 0; i < leaf.n_leaffaces; i++)
+            {
+                int faceIndex = leafFaces[leaf.leafface + i];
 
-				if (model.face <= faceIndex && faceIndex < model.face + model.n_faces)
-				{
-					RenderSingleFace(faceIndex, shader, lightmap, lightData);
+                if (model.face <= faceIndex && faceIndex < model.face + model.n_faces)
+                {
+                    // Compute the local index within the model's face range
+                    int localIndex = faceIndex - model.face;
 
-					drawnFaces++;
-				}
-			}
-		}
-
+                    // Only render if the face hasn’t been rendered yet
+                    if (!renderedFaces[localIndex])
+                    {
+                        renderedFaces[localIndex] = true; // Mark as rendered
+                        bool drawn = RenderSingleFace(faceIndex, shader, lightmap, lightData);
+                        if (drawn)
+                        {
+                            drawnFaces++;
+                            //printf("%i \n", faceIndex);
+                        }
+                    }
+                }
+            }
+        }
+        //printf("n: %i\n", drawnFaces);
     }
     else
     {
@@ -619,10 +633,13 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
 vector<BSPModelRef> CQuake3BSP::GetAllModelRefs()
 {
     vector<BSPModelRef> refs;
+    bool first = true;
     for (size_t i = 0; i < models.size(); ++i)
     {
         BSPModelRef ref(this, static_cast<int>(i), models[i]);
+        ref.useBspVisibility = first;
         refs.push_back(ref);             // Add the reference to the vector
+        first = false;
     }
     return refs;
 }
@@ -814,7 +831,7 @@ inline std::string GetLightMapFilePathFromId(int id, const std::string& filePath
 
     return result;
 }
-void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightmap, LightVolPointData lightData)
+bool CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightmap, LightVolPointData lightData)
 {
 
     mat4 model = glm::scale(vec3(1.0f / MAP_SCALE));
@@ -823,7 +840,7 @@ void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
     bounds = bounds.Transform(model);
 
     if (Camera::frustum.IsBoxVisible(bounds.Min, bounds.Max) == false) 
-        return;
+        return false;
 
     // bind the face's VAO (which has its VBO/EBO & attribs)
     auto& buffers = FB_array.FB_Idx[index];
@@ -877,6 +894,8 @@ void CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
 
 
     VertexArrayObject::Unbind();
+
+    return true;
 }
 
 void CQuake3BSP::GenerateTexture() 

@@ -43,7 +43,7 @@ void EngineMain::UpdateScreenSize()
 #endif // __EMSCRIPTEN__
 }
 
-void EngineMain::initDemo()
+void EngineMain::initGame()
 {
 
 
@@ -91,6 +91,57 @@ void EngineMain::InitInputs()
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxUniforms);
 
     printf("max uniforms: %i \n", maxUniforms);
+
+}
+
+void EngineMain::Init()
+{
+    UpdateScreenSize();
+
+    printf("init\n");
+
+    MainThreadPool = new ThreadPool();
+
+    MainThreadPool->Start();
+
+    SoundManager::Initialize();
+
+    Time::Init();
+
+    Physics::Init();
+
+    LevelSaveSystem::InitPersistence();
+    MainRenderer = new Renderer();
+
+    UiRenderer::Init();
+
+    ParticleEmitter::InitBilboardVaoIfNeeded();
+
+    InitInputs();
+
+    initGame();
+}
+
+void EngineMain::FinishFrame()
+{
+
+    Level::Current->RemovePendingEntities();
+    Level::Current->MemoryCleanPendingEntities();
+
+    Camera::Update(Time::DeltaTime);
+    Level::Current->FinalizeFrame();
+    Viewport.FinalizeChildren();
+
+    NavigationSystem::DrawNavmesh();
+
+    DebugDraw::Finalize();
+
+    UpdateScreenSize();
+
+    Camera::ScreenHeight = ScreenSize.y;
+
+    float AspectRatio = static_cast<float>(ScreenSize.x) / static_cast<float>(ScreenSize.y);
+    Camera::AspectRatio = AspectRatio;
 
 }
 
@@ -154,4 +205,58 @@ void EngineMain::MainLoop()
         //Level::OpenLevel("GameData/Maps/test.map");
 
     }
+}
+
+void EngineMain::GameUpdate()
+{
+
+    NavigationSystem::Update();
+    Physics::Simulate();
+    Physics::Update();
+
+    Level::Current->UpdatePhysics();
+
+    Level::Current->Update();
+
+    Level::Current->AsyncUpdate();
+
+    Level::Current->LateUpdate();
+
+    SoundManager::Update();
+
+    if (Input::GetAction("test")->Pressed())
+    {
+        //ToggleFullscreen(window);
+        printf("framerate: %f  \n", (1 / Time::DeltaTime));
+
+        Input::LockCursor = !Input::LockCursor;
+
+    }
+
+}
+
+void EngineMain::Render()
+{
+    glViewport(0, 0, ScreenSize.x, ScreenSize.y);
+
+    // Enable depth testing
+    glEnable(GL_DEPTH_TEST);
+
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.0, 1.0);
+
+    MainRenderer->RenderLevel(Level::Current);
+
+    glDisable(GL_DEPTH_TEST);
+
+    Viewport.Update();
+
+    Viewport.Draw();
+    UiRenderer::EndFrame();
+
+    Level::Current->DevUiUpdate();
+
+    RenderImGui();
+
+    SDL_GL_SwapWindow(Window);
 }

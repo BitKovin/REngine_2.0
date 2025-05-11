@@ -93,7 +93,7 @@ public:
         SDL_ShowCursor(SDL_ENABLE);
     }
 
-    void initDemo();
+    void initGame();
 
     void InitInputs();
 
@@ -106,59 +106,9 @@ public:
         printf("clicked \n");
     }
 
-	void Init()
-	{
+    void Init();
 
-        UpdateScreenSize();
-
-        printf("init\n");
-
-        MainThreadPool = new ThreadPool();
-
-        MainThreadPool->Start();
-
-        SoundManager::Initialize();
-
-        Time::Init();
-
-        Physics::Init();
-
-        LevelSaveSystem::InitPersistence();
-        MainRenderer = new Renderer();
-
-        UiRenderer::Init();
-
-        ParticleEmitter::InitBilboardVaoIfNeeded();
-
-        InitInputs();
-
-        
-
-        initDemo();
-
-	}
-
-    void FinishFrame()
-    {
-
-        Level::Current->RemovePendingEntities();
-        Level::Current->MemoryCleanPendingEntities();
-
-        Camera::Update(Time::DeltaTime);
-        Level::Current->FinalizeFrame();
-        Viewport.FinalizeChildren();
-
-        NavigationSystem::DrawNavmesh();
-
-        DebugDraw::Finalize();
-
-        UpdateScreenSize();
-
-        Camera::ScreenHeight = ScreenSize.y;
-
-        float AspectRatio = static_cast<float>(ScreenSize.x) / static_cast<float>(ScreenSize.y);
-        Camera::AspectRatio = AspectRatio;
-    }
+    void FinishFrame();
 
     // Toggle asynchronous GameUpdate.
     bool asyncGameUpdate = true;
@@ -170,59 +120,8 @@ public:
     void MainLoop();
 
 
-	void GameUpdate()
-	{
+    void GameUpdate();
 
-        NavigationSystem::Update();
-        Physics::Simulate();
-        Physics::Update();
-
-        Level::Current->UpdatePhysics();
-
-        Level::Current->Update();
-
-        Level::Current->AsyncUpdate();
-
-        Level::Current->LateUpdate();
-
-        SoundManager::Update();
-
-        if (Input::GetAction("test")->Pressed())
-        {
-            //ToggleFullscreen(window);
-            printf("framerate: %f  \n", (1 / Time::DeltaTime));
-
-            Input::LockCursor = !Input::LockCursor;
-
-        }
-
-
-	}
-
-	void Render()
-	{
-        glViewport(0, 0, ScreenSize.x, ScreenSize.y);
-
-        // Enable depth testing
-        glEnable(GL_DEPTH_TEST);
-
-        glDisable(GL_POLYGON_OFFSET_FILL);
-        glPolygonOffset(1.0, 1.0);
-
-        MainRenderer->RenderLevel(Level::Current);
-
-        glDisable(GL_DEPTH_TEST);
-
-        Viewport.Update();
-
-        Viewport.Draw();
-
-        Level::Current->DevUiUpdate();
-
-        RenderImGui();
-
-        SDL_GL_SwapWindow(Window);
-
-	}
+    void Render();
 
 };

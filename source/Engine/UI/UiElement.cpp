@@ -59,13 +59,13 @@ void UiElement::FinalizeChildren() {
 
 void UiElement::Update() 
 {
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 5; ++i)  //Fixes issue with offsets not following parrent. Need to investigate issue better
+    {
         UpdateChildrenOffsets();
         UpdateOffsets();
     }
 
     UpdateChildrenOffsets();
-    
     UpdateChildren();
 
     if (Input::LockCursor)

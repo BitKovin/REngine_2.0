@@ -229,7 +229,7 @@ class CQuake3BSP : public IDrawMesh
     // r3c:: new functions
     void GenerateTexture();
     void GenerateLightmap();
-    void RenderSingleFace(int index, ShaderProgram* shader, bool lightmap, LightVolPointData lightData);
+    bool RenderSingleFace(int index, ShaderProgram* shader, bool lightmap, LightVolPointData lightData);
     void renderFaces();
     void VBOFiller(int index);
     void BuildVBO();
@@ -283,7 +283,7 @@ class CQuake3BSP : public IDrawMesh
 
     // Get lighting for a dynamic object at position (x, y, z)
     LightVolPointData GetLightvolColor(const glm::vec3& position);
-    int FindClusterAtPosition(const glm::vec3& cameraPos);
+    int FindClusterAtPosition(glm::vec3 cameraPos);
 
     bool IsClusterVisible(int sourceCluster, int testCluster);
 

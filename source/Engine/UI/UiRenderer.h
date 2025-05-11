@@ -2,9 +2,7 @@
 
 #include "../glm.h"
 #include <SDL2/SDL_ttf.h>
-
 #include "../gl.h"
-
 #include <string>
 
 using namespace std;
@@ -16,7 +14,8 @@ namespace UiRenderer {
     void Shutdown(); // Optional
     void DrawTexturedRect(const glm::vec2& pos, const glm::vec2& size, GLuint texture, const glm::vec4& color = glm::vec4(1.0f));
     void DrawBorderRect(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color);
-    // Draw text using SDL_TTF. This creates an SDL surface and a temporary OpenGL texture,
-    // then draws it as a textured quad.
+    // Draw text using SDL_TTF. Uses a texture cache to avoid recreating textures.
     void DrawText(const std::string& text, TTF_Font* font, const glm::vec2& pos, const glm::vec4& color, const glm::vec2& scale);
+    // Call at the end of each frame to update time and clean the cache
+    void EndFrame();
 }

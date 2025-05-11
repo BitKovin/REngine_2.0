@@ -1,9 +1,22 @@
 {
-    "Version": "1.1",
-    "Data": {
-        "Source": "f:\\git\\sdlwasmengine\\source\\engine\\input.h",
-        "ProvidedModule": "",
-        "ImportedModules": [],
-        "ImportedHeaderUnits": []
-    }
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "..\\Intermediage\\Engine\\emscripten\\Input.obj",
+            "outputs": [
+                "..\\Intermediage\\Engine\\emscripten\\Input.h_8452A0C7B37D7FA9.ifc.dt.module.json",
+                "..\\Intermediage\\Engine\\emscripten\\Input.h_8452A0C7B37D7FA9.ifc.dt.d.json",
+                "..\\Intermediage\\Engine\\emscripten\\Input.h.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "F:\\Git\\SdlWasmEngine\\source\\Engine\\Input.h",
+                    "source-path": "f:\\git\\sdlwasmengine\\source\\engine\\input.h",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
 }
