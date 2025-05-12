@@ -88,15 +88,18 @@ void RibbonEmitter::RenderRibbon(const std::vector<Particle>& inParticles)
         float half = p.Size * 0.5f;
         int b = i * 2;
 
+        vec3 light = GetLightForParticle(p);
+
         // Vertex on one side of the ribbon
         verts[b + 0].Position = P + perp * half;
 		verts[b + 0].TextureCoordinate = glm::vec2(static_cast<float>(i) / (n - 1), 0.0f);
-		verts[b + 0].Color = p.Color * vec4(1, 1, 1, p.Transparency);
+
+		verts[b + 0].Color = p.Color * vec4(1, 1, 1, p.Transparency) * vec4(light,1.0);
 
         // Vertex on the other side
         verts[b + 1].Position = P - perp * half;
-        verts[b + 1].TextureCoordinate = glm::vec2(static_cast<float>(i) / (n - 1), 1.0f);
-        verts[b + 1].Color = p.Color * vec4(1, 1, 1, p.Transparency);
+        verts[b + 1].TextureCoordinate = glm::vec2(static_cast<float>(i) / (n - 1), 1.0f) ;
+        verts[b + 1].Color = p.Color * vec4(1, 1, 1, p.Transparency) * vec4(light, 1.0);
     }
 
     primitiveCount = idxCount / 3;
@@ -159,6 +162,7 @@ void RibbonEmitter::DrawForward(mat4x4 view, mat4x4 projection)
     glDepthMask(GL_TRUE);
     glEnable(GL_CULL_FACE);
 }
+
 
 void RibbonEmitter::GenerateIndices(std::vector<GLuint>& dst, int n) {
     for (int i = 1; i < n; ++i) {

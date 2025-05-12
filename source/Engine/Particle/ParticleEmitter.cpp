@@ -18,27 +18,7 @@ mat4 GetWorldMatrix(const Particle& particle)
     return translate(particle.position) * MathHelper::GetRotationMatrix(particle.globalRotation) * scale(vec3(particle.Size));
 }
 
-vec3 GetLightForParticle(const Particle& particle)
-{
 
-
-    
-
-    if (particle.UseWorldRotation == false)
-    {
-        auto light = Level::Current->BspData.GetLightvolColor(particle.position * MAP_SCALE);
-        return (light.ambientColor + light.directColor)*2.0f;
-    }
-
-    vec3 normal = MathHelper::GetForwardVector(particle.globalRotation);
-
-    auto light = Level::Current->BspData.GetLightvolColor((particle.position + normal) * MAP_SCALE);
-
-    float dirFactor = 1.0;// glm::clamp(dot(normal, light.direction), 0.0f, 1.0f);
-
-    return light.ambientColor + light.directColor * dirFactor * 2.0f;
-
-}
 
 void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
 {
@@ -199,6 +179,23 @@ void ParticleEmitter::InitBilboardVaoIfNeeded()
     IndexBuffer::Unbind();
     VertexBuffer::Unbind();
 
+}
+
+vec3 ParticleEmitter::GetLightForParticle(const Particle& particle)
+{
+    if (particle.UseWorldRotation == false)
+    {
+        auto light = Level::Current->BspData.GetLightvolColor(particle.position * MAP_SCALE);
+        return (light.ambientColor + light.directColor) * 2.0f;
+    }
+
+    vec3 normal = MathHelper::GetForwardVector(particle.globalRotation);
+
+    auto light = Level::Current->BspData.GetLightvolColor((particle.position + normal) * MAP_SCALE);
+
+    float dirFactor = 1.0;// glm::clamp(dot(normal, light.direction), 0.0f, 1.0f);
+
+    return light.ambientColor + light.directColor * dirFactor * 2.0f;
 }
 
 void ParticleEmitter::SetInstanceData(std::vector<InstanceData>& instanceData)

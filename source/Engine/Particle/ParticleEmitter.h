@@ -219,6 +219,8 @@ protected:
 	Texture* savedTexture = nullptr;
 	string savedTextureName = "";
 
+	static vec3 GetLightForParticle(const Particle& particle);
+
 private:
 
 

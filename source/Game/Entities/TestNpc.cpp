@@ -280,7 +280,7 @@ void TestNpc::AsyncUpdate()
 		desiredDirection = MathHelper::FastNormalize(MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position));
 	}
 	
-	speed += Time::DeltaTimeF * 1.5f;
+	speed += Time::DeltaTimeF * 6.5;
 
 	speed = glm::clamp(speed, 0.0f, maxSpeed);
 

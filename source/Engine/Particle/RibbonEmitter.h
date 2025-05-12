@@ -23,6 +23,8 @@ public:
 
     bool IsCameraVisible() { return true; }
 
+
+
 private:
     void GenerateIndices(std::vector<GLuint>& dst, int count);
 
