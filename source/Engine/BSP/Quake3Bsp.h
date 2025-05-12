@@ -310,7 +310,7 @@ class CQuake3BSP : public IDrawMesh
     // r3c:: new functions
     void GenerateTexture();
     void GenerateLightmap();
-    bool RenderSingleFace(int index, ShaderProgram* shader, bool lightmap, LightVolPointData lightData);
+    bool RenderSingleFace(int index, bool lightmap, LightVolPointData lightData);
     void renderFaces();
     void VBOFiller(int index);
     void BuildVBO();

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -7,7 +7,51 @@
 #include <vector>
 #include <iostream>
 
-class CubemapTexture {
+#include "Helpers/StringHelper.h"
+
+class CubemapTexture 
+{
+
+private:
+
+    // Helper: rotate an SDL_Surface 90° CW or CCW
+    static SDL_Surface* rotate90(SDL_Surface* src, bool clockwise) {
+        // Create a destination surface of swapped dimensions
+        SDL_Surface* dst = SDL_CreateRGBSurfaceWithFormat(
+            0, src->h, src->w, src->format->BitsPerPixel, src->format->format);
+        if (!dst) return nullptr;
+
+        SDL_LockSurface(src);
+        SDL_LockSurface(dst);
+
+        int sw = src->w, sh = src->h;
+        int dw = dst->w, dh = dst->h;
+        int bpp = src->format->BytesPerPixel;
+
+        Uint8* sp = (Uint8*)src->pixels;
+        Uint8* dp = (Uint8*)dst->pixels;
+        int spitch = src->pitch;
+        int dpitch = dst->pitch;
+
+        for (int y = 0; y < sh; ++y) {
+            for (int x = 0; x < sw; ++x) {
+                // read pixel
+                Uint8* srcp = sp + y * spitch + x * bpp;
+
+                // compute dest coords
+                int dx = clockwise ? y : (sh - 1 - y);
+                int dy = clockwise ? (sw - 1 - x) : x;
+
+                Uint8* dstp = dp + dy * dpitch + dx * bpp;
+                memcpy(dstp, srcp, bpp);
+            }
+        }
+
+        SDL_UnlockSurface(src);
+        SDL_UnlockSurface(dst);
+        return dst;
+    }
+
 public:
     // faces should be provided in this order:
     // right, left, top, bottom, front, back
@@ -17,6 +61,21 @@ public:
             return;
         }
         loadFromFiles(faces, generateMipmaps);
+    }
+
+    CubemapTexture(const std::string& base, bool generateMipmaps = false) {
+        
+
+        std::vector<std::string> faces;
+
+		faces.push_back(StringHelper::Replace(base, ".", "_lf."));
+		faces.push_back(StringHelper::Replace(base, ".", "_rt."));
+        faces.push_back(StringHelper::Replace(base, ".", "_up."));
+        faces.push_back(StringHelper::Replace(base, ".", "_dn."));
+        faces.push_back(StringHelper::Replace(base, ".", "_ft."));
+        faces.push_back(StringHelper::Replace(base, ".", "_bk."));
+
+        loadFromFiles(faces, false);
     }
 
     ~CubemapTexture() {
@@ -34,46 +93,69 @@ public:
 private:
     GLuint textureID = 0;
 
-    void loadFromFiles(const std::vector<std::string>& faces, bool generateMipmaps) {
-        glGenTextures(1, &textureID);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-        for (unsigned int i = 0; i < faces.size(); i++) {
-            SDL_Surface* surface = IMG_Load(faces[i].c_str());
-            if (!surface) {
-                std::cerr << "Error loading cubemap face (" << faces[i] << "): "
-                    << IMG_GetError() << std::endl;
-                continue;
-            }
-
-            // Convert surface to a consistent pixel format (RGBA)
-            SDL_Surface* converted_surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
-            SDL_FreeSurface(surface);
-            if (!converted_surface) {
-                std::cerr << "Error converting surface (" << faces[i] << "): "
-                    << SDL_GetError() << std::endl;
-                continue;
-            }
-
-            // Load the texture data into the cubemap face.
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA,
-                converted_surface->w, converted_surface->h, 0,
-                GL_RGBA, GL_UNSIGNED_BYTE, converted_surface->pixels);
-
-            SDL_FreeSurface(converted_surface);
+    void loadFromFiles(const std::vector<std::string>& faces, bool generateMipmaps) 
+    {
+        if (faces.size() != 6) {
+            std::cerr << "[Cubemap] Need 6 faces, got " << faces.size() << std::endl;
+            return;
         }
 
-        // Set texture parameters for the cubemap.
+        glGenTextures(1, &textureID);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+        for (unsigned i = 0; i < 6; ++i) {
+            SDL_Surface* surf = IMG_Load(faces[i].c_str());
+            if (!surf) {
+                std::cerr << "[Cubemap] Failed to load " << faces[i]
+                    << ": " << IMG_GetError() << std::endl;
+                    continue;
+            }
+            SDL_Surface* conv = SDL_ConvertSurfaceFormat(
+                surf, SDL_PIXELFORMAT_RGBA32, 0);
+            SDL_FreeSurface(surf);
+            if (!conv) {
+                std::cerr << "[Cubemap] Convert failed " << faces[i]
+                    << ": " << SDL_GetError() << std::endl;
+                    continue;
+            }
+
+            // rotate +Y (index 2) 90° CW, –Y (index 3) 90° CCW
+            if (i == 2 || i == 3) {
+                bool cw = (i == 2);
+                SDL_Surface* rot = rotate90(conv, !cw);
+                SDL_FreeSurface(conv);
+                if (!rot) {
+                    std::cerr << "[Cubemap] Rotation failed for "
+                        << faces[i] << std::endl;
+                    continue;
+                }
+                conv = rot;
+            }
+
+            glTexImage2D(
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0, GL_RGBA,
+                conv->w, conv->h,
+                0, GL_RGBA, GL_UNSIGNED_BYTE,
+                conv->pixels
+            );
+            SDL_FreeSurface(conv);
+        }
+
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER,
-            generateMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+            generateMipmaps
+            ? GL_LINEAR_MIPMAP_LINEAR
+            : GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-
         if (generateMipmaps) {
             glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
         }
     }
+
+
 };

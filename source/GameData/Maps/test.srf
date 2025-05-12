@@ -8,37 +8,37 @@ default
 
 0 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/skies/skybox
+	shader textures/skies/skybox_cube
 	sampleSize 0
 }
 
 1 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/skies/skybox
+	shader textures/skies/skybox_cube
 	sampleSize 0
 }
 
 2 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/skies/skybox
+	shader textures/skies/skybox_cube
 	sampleSize 0
 }
 
 3 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/skies/skybox
+	shader textures/skies/skybox_cube
 	sampleSize 0
 }
 
 4 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/skies/skybox
+	shader textures/skies/skybox_cube
 	sampleSize 0
 }
 
 5 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/skies/skybox
+	shader textures/skies/skybox_cube
 	sampleSize 0
 }
 

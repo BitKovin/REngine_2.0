@@ -21,6 +21,9 @@
 #include "../LevelObjectFactory.h"
 #include "../Level.hpp"
 
+#include "../Renderer/Renderer.h"
+#include "../EngineMain.h"
+
 #if __EMSCRIPTEN__
 
 #define strcpy_s strcpy
@@ -465,11 +468,13 @@ LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
     data += GetLightvolColorPoint(position + vec3(0, 0, radius));
     data += GetLightvolColorPoint(position + vec3(0, 0, -radius));
 
+    data /= 5.0f;
+
     centerData.direction = data.direction;
 
     centerData.direction = normalize(centerData.direction);
 
-    return centerData;
+    return data;
 }
 
 
@@ -552,9 +557,6 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
 
     int drawnFaces = 0;
 
-    ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", "bsp");
-    shader->UseProgram();
-
 
 	LightVolPointData lightData = { vec3(0),vec3(1) ,vec3(0) };
 
@@ -601,7 +603,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
                     if (!renderedFaces[localIndex])
                     {
                         renderedFaces[localIndex] = true; // Mark as rendered
-                        bool drawn = RenderSingleFace(faceIndex, shader, lightmap, lightData);
+                        bool drawn = RenderSingleFace(faceIndex, lightmap, lightData);
                         if (drawn)
                         {
                             drawnFaces++;
@@ -618,7 +620,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
 		for (int i = model.face; i < model.face + model.n_faces; i++)
 		{
 
-			RenderSingleFace(i, shader, lightmap, lightData);
+			RenderSingleFace(i, lightmap, lightData);
 
 			drawnFaces++;
 
@@ -832,8 +834,9 @@ inline std::string GetLightMapFilePathFromId(int id, const std::string& filePath
 
     return result;
 }
-bool CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightmap, LightVolPointData lightData)
+bool CQuake3BSP::RenderSingleFace(int index , bool lightmap, LightVolPointData lightData)
 {
+
 
     mat4 model = glm::scale(vec3(1.0f / MAP_SCALE));
 
@@ -851,10 +854,50 @@ bool CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
     // bind your textures as before
     tBSPFace* pFace = &m_pFaces[index];
     
+    string textureName = string(pTextures[pFace->textureID].strName);
 
-	string texturePath = "GameData/" + string(pTextures[pFace->textureID].strName) + ".png";
+    int nameL = textureName.length();
 
-    Texture* faceTexture = AssetRegistry::GetTextureFromFile(texturePath);
+    bool isCube = false;
+
+    if (nameL > 5)
+    {
+        isCube =
+            (textureName[nameL - 1] == 'e') &&
+            (textureName[nameL - 2] == 'b') &&
+            (textureName[nameL - 3] == 'u') &&
+            (textureName[nameL - 4] == 'c');
+    }
+
+    ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", isCube? "bsp_cube" : "bsp");
+    shader->UseProgram();
+
+	string texturePath = "GameData/" + textureName + ".png";
+
+    if (isCube)
+    {
+
+        auto splitPath = StringHelper::Split(texturePath, '/');
+
+		string fileName = splitPath[splitPath.size() - 1];
+
+        texturePath = "GameData/env/" + fileName;
+        texturePath = texturePath;
+
+    }
+
+    int faceTexture;
+    
+    if (isCube)
+    {
+        faceTexture = AssetRegistry::GetTextureCubeFromFile(texturePath)->getID();
+    }
+    else
+    {
+        faceTexture = AssetRegistry::GetTextureFromFile(texturePath)->getID();
+    }
+    
+
     GLuint lightmapId = (pFace->lightmapID >= 0)
         ? m_lightmap_gen_IDs[pFace->lightmapID]
         : missing_LM_id;
@@ -878,13 +921,22 @@ bool CQuake3BSP::RenderSingleFace(int index, ShaderProgram* shader, bool lightma
     shader->SetUniform("direct_light_color", lightData.directColor);
     shader->SetUniform("direct_light_dir", lightData.direction);
 
-    shader->SetTexture("s_bspTexture", faceTexture);
+    if (isCube)
+    {
+        shader->SetCubemapTexture("s_bspTexture", faceTexture);
+    }
+    else
+    {
+        shader->SetTexture("s_bspTexture", faceTexture);
+    }
+    
+
     shader->SetTexture("s_bspLightmap", lightmapId);
     shader->SetUniform("view", Camera::finalizedView);
     shader->SetUniform("projection", Camera::finalizedProjection);
     shader->SetUniform("model", model);
 
-
+    EngineMain::MainInstance->MainRenderer->SetSurfaceShaderUniforms(shader);
 
     glDepthMask(GL_TRUE);
 
@@ -968,7 +1020,7 @@ void CQuake3BSP::GenerateLightmap() {
 
 void CQuake3BSP::renderFaces() {
     for (auto& f : Rbuffers.v_faceVBOs)
-        RenderSingleFace(f.first, nullptr, true, LightVolPointData());
+        RenderSingleFace(f.first, true, LightVolPointData());
 }
 
 mat4 BSPModelRef::GetWorldMatrix()

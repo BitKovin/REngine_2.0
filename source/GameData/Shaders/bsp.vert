@@ -11,6 +11,7 @@ out vec2 g_TexCoord;
 out vec2 g_LmapCoord;
 out vec3 g_normal;
 out vec4 g_color;
+out vec4 g_world;
 
 
 uniform mat4 model;
@@ -21,7 +22,10 @@ uniform mat4 projection;
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(Position, 1.0f);
+
+    g_world = model * vec4(Position, 1.0f);
+
+    gl_Position = projection * view * g_world;
     mat3 normalMatrix = transpose(inverse(mat3(model)));
     g_normal = normalize(normalMatrix * Normal);
 

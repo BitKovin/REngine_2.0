@@ -513,9 +513,9 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
 
     dtFreeNavMeshQuery(navQuery);
 
-    //// --- 6) Collision sanity check ---
-    //if (!CollisionCheckPath(start, outPath))
-    //    outPath.clear();
+    // --- 6) Collision sanity check ---
+    if (!CollisionCheckPath(start, outPath))
+        outPath.clear();
 
     return outPath;
 }

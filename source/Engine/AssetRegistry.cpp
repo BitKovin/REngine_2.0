@@ -2,6 +2,7 @@
 
 std::unordered_map<std::string, Shader*> AssetRegistry::shaderCache;
 std::unordered_map<std::string, Texture*> AssetRegistry::textureCache;
+std::unordered_map<std::string, CubemapTexture*> AssetRegistry::textureCubeCache;
 std::unordered_map<std::string, roj::SkinnedModel*> AssetRegistry::skinnedModelCache;
 std::unordered_map<std::string, TTF_Font*> AssetRegistry::fontCache;
 

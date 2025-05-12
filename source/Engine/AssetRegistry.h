@@ -8,6 +8,7 @@
 #include "skinned_model.hpp"
 #include "model.hpp"
 #include "Texture.hpp"
+#include "TextureCube.hpp"
 #include "Logger.hpp"
 
 class AssetRegistry
@@ -16,6 +17,7 @@ class AssetRegistry
 private:
     static std::unordered_map<std::string, Shader*> shaderCache;
     static std::unordered_map<std::string, Texture*> textureCache;
+    static std::unordered_map<std::string, CubemapTexture*> textureCubeCache;
     static std::unordered_map<std::string, roj::SkinnedModel*> skinnedModelCache;
 
     static std::unordered_map<std::string, TTF_Font*> fontCache;
@@ -76,7 +78,24 @@ public:
 
         textureCache[key] = new Texture(filename, true);
 
-        return textureCache[key]->valid ? textureCache[key] : nullptr;
+        return textureCache[key];
+    }
+
+    static CubemapTexture* GetTextureCubeFromFile(string filename)
+    {
+
+        string key = filename;
+
+        auto it = textureCubeCache.find(key);
+        if (it != textureCubeCache.end())
+        {
+            return it->second; // Return cached shader
+        }
+
+        textureCubeCache[key] = new CubemapTexture(filename, true);
+
+        return textureCubeCache[key];
+        //return textureCubeCache[key]->valid ? textureCubeCache[key] : nullptr;
     }
 
 

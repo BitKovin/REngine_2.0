@@ -225,6 +225,29 @@ public:
         glUniform1i(location, unit);
     }
 
+    void SetCubemapTexture(const std::string& name, GLuint texture) {
+        GLint location = GetUniformLocation(name);
+        if (location == -1) return;
+
+        // Find or assign texture unit
+        auto it = m_textureUnits.find(name);
+        if (it == m_textureUnits.end()) {
+            if (m_currentUnit >= m_maxTextureUnits) {
+                Logger::Log("Texture unit overflow! Maximum: " +
+                    std::to_string(m_maxTextureUnits));
+                return;
+            }
+            m_textureUnits[name] = m_currentUnit++;
+        }
+
+        GLuint unit = m_textureUnits[name];
+
+        // Bind cubemap texture and update uniform
+        glActiveTexture(GL_TEXTURE0 + unit);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+        glUniform1i(location, unit);
+    }
+
     void SetTexture(const std::string& name, Texture* texture) {
         GLint location = GetUniformLocation(name);
         if (location == -1) return;

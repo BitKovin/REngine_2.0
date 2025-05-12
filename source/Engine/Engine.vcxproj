@@ -322,6 +322,7 @@
     <ClInclude Include="glm.h" />
     <ClInclude Include="Helpers\JsonHelper.hpp" />
     <ClInclude Include="Helpers\JsonMacros.hpp" />
+    <ClInclude Include="Helpers\StringHelper.h" />
     <ClInclude Include="IDrawMesh.h" />
     <ClInclude Include="ImGuiEngineImpl.h" />
     <ClInclude Include="imgui\imconfig.h" />
