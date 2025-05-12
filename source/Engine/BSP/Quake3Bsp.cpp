@@ -359,15 +359,15 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
 
     // Calculate grid dimensions according to Quake 3 specs (Z-up)
     glm::ivec3 lightVolGridDims(
-        static_cast<int>(std::floor(modelMaxs.x / 64.0f) - std::ceil(modelMins.x / 64.0f) + 1),
-        static_cast<int>(std::floor(modelMaxs.y / 64.0f) - std::ceil(modelMins.y / 64.0f) + 1),
-        static_cast<int>(std::floor(modelMaxs.z / 128.0f) - std::ceil(modelMins.z / 128.0f) + 1)
+        static_cast<int>(std::floor(modelMaxs.x / lightVolGridSize.x) - std::ceil(modelMins.x / lightVolGridSize.x) + 1),
+        static_cast<int>(std::floor(modelMaxs.y / lightVolGridSize.y) - std::ceil(modelMins.y / lightVolGridSize.y) + 1),
+        static_cast<int>(std::floor(modelMaxs.z / lightVolGridSize.z) - std::ceil(modelMins.z / lightVolGridSize.z) + 1)
     );
 
     // Calculate grid indices and fractional offsets
-    float fx = (pos_quake.x - modelMins.x) / 64.0f;
-    float fy = (pos_quake.y - modelMins.y) / 64.0f;
-    float fz = (pos_quake.z - modelMins.z) / 128.0f;
+    float fx = (pos_quake.x - modelMins.x) / lightVolGridSize.x;
+    float fy = (pos_quake.y - modelMins.y) / lightVolGridSize.y;
+    float fz = (pos_quake.z - modelMins.z) / lightVolGridSize.z;
 
     // Get integer indices for the lower corner
     int nx = static_cast<int>(std::floor(fx));
@@ -462,7 +462,7 @@ LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
 {
     auto data = GetLightvolColorPoint(position);
     auto centerData = data;
-    float radius = MAP_SCALE * 1.5f;
+    float radius = lightVolGridSize.x;
     data += GetLightvolColorPoint(position + vec3(radius,0,0));
     data += GetLightvolColorPoint(position + vec3(-radius, 0, 0));
     data += GetLightvolColorPoint(position + vec3(0, 0, radius));
@@ -474,7 +474,7 @@ LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
 
     centerData.direction = normalize(centerData.direction);
 
-    return data;
+    return centerData;
 }
 
 
@@ -549,7 +549,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
     auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
     //printf("light : %f, %f, %f \n", light.ambientColor.x, light.ambientColor.y, light.ambientColor.z);
 
-    DebugDraw::Line(Camera::finalizedPosition + Camera::Forward(), Camera::finalizedPosition + Camera::Forward() + light.direction, 0.01f);
+    //DebugDraw::Line(Camera::finalizedPosition + Camera::Forward(), Camera::finalizedPosition + Camera::Forward() + light.direction, 0.01f);
 
 
     // 1. Find camera's cluster via BSP tree traversal

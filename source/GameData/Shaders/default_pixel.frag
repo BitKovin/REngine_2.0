@@ -38,11 +38,10 @@ void main() {
 
 vec3 CalculateLight()
 {
-    float vertexLightComp = 4.04;
 
     vec3 normal = normalize(v_normal);
 
-    vec3 light = light_color + clamp(dot(normal, normalize(direct_light_dir))*1.0 + 0.0,0.0,1.0) * direct_light_color;
+    vec3 light = light_color + clamp(dot(normal, normalize(direct_light_dir))*0.8 + 0.2,0.0,1.0) * direct_light_color;
 
-    return light.rgb;
+    return light.rgb*2.0;
 }

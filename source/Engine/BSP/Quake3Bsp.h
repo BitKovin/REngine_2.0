@@ -328,6 +328,8 @@ class CQuake3BSP : public IDrawMesh
     int numVisibleFaces;
     int skipindices;
 
+    static inline vec3 lightVolGridSize = vec3(64,64,128);
+
     GLuint* m_lightmap_gen_IDs;
     GLuint* m_Textures;
     GLuint  missing_LM_id;
