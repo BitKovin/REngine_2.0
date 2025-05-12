@@ -9,11 +9,35 @@
 
 #include "../Renderer/Renderer.h"
 
+#include "../BSP/Quake3Bsp.h"
+
 VertexArrayObject* ParticleEmitter::bilboardVAO = nullptr;
 
 mat4 GetWorldMatrix(const Particle& particle)
 {
     return translate(particle.position) * MathHelper::GetRotationMatrix(particle.globalRotation) * scale(vec3(particle.Size));
+}
+
+vec3 GetLightForParticle(const Particle& particle)
+{
+
+
+    
+
+    if (particle.UseWorldRotation == false)
+    {
+        auto light = Level::Current->BspData.GetLightvolColor(particle.position * MAP_SCALE);
+        return (light.ambientColor + light.directColor)*2.0f;
+    }
+
+    vec3 normal = MathHelper::GetForwardVector(particle.globalRotation);
+
+    auto light = Level::Current->BspData.GetLightvolColor((particle.position + normal) * MAP_SCALE);
+
+    float dirFactor = 1.0;// glm::clamp(dot(normal, light.direction), 0.0f, 1.0f);
+
+    return light.ambientColor + light.directColor * dirFactor * 2.0f;
+
 }
 
 void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
@@ -117,7 +141,7 @@ void ParticleEmitter::FinalizeFrameData()
 
         InstanceData data;
         data.ModelMatrix = world;
-        data.Color = particle.Color;
+        data.Color = particle.Color * vec4(GetLightForParticle(particle),1.0f);
         data.Color.a *= particle.Transparency;
         instances.push_back(data);
     }

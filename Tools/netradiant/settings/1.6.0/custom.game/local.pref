@@ -111,10 +111,10 @@
 <epair name="SI_ShowOutlines">true</epair>
 <epair name="SI_ShowTargetNames">false</epair>
 <epair name="SI_SurfaceTexdef_Rotate">45</epair>
-<epair name="SI_SurfaceTexdef_Scale1">0.5</epair>
-<epair name="SI_SurfaceTexdef_Scale2">0.5</epair>
-<epair name="SI_SurfaceTexdef_Shift1">8</epair>
-<epair name="SI_SurfaceTexdef_Shift2">8</epair>
+<epair name="SI_SurfaceTexdef_Scale1">1</epair>
+<epair name="SI_SurfaceTexdef_Scale2">1</epair>
+<epair name="SI_SurfaceTexdef_Shift1">2</epair>
+<epair name="SI_SurfaceTexdef_Shift2">2</epair>
 <epair name="ScrollMoveSpeed">100</epair>
 <epair name="SearchFromStart">false</epair>
 <epair name="Sensitivity">3</epair>

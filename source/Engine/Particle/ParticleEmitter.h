@@ -202,7 +202,7 @@ public:
 
 	string texture = "";
 
-	string PixelShader = "default_pixel_simple";
+	string PixelShader = "unlit_pixel";
 
 	bool DepthSorting = true;
 

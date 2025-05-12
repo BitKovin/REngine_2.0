@@ -31,7 +31,7 @@ if (ENVIRONMENT_IS_NODE) {
 
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
-// include: C:\Users\Admin\AppData\Local\Temp\tmp0hx5k9zp.js
+// include: C:\Users\Admin\AppData\Local\Temp\tmpzdlzd8y1.js
 
   Module['expectedDataFileDownloads'] ??= 0;
   Module['expectedDataFileDownloads']++;
@@ -142,9 +142,51 @@ var REMOTE_PACKAGE_SIZE = metadata['remote_package_size'];
         if (!check) throw msg + new Error().stack;
       }
 Module['FS_createPath']("/", "GameData", true, true);
-Module['FS_createPath']("/GameData", "Shaders", true, true);
-Module['FS_createPath']("/GameData", "levels", true, true);
-Module['FS_createPath']("/GameData", "sprite_work", true, true);
+Module['FS_createPath']("/GameData", "env", true, true);
+Module['FS_createPath']("/GameData", "fonts", true, true);
+Module['FS_createPath']("/GameData", "maps", true, true);
+Module['FS_createPath']("/GameData/maps", "autosave", true, true);
+Module['FS_createPath']("/GameData/maps", "test", true, true);
+Module['FS_createPath']("/GameData", "models", true, true);
+Module['FS_createPath']("/GameData/models", "player", true, true);
+Module['FS_createPath']("/GameData/models/player", "bike", true, true);
+Module['FS_createPath']("/GameData/models/player/bike", "textures", true, true);
+Module['FS_createPath']("/GameData/models", "weapons", true, true);
+Module['FS_createPath']("/GameData/models/weapons", "bullet", true, true);
+Module['FS_createPath']("/GameData", "scripts", true, true);
+Module['FS_createPath']("/GameData", "shaders", true, true);
+Module['FS_createPath']("/GameData", "sounds", true, true);
+Module['FS_createPath']("/GameData/sounds", "dog", true, true);
+Module['FS_createPath']("/GameData/sounds", "weapons", true, true);
+Module['FS_createPath']("/GameData/sounds/weapons", "shotgun", true, true);
+Module['FS_createPath']("/GameData", "textures", true, true);
+Module['FS_createPath']("/GameData/textures", "Ground", true, true);
+Module['FS_createPath']("/GameData/textures", "common", true, true);
+Module['FS_createPath']("/GameData/textures", "delvenPack", true, true);
+Module['FS_createPath']("/GameData/textures", "generic", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_conc", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_dev", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_flesh", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_greek", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_health_ammo", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_legacy", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_liquidsky", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_mayan", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_medieval", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_metal", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_palette", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_props", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_tech", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_terra", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_utility", true, true);
+Module['FS_createPath']("/GameData/textures", "lq_wood", true, true);
+Module['FS_createPath']("/GameData/textures", "metal", true, true);
+Module['FS_createPath']("/GameData/textures", "particles", true, true);
+Module['FS_createPath']("/GameData/textures", "skies", true, true);
+Module['FS_createPath']("/GameData/textures", "tormentPack", true, true);
+Module['FS_createPath']("/GameData/textures", "wall", true, true);
+Module['FS_createPath']("/GameData/textures", "water", true, true);
+Module['FS_createPath']("/GameData/textures", "wood", true, true);
 
       /** @constructor */
       function DataRequest(start, end, audio) {
@@ -211,25 +253,25 @@ Module['FS_createPath']("/GameData", "sprite_work", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/GameData/Kingthings_Calligraphica_2.ttf", "start": 0, "end": 29804}, {"filename": "/GameData/Shaders/default_fragment.frag", "start": 29804, "end": 29982}, {"filename": "/GameData/Shaders/default_pixel.frag", "start": 29982, "end": 30217}, {"filename": "/GameData/Shaders/default_vertex.vert", "start": 30217, "end": 30575}, {"filename": "/GameData/bass_beat.ogg", "start": 30575, "end": 397451, "audio": 1}, {"filename": "/GameData/bass_beat.wav", "start": 397451, "end": 6093785, "audio": 1}, {"filename": "/GameData/cat.png", "start": 6093785, "end": 6343223}, {"filename": "/GameData/happy_hog.png", "start": 6343223, "end": 7260348}, {"filename": "/GameData/hog_sheet.png", "start": 7260348, "end": 9115424}, {"filename": "/GameData/level_1_bg_crop.png", "start": 9115424, "end": 9722603}, {"filename": "/GameData/levels/level_0.json", "start": 9722603, "end": 9722622}, {"filename": "/GameData/mini_hog.ico", "start": 9722622, "end": 9726908}, {"filename": "/GameData/sound_test.ogg", "start": 9726908, "end": 9756016, "audio": 1}, {"filename": "/GameData/sprite_sheet_sticher.py", "start": 9756016, "end": 9756542}, {"filename": "/GameData/sprite_work/h_bleg2.png", "start": 9756542, "end": 9772217}, {"filename": "/GameData/sprite_work/h_bod.png", "start": 9772217, "end": 9986887}, {"filename": "/GameData/sprite_work/h_bod2.png", "start": 9986887, "end": 10064950}, {"filename": "/GameData/sprite_work/h_fleg2.png", "start": 10064950, "end": 10083026}, {"filename": "/GameData/sprite_work/hog_base.png", "start": 10083026, "end": 10355576}, {"filename": "/GameData/sprite_work/soda.png", "start": 10355576, "end": 10356347}, {"filename": "/GameData/title_bg_crop.png", "start": 10356347, "end": 11271455}, {"filename": "/GameData/yummy.ogg", "start": 11271455, "end": 11307046, "audio": 1}], "remote_package_size": 11307046});
+    loadPackage({"files": [{"filename": "/GameData/arms.glb", "start": 0, "end": 179764}, {"filename": "/GameData/bass_beat.ogg", "start": 179764, "end": 546640, "audio": 1}, {"filename": "/GameData/bass_beat.wav", "start": 546640, "end": 6242974, "audio": 1}, {"filename": "/GameData/cat.png", "start": 6242974, "end": 6492412}, {"filename": "/GameData/cube.mtl", "start": 6492412, "end": 6492463}, {"filename": "/GameData/cube.obj", "start": 6492463, "end": 6493382}, {"filename": "/GameData/dog.bin", "start": 6493382, "end": 6559426}, {"filename": "/GameData/dog.dae", "start": 6559426, "end": 6958498}, {"filename": "/GameData/dog.fbx", "start": 6958498, "end": 7872830}, {"filename": "/GameData/dog.glb", "start": 7872830, "end": 8020318}, {"filename": "/GameData/dog.glb.skmm", "start": 8020318, "end": 8022718}, {"filename": "/GameData/dog.gltf", "start": 8022718, "end": 8113845}, {"filename": "/GameData/env/notes.txt", "start": 8113845, "end": 8113933}, {"filename": "/GameData/env/skybox1_cube_bk.png", "start": 8113933, "end": 9338174}, {"filename": "/GameData/env/skybox1_cube_dn.png", "start": 9338174, "end": 10805122}, {"filename": "/GameData/env/skybox1_cube_ft.png", "start": 10805122, "end": 11975133}, {"filename": "/GameData/env/skybox1_cube_lf.png", "start": 11975133, "end": 13159591}, {"filename": "/GameData/env/skybox1_cube_rt.png", "start": 13159591, "end": 14372558}, {"filename": "/GameData/env/skybox1_cube_up.png", "start": 14372558, "end": 15246601}, {"filename": "/GameData/env/skybox_cube_bk.png", "start": 15246601, "end": 15329803}, {"filename": "/GameData/env/skybox_cube_dn.png", "start": 15329803, "end": 15362369}, {"filename": "/GameData/env/skybox_cube_ft.png", "start": 15362369, "end": 15420542}, {"filename": "/GameData/env/skybox_cube_lf.png", "start": 15420542, "end": 15490109}, {"filename": "/GameData/env/skybox_cube_rt.png", "start": 15490109, "end": 15542552}, {"filename": "/GameData/env/skybox_cube_up.png", "start": 15542552, "end": 15593906}, {"filename": "/GameData/fonts/Kingthings_Calligraphica_2.ttf", "start": 15593906, "end": 15623710}, {"filename": "/GameData/happy_hog.png", "start": 15623710, "end": 16540835}, {"filename": "/GameData/hog_sheet.png", "start": 16540835, "end": 18395911}, {"filename": "/GameData/level_1_bg_crop.png", "start": 18395911, "end": 19003090}, {"filename": "/GameData/maps/Level.bsp", "start": 19003090, "end": 19065166}, {"filename": "/GameData/maps/autosave/test.1.map", "start": 19065166, "end": 19081117}, {"filename": "/GameData/maps/autosave/test.2.map", "start": 19081117, "end": 19097165}, {"filename": "/GameData/maps/autosave/test.3.map", "start": 19097165, "end": 19113323}, {"filename": "/GameData/maps/autosave/test.4.map", "start": 19113323, "end": 19129467}, {"filename": "/GameData/maps/autosave/test.5.map", "start": 19129467, "end": 19145413}, {"filename": "/GameData/maps/autosave/test.6.map", "start": 19145413, "end": 19161359}, {"filename": "/GameData/maps/autosave/test.7.map", "start": 19161359, "end": 19177309}, {"filename": "/GameData/maps/autosave/test2.1.map", "start": 19177309, "end": 19833877}, {"filename": "/GameData/maps/e1m1.map", "start": 19833877, "end": 29845406}, {"filename": "/GameData/maps/e1m1.obj", "start": 29845406, "end": 39690427}, {"filename": "/GameData/maps/oa_dm1.bsp", "start": 39690427, "end": 41095403}, {"filename": "/GameData/maps/test.autosave.map", "start": 41095403, "end": 41131463}, {"filename": "/GameData/maps/test.bak", "start": 41131463, "end": 41167523}, {"filename": "/GameData/maps/test.bsp", "start": 41167523, "end": 46097295}, {"filename": "/GameData/maps/test.bsp.68212E0F", "start": 46097295, "end": 46179187}, {"filename": "/GameData/maps/test.map", "start": 46179187, "end": 46215247}, {"filename": "/GameData/maps/test.mtl", "start": 46215247, "end": 46215524}, {"filename": "/GameData/maps/test.obj", "start": 46215524, "end": 46234041}, {"filename": "/GameData/maps/test.srf", "start": 46234041, "end": 46265636}, {"filename": "/GameData/maps/test/lm_0000.tga", "start": 46265636, "end": 46462262}, {"filename": "/GameData/maps/test/lm_0001.tga", "start": 46462262, "end": 46658888}, {"filename": "/GameData/maps/test/lm_0002.tga", "start": 46658888, "end": 46855514}, {"filename": "/GameData/maps/test/lm_0003.tga", "start": 46855514, "end": 47052140}, {"filename": "/GameData/maps/test/lm_0004.tga", "start": 47052140, "end": 47248766}, {"filename": "/GameData/maps/test/lm_0005.tga", "start": 47248766, "end": 47445392}, {"filename": "/GameData/maps/test/lm_0006.tga", "start": 47445392, "end": 47642018}, {"filename": "/GameData/maps/test/lm_0007.tga", "start": 47642018, "end": 47838644}, {"filename": "/GameData/maps/test/lm_0008.tga", "start": 47838644, "end": 48035270}, {"filename": "/GameData/maps/test/lm_0009.tga", "start": 48035270, "end": 48231896}, {"filename": "/GameData/maps/test/lm_0010.tga", "start": 48231896, "end": 48428522}, {"filename": "/GameData/maps/test/lm_0011.tga", "start": 48428522, "end": 48625148}, {"filename": "/GameData/maps/test/lm_0012.tga", "start": 48625148, "end": 48821774}, {"filename": "/GameData/maps/test/lm_0013.tga", "start": 48821774, "end": 49018400}, {"filename": "/GameData/maps/test/lm_0014.tga", "start": 49018400, "end": 49215026}, {"filename": "/GameData/maps/test/lm_0015.tga", "start": 49215026, "end": 49411652}, {"filename": "/GameData/maps/test/lm_0016.tga", "start": 49411652, "end": 49608278}, {"filename": "/GameData/maps/test/lm_0017.tga", "start": 49608278, "end": 49804904}, {"filename": "/GameData/maps/test/lm_0018.tga", "start": 49804904, "end": 50001530}, {"filename": "/GameData/maps/test/lm_0019.tga", "start": 50001530, "end": 50198156}, {"filename": "/GameData/maps/test2.map", "start": 50198156, "end": 50856031}, {"filename": "/GameData/maps/test2.mtl", "start": 50856031, "end": 50856726}, {"filename": "/GameData/maps/test2.obj", "start": 50856726, "end": 51760023}, {"filename": "/GameData/mini_hog.ico", "start": 51760023, "end": 51764309}, {"filename": "/GameData/models/npc_base.mtl", "start": 51764309, "end": 51764554}, {"filename": "/GameData/models/npc_base.obj", "start": 51764554, "end": 51767438}, {"filename": "/GameData/models/player/bike/bike.glb", "start": 51767438, "end": 57219314}, {"filename": "/GameData/models/player/bike/textures/body.png", "start": 57219314, "end": 57455995}, {"filename": "/GameData/models/player/bike/textures/front.png", "start": 57455995, "end": 57927746}, {"filename": "/GameData/models/player/bike/textures/wheels.png", "start": 57927746, "end": 59054550}, {"filename": "/GameData/models/test.obj", "start": 59054550, "end": 59087532}, {"filename": "/GameData/models/weapons/bullet/bullet.obj", "start": 59087532, "end": 59088790}, {"filename": "/GameData/monkey.fbx", "start": 59088790, "end": 59120210}, {"filename": "/GameData/scripts/common.shader", "start": 59120210, "end": 59120655}, {"filename": "/GameData/scripts/skies.shader", "start": 59120655, "end": 59121060}, {"filename": "/GameData/shaders/bsp.frag", "start": 59121060, "end": 59121839}, {"filename": "/GameData/shaders/bsp.vert", "start": 59121839, "end": 59122635}, {"filename": "/GameData/shaders/bsp_cube.frag", "start": 59122635, "end": 59123039}, {"filename": "/GameData/shaders/default_pixel.frag", "start": 59123039, "end": 59123976}, {"filename": "/GameData/shaders/default_pixel_.frag", "start": 59123976, "end": 59130935}, {"filename": "/GameData/shaders/default_pixel_shaded.frag", "start": 59130935, "end": 59141670}, {"filename": "/GameData/shaders/default_pixel_simple.frag", "start": 59141670, "end": 59152501}, {"filename": "/GameData/shaders/default_vertex.vert", "start": 59152501, "end": 59154749}, {"filename": "/GameData/shaders/empty_pixel.frag", "start": 59154749, "end": 59154816}, {"filename": "/GameData/shaders/fullscreen_vertex.vert", "start": 59154816, "end": 59155020}, {"filename": "/GameData/shaders/instanced_bilboard_vertex.vert", "start": 59155020, "end": 59156959}, {"filename": "/GameData/shaders/mask_pixel.frag", "start": 59156959, "end": 59157391}, {"filename": "/GameData/shaders/solidRed_pixel.frag", "start": 59157391, "end": 59157560}, {"filename": "/GameData/shaders/texture_pixel.frag", "start": 59157560, "end": 59157748}, {"filename": "/GameData/shaders/ui.vert", "start": 59157748, "end": 59158051}, {"filename": "/GameData/shaders/ui_flatcolor.frag", "start": 59158051, "end": 59158187}, {"filename": "/GameData/shaders/ui_textured.frag", "start": 59158187, "end": 59158444}, {"filename": "/GameData/shaders/unlit_pixel.frag", "start": 59158444, "end": 59159069}, {"filename": "/GameData/sound_test.ogg", "start": 59159069, "end": 59188177, "audio": 1}, {"filename": "/GameData/sounds/dog/death.wav", "start": 59188177, "end": 59261563, "audio": 1}, {"filename": "/GameData/sounds/dog/dog_attack.wav", "start": 59261563, "end": 59374087, "audio": 1}, {"filename": "/GameData/sounds/dog/dog_attack_start.wav", "start": 59374087, "end": 59570771, "audio": 1}, {"filename": "/GameData/sounds/dog/dog_death.wav", "start": 59570771, "end": 59724971, "audio": 1}, {"filename": "/GameData/sounds/dog/dog_hit.wav", "start": 59724971, "end": 59798663, "audio": 1}, {"filename": "/GameData/sounds/dog/dog_stun.wav", "start": 59798663, "end": 59892113, "audio": 1}, {"filename": "/GameData/sounds/mew.wav", "start": 59892113, "end": 59965499, "audio": 1}, {"filename": "/GameData/sounds/weapons/shotgun/shotgun_fire.wav", "start": 59965499, "end": 60425499, "audio": 1}, {"filename": "/GameData/sprite_sheet_sticher.py", "start": 60425499, "end": 60426025}, {"filename": "/GameData/testViewmodel.glb", "start": 60426025, "end": 61240997}, {"filename": "/GameData/textures/Ground/grass.png", "start": 61240997, "end": 61244781}, {"filename": "/GameData/textures/M_Shotgun_Base_Color.png", "start": 61244781, "end": 61619923}, {"filename": "/GameData/textures/arms.png", "start": 61619923, "end": 61660167}, {"filename": "/GameData/textures/common/trigger.png", "start": 61660167, "end": 61672043}, {"filename": "/GameData/textures/delvenPack/dlv_door1a.png", "start": 61672043, "end": 61679827}, {"filename": "/GameData/textures/delvenPack/dlv_door1b.png", "start": 61679827, "end": 61689017}, {"filename": "/GameData/textures/delvenPack/dlv_door1c.png", "start": 61689017, "end": 61696868}, {"filename": "/GameData/textures/delvenPack/dlv_door1d.png", "start": 61696868, "end": 61706040}, {"filename": "/GameData/textures/delvenPack/dlv_door2a.png", "start": 61706040, "end": 61713764}, {"filename": "/GameData/textures/delvenPack/dlv_door2b.png", "start": 61713764, "end": 61722889}, {"filename": "/GameData/textures/delvenPack/dlv_door2c.png", "start": 61722889, "end": 61730917}, {"filename": "/GameData/textures/delvenPack/dlv_door2d.png", "start": 61730917, "end": 61740145}, {"filename": "/GameData/textures/delvenPack/dlv_door3a.png", "start": 61740145, "end": 61744293}, {"filename": "/GameData/textures/delvenPack/dlv_door3b.png", "start": 61744293, "end": 61749071}, {"filename": "/GameData/textures/delvenPack/dlv_door3c.png", "start": 61749071, "end": 61753221}, {"filename": "/GameData/textures/delvenPack/dlv_door3d.png", "start": 61753221, "end": 61758013}, {"filename": "/GameData/textures/delvenPack/dlv_door4a.png", "start": 61758013, "end": 61762134}, {"filename": "/GameData/textures/delvenPack/dlv_door4b.png", "start": 61762134, "end": 61766925}, {"filename": "/GameData/textures/delvenPack/dlv_door4c.png", "start": 61766925, "end": 61771195}, {"filename": "/GameData/textures/delvenPack/dlv_door4d.png", "start": 61771195, "end": 61776031}, {"filename": "/GameData/textures/delvenPack/dlv_fabric1a.png", "start": 61776031, "end": 61781407}, {"filename": "/GameData/textures/delvenPack/dlv_fabric1b.png", "start": 61781407, "end": 61787535}, {"filename": "/GameData/textures/delvenPack/dlv_fabric1c.png", "start": 61787535, "end": 61793829}, {"filename": "/GameData/textures/delvenPack/dlv_fabric1d.png", "start": 61793829, "end": 61797465}, {"filename": "/GameData/textures/delvenPack/dlv_fabric1e.png", "start": 61797465, "end": 61801151}, {"filename": "/GameData/textures/delvenPack/dlv_fabric2a.png", "start": 61801151, "end": 61805876}, {"filename": "/GameData/textures/delvenPack/dlv_fabric2b.png", "start": 61805876, "end": 61811327}, {"filename": "/GameData/textures/delvenPack/dlv_fabric2c.png", "start": 61811327, "end": 61817005}, {"filename": "/GameData/textures/delvenPack/dlv_fabric2d.png", "start": 61817005, "end": 61820291}, {"filename": "/GameData/textures/delvenPack/dlv_fabric2e.png", "start": 61820291, "end": 61823652}, {"filename": "/GameData/textures/delvenPack/dlv_fabric3a.png", "start": 61823652, "end": 61828606}, {"filename": "/GameData/textures/delvenPack/dlv_fabric3b.png", "start": 61828606, "end": 61834277}, {"filename": "/GameData/textures/delvenPack/dlv_fabric3c.png", "start": 61834277, "end": 61840102}, {"filename": "/GameData/textures/delvenPack/dlv_fabric3d.png", "start": 61840102, "end": 61843482}, {"filename": "/GameData/textures/delvenPack/dlv_fabric3e.png", "start": 61843482, "end": 61846924}, {"filename": "/GameData/textures/delvenPack/dlv_fabric4a.png", "start": 61846924, "end": 61856342}, {"filename": "/GameData/textures/delvenPack/dlv_fabric4b.png", "start": 61856342, "end": 61866307}, {"filename": "/GameData/textures/delvenPack/dlv_fabric4c.png", "start": 61866307, "end": 61876436}, {"filename": "/GameData/textures/delvenPack/dlv_fabric4d.png", "start": 61876436, "end": 61881960}, {"filename": "/GameData/textures/delvenPack/dlv_fabric4e.png", "start": 61881960, "end": 61887530}, {"filename": "/GameData/textures/delvenPack/dlv_fabric5a.png", "start": 61887530, "end": 61896597}, {"filename": "/GameData/textures/delvenPack/dlv_fabric5b.png", "start": 61896597, "end": 61906244}, {"filename": "/GameData/textures/delvenPack/dlv_fabric5c.png", "start": 61906244, "end": 61916044}, {"filename": "/GameData/textures/delvenPack/dlv_fabric5d.png", "start": 61916044, "end": 61921454}, {"filename": "/GameData/textures/delvenPack/dlv_fabric5e.png", "start": 61921454, "end": 61926888}, {"filename": "/GameData/textures/delvenPack/dlv_fabric6a.png", "start": 61926888, "end": 61934022}, {"filename": "/GameData/textures/delvenPack/dlv_fabric6b.png", "start": 61934022, "end": 61941750}, {"filename": "/GameData/textures/delvenPack/dlv_fabric6c.png", "start": 61941750, "end": 61949645}, {"filename": "/GameData/textures/delvenPack/dlv_fabric6d.png", "start": 61949645, "end": 61954045}, {"filename": "/GameData/textures/delvenPack/dlv_fabric6e.png", "start": 61954045, "end": 61958503}, {"filename": "/GameData/textures/delvenPack/dlv_ground1a.png", "start": 61958503, "end": 61966425}, {"filename": "/GameData/textures/delvenPack/dlv_ground1b.png", "start": 61966425, "end": 61975261}, {"filename": "/GameData/textures/delvenPack/dlv_ground1c.png", "start": 61975261, "end": 61984757}, {"filename": "/GameData/textures/delvenPack/dlv_ground1d.png", "start": 61984757, "end": 61994800}, {"filename": "/GameData/textures/delvenPack/dlv_ground2a.png", "start": 61994800, "end": 62004668}, {"filename": "/GameData/textures/delvenPack/dlv_ground2b.png", "start": 62004668, "end": 62013575}, {"filename": "/GameData/textures/delvenPack/dlv_ground2c.png", "start": 62013575, "end": 62023300}, {"filename": "/GameData/textures/delvenPack/dlv_ground2d.png", "start": 62023300, "end": 62033721}, {"filename": "/GameData/textures/delvenPack/dlv_ground3a.png", "start": 62033721, "end": 62043780}, {"filename": "/GameData/textures/delvenPack/dlv_ground3b.png", "start": 62043780, "end": 62053492}, {"filename": "/GameData/textures/delvenPack/dlv_ground3c.png", "start": 62053492, "end": 62062928}, {"filename": "/GameData/textures/delvenPack/dlv_ground4a.png", "start": 62062928, "end": 62073119}, {"filename": "/GameData/textures/delvenPack/dlv_ground4b.png", "start": 62073119, "end": 62083569}, {"filename": "/GameData/textures/delvenPack/dlv_ground4c.png", "start": 62083569, "end": 62093510}, {"filename": "/GameData/textures/delvenPack/dlv_litmetal1a.png", "start": 62093510, "end": 62097538}, {"filename": "/GameData/textures/delvenPack/dlv_litmetal1b.png", "start": 62097538, "end": 62102250}, {"filename": "/GameData/textures/delvenPack/dlv_litmetal1c.png", "start": 62102250, "end": 62106331}, {"filename": "/GameData/textures/delvenPack/dlv_litmetal2a.png", "start": 62106331, "end": 62110384}, {"filename": "/GameData/textures/delvenPack/dlv_litmetal2b.png", "start": 62110384, "end": 62115143}, {"filename": "/GameData/textures/delvenPack/dlv_litmetal2c.png", "start": 62115143, "end": 62119014}, {"filename": "/GameData/textures/delvenPack/dlv_litstone1a.png", "start": 62119014, "end": 62122392}, {"filename": "/GameData/textures/delvenPack/dlv_litstone1b.png", "start": 62122392, "end": 62126605}, {"filename": "/GameData/textures/delvenPack/dlv_litstone1c.png", "start": 62126605, "end": 62130236}, {"filename": "/GameData/textures/delvenPack/dlv_litstone2a.png", "start": 62130236, "end": 62135033}, {"filename": "/GameData/textures/delvenPack/dlv_litstone2b.png", "start": 62135033, "end": 62140559}, {"filename": "/GameData/textures/delvenPack/dlv_litstone2c.png", "start": 62140559, "end": 62144802}, {"filename": "/GameData/textures/delvenPack/dlv_metalgen1.png", "start": 62144802, "end": 62150627}, {"filename": "/GameData/textures/delvenPack/dlv_metalgen2.png", "start": 62150627, "end": 62157507}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan1a.png", "start": 62157507, "end": 62165565}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan1b.png", "start": 62165565, "end": 62173035}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan1c.png", "start": 62173035, "end": 62182237}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan2a.png", "start": 62182237, "end": 62190564}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan2b.png", "start": 62190564, "end": 62197976}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan2c.png", "start": 62197976, "end": 62207175}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan3a.png", "start": 62207175, "end": 62215782}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan3b.png", "start": 62215782, "end": 62224009}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan3c.png", "start": 62224009, "end": 62233311}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan4a.png", "start": 62233311, "end": 62242072}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan4b.png", "start": 62242072, "end": 62250397}, {"filename": "/GameData/textures/delvenPack/dlv_metalpan4c.png", "start": 62250397, "end": 62259852}, {"filename": "/GameData/textures/delvenPack/dlv_metalpip1a.png", "start": 62259852, "end": 62266496}, {"filename": "/GameData/textures/delvenPack/dlv_metalpip1b.png", "start": 62266496, "end": 62273008}, {"filename": "/GameData/textures/delvenPack/dlv_metalpip2a.png", "start": 62273008, "end": 62280141}, {"filename": "/GameData/textures/delvenPack/dlv_metalpip2b.png", "start": 62280141, "end": 62287159}, {"filename": "/GameData/textures/delvenPack/dlv_metalpip3a.png", "start": 62287159, "end": 62294430}, {"filename": "/GameData/textures/delvenPack/dlv_metalpip3b.png", "start": 62294430, "end": 62301508}, {"filename": "/GameData/textures/delvenPack/dlv_metalpip4a.png", "start": 62301508, "end": 62309076}, {"filename": "/GameData/textures/delvenPack/dlv_metalpip4b.png", "start": 62309076, "end": 62316431}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm1a.png", "start": 62316431, "end": 62323429}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm1b.png", "start": 62323429, "end": 62329962}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm1c.png", "start": 62329962, "end": 62338150}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm2a.png", "start": 62338150, "end": 62345647}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm2b.png", "start": 62345647, "end": 62352235}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm2c.png", "start": 62352235, "end": 62360496}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm3a.png", "start": 62360496, "end": 62367772}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm3b.png", "start": 62367772, "end": 62374698}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm3c.png", "start": 62374698, "end": 62382693}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm4a.png", "start": 62382693, "end": 62389573}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm4b.png", "start": 62389573, "end": 62396281}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm4c.png", "start": 62396281, "end": 62404090}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm5.png", "start": 62404090, "end": 62407749}, {"filename": "/GameData/textures/delvenPack/dlv_metaltrm6.png", "start": 62407749, "end": 62411472}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr1a.png", "start": 62411472, "end": 62418264}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr1b.png", "start": 62418264, "end": 62426635}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr1c.png", "start": 62426635, "end": 62434305}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr1d.png", "start": 62434305, "end": 62442422}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr1e.png", "start": 62442422, "end": 62450314}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr2a.png", "start": 62450314, "end": 62458505}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr2b.png", "start": 62458505, "end": 62468017}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr2c.png", "start": 62468017, "end": 62476919}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr2d.png", "start": 62476919, "end": 62486170}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr2e.png", "start": 62486170, "end": 62495241}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr3a.png", "start": 62495241, "end": 62503372}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr3b.png", "start": 62503372, "end": 62513082}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr3c.png", "start": 62513082, "end": 62522054}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr3d.png", "start": 62522054, "end": 62531528}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr3e.png", "start": 62531528, "end": 62540755}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr4a.png", "start": 62540755, "end": 62549261}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr4b.png", "start": 62549261, "end": 62557721}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr4c.png", "start": 62557721, "end": 62566385}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr5a.png", "start": 62566385, "end": 62573564}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr5b.png", "start": 62573564, "end": 62580692}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr5c.png", "start": 62580692, "end": 62588832}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr6a.png", "start": 62588832, "end": 62597508}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr6b.png", "start": 62597508, "end": 62605923}, {"filename": "/GameData/textures/delvenPack/dlv_slateflr6c.png", "start": 62605923, "end": 62614656}, {"filename": "/GameData/textures/delvenPack/dlv_slategen1.png", "start": 62614656, "end": 62620617}, {"filename": "/GameData/textures/delvenPack/dlv_slategen2.png", "start": 62620617, "end": 62628176}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk1a.png", "start": 62628176, "end": 62634126}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk1b.png", "start": 62634126, "end": 62639942}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk1c.png", "start": 62639942, "end": 62645886}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk1d.png", "start": 62645886, "end": 62651532}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk2a.png", "start": 62651532, "end": 62660404}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk2b.png", "start": 62660404, "end": 62669078}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk2c.png", "start": 62669078, "end": 62677875}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk2d.png", "start": 62677875, "end": 62686171}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk3a.png", "start": 62686171, "end": 62694618}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk3b.png", "start": 62694618, "end": 62703265}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk4a.png", "start": 62703265, "end": 62709884}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk4b.png", "start": 62709884, "end": 62716570}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk4c.png", "start": 62716570, "end": 62723187}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk4d.png", "start": 62723187, "end": 62729801}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk4e.png", "start": 62729801, "end": 62736385}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk4f.png", "start": 62736385, "end": 62742742}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk5a.png", "start": 62742742, "end": 62752219}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk5b.png", "start": 62752219, "end": 62761731}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk5c.png", "start": 62761731, "end": 62771229}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk5d.png", "start": 62771229, "end": 62780702}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk5e.png", "start": 62780702, "end": 62790093}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk5f.png", "start": 62790093, "end": 62799230}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk6a.png", "start": 62799230, "end": 62808155}, {"filename": "/GameData/textures/delvenPack/dlv_stonebrk6b.png", "start": 62808155, "end": 62817380}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr1a.png", "start": 62817380, "end": 62822810}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr1b.png", "start": 62822810, "end": 62829232}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr1c.png", "start": 62829232, "end": 62836255}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr2a.png", "start": 62836255, "end": 62844143}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr2b.png", "start": 62844143, "end": 62852958}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr2c.png", "start": 62852958, "end": 62862239}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr3a.png", "start": 62862239, "end": 62867942}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr3b.png", "start": 62867942, "end": 62874420}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr3c.png", "start": 62874420, "end": 62881412}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr4a.png", "start": 62881412, "end": 62889804}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr4b.png", "start": 62889804, "end": 62898873}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr4c.png", "start": 62898873, "end": 62907973}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr5a.png", "start": 62907973, "end": 62914063}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr5b.png", "start": 62914063, "end": 62920476}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr5c.png", "start": 62920476, "end": 62927394}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr6a.png", "start": 62927394, "end": 62935939}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr6b.png", "start": 62935939, "end": 62944759}, {"filename": "/GameData/textures/delvenPack/dlv_stoneflr6c.png", "start": 62944759, "end": 62954043}, {"filename": "/GameData/textures/delvenPack/dlv_stonegen1.png", "start": 62954043, "end": 62959137}, {"filename": "/GameData/textures/delvenPack/dlv_stonegen2.png", "start": 62959137, "end": 62966567}, {"filename": "/GameData/textures/delvenPack/dlv_stonestep1a.png", "start": 62966567, "end": 62972010}, {"filename": "/GameData/textures/delvenPack/dlv_stonestep1b.png", "start": 62972010, "end": 62977550}, {"filename": "/GameData/textures/delvenPack/dlv_stonestep2a.png", "start": 62977550, "end": 62985399}, {"filename": "/GameData/textures/delvenPack/dlv_stonestep2b.png", "start": 62985399, "end": 62993149}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm1a.png", "start": 62993149, "end": 62998439}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm1b.png", "start": 62998439, "end": 63004539}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm1c.png", "start": 63004539, "end": 63010115}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm2a.png", "start": 63010115, "end": 63017861}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm2b.png", "start": 63017861, "end": 63026691}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm2c.png", "start": 63026691, "end": 63034999}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm3a.png", "start": 63034999, "end": 63040299}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm3b.png", "start": 63040299, "end": 63046372}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm4a.png", "start": 63046372, "end": 63054194}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm4b.png", "start": 63054194, "end": 63062725}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm5.png", "start": 63062725, "end": 63065882}, {"filename": "/GameData/textures/delvenPack/dlv_stonetrm6.png", "start": 63065882, "end": 63070237}, {"filename": "/GameData/textures/delvenPack/dlv_stonewaf1a.png", "start": 63070237, "end": 63075848}, {"filename": "/GameData/textures/delvenPack/dlv_stonewaf1b.png", "start": 63075848, "end": 63081465}, {"filename": "/GameData/textures/delvenPack/dlv_stonewaf2a.png", "start": 63081465, "end": 63089338}, {"filename": "/GameData/textures/delvenPack/dlv_stonewaf2b.png", "start": 63089338, "end": 63097447}, {"filename": "/GameData/textures/delvenPack/dlv_wood1a.png", "start": 63097447, "end": 63102146}, {"filename": "/GameData/textures/delvenPack/dlv_wood1b.png", "start": 63102146, "end": 63107105}, {"filename": "/GameData/textures/delvenPack/dlv_wood2a.png", "start": 63107105, "end": 63113801}, {"filename": "/GameData/textures/delvenPack/dlv_wood2b.png", "start": 63113801, "end": 63120758}, {"filename": "/GameData/textures/delvenPack/dlv_wood3a.png", "start": 63120758, "end": 63125962}, {"filename": "/GameData/textures/delvenPack/dlv_wood3b.png", "start": 63125962, "end": 63131420}, {"filename": "/GameData/textures/delvenPack/dlv_wood4a.png", "start": 63131420, "end": 63138252}, {"filename": "/GameData/textures/delvenPack/dlv_wood4b.png", "start": 63138252, "end": 63145297}, {"filename": "/GameData/textures/delvenPack/dlv_wood5a.png", "start": 63145297, "end": 63151310}, {"filename": "/GameData/textures/delvenPack/dlv_wood5b.png", "start": 63151310, "end": 63158145}, {"filename": "/GameData/textures/delvenPack/dlv_wood5c.png", "start": 63158145, "end": 63165155}, {"filename": "/GameData/textures/delvenPack/dlv_wood5d.png", "start": 63165155, "end": 63172745}, {"filename": "/GameData/textures/delvenPack/dlv_wood5e.png", "start": 63172745, "end": 63181878}, {"filename": "/GameData/textures/delvenPack/dlv_wood5f.png", "start": 63181878, "end": 63190907}, {"filename": "/GameData/textures/delvenPack/dlv_wood5g.png", "start": 63190907, "end": 63199641}, {"filename": "/GameData/textures/delvenPack/dlv_wood5h.png", "start": 63199641, "end": 63208369}, {"filename": "/GameData/textures/delvenPack/dlv_wood6a.png", "start": 63208369, "end": 63215999}, {"filename": "/GameData/textures/delvenPack/dlv_wood6b.png", "start": 63215999, "end": 63224447}, {"filename": "/GameData/textures/delvenPack/dlv_wood6c.png", "start": 63224447, "end": 63232015}, {"filename": "/GameData/textures/delvenPack/dlv_wood6d.png", "start": 63232015, "end": 63240412}, {"filename": "/GameData/textures/delvenPack/dlv_wood6e.png", "start": 63240412, "end": 63250169}, {"filename": "/GameData/textures/delvenPack/dlv_wood6f.png", "start": 63250169, "end": 63260115}, {"filename": "/GameData/textures/delvenPack/dlv_wood6g.png", "start": 63260115, "end": 63269318}, {"filename": "/GameData/textures/delvenPack/dlv_wood6h.png", "start": 63269318, "end": 63278757}, {"filename": "/GameData/textures/delvenPack/dlv_woodgen1.png", "start": 63278757, "end": 63283304}, {"filename": "/GameData/textures/delvenPack/dlv_woodgen2.png", "start": 63283304, "end": 63289997}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry1a.png", "start": 63289997, "end": 63297784}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry1b.png", "start": 63297784, "end": 63304931}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry1c.png", "start": 63304931, "end": 63309201}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry1d.png", "start": 63309201, "end": 63313211}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry2a.png", "start": 63313211, "end": 63320350}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry2b.png", "start": 63320350, "end": 63326909}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry2c.png", "start": 63326909, "end": 63330730}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry2d.png", "start": 63330730, "end": 63334368}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry3a.png", "start": 63334368, "end": 63341497}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry3b.png", "start": 63341497, "end": 63348083}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry3c.png", "start": 63348083, "end": 63352056}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry3d.png", "start": 63352056, "end": 63355828}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry4a.png", "start": 63355828, "end": 63366710}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry4b.png", "start": 63366710, "end": 63375548}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry4c.png", "start": 63375548, "end": 63381050}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry4d.png", "start": 63381050, "end": 63385760}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry5a.png", "start": 63385760, "end": 63396344}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry5b.png", "start": 63396344, "end": 63404970}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry5c.png", "start": 63404970, "end": 63410279}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry5d.png", "start": 63410279, "end": 63414829}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry6a.png", "start": 63414829, "end": 63423678}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry6b.png", "start": 63423678, "end": 63430956}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry6c.png", "start": 63430956, "end": 63435574}, {"filename": "/GameData/textures/delvenPack/{dlv_tapestry6d.png", "start": 63435574, "end": 63439586}, {"filename": "/GameData/textures/generic/__TB_empty.png", "start": 63439586, "end": 63440344}, {"filename": "/GameData/textures/generic/brick.png", "start": 63440344, "end": 63953258}, {"filename": "/GameData/textures/generic/brickPBR.png", "start": 63953258, "end": 64883390}, {"filename": "/GameData/textures/generic/brickPBR_orm.png", "start": 64883390, "end": 65308241}, {"filename": "/GameData/textures/generic/bricks.png", "start": 65308241, "end": 65319161}, {"filename": "/GameData/textures/generic/cat.png", "start": 65319161, "end": 65568599}, {"filename": "/GameData/textures/generic/foil.png", "start": 65568599, "end": 65825817}, {"filename": "/GameData/textures/generic/grass.png", "start": 65825817, "end": 65953942}, {"filename": "/GameData/textures/generic/hole_t.png", "start": 65953942, "end": 65956371}, {"filename": "/GameData/textures/generic/light.png", "start": 65956371, "end": 65956499}, {"filename": "/GameData/textures/generic/light_em.png", "start": 65956499, "end": 65956627}, {"filename": "/GameData/textures/generic/mask_test_m.png", "start": 65956627, "end": 65960689}, {"filename": "/GameData/textures/generic/mirror.png", "start": 65960689, "end": 65960809}, {"filename": "/GameData/textures/generic/mirror_orm.png", "start": 65960809, "end": 65960929}, {"filename": "/GameData/textures/generic/null_m.png", "start": 65960929, "end": 65962726}, {"filename": "/GameData/textures/generic/white.png", "start": 65962726, "end": 65962846}, {"filename": "/GameData/textures/gloves.png", "start": 65962846, "end": 66072521}, {"filename": "/GameData/textures/jacket.png", "start": 66072521, "end": 66236333}, {"filename": "/GameData/textures/lq_conc/conc1_1.png", "start": 66236333, "end": 66249446}, {"filename": "/GameData/textures/lq_conc/conc1_10.png", "start": 66249446, "end": 66263560}, {"filename": "/GameData/textures/lq_conc/conc1_2.png", "start": 66263560, "end": 66277601}, {"filename": "/GameData/textures/lq_conc/conc1_3.png", "start": 66277601, "end": 66292111}, {"filename": "/GameData/textures/lq_conc/conc1_4.png", "start": 66292111, "end": 66306497}, {"filename": "/GameData/textures/lq_conc/conc1_5.png", "start": 66306497, "end": 66320946}, {"filename": "/GameData/textures/lq_conc/conc1_6.png", "start": 66320946, "end": 66335563}, {"filename": "/GameData/textures/lq_conc/conc1_7.png", "start": 66335563, "end": 66350160}, {"filename": "/GameData/textures/lq_conc/conc1_8.png", "start": 66350160, "end": 66364508}, {"filename": "/GameData/textures/lq_conc/conc1_9.png", "start": 66364508, "end": 66378666}, {"filename": "/GameData/textures/lq_conc/conc1_a1.png", "start": 66378666, "end": 66393114}, {"filename": "/GameData/textures/lq_conc/conc2_1.png", "start": 66393114, "end": 66402542}, {"filename": "/GameData/textures/lq_conc/conc2_10.png", "start": 66402542, "end": 66411991}, {"filename": "/GameData/textures/lq_conc/conc2_2.png", "start": 66411991, "end": 66421385}, {"filename": "/GameData/textures/lq_conc/conc2_3.png", "start": 66421385, "end": 66431030}, {"filename": "/GameData/textures/lq_conc/conc2_4.png", "start": 66431030, "end": 66440537}, {"filename": "/GameData/textures/lq_conc/conc2_5.png", "start": 66440537, "end": 66450042}, {"filename": "/GameData/textures/lq_conc/conc2_6.png", "start": 66450042, "end": 66459555}, {"filename": "/GameData/textures/lq_conc/conc2_7.png", "start": 66459555, "end": 66469100}, {"filename": "/GameData/textures/lq_conc/conc2_8.png", "start": 66469100, "end": 66478510}, {"filename": "/GameData/textures/lq_conc/conc2_9.png", "start": 66478510, "end": 66488047}, {"filename": "/GameData/textures/lq_conc/conc2_a1.png", "start": 66488047, "end": 66497077}, {"filename": "/GameData/textures/lq_conc/conc3_1.png", "start": 66497077, "end": 66504941}, {"filename": "/GameData/textures/lq_conc/conc3_10.png", "start": 66504941, "end": 66513877}, {"filename": "/GameData/textures/lq_conc/conc3_2.png", "start": 66513877, "end": 66522271}, {"filename": "/GameData/textures/lq_conc/conc3_3.png", "start": 66522271, "end": 66532498}, {"filename": "/GameData/textures/lq_conc/conc3_4.png", "start": 66532498, "end": 66541777}, {"filename": "/GameData/textures/lq_conc/conc3_5.png", "start": 66541777, "end": 66551507}, {"filename": "/GameData/textures/lq_conc/conc3_6.png", "start": 66551507, "end": 66561067}, {"filename": "/GameData/textures/lq_conc/conc3_7.png", "start": 66561067, "end": 66569892}, {"filename": "/GameData/textures/lq_conc/conc3_8.png", "start": 66569892, "end": 66578673}, {"filename": "/GameData/textures/lq_conc/conc3_9.png", "start": 66578673, "end": 66588149}, {"filename": "/GameData/textures/lq_conc/conc3_a1.png", "start": 66588149, "end": 66596556}, {"filename": "/GameData/textures/lq_conc/conc4_1.png", "start": 66596556, "end": 66602715}, {"filename": "/GameData/textures/lq_conc/conc4_10.png", "start": 66602715, "end": 66609075}, {"filename": "/GameData/textures/lq_conc/conc4_2.png", "start": 66609075, "end": 66615340}, {"filename": "/GameData/textures/lq_conc/conc4_3.png", "start": 66615340, "end": 66622266}, {"filename": "/GameData/textures/lq_conc/conc4_4.png", "start": 66622266, "end": 66628756}, {"filename": "/GameData/textures/lq_conc/conc4_5.png", "start": 66628756, "end": 66635349}, {"filename": "/GameData/textures/lq_conc/conc4_6.png", "start": 66635349, "end": 66641873}, {"filename": "/GameData/textures/lq_conc/conc4_7.png", "start": 66641873, "end": 66648281}, {"filename": "/GameData/textures/lq_conc/conc4_8.png", "start": 66648281, "end": 66654564}, {"filename": "/GameData/textures/lq_conc/conc4_9.png", "start": 66654564, "end": 66661147}, {"filename": "/GameData/textures/lq_conc/conc4_a1.png", "start": 66661147, "end": 66667216}, {"filename": "/GameData/textures/lq_conc/conc5_1.png", "start": 66667216, "end": 66675978}, {"filename": "/GameData/textures/lq_conc/conc5_10.png", "start": 66675978, "end": 66685593}, {"filename": "/GameData/textures/lq_conc/conc5_2.png", "start": 66685593, "end": 66694909}, {"filename": "/GameData/textures/lq_conc/conc5_8.png", "start": 66694909, "end": 66703989}, {"filename": "/GameData/textures/lq_conc/conc5_9.png", "start": 66703989, "end": 66713703}, {"filename": "/GameData/textures/lq_conc/conc5_a1.png", "start": 66713703, "end": 66722078}, {"filename": "/GameData/textures/lq_conc/conc6_1.png", "start": 66722078, "end": 66728491}, {"filename": "/GameData/textures/lq_conc/conc6_10.png", "start": 66728491, "end": 66734900}, {"filename": "/GameData/textures/lq_conc/conc6_2.png", "start": 66734900, "end": 66741228}, {"filename": "/GameData/textures/lq_conc/conc6_3.png", "start": 66741228, "end": 66748089}, {"filename": "/GameData/textures/lq_conc/conc6_4.png", "start": 66748089, "end": 66754697}, {"filename": "/GameData/textures/lq_conc/conc6_5.png", "start": 66754697, "end": 66761373}, {"filename": "/GameData/textures/lq_conc/conc6_6.png", "start": 66761373, "end": 66768147}, {"filename": "/GameData/textures/lq_conc/conc6_7.png", "start": 66768147, "end": 66774850}, {"filename": "/GameData/textures/lq_conc/conc6_8.png", "start": 66774850, "end": 66781346}, {"filename": "/GameData/textures/lq_conc/conc6_9.png", "start": 66781346, "end": 66787968}, {"filename": "/GameData/textures/lq_conc/conc6_a1.png", "start": 66787968, "end": 66794612}, {"filename": "/GameData/textures/lq_conc/conc7_1.png", "start": 66794612, "end": 66802402}, {"filename": "/GameData/textures/lq_conc/conc7_10.png", "start": 66802402, "end": 66810080}, {"filename": "/GameData/textures/lq_conc/conc7_2.png", "start": 66810080, "end": 66817706}, {"filename": "/GameData/textures/lq_conc/conc7_3.png", "start": 66817706, "end": 66825650}, {"filename": "/GameData/textures/lq_conc/conc7_4.png", "start": 66825650, "end": 66833418}, {"filename": "/GameData/textures/lq_conc/conc7_5.png", "start": 66833418, "end": 66841242}, {"filename": "/GameData/textures/lq_conc/conc7_6.png", "start": 66841242, "end": 66849241}, {"filename": "/GameData/textures/lq_conc/conc7_7.png", "start": 66849241, "end": 66857221}, {"filename": "/GameData/textures/lq_conc/conc7_8.png", "start": 66857221, "end": 66865045}, {"filename": "/GameData/textures/lq_conc/conc7_9.png", "start": 66865045, "end": 66872845}, {"filename": "/GameData/textures/lq_conc/conc7_a1.png", "start": 66872845, "end": 66880578}, {"filename": "/GameData/textures/lq_conc/flr1_1.png", "start": 66880578, "end": 66882910}, {"filename": "/GameData/textures/lq_conc/flr1_2.png", "start": 66882910, "end": 66886174}, {"filename": "/GameData/textures/lq_conc/flr1_3.png", "start": 66886174, "end": 66889714}, {"filename": "/GameData/textures/lq_conc/flr1_4.png", "start": 66889714, "end": 66892491}, {"filename": "/GameData/textures/lq_conc/flr1_5.png", "start": 66892491, "end": 66896087}, {"filename": "/GameData/textures/lq_conc/flr1_6.png", "start": 66896087, "end": 66899143}, {"filename": "/GameData/textures/lq_conc/flr2_1.png", "start": 66899143, "end": 66901253}, {"filename": "/GameData/textures/lq_conc/flr2_2.png", "start": 66901253, "end": 66904466}, {"filename": "/GameData/textures/lq_conc/flr2_3.png", "start": 66904466, "end": 66908086}, {"filename": "/GameData/textures/lq_conc/flr2_4.png", "start": 66908086, "end": 66911484}, {"filename": "/GameData/textures/lq_conc/flr2_5.png", "start": 66911484, "end": 66914844}, {"filename": "/GameData/textures/lq_conc/flr2_6.png", "start": 66914844, "end": 66918043}, {"filename": "/GameData/textures/lq_conc/flr2_7.png", "start": 66918043, "end": 66921178}, {"filename": "/GameData/textures/lq_conc/flr2_8.png", "start": 66921178, "end": 66924119}, {"filename": "/GameData/textures/lq_dev/clip.png", "start": 66924119, "end": 66924625}, {"filename": "/GameData/textures/lq_dev/dot_blue_a.png", "start": 66924625, "end": 66925181}, {"filename": "/GameData/textures/lq_dev/dot_blue_b.png", "start": 66925181, "end": 66925736}, {"filename": "/GameData/textures/lq_dev/dot_blue_c.png", "start": 66925736, "end": 66926291}, {"filename": "/GameData/textures/lq_dev/dot_brown_a.png", "start": 66926291, "end": 66926846}, {"filename": "/GameData/textures/lq_dev/dot_brown_b.png", "start": 66926846, "end": 66927401}, {"filename": "/GameData/textures/lq_dev/dot_brown_c.png", "start": 66927401, "end": 66927956}, {"filename": "/GameData/textures/lq_dev/dot_green_a.png", "start": 66927956, "end": 66928512}, {"filename": "/GameData/textures/lq_dev/dot_green_b.png", "start": 66928512, "end": 66929067}, {"filename": "/GameData/textures/lq_dev/dot_green_c.png", "start": 66929067, "end": 66929622}, {"filename": "/GameData/textures/lq_dev/dot_grey_a.png", "start": 66929622, "end": 66930175}, {"filename": "/GameData/textures/lq_dev/dot_grey_b.png", "start": 66930175, "end": 66930731}, {"filename": "/GameData/textures/lq_dev/dot_grey_c.png", "start": 66930731, "end": 66931286}, {"filename": "/GameData/textures/lq_dev/dot_olive_a.png", "start": 66931286, "end": 66931841}, {"filename": "/GameData/textures/lq_dev/dot_olive_b.png", "start": 66931841, "end": 66932395}, {"filename": "/GameData/textures/lq_dev/dot_olive_c.png", "start": 66932395, "end": 66932950}, {"filename": "/GameData/textures/lq_dev/dot_orange_a.png", "start": 66932950, "end": 66933506}, {"filename": "/GameData/textures/lq_dev/dot_orange_b.png", "start": 66933506, "end": 66934061}, {"filename": "/GameData/textures/lq_dev/dot_orange_c.png", "start": 66934061, "end": 66934616}, {"filename": "/GameData/textures/lq_dev/dot_pink_a.png", "start": 66934616, "end": 66935172}, {"filename": "/GameData/textures/lq_dev/dot_pink_b.png", "start": 66935172, "end": 66935728}, {"filename": "/GameData/textures/lq_dev/dot_pink_c.png", "start": 66935728, "end": 66936283}, {"filename": "/GameData/textures/lq_dev/dot_purple_a.png", "start": 66936283, "end": 66936839}, {"filename": "/GameData/textures/lq_dev/dot_purple_b.png", "start": 66936839, "end": 66937394}, {"filename": "/GameData/textures/lq_dev/dot_purple_c.png", "start": 66937394, "end": 66937949}, {"filename": "/GameData/textures/lq_dev/dot_red_a.png", "start": 66937949, "end": 66938500}, {"filename": "/GameData/textures/lq_dev/dot_red_b.png", "start": 66938500, "end": 66939051}, {"filename": "/GameData/textures/lq_dev/dot_red_c.png", "start": 66939051, "end": 66939602}, {"filename": "/GameData/textures/lq_dev/dot_tan_a.png", "start": 66939602, "end": 66940158}, {"filename": "/GameData/textures/lq_dev/dot_tan_b.png", "start": 66940158, "end": 66940714}, {"filename": "/GameData/textures/lq_dev/dot_tan_c.png", "start": 66940714, "end": 66941269}, {"filename": "/GameData/textures/lq_dev/dot_yellow_a.png", "start": 66941269, "end": 66941825}, {"filename": "/GameData/textures/lq_dev/dot_yellow_b.png", "start": 66941825, "end": 66942381}, {"filename": "/GameData/textures/lq_dev/dot_yellow_c.png", "start": 66942381, "end": 66942935}, {"filename": "/GameData/textures/lq_dev/floor_blue_a.png", "start": 66942935, "end": 66943752}, {"filename": "/GameData/textures/lq_dev/floor_blue_b.png", "start": 66943752, "end": 66944570}, {"filename": "/GameData/textures/lq_dev/floor_blue_c.png", "start": 66944570, "end": 66945388}, {"filename": "/GameData/textures/lq_dev/floor_brown_a.png", "start": 66945388, "end": 66946210}, {"filename": "/GameData/textures/lq_dev/floor_brown_b.png", "start": 66946210, "end": 66947033}, {"filename": "/GameData/textures/lq_dev/floor_brown_c.png", "start": 66947033, "end": 66947855}, {"filename": "/GameData/textures/lq_dev/floor_green_a.png", "start": 66947855, "end": 66948676}, {"filename": "/GameData/textures/lq_dev/floor_green_b.png", "start": 66948676, "end": 66949498}, {"filename": "/GameData/textures/lq_dev/floor_green_c.png", "start": 66949498, "end": 66950320}, {"filename": "/GameData/textures/lq_dev/floor_grey_a.png", "start": 66950320, "end": 66951130}, {"filename": "/GameData/textures/lq_dev/floor_grey_b.png", "start": 66951130, "end": 66951943}, {"filename": "/GameData/textures/lq_dev/floor_grey_c.png", "start": 66951943, "end": 66952757}, {"filename": "/GameData/textures/lq_dev/floor_olive_a.png", "start": 66952757, "end": 66953575}, {"filename": "/GameData/textures/lq_dev/floor_olive_b.png", "start": 66953575, "end": 66954390}, {"filename": "/GameData/textures/lq_dev/floor_olive_c.png", "start": 66954390, "end": 66955207}, {"filename": "/GameData/textures/lq_dev/floor_orange_a.png", "start": 66955207, "end": 66956030}, {"filename": "/GameData/textures/lq_dev/floor_orange_b.png", "start": 66956030, "end": 66956853}, {"filename": "/GameData/textures/lq_dev/floor_orange_c.png", "start": 66956853, "end": 66957673}, {"filename": "/GameData/textures/lq_dev/floor_pink_a.png", "start": 66957673, "end": 66958496}, {"filename": "/GameData/textures/lq_dev/floor_pink_b.png", "start": 66958496, "end": 66959318}, {"filename": "/GameData/textures/lq_dev/floor_pink_c.png", "start": 66959318, "end": 66960140}, {"filename": "/GameData/textures/lq_dev/floor_purple_a.png", "start": 66960140, "end": 66960962}, {"filename": "/GameData/textures/lq_dev/floor_purple_b.png", "start": 66960962, "end": 66961784}, {"filename": "/GameData/textures/lq_dev/floor_purple_c.png", "start": 66961784, "end": 66962605}, {"filename": "/GameData/textures/lq_dev/floor_red_a.png", "start": 66962605, "end": 66963415}, {"filename": "/GameData/textures/lq_dev/floor_red_b.png", "start": 66963415, "end": 66964225}, {"filename": "/GameData/textures/lq_dev/floor_red_c.png", "start": 66964225, "end": 66965036}, {"filename": "/GameData/textures/lq_dev/floor_tan_a.png", "start": 66965036, "end": 66965856}, {"filename": "/GameData/textures/lq_dev/floor_tan_b.png", "start": 66965856, "end": 66966680}, {"filename": "/GameData/textures/lq_dev/floor_tan_c.png", "start": 66966680, "end": 66967501}, {"filename": "/GameData/textures/lq_dev/floor_yellow_a.png", "start": 66967501, "end": 66968322}, {"filename": "/GameData/textures/lq_dev/floor_yellow_b.png", "start": 66968322, "end": 66969144}, {"filename": "/GameData/textures/lq_dev/floor_yellow_c.png", "start": 66969144, "end": 66969963}, {"filename": "/GameData/textures/lq_dev/hint.png", "start": 66969963, "end": 66970829}, {"filename": "/GameData/textures/lq_dev/hintskip.png", "start": 66970829, "end": 66971722}, {"filename": "/GameData/textures/lq_dev/key_gold_1.png", "start": 66971722, "end": 66972477}, {"filename": "/GameData/textures/lq_dev/key_silver_1.png", "start": 66972477, "end": 66973231}, {"filename": "/GameData/textures/lq_dev/light_fbr.png", "start": 66973231, "end": 66974147}, {"filename": "/GameData/textures/lq_dev/origin.png", "start": 66974147, "end": 66974630}, {"filename": "/GameData/textures/lq_dev/plus_0_button_fbr.png", "start": 66974630, "end": 66974829}, {"filename": "/GameData/textures/lq_dev/plus_0_shoot_fbr.png", "start": 66974829, "end": 66975108}, {"filename": "/GameData/textures/lq_dev/plus_1_button_fbr.png", "start": 66975108, "end": 66975309}, {"filename": "/GameData/textures/lq_dev/plus_1_shoot_fbr.png", "start": 66975309, "end": 66975590}, {"filename": "/GameData/textures/lq_dev/plus_a_button_fbr.png", "start": 66975590, "end": 66975791}, {"filename": "/GameData/textures/lq_dev/plus_a_shoot_fbr.png", "start": 66975791, "end": 66976078}, {"filename": "/GameData/textures/lq_dev/skip.png", "start": 66976078, "end": 66976566}, {"filename": "/GameData/textures/lq_dev/sky_dev.png", "start": 66976566, "end": 66978538}, {"filename": "/GameData/textures/lq_dev/sky_dev.png.bak", "start": 66978538, "end": 66990892}, {"filename": "/GameData/textures/lq_dev/sky_dev_day_fbr.png", "start": 66990892, "end": 66994718}, {"filename": "/GameData/textures/lq_dev/sky_dev_void.png", "start": 66994718, "end": 66995629}, {"filename": "/GameData/textures/lq_dev/star_blood1.png", "start": 66995629, "end": 66995991}, {"filename": "/GameData/textures/lq_dev/star_lava1.png", "start": 66995991, "end": 66996362}, {"filename": "/GameData/textures/lq_dev/star_lavaskip.png", "start": 66996362, "end": 66997475}, {"filename": "/GameData/textures/lq_dev/star_slime1.png", "start": 66997475, "end": 66997845}, {"filename": "/GameData/textures/lq_dev/star_slimeskip.png", "start": 66997845, "end": 66998918}, {"filename": "/GameData/textures/lq_dev/star_smile.png", "start": 66998918, "end": 66999398}, {"filename": "/GameData/textures/lq_dev/star_teleport.png", "start": 66999398, "end": 66999722}, {"filename": "/GameData/textures/lq_dev/star_water1.png", "start": 66999722, "end": 67000094}, {"filename": "/GameData/textures/lq_dev/star_water2.png", "start": 67000094, "end": 67000463}, {"filename": "/GameData/textures/lq_dev/star_waterskip.png", "start": 67000463, "end": 67002203}, {"filename": "/GameData/textures/lq_dev/trigger.png", "start": 67002203, "end": 67002700}, {"filename": "/GameData/textures/lq_dev/wall_blue_a.png", "start": 67002700, "end": 67003380}, {"filename": "/GameData/textures/lq_dev/wall_blue_b.png", "start": 67003380, "end": 67004060}, {"filename": "/GameData/textures/lq_dev/wall_blue_c.png", "start": 67004060, "end": 67004740}, {"filename": "/GameData/textures/lq_dev/wall_brown_a.png", "start": 67004740, "end": 67005422}, {"filename": "/GameData/textures/lq_dev/wall_brown_b.png", "start": 67005422, "end": 67006104}, {"filename": "/GameData/textures/lq_dev/wall_brown_c.png", "start": 67006104, "end": 67006786}, {"filename": "/GameData/textures/lq_dev/wall_green_a.png", "start": 67006786, "end": 67007468}, {"filename": "/GameData/textures/lq_dev/wall_green_b.png", "start": 67007468, "end": 67008150}, {"filename": "/GameData/textures/lq_dev/wall_green_c.png", "start": 67008150, "end": 67008832}, {"filename": "/GameData/textures/lq_dev/wall_grey_a.png", "start": 67008832, "end": 67009506}, {"filename": "/GameData/textures/lq_dev/wall_grey_b.png", "start": 67009506, "end": 67010182}, {"filename": "/GameData/textures/lq_dev/wall_grey_c.png", "start": 67010182, "end": 67010859}, {"filename": "/GameData/textures/lq_dev/wall_olive_a.png", "start": 67010859, "end": 67011539}, {"filename": "/GameData/textures/lq_dev/wall_olive_b.png", "start": 67011539, "end": 67012216}, {"filename": "/GameData/textures/lq_dev/wall_olive_c.png", "start": 67012216, "end": 67012895}, {"filename": "/GameData/textures/lq_dev/wall_orange_a.png", "start": 67012895, "end": 67013577}, {"filename": "/GameData/textures/lq_dev/wall_orange_b.png", "start": 67013577, "end": 67014259}, {"filename": "/GameData/textures/lq_dev/wall_orange_c.png", "start": 67014259, "end": 67014940}, {"filename": "/GameData/textures/lq_dev/wall_pink_a.png", "start": 67014940, "end": 67015622}, {"filename": "/GameData/textures/lq_dev/wall_pink_b.png", "start": 67015622, "end": 67016304}, {"filename": "/GameData/textures/lq_dev/wall_pink_c.png", "start": 67016304, "end": 67016986}, {"filename": "/GameData/textures/lq_dev/wall_purple_a.png", "start": 67016986, "end": 67017669}, {"filename": "/GameData/textures/lq_dev/wall_purple_b.png", "start": 67017669, "end": 67018351}, {"filename": "/GameData/textures/lq_dev/wall_purple_c.png", "start": 67018351, "end": 67019033}, {"filename": "/GameData/textures/lq_dev/wall_red_a.png", "start": 67019033, "end": 67019706}, {"filename": "/GameData/textures/lq_dev/wall_red_b.png", "start": 67019706, "end": 67020379}, {"filename": "/GameData/textures/lq_dev/wall_red_c.png", "start": 67020379, "end": 67021053}, {"filename": "/GameData/textures/lq_dev/wall_tan_a.png", "start": 67021053, "end": 67021735}, {"filename": "/GameData/textures/lq_dev/wall_tan_b.png", "start": 67021735, "end": 67022417}, {"filename": "/GameData/textures/lq_dev/wall_tan_c.png", "start": 67022417, "end": 67023099}, {"filename": "/GameData/textures/lq_dev/wall_yellow_a.png", "start": 67023099, "end": 67023781}, {"filename": "/GameData/textures/lq_dev/wall_yellow_b.png", "start": 67023781, "end": 67024463}, {"filename": "/GameData/textures/lq_dev/wall_yellow_c.png", "start": 67024463, "end": 67025144}, {"filename": "/GameData/textures/lq_dev/{char_0_fbr.png", "start": 67025144, "end": 67025321}, {"filename": "/GameData/textures/lq_dev/{char_1_fbr.png", "start": 67025321, "end": 67025481}, {"filename": "/GameData/textures/lq_dev/{char_2_fbr.png", "start": 67025481, "end": 67025653}, {"filename": "/GameData/textures/lq_dev/{char_3_fbr.png", "start": 67025653, "end": 67025832}, {"filename": "/GameData/textures/lq_dev/{char_4_fbr.png", "start": 67025832, "end": 67025995}, {"filename": "/GameData/textures/lq_dev/{char_5_fbr.png", "start": 67025995, "end": 67026168}, {"filename": "/GameData/textures/lq_dev/{char_6_fbr.png", "start": 67026168, "end": 67026340}, {"filename": "/GameData/textures/lq_dev/{char_7_fbr.png", "start": 67026340, "end": 67026494}, {"filename": "/GameData/textures/lq_dev/{char_8_fbr.png", "start": 67026494, "end": 67026662}, {"filename": "/GameData/textures/lq_dev/{char_9_fbr.png", "start": 67026662, "end": 67026829}, {"filename": "/GameData/textures/lq_dev/{char_a_fbr.png", "start": 67026829, "end": 67026993}, {"filename": "/GameData/textures/lq_dev/{char_b_fbr.png", "start": 67026993, "end": 67027163}, {"filename": "/GameData/textures/lq_dev/{char_c_fbr.png", "start": 67027163, "end": 67027313}, {"filename": "/GameData/textures/lq_dev/{char_d_fbr.png", "start": 67027313, "end": 67027479}, {"filename": "/GameData/textures/lq_dev/{char_e_fbr.png", "start": 67027479, "end": 67027647}, {"filename": "/GameData/textures/lq_dev/{char_f_fbr.png", "start": 67027647, "end": 67027807}, {"filename": "/GameData/textures/lq_dev/{char_g_fbr.png", "start": 67027807, "end": 67027979}, {"filename": "/GameData/textures/lq_dev/{char_h_fbr.png", "start": 67027979, "end": 67028138}, {"filename": "/GameData/textures/lq_dev/{char_i_fbr.png", "start": 67028138, "end": 67028297}, {"filename": "/GameData/textures/lq_dev/{char_j_fbr.png", "start": 67028297, "end": 67028463}, {"filename": "/GameData/textures/lq_dev/{char_k_fbr.png", "start": 67028463, "end": 67028657}, {"filename": "/GameData/textures/lq_dev/{char_l_fbr.png", "start": 67028657, "end": 67028798}, {"filename": "/GameData/textures/lq_dev/{char_m_fbr.png", "start": 67028798, "end": 67028947}, {"filename": "/GameData/textures/lq_dev/{char_n_fbr.png", "start": 67028947, "end": 67029130}, {"filename": "/GameData/textures/lq_dev/{char_o_fbr.png", "start": 67029130, "end": 67029280}, {"filename": "/GameData/textures/lq_dev/{char_p_fbr.png", "start": 67029280, "end": 67029438}, {"filename": "/GameData/textures/lq_dev/{char_q_fbr.png", "start": 67029438, "end": 67029604}, {"filename": "/GameData/textures/lq_dev/{char_r_fbr.png", "start": 67029604, "end": 67029776}, {"filename": "/GameData/textures/lq_dev/{char_s_fbr.png", "start": 67029776, "end": 67029952}, {"filename": "/GameData/textures/lq_dev/{char_t_fbr.png", "start": 67029952, "end": 67030100}, {"filename": "/GameData/textures/lq_dev/{char_trans_fbr.png", "start": 67030100, "end": 67030223}, {"filename": "/GameData/textures/lq_dev/{char_u_fbr.png", "start": 67030223, "end": 67030369}, {"filename": "/GameData/textures/lq_dev/{char_v_fbr.png", "start": 67030369, "end": 67030537}, {"filename": "/GameData/textures/lq_dev/{char_w_fbr.png", "start": 67030537, "end": 67030686}, {"filename": "/GameData/textures/lq_dev/{char_x_fbr.png", "start": 67030686, "end": 67030868}, {"filename": "/GameData/textures/lq_dev/{char_y_fbr.png", "start": 67030868, "end": 67031037}, {"filename": "/GameData/textures/lq_dev/{char_z_fbr.png", "start": 67031037, "end": 67031212}, {"filename": "/GameData/textures/lq_dev/{charlow_a_fbr.png", "start": 67031212, "end": 67031367}, {"filename": "/GameData/textures/lq_dev/{charlow_b_fbr.png", "start": 67031367, "end": 67031526}, {"filename": "/GameData/textures/lq_dev/{charlow_c_fbr.png", "start": 67031526, "end": 67031680}, {"filename": "/GameData/textures/lq_dev/{charlow_d_fbr.png", "start": 67031680, "end": 67031841}, {"filename": "/GameData/textures/lq_dev/{charlow_e_fbr.png", "start": 67031841, "end": 67031995}, {"filename": "/GameData/textures/lq_dev/{charlow_f_fbr.png", "start": 67031995, "end": 67032155}, {"filename": "/GameData/textures/lq_dev/{charlow_g_fbr.png", "start": 67032155, "end": 67032313}, {"filename": "/GameData/textures/lq_dev/{charlow_h_fbr.png", "start": 67032313, "end": 67032467}, {"filename": "/GameData/textures/lq_dev/{charlow_i_fbr.png", "start": 67032467, "end": 67032613}, {"filename": "/GameData/textures/lq_dev/{charlow_j_fbr.png", "start": 67032613, "end": 67032773}, {"filename": "/GameData/textures/lq_dev/{charlow_k_fbr.png", "start": 67032773, "end": 67032952}, {"filename": "/GameData/textures/lq_dev/{charlow_l_fbr.png", "start": 67032952, "end": 67033090}, {"filename": "/GameData/textures/lq_dev/{charlow_m_fbr.png", "start": 67033090, "end": 67033243}, {"filename": "/GameData/textures/lq_dev/{charlow_n_fbr.png", "start": 67033243, "end": 67033393}, {"filename": "/GameData/textures/lq_dev/{charlow_o_fbr.png", "start": 67033393, "end": 67033547}, {"filename": "/GameData/textures/lq_dev/{charlow_p_fbr.png", "start": 67033547, "end": 67033702}, {"filename": "/GameData/textures/lq_dev/{charlow_q_fbr.png", "start": 67033702, "end": 67033852}, {"filename": "/GameData/textures/lq_dev/{charlow_r_fbr.png", "start": 67033852, "end": 67034005}, {"filename": "/GameData/textures/lq_dev/{charlow_s_fbr.png", "start": 67034005, "end": 67034157}, {"filename": "/GameData/textures/lq_dev/{charlow_t_fbr.png", "start": 67034157, "end": 67034323}, {"filename": "/GameData/textures/lq_dev/{charlow_u_fbr.png", "start": 67034323, "end": 67034474}, {"filename": "/GameData/textures/lq_dev/{charlow_v_fbr.png", "start": 67034474, "end": 67034648}, {"filename": "/GameData/textures/lq_dev/{charlow_w_fbr.png", "start": 67034648, "end": 67034802}, {"filename": "/GameData/textures/lq_dev/{charlow_x_fbr.png", "start": 67034802, "end": 67034989}, {"filename": "/GameData/textures/lq_dev/{charlow_y_fbr.png", "start": 67034989, "end": 67035163}, {"filename": "/GameData/textures/lq_dev/{charlow_z_fbr.png", "start": 67035163, "end": 67035334}, {"filename": "/GameData/textures/lq_dev/{chars_add_fbr.png", "start": 67035334, "end": 67035497}, {"filename": "/GameData/textures/lq_dev/{chars_and_fbr.png", "start": 67035497, "end": 67035689}, {"filename": "/GameData/textures/lq_dev/{chars_ardown_fbr.png", "start": 67035689, "end": 67035874}, {"filename": "/GameData/textures/lq_dev/{chars_arleft_fbr.png", "start": 67035874, "end": 67036058}, {"filename": "/GameData/textures/lq_dev/{chars_arright_fbr.png", "start": 67036058, "end": 67036243}, {"filename": "/GameData/textures/lq_dev/{chars_arup_fbr.png", "start": 67036243, "end": 67036421}, {"filename": "/GameData/textures/lq_dev/{chars_at_fbr.png", "start": 67036421, "end": 67036578}, {"filename": "/GameData/textures/lq_dev/{chars_brackc1_fbr.png", "start": 67036578, "end": 67036757}, {"filename": "/GameData/textures/lq_dev/{chars_brackc2_fbr.png", "start": 67036757, "end": 67036941}, {"filename": "/GameData/textures/lq_dev/{chars_brackr1_fbr.png", "start": 67036941, "end": 67037108}, {"filename": "/GameData/textures/lq_dev/{chars_brackr2_fbr.png", "start": 67037108, "end": 67037278}, {"filename": "/GameData/textures/lq_dev/{chars_bracks1_fbr.png", "start": 67037278, "end": 67037432}, {"filename": "/GameData/textures/lq_dev/{chars_bracks2_fbr.png", "start": 67037432, "end": 67037585}, {"filename": "/GameData/textures/lq_dev/{chars_caret_fbr.png", "start": 67037585, "end": 67037765}, {"filename": "/GameData/textures/lq_dev/{chars_colon_fbr.png", "start": 67037765, "end": 67037917}, {"filename": "/GameData/textures/lq_dev/{chars_colonsemi_fbr.png", "start": 67037917, "end": 67038084}, {"filename": "/GameData/textures/lq_dev/{chars_comma_fbr.png", "start": 67038084, "end": 67038240}, {"filename": "/GameData/textures/lq_dev/{chars_div_fbr.png", "start": 67038240, "end": 67038409}, {"filename": "/GameData/textures/lq_dev/{chars_dollar_fbr.png", "start": 67038409, "end": 67038585}, {"filename": "/GameData/textures/lq_dev/{chars_equ_fbr.png", "start": 67038585, "end": 67038744}, {"filename": "/GameData/textures/lq_dev/{chars_exclam_fbr.png", "start": 67038744, "end": 67038888}, {"filename": "/GameData/textures/lq_dev/{chars_grave_fbr.png", "start": 67038888, "end": 67039038}, {"filename": "/GameData/textures/lq_dev/{chars_hash_fbr.png", "start": 67039038, "end": 67039223}, {"filename": "/GameData/textures/lq_dev/{chars_heart_fbr.png", "start": 67039223, "end": 67039408}, {"filename": "/GameData/textures/lq_dev/{chars_multi_fbr.png", "start": 67039408, "end": 67039577}, {"filename": "/GameData/textures/lq_dev/{chars_percent_fbr.png", "start": 67039577, "end": 67039783}, {"filename": "/GameData/textures/lq_dev/{chars_perio_fbr.png", "start": 67039783, "end": 67039920}, {"filename": "/GameData/textures/lq_dev/{chars_pipe_fbr.png", "start": 67039920, "end": 67040067}, {"filename": "/GameData/textures/lq_dev/{chars_quest_fbr.png", "start": 67040067, "end": 67040240}, {"filename": "/GameData/textures/lq_dev/{chars_slaback_fbr.png", "start": 67040240, "end": 67040427}, {"filename": "/GameData/textures/lq_dev/{chars_slafoward_fbr.png", "start": 67040427, "end": 67040606}, {"filename": "/GameData/textures/lq_dev/{chars_smile_fbr.png", "start": 67040606, "end": 67040766}, {"filename": "/GameData/textures/lq_dev/{chars_sub_fbr.png", "start": 67040766, "end": 67040913}, {"filename": "/GameData/textures/lq_dev/{chars_sun_fbr.png", "start": 67040913, "end": 67041112}, {"filename": "/GameData/textures/lq_dev/{chars_thngreater_fbr.png", "start": 67041112, "end": 67041305}, {"filename": "/GameData/textures/lq_dev/{chars_thnless_fbr.png", "start": 67041305, "end": 67041492}, {"filename": "/GameData/textures/lq_dev/{chars_tilde_fbr.png", "start": 67041492, "end": 67041661}, {"filename": "/GameData/textures/lq_dev/{chars_unders_fbr.png", "start": 67041661, "end": 67041798}, {"filename": "/GameData/textures/lq_flesh/bone1_1.png", "start": 67041798, "end": 67049205}, {"filename": "/GameData/textures/lq_flesh/bone1_2.png", "start": 67049205, "end": 67058397}, {"filename": "/GameData/textures/lq_flesh/bone2_1.png", "start": 67058397, "end": 67068829}, {"filename": "/GameData/textures/lq_flesh/dopefish_fbr.png", "start": 67068829, "end": 67077059}, {"filename": "/GameData/textures/lq_flesh/flesh_gut1.png", "start": 67077059, "end": 67087374}, {"filename": "/GameData/textures/lq_flesh/flesh_gut2.png", "start": 67087374, "end": 67099174}, {"filename": "/GameData/textures/lq_flesh/flesh_rot1_1.png", "start": 67099174, "end": 67112924}, {"filename": "/GameData/textures/lq_flesh/flesh_rot1_2.png", "start": 67112924, "end": 67125904}, {"filename": "/GameData/textures/lq_flesh/flesh_rot1_3.png", "start": 67125904, "end": 67137937}, {"filename": "/GameData/textures/lq_flesh/flesh_rot1_4a.png", "start": 67137937, "end": 67151150}, {"filename": "/GameData/textures/lq_flesh/flesh_rot1_4b.png", "start": 67151150, "end": 67164290}, {"filename": "/GameData/textures/lq_flesh/flesh_rot1_5a.png", "start": 67164290, "end": 67177934}, {"filename": "/GameData/textures/lq_flesh/flesh_rot1_5b.png", "start": 67177934, "end": 67191507}, {"filename": "/GameData/textures/lq_flesh/flesh_rot2_1.png", "start": 67191507, "end": 67204733}, {"filename": "/GameData/textures/lq_flesh/flesh_rot3_1.png", "start": 67204733, "end": 67219679}, {"filename": "/GameData/textures/lq_flesh/flesh_rot3_2.png", "start": 67219679, "end": 67234718}, {"filename": "/GameData/textures/lq_flesh/flesh_rot4_1.png", "start": 67234718, "end": 67249355}, {"filename": "/GameData/textures/lq_flesh/flesh_rot5_1.png", "start": 67249355, "end": 67261623}, {"filename": "/GameData/textures/lq_flesh/flesh_rot6_1.png", "start": 67261623, "end": 67278030}, {"filename": "/GameData/textures/lq_flesh/flesh_wod1_1.png", "start": 67278030, "end": 67289548}, {"filename": "/GameData/textures/lq_flesh/flesh_wod1_2.png", "start": 67289548, "end": 67302610}, {"filename": "/GameData/textures/lq_flesh/flesh_wod1_3.png", "start": 67302610, "end": 67313613}, {"filename": "/GameData/textures/lq_flesh/flesh_wod1_4.png", "start": 67313613, "end": 67325025}, {"filename": "/GameData/textures/lq_flesh/flesh_wod1_5.png", "start": 67325025, "end": 67335624}, {"filename": "/GameData/textures/lq_flesh/flesh_wod2_1.png", "start": 67335624, "end": 67339280}, {"filename": "/GameData/textures/lq_flesh/flesh_wod2_2.png", "start": 67339280, "end": 67343377}, {"filename": "/GameData/textures/lq_flesh/flesh_wod2_3.png", "start": 67343377, "end": 67346753}, {"filename": "/GameData/textures/lq_flesh/flesh_wod2_4.png", "start": 67346753, "end": 67350351}, {"filename": "/GameData/textures/lq_flesh/flesh_wod2_5.png", "start": 67350351, "end": 67353741}, {"filename": "/GameData/textures/lq_flesh/fleshtile.png", "start": 67353741, "end": 67364710}, {"filename": "/GameData/textures/lq_flesh/marbred128.png", "start": 67364710, "end": 67376939}, {"filename": "/GameData/textures/lq_flesh/may_eat_eye2_fbr.png", "start": 67376939, "end": 67380812}, {"filename": "/GameData/textures/lq_flesh/may_eat_eye3_fbr.png", "start": 67380812, "end": 67384689}, {"filename": "/GameData/textures/lq_flesh/may_eat_eye_fbr.png", "start": 67384689, "end": 67388564}, {"filename": "/GameData/textures/lq_flesh/may_flesh1_b.png", "start": 67388564, "end": 67401227}, {"filename": "/GameData/textures/lq_flesh/may_flesh1_c.png", "start": 67401227, "end": 67413951}, {"filename": "/GameData/textures/lq_flesh/may_flesh1_hol1.png", "start": 67413951, "end": 67418623}, {"filename": "/GameData/textures/lq_flesh/may_flesh1_lit1_fbr.png", "start": 67418623, "end": 67422693}, {"filename": "/GameData/textures/lq_flesh/may_flesh1_shut1.png", "start": 67422693, "end": 67437659}, {"filename": "/GameData/textures/lq_flesh/may_flesh1_sp.png", "start": 67437659, "end": 67457801}, {"filename": "/GameData/textures/lq_flesh/may_flesh1_sp2.png", "start": 67457801, "end": 67483424}, {"filename": "/GameData/textures/lq_flesh/may_flesh1_te.png", "start": 67483424, "end": 67498530}, {"filename": "/GameData/textures/lq_flesh/may_flesh1_tet.png", "start": 67498530, "end": 67511750}, {"filename": "/GameData/textures/lq_flesh/may_flesh2_b.png", "start": 67511750, "end": 67525273}, {"filename": "/GameData/textures/lq_flesh/may_flesh3_1a.png", "start": 67525273, "end": 67538999}, {"filename": "/GameData/textures/lq_flesh/may_flesh3_1b.png", "start": 67538999, "end": 67575561}, {"filename": "/GameData/textures/lq_flesh/may_flesh3_b.png", "start": 67575561, "end": 67589447}, {"filename": "/GameData/textures/lq_flesh/may_flesh4_det.png", "start": 67589447, "end": 67599758}, {"filename": "/GameData/textures/lq_flesh/may_flesh4a_det.png", "start": 67599758, "end": 67614619}, {"filename": "/GameData/textures/lq_flesh/may_flesh5.png", "start": 67614619, "end": 67624955}, {"filename": "/GameData/textures/lq_flesh/may_flesh5_1a.png", "start": 67624955, "end": 67679690}, {"filename": "/GameData/textures/lq_flesh/may_flesh5_1b.png", "start": 67679690, "end": 67732408}, {"filename": "/GameData/textures/lq_flesh/may_flesh5_1c.png", "start": 67732408, "end": 67776050}, {"filename": "/GameData/textures/lq_flesh/may_flesh5_1lit_fbr.png", "start": 67776050, "end": 67792984}, {"filename": "/GameData/textures/lq_flesh/may_flesh_dr1a.png", "start": 67792984, "end": 67849877}, {"filename": "/GameData/textures/lq_flesh/may_skin_eye.png", "start": 67849877, "end": 67861094}, {"filename": "/GameData/textures/lq_flesh/meat-teeth0.png", "start": 67861094, "end": 67904465}, {"filename": "/GameData/textures/lq_flesh/meat-teeth1.png", "start": 67904465, "end": 67949657}, {"filename": "/GameData/textures/lq_flesh/meat_det1.png", "start": 67949657, "end": 67968388}, {"filename": "/GameData/textures/lq_flesh/meat_det2.png", "start": 67968388, "end": 67990959}, {"filename": "/GameData/textures/lq_flesh/meat_pipe1.png", "start": 67990959, "end": 68015383}, {"filename": "/GameData/textures/lq_flesh/plus_0eye.png", "start": 68015383, "end": 68019528}, {"filename": "/GameData/textures/lq_flesh/plus_0flesh2_gl.png", "start": 68019528, "end": 68034708}, {"filename": "/GameData/textures/lq_flesh/plus_0flesh_but1_fbr.png", "start": 68034708, "end": 68039003}, {"filename": "/GameData/textures/lq_flesh/plus_0flesh_but2_fbr.png", "start": 68039003, "end": 68043192}, {"filename": "/GameData/textures/lq_flesh/plus_0flsh_vent.png", "start": 68043192, "end": 68057443}, {"filename": "/GameData/textures/lq_flesh/plus_1eye.png", "start": 68057443, "end": 68061587}, {"filename": "/GameData/textures/lq_flesh/plus_1flesh2_gl.png", "start": 68061587, "end": 68076746}, {"filename": "/GameData/textures/lq_flesh/plus_1flesh_but2_fbr.png", "start": 68076746, "end": 68080941}, {"filename": "/GameData/textures/lq_flesh/plus_2eye.png", "start": 68080941, "end": 68084981}, {"filename": "/GameData/textures/lq_flesh/plus_2flesh2_gl.png", "start": 68084981, "end": 68100157}, {"filename": "/GameData/textures/lq_flesh/plus_2flesh_but2_fbr.png", "start": 68100157, "end": 68104340}, {"filename": "/GameData/textures/lq_flesh/plus_3eye.png", "start": 68104340, "end": 68108388}, {"filename": "/GameData/textures/lq_flesh/plus_3flesh2_gl.png", "start": 68108388, "end": 68123562}, {"filename": "/GameData/textures/lq_flesh/plus_3flesh_but2_fbr.png", "start": 68123562, "end": 68127733}, {"filename": "/GameData/textures/lq_flesh/plus_4eye.png", "start": 68127733, "end": 68131852}, {"filename": "/GameData/textures/lq_flesh/plus_4flesh2_gl.png", "start": 68131852, "end": 68147032}, {"filename": "/GameData/textures/lq_flesh/plus_5eye.png", "start": 68147032, "end": 68151085}, {"filename": "/GameData/textures/lq_flesh/plus_6eye.png", "start": 68151085, "end": 68155133}, {"filename": "/GameData/textures/lq_flesh/plus_7eye.png", "start": 68155133, "end": 68159204}, {"filename": "/GameData/textures/lq_flesh/plus_8eye.png", "start": 68159204, "end": 68163312}, {"filename": "/GameData/textures/lq_flesh/plus_9eye.png", "start": 68163312, "end": 68167460}, {"filename": "/GameData/textures/lq_flesh/plus_aeye.png", "start": 68167460, "end": 68171452}, {"filename": "/GameData/textures/lq_flesh/plus_aflesh_but1.png", "start": 68171452, "end": 68176018}, {"filename": "/GameData/textures/lq_flesh/plus_aflesh_but2.png", "start": 68176018, "end": 68180547}, {"filename": "/GameData/textures/lq_flesh/plus_aflsh_vent.png", "start": 68180547, "end": 68194947}, {"filename": "/GameData/textures/lq_greek/black.png", "start": 68194947, "end": 68195092}, {"filename": "/GameData/textures/lq_greek/grk_arch1.png", "start": 68195092, "end": 68200109}, {"filename": "/GameData/textures/lq_greek/grk_arch1_2.png", "start": 68200109, "end": 68205735}, {"filename": "/GameData/textures/lq_greek/grk_arch1_a.png", "start": 68205735, "end": 68218510}, {"filename": "/GameData/textures/lq_greek/grk_arch1_b.png", "start": 68218510, "end": 68231970}, {"filename": "/GameData/textures/lq_greek/grk_arch1_c.png", "start": 68231970, "end": 68245143}, {"filename": "/GameData/textures/lq_greek/grk_arch1_d.png", "start": 68245143, "end": 68258660}, {"filename": "/GameData/textures/lq_greek/grk_arch2.png", "start": 68258660, "end": 68261942}, {"filename": "/GameData/textures/lq_greek/grk_arch2_2.png", "start": 68261942, "end": 68265264}, {"filename": "/GameData/textures/lq_greek/grk_arch2_a.png", "start": 68265264, "end": 68275667}, {"filename": "/GameData/textures/lq_greek/grk_arch2_b.png", "start": 68275667, "end": 68286184}, {"filename": "/GameData/textures/lq_greek/grk_arch2_c.png", "start": 68286184, "end": 68296313}, {"filename": "/GameData/textures/lq_greek/grk_arch_end.png", "start": 68296313, "end": 68297069}, {"filename": "/GameData/textures/lq_greek/grk_arch_tcap.png", "start": 68297069, "end": 68297783}, {"filename": "/GameData/textures/lq_greek/grk_arch_trim.png", "start": 68297783, "end": 68299255}, {"filename": "/GameData/textures/lq_greek/grk_bl_arch1a.png", "start": 68299255, "end": 68306890}, {"filename": "/GameData/textures/lq_greek/grk_bl_arch1b.png", "start": 68306890, "end": 68315425}, {"filename": "/GameData/textures/lq_greek/grk_bl_brk1a.png", "start": 68315425, "end": 68317897}, {"filename": "/GameData/textures/lq_greek/grk_bl_brk1b.png", "start": 68317897, "end": 68320035}, {"filename": "/GameData/textures/lq_greek/grk_bl_brk2a.png", "start": 68320035, "end": 68322456}, {"filename": "/GameData/textures/lq_greek/grk_bl_brk2b.png", "start": 68322456, "end": 68324916}, {"filename": "/GameData/textures/lq_greek/grk_bl_flt1.png", "start": 68324916, "end": 68327140}, {"filename": "/GameData/textures/lq_greek/grk_bl_fsh1.png", "start": 68327140, "end": 68330066}, {"filename": "/GameData/textures/lq_greek/grk_bl_fsh2.png", "start": 68330066, "end": 68338158}, {"filename": "/GameData/textures/lq_greek/grk_bl_pil1.png", "start": 68338158, "end": 68340945}, {"filename": "/GameData/textures/lq_greek/grk_bl_trim1.png", "start": 68340945, "end": 68343357}, {"filename": "/GameData/textures/lq_greek/grk_bl_wll1.png", "start": 68343357, "end": 68346077}, {"filename": "/GameData/textures/lq_greek/grk_bl_wll2.png", "start": 68346077, "end": 68348803}, {"filename": "/GameData/textures/lq_greek/grk_bl_wll3a.png", "start": 68348803, "end": 68351161}, {"filename": "/GameData/textures/lq_greek/grk_bl_wll3b.png", "start": 68351161, "end": 68353629}, {"filename": "/GameData/textures/lq_greek/grk_bl_wll4b.png", "start": 68353629, "end": 68356195}, {"filename": "/GameData/textures/lq_greek/grk_bl_wll5a.png", "start": 68356195, "end": 68358412}, {"filename": "/GameData/textures/lq_greek/grk_bl_wll5b.png", "start": 68358412, "end": 68360711}, {"filename": "/GameData/textures/lq_greek/grk_bl_wll5c.png", "start": 68360711, "end": 68363034}, {"filename": "/GameData/textures/lq_greek/grk_bl_wll5d.png", "start": 68363034, "end": 68365441}, {"filename": "/GameData/textures/lq_greek/grk_brk15.png", "start": 68365441, "end": 68374947}, {"filename": "/GameData/textures/lq_greek/grk_brk15_b.png", "start": 68374947, "end": 68384195}, {"filename": "/GameData/textures/lq_greek/grk_brk15_c.png", "start": 68384195, "end": 68401063}, {"filename": "/GameData/textures/lq_greek/grk_brk15_f.png", "start": 68401063, "end": 68409356}, {"filename": "/GameData/textures/lq_greek/grk_brk15_g.png", "start": 68409356, "end": 68417005}, {"filename": "/GameData/textures/lq_greek/grk_brk16.png", "start": 68417005, "end": 68426281}, {"filename": "/GameData/textures/lq_greek/grk_brk16_a.png", "start": 68426281, "end": 68435560}, {"filename": "/GameData/textures/lq_greek/grk_brk16_f.png", "start": 68435560, "end": 68445265}, {"filename": "/GameData/textures/lq_greek/grk_brk17.png", "start": 68445265, "end": 68480409}, {"filename": "/GameData/textures/lq_greek/grk_brk17_f.png", "start": 68480409, "end": 68493011}, {"filename": "/GameData/textures/lq_greek/grk_but1.png", "start": 68493011, "end": 68493960}, {"filename": "/GameData/textures/lq_greek/grk_det1.png", "start": 68493960, "end": 68497033}, {"filename": "/GameData/textures/lq_greek/grk_door1.png", "start": 68497033, "end": 68512140}, {"filename": "/GameData/textures/lq_greek/grk_door1_f.png", "start": 68512140, "end": 68522175}, {"filename": "/GameData/textures/lq_greek/grk_door2.png", "start": 68522175, "end": 68533035}, {"filename": "/GameData/textures/lq_greek/grk_door3.png", "start": 68533035, "end": 68545692}, {"filename": "/GameData/textures/lq_greek/grk_ebrick10.png", "start": 68545692, "end": 68556319}, {"filename": "/GameData/textures/lq_greek/grk_ebrick10_bl.png", "start": 68556319, "end": 68570853}, {"filename": "/GameData/textures/lq_greek/grk_ebrick22.png", "start": 68570853, "end": 68584719}, {"filename": "/GameData/textures/lq_greek/grk_ebrick23.png", "start": 68584719, "end": 68594085}, {"filename": "/GameData/textures/lq_greek/grk_ebrick24.png", "start": 68594085, "end": 68602278}, {"filename": "/GameData/textures/lq_greek/grk_flr1.png", "start": 68602278, "end": 68602609}, {"filename": "/GameData/textures/lq_greek/grk_flr2.png", "start": 68602609, "end": 68603463}, {"filename": "/GameData/textures/lq_greek/grk_flr3.png", "start": 68603463, "end": 68606059}, {"filename": "/GameData/textures/lq_greek/grk_flr4_1.png", "start": 68606059, "end": 68608189}, {"filename": "/GameData/textures/lq_greek/grk_flr4_2.png", "start": 68608189, "end": 68610451}, {"filename": "/GameData/textures/lq_greek/grk_flr4_3.png", "start": 68610451, "end": 68612814}, {"filename": "/GameData/textures/lq_greek/grk_flr4_4.png", "start": 68612814, "end": 68615109}, {"filename": "/GameData/textures/lq_greek/grk_flr4_5.png", "start": 68615109, "end": 68618741}, {"filename": "/GameData/textures/lq_greek/grk_flr4_6.png", "start": 68618741, "end": 68621747}, {"filename": "/GameData/textures/lq_greek/grk_flr4_8.png", "start": 68621747, "end": 68625082}, {"filename": "/GameData/textures/lq_greek/grk_flr5_1.png", "start": 68625082, "end": 68627669}, {"filename": "/GameData/textures/lq_greek/grk_flr5_2.png", "start": 68627669, "end": 68630163}, {"filename": "/GameData/textures/lq_greek/grk_flr5_3.png", "start": 68630163, "end": 68632905}, {"filename": "/GameData/textures/lq_greek/grk_flr5_4.png", "start": 68632905, "end": 68635208}, {"filename": "/GameData/textures/lq_greek/grk_key_gl2.png", "start": 68635208, "end": 68636232}, {"filename": "/GameData/textures/lq_greek/grk_key_sl2.png", "start": 68636232, "end": 68637233}, {"filename": "/GameData/textures/lq_greek/grk_lion1.png", "start": 68637233, "end": 68647707}, {"filename": "/GameData/textures/lq_greek/grk_lion2.png", "start": 68647707, "end": 68657374}, {"filename": "/GameData/textures/lq_greek/grk_lion3.png", "start": 68657374, "end": 68667917}, {"filename": "/GameData/textures/lq_greek/grk_lion4.png", "start": 68667917, "end": 68679069}, {"filename": "/GameData/textures/lq_greek/grk_met1.png", "start": 68679069, "end": 68689450}, {"filename": "/GameData/textures/lq_greek/grk_met1_trim.png", "start": 68689450, "end": 68700725}, {"filename": "/GameData/textures/lq_greek/grk_met1a_trim.png", "start": 68700725, "end": 68711693}, {"filename": "/GameData/textures/lq_greek/grk_met1b_trim.png", "start": 68711693, "end": 68725806}, {"filename": "/GameData/textures/lq_greek/grk_met2_trim.png", "start": 68725806, "end": 68739075}, {"filename": "/GameData/textures/lq_greek/grk_met_plt.png", "start": 68739075, "end": 68754466}, {"filename": "/GameData/textures/lq_greek/grk_mural1.png", "start": 68754466, "end": 68774324}, {"filename": "/GameData/textures/lq_greek/grk_mural2.png", "start": 68774324, "end": 68797041}, {"filename": "/GameData/textures/lq_greek/grk_mural3.png", "start": 68797041, "end": 68886321}, {"filename": "/GameData/textures/lq_greek/grk_pl1_a.png", "start": 68886321, "end": 68888137}, {"filename": "/GameData/textures/lq_greek/grk_pl1_b.png", "start": 68888137, "end": 68890220}, {"filename": "/GameData/textures/lq_greek/grk_pl2_a.png", "start": 68890220, "end": 68892452}, {"filename": "/GameData/textures/lq_greek/grk_pl2_b.png", "start": 68892452, "end": 68894664}, {"filename": "/GameData/textures/lq_greek/grk_plat1_side.png", "start": 68894664, "end": 68895881}, {"filename": "/GameData/textures/lq_greek/grk_plat1_top.png", "start": 68895881, "end": 68899778}, {"filename": "/GameData/textures/lq_greek/grk_tile2_1.png", "start": 68899778, "end": 68902212}, {"filename": "/GameData/textures/lq_greek/grk_tile2_2.png", "start": 68902212, "end": 68904565}, {"filename": "/GameData/textures/lq_greek/grk_trim1.png", "start": 68904565, "end": 68911322}, {"filename": "/GameData/textures/lq_greek/grk_trim1_3.png", "start": 68911322, "end": 68917936}, {"filename": "/GameData/textures/lq_greek/grk_trim1_3_s.png", "start": 68917936, "end": 68919976}, {"filename": "/GameData/textures/lq_greek/grk_trim1_4_s.png", "start": 68919976, "end": 68922052}, {"filename": "/GameData/textures/lq_greek/grk_trim1_5.png", "start": 68922052, "end": 68928988}, {"filename": "/GameData/textures/lq_greek/grk_trim1_5_s.png", "start": 68928988, "end": 68931208}, {"filename": "/GameData/textures/lq_greek/grk_trim1_6_s.png", "start": 68931208, "end": 68933485}, {"filename": "/GameData/textures/lq_greek/grk_trim1_7_s.png", "start": 68933485, "end": 68936827}, {"filename": "/GameData/textures/lq_greek/grk_trim2.png", "start": 68936827, "end": 68939188}, {"filename": "/GameData/textures/lq_greek/grk_wall1.png", "start": 68939188, "end": 68942220}, {"filename": "/GameData/textures/lq_greek/grk_wall2.png", "start": 68942220, "end": 68944891}, {"filename": "/GameData/textures/lq_greek/grk_wall3.png", "start": 68944891, "end": 68950677}, {"filename": "/GameData/textures/lq_greek/grk_wall3b.png", "start": 68950677, "end": 68977711}, {"filename": "/GameData/textures/lq_greek/grk_win1_a.png", "start": 68977711, "end": 68986850}, {"filename": "/GameData/textures/lq_greek/grk_win1_b.png", "start": 68986850, "end": 68996193}, {"filename": "/GameData/textures/lq_greek/plus_0grk_but1_fbr.png", "start": 68996193, "end": 68997384}, {"filename": "/GameData/textures/lq_greek/plus_0grk_hbut_fbr.png", "start": 68997384, "end": 68998407}, {"filename": "/GameData/textures/lq_greek/plus_1grk_but1_fbr.png", "start": 68998407, "end": 68999582}, {"filename": "/GameData/textures/lq_greek/plus_1grk_hbut_fbr.png", "start": 68999582, "end": 69000663}, {"filename": "/GameData/textures/lq_greek/plus_2grk_but1_fbr.png", "start": 69000663, "end": 69001814}, {"filename": "/GameData/textures/lq_greek/plus_2grk_hbut_fbr.png", "start": 69001814, "end": 69002854}, {"filename": "/GameData/textures/lq_greek/plus_3grk_but1_fbr.png", "start": 69002854, "end": 69004007}, {"filename": "/GameData/textures/lq_greek/plus_3grk_hbut_fbr.png", "start": 69004007, "end": 69005049}, {"filename": "/GameData/textures/lq_greek/plus_agrk_but1.png", "start": 69005049, "end": 69006040}, {"filename": "/GameData/textures/lq_greek/plus_agrk_hbut.png", "start": 69006040, "end": 69007018}, {"filename": "/GameData/textures/lq_health_ammo/ammo_bottom.png", "start": 69007018, "end": 69007948}, {"filename": "/GameData/textures/lq_health_ammo/ammo_c_b1_fbr.png", "start": 69007948, "end": 69008556}, {"filename": "/GameData/textures/lq_health_ammo/ammo_c_b2_fbr.png", "start": 69008556, "end": 69009168}, {"filename": "/GameData/textures/lq_health_ammo/ammo_c_b3_fbr.png", "start": 69009168, "end": 69009975}, {"filename": "/GameData/textures/lq_health_ammo/ammo_c_s1_fbr.png", "start": 69009975, "end": 69010568}, {"filename": "/GameData/textures/lq_health_ammo/ammo_c_s2_fbr.png", "start": 69010568, "end": 69011558}, {"filename": "/GameData/textures/lq_health_ammo/ammo_c_s3_fbr.png", "start": 69011558, "end": 69012191}, {"filename": "/GameData/textures/lq_health_ammo/ammo_fl.png", "start": 69012191, "end": 69012750}, {"filename": "/GameData/textures/lq_health_ammo/ammo_fl2.png", "start": 69012750, "end": 69013305}, {"filename": "/GameData/textures/lq_health_ammo/ammo_n_b1_fbr.png", "start": 69013305, "end": 69014059}, {"filename": "/GameData/textures/lq_health_ammo/ammo_n_b2_fbr.png", "start": 69014059, "end": 69014744}, {"filename": "/GameData/textures/lq_health_ammo/ammo_n_b3.png", "start": 69014744, "end": 69015315}, {"filename": "/GameData/textures/lq_health_ammo/ammo_n_s1.png", "start": 69015315, "end": 69015886}, {"filename": "/GameData/textures/lq_health_ammo/ammo_n_s2_fbr.png", "start": 69015886, "end": 69016541}, {"filename": "/GameData/textures/lq_health_ammo/ammo_n_s3_fbr.png", "start": 69016541, "end": 69017078}, {"filename": "/GameData/textures/lq_health_ammo/ammo_r_b1_fbr.png", "start": 69017078, "end": 69017793}, {"filename": "/GameData/textures/lq_health_ammo/ammo_r_b2_fbr.png", "start": 69017793, "end": 69018419}, {"filename": "/GameData/textures/lq_health_ammo/ammo_r_b3_fbr.png", "start": 69018419, "end": 69018877}, {"filename": "/GameData/textures/lq_health_ammo/ammo_r_s1_fbr.png", "start": 69018877, "end": 69019491}, {"filename": "/GameData/textures/lq_health_ammo/ammo_r_s2_fbr.png", "start": 69019491, "end": 69019840}, {"filename": "/GameData/textures/lq_health_ammo/ammo_s_b1_fbr.png", "start": 69019840, "end": 69020499}, {"filename": "/GameData/textures/lq_health_ammo/ammo_s_b2_fbr.png", "start": 69020499, "end": 69021127}, {"filename": "/GameData/textures/lq_health_ammo/ammo_s_b3.png", "start": 69021127, "end": 69021904}, {"filename": "/GameData/textures/lq_health_ammo/ammo_s_s1_fbr.png", "start": 69021904, "end": 69022410}, {"filename": "/GameData/textures/lq_health_ammo/ammo_s_s2_fbr.png", "start": 69022410, "end": 69022988}, {"filename": "/GameData/textures/lq_health_ammo/ammo_s_s3_fbr.png", "start": 69022988, "end": 69023539}, {"filename": "/GameData/textures/lq_health_ammo/ammobotsmall.png", "start": 69023539, "end": 69024207}, {"filename": "/GameData/textures/lq_health_ammo/ammotop.png", "start": 69024207, "end": 69024952}, {"filename": "/GameData/textures/lq_health_ammo/ammotopsmall.png", "start": 69024952, "end": 69025503}, {"filename": "/GameData/textures/lq_health_ammo/boom.png", "start": 69025503, "end": 69026521}, {"filename": "/GameData/textures/lq_health_ammo/boomammo_bottom.png", "start": 69026521, "end": 69026887}, {"filename": "/GameData/textures/lq_health_ammo/boomammotop.png", "start": 69026887, "end": 69027229}, {"filename": "/GameData/textures/lq_health_ammo/boomsmall.png", "start": 69027229, "end": 69027904}, {"filename": "/GameData/textures/lq_health_ammo/epboxlarge_fbr.png", "start": 69027904, "end": 69029088}, {"filename": "/GameData/textures/lq_health_ammo/epboxsmall_fbr.png", "start": 69029088, "end": 69029985}, {"filename": "/GameData/textures/lq_health_ammo/explob_s2.png", "start": 69029985, "end": 69030481}, {"filename": "/GameData/textures/lq_health_ammo/hp15_side.png", "start": 69030481, "end": 69031066}, {"filename": "/GameData/textures/lq_health_ammo/hp25_top2.png", "start": 69031066, "end": 69031495}, {"filename": "/GameData/textures/lq_health_ammo/hp_bottom.png", "start": 69031495, "end": 69032402}, {"filename": "/GameData/textures/lq_health_ammo/hp_details.png", "start": 69032402, "end": 69032906}, {"filename": "/GameData/textures/lq_health_ammo/nails.png", "start": 69032906, "end": 69033953}, {"filename": "/GameData/textures/lq_health_ammo/nailssmall.png", "start": 69033953, "end": 69034694}, {"filename": "/GameData/textures/lq_health_ammo/plus_0_hp100-winq_fbr.png", "start": 69034694, "end": 69037294}, {"filename": "/GameData/textures/lq_health_ammo/plus_0_hp100_side_fbr.png", "start": 69037294, "end": 69038186}, {"filename": "/GameData/textures/lq_health_ammo/plus_0_hp100_top_fbr.png", "start": 69038186, "end": 69038917}, {"filename": "/GameData/textures/lq_health_ammo/plus_0_hp15_top_fbr.png", "start": 69038917, "end": 69039647}, {"filename": "/GameData/textures/lq_health_ammo/plus_0_hp15winq_fbr.png", "start": 69039647, "end": 69042434}, {"filename": "/GameData/textures/lq_health_ammo/plus_0_hp25-winq_fbr.png", "start": 69042434, "end": 69044988}, {"filename": "/GameData/textures/lq_health_ammo/plus_0_hp25_side_fbr.png", "start": 69044988, "end": 69045810}, {"filename": "/GameData/textures/lq_health_ammo/plus_0_hp25_top_fbr.png", "start": 69045810, "end": 69046544}, {"filename": "/GameData/textures/lq_health_ammo/plus_0explob2_s1_fbr.png", "start": 69046544, "end": 69047647}, {"filename": "/GameData/textures/lq_health_ammo/plus_0explob_s1_fbr.png", "start": 69047647, "end": 69048280}, {"filename": "/GameData/textures/lq_health_ammo/plus_1_hp100-winq_fbr.png", "start": 69048280, "end": 69050885}, {"filename": "/GameData/textures/lq_health_ammo/plus_1_hp100_side_fbr.png", "start": 69050885, "end": 69051779}, {"filename": "/GameData/textures/lq_health_ammo/plus_1_hp100_top_fbr.png", "start": 69051779, "end": 69052513}, {"filename": "/GameData/textures/lq_health_ammo/plus_1_hp15_top_fbr.png", "start": 69052513, "end": 69053247}, {"filename": "/GameData/textures/lq_health_ammo/plus_1_hp15winq_fbr.png", "start": 69053247, "end": 69056033}, {"filename": "/GameData/textures/lq_health_ammo/plus_1_hp25-winq_fbr.png", "start": 69056033, "end": 69058597}, {"filename": "/GameData/textures/lq_health_ammo/plus_1_hp25_side_fbr.png", "start": 69058597, "end": 69059423}, {"filename": "/GameData/textures/lq_health_ammo/plus_1_hp25_top_fbr.png", "start": 69059423, "end": 69060162}, {"filename": "/GameData/textures/lq_health_ammo/plus_1explob2_s1_fbr.png", "start": 69060162, "end": 69061269}, {"filename": "/GameData/textures/lq_health_ammo/plus_1explob_s1_fbr.png", "start": 69061269, "end": 69061902}, {"filename": "/GameData/textures/lq_health_ammo/plus_2_hp100-winq_fbr.png", "start": 69061902, "end": 69064506}, {"filename": "/GameData/textures/lq_health_ammo/plus_2_hp100_side_fbr.png", "start": 69064506, "end": 69065400}, {"filename": "/GameData/textures/lq_health_ammo/plus_2_hp25-winq_fbr.png", "start": 69065400, "end": 69067958}, {"filename": "/GameData/textures/lq_health_ammo/plus_2_hp25_side_fbr.png", "start": 69067958, "end": 69068783}, {"filename": "/GameData/textures/lq_health_ammo/plus_2_hp25_top_fbr.png", "start": 69068783, "end": 69069521}, {"filename": "/GameData/textures/lq_health_ammo/plus_2explob2_s1_fbr.png", "start": 69069521, "end": 69070617}, {"filename": "/GameData/textures/lq_health_ammo/plus_2explob_s1_fbr.png", "start": 69070617, "end": 69071259}, {"filename": "/GameData/textures/lq_health_ammo/plus_3_hp100-winq_fbr.png", "start": 69071259, "end": 69073869}, {"filename": "/GameData/textures/lq_health_ammo/plus_3_hp100_side_fbr.png", "start": 69073869, "end": 69074766}, {"filename": "/GameData/textures/lq_health_ammo/plus_3_hp25-winq_fbr.png", "start": 69074766, "end": 69077335}, {"filename": "/GameData/textures/lq_health_ammo/plus_3_hp25_side_fbr.png", "start": 69077335, "end": 69078166}, {"filename": "/GameData/textures/lq_health_ammo/plus_3_hp25_top_fbr.png", "start": 69078166, "end": 69078908}, {"filename": "/GameData/textures/lq_health_ammo/plus_3explob2_s1_fbr.png", "start": 69078908, "end": 69080004}, {"filename": "/GameData/textures/lq_health_ammo/plus_3explob_s1_fbr.png", "start": 69080004, "end": 69080646}, {"filename": "/GameData/textures/lq_health_ammo/shells.png", "start": 69080646, "end": 69081592}, {"filename": "/GameData/textures/lq_health_ammo/shellssmall.png", "start": 69081592, "end": 69082318}, {"filename": "/GameData/textures/lq_health_ammo/zap.png", "start": 69082318, "end": 69083311}, {"filename": "/GameData/textures/lq_health_ammo/zapsmall.png", "start": 69083311, "end": 69084075}, {"filename": "/GameData/textures/lq_legacy/brick7.png", "start": 69084075, "end": 69087008}, {"filename": "/GameData/textures/lq_legacy/brick8.png", "start": 69087008, "end": 69090095}, {"filename": "/GameData/textures/lq_legacy/button_0.png", "start": 69090095, "end": 69093567}, {"filename": "/GameData/textures/lq_legacy/button_0_grey.png", "start": 69093567, "end": 69096777}, {"filename": "/GameData/textures/lq_legacy/button_0_grn.png", "start": 69096777, "end": 69100112}, {"filename": "/GameData/textures/lq_legacy/button_1.png", "start": 69100112, "end": 69103567}, {"filename": "/GameData/textures/lq_legacy/button_1_grey.png", "start": 69103567, "end": 69106762}, {"filename": "/GameData/textures/lq_legacy/button_1_grn.png", "start": 69106762, "end": 69110063}, {"filename": "/GameData/textures/lq_legacy/floor_temp.png", "start": 69110063, "end": 69112121}, {"filename": "/GameData/textures/lq_legacy/flr.png", "start": 69112121, "end": 69114878}, {"filename": "/GameData/textures/lq_legacy/gardgrass_1.png", "start": 69114878, "end": 69135048}, {"filename": "/GameData/textures/lq_legacy/go-savgx.png", "start": 69135048, "end": 69136797}, {"filename": "/GameData/textures/lq_legacy/grass.png", "start": 69136797, "end": 69140198}, {"filename": "/GameData/textures/lq_legacy/grk_brk15_c_old.png", "start": 69140198, "end": 69150725}, {"filename": "/GameData/textures/lq_legacy/grk_brk17_f_old.png", "start": 69150725, "end": 69159434}, {"filename": "/GameData/textures/lq_legacy/grk_door1_old.png", "start": 69159434, "end": 69170451}, {"filename": "/GameData/textures/lq_legacy/grk_door2_old.png", "start": 69170451, "end": 69179624}, {"filename": "/GameData/textures/lq_legacy/grk_door3_old.png", "start": 69179624, "end": 69188430}, {"filename": "/GameData/textures/lq_legacy/grk_ebrick22_old.png", "start": 69188430, "end": 69197747}, {"filename": "/GameData/textures/lq_legacy/grk_trim1_7_s_old.png", "start": 69197747, "end": 69199952}, {"filename": "/GameData/textures/lq_legacy/ground_1.png", "start": 69199952, "end": 69202133}, {"filename": "/GameData/textures/lq_legacy/leaves.png", "start": 69202133, "end": 69205195}, {"filename": "/GameData/textures/lq_legacy/marble1_4.png", "start": 69205195, "end": 69208098}, {"filename": "/GameData/textures/lq_legacy/marble1_5.png", "start": 69208098, "end": 69211188}, {"filename": "/GameData/textures/lq_legacy/med_cflat1_3.png", "start": 69211188, "end": 69213669}, {"filename": "/GameData/textures/lq_legacy/med_csl_trm3.png", "start": 69213669, "end": 69214994}, {"filename": "/GameData/textures/lq_legacy/med_csl_trm3b.png", "start": 69214994, "end": 69215984}, {"filename": "/GameData/textures/lq_legacy/med_csl_trm3c.png", "start": 69215984, "end": 69217512}, {"filename": "/GameData/textures/lq_legacy/med_flat10.png", "start": 69217512, "end": 69221405}, {"filename": "/GameData/textures/lq_legacy/med_flat11.png", "start": 69221405, "end": 69224610}, {"filename": "/GameData/textures/lq_legacy/med_flat13.png", "start": 69224610, "end": 69235387}, {"filename": "/GameData/textures/lq_legacy/med_flat14.png", "start": 69235387, "end": 69245788}, {"filename": "/GameData/textures/lq_legacy/med_flat9a.png", "start": 69245788, "end": 69289368}, {"filename": "/GameData/textures/lq_legacy/med_flat9b.png", "start": 69289368, "end": 69331267}, {"filename": "/GameData/textures/lq_legacy/med_plaster1.png", "start": 69331267, "end": 69339309}, {"filename": "/GameData/textures/lq_legacy/med_ret_rock1.png", "start": 69339309, "end": 69343128}, {"filename": "/GameData/textures/lq_legacy/med_ret_wood1_old.png", "start": 69343128, "end": 69350209}, {"filename": "/GameData/textures/lq_legacy/med_rmet_key.png", "start": 69350209, "end": 69354170}, {"filename": "/GameData/textures/lq_legacy/med_rock6.png", "start": 69354170, "end": 69399773}, {"filename": "/GameData/textures/lq_legacy/med_rock7.png", "start": 69399773, "end": 69402657}, {"filename": "/GameData/textures/lq_legacy/med_rock8.png", "start": 69402657, "end": 69404542}, {"filename": "/GameData/textures/lq_legacy/med_rough_block.png", "start": 69404542, "end": 69453385}, {"filename": "/GameData/textures/lq_legacy/med_rough_block_f.png", "start": 69453385, "end": 69507930}, {"filename": "/GameData/textures/lq_legacy/med_tile.png", "start": 69507930, "end": 69510066}, {"filename": "/GameData/textures/lq_legacy/med_wall1.png", "start": 69510066, "end": 69519931}, {"filename": "/GameData/textures/lq_legacy/metground_1.png", "start": 69519931, "end": 69522862}, {"filename": "/GameData/textures/lq_legacy/note-savgx.png", "start": 69522862, "end": 69541882}, {"filename": "/GameData/textures/lq_legacy/plus_0button1.png", "start": 69541882, "end": 69545327}, {"filename": "/GameData/textures/lq_legacy/plus_0button2_fbr.png", "start": 69545327, "end": 69546814}, {"filename": "/GameData/textures/lq_legacy/plus_1button2_fbr.png", "start": 69546814, "end": 69548302}, {"filename": "/GameData/textures/lq_legacy/plus_1button3.png", "start": 69548302, "end": 69550182}, {"filename": "/GameData/textures/lq_legacy/plus_abutton1_fbr.png", "start": 69550182, "end": 69553784}, {"filename": "/GameData/textures/lq_legacy/plus_abutton2_fbr.png", "start": 69553784, "end": 69555282}, {"filename": "/GameData/textures/lq_legacy/readme.txt", "start": 69555282, "end": 69555358}, {"filename": "/GameData/textures/lq_legacy/riktoiflat.png", "start": 69555358, "end": 69569477}, {"filename": "/GameData/textures/lq_legacy/riktoiflat_blu.png", "start": 69569477, "end": 69582412}, {"filename": "/GameData/textures/lq_legacy/riktoiflat_grn.png", "start": 69582412, "end": 69594066}, {"filename": "/GameData/textures/lq_legacy/riktoilava.png", "start": 69594066, "end": 69598570}, {"filename": "/GameData/textures/lq_legacy/riktoislime.png", "start": 69598570, "end": 69602275}, {"filename": "/GameData/textures/lq_legacy/riktoitrim.png", "start": 69602275, "end": 69603762}, {"filename": "/GameData/textures/lq_legacy/riktoitrim__purp.png", "start": 69603762, "end": 69605478}, {"filename": "/GameData/textures/lq_legacy/riktoitrim_blu.png", "start": 69605478, "end": 69607208}, {"filename": "/GameData/textures/lq_legacy/riktoiwall.png", "start": 69607208, "end": 69647005}, {"filename": "/GameData/textures/lq_legacy/riktoiwall__purp.png", "start": 69647005, "end": 69683078}, {"filename": "/GameData/textures/lq_legacy/riktoiwall_blu.png", "start": 69683078, "end": 69719139}, {"filename": "/GameData/textures/lq_legacy/riktoiwater.png", "start": 69719139, "end": 69722030}, {"filename": "/GameData/textures/lq_legacy/rune1_fbr.png", "start": 69722030, "end": 69725043}, {"filename": "/GameData/textures/lq_legacy/rune2_fbr.png", "start": 69725043, "end": 69728109}, {"filename": "/GameData/textures/lq_legacy/rune3_fbr.png", "start": 69728109, "end": 69731505}, {"filename": "/GameData/textures/lq_legacy/rune4_fbr.png", "start": 69731505, "end": 69734057}, {"filename": "/GameData/textures/lq_legacy/sign_easy.png", "start": 69734057, "end": 69739009}, {"filename": "/GameData/textures/lq_legacy/sign_empty.png", "start": 69739009, "end": 69743766}, {"filename": "/GameData/textures/lq_legacy/sign_hard.png", "start": 69743766, "end": 69748639}, {"filename": "/GameData/textures/lq_legacy/sign_medium.png", "start": 69748639, "end": 69753649}, {"filename": "/GameData/textures/lq_legacy/sign_metal_1.png", "start": 69753649, "end": 69754861}, {"filename": "/GameData/textures/lq_legacy/sign_metal_2.png", "start": 69754861, "end": 69756456}, {"filename": "/GameData/textures/lq_legacy/sign_nmare.png", "start": 69756456, "end": 69761477}, {"filename": "/GameData/textures/lq_legacy/sky2.png", "start": 69761477, "end": 69776967}, {"filename": "/GameData/textures/lq_legacy/sky4.png", "start": 69776967, "end": 69786479}, {"filename": "/GameData/textures/lq_legacy/sky5_fbr.png", "start": 69786479, "end": 69803632}, {"filename": "/GameData/textures/lq_legacy/sky5a.png", "start": 69803632, "end": 69812643}, {"filename": "/GameData/textures/lq_legacy/sky7.png", "start": 69812643, "end": 69826558}, {"filename": "/GameData/textures/lq_legacy/sky8.png", "start": 69826558, "end": 69843231}, {"filename": "/GameData/textures/lq_legacy/sky8a_fbr.png", "start": 69843231, "end": 69852027}, {"filename": "/GameData/textures/lq_legacy/tile.png", "start": 69852027, "end": 69860843}, {"filename": "/GameData/textures/lq_legacy/tile_blu.png", "start": 69860843, "end": 69869849}, {"filename": "/GameData/textures/lq_legacy/tile_grn.png", "start": 69869849, "end": 69878112}, {"filename": "/GameData/textures/lq_legacy/trim2_blu.png", "start": 69878112, "end": 69879225}, {"filename": "/GameData/textures/lq_legacy/trim2_grn.png", "start": 69879225, "end": 69880289}, {"filename": "/GameData/textures/lq_legacy/ultrasteel1.png", "start": 69880289, "end": 69893179}, {"filename": "/GameData/textures/lq_legacy/ultrasteel2.png", "start": 69893179, "end": 69904973}, {"filename": "/GameData/textures/lq_legacy/vines1_old.png", "start": 69904973, "end": 69909827}, {"filename": "/GameData/textures/lq_legacy/wiz1_4.png", "start": 69909827, "end": 69913648}, {"filename": "/GameData/textures/lq_liquidsky/+0water_f3.png", "start": 69913648, "end": 69916589}, {"filename": "/GameData/textures/lq_liquidsky/+1water_f3.png", "start": 69916589, "end": 69919513}, {"filename": "/GameData/textures/lq_liquidsky/+2water_f3.png", "start": 69919513, "end": 69922431}, {"filename": "/GameData/textures/lq_liquidsky/+3water_f3.png", "start": 69922431, "end": 69925283}, {"filename": "/GameData/textures/lq_liquidsky/plus_0blood_f1.png", "start": 69925283, "end": 69927072}, {"filename": "/GameData/textures/lq_liquidsky/plus_0fslime.png", "start": 69927072, "end": 69941028}, {"filename": "/GameData/textures/lq_liquidsky/plus_0lava_fall3_fbr.png", "start": 69941028, "end": 69950021}, {"filename": "/GameData/textures/lq_liquidsky/plus_0water_f1.png", "start": 69950021, "end": 69951870}, {"filename": "/GameData/textures/lq_liquidsky/plus_0water_f2.png", "start": 69951870, "end": 69953688}, {"filename": "/GameData/textures/lq_liquidsky/plus_0wfall0.png", "start": 69953688, "end": 69963297}, {"filename": "/GameData/textures/lq_liquidsky/plus_1blood_f1.png", "start": 69963297, "end": 69965102}, {"filename": "/GameData/textures/lq_liquidsky/plus_1fslime.png", "start": 69965102, "end": 69978845}, {"filename": "/GameData/textures/lq_liquidsky/plus_1lava_fall3_fbr.png", "start": 69978845, "end": 69988412}, {"filename": "/GameData/textures/lq_liquidsky/plus_1water_f1.png", "start": 69988412, "end": 69990060}, {"filename": "/GameData/textures/lq_liquidsky/plus_1water_f2.png", "start": 69990060, "end": 69991889}, {"filename": "/GameData/textures/lq_liquidsky/plus_1wfall0.png", "start": 69991889, "end": 70001540}, {"filename": "/GameData/textures/lq_liquidsky/plus_2blood_f1.png", "start": 70001540, "end": 70003398}, {"filename": "/GameData/textures/lq_liquidsky/plus_2fslime.png", "start": 70003398, "end": 70017292}, {"filename": "/GameData/textures/lq_liquidsky/plus_2lava_fall3_fbr.png", "start": 70017292, "end": 70026841}, {"filename": "/GameData/textures/lq_liquidsky/plus_2water_f1.png", "start": 70026841, "end": 70028612}, {"filename": "/GameData/textures/lq_liquidsky/plus_2water_f2.png", "start": 70028612, "end": 70030498}, {"filename": "/GameData/textures/lq_liquidsky/plus_2wfall0.png", "start": 70030498, "end": 70040160}, {"filename": "/GameData/textures/lq_liquidsky/plus_3blood_f1.png", "start": 70040160, "end": 70041960}, {"filename": "/GameData/textures/lq_liquidsky/plus_3fslime.png", "start": 70041960, "end": 70055643}, {"filename": "/GameData/textures/lq_liquidsky/plus_3lava_fall3_fbr.png", "start": 70055643, "end": 70064980}, {"filename": "/GameData/textures/lq_liquidsky/plus_3water_f1.png", "start": 70064980, "end": 70066631}, {"filename": "/GameData/textures/lq_liquidsky/plus_3water_f2.png", "start": 70066631, "end": 70068458}, {"filename": "/GameData/textures/lq_liquidsky/plus_3wfall0.png", "start": 70068458, "end": 70078161}, {"filename": "/GameData/textures/lq_liquidsky/plus_4fslime.png", "start": 70078161, "end": 70091825}, {"filename": "/GameData/textures/lq_liquidsky/plus_4lava_fall3_fbr.png", "start": 70091825, "end": 70101198}, {"filename": "/GameData/textures/lq_liquidsky/plus_4wfall0.png", "start": 70101198, "end": 70110777}, {"filename": "/GameData/textures/lq_liquidsky/plus_5fslime.png", "start": 70110777, "end": 70124545}, {"filename": "/GameData/textures/lq_liquidsky/plus_5lava_fall3_fbr.png", "start": 70124545, "end": 70133908}, {"filename": "/GameData/textures/lq_liquidsky/plus_5wfall0.png", "start": 70133908, "end": 70143507}, {"filename": "/GameData/textures/lq_liquidsky/plus_6fslime.png", "start": 70143507, "end": 70157359}, {"filename": "/GameData/textures/lq_liquidsky/plus_6lava_fall3_fbr.png", "start": 70157359, "end": 70166744}, {"filename": "/GameData/textures/lq_liquidsky/plus_6wfall0.png", "start": 70166744, "end": 70176329}, {"filename": "/GameData/textures/lq_liquidsky/plus_7fslime.png", "start": 70176329, "end": 70190180}, {"filename": "/GameData/textures/lq_liquidsky/plus_7lava_fall3_fbr.png", "start": 70190180, "end": 70199695}, {"filename": "/GameData/textures/lq_liquidsky/plus_7wfall0.png", "start": 70199695, "end": 70209364}, {"filename": "/GameData/textures/lq_liquidsky/plus_8wfall0.png", "start": 70209364, "end": 70219026}, {"filename": "/GameData/textures/lq_liquidsky/plus_9wfall0.png", "start": 70219026, "end": 70228648}, {"filename": "/GameData/textures/lq_liquidsky/sky-test.png", "start": 70228648, "end": 70246244}, {"filename": "/GameData/textures/lq_liquidsky/sky-test.xcf", "start": 70246244, "end": 70379509}, {"filename": "/GameData/textures/lq_liquidsky/sky5_blu.png", "start": 70379509, "end": 70392822}, {"filename": "/GameData/textures/lq_liquidsky/sky5_dismal.png", "start": 70392822, "end": 70406005}, {"filename": "/GameData/textures/lq_liquidsky/sky_galx_fbr.png", "start": 70406005, "end": 70428760}, {"filename": "/GameData/textures/lq_liquidsky/sky_galx_spark_fbr.png", "start": 70428760, "end": 70448318}, {"filename": "/GameData/textures/lq_liquidsky/sky_orng.png", "start": 70448318, "end": 70462957}, {"filename": "/GameData/textures/lq_liquidsky/sky_pando.png", "start": 70462957, "end": 70479065}, {"filename": "/GameData/textures/lq_liquidsky/sky_pando2.png", "start": 70479065, "end": 70495600}, {"filename": "/GameData/textures/lq_liquidsky/sky_star.png", "start": 70495600, "end": 70497260}, {"filename": "/GameData/textures/lq_liquidsky/sky_void.png", "start": 70497260, "end": 70497955}, {"filename": "/GameData/textures/lq_liquidsky/sky_wfog_fbr.png", "start": 70497955, "end": 70498861}, {"filename": "/GameData/textures/lq_liquidsky/star_acid.png", "start": 70498861, "end": 70501040}, {"filename": "/GameData/textures/lq_liquidsky/star_blood1.png", "start": 70501040, "end": 70503113}, {"filename": "/GameData/textures/lq_liquidsky/star_lava1_fbr.png", "start": 70503113, "end": 70506318}, {"filename": "/GameData/textures/lq_liquidsky/star_lava2_fbr.png", "start": 70506318, "end": 70510400}, {"filename": "/GameData/textures/lq_liquidsky/star_lava3_fbr.png", "start": 70510400, "end": 70514369}, {"filename": "/GameData/textures/lq_liquidsky/star_lava_void_fbr.png", "start": 70514369, "end": 70518059}, {"filename": "/GameData/textures/lq_liquidsky/star_lavaskip.png", "start": 70518059, "end": 70519172}, {"filename": "/GameData/textures/lq_liquidsky/star_meatgoo2_fbr.png", "start": 70519172, "end": 70522360}, {"filename": "/GameData/textures/lq_liquidsky/star_meatgoo_fbr.png", "start": 70522360, "end": 70525157}, {"filename": "/GameData/textures/lq_liquidsky/star_slime1.png", "start": 70525157, "end": 70531448}, {"filename": "/GameData/textures/lq_liquidsky/star_slime2.png", "start": 70531448, "end": 70534637}, {"filename": "/GameData/textures/lq_liquidsky/star_slime3.png", "start": 70534637, "end": 70536669}, {"filename": "/GameData/textures/lq_liquidsky/star_slime_soul.png", "start": 70536669, "end": 70539459}, {"filename": "/GameData/textures/lq_liquidsky/star_slimeskip.png", "start": 70539459, "end": 70540532}, {"filename": "/GameData/textures/lq_liquidsky/star_soul_drain.png", "start": 70540532, "end": 70543500}, {"filename": "/GameData/textures/lq_liquidsky/star_tele1_fbr.png", "start": 70543500, "end": 70545380}, {"filename": "/GameData/textures/lq_liquidsky/star_tele2_fbr.png", "start": 70545380, "end": 70548181}, {"filename": "/GameData/textures/lq_liquidsky/star_tele3_fbr.png", "start": 70548181, "end": 70551217}, {"filename": "/GameData/textures/lq_liquidsky/star_tele4_fbr.png", "start": 70551217, "end": 70553909}, {"filename": "/GameData/textures/lq_liquidsky/star_water0.png", "start": 70553909, "end": 70556757}, {"filename": "/GameData/textures/lq_liquidsky/star_water1.png", "start": 70556757, "end": 70559866}, {"filename": "/GameData/textures/lq_liquidsky/star_water2.png", "start": 70559866, "end": 70562126}, {"filename": "/GameData/textures/lq_liquidsky/star_water3.png", "start": 70562126, "end": 70564507}, {"filename": "/GameData/textures/lq_liquidsky/star_water4.png", "start": 70564507, "end": 70569294}, {"filename": "/GameData/textures/lq_liquidsky/star_waterskip.png", "start": 70569294, "end": 70571034}, {"filename": "/GameData/textures/lq_liquidsky/star_wstill0.png", "start": 70571034, "end": 70573873}, {"filename": "/GameData/textures/lq_mayan/btn1.png", "start": 70573873, "end": 70576791}, {"filename": "/GameData/textures/lq_mayan/may_arrow.png", "start": 70576791, "end": 70577672}, {"filename": "/GameData/textures/lq_mayan/may_blok1_1.png", "start": 70577672, "end": 70580193}, {"filename": "/GameData/textures/lq_mayan/may_blok1_2.png", "start": 70580193, "end": 70582384}, {"filename": "/GameData/textures/lq_mayan/may_blok1_2_m.png", "start": 70582384, "end": 70585480}, {"filename": "/GameData/textures/lq_mayan/may_blok1_m.png", "start": 70585480, "end": 70594754}, {"filename": "/GameData/textures/lq_mayan/may_blok2_1.png", "start": 70594754, "end": 70597318}, {"filename": "/GameData/textures/lq_mayan/may_blok2_1_m.png", "start": 70597318, "end": 70600539}, {"filename": "/GameData/textures/lq_mayan/may_blok2_2.png", "start": 70600539, "end": 70610802}, {"filename": "/GameData/textures/lq_mayan/may_blok2_2_m.png", "start": 70610802, "end": 70623230}, {"filename": "/GameData/textures/lq_mayan/may_blud1_1.png", "start": 70623230, "end": 70625822}, {"filename": "/GameData/textures/lq_mayan/may_blud1_1m.png", "start": 70625822, "end": 70629042}, {"filename": "/GameData/textures/lq_mayan/may_bnd1_1.png", "start": 70629042, "end": 70631477}, {"filename": "/GameData/textures/lq_mayan/may_bnd1_1m.png", "start": 70631477, "end": 70634547}, {"filename": "/GameData/textures/lq_mayan/may_bnd1_2.png", "start": 70634547, "end": 70636974}, {"filename": "/GameData/textures/lq_mayan/may_bnd1_2m.png", "start": 70636974, "end": 70640002}, {"filename": "/GameData/textures/lq_mayan/may_bnd1_3.png", "start": 70640002, "end": 70642261}, {"filename": "/GameData/textures/lq_mayan/may_bnd1_3m.png", "start": 70642261, "end": 70645670}, {"filename": "/GameData/textures/lq_mayan/may_bnd1_5.png", "start": 70645670, "end": 70648523}, {"filename": "/GameData/textures/lq_mayan/may_bnd1_5m.png", "start": 70648523, "end": 70652172}, {"filename": "/GameData/textures/lq_mayan/may_bnd_skull.png", "start": 70652172, "end": 70654804}, {"filename": "/GameData/textures/lq_mayan/may_brk1_0.png", "start": 70654804, "end": 70657908}, {"filename": "/GameData/textures/lq_mayan/may_brk1_0m.png", "start": 70657908, "end": 70660965}, {"filename": "/GameData/textures/lq_mayan/may_brk1_1.png", "start": 70660965, "end": 70663647}, {"filename": "/GameData/textures/lq_mayan/may_brk1_1m.png", "start": 70663647, "end": 70666846}, {"filename": "/GameData/textures/lq_mayan/may_brk1_2.png", "start": 70666846, "end": 70669797}, {"filename": "/GameData/textures/lq_mayan/may_brk1_2m.png", "start": 70669797, "end": 70673202}, {"filename": "/GameData/textures/lq_mayan/may_brk1_3.png", "start": 70673202, "end": 70676139}, {"filename": "/GameData/textures/lq_mayan/may_brk1_3m.png", "start": 70676139, "end": 70679315}, {"filename": "/GameData/textures/lq_mayan/may_brk2_0.png", "start": 70679315, "end": 70689170}, {"filename": "/GameData/textures/lq_mayan/may_brk2_0_m.png", "start": 70689170, "end": 70701503}, {"filename": "/GameData/textures/lq_mayan/may_brk_old.png", "start": 70701503, "end": 70704102}, {"filename": "/GameData/textures/lq_mayan/may_brk_oldm.png", "start": 70704102, "end": 70707441}, {"filename": "/GameData/textures/lq_mayan/may_deco1_1.png", "start": 70707441, "end": 70718670}, {"filename": "/GameData/textures/lq_mayan/may_deco1_1m.png", "start": 70718670, "end": 70732705}, {"filename": "/GameData/textures/lq_mayan/may_deco1_2.png", "start": 70732705, "end": 70735225}, {"filename": "/GameData/textures/lq_mayan/may_deco1_2my.png", "start": 70735225, "end": 70738613}, {"filename": "/GameData/textures/lq_mayan/may_deco1_3.png", "start": 70738613, "end": 70757186}, {"filename": "/GameData/textures/lq_mayan/may_deco1_3m.png", "start": 70757186, "end": 70777537}, {"filename": "/GameData/textures/lq_mayan/may_door1_1.png", "start": 70777537, "end": 70787004}, {"filename": "/GameData/textures/lq_mayan/may_door1_1m.png", "start": 70787004, "end": 70798095}, {"filename": "/GameData/textures/lq_mayan/may_door2_1.png", "start": 70798095, "end": 70810063}, {"filename": "/GameData/textures/lq_mayan/may_door2_2.png", "start": 70810063, "end": 70821841}, {"filename": "/GameData/textures/lq_mayan/may_drt2_1.png", "start": 70821841, "end": 70824678}, {"filename": "/GameData/textures/lq_mayan/may_flr1_1.png", "start": 70824678, "end": 70827583}, {"filename": "/GameData/textures/lq_mayan/may_flr1_2.png", "start": 70827583, "end": 70830806}, {"filename": "/GameData/textures/lq_mayan/may_flt1_1.png", "start": 70830806, "end": 70833095}, {"filename": "/GameData/textures/lq_mayan/may_flt1_1m.png", "start": 70833095, "end": 70836543}, {"filename": "/GameData/textures/lq_mayan/may_key1_1.png", "start": 70836543, "end": 70838130}, {"filename": "/GameData/textures/lq_mayan/may_key1_2.png", "start": 70838130, "end": 70840127}, {"filename": "/GameData/textures/lq_mayan/may_lite1_1_fbr.png", "start": 70840127, "end": 70841057}, {"filename": "/GameData/textures/lq_mayan/may_lite1_2.png", "start": 70841057, "end": 70841420}, {"filename": "/GameData/textures/lq_mayan/may_lite2_1.png", "start": 70841420, "end": 70844357}, {"filename": "/GameData/textures/lq_mayan/may_lite2_2.png", "start": 70844357, "end": 70844843}, {"filename": "/GameData/textures/lq_mayan/may_lite3_1_fbr.png", "start": 70844843, "end": 70845800}, {"filename": "/GameData/textures/lq_mayan/may_lite_f1.png", "start": 70845800, "end": 70846286}, {"filename": "/GameData/textures/lq_mayan/may_oldmtomb1_1_fbr.png", "start": 70846286, "end": 70860138}, {"filename": "/GameData/textures/lq_mayan/may_oldtomb1_2_fbr.png", "start": 70860138, "end": 70874030}, {"filename": "/GameData/textures/lq_mayan/may_plat_stem_m.png", "start": 70874030, "end": 70874896}, {"filename": "/GameData/textures/lq_mayan/may_plats.png", "start": 70874896, "end": 70877558}, {"filename": "/GameData/textures/lq_mayan/may_platst.png", "start": 70877558, "end": 70879985}, {"filename": "/GameData/textures/lq_mayan/may_platt.png", "start": 70879985, "end": 70882608}, {"filename": "/GameData/textures/lq_mayan/may_plr1_1.png", "start": 70882608, "end": 70885802}, {"filename": "/GameData/textures/lq_mayan/may_tomb1_1_fbr.png", "start": 70885802, "end": 70899654}, {"filename": "/GameData/textures/lq_mayan/may_tomb1_2_fbr.png", "start": 70899654, "end": 70913546}, {"filename": "/GameData/textures/lq_mayan/may_trm1_1.png", "start": 70913546, "end": 70922474}, {"filename": "/GameData/textures/lq_mayan/may_trm1_2.png", "start": 70922474, "end": 70925179}, {"filename": "/GameData/textures/lq_mayan/may_trm1_a.png", "start": 70925179, "end": 70927521}, {"filename": "/GameData/textures/lq_mayan/may_tskull.png", "start": 70927521, "end": 70938527}, {"filename": "/GameData/textures/lq_mayan/may_wall1_1.png", "start": 70938527, "end": 70941509}, {"filename": "/GameData/textures/lq_mayan/may_wall1_2.png", "start": 70941509, "end": 70944475}, {"filename": "/GameData/textures/lq_mayan/may_wall1_3.png", "start": 70944475, "end": 70947669}, {"filename": "/GameData/textures/lq_mayan/may_wall1_3a.png", "start": 70947669, "end": 70950250}, {"filename": "/GameData/textures/lq_mayan/may_wall1_4.png", "start": 70950250, "end": 70953238}, {"filename": "/GameData/textures/lq_mayan/may_wall1_4a.png", "start": 70953238, "end": 70955637}, {"filename": "/GameData/textures/lq_mayan/maya_end_dr1.png", "start": 70955637, "end": 70960023}, {"filename": "/GameData/textures/lq_mayan/maya_end_dr2.png", "start": 70960023, "end": 70964408}, {"filename": "/GameData/textures/lq_mayan/maya_end_trim1.png", "start": 70964408, "end": 70968798}, {"filename": "/GameData/textures/lq_mayan/plus_0_may_btn1.png", "start": 70968798, "end": 70971715}, {"filename": "/GameData/textures/lq_mayan/plus_0_may_mpiloilon_fbr.png", "start": 70971715, "end": 70973273}, {"filename": "/GameData/textures/lq_mayan/plus_0_may_mpilon_fbr.png", "start": 70973273, "end": 70974848}, {"filename": "/GameData/textures/lq_mayan/plus_0_may_mshoohoot_fbr.png", "start": 70974848, "end": 70975793}, {"filename": "/GameData/textures/lq_mayan/plus_0_may_mshoot_fbr.png", "start": 70975793, "end": 70976736}, {"filename": "/GameData/textures/lq_mayan/plus_1_may_btn1.png", "start": 70976736, "end": 70979644}, {"filename": "/GameData/textures/lq_mayan/plus_1_may_mpiloilon_fbr.png", "start": 70979644, "end": 70981217}, {"filename": "/GameData/textures/lq_mayan/plus_1_may_mpilon_fbr.png", "start": 70981217, "end": 70982810}, {"filename": "/GameData/textures/lq_mayan/plus_1_may_mshoohoot_fbr.png", "start": 70982810, "end": 70983795}, {"filename": "/GameData/textures/lq_mayan/plus_1_may_mshoot_fbr.png", "start": 70983795, "end": 70984779}, {"filename": "/GameData/textures/lq_mayan/plus_2_may_btn1.png", "start": 70984779, "end": 70987670}, {"filename": "/GameData/textures/lq_mayan/plus_2_may_mpilon.png", "start": 70987670, "end": 70989247}, {"filename": "/GameData/textures/lq_mayan/plus_2_may_mshoohoot_fbr.png", "start": 70989247, "end": 70990272}, {"filename": "/GameData/textures/lq_mayan/plus_2_may_mshoot_fbr.png", "start": 70990272, "end": 70991299}, {"filename": "/GameData/textures/lq_mayan/plus_3_may_btn1.png", "start": 70991299, "end": 70994361}, {"filename": "/GameData/textures/lq_mayan/plus_3_may_mpiloilon_fbr.png", "start": 70994361, "end": 70995934}, {"filename": "/GameData/textures/lq_mayan/plus_3_may_mpilon_fbr.png", "start": 70995934, "end": 70997527}, {"filename": "/GameData/textures/lq_mayan/plus_3_may_mshoohoot_fbr.png", "start": 70997527, "end": 70998512}, {"filename": "/GameData/textures/lq_mayan/plus_3_may_mshoot_fbr.png", "start": 70998512, "end": 70999496}, {"filename": "/GameData/textures/lq_mayan/plus_4_may_btn1.png", "start": 70999496, "end": 71002559}, {"filename": "/GameData/textures/lq_mayan/plus_5_may_btn1.png", "start": 71002559, "end": 71005300}, {"filename": "/GameData/textures/lq_mayan/plus_a_may_btn1.png", "start": 71005300, "end": 71008023}, {"filename": "/GameData/textures/lq_mayan/plus_a_may_mpiloilon_fbr.png", "start": 71008023, "end": 71009600}, {"filename": "/GameData/textures/lq_mayan/plus_a_may_mpilon_fbr.png", "start": 71009600, "end": 71011184}, {"filename": "/GameData/textures/lq_mayan/plus_a_may_mshoot.png", "start": 71011184, "end": 71012133}, {"filename": "/GameData/textures/lq_medieval/+0med_but1.png", "start": 71012133, "end": 71016388}, {"filename": "/GameData/textures/lq_medieval/+0med_but2.png", "start": 71016388, "end": 71018100}, {"filename": "/GameData/textures/lq_medieval/+0med_but3.png", "start": 71018100, "end": 71019803}, {"filename": "/GameData/textures/lq_medieval/+0med_but_s1.png", "start": 71019803, "end": 71024049}, {"filename": "/GameData/textures/lq_medieval/+0med_sht_but1.png", "start": 71024049, "end": 71025342}, {"filename": "/GameData/textures/lq_medieval/+1med_but3.png", "start": 71025342, "end": 71027044}, {"filename": "/GameData/textures/lq_medieval/+1med_but_s1.png", "start": 71027044, "end": 71031263}, {"filename": "/GameData/textures/lq_medieval/+1med_sht_but1.png", "start": 71031263, "end": 71032576}, {"filename": "/GameData/textures/lq_medieval/+2med_but_s1.png", "start": 71032576, "end": 71036850}, {"filename": "/GameData/textures/lq_medieval/+3med_but_s1.png", "start": 71036850, "end": 71041069}, {"filename": "/GameData/textures/lq_medieval/+amed_but1.png", "start": 71041069, "end": 71045152}, {"filename": "/GameData/textures/lq_medieval/+amed_but2.png", "start": 71045152, "end": 71046870}, {"filename": "/GameData/textures/lq_medieval/+amed_but3.png", "start": 71046870, "end": 71048480}, {"filename": "/GameData/textures/lq_medieval/+amed_but_s1.png", "start": 71048480, "end": 71052693}, {"filename": "/GameData/textures/lq_medieval/+amed_sht_but1.png", "start": 71052693, "end": 71053849}, {"filename": "/GameData/textures/lq_medieval/Art1.png", "start": 71053849, "end": 71186842}, {"filename": "/GameData/textures/lq_medieval/afloor1_4.png", "start": 71186842, "end": 71189843}, {"filename": "/GameData/textures/lq_medieval/afloor1_8.png", "start": 71189843, "end": 71192683}, {"filename": "/GameData/textures/lq_medieval/afloor3_1.png", "start": 71192683, "end": 71195493}, {"filename": "/GameData/textures/lq_medieval/altar1_1.png", "start": 71195493, "end": 71199381}, {"filename": "/GameData/textures/lq_medieval/altar1_3.png", "start": 71199381, "end": 71203862}, {"filename": "/GameData/textures/lq_medieval/altar1_4.png", "start": 71203862, "end": 71207915}, {"filename": "/GameData/textures/lq_medieval/brick0.png", "start": 71207915, "end": 71216137}, {"filename": "/GameData/textures/lq_medieval/brick1.png", "start": 71216137, "end": 71226891}, {"filename": "/GameData/textures/lq_medieval/brick4_s.png", "start": 71226891, "end": 71228824}, {"filename": "/GameData/textures/lq_medieval/brown1.png", "start": 71228824, "end": 71238000}, {"filename": "/GameData/textures/lq_medieval/med_block_1a.png", "start": 71238000, "end": 71284355}, {"filename": "/GameData/textures/lq_medieval/med_block_1b.png", "start": 71284355, "end": 71367719}, {"filename": "/GameData/textures/lq_medieval/med_block_1c.png", "start": 71367719, "end": 71465890}, {"filename": "/GameData/textures/lq_medieval/med_block_1d.png", "start": 71465890, "end": 71574559}, {"filename": "/GameData/textures/lq_medieval/med_block_1e.png", "start": 71574559, "end": 71683052}, {"filename": "/GameData/textures/lq_medieval/med_block_1f.png", "start": 71683052, "end": 71750911}, {"filename": "/GameData/textures/lq_medieval/med_block_1s.png", "start": 71750911, "end": 71868362}, {"filename": "/GameData/textures/lq_medieval/med_block_2a.png", "start": 71868362, "end": 71945746}, {"filename": "/GameData/textures/lq_medieval/med_block_2b.png", "start": 71945746, "end": 72023185}, {"filename": "/GameData/textures/lq_medieval/med_block_2c.png", "start": 72023185, "end": 72112060}, {"filename": "/GameData/textures/lq_medieval/med_block_2d.png", "start": 72112060, "end": 72210254}, {"filename": "/GameData/textures/lq_medieval/med_block_2e.png", "start": 72210254, "end": 72308491}, {"filename": "/GameData/textures/lq_medieval/med_block_2f.png", "start": 72308491, "end": 72373035}, {"filename": "/GameData/textures/lq_medieval/med_block_2s.png", "start": 72373035, "end": 72478787}, {"filename": "/GameData/textures/lq_medieval/med_brk9_ceil1a.png", "start": 72478787, "end": 72490595}, {"filename": "/GameData/textures/lq_medieval/med_brk9_ceil1b.png", "start": 72490595, "end": 72503130}, {"filename": "/GameData/textures/lq_medieval/med_brk9_wal2a.png", "start": 72503130, "end": 72516027}, {"filename": "/GameData/textures/lq_medieval/med_brk9_wal2b.png", "start": 72516027, "end": 72529283}, {"filename": "/GameData/textures/lq_medieval/med_brk9_wal2c.png", "start": 72529283, "end": 72541725}, {"filename": "/GameData/textures/lq_medieval/med_brk9_win1.png", "start": 72541725, "end": 72584723}, {"filename": "/GameData/textures/lq_medieval/med_brk9_win1b.png", "start": 72584723, "end": 72630049}, {"filename": "/GameData/textures/lq_medieval/med_but_side.png", "start": 72630049, "end": 72631047}, {"filename": "/GameData/textures/lq_medieval/med_cmet1.png", "start": 72631047, "end": 72634171}, {"filename": "/GameData/textures/lq_medieval/med_cmet2a.png", "start": 72634171, "end": 72637322}, {"filename": "/GameData/textures/lq_medieval/med_cmet2b.png", "start": 72637322, "end": 72640384}, {"filename": "/GameData/textures/lq_medieval/med_cmet2c.png", "start": 72640384, "end": 72643521}, {"filename": "/GameData/textures/lq_medieval/med_cmet3a.png", "start": 72643521, "end": 72646793}, {"filename": "/GameData/textures/lq_medieval/med_cmet3b.png", "start": 72646793, "end": 72649975}, {"filename": "/GameData/textures/lq_medieval/med_cmet4.png", "start": 72649975, "end": 72652816}, {"filename": "/GameData/textures/lq_medieval/med_cmet5a.png", "start": 72652816, "end": 72655954}, {"filename": "/GameData/textures/lq_medieval/med_cmet5c.png", "start": 72655954, "end": 72659097}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk10.png", "start": 72659097, "end": 72673823}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk10_f.png", "start": 72673823, "end": 72686111}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk10b.png", "start": 72686111, "end": 72700674}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk11.png", "start": 72700674, "end": 72711922}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk12.png", "start": 72711922, "end": 72728871}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk12_f.png", "start": 72728871, "end": 72746204}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk13.png", "start": 72746204, "end": 72802321}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk14.png", "start": 72802321, "end": 72818175}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk14_f.png", "start": 72818175, "end": 72831144}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk14b.png", "start": 72831144, "end": 72844634}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk15.png", "start": 72844634, "end": 72858460}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk15b.png", "start": 72858460, "end": 72872390}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk15f.png", "start": 72872390, "end": 72885588}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk16.png", "start": 72885588, "end": 72901809}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk16b.png", "start": 72901809, "end": 72919401}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk16f.png", "start": 72919401, "end": 72936672}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk17.png", "start": 72936672, "end": 72946779}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk17_f.png", "start": 72946779, "end": 72955804}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk17b.png", "start": 72955804, "end": 72965941}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk18_f.png", "start": 72965941, "end": 72974574}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk18_gb.png", "start": 72974574, "end": 72977322}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk18_gt.png", "start": 72977322, "end": 72980059}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk18_t.png", "start": 72980059, "end": 72988245}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk18_tb.png", "start": 72988245, "end": 72998871}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk18_tc.png", "start": 72998871, "end": 73003400}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk18b.png", "start": 73003400, "end": 73011573}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk19_f.png", "start": 73011573, "end": 73023274}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk19_t.png", "start": 73023274, "end": 73034665}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk19b.png", "start": 73034665, "end": 73045985}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk1_1.png", "start": 73045985, "end": 73048470}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk1_2.png", "start": 73048470, "end": 73051641}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk1_3.png", "start": 73051641, "end": 73053884}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk2_1.png", "start": 73053884, "end": 73056433}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk2_2.png", "start": 73056433, "end": 73059806}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk5.png", "start": 73059806, "end": 73062973}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk6_1.png", "start": 73062973, "end": 73065616}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk6_2.png", "start": 73065616, "end": 73070678}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk7_1.png", "start": 73070678, "end": 73073318}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk7_1b.png", "start": 73073318, "end": 73075862}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk7_2.png", "start": 73075862, "end": 73079028}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk8_1c.png", "start": 73079028, "end": 73091633}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk8_1d.png", "start": 73091633, "end": 73104236}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk9_1.png", "start": 73104236, "end": 73117446}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk9_1b.png", "start": 73117446, "end": 73131103}, {"filename": "/GameData/textures/lq_medieval/med_csl_brk9_f.png", "start": 73131103, "end": 73143890}, {"filename": "/GameData/textures/lq_medieval/med_csl_flr1_1.png", "start": 73143890, "end": 73153837}, {"filename": "/GameData/textures/lq_medieval/med_csl_flr2_1.png", "start": 73153837, "end": 73156123}, {"filename": "/GameData/textures/lq_medieval/med_csl_flr2_2.png", "start": 73156123, "end": 73158296}, {"filename": "/GameData/textures/lq_medieval/med_csl_flr4_1.png", "start": 73158296, "end": 73162036}, {"filename": "/GameData/textures/lq_medieval/med_csl_flr4_3.png", "start": 73162036, "end": 73165470}, {"filename": "/GameData/textures/lq_medieval/med_csl_flr4_4.png", "start": 73165470, "end": 73178526}, {"filename": "/GameData/textures/lq_medieval/med_csl_flr4_5.png", "start": 73178526, "end": 73193044}, {"filename": "/GameData/textures/lq_medieval/med_csl_flr5_1.png", "start": 73193044, "end": 73207974}, {"filename": "/GameData/textures/lq_medieval/med_csl_flr5_2.png", "start": 73207974, "end": 73223502}, {"filename": "/GameData/textures/lq_medieval/med_csl_stp1.png", "start": 73223502, "end": 73226099}, {"filename": "/GameData/textures/lq_medieval/med_csl_stp2.png", "start": 73226099, "end": 73228642}, {"filename": "/GameData/textures/lq_medieval/med_csl_trm1.png", "start": 73228642, "end": 73229967}, {"filename": "/GameData/textures/lq_medieval/med_dbrick1.png", "start": 73229967, "end": 73251440}, {"filename": "/GameData/textures/lq_medieval/med_dbrick1_t.png", "start": 73251440, "end": 73262827}, {"filename": "/GameData/textures/lq_medieval/med_dbrick1_t2.png", "start": 73262827, "end": 73275989}, {"filename": "/GameData/textures/lq_medieval/med_dbrick1_t2b_fbr.png", "start": 73275989, "end": 73289939}, {"filename": "/GameData/textures/lq_medieval/med_dbrick1_t3.png", "start": 73289939, "end": 73301679}, {"filename": "/GameData/textures/lq_medieval/med_dbrick1_t4.png", "start": 73301679, "end": 73314455}, {"filename": "/GameData/textures/lq_medieval/med_dbrick2.png", "start": 73314455, "end": 73319989}, {"filename": "/GameData/textures/lq_medieval/med_dbrick3.png", "start": 73319989, "end": 73325363}, {"filename": "/GameData/textures/lq_medieval/med_dbrick4.png", "start": 73325363, "end": 73330671}, {"filename": "/GameData/textures/lq_medieval/med_dbrick5.png", "start": 73330671, "end": 73336493}, {"filename": "/GameData/textures/lq_medieval/med_dbrick6.png", "start": 73336493, "end": 73345654}, {"filename": "/GameData/textures/lq_medieval/med_dbrick6b.png", "start": 73345654, "end": 73354662}, {"filename": "/GameData/textures/lq_medieval/med_dbrick6f.png", "start": 73354662, "end": 73363952}, {"filename": "/GameData/textures/lq_medieval/med_door1.png", "start": 73363952, "end": 73368635}, {"filename": "/GameData/textures/lq_medieval/med_door2.png", "start": 73368635, "end": 73373134}, {"filename": "/GameData/textures/lq_medieval/med_door3.png", "start": 73373134, "end": 73377783}, {"filename": "/GameData/textures/lq_medieval/med_door3b.png", "start": 73377783, "end": 73380324}, {"filename": "/GameData/textures/lq_medieval/med_door4.png", "start": 73380324, "end": 73384888}, {"filename": "/GameData/textures/lq_medieval/med_door4b.png", "start": 73384888, "end": 73387484}, {"filename": "/GameData/textures/lq_medieval/med_dr1a.png", "start": 73387484, "end": 73406268}, {"filename": "/GameData/textures/lq_medieval/med_dr1a_blu.png", "start": 73406268, "end": 73424632}, {"filename": "/GameData/textures/lq_medieval/med_dr1b.png", "start": 73424632, "end": 73448781}, {"filename": "/GameData/textures/lq_medieval/med_dr1b_blu.png", "start": 73448781, "end": 73468400}, {"filename": "/GameData/textures/lq_medieval/med_dr2a.png", "start": 73468400, "end": 73492777}, {"filename": "/GameData/textures/lq_medieval/med_dr2a_blu.png", "start": 73492777, "end": 73512671}, {"filename": "/GameData/textures/lq_medieval/med_dr3a.png", "start": 73512671, "end": 73526154}, {"filename": "/GameData/textures/lq_medieval/med_dr3a_blu.png", "start": 73526154, "end": 73539444}, {"filename": "/GameData/textures/lq_medieval/med_dr3b.png", "start": 73539444, "end": 73553752}, {"filename": "/GameData/textures/lq_medieval/med_dr3b_blu.png", "start": 73553752, "end": 73567958}, {"filename": "/GameData/textures/lq_medieval/med_dr3c.png", "start": 73567958, "end": 73580801}, {"filename": "/GameData/textures/lq_medieval/med_dr3c_blu.png", "start": 73580801, "end": 73593925}, {"filename": "/GameData/textures/lq_medieval/med_dwall1.png", "start": 73593925, "end": 73596401}, {"filename": "/GameData/textures/lq_medieval/med_ebrick1.png", "start": 73596401, "end": 73608983}, {"filename": "/GameData/textures/lq_medieval/med_ebrick10.png", "start": 73608983, "end": 73619868}, {"filename": "/GameData/textures/lq_medieval/med_ebrick10b.png", "start": 73619868, "end": 73630354}, {"filename": "/GameData/textures/lq_medieval/med_ebrick11.png", "start": 73630354, "end": 73645613}, {"filename": "/GameData/textures/lq_medieval/med_ebrick12.png", "start": 73645613, "end": 73663030}, {"filename": "/GameData/textures/lq_medieval/med_ebrick12b.png", "start": 73663030, "end": 73676269}, {"filename": "/GameData/textures/lq_medieval/med_ebrick13.png", "start": 73676269, "end": 73686167}, {"filename": "/GameData/textures/lq_medieval/med_ebrick14.png", "start": 73686167, "end": 73695182}, {"filename": "/GameData/textures/lq_medieval/med_ebrick15.png", "start": 73695182, "end": 73709983}, {"filename": "/GameData/textures/lq_medieval/med_ebrick16.png", "start": 73709983, "end": 73721347}, {"filename": "/GameData/textures/lq_medieval/med_ebrick16b.png", "start": 73721347, "end": 73729665}, {"filename": "/GameData/textures/lq_medieval/med_ebrick17.png", "start": 73729665, "end": 73742799}, {"filename": "/GameData/textures/lq_medieval/med_ebrick17b.png", "start": 73742799, "end": 73755065}, {"filename": "/GameData/textures/lq_medieval/med_ebrick17c.png", "start": 73755065, "end": 73768324}, {"filename": "/GameData/textures/lq_medieval/med_ebrick18.png", "start": 73768324, "end": 73784324}, {"filename": "/GameData/textures/lq_medieval/med_ebrick18b.png", "start": 73784324, "end": 73798712}, {"filename": "/GameData/textures/lq_medieval/med_ebrick2.png", "start": 73798712, "end": 73811204}, {"filename": "/GameData/textures/lq_medieval/med_ebrick20.png", "start": 73811204, "end": 73824604}, {"filename": "/GameData/textures/lq_medieval/med_ebrick21.png", "start": 73824604, "end": 73836746}, {"filename": "/GameData/textures/lq_medieval/med_ebrick22.png", "start": 73836746, "end": 73848907}, {"filename": "/GameData/textures/lq_medieval/med_ebrick3.png", "start": 73848907, "end": 73861367}, {"filename": "/GameData/textures/lq_medieval/med_ebrick4.png", "start": 73861367, "end": 73876917}, {"filename": "/GameData/textures/lq_medieval/med_ebrick5.png", "start": 73876917, "end": 73890733}, {"filename": "/GameData/textures/lq_medieval/med_ebrick6.png", "start": 73890733, "end": 73905444}, {"filename": "/GameData/textures/lq_medieval/med_ebrick7.png", "start": 73905444, "end": 73919089}, {"filename": "/GameData/textures/lq_medieval/med_ebrick8.png", "start": 73919089, "end": 73931828}, {"filename": "/GameData/textures/lq_medieval/med_ebrick9.png", "start": 73931828, "end": 73946383}, {"filename": "/GameData/textures/lq_medieval/med_etrim1.png", "start": 73946383, "end": 73949712}, {"filename": "/GameData/textures/lq_medieval/med_glass1.png", "start": 73949712, "end": 73962091}, {"filename": "/GameData/textures/lq_medieval/med_glass2.png", "start": 73962091, "end": 73973748}, {"filename": "/GameData/textures/lq_medieval/med_glass3.png", "start": 73973748, "end": 73984763}, {"filename": "/GameData/textures/lq_medieval/med_glass4.png", "start": 73984763, "end": 74016582}, {"filename": "/GameData/textures/lq_medieval/med_glass5.png", "start": 74016582, "end": 74026364}, {"filename": "/GameData/textures/lq_medieval/med_met_dec1.png", "start": 74026364, "end": 74030504}, {"filename": "/GameData/textures/lq_medieval/med_met_key1a.png", "start": 74030504, "end": 74032264}, {"filename": "/GameData/textures/lq_medieval/med_met_key1b.png", "start": 74032264, "end": 74033598}, {"filename": "/GameData/textures/lq_medieval/med_met_key2a.png", "start": 74033598, "end": 74035358}, {"filename": "/GameData/textures/lq_medieval/med_met_key2b.png", "start": 74035358, "end": 74037064}, {"filename": "/GameData/textures/lq_medieval/med_met_trim1.png", "start": 74037064, "end": 74038091}, {"filename": "/GameData/textures/lq_medieval/med_met_trim2.png", "start": 74038091, "end": 74039038}, {"filename": "/GameData/textures/lq_medieval/med_met_trim3.png", "start": 74039038, "end": 74039912}, {"filename": "/GameData/textures/lq_medieval/med_metw1a.png", "start": 74039912, "end": 74052220}, {"filename": "/GameData/textures/lq_medieval/med_metw1b.png", "start": 74052220, "end": 74060927}, {"filename": "/GameData/textures/lq_medieval/med_metw2a.png", "start": 74060927, "end": 74070834}, {"filename": "/GameData/textures/lq_medieval/med_metw2b.png", "start": 74070834, "end": 74083212}, {"filename": "/GameData/textures/lq_medieval/med_rmet.png", "start": 74083212, "end": 74096313}, {"filename": "/GameData/textures/lq_medieval/med_rmet_slat.png", "start": 74096313, "end": 74110624}, {"filename": "/GameData/textures/lq_medieval/med_rmet_tile.png", "start": 74110624, "end": 74124556}, {"filename": "/GameData/textures/lq_medieval/med_rmet_trim32.png", "start": 74124556, "end": 74137765}, {"filename": "/GameData/textures/lq_medieval/med_roof1.png", "start": 74137765, "end": 74149680}, {"filename": "/GameData/textures/lq_medieval/med_roof2.png", "start": 74149680, "end": 74164753}, {"filename": "/GameData/textures/lq_medieval/med_roof3.png", "start": 74164753, "end": 74179682}, {"filename": "/GameData/textures/lq_medieval/med_roof4.png", "start": 74179682, "end": 74197496}, {"filename": "/GameData/textures/lq_medieval/med_roof5.png", "start": 74197496, "end": 74208002}, {"filename": "/GameData/textures/lq_medieval/med_tanwall1.png", "start": 74208002, "end": 74249680}, {"filename": "/GameData/textures/lq_medieval/med_tanwall2.png", "start": 74249680, "end": 74309457}, {"filename": "/GameData/textures/lq_medieval/med_tanwall3.png", "start": 74309457, "end": 74359892}, {"filename": "/GameData/textures/lq_medieval/med_tanwall4.png", "start": 74359892, "end": 74409033}, {"filename": "/GameData/textures/lq_medieval/med_tanwall4_f.png", "start": 74409033, "end": 74452986}, {"filename": "/GameData/textures/lq_medieval/med_tanwall6.png", "start": 74452986, "end": 74497531}, {"filename": "/GameData/textures/lq_medieval/med_tanwall7.png", "start": 74497531, "end": 74543124}, {"filename": "/GameData/textures/lq_medieval/med_tanwall8.png", "start": 74543124, "end": 74580722}, {"filename": "/GameData/textures/lq_medieval/med_tanwall9.png", "start": 74580722, "end": 74629802}, {"filename": "/GameData/textures/lq_medieval/med_tanwall9_f.png", "start": 74629802, "end": 74673781}, {"filename": "/GameData/textures/lq_medieval/med_telepad.png", "start": 74673781, "end": 74678408}, {"filename": "/GameData/textures/lq_medieval/med_tile1.png", "start": 74678408, "end": 74751019}, {"filename": "/GameData/textures/lq_medieval/med_tmpl_lit1_fbr.png", "start": 74751019, "end": 74752622}, {"filename": "/GameData/textures/lq_medieval/med_tmpl_lit3_fbr.png", "start": 74752622, "end": 74753927}, {"filename": "/GameData/textures/lq_medieval/med_tmpl_tele.png", "start": 74753927, "end": 74757109}, {"filename": "/GameData/textures/lq_medieval/med_tmpl_trim1.png", "start": 74757109, "end": 74760275}, {"filename": "/GameData/textures/lq_medieval/med_tmpl_trim1b.png", "start": 74760275, "end": 74762330}, {"filename": "/GameData/textures/lq_medieval/med_tmpl_trim2.png", "start": 74762330, "end": 74765870}, {"filename": "/GameData/textures/lq_medieval/med_tmpl_trim3.png", "start": 74765870, "end": 74769347}, {"filename": "/GameData/textures/lq_medieval/med_tmpl_trim4.png", "start": 74769347, "end": 74772460}, {"filename": "/GameData/textures/lq_medieval/med_trim1_1.png", "start": 74772460, "end": 74781164}, {"filename": "/GameData/textures/lq_medieval/med_trim2_1.png", "start": 74781164, "end": 74782278}, {"filename": "/GameData/textures/lq_medieval/med_trim3_1.png", "start": 74782278, "end": 74785873}, {"filename": "/GameData/textures/lq_medieval/med_trim3_2.png", "start": 74785873, "end": 74789432}, {"filename": "/GameData/textures/lq_medieval/med_trim3_3.png", "start": 74789432, "end": 74793129}, {"filename": "/GameData/textures/lq_medieval/med_trim3_4.png", "start": 74793129, "end": 74796500}, {"filename": "/GameData/textures/lq_medieval/med_trim4_1.png", "start": 74796500, "end": 74799924}, {"filename": "/GameData/textures/lq_medieval/med_trim4_2.png", "start": 74799924, "end": 74803448}, {"filename": "/GameData/textures/lq_medieval/med_trim4_3.png", "start": 74803448, "end": 74806808}, {"filename": "/GameData/textures/lq_medieval/med_trim4_4.png", "start": 74806808, "end": 74810031}, {"filename": "/GameData/textures/lq_medieval/plus_0_csl_brk14.png", "start": 74810031, "end": 74826344}, {"filename": "/GameData/textures/lq_medieval/plus_1_csl_brk14.png", "start": 74826344, "end": 74842637}, {"filename": "/GameData/textures/lq_medieval/plus_2_csl_brk14.png", "start": 74842637, "end": 74858936}, {"filename": "/GameData/textures/lq_medieval/plus_3_csl_brk14.png", "start": 74858936, "end": 74875178}, {"filename": "/GameData/textures/lq_medieval/plus_4_csl_brk14.png", "start": 74875178, "end": 74891519}, {"filename": "/GameData/textures/lq_medieval/sidewalk.png", "start": 74891519, "end": 74900275}, {"filename": "/GameData/textures/lq_medieval/sq_trim1_2.png", "start": 74900275, "end": 74908557}, {"filename": "/GameData/textures/lq_medieval/sq_trim1_2_s.png", "start": 74908557, "end": 74911132}, {"filename": "/GameData/textures/lq_medieval/tile.png", "start": 74911132, "end": 74914257}, {"filename": "/GameData/textures/lq_medieval/tile1.png", "start": 74914257, "end": 74986870}, {"filename": "/GameData/textures/lq_medieval/wall14_5.png", "start": 74986870, "end": 74990950}, {"filename": "/GameData/textures/lq_medieval/wbrick1_5.png", "start": 74990950, "end": 74994716}, {"filename": "/GameData/textures/lq_medieval/wswamp2_1.png", "start": 74994716, "end": 74997842}, {"filename": "/GameData/textures/lq_medieval/wswamp2_2.png", "start": 74997842, "end": 75001619}, {"filename": "/GameData/textures/lq_metal/gig1_bone.png", "start": 75001619, "end": 75011300}, {"filename": "/GameData/textures/lq_metal/gig1_bone_l.png", "start": 75011300, "end": 75041961}, {"filename": "/GameData/textures/lq_metal/gig1_skull.png", "start": 75041961, "end": 75044625}, {"filename": "/GameData/textures/lq_metal/gig1_skull_l.png", "start": 75044625, "end": 75053410}, {"filename": "/GameData/textures/lq_metal/gig1_spine.png", "start": 75053410, "end": 75102111}, {"filename": "/GameData/textures/lq_metal/gig2_bone.png", "start": 75102111, "end": 75110534}, {"filename": "/GameData/textures/lq_metal/gig2_bone_l.png", "start": 75110534, "end": 75136282}, {"filename": "/GameData/textures/lq_metal/gig2_bone_s.png", "start": 75136282, "end": 75138895}, {"filename": "/GameData/textures/lq_metal/gig2_mouth_s.png", "start": 75138895, "end": 75141310}, {"filename": "/GameData/textures/lq_metal/med_flat8.png", "start": 75141310, "end": 75144168}, {"filename": "/GameData/textures/lq_metal/med_flat9.png", "start": 75144168, "end": 75147156}, {"filename": "/GameData/textures/lq_metal/met_blc_block.png", "start": 75147156, "end": 75150495}, {"filename": "/GameData/textures/lq_metal/met_blc_diam.png", "start": 75150495, "end": 75153385}, {"filename": "/GameData/textures/lq_metal/met_blc_trim28.png", "start": 75153385, "end": 75158428}, {"filename": "/GameData/textures/lq_metal/met_blc_trim32.png", "start": 75158428, "end": 75161574}, {"filename": "/GameData/textures/lq_metal/met_blc_trim32r.png", "start": 75161574, "end": 75164829}, {"filename": "/GameData/textures/lq_metal/met_blc_trim32s.png", "start": 75164829, "end": 75167929}, {"filename": "/GameData/textures/lq_metal/met_blc_trim64.png", "start": 75167929, "end": 75171072}, {"filename": "/GameData/textures/lq_metal/met_blu_block.png", "start": 75171072, "end": 75176092}, {"filename": "/GameData/textures/lq_metal/met_blu_det1.png", "start": 75176092, "end": 75177248}, {"filename": "/GameData/textures/lq_metal/met_blu_diam.png", "start": 75177248, "end": 75180145}, {"filename": "/GameData/textures/lq_metal/met_blu_diam2.png", "start": 75180145, "end": 75182940}, {"filename": "/GameData/textures/lq_metal/met_blu_diamc.png", "start": 75182940, "end": 75186471}, {"filename": "/GameData/textures/lq_metal/met_blu_door1.png", "start": 75186471, "end": 75191154}, {"filename": "/GameData/textures/lq_metal/met_blu_door2.png", "start": 75191154, "end": 75195653}, {"filename": "/GameData/textures/lq_metal/met_blu_door3.png", "start": 75195653, "end": 75200302}, {"filename": "/GameData/textures/lq_metal/met_blu_door4.png", "start": 75200302, "end": 75204866}, {"filename": "/GameData/textures/lq_metal/met_blu_door5.png", "start": 75204866, "end": 75207809}, {"filename": "/GameData/textures/lq_metal/met_blu_door6.png", "start": 75207809, "end": 75210405}, {"filename": "/GameData/textures/lq_metal/met_blu_fac1.png", "start": 75210405, "end": 75212807}, {"filename": "/GameData/textures/lq_metal/met_blu_flat.png", "start": 75212807, "end": 75216241}, {"filename": "/GameData/textures/lq_metal/met_blu_flatst.png", "start": 75216241, "end": 75218470}, {"filename": "/GameData/textures/lq_metal/met_blu_gig1.png", "start": 75218470, "end": 75222589}, {"filename": "/GameData/textures/lq_metal/met_blu_gig2.png", "start": 75222589, "end": 75226202}, {"filename": "/GameData/textures/lq_metal/met_blu_gig2b.png", "start": 75226202, "end": 75232396}, {"filename": "/GameData/textures/lq_metal/met_blu_grate.png", "start": 75232396, "end": 75235451}, {"filename": "/GameData/textures/lq_metal/met_blu_grate2.png", "start": 75235451, "end": 75238282}, {"filename": "/GameData/textures/lq_metal/met_blu_grate3.png", "start": 75238282, "end": 75239942}, {"filename": "/GameData/textures/lq_metal/met_blu_lit1_fbr.png", "start": 75239942, "end": 75242013}, {"filename": "/GameData/textures/lq_metal/met_blu_lit2_fbr.png", "start": 75242013, "end": 75243202}, {"filename": "/GameData/textures/lq_metal/met_blu_lit3.png", "start": 75243202, "end": 75244388}, {"filename": "/GameData/textures/lq_metal/met_blu_lit4.png", "start": 75244388, "end": 75245649}, {"filename": "/GameData/textures/lq_metal/met_blu_lit5.png", "start": 75245649, "end": 75247742}, {"filename": "/GameData/textures/lq_metal/met_blu_pan1.png", "start": 75247742, "end": 75251224}, {"filename": "/GameData/textures/lq_metal/met_blu_pan2.png", "start": 75251224, "end": 75253510}, {"filename": "/GameData/textures/lq_metal/met_blu_pan3.png", "start": 75253510, "end": 75256937}, {"filename": "/GameData/textures/lq_metal/met_blu_rect.png", "start": 75256937, "end": 75260716}, {"filename": "/GameData/textures/lq_metal/met_blu_rivg.png", "start": 75260716, "end": 75264637}, {"filename": "/GameData/textures/lq_metal/met_blu_rivs.png", "start": 75264637, "end": 75267995}, {"filename": "/GameData/textures/lq_metal/met_blu_slat.png", "start": 75267995, "end": 75271781}, {"filename": "/GameData/textures/lq_metal/met_blu_sqr.png", "start": 75271781, "end": 75275552}, {"filename": "/GameData/textures/lq_metal/met_blu_sqrd.png", "start": 75275552, "end": 75279390}, {"filename": "/GameData/textures/lq_metal/met_blu_sqrs.png", "start": 75279390, "end": 75283144}, {"filename": "/GameData/textures/lq_metal/met_blu_stile.png", "start": 75283144, "end": 75286371}, {"filename": "/GameData/textures/lq_metal/met_blu_tile.png", "start": 75286371, "end": 75289820}, {"filename": "/GameData/textures/lq_metal/met_blu_trim16.png", "start": 75289820, "end": 75293524}, {"filename": "/GameData/textures/lq_metal/met_blu_trim16g.png", "start": 75293524, "end": 75297274}, {"filename": "/GameData/textures/lq_metal/met_blu_trim16h.png", "start": 75297274, "end": 75300891}, {"filename": "/GameData/textures/lq_metal/met_blu_trim16s.png", "start": 75300891, "end": 75304059}, {"filename": "/GameData/textures/lq_metal/met_blu_trim28.png", "start": 75304059, "end": 75309356}, {"filename": "/GameData/textures/lq_metal/met_blu_trim32.png", "start": 75309356, "end": 75312806}, {"filename": "/GameData/textures/lq_metal/met_blu_trim32r.png", "start": 75312806, "end": 75316462}, {"filename": "/GameData/textures/lq_metal/met_blu_trim32s.png", "start": 75316462, "end": 75319786}, {"filename": "/GameData/textures/lq_metal/met_blu_trim64.png", "start": 75319786, "end": 75323263}, {"filename": "/GameData/textures/lq_metal/met_blu_vtrim.png", "start": 75323263, "end": 75326833}, {"filename": "/GameData/textures/lq_metal/met_brn2_pat.png", "start": 75326833, "end": 75330682}, {"filename": "/GameData/textures/lq_metal/met_brn_block.png", "start": 75330682, "end": 75334393}, {"filename": "/GameData/textures/lq_metal/met_brn_blockl.png", "start": 75334393, "end": 75337922}, {"filename": "/GameData/textures/lq_metal/met_brn_det1.png", "start": 75337922, "end": 75339085}, {"filename": "/GameData/textures/lq_metal/met_brn_flat.png", "start": 75339085, "end": 75342606}, {"filename": "/GameData/textures/lq_metal/met_brn_grate.png", "start": 75342606, "end": 75345994}, {"filename": "/GameData/textures/lq_metal/met_brn_grate2.png", "start": 75345994, "end": 75349500}, {"filename": "/GameData/textures/lq_metal/met_brn_grate3.png", "start": 75349500, "end": 75351518}, {"filename": "/GameData/textures/lq_metal/met_brn_lit1_fbr.png", "start": 75351518, "end": 75353631}, {"filename": "/GameData/textures/lq_metal/met_brn_lit2_fbr.png", "start": 75353631, "end": 75354819}, {"filename": "/GameData/textures/lq_metal/met_brn_lit3.png", "start": 75354819, "end": 75355990}, {"filename": "/GameData/textures/lq_metal/met_brn_lit4.png", "start": 75355990, "end": 75357200}, {"filename": "/GameData/textures/lq_metal/met_brn_lit5.png", "start": 75357200, "end": 75359253}, {"filename": "/GameData/textures/lq_metal/met_brn_pan1.png", "start": 75359253, "end": 75362716}, {"filename": "/GameData/textures/lq_metal/met_brn_pan2.png", "start": 75362716, "end": 75364992}, {"filename": "/GameData/textures/lq_metal/met_brn_pan3.png", "start": 75364992, "end": 75368469}, {"filename": "/GameData/textures/lq_metal/met_brn_pan4.png", "start": 75368469, "end": 75372332}, {"filename": "/GameData/textures/lq_metal/met_brn_rect.png", "start": 75372332, "end": 75376010}, {"filename": "/GameData/textures/lq_metal/met_brn_rivg.png", "start": 75376010, "end": 75380038}, {"filename": "/GameData/textures/lq_metal/met_brn_rivs.png", "start": 75380038, "end": 75383461}, {"filename": "/GameData/textures/lq_metal/met_brn_signs.png", "start": 75383461, "end": 75388295}, {"filename": "/GameData/textures/lq_metal/met_brn_slat.png", "start": 75388295, "end": 75391938}, {"filename": "/GameData/textures/lq_metal/met_brn_sqr.png", "start": 75391938, "end": 75395629}, {"filename": "/GameData/textures/lq_metal/met_brn_sqrd.png", "start": 75395629, "end": 75399437}, {"filename": "/GameData/textures/lq_metal/met_brn_sqrs.png", "start": 75399437, "end": 75403141}, {"filename": "/GameData/textures/lq_metal/met_brn_stile.png", "start": 75403141, "end": 75407226}, {"filename": "/GameData/textures/lq_metal/met_brn_tile.png", "start": 75407226, "end": 75410607}, {"filename": "/GameData/textures/lq_metal/met_brn_tile2.png", "start": 75410607, "end": 75413940}, {"filename": "/GameData/textures/lq_metal/met_brn_trim16.png", "start": 75413940, "end": 75418046}, {"filename": "/GameData/textures/lq_metal/met_brn_trim16g.png", "start": 75418046, "end": 75422250}, {"filename": "/GameData/textures/lq_metal/met_brn_trim16h.png", "start": 75422250, "end": 75426447}, {"filename": "/GameData/textures/lq_metal/met_brn_trim16s.png", "start": 75426447, "end": 75430070}, {"filename": "/GameData/textures/lq_metal/met_brn_trim32.png", "start": 75430070, "end": 75433557}, {"filename": "/GameData/textures/lq_metal/met_brn_trim32s.png", "start": 75433557, "end": 75436943}, {"filename": "/GameData/textures/lq_metal/met_brn_trim64.png", "start": 75436943, "end": 75440583}, {"filename": "/GameData/textures/lq_metal/met_brn_vtrim.png", "start": 75440583, "end": 75444036}, {"filename": "/GameData/textures/lq_metal/met_cop_flat.png", "start": 75444036, "end": 75447113}, {"filename": "/GameData/textures/lq_metal/met_cop_riv.png", "start": 75447113, "end": 75450714}, {"filename": "/GameData/textures/lq_metal/met_dbrn_flat.png", "start": 75450714, "end": 75454094}, {"filename": "/GameData/textures/lq_metal/met_dbrn_rect.png", "start": 75454094, "end": 75457979}, {"filename": "/GameData/textures/lq_metal/met_dbrn_slat.png", "start": 75457979, "end": 75461794}, {"filename": "/GameData/textures/lq_metal/met_grate.png", "start": 75461794, "end": 75465144}, {"filename": "/GameData/textures/lq_metal/met_grn_block.png", "start": 75465144, "end": 75469069}, {"filename": "/GameData/textures/lq_metal/met_grn_blockl.png", "start": 75469069, "end": 75472798}, {"filename": "/GameData/textures/lq_metal/met_grn_det1.png", "start": 75472798, "end": 75474049}, {"filename": "/GameData/textures/lq_metal/met_grn_fac1.png", "start": 75474049, "end": 75476959}, {"filename": "/GameData/textures/lq_metal/met_grn_flat.png", "start": 75476959, "end": 75480844}, {"filename": "/GameData/textures/lq_metal/met_grn_grate.png", "start": 75480844, "end": 75483906}, {"filename": "/GameData/textures/lq_metal/met_grn_grate2.png", "start": 75483906, "end": 75486889}, {"filename": "/GameData/textures/lq_metal/met_grn_grate3.png", "start": 75486889, "end": 75488633}, {"filename": "/GameData/textures/lq_metal/met_grn_lit1_fbr.png", "start": 75488633, "end": 75490767}, {"filename": "/GameData/textures/lq_metal/met_grn_lit2_fbr.png", "start": 75490767, "end": 75491968}, {"filename": "/GameData/textures/lq_metal/met_grn_lit3.png", "start": 75491968, "end": 75493180}, {"filename": "/GameData/textures/lq_metal/met_grn_lit4.png", "start": 75493180, "end": 75494466}, {"filename": "/GameData/textures/lq_metal/met_grn_lit5.png", "start": 75494466, "end": 75496658}, {"filename": "/GameData/textures/lq_metal/met_grn_pan1.png", "start": 75496658, "end": 75500374}, {"filename": "/GameData/textures/lq_metal/met_grn_pan2.png", "start": 75500374, "end": 75502739}, {"filename": "/GameData/textures/lq_metal/met_grn_pan3.png", "start": 75502739, "end": 75506339}, {"filename": "/GameData/textures/lq_metal/met_grn_rect.png", "start": 75506339, "end": 75510376}, {"filename": "/GameData/textures/lq_metal/met_grn_rivg.png", "start": 75510376, "end": 75514788}, {"filename": "/GameData/textures/lq_metal/met_grn_rivs.png", "start": 75514788, "end": 75518555}, {"filename": "/GameData/textures/lq_metal/met_grn_slat.png", "start": 75518555, "end": 75522596}, {"filename": "/GameData/textures/lq_metal/met_grn_sqr.png", "start": 75522596, "end": 75526594}, {"filename": "/GameData/textures/lq_metal/met_grn_sqrd.png", "start": 75526594, "end": 75530704}, {"filename": "/GameData/textures/lq_metal/met_grn_sqrs.png", "start": 75530704, "end": 75534734}, {"filename": "/GameData/textures/lq_metal/met_grn_stile.png", "start": 75534734, "end": 75538018}, {"filename": "/GameData/textures/lq_metal/met_grn_tile.png", "start": 75538018, "end": 75541279}, {"filename": "/GameData/textures/lq_metal/met_grn_trim16.png", "start": 75541279, "end": 75544891}, {"filename": "/GameData/textures/lq_metal/met_grn_trim16g.png", "start": 75544891, "end": 75549045}, {"filename": "/GameData/textures/lq_metal/met_grn_trim16h.png", "start": 75549045, "end": 75552594}, {"filename": "/GameData/textures/lq_metal/met_grn_trim16s.png", "start": 75552594, "end": 75556105}, {"filename": "/GameData/textures/lq_metal/met_grn_trim28.png", "start": 75556105, "end": 75561040}, {"filename": "/GameData/textures/lq_metal/met_grn_trim28r.png", "start": 75561040, "end": 75566066}, {"filename": "/GameData/textures/lq_metal/met_grn_trim32.png", "start": 75566066, "end": 75569891}, {"filename": "/GameData/textures/lq_metal/met_grn_trim32r.png", "start": 75569891, "end": 75573761}, {"filename": "/GameData/textures/lq_metal/met_grn_trim32s.png", "start": 75573761, "end": 75577407}, {"filename": "/GameData/textures/lq_metal/met_grn_trim64.png", "start": 75577407, "end": 75581064}, {"filename": "/GameData/textures/lq_metal/met_grn_vtrim.png", "start": 75581064, "end": 75584314}, {"filename": "/GameData/textures/lq_metal/met_gry_beam.png", "start": 75584314, "end": 75587328}, {"filename": "/GameData/textures/lq_metal/met_gry_block.png", "start": 75587328, "end": 75590351}, {"filename": "/GameData/textures/lq_metal/met_gry_flat.png", "start": 75590351, "end": 75593085}, {"filename": "/GameData/textures/lq_metal/met_gry_lit1_fbr.png", "start": 75593085, "end": 75594896}, {"filename": "/GameData/textures/lq_metal/met_gry_lit2_fbr.png", "start": 75594896, "end": 75596019}, {"filename": "/GameData/textures/lq_metal/met_gry_lit2b.png", "start": 75596019, "end": 75599469}, {"filename": "/GameData/textures/lq_metal/met_gry_pan1.png", "start": 75599469, "end": 75602565}, {"filename": "/GameData/textures/lq_metal/met_gry_pan2.png", "start": 75602565, "end": 75604718}, {"filename": "/GameData/textures/lq_metal/met_gry_pan3.png", "start": 75604718, "end": 75607821}, {"filename": "/GameData/textures/lq_metal/met_gry_rect.png", "start": 75607821, "end": 75611018}, {"filename": "/GameData/textures/lq_metal/met_gry_signs.png", "start": 75611018, "end": 75614848}, {"filename": "/GameData/textures/lq_metal/met_gry_slat.png", "start": 75614848, "end": 75618264}, {"filename": "/GameData/textures/lq_metal/met_gry_sqr.png", "start": 75618264, "end": 75621098}, {"filename": "/GameData/textures/lq_metal/met_gry_sqrd.png", "start": 75621098, "end": 75624346}, {"filename": "/GameData/textures/lq_metal/met_gry_sqrs.png", "start": 75624346, "end": 75627307}, {"filename": "/GameData/textures/lq_metal/met_gry_trim64.png", "start": 75627307, "end": 75631008}, {"filename": "/GameData/textures/lq_metal/met_lbrn_flat.png", "start": 75631008, "end": 75634434}, {"filename": "/GameData/textures/lq_metal/met_lbrn_rect.png", "start": 75634434, "end": 75638322}, {"filename": "/GameData/textures/lq_metal/met_lbrn_slat.png", "start": 75638322, "end": 75642276}, {"filename": "/GameData/textures/lq_metal/met_lift.png", "start": 75642276, "end": 75645321}, {"filename": "/GameData/textures/lq_metal/met_met7_1.png", "start": 75645321, "end": 75647794}, {"filename": "/GameData/textures/lq_metal/met_mix_beam.png", "start": 75647794, "end": 75651446}, {"filename": "/GameData/textures/lq_metal/met_mix_diam.png", "start": 75651446, "end": 75654635}, {"filename": "/GameData/textures/lq_metal/met_mix_diam2.png", "start": 75654635, "end": 75657834}, {"filename": "/GameData/textures/lq_metal/met_mix_diamc.png", "start": 75657834, "end": 75661934}, {"filename": "/GameData/textures/lq_metal/met_mt1_flat.png", "start": 75661934, "end": 75676224}, {"filename": "/GameData/textures/lq_metal/met_mt1_rect.png", "start": 75676224, "end": 75691934}, {"filename": "/GameData/textures/lq_metal/met_mt1_slat.png", "start": 75691934, "end": 75707690}, {"filename": "/GameData/textures/lq_metal/met_mt1_sqr.png", "start": 75707690, "end": 75714230}, {"filename": "/GameData/textures/lq_metal/met_mt2_flat.png", "start": 75714230, "end": 75730444}, {"filename": "/GameData/textures/lq_metal/met_mt2_rect.png", "start": 75730444, "end": 75747170}, {"filename": "/GameData/textures/lq_metal/met_mt2_slat.png", "start": 75747170, "end": 75763808}, {"filename": "/GameData/textures/lq_metal/met_mt2_sqr.png", "start": 75763808, "end": 75772206}, {"filename": "/GameData/textures/lq_metal/met_mt3_flat.png", "start": 75772206, "end": 75788806}, {"filename": "/GameData/textures/lq_metal/met_mt3_rect.png", "start": 75788806, "end": 75805714}, {"filename": "/GameData/textures/lq_metal/met_mt3_slat.png", "start": 75805714, "end": 75822625}, {"filename": "/GameData/textures/lq_metal/met_mt3_sqr.png", "start": 75822625, "end": 75831160}, {"filename": "/GameData/textures/lq_metal/met_ora_trim64.png", "start": 75831160, "end": 75833939}, {"filename": "/GameData/textures/lq_metal/met_rail_flat.png", "start": 75833939, "end": 75836086}, {"filename": "/GameData/textures/lq_metal/met_rune1_fbr.png", "start": 75836086, "end": 75838890}, {"filename": "/GameData/textures/lq_metal/met_rune_trim32.png", "start": 75838890, "end": 75843231}, {"filename": "/GameData/textures/lq_metal/met_set1.png", "start": 75843231, "end": 75913076}, {"filename": "/GameData/textures/lq_metal/met_shm_flat.png", "start": 75913076, "end": 75916737}, {"filename": "/GameData/textures/lq_metal/met_shm_rect.png", "start": 75916737, "end": 75920609}, {"filename": "/GameData/textures/lq_metal/met_shm_slat.png", "start": 75920609, "end": 75924660}, {"filename": "/GameData/textures/lq_metal/met_shm_sqr.png", "start": 75924660, "end": 75928122}, {"filename": "/GameData/textures/lq_metal/met_teal_block.png", "start": 75928122, "end": 75931500}, {"filename": "/GameData/textures/lq_metal/met_teal_flat.png", "start": 75931500, "end": 75934846}, {"filename": "/GameData/textures/lq_metal/met_teal_trim32.png", "start": 75934846, "end": 75938122}, {"filename": "/GameData/textures/lq_metal/met_teal_trim32r.png", "start": 75938122, "end": 75941097}, {"filename": "/GameData/textures/lq_metal/met_teal_trim64.png", "start": 75941097, "end": 75944581}, {"filename": "/GameData/textures/lq_metal/met_wall3_1.png", "start": 75944581, "end": 75955847}, {"filename": "/GameData/textures/lq_metal/met_wall3_1_s.png", "start": 75955847, "end": 75959131}, {"filename": "/GameData/textures/lq_metal/metal4_4.png", "start": 75959131, "end": 75963472}, {"filename": "/GameData/textures/lq_metal/plus_0_sqbut1.png", "start": 75963472, "end": 75964554}, {"filename": "/GameData/textures/lq_metal/plus_0_sqbut2_fbr.png", "start": 75964554, "end": 75967790}, {"filename": "/GameData/textures/lq_metal/plus_0_sqshoot1_fbr.png", "start": 75967790, "end": 75968897}, {"filename": "/GameData/textures/lq_metal/plus_0gig2a_fbr.png", "start": 75968897, "end": 75969370}, {"filename": "/GameData/textures/lq_metal/plus_0gig_shot_fbr.png", "start": 75969370, "end": 75969846}, {"filename": "/GameData/textures/lq_metal/plus_0gig_sshot_fbr.png", "start": 75969846, "end": 75970290}, {"filename": "/GameData/textures/lq_metal/plus_0gig_ye_fbr.png", "start": 75970290, "end": 75970730}, {"filename": "/GameData/textures/lq_metal/plus_0met_blu_keyg_fbr.png", "start": 75970730, "end": 75971630}, {"filename": "/GameData/textures/lq_metal/plus_0met_blu_keys_fbr.png", "start": 75971630, "end": 75972513}, {"filename": "/GameData/textures/lq_metal/plus_1_sqbut1.png", "start": 75972513, "end": 75973679}, {"filename": "/GameData/textures/lq_metal/plus_1_sqbut2_fbr.png", "start": 75973679, "end": 75976867}, {"filename": "/GameData/textures/lq_metal/plus_1_sqshoot1.png", "start": 75976867, "end": 75977981}, {"filename": "/GameData/textures/lq_metal/plus_1met_blu_keyg_fbr.png", "start": 75977981, "end": 75978882}, {"filename": "/GameData/textures/lq_metal/plus_1met_blu_keys_fbr.png", "start": 75978882, "end": 75979759}, {"filename": "/GameData/textures/lq_metal/plus_2met_blu_keyg_fbr.png", "start": 75979759, "end": 75980668}, {"filename": "/GameData/textures/lq_metal/plus_2met_blu_keys_fbr.png", "start": 75980668, "end": 75981537}, {"filename": "/GameData/textures/lq_metal/plus_3met_blu_keyg_fbr.png", "start": 75981537, "end": 75982445}, {"filename": "/GameData/textures/lq_metal/plus_3met_blu_keys_fbr.png", "start": 75982445, "end": 75983301}, {"filename": "/GameData/textures/lq_metal/plus_4met_blu_keyg_fbr.png", "start": 75983301, "end": 75984209}, {"filename": "/GameData/textures/lq_metal/plus_4met_blu_keys_fbr.png", "start": 75984209, "end": 75985065}, {"filename": "/GameData/textures/lq_metal/plus_5met_blu_keyg_fbr.png", "start": 75985065, "end": 75985974}, {"filename": "/GameData/textures/lq_metal/plus_5met_blu_keys_fbr.png", "start": 75985974, "end": 75986843}, {"filename": "/GameData/textures/lq_metal/plus_6met_blu_keyg_fbr.png", "start": 75986843, "end": 75987744}, {"filename": "/GameData/textures/lq_metal/plus_6met_blu_keys_fbr.png", "start": 75987744, "end": 75988621}, {"filename": "/GameData/textures/lq_metal/plus_a_sqbut1.png", "start": 75988621, "end": 75989703}, {"filename": "/GameData/textures/lq_metal/plus_a_sqbut2_fbr.png", "start": 75989703, "end": 75992939}, {"filename": "/GameData/textures/lq_metal/plus_a_sqshoot1_fbr.png", "start": 75992939, "end": 75994046}, {"filename": "/GameData/textures/lq_metal/plus_agig2a.png", "start": 75994046, "end": 75994416}, {"filename": "/GameData/textures/lq_metal/plus_agig_shot_fbr.png", "start": 75994416, "end": 75994791}, {"filename": "/GameData/textures/lq_metal/plus_agig_sshot_fbr.png", "start": 75994791, "end": 75995154}, {"filename": "/GameData/textures/lq_metal/plus_agig_ye.png", "start": 75995154, "end": 75995566}, {"filename": "/GameData/textures/lq_metal/plus_amet_blu_keyg.png", "start": 75995566, "end": 75996436}, {"filename": "/GameData/textures/lq_metal/plus_amet_blu_keys.png", "start": 75996436, "end": 75997306}, {"filename": "/GameData/textures/lq_metal/ret_metal1_tile.png", "start": 75997306, "end": 76011238}, {"filename": "/GameData/textures/lq_metal/sq_lit1_fbr.png", "start": 76011238, "end": 76011611}, {"filename": "/GameData/textures/lq_metal/sq_lit2_fbr.png", "start": 76011611, "end": 76011872}, {"filename": "/GameData/textures/lq_palette/flat_01_a.png", "start": 76011872, "end": 76012420}, {"filename": "/GameData/textures/lq_palette/flat_01_b.png", "start": 76012420, "end": 76012946}, {"filename": "/GameData/textures/lq_palette/flat_01_c.png", "start": 76012946, "end": 76013472}, {"filename": "/GameData/textures/lq_palette/flat_01_d.png", "start": 76013472, "end": 76013998}, {"filename": "/GameData/textures/lq_palette/flat_01_e.png", "start": 76013998, "end": 76014524}, {"filename": "/GameData/textures/lq_palette/flat_01_f.png", "start": 76014524, "end": 76015050}, {"filename": "/GameData/textures/lq_palette/flat_01_g.png", "start": 76015050, "end": 76015576}, {"filename": "/GameData/textures/lq_palette/flat_01_h.png", "start": 76015576, "end": 76016102}, {"filename": "/GameData/textures/lq_palette/flat_01_i.png", "start": 76016102, "end": 76016629}, {"filename": "/GameData/textures/lq_palette/flat_01_j.png", "start": 76016629, "end": 76017156}, {"filename": "/GameData/textures/lq_palette/flat_01_k.png", "start": 76017156, "end": 76017683}, {"filename": "/GameData/textures/lq_palette/flat_01_l.png", "start": 76017683, "end": 76018210}, {"filename": "/GameData/textures/lq_palette/flat_01_m.png", "start": 76018210, "end": 76018737}, {"filename": "/GameData/textures/lq_palette/flat_01_n.png", "start": 76018737, "end": 76019262}, {"filename": "/GameData/textures/lq_palette/flat_01_o.png", "start": 76019262, "end": 76019787}, {"filename": "/GameData/textures/lq_palette/flat_01_p.png", "start": 76019787, "end": 76020312}, {"filename": "/GameData/textures/lq_palette/flat_02_a.png", "start": 76020312, "end": 76020838}, {"filename": "/GameData/textures/lq_palette/flat_02_b.png", "start": 76020838, "end": 76021364}, {"filename": "/GameData/textures/lq_palette/flat_02_c.png", "start": 76021364, "end": 76021890}, {"filename": "/GameData/textures/lq_palette/flat_02_d.png", "start": 76021890, "end": 76022416}, {"filename": "/GameData/textures/lq_palette/flat_02_e.png", "start": 76022416, "end": 76022942}, {"filename": "/GameData/textures/lq_palette/flat_02_f.png", "start": 76022942, "end": 76023468}, {"filename": "/GameData/textures/lq_palette/flat_02_g.png", "start": 76023468, "end": 76023994}, {"filename": "/GameData/textures/lq_palette/flat_02_h.png", "start": 76023994, "end": 76024520}, {"filename": "/GameData/textures/lq_palette/flat_02_i.png", "start": 76024520, "end": 76025046}, {"filename": "/GameData/textures/lq_palette/flat_02_j.png", "start": 76025046, "end": 76025572}, {"filename": "/GameData/textures/lq_palette/flat_02_k.png", "start": 76025572, "end": 76026098}, {"filename": "/GameData/textures/lq_palette/flat_02_l.png", "start": 76026098, "end": 76026624}, {"filename": "/GameData/textures/lq_palette/flat_02_m.png", "start": 76026624, "end": 76027150}, {"filename": "/GameData/textures/lq_palette/flat_02_n.png", "start": 76027150, "end": 76027676}, {"filename": "/GameData/textures/lq_palette/flat_02_o.png", "start": 76027676, "end": 76028202}, {"filename": "/GameData/textures/lq_palette/flat_02_p.png", "start": 76028202, "end": 76028728}, {"filename": "/GameData/textures/lq_palette/flat_03_a.png", "start": 76028728, "end": 76029254}, {"filename": "/GameData/textures/lq_palette/flat_03_b.png", "start": 76029254, "end": 76029780}, {"filename": "/GameData/textures/lq_palette/flat_03_c.png", "start": 76029780, "end": 76030306}, {"filename": "/GameData/textures/lq_palette/flat_03_d.png", "start": 76030306, "end": 76030832}, {"filename": "/GameData/textures/lq_palette/flat_03_e.png", "start": 76030832, "end": 76031358}, {"filename": "/GameData/textures/lq_palette/flat_03_f.png", "start": 76031358, "end": 76031884}, {"filename": "/GameData/textures/lq_palette/flat_03_g.png", "start": 76031884, "end": 76032410}, {"filename": "/GameData/textures/lq_palette/flat_03_h.png", "start": 76032410, "end": 76032936}, {"filename": "/GameData/textures/lq_palette/flat_03_i.png", "start": 76032936, "end": 76033462}, {"filename": "/GameData/textures/lq_palette/flat_03_j.png", "start": 76033462, "end": 76033988}, {"filename": "/GameData/textures/lq_palette/flat_03_k.png", "start": 76033988, "end": 76034514}, {"filename": "/GameData/textures/lq_palette/flat_03_l.png", "start": 76034514, "end": 76035040}, {"filename": "/GameData/textures/lq_palette/flat_03_m.png", "start": 76035040, "end": 76035567}, {"filename": "/GameData/textures/lq_palette/flat_03_n.png", "start": 76035567, "end": 76036094}, {"filename": "/GameData/textures/lq_palette/flat_03_o.png", "start": 76036094, "end": 76036621}, {"filename": "/GameData/textures/lq_palette/flat_03_p.png", "start": 76036621, "end": 76037148}, {"filename": "/GameData/textures/lq_palette/flat_04_a.png", "start": 76037148, "end": 76037696}, {"filename": "/GameData/textures/lq_palette/flat_04_b.png", "start": 76037696, "end": 76038222}, {"filename": "/GameData/textures/lq_palette/flat_04_c.png", "start": 76038222, "end": 76038748}, {"filename": "/GameData/textures/lq_palette/flat_04_d.png", "start": 76038748, "end": 76039274}, {"filename": "/GameData/textures/lq_palette/flat_04_e.png", "start": 76039274, "end": 76039800}, {"filename": "/GameData/textures/lq_palette/flat_04_f.png", "start": 76039800, "end": 76040326}, {"filename": "/GameData/textures/lq_palette/flat_04_g.png", "start": 76040326, "end": 76040852}, {"filename": "/GameData/textures/lq_palette/flat_04_h.png", "start": 76040852, "end": 76041378}, {"filename": "/GameData/textures/lq_palette/flat_04_i.png", "start": 76041378, "end": 76041904}, {"filename": "/GameData/textures/lq_palette/flat_04_j.png", "start": 76041904, "end": 76042430}, {"filename": "/GameData/textures/lq_palette/flat_04_k.png", "start": 76042430, "end": 76042956}, {"filename": "/GameData/textures/lq_palette/flat_04_l.png", "start": 76042956, "end": 76043482}, {"filename": "/GameData/textures/lq_palette/flat_04_m.png", "start": 76043482, "end": 76044008}, {"filename": "/GameData/textures/lq_palette/flat_04_n.png", "start": 76044008, "end": 76044534}, {"filename": "/GameData/textures/lq_palette/flat_04_o.png", "start": 76044534, "end": 76045060}, {"filename": "/GameData/textures/lq_palette/flat_04_p.png", "start": 76045060, "end": 76045586}, {"filename": "/GameData/textures/lq_palette/flat_05_a.png", "start": 76045586, "end": 76046112}, {"filename": "/GameData/textures/lq_palette/flat_05_b.png", "start": 76046112, "end": 76046638}, {"filename": "/GameData/textures/lq_palette/flat_05_c.png", "start": 76046638, "end": 76047164}, {"filename": "/GameData/textures/lq_palette/flat_05_d.png", "start": 76047164, "end": 76047690}, {"filename": "/GameData/textures/lq_palette/flat_05_e.png", "start": 76047690, "end": 76048216}, {"filename": "/GameData/textures/lq_palette/flat_05_f.png", "start": 76048216, "end": 76048742}, {"filename": "/GameData/textures/lq_palette/flat_05_g.png", "start": 76048742, "end": 76049268}, {"filename": "/GameData/textures/lq_palette/flat_05_h.png", "start": 76049268, "end": 76049794}, {"filename": "/GameData/textures/lq_palette/flat_05_i.png", "start": 76049794, "end": 76050320}, {"filename": "/GameData/textures/lq_palette/flat_05_j.png", "start": 76050320, "end": 76050846}, {"filename": "/GameData/textures/lq_palette/flat_05_k.png", "start": 76050846, "end": 76051372}, {"filename": "/GameData/textures/lq_palette/flat_05_l.png", "start": 76051372, "end": 76051898}, {"filename": "/GameData/textures/lq_palette/flat_05_m.png", "start": 76051898, "end": 76052424}, {"filename": "/GameData/textures/lq_palette/flat_05_n.png", "start": 76052424, "end": 76052950}, {"filename": "/GameData/textures/lq_palette/flat_05_o.png", "start": 76052950, "end": 76053476}, {"filename": "/GameData/textures/lq_palette/flat_05_p.png", "start": 76053476, "end": 76054002}, {"filename": "/GameData/textures/lq_palette/flat_06_a.png", "start": 76054002, "end": 76054528}, {"filename": "/GameData/textures/lq_palette/flat_06_b.png", "start": 76054528, "end": 76055054}, {"filename": "/GameData/textures/lq_palette/flat_06_c.png", "start": 76055054, "end": 76055580}, {"filename": "/GameData/textures/lq_palette/flat_06_d.png", "start": 76055580, "end": 76056106}, {"filename": "/GameData/textures/lq_palette/flat_06_e.png", "start": 76056106, "end": 76056632}, {"filename": "/GameData/textures/lq_palette/flat_06_f.png", "start": 76056632, "end": 76057158}, {"filename": "/GameData/textures/lq_palette/flat_06_g.png", "start": 76057158, "end": 76057684}, {"filename": "/GameData/textures/lq_palette/flat_06_h.png", "start": 76057684, "end": 76058210}, {"filename": "/GameData/textures/lq_palette/flat_06_i.png", "start": 76058210, "end": 76058736}, {"filename": "/GameData/textures/lq_palette/flat_06_j.png", "start": 76058736, "end": 76059262}, {"filename": "/GameData/textures/lq_palette/flat_06_k.png", "start": 76059262, "end": 76059788}, {"filename": "/GameData/textures/lq_palette/flat_06_l.png", "start": 76059788, "end": 76060314}, {"filename": "/GameData/textures/lq_palette/flat_06_m.png", "start": 76060314, "end": 76060840}, {"filename": "/GameData/textures/lq_palette/flat_06_n.png", "start": 76060840, "end": 76061366}, {"filename": "/GameData/textures/lq_palette/flat_06_o.png", "start": 76061366, "end": 76061892}, {"filename": "/GameData/textures/lq_palette/flat_06_p.png", "start": 76061892, "end": 76062418}, {"filename": "/GameData/textures/lq_palette/flat_07_a.png", "start": 76062418, "end": 76062944}, {"filename": "/GameData/textures/lq_palette/flat_07_b.png", "start": 76062944, "end": 76063470}, {"filename": "/GameData/textures/lq_palette/flat_07_c.png", "start": 76063470, "end": 76063996}, {"filename": "/GameData/textures/lq_palette/flat_07_d.png", "start": 76063996, "end": 76064522}, {"filename": "/GameData/textures/lq_palette/flat_07_e.png", "start": 76064522, "end": 76065048}, {"filename": "/GameData/textures/lq_palette/flat_07_f.png", "start": 76065048, "end": 76065574}, {"filename": "/GameData/textures/lq_palette/flat_07_g.png", "start": 76065574, "end": 76066100}, {"filename": "/GameData/textures/lq_palette/flat_07_h.png", "start": 76066100, "end": 76066626}, {"filename": "/GameData/textures/lq_palette/flat_07_i.png", "start": 76066626, "end": 76067152}, {"filename": "/GameData/textures/lq_palette/flat_07_j.png", "start": 76067152, "end": 76067678}, {"filename": "/GameData/textures/lq_palette/flat_07_k.png", "start": 76067678, "end": 76068204}, {"filename": "/GameData/textures/lq_palette/flat_07_l.png", "start": 76068204, "end": 76068730}, {"filename": "/GameData/textures/lq_palette/flat_07_m.png", "start": 76068730, "end": 76069256}, {"filename": "/GameData/textures/lq_palette/flat_07_n.png", "start": 76069256, "end": 76069782}, {"filename": "/GameData/textures/lq_palette/flat_07_o.png", "start": 76069782, "end": 76070308}, {"filename": "/GameData/textures/lq_palette/flat_07_p.png", "start": 76070308, "end": 76070834}, {"filename": "/GameData/textures/lq_palette/flat_08_a.png", "start": 76070834, "end": 76071360}, {"filename": "/GameData/textures/lq_palette/flat_08_b.png", "start": 76071360, "end": 76071886}, {"filename": "/GameData/textures/lq_palette/flat_08_c.png", "start": 76071886, "end": 76072412}, {"filename": "/GameData/textures/lq_palette/flat_08_d.png", "start": 76072412, "end": 76072938}, {"filename": "/GameData/textures/lq_palette/flat_08_e.png", "start": 76072938, "end": 76073464}, {"filename": "/GameData/textures/lq_palette/flat_08_f.png", "start": 76073464, "end": 76073990}, {"filename": "/GameData/textures/lq_palette/flat_08_g.png", "start": 76073990, "end": 76074516}, {"filename": "/GameData/textures/lq_palette/flat_08_h.png", "start": 76074516, "end": 76075042}, {"filename": "/GameData/textures/lq_palette/flat_08_i.png", "start": 76075042, "end": 76075568}, {"filename": "/GameData/textures/lq_palette/flat_08_j.png", "start": 76075568, "end": 76076094}, {"filename": "/GameData/textures/lq_palette/flat_08_k.png", "start": 76076094, "end": 76076620}, {"filename": "/GameData/textures/lq_palette/flat_08_l.png", "start": 76076620, "end": 76077146}, {"filename": "/GameData/textures/lq_palette/flat_08_m.png", "start": 76077146, "end": 76077672}, {"filename": "/GameData/textures/lq_palette/flat_08_n.png", "start": 76077672, "end": 76078199}, {"filename": "/GameData/textures/lq_palette/flat_08_o.png", "start": 76078199, "end": 76078726}, {"filename": "/GameData/textures/lq_palette/flat_08_p.png", "start": 76078726, "end": 76079253}, {"filename": "/GameData/textures/lq_palette/flat_09_a.png", "start": 76079253, "end": 76079780}, {"filename": "/GameData/textures/lq_palette/flat_09_b.png", "start": 76079780, "end": 76080307}, {"filename": "/GameData/textures/lq_palette/flat_09_c.png", "start": 76080307, "end": 76080834}, {"filename": "/GameData/textures/lq_palette/flat_09_d.png", "start": 76080834, "end": 76081360}, {"filename": "/GameData/textures/lq_palette/flat_09_e.png", "start": 76081360, "end": 76081886}, {"filename": "/GameData/textures/lq_palette/flat_09_f.png", "start": 76081886, "end": 76082412}, {"filename": "/GameData/textures/lq_palette/flat_09_g.png", "start": 76082412, "end": 76082938}, {"filename": "/GameData/textures/lq_palette/flat_09_h.png", "start": 76082938, "end": 76083464}, {"filename": "/GameData/textures/lq_palette/flat_09_i.png", "start": 76083464, "end": 76083990}, {"filename": "/GameData/textures/lq_palette/flat_09_j.png", "start": 76083990, "end": 76084516}, {"filename": "/GameData/textures/lq_palette/flat_09_k.png", "start": 76084516, "end": 76085042}, {"filename": "/GameData/textures/lq_palette/flat_09_l.png", "start": 76085042, "end": 76085568}, {"filename": "/GameData/textures/lq_palette/flat_09_m.png", "start": 76085568, "end": 76086094}, {"filename": "/GameData/textures/lq_palette/flat_09_n.png", "start": 76086094, "end": 76086620}, {"filename": "/GameData/textures/lq_palette/flat_09_o.png", "start": 76086620, "end": 76087146}, {"filename": "/GameData/textures/lq_palette/flat_09_p.png", "start": 76087146, "end": 76087672}, {"filename": "/GameData/textures/lq_palette/flat_10_a.png", "start": 76087672, "end": 76088199}, {"filename": "/GameData/textures/lq_palette/flat_10_b.png", "start": 76088199, "end": 76088725}, {"filename": "/GameData/textures/lq_palette/flat_10_c.png", "start": 76088725, "end": 76089251}, {"filename": "/GameData/textures/lq_palette/flat_10_d.png", "start": 76089251, "end": 76089777}, {"filename": "/GameData/textures/lq_palette/flat_10_e.png", "start": 76089777, "end": 76090303}, {"filename": "/GameData/textures/lq_palette/flat_10_f.png", "start": 76090303, "end": 76090829}, {"filename": "/GameData/textures/lq_palette/flat_10_g.png", "start": 76090829, "end": 76091355}, {"filename": "/GameData/textures/lq_palette/flat_10_h.png", "start": 76091355, "end": 76091881}, {"filename": "/GameData/textures/lq_palette/flat_10_i.png", "start": 76091881, "end": 76092407}, {"filename": "/GameData/textures/lq_palette/flat_10_j.png", "start": 76092407, "end": 76092933}, {"filename": "/GameData/textures/lq_palette/flat_10_k.png", "start": 76092933, "end": 76093459}, {"filename": "/GameData/textures/lq_palette/flat_10_l.png", "start": 76093459, "end": 76093985}, {"filename": "/GameData/textures/lq_palette/flat_10_m.png", "start": 76093985, "end": 76094511}, {"filename": "/GameData/textures/lq_palette/flat_10_n.png", "start": 76094511, "end": 76095037}, {"filename": "/GameData/textures/lq_palette/flat_10_o.png", "start": 76095037, "end": 76095563}, {"filename": "/GameData/textures/lq_palette/flat_10_p.png", "start": 76095563, "end": 76096089}, {"filename": "/GameData/textures/lq_palette/flat_11_a.png", "start": 76096089, "end": 76096616}, {"filename": "/GameData/textures/lq_palette/flat_11_b.png", "start": 76096616, "end": 76097143}, {"filename": "/GameData/textures/lq_palette/flat_11_c.png", "start": 76097143, "end": 76097670}, {"filename": "/GameData/textures/lq_palette/flat_11_d.png", "start": 76097670, "end": 76098197}, {"filename": "/GameData/textures/lq_palette/flat_11_e.png", "start": 76098197, "end": 76098724}, {"filename": "/GameData/textures/lq_palette/flat_11_f.png", "start": 76098724, "end": 76099250}, {"filename": "/GameData/textures/lq_palette/flat_11_g.png", "start": 76099250, "end": 76099776}, {"filename": "/GameData/textures/lq_palette/flat_11_h.png", "start": 76099776, "end": 76100302}, {"filename": "/GameData/textures/lq_palette/flat_11_i.png", "start": 76100302, "end": 76100828}, {"filename": "/GameData/textures/lq_palette/flat_11_j.png", "start": 76100828, "end": 76101354}, {"filename": "/GameData/textures/lq_palette/flat_11_k.png", "start": 76101354, "end": 76101880}, {"filename": "/GameData/textures/lq_palette/flat_11_l.png", "start": 76101880, "end": 76102406}, {"filename": "/GameData/textures/lq_palette/flat_11_m.png", "start": 76102406, "end": 76102932}, {"filename": "/GameData/textures/lq_palette/flat_11_n.png", "start": 76102932, "end": 76103458}, {"filename": "/GameData/textures/lq_palette/flat_11_o.png", "start": 76103458, "end": 76103984}, {"filename": "/GameData/textures/lq_palette/flat_11_p.png", "start": 76103984, "end": 76104510}, {"filename": "/GameData/textures/lq_palette/flat_12_a.png", "start": 76104510, "end": 76105036}, {"filename": "/GameData/textures/lq_palette/flat_12_b.png", "start": 76105036, "end": 76105562}, {"filename": "/GameData/textures/lq_palette/flat_12_c.png", "start": 76105562, "end": 76106088}, {"filename": "/GameData/textures/lq_palette/flat_12_d.png", "start": 76106088, "end": 76106614}, {"filename": "/GameData/textures/lq_palette/flat_12_e.png", "start": 76106614, "end": 76107140}, {"filename": "/GameData/textures/lq_palette/flat_12_f.png", "start": 76107140, "end": 76107666}, {"filename": "/GameData/textures/lq_palette/flat_12_g.png", "start": 76107666, "end": 76108192}, {"filename": "/GameData/textures/lq_palette/flat_12_h.png", "start": 76108192, "end": 76108718}, {"filename": "/GameData/textures/lq_palette/flat_12_i.png", "start": 76108718, "end": 76109244}, {"filename": "/GameData/textures/lq_palette/flat_12_j.png", "start": 76109244, "end": 76109770}, {"filename": "/GameData/textures/lq_palette/flat_12_k.png", "start": 76109770, "end": 76110296}, {"filename": "/GameData/textures/lq_palette/flat_12_l.png", "start": 76110296, "end": 76110822}, {"filename": "/GameData/textures/lq_palette/flat_12_m.png", "start": 76110822, "end": 76111348}, {"filename": "/GameData/textures/lq_palette/flat_12_n.png", "start": 76111348, "end": 76111874}, {"filename": "/GameData/textures/lq_palette/flat_12_o.png", "start": 76111874, "end": 76112400}, {"filename": "/GameData/textures/lq_palette/flat_12_p.png", "start": 76112400, "end": 76112926}, {"filename": "/GameData/textures/lq_palette/flat_13_a.png", "start": 76112926, "end": 76113452}, {"filename": "/GameData/textures/lq_palette/flat_13_b.png", "start": 76113452, "end": 76113978}, {"filename": "/GameData/textures/lq_palette/flat_13_c.png", "start": 76113978, "end": 76114504}, {"filename": "/GameData/textures/lq_palette/flat_13_d.png", "start": 76114504, "end": 76115030}, {"filename": "/GameData/textures/lq_palette/flat_13_e.png", "start": 76115030, "end": 76115556}, {"filename": "/GameData/textures/lq_palette/flat_13_f.png", "start": 76115556, "end": 76116082}, {"filename": "/GameData/textures/lq_palette/flat_13_g.png", "start": 76116082, "end": 76116608}, {"filename": "/GameData/textures/lq_palette/flat_13_h.png", "start": 76116608, "end": 76117134}, {"filename": "/GameData/textures/lq_palette/flat_13_i.png", "start": 76117134, "end": 76117660}, {"filename": "/GameData/textures/lq_palette/flat_13_j.png", "start": 76117660, "end": 76118186}, {"filename": "/GameData/textures/lq_palette/flat_13_k.png", "start": 76118186, "end": 76118712}, {"filename": "/GameData/textures/lq_palette/flat_13_l.png", "start": 76118712, "end": 76119238}, {"filename": "/GameData/textures/lq_palette/flat_13_m.png", "start": 76119238, "end": 76119764}, {"filename": "/GameData/textures/lq_palette/flat_13_n.png", "start": 76119764, "end": 76120290}, {"filename": "/GameData/textures/lq_palette/flat_13_o.png", "start": 76120290, "end": 76120816}, {"filename": "/GameData/textures/lq_palette/flat_13_p.png", "start": 76120816, "end": 76121342}, {"filename": "/GameData/textures/lq_palette/flat_14_a.png", "start": 76121342, "end": 76121890}, {"filename": "/GameData/textures/lq_palette/flat_14_b.png", "start": 76121890, "end": 76122416}, {"filename": "/GameData/textures/lq_palette/flat_14_c.png", "start": 76122416, "end": 76122942}, {"filename": "/GameData/textures/lq_palette/flat_14_d.png", "start": 76122942, "end": 76123468}, {"filename": "/GameData/textures/lq_palette/flat_14_e.png", "start": 76123468, "end": 76123994}, {"filename": "/GameData/textures/lq_palette/flat_14_f.png", "start": 76123994, "end": 76124520}, {"filename": "/GameData/textures/lq_palette/flat_14_g.png", "start": 76124520, "end": 76125046}, {"filename": "/GameData/textures/lq_palette/flat_14_h.png", "start": 76125046, "end": 76125572}, {"filename": "/GameData/textures/lq_palette/flat_14_i.png", "start": 76125572, "end": 76126098}, {"filename": "/GameData/textures/lq_palette/flat_14_j.png", "start": 76126098, "end": 76126624}, {"filename": "/GameData/textures/lq_palette/flat_14_k.png", "start": 76126624, "end": 76127150}, {"filename": "/GameData/textures/lq_palette/flat_14_l.png", "start": 76127150, "end": 76127676}, {"filename": "/GameData/textures/lq_palette/flat_14_m.png", "start": 76127676, "end": 76128202}, {"filename": "/GameData/textures/lq_palette/flat_14_n.png", "start": 76128202, "end": 76128728}, {"filename": "/GameData/textures/lq_palette/flat_14_o.png", "start": 76128728, "end": 76129254}, {"filename": "/GameData/textures/lq_palette/flat_14_p.png", "start": 76129254, "end": 76129780}, {"filename": "/GameData/textures/lq_palette/flat_15_a_fbr.png", "start": 76129780, "end": 76130306}, {"filename": "/GameData/textures/lq_palette/flat_15_b_fbr.png", "start": 76130306, "end": 76130832}, {"filename": "/GameData/textures/lq_palette/flat_15_c_fbr.png", "start": 76130832, "end": 76131358}, {"filename": "/GameData/textures/lq_palette/flat_15_d_fbr.png", "start": 76131358, "end": 76131884}, {"filename": "/GameData/textures/lq_palette/flat_15_e_fbr.png", "start": 76131884, "end": 76132410}, {"filename": "/GameData/textures/lq_palette/flat_15_f_fbr.png", "start": 76132410, "end": 76132936}, {"filename": "/GameData/textures/lq_palette/flat_15_g_fbr.png", "start": 76132936, "end": 76133462}, {"filename": "/GameData/textures/lq_palette/flat_15_h_fbr.png", "start": 76133462, "end": 76133988}, {"filename": "/GameData/textures/lq_palette/flat_15_i_fbr.png", "start": 76133988, "end": 76134514}, {"filename": "/GameData/textures/lq_palette/flat_15_j_fbr.png", "start": 76134514, "end": 76135040}, {"filename": "/GameData/textures/lq_palette/flat_15_k_fbr.png", "start": 76135040, "end": 76135566}, {"filename": "/GameData/textures/lq_palette/flat_15_l_fbr.png", "start": 76135566, "end": 76136092}, {"filename": "/GameData/textures/lq_palette/flat_15_m_fbr.png", "start": 76136092, "end": 76136618}, {"filename": "/GameData/textures/lq_palette/flat_15_n_fbr.png", "start": 76136618, "end": 76137144}, {"filename": "/GameData/textures/lq_palette/flat_15_o_fbr.png", "start": 76137144, "end": 76137671}, {"filename": "/GameData/textures/lq_palette/flat_15_p_fbr.png", "start": 76137671, "end": 76138198}, {"filename": "/GameData/textures/lq_palette/flat_16_a_fbr.png", "start": 76138198, "end": 76138724}, {"filename": "/GameData/textures/lq_palette/flat_16_b_fbr.png", "start": 76138724, "end": 76139250}, {"filename": "/GameData/textures/lq_palette/flat_16_c_fbr.png", "start": 76139250, "end": 76139776}, {"filename": "/GameData/textures/lq_palette/flat_16_d_fbr.png", "start": 76139776, "end": 76140302}, {"filename": "/GameData/textures/lq_palette/flat_16_e_fbr.png", "start": 76140302, "end": 76140829}, {"filename": "/GameData/textures/lq_palette/flat_16_f_fbr.png", "start": 76140829, "end": 76141356}, {"filename": "/GameData/textures/lq_palette/flat_16_g_fbr.png", "start": 76141356, "end": 76141881}, {"filename": "/GameData/textures/lq_palette/flat_16_h_fbr.png", "start": 76141881, "end": 76142407}, {"filename": "/GameData/textures/lq_palette/flat_16_i_fbr.png", "start": 76142407, "end": 76142933}, {"filename": "/GameData/textures/lq_palette/flat_16_j_fbr.png", "start": 76142933, "end": 76143459}, {"filename": "/GameData/textures/lq_palette/flat_16_k_fbr.png", "start": 76143459, "end": 76143985}, {"filename": "/GameData/textures/lq_palette/flat_16_l_fbr.png", "start": 76143985, "end": 76144511}, {"filename": "/GameData/textures/lq_palette/flat_16_m_fbr.png", "start": 76144511, "end": 76145038}, {"filename": "/GameData/textures/lq_palette/flat_16_n_fbr.png", "start": 76145038, "end": 76145565}, {"filename": "/GameData/textures/lq_palette/flat_16_o_fbr.png", "start": 76145565, "end": 76146090}, {"filename": "/GameData/textures/lq_palette/flat_16_p_fbr.png", "start": 76146090, "end": 76146616}, {"filename": "/GameData/textures/lq_props/JarBod1.png", "start": 76146616, "end": 76146963}, {"filename": "/GameData/textures/lq_props/JarBod2.png", "start": 76146963, "end": 76147281}, {"filename": "/GameData/textures/lq_props/JarTop1.png", "start": 76147281, "end": 76147506}, {"filename": "/GameData/textures/lq_props/JarTop2.png", "start": 76147506, "end": 76147646}, {"filename": "/GameData/textures/lq_props/crate-door-brn.png", "start": 76147646, "end": 76156284}, {"filename": "/GameData/textures/lq_props/crate-door-grn.png", "start": 76156284, "end": 76166340}, {"filename": "/GameData/textures/lq_props/crate-door-orn.png", "start": 76166340, "end": 76175439}, {"filename": "/GameData/textures/lq_props/crate-side-brn.png", "start": 76175439, "end": 76195565}, {"filename": "/GameData/textures/lq_props/crate-side-grn.png", "start": 76195565, "end": 76218478}, {"filename": "/GameData/textures/lq_props/crate-side-orn.png", "start": 76218478, "end": 76239807}, {"filename": "/GameData/textures/lq_props/go-ep0_fbr.png", "start": 76239807, "end": 76241582}, {"filename": "/GameData/textures/lq_props/med_book_blue.png", "start": 76241582, "end": 76242162}, {"filename": "/GameData/textures/lq_props/med_book_green.png", "start": 76242162, "end": 76242785}, {"filename": "/GameData/textures/lq_props/med_book_pink.png", "start": 76242785, "end": 76243440}, {"filename": "/GameData/textures/lq_props/med_book_red.png", "start": 76243440, "end": 76244157}, {"filename": "/GameData/textures/lq_props/med_book_teal.png", "start": 76244157, "end": 76244744}, {"filename": "/GameData/textures/lq_props/med_books_wood.png", "start": 76244744, "end": 76257674}, {"filename": "/GameData/textures/lq_props/med_dbrick4_p1.png", "start": 76257674, "end": 76289511}, {"filename": "/GameData/textures/lq_props/med_dbrick4_p2.png", "start": 76289511, "end": 76322932}, {"filename": "/GameData/textures/lq_props/med_ebrick9_p1.png", "start": 76322932, "end": 76354823}, {"filename": "/GameData/textures/lq_props/med_ebrick9_p2.png", "start": 76354823, "end": 76386189}, {"filename": "/GameData/textures/lq_props/note-e0_fbr.png", "start": 76386189, "end": 76405618}, {"filename": "/GameData/textures/lq_props/plus_0blink_fbr.png", "start": 76405618, "end": 76405847}, {"filename": "/GameData/textures/lq_props/plus_0tvnoise.png", "start": 76405847, "end": 76406833}, {"filename": "/GameData/textures/lq_props/plus_1blink_fbr.png", "start": 76406833, "end": 76407062}, {"filename": "/GameData/textures/lq_props/plus_1tvnoise.png", "start": 76407062, "end": 76408040}, {"filename": "/GameData/textures/lq_props/plus_2blink_fbr.png", "start": 76408040, "end": 76408271}, {"filename": "/GameData/textures/lq_props/plus_2tvnoise.png", "start": 76408271, "end": 76409244}, {"filename": "/GameData/textures/lq_props/plus_3blink_fbr.png", "start": 76409244, "end": 76409475}, {"filename": "/GameData/textures/lq_props/plus_3tvnoise.png", "start": 76409475, "end": 76410457}, {"filename": "/GameData/textures/lq_props/plus_4blink_fbr.png", "start": 76410457, "end": 76410687}, {"filename": "/GameData/textures/lq_props/plus_4tvnoise.png", "start": 76410687, "end": 76411671}, {"filename": "/GameData/textures/lq_props/plus_5tvnoise.png", "start": 76411671, "end": 76412635}, {"filename": "/GameData/textures/lq_props/plus_6tvnoise.png", "start": 76412635, "end": 76413625}, {"filename": "/GameData/textures/lq_props/plus_7tvnoise.png", "start": 76413625, "end": 76414599}, {"filename": "/GameData/textures/lq_props/plus_8tvnoise.png", "start": 76414599, "end": 76415600}, {"filename": "/GameData/textures/lq_props/plus_9tvnoise.png", "start": 76415600, "end": 76416577}, {"filename": "/GameData/textures/lq_props/plus_ablink_fbr.png", "start": 76416577, "end": 76416807}, {"filename": "/GameData/textures/lq_props/plus_atvnoise.png", "start": 76416807, "end": 76417367}, {"filename": "/GameData/textures/lq_props/plus_atvnoise64.png", "start": 76417367, "end": 76418637}, {"filename": "/GameData/textures/lq_props/qr.png", "start": 76418637, "end": 76420057}, {"filename": "/GameData/textures/lq_props/radio16.png", "start": 76420057, "end": 76420825}, {"filename": "/GameData/textures/lq_props/radio32.png", "start": 76420825, "end": 76421815}, {"filename": "/GameData/textures/lq_props/radio64.png", "start": 76421815, "end": 76423573}, {"filename": "/GameData/textures/lq_props/radiowood.png", "start": 76423573, "end": 76425716}, {"filename": "/GameData/textures/lq_props/secret_gem_1.png", "start": 76425716, "end": 76428752}, {"filename": "/GameData/textures/lq_props/secret_gem_2.png", "start": 76428752, "end": 76431456}, {"filename": "/GameData/textures/lq_props/secret_gem_3.png", "start": 76431456, "end": 76434516}, {"filename": "/GameData/textures/lq_props/secret_gem_4.png", "start": 76434516, "end": 76438274}, {"filename": "/GameData/textures/lq_props/secret_gem_h.png", "start": 76438274, "end": 76438825}, {"filename": "/GameData/textures/lq_tech/_t_fence01_fbr.png", "start": 76438825, "end": 76444542}, {"filename": "/GameData/textures/lq_tech/_t_flare01_fbr.png", "start": 76444542, "end": 76444928}, {"filename": "/GameData/textures/lq_tech/aqconc03.png", "start": 76444928, "end": 76455488}, {"filename": "/GameData/textures/lq_tech/aqconc04.png", "start": 76455488, "end": 76466544}, {"filename": "/GameData/textures/lq_tech/aqconc05.png", "start": 76466544, "end": 76471135}, {"filename": "/GameData/textures/lq_tech/aqf006b.png", "start": 76471135, "end": 76473762}, {"filename": "/GameData/textures/lq_tech/aqf032.png", "start": 76473762, "end": 76475033}, {"filename": "/GameData/textures/lq_tech/aqf049.png", "start": 76475033, "end": 76477310}, {"filename": "/GameData/textures/lq_tech/aqf074.png", "start": 76477310, "end": 76480732}, {"filename": "/GameData/textures/lq_tech/aqf075.png", "start": 76480732, "end": 76483891}, {"filename": "/GameData/textures/lq_tech/aqmetl01.png", "start": 76483891, "end": 76486619}, {"filename": "/GameData/textures/lq_tech/aqmetl07.png", "start": 76486619, "end": 76491390}, {"filename": "/GameData/textures/lq_tech/aqmetl14.png", "start": 76491390, "end": 76499122}, {"filename": "/GameData/textures/lq_tech/aqmetl28.png", "start": 76499122, "end": 76500774}, {"filename": "/GameData/textures/lq_tech/aqmetl30.png", "start": 76500774, "end": 76502426}, {"filename": "/GameData/textures/lq_tech/aqmetl33.png", "start": 76502426, "end": 76504862}, {"filename": "/GameData/textures/lq_tech/aqpanl09.png", "start": 76504862, "end": 76507654}, {"filename": "/GameData/textures/lq_tech/aqpanl10.png", "start": 76507654, "end": 76512548}, {"filename": "/GameData/textures/lq_tech/aqpipe01.png", "start": 76512548, "end": 76516736}, {"filename": "/GameData/textures/lq_tech/aqpipe04.png", "start": 76516736, "end": 76519200}, {"filename": "/GameData/textures/lq_tech/aqpipe05.png", "start": 76519200, "end": 76522366}, {"filename": "/GameData/textures/lq_tech/aqpipe08.png", "start": 76522366, "end": 76527998}, {"filename": "/GameData/textures/lq_tech/aqpipe09.png", "start": 76527998, "end": 76536102}, {"filename": "/GameData/textures/lq_tech/aqpipe12.png", "start": 76536102, "end": 76544222}, {"filename": "/GameData/textures/lq_tech/aqpipe13.png", "start": 76544222, "end": 76550533}, {"filename": "/GameData/textures/lq_tech/aqpipe14.png", "start": 76550533, "end": 76557886}, {"filename": "/GameData/textures/lq_tech/aqrust01.png", "start": 76557886, "end": 76560517}, {"filename": "/GameData/textures/lq_tech/aqrust02.png", "start": 76560517, "end": 76565818}, {"filename": "/GameData/textures/lq_tech/aqrust03.png", "start": 76565818, "end": 76571121}, {"filename": "/GameData/textures/lq_tech/aqrust03b.png", "start": 76571121, "end": 76573851}, {"filename": "/GameData/textures/lq_tech/aqrust04.png", "start": 76573851, "end": 76575244}, {"filename": "/GameData/textures/lq_tech/aqrust09.png", "start": 76575244, "end": 76579132}, {"filename": "/GameData/textures/lq_tech/aqrust10.png", "start": 76579132, "end": 76582298}, {"filename": "/GameData/textures/lq_tech/aqsect14.png", "start": 76582298, "end": 76584674}, {"filename": "/GameData/textures/lq_tech/aqsect15.png", "start": 76584674, "end": 76587621}, {"filename": "/GameData/textures/lq_tech/aqsect16.png", "start": 76587621, "end": 76590867}, {"filename": "/GameData/textures/lq_tech/aqsect16b.png", "start": 76590867, "end": 76595824}, {"filename": "/GameData/textures/lq_tech/aqsupp01.png", "start": 76595824, "end": 76598470}, {"filename": "/GameData/textures/lq_tech/aqsupp02.png", "start": 76598470, "end": 76603335}, {"filename": "/GameData/textures/lq_tech/aqsupp03.png", "start": 76603335, "end": 76607237}, {"filename": "/GameData/textures/lq_tech/aqsupp04.png", "start": 76607237, "end": 76608780}, {"filename": "/GameData/textures/lq_tech/aqsupp06.png", "start": 76608780, "end": 76610159}, {"filename": "/GameData/textures/lq_tech/aqsupp07.png", "start": 76610159, "end": 76611514}, {"filename": "/GameData/textures/lq_tech/aqsupp08.png", "start": 76611514, "end": 76613716}, {"filename": "/GameData/textures/lq_tech/aqsupp09.png", "start": 76613716, "end": 76616569}, {"filename": "/GameData/textures/lq_tech/aqtrim01.png", "start": 76616569, "end": 76617796}, {"filename": "/GameData/textures/lq_tech/aqtrim02.png", "start": 76617796, "end": 76618720}, {"filename": "/GameData/textures/lq_tech/aqtrim03.png", "start": 76618720, "end": 76619291}, {"filename": "/GameData/textures/lq_tech/aqtrim08.png", "start": 76619291, "end": 76620023}, {"filename": "/GameData/textures/lq_tech/butmet.png", "start": 76620023, "end": 76621934}, {"filename": "/GameData/textures/lq_tech/comp1_1.png", "start": 76621934, "end": 76625290}, {"filename": "/GameData/textures/lq_tech/comp1_2.png", "start": 76625290, "end": 76627969}, {"filename": "/GameData/textures/lq_tech/comp1_3.png", "start": 76627969, "end": 76630458}, {"filename": "/GameData/textures/lq_tech/comp1_3b.png", "start": 76630458, "end": 76633086}, {"filename": "/GameData/textures/lq_tech/comp1_4.png", "start": 76633086, "end": 76634691}, {"filename": "/GameData/textures/lq_tech/comp1_5.png", "start": 76634691, "end": 76637790}, {"filename": "/GameData/textures/lq_tech/comp1_6.png", "start": 76637790, "end": 76641232}, {"filename": "/GameData/textures/lq_tech/comp1_7.png", "start": 76641232, "end": 76643577}, {"filename": "/GameData/textures/lq_tech/comp1_8.png", "start": 76643577, "end": 76645906}, {"filename": "/GameData/textures/lq_tech/compbase.png", "start": 76645906, "end": 76648325}, {"filename": "/GameData/textures/lq_tech/crate.png", "start": 76648325, "end": 76651442}, {"filename": "/GameData/textures/lq_tech/crate0_bottom.png", "start": 76651442, "end": 76653558}, {"filename": "/GameData/textures/lq_tech/crate0_s_bottom.png", "start": 76653558, "end": 76654646}, {"filename": "/GameData/textures/lq_tech/crate0_s_sside.png", "start": 76654646, "end": 76655591}, {"filename": "/GameData/textures/lq_tech/crate0_s_top.png", "start": 76655591, "end": 76657030}, {"filename": "/GameData/textures/lq_tech/crate0_s_tside.png", "start": 76657030, "end": 76658693}, {"filename": "/GameData/textures/lq_tech/crate0_side.png", "start": 76658693, "end": 76662161}, {"filename": "/GameData/textures/lq_tech/crate0_top.png", "start": 76662161, "end": 76664907}, {"filename": "/GameData/textures/lq_tech/crate0_xs_bot.png", "start": 76664907, "end": 76665574}, {"filename": "/GameData/textures/lq_tech/crate0_xs_sside.png", "start": 76665574, "end": 76666519}, {"filename": "/GameData/textures/lq_tech/crate0_xs_top.png", "start": 76666519, "end": 76667389}, {"filename": "/GameData/textures/lq_tech/crate0_xs_tside.png", "start": 76667389, "end": 76668329}, {"filename": "/GameData/textures/lq_tech/crate1_bottom.png", "start": 76668329, "end": 76670293}, {"filename": "/GameData/textures/lq_tech/crate1_s_bottom.png", "start": 76670293, "end": 76671323}, {"filename": "/GameData/textures/lq_tech/crate1_s_sside.png", "start": 76671323, "end": 76672201}, {"filename": "/GameData/textures/lq_tech/crate1_s_top.png", "start": 76672201, "end": 76673334}, {"filename": "/GameData/textures/lq_tech/crate1_s_tside.png", "start": 76673334, "end": 76674799}, {"filename": "/GameData/textures/lq_tech/crate1_side.png", "start": 76674799, "end": 76677916}, {"filename": "/GameData/textures/lq_tech/crate1_top.png", "start": 76677916, "end": 76680037}, {"filename": "/GameData/textures/lq_tech/crate1_xs_bot.png", "start": 76680037, "end": 76680691}, {"filename": "/GameData/textures/lq_tech/crate1_xs_sside.png", "start": 76680691, "end": 76681569}, {"filename": "/GameData/textures/lq_tech/crate1_xs_top.png", "start": 76681569, "end": 76682276}, {"filename": "/GameData/textures/lq_tech/crate1_xs_tside.png", "start": 76682276, "end": 76683114}, {"filename": "/GameData/textures/lq_tech/dem4_1.png", "start": 76683114, "end": 76692513}, {"filename": "/GameData/textures/lq_tech/dem4_4.png", "start": 76692513, "end": 76700559}, {"filename": "/GameData/textures/lq_tech/dem5_3_fbr.png", "start": 76700559, "end": 76709376}, {"filename": "/GameData/textures/lq_tech/door02_1.png", "start": 76709376, "end": 76713508}, {"filename": "/GameData/textures/lq_tech/doorr02_1.png", "start": 76713508, "end": 76715074}, {"filename": "/GameData/textures/lq_tech/doortrak1.png", "start": 76715074, "end": 76716685}, {"filename": "/GameData/textures/lq_tech/doortrak2-corn.png", "start": 76716685, "end": 76717982}, {"filename": "/GameData/textures/lq_tech/doortrak2.png", "start": 76717982, "end": 76719647}, {"filename": "/GameData/textures/lq_tech/ecop1_1.png", "start": 76719647, "end": 76722724}, {"filename": "/GameData/textures/lq_tech/ecop1_4.png", "start": 76722724, "end": 76726325}, {"filename": "/GameData/textures/lq_tech/edoor01_1.png", "start": 76726325, "end": 76738471}, {"filename": "/GameData/textures/lq_tech/edoor02.png", "start": 76738471, "end": 76750522}, {"filename": "/GameData/textures/lq_tech/edoor02.png.png", "start": 76750522, "end": 76762573}, {"filename": "/GameData/textures/lq_tech/fddoor01.png", "start": 76762573, "end": 76771327}, {"filename": "/GameData/textures/lq_tech/fddoor01b.png", "start": 76771327, "end": 76782010}, {"filename": "/GameData/textures/lq_tech/fdoor02.png", "start": 76782010, "end": 76790564}, {"filename": "/GameData/textures/lq_tech/flat4.png", "start": 76790564, "end": 76791737}, {"filename": "/GameData/textures/lq_tech/floor5_2.png", "start": 76791737, "end": 76794463}, {"filename": "/GameData/textures/lq_tech/floor5_3.png", "start": 76794463, "end": 76796643}, {"filename": "/GameData/textures/lq_tech/laserfield1_fbr.png", "start": 76796643, "end": 76807652}, {"filename": "/GameData/textures/lq_tech/light2.png", "start": 76807652, "end": 76808250}, {"filename": "/GameData/textures/lq_tech/lit8nb.png", "start": 76808250, "end": 76808564}, {"filename": "/GameData/textures/lq_tech/lit8sfb_fbr.png", "start": 76808564, "end": 76808861}, {"filename": "/GameData/textures/lq_tech/met2.png", "start": 76808861, "end": 76821185}, {"filename": "/GameData/textures/lq_tech/metalstrip_1.png", "start": 76821185, "end": 76823468}, {"filename": "/GameData/textures/lq_tech/plat_side1.png", "start": 76823468, "end": 76824233}, {"filename": "/GameData/textures/lq_tech/plat_stem.png", "start": 76824233, "end": 76824879}, {"filename": "/GameData/textures/lq_tech/plat_top1.png", "start": 76824879, "end": 76828279}, {"filename": "/GameData/textures/lq_tech/plat_top2.png", "start": 76828279, "end": 76831994}, {"filename": "/GameData/textures/lq_tech/plat_top3.png", "start": 76831994, "end": 76835402}, {"filename": "/GameData/textures/lq_tech/plat_top4.png", "start": 76835402, "end": 76838098}, {"filename": "/GameData/textures/lq_tech/plat_top5.png", "start": 76838098, "end": 76840193}, {"filename": "/GameData/textures/lq_tech/plus_0_gkey.png", "start": 76840193, "end": 76841257}, {"filename": "/GameData/textures/lq_tech/plus_0_skey.png", "start": 76841257, "end": 76842273}, {"filename": "/GameData/textures/lq_tech/plus_0_tscrn0.png", "start": 76842273, "end": 76844386}, {"filename": "/GameData/textures/lq_tech/plus_0_tscrn1.png", "start": 76844386, "end": 76846511}, {"filename": "/GameData/textures/lq_tech/plus_0arrow2_d_fbr.png", "start": 76846511, "end": 76847765}, {"filename": "/GameData/textures/lq_tech/plus_0arrow2_h_fbr.png", "start": 76847765, "end": 76849034}, {"filename": "/GameData/textures/lq_tech/plus_0arrow2_u_fbr.png", "start": 76849034, "end": 76850292}, {"filename": "/GameData/textures/lq_tech/plus_0arrow_d_fbr.png", "start": 76850292, "end": 76851174}, {"filename": "/GameData/textures/lq_tech/plus_0arrow_h_fbr.png", "start": 76851174, "end": 76852053}, {"filename": "/GameData/textures/lq_tech/plus_0arrow_u_fbr.png", "start": 76852053, "end": 76852928}, {"filename": "/GameData/textures/lq_tech/plus_0basebtn1b_fbr.png", "start": 76852928, "end": 76853817}, {"filename": "/GameData/textures/lq_tech/plus_0basebtn2_fbr.png", "start": 76853817, "end": 76854163}, {"filename": "/GameData/textures/lq_tech/plus_0basebtn2b_fbr.png", "start": 76854163, "end": 76854503}, {"filename": "/GameData/textures/lq_tech/plus_0basebtn_fbr.png", "start": 76854503, "end": 76855784}, {"filename": "/GameData/textures/lq_tech/plus_0button3_fbr.png", "start": 76855784, "end": 76857660}, {"filename": "/GameData/textures/lq_tech/plus_0lit8s.png", "start": 76857660, "end": 76857974}, {"filename": "/GameData/textures/lq_tech/plus_0planet_a_fbr.png", "start": 76857974, "end": 76859565}, {"filename": "/GameData/textures/lq_tech/plus_0planet_b_fbr.png", "start": 76859565, "end": 76860675}, {"filename": "/GameData/textures/lq_tech/plus_0planet_c_fbr.png", "start": 76860675, "end": 76861775}, {"filename": "/GameData/textures/lq_tech/plus_0slipbot.png", "start": 76861775, "end": 76865058}, {"filename": "/GameData/textures/lq_tech/plus_0sliptop.png", "start": 76865058, "end": 76868701}, {"filename": "/GameData/textures/lq_tech/plus_0tek_jump1_fbr.png", "start": 76868701, "end": 76871184}, {"filename": "/GameData/textures/lq_tech/plus_0term128.png", "start": 76871184, "end": 76873988}, {"filename": "/GameData/textures/lq_tech/plus_0term64.png", "start": 76873988, "end": 76875180}, {"filename": "/GameData/textures/lq_tech/plus_0tlight1.png", "start": 76875180, "end": 76875778}, {"filename": "/GameData/textures/lq_tech/plus_0tlight2.png", "start": 76875778, "end": 76876391}, {"filename": "/GameData/textures/lq_tech/plus_0tlight3.png", "start": 76876391, "end": 76876962}, {"filename": "/GameData/textures/lq_tech/plus_1_gkey.png", "start": 76876962, "end": 76878012}, {"filename": "/GameData/textures/lq_tech/plus_1_skey.png", "start": 76878012, "end": 76879017}, {"filename": "/GameData/textures/lq_tech/plus_1arrow2_d_fbr.png", "start": 76879017, "end": 76880273}, {"filename": "/GameData/textures/lq_tech/plus_1arrow2_h_fbr.png", "start": 76880273, "end": 76881540}, {"filename": "/GameData/textures/lq_tech/plus_1arrow2_u_fbr.png", "start": 76881540, "end": 76882798}, {"filename": "/GameData/textures/lq_tech/plus_1arrow_d_fbr.png", "start": 76882798, "end": 76883684}, {"filename": "/GameData/textures/lq_tech/plus_1arrow_h_fbr.png", "start": 76883684, "end": 76884566}, {"filename": "/GameData/textures/lq_tech/plus_1arrow_u_fbr.png", "start": 76884566, "end": 76885444}, {"filename": "/GameData/textures/lq_tech/plus_1basebtn.png", "start": 76885444, "end": 76886723}, {"filename": "/GameData/textures/lq_tech/plus_1basebtn1b.png", "start": 76886723, "end": 76887601}, {"filename": "/GameData/textures/lq_tech/plus_1basebtn2.png", "start": 76887601, "end": 76887951}, {"filename": "/GameData/textures/lq_tech/plus_1basebtn2b.png", "start": 76887951, "end": 76888309}, {"filename": "/GameData/textures/lq_tech/plus_1planet_a_fbr.png", "start": 76888309, "end": 76889930}, {"filename": "/GameData/textures/lq_tech/plus_1planet_b_fbr.png", "start": 76889930, "end": 76891015}, {"filename": "/GameData/textures/lq_tech/plus_1planet_c_fbr.png", "start": 76891015, "end": 76892087}, {"filename": "/GameData/textures/lq_tech/plus_1tek_jump1_fbr.png", "start": 76892087, "end": 76894570}, {"filename": "/GameData/textures/lq_tech/plus_1term128.png", "start": 76894570, "end": 76897373}, {"filename": "/GameData/textures/lq_tech/plus_1term64.png", "start": 76897373, "end": 76898565}, {"filename": "/GameData/textures/lq_tech/plus_2_gkey.png", "start": 76898565, "end": 76899627}, {"filename": "/GameData/textures/lq_tech/plus_2_skey.png", "start": 76899627, "end": 76900633}, {"filename": "/GameData/textures/lq_tech/plus_2arrow2_d_fbr.png", "start": 76900633, "end": 76901876}, {"filename": "/GameData/textures/lq_tech/plus_2arrow2_h_fbr.png", "start": 76901876, "end": 76903137}, {"filename": "/GameData/textures/lq_tech/plus_2arrow2_u_fbr.png", "start": 76903137, "end": 76904383}, {"filename": "/GameData/textures/lq_tech/plus_2arrow_d_fbr.png", "start": 76904383, "end": 76905281}, {"filename": "/GameData/textures/lq_tech/plus_2arrow_h_fbr.png", "start": 76905281, "end": 76906171}, {"filename": "/GameData/textures/lq_tech/plus_2arrow_u_fbr.png", "start": 76906171, "end": 76907058}, {"filename": "/GameData/textures/lq_tech/plus_2planet_a_fbr.png", "start": 76907058, "end": 76908661}, {"filename": "/GameData/textures/lq_tech/plus_2planet_b_fbr.png", "start": 76908661, "end": 76909763}, {"filename": "/GameData/textures/lq_tech/plus_2planet_c_fbr.png", "start": 76909763, "end": 76910881}, {"filename": "/GameData/textures/lq_tech/plus_3planet_a_fbr.png", "start": 76910881, "end": 76912471}, {"filename": "/GameData/textures/lq_tech/plus_3planet_b_fbr.png", "start": 76912471, "end": 76913565}, {"filename": "/GameData/textures/lq_tech/plus_3planet_c_fbr.png", "start": 76913565, "end": 76914688}, {"filename": "/GameData/textures/lq_tech/plus_4planet_a_fbr.png", "start": 76914688, "end": 76916297}, {"filename": "/GameData/textures/lq_tech/plus_4planet_b_fbr.png", "start": 76916297, "end": 76917412}, {"filename": "/GameData/textures/lq_tech/plus_4planet_c_fbr.png", "start": 76917412, "end": 76918559}, {"filename": "/GameData/textures/lq_tech/plus_5planet_a_fbr.png", "start": 76918559, "end": 76920191}, {"filename": "/GameData/textures/lq_tech/plus_5planet_b_fbr.png", "start": 76920191, "end": 76921318}, {"filename": "/GameData/textures/lq_tech/plus_5planet_c_fbr.png", "start": 76921318, "end": 76922425}, {"filename": "/GameData/textures/lq_tech/plus_6planet_a_fbr.png", "start": 76922425, "end": 76924046}, {"filename": "/GameData/textures/lq_tech/plus_6planet_b_fbr.png", "start": 76924046, "end": 76925170}, {"filename": "/GameData/textures/lq_tech/plus_6planet_c_fbr.png", "start": 76925170, "end": 76926264}, {"filename": "/GameData/textures/lq_tech/plus_7planet_a_fbr.png", "start": 76926264, "end": 76927852}, {"filename": "/GameData/textures/lq_tech/plus_7planet_b_fbr.png", "start": 76927852, "end": 76928965}, {"filename": "/GameData/textures/lq_tech/plus_7planet_c_fbr.png", "start": 76928965, "end": 76930057}, {"filename": "/GameData/textures/lq_tech/plus_8planet_a_fbr.png", "start": 76930057, "end": 76931679}, {"filename": "/GameData/textures/lq_tech/plus_8planet_b_fbr.png", "start": 76931679, "end": 76932806}, {"filename": "/GameData/textures/lq_tech/plus_8planet_c_fbr.png", "start": 76932806, "end": 76933895}, {"filename": "/GameData/textures/lq_tech/plus_9planet_a_fbr.png", "start": 76933895, "end": 76935479}, {"filename": "/GameData/textures/lq_tech/plus_9planet_b_fbr.png", "start": 76935479, "end": 76936567}, {"filename": "/GameData/textures/lq_tech/plus_9planet_c_fbr.png", "start": 76936567, "end": 76937643}, {"filename": "/GameData/textures/lq_tech/plus_A_tscrn0.png", "start": 76937643, "end": 76939266}, {"filename": "/GameData/textures/lq_tech/plus_A_tscrn1.png", "start": 76939266, "end": 76941775}, {"filename": "/GameData/textures/lq_tech/plus_A_tscrn2.png", "start": 76941775, "end": 76943375}, {"filename": "/GameData/textures/lq_tech/plus_abasebtn.png", "start": 76943375, "end": 76944664}, {"filename": "/GameData/textures/lq_tech/plus_abasebtn1b.png", "start": 76944664, "end": 76945953}, {"filename": "/GameData/textures/lq_tech/plus_abasebtn2.png", "start": 76945953, "end": 76946324}, {"filename": "/GameData/textures/lq_tech/plus_abasebtn2b.png", "start": 76946324, "end": 76946695}, {"filename": "/GameData/textures/lq_tech/plus_abasebtnb.png", "start": 76946695, "end": 76947066}, {"filename": "/GameData/textures/lq_tech/plus_abutton3_fbr.png", "start": 76947066, "end": 76948954}, {"filename": "/GameData/textures/lq_tech/plus_alit8s_fbr.png", "start": 76948954, "end": 76949251}, {"filename": "/GameData/textures/lq_tech/plus_atek_jump1_fbr.png", "start": 76949251, "end": 76951744}, {"filename": "/GameData/textures/lq_tech/plus_atlight1_fbr.png", "start": 76951744, "end": 76952334}, {"filename": "/GameData/textures/lq_tech/plus_atlight2_fbr.png", "start": 76952334, "end": 76952907}, {"filename": "/GameData/textures/lq_tech/plus_atlight3_fbr.png", "start": 76952907, "end": 76953509}, {"filename": "/GameData/textures/lq_tech/rw33_1.png", "start": 76953509, "end": 76959074}, {"filename": "/GameData/textures/lq_tech/rw33_2.png", "start": 76959074, "end": 76964928}, {"filename": "/GameData/textures/lq_tech/rw33_3.png", "start": 76964928, "end": 76970674}, {"filename": "/GameData/textures/lq_tech/rw33_4.png", "start": 76970674, "end": 76973240}, {"filename": "/GameData/textures/lq_tech/rw33_4b_l.png", "start": 76973240, "end": 76976200}, {"filename": "/GameData/textures/lq_tech/rw33_5.png", "start": 76976200, "end": 76979072}, {"filename": "/GameData/textures/lq_tech/rw33_flat.png", "start": 76979072, "end": 76985023}, {"filename": "/GameData/textures/lq_tech/rw33_lit.png", "start": 76985023, "end": 76985847}, {"filename": "/GameData/textures/lq_tech/rw33b_1.png", "start": 76985847, "end": 76991310}, {"filename": "/GameData/textures/lq_tech/rw33b_2.png", "start": 76991310, "end": 76997152}, {"filename": "/GameData/textures/lq_tech/rw33b_3.png", "start": 76997152, "end": 77003139}, {"filename": "/GameData/textures/lq_tech/rw33b_4.png", "start": 77003139, "end": 77005901}, {"filename": "/GameData/textures/lq_tech/rw33b_5.png", "start": 77005901, "end": 77008950}, {"filename": "/GameData/textures/lq_tech/rw33b_flat.png", "start": 77008950, "end": 77015148}, {"filename": "/GameData/textures/lq_tech/rw33b_lit.png", "start": 77015148, "end": 77016100}, {"filename": "/GameData/textures/lq_tech/rw37_1.png", "start": 77016100, "end": 77021712}, {"filename": "/GameData/textures/lq_tech/rw37_2.png", "start": 77021712, "end": 77027842}, {"filename": "/GameData/textures/lq_tech/rw37_3.png", "start": 77027842, "end": 77033737}, {"filename": "/GameData/textures/lq_tech/rw37_4.png", "start": 77033737, "end": 77040748}, {"filename": "/GameData/textures/lq_tech/rw37_trim1.png", "start": 77040748, "end": 77043256}, {"filename": "/GameData/textures/lq_tech/rw37_trim2.png", "start": 77043256, "end": 77045039}, {"filename": "/GameData/textures/lq_tech/rw37_trim3.png", "start": 77045039, "end": 77047530}, {"filename": "/GameData/textures/lq_tech/rw39_1_fbr.png", "start": 77047530, "end": 77053475}, {"filename": "/GameData/textures/lq_tech/spotlight_fbr.png", "start": 77053475, "end": 77056087}, {"filename": "/GameData/textures/lq_tech/star_lasergrid.png", "start": 77056087, "end": 77056467}, {"filename": "/GameData/textures/lq_tech/t_band1a.png", "start": 77056467, "end": 77058971}, {"filename": "/GameData/textures/lq_tech/t_band1b.png", "start": 77058971, "end": 77061579}, {"filename": "/GameData/textures/lq_tech/t_blok01.png", "start": 77061579, "end": 77064257}, {"filename": "/GameData/textures/lq_tech/t_blok01a.png", "start": 77064257, "end": 77067029}, {"filename": "/GameData/textures/lq_tech/t_blok02.png", "start": 77067029, "end": 77072156}, {"filename": "/GameData/textures/lq_tech/t_blok02a.png", "start": 77072156, "end": 77077015}, {"filename": "/GameData/textures/lq_tech/t_blok03.png", "start": 77077015, "end": 77079457}, {"filename": "/GameData/textures/lq_tech/t_blok03a.png", "start": 77079457, "end": 77081312}, {"filename": "/GameData/textures/lq_tech/t_blok04.png", "start": 77081312, "end": 77084378}, {"filename": "/GameData/textures/lq_tech/t_blok04h.png", "start": 77084378, "end": 77087102}, {"filename": "/GameData/textures/lq_tech/t_blok05.png", "start": 77087102, "end": 77091390}, {"filename": "/GameData/textures/lq_tech/t_blok06.png", "start": 77091390, "end": 77094240}, {"filename": "/GameData/textures/lq_tech/t_blok06h.png", "start": 77094240, "end": 77096217}, {"filename": "/GameData/textures/lq_tech/t_blok07.png", "start": 77096217, "end": 77099003}, {"filename": "/GameData/textures/lq_tech/t_blok07a.png", "start": 77099003, "end": 77101789}, {"filename": "/GameData/textures/lq_tech/t_blok08.png", "start": 77101789, "end": 77106296}, {"filename": "/GameData/textures/lq_tech/t_blok09.png", "start": 77106296, "end": 77109616}, {"filename": "/GameData/textures/lq_tech/t_blok10.png", "start": 77109616, "end": 77115627}, {"filename": "/GameData/textures/lq_tech/t_blok10b.png", "start": 77115627, "end": 77121335}, {"filename": "/GameData/textures/lq_tech/t_blok10c.png", "start": 77121335, "end": 77124553}, {"filename": "/GameData/textures/lq_tech/t_blok11.png", "start": 77124553, "end": 77130494}, {"filename": "/GameData/textures/lq_tech/t_blok11b.png", "start": 77130494, "end": 77136099}, {"filename": "/GameData/textures/lq_tech/t_blok12c.png", "start": 77136099, "end": 77139306}, {"filename": "/GameData/textures/lq_tech/t_flat01.png", "start": 77139306, "end": 77141740}, {"filename": "/GameData/textures/lq_tech/t_flat02.png", "start": 77141740, "end": 77144105}, {"filename": "/GameData/textures/lq_tech/t_flat05.png", "start": 77144105, "end": 77152301}, {"filename": "/GameData/textures/lq_tech/t_flor1a.png", "start": 77152301, "end": 77155913}, {"filename": "/GameData/textures/lq_tech/t_flor1b.png", "start": 77155913, "end": 77159531}, {"filename": "/GameData/textures/lq_tech/t_flor2a.png", "start": 77159531, "end": 77162125}, {"filename": "/GameData/textures/lq_tech/t_flor2b.png", "start": 77162125, "end": 77164061}, {"filename": "/GameData/textures/lq_tech/t_flor2c.png", "start": 77164061, "end": 77165541}, {"filename": "/GameData/textures/lq_tech/t_flor2d.png", "start": 77165541, "end": 77166045}, {"filename": "/GameData/textures/lq_tech/t_lit01_fbr.png", "start": 77166045, "end": 77166225}, {"filename": "/GameData/textures/lq_tech/t_lit02_fbr.png", "start": 77166225, "end": 77166367}, {"filename": "/GameData/textures/lq_tech/t_lit03_fbr.png", "start": 77166367, "end": 77166502}, {"filename": "/GameData/textures/lq_tech/t_lit04_fbr.png", "start": 77166502, "end": 77166634}, {"filename": "/GameData/textures/lq_tech/t_lit05_fbr.png", "start": 77166634, "end": 77166800}, {"filename": "/GameData/textures/lq_tech/t_lit06_fbr.png", "start": 77166800, "end": 77166956}, {"filename": "/GameData/textures/lq_tech/t_lit07_fbr.png", "start": 77166956, "end": 77169259}, {"filename": "/GameData/textures/lq_tech/t_lit08_fbr.png", "start": 77169259, "end": 77169476}, {"filename": "/GameData/textures/lq_tech/t_metalsheeta.png", "start": 77169476, "end": 77176075}, {"filename": "/GameData/textures/lq_tech/t_metalsheetb.png", "start": 77176075, "end": 77187588}, {"filename": "/GameData/textures/lq_tech/t_num_0_fbr.png", "start": 77187588, "end": 77188362}, {"filename": "/GameData/textures/lq_tech/t_num_1_fbr.png", "start": 77188362, "end": 77189124}, {"filename": "/GameData/textures/lq_tech/t_num_2_fbr.png", "start": 77189124, "end": 77189919}, {"filename": "/GameData/textures/lq_tech/t_num_3_fbr.png", "start": 77189919, "end": 77190677}, {"filename": "/GameData/textures/lq_tech/t_num_4_fbr.png", "start": 77190677, "end": 77191482}, {"filename": "/GameData/textures/lq_tech/t_num_5_fbr.png", "start": 77191482, "end": 77192280}, {"filename": "/GameData/textures/lq_tech/t_num_6_fbr.png", "start": 77192280, "end": 77193077}, {"filename": "/GameData/textures/lq_tech/t_num_7_fbr.png", "start": 77193077, "end": 77193851}, {"filename": "/GameData/textures/lq_tech/t_num_8_fbr.png", "start": 77193851, "end": 77194631}, {"filename": "/GameData/textures/lq_tech/t_num_9_fbr.png", "start": 77194631, "end": 77195424}, {"filename": "/GameData/textures/lq_tech/t_num_x.png", "start": 77195424, "end": 77196232}, {"filename": "/GameData/textures/lq_tech/t_rivs01.png", "start": 77196232, "end": 77198660}, {"filename": "/GameData/textures/lq_tech/t_rivs01a.png", "start": 77198660, "end": 77201114}, {"filename": "/GameData/textures/lq_tech/t_sign1.png", "start": 77201114, "end": 77204064}, {"filename": "/GameData/textures/lq_tech/t_tech01.png", "start": 77204064, "end": 77208115}, {"filename": "/GameData/textures/lq_tech/t_tech02.png", "start": 77208115, "end": 77211218}, {"filename": "/GameData/textures/lq_tech/t_tech03.png", "start": 77211218, "end": 77227209}, {"filename": "/GameData/textures/lq_tech/t_tech04.png", "start": 77227209, "end": 77230064}, {"filename": "/GameData/textures/lq_tech/t_tech05.png", "start": 77230064, "end": 77232843}, {"filename": "/GameData/textures/lq_tech/t_tech06.png", "start": 77232843, "end": 77235655}, {"filename": "/GameData/textures/lq_tech/t_trim1a.png", "start": 77235655, "end": 77238143}, {"filename": "/GameData/textures/lq_tech/t_trim1aa.png", "start": 77238143, "end": 77240778}, {"filename": "/GameData/textures/lq_tech/t_trim1b.png", "start": 77240778, "end": 77243509}, {"filename": "/GameData/textures/lq_tech/t_trim1ba.png", "start": 77243509, "end": 77246133}, {"filename": "/GameData/textures/lq_tech/t_trim1c.png", "start": 77246133, "end": 77248918}, {"filename": "/GameData/textures/lq_tech/t_trim1ca.png", "start": 77248918, "end": 77251744}, {"filename": "/GameData/textures/lq_tech/t_trim1d.png", "start": 77251744, "end": 77254044}, {"filename": "/GameData/textures/lq_tech/t_trim1e.png", "start": 77254044, "end": 77256189}, {"filename": "/GameData/textures/lq_tech/t_trim2a.png", "start": 77256189, "end": 77259262}, {"filename": "/GameData/textures/lq_tech/t_trim2aa.png", "start": 77259262, "end": 77261914}, {"filename": "/GameData/textures/lq_tech/t_trim2b.png", "start": 77261914, "end": 77264542}, {"filename": "/GameData/textures/lq_tech/t_trim2ba.png", "start": 77264542, "end": 77267230}, {"filename": "/GameData/textures/lq_tech/t_trim2c.png", "start": 77267230, "end": 77270021}, {"filename": "/GameData/textures/lq_tech/t_trim2ca.png", "start": 77270021, "end": 77272900}, {"filename": "/GameData/textures/lq_tech/t_trim2d.png", "start": 77272900, "end": 77275362}, {"filename": "/GameData/textures/lq_tech/t_trim2e.png", "start": 77275362, "end": 77277869}, {"filename": "/GameData/textures/lq_tech/t_tris02.png", "start": 77277869, "end": 77280783}, {"filename": "/GameData/textures/lq_tech/t_wall05.png", "start": 77280783, "end": 77284109}, {"filename": "/GameData/textures/lq_tech/t_wall1a.png", "start": 77284109, "end": 77294636}, {"filename": "/GameData/textures/lq_tech/t_wall1aa.png", "start": 77294636, "end": 77304957}, {"filename": "/GameData/textures/lq_tech/t_wall1b.png", "start": 77304957, "end": 77316057}, {"filename": "/GameData/textures/lq_tech/t_wall1ba.png", "start": 77316057, "end": 77326896}, {"filename": "/GameData/textures/lq_tech/t_wall2a.png", "start": 77326896, "end": 77337680}, {"filename": "/GameData/textures/lq_tech/t_wall2aa.png", "start": 77337680, "end": 77348700}, {"filename": "/GameData/textures/lq_tech/t_wall2ab.png", "start": 77348700, "end": 77360457}, {"filename": "/GameData/textures/lq_tech/t_wall2b.png", "start": 77360457, "end": 77374695}, {"filename": "/GameData/textures/lq_tech/t_wall2ba.png", "start": 77374695, "end": 77388146}, {"filename": "/GameData/textures/lq_tech/t_wall3a.png", "start": 77388146, "end": 77396113}, {"filename": "/GameData/textures/lq_tech/t_wall3aa.png", "start": 77396113, "end": 77404380}, {"filename": "/GameData/textures/lq_tech/t_wall3b.png", "start": 77404380, "end": 77412702}, {"filename": "/GameData/textures/lq_tech/t_wall3ba.png", "start": 77412702, "end": 77421665}, {"filename": "/GameData/textures/lq_tech/t_wall6a.png", "start": 77421665, "end": 77424899}, {"filename": "/GameData/textures/lq_tech/t_wall6b.png", "start": 77424899, "end": 77427913}, {"filename": "/GameData/textures/lq_tech/t_wall6c.png", "start": 77427913, "end": 77431589}, {"filename": "/GameData/textures/lq_tech/t_wall6d.png", "start": 77431589, "end": 77435292}, {"filename": "/GameData/textures/lq_tech/t_wall6e.png", "start": 77435292, "end": 77439088}, {"filename": "/GameData/textures/lq_tech/t_wall7a.png", "start": 77439088, "end": 77449980}, {"filename": "/GameData/textures/lq_tech/t_wall7b.png", "start": 77449980, "end": 77457421}, {"filename": "/GameData/textures/lq_tech/t_wire01.png", "start": 77457421, "end": 77460357}, {"filename": "/GameData/textures/lq_tech/t_wire02.png", "start": 77460357, "end": 77463892}, {"filename": "/GameData/textures/lq_tech/t_wire03.png", "start": 77463892, "end": 77467492}, {"filename": "/GameData/textures/lq_tech/tech04_1.png", "start": 77467492, "end": 77468315}, {"filename": "/GameData/textures/lq_tech/tech04_3.png", "start": 77468315, "end": 77469784}, {"filename": "/GameData/textures/lq_tech/tech08_1.png", "start": 77469784, "end": 77480837}, {"filename": "/GameData/textures/lq_tech/tech08_2.png", "start": 77480837, "end": 77491890}, {"filename": "/GameData/textures/lq_tech/tech10_3.png", "start": 77491890, "end": 77495746}, {"filename": "/GameData/textures/lq_tech/tech14-1.png", "start": 77495746, "end": 77506017}, {"filename": "/GameData/textures/lq_tech/techbasetextures.txt", "start": 77506017, "end": 77506527}, {"filename": "/GameData/textures/lq_tech/techeye1_fbr.png", "start": 77506527, "end": 77509871}, {"filename": "/GameData/textures/lq_tech/techeye2_fbr.png", "start": 77509871, "end": 77513273}, {"filename": "/GameData/textures/lq_tech/tek_door1.png", "start": 77513273, "end": 77525419}, {"filename": "/GameData/textures/lq_tech/tek_door2.png", "start": 77525419, "end": 77537470}, {"filename": "/GameData/textures/lq_tech/tek_flr3.png", "start": 77537470, "end": 77540851}, {"filename": "/GameData/textures/lq_tech/tek_grate.png", "start": 77540851, "end": 77543729}, {"filename": "/GameData/textures/lq_tech/tek_lit1_fbr.png", "start": 77543729, "end": 77545364}, {"filename": "/GameData/textures/lq_tech/tek_lit2_fbr.png", "start": 77545364, "end": 77546350}, {"filename": "/GameData/textures/lq_tech/tek_lit3_fbr.png", "start": 77546350, "end": 77548192}, {"filename": "/GameData/textures/lq_tech/tek_lit4_fbr.png", "start": 77548192, "end": 77549319}, {"filename": "/GameData/textures/lq_tech/tek_pip1_fbr.png", "start": 77549319, "end": 77552401}, {"filename": "/GameData/textures/lq_tech/tek_pipe1.png", "start": 77552401, "end": 77555201}, {"filename": "/GameData/textures/lq_tech/tek_pipe2.png", "start": 77555201, "end": 77556860}, {"filename": "/GameData/textures/lq_tech/tek_trm1.png", "start": 77556860, "end": 77559318}, {"filename": "/GameData/textures/lq_tech/tek_trm3.png", "start": 77559318, "end": 77561928}, {"filename": "/GameData/textures/lq_tech/tek_wall4_1.png", "start": 77561928, "end": 77576373}, {"filename": "/GameData/textures/lq_tech/tele_frame1.png", "start": 77576373, "end": 77582528}, {"filename": "/GameData/textures/lq_tech/tele_frame2.png", "start": 77582528, "end": 77584479}, {"filename": "/GameData/textures/lq_tech/tele_frame3.png", "start": 77584479, "end": 77588466}, {"filename": "/GameData/textures/lq_tech/telepad1_fbr.png", "start": 77588466, "end": 77590442}, {"filename": "/GameData/textures/lq_tech/tlight11_fbr.png", "start": 77590442, "end": 77592068}, {"filename": "/GameData/textures/lq_tech/tlight12_fbr.png", "start": 77592068, "end": 77593763}, {"filename": "/GameData/textures/lq_tech/tlight13_fbr.png", "start": 77593763, "end": 77595822}, {"filename": "/GameData/textures/lq_tech/tlightblfb_fbr.png", "start": 77595822, "end": 77596395}, {"filename": "/GameData/textures/lq_tech/tlightfb_fbr.png", "start": 77596395, "end": 77596985}, {"filename": "/GameData/textures/lq_tech/tlightnb.png", "start": 77596985, "end": 77597583}, {"filename": "/GameData/textures/lq_tech/tlightrdfb_fbr.png", "start": 77597583, "end": 77598185}, {"filename": "/GameData/textures/lq_tech/treadplatemetal.png", "start": 77598185, "end": 77612939}, {"filename": "/GameData/textures/lq_tech/twall2_3.png", "start": 77612939, "end": 77616447}, {"filename": "/GameData/textures/lq_tech/w17_1.png", "start": 77616447, "end": 77633471}, {"filename": "/GameData/textures/lq_tech/w94_1.png", "start": 77633471, "end": 77646419}, {"filename": "/GameData/textures/lq_tech/z_exit_fbr.png", "start": 77646419, "end": 77647980}, {"filename": "/GameData/textures/lq_terra/afloor1_3.png", "start": 77647980, "end": 77650978}, {"filename": "/GameData/textures/lq_terra/asphalt.png", "start": 77650978, "end": 77668438}, {"filename": "/GameData/textures/lq_terra/azfloor1_1.png", "start": 77668438, "end": 77671457}, {"filename": "/GameData/textures/lq_terra/badlawn.png", "start": 77671457, "end": 77713266}, {"filename": "/GameData/textures/lq_terra/cracks1-1.png", "start": 77713266, "end": 77716285}, {"filename": "/GameData/textures/lq_terra/darkrock.png", "start": 77716285, "end": 77738854}, {"filename": "/GameData/textures/lq_terra/grass1.png", "start": 77738854, "end": 77749425}, {"filename": "/GameData/textures/lq_terra/gravel1.png", "start": 77749425, "end": 77762779}, {"filename": "/GameData/textures/lq_terra/gravel2.png", "start": 77762779, "end": 77777676}, {"filename": "/GameData/textures/lq_terra/grk_leaf1_1.png", "start": 77777676, "end": 77781669}, {"filename": "/GameData/textures/lq_terra/grk_leaf1_2.png", "start": 77781669, "end": 77785406}, {"filename": "/GameData/textures/lq_terra/marbbrn128.png", "start": 77785406, "end": 77795648}, {"filename": "/GameData/textures/lq_terra/may_drt1_1.png", "start": 77795648, "end": 77798544}, {"filename": "/GameData/textures/lq_terra/may_drt1_2.png", "start": 77798544, "end": 77801398}, {"filename": "/GameData/textures/lq_terra/may_drt2_2.png", "start": 77801398, "end": 77804142}, {"filename": "/GameData/textures/lq_terra/may_rck1_1.png", "start": 77804142, "end": 77818242}, {"filename": "/GameData/textures/lq_terra/may_rck1_2.png", "start": 77818242, "end": 77828920}, {"filename": "/GameData/textures/lq_terra/may_rck1_3.png", "start": 77828920, "end": 77841763}, {"filename": "/GameData/textures/lq_terra/may_slat1_1.png", "start": 77841763, "end": 77844611}, {"filename": "/GameData/textures/lq_terra/med_bigdirt.png", "start": 77844611, "end": 77999194}, {"filename": "/GameData/textures/lq_terra/med_bigdirt2.png", "start": 77999194, "end": 78153345}, {"filename": "/GameData/textures/lq_terra/med_bigdirt3.png", "start": 78153345, "end": 78307296}, {"filename": "/GameData/textures/lq_terra/med_cobstn1_1.png", "start": 78307296, "end": 78321677}, {"filename": "/GameData/textures/lq_terra/med_cobstn1_1a.png", "start": 78321677, "end": 78338651}, {"filename": "/GameData/textures/lq_terra/med_cobstn1_2.png", "start": 78338651, "end": 78353090}, {"filename": "/GameData/textures/lq_terra/med_cobstn1_2a.png", "start": 78353090, "end": 78369905}, {"filename": "/GameData/textures/lq_terra/med_cobstn2_1.png", "start": 78369905, "end": 78383874}, {"filename": "/GameData/textures/lq_terra/med_cobstn2_1a.png", "start": 78383874, "end": 78401185}, {"filename": "/GameData/textures/lq_terra/med_cobstn2_2.png", "start": 78401185, "end": 78416259}, {"filename": "/GameData/textures/lq_terra/med_cobstn2_2a.png", "start": 78416259, "end": 78433363}, {"filename": "/GameData/textures/lq_terra/med_cracks1.png", "start": 78433363, "end": 78446825}, {"filename": "/GameData/textures/lq_terra/med_flat1.png", "start": 78446825, "end": 78459734}, {"filename": "/GameData/textures/lq_terra/med_flat12.png", "start": 78459734, "end": 78471122}, {"filename": "/GameData/textures/lq_terra/med_flat15.png", "start": 78471122, "end": 78484223}, {"filename": "/GameData/textures/lq_terra/med_flat16.png", "start": 78484223, "end": 78497065}, {"filename": "/GameData/textures/lq_terra/med_flat2.png", "start": 78497065, "end": 78508342}, {"filename": "/GameData/textures/lq_terra/med_flat3.png", "start": 78508342, "end": 78521707}, {"filename": "/GameData/textures/lq_terra/med_flat4.png", "start": 78521707, "end": 78531656}, {"filename": "/GameData/textures/lq_terra/med_flat5.png", "start": 78531656, "end": 78542741}, {"filename": "/GameData/textures/lq_terra/med_flat5a.png", "start": 78542741, "end": 78553485}, {"filename": "/GameData/textures/lq_terra/med_flat6.png", "start": 78553485, "end": 78562470}, {"filename": "/GameData/textures/lq_terra/med_flat7.png", "start": 78562470, "end": 78573928}, {"filename": "/GameData/textures/lq_terra/med_plaster2.png", "start": 78573928, "end": 78583580}, {"filename": "/GameData/textures/lq_terra/med_rock1.png", "start": 78583580, "end": 78634837}, {"filename": "/GameData/textures/lq_terra/med_rock10.png", "start": 78634837, "end": 78644132}, {"filename": "/GameData/textures/lq_terra/med_rock10a.png", "start": 78644132, "end": 78653446}, {"filename": "/GameData/textures/lq_terra/med_rock10b.png", "start": 78653446, "end": 78666811}, {"filename": "/GameData/textures/lq_terra/med_rock10c.png", "start": 78666811, "end": 78679146}, {"filename": "/GameData/textures/lq_terra/med_rock2.png", "start": 78679146, "end": 78721023}, {"filename": "/GameData/textures/lq_terra/med_rock3.png", "start": 78721023, "end": 78766967}, {"filename": "/GameData/textures/lq_terra/med_rock3_bump.png", "start": 78766967, "end": 78883061}, {"filename": "/GameData/textures/lq_terra/med_rock4.png", "start": 78883061, "end": 78894417}, {"filename": "/GameData/textures/lq_terra/med_rock5.png", "start": 78894417, "end": 78906949}, {"filename": "/GameData/textures/lq_terra/med_rock9.png", "start": 78906949, "end": 78917973}, {"filename": "/GameData/textures/lq_terra/ret_plaster1.png", "start": 78917973, "end": 78929250}, {"filename": "/GameData/textures/lq_terra/rock1_1.png", "start": 78929250, "end": 78979621}, {"filename": "/GameData/textures/lq_terra/rock1_1b.png", "start": 78979621, "end": 78990636}, {"filename": "/GameData/textures/lq_terra/rock1_2.png", "start": 78990636, "end": 79032679}, {"filename": "/GameData/textures/lq_terra/rocks07.png", "start": 79032679, "end": 79043703}, {"filename": "/GameData/textures/lq_terra/rocks11d.png", "start": 79043703, "end": 79053017}, {"filename": "/GameData/textures/lq_terra/rocks11e.png", "start": 79053017, "end": 79062312}, {"filename": "/GameData/textures/lq_terra/sand.png", "start": 79062312, "end": 79088399}, {"filename": "/GameData/textures/lq_terra/snow1.png", "start": 79088399, "end": 79090262}, {"filename": "/GameData/textures/lq_terra/uwall1_2.png", "start": 79090262, "end": 79117913}, {"filename": "/GameData/textures/lq_terra/vines1.png", "start": 79117913, "end": 79122968}, {"filename": "/GameData/textures/lq_utility/black.png", "start": 79122968, "end": 79123516}, {"filename": "/GameData/textures/lq_utility/clip.png", "start": 79123516, "end": 79124022}, {"filename": "/GameData/textures/lq_utility/hint.png", "start": 79124022, "end": 79124888}, {"filename": "/GameData/textures/lq_utility/hintskip.png", "start": 79124888, "end": 79125781}, {"filename": "/GameData/textures/lq_utility/light_fbr.png", "start": 79125781, "end": 79126697}, {"filename": "/GameData/textures/lq_utility/origin.png", "start": 79126697, "end": 79127180}, {"filename": "/GameData/textures/lq_utility/skip.png", "start": 79127180, "end": 79127668}, {"filename": "/GameData/textures/lq_utility/star_lavaskip.png", "start": 79127668, "end": 79128781}, {"filename": "/GameData/textures/lq_utility/star_slimeskip.png", "start": 79128781, "end": 79129854}, {"filename": "/GameData/textures/lq_utility/star_waterskip.png", "start": 79129854, "end": 79131594}, {"filename": "/GameData/textures/lq_utility/trigger.png", "start": 79131594, "end": 79132091}, {"filename": "/GameData/textures/lq_wood/crate4.png", "start": 79132091, "end": 79135233}, {"filename": "/GameData/textures/lq_wood/crwdh6.png", "start": 79135233, "end": 79140241}, {"filename": "/GameData/textures/lq_wood/crwdl12.png", "start": 79140241, "end": 79142674}, {"filename": "/GameData/textures/lq_wood/crwds6.png", "start": 79142674, "end": 79143700}, {"filename": "/GameData/textures/lq_wood/may_crate3-small.png", "start": 79143700, "end": 79144691}, {"filename": "/GameData/textures/lq_wood/may_crate3.png", "start": 79144691, "end": 79147754}, {"filename": "/GameData/textures/lq_wood/may_wood1_1.png", "start": 79147754, "end": 79150594}, {"filename": "/GameData/textures/lq_wood/may_wood1_2.png", "start": 79150594, "end": 79153443}, {"filename": "/GameData/textures/lq_wood/med_ret_wood1.png", "start": 79153443, "end": 79160412}, {"filename": "/GameData/textures/lq_wood/med_wood1.png", "start": 79160412, "end": 79187780}, {"filename": "/GameData/textures/lq_wood/med_wood2.png", "start": 79187780, "end": 79195293}, {"filename": "/GameData/textures/lq_wood/med_wood2_plk1.png", "start": 79195293, "end": 79206991}, {"filename": "/GameData/textures/lq_wood/med_wood2_plk2.png", "start": 79206991, "end": 79219483}, {"filename": "/GameData/textures/lq_wood/med_wood3.png", "start": 79219483, "end": 79225483}, {"filename": "/GameData/textures/lq_wood/med_wood3_plk1.png", "start": 79225483, "end": 79238698}, {"filename": "/GameData/textures/lq_wood/med_wood4.png", "start": 79238698, "end": 79245822}, {"filename": "/GameData/textures/lq_wood/med_wood5.png", "start": 79245822, "end": 79253620}, {"filename": "/GameData/textures/lq_wood/med_wood6.png", "start": 79253620, "end": 79260400}, {"filename": "/GameData/textures/lq_wood/med_wood7.png", "start": 79260400, "end": 79269439}, {"filename": "/GameData/textures/lq_wood/med_wood8.png", "start": 79269439, "end": 79277403}, {"filename": "/GameData/textures/lq_wood/med_wood_riv1.png", "start": 79277403, "end": 79284028}, {"filename": "/GameData/textures/lq_wood/med_wood_riv1b.png", "start": 79284028, "end": 79290107}, {"filename": "/GameData/textures/lq_wood/med_wood_riv1c.png", "start": 79290107, "end": 79295231}, {"filename": "/GameData/textures/lq_wood/med_wood_riv2.png", "start": 79295231, "end": 79301641}, {"filename": "/GameData/textures/lq_wood/med_wood_riv2b.png", "start": 79301641, "end": 79308061}, {"filename": "/GameData/textures/lq_wood/med_wood_riv2c.png", "start": 79308061, "end": 79313433}, {"filename": "/GameData/textures/lq_wood/plank1.png", "start": 79313433, "end": 79319847}, {"filename": "/GameData/textures/lq_wood/plank1s.png", "start": 79319847, "end": 79321728}, {"filename": "/GameData/textures/lq_wood/plank2.png", "start": 79321728, "end": 79328308}, {"filename": "/GameData/textures/lq_wood/plank2s.png", "start": 79328308, "end": 79330197}, {"filename": "/GameData/textures/lq_wood/plank3.png", "start": 79330197, "end": 79337057}, {"filename": "/GameData/textures/lq_wood/plank3s.png", "start": 79337057, "end": 79339038}, {"filename": "/GameData/textures/lq_wood/plank4.png", "start": 79339038, "end": 79345484}, {"filename": "/GameData/textures/lq_wood/plank4s.png", "start": 79345484, "end": 79347374}, {"filename": "/GameData/textures/lq_wood/plank5.png", "start": 79347374, "end": 79353023}, {"filename": "/GameData/textures/lq_wood/sq_wood_1.png", "start": 79353023, "end": 79369064}, {"filename": "/GameData/textures/lq_wood/sq_wood_2.png", "start": 79369064, "end": 79371952}, {"filename": "/GameData/textures/lq_wood/sq_wood_2a.png", "start": 79371952, "end": 79375321}, {"filename": "/GameData/textures/lq_wood/wood_1.png", "start": 79375321, "end": 79379499}, {"filename": "/GameData/textures/lq_wood/wood_2.png", "start": 79379499, "end": 79383399}, {"filename": "/GameData/textures/lq_wood/woodbark128.png", "start": 79383399, "end": 79393606}, {"filename": "/GameData/textures/lq_wood/woodbark1m28.png", "start": 79393606, "end": 79403055}, {"filename": "/GameData/textures/lq_wood/woodbark64.png", "start": 79403055, "end": 79405992}, {"filename": "/GameData/textures/lq_wood/woodbarkA128.png", "start": 79405992, "end": 79414690}, {"filename": "/GameData/textures/lq_wood/woodbarkm64.png", "start": 79414690, "end": 79417367}, {"filename": "/GameData/textures/lq_wood/woodend.png", "start": 79417367, "end": 79419870}, {"filename": "/GameData/textures/lq_wood/woodring128.png", "start": 79419870, "end": 79428294}, {"filename": "/GameData/textures/lq_wood/woodring64.png", "start": 79428294, "end": 79430755}, {"filename": "/GameData/textures/lq_wood/woodringm128.png", "start": 79430755, "end": 79441054}, {"filename": "/GameData/textures/lq_wood/woodringm64.png", "start": 79441054, "end": 79444313}, {"filename": "/GameData/textures/metal/metal1.png", "start": 79444313, "end": 79868369}, {"filename": "/GameData/textures/muzzle_t.png", "start": 79868369, "end": 79877777}, {"filename": "/GameData/textures/particles/blood.png", "start": 79877777, "end": 79881490}, {"filename": "/GameData/textures/particles/smoke.png", "start": 79881490, "end": 79885360}, {"filename": "/GameData/textures/particles/trail.png", "start": 79885360, "end": 79904230}, {"filename": "/GameData/textures/particles/wood.png", "start": 79904230, "end": 79919713}, {"filename": "/GameData/textures/shirt.png", "start": 79919713, "end": 80111464}, {"filename": "/GameData/textures/skies/skybox1_cube.png", "start": 80111464, "end": 81324431}, {"filename": "/GameData/textures/tormentPack/+0str_bloodfall.png", "start": 81324431, "end": 81326508}, {"filename": "/GameData/textures/tormentPack/+1str_bloodfall.png", "start": 81326508, "end": 81328542}, {"filename": "/GameData/textures/tormentPack/+2str_bloodfall.png", "start": 81328542, "end": 81330640}, {"filename": "/GameData/textures/tormentPack/+3str_bloodfall.png", "start": 81330640, "end": 81332711}, {"filename": "/GameData/textures/tormentPack/+4str_bloodfall.png", "start": 81332711, "end": 81334771}, {"filename": "/GameData/textures/tormentPack/+5str_bloodfall.png", "start": 81334771, "end": 81336792}, {"filename": "/GameData/textures/tormentPack/+6str_bloodfall.png", "start": 81336792, "end": 81338838}, {"filename": "/GameData/textures/tormentPack/+7str_bloodfall.png", "start": 81338838, "end": 81340907}, {"filename": "/GameData/textures/tormentPack/str_blood.png", "start": 81340907, "end": 81342915}, {"filename": "/GameData/textures/tormentPack/str_blood_large.png", "start": 81342915, "end": 81365465}, {"filename": "/GameData/textures/tormentPack/str_bloodvein1.png", "start": 81365465, "end": 81392140}, {"filename": "/GameData/textures/tormentPack/str_bloodvein2.png", "start": 81392140, "end": 81424173}, {"filename": "/GameData/textures/tormentPack/str_bloodvein3.png", "start": 81424173, "end": 81457844}, {"filename": "/GameData/textures/tormentPack/str_bloodvein4.png", "start": 81457844, "end": 81489486}, {"filename": "/GameData/textures/tormentPack/str_bloodvein5.png", "start": 81489486, "end": 81522977}, {"filename": "/GameData/textures/tormentPack/str_bloodvein6.png", "start": 81522977, "end": 81557451}, {"filename": "/GameData/textures/tormentPack/str_bloodvein7.png", "start": 81557451, "end": 81592342}, {"filename": "/GameData/textures/tormentPack/str_bloodvein8.png", "start": 81592342, "end": 81620491}, {"filename": "/GameData/textures/tormentPack/str_bloodvein9.png", "start": 81620491, "end": 81655944}, {"filename": "/GameData/textures/tormentPack/str_metalflr1.png", "start": 81655944, "end": 81692638}, {"filename": "/GameData/textures/tormentPack/str_metalflr2.png", "start": 81692638, "end": 81729213}, {"filename": "/GameData/textures/tormentPack/str_metalflr3.png", "start": 81729213, "end": 81760206}, {"filename": "/GameData/textures/tormentPack/str_metalflr4.png", "start": 81760206, "end": 81790376}, {"filename": "/GameData/textures/tormentPack/str_metalflr5.png", "start": 81790376, "end": 81829826}, {"filename": "/GameData/textures/tormentPack/str_metalflr6.png", "start": 81829826, "end": 81868986}, {"filename": "/GameData/textures/tormentPack/str_metalflr7.png", "start": 81868986, "end": 81910678}, {"filename": "/GameData/textures/tormentPack/str_metalflr8.png", "start": 81910678, "end": 81951096}, {"filename": "/GameData/textures/tormentPack/str_metalgen1.png", "start": 81951096, "end": 81980366}, {"filename": "/GameData/textures/tormentPack/str_metalgen2.png", "start": 81980366, "end": 82009882}, {"filename": "/GameData/textures/tormentPack/str_metalgen3.png", "start": 82009882, "end": 82039358}, {"filename": "/GameData/textures/tormentPack/str_metalgen4.png", "start": 82039358, "end": 82064181}, {"filename": "/GameData/textures/tormentPack/str_metalgen5.png", "start": 82064181, "end": 82089051}, {"filename": "/GameData/textures/tormentPack/str_metalgen6.png", "start": 82089051, "end": 82113141}, {"filename": "/GameData/textures/tormentPack/str_metalgrbl1.png", "start": 82113141, "end": 82142526}, {"filename": "/GameData/textures/tormentPack/str_metalgrbl2.png", "start": 82142526, "end": 82175256}, {"filename": "/GameData/textures/tormentPack/str_metalgrbl3.png", "start": 82175256, "end": 82201874}, {"filename": "/GameData/textures/tormentPack/str_metalgrbl4.png", "start": 82201874, "end": 82231138}, {"filename": "/GameData/textures/tormentPack/str_metalgrbl5.png", "start": 82231138, "end": 82265513}, {"filename": "/GameData/textures/tormentPack/str_metalgrbl6.png", "start": 82265513, "end": 82304008}, {"filename": "/GameData/textures/tormentPack/str_metalgrbl7.png", "start": 82304008, "end": 82340158}, {"filename": "/GameData/textures/tormentPack/str_metalgrbl8.png", "start": 82340158, "end": 82378151}, {"filename": "/GameData/textures/tormentPack/str_metalpan1.png", "start": 82378151, "end": 82413011}, {"filename": "/GameData/textures/tormentPack/str_metalpan2.png", "start": 82413011, "end": 82448552}, {"filename": "/GameData/textures/tormentPack/str_metalpan3.png", "start": 82448552, "end": 82478988}, {"filename": "/GameData/textures/tormentPack/str_metalpan4.png", "start": 82478988, "end": 82509948}, {"filename": "/GameData/textures/tormentPack/str_metalpan5.png", "start": 82509948, "end": 82546320}, {"filename": "/GameData/textures/tormentPack/str_metalpan6.png", "start": 82546320, "end": 82584362}, {"filename": "/GameData/textures/tormentPack/str_metalpan7.png", "start": 82584362, "end": 82623591}, {"filename": "/GameData/textures/tormentPack/str_metalpan8.png", "start": 82623591, "end": 82662685}, {"filename": "/GameData/textures/tormentPack/str_rotwoodgen1.png", "start": 82662685, "end": 82681264}, {"filename": "/GameData/textures/tormentPack/str_rotwoodgen2.png", "start": 82681264, "end": 82700560}, {"filename": "/GameData/textures/tormentPack/str_rotwoodgen3.png", "start": 82700560, "end": 82720614}, {"filename": "/GameData/textures/tormentPack/str_stonebrk1.png", "start": 82720614, "end": 82746006}, {"filename": "/GameData/textures/tormentPack/str_stonebrk2.png", "start": 82746006, "end": 82773008}, {"filename": "/GameData/textures/tormentPack/str_stonebrk3.png", "start": 82773008, "end": 82795638}, {"filename": "/GameData/textures/tormentPack/str_stonebrk4.png", "start": 82795638, "end": 82819691}, {"filename": "/GameData/textures/tormentPack/str_stonebrk5.png", "start": 82819691, "end": 82850775}, {"filename": "/GameData/textures/tormentPack/str_stonebrk6.png", "start": 82850775, "end": 82883447}, {"filename": "/GameData/textures/tormentPack/str_stonebrk7.png", "start": 82883447, "end": 82911971}, {"filename": "/GameData/textures/tormentPack/str_stonebrk8.png", "start": 82911971, "end": 82942223}, {"filename": "/GameData/textures/tormentPack/str_stoneflr1.png", "start": 82942223, "end": 82966379}, {"filename": "/GameData/textures/tormentPack/str_stoneflr2.png", "start": 82966379, "end": 82994285}, {"filename": "/GameData/textures/tormentPack/str_stoneflr3.png", "start": 82994285, "end": 83015290}, {"filename": "/GameData/textures/tormentPack/str_stoneflr4.png", "start": 83015290, "end": 83036434}, {"filename": "/GameData/textures/tormentPack/str_stoneflr5.png", "start": 83036434, "end": 83067966}, {"filename": "/GameData/textures/tormentPack/str_stoneflr6.png", "start": 83067966, "end": 83102249}, {"filename": "/GameData/textures/tormentPack/str_stonegen1.png", "start": 83102249, "end": 83121272}, {"filename": "/GameData/textures/tormentPack/str_stonegen2.png", "start": 83121272, "end": 83140643}, {"filename": "/GameData/textures/tormentPack/str_stonegen3.png", "start": 83140643, "end": 83162415}, {"filename": "/GameData/textures/tormentPack/str_stonegen4.png", "start": 83162415, "end": 83187460}, {"filename": "/GameData/textures/tormentPack/str_stonegen5.png", "start": 83187460, "end": 83212848}, {"filename": "/GameData/textures/tormentPack/str_stonegen6.png", "start": 83212848, "end": 83240285}, {"filename": "/GameData/textures/tormentPack/str_stonerubble.png", "start": 83240285, "end": 83268679}, {"filename": "/GameData/textures/tormentPack/str_stonewall1.png", "start": 83268679, "end": 83291936}, {"filename": "/GameData/textures/tormentPack/str_stonewall2.png", "start": 83291936, "end": 83316741}, {"filename": "/GameData/textures/tormentPack/str_stonewall3.png", "start": 83316741, "end": 83341404}, {"filename": "/GameData/textures/tormentPack/str_stonewall4.png", "start": 83341404, "end": 83367874}, {"filename": "/GameData/textures/tormentPack/str_stonewall5.png", "start": 83367874, "end": 83395341}, {"filename": "/GameData/textures/tormentPack/str_stonewall6.png", "start": 83395341, "end": 83423509}, {"filename": "/GameData/textures/tormentPack/str_stonewall7.png", "start": 83423509, "end": 83452898}, {"filename": "/GameData/textures/tormentPack/str_stonewall8.png", "start": 83452898, "end": 83483794}, {"filename": "/GameData/textures/tormentPack/{str_bloodgunk.png", "start": 83483794, "end": 83510243}, {"filename": "/GameData/textures/tormentPack/{str_bloodweb1.png", "start": 83510243, "end": 83527483}, {"filename": "/GameData/textures/tormentPack/{str_bloodweb2.png", "start": 83527483, "end": 83536434}, {"filename": "/GameData/textures/tormentPack/{str_bloodweb3.png", "start": 83536434, "end": 83542445}, {"filename": "/GameData/textures/tormentPack/{str_grating1.png", "start": 83542445, "end": 83551026}, {"filename": "/GameData/textures/tormentPack/{str_grating2.png", "start": 83551026, "end": 83566229}, {"filename": "/GameData/textures/tormentPack/{str_grating3.png", "start": 83566229, "end": 83585577}, {"filename": "/GameData/textures/tormentPack/{str_grating4.png", "start": 83585577, "end": 83597734}, {"filename": "/GameData/textures/tormentPack/{str_grating5.png", "start": 83597734, "end": 83619239}, {"filename": "/GameData/textures/tormentPack/{str_grating6.png", "start": 83619239, "end": 83647485}, {"filename": "/GameData/textures/wall/brickWall1.png", "start": 83647485, "end": 83655701}, {"filename": "/GameData/textures/wall/brickWall2.png", "start": 83655701, "end": 83663825}, {"filename": "/GameData/textures/wall/brickWall3.png", "start": 83663825, "end": 83671708}, {"filename": "/GameData/textures/water/Water1_t.png", "start": 83671708, "end": 83984809}, {"filename": "/GameData/textures/wood/wood1.png", "start": 83984809, "end": 84333161}, {"filename": "/GameData/title_bg_crop.png", "start": 84333161, "end": 85248269}, {"filename": "/GameData/yummy.ogg", "start": 85248269, "end": 85283860, "audio": 1}], "remote_package_size": 85283860});
 
   })();
 
-// end include: C:\Users\Admin\AppData\Local\Temp\tmp0hx5k9zp.js
-// include: C:\Users\Admin\AppData\Local\Temp\tmpat_9xhfi.js
+// end include: C:\Users\Admin\AppData\Local\Temp\tmpzdlzd8y1.js
+// include: C:\Users\Admin\AppData\Local\Temp\tmpv3pprcmh.js
 
     // All the pre-js content up to here must remain later on, we need to run
     // it.
     if (Module['$ww'] || (typeof ENVIRONMENT_IS_PTHREAD != 'undefined' && ENVIRONMENT_IS_PTHREAD)) Module['preRun'] = [];
     var necessaryPreJSTasks = Module['preRun'].slice();
-  // end include: C:\Users\Admin\AppData\Local\Temp\tmpat_9xhfi.js
-// include: C:\Users\Admin\AppData\Local\Temp\tmpr8_c8ghd.js
+  // end include: C:\Users\Admin\AppData\Local\Temp\tmpv3pprcmh.js
+// include: C:\Users\Admin\AppData\Local\Temp\tmp59d0n6vy.js
 
     if (!Module['preRun']) throw 'Module.preRun should exist because file support used it; did a pre-js delete it?';
     necessaryPreJSTasks.forEach((task) => {
       if (Module['preRun'].indexOf(task) < 0) throw 'All preRun tasks that exist before user pre-js code should remain after; did you replace Module or modify Module.preRun?';
     });
-  // end include: C:\Users\Admin\AppData\Local\Temp\tmpr8_c8ghd.js
+  // end include: C:\Users\Admin\AppData\Local\Temp\tmp59d0n6vy.js
 
 
 // Sometimes an existing Module object exists with properties
@@ -478,10 +520,6 @@ function assert(condition, text) {
 
 // We used to include malloc/free by default in the past. Show a helpful error in
 // builds with assertions.
-function _free() {
-  // Show a helpful error since we used to include free by default in the past.
-  abort('free() called but not included in the build - add `_free` to EXPORTED_FUNCTIONS');
-}
 
 // Memory management
 
@@ -557,6 +595,20 @@ function checkStackCookie() {
 }
 // end include: runtime_stack_check.js
 // include: runtime_exceptions.js
+// Base Emscripten EH error class
+class EmscriptenEH extends Error {}
+
+class EmscriptenSjLj extends EmscriptenEH {}
+
+class CppException extends EmscriptenEH {
+  constructor(excPtr) {
+    super(excPtr);
+    this.excPtr = excPtr;
+    const excInfo = getExceptionMessage(excPtr);
+    this.name = excInfo[0];
+    this.message = excInfo[1];
+  }
+}
 // end include: runtime_exceptions.js
 // include: runtime_debug.js
 // Endianness check
@@ -1202,6 +1254,39 @@ async function createWasm() {
   var ___assert_fail = (condition, filename, line, func) =>
       abort(`Assertion failed: ${UTF8ToString(condition)}, at: ` + [filename ? UTF8ToString(filename) : 'unknown filename', line, func ? UTF8ToString(func) : 'unknown function']);
 
+  var exceptionCaught =  [];
+  
+  
+  
+  var uncaughtExceptionCount = 0;
+  var ___cxa_begin_catch = (ptr) => {
+      var info = new ExceptionInfo(ptr);
+      if (!info.get_caught()) {
+        info.set_caught(true);
+        uncaughtExceptionCount--;
+      }
+      info.set_rethrown(false);
+      exceptionCaught.push(info);
+      ___cxa_increment_exception_refcount(ptr);
+      return ___cxa_get_exception_ptr(ptr);
+    };
+
+  
+  var exceptionLast = 0;
+  
+  
+  var ___cxa_end_catch = () => {
+      // Clear state flag.
+      _setThrew(0, 0);
+      assert(exceptionCaught.length > 0);
+      // Call destructor if one is registered then clear it.
+      var info = exceptionCaught.pop();
+  
+      ___cxa_decrement_exception_refcount(info.excPtr);
+      exceptionLast = 0; // XXX in decRef?
+    };
+
+  
   class ExceptionInfo {
       // excPtr - Thrown object pointer to wrap. Metadata pointer is calculated from it.
       constructor(excPtr) {
@@ -1259,29 +1344,87 @@ async function createWasm() {
       }
     }
   
-  var exceptionLast = 0;
   
-  var uncaughtExceptionCount = 0;
+  var setTempRet0 = (val) => __emscripten_tempret_set(val);
+  var findMatchingCatch = (args) => {
+      var thrown =
+        exceptionLast?.excPtr;
+      if (!thrown) {
+        // just pass through the null ptr
+        setTempRet0(0);
+        return 0;
+      }
+      var info = new ExceptionInfo(thrown);
+      info.set_adjusted_ptr(thrown);
+      var thrownType = info.get_type();
+      if (!thrownType) {
+        // just pass through the thrown ptr
+        setTempRet0(0);
+        return thrown;
+      }
+  
+      // can_catch receives a **, add indirection
+      // The different catch blocks are denoted by different types.
+      // Due to inheritance, those types may not precisely match the
+      // type of the thrown object. Find one which matches, and
+      // return the type of the catch block which should be called.
+      for (var caughtType of args) {
+        if (caughtType === 0 || caughtType === thrownType) {
+          // Catch all clause matched or exactly the same type is caught
+          break;
+        }
+        var adjusted_ptr_addr = info.ptr + 16;
+        if (___cxa_can_catch(caughtType, thrownType, adjusted_ptr_addr)) {
+          setTempRet0(caughtType);
+          return thrown;
+        }
+      }
+      setTempRet0(thrownType);
+      return thrown;
+    };
+  var ___cxa_find_matching_catch_2 = () => findMatchingCatch([]);
+
+  var ___cxa_find_matching_catch_3 = (arg0) => findMatchingCatch([arg0]);
+
+  
+  
+  var ___cxa_rethrow = () => {
+      var info = exceptionCaught.pop();
+      if (!info) {
+        abort('no exception to throw');
+      }
+      var ptr = info.excPtr;
+      if (!info.get_rethrown()) {
+        // Only pop if the corresponding push was through rethrow_primary_exception
+        exceptionCaught.push(info);
+        info.set_rethrown(true);
+        info.set_caught(false);
+        uncaughtExceptionCount++;
+      }
+      exceptionLast = new CppException(ptr);
+      throw exceptionLast;
+    };
+
+  
+  
   var ___cxa_throw = (ptr, type, destructor) => {
       var info = new ExceptionInfo(ptr);
       // Initialize ExceptionInfo content after it was allocated in __cxa_allocate_exception.
       info.init(type, destructor);
-      exceptionLast = ptr;
+      exceptionLast = new CppException(ptr);
       uncaughtExceptionCount++;
-      assert(false, 'Exception thrown, but exception catching is not enabled. Compile with -sNO_DISABLE_EXCEPTION_CATCHING or -sEXCEPTION_CATCHING_ALLOWED=[..] to catch.');
+      throw exceptionLast;
     };
 
-  /** @suppress {duplicate } */
-  var syscallGetVarargI = () => {
-      assert(SYSCALLS.varargs != undefined);
-      // the `+` prepended here is necessary to convince the JSCompiler that varargs is indeed a number.
-      var ret = HEAP32[((+SYSCALLS.varargs)>>2)];
-      SYSCALLS.varargs += 4;
-      return ret;
+  var ___cxa_uncaught_exceptions = () => uncaughtExceptionCount;
+
+  var ___resumeException = (ptr) => {
+      if (!exceptionLast) {
+        exceptionLast = new CppException(ptr);
+      }
+      throw exceptionLast;
     };
-  var syscallGetVarargP = syscallGetVarargI;
-  
-  
+
   var PATH = {
   isAbs:(path) => path.charAt(0) === '/',
   splitPath:(filename) => {
@@ -1684,8 +1827,17 @@ async function createWasm() {
   };
   
   
+  var zeroMemory = (ptr, size) => HEAPU8.fill(0, ptr, ptr + size);
+  
+  var alignMemory = (size, alignment) => {
+      assert(alignment, "alignment argument is required");
+      return Math.ceil(size / alignment) * alignment;
+    };
   var mmapAlloc = (size) => {
-      abort('internal error: mmapAlloc called but `emscripten_builtin_memalign` native symbol not exported');
+      size = alignMemory(size, 65536);
+      var ptr = _emscripten_builtin_memalign(65536, size);
+      if (ptr) zeroMemory(ptr, size);
+      return ptr;
     };
   var MEMFS = {
   ops_table:null,
@@ -2088,6 +2240,379 @@ async function createWasm() {
   
   
   
+  
+  
+  
+  var IDBFS = {
+  dbs:{
+  },
+  indexedDB:() => {
+        if (typeof indexedDB != 'undefined') return indexedDB;
+        var ret = null;
+        if (typeof window == 'object') ret = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+        assert(ret, 'IDBFS used, but indexedDB not supported');
+        return ret;
+      },
+  DB_VERSION:21,
+  DB_STORE_NAME:"FILE_DATA",
+  queuePersist:(mount) => {
+        function onPersistComplete() {
+          if (mount.idbPersistState === 'again') startPersist(); // If a new sync request has appeared in between, kick off a new sync
+          else mount.idbPersistState = 0; // Otherwise reset sync state back to idle to wait for a new sync later
+        }
+        function startPersist() {
+          mount.idbPersistState = 'idb'; // Mark that we are currently running a sync operation
+          IDBFS.syncfs(mount, /*populate:*/false, onPersistComplete);
+        }
+  
+        if (!mount.idbPersistState) {
+          // Programs typically write/copy/move multiple files in the in-memory
+          // filesystem within a single app frame, so when a filesystem sync
+          // command is triggered, do not start it immediately, but only after
+          // the current frame is finished. This way all the modified files
+          // inside the main loop tick will be batched up to the same sync.
+          mount.idbPersistState = setTimeout(startPersist, 0);
+        } else if (mount.idbPersistState === 'idb') {
+          // There is an active IndexedDB sync operation in-flight, but we now
+          // have accumulated more files to sync. We should therefore queue up
+          // a new sync after the current one finishes so that all writes
+          // will be properly persisted.
+          mount.idbPersistState = 'again';
+        }
+      },
+  mount:(mount) => {
+        // reuse core MEMFS functionality
+        var mnt = MEMFS.mount(mount);
+        // If the automatic IDBFS persistence option has been selected, then automatically persist
+        // all modifications to the filesystem as they occur.
+        if (mount?.opts?.autoPersist) {
+          mnt.idbPersistState = 0; // IndexedDB sync starts in idle state
+          var memfs_node_ops = mnt.node_ops;
+          mnt.node_ops = {...mnt.node_ops}; // Clone node_ops to inject write tracking
+          mnt.node_ops.mknod = (parent, name, mode, dev) => {
+            var node = memfs_node_ops.mknod(parent, name, mode, dev);
+            // Propagate injected node_ops to the newly created child node
+            node.node_ops = mnt.node_ops;
+            // Remember for each IDBFS node which IDBFS mount point they came from so we know which mount to persist on modification.
+            node.idbfs_mount = mnt.mount;
+            // Remember original MEMFS stream_ops for this node
+            node.memfs_stream_ops = node.stream_ops;
+            // Clone stream_ops to inject write tracking
+            node.stream_ops = {...node.stream_ops};
+  
+            // Track all file writes
+            node.stream_ops.write = (stream, buffer, offset, length, position, canOwn) => {
+              // This file has been modified, we must persist IndexedDB when this file closes
+              stream.node.isModified = true;
+              return node.memfs_stream_ops.write(stream, buffer, offset, length, position, canOwn);
+            };
+  
+            // Persist IndexedDB on file close
+            node.stream_ops.close = (stream) => {
+              var n = stream.node;
+              if (n.isModified) {
+                IDBFS.queuePersist(n.idbfs_mount);
+                n.isModified = false;
+              }
+              if (n.memfs_stream_ops.close) return n.memfs_stream_ops.close(stream);
+            };
+  
+            return node;
+          };
+          // Also kick off persisting the filesystem on other operations that modify the filesystem.
+          mnt.node_ops.mkdir   = (...args) => (IDBFS.queuePersist(mnt.mount), memfs_node_ops.mkdir(...args));
+          mnt.node_ops.rmdir   = (...args) => (IDBFS.queuePersist(mnt.mount), memfs_node_ops.rmdir(...args));
+          mnt.node_ops.symlink = (...args) => (IDBFS.queuePersist(mnt.mount), memfs_node_ops.symlink(...args));
+          mnt.node_ops.unlink  = (...args) => (IDBFS.queuePersist(mnt.mount), memfs_node_ops.unlink(...args));
+          mnt.node_ops.rename  = (...args) => (IDBFS.queuePersist(mnt.mount), memfs_node_ops.rename(...args));
+        }
+        return mnt;
+      },
+  syncfs:(mount, populate, callback) => {
+        IDBFS.getLocalSet(mount, (err, local) => {
+          if (err) return callback(err);
+  
+          IDBFS.getRemoteSet(mount, (err, remote) => {
+            if (err) return callback(err);
+  
+            var src = populate ? remote : local;
+            var dst = populate ? local : remote;
+  
+            IDBFS.reconcile(src, dst, callback);
+          });
+        });
+      },
+  quit:() => {
+        Object.values(IDBFS.dbs).forEach((value) => value.close());
+        IDBFS.dbs = {};
+      },
+  getDB:(name, callback) => {
+        // check the cache first
+        var db = IDBFS.dbs[name];
+        if (db) {
+          return callback(null, db);
+        }
+  
+        var req;
+        try {
+          req = IDBFS.indexedDB().open(name, IDBFS.DB_VERSION);
+        } catch (e) {
+          return callback(e);
+        }
+        if (!req) {
+          return callback("Unable to connect to IndexedDB");
+        }
+        req.onupgradeneeded = (e) => {
+          var db = /** @type {IDBDatabase} */ (e.target.result);
+          var transaction = e.target.transaction;
+  
+          var fileStore;
+  
+          if (db.objectStoreNames.contains(IDBFS.DB_STORE_NAME)) {
+            fileStore = transaction.objectStore(IDBFS.DB_STORE_NAME);
+          } else {
+            fileStore = db.createObjectStore(IDBFS.DB_STORE_NAME);
+          }
+  
+          if (!fileStore.indexNames.contains('timestamp')) {
+            fileStore.createIndex('timestamp', 'timestamp', { unique: false });
+          }
+        };
+        req.onsuccess = () => {
+          db = /** @type {IDBDatabase} */ (req.result);
+  
+          // add to the cache
+          IDBFS.dbs[name] = db;
+          callback(null, db);
+        };
+        req.onerror = (e) => {
+          callback(e.target.error);
+          e.preventDefault();
+        };
+      },
+  getLocalSet:(mount, callback) => {
+        var entries = {};
+  
+        function isRealDir(p) {
+          return p !== '.' && p !== '..';
+        };
+        function toAbsolute(root) {
+          return (p) => PATH.join2(root, p);
+        };
+  
+        var check = FS.readdir(mount.mountpoint).filter(isRealDir).map(toAbsolute(mount.mountpoint));
+  
+        while (check.length) {
+          var path = check.pop();
+          var stat;
+  
+          try {
+            stat = FS.stat(path);
+          } catch (e) {
+            return callback(e);
+          }
+  
+          if (FS.isDir(stat.mode)) {
+            check.push(...FS.readdir(path).filter(isRealDir).map(toAbsolute(path)));
+          }
+  
+          entries[path] = { 'timestamp': stat.mtime };
+        }
+  
+        return callback(null, { type: 'local', entries: entries });
+      },
+  getRemoteSet:(mount, callback) => {
+        var entries = {};
+  
+        IDBFS.getDB(mount.mountpoint, (err, db) => {
+          if (err) return callback(err);
+  
+          try {
+            var transaction = db.transaction([IDBFS.DB_STORE_NAME], 'readonly');
+            transaction.onerror = (e) => {
+              callback(e.target.error);
+              e.preventDefault();
+            };
+  
+            var store = transaction.objectStore(IDBFS.DB_STORE_NAME);
+            var index = store.index('timestamp');
+  
+            index.openKeyCursor().onsuccess = (event) => {
+              var cursor = event.target.result;
+  
+              if (!cursor) {
+                return callback(null, { type: 'remote', db, entries });
+              }
+  
+              entries[cursor.primaryKey] = { 'timestamp': cursor.key };
+  
+              cursor.continue();
+            };
+          } catch (e) {
+            return callback(e);
+          }
+        });
+      },
+  loadLocalEntry:(path, callback) => {
+        var stat, node;
+  
+        try {
+          var lookup = FS.lookupPath(path);
+          node = lookup.node;
+          stat = FS.stat(path);
+        } catch (e) {
+          return callback(e);
+        }
+  
+        if (FS.isDir(stat.mode)) {
+          return callback(null, { 'timestamp': stat.mtime, 'mode': stat.mode });
+        } else if (FS.isFile(stat.mode)) {
+          // Performance consideration: storing a normal JavaScript array to a IndexedDB is much slower than storing a typed array.
+          // Therefore always convert the file contents to a typed array first before writing the data to IndexedDB.
+          node.contents = MEMFS.getFileDataAsTypedArray(node);
+          return callback(null, { 'timestamp': stat.mtime, 'mode': stat.mode, 'contents': node.contents });
+        } else {
+          return callback(new Error('node type not supported'));
+        }
+      },
+  storeLocalEntry:(path, entry, callback) => {
+        try {
+          if (FS.isDir(entry['mode'])) {
+            FS.mkdirTree(path, entry['mode']);
+          } else if (FS.isFile(entry['mode'])) {
+            FS.writeFile(path, entry['contents'], { canOwn: true });
+          } else {
+            return callback(new Error('node type not supported'));
+          }
+  
+          FS.chmod(path, entry['mode']);
+          FS.utime(path, entry['timestamp'], entry['timestamp']);
+        } catch (e) {
+          return callback(e);
+        }
+  
+        callback(null);
+      },
+  removeLocalEntry:(path, callback) => {
+        try {
+          var stat = FS.stat(path);
+  
+          if (FS.isDir(stat.mode)) {
+            FS.rmdir(path);
+          } else if (FS.isFile(stat.mode)) {
+            FS.unlink(path);
+          }
+        } catch (e) {
+          return callback(e);
+        }
+  
+        callback(null);
+      },
+  loadRemoteEntry:(store, path, callback) => {
+        var req = store.get(path);
+        req.onsuccess = (event) => callback(null, event.target.result);
+        req.onerror = (e) => {
+          callback(e.target.error);
+          e.preventDefault();
+        };
+      },
+  storeRemoteEntry:(store, path, entry, callback) => {
+        try {
+          var req = store.put(entry, path);
+        } catch (e) {
+          callback(e);
+          return;
+        }
+        req.onsuccess = (event) => callback();
+        req.onerror = (e) => {
+          callback(e.target.error);
+          e.preventDefault();
+        };
+      },
+  removeRemoteEntry:(store, path, callback) => {
+        var req = store.delete(path);
+        req.onsuccess = (event) => callback();
+        req.onerror = (e) => {
+          callback(e.target.error);
+          e.preventDefault();
+        };
+      },
+  reconcile:(src, dst, callback) => {
+        var total = 0;
+  
+        var create = [];
+        Object.keys(src.entries).forEach((key) => {
+          var e = src.entries[key];
+          var e2 = dst.entries[key];
+          if (!e2 || e['timestamp'].getTime() != e2['timestamp'].getTime()) {
+            create.push(key);
+            total++;
+          }
+        });
+  
+        var remove = [];
+        Object.keys(dst.entries).forEach((key) => {
+          if (!src.entries[key]) {
+            remove.push(key);
+            total++;
+          }
+        });
+  
+        if (!total) {
+          return callback(null);
+        }
+  
+        var errored = false;
+        var db = src.type === 'remote' ? src.db : dst.db;
+        var transaction = db.transaction([IDBFS.DB_STORE_NAME], 'readwrite');
+        var store = transaction.objectStore(IDBFS.DB_STORE_NAME);
+  
+        function done(err) {
+          if (err && !errored) {
+            errored = true;
+            return callback(err);
+          }
+        };
+  
+        // transaction may abort if (for example) there is a QuotaExceededError
+        transaction.onerror = transaction.onabort = (e) => {
+          done(e.target.error);
+          e.preventDefault();
+        };
+  
+        transaction.oncomplete = (e) => {
+          if (!errored) {
+            callback(null);
+          }
+        };
+  
+        // sort paths in ascending order so directory entries are created
+        // before the files inside them
+        create.sort().forEach((path) => {
+          if (dst.type === 'local') {
+            IDBFS.loadRemoteEntry(store, path, (err, entry) => {
+              if (err) return done(err);
+              IDBFS.storeLocalEntry(path, entry, done);
+            });
+          } else {
+            IDBFS.loadLocalEntry(path, (err, entry) => {
+              if (err) return done(err);
+              IDBFS.storeRemoteEntry(store, path, entry, done);
+            });
+          }
+        });
+  
+        // sort paths in descending order so files are deleted before their
+        // parent directories
+        remove.sort().reverse().forEach((path) => {
+          if (dst.type === 'local') {
+            IDBFS.removeLocalEntry(path, done);
+          } else {
+            IDBFS.removeRemoteEntry(store, path, done);
+          }
+        });
+      },
+  };
   
   
   
@@ -3523,6 +4048,7 @@ async function createWasm() {
   
         FS.filesystems = {
           'MEMFS': MEMFS,
+          'IDBFS': IDBFS,
         };
       },
   init(input, output, error) {
@@ -3951,6 +4477,29 @@ async function createWasm() {
         return ret;
       },
   };
+  function ___syscall_chdir(path) {
+  try {
+  
+      path = SYSCALLS.getStr(path);
+      FS.chdir(path);
+      return 0;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  }
+
+  /** @suppress {duplicate } */
+  var syscallGetVarargI = () => {
+      assert(SYSCALLS.varargs != undefined);
+      // the `+` prepended here is necessary to convince the JSCompiler that varargs is indeed a number.
+      var ret = HEAP32[((+SYSCALLS.varargs)>>2)];
+      SYSCALLS.varargs += 4;
+      return ret;
+    };
+  var syscallGetVarargP = syscallGetVarargI;
+  
+  
   function ___syscall_fcntl64(fd, cmd, varargs) {
   SYSCALLS.varargs = varargs;
   try {
@@ -4005,6 +4554,26 @@ async function createWasm() {
   try {
   
       return SYSCALLS.writeStat(buf, FS.fstat(fd));
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  }
+
+  
+  var stringToUTF8 = (str, outPtr, maxBytesToWrite) => {
+      assert(typeof maxBytesToWrite == 'number', 'stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!');
+      return stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
+    };
+  function ___syscall_getcwd(buf, size) {
+  try {
+  
+      if (size === 0) return -28;
+      var cwd = FS.cwd();
+      var cwdLengthInBytes = lengthBytesUTF8(cwd) + 1;
+      if (size < cwdLengthInBytes) return -68;
+      stringToUTF8(cwd, buf, size);
+      return cwdLengthInBytes;
     } catch (e) {
     if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
     return -e.errno;
@@ -4118,6 +4687,19 @@ async function createWasm() {
   }
   }
 
+  function ___syscall_mkdirat(dirfd, path, mode) {
+  try {
+  
+      path = SYSCALLS.getStr(path);
+      path = SYSCALLS.calculateAt(dirfd, path);
+      FS.mkdir(path, mode, 0);
+      return 0;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  }
+
   function ___syscall_newfstatat(dirfd, path, buf, flags) {
   try {
   
@@ -4149,6 +4731,41 @@ async function createWasm() {
   }
   }
 
+  
+  
+  function ___syscall_readlinkat(dirfd, path, buf, bufsize) {
+  try {
+  
+      path = SYSCALLS.getStr(path);
+      path = SYSCALLS.calculateAt(dirfd, path);
+      if (bufsize <= 0) return -28;
+      var ret = FS.readlink(path);
+  
+      var len = Math.min(bufsize, lengthBytesUTF8(ret));
+      var endChar = HEAP8[buf+len];
+      stringToUTF8(ret, buf, bufsize+1);
+      // readlink is one of the rare functions that write out a C string, but does never append a null to the output buffer(!)
+      // stringToUTF8() always appends a null byte, so restore the character under the null byte after the write.
+      HEAP8[buf+len] = endChar;
+      return len;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  }
+
+  function ___syscall_rmdir(path) {
+  try {
+  
+      path = SYSCALLS.getStr(path);
+      FS.rmdir(path);
+      return 0;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  }
+
   function ___syscall_stat64(path, buf) {
   try {
   
@@ -4160,11 +4777,131 @@ async function createWasm() {
   }
   }
 
+  function ___syscall_unlinkat(dirfd, path, flags) {
+  try {
+  
+      path = SYSCALLS.getStr(path);
+      path = SYSCALLS.calculateAt(dirfd, path);
+      if (flags === 0) {
+        FS.unlink(path);
+      } else if (flags === 512) {
+        FS.rmdir(path);
+      } else {
+        abort('Invalid flags passed to unlinkat');
+      }
+      return 0;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  }
+
   var __abort_js = () =>
       abort('native code called abort()');
 
   var __emscripten_throw_longjmp = () => {
-      throw Infinity;
+      throw new EmscriptenSjLj;
+    };
+
+  
+  
+  
+  
+  
+  var INT53_MAX = 9007199254740992;
+  
+  var INT53_MIN = -9007199254740992;
+  var bigintToI53Checked = (num) => (num < INT53_MIN || num > INT53_MAX) ? NaN : Number(num);
+  function __mmap_js(len, prot, flags, fd, offset, allocated, addr) {
+    offset = bigintToI53Checked(offset);
+  
+  
+  try {
+  
+      if (isNaN(offset)) return 61;
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      var res = FS.mmap(stream, len, offset, prot, flags);
+      var ptr = res.ptr;
+      HEAP32[((allocated)>>2)] = res.allocated;
+      HEAPU32[((addr)>>2)] = ptr;
+      return 0;
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  ;
+  }
+
+  
+  function __munmap_js(addr, len, prot, flags, fd, offset) {
+    offset = bigintToI53Checked(offset);
+  
+  
+  try {
+  
+      var stream = SYSCALLS.getStreamFromFD(fd);
+      if (prot & 2) {
+        SYSCALLS.doMsync(addr, stream, len, flags, offset);
+      }
+    } catch (e) {
+    if (typeof FS == 'undefined' || !(e.name === 'ErrnoError')) throw e;
+    return -e.errno;
+  }
+  ;
+  }
+
+  
+  var __tzset_js = (timezone, daylight, std_name, dst_name) => {
+      // TODO: Use (malleable) environment variables instead of system settings.
+      var currentYear = new Date().getFullYear();
+      var winter = new Date(currentYear, 0, 1);
+      var summer = new Date(currentYear, 6, 1);
+      var winterOffset = winter.getTimezoneOffset();
+      var summerOffset = summer.getTimezoneOffset();
+  
+      // Local standard timezone offset. Local standard time is not adjusted for
+      // daylight savings.  This code uses the fact that getTimezoneOffset returns
+      // a greater value during Standard Time versus Daylight Saving Time (DST).
+      // Thus it determines the expected output during Standard Time, and it
+      // compares whether the output of the given date the same (Standard) or less
+      // (DST).
+      var stdTimezoneOffset = Math.max(winterOffset, summerOffset);
+  
+      // timezone is specified as seconds west of UTC ("The external variable
+      // `timezone` shall be set to the difference, in seconds, between
+      // Coordinated Universal Time (UTC) and local standard time."), the same
+      // as returned by stdTimezoneOffset.
+      // See http://pubs.opengroup.org/onlinepubs/009695399/functions/tzset.html
+      HEAPU32[((timezone)>>2)] = stdTimezoneOffset * 60;
+  
+      HEAP32[((daylight)>>2)] = Number(winterOffset != summerOffset);
+  
+      var extractZone = (timezoneOffset) => {
+        // Why inverse sign?
+        // Read here https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getTimezoneOffset
+        var sign = timezoneOffset >= 0 ? "-" : "+";
+  
+        var absOffset = Math.abs(timezoneOffset)
+        var hours = String(Math.floor(absOffset / 60)).padStart(2, "0");
+        var minutes = String(absOffset % 60).padStart(2, "0");
+  
+        return `UTC${sign}${hours}${minutes}`;
+      }
+  
+      var winterName = extractZone(winterOffset);
+      var summerName = extractZone(summerOffset);
+      assert(winterName);
+      assert(summerName);
+      assert(lengthBytesUTF8(winterName) <= 16, `timezone name truncated to fit in TZNAME_MAX (${winterName})`);
+      assert(lengthBytesUTF8(summerName) <= 16, `timezone name truncated to fit in TZNAME_MAX (${summerName})`);
+      if (summerOffset < winterOffset) {
+        // Northern hemisphere
+        stringToUTF8(winterName, std_name, 17);
+        stringToUTF8(summerName, dst_name, 17);
+      } else {
+        stringToUTF8(winterName, dst_name, 17);
+        stringToUTF8(summerName, std_name, 17);
+      }
     };
 
   
@@ -5869,6 +6606,94 @@ async function createWasm() {
       }
     };
 
+  var _alDeleteBuffers = (count, pBufferIds) => {
+      if (!AL.currentCtx) {
+        return;
+      }
+  
+      for (var i = 0; i < count; ++i) {
+        var bufId = HEAP32[(((pBufferIds)+(i*4))>>2)];
+        /// Deleting the zero buffer is a legal NOP, so ignore it
+        if (bufId === 0) {
+          continue;
+        }
+  
+        // Make sure the buffer index is valid.
+        if (!AL.buffers[bufId]) {
+          AL.currentCtx.err = 40961;
+          return;
+        }
+  
+        // Make sure the buffer is no longer in use.
+        if (AL.buffers[bufId].refCount) {
+          AL.currentCtx.err = 40964;
+          return;
+        }
+      }
+  
+      for (var i = 0; i < count; ++i) {
+        var bufId = HEAP32[(((pBufferIds)+(i*4))>>2)];
+        if (bufId === 0) {
+          continue;
+        }
+  
+        AL.deviceRefCounts[AL.buffers[bufId].deviceId]--;
+        delete AL.buffers[bufId];
+        AL.freeIds.push(bufId);
+      }
+    };
+
+  var _alSourcei = (sourceId, param, value) => {
+      switch (param) {
+      case 0x202 /* AL_SOURCE_RELATIVE */:
+      case 0x1001 /* AL_CONE_INNER_ANGLE */:
+      case 0x1002 /* AL_CONE_OUTER_ANGLE */:
+      case 0x1007 /* AL_LOOPING */:
+      case 0x1009 /* AL_BUFFER */:
+      case 0x1020 /* AL_REFERENCE_DISTANCE */:
+      case 0x1021 /* AL_ROLLOFF_FACTOR */:
+      case 0x1023 /* AL_MAX_DISTANCE */:
+      case 0x1024 /* AL_SEC_OFFSET */:
+      case 0x1025 /* AL_SAMPLE_OFFSET */:
+      case 0x1026 /* AL_BYTE_OFFSET */:
+      case 0x1214 /* AL_SOURCE_SPATIALIZE_SOFT */:
+      case 0x2009 /* AL_BYTE_LENGTH_SOFT */:
+      case 0x200A /* AL_SAMPLE_LENGTH_SOFT */:
+      case 53248:
+        AL.setSourceParam('alSourcei', sourceId, param, value);
+        break;
+      default:
+        AL.setSourceParam('alSourcei', sourceId, param, null);
+        break;
+      }
+    };
+  
+  var _alDeleteSources = (count, pSourceIds) => {
+      if (!AL.currentCtx) {
+        return;
+      }
+  
+      for (var i = 0; i < count; ++i) {
+        var srcId = HEAP32[(((pSourceIds)+(i*4))>>2)];
+        if (!AL.currentCtx.sources[srcId]) {
+          AL.currentCtx.err = 40961;
+          return;
+        }
+      }
+  
+      for (var i = 0; i < count; ++i) {
+        var srcId = HEAP32[(((pSourceIds)+(i*4))>>2)];
+        AL.setSourceState(AL.currentCtx.sources[srcId], 4116);
+        _alSourcei(srcId, 0x1009 /* AL_BUFFER */, 0);
+        delete AL.currentCtx.sources[srcId];
+        AL.freeIds.push(srcId);
+      }
+    };
+
+  var _alDistanceModel = (model) => {
+      AL.setGlobalParam('alDistanceModel', 53248, model);
+    };
+
   var _alGenBuffers = (count, pBufferIds) => {
       if (!AL.currentCtx) {
         return;
@@ -5937,6 +6762,214 @@ async function createWasm() {
       }
     };
 
+  var _alGetError = () => {
+      if (!AL.currentCtx) {
+        return 40964;
+      }
+      // Reset error on get.
+      var err = AL.currentCtx.err;
+      AL.currentCtx.err = 0;
+      return err;
+    };
+
+  var _alGetListenerfv = (param, pValues) => {
+      var val = AL.getListenerParam('alGetListenerfv', param);
+      if (val === null) {
+        return;
+      }
+      if (!pValues) {
+        AL.currentCtx.err = 40963;
+        return;
+      }
+  
+      switch (param) {
+      case 4100:
+      case 4102:
+        HEAPF32[((pValues)>>2)] = val[0];
+        HEAPF32[(((pValues)+(4))>>2)] = val[1];
+        HEAPF32[(((pValues)+(8))>>2)] = val[2];
+        break;
+      case 4111:
+        HEAPF32[((pValues)>>2)] = val[0];
+        HEAPF32[(((pValues)+(4))>>2)] = val[1];
+        HEAPF32[(((pValues)+(8))>>2)] = val[2];
+        HEAPF32[(((pValues)+(12))>>2)] = val[3];
+        HEAPF32[(((pValues)+(16))>>2)] = val[4];
+        HEAPF32[(((pValues)+(20))>>2)] = val[5];
+        break;
+      default:
+        AL.currentCtx.err = 40962;
+        return;
+      }
+    };
+
+  var _alGetSourcei = (sourceId, param, pValue) => {
+      var val = AL.getSourceParam('alGetSourcei', sourceId, param);
+      if (val === null) {
+        return;
+      }
+      if (!pValue) {
+        AL.currentCtx.err = 40963;
+        return;
+      }
+  
+      switch (param) {
+      case 0x202 /* AL_SOURCE_RELATIVE */:
+      case 0x1001 /* AL_CONE_INNER_ANGLE */:
+      case 0x1002 /* AL_CONE_OUTER_ANGLE */:
+      case 0x1007 /* AL_LOOPING */:
+      case 0x1009 /* AL_BUFFER */:
+      case 0x1010 /* AL_SOURCE_STATE */:
+      case 0x1015 /* AL_BUFFERS_QUEUED */:
+      case 0x1016 /* AL_BUFFERS_PROCESSED */:
+      case 0x1020 /* AL_REFERENCE_DISTANCE */:
+      case 0x1021 /* AL_ROLLOFF_FACTOR */:
+      case 0x1023 /* AL_MAX_DISTANCE */:
+      case 0x1024 /* AL_SEC_OFFSET */:
+      case 0x1025 /* AL_SAMPLE_OFFSET */:
+      case 0x1026 /* AL_BYTE_OFFSET */:
+      case 0x1027 /* AL_SOURCE_TYPE */:
+      case 0x1214 /* AL_SOURCE_SPATIALIZE_SOFT */:
+      case 0x2009 /* AL_BYTE_LENGTH_SOFT */:
+      case 0x200A /* AL_SAMPLE_LENGTH_SOFT */:
+      case 53248:
+        HEAP32[((pValue)>>2)] = val;
+        break;
+      default:
+        AL.currentCtx.err = 40962;
+        return;
+      }
+    };
+
+  
+  
+  var stringToNewUTF8 = (str) => {
+      var size = lengthBytesUTF8(str) + 1;
+      var ret = _malloc(size);
+      if (ret) stringToUTF8(str, ret, size);
+      return ret;
+    };
+  
+  var _alGetString = (param) => {
+      if (AL.stringCache[param]) {
+        return AL.stringCache[param];
+      }
+  
+      var ret;
+      switch (param) {
+      case 0:
+        ret = 'No Error';
+        break;
+      case 40961:
+        ret = 'Invalid Name';
+        break;
+      case 40962:
+        ret = 'Invalid Enum';
+        break;
+      case 40963:
+        ret = 'Invalid Value';
+        break;
+      case 40964:
+        ret = 'Invalid Operation';
+        break;
+      case 0xA005 /* AL_OUT_OF_MEMORY */:
+        ret = 'Out of Memory';
+        break;
+      case 0xB001 /* AL_VENDOR */:
+        ret = 'Emscripten';
+        break;
+      case 0xB002 /* AL_VERSION */:
+        ret = '1.1';
+        break;
+      case 0xB003 /* AL_RENDERER */:
+        ret = 'WebAudio';
+        break;
+      case 0xB004 /* AL_EXTENSIONS */:
+        ret = Object.keys(AL.AL_EXTENSIONS).join(' ');
+        break;
+      default:
+        if (AL.currentCtx) {
+          AL.currentCtx.err = 40962;
+        } else {
+        }
+        return 0;
+      }
+  
+      ret = stringToNewUTF8(ret);
+      AL.stringCache[param] = ret;
+      return ret;
+    };
+
+  
+  var _alIsExtensionPresent = (pExtName) => {
+      var name = UTF8ToString(pExtName);
+  
+      return AL.AL_EXTENSIONS[name] ? 1 : 0;
+    };
+
+  var _alListener3f = (param, value0, value1, value2) => {
+      switch (param) {
+      case 4100:
+      case 4102:
+        AL.paramArray[0] = value0;
+        AL.paramArray[1] = value1;
+        AL.paramArray[2] = value2;
+        AL.setListenerParam('alListener3f', param, AL.paramArray);
+        break;
+      default:
+        AL.setListenerParam('alListener3f', param, null);
+        break;
+      }
+    };
+
+  var _alListenerfv = (param, pValues) => {
+      if (!AL.currentCtx) {
+        return;
+      }
+      if (!pValues) {
+        AL.currentCtx.err = 40963;
+        return;
+      }
+  
+      switch (param) {
+      case 4100:
+      case 4102:
+        AL.paramArray[0] = HEAPF32[((pValues)>>2)];
+        AL.paramArray[1] = HEAPF32[(((pValues)+(4))>>2)];
+        AL.paramArray[2] = HEAPF32[(((pValues)+(8))>>2)];
+        AL.setListenerParam('alListenerfv', param, AL.paramArray);
+        break;
+      case 4111:
+        AL.paramArray[0] = HEAPF32[((pValues)>>2)];
+        AL.paramArray[1] = HEAPF32[(((pValues)+(4))>>2)];
+        AL.paramArray[2] = HEAPF32[(((pValues)+(8))>>2)];
+        AL.paramArray[3] = HEAPF32[(((pValues)+(12))>>2)];
+        AL.paramArray[4] = HEAPF32[(((pValues)+(16))>>2)];
+        AL.paramArray[5] = HEAPF32[(((pValues)+(20))>>2)];
+        AL.setListenerParam('alListenerfv', param, AL.paramArray);
+        break;
+      default:
+        AL.setListenerParam('alListenerfv', param, null);
+        break;
+      }
+    };
+
+  var _alSource3f = (sourceId, param, value0, value1, value2) => {
+      switch (param) {
+      case 4100:
+      case 4101:
+      case 4102:
+        AL.paramArray[0] = value0;
+        AL.paramArray[1] = value1;
+        AL.paramArray[2] = value2;
+        AL.setSourceParam('alSource3f', sourceId, param, AL.paramArray);
+        break;
+      default:
+        AL.setSourceParam('alSource3f', sourceId, param, null);
+        break;
+      }
+    };
+
   var _alSourcePlay = (sourceId) => {
       if (!AL.currentCtx) {
         return;
@@ -5947,6 +6980,18 @@ async function createWasm() {
         return;
       }
       AL.setSourceState(src, 4114);
+    };
+
+  var _alSourceStop = (sourceId) => {
+      if (!AL.currentCtx) {
+        return;
+      }
+      var src = AL.currentCtx.sources[sourceId];
+      if (!src) {
+        AL.currentCtx.err = 40961;
+        return;
+      }
+      AL.setSourceState(src, 4116);
     };
 
   var _alSourcef = (sourceId, param, value) => {
@@ -5973,29 +7018,15 @@ async function createWasm() {
       }
     };
 
-  var _alSourcei = (sourceId, param, value) => {
-      switch (param) {
-      case 0x202 /* AL_SOURCE_RELATIVE */:
-      case 0x1001 /* AL_CONE_INNER_ANGLE */:
-      case 0x1002 /* AL_CONE_OUTER_ANGLE */:
-      case 0x1007 /* AL_LOOPING */:
-      case 0x1009 /* AL_BUFFER */:
-      case 0x1020 /* AL_REFERENCE_DISTANCE */:
-      case 0x1021 /* AL_ROLLOFF_FACTOR */:
-      case 0x1023 /* AL_MAX_DISTANCE */:
-      case 0x1024 /* AL_SEC_OFFSET */:
-      case 0x1025 /* AL_SAMPLE_OFFSET */:
-      case 0x1026 /* AL_BYTE_OFFSET */:
-      case 0x1214 /* AL_SOURCE_SPATIALIZE_SOFT */:
-      case 0x2009 /* AL_BYTE_LENGTH_SOFT */:
-      case 0x200A /* AL_SAMPLE_LENGTH_SOFT */:
-      case 53248:
-        AL.setSourceParam('alSourcei', sourceId, param, value);
-        break;
-      default:
-        AL.setSourceParam('alSourcei', sourceId, param, null);
-        break;
+
+  var _alcCloseDevice = (deviceId) => {
+      if (!(deviceId in AL.deviceRefCounts) || AL.deviceRefCounts[deviceId] > 0) {
+        return 0;
       }
+  
+      delete AL.deviceRefCounts[deviceId];
+      AL.freeIds.push(deviceId);
+      return 1;
     };
 
   var listenOnce = (object, event, func) =>
@@ -6154,6 +7185,158 @@ async function createWasm() {
       return ctx.id;
     };
 
+  var _alcDestroyContext = (contextId) => {
+      var ctx = AL.contexts[contextId];
+      if (AL.currentCtx === ctx) {
+        AL.alcErr = 0xA002 /* ALC_INVALID_CONTEXT */;
+        return;
+      }
+  
+      // Stop playback, etc
+      if (AL.contexts[contextId].interval) {
+        clearInterval(AL.contexts[contextId].interval);
+      }
+      AL.deviceRefCounts[ctx.deviceId]--;
+      delete AL.contexts[contextId];
+      AL.freeIds.push(contextId);
+    };
+
+  var _alcGetContextsDevice = (contextId) => {
+      if (contextId in AL.contexts) {
+        return AL.contexts[contextId].deviceId;
+      }
+      return 0;
+    };
+
+  var _alcGetCurrentContext = () => {
+      if (AL.currentCtx !== null) {
+        return AL.currentCtx.id;
+      }
+      return 0;
+    };
+
+  var _alcGetIntegerv = (deviceId, param, size, pValues) => {
+      if (size === 0 || !pValues) {
+        // Ignore the query, per the spec
+        return;
+      }
+  
+      switch (param) {
+      case 0x1000 /* ALC_MAJOR_VERSION */:
+        HEAP32[((pValues)>>2)] = 1;
+        break;
+      case 0x1001 /* ALC_MINOR_VERSION */:
+        HEAP32[((pValues)>>2)] = 1;
+        break;
+      case 0x1002 /* ALC_ATTRIBUTES_SIZE */:
+        if (!(deviceId in AL.deviceRefCounts)) {
+          AL.alcErr = 40961;
+          return;
+        }
+        if (!AL.currentCtx) {
+          AL.alcErr = 0xA002 /* ALC_INVALID_CONTEXT */;
+          return;
+        }
+  
+        HEAP32[((pValues)>>2)] = AL.currentCtx.attrs.length;
+        break;
+      case 0x1003 /* ALC_ALL_ATTRIBUTES */:
+        if (!(deviceId in AL.deviceRefCounts)) {
+          AL.alcErr = 40961;
+          return;
+        }
+        if (!AL.currentCtx) {
+          AL.alcErr = 0xA002 /* ALC_INVALID_CONTEXT */;
+          return;
+        }
+  
+        for (var i = 0; i < AL.currentCtx.attrs.length; i++) {
+          HEAP32[(((pValues)+(i*4))>>2)] = AL.currentCtx.attrs[i];
+        }
+        break;
+      case 0x1007 /* ALC_FREQUENCY */:
+        if (!(deviceId in AL.deviceRefCounts)) {
+          AL.alcErr = 40961;
+          return;
+        }
+        if (!AL.currentCtx) {
+          AL.alcErr = 0xA002 /* ALC_INVALID_CONTEXT */;
+          return;
+        }
+  
+        HEAP32[((pValues)>>2)] = AL.currentCtx.audioCtx.sampleRate;
+        break;
+      case 0x1010 /* ALC_MONO_SOURCES */:
+      case 0x1011 /* ALC_STEREO_SOURCES */:
+        if (!(deviceId in AL.deviceRefCounts)) {
+          AL.alcErr = 40961;
+          return;
+        }
+        if (!AL.currentCtx) {
+          AL.alcErr = 0xA002 /* ALC_INVALID_CONTEXT */;
+          return;
+        }
+  
+        HEAP32[((pValues)>>2)] = 0x7FFFFFFF;
+        break;
+      case 0x1992 /* ALC_HRTF_SOFT */:
+      case 0x1993 /* ALC_HRTF_STATUS_SOFT */:
+        if (!(deviceId in AL.deviceRefCounts)) {
+          AL.alcErr = 40961;
+          return;
+        }
+  
+        var hrtfStatus = 0 /* ALC_HRTF_DISABLED_SOFT */;
+        for (var ctxId in AL.contexts) {
+          var ctx = AL.contexts[ctxId];
+          if (ctx.deviceId === deviceId) {
+            hrtfStatus = ctx.hrtf ? 1 /* ALC_HRTF_ENABLED_SOFT */ : 0 /* ALC_HRTF_DISABLED_SOFT */;
+          }
+        }
+        HEAP32[((pValues)>>2)] = hrtfStatus;
+        break;
+      case 0x1994 /* ALC_NUM_HRTF_SPECIFIERS_SOFT */:
+        if (!(deviceId in AL.deviceRefCounts)) {
+          AL.alcErr = 40961;
+          return;
+        }
+        HEAP32[((pValues)>>2)] = 1;
+        break;
+      case 0x20003 /* ALC_MAX_AUXILIARY_SENDS */:
+        if (!(deviceId in AL.deviceRefCounts)) {
+          AL.alcErr = 40961;
+          return;
+        }
+        if (!AL.currentCtx) {
+          AL.alcErr = 0xA002 /* ALC_INVALID_CONTEXT */;
+          return;
+        }
+  
+        HEAP32[((pValues)>>2)] = 1;
+      case 0x312 /* ALC_CAPTURE_SAMPLES */:
+        var c = AL.requireValidCaptureDevice(deviceId, 'alcGetIntegerv');
+        if (!c) {
+          return;
+        }
+        var n = c.capturedFrameCount;
+        var dstfreq = c.requestedSampleRate;
+        var srcfreq = c.audioCtx.sampleRate;
+        var nsamples = Math.floor(n * (dstfreq/srcfreq));
+        HEAP32[((pValues)>>2)] = nsamples;
+        break;
+      default:
+        AL.alcErr = 40963;
+        return;
+      }
+    };
+
+  
+  var _alcIsExtensionPresent = (deviceId, pExtName) => {
+      var name = UTF8ToString(pExtName);
+  
+      return AL.ALC_EXTENSIONS[name] ? 1 : 0;
+    };
+
   var _alcMakeContextCurrent = (contextId) => {
       if (contextId === 0) {
         AL.currentCtx = null;
@@ -6187,10 +7370,6 @@ async function createWasm() {
   
   var checkWasiClock = (clock_id) => clock_id >= 0 && clock_id <= 3;
   
-  var INT53_MAX = 9007199254740992;
-  
-  var INT53_MIN = -9007199254740992;
-  var bigintToI53Checked = (num) => (num < INT53_MIN || num > INT53_MAX) ? NaN : Number(num);
   function _clock_time_get(clk_id, ignored_precision, ptime) {
     ignored_precision = bigintToI53Checked(ignored_precision);
   
@@ -7348,18 +8527,6 @@ async function createWasm() {
     };
 
   
-  var stringToUTF8 = (str, outPtr, maxBytesToWrite) => {
-      assert(typeof maxBytesToWrite == 'number', 'stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!');
-      return stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
-    };
-  
-  var stringToNewUTF8 = (str) => {
-      var size = lengthBytesUTF8(str) + 1;
-      var ret = _malloc(size);
-      if (ret) stringToUTF8(str, ret, size);
-      return ret;
-    };
-  
   var _eglQueryString = (display, name) => {
       if (display != 62000) {
         EGL.setErrorCode(0x3008 /* EGL_BAD_DISPLAY */);
@@ -7974,6 +9141,8 @@ async function createWasm() {
       return 0;
     };
 
+  var _emscripten_err = (str) => err(UTF8ToString(str));
+
   
   
   
@@ -8103,6 +9272,14 @@ async function createWasm() {
       fillGamepadEventData(gamepadState, JSEvents.lastGamepadState[index]);
       return 0;
     };
+
+  var getHeapMax = () =>
+      // Stay one Wasm page short of 4GB: while e.g. Chrome is able to allocate
+      // full 4GB Wasm memories, the size will wrap back to 0 bytes in Wasm side
+      // for any code that deals with heap sizes, which would require special
+      // casing all heap size related code to treat 0 specially.
+      2147483648;
+  var _emscripten_get_heap_max = () => getHeapMax();
 
 
   var _emscripten_get_num_gamepads = () => {
@@ -10945,17 +12122,7 @@ async function createWasm() {
       return requestPointerLock(target);
     };
 
-  var getHeapMax = () =>
-      // Stay one Wasm page short of 4GB: while e.g. Chrome is able to allocate
-      // full 4GB Wasm memories, the size will wrap back to 0 bytes in Wasm side
-      // for any code that deals with heap sizes, which would require special
-      // casing all heap size related code to treat 0 specially.
-      2147483648;
   
-  var alignMemory = (size, alignment) => {
-      assert(alignment, "alignment argument is required");
-      return Math.ceil(size / alignment) * alignment;
-    };
   
   var growMemory = (size) => {
       var b = wasmMemory.buffer;
@@ -11665,6 +12832,7 @@ async function createWasm() {
       return 0;
     };
 
+
   function _fd_close(fd) {
   try {
   
@@ -11803,6 +12971,42 @@ async function createWasm() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   var dynCall = (sig, ptr, args = [], promising = false) => {
       assert(!promising, 'async dynCall is not supported in this mode')
       assert(getWasmTableEntry(ptr), `missing table entry in dynCall: ${ptr}`);
@@ -11824,6 +13028,37 @@ async function createWasm() {
   var FS_createLazyFile = FS.createLazyFile;
 
   var FS_createDevice = FS.createDevice;
+
+  var incrementExceptionRefcount = (ptr) => ___cxa_increment_exception_refcount(ptr);
+  Module['incrementExceptionRefcount'] = incrementExceptionRefcount;
+
+  var decrementExceptionRefcount = (ptr) => ___cxa_decrement_exception_refcount(ptr);
+  Module['decrementExceptionRefcount'] = decrementExceptionRefcount;
+
+  
+  
+  
+  
+  
+  var getExceptionMessageCommon = (ptr) => {
+      var sp = stackSave();
+      var type_addr_addr = stackAlloc(4);
+      var message_addr_addr = stackAlloc(4);
+      ___get_exception_message(ptr, type_addr_addr, message_addr_addr);
+      var type_addr = HEAPU32[((type_addr_addr)>>2)];
+      var message_addr = HEAPU32[((message_addr_addr)>>2)];
+      var type = UTF8ToString(type_addr);
+      _free(type_addr);
+      var message;
+      if (message_addr) {
+        message = UTF8ToString(message_addr);
+        _free(message_addr);
+      }
+      stackRestore(sp);
+      return [type, message];
+    };
+  var getExceptionMessage = (ptr) => getExceptionMessageCommon(ptr);
+  Module['getExceptionMessage'] = getExceptionMessage;
 
   FS.createPreloadedFile = FS_createPreloadedFile;
   FS.staticInit();
@@ -11855,62 +13090,144 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
 var ASM_CONSTS = {
-  582799: ($0) => { var str = UTF8ToString($0) + '\n\n' + 'Abort/Retry/Ignore/AlwaysIgnore? [ariA] :'; var reply = window.prompt(str, "i"); if (reply === null) { reply = "i"; } return allocate(intArrayFromString(reply), 'i8', ALLOC_NORMAL); },  
- 583024: () => { if (typeof(AudioContext) !== 'undefined') { return true; } else if (typeof(webkitAudioContext) !== 'undefined') { return true; } return false; },  
- 583171: () => { if ((typeof(navigator.mediaDevices) !== 'undefined') && (typeof(navigator.mediaDevices.getUserMedia) !== 'undefined')) { return true; } else if (typeof(navigator.webkitGetUserMedia) !== 'undefined') { return true; } return false; },  
- 583405: ($0) => { if(typeof(Module['SDL2']) === 'undefined') { Module['SDL2'] = {}; } var SDL2 = Module['SDL2']; if (!$0) { SDL2.audio = {}; } else { SDL2.capture = {}; } if (!SDL2.audioContext) { if (typeof(AudioContext) !== 'undefined') { SDL2.audioContext = new AudioContext(); } else if (typeof(webkitAudioContext) !== 'undefined') { SDL2.audioContext = new webkitAudioContext(); } if (SDL2.audioContext) { if ((typeof navigator.userActivation) === 'undefined') { autoResumeAudioContext(SDL2.audioContext); } } } return SDL2.audioContext === undefined ? -1 : 0; },  
- 583957: () => { var SDL2 = Module['SDL2']; return SDL2.audioContext.sampleRate; },  
- 584025: ($0, $1, $2, $3) => { var SDL2 = Module['SDL2']; var have_microphone = function(stream) { if (SDL2.capture.silenceTimer !== undefined) { clearInterval(SDL2.capture.silenceTimer); SDL2.capture.silenceTimer = undefined; SDL2.capture.silenceBuffer = undefined } SDL2.capture.mediaStreamNode = SDL2.audioContext.createMediaStreamSource(stream); SDL2.capture.scriptProcessorNode = SDL2.audioContext.createScriptProcessor($1, $0, 1); SDL2.capture.scriptProcessorNode.onaudioprocess = function(audioProcessingEvent) { if ((SDL2 === undefined) || (SDL2.capture === undefined)) { return; } audioProcessingEvent.outputBuffer.getChannelData(0).fill(0.0); SDL2.capture.currentCaptureBuffer = audioProcessingEvent.inputBuffer; dynCall('vi', $2, [$3]); }; SDL2.capture.mediaStreamNode.connect(SDL2.capture.scriptProcessorNode); SDL2.capture.scriptProcessorNode.connect(SDL2.audioContext.destination); SDL2.capture.stream = stream; }; var no_microphone = function(error) { }; SDL2.capture.silenceBuffer = SDL2.audioContext.createBuffer($0, $1, SDL2.audioContext.sampleRate); SDL2.capture.silenceBuffer.getChannelData(0).fill(0.0); var silence_callback = function() { SDL2.capture.currentCaptureBuffer = SDL2.capture.silenceBuffer; dynCall('vi', $2, [$3]); }; SDL2.capture.silenceTimer = setInterval(silence_callback, ($1 / SDL2.audioContext.sampleRate) * 1000); if ((navigator.mediaDevices !== undefined) && (navigator.mediaDevices.getUserMedia !== undefined)) { navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(have_microphone).catch(no_microphone); } else if (navigator.webkitGetUserMedia !== undefined) { navigator.webkitGetUserMedia({ audio: true, video: false }, have_microphone, no_microphone); } },  
- 585718: ($0, $1, $2, $3) => { var SDL2 = Module['SDL2']; SDL2.audio.scriptProcessorNode = SDL2.audioContext['createScriptProcessor']($1, 0, $0); SDL2.audio.scriptProcessorNode['onaudioprocess'] = function (e) { if ((SDL2 === undefined) || (SDL2.audio === undefined)) { return; } if (SDL2.audio.silenceTimer !== undefined) { clearInterval(SDL2.audio.silenceTimer); SDL2.audio.silenceTimer = undefined; SDL2.audio.silenceBuffer = undefined; } SDL2.audio.currentOutputBuffer = e['outputBuffer']; dynCall('vi', $2, [$3]); }; SDL2.audio.scriptProcessorNode['connect'](SDL2.audioContext['destination']); if (SDL2.audioContext.state === 'suspended') { SDL2.audio.silenceBuffer = SDL2.audioContext.createBuffer($0, $1, SDL2.audioContext.sampleRate); SDL2.audio.silenceBuffer.getChannelData(0).fill(0.0); var silence_callback = function() { if ((typeof navigator.userActivation) !== 'undefined') { if (navigator.userActivation.hasBeenActive) { SDL2.audioContext.resume(); } } SDL2.audio.currentOutputBuffer = SDL2.audio.silenceBuffer; dynCall('vi', $2, [$3]); SDL2.audio.currentOutputBuffer = undefined; }; SDL2.audio.silenceTimer = setInterval(silence_callback, ($1 / SDL2.audioContext.sampleRate) * 1000); } },  
- 586893: ($0, $1) => { var SDL2 = Module['SDL2']; var numChannels = SDL2.capture.currentCaptureBuffer.numberOfChannels; for (var c = 0; c < numChannels; ++c) { var channelData = SDL2.capture.currentCaptureBuffer.getChannelData(c); if (channelData.length != $1) { throw 'Web Audio capture buffer length mismatch! Destination size: ' + channelData.length + ' samples vs expected ' + $1 + ' samples!'; } if (numChannels == 1) { for (var j = 0; j < $1; ++j) { setValue($0 + (j * 4), channelData[j], 'float'); } } else { for (var j = 0; j < $1; ++j) { setValue($0 + (((j * numChannels) + c) * 4), channelData[j], 'float'); } } } },  
- 587498: ($0, $1) => { var SDL2 = Module['SDL2']; var buf = $0 >>> 2; var numChannels = SDL2.audio.currentOutputBuffer['numberOfChannels']; for (var c = 0; c < numChannels; ++c) { var channelData = SDL2.audio.currentOutputBuffer['getChannelData'](c); if (channelData.length != $1) { throw 'Web Audio output buffer length mismatch! Destination size: ' + channelData.length + ' samples vs expected ' + $1 + ' samples!'; } for (var j = 0; j < $1; ++j) { channelData[j] = HEAPF32[buf + (j*numChannels + c)]; } } },  
- 587987: ($0) => { var SDL2 = Module['SDL2']; if ($0) { if (SDL2.capture.silenceTimer !== undefined) { clearInterval(SDL2.capture.silenceTimer); } if (SDL2.capture.stream !== undefined) { var tracks = SDL2.capture.stream.getAudioTracks(); for (var i = 0; i < tracks.length; i++) { SDL2.capture.stream.removeTrack(tracks[i]); } } if (SDL2.capture.scriptProcessorNode !== undefined) { SDL2.capture.scriptProcessorNode.onaudioprocess = function(audioProcessingEvent) {}; SDL2.capture.scriptProcessorNode.disconnect(); } if (SDL2.capture.mediaStreamNode !== undefined) { SDL2.capture.mediaStreamNode.disconnect(); } SDL2.capture = undefined; } else { if (SDL2.audio.scriptProcessorNode != undefined) { SDL2.audio.scriptProcessorNode.disconnect(); } if (SDL2.audio.silenceTimer !== undefined) { clearInterval(SDL2.audio.silenceTimer); } SDL2.audio = undefined; } if ((SDL2.audioContext !== undefined) && (SDL2.audio === undefined) && (SDL2.capture === undefined)) { SDL2.audioContext.close(); SDL2.audioContext = undefined; } },  
- 588993: ($0, $1, $2) => { var w = $0; var h = $1; var pixels = $2; if (!Module['SDL2']) Module['SDL2'] = {}; var SDL2 = Module['SDL2']; if (SDL2.ctxCanvas !== Module['canvas']) { SDL2.ctx = Module['createContext'](Module['canvas'], false, true); SDL2.ctxCanvas = Module['canvas']; } if (SDL2.w !== w || SDL2.h !== h || SDL2.imageCtx !== SDL2.ctx) { SDL2.image = SDL2.ctx.createImageData(w, h); SDL2.w = w; SDL2.h = h; SDL2.imageCtx = SDL2.ctx; } var data = SDL2.image.data; var src = pixels / 4; var dst = 0; var num; if (typeof CanvasPixelArray !== 'undefined' && data instanceof CanvasPixelArray) { num = data.length; while (dst < num) { var val = HEAP32[src]; data[dst ] = val & 0xff; data[dst+1] = (val >> 8) & 0xff; data[dst+2] = (val >> 16) & 0xff; data[dst+3] = 0xff; src++; dst += 4; } } else { if (SDL2.data32Data !== data) { SDL2.data32 = new Int32Array(data.buffer); SDL2.data8 = new Uint8Array(data.buffer); SDL2.data32Data = data; } var data32 = SDL2.data32; num = data32.length; data32.set(HEAP32.subarray(src, src + num)); var data8 = SDL2.data8; var i = 3; var j = i + 4*num; if (num % 8 == 0) { while (i < j) { data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; } } else { while (i < j) { data8[i] = 0xff; i = i + 4 | 0; } } } SDL2.ctx.putImageData(SDL2.image, 0, 0); },  
- 590461: ($0, $1, $2, $3, $4) => { var w = $0; var h = $1; var hot_x = $2; var hot_y = $3; var pixels = $4; var canvas = document.createElement("canvas"); canvas.width = w; canvas.height = h; var ctx = canvas.getContext("2d"); var image = ctx.createImageData(w, h); var data = image.data; var src = pixels / 4; var dst = 0; var num; if (typeof CanvasPixelArray !== 'undefined' && data instanceof CanvasPixelArray) { num = data.length; while (dst < num) { var val = HEAP32[src]; data[dst ] = val & 0xff; data[dst+1] = (val >> 8) & 0xff; data[dst+2] = (val >> 16) & 0xff; data[dst+3] = (val >> 24) & 0xff; src++; dst += 4; } } else { var data32 = new Int32Array(data.buffer); num = data32.length; data32.set(HEAP32.subarray(src, src + num)); } ctx.putImageData(image, 0, 0); var url = hot_x === 0 && hot_y === 0 ? "url(" + canvas.toDataURL() + "), auto" : "url(" + canvas.toDataURL() + ") " + hot_x + " " + hot_y + ", auto"; var urlBuf = _malloc(url.length + 1); stringToUTF8(url, urlBuf, url.length + 1); return urlBuf; },  
- 591449: ($0) => { if (Module['canvas']) { Module['canvas'].style['cursor'] = UTF8ToString($0); } },  
- 591532: () => { if (Module['canvas']) { Module['canvas'].style['cursor'] = 'none'; } },  
- 591601: () => { return window.innerWidth; },  
- 591631: () => { return window.innerHeight; }
+  1520132: () => { if (typeof(AudioContext) !== 'undefined') { return true; } else if (typeof(webkitAudioContext) !== 'undefined') { return true; } return false; },  
+ 1520279: () => { if ((typeof(navigator.mediaDevices) !== 'undefined') && (typeof(navigator.mediaDevices.getUserMedia) !== 'undefined')) { return true; } else if (typeof(navigator.webkitGetUserMedia) !== 'undefined') { return true; } return false; },  
+ 1520513: ($0) => { if(typeof(Module['SDL2']) === 'undefined') { Module['SDL2'] = {}; } var SDL2 = Module['SDL2']; if (!$0) { SDL2.audio = {}; } else { SDL2.capture = {}; } if (!SDL2.audioContext) { if (typeof(AudioContext) !== 'undefined') { SDL2.audioContext = new AudioContext(); } else if (typeof(webkitAudioContext) !== 'undefined') { SDL2.audioContext = new webkitAudioContext(); } if (SDL2.audioContext) { if ((typeof navigator.userActivation) === 'undefined') { autoResumeAudioContext(SDL2.audioContext); } } } return SDL2.audioContext === undefined ? -1 : 0; },  
+ 1521065: () => { var SDL2 = Module['SDL2']; return SDL2.audioContext.sampleRate; },  
+ 1521133: ($0, $1, $2, $3) => { var SDL2 = Module['SDL2']; var have_microphone = function(stream) { if (SDL2.capture.silenceTimer !== undefined) { clearInterval(SDL2.capture.silenceTimer); SDL2.capture.silenceTimer = undefined; SDL2.capture.silenceBuffer = undefined } SDL2.capture.mediaStreamNode = SDL2.audioContext.createMediaStreamSource(stream); SDL2.capture.scriptProcessorNode = SDL2.audioContext.createScriptProcessor($1, $0, 1); SDL2.capture.scriptProcessorNode.onaudioprocess = function(audioProcessingEvent) { if ((SDL2 === undefined) || (SDL2.capture === undefined)) { return; } audioProcessingEvent.outputBuffer.getChannelData(0).fill(0.0); SDL2.capture.currentCaptureBuffer = audioProcessingEvent.inputBuffer; dynCall('vi', $2, [$3]); }; SDL2.capture.mediaStreamNode.connect(SDL2.capture.scriptProcessorNode); SDL2.capture.scriptProcessorNode.connect(SDL2.audioContext.destination); SDL2.capture.stream = stream; }; var no_microphone = function(error) { }; SDL2.capture.silenceBuffer = SDL2.audioContext.createBuffer($0, $1, SDL2.audioContext.sampleRate); SDL2.capture.silenceBuffer.getChannelData(0).fill(0.0); var silence_callback = function() { SDL2.capture.currentCaptureBuffer = SDL2.capture.silenceBuffer; dynCall('vi', $2, [$3]); }; SDL2.capture.silenceTimer = setInterval(silence_callback, ($1 / SDL2.audioContext.sampleRate) * 1000); if ((navigator.mediaDevices !== undefined) && (navigator.mediaDevices.getUserMedia !== undefined)) { navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(have_microphone).catch(no_microphone); } else if (navigator.webkitGetUserMedia !== undefined) { navigator.webkitGetUserMedia({ audio: true, video: false }, have_microphone, no_microphone); } },  
+ 1522826: ($0, $1, $2, $3) => { var SDL2 = Module['SDL2']; SDL2.audio.scriptProcessorNode = SDL2.audioContext['createScriptProcessor']($1, 0, $0); SDL2.audio.scriptProcessorNode['onaudioprocess'] = function (e) { if ((SDL2 === undefined) || (SDL2.audio === undefined)) { return; } if (SDL2.audio.silenceTimer !== undefined) { clearInterval(SDL2.audio.silenceTimer); SDL2.audio.silenceTimer = undefined; SDL2.audio.silenceBuffer = undefined; } SDL2.audio.currentOutputBuffer = e['outputBuffer']; dynCall('vi', $2, [$3]); }; SDL2.audio.scriptProcessorNode['connect'](SDL2.audioContext['destination']); if (SDL2.audioContext.state === 'suspended') { SDL2.audio.silenceBuffer = SDL2.audioContext.createBuffer($0, $1, SDL2.audioContext.sampleRate); SDL2.audio.silenceBuffer.getChannelData(0).fill(0.0); var silence_callback = function() { if ((typeof navigator.userActivation) !== 'undefined') { if (navigator.userActivation.hasBeenActive) { SDL2.audioContext.resume(); } } SDL2.audio.currentOutputBuffer = SDL2.audio.silenceBuffer; dynCall('vi', $2, [$3]); SDL2.audio.currentOutputBuffer = undefined; }; SDL2.audio.silenceTimer = setInterval(silence_callback, ($1 / SDL2.audioContext.sampleRate) * 1000); } },  
+ 1524001: ($0, $1) => { var SDL2 = Module['SDL2']; var numChannels = SDL2.capture.currentCaptureBuffer.numberOfChannels; for (var c = 0; c < numChannels; ++c) { var channelData = SDL2.capture.currentCaptureBuffer.getChannelData(c); if (channelData.length != $1) { throw 'Web Audio capture buffer length mismatch! Destination size: ' + channelData.length + ' samples vs expected ' + $1 + ' samples!'; } if (numChannels == 1) { for (var j = 0; j < $1; ++j) { setValue($0 + (j * 4), channelData[j], 'float'); } } else { for (var j = 0; j < $1; ++j) { setValue($0 + (((j * numChannels) + c) * 4), channelData[j], 'float'); } } } },  
+ 1524606: ($0, $1) => { var SDL2 = Module['SDL2']; var buf = $0 >>> 2; var numChannels = SDL2.audio.currentOutputBuffer['numberOfChannels']; for (var c = 0; c < numChannels; ++c) { var channelData = SDL2.audio.currentOutputBuffer['getChannelData'](c); if (channelData.length != $1) { throw 'Web Audio output buffer length mismatch! Destination size: ' + channelData.length + ' samples vs expected ' + $1 + ' samples!'; } for (var j = 0; j < $1; ++j) { channelData[j] = HEAPF32[buf + (j*numChannels + c)]; } } },  
+ 1525095: ($0) => { var SDL2 = Module['SDL2']; if ($0) { if (SDL2.capture.silenceTimer !== undefined) { clearInterval(SDL2.capture.silenceTimer); } if (SDL2.capture.stream !== undefined) { var tracks = SDL2.capture.stream.getAudioTracks(); for (var i = 0; i < tracks.length; i++) { SDL2.capture.stream.removeTrack(tracks[i]); } } if (SDL2.capture.scriptProcessorNode !== undefined) { SDL2.capture.scriptProcessorNode.onaudioprocess = function(audioProcessingEvent) {}; SDL2.capture.scriptProcessorNode.disconnect(); } if (SDL2.capture.mediaStreamNode !== undefined) { SDL2.capture.mediaStreamNode.disconnect(); } SDL2.capture = undefined; } else { if (SDL2.audio.scriptProcessorNode != undefined) { SDL2.audio.scriptProcessorNode.disconnect(); } if (SDL2.audio.silenceTimer !== undefined) { clearInterval(SDL2.audio.silenceTimer); } SDL2.audio = undefined; } if ((SDL2.audioContext !== undefined) && (SDL2.audio === undefined) && (SDL2.capture === undefined)) { SDL2.audioContext.close(); SDL2.audioContext = undefined; } },  
+ 1526101: ($0) => { var str = UTF8ToString($0) + '\n\n' + 'Abort/Retry/Ignore/AlwaysIgnore? [ariA] :'; var reply = window.prompt(str, "i"); if (reply === null) { reply = "i"; } return allocate(intArrayFromString(reply), 'i8', ALLOC_NORMAL); },  
+ 1526326: ($0, $1, $2) => { var w = $0; var h = $1; var pixels = $2; if (!Module['SDL2']) Module['SDL2'] = {}; var SDL2 = Module['SDL2']; if (SDL2.ctxCanvas !== Module['canvas']) { SDL2.ctx = Module['createContext'](Module['canvas'], false, true); SDL2.ctxCanvas = Module['canvas']; } if (SDL2.w !== w || SDL2.h !== h || SDL2.imageCtx !== SDL2.ctx) { SDL2.image = SDL2.ctx.createImageData(w, h); SDL2.w = w; SDL2.h = h; SDL2.imageCtx = SDL2.ctx; } var data = SDL2.image.data; var src = pixels / 4; var dst = 0; var num; if (typeof CanvasPixelArray !== 'undefined' && data instanceof CanvasPixelArray) { num = data.length; while (dst < num) { var val = HEAP32[src]; data[dst ] = val & 0xff; data[dst+1] = (val >> 8) & 0xff; data[dst+2] = (val >> 16) & 0xff; data[dst+3] = 0xff; src++; dst += 4; } } else { if (SDL2.data32Data !== data) { SDL2.data32 = new Int32Array(data.buffer); SDL2.data8 = new Uint8Array(data.buffer); SDL2.data32Data = data; } var data32 = SDL2.data32; num = data32.length; data32.set(HEAP32.subarray(src, src + num)); var data8 = SDL2.data8; var i = 3; var j = i + 4*num; if (num % 8 == 0) { while (i < j) { data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; data8[i] = 0xff; i = i + 4 | 0; } } else { while (i < j) { data8[i] = 0xff; i = i + 4 | 0; } } } SDL2.ctx.putImageData(SDL2.image, 0, 0); },  
+ 1527794: ($0, $1, $2, $3, $4) => { var w = $0; var h = $1; var hot_x = $2; var hot_y = $3; var pixels = $4; var canvas = document.createElement("canvas"); canvas.width = w; canvas.height = h; var ctx = canvas.getContext("2d"); var image = ctx.createImageData(w, h); var data = image.data; var src = pixels / 4; var dst = 0; var num; if (typeof CanvasPixelArray !== 'undefined' && data instanceof CanvasPixelArray) { num = data.length; while (dst < num) { var val = HEAP32[src]; data[dst ] = val & 0xff; data[dst+1] = (val >> 8) & 0xff; data[dst+2] = (val >> 16) & 0xff; data[dst+3] = (val >> 24) & 0xff; src++; dst += 4; } } else { var data32 = new Int32Array(data.buffer); num = data32.length; data32.set(HEAP32.subarray(src, src + num)); } ctx.putImageData(image, 0, 0); var url = hot_x === 0 && hot_y === 0 ? "url(" + canvas.toDataURL() + "), auto" : "url(" + canvas.toDataURL() + ") " + hot_x + " " + hot_y + ", auto"; var urlBuf = _malloc(url.length + 1); stringToUTF8(url, urlBuf, url.length + 1); return urlBuf; },  
+ 1528782: ($0) => { if (Module['canvas']) { Module['canvas'].style['cursor'] = UTF8ToString($0); } },  
+ 1528865: () => { if (Module['canvas']) { Module['canvas'].style['cursor'] = 'none'; } },  
+ 1528934: () => { return window.innerWidth; },  
+ 1528964: () => { return window.innerHeight; }
 };
 function canvas_get_width() { return canvas.width; }
 function canvas_get_height() { return canvas.height; }
+function release_cursor_js() { if (document.pointerLockElement === Module['canvas']) { document.exitPointerLock(); } }
+function lock_cursor_js() { if (Module['canvas']) { Module['canvas'].requestPointerLock(); } }
+function MountPersistentFS() { FS.mkdir('/save'); FS.mount(IDBFS, {}, '/save'); FS.syncfs(true, function(err) { if (err) console.error('IDBFS initial load failed:', err); }); }
+function WriteFileJS(relPath,content) { var path = '/save/' + UTF8ToString(relPath); var data = UTF8ToString(content); (function ensureDir(fp) { var parts = fp.split('/'); parts.pop(); var cur = ""; for (var i = 1; i < parts.length; i++) { cur += '/' + parts[i]; try { FS.mkdir(cur); } catch (e) { } } })(path); FS.writeFile(path, data); FS.syncfs(false, function(err) { if (err) console.error('IDBFS write sync failed:', err); }); }
+function ReadFileJS(relPath) { try { var path = '/save/' + UTF8ToString(relPath); var data = FS.readFile(path, { encoding: 'utf8' }); var len = lengthBytesUTF8(data) + 1; var buf = _malloc(len); stringToUTF8(data, buf, len); return buf; } catch (e) { return 0; } }
+function ImGui_ImplSDL2_EmscriptenOpenURL(url) { url = url ? UTF8ToString(url) : null; if (url) window.open(url, '_blank'); }
 var wasmImports = {
+  /** @export */
+  ImGui_ImplSDL2_EmscriptenOpenURL,
+  /** @export */
+  MountPersistentFS,
+  /** @export */
+  ReadFileJS,
+  /** @export */
+  WriteFileJS,
   /** @export */
   __assert_fail: ___assert_fail,
   /** @export */
+  __cxa_begin_catch: ___cxa_begin_catch,
+  /** @export */
+  __cxa_end_catch: ___cxa_end_catch,
+  /** @export */
+  __cxa_find_matching_catch_2: ___cxa_find_matching_catch_2,
+  /** @export */
+  __cxa_find_matching_catch_3: ___cxa_find_matching_catch_3,
+  /** @export */
+  __cxa_rethrow: ___cxa_rethrow,
+  /** @export */
   __cxa_throw: ___cxa_throw,
+  /** @export */
+  __cxa_uncaught_exceptions: ___cxa_uncaught_exceptions,
+  /** @export */
+  __resumeException: ___resumeException,
+  /** @export */
+  __syscall_chdir: ___syscall_chdir,
   /** @export */
   __syscall_fcntl64: ___syscall_fcntl64,
   /** @export */
   __syscall_fstat64: ___syscall_fstat64,
   /** @export */
+  __syscall_getcwd: ___syscall_getcwd,
+  /** @export */
   __syscall_ioctl: ___syscall_ioctl,
   /** @export */
   __syscall_lstat64: ___syscall_lstat64,
+  /** @export */
+  __syscall_mkdirat: ___syscall_mkdirat,
   /** @export */
   __syscall_newfstatat: ___syscall_newfstatat,
   /** @export */
   __syscall_openat: ___syscall_openat,
   /** @export */
+  __syscall_readlinkat: ___syscall_readlinkat,
+  /** @export */
+  __syscall_rmdir: ___syscall_rmdir,
+  /** @export */
   __syscall_stat64: ___syscall_stat64,
+  /** @export */
+  __syscall_unlinkat: ___syscall_unlinkat,
   /** @export */
   _abort_js: __abort_js,
   /** @export */
   _emscripten_throw_longjmp: __emscripten_throw_longjmp,
   /** @export */
+  _mmap_js: __mmap_js,
+  /** @export */
+  _munmap_js: __munmap_js,
+  /** @export */
+  _tzset_js: __tzset_js,
+  /** @export */
   alBufferData: _alBufferData,
+  /** @export */
+  alDeleteBuffers: _alDeleteBuffers,
+  /** @export */
+  alDeleteSources: _alDeleteSources,
+  /** @export */
+  alDistanceModel: _alDistanceModel,
   /** @export */
   alGenBuffers: _alGenBuffers,
   /** @export */
   alGenSources: _alGenSources,
   /** @export */
+  alGetError: _alGetError,
+  /** @export */
+  alGetListenerfv: _alGetListenerfv,
+  /** @export */
+  alGetSourcei: _alGetSourcei,
+  /** @export */
+  alGetString: _alGetString,
+  /** @export */
+  alIsExtensionPresent: _alIsExtensionPresent,
+  /** @export */
+  alListener3f: _alListener3f,
+  /** @export */
+  alListenerfv: _alListenerfv,
+  /** @export */
+  alSource3f: _alSource3f,
+  /** @export */
   alSourcePlay: _alSourcePlay,
+  /** @export */
+  alSourceStop: _alSourceStop,
   /** @export */
   alSourcef: _alSourcef,
   /** @export */
   alSourcei: _alSourcei,
   /** @export */
+  alcCloseDevice: _alcCloseDevice,
+  /** @export */
   alcCreateContext: _alcCreateContext,
+  /** @export */
+  alcDestroyContext: _alcDestroyContext,
+  /** @export */
+  alcGetContextsDevice: _alcGetContextsDevice,
+  /** @export */
+  alcGetCurrentContext: _alcGetCurrentContext,
+  /** @export */
+  alcGetIntegerv: _alcGetIntegerv,
+  /** @export */
+  alcIsExtensionPresent: _alcIsExtensionPresent,
   /** @export */
   alcMakeContextCurrent: _alcMakeContextCurrent,
   /** @export */
@@ -11966,6 +13283,8 @@ var wasmImports = {
   /** @export */
   emscripten_enter_soft_fullscreen: _emscripten_enter_soft_fullscreen,
   /** @export */
+  emscripten_err: _emscripten_err,
+  /** @export */
   emscripten_exit_fullscreen: _emscripten_exit_fullscreen,
   /** @export */
   emscripten_exit_pointerlock: _emscripten_exit_pointerlock,
@@ -11975,6 +13294,8 @@ var wasmImports = {
   emscripten_get_element_css_size: _emscripten_get_element_css_size,
   /** @export */
   emscripten_get_gamepad_status: _emscripten_get_gamepad_status,
+  /** @export */
+  emscripten_get_heap_max: _emscripten_get_heap_max,
   /** @export */
   emscripten_get_now: _emscripten_get_now,
   /** @export */
@@ -12602,6 +13923,8 @@ var wasmImports = {
   /** @export */
   environ_sizes_get: _environ_sizes_get,
   /** @export */
+  exit: _exit,
+  /** @export */
   fd_close: _fd_close,
   /** @export */
   fd_read: _fd_read,
@@ -12616,17 +13939,35 @@ var wasmImports = {
   /** @export */
   glBindBuffer: _glBindBuffer,
   /** @export */
+  glBindFramebuffer: _glBindFramebuffer,
+  /** @export */
   glBindTexture: _glBindTexture,
   /** @export */
   glBindVertexArray: _glBindVertexArray,
   /** @export */
+  glBindVertexArrayOES: _glBindVertexArrayOES,
+  /** @export */
+  glBlendEquation: _glBlendEquation,
+  /** @export */
+  glBlendEquationSeparate: _glBlendEquationSeparate,
+  /** @export */
+  glBlendFunc: _glBlendFunc,
+  /** @export */
+  glBlendFuncSeparate: _glBlendFuncSeparate,
+  /** @export */
+  glBlitFramebuffer: _glBlitFramebuffer,
+  /** @export */
   glBufferData: _glBufferData,
+  /** @export */
+  glBufferSubData: _glBufferSubData,
+  /** @export */
+  glCheckFramebufferStatus: _glCheckFramebufferStatus,
   /** @export */
   glClear: _glClear,
   /** @export */
   glClearColor: _glClearColor,
   /** @export */
-  glClearDepthf: _glClearDepthf,
+  glColorMask: _glColorMask,
   /** @export */
   glCompileShader: _glCompileShader,
   /** @export */
@@ -12634,21 +13975,55 @@ var wasmImports = {
   /** @export */
   glCreateShader: _glCreateShader,
   /** @export */
+  glDeleteBuffers: _glDeleteBuffers,
+  /** @export */
+  glDeleteShader: _glDeleteShader,
+  /** @export */
+  glDeleteTextures: _glDeleteTextures,
+  /** @export */
+  glDeleteVertexArrays: _glDeleteVertexArrays,
+  /** @export */
+  glDeleteVertexArraysOES: _glDeleteVertexArraysOES,
+  /** @export */
+  glDepthFunc: _glDepthFunc,
+  /** @export */
+  glDepthMask: _glDepthMask,
+  /** @export */
+  glDetachShader: _glDetachShader,
+  /** @export */
+  glDisable: _glDisable,
+  /** @export */
+  glDrawArrays: _glDrawArrays,
+  /** @export */
   glDrawElements: _glDrawElements,
+  /** @export */
+  glDrawElementsInstanced: _glDrawElementsInstanced,
+  /** @export */
+  glEnable: _glEnable,
   /** @export */
   glEnableVertexAttribArray: _glEnableVertexAttribArray,
   /** @export */
+  glFramebufferTexture2D: _glFramebufferTexture2D,
+  /** @export */
   glGenBuffers: _glGenBuffers,
+  /** @export */
+  glGenFramebuffers: _glGenFramebuffers,
   /** @export */
   glGenTextures: _glGenTextures,
   /** @export */
   glGenVertexArrays: _glGenVertexArrays,
+  /** @export */
+  glGenVertexArraysOES: _glGenVertexArraysOES,
+  /** @export */
+  glGenerateMipmap: _glGenerateMipmap,
   /** @export */
   glGetActiveAttrib: _glGetActiveAttrib,
   /** @export */
   glGetActiveUniform: _glGetActiveUniform,
   /** @export */
   glGetAttribLocation: _glGetAttribLocation,
+  /** @export */
+  glGetFloatv: _glGetFloatv,
   /** @export */
   glGetIntegerv: _glGetIntegerv,
   /** @export */
@@ -12664,15 +14039,33 @@ var wasmImports = {
   /** @export */
   glGetUniformLocation: _glGetUniformLocation,
   /** @export */
+  glIsEnabled: _glIsEnabled,
+  /** @export */
+  glIsProgram: _glIsProgram,
+  /** @export */
   glLinkProgram: _glLinkProgram,
+  /** @export */
+  glPixelStorei: _glPixelStorei,
+  /** @export */
+  glPolygonOffset: _glPolygonOffset,
+  /** @export */
+  glScissor: _glScissor,
   /** @export */
   glShaderSource: _glShaderSource,
   /** @export */
   glTexImage2D: _glTexImage2D,
   /** @export */
+  glTexParameterf: _glTexParameterf,
+  /** @export */
   glTexParameteri: _glTexParameteri,
   /** @export */
+  glUniform1f: _glUniform1f,
+  /** @export */
   glUniform1i: _glUniform1i,
+  /** @export */
+  glUniform3f: _glUniform3f,
+  /** @export */
+  glUniform4f: _glUniform4f,
   /** @export */
   glUniformMatrix4fv: _glUniformMatrix4fv,
   /** @export */
@@ -12680,9 +14073,15 @@ var wasmImports = {
   /** @export */
   glVertexAttribDivisor: _glVertexAttribDivisor,
   /** @export */
+  glVertexAttribIPointer: _glVertexAttribIPointer,
+  /** @export */
   glVertexAttribPointer: _glVertexAttribPointer,
   /** @export */
   glViewport: _glViewport,
+  /** @export */
+  invoke_diii,
+  /** @export */
+  invoke_fiii,
   /** @export */
   invoke_i,
   /** @export */
@@ -12694,15 +14093,37 @@ var wasmImports = {
   /** @export */
   invoke_iiiii,
   /** @export */
+  invoke_iiiiid,
+  /** @export */
   invoke_iiiiii,
+  /** @export */
+  invoke_iiiiiii,
+  /** @export */
+  invoke_iiiiiiii,
   /** @export */
   invoke_iiiiiiiii,
   /** @export */
   invoke_iiiiiiiiii,
   /** @export */
+  invoke_iiiiiiiiiii,
+  /** @export */
+  invoke_iiiiiiiiiiii,
+  /** @export */
+  invoke_iiiiiiiiiiiii,
+  /** @export */
+  invoke_iiiiij,
+  /** @export */
+  invoke_j,
+  /** @export */
   invoke_ji,
   /** @export */
+  invoke_jii,
+  /** @export */
+  invoke_jiiii,
+  /** @export */
   invoke_jiji,
+  /** @export */
+  invoke_v,
   /** @export */
   invoke_vi,
   /** @export */
@@ -12710,17 +14131,32 @@ var wasmImports = {
   /** @export */
   invoke_viii,
   /** @export */
-  invoke_viiii
+  invoke_viiii,
+  /** @export */
+  invoke_viiiiiii,
+  /** @export */
+  invoke_viiiiiiiiii,
+  /** @export */
+  invoke_viiiiiiiiiiiiiii,
+  /** @export */
+  invoke_viijii,
+  /** @export */
+  lock_cursor_js,
+  /** @export */
+  release_cursor_js
 };
 var wasmExports;
 createWasm();
 var ___wasm_call_ctors = createExportWrapper('__wasm_call_ctors', 0);
-var _main = Module['_main'] = createExportWrapper('__main_argc_argv', 2);
 var _malloc = createExportWrapper('malloc', 1);
-var _strerror = createExportWrapper('strerror', 1);
+var _free = createExportWrapper('free', 1);
 var _fflush = createExportWrapper('fflush', 1);
+var _main = Module['_main'] = createExportWrapper('__main_argc_argv', 2);
+var _strerror = createExportWrapper('strerror', 1);
 var _fileno = createExportWrapper('fileno', 1);
+var _emscripten_builtin_memalign = createExportWrapper('emscripten_builtin_memalign', 2);
 var _setThrew = createExportWrapper('setThrew', 2);
+var __emscripten_tempret_set = createExportWrapper('_emscripten_tempret_set', 1);
 var _emscripten_stack_init = () => (_emscripten_stack_init = wasmExports['emscripten_stack_init'])();
 var _emscripten_stack_get_free = () => (_emscripten_stack_get_free = wasmExports['emscripten_stack_get_free'])();
 var _emscripten_stack_get_base = () => (_emscripten_stack_get_base = wasmExports['emscripten_stack_get_base'])();
@@ -12728,6 +14164,12 @@ var _emscripten_stack_get_end = () => (_emscripten_stack_get_end = wasmExports['
 var __emscripten_stack_restore = (a0) => (__emscripten_stack_restore = wasmExports['_emscripten_stack_restore'])(a0);
 var __emscripten_stack_alloc = (a0) => (__emscripten_stack_alloc = wasmExports['_emscripten_stack_alloc'])(a0);
 var _emscripten_stack_get_current = () => (_emscripten_stack_get_current = wasmExports['emscripten_stack_get_current'])();
+var ___cxa_decrement_exception_refcount = createExportWrapper('__cxa_decrement_exception_refcount', 1);
+var ___cxa_increment_exception_refcount = createExportWrapper('__cxa_increment_exception_refcount', 1);
+var ___cxa_free_exception = createExportWrapper('__cxa_free_exception', 1);
+var ___get_exception_message = createExportWrapper('__get_exception_message', 3);
+var ___cxa_can_catch = createExportWrapper('__cxa_can_catch', 3);
+var ___cxa_get_exception_ptr = createExportWrapper('__cxa_get_exception_ptr', 1);
 
 function invoke_ji(index,a1) {
   var sp = stackSave();
@@ -12735,7 +14177,7 @@ function invoke_ji(index,a1) {
     return getWasmTableEntry(index)(a1);
   } catch(e) {
     stackRestore(sp);
-    if (e !== e+0) throw e;
+    if (!(e instanceof EmscriptenEH)) throw e;
     _setThrew(1, 0);
     return 0n;
   }
@@ -12747,29 +14189,7 @@ function invoke_ii(index,a1) {
     return getWasmTableEntry(index)(a1);
   } catch(e) {
     stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_iiiii(index,a1,a2,a3,a4) {
-  var sp = stackSave();
-  try {
-    return getWasmTableEntry(index)(a1,a2,a3,a4);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_iiii(index,a1,a2,a3) {
-  var sp = stackSave();
-  try {
-    return getWasmTableEntry(index)(a1,a2,a3);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
+    if (!(e instanceof EmscriptenEH)) throw e;
     _setThrew(1, 0);
   }
 }
@@ -12780,7 +14200,7 @@ function invoke_vi(index,a1) {
     getWasmTableEntry(index)(a1);
   } catch(e) {
     stackRestore(sp);
-    if (e !== e+0) throw e;
+    if (!(e instanceof EmscriptenEH)) throw e;
     _setThrew(1, 0);
   }
 }
@@ -12791,7 +14211,7 @@ function invoke_jiji(index,a1,a2,a3) {
     return getWasmTableEntry(index)(a1,a2,a3);
   } catch(e) {
     stackRestore(sp);
-    if (e !== e+0) throw e;
+    if (!(e instanceof EmscriptenEH)) throw e;
     _setThrew(1, 0);
     return 0n;
   }
@@ -12803,7 +14223,7 @@ function invoke_iii(index,a1,a2) {
     return getWasmTableEntry(index)(a1,a2);
   } catch(e) {
     stackRestore(sp);
-    if (e !== e+0) throw e;
+    if (!(e instanceof EmscriptenEH)) throw e;
     _setThrew(1, 0);
   }
 }
@@ -12814,40 +14234,18 @@ function invoke_viii(index,a1,a2,a3) {
     getWasmTableEntry(index)(a1,a2,a3);
   } catch(e) {
     stackRestore(sp);
-    if (e !== e+0) throw e;
+    if (!(e instanceof EmscriptenEH)) throw e;
     _setThrew(1, 0);
   }
 }
 
-function invoke_vii(index,a1,a2) {
+function invoke_iiii(index,a1,a2,a3) {
   var sp = stackSave();
   try {
-    getWasmTableEntry(index)(a1,a2);
+    return getWasmTableEntry(index)(a1,a2,a3);
   } catch(e) {
     stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_iiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
-  var sp = stackSave();
-  try {
-    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_iiiiii(index,a1,a2,a3,a4,a5) {
-  var sp = stackSave();
-  try {
-    return getWasmTableEntry(index)(a1,a2,a3,a4,a5);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
+    if (!(e instanceof EmscriptenEH)) throw e;
     _setThrew(1, 0);
   }
 }
@@ -12858,7 +14256,51 @@ function invoke_iiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8) {
     return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8);
   } catch(e) {
     stackRestore(sp);
-    if (e !== e+0) throw e;
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiii(index,a1,a2,a3,a4) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_vii(index,a1,a2) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1,a2);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiii(index,a1,a2,a3,a4,a5) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
     _setThrew(1, 0);
   }
 }
@@ -12869,7 +14311,7 @@ function invoke_i(index) {
     return getWasmTableEntry(index)();
   } catch(e) {
     stackRestore(sp);
-    if (e !== e+0) throw e;
+    if (!(e instanceof EmscriptenEH)) throw e;
     _setThrew(1, 0);
   }
 }
@@ -12880,7 +14322,197 @@ function invoke_viiii(index,a1,a2,a3,a4) {
     getWasmTableEntry(index)(a1,a2,a3,a4);
   } catch(e) {
     stackRestore(sp);
-    if (e !== e+0) throw e;
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_v(index) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)();
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_j(index) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)();
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+    return 0n;
+  }
+}
+
+function invoke_jii(index,a1,a2) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+    return 0n;
+  }
+}
+
+function invoke_iiiiiii(index,a1,a2,a3,a4,a5,a6) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viijii(index,a1,a2,a3,a4,a5) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1,a2,a3,a4,a5);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiij(index,a1,a2,a3,a4,a5) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiid(index,a1,a2,a3,a4,a5) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_jiiii(index,a1,a2,a3,a4) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+    return 0n;
+  }
+}
+
+function invoke_iiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_fiii(index,a1,a2,a3) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_diii(index,a1,a2,a3) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
     _setThrew(1, 0);
   }
 }
@@ -12906,8 +14538,6 @@ var missingLibrarySymbols = [
   'convertI32PairToI53Checked',
   'convertU32PairToI53',
   'getTempRet0',
-  'setTempRet0',
-  'zeroMemory',
   'inetPton4',
   'inetNtop4',
   'inetPton6',
@@ -12979,7 +14609,6 @@ var missingLibrarySymbols = [
   'makePromise',
   'idsToPromises',
   'makePromiseCallback',
-  'findMatchingCatch',
   'Browser_asyncPrepareDataCounter',
   'isLeapYear',
   'ydayFromDate',
@@ -13021,7 +14650,9 @@ var unexportedSymbols = [
   'stackSave',
   'stackRestore',
   'stackAlloc',
+  'setTempRet0',
   'ptrToString',
+  'zeroMemory',
   'exitJS',
   'getHeapMax',
   'growMemory',
@@ -13124,6 +14755,11 @@ var unexportedSymbols = [
   'exceptionLast',
   'exceptionCaught',
   'ExceptionInfo',
+  'findMatchingCatch',
+  'getExceptionMessageCommon',
+  'incrementExceptionRefcount',
+  'decrementExceptionRefcount',
+  'getExceptionMessage',
   'Browser',
   'getPreloadedImageData__data',
   'wget',
@@ -13175,6 +14811,7 @@ var unexportedSymbols = [
   'allocateUTF8OnStack',
   'print',
   'printErr',
+  'IDBFS',
 ];
 unexportedSymbols.forEach(unexportedRuntimeSymbol);
 
