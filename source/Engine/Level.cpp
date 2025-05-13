@@ -146,10 +146,7 @@ Level* Level::OpenLevel(string filePath)
 	Current->MemoryCleanPendingEntities();
 
 	Time::Update();
-	Time::DeltaTime = 0;
-	Time::DeltaTimeF = 0;
-	Time::GameTime = 0;
-	Time::GameTimeNoPause = 0;
+	Time::Update();
 
 	return newLevel;
 }

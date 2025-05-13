@@ -378,7 +378,7 @@ int main(int argc, char* args[])
     engine->asyncGameUpdate = false;
 
 #endif // __EMSCRIPTEN
-
+    engine->asyncGameUpdate = false;
 
     EngineMain::MainInstance = engine;
 

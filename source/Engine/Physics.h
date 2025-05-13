@@ -624,6 +624,7 @@ public:
 
 	static void Simulate()
 	{
+		printf("%f \n", Time::DeltaTime);
 		physics_system->Update(Time::DeltaTime, 1, tempMemAllocator, threadPool);
 		UpdatePendingBodyExitsEnters();
 		
@@ -893,56 +894,7 @@ public:
 
 	static Body* CreateCharacterBody(Entity* owner, vec3 Position, float Radius, float Height, float Mass,
 		BodyType group = BodyType::CharacterCapsule,
-		BodyType mask = BodyType::GroupCollisionTest)
-	{
-		// Calculate cylinder portion height (total capsule height = cylinder_height + 2 * radius)
-		float cylinder_half_height = (Height - 2.0f * Radius) / 2.0f;
-		if (cylinder_half_height < 0.0f) {
-			Logger::Log("Capsule height is too small for given radius, using minimum height");
-			cylinder_half_height = 0.0f;
-		}
-
-		// Create capsule shape
-		auto capsule_shape_settings = new JPH::CapsuleShapeSettings();
-		capsule_shape_settings->SetEmbedded();
-		capsule_shape_settings->mRadius = Radius;
-		capsule_shape_settings->mHalfHeightOfCylinder = cylinder_half_height;
-
-		JPH::Shape::ShapeResult shape_result = capsule_shape_settings->Create();
-		JPH::Shape* capsule_shape = shape_result.Get();
-
-		if (shape_result.HasError())
-			Logger::Log(shape_result.GetError().c_str());
-
-		// Configure body settings
-		JPH::BodyCreationSettings body_settings(
-			capsule_shape,
-			ToPhysics(Position),
-			JPH::Quat::sIdentity(),
-			JPH::EMotionType::Dynamic,  // Dynamic body type
-			Layers::MOVING             // Use moving layer
-		);
-
-		body_settings.mMotionQuality = EMotionQuality::LinearCast;
-
-		// Lock rotation in all axes
-		body_settings.mAllowedDOFs = JPH::EAllowedDOFs::TranslationX | JPH::EAllowedDOFs::TranslationY | JPH::EAllowedDOFs::TranslationZ;  // Allow only translation
-
-		// Set mass properties
-		body_settings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
-		body_settings.mMassPropertiesOverride.mMass = Mass;
-		body_settings.mFriction = 0.0f;  // Match box friction
-
-		// Allocate and attach collision properties to the body via the user data field:
-		BodyData* properties = new BodyData{ group, mask, owner };
-		body_settings.mUserData = reinterpret_cast<uintptr_t>(properties);
-
-		// Create and add body to world
-		JPH::Body* character_body = bodyInterface->CreateBody(body_settings);
-		AddBody(character_body);
-
-		return character_body;
-	}
+		BodyType mask = BodyType::GroupCollisionTest);
 
 	struct HitResult
 	{

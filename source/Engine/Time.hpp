@@ -26,13 +26,15 @@ public:
     // Call this every frame to update DeltaTime.
     static void Update() {
         Uint64 currentCounter = SDL_GetPerformanceCounter();
-        DeltaTime = (currentCounter - lastCounter) / frequency;
+        double newDelta = (currentCounter - lastCounter) / frequency;
         lastCounter = currentCounter;
 
 
 
-        if (DeltaTime > 0.1)
-            DeltaTime = 0.1;
+        if (newDelta > 0.1)
+            newDelta = 0.1;
+
+        DeltaTime = newDelta;
 
         if (GamePaused)
         {

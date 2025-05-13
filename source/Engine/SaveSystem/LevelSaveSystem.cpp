@@ -63,6 +63,11 @@ LevelSaveData LevelSaveSystem::SaveLevelToData()
 void LevelSaveSystem::LoadLevelFromData(LevelSaveData data)
 {
 
+    Physics::Simulate();
+
+    Time::DeltaTime = 0.0001;
+    Time::DeltaTimeF = 0.0001f;
+
     for (auto id : data.deletedIDs)
     {
         Entity* target = Level::Current->FindEntityWithId(id);
@@ -104,6 +109,8 @@ void LevelSaveSystem::LoadLevelFromData(LevelSaveData data)
     }
 
     Level::Current->AddPendingLevelObjects();
+
+    Physics::Simulate();
 
     for (auto entity : createdEntities)
     {

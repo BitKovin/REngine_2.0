@@ -163,6 +163,14 @@ void EngineMain::MainLoop()
 
 
     Time::Update();
+
+    if (loadedlevel)
+    {
+        Time::Update();
+        Time::DeltaTime = 0.05;
+        Time::DeltaTimeF = 0.05f;
+    }
+
     Input::Update();
 
     Input::UpdateMouse();
