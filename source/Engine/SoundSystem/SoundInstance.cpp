@@ -146,14 +146,7 @@ void SoundInstance::UpdateSourceParams()
         // 2) raw gain only
         alSourcef(_source, AL_GAIN, Volume);
 
-        // 3) disable *all* spatialization/HRTF & its EQ
-        //    (requires the SOFT_source_spatialization extension)
-        alSourcei(_source, AL_SOURCE_SPATIALIZE_SOFT, AL_FALSE);
 
-        // 4) strip any EFX
-        alSourcei(_source, AL_DIRECT_FILTER, AL_FILTER_NULL);
-        alSource3i(_source, AL_AUXILIARY_SEND_FILTER, 0, 0, AL_FILTER_NULL);
-        alSource3i(_source, AL_AUXILIARY_SEND_FILTER, 1, 0, AL_FILTER_NULL);
 
         // 5) clear any leftover position/orientation
         alSource3f(_source, AL_POSITION, 0, 0, 0);

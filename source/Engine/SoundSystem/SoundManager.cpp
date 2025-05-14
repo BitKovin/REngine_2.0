@@ -68,7 +68,7 @@ void SoundManager::Initialize()
         ALC_MONO_SOURCES,      256,
         ALC_STEREO_SOURCES,     64,
         ALC_HRTF_SOFT,       ALC_TRUE,
-        ALC_OUTPUT_LIMITER_SOFT, ALC_FALSE,
+        //ALC_OUTPUT_LIMITER_SOFT, ALC_FALSE,
         0
     };
     contextMono = alcCreateContext(device, ctxAttrsMono);
@@ -80,7 +80,7 @@ void SoundManager::Initialize()
     ALC_MONO_SOURCES,      32,
     ALC_STEREO_SOURCES,     64,
     ALC_HRTF_SOFT,       ALC_FALSE,
-    ALC_OUTPUT_LIMITER_SOFT, ALC_FALSE,
+    //ALC_OUTPUT_LIMITER_SOFT, ALC_FALSE,
     0
     };
     contextStereo = alcCreateContext(device, ctxAttrsStereo);
