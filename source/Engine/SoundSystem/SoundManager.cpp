@@ -133,6 +133,9 @@ SoundBufferData SoundManager::LoadOrGetSoundFileBuffer(std::string path)
     printf("Loading WAV: channels=%d, format=%d, freq=%d\n",
         wavSpec.channels, wavSpec.format, wavSpec.freq);
 
+    bool isStereo = wavSpec.channels > 1;
+    alcMakeContextCurrent(isStereo ? contextStereo : contextMono);
+
     ALenum format;
 
     if (wavSpec.channels == 1) {
@@ -187,11 +190,11 @@ SoundBufferData SoundManager::LoadOrGetSoundFileBuffer(std::string path)
 
     SDL_FreeWAV(wavBuffer);
 
-    bool isStereo = wavSpec.channels > 1;
+
 
     SoundBufferData data;
     data.buffer = buffer;
-
+    data.stereo = isStereo;
     data.context = isStereo ? contextStereo : contextMono;
 
     loadedBuffers[path] = data;

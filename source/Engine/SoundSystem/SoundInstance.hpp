@@ -37,11 +37,11 @@ public:
 
     /// buffer: pre-loaded OpenAL buffer
     /// isStereo: true → non-spatial stereo; false → 3D spatial mono
-    SoundInstance(SoundBufferData buffer, bool isStereo = false)
-      : _bufferData(buffer), _isStereo(isStereo)
+    SoundInstance(SoundBufferData buffer)
+      : _bufferData(buffer)
     {
 
-     
+        _isStereo = buffer.stereo;
 
         // Ensure pool is initialized once
         SourcePool::Init();
