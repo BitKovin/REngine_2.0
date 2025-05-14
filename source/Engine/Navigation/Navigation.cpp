@@ -124,9 +124,9 @@ void NavigationSystem::GenerateNavData()
     cfg.cs = 0.2f;                    // Cell size (voxel size in X/Z)
     cfg.ch = 0.3f;                    // Cell height
     cfg.walkableSlopeAngle = 45.0f;   // Max slope angle
-    cfg.walkableHeight = static_cast<int>(ceilf(2.0f / cfg.ch)); // Agent height (~2m)
-    cfg.walkableClimb = static_cast<int>(ceilf(0.6f / cfg.ch));  // Max climb height (~0.9m)
-    cfg.walkableRadius = static_cast<int>(ceilf(0.35f / cfg.cs)); // Agent radius (~0.5m)
+    cfg.walkableHeight = static_cast<int>(ceilf(2.0f / cfg.ch)); 
+    cfg.walkableClimb = static_cast<int>(ceilf(0.6f / cfg.ch));  
+    cfg.walkableRadius = static_cast<int>(ceilf(0.35f / cfg.cs)); 
     cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);
     cfg.maxSimplificationError = 0.01f;
     cfg.minRegionArea = 1;      // Min region size
@@ -420,7 +420,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
         return outPath;
     }
 
-    auto hit = Physics::LineTrace(start, start - vec3(0, 30, 0), BodyType::World);
+    auto hit = Physics::LineTrace(start, start - vec3(0, 300, 0), BodyType::World);
     if (hit.hasHit)
         start = hit.position + vec3(0, 1, 0);
 
@@ -434,7 +434,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
 
     // --- 1) FindNearestPoly  (increment extents up to limit) ---
     const std::vector<glm::vec3> EXTENTS = {
-        {0.30f, 1.5f, 0.30f},  // tight
+        {0.50f, 1.5f, 0.50f},  // tight
         {0.60f, 1.5f, 0.60f},  // med
         {1.00f, 1.5f, 1.00f},  // wide
         {1.50f, 1.5f, 1.50f},  // wide
@@ -448,7 +448,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
         for (auto& e : EXTENTS)
         {
             float ext[3] = { e.x, e.y, e.z };
-            if (dtStatusSucceed(navQuery->findNearestPoly(pos, ext, &filter, &outRef, outNearest)))
+            if (dtStatusSucceed(navQuery->findNearestPoly(pos, ext, &filter, &outRef, outNearest)) && outRef>0)
             {
                 if (IsPointReallyOnPoly(navQuery, outRef, pos))
                     return true;
@@ -458,7 +458,8 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
         };
 
     // attempt to pick start & goal polys
-    if (!findOnPoly(sPos, sRef, sNearest) || !findOnPoly(gPos, gRef, gNearest))
+    if (!findOnPoly(sPos, sRef, sNearest) || 
+        !findOnPoly(gPos, gRef, gNearest))
     {
         dtFreeNavMeshQuery(navQuery);
         return outPath; // failed to localize start or goal
@@ -489,12 +490,16 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
     dtPolyRef      strPolys[MAX_STRAIGHT];
     int            strCount = 0;
 
-    navQuery->findStraightPath(
-        sPos,
+    if (dtStatusFailed(navQuery->findStraightPath(
+        sNearest,  // Use closest point on navmesh for start
         reached ? gPos : gNearest,
         polyPath, polyCount,
         straight, flags, strPolys,
-        &strCount, MAX_STRAIGHT);
+        &strCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)))
+    {
+        //dtFreeNavMeshQuery(navQuery);
+        //return outPath;
+    }
 
     // --- 5) Build glm path (skip the first point, it's the start) ---
     outPath.reserve(strCount);
@@ -514,8 +519,13 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
     dtFreeNavMeshQuery(navQuery);
 
     // --- 6) Collision sanity check ---
-    if (!CollisionCheckPath(start, outPath))
-        outPath.clear();
+	/*if (!CollisionCheckPath(start, outPath))
+	{
+		DebugDraw::Path(outPath, 30, 0.1);
+		outPath.clear();
+
+	}*/
+        
 
     return outPath;
 }
