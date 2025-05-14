@@ -378,6 +378,7 @@
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SkeletalMesh.hpp" />
     <ClInclude Include="skinned_model.hpp" />
+    <ClInclude Include="SoundSystem\SoundBufferData.h" />
     <ClInclude Include="SoundSystem\SoundInstance.hpp" />
     <ClInclude Include="SoundSystem\SoundManager.hpp" />
     <ClInclude Include="StaticMesh.h" />

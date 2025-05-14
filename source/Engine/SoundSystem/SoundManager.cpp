@@ -2,31 +2,17 @@
 
 #include <AL/alext.h>
 
-std::unordered_map<std::string, ALuint> SoundManager::loadedBuffers;
+std::unordered_map<std::string, SoundBufferData> SoundManager::loadedBuffers;
 ALCdevice* SoundManager::device = nullptr;
-ALCcontext* SoundManager::context = nullptr;
+ALCcontext* SoundManager::contextMono = nullptr;
+ALCcontext* SoundManager::contextStereo = nullptr;
 
 float SoundManager::GlobalVolume = 0.3f;
 float SoundManager::SfxVolume = 1.0f;
 float SoundManager::MusicVolume = 1.0f;
 
-void SoundManager::Initialize()
+void SoundManager::InitContext(ALCcontext* context)
 {
-    device = alcOpenDevice(nullptr);
-    if (!device) {
-        Logger::Log("Failed to open OpenAL device.\n");
-        return;
-    }
-
-    ALCint ctxAttrs[] = {
-    ALC_MONO_SOURCES,   256,
-    ALC_STEREO_SOURCES,  64,
-    0  // terminator
-    };
-
-    context = alcCreateContext(device, nullptr);
-
-
     if (!context || alcMakeContextCurrent(context) == ALC_FALSE) {
         Logger::Log("Failed to create or make current OpenAL context.\n");
         if (context) alcDestroyContext(context);
@@ -50,22 +36,10 @@ void SoundManager::Initialize()
     alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 }
 
-void SoundManager::Close()
+void SoundManager::UpdateContext(ALCcontext* context)
 {
-    for (auto& kv : loadedBuffers) {
-        alDeleteBuffers(1, &kv.second);
-    }
-    loadedBuffers.clear();
+    alcMakeContextCurrent(context);
 
-    alcMakeContextCurrent(nullptr);
-    if (context) alcDestroyContext(context);
-    context = nullptr;
-    if (device) alcCloseDevice(device);
-    device = nullptr;
-}
-
-void SoundManager::Update()
-{
     vec3 camPos = Camera::position;
     vec3 camForward = Camera::Forward();
     vec3 camUp = Camera::Up();
@@ -79,9 +53,66 @@ void SoundManager::Update()
         camUp.x,      camUp.y,      camUp.z
     };
     alListenerfv(AL_ORIENTATION, orient);
+
 }
 
-ALuint SoundManager::LoadOrGetSoundFileBuffer(std::string path)
+void SoundManager::Initialize()
+{
+    device = alcOpenDevice(nullptr);
+    if (!device) {
+        Logger::Log("Failed to open OpenAL device.\n");
+        return;
+    }
+
+    ALCint ctxAttrsMono[] = {
+        ALC_MONO_SOURCES,      256,
+        ALC_STEREO_SOURCES,     64,
+        ALC_HRTF_SOFT,       ALC_TRUE,
+        ALC_OUTPUT_LIMITER_SOFT, ALC_FALSE,
+        0
+    };
+    contextMono = alcCreateContext(device, ctxAttrsMono);
+
+    InitContext(contextMono);
+
+
+    ALCint ctxAttrsStereo[] = {
+    ALC_MONO_SOURCES,      32,
+    ALC_STEREO_SOURCES,     64,
+    ALC_HRTF_SOFT,       ALC_FALSE,
+    ALC_OUTPUT_LIMITER_SOFT, ALC_FALSE,
+    0
+    };
+    contextStereo = alcCreateContext(device, ctxAttrsStereo);
+
+    InitContext(contextStereo);
+
+
+}
+
+void SoundManager::Close()
+{
+
+
+    for (auto& kv : loadedBuffers) {
+        alDeleteBuffers(1, &kv.second.buffer);
+    }
+    loadedBuffers.clear();
+
+    alcMakeContextCurrent(nullptr);
+    if (contextMono) alcDestroyContext(contextMono);
+    contextMono = nullptr;
+    if (device) alcCloseDevice(device);
+    device = nullptr;
+}
+
+void SoundManager::Update()
+{
+    UpdateContext(contextMono);
+    UpdateContext(contextStereo);
+}
+
+SoundBufferData SoundManager::LoadOrGetSoundFileBuffer(std::string path)
 {
     alGetError();
 
@@ -96,7 +127,7 @@ ALuint SoundManager::LoadOrGetSoundFileBuffer(std::string path)
 
     if (SDL_LoadWAV(path.c_str(), &wavSpec, &wavBuffer, &wavLength) == NULL) {
         printf("Failed to load WAV file: %s\n", SDL_GetError());
-        return 0;
+        return SoundBufferData();
     }
 
     printf("Loading WAV: channels=%d, format=%d, freq=%d\n",
@@ -114,7 +145,7 @@ ALuint SoundManager::LoadOrGetSoundFileBuffer(std::string path)
         else {
             printf("Unsupported format: %d\n", wavSpec.format);
             SDL_FreeWAV(wavBuffer);
-            return 0;
+            return SoundBufferData();
         }
     }
     else if (wavSpec.channels == 2) {
@@ -127,13 +158,13 @@ ALuint SoundManager::LoadOrGetSoundFileBuffer(std::string path)
         else {
             printf("Unsupported format: %d\n", wavSpec.format);
             SDL_FreeWAV(wavBuffer);
-            return 0;
+            return SoundBufferData();
         }
     }
     else {
         printf("Unsupported channel count: %d\n", wavSpec.channels);
         SDL_FreeWAV(wavBuffer);
-        return 0;
+        return SoundBufferData();
     }
 
     ALuint buffer;
@@ -142,7 +173,7 @@ ALuint SoundManager::LoadOrGetSoundFileBuffer(std::string path)
     if (err != AL_NO_ERROR) {
         printf("Error generating buffer: %s\n", alGetString(err));
         SDL_FreeWAV(wavBuffer);
-        return 0;
+        return SoundBufferData();
     }
 
     alBufferData(buffer, format, wavBuffer, wavLength, wavSpec.freq);
@@ -151,18 +182,26 @@ ALuint SoundManager::LoadOrGetSoundFileBuffer(std::string path)
         printf("Error setting buffer data: %s\n", alGetString(err));
         alDeleteBuffers(1, &buffer);
         SDL_FreeWAV(wavBuffer);
-        return 0;
+        return SoundBufferData();
     }
 
     SDL_FreeWAV(wavBuffer);
-    loadedBuffers[path] = buffer;
-    return buffer;
+
+    bool isStereo = wavSpec.channels > 1;
+
+    SoundBufferData data;
+    data.buffer = buffer;
+
+    data.context = isStereo ? contextStereo : contextMono;
+
+    loadedBuffers[path] = data;
+    return data;
 }
 
 shared_ptr<SoundInstance> SoundManager::GetSoundFromPath(string path)
 {
-    ALuint buffer = LoadOrGetSoundFileBuffer(path);
-    if (!buffer) return nullptr;
+    auto buffer = LoadOrGetSoundFileBuffer(path);
+    if (!buffer.context) return nullptr;
 
     ALuint source;
     //alGenSources(1, &source);

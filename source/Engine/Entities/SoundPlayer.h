@@ -18,6 +18,7 @@ public:
 	float MaxDistance = 20;
 
 	bool IsMusic = false;
+	bool Is2D = false;
 
 	SoundPlayer();
 	~SoundPlayer();
@@ -32,6 +33,7 @@ public:
 
 
 	static SoundPlayer* Create();
+	static SoundPlayer* Create(string soundPath);
 
 private:
 

@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 
+#include "SoundBufferData.h"
+
 #include "../Logger.hpp"
 #include "../Camera.h"
 #include "SoundInstance.hpp"
@@ -21,9 +23,14 @@ class SoundManager
 {
 private:
     static ALCdevice* device;
-    static ALCcontext* context;
+    static ALCcontext* contextMono;
+    static ALCcontext* contextStereo;
 
-    static std::unordered_map<std::string, ALuint> loadedBuffers;
+    static std::unordered_map<std::string, SoundBufferData> loadedBuffers;
+
+    static void InitContext(ALCcontext* context);
+
+    static void UpdateContext(ALCcontext* context);
 
 public:
     static float GlobalVolume;
@@ -33,6 +40,6 @@ public:
     static void Initialize();
     static void Close();
     static void Update();
-    static ALuint LoadOrGetSoundFileBuffer(std::string path);
+    static SoundBufferData LoadOrGetSoundFileBuffer(std::string path);
     static shared_ptr<SoundInstance> GetSoundFromPath(std::string path);
 };

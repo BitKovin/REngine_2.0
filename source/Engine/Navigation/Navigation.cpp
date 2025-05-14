@@ -407,6 +407,9 @@ static bool IsPointReallyOnPoly(dtNavMeshQuery* navQuery,
 
 std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::vec3 target)
 {
+
+
+
     std::vector<glm::vec3> outPath;
     if (!navMesh) return outPath;
     std::lock_guard<std::recursive_mutex> _lock(mainLock);

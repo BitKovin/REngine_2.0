@@ -5,6 +5,8 @@
 #define DISABLE_EFX
 #endif
 
+
+
 #ifdef DISABLE_EFX
 #  define AL_ALEXT_PROTOTYPES
 #  include <AL/al.h>
@@ -27,14 +29,16 @@
 #include "../EObject.hpp"
 #include "../glm.h"
 
+#include "SoundBufferData.h"
+
 class SoundInstance : public EObject {
 public:
     // ─── Construction & Destruction ────────────────────────────────────
 
     /// buffer: pre-loaded OpenAL buffer
     /// isStereo: true → non-spatial stereo; false → 3D spatial mono
-    SoundInstance(ALuint buffer, bool isStereo = false)
-      : _buffer(buffer), _isStereo(isStereo)
+    SoundInstance(SoundBufferData buffer, bool isStereo = false)
+      : _bufferData(buffer), _isStereo(isStereo)
     {
 
      
@@ -148,7 +152,7 @@ protected:
 private:
     // ─── Internal State ────────────────────────────────────────────────
 
-    ALuint   _buffer       = 0;
+    SoundBufferData   _bufferData       = SoundBufferData();
     ALuint   _source       = 0;
     bool     _isStereo     = false;
 
@@ -167,7 +171,7 @@ private:
     void TryAcquire() {
         if (_source != 0) return;
         if (!_active)    return;
-
+        alGetError();
 #ifdef __EMSCRIPTEN__
         // On Web builds, always gen a fresh source (no pooling)
         ALuint src = 0;
@@ -180,7 +184,7 @@ private:
         _source = SourcePool::Acquire(_isStereo, this);
 #endif
 
-        if (_source) alSourcei(_source, AL_BUFFER, _buffer);
+        if (_source) alSourcei(_source, AL_BUFFER, _bufferData.buffer);
     }
 
     // ─── Release back to pool ────────────────────────────────────────────
@@ -198,44 +202,7 @@ private:
 
     // ─── Parameter application ──────────────────────────────────────────
 
-    void UpdateSourceParams() {
-        if (!_source) return;
-
-        // global attenuation off
-#ifdef AL_DISTANCE_MODEL_NONE
-        alDistanceModel(AL_DISTANCE_MODEL_NONE);
-#else
-        alDistanceModel(0xD000);
-#endif
-
-        // looping & pitch
-        alSourcei (_source, AL_LOOPING, Loop ? AL_TRUE : AL_FALSE);
-        alSourcef (_source, AL_PITCH,   Pitch * GetPitchScale());
-
-        // spatial vs 2D
-        if (_isStereo || Is2D || IsUISound) {
-            alSourcei(_source, AL_SOURCE_RELATIVE, AL_TRUE);
-            alSourcef(_source, AL_GAIN, Volume);
-        } else {
-            alSourcei(_source, AL_SOURCE_RELATIVE, AL_FALSE);
-            alSource3f(_source, AL_POSITION,    Position.x, Position.y, Position.z);
-            alSource3f(_source, AL_VELOCITY,    Velocity.x, Velocity.y, Velocity.z);
-            alSource3f(_source, AL_DIRECTION,   Direction.x, Direction.y, Direction.z);
-            alSourcef(_source, AL_CONE_INNER_ANGLE, ConeInnerAngle);
-            alSourcef(_source, AL_CONE_OUTER_ANGLE, ConeOuterAngle);
-            alSourcef(_source, AL_CONE_OUTER_GAIN,  ConeOuterGain);
-
-            float gain = ComputeDistanceGain();
-            alSourcef(_source, AL_GAIN, gain);
-        }
-
-#ifndef DISABLE_EFX
-        EnsureEFX();
-        if (EnableFilter && _filter) ApplyFilter();
-        if (EnableEcho   && _slotEcho)   alSource3i(_source, AL_AUXILIARY_SEND_FILTER, _slotEcho,   0, AL_FILTER_NULL);
-        if (EnableReverb && _slotReverb) alSource3i(_source, AL_AUXILIARY_SEND_FILTER, _slotReverb, 1, AL_FILTER_NULL);
-#endif
-    }
+    void UpdateSourceParams();
 
     float ComputeDistanceGain() {
         ALfloat lp[3];

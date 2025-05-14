@@ -624,7 +624,7 @@ public:
 
 	static void Simulate()
 	{
-		printf("%f \n", Time::DeltaTime);
+
 		physics_system->Update(Time::DeltaTime, 1, tempMemAllocator, threadPool);
 		UpdatePendingBodyExitsEnters();
 		

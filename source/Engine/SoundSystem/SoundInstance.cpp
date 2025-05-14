@@ -1,5 +1,7 @@
 ﻿#include "SoundInstance.hpp"
 
+#  include <AL/alext.h>
+
 #define SOUND_POOL_DEBUG
 
 std::recursive_mutex mtx;
@@ -38,7 +40,10 @@ void SoundInstance::SourcePool::Init()
 
 ALuint SoundInstance::SourcePool::Acquire(bool stereo, SoundInstance* requester)
 {
+    alGetError();
     std::lock_guard<std::recursive_mutex> lock(mtx);
+
+    alcMakeContextCurrent(requester->_bufferData.context);
 
     auto& pool = stereo ? freeStereo : freeMono;
     auto& alloc = stereo ? allocatedStereo : allocatedMono;
@@ -97,7 +102,10 @@ ALuint SoundInstance::SourcePool::Acquire(bool stereo, SoundInstance* requester)
 
 void SoundInstance::SourcePool::Release(ALuint src, bool stereo, SoundInstance* inst)
 {
-    return;
+
+
+    alcMakeContextCurrent(inst->_bufferData.context);
+
     std::lock_guard<std::recursive_mutex> lock(mtx);
     alSourceStop(src);
     alSourcei(src, AL_BUFFER, 0);
@@ -112,6 +120,66 @@ void SoundInstance::SourcePool::Release(ALuint src, bool stereo, SoundInstance* 
 #endif
 }
 
+void SoundInstance::UpdateSourceParams()
+{
+    if (!_source) return;
+
+    alcMakeContextCurrent(this->_bufferData.context);
+
+    // global attenuation off
+#ifdef AL_DISTANCE_MODEL_NONE
+    alDistanceModel(AL_DISTANCE_MODEL_NONE);
+#else
+    alDistanceModel(0xD000);
+#endif
+
+    // looping & pitch
+    alSourcei(_source, AL_LOOPING, Loop ? AL_TRUE : AL_FALSE);
+    alSourcef(_source, AL_PITCH, Pitch * GetPitchScale());
+
+    // spatial vs 2D
+    if (_isStereo || Is2D || IsUISound) {
+        // head-relative, no distance attenuation
+        alSourcei(_source, AL_SOURCE_RELATIVE, AL_TRUE);
+        alSourcef(_source, AL_ROLLOFF_FACTOR, 0.0f);
+
+        // 2) raw gain only
+        alSourcef(_source, AL_GAIN, Volume);
+
+        // 3) disable *all* spatialization/HRTF & its EQ
+        //    (requires the SOFT_source_spatialization extension)
+        alSourcei(_source, AL_SOURCE_SPATIALIZE_SOFT, AL_FALSE);
+
+        // 4) strip any EFX
+        alSourcei(_source, AL_DIRECT_FILTER, AL_FILTER_NULL);
+        alSource3i(_source, AL_AUXILIARY_SEND_FILTER, 0, 0, AL_FILTER_NULL);
+        alSource3i(_source, AL_AUXILIARY_SEND_FILTER, 1, 0, AL_FILTER_NULL);
+
+        // 5) clear any leftover position/orientation
+        alSource3f(_source, AL_POSITION, 0, 0, 0);
+        alSource3f(_source, AL_VELOCITY, 0, 0, 0);
+
+    }
+    else {
+        alSourcei(_source, AL_SOURCE_RELATIVE, AL_FALSE);
+        alSource3f(_source, AL_POSITION, Position.x, Position.y, Position.z);
+        alSource3f(_source, AL_VELOCITY, Velocity.x, Velocity.y, Velocity.z);
+        alSource3f(_source, AL_DIRECTION, Direction.x, Direction.y, Direction.z);
+        alSourcef(_source, AL_CONE_INNER_ANGLE, ConeInnerAngle);
+        alSourcef(_source, AL_CONE_OUTER_ANGLE, ConeOuterAngle);
+        alSourcef(_source, AL_CONE_OUTER_GAIN, ConeOuterGain);
+
+        float gain = ComputeDistanceGain();
+        alSourcef(_source, AL_GAIN, gain);
+    }
+
+#ifndef DISABLE_EFX
+    EnsureEFX();
+    if (EnableFilter && _filter) ApplyFilter();
+    if (EnableEcho && _slotEcho)   alSource3i(_source, AL_AUXILIARY_SEND_FILTER, _slotEcho, 0, AL_FILTER_NULL);
+    if (EnableReverb && _slotReverb) alSource3i(_source, AL_AUXILIARY_SEND_FILTER, _slotReverb, 1, AL_FILTER_NULL);
+#endif
+}
 
 void SoundInstance::Play()
 {
@@ -122,6 +190,8 @@ void SoundInstance::Play()
         // already playing
         return;
     }
+
+    alcMakeContextCurrent(this->_bufferData.context);
 
     std::lock_guard<std::recursive_mutex> lock(mtx);
 
@@ -138,6 +208,9 @@ void SoundInstance::Play()
 void SoundInstance::Pause()
 {
     std::lock_guard<std::recursive_mutex> lock(mtx);
+
+    alcMakeContextCurrent(this->_bufferData.context);
+
     if (_source) {
         alGetSourcef(_source, AL_SEC_OFFSET, &_virtualOffset);
         alSourcePause(_source);
@@ -149,6 +222,9 @@ void SoundInstance::Pause()
 void SoundInstance::Stop()
 {
     std::lock_guard<std::recursive_mutex> lock(mtx);
+
+    alcMakeContextCurrent(this->_bufferData.context);
+
     if (_source) {
         alSourceStop(_source);
         ReleaseSource();

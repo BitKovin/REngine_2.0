@@ -18,6 +18,15 @@ public:
 		arms = new SkeletalMesh(this);
 	}
 
+	SoundPlayer* fireSoundPlayer = nullptr;
+
+	void Start()
+	{
+		fireSoundPlayer = SoundPlayer::Create("GameData/sounds/weapons/shotgun/shotgun_fire2.wav");
+		fireSoundPlayer->Volume = 0.5f;
+		fireSoundPlayer->Is2D = true;
+	}
+
 	void LoadAssets()
 	{
 		viewmodel->LoadFromFile("GameData/testViewmodel.glb");
@@ -48,6 +57,9 @@ public:
 
 	void PerformAttack()
 	{
+
+		fireSoundPlayer->Play();
+
 		viewmodel->PlayAnimation("attack");
 		Camera::AddCameraShake(CameraShake(
 			0.13f,                            // interpIn

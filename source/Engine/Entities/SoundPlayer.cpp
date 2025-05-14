@@ -26,6 +26,7 @@ void SoundPlayer::LateUpdate()
 
 		Sound->Volume = CalculateVolume();
 		Sound->Pitch = Pitch;
+		Sound->Is2D = Is2D;
 		Sound->MinDistance = MinDistance;
 		Sound->MaxDistance = MaxDistance;
 
@@ -41,6 +42,7 @@ void SoundPlayer::Play()
 	if (Sound.get())
 	{
 		LateUpdate();
+		Sound->Stop();
 		Sound->Play();
 		Sound->Play(); //diry fix for emscripten not playing sound every time
 	}
@@ -77,4 +79,12 @@ SoundPlayer* SoundPlayer::Create()
 
 	return player;
 
+}
+
+SoundPlayer* SoundPlayer::Create(string soundPath)
+{
+	auto player = Create();
+	player->SetSound(SoundManager::GetSoundFromPath(soundPath));
+
+	return player;
 }
