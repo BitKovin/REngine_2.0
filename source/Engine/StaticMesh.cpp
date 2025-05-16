@@ -4,6 +4,8 @@
 
 #include "Entity.hpp"
 
+#include "Helpers/StringHelper.h"
+
 LightVolPointData StaticMesh::GetLightVolData()
 {
 
@@ -11,7 +13,7 @@ LightVolPointData StaticMesh::GetLightVolData()
 		model == nullptr||
 		Level::Current->BspData.lightVols.size() == 0) return LightVolPointData{ vec3(0),vec3(1),vec3(0) };
 
-	vec3 samplePos = OwnerEntity->Position + vec3(0,0.6,0);
+	vec3 samplePos = OwnerEntity->Position + vec3(0,0.75,0);
 
 	auto light = Level::Current->BspData.GetLightvolColor(samplePos * MAP_SCALE);
 
@@ -234,18 +236,28 @@ void StaticMesh::DrawShadow(mat4x4 view, mat4x4 projection)
 
 				if (mesh.cachedBaseColor == nullptr)
 				{
-					const string textureRoot = TexturesLocation;
+					const string& textureRoot = TexturesLocation;
 
 					mesh.cachedBaseColor = AssetRegistry::GetTextureFromFile(textureRoot + baseTextureName);
 				}
 
+				if (mesh.cachedEmissiveColor == nullptr)
+				{
+					const string& textureRoot = TexturesLocation;
+
+					mesh.cachedEmissiveColor = AssetRegistry::GetTextureFromFile(textureRoot + StringHelper::Replace(baseTextureName, ".", "_em."));
+				}
+
 				Texture* texture = mesh.cachedBaseColor;
+				Texture* textureEm = mesh.cachedEmissiveColor;
 
 				shader_program->SetTexture("u_texture", texture);
+				shader_program->SetTexture("u_textureEmissive", textureEm);
 			}
 			else
 			{
 				shader_program->SetTexture("u_texture", ColorTexture);
+				shader_program->SetTexture("u_textureEmissive", EmissiveTexture);
 			}
 		}
 		mesh.VAO->Bind();

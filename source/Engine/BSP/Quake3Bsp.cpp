@@ -897,6 +897,7 @@ bool CQuake3BSP::RenderSingleFace(int index , bool lightmap, LightVolPointData l
         faceTexture = AssetRegistry::GetTextureFromFile(texturePath)->getID();
     }
     
+    if (faceTexture == 0) return false;
 
     GLuint lightmapId = (pFace->lightmapID >= 0)
         ? m_lightmap_gen_IDs[pFace->lightmapID]

@@ -459,6 +459,15 @@
 ( -1792 -1216 16 ) ( -1792 -1216 24 ) ( -1776 -1216 16 ) lq_flesh/may_flesh1_tet 0 -10 0 1 1 0 0 0
 ( -1792 -1216 16 ) ( -1792 -1120 16 ) ( -1792 -1216 24 ) lq_flesh/may_flesh1_tet 0 -10 0 1 1 0 0 0
 }
+// brush 50
+{
+( -32 112 96 ) ( -128 112 96 ) ( -128 176 32 ) common/clip 0 0 0 0.5 0.5 0 0 0
+( -96 176 32 ) ( -128 176 32 ) ( -96 176 16 ) common/clip 0 0 0 0.5 0.5 0 0 0
+( -32 176 32 ) ( -32 176 16 ) ( -32 112 32 ) common/clip 0 0 0 0.5 0.5 0 0 0
+( -128 112 16 ) ( -96 112 16 ) ( -128 176 16 ) common/clip 0 0 0 0.5 0.5 0 0 0
+( -128 112 96 ) ( -32 112 96 ) ( -32 112 16 ) common/clip 0 0 0 0.5 0.5 0 0 0
+( -128 112 16 ) ( -128 176 16 ) ( -128 112 32 ) common/clip 0 0 0 0.5 0.5 0 0 0
+}
 }
 // entity 1
 {
@@ -517,10 +526,11 @@
 {
 "classname" "static_mesh"
 "origin" "-111.497 -56.1932 34.7592"
-"path" "Models/npc_base.obj"
-"scale" "1"
 "texture" "cat.png"
 "angles" "32 20 29"
+"model" "models/npc_base.obj"
+"modelscale" "32"
+"modelscale_vec" "32 32 32"
 }
 // entity 9
 {
@@ -678,14 +688,14 @@
 {
 "classname" "light"
 "origin" "-616 -1168 64"
-"light" "500"
+"light" "800"
 "_color" "1 0 0"
 }
 // entity 32
 {
 "classname" "light"
 "origin" "-952 -1160 64"
-"light" "500"
+"light" "800"
 "_color" "1 0 0"
 }
 // entity 33
@@ -699,7 +709,7 @@
 {
 "classname" "light"
 "origin" "-1512 -1160 64"
-"light" "500"
+"light" "800"
 "_color" "1 0 0"
 }
 // entity 35
@@ -776,21 +786,21 @@
 {
 "classname" "light"
 "origin" "-1776 -1160 64"
-"light" "300"
+"light" "800"
 "_color" "1 0 0"
 }
 // entity 45
 {
 "classname" "light"
 "origin" "-296 -1168 64"
-"light" "500"
+"light" "800"
 "_color" "1 0 0"
 }
 // entity 46
 {
 "classname" "light"
 "origin" "-96 -1168 64"
-"light" "700"
+"light" "800"
 "_color" "1 0 0"
 }
 // entity 47
@@ -799,4 +809,12 @@
 "origin" "56 -1168 64"
 "light" "1000"
 "_color" "1 0 0"
+}
+// entity 48
+{
+"classname" "misc_model"
+"origin" "-115.807 -103.272 24.4573"
+"model" "models/npc_base.obj"
+"modelscale" "32"
+"angles" "35.7764 -34.5749 16.2309"
 }

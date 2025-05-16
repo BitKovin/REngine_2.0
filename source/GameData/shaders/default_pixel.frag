@@ -5,7 +5,8 @@ in vec4 v_color;
 in vec3 v_normal;
 
 out vec4 FragColor;
-uniform sampler2D u_texture;  // Changed from "texture" to avoid keyword conflict
+uniform sampler2D u_texture; 
+uniform sampler2D u_textureEmissive; 
 
 uniform vec3 cameraPosition;
 
@@ -29,7 +30,7 @@ void main() {
     if(alpha <0.01)
         discard;
 
-    vec3 ligthColor = CalculateLight();
+    vec3 ligthColor = CalculateLight() + texture(u_textureEmissive, v_texcoord).rgb;
 
     color *= ligthColor;
 
@@ -43,5 +44,5 @@ vec3 CalculateLight()
 
     vec3 light = light_color + clamp(dot(normal, normalize(direct_light_dir))*0.8 + 0.2,0.0,1.0) * direct_light_color;
 
-    return light.rgb*2.0;
+    return light.rgb*1.0;
 }

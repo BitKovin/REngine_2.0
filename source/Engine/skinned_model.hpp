@@ -33,6 +33,7 @@ namespace roj
 		string name;
 
 		Texture* cachedBaseColor = nullptr;
+		Texture* cachedEmissiveColor = nullptr;
 
 	};
 

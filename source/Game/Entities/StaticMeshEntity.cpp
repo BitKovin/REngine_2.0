@@ -13,12 +13,22 @@ public:
 
 		mesh = new StaticMesh(this);
 
-		mesh->LoadFromFile("GameData/" + data.GetPropertyString("path"));
+		mesh->LoadFromFile("GameData/" + data.GetPropertyString("model"));
 
 		vec3 angles = data.GetPropertyVectorRotation("angles");
 
+		float scale = data.GetPropertyFloat("modelscale", 32.0f);
+
+		vec3 scaleVec = data.GetPropertyVectorPosition("modelscale_vec")*32.0f;
+		scaleVec.z *= -1;
+		if (scaleVec == vec3())
+		{
+			scaleVec = vec3(scale);
+		}
+
 		mesh->Rotation = EntityData::ConvertRotation(angles);
 		mesh->Position = Position;
+		mesh->Scale = scaleVec / 32.0f;
 
 		mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/" + data.GetPropertyString("texture"));
 

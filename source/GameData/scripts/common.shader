@@ -8,7 +8,7 @@ textures/common/trigger
     qer_editorimage textures/common/trigger.png
 
     // make this surface invisible to the standard light build
-    surfaceparm nodraw
+    //surfaceparm nodraw
     surfaceparm nolightmap
     q3map_nolightmap
 
@@ -17,4 +17,16 @@ textures/common/trigger
 
     // still allow the trigger to be solid/functional if needed
     surfaceparm nonsolid
+}
+
+textures/common/clip
+{
+	qer_trans 0.40
+	surfaceparm 	nolightmap
+	surfaceparm nomarks
+	//surfaceparm nodraw
+	surfaceparm nonsolid
+        //surfaceparm 	nolightmap //proto_addition 11/08/99
+	surfaceparm playerclip
+	surfaceparm noimpact
 }

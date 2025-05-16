@@ -60,6 +60,7 @@ public:
 	Entity* OwnerEntity = nullptr;
 
 	Texture* ColorTexture = nullptr;
+	Texture* EmissiveTexture = nullptr;
 
 	vec3 Position = vec3(0);
 	vec3 Rotation = vec3(0);
