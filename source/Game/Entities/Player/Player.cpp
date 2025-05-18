@@ -254,6 +254,8 @@ void Player::Update()
 {
     OnGround = CheckGroundAt(Position);
 
+
+
     if (Input::LockCursor)
     {
 
@@ -351,6 +353,16 @@ void Player::Update()
 
 void Player::LateUpdate()
 {
+
+
+    if (Input::GetAction("pause")->Pressed())
+    {
+        EngineMain::MainInstance->Paused = !EngineMain::MainInstance->Paused;
+
+        Input::LockCursor = !EngineMain::MainInstance->Paused;
+
+    }
+    Input::LockCursor = !EngineMain::MainInstance->Paused;
 
     Hud.Update();
 

@@ -207,7 +207,7 @@ void Level::RemoveEntity(LevelObject* obj)
 	PendingRemoveLevelObjects.push_back(obj);
 }
 
-void Level::AsyncUpdate()
+void Level::AsyncUpdate(bool paused)
 {
 	AddPendingLevelObjects();
 	RemovePendingEntities();
@@ -215,10 +215,50 @@ void Level::AsyncUpdate()
 	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 	for (auto var : LevelObjects)
 	{
-		asyncUpdateThreadPool->QueueJob([var]() {var->AsyncUpdate(); });
+
+		if (var->UpdateWhenPaused || paused == false)
+		{
+			asyncUpdateThreadPool->QueueJob([var]() {var->AsyncUpdate(); });
+		}
 	}
 
 	asyncUpdateThreadPool->WaitForFinish();
+	AddPendingLevelObjects();
+	RemovePendingEntities();
+}
+
+void Level::Update(bool paused)
+{
+	AddPendingLevelObjects();
+	RemovePendingEntities();
+
+	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+	for (auto var : LevelObjects)
+	{
+		if (var->UpdateWhenPaused || paused == false)
+		{
+			var->Update();
+		}
+
+	}
+
+	AddPendingLevelObjects();
+	RemovePendingEntities();
+}
+
+void Level::LateUpdate(bool paused)
+{
+	AddPendingLevelObjects();
+	RemovePendingEntities();
+
+	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+	for (auto var : LevelObjects)
+	{
+		if (var->LateUpdateWhenPaused || paused == false)
+		{
+			var->LateUpdate();
+		}
+	}
 	AddPendingLevelObjects();
 	RemovePendingEntities();
 }

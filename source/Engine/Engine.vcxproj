@@ -367,6 +367,8 @@
     <ClInclude Include="Particle\RibbonEmitter.h" />
     <ClInclude Include="PhysicsConverter.h" />
     <ClInclude Include="PhysicsHelper.h" />
+    <ClInclude Include="PlatformMains\emscripten_main.hpp" />
+    <ClInclude Include="PlatformMains\windows_main.hpp" />
     <ClInclude Include="RegisterLevelObject.h" />
     <ClInclude Include="Renderer\Abstractions\FrameBuffer.h" />
     <ClInclude Include="Renderer\Renderer.h" />

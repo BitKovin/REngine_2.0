@@ -56,6 +56,16 @@ GameStart::GameStart()
 
     Input::AddAction("bike")->AddKeyboardKey(SDL_KeyCode::SDLK_LSHIFT)->AddButton(GamepadButton::LeftShoulder);
 
+#if __EMSCRIPTEN__
+
+    Input::AddAction("pause")->AddKeyboardKey(SDL_KeyCode::SDLK_BACKQUOTE)->AddButton(GamepadButton::Back);
+
+#else
+
+    Input::AddAction("pause")->AddKeyboardKey(SDL_KeyCode::SDLK_ESCAPE)->AddButton(GamepadButton::Back);
+
+#endif
+
 }
 
 GameStart::~GameStart()

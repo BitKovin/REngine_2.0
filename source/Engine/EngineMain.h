@@ -69,6 +69,8 @@ public:
 
     ivec2 ScreenSize = ivec2();
 
+    bool Paused = true;
+
 	EngineMain(SDL_Window* window)
 	{
 		Window = window;

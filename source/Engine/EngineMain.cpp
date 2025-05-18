@@ -219,27 +219,19 @@ void EngineMain::GameUpdate()
 {
 
     NavigationSystem::Update();
-    Physics::Simulate();
+	if (Paused == false)
+		Physics::Simulate();
     Physics::Update();
 
     Level::Current->UpdatePhysics();
 
-    Level::Current->Update();
+    Level::Current->Update(Paused);
 
-    Level::Current->AsyncUpdate();
+    Level::Current->AsyncUpdate(Paused);
 
-    Level::Current->LateUpdate();
+    Level::Current->LateUpdate(Paused);
 
     SoundManager::Update();
-
-    if (Input::GetAction("test")->Pressed())
-    {
-        //ToggleFullscreen(window);
-        printf("framerate: %f  \n", (1 / Time::DeltaTime));
-
-        Input::LockCursor = !Input::LockCursor;
-
-    }
 
 }
 

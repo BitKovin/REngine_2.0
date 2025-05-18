@@ -202,38 +202,11 @@ public:
 		AddPendingLevelObjects();
 	}
 
-	void Update()
-	{
-		AddPendingLevelObjects();
-		RemovePendingEntities();
+	void Update(bool paused);
 
-		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
-		for (auto var : LevelObjects)
-		{
-			var->Update();
-		}
+	void LateUpdate(bool paused);
 
-		AddPendingLevelObjects();
-		RemovePendingEntities();
-
-	}
-
-	void LateUpdate()
-	{
-		AddPendingLevelObjects();
-		RemovePendingEntities();
-
-		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
-		for (auto var : LevelObjects)
-		{
-			var->LateUpdate();
-		}
-		AddPendingLevelObjects();
-		RemovePendingEntities();
-
-	}
-
-	void AsyncUpdate();
+	void AsyncUpdate(bool paused);
 
 	void DevUiUpdate()
 	{

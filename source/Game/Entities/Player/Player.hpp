@@ -155,6 +155,8 @@ public:
 
 		Health = 100;
 
+		LateUpdateWhenPaused = true;
+
 	}
 	~Player() { Logger::Log("player destructor"); }
 
