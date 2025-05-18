@@ -5,7 +5,7 @@
 "_tb_textures" "textures/brushes"
 "_keeplights" "1"
 "_lightmapscale" "0.1"
-"_ambient" "5"
+"_ambient" "0"
 "gridsize" "8 8 16"
 // brush 0
 {
@@ -530,7 +530,7 @@
 "angles" "32 20 29"
 "model" "models/npc_base.obj"
 "modelscale" "32"
-"modelscale_vec" "32 32 32"
+"modelscale_vec" "64 8 32"
 }
 // entity 9
 {
@@ -814,6 +814,14 @@
 {
 "classname" "misc_model"
 "origin" "-115.807 -103.272 24.4573"
+"model" "models/npc_base.obj"
+"modelscale" "32"
+"angles" "35.7764 -34.5749 16.2309"
+}
+// entity 49
+{
+"classname" "misc_model"
+"origin" "-851.807 680.728 24.4573"
 "model" "models/npc_base.obj"
 "modelscale" "32"
 "angles" "35.7764 -34.5749 16.2309"

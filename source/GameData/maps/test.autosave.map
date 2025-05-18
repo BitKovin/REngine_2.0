@@ -5,7 +5,7 @@
 "_tb_textures" "textures/brushes"
 "_keeplights" "1"
 "_lightmapscale" "0.1"
-"_ambient" "5"
+"_ambient" "0"
 "gridsize" "8 8 16"
 // brush 0
 {

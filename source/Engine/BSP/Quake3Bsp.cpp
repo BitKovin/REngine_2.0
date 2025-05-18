@@ -903,12 +903,19 @@ bool CQuake3BSP::RenderSingleFace(int index , bool lightmap, LightVolPointData l
         ? m_lightmap_gen_IDs[pFace->lightmapID]
         : missing_LM_id;
 
-    if (m_numOfLightmaps == 0)
+    if (m_numOfLightmaps == 0 && isCube == false)
     {
 
         string lightMapPath = GetLightMapFilePathFromId(pFace->lightmapID, filePath);
 
         lightmapId = AssetRegistry::GetTextureFromFile(lightMapPath)->getID();
+
+        if (lightmapId == 0)
+        {
+            lightmapId = missing_LM_id;
+        }
+            
+
         //Logger::Log(lightMapPath);
         //printf("%i \n", lightmapId);
     }

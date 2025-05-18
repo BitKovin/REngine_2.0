@@ -5,7 +5,7 @@
 "_tb_textures" "textures/brushes"
 "_keeplights" "1"
 "_lightmapscale" "0.1"
-"_ambient" "5"
+"_ambient" "0"
 "gridsize" "8 8 16"
 // brush 0
 {
@@ -817,4 +817,12 @@
 "model" "models/npc_base.obj"
 "modelscale" "32"
 "angles" "35.7764 -34.5749 16.2309"
+}
+// entity 49
+{
+"classname" "misc_model"
+"origin" "-859.651 659.776 123.72"
+"model" "models/npc_base.obj"
+"modelscale" "32"
+"angles" "-0.771688 -33.6657 -1.86305"
 }
