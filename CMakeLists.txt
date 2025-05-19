@@ -18,7 +18,44 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(LINUX TRUE)
     message(STATUS "Building for Linux")
+
+    # 1) OpenAL Soft via pkg-config (prefers the soft implementation)
+    find_package(PkgConfig REQUIRED)                    # loads pkg_check_modules :contentReference[oaicite:3]{index=3}
+    pkg_check_modules(OPENAL REQUIRED openal-soft)      # locates openal-soft and defines OPENAL_INCLUDE_DIRS/LIBRARIES :contentReference[oaicite:4]{index=4}
+    target_include_directories(engine PRIVATE ${OPENAL_INCLUDE_DIRS})
+    target_link_libraries(engine PRIVATE PkgConfig::OPENAL)
+
+    # Existing SDL2, SDL2_image, SDL2_ttf, GLEW, OpenGL linkage unchanged
+    find_package(SDL2 REQUIRED)
+    find_package(SDL2_image REQUIRED)
+    find_package(SDL2_ttf REQUIRED)
+    find_package(GLEW REQUIRED)
+    find_package(OpenGL REQUIRED)
+
+    target_link_libraries(engine PRIVATE
+        SDL2::SDL2
+        SDL2_image::SDL2_image
+        SDL2_ttf::SDL2_ttf
+        GLEW::GLEW
+        OpenGL::GL
+    )
+
+    # 2) Assimp from package manager
+    find_package(assimp REQUIRED)                        # loads AssimpConfig.cmake and creates assimp::assimp :contentReference[oaicite:5]{index=5}
+    target_link_libraries(engine PRIVATE assimp::assimp)
+
+    # 3) Custom Jolt library (imported from local libs folder)
+    add_library(Jolt STATIC IMPORTED)
+    set_target_properties(Jolt PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libJolt.a"
+        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/libs/include"
+    )
+    target_link_libraries(engine PRIVATE Jolt)
+
+    # Optional: install target
+    install(TARGETS game DESTINATION bin)
 endif()
+
 
 # Global include directories
 include_directories(

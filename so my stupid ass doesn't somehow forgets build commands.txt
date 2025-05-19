@@ -1,5 +1,8 @@
-emcmake cmake ..
+# Emscripten
+emcmake cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 
-emmake ninja
-
-I know how dumb it looks. My head is too overwelmed rn to remember to basic commands
+# Linux
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+sudo cmake --install build  # For Linux installation
