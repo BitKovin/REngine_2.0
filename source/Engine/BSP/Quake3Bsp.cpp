@@ -24,7 +24,7 @@
 #include "../Renderer/Renderer.h"
 #include "../EngineMain.h"
 
-#if __EMSCRIPTEN__
+#ifndef _MSC_VER 
 
 #define strcpy_s strcpy
 #define strcat_s strcat
@@ -67,7 +67,7 @@ bool CQuake3BSP::LoadBSP(const char* filename) {
 
     FILE* fp = NULL;
     
-#if __EMSCRIPTEN__
+#ifndef _MSC_VER 
 
     fp = fopen(filename, "rb");
 
