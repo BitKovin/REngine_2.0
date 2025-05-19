@@ -7,19 +7,10 @@
 
 #include "Camera.h"
 #include "Input.h"
-#include "Physics.h"
+
 
 #include "Level.hpp"
 
-//#include "Entities/Player.hpp"
-//#include "Entities/TestNpc.hpp"
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
-#include "skinned_model.hpp"
-#include "animator.hpp"
 
 #include "ShaderManager.h"
 
@@ -40,7 +31,6 @@
 #include "UI/UiText.hpp"
 
 #include "MapParser.h"
-
 
 #include "Renderer/Renderer.h"
 
