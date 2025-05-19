@@ -26,17 +26,12 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(LINUX TRUE)
     message(STATUS "Building for Linux")
 
-    # pkg-config for OpenAL Soft and Assimp
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(OPENAL REQUIRED openal)
-    pkg_check_modules(ASSIMP REQUIRED assimp)
-
-    # SDL2, image, ttf, GLEW, OpenGL via CMake Configs
-    find_package(SDL2 REQUIRED)
-    find_package(SDL2_image REQUIRED)
-    find_package(SDL2_ttf REQUIRED)
-    find_package(GLEW REQUIRED)
-    find_package(OpenGL REQUIRED)
+    # Imported Assimp static library
+    add_library(Assimp::Assimp STATIC IMPORTED GLOBAL)
+    set_target_properties(Assimp::Assimp PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libassimp.a"
+        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/libraries/assimp/"
+    )
 
     # Imported Jolt static library
     add_library(Jolt::Jolt STATIC IMPORTED GLOBAL)
@@ -44,6 +39,15 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
         IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libJolt.a"
         INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/libraries/Jolt/"
     )
+
+    # SDL2, image, ttf, GLEW, OpenGL via CMake Configs
+    find_package(SDL2       REQUIRED)
+    find_package(SDL2_image REQUIRED)
+    find_package(SDL2_ttf   REQUIRED)
+    find_package(GLEW       REQUIRED)
+    find_package(OpenGL     REQUIRED)
+    find_package(OpenAL     REQUIRED)  
+    find_package(ZLIB REQUIRED)
 endif()
 
 # ——————————————————————————————————————————————————————————
@@ -67,8 +71,12 @@ endforeach()
 
 add_library(engine STATIC ${ENGINE_SRC})
 
+target_include_directories(engine PRIVATE
+    ${CMAKE_SOURCE_DIR}/source/Engine
+)
+
 if(EMSCRIPTEN)
-    # Link Emscripten‐built dependencies
+    # Link Emscripten-built dependencies
     target_link_libraries(engine PRIVATE
         "${CMAKE_SOURCE_DIR}/libsEms/libassimp.a"
         "${CMAKE_SOURCE_DIR}/libsEms/libIrrXML.a"
@@ -76,20 +84,20 @@ if(EMSCRIPTEN)
     )
 
 elseif(LINUX)
-    # Include & link OpenAL Soft and Assimp
-    target_include_directories(engine PRIVATE
-        ${OPENAL_INCLUDE_DIRS}
-        ${ASSIMP_INCLUDE_DIRS}
-    )
+    # Link Imported Assimp and Jolt
+    
+    target_include_directories(engine PRIVATE ${OPENAL_INCLUDE_DIR})
+    target_link_libraries(engine PRIVATE ${OPENAL_LIBRARIES})
+    
     target_link_libraries(engine PRIVATE
-        ${OPENAL_LIBRARIES}
-        ${ASSIMP_LIBRARIES}
+        Assimp::Assimp
         Jolt::Jolt
         SDL2::SDL2
         SDL2_image::SDL2_image
         SDL2_ttf::SDL2_ttf
         GLEW::GLEW
         OpenGL::GL
+        ZLIB::ZLIB 
     )
 endif()
 

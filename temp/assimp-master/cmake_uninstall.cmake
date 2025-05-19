@@ -1,13 +1,13 @@
-IF(NOT EXISTS "F:/Git/SdlWasmEngine/temp/assimp-master/install_manifest.txt")
-  MESSAGE(FATAL_ERROR "Cannot find install manifest: \"F:/Git/SdlWasmEngine/temp/assimp-master/install_manifest.txt\"")
-ENDIF(NOT EXISTS "F:/Git/SdlWasmEngine/temp/assimp-master/install_manifest.txt")
+IF(NOT EXISTS "/home/user/Documents/GitHub/SdlWasmEngine/temp/assimp-master/install_manifest.txt")
+  MESSAGE(FATAL_ERROR "Cannot find install manifest: \"/home/user/Documents/GitHub/SdlWasmEngine/temp/assimp-master/install_manifest.txt\"")
+ENDIF(NOT EXISTS "/home/user/Documents/GitHub/SdlWasmEngine/temp/assimp-master/install_manifest.txt")
 
-FILE(READ "F:/Git/SdlWasmEngine/temp/assimp-master/install_manifest.txt" files)
+FILE(READ "/home/user/Documents/GitHub/SdlWasmEngine/temp/assimp-master/install_manifest.txt" files)
 STRING(REGEX REPLACE "\n" ";" files "${files}")
 FOREACH(file ${files})
   MESSAGE(STATUS "Uninstalling \"$ENV{DESTDIR}${file}\"")
   EXEC_PROGRAM(
-    "C:/Program Files/CMake/bin/cmake.exe" ARGS "-E remove \"$ENV{DESTDIR}${file}\""
+    "/snap/cmake/1463/bin/cmake" ARGS "-E remove \"$ENV{DESTDIR}${file}\""
     OUTPUT_VARIABLE rm_out
     RETURN_VALUE rm_retval
     )
