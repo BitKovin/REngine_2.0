@@ -1,5 +1,5 @@
 #pragma once
-#if DESKTOP
+#ifndef __EMSCRIPTEN__
 #include <GL/glew.h>
 #include <SDL2/SDL_opengl.h>
 #else

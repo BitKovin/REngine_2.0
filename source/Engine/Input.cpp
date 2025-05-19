@@ -261,8 +261,7 @@ void Input::RemoveAction(const std::string& actionName)
         return;
 
     actions.erase(actionName);
-
-    action->Dispose();
+    delete(action);
 }
 
 

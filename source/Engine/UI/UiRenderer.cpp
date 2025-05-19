@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <SDL2/SDL.h>
 #include <iostream>
+#include "../Time.hpp"
 
 // Cache entry structure
 struct TextureCacheEntry {

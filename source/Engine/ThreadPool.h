@@ -7,15 +7,16 @@
 #endif // __EMSCRIPTEN__
 
 
-
-
 #include <mutex>
 #include <queue>
 #include <vector>
 #include <functional>
 
+
 #ifndef DISABLE_TREADPOOL
 #include <atomic> // add this
+#include <thread>
+#include <condition_variable>
 #endif
 
 class ThreadPool {

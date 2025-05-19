@@ -9,7 +9,6 @@
 #include <SDL2/SDL_video.h>
 #include "glm.h"
 
-#include "EObject.hpp"
 #include "Logger.hpp"
 
 // Forward declaration for InputAction.
@@ -112,7 +111,7 @@ public:
     static void RemoveAction(const std::string& actionName);
 };
 
-class InputAction : public EObject {
+class InputAction {
 public:
     std::vector<SDL_Scancode> keys;
     // For joystick buttons, we simply use int indices.

@@ -3,6 +3,9 @@
 #include <vector>
 
 #include "EObject.hpp"
+#include "Helpers/JsonHelper.hpp"
+#include "Helpers/JsonMacros.hpp"
+
 #include "LevelObject.hpp"
 
 #include "IDrawMesh.h"

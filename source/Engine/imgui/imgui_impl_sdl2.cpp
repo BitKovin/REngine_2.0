@@ -101,6 +101,11 @@
 #include "../EngineMain.h"
 #include "../Input.h"
 
+#ifdef Time
+#undef Time    // drop the X11 typedef
+#endif
+
+
 // Clang warnings with -Weverything
 #if defined(__clang__)
 #pragma clang diagnostic push

@@ -7,6 +7,8 @@
 #include <iostream>
 #include "Navigation.hpp"
 
+#include "../DebugDraw.hpp"
+
 #include "../Level.hpp"
 
 #include "../Physics.h"
