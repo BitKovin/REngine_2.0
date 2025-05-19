@@ -1,7 +1,5 @@
 #include <SDL2/SDL_video.h>
 
-#include "AssetRegistry.h"
-
 #include "SoundSystem/SoundManager.hpp"
 
 
