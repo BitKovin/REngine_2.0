@@ -1,8 +1,7 @@
 # Emscripten
-emcmake cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
+emcmake cmake .. -B build -DCMAKE_BUILD_TYPE=Release
+ninja
 
 # Linux
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-sudo cmake --install build  # For Linux installation
+cmake .. -B build -DCMAKE_BUILD_TYPE=Release
+cmake .. --build build
