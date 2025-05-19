@@ -4,7 +4,7 @@
 
 #elif _WINDOWS
 
-#include "PlatformMains/linux_windows.hpp"
+#include "PlatformMains/windows_main.hpp"
 
 #elif _linux
 

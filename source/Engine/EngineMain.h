@@ -4,7 +4,7 @@
 
 #include "SoundSystem/SoundManager.hpp"
 
-#include "Time.hpp"
+
 #include "Camera.h"
 #include "Input.h"
 #include "Physics.h"
@@ -41,7 +41,6 @@
 
 #include "MapParser.h"
 
-#include "Particle/ParticleEmitter.h"
 
 #include "Renderer/Renderer.h"
 

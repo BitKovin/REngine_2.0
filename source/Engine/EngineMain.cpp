@@ -1,6 +1,9 @@
 #include "EngineMain.h"
 
 #include "LevelObjectFactory.h"
+#include "Time.hpp"
+
+#include "Particle/ParticleEmitter.h"
 
 
 EngineMain* EngineMain::MainInstance = nullptr;
