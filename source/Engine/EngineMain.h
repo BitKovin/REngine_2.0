@@ -21,7 +21,7 @@
 
 #include "ImGuiEngineImpl.h"
 
-#include "DebugDraw.hpp"
+
 
 #include "UI/UiButton.hpp"
 
@@ -37,10 +37,6 @@
 class EngineMain
 {
 private:
-
-	StaticMesh* mesh = nullptr;
-
-    Texture* texture = 0;
 
 
 

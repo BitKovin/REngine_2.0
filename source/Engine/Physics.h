@@ -1,15 +1,17 @@
 ﻿#pragma once
 
-#if __EMSCRIPTEN__ // i'm too tired right now to figure proper way
+#ifndef _MSC_VER
 
 #define NDEBUG 1
 #define JPH_OBJECT_STREAM 1
+
+#define JPH_NO_VERSION_CHECK
 
 #else
 
 #define JPH_DEBUG_RENDERER	
 
-#endif // __EMSCRIPTEN__
+#endif
 
 
 

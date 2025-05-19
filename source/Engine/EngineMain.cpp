@@ -5,6 +5,7 @@
 #include "Physics.h"
 #include "SoundSystem/SoundManager.hpp"
 #include "Particle/ParticleEmitter.h"
+#include "DebugDraw.hpp"
 
 
 EngineMain* EngineMain::MainInstance = nullptr;

@@ -11,10 +11,11 @@
 #include <mutex>
 
 
-
+#include <vector>
 
 #include "Detour/DetourNavMeshQuery.h"
 
+using namespace std;
 
 class NavigationSystem
 {

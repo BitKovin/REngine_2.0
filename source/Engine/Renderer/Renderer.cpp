@@ -3,6 +3,7 @@
 #include "../EngineMain.h"
 
 #include "../LightSystem/LightManager.h"
+#include "../DebugDraw.hpp"
 
 Renderer::Renderer()
 {

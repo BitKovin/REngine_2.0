@@ -3,6 +3,7 @@
 #include "../EngineMain.h"
 
 #include "Navigation.hpp"
+#include "../DebugDraw.hpp"
 
 PathFollowQuery::PathFollowQuery()
 {
