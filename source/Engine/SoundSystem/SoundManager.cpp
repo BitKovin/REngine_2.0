@@ -196,6 +196,27 @@ SoundBufferData SoundManager::LoadOrGetSoundFileBuffer(std::string path)
     data.buffer = buffer;
     data.stereo = isStereo;
     data.context = isStereo ? contextStereo : contextMono;
+    
+    int bytesPerSample;
+    switch (wavSpec.format) {
+    case AUDIO_U8:       bytesPerSample = 1; break;
+    case AUDIO_S16LSB:
+    case AUDIO_S16MSB:   bytesPerSample = 2; break;
+    case AUDIO_F32LSB:
+    case AUDIO_F32MSB:   bytesPerSample = 4; break;
+    default:
+        printf("Unknown format for duration calculation: %d\n", wavSpec.format);
+        alDeleteBuffers(1, &buffer);
+        return SoundBufferData();
+    }
+
+    int frameSize = wavSpec.channels * bytesPerSample;
+    if (frameSize == 0) frameSize = 1; // safety
+
+    Uint32 numSamples = wavLength / frameSize;
+    float duration = static_cast<float>(numSamples) / wavSpec.freq;
+    data.duration = duration;
+    data.sampleRate = wavSpec.freq;
 
     loadedBuffers[path] = data;
     return data;

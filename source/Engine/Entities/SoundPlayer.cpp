@@ -4,6 +4,7 @@
 
 SoundPlayer::SoundPlayer()
 {
+	LateUpdateWhenPaused = true;
 }
 
 SoundPlayer::~SoundPlayer()
@@ -29,6 +30,7 @@ void SoundPlayer::LateUpdate()
 		Sound->Is2D = Is2D;
 		Sound->MinDistance = MinDistance;
 		Sound->MaxDistance = MaxDistance;
+		Sound->Paused = Paused;
 
 		Sound->Update(Time::DeltaTimeF);
 	}
@@ -53,13 +55,6 @@ float SoundPlayer::CalculateVolume()
 	return Volume * SoundManager::GlobalVolume * (IsMusic ? SoundManager::MusicVolume : SoundManager::SfxVolume);
 }
 
-void SoundPlayer::Pause()
-{
-	if (Sound)
-	{
-		Sound->Pause();
-	}
-}
 
 void SoundPlayer::Stop()
 {

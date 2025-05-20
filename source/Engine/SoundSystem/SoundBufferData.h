@@ -9,4 +9,6 @@ struct SoundBufferData
 	ALCcontext* context;
 	bool stereo;
 	ALuint buffer;
+	float duration;
+	ALuint sampleRate;
 };

@@ -1,6 +1,7 @@
 ﻿#include "SoundInstance.hpp"
 
 #  include <AL/alext.h>
+#include "../EngineMain.h"
 
 #define SOUND_POOL_DEBUG
 
@@ -24,11 +25,11 @@ void SoundInstance::SourcePool::Init()
             << ", maxStereo=" << maxStereo << "\n";
     }
 
-    if (maxMono > 512)
-        maxMono = 512;
+    if (maxMono > 100000)
+        maxMono = 128;
 
-    if(maxStereo > 256)
-        maxStereo = 256;
+    if(maxStereo > 100000)
+        maxStereo = 32;
 
     printf("max mono: %zu \n", maxMono);
     printf("max stereo: %zu \n", maxStereo);
@@ -68,19 +69,23 @@ ALuint SoundInstance::SourcePool::Acquire(bool stereo, SoundInstance* requester)
         }
     }
 
+    if (requester->_isStereo) return 0;
+
     // 3) Steal oldest lowest-prio non-looping
     ALuint victimSrc = 0;
     float  victimPrio = std::numeric_limits<float>::infinity();
     uint64_t victimTime = UINT64_MAX;
 
-    for (auto& [src, info] : liveOwners) {
+    for (auto& [src, info] : liveOwners) 
+    {
         auto* inst = info.inst;
+        if (inst->_isStereo) continue;       // skip stereo
         if (inst->Loop) continue;            // skip looping
         float pr = inst->Priority;
         uint64_t ts = info.timestamp;
-        // choose if lower priority, or equal pr & older timestamp
+        // choose if lower priority, or equal pr
         if (pr < victimPrio ||
-            (pr == victimPrio && ts < victimTime))
+            (pr == victimPrio))
         {
             victimPrio = pr;
             victimTime = ts;
@@ -118,6 +123,11 @@ void SoundInstance::SourcePool::Release(ALuint src, bool stereo, SoundInstance* 
     std::cerr << "[SourcePool::Release] Released source " << src
         << " back to " << (stereo ? "stereo" : "mono") << " pool\n";
 #endif
+}
+
+bool SoundInstance::IsGamePaused() const
+{
+    return EngineMain::MainInstance->Paused;
 }
 
 void SoundInstance::UpdateSourceParams()
@@ -176,40 +186,19 @@ void SoundInstance::UpdateSourceParams()
 
 void SoundInstance::Play()
 {
-
+    Paused = false; // Ensure paused is off when playing
     _virtualOffset = 0;
 
     if (_active && _source != 0) {
-        // already playing
         return;
     }
 
-    alcMakeContextCurrent(this->_bufferData.context);
-
-    std::lock_guard<std::recursive_mutex> lock(mtx);
-
     _active = true;
-    TryAcquire();         // may leave us virtual if no source available
+    TryAcquire();
     if (_source) {
-        // rewind or set offset
-        alSourcef(_source, AL_SEC_OFFSET, _virtualOffset);
         UpdateSourceParams();
         alSourcePlay(_source);
     }
-}
-
-void SoundInstance::Pause()
-{
-    std::lock_guard<std::recursive_mutex> lock(mtx);
-
-    alcMakeContextCurrent(this->_bufferData.context);
-
-    if (_source) {
-        alGetSourcef(_source, AL_SEC_OFFSET, &_virtualOffset);
-        alSourcePause(_source);
-        ReleaseSource();
-    }
-    _active = false;
 }
 
 void SoundInstance::Stop()
@@ -224,4 +213,67 @@ void SoundInstance::Stop()
     }
     _virtualOffset = 0.0f;
     _active = false;
+}
+
+void SoundInstance::Update(float deltaTime)
+{
+    SourcePool::globalTimestamp = Time::GameTimeNoPause;
+
+    if (Paused || (IsGamePaused() && IsUISound == false)) {
+        if (_source) {
+            // Capture current playback position if possible
+            //alGetSourcef(_source, AL_SEC_OFFSET, &_virtualOffset);
+            alSourceStop(_source);
+            ReleaseSource();
+        }
+        return;
+    }
+    else
+    {
+        _virtualOffset += deltaTime;
+    }
+
+    if (!_active) return;
+
+    if (_source) 
+    {
+        UpdateSourceParams();
+        ALint state;
+        alGetSourcei(_source, AL_SOURCE_STATE, &state);
+        if (state == AL_STOPPED) {
+            ReleaseSource();
+            _active = Loop;
+            if (_active) _virtualOffset = 0.0f;
+        }
+    }
+    else {
+        // Only advance virtual time if not paused
+        
+        if (_virtualOffset >= _duration) {
+            if (Loop) {
+                _virtualOffset = fmod(_virtualOffset, _duration);
+            }
+            else {
+                _active = false;
+            }
+        }
+        TryAcquire();
+        if (_source && _active) {
+            
+            alGetError();
+
+            alcMakeContextCurrent(this->_bufferData.context);
+
+            ALuint sampleOffset = _virtualOffset * _bufferData.sampleRate;
+            alSourcei(_source, AL_SAMPLE_OFFSET, sampleOffset);
+
+            ALenum error = alGetError();
+            if (error != AL_NO_ERROR) {
+                std::cerr << "OpenAL error: " << error << std::endl;
+            }
+
+            UpdateSourceParams();
+            alSourcePlay(_source);
+        }
+    }
 }

@@ -44,6 +44,8 @@ public:
 
         _isStereo = buffer.stereo;
 
+        _duration = buffer.duration;
+
         // Ensure pool is initialized once
         SourcePool::Init();
 
@@ -59,53 +61,18 @@ public:
     /// Begins or resumes playback. Will acquire a source if needed.
     void Play();
 
-    /// Pauses playback, preserving virtual playhead
-    void Pause();
 
     /// Stops and resets playback
     void Stop();
 
     /// Must be called every frame to advance virtual playhead and reclaim sources
-    void Update(float deltaTime) 
-    {
-
-        SourcePool::globalTimestamp = Time::GameTimeNoPause;
-
-        if (!_active) return;
-
-        if (_source) {
-            UpdateSourceParams();
-            ALint state;
-            alGetSourcei(_source, AL_SOURCE_STATE, &state);
-            if (state == AL_STOPPED) {
-                // reached natural end
-                ReleaseSource();
-                _active = Loop;      // restart if looping
-                if (_active) _virtualOffset = 0.0f;
-            }
-        } else {
-            // no real source: advance virtual clock
-            _virtualOffset += deltaTime;
-            if (_virtualOffset >= _duration) {
-                if (Loop) {
-                    _virtualOffset = fmod(_virtualOffset, _duration);
-                } else {
-                    _active = false;
-                }
-            }
-            // try to grab a source if high-priority now
-            TryAcquire();
-            if (_source && _active) {
-                alSourcef(_source, AL_SEC_OFFSET, _virtualOffset);
-                UpdateSourceParams();
-                alSourcePlay(_source);
-            }
-        }
-    }
+    void Update(float deltaTime);
 
     // ─── Public Properties ──────────────────────────────────────────────
 
     float Priority = 0.0f;    // higher = more important
+
+    bool Paused = false;
 
     bool   Is2D           = false;
     bool   IsUISound      = false;
@@ -143,11 +110,9 @@ public:
     float  ReverbDecayTime= 1.0f;
 
 
-    /// Set the total duration of this sound (in seconds), used for virtual timing
-    void SetDuration(float seconds) { _duration = seconds; }
 
 protected:
-    virtual bool IsGamePaused() const { return false; }
+    virtual bool IsGamePaused() const;
     virtual float GetPitchScale() const { return 1.0f; }
 
 private:

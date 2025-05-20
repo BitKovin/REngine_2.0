@@ -61,10 +61,10 @@ GameStart::GameStart()
     Input::AddAction("pause")->AddKeyboardKey(SDL_KeyCode::SDLK_BACKQUOTE)->AddButton(GamepadButton::Back);
 
 #else
-
     Input::AddAction("pause")->AddKeyboardKey(SDL_KeyCode::SDLK_ESCAPE)->AddButton(GamepadButton::Back);
-
 #endif
+
+
 
 }
 

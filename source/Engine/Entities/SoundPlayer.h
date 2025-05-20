@@ -20,6 +20,8 @@ public:
 	bool IsMusic = false;
 	bool Is2D = false;
 
+	bool Paused = false;
+
 	SoundPlayer();
 	~SoundPlayer();
 
@@ -28,7 +30,6 @@ public:
 	void LateUpdate();
 
 	void Play();
-	void Pause();
 	void Stop();
 
 
