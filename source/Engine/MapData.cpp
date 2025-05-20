@@ -285,7 +285,7 @@ void MapData::LoadToLevel()
                 }
 
             }
-
+        }
             auto compoundShape = Physics::CreateStaticCompoundShapeFromConvexShapes(colShapes);
 
             ent->LeadBody = Physics::CreateBodyFromShape(ent, vec3(0), compoundShape, 1000, true, BodyType::World | (BodyType::WorldOpaque));
@@ -307,7 +307,7 @@ void MapData::LoadToLevel()
 
                 ent->Drawables.push_back(face);
             }
-        }
+        
 
         Level::Current->AddEntity(ent);
 

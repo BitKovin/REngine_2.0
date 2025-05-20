@@ -9,11 +9,11 @@ Renderer::Renderer()
 {
 	ivec2 screenResolution = GetScreenResolution();
 
-    TextureFormat colorTextureFormat = TextureFormat::RGB16F;
+    TextureFormat colorTextureFormat = TextureFormat::RGBA16F;
 
 #if __EMSCRIPTEN__
 
-    colorTextureFormat = TextureFormat::RGB8;
+    //colorTextureFormat = TextureFormat::RGB8;
 
 #endif // __EMSCRIPTEN__
 
@@ -147,7 +147,9 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
             ? Camera::finalizedProjectionViewmodel
             : Camera::finalizedProjection;
         mesh->DrawDepth(Camera::finalizedView, P);
+
     }
+
 
     //
     // B) Opaque + transparent color passes
@@ -172,6 +174,9 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 
     // draw transparent with normal depth test
     glDepthFunc(GL_LEQUAL);
+
+    Level::Current->BspData.RenderTransparentFaces();
+
     for (auto* mesh : VissibleRenderList) {
         if (!mesh->Transparent) continue;
         const mat4& P = mesh->IsViewmodel
@@ -181,6 +186,11 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     }
 
     DebugDraw::Draw();
+
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+    glClearColor(0, 0, 0, 1);    // only alpha channel to 1
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     forwardFBO.unbind();
 

@@ -546,6 +546,7 @@ void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
 void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool useClusterVis, bool lightmap)
 {
 
+
     auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
     //printf("light : %f, %f, %f \n", light.ambientColor.x, light.ambientColor.y, light.ambientColor.z);
 
@@ -559,6 +560,9 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
 
 
 	LightVolPointData lightData = { vec3(0),vec3(1) ,vec3(0) };
+
+    vector<int> facesToDraw;
+    
 
     if (lightmap == false)
     {
@@ -603,34 +607,83 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
                     if (!renderedFaces[localIndex])
                     {
                         renderedFaces[localIndex] = true; // Mark as rendered
-                        bool drawn = RenderSingleFace(faceIndex, lightmap, lightData);
-                        if (drawn)
+
+                        FaceRenderData renderData;
+                        renderData.faceIndex = faceIndex;
+                        renderData.useLightmap = lightmap;
+                        renderData.lightPointData = lightData;
+
+                        if (IsFaceTransparent(faceIndex))
                         {
-                            drawnFaces++;
-                            //printf("%i \n", faceIndex);
+                            facesToDrawTransparent.push_back(renderData);
                         }
+                        else
+                        {
+                            bool drawn = RenderSingleFace(faceIndex, lightmap, lightData);
+                            if (drawn)
+                            {
+                                drawnFaces++;
+                            }
+                        }
+
                     }
                 }
             }
         }
-        //printf("n: %i\n", drawnFaces);
     }
     else
     {
 		for (int i = model.face; i < model.face + model.n_faces; i++)
 		{
 
-			RenderSingleFace(i, lightmap, lightData);
+            FaceRenderData renderData;
+            renderData.faceIndex = i;
+            renderData.useLightmap = lightmap;
+            renderData.lightPointData = lightData;
 
-			drawnFaces++;
+            if (IsFaceTransparent(i))
+            {
+                facesToDrawTransparent.push_back(renderData);
+            }
+            else
+            {
+                bool drawn = RenderSingleFace(i, lightmap, lightData);
+                if (drawn)
+                {
+                    drawnFaces++;
+                }
+            }
 
         }
     }
 
-
+    for (int i : facesToDraw)
+    {
+        
+    }
 
     //printf("drawn %i faces\n", drawnFaces);
 
+}
+
+void CQuake3BSP::RenderTransparentFaces()
+{
+    for (auto& face : facesToDrawTransparent)
+    {
+        bool drawn = RenderSingleFace(face.faceIndex, face.useLightmap, face.lightPointData);
+    }
+
+    facesToDrawTransparent.clear();
+    facesToDrawTransparent.reserve(100);
+}
+
+bool CQuake3BSP::IsFaceTransparent(int index)
+{
+    tBSPFace* pFace = &m_pFaces[index];
+
+    string textureName = string(pTextures[pFace->textureID].strName);
+
+    return textureName.ends_with("_t");
 }
 
 vector<BSPModelRef> CQuake3BSP::GetAllModelRefs()

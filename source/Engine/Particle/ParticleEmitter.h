@@ -16,9 +16,9 @@
 #include "../AssetRegistry.h"
 
 struct Particle {
-	glm::vec3 position{};
-	glm::vec3 position2{};
-	glm::vec3 velocity{};
+	glm::vec3 position = vec3();
+	glm::vec3 position2 = vec3();
+	glm::vec3 velocity = vec3();
 	float lifeTime = 0.0f;
 	float deathTime = 5.0f;  // example default lifetime
 	bool Collided = false;
@@ -194,8 +194,8 @@ public:
 	int InitialSpawnCount;
 	float Duration;       // total duration during which particles are emitted.
 	float SpawnRate;      // particles per second.
-	glm::vec3 Position;   // emitter's position.
-	glm::vec3 Rotation;   // emitter's rotation; could be represented by a quaternion (glm::quat) if preferred.
+	glm::vec3 Position = vec3(0);   // emitter's position.
+	glm::vec3 Rotation = vec3(0);   // emitter's rotation; could be represented by a quaternion (glm::quat) if preferred.
 	glm::vec3 Scale = vec3(1);
 
 	bool isDecal;

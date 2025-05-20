@@ -280,6 +280,12 @@ enum eLumps {
     kMaxLumps      // A constant to store the number of lumps
 };
 
+struct FaceRenderData
+{
+    int faceIndex;
+    bool useLightmap;
+    LightVolPointData lightPointData;
+};
 
 class BSPModelRef;
 // This is our Quake3 BSP class
@@ -361,6 +367,8 @@ class CQuake3BSP : public IDrawMesh
 
     tBSPVisData visData;
 
+    vector<FaceRenderData> facesToDrawTransparent;
+
     glm::vec3 originalMins; // Original model bounds in Z-up (before transformation)
     glm::vec3 originalMaxs;
 
@@ -375,6 +383,10 @@ class CQuake3BSP : public IDrawMesh
 
     // Optimized rendering loop
     void RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool useClusterVis, bool lightmap);
+
+    void RenderTransparentFaces();
+
+    bool IsFaceTransparent(int index);
 
     vector <BSPModelRef> GetAllModelRefs();
 

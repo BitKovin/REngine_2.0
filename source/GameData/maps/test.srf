@@ -1465,42 +1465,37 @@ default
 
 210 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/generic/bricks
-	entity 6
-	castShadows 0
+	shader textures/generic/trigger_t
+	sampleSize 1
 	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 211 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/generic/bricks
-	entity 6
-	castShadows 0
-	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+	shader textures/generic/trigger_t
+	sampleSize 1
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 212 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/generic/bricks
-	entity 6
-	castShadows 0
-	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+	shader textures/generic/trigger_t
+	sampleSize 1
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 213 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/generic/bricks
-	entity 6
-	castShadows 0
-	lightmapAxis ( 1.000000 0.000000 0.000000 )
+	shader textures/generic/trigger_t
+	sampleSize 1
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 214 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/generic/bricks
-	entity 6
-	castShadows 0
-	lightmapAxis ( 0.000000 0.000000 1.000000 )
+	shader textures/generic/trigger_t
+	sampleSize 1
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
 215 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -1508,47 +1503,47 @@ default
 	shader textures/generic/bricks
 	entity 6
 	castShadows 0
-	lightmapAxis ( 0.000000 1.000000 0.000000 )
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 216 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/bricks
-	entity 7
+	entity 6
 	castShadows 0
-	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
 217 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/bricks
-	entity 7
+	entity 6
 	castShadows 0
-	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 218 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/bricks
-	entity 7
+	entity 6
 	castShadows 0
-	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
 219 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/bricks
-	entity 7
+	entity 6
 	castShadows 0
-	lightmapAxis ( 1.000000 0.000000 0.000000 )
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 220 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/bricks
-	entity 7
+	entity 6
 	castShadows 0
-	lightmapAxis ( 0.000000 0.000000 1.000000 )
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 221 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -1556,90 +1551,98 @@ default
 	shader textures/generic/bricks
 	entity 7
 	castShadows 0
-	lightmapAxis ( 0.000000 1.000000 0.000000 )
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 222 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 28
+	shader textures/generic/bricks
+	entity 7
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
 223 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 28
+	shader textures/generic/bricks
+	entity 7
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 224 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 28
+	shader textures/generic/bricks
+	entity 7
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
 225 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 28
+	shader textures/generic/bricks
+	entity 7
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 226 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 28
+	shader textures/generic/bricks
+	entity 7
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 227 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
+	shader textures/generic/trigger_t
 	entity 28
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 228 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 35
+	shader textures/generic/trigger_t
+	entity 28
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 229 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 35
+	shader textures/generic/trigger_t
+	entity 28
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
 230 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 35
+	shader textures/generic/trigger_t
+	entity 28
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 231 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 35
+	shader textures/generic/trigger_t
+	entity 28
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 232 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/generic/trigger_t
+	entity 28
+	castShadows 0
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
+}
+
+233 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/common/trigger
 	entity 35
@@ -1647,7 +1650,39 @@ default
 	sampleSize 0
 }
 
-233 // ESurfaceType::Meta V: 4 I: 6 planar
+234 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/common/trigger
+	entity 35
+	castShadows 0
+	sampleSize 0
+}
+
+235 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/common/trigger
+	entity 35
+	castShadows 0
+	sampleSize 0
+}
+
+236 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/common/trigger
+	entity 35
+	castShadows 0
+	sampleSize 0
+}
+
+237 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/common/trigger
+	entity 35
+	castShadows 0
+	sampleSize 0
+}
+
+238 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/common/trigger
 	entity 35
