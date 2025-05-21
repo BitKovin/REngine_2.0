@@ -16,6 +16,9 @@
 #pragma comment(lib, "dxguid.lib")
 #include <Windows.h>
 
+#include <Windows.h>
+#include <DbgHelp.h>
+
 extern "C" {
     _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 }
@@ -137,8 +140,28 @@ void desktop_render_loop() {
     }
 }
 
+LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers) {
+    HANDLE hDumpFile = CreateFile(L"CrashDump.dmp", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    if (hDumpFile != INVALID_HANDLE_VALUE) {
+        MINIDUMP_EXCEPTION_INFORMATION dumpInfo;
+        dumpInfo.ExceptionPointers = pExceptionPointers;
+        dumpInfo.ThreadId = GetCurrentThreadId();
+        dumpInfo.ClientPointers = TRUE;
+
+        MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hDumpFile, MiniDumpNormal, &dumpInfo, NULL, NULL);
+        CloseHandle(hDumpFile);
+    }
+
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+
 // Main function
-int main(int argc, char* args[]) {
+int main(int argc, char* args[]) 
+{
+
+    SetUnhandledExceptionFilter(UnhandledExceptionFilter);
+
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
         fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 1;

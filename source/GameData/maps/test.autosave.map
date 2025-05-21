@@ -681,7 +681,7 @@
 // entity 29
 {
 "classname" "light"
-"origin" "128 304 80"
+"origin" "80 256 80"
 "light" "200"
 "_sun" "1"
 "target" "lp1"
