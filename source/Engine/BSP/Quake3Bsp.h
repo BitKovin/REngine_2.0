@@ -421,9 +421,11 @@ public:
 
     void CalculateAveragePosition();
 
+    vector<tBSPFace> GetFaces();
+
     vector<MeshUtils::PositionVerticesIndices> GetNavObstacleMeshes();
-    vector<VertexData> GetVertices();
-    vector<uint32_t> GetIndices();
+    vector<VertexData> GetVertices(bool collisionOnly = false);
+    vector<uint32_t> GetIndices(bool collisionOnly = false);
     
     void DrawForward(mat4x4 view, mat4x4 projection);
 

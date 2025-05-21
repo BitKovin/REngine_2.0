@@ -145,6 +145,8 @@ RefConst<Shape> Physics::CreateMeshShape(const std::vector<vec3>& vertices, cons
 	// Create MeshShapeSettings with the converted data
 	MeshShapeSettings shapeSettings(joltVertices, joltTriangles);
 
+
+
 	// Attempt to create the shape
 	Shape::ShapeResult result = shapeSettings.Create();
 	if (result.HasError())

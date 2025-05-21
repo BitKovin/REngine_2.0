@@ -15,9 +15,8 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 #include <Windows.h>
-
-#include <Windows.h>
 #include <DbgHelp.h>
+#pragma comment(lib, "Dbghelp.lib")
 
 extern "C" {
     _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
@@ -140,7 +139,7 @@ void desktop_render_loop() {
     }
 }
 
-LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers) {
+LONG WINAPI EngineUnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers) {
     HANDLE hDumpFile = CreateFile(L"CrashDump.dmp", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
     if (hDumpFile != INVALID_HANDLE_VALUE) {
@@ -160,7 +159,7 @@ LONG WINAPI UnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers) {
 int main(int argc, char* args[]) 
 {
 
-    SetUnhandledExceptionFilter(UnhandledExceptionFilter);
+    SetUnhandledExceptionFilter(EngineUnhandledExceptionFilter);
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
         fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());

@@ -22,11 +22,33 @@ void Player::UpdateWalkMovement(vec2 input)
 
     vec3 movement = input.x * right + input.y * forward;
 
+    //if (stepDelay.Wait())
+        //movement = stepForceWalkDirection;
+
+
+
     Physics::Activate(LeadBody);
 
     velocity = FromPhysics(LeadBody->GetLinearVelocity());
 
-    if (OnGround)
+    if (OnGround())
+    {
+        TryStep(movement * 0.6f);
+
+        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), 5));
+        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), -5));
+
+        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), 10));
+        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), -10));
+
+        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), 20));
+        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), -20));
+
+        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), 35));
+        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), -35));
+    }
+
+    if (OnGround())
     {
         velocity = UpdateGroundVelocity(movement, velocity);
     }
@@ -43,7 +65,7 @@ void Player::UpdateWalkMovement(vec2 input)
 
     LeadBody->SetLinearVelocity(ToPhysics(velocity));
 
-    if (OnGround) 
+    if (OnGround()) 
     {
         if (Input::GetAction("jump")->Holding())
         {
@@ -124,7 +146,7 @@ void Player::UpdateBikeMovement(vec2 input)
     bikeArmsMesh->Rotation = bikeMesh->Rotation;
 
 
-    if (OnGround)
+    if (OnGround())
     {
         if (Input::GetAction("jump")->Holding())
         {
@@ -244,17 +266,98 @@ void Player::UpdateDebugUI()
 
 }
 
+bool Player::OnGround()
+{
+    return (coyoteTime.Wait() || afterStepDelay.Wait()) && jumpDelay.Wait() == false;
+}
+
 void Player::PerformAttack()
 {
 
 
 }
 
+void Player::TryStep(vec3 dir)
+{
+    if (stepDelay.Wait()) return;
+
+    vec3 pos = Position + dir/1.3f;
+
+    if (pos == vec3())
+        return;
+
+    auto hit = Physics::LineTrace(pos, (pos - vec3(0, 0.85f, 0)), Physics::GetCollisionMask(LeadBody), {LeadBody});
+
+    if (hit.hasHit == false)
+        return;
+
+    DebugDraw::Line(hit.position, hit.position + hit.normal);
+    if (hit.normal.y < 0.95)
+        return;
+
+
+
+    vec3 hitPoint = hit.position;
+
+    if (hitPoint == vec3())
+        return;
+
+
+
+    if (hitPoint.y > Position.y - 1 + 0.8f)
+        return;
+
+    if (Physics::SphereTrace(hitPoint + vec3(0,1,0) * 0.33f, hitPoint + vec3(0, 1, 0), 0.3f, Physics::GetCollisionMask(LeadBody), { LeadBody }).hasHit)
+        return;
+
+    if (Physics::SphereTrace(Position, Position + normalize(dir) * 0.2f, 0.3f, Physics::GetCollisionMask(LeadBody), { LeadBody }).hasHit)
+        return;
+
+    if (distance(hitPoint, Position) > 1.4)
+        return;
+
+    hit = Physics::LineTrace(Position, mix(Position, hitPoint, 1.1f) + vec3(0,1,0) * 0.2f, Physics::GetCollisionMask(LeadBody), {LeadBody});
+
+    if (hit.hasHit)
+    {
+
+        return;
+    }
+
+
+    vec3 lerpPose = mix(Position, hitPoint, 0.0f);
+
+    lerpPose.y = hitPoint.y + 1;
+
+    float newOffset = Position.y - lerpPose.y;
+
+    cameraHeightOffset += newOffset;
+    Position.y -= newOffset;
+
+    Physics::SetBodyPosition(LeadBody,lerpPose);
+	//DebugDraw::Line(lerpPose - vec3(0, 0.9f, 0), lerpPose + vec3(0, 1, 0), 10, 0.1f);
+
+    //stepForceWalkDirection = normalize(MathHelper::XZ(hitPoint - Position));
+
+    stepDelay.AddDelay(0.1f);
+    afterStepDelay.AddDelay(0.2f);
+}
+
 void Player::Update()
 {
-    OnGround = CheckGroundAt(Position);
+    if (CheckGroundAt(Position))
+    {
+        coyoteTime.AddDelay(0.1f);
+    }
 
-
+    if (afterStepDelay.Wait())
+    {
+        Physics::SetGravityFactor(LeadBody,-0.1f);
+    }
+    else
+    {
+        Physics::SetGravityFactor(LeadBody, 3);
+    }
 
     if (Input::LockCursor)
     {
@@ -318,8 +421,8 @@ void Player::Update()
     bikeArmsMesh->PasteAnimationPose(bikeMesh->GetAnimationPose());
 
 
-
-    Camera::position = Position + vec3(0, 0.7, 0) - vec3(0,0.25f,0) * bike_progress;
+	cameraHeightOffset = mix(cameraHeightOffset, 0.0f, Time::DeltaTimeF * 3.0f);
+    Camera::position = Position + vec3(0, 0.7, 0) - vec3(0,0.25f,0) * bike_progress + vec3(0,1,0) * cameraHeightOffset;
     Camera::rotation = cameraRotation;
 
     vec3 right = MathHelper::GetRightVector(Camera::rotation);
@@ -331,7 +434,7 @@ void Player::Update()
 
     UpdateWeapon();
 
-    if (Input::GetAction("bike")->Holding() && OnGround)
+    if (Input::GetAction("bike")->Holding() && OnGround())
     {
         StartBike();
     }

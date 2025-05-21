@@ -702,7 +702,7 @@ vector<BSPModelRef> CQuake3BSP::GetAllModelRefs()
 
 void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
 {
-    auto vertices = model.GetVertices();
+    auto vertices = model.GetVertices(true);
 
     vector<vec3> vertexPositions;
 
@@ -714,6 +714,7 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
     RefConst<Shape> shape;
 
     vec3 bodyPos = vec3(0);
+
 
     if (model.model.face > 0 && model.model.n_faces == 0)
     {
@@ -741,7 +742,7 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
     else
     {
 
-        auto indices = model.GetIndices();
+        auto indices = model.GetIndices(true);
 
         MeshUtils::PositionVerticesIndices mesh;
 
@@ -1104,6 +1105,19 @@ void BSPModelRef::CalculateAveragePosition()
     avgPosition /= (float)vertices.size();
 }
 
+vector<tBSPFace> BSPModelRef::GetFaces()
+{
+
+    vector<tBSPFace> faces;
+
+    for (int i = model.face; i < model.face + model.n_faces; i++) 
+    {
+        faces.push_back(bsp->m_pFaces[i]);
+    }
+
+    return faces;
+}
+
 vector<MeshUtils::PositionVerticesIndices> BSPModelRef::GetNavObstacleMeshes()
 {
     vector<MeshUtils::PositionVerticesIndices> result;
@@ -1132,10 +1146,21 @@ vector<MeshUtils::PositionVerticesIndices> BSPModelRef::GetNavObstacleMeshes()
     return result;
 }
 
-std::vector<VertexData> BSPModelRef::GetVertices() {
+std::vector<VertexData> BSPModelRef::GetVertices(bool collisionOnly) 
+{
     std::vector<VertexData> result;
     // Iterate over all faces of the model
-    for (int i = model.face; i < model.face + model.n_faces; i++) {
+    for (int i = model.face; i < model.face + model.n_faces; i++) 
+    {
+		if (collisionOnly)
+		{
+			tBSPFace face = bsp->m_pFaces[i];
+
+			string textureName = string(bsp->pTextures[face.textureID].strName);
+
+			if (StringHelper::Contains(textureName, "_cube"))
+				continue;
+		}
         // Get the vertex array for face i
         auto& faceVertices = bsp->Rbuffers.v_faceVBOs[i];
         // Append all vertices from this face to the result
@@ -1144,11 +1169,23 @@ std::vector<VertexData> BSPModelRef::GetVertices() {
     return result;
 }
 
-std::vector<uint32_t> BSPModelRef::GetIndices() {
+std::vector<uint32_t> BSPModelRef::GetIndices(bool collisionOnly) {
     std::vector<uint32_t> result;
     uint32_t vertexOffset = 0; // Tracks the number of vertices before the current face
     // Iterate over all faces of the model
-    for (int i = model.face; i < model.face + model.n_faces; i++) {
+    for (int i = model.face; i < model.face + model.n_faces; i++) 
+    {
+
+        if (collisionOnly)
+        {
+            tBSPFace face = bsp->m_pFaces[i];
+
+            string textureName = string(bsp->pTextures[face.textureID].strName);
+
+            if (StringHelper::Contains(textureName, "_cube"))
+                continue;
+        }
+
         // Get the index array for face i
         auto& faceIndices = bsp->Rbuffers.v_faceIDXs[i];
         // Add each index, adjusted by the current offset

@@ -63,7 +63,17 @@ private:
 
 	bool on_bike = false;
 
+	float cameraHeightOffset = 0;
+
+	Delay stepDelay = Delay();
+
 	float bike_progress = 0;
+
+	vec3 stepForceWalkDirection = vec3();
+
+	Delay afterStepDelay;
+
+	Delay coyoteTime;
 
 	glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
 		vel = MathHelper::XZ(vel);
@@ -119,7 +129,7 @@ private:
 	void Jump()
 	{
 		LeadBody->SetLinearVelocity(JPH::Vec3(velocity.x, 9.5, velocity.z));
-		jumpDelay.AddDelay(0.2);
+		jumpDelay.AddDelay(0.3);
 	}
 
 	bool CheckGroundAt(vec3 location)
@@ -127,6 +137,8 @@ private:
 
 		if (jumpDelay.Wait())
 			return false;
+
+		if (afterStepDelay.Wait()) true;
 
 		auto result = Physics::LineTrace(location, location - vec3(0, 0.92, 0), BodyType::GroupCollisionTest, { LeadBody });
 
@@ -175,9 +187,8 @@ public:
 
 		Instance = this;
 
-		LeadBody = Physics::CreateCharacterBody(this, Position, 0.75, 1.8, 90);
+		LeadBody = Physics::CreateCharacterBody(this, Position, 0.4, 1.8, 90);
 		Physics::SetGravityFactor(LeadBody, 3);
-
 
 
 		ParticleSystem::PreloadSystemAssets("decal_blood");
@@ -213,9 +224,11 @@ public:
 
 	void UpdateDebugUI();
 
-	bool OnGround = false;
+	bool OnGround();
 
 	void PerformAttack();
+
+	void TryStep(vec3 dir);
 
 	void Update();
 	void LateUpdate();

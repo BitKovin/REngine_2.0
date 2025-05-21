@@ -37,4 +37,9 @@ public:
 		result.push_back(current); 
 		return result;
 	}
+
+	static inline bool Contains(const std::string& str, const std::string& substring) {
+		return str.find(substring) != std::string::npos;
+	}
+
 };

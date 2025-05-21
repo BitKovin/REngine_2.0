@@ -66,38 +66,44 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 
 		if (ColorTexture == nullptr)
 		{
+
+			string baseTextureName;
+
+			for (auto texture : mesh.textures)
+			{
+				if (texture.type == aiTextureType_BASE_COLOR)
+				{
+					baseTextureName = texture.src;
+					break;
+				}
+			}
+
+
+
 			if (mesh.cachedBaseColor == nullptr)
 			{
-				string baseTextureName;
+				const string& textureRoot = TexturesLocation;
 
-				for (auto texture : mesh.textures)
-				{
-					Logger::Log("t: " + texture.src);
-					if (texture.type == aiTextureType_BASE_COLOR)
-					{
-						baseTextureName = texture.src;
-						break;
-					}
-
-				}
-
-
-
-				const string textureRoot = TexturesLocation;
-				Logger::Log(textureRoot + baseTextureName);
 				mesh.cachedBaseColor = AssetRegistry::GetTextureFromFile(textureRoot + baseTextureName);
+			}
 
-				Logger::Log(textureRoot + baseTextureName);
+			if (mesh.cachedEmissiveColor == nullptr)
+			{
+				const string& textureRoot = TexturesLocation;
 
+				mesh.cachedEmissiveColor = AssetRegistry::GetTextureFromFile(textureRoot + StringHelper::Replace(baseTextureName, ".", "_em."));
 			}
 
 			Texture* texture = mesh.cachedBaseColor;
+			Texture* textureEm = mesh.cachedEmissiveColor;
 
 			forward_shader_program->SetTexture("u_texture", texture);
+			forward_shader_program->SetTexture("u_textureEmissive", textureEm);
 		}
 		else
 		{
 			forward_shader_program->SetTexture("u_texture", ColorTexture);
+			forward_shader_program->SetTexture("u_textureEmissive", EmissiveTexture);
 		}
 
 		mesh.VAO->Bind();
@@ -241,23 +247,13 @@ void StaticMesh::DrawShadow(mat4x4 view, mat4x4 projection)
 					mesh.cachedBaseColor = AssetRegistry::GetTextureFromFile(textureRoot + baseTextureName);
 				}
 
-				if (mesh.cachedEmissiveColor == nullptr)
-				{
-					const string& textureRoot = TexturesLocation;
-
-					mesh.cachedEmissiveColor = AssetRegistry::GetTextureFromFile(textureRoot + StringHelper::Replace(baseTextureName, ".", "_em."));
-				}
-
 				Texture* texture = mesh.cachedBaseColor;
-				Texture* textureEm = mesh.cachedEmissiveColor;
 
 				shader_program->SetTexture("u_texture", texture);
-				shader_program->SetTexture("u_textureEmissive", textureEm);
 			}
 			else
 			{
 				shader_program->SetTexture("u_texture", ColorTexture);
-				shader_program->SetTexture("u_textureEmissive", EmissiveTexture);
 			}
 		}
 		mesh.VAO->Bind();
