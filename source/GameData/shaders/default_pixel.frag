@@ -44,5 +44,5 @@ vec3 CalculateLight()
 
     vec3 light = light_color + clamp(dot(normal, normalize(direct_light_dir))*0.8 + 0.2,0.0,1.0) * direct_light_color;
 
-    return light.rgb*1.0;
+    return light.rgb*2.0;
 }

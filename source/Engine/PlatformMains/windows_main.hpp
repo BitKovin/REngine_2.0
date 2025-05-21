@@ -174,6 +174,7 @@ int main(int argc, char* args[])
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
 
+
     int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
     window = SDL_CreateWindow("Image", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, flags);
     if (!window) {
@@ -194,6 +195,8 @@ int main(int argc, char* args[])
         fprintf(stderr, "Failed to initialize GLEW: %s\n", glewGetErrorString(glewError));
         return 1;
     }
+
+    glEnable(GL_DITHER);
 
     InitImGui();
     SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE);

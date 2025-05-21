@@ -36,7 +36,7 @@ Renderer::Renderer()
 
 
 
-	fullscreenShader = ShaderManager::GetShaderProgram("fullscreen_vertex","texture_pixel");
+	fullscreenShader = ShaderManager::GetShaderProgram("fullscreen_vertex","texture_pixel_dithered");
 
     // resize all our buffers
     colorBuffer->resize(screenResolution.x, screenResolution.y);
@@ -243,20 +243,26 @@ void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderLis
 void Renderer::RenderFullscreenQuad(GLuint textureID)
 {
 
+    glDisable(GL_DITHER);
+
 	glDisable(GL_DEPTH_TEST);
 	fullscreenShader->UseProgram();
+
+    ivec2 screenResolution = GetScreenResolution();
 
 	// Bind texture to unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	fullscreenShader->SetTexture("screenTexture", textureID);
-
+    fullscreenShader->SetUniform("screenResolution", screenResolution);
 	// Draw quad
 	glBindVertexArray(quadVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
 
+
 	glEnable(GL_DEPTH_TEST);
+
 
 }
 
