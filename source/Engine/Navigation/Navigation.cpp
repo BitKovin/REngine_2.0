@@ -149,7 +149,7 @@ void NavigationSystem::GenerateNavData()
     cfg.walkableSlopeAngle = 45.0f;   // Max slope angle
     cfg.walkableHeight = static_cast<int>(ceilf(2.0f / cfg.ch)); 
     cfg.walkableClimb = static_cast<int>(ceilf(0.6f / cfg.ch));  
-    cfg.walkableRadius = static_cast<int>(ceilf(0.35f / cfg.cs)); 
+    cfg.walkableRadius = static_cast<int>(ceilf(0.2f / cfg.cs)); 
     cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);
     cfg.maxSimplificationError = 0.01f;
     cfg.minRegionArea = 1;      // Min region size
@@ -159,8 +159,8 @@ void NavigationSystem::GenerateNavData()
     cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 3;  // ~3-4 cells
     cfg.width = cfg.tileSize + cfg.borderSize * 2;
     cfg.height = cfg.tileSize + cfg.borderSize * 2;
-    cfg.detailSampleDist = 0.2f;
-    cfg.detailSampleMaxError = 0.1f;
+    cfg.detailSampleDist = 0.1f;
+    cfg.detailSampleMaxError = 0.05f;
 
     // Compute tile grid
     const float tileWidth = cfg.tileSize * cfg.cs;
@@ -499,7 +499,10 @@ bool HasLineOfSight(const vec3& pointA, const vec3& pointB)
 bool CollisionCheckPath(glm::vec3 start, std::vector<glm::vec3> path)
 {
 
+    if (path.size() == 0) return false;
+
     vec3 oldPos = start;
+
 
     for (auto pos : path)
     {
@@ -510,6 +513,8 @@ bool CollisionCheckPath(glm::vec3 start, std::vector<glm::vec3> path)
             return false;
 
         oldPos = pos;
+
+        n++;
     }
     return true;
 }
@@ -666,12 +671,11 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
     dtFreeNavMeshQuery(navQuery);
 
     // --- 6) Collision sanity check ---
-	/*if (!CollisionCheckPath(start, outPath))
+	if (!CollisionCheckPath(start, outPath))
 	{
-		DebugDraw::Path(outPath, 30, 0.1);
 		outPath.clear();
 
-	}*/
+	}
         
 
     return outPath;
