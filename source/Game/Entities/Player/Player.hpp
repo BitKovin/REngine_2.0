@@ -138,7 +138,7 @@ private:
 		if (jumpDelay.Wait())
 			return false;
 
-		if (afterStepDelay.Wait()) true;
+		if (afterStepDelay.Wait()) return true;
 
 		auto result = Physics::LineTrace(location, location - vec3(0, 0.92, 0), BodyType::GroupCollisionTest, { LeadBody });
 

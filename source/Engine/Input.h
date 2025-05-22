@@ -20,6 +20,8 @@ public:
     virtual glm::vec2 GetMouseDelta() { return glm::vec2(); }
 };
 
+#ifndef __EMSCRIPTEN__
+
 enum class GamepadButton : int {
     Invalid = SDL_CONTROLLER_BUTTON_INVALID,   // usually -1
     A = SDL_CONTROLLER_BUTTON_A,         // 0
@@ -49,6 +51,41 @@ enum class GamepadButton : int {
     RightTrigger = 102
 
 };
+
+#else
+
+
+enum class GamepadButton : int {
+    Invalid = SDL_CONTROLLER_BUTTON_INVALID,   // usually -1
+    A = 0,         // 0
+    B = 1,         // 1
+    X = 3,         // 2
+    Y = 2,         // 3
+    Back = 8,      // 4
+    Guide = 16,     // 5
+    Start = 9,     // 6
+    LeftStick = 10, // 7
+    RightStick = 11,// 8
+    LeftShoulder = 4,  // 9
+    RightShoulder = 5, // 10
+    DPadUp = 12,       // 11
+    DPadDown = 13,     // 12
+    DPadLeft = 14,     // 13
+    DPadRight = 15,    // 14
+    Misc1 = SDL_CONTROLLER_BUTTON_MISC1,     // 15, platform‑specific
+    Paddle1 = SDL_CONTROLLER_BUTTON_PADDLE1,   // 16
+    Paddle2 = SDL_CONTROLLER_BUTTON_PADDLE2,   // 17
+    Paddle3 = SDL_CONTROLLER_BUTTON_PADDLE3,   // 18
+    Paddle4 = SDL_CONTROLLER_BUTTON_PADDLE4,   // 19
+    Touchpad = SDL_CONTROLLER_BUTTON_TOUCHPAD,  // 20
+    Max = SDL_CONTROLLER_BUTTON_MAX,       // 21
+
+    LeftTrigger = 101,
+    RightTrigger = 102
+
+};
+
+#endif
 
 class Input {
 public:

@@ -514,7 +514,6 @@ bool CollisionCheckPath(glm::vec3 start, std::vector<glm::vec3> path)
 
         oldPos = pos;
 
-        n++;
     }
     return true;
 }
