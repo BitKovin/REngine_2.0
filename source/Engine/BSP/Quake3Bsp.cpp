@@ -563,6 +563,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
 
     vector<int> facesToDraw;
     
+    glDepthMask(GL_TRUE);
 
     if (lightmap == false)
     {
@@ -619,6 +620,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
                         }
                         else
                         {
+
                             bool drawn = RenderSingleFace(faceIndex, lightmap, lightData);
                             if (drawn)
                             {
@@ -657,17 +659,15 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
         }
     }
 
-    for (int i : facesToDraw)
-    {
-        
-    }
-
     //printf("drawn %i faces\n", drawnFaces);
 
 }
 
 void CQuake3BSP::RenderTransparentFaces()
 {
+
+    glDepthMask(GL_FALSE);
+
     for (auto& face : facesToDrawTransparent)
     {
         bool drawn = RenderSingleFace(face.faceIndex, face.useLightmap, face.lightPointData);
@@ -1000,7 +1000,7 @@ bool CQuake3BSP::RenderSingleFace(int index , bool lightmap, LightVolPointData l
 
     EngineMain::MainInstance->MainRenderer->SetSurfaceShaderUniforms(shader);
 
-    glDepthMask(GL_TRUE);
+    
 
 
     // draw using the EBO already bound in the VAO; offset = 0

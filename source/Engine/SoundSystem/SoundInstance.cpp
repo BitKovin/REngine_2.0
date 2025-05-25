@@ -130,6 +130,11 @@ bool SoundInstance::IsGamePaused() const
     return EngineMain::MainInstance->Paused;
 }
 
+float SoundInstance::GetPitchScale() const
+{
+    return Time::TimeScale;
+}
+
 void SoundInstance::UpdateSourceParams()
 {
     if (!_source) return;

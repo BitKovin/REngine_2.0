@@ -2,7 +2,8 @@
 #include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL_timer.h>
 
-class Time {
+class Time 
+{
 public:
     static double DeltaTime;       
     static float DeltaTimeF;       
@@ -11,44 +12,16 @@ public:
 
     static bool GamePaused;
 
+    static float TimeScale;
+
 private:
     static Uint64 lastCounter;     // Stores the previous frame's counter.
     static double frequency;       // Stores the counter frequency.
 
 public:
     // Call this once at the start to initialize the timer.
-    static void Init() {
-        frequency = static_cast<double>(SDL_GetPerformanceFrequency());
-        lastCounter = SDL_GetPerformanceCounter();
-        DeltaTime = 0.0;
-    }
+    static void Init();
 
     // Call this every frame to update DeltaTime.
-    static void Update() {
-        Uint64 currentCounter = SDL_GetPerformanceCounter();
-        double newDelta = (currentCounter - lastCounter) / frequency;
-        lastCounter = currentCounter;
-
-
-
-        if (newDelta > 0.1)
-            newDelta = 0.1;
-
-        DeltaTime = newDelta;
-
-        if (GamePaused)
-        {
-            GameTimeNoPause += DeltaTime;
-        }
-        else
-        {
-            GameTimeNoPause += DeltaTime;
-            GameTime += DeltaTime;
-        }
-
-        GameTime += DeltaTime;
-
-        DeltaTimeF = (float)DeltaTime;
-
-    }
+    static void Update();
 };

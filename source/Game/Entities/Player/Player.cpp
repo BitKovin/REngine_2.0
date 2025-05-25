@@ -227,6 +227,8 @@ void Player::UpdateDebugUI()
 
     ImGui::Begin("debug");
     
+	ImGui::DragFloat("time scale", &Time::TimeScale, 0.01f, 0.f, 3);
+
     ImGui::Checkbox("fly", &freeFly);
 
     ImGui::Checkbox("draw physics", &Physics::DebugDraw);
@@ -339,8 +341,8 @@ void Player::TryStep(vec3 dir)
 
     //stepForceWalkDirection = normalize(MathHelper::XZ(hitPoint - Position));
 
-    stepDelay.AddDelay(0.1f);
-    afterStepDelay.AddDelay(0.2f);
+    stepDelay.AddDelay(0.05f);
+    afterStepDelay.AddDelay(0.1f);
 }
 
 void Player::Update()

@@ -113,7 +113,7 @@ public:
 
 protected:
     virtual bool IsGamePaused() const;
-    virtual float GetPitchScale() const { return 1.0f; }
+    virtual float GetPitchScale() const;
 
 private:
     // ─── Internal State ────────────────────────────────────────────────
