@@ -79,6 +79,9 @@ void ParticleEmitter::FinalizeFrameData()
     vec3 cameraRight = MathHelper::GetRightVector(cameraRotation);
     vec3 cameraUp = MathHelper::GetUpVector(cameraRotation);
 
+    int cameraC = Level::Current->BspData.FindClusterAtPosition(Camera::finalizedPosition);
+
+
     if (DepthSorting) 
     {
 
@@ -98,6 +101,13 @@ void ParticleEmitter::FinalizeFrameData()
         // Optional: Frustum culling to skip off-screen particles
         if (!Camera::frustum.IsSphereVisible(particle.position, particle.Size))
             continue;
+
+        int targetC = Level::Current->BspData.FindClusterAtPosition(particle.position);
+
+        if (Level::Current->BspData.IsClusterVisible(cameraC, targetC) == false)
+        {
+            continue;
+        }
 
         mat4x4 world;
         if (particle.UseWorldRotation) 

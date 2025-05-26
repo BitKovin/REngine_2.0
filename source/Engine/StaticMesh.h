@@ -182,14 +182,8 @@ public:
 		return Visible;
 	}
 
-	bool IsCameraVisible()
-	{
+	bool IsCameraVisible();
 
-		if (model == nullptr)
-			return false;
-
-		return IsInFrustrum(Camera::frustum) && isVisible();
-	}
 	bool IsShadowVisible()
 	{
 

@@ -22,6 +22,26 @@ LightVolPointData StaticMesh::GetLightVolData()
 
 }
 
+bool StaticMesh::IsCameraVisible()
+{
+	if (model == nullptr)
+		return false;
+
+	if (Level::Current->BspData.m_numOfVerts)
+	{
+
+		int cameraC = Level::Current->BspData.FindClusterAtPosition(Camera::finalizedPosition);
+		int targetC = Level::Current->BspData.FindClusterAtPosition(Position + model->boundingSphere.offset / 2.0f);
+
+		if (Level::Current->BspData.IsClusterVisible(cameraC, targetC) == false)
+		{
+			return false;
+		}
+	}
+
+	return IsInFrustrum(Camera::frustum) && isVisible();
+}
+
 void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 {
 

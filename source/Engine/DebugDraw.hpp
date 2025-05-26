@@ -57,7 +57,7 @@ public:
         
         if (lineMesh.model == nullptr) 
         {
-            lineMesh.LoadFromFile("GameData/cube.obj");
+            lineMesh.LoadFromFile("GameData/models/cube.obj");
         }
 
         lineMesh.DrawForward(Camera::finalizedView, Camera::finalizedProjection);

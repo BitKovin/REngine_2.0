@@ -237,6 +237,7 @@
   <ItemGroup>
     <ClCompile Include="Entities\Brushes\DestructubleBrush.cpp" />
     <ClCompile Include="Entities\Brushes\TriggerOnce.cpp" />
+    <ClCompile Include="Entities\Brushes\vis_through.cpp" />
     <ClCompile Include="Entities\Player\Player.cpp" />
     <ClCompile Include="Entities\Player\Weapons\Projectiles\Bullet.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_shotgun.cpp" />
