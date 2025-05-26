@@ -139,6 +139,22 @@ void desktop_render_loop() {
     }
 }
 
+void APIENTRY openglDebugCallback(GLenum source,
+    GLenum type,
+    GLuint id,
+    GLenum severity,
+    GLsizei length,
+    const GLchar* message,
+    const void* userParam)
+{
+    std::cerr << "OpenGL Debug Message:\n";
+    std::cerr << "  Source: " << source << "\n";
+    std::cerr << "  Type: " << type << "\n";
+    std::cerr << "  ID: " << id << "\n";
+    std::cerr << "  Severity: " << severity << "\n";
+    std::cerr << "  Message: " << message << "\n\n";
+}
+
 LONG WINAPI EngineUnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers) {
     HANDLE hDumpFile = CreateFile(L"CrashDump.dmp", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
@@ -174,6 +190,12 @@ int main(int argc, char* args[])
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
 
+#if DEBUG
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+
+#endif
+
 
     int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
     window = SDL_CreateWindow("Image", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, flags);
@@ -196,7 +218,13 @@ int main(int argc, char* args[])
         return 1;
     }
 
-    glEnable(GL_DITHER);
+#if DEBUG
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // For synchronous callback
+    glDebugMessageCallback(openglDebugCallback, nullptr);
+
+#endif
 
     InitImGui();
     SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE);
