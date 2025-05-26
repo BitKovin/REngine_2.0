@@ -16,3 +16,5 @@ public:
 private:
 
 };
+
+REGISTER_ENTITY(vis_through, "vis_through")

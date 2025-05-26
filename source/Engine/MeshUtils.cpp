@@ -123,59 +123,147 @@ MeshUtils::PositionVerticesIndices MeshUtils::ExpandHorizontalTriangles(const Po
     return result;
 }
 
-// Helper: Check if a triangle is valid (oriented correctly)
-static bool IsTriangleValid(const std::vector<std::pair<double, double>>& pts2D, size_t i, size_t j, size_t k) {
-    auto& p1 = pts2D[i], & p2 = pts2D[j], & p3 = pts2D[k];
-    double cross = (p2.first - p1.first) * (p3.second - p1.second) - (p2.second - p1.second) * (p3.first - p1.first);
-    return cross > 0; // Ensure consistent orientation (CCW)
+// Check if two triangles share an edge (exactly 2 common vertices)
+static bool sharesEdge(uint32_t t1, uint32_t t2, const vector<uint32_t>& indices) {
+    unordered_set<uint32_t> verts1 = { indices[3 * t1], indices[3 * t1 + 1], indices[3 * t1 + 2] };
+    unordered_set<uint32_t> verts2 = { indices[3 * t2], indices[3 * t2 + 1], indices[3 * t2 + 2] };
+    int shared = 0;
+    for (uint32_t v : verts1) if (verts2.count(v)) shared++;
+    return shared == 2;
 }
 
-// Helper: Check if a point is inside a triangle (for ear clipping)
-static bool IsPointInTriangle(const std::pair<double, double>& p, const std::pair<double, double>& a,
-    const std::pair<double, double>& b, const std::pair<double, double>& c) {
-    auto sign = [](const std::pair<double, double>& p1, const std::pair<double, double>& p2,
-        const std::pair<double, double>& p3) {
-            return (p1.first - p3.first) * (p2.second - p3.second) - (p2.first - p3.first) * (p1.second - p3.second);
-        };
-    double d1 = sign(p, a, b);
-    double d2 = sign(p, b, c);
-    double d3 = sign(p, c, a);
-    bool has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
-    bool has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
-    return !(has_neg && has_pos);
+// Determine if a 2D loop is CCW (outer boundary)
+static bool IsCCW(const vector<pair<double, double>>& poly) {
+    double sum = 0.0;
+    for (size_t i = 0; i < poly.size(); ++i) {
+        auto& p1 = poly[i];
+        auto& p2 = poly[(i + 1) % poly.size()];
+        sum += (p2.first - p1.first) * (p2.second + p1.second);
+    }
+    return sum < 0.0;
 }
 
-// Helper: Check if a triangle is an ear (no points inside)
-static bool IsEar(const std::vector<std::pair<double, double>>& pts2D, const std::vector<size_t>& indices,
-    size_t i, size_t j, size_t k) {
-    if (!IsTriangleValid(pts2D, indices[i], indices[j], indices[k])) return false;
-    for (size_t m = 0; m < indices.size(); ++m) {
-        if (m != i && m != j && m != k) {
-            if (IsPointInTriangle(pts2D[indices[m]], pts2D[indices[i]], pts2D[indices[j]], pts2D[indices[k]])) {
-                return false;
+// Extract all boundary loops from unique edges (edges appearing exactly once)
+vector<vector<uint32_t>> ExtractBoundaryLoops(const vector<MeshUtils::Edge>& edges) {
+    unordered_multimap<uint32_t, uint32_t> adj;
+    for (auto& e : edges) {
+        adj.insert({ e.a, e.b });
+        adj.insert({ e.b, e.a });
+    }
+
+    unordered_set<uint32_t> visited;
+    vector<vector<uint32_t>> loops;
+
+    for (auto& e : edges) {
+        if (visited.count(e.a)) continue;
+        vector<uint32_t> loop;
+        uint32_t curr = e.a;
+        uint32_t prev = UINT32_MAX;
+        do {
+            loop.push_back(curr);
+            visited.insert(curr);
+            auto range = adj.equal_range(curr);
+            uint32_t next = UINT32_MAX;
+            for (auto it = range.first; it != range.second; ++it) {
+                if (it->second != prev && (!visited.count(it->second) || it->second == loop.front())) {
+                    next = it->second;
+                    break;
+                }
             }
+            prev = curr;
+            curr = next;
+        } while (curr != UINT32_MAX && curr != loop.front());
+
+        if (loop.size() >= 3) {
+            loops.push_back(loop);
         }
     }
-    return true;
+
+    return loops;
 }
 
-MeshUtils::PositionVerticesIndices MeshUtils::MergeCoplanarRegions(const PositionVerticesIndices& mesh, float normalTolerance)
-{
-    PositionVerticesIndices result;
+// Simple ear-clipping triangulator for a single CCW loop
+vector<uint32_t> TriangulateSimplePolygon(const vector<uint32_t>& loop,
+    const vector<pair<double, double>>& pts2D) {
+    vector<size_t> idx(loop.size());
+    std::iota(idx.begin(), idx.end(), 0);
+    vector<uint32_t> tris;
+
+    auto valid = [&](size_t i, size_t j, size_t k) {
+        auto& A = pts2D[i];
+        auto& B = pts2D[j];
+        auto& C = pts2D[k];
+        double cross = (B.first - A.first) * (C.second - A.second)
+            - (B.second - A.second) * (C.first - A.first);
+        return cross > 0.0;
+        };
+
+    auto inside = [&](const pair<double, double>& P,
+        const pair<double, double>& A,
+        const pair<double, double>& B,
+        const pair<double, double>& C) {
+            auto sign = [&](const pair<double, double>& P1,
+                const pair<double, double>& P2,
+                const pair<double, double>& P3) {
+                    return (P1.first - P3.first) * (P2.second - P3.second)
+                        - (P2.first - P3.first) * (P1.second - P3.second);
+                };
+            double d1 = sign(P, A, B);
+            double d2 = sign(P, B, C);
+            double d3 = sign(P, C, A);
+            bool hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+            bool hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+            return !(hasNeg && hasPos);
+        };
+
+    while (idx.size() >= 3) {
+        bool foundEar = false;
+        for (size_t i = 0; i < idx.size(); ++i) {
+            size_t j = (i + 1) % idx.size();
+            size_t k = (i + 2) % idx.size();
+            if (!valid(idx[i], idx[j], idx[k])) continue;
+            bool ear = true;
+            for (size_t m = 0; m < idx.size(); ++m) {
+                if (m == i || m == j || m == k) continue;
+                if (inside(pts2D[idx[m]], pts2D[idx[i]], pts2D[idx[j]], pts2D[idx[k]])) {
+                    ear = false;
+                    break;
+                }
+            }
+            if (ear) {
+                tris.push_back(loop[idx[i]]);
+                tris.push_back(loop[idx[j]]);
+                tris.push_back(loop[idx[k]]);
+                idx.erase(idx.begin() + j);
+                foundEar = true;
+                break;
+            }
+        }
+        if (!foundEar) break;
+    }
+
+    return tris;
+}
+
+MeshUtils::PositionVerticesIndices MeshUtils::MergeCoplanarRegions(const MeshUtils::PositionVerticesIndices& mesh,
+    float normalTolerance) {
+    MeshUtils::PositionVerticesIndices result;
     result.vertices = mesh.vertices;
     size_t triCount = mesh.indices.size() / 3;
 
-    // Build edge->tris map
-    std::unordered_map<Edge, std::vector<uint32_t>, EdgeHash, EdgeEq> edgeMap;
+    // Build triangle adjacency by edges
+    unordered_map<MeshUtils::Edge, vector<uint32_t>, MeshUtils::EdgeHash, MeshUtils::EdgeEq> edgeMap;
     edgeMap.reserve(triCount * 3);
     for (uint32_t t = 0; t < triCount; ++t) {
-        auto v0 = mesh.indices[3 * t], v1 = mesh.indices[3 * t + 1], v2 = mesh.indices[3 * t + 2];
-        edgeMap[Edge(v0, v1)].push_back(t);
-        edgeMap[Edge(v1, v2)].push_back(t);
-        edgeMap[Edge(v2, v0)].push_back(t);
+        uint32_t v0 = mesh.indices[3 * t];
+        uint32_t v1 = mesh.indices[3 * t + 1];
+        uint32_t v2 = mesh.indices[3 * t + 2];
+        edgeMap[MeshUtils::Edge(v0, v1)].push_back(t);
+        edgeMap[MeshUtils::Edge(v1, v2)].push_back(t);
+        edgeMap[MeshUtils::Edge(v2, v0)].push_back(t);
     }
 
-    std::vector<bool> used(triCount, false);
+    vector<bool> used(triCount, false);
     auto getNormal = [&](uint32_t t) {
         vec3 A = mesh.vertices[mesh.indices[3 * t]];
         vec3 B = mesh.vertices[mesh.indices[3 * t + 1]];
@@ -186,22 +274,23 @@ MeshUtils::PositionVerticesIndices MeshUtils::MergeCoplanarRegions(const Positio
     for (uint32_t seed = 0; seed < triCount; ++seed) {
         if (used[seed]) continue;
         vec3 baseN = getNormal(seed);
-        if (fabs(baseN.y) < 0.8) continue; // Skip non-horizontal regions
+        // Keep only approximately horizontal
+        if (std::fabs(baseN.y) < 0.8f) continue;
 
         // Flood-fill coplanar region
-        std::vector<uint32_t> region;
+        vector<uint32_t> region;
         std::queue<uint32_t> q;
         used[seed] = true;
         q.push(seed);
         while (!q.empty()) {
-            uint32_t t = q.front();
-            q.pop();
+            uint32_t t = q.front(); q.pop();
             region.push_back(t);
-            auto verts = std::array<uint32_t, 3>{ mesh.indices[3 * t], mesh.indices[3 * t + 1], mesh.indices[3 * t + 2] };
+            std::array<uint32_t, 3> verts = { { mesh.indices[3 * t], mesh.indices[3 * t + 1], mesh.indices[3 * t + 2] } };
             for (int e = 0; e < 3; ++e) {
-                Edge ed(verts[e], verts[(e + 1) % 3]);
+                MeshUtils::Edge ed(verts[e], verts[(e + 1) % 3]);
                 for (uint32_t nbr : edgeMap[ed]) {
-                    if (!used[nbr] && dot(baseN, getNormal(nbr)) >= normalTolerance) {
+                    if (!used[nbr] && dot(baseN, getNormal(nbr)) >= normalTolerance
+                        && sharesEdge(t, nbr, mesh.indices)) {
                         used[nbr] = true;
                         q.push(nbr);
                     }
@@ -209,74 +298,42 @@ MeshUtils::PositionVerticesIndices MeshUtils::MergeCoplanarRegions(const Positio
             }
         }
 
-        // Collect boundary edges
-        std::unordered_map<Edge, int, EdgeHash, EdgeEq> edgeCount;
+        // Count boundary edges
+        unordered_map<MeshUtils::Edge, int, MeshUtils::EdgeHash, MeshUtils::EdgeEq> edgeCount;
         for (uint32_t t : region) {
-            auto v0 = mesh.indices[3 * t], v1 = mesh.indices[3 * t + 1], v2 = mesh.indices[3 * t + 2];
-            edgeCount[Edge(v0, v1)]++;
-            edgeCount[Edge(v1, v2)]++;
-            edgeCount[Edge(v2, v0)]++;
+            uint32_t v0 = mesh.indices[3 * t];
+            uint32_t v1 = mesh.indices[3 * t + 1];
+            uint32_t v2 = mesh.indices[3 * t + 2];
+            edgeCount[MeshUtils::Edge(v0, v1)]++;
+            edgeCount[MeshUtils::Edge(v1, v2)]++;
+            edgeCount[MeshUtils::Edge(v2, v0)]++;
         }
-        std::vector<Edge> boundaryEdges;
+        vector<MeshUtils::Edge> boundary;
         for (auto& kv : edgeCount) {
-            if (kv.second == 1) {
-                boundaryEdges.push_back(kv.first);
+            if (kv.second == 1) boundary.push_back(kv.first);
+        }
+        if (boundary.size() < 3) continue;
+
+        // Extract loops and triangulate only the outer ones
+        auto loops = ExtractBoundaryLoops(boundary);
+        for (auto& loop : loops) {
+            // Project loop to 2D plane of region
+            vec3 u = std::fabs(baseN.x) > std::fabs(baseN.z)
+                ? normalize(cross(vec3(0, 1, 0), baseN))
+                : normalize(cross(vec3(1, 0, 0), baseN));
+            vec3 v = cross(baseN, u);
+            vector<pair<double, double>> pts2D(loop.size());
+            for (size_t i = 0; i < loop.size(); ++i) {
+                vec3 P = result.vertices[loop[i]];
+                pts2D[i] = { dot(P, u), dot(P, v) };
             }
+            if (!IsCCW(pts2D)) continue;  // skip holes
+
+            auto tris = TriangulateSimplePolygon(loop, pts2D);
+            result.indices.insert(result.indices.end(), tris.begin(), tris.end());
         }
-
-        if (boundaryEdges.size() < 3) continue;
-
-        // Chain boundary into a closed loop
-        std::vector<uint32_t> boundaryVerts = ChainBoundary(boundaryEdges);
-        if (boundaryVerts.size() < 3) continue;
-
-        // Project boundary to 2D
-        vec3 u = fabs(baseN.x) > fabs(baseN.z) ? normalize(cross(vec3(0, 1, 0), baseN))
-            : normalize(cross(vec3(1, 0, 0), baseN));
-        vec3 v = cross(baseN, u);
-        std::vector<std::pair<double, double>> pts2D(boundaryVerts.size());
-        for (size_t i = 0; i < boundaryVerts.size(); ++i) {
-            auto P = result.vertices[boundaryVerts[i]];
-            pts2D[i] = { dot(P, u), dot(P, v) };
-        }
-
-        // Ensure the polygon is oriented counter-clockwise
-        double area = 0;
-        for (size_t i = 0; i < pts2D.size(); ++i) {
-            auto& p1 = pts2D[i], & p2 = pts2D[(i + 1) % pts2D.size()];
-            area += p1.first * p2.second - p2.first * p1.second;
-        }
-        if (area < 0) {
-            std::reverse(boundaryVerts.begin(), boundaryVerts.end());
-            std::reverse(pts2D.begin(), pts2D.end());
-        }
-
-        // Triangulate using ear clipping
-        std::vector<size_t> indices(pts2D.size());
-        std::iota(indices.begin(), indices.end(), 0);
-        std::vector<uint32_t> triIndices;
-        while (indices.size() >= 3) {
-            bool foundEar = false;
-            for (size_t i = 0; i < indices.size(); ++i) {
-                size_t j = (i + 1) % indices.size();
-                size_t k = (i + 2) % indices.size();
-                if (IsEar(pts2D, indices, i, j, k)) {
-                    // Add triangle
-                    triIndices.push_back(boundaryVerts[indices[i]]);
-                    triIndices.push_back(boundaryVerts[indices[j]]);
-                    triIndices.push_back(boundaryVerts[indices[k]]);
-                    // Remove vertex j (the ear)
-                    indices.erase(indices.begin() + j);
-                    foundEar = true;
-                    break;
-                }
-            }
-            if (!foundEar) break; // Malformed polygon (e.g., self-intersecting)
-        }
-
-        // Add triangles to result
-        result.indices.insert(result.indices.end(), triIndices.begin(), triIndices.end());
     }
 
     return result;
 }
+

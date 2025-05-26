@@ -179,39 +179,5 @@ public:
 
 private:
     // Simple boundary chaining: pick a start and walk matching edges
-    static vector<uint32_t> ChainBoundary(const vector<Edge>& edges)
-    {
-        vector<uint32_t> loop;
-        if (edges.empty()) return loop;
-        // build multimap: vertex->adjacent vertices
-        unordered_multimap<uint32_t, uint32_t> adj;
-        for (auto& e : edges)
-        {
-            adj.insert({ e.a, e.b });
-            adj.insert({ e.b, e.a });
-        }
-        // start at an a
-        uint32_t start = edges[0].a;
-        loop.push_back(start);
-        uint32_t curr = start;
-        uint32_t prev = UINT32_MAX;
-        do
-        {
-            auto range = adj.equal_range(curr);
-            uint32_t next = UINT32_MAX;
-            for (auto it = range.first; it != range.second; ++it)
-            {
-                if (it->second != prev)
-                {
-                    next = it->second;
-                    break;
-                }
-            }
-            if (next == UINT32_MAX || next == start) break;
-            loop.push_back(next);
-            prev = curr;
-            curr = next;
-        } while (true);
-        return loop;
-    }
+    static vector<uint32_t> ChainBoundary(const vector<Edge>& edges);
 };

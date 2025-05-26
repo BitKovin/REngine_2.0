@@ -115,7 +115,7 @@ void NavigationSystem::GenerateNavData()
     DestroyNavData(); 
 
     auto mesh = Level::Current->GetStaticNavObstaclesMesh();
-    mesh = MeshUtils::RemoveDegenerates(mesh, 0.1f, 0.00f);
+    mesh = MeshUtils::RemoveDegenerates(mesh, 0.01f, 0.01f);
     mesh = MeshUtils::MergeMeshes({ MeshUtils::MergeCoplanarRegions(mesh) , mesh}); // too dirty + results in false walkable areas if not surrounded by walls. FIX ME
 
     std::lock_guard<std::recursive_mutex> lock(mainLock);
@@ -152,14 +152,14 @@ void NavigationSystem::GenerateNavData()
     cfg.walkableRadius = static_cast<int>(ceilf(0.2f / cfg.cs)); 
     cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);
     cfg.maxSimplificationError = 0.01f;
-    cfg.minRegionArea = 1;      // Min region size
+    cfg.minRegionArea = 0.2f;      // Min region size
     cfg.mergeRegionArea = 200 * 200;  // Merge region size
-    cfg.maxVertsPerPoly = 3;
+    cfg.maxVertsPerPoly = 6;
     cfg.tileSize = 64;                // Tile size in cells
     cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 3;  // ~3-4 cells
     cfg.width = cfg.tileSize + cfg.borderSize * 2;
     cfg.height = cfg.tileSize + cfg.borderSize * 2;
-    cfg.detailSampleDist = 0.1f;
+    cfg.detailSampleDist = 0.01f;
     cfg.detailSampleMaxError = 0.05f;
 
     // Compute tile grid
@@ -507,7 +507,7 @@ bool CollisionCheckPath(glm::vec3 start, std::vector<glm::vec3> path)
     for (auto pos : path)
     {
 
-        auto hit = Physics::LineTrace(oldPos, pos, BodyType::World);
+        auto hit = Physics::LineTrace(oldPos + vec3(0,1,0), pos + vec3(0, 1, 0), BodyType::World);
 
         if (hit.hasHit)
             return false;
