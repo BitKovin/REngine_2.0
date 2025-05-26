@@ -325,6 +325,11 @@ class CQuake3BSP : public IDrawMesh
     void CreateRenderBuffers(int index);
     void CreateIndices(int index);
 
+    std::string GetLightMapFilePathFromId(int id, const std::string& filePath);
+
+    void PreloadFace(int index);
+    void PreloadFaces();
+
     int m_numOfFaces;    // The number of faces in the model
     int m_numOfIndices;  // The number of indices for the model
     int m_numOfTextures; // The number of texture maps

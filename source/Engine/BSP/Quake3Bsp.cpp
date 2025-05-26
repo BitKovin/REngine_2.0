@@ -331,6 +331,82 @@ void CQuake3BSP::CreateIndices(int index) {
     }
 }
 
+void CQuake3BSP::PreloadFace(int index)
+{
+    // bind your textures as before
+    tBSPFace* pFace = &m_pFaces[index];
+
+    string textureName = string(pTextures[pFace->textureID].strName);
+
+    int nameL = textureName.length();
+
+    bool isCube = false;
+
+    if (nameL > 5)
+    {
+        isCube =
+            (textureName[nameL - 1] == 'e') &&
+            (textureName[nameL - 2] == 'b') &&
+            (textureName[nameL - 3] == 'u') &&
+            (textureName[nameL - 4] == 'c');
+    }
+
+    ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", isCube ? "bsp_cube" : "bsp");
+    shader->UseProgram();
+
+    string texturePath = "GameData/" + textureName + ".png";
+
+    if (isCube)
+    {
+
+        auto splitPath = StringHelper::Split(texturePath, '/');
+
+        string fileName = splitPath[splitPath.size() - 1];
+
+        texturePath = "GameData/env/" + fileName;
+        texturePath = texturePath;
+
+    }
+
+    int faceTexture;
+
+    if (isCube)
+    {
+        faceTexture = AssetRegistry::GetTextureCubeFromFile(texturePath)->getID();
+    }
+    else
+    {
+        faceTexture = AssetRegistry::GetTextureFromFile(texturePath)->getID();
+    }
+
+    if (faceTexture == 0) return;
+
+    GLuint lightmapId = (pFace->lightmapID >= 0)
+        ? m_lightmap_gen_IDs[pFace->lightmapID]
+        : missing_LM_id;
+
+    if (m_numOfLightmaps == 0 && isCube == false)
+    {
+
+        string lightMapPath = GetLightMapFilePathFromId(pFace->lightmapID, filePath);
+
+        lightmapId = AssetRegistry::GetTextureFromFile(lightMapPath)->getID();
+
+        if (lightmapId == 0)
+        {
+            lightmapId = missing_LM_id;
+        }
+    }
+}
+
+void CQuake3BSP::PreloadFaces()
+{
+    for (size_t i = 0; i < m_numOfFaces; i++)
+    {
+        PreloadFace(i);
+    }
+}
+
 glm::vec3 computeLightDirection(const unsigned char vol_dir[2]) {
     // Quake 3 encodes pitch (elevation) from 0 (up) to 255 (down)
     float pitch = glm::radians((static_cast<float>(vol_dir[0]) / 255.0f) * 180.0f);
@@ -849,7 +925,7 @@ void CQuake3BSP::CreateRenderBuffers(int index) {
     );
 }
 
-inline std::string GetLightMapFilePathFromId(int id, const std::string& filePath) noexcept {
+std::string CQuake3BSP::GetLightMapFilePathFromId(int id, const std::string& filePath) {
     const size_t len = filePath.size();
     // filePath must end with ".bsp"
     assert(len > 4 && filePath.compare(len - 4, 4, ".bsp") == 0);
