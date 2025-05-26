@@ -235,6 +235,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
     <ClCompile Include="animator.cpp" />
     <ClCompile Include="AssetRegistry.cpp" />
     <ClCompile Include="BSP\Quake3Bsp.cpp" />
@@ -306,6 +307,7 @@
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="animator.hpp" />
     <ClInclude Include="AssetRegistry.h" />
     <ClInclude Include="BoundingSphere.hpp" />

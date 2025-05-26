@@ -1,6 +1,8 @@
 #include "WeaponBase.h"
 #include "../Player.hpp"
 
+#include <Animation.h>
+
 #include "Projectiles/Bullet.h"
 
 class weapon_shotgun : public Weapon
@@ -14,7 +16,7 @@ public:
 
 	weapon_shotgun()
 	{
-		viewmodel = new SkeletalMesh(this);
+		viewmodel = new Animation(this);
 		arms = new SkeletalMesh(this);
 	}
 

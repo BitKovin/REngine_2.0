@@ -89,7 +89,7 @@ namespace roj
 		std::vector<MeshTexture> loadTextureMap(aiMaterial* mat, aiTextureType type, const aiScene* scene);
 	public:
 
-		
+		bool SkipVisual = false;
 
 		ModelLoader() = default;
 		bool load(const std::string& path);

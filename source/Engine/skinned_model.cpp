@@ -9,7 +9,7 @@
 
 using namespace utils::assimp;
 
-static void extractBoneData(std::vector<VertexData>& vertices, aiMesh* mesh, roj::SkinnedModel& model)
+static void extractBoneVertexData(std::vector<VertexData>& vertices, aiMesh* mesh, roj::SkinnedModel& model)
 {
 	for (unsigned int i = 0; i < mesh->mNumBones; ++i)
 	{
@@ -173,7 +173,7 @@ namespace roj
 			aiFace& face = mesh->mFaces[i];
 			indices.insert(indices.end(), face.mIndices, face.mIndices + face.mNumIndices);
 		}
-		extractBoneData(vertices, mesh, m_model);
+		extractBoneVertexData(vertices, mesh, m_model);
 
 		SkinnedMesh skinMesh = SkinnedMesh();
 
@@ -247,15 +247,39 @@ namespace roj
 
 		string name = node->mName.C_Str();
 
-		
-		if (LoaderGlobalParams::MeshNameLimit == "" || name == LoaderGlobalParams::MeshNameLimit)
+		if (SkipVisual == false)
 		{
-			for (uint32_t i = 0; i < node->mNumMeshes; i++)
+			if (LoaderGlobalParams::MeshNameLimit == "" || name == LoaderGlobalParams::MeshNameLimit)
 			{
-				aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-				m_model.meshes.push_back(processMesh(mesh, scene));
+				for (uint32_t i = 0; i < node->mNumMeshes; i++)
+				{
+					aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+					m_model.meshes.push_back(processMesh(mesh, scene));
+				}
 			}
 		}
+		else
+		{
+
+			if (LoaderGlobalParams::MeshNameLimit == "" || name == LoaderGlobalParams::MeshNameLimit)
+			{
+				for (uint32_t i = 0; i < node->mNumMeshes; i++)
+				{
+					aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+					for (unsigned int i = 0; i < mesh->mNumBones; ++i)
+					{
+						std::string boneName = mesh->mBones[i]->mName.C_Str();
+						if (m_model.boneInfoMap.find(boneName) == m_model.boneInfoMap.end())
+						{
+							m_model.boneInfoMap[boneName] = roj::BoneInfo{ m_model.boneCount, toGlmMat4(mesh->mBones[i]->mOffsetMatrix) };
+						}
+
+					}
+				}
+			}
+
+		}
+
 		for (uint32_t i = 0; i < node->mNumChildren; i++)
 		{
 

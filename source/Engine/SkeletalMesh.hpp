@@ -223,7 +223,7 @@ public:
 		CastDetailShadows = true;
 	}
 
-	~SkeletalMesh()
+	virtual ~SkeletalMesh()
 	{
 		ClearHitboxes();
 	}

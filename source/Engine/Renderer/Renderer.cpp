@@ -88,6 +88,8 @@ void Renderer::RenderLevel(Level* level)
 
 void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 {
+    
+
     ivec2 res = GetScreenResolution();
 
     #ifndef __EMSCRIPTEN__
@@ -137,6 +139,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
 
+
     for (auto* mesh : VissibleRenderList) 
     {
         if (mesh->Transparent)
@@ -149,7 +152,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
         mesh->DrawDepth(Camera::finalizedView, P);
 
     }
-
+    glUseProgram(0);
 
     //
     // B) Opaque + transparent color passes
@@ -168,7 +171,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
             : Camera::finalizedProjection;
         mesh->DrawForward(Camera::finalizedView, P);
     }
-
+    glUseProgram(0);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -186,7 +189,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     }
 
     DebugDraw::Draw();
-
+    glUseProgram(0);
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
     glClearColor(0, 0, 0, 1);    // only alpha channel to 1
     glClear(GL_COLOR_BUFFER_BIT);
@@ -203,7 +206,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 
 void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderList, Framebuffer& fbo, int numCascades)
 {
-
+    glUseProgram(0);
     fbo.bind();
 
     int halfRes = LightManager::ShadowMapResolution / 2;
@@ -237,7 +240,7 @@ void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderLis
     for (auto* mesh : ShadowRenderList) {
         mesh->DrawShadow(LightManager::lightView4, LightManager::lightProjection4);
     }
-
+    glUseProgram(0);
 }
 
 void Renderer::RenderFullscreenQuad(GLuint textureID)

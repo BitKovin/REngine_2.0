@@ -53,6 +53,8 @@ protected:
 	vec3 positionOffset = vec3();
 	vec3 rotationOffset = vec3();
 
+	bool skipMeshLoad = false;
+
 public:
 
 	roj::SkinnedModel* model = nullptr;
@@ -148,7 +150,16 @@ public:
 	virtual void LoadFromFile(const string& path)
 	{
 
-		model = AssetRegistry::GetSkinnedModelFromFile(path);
+		if (skipMeshLoad)
+		{
+			model = AssetRegistry::GetSkinnedAnimationFromFile(path);
+		}
+		else
+		{
+			model = AssetRegistry::GetSkinnedModelFromFile(path);
+		}
+
+		
 
 	}
 

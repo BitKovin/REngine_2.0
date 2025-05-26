@@ -19,6 +19,7 @@ private:
     static std::unordered_map<std::string, Texture*> textureCache;
     static std::unordered_map<std::string, CubemapTexture*> textureCubeCache;
     static std::unordered_map<std::string, roj::SkinnedModel*> skinnedModelCache;
+    static std::unordered_map<std::string, roj::SkinnedModel*> skinnedModelAnimationCache;
 
     static std::unordered_map<std::string, TTF_Font*> fontCache;
 
@@ -147,6 +148,7 @@ public:
     }
 
     static roj::SkinnedModel* GetSkinnedModelFromFile(const string& path);
+    static roj::SkinnedModel* GetSkinnedAnimationFromFile(const string& path);
 
 private:
 

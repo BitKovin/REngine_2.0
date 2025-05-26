@@ -4,6 +4,7 @@ std::unordered_map<std::string, Shader*> AssetRegistry::shaderCache;
 std::unordered_map<std::string, Texture*> AssetRegistry::textureCache;
 std::unordered_map<std::string, CubemapTexture*> AssetRegistry::textureCubeCache;
 std::unordered_map<std::string, roj::SkinnedModel*> AssetRegistry::skinnedModelCache;
+std::unordered_map<std::string, roj::SkinnedModel*> AssetRegistry::skinnedModelAnimationCache;
 std::unordered_map<std::string, TTF_Font*> AssetRegistry::fontCache;
 
 roj::SkinnedModel* AssetRegistry::GetSkinnedModelFromFile(const string& path)
@@ -25,4 +26,26 @@ roj::SkinnedModel* AssetRegistry::GetSkinnedModelFromFile(const string& path)
 
 
     return skinnedModelCache[path];
+}
+
+roj::SkinnedModel* AssetRegistry::GetSkinnedAnimationFromFile(const string& path)
+{
+	auto it = skinnedModelAnimationCache.find(path);
+	if (it != skinnedModelAnimationCache.end())
+	{
+		return it->second;
+	}
+
+	roj::ModelLoader<roj::SkinnedMesh> modelLoader;
+
+	modelLoader.SkipVisual = true;
+
+	modelLoader.load(path);
+
+	Logger::Log(modelLoader.getInfoLog());
+
+	skinnedModelAnimationCache[path] = new roj::SkinnedModel(modelLoader.get());
+
+
+	return skinnedModelAnimationCache[path];
 }
