@@ -27,7 +27,7 @@ class RenderTexture {
 public:
     // Add samples parameter to constructor
     RenderTexture(uint32_t width, uint32_t height, TextureFormat format,
-        TextureType type = TextureType::Texture2D,
+        TextureType type = TextureType::Texture2D, bool sampleDepth = false,
         GLenum minFilter = GL_LINEAR,
         GLenum magFilter = GL_LINEAR,
         GLenum wrap = GL_CLAMP_TO_EDGE,
@@ -49,12 +49,16 @@ public:
     uint32_t width() const { return m_width; }
     uint32_t height() const { return m_height; }
 
+
+
 private:
     GLuint m_id;
     uint32_t m_width, m_height;
     TextureFormat m_format;
     TextureType m_type;
     uint32_t m_samples;  // Add sample count
+
+    bool m_sampleDepth = false;
 
     void allocateStorage();
     void setParameters(GLenum minFilter, GLenum magFilter, GLenum wrap);

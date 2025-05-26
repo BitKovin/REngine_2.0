@@ -139,6 +139,7 @@ void desktop_render_loop() {
     }
 }
 
+int g_DebugSeverityLevel = 1; // 0: All, 1: Warnings+Errors, 2: Errors only
 void APIENTRY openglDebugCallback(GLenum source,
     GLenum type,
     GLuint id,
@@ -147,12 +148,34 @@ void APIENTRY openglDebugCallback(GLenum source,
     const GLchar* message,
     const void* userParam)
 {
+    // Filter by severity level
+    switch (g_DebugSeverityLevel) {
+    case 2: // Errors only
+        if (severity != GL_DEBUG_SEVERITY_HIGH)
+            return;
+        break;
+    case 1: // Warnings + Errors
+        if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+            return;
+        break;
+    case 0: // All messages allowed
+    default:
+        break;
+    }
+
     std::cerr << "OpenGL Debug Message:\n";
     std::cerr << "  Source: " << source << "\n";
     std::cerr << "  Type: " << type << "\n";
     std::cerr << "  ID: " << id << "\n";
-    std::cerr << "  Severity: " << severity << "\n";
-    std::cerr << "  Message: " << message << "\n\n";
+    std::cerr << "  Severity: ";
+    switch (severity) {
+    case GL_DEBUG_SEVERITY_HIGH: std::cerr << "HIGH"; break;
+    case GL_DEBUG_SEVERITY_MEDIUM: std::cerr << "MEDIUM"; break;
+    case GL_DEBUG_SEVERITY_LOW: std::cerr << "LOW"; break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION: std::cerr << "NOTIFICATION"; break;
+    default: std::cerr << "UNKNOWN"; break;
+    }
+    std::cerr << "\n  Message: " << message << "\n\n";
 }
 
 LONG WINAPI EngineUnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers) {

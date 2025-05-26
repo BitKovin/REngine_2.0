@@ -19,10 +19,10 @@ Renderer::Renderer()
 
 
 
-	colorBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2DMultisample, GL_LINEAR, GL_LINEAR,
+	colorBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2DMultisample, false, GL_LINEAR, GL_LINEAR,
 		GL_CLAMP_TO_EDGE, 1);
 
-	depthBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2DMultisample, GL_LINEAR, GL_LINEAR,
+	depthBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2DMultisample, false, GL_LINEAR, GL_LINEAR,
 		GL_CLAMP_TO_EDGE, 1);
 
 	colorResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2D);

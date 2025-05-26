@@ -11,7 +11,7 @@
 
 RenderTexture::RenderTexture(uint32_t width, uint32_t height,
     TextureFormat format,
-    TextureType type,
+    TextureType type,bool sampleDepth,
     GLenum minFilter,
     GLenum magFilter,
     GLenum wrap,
@@ -20,7 +20,7 @@ RenderTexture::RenderTexture(uint32_t width, uint32_t height,
     , m_height(height)
     , m_format(format)
     , m_type(type)
-    , m_samples(samples)
+    , m_samples(samples), m_sampleDepth(sampleDepth)
 {
 #ifndef DISABLE_MULTISAMPLE
     validateSampleCount();
@@ -119,15 +119,27 @@ void RenderTexture::setParameters(GLenum minFilter,
 {
     GLenum target = static_cast<GLenum>(m_type);
     glBindTexture(target, m_id);
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilter);
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, magFilter);
-    glTexParameteri(target, GL_TEXTURE_WRAP_S, wrap);
-    glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap);
+    if (m_type != TextureType::Texture2DMultisample)
+    {
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilter);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, magFilter);
+        glTexParameteri(target, GL_TEXTURE_WRAP_S, wrap);
+        glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap);
+    }
+
     if (m_type == TextureType::Cubemap)
         glTexParameteri(target, GL_TEXTURE_WRAP_R, wrap);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+    if (m_sampleDepth)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+    }
+    else
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+    }
+
 
 
     glBindTexture(target, 0);
