@@ -75,6 +75,8 @@ void TestNpc::Stun(Entity* DamageCauser, Entity* Weapon)
 	attacking = false;
 	attackingDamage = false;
 
+	Time::AddTimeScaleEffect(0.5f, 0.1f, true);
+
 	StunSoundPlayer->Play();
 
 }

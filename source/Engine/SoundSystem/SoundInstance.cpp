@@ -132,7 +132,11 @@ bool SoundInstance::IsGamePaused() const
 
 float SoundInstance::GetPitchScale() const
 {
-    return Time::TimeScale;
+
+    if (IsUISound)
+        return 1.0f;
+
+    return Time::GetSoundFinalTimeScale();
 }
 
 void SoundInstance::UpdateSourceParams()
