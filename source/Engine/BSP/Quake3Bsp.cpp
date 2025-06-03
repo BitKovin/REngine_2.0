@@ -778,58 +778,86 @@ vector<BSPModelRef> CQuake3BSP::GetAllModelRefs()
 
 void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
 {
-    auto vertices = model.GetVertices(true);
-
-    vector<vec3> vertexPositions;
-
-    for (auto& vertex : vertices)
-    {
-        vertexPositions.push_back(vertex.Position / MAP_SCALE);
-    }
-
-    RefConst<Shape> shape;
 
     vec3 bodyPos = vec3(0);
+    
+    vector<RefConst<Shape>> shapes;
 
-
-    if (model.model.face > 0 && model.model.n_faces == 0)
+    // Iterate over all faces of the model
+    for (int i = model.model.face; i < model.model.face + model.model.n_faces; i++)
     {
 
-        vec3 min = vec3(
-            model.model.mins[0], 
-            model.model.mins[1],
-            model.model.mins[2]) / MAP_SCALE;
+        RefConst<Shape> shape;
 
-        vec3 max = vec3(
-            model.model.maxs[0], 
-            model.model.maxs[1], 
-            model.model.maxs[2]) / MAP_SCALE;
+        tBSPFace face = model.bsp->m_pFaces[i];
 
-        bodyPos = (min + max) / 2.0f;
+        string textureName = string(model.bsp->pTextures[face.textureID].strName);
+        if (true)
+        {
+            if (StringHelper::Contains(textureName, "_cube"))
+                continue;
+        }
+        // Get the vertex array for face i
+        auto& vertices = model.bsp->Rbuffers.v_faceVBOs[i];
+        auto& indices = model.bsp->Rbuffers.v_faceIDXs[i];
+        // Append all vertices from this face to the result
+        
 
-        shape = Physics::CreateBoxShape(abs(max-min));
+        vector<vec3> vertexPositions;
+        vector<int> vertexIndices;
 
+        for (auto& vertex : vertices)
+        {
+            vertexPositions.push_back(vertex.Position / MAP_SCALE);
+        }
+
+
+
+        if (model.model.face > 0 && model.model.n_faces == 0)
+        {
+
+            vec3 min = vec3(
+                model.model.mins[0],
+                model.model.mins[1],
+                model.model.mins[2]) / MAP_SCALE;
+
+            vec3 max = vec3(
+                model.model.maxs[0],
+                model.model.maxs[1],
+                model.model.maxs[2]) / MAP_SCALE;
+
+            bodyPos = (min + max) / 2.0f;
+
+            shape = Physics::CreateBoxShape(abs(max - min));
+
+
+        }
+        else if (entity->ConvexCollision)
+        {
+            shape = Physics::CreateConvexHullFromPoints(vertexPositions);
+        }
+        else
+        {
+           
+
+            MeshUtils::PositionVerticesIndices mesh;
+
+            mesh.vertices = vertexPositions;
+            mesh.indices = indices;
+            mesh = MeshUtils::RemoveDegenerates(mesh, 0.01f, 0.00f);
+
+            shape = Physics::CreateMeshShape(mesh.vertices, mesh.indices, textureName);
+        }
+
+
+        shapes.push_back(shape);
 
     }
-    else if (entity->ConvexCollision)
-    {
-        shape = Physics::CreateConvexHullFromPoints(vertexPositions);
-    }
-    else
-    {
 
-        auto indices = model.GetIndices(true);
+    RefConst<Shape> finalShape = Physics::CreateStaticCompoundShapeFromConvexShapes(shapes);
+    
 
-        MeshUtils::PositionVerticesIndices mesh;
-
-        mesh.vertices = vertexPositions;
-        mesh.indices = indices;
-		mesh = MeshUtils::RemoveDegenerates(mesh, 0.01f, 0.00f);
-
-        shape = Physics::CreateMeshShape(mesh.vertices, mesh.indices);
-    }
-
-    Body* body = Physics::CreateBodyFromShape(entity, vec3(0), shape,10,true,BodyType::World, BodyType::GroupCollisionTest);
+    Body* body = Physics::CreateBodyFromShape(entity, vec3(0), finalShape,10,true,BodyType::World, BodyType::GroupCollisionTest);
 
     Physics::SetBodyPosition(body, bodyPos);
 

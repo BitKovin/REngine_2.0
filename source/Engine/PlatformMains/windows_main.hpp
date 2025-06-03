@@ -1,4 +1,4 @@
-#define _HAS_STD_BYTE 0
+﻿#define _HAS_STD_BYTE 0
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
@@ -178,18 +178,182 @@ void APIENTRY openglDebugCallback(GLenum source,
     std::cerr << "\n  Message: " << message << "\n\n";
 }
 
-LONG WINAPI EngineUnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers) {
-    HANDLE hDumpFile = CreateFile(L"CrashDump.dmp", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+// Link against dbghelp.lib
+#pragma comment(lib, "dbghelp.lib")
 
-    if (hDumpFile != INVALID_HANDLE_VALUE) {
+// Keeps track of whether DbgHelp was initialized and whether symbols are available
+static bool g_SymbolsInitialized = false;
+static bool g_SymbolsAvailable = false;
+
+// Attempt to initialize the symbol engine exactly once.
+void EnsureDbgHelpInitialized()
+{
+    if (g_SymbolsInitialized)
+        return;
+
+    // Try to set options: undecorate names, load line numbers
+    SymSetOptions(SYMOPT_DEFERRED_LOADS | SYMOPT_UNDNAME | SYMOPT_LOAD_LINES);
+
+    // Attempt to initialize. If this fails, we’ll fall back to raw addresses.
+    if (SymInitialize(GetCurrentProcess(), nullptr, TRUE))
+    {
+        g_SymbolsAvailable = true;
+    }
+    else
+    {
+        g_SymbolsAvailable = false;
+    }
+
+    g_SymbolsInitialized = true;
+}
+LONG WINAPI EngineUnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionPointers)
+{
+    // 1. Initialize the symbol engine (only once per process)
+    EnsureDbgHelpInitialized();
+
+    // 2. Grab the crash time (local)
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+
+    // 3. Build a filename like "CrashDump_YYYYMMDD_HHMMSS.dmp"
+    std::wostringstream dumpName;
+    dumpName << L"CrashDump_"
+        << std::setw(4) << std::setfill(L'0') << st.wYear
+        << std::setw(2) << std::setfill(L'0') << st.wMonth
+        << std::setw(2) << std::setfill(L'0') << st.wDay
+        << L"_"
+        << std::setw(2) << std::setfill(L'0') << st.wHour
+        << std::setw(2) << std::setfill(L'0') << st.wMinute
+        << std::setw(2) << std::setfill(L'0') << st.wSecond
+        << L".dmp";
+    std::wstring dumpPath = dumpName.str();
+
+    // 4. Write the minidump
+    HANDLE hDumpFile = CreateFileW(
+        dumpPath.c_str(),
+        GENERIC_WRITE,
+        0,
+        nullptr,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        nullptr
+    );
+    if (hDumpFile != INVALID_HANDLE_VALUE)
+    {
         MINIDUMP_EXCEPTION_INFORMATION dumpInfo;
-        dumpInfo.ExceptionPointers = pExceptionPointers;
         dumpInfo.ThreadId = GetCurrentThreadId();
+        dumpInfo.ExceptionPointers = pExceptionPointers;
         dumpInfo.ClientPointers = TRUE;
 
-        MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hDumpFile, MiniDumpNormal, &dumpInfo, NULL, NULL);
+        MiniDumpWriteDump(
+            GetCurrentProcess(),
+            GetCurrentProcessId(),
+            hDumpFile,
+            MiniDumpNormal,
+            &dumpInfo,
+            nullptr,
+            nullptr
+        );
         CloseHandle(hDumpFile);
     }
+
+    // 5. Gather basic exception info
+    DWORD exceptionCode = pExceptionPointers->ExceptionRecord->ExceptionCode;
+    void* exceptionAddr = pExceptionPointers->ExceptionRecord->ExceptionAddress;
+
+    // 6. Capture up to 62 frames on the stack
+    const USHORT MaxFrames = 62;
+    void* backTrace[MaxFrames];
+    USHORT framesCaptured = CaptureStackBackTrace(0, MaxFrames, backTrace, nullptr);
+
+    // 7. Build the message box text
+    std::wostringstream msg;
+    msg << L"An unhandled exception has occurred!\n\n";
+    msg << L"Exception code: 0x" << std::hex << exceptionCode << std::dec << L"\n";
+    msg << L"Exception address: 0x"
+        << std::hex << reinterpret_cast<uintptr_t>(exceptionAddr) << std::dec << L"\n";
+
+    msg << L"Crash time: "
+        << std::setw(4) << std::setfill(L'0') << st.wYear << L"-"
+        << std::setw(2) << std::setfill(L'0') << st.wMonth << L"-"
+        << std::setw(2) << std::setfill(L'0') << st.wDay << L" "
+        << std::setw(2) << std::setfill(L'0') << st.wHour << L":"
+        << std::setw(2) << std::setfill(L'0') << st.wMinute << L":"
+        << std::setw(2) << std::setfill(L'0') << st.wSecond << L"\n\n";
+
+    // 8. Header for the call stack
+    if (!g_SymbolsAvailable)
+    {
+        msg << L"*** Symbols not available. Displaying raw addresses only ***\n\n";
+    }
+    else
+    {
+        msg << L"Call stack (symbolicated where possible):\n\n";
+    }
+
+    // 9. Iterate frames, skip first two (CaptureStackBackTrace + handler itself)
+    for (USHORT i = 2; i < framesCaptured; ++i)
+    {
+        DWORD64 addr = reinterpret_cast<DWORD64>(backTrace[i]);
+        std::wostringstream line;
+
+        // Print frame index
+        line << L"[" << (i - 2) << L"] ";
+
+        if (g_SymbolsAvailable)
+        {
+            // Try to resolve symbol + line
+            DWORD64 displacementSym = 0;
+            DWORD   displacementLine = 0;
+            BYTE symbolBuffer[sizeof(SYMBOL_INFO) + (MAX_SYM_NAME * sizeof(WCHAR))];
+            PSYMBOL_INFO pSymbol = reinterpret_cast<PSYMBOL_INFO>(symbolBuffer);
+            pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+            pSymbol->MaxNameLen = MAX_SYM_NAME;
+
+            IMAGEHLP_LINEW64 lineInfo = {};
+            lineInfo.SizeOfStruct = sizeof(IMAGEHLP_LINEW64);
+
+            bool gotSymbol = SymFromAddr(GetCurrentProcess(), addr, &displacementSym, pSymbol) != FALSE;
+            bool gotLineInfo = SymGetLineFromAddrW64(GetCurrentProcess(), addr, &displacementLine, &lineInfo) != FALSE;
+
+            if (gotSymbol)
+            {
+                // Print function name + offset
+                line << pSymbol->Name << L" +0x"
+                    << std::hex << displacementSym << std::dec;
+                if (gotLineInfo)
+                {
+                    // Print "(File.cpp:Line)"
+                    line << L" (" << lineInfo.FileName << L":" << lineInfo.LineNumber << L")";
+                }
+            }
+            else
+            {
+                // Fallback to raw address
+                line << L"0x" << std::hex << addr << std::dec;
+            }
+        }
+        else
+        {
+            // No symbols at all → raw address
+            line << L"0x" << std::hex << addr << std::dec;
+        }
+
+
+        // 11. Append a newline and add to the message
+        msg << line.str() << L"\n";
+    }
+
+    // 12. Finally, tell the user where the dump was written
+    msg << L"\nMinidump saved to:\n" << dumpPath;
+
+    // 13. Show the MessageBox
+    MessageBoxW(
+        nullptr,
+        msg.str().c_str(),
+        L"Application Crash",
+        MB_ICONERROR | MB_OK
+    );
 
     return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -197,6 +361,8 @@ LONG WINAPI EngineUnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionPointer
 // Main function
 int main(int argc, char* args[]) 
 {
+
+    EnsureDbgHelpInitialized();
 
     SetUnhandledExceptionFilter(EngineUnhandledExceptionFilter);
 

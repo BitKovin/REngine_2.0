@@ -48,18 +48,13 @@
 #endif
 
 #include "PhysicsConverter.h"
-
 #include "glm.h"
-
 #include <iostream>
-
 #include "Time.hpp"
-
 #include "Logger.hpp"
-
 #include "MathHelper.hpp"
-
 #include "Camera.h"
+#include <unordered_map>
 
 using namespace JPH;
 
@@ -390,6 +385,10 @@ private:
 	static BodyInterface* bodyInterface;
 
 	static vector<Body*> existingBodies;
+
+	static std::unordered_map<std::string, uint64_t> SurfaceIds;
+	static std::unordered_map<uint64_t, std::string> SurfaceNames;
+	static uint64_t nextSurfaceId;
 
 
 #ifdef JPH_DEBUG_RENDERER
@@ -785,7 +784,8 @@ public:
 		return body;
 	}
 
-
+	static uint64_t FindSurfaceId(string surfaceName);
+	static string FindSurfacyById(uint64_t id);
 
 	static void Activate(Body* body)
 	{
@@ -815,7 +815,7 @@ public:
  * @param indices A vector of indices defining triangles (3 indices per triangle).
  * @return A RefConst<Shape> containing the created shape, or an empty RefConst if creation fails.
  */
-	static RefConst<Shape> CreateMeshShape(const std::vector<vec3>& vertices, const std::vector<uint32_t>& indices);
+	static RefConst<Shape> CreateMeshShape(const std::vector<vec3>& vertices, const std::vector<uint32_t>& indices, string surfaceType = "default");
 
 
 	static RefConst<Shape> CreateConvexHullFromPoints(const std::vector<glm::vec3>& points)
@@ -869,6 +869,8 @@ public:
 		return result.Get();
 	}
 
+	uint64_t GetShapeDataIdFromName(string name);
+
 	// Create a body from the provided shape
 	static JPH::Body* CreateBodyFromShape(Entity* owner, vec3 Position, RefConst<Shape> shape, float Mass = 10, bool Static = false,
 		BodyType group = BodyType::MainBody,
@@ -915,6 +917,7 @@ public:
 		float fraction;  // Fraction along the ray where the hit occurred.
 		Entity* entity;
 		string hitboxName;
+		string surfaceName;
 	};
 
 	static HitResult LineTrace(const vec3 start, const vec3 end, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});

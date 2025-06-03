@@ -16,8 +16,10 @@ public:
 
 	weapon_shotgun()
 	{
-		viewmodel = new Animation(this);
+		viewmodel = new SkeletalMesh(this);
 		arms = new SkeletalMesh(this);
+
+		LateUpdateWhenPaused = true;
 	}
 
 	SoundPlayer* fireSoundPlayer = nullptr;

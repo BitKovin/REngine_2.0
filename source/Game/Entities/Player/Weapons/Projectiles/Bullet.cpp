@@ -32,6 +32,8 @@ void Bullet::Update()
 	{
 		hit.entity->OnPointDamage(Damage, hit.position, MathHelper::FastNormalize(Position - oldPos), hit.hitboxName, this, this);
 
+		Logger::Log(hit.surfaceName);
+
 		//GlobalParticleSystem::SpawnParticleAt("hit_flesh", hit.position, MathHelper::FindLookAtRotation(vec3(0), MathHelper::FastNormalize(Position - oldPos)), vec3(2.0f));
 
 		Destroy();

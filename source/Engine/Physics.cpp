@@ -21,6 +21,11 @@ BodyInterface* Physics::bodyInterface = nullptr;
 unordered_map<BodyID, Body*> Physics::bodyIdMap;
 
 vector<Body*> Physics::existingBodies = vector<Body*>();
+
+std::unordered_map<std::string, uint64_t> Physics::SurfaceIds = std::unordered_map<std::string, uint64_t>();
+std::unordered_map<uint64_t, std::string> Physics::SurfaceNames = std::unordered_map<uint64_t, std::string>();
+uint64_t Physics::nextSurfaceId = 1;
+
 recursive_mutex Physics::physicsMainLock = recursive_mutex();
 
 bool Physics::DebugDraw = false;
@@ -113,7 +118,40 @@ void Physics::UpdatePendingBodyExitsEnters()
 
 }
 
-RefConst<Shape> Physics::CreateMeshShape(const std::vector<vec3>& vertices, const std::vector<uint32_t>& indices)
+uint64_t Physics::FindSurfaceId(string surfaceName)
+{
+	Physics::physicsMainLock.lock();
+
+	auto result = SurfaceIds.find(surfaceName);
+
+	if (result != SurfaceIds.end())
+	{
+		Physics::physicsMainLock.unlock();
+		return result->second;
+	}
+
+	int newId = nextSurfaceId;
+	nextSurfaceId++;
+	SurfaceIds[surfaceName] = newId;
+	SurfaceNames[newId] = surfaceName;
+	Physics::physicsMainLock.unlock();
+
+	return newId;
+}
+
+string Physics::FindSurfacyById(uint64_t id)
+{
+	std::lock_guard<std::recursive_mutex> guard(Physics::physicsMainLock);
+
+	auto it = SurfaceNames.find(id);
+	if (it != SurfaceNames.end())
+		return it->second;
+
+	// Not found — choose what makes sense: empty, error, or throw
+	return std::string();  // empty = “unknown”
+}
+
+RefConst<Shape> Physics::CreateMeshShape(const std::vector<vec3>& vertices, const std::vector<uint32_t>& indices,string surfaceType)
 {
 	// Validate that the number of indices is a multiple of 3 (required for triangles)
 	if (indices.size() % 3 != 0)
@@ -144,7 +182,7 @@ RefConst<Shape> Physics::CreateMeshShape(const std::vector<vec3>& vertices, cons
 
 	// Create MeshShapeSettings with the converted data
 	MeshShapeSettings shapeSettings(joltVertices, joltTriangles);
-
+	shapeSettings.mUserData = FindSurfaceId(surfaceType);
 
 
 	// Attempt to create the shape
@@ -171,6 +209,7 @@ Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const Bo
 	hit.shapePosition = end;
 	hit.entity = nullptr;
 	hit.hitboxName = "";
+	hit.surfaceName = "";
 
 	// Convert start and end from your own vector type to Jolt's coordinate system.
 	JPH::Vec3 startLoc = ToPhysics(start);
@@ -207,7 +246,20 @@ Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const Bo
 
 		if (body)
 		{
+			const JPH::Shape* root_shape = body->GetShape();
+			JPH::SubShapeID remainder;
+			const JPH::Shape* hit_shape = root_shape->GetLeafShape(result.mSubShapeID2, remainder);
 
+			if (hit_shape)
+			{
+				int hitSurfaceId = hit_shape->GetUserData();
+
+				if (hitSurfaceId)
+				{
+					hit.surfaceName = FindSurfacyById(hitSurfaceId);
+				}
+
+			}
 
 			// Calculate fraction of the hit along the ray.
 			hit.fraction = result.mFraction;
@@ -216,6 +268,7 @@ Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const Bo
 
 			// Compute the hit position in physics space and convert it back to your coordinate system.
 			hit.position = FromPhysics(ray.GetPointOnRay(result.mFraction));
+
 
 			hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(result.mSubShapeID2, ray.GetPointOnRay(result.mFraction)));
 
@@ -310,6 +363,22 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 		const JPH::Body* body = &body_lock.GetBody();
 		if (body)
 		{
+
+			const JPH::Shape* root_shape = body->GetShape();
+			JPH::SubShapeID remainder;
+			const JPH::Shape* hit_shape = root_shape->GetLeafShape(collector.GetHit().mSubShapeID2, remainder);
+
+			if (hit_shape)
+			{
+				int hitSurfaceId = hit_shape->GetUserData();
+
+				if (hitSurfaceId)
+				{
+					hit.surfaceName = FindSurfacyById(hitSurfaceId);
+				}
+
+			}
+
 			hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(collector.GetHit().mSubShapeID2, collector.GetHit().mContactPointOn2));
 
 			// Calculate fraction of the hit along the path.
@@ -382,6 +451,11 @@ bool TraceBodyFilter::ShouldCollideLocked(const Body& inBody) const
 
 	// Accept the collision if no condition rejects it.
 	return true;
+}
+
+uint64_t Physics::GetShapeDataIdFromName(string name)
+{
+	return 0;
 }
 
 Body* Physics::CreateCharacterBody(Entity* owner, vec3 Position, float Radius, float Height, float Mass,

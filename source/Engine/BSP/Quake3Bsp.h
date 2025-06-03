@@ -402,12 +402,14 @@ class CQuake3BSP : public IDrawMesh
 class BSPModelRef : public IDrawMesh
 {
 private:
-    CQuake3BSP* bsp = nullptr;
-    int id = -1;
+
     
     
 
 public:
+
+    CQuake3BSP* bsp = nullptr;
+    int id = -1;
 
     tBSPModel& model;
 
