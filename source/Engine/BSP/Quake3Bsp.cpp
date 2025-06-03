@@ -1379,4 +1379,8 @@ std::vector<uint32_t> BSPModelRef::GetIndices(bool collisionOnly) {
 void BSPModelRef::DrawForward(mat4x4 view, mat4x4 projection)
 {
     bsp->RenderBSP(Camera::finalizedPosition, model, useBspVisibility, Static);
+
+    if(Transparent)
+        bsp->RenderTransparentFaces();
+
 }

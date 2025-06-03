@@ -12,6 +12,13 @@ public:
 
 	~vis_through() = default;
 
+	void Start()
+	{
+		for (IDrawMesh* mesh : Drawables)
+		{
+			mesh->Transparent = true;
+		}
+	}
 
 private:
 
