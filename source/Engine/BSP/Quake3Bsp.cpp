@@ -1194,9 +1194,35 @@ mat4 BSPModelRef::GetWorldMatrix()
 	return translate(Position) * MathHelper::GetRotationMatrix(Rotation) * scale(Scale);
 }
 
+BSPModelRef::BSPModelRef(CQuake3BSP* bsp_ptr, int model_id, tBSPModel& model_ref) 
+    : bsp(bsp_ptr), id(model_id), model(model_ref)
+{
+
+
+    auto vertices = GetVertices();
+
+    vector<vec3> points;
+    points.reserve(vertices.size());
+    for (const auto& v : vertices)
+    {
+        points.push_back(v.Position/MAP_SCALE);
+    }
+
+    bounds = BoundingBox::FromPoints(points);
+
+}
+
+
+float BSPModelRef::GetDistanceToCamera()
+{
+    return distance(avgPosition, Camera::finalizedPosition);
+}
 
 void BSPModelRef::CalculateAveragePosition()
 {
+
+    avgPosition = bounds.Center();
+    /*
     auto vertices = GetVertices();
 
     avgPosition = vec3(0);
@@ -1207,6 +1233,54 @@ void BSPModelRef::CalculateAveragePosition()
     }
 
     avgPosition /= (float)vertices.size();
+    */
+}
+
+bool BSPModelRef::IsCameraVisible()
+{
+
+    if (IsInFrustrum(Camera::frustum))
+        return IsBspVisible();
+
+    return false;
+}
+
+bool BSPModelRef::IsInFrustrum(Frustum frustrum)
+{
+
+    return frustrum.IsBoxVisible(bounds.Min, bounds.Max);
+}
+
+bool BSPModelRef::IsBspVisible()
+{
+
+    int sourceC = bsp->FindClusterAtPosition(Camera::finalizedPosition);
+
+    if (CheckPointBspVisible(sourceC, bounds.Center()))
+        return true;
+
+    if (CheckPointBspVisible(sourceC, bounds.Max))
+        return true;
+
+    if (CheckPointBspVisible(sourceC, bounds.Min))
+        return true;
+
+    if (CheckPointBspVisible(sourceC, mix(bounds.Center(), bounds.Min,0.5)))
+        return true;
+
+    if (CheckPointBspVisible(sourceC, mix(bounds.Center(), bounds.Min, 0.5)))
+        return true;
+
+    return false;
+
+}
+
+bool BSPModelRef::CheckPointBspVisible(int cameraCluster, vec3 position)
+{
+    int targetC = bsp->FindClusterAtPosition(position);
+
+    return bsp->IsClusterVisible(cameraCluster, targetC);
+
 }
 
 vector<tBSPFace> BSPModelRef::GetFaces()

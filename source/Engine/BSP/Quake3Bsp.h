@@ -422,11 +422,23 @@ public:
 
     vec3 avgPosition = vec3(0);
 
+    BoundingBox bounds;
+
     mat4 GetWorldMatrix();
 
-    BSPModelRef(CQuake3BSP* bsp_ptr, int model_id, tBSPModel& model_ref) : bsp(bsp_ptr), id(model_id),model(model_ref) {}
+    BSPModelRef(CQuake3BSP* bsp_ptr, int model_id, tBSPModel& model_ref);
+
+    float GetDistanceToCamera();
 
     void CalculateAveragePosition();
+
+    bool IsCameraVisible();
+
+    bool IsInFrustrum(Frustum frustrum);
+
+    bool IsBspVisible();
+
+    bool CheckPointBspVisible(int cameraCluster, vec3 position);
 
     vector<tBSPFace> GetFaces();
 
