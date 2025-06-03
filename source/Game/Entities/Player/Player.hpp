@@ -200,7 +200,7 @@ public:
 
 		Hud.Init(this);
 
-		CreateWeapon("weapon_shotgun");
+		CreateWeapon("weapon_pistol");
 
 	}
 

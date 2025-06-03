@@ -240,6 +240,7 @@
     <ClCompile Include="Entities\Brushes\vis_through.cpp" />
     <ClCompile Include="Entities\Player\Player.cpp" />
     <ClCompile Include="Entities\Player\Weapons\Projectiles\Bullet.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\weapon_pistol.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_shotgun.cpp" />
     <ClCompile Include="Entities\Spawner.cpp" />
     <ClCompile Include="Entities\StaticMeshEntity.cpp" />
