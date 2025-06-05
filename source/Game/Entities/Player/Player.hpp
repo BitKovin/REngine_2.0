@@ -189,6 +189,7 @@ public:
 
 		LeadBody = Physics::CreateCharacterBody(this, Position, 0.4, 1.8, 90);
 		Physics::SetGravityFactor(LeadBody, 3);
+		LeadBody->SetFriction(0.1f);
 
 
 		ParticleSystem::PreloadSystemAssets("decal_blood");

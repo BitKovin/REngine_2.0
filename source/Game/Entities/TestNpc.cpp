@@ -75,7 +75,7 @@ void TestNpc::Stun(Entity* DamageCauser, Entity* Weapon)
 	attacking = false;
 	attackingDamage = false;
 
-	Time::AddTimeScaleEffect(0.5f, 0.1f, true);
+	
 
 	StunSoundPlayer->Play();
 
@@ -130,6 +130,11 @@ void TestNpc::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bon
 {
 	Damage *= mesh->GetHitboxDamageMultiplier(bone);
 	Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
+
+	if (mesh->GetHitboxDamageMultiplier(bone) > 1.1f && dead)
+	{
+		Time::AddTimeScaleEffect(0.3f, 0.05f, true);
+	}
 
 	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point, MathHelper::FindLookAtRotation(vec3(0), Direction), vec3(Damage/10.0f));
 

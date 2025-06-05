@@ -14,6 +14,8 @@ public:
 
 	vec3 weaponOffset = vec3(0.0, 0.00, -0.0);
 
+	Delay attackDelay;
+
 	weapon_pistol()
 	{
 		viewmodel = new SkeletalMesh(this);
@@ -54,9 +56,10 @@ public:
 
 	void Update()
 	{
-		if (Input::GetAction("attack")->Pressed())
+		if (Input::GetAction("attack")->Holding())
 		{
-			PerformAttack();
+			if (attackDelay.Wait() == false)
+				PerformAttack();
 		}
 	}
 
@@ -65,7 +68,7 @@ public:
 
 		fireSoundPlayer->Play();
 
-		viewmodel->PlayAnimation("fire");
+		viewmodel->PlayAnimation("fire",false,0.1f);
 		Camera::AddCameraShake(CameraShake(
 			0.13f,                            // interpIn
 			0.5f,                            // duration
@@ -82,7 +85,7 @@ public:
 
 		vec3 startLoc = MathHelper::DecomposeMatrix(boneMat).Position;
 
-		startLoc = mix(startLoc, Camera::position, 0.6f);
+		startLoc = mix(startLoc, Camera::position, 0.6f) - Camera::Forward()*0.1f;
 
 
 
@@ -101,7 +104,7 @@ public:
 		bullet->Damage = 21;
 
 
-
+		attackDelay.AddDelay(0.3f);
 
 	}
 

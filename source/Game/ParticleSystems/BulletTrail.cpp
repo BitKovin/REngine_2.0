@@ -17,7 +17,7 @@ public:
 	Particle UpdateParticle(Particle particle, float deltaTime) override
 	{
 		
-		particle.Transparency = (particle.deathTime - particle.lifeTime) / particle.deathTime;
+		particle.Transparency = mix(1.0,1.0, (particle.deathTime - particle.lifeTime) / particle.deathTime);
 		particle.Size = mix(0.015f, 0.055f, (particle.deathTime - particle.lifeTime) / particle.deathTime);
 		return particle;
 	}
