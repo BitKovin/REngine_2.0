@@ -153,25 +153,120 @@ public:
     // MergeCoplanarRegions: flood-fill + re-triangulate planar patches
     // --------------------------------------------------
 
-    struct Edge
-    {
+    struct Edge {
         uint32_t a, b;
-        Edge(uint32_t x, uint32_t y) noexcept : a(glm::min(x, y)), b(glm::max(x, y)) {}
-        bool operator==(Edge const& o) const noexcept { return a == o.a && b == o.b; }
+
+        // Constructor normalizes so that a < b
+        Edge(uint32_t v0, uint32_t v1) {
+            if (v0 < v1) {
+                a = v0;
+                b = v1;
+            }
+            else {
+                a = v1;
+                b = v0;
+            }
+        }
+
+        // Default constructor (for unordered_map compatibility)
+        Edge() : a(0), b(0) {}
     };
 
 
-	struct EdgeHash { size_t operator()(Edge const& e) const noexcept { return (uint64_t(e.a) << 32) ^ e.b; } };
-
-
-    struct EdgeEq   
-    {
-        bool operator()(Edge const& l, Edge const& r) const noexcept
-        {
-            return l.a == r.a && l.b == r.b;
+    struct EdgeHash {
+        size_t operator()(Edge const& e) const noexcept {
+            // Combine a and b into a single 64-bit key: (a << 32) | b
+            uint64_t key = (static_cast<uint64_t>(e.a) << 32) | e.b;
+            return std::hash<uint64_t>()(key);
         }
     };
 
+    struct EdgeEq {
+        bool operator()(Edge const& e1, Edge const& e2) const noexcept {
+            return e1.a == e2.a && e1.b == e2.b;
+        }
+    };
+
+    // You can tweak this based on the precision of your mesh.
+    static constexpr float POSITION_EPSILON = 1e-4f;
+
+    struct Vec3Hash {
+        size_t operator()(glm::vec3 const& p) const noexcept {
+            // Quantize position to a discrete grid
+            int64_t xi = static_cast<int64_t>(std::floor(p.x / POSITION_EPSILON));
+            int64_t yi = static_cast<int64_t>(std::floor(p.y / POSITION_EPSILON));
+            int64_t zi = static_cast<int64_t>(std::floor(p.z / POSITION_EPSILON));
+
+            // Combine into a 64-bit key: we assume each coordinate fits in 21 bits
+            // (so: |xi|,|yi|,|zi| < 2^20). You can adjust bit-shifts if your coordinate range is bigger.
+            uint64_t key =
+                ((uint64_t)(xi & 0x1FFFFF) << 42) |
+                ((uint64_t)(yi & 0x1FFFFF) << 21) |
+                ((uint64_t)(zi & 0x1FFFFF));
+
+            return std::hash<uint64_t>()(key);
+        }
+    };
+
+    // Compare two vec3’s “equal” if they’re within POSITION_EPSILON in each axis
+    struct Vec3Eq {
+        bool operator()(glm::vec3 const& a, glm::vec3 const& b) const noexcept {
+            return (std::fabs(a.x - b.x) <= POSITION_EPSILON
+                && std::fabs(a.y - b.y) <= POSITION_EPSILON
+                && std::fabs(a.z - b.z) <= POSITION_EPSILON);
+        }
+    };
+
+    static std::pair<std::vector<glm::vec3>, std::vector<uint32_t>>
+        WeldVertices(
+            std::vector<glm::vec3> const& inVertices,
+            std::vector<uint32_t>  const& inIndices);
+
+    // ---------------------------------------------------------------------
+// Check if point P lies on the segment AB in 3D, within a given epsilon.
+// Returns true if: 
+//   1) P is colinear with A and B (|cross(AP, AB)| / |AB| < epsilon), 
+//   2) the projection of P lies between A and B (dot(AP, AB) ≥ 0 and dot(BP, BA) ≥ 0).
+// ---------------------------------------------------------------------
+    static bool IsPointOnSegment3D(const vec3& P, const vec3& A, const vec3& B, float epsilon);
+
+    // ---------------------------------------------------------------------
+    // Split a single triangle (at index triIndex) by inserting an existing
+    // vertexIndex (which lies on one of its edges). We assume that vertexIndex
+    // indeed lies on exactly one edge of that triangle. This function modifies
+    // mesh.indices in place by replacing the original triangle with two new ones.
+    // 
+    // Input: 
+    //   mesh           : mesh to modify
+    //   triIndex       : index into mesh.indices / 3 (i.e., which triangle to split)
+    //   edgeV0, edgeV1 : the two endpoint indices of the edge on which vertexIndex lies
+    //   vertexIndex    : the index of the vertex that lies on the edge (in mesh.vertices)
+    // 
+    // Process: Replace triangle [i0, i1, i2] with two triangles that include vertexIndex.
+    // ---------------------------------------------------------------------
+    static void SplitTriangleAtVertex(PositionVerticesIndices& mesh,
+        uint32_t triIndex,
+        uint32_t edgeV0,
+        uint32_t edgeV1,
+        uint32_t vertexIndex);
+
+    // ---------------------------------------------------------------------
+    // Resolve T-junctions for an entire mesh. For every triangle edge,
+    // if any other vertex in the mesh lies on that edge (within epsilon),
+    // split that triangle so that the vertex becomes an explicit corner.
+    // 
+    // Input:
+    //   mesh    : mesh to modify in place (will change mesh.indices and possibly reuse existing vertices)
+    //   epsilon : distance tolerance for “on-edge” test (e.g. 1e-4f)
+    // 
+    // Process:
+    //   Repeatedly scan all triangles. For each triangle T and each of its three edges (vA,vB),
+    //   look for any vertex V (not equal to vA or vB) in mesh.vertices such that
+    //   IsPointOnSegment3D(mesh.vertices[V], mesh.vertices[vA], mesh.vertices[vB], epsilon) == true.
+    //   If found, immediately call SplitTriangleAtVertex(...) and restart scanning from first triangle.
+    //   Continue until no more splits are needed.
+    // ---------------------------------------------------------------------
+    static void ResolveTJunctions(PositionVerticesIndices& mesh, float epsilon);
 
     static PositionVerticesIndices MergeCoplanarRegions(const PositionVerticesIndices& mesh, float normalTolerance = 0.99f);
 

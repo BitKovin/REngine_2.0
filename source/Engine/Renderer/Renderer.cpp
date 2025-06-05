@@ -36,7 +36,7 @@ Renderer::Renderer()
 
 
 
-	fullscreenShader = ShaderManager::GetShaderProgram("fullscreen_vertex","texture_pixel_dithered");
+	fullscreenShader = ShaderManager::GetShaderProgram("fullscreen_vertex","postprocessing");
 
     // resize all our buffers
     colorBuffer->resize(screenResolution.x, screenResolution.y);

@@ -16,15 +16,18 @@ private:
 
 	bool pendingClick = false;
 
+	Texture* tex = nullptr;
+
 public:
 
-	Texture* tex;
+	string ImagePath = "GameData/cat.png";
+
+
 
 	std::function<void()>* onClick = nullptr;
 
 	UiButton()
 	{ 
-		tex = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 	}
 	~UiButton()
 	{
@@ -61,6 +64,14 @@ public:
 
 	void Draw()
 	{
+
+
+		if (tex == nullptr)
+		{
+			tex = AssetRegistry::GetTextureFromFile(ImagePath);
+			if(tex->valid == false)
+				tex = AssetRegistry::GetTextureFromFile("GameData/textures/generic/white.png");
+		}
 
 		vec2 pos = position + offset;
 

@@ -148,6 +148,17 @@ mat4 SkeletalMesh::GetBoneMatrixWorld(string boneName)
 	return GetWorldMatrix() * GetBoneMatrix(boneName);
 }
 
+float SkeletalMesh::GetHitboxDamageMultiplier(string boneName)
+{
+	for (auto& hitbox : metaData.hitboxes)
+	{
+		if (hitbox.boneName == boneName)
+			return hitbox.damageMultiplier;
+	}
+
+	return 1.0f;
+}
+
 void SkeletalMesh::ClearHitboxes()
 {
 	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);

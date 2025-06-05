@@ -116,7 +116,7 @@ void NavigationSystem::GenerateNavData()
 
     auto mesh = Level::Current->GetStaticNavObstaclesMesh();
     mesh = MeshUtils::RemoveDegenerates(mesh, 0.01f, 0.01f);
-    mesh = MeshUtils::MergeMeshes({ MeshUtils::MergeCoplanarRegions(mesh) , mesh}); // too dirty + results in false walkable areas if not surrounded by walls. FIX ME
+    mesh = MeshUtils::MergeMeshes({ MeshUtils::MergeCoplanarRegions(mesh) , mesh});
 
     std::lock_guard<std::recursive_mutex> lock(mainLock);
 
@@ -155,12 +155,12 @@ void NavigationSystem::GenerateNavData()
     cfg.minRegionArea = 0.2f;      // Min region size
     cfg.mergeRegionArea = 200 * 200;  // Merge region size
     cfg.maxVertsPerPoly = 6;
-    cfg.tileSize = 64;                // Tile size in cells
+    cfg.tileSize = 128;                // Tile size in cells !!!!MAGIC NUMBER THAT RESULTS IN SMALLEST ERRORS
     cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 3;  // ~3-4 cells
     cfg.width = cfg.tileSize + cfg.borderSize * 2;
     cfg.height = cfg.tileSize + cfg.borderSize * 2;
-    cfg.detailSampleDist = 0.01f;
-    cfg.detailSampleMaxError = 0.05f;
+    cfg.detailSampleDist = 0.1f;
+    cfg.detailSampleMaxError = 0.1f;
 
     // Compute tile grid
     const float tileWidth = cfg.tileSize * cfg.cs;

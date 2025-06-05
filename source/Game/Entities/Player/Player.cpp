@@ -184,7 +184,7 @@ void Player::UpdateWeapon()
 
     currentWeapon->HideWeapon = bike_progress;
     currentWeapon->Position = Camera::position;
-    currentWeapon->Rotation = cameraRotation;// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
+    currentWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.5f);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 
 }
 
@@ -294,7 +294,7 @@ void Player::TryStep(vec3 dir)
         return;
 
     DebugDraw::Line(hit.position, hit.position + hit.normal);
-    if (hit.normal.y < 0.95)
+    if (hit.normal.y < 0.9)
         return;
 
 
@@ -303,6 +303,11 @@ void Player::TryStep(vec3 dir)
 
     if (hitPoint == vec3())
         return;
+
+    if (Physics::LineTrace(hitPoint + vec3(0, 0.05, 0), Position - vec3(0, 0.87f, 0), Physics::GetCollisionMask(LeadBody), { LeadBody }).hasHit == false)
+    {
+        return;
+    }
 
 
 
@@ -423,7 +428,7 @@ void Player::Update()
     bikeArmsMesh->PasteAnimationPose(bikeMesh->GetAnimationPose());
 
 
-	cameraHeightOffset = mix(cameraHeightOffset, 0.0f, Time::DeltaTimeF * 3.0f);
+	cameraHeightOffset = mix(cameraHeightOffset, 0.0f, Time::DeltaTimeF * 5.0f);
     Camera::position = Position + vec3(0, 0.7, 0) - vec3(0,0.25f,0) * bike_progress + vec3(0,1,0) * cameraHeightOffset;
     Camera::rotation = cameraRotation;
 

@@ -7,7 +7,7 @@
 class SkeletalEditorEntity : public Entity
 {
 public:
-	SkeletalMesh* mesh = new SkeletalMesh();
+	SkeletalMesh* mesh;
 
 	string filePath = "GameData/dog.glb";
 
@@ -21,6 +21,9 @@ public:
 
 	SkeletalEditorEntity()
 	{
+
+		mesh = new SkeletalMesh(this);
+
 		mesh->LoadFromFile("GameData/dog.glb");
 		mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 		Drawables.push_back(mesh);

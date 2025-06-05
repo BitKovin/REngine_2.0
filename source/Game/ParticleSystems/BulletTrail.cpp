@@ -18,7 +18,7 @@ public:
 	{
 		
 		particle.Transparency = (particle.deathTime - particle.lifeTime) / particle.deathTime;
-		particle.Size = mix(0.0f, 0.03f, (particle.deathTime - particle.lifeTime) / particle.deathTime);
+		particle.Size = mix(0.015f, 0.055f, (particle.deathTime - particle.lifeTime) / particle.deathTime);
 		return particle;
 	}
 
@@ -26,7 +26,7 @@ public:
 	{
 		Particle particle = ParticleEmitter::GetNewParticle();
 		
-		particle.Size = 0.1f;
+		particle.Size = 0.03f;
 		particle.Color = vec4(0.5, 0, 0, 0.8);
 		particle.Transparency = 0.8;
 		particle.deathTime = 0.1f;

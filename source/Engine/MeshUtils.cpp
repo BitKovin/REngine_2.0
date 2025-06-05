@@ -123,6 +123,183 @@ MeshUtils::PositionVerticesIndices MeshUtils::ExpandHorizontalTriangles(const Po
     return result;
 }
 
+
+std::pair<std::vector<glm::vec3>, std::vector<uint32_t>> MeshUtils::WeldVertices(std::vector<glm::vec3> const& inVertices, std::vector<uint32_t> const& inIndices)
+{
+    std::vector<glm::vec3>       outVertices;
+    std::vector<uint32_t>        outIndices(inIndices.size());
+    outVertices.reserve(inVertices.size());
+
+    // Map from quantized position → new index in outVertices
+    std::unordered_map<glm::vec3, uint32_t, Vec3Hash, Vec3Eq> weldMap;
+    weldMap.reserve(inVertices.size());
+
+    // For each input vertex, either find an existing “welded” index or create a new one
+    for (size_t oldIdx = 0; oldIdx < inVertices.size(); ++oldIdx) {
+        glm::vec3 const& P = inVertices[oldIdx];
+
+        auto it = weldMap.find(P);
+        if (it != weldMap.end()) {
+            // Already have a vertex within epsilon of P
+            // Nothing to add; just record remapping
+            (void)it; // suppress unused warning
+        }
+        else {
+            // New unique position; give it index = outVertices.size()
+            uint32_t newIdx = static_cast<uint32_t>(outVertices.size());
+            outVertices.push_back(P);
+            weldMap.insert({ P, newIdx });
+        }
+    }
+
+    // Now we have outVertices and a map from “position → newIndex.”
+    // Fill outIndices by remapping each old index to the new welded index.
+    for (size_t i = 0; i < inIndices.size(); ++i) {
+        glm::vec3 const& P = inVertices[inIndices[i]];
+        uint32_t newIdx = weldMap[P];
+        outIndices[i] = newIdx;
+    }
+
+    return { outVertices, outIndices };
+}
+
+bool MeshUtils::IsPointOnSegment3D(const vec3& P, const vec3& A, const vec3& B, float epsilon)
+{
+    vec3 AB = B - A;
+    vec3 AP = P - A;
+
+    // If |AB| is very small, bail out (degenerate edge)
+    float lenAB = glm::length(AB);
+    if (lenAB < glm::epsilon<float>()) {
+        return false;
+    }
+
+    // Compute cross product magnitude: area of parallelogram = |AB × AP|
+    vec3 crossProd = glm::cross(AB, AP);
+    float areaPar = glm::length(crossProd);
+
+    // Distance from P to the infinite line AB = areaPar / |AB|.
+    // We want that distance to be < epsilon.
+    float distToLine = areaPar / lenAB;
+    if (distToLine > epsilon) {
+        return false;
+    }
+
+    // Check if projection of P onto AB lies between A and B:
+    // dot(AP, AB) must be ≥ 0 and dot(BP, BA) must be ≥ 0
+    float dot1 = glm::dot(AP, AB);
+    if (dot1 < 0.0f) {
+        return false;
+    }
+    vec3 BP = P - B;
+    vec3 BA = A - B; // = -AB
+    float dot2 = glm::dot(BP, BA);
+    if (dot2 < 0.0f) {
+        return false;
+    }
+
+    return true;
+}
+
+void MeshUtils::SplitTriangleAtVertex(PositionVerticesIndices& mesh, uint32_t triIndex, uint32_t edgeV0, uint32_t edgeV1, uint32_t vertexIndex)
+{
+    // Get the original triangle’s three vertex indices:
+    uint32_t i0 = mesh.indices[3 * triIndex + 0];
+    uint32_t i1 = mesh.indices[3 * triIndex + 1];
+    uint32_t i2 = mesh.indices[3 * triIndex + 2];
+
+    // Identify which of (i0,i1,i2) form the edge (edgeV0, edgeV1).
+    // The third vertex (call it “otherV”) is the one not equal to edgeV0 or edgeV1.
+    uint32_t otherV;
+    if ((i0 == edgeV0 && i1 == edgeV1) || (i0 == edgeV1 && i1 == edgeV0)) {
+        otherV = i2;
+    }
+    else if ((i1 == edgeV0 && i2 == edgeV1) || (i1 == edgeV1 && i2 == edgeV0)) {
+        otherV = i0;
+    }
+    else if ((i2 == edgeV0 && i0 == edgeV1) || (i2 == edgeV1 && i0 == edgeV0)) {
+        otherV = i1;
+    }
+    else {
+        // Should never happen if caller guaranteed edgeV0/edgeV1 lie on this triangle
+        return;
+    }
+
+    // Build two new triangles that incorporate vertexIndex:
+    //   - Triangle A: (edgeV0, vertexIndex, otherV)
+    //   - Triangle B: (vertexIndex, edgeV1, otherV)
+    uint32_t triA[3] = { edgeV0, vertexIndex, otherV };
+    uint32_t triB[3] = { vertexIndex, edgeV1, otherV };
+
+    // Overwrite the original triangle in mesh.indices with triA, then append triB:
+    mesh.indices[3 * triIndex + 0] = triA[0];
+    mesh.indices[3 * triIndex + 1] = triA[1];
+    mesh.indices[3 * triIndex + 2] = triA[2];
+
+    // Append triB at the end of the index buffer:
+    mesh.indices.push_back(triB[0]);
+    mesh.indices.push_back(triB[1]);
+    mesh.indices.push_back(triB[2]);
+}
+
+void MeshUtils::ResolveTJunctions(PositionVerticesIndices& mesh, float epsilon)
+{
+    bool anySplit = true;
+
+    while (anySplit) {
+        anySplit = false;
+
+        // Iterate over all triangles by index:
+        size_t triangleCount = mesh.indices.size() / 3;
+        for (uint32_t t = 0; t < triangleCount; ++t) {
+            // Get the three vertex indices of triangle t:
+            uint32_t i0 = mesh.indices[3 * t + 0];
+            uint32_t i1 = mesh.indices[3 * t + 1];
+            uint32_t i2 = mesh.indices[3 * t + 2];
+
+            // The three edges to check: (i0,i1), (i1,i2), (i2,i0)
+            uint32_t edgeVerts[3][2] = {
+                { i0, i1 },
+                { i1, i2 },
+                { i2, i0 }
+            };
+
+            // For each edge, search all other vertices for a T-junction:
+            for (int e = 0; e < 3; ++e) {
+                uint32_t vA = edgeVerts[e][0];
+                uint32_t vB = edgeVerts[e][1];
+
+                // Loop through all vertices in mesh
+                for (uint32_t cand = 0; cand < (uint32_t)mesh.vertices.size(); ++cand) {
+                    if (cand == vA || cand == vB) {
+                        continue; // skip endpoints
+                    }
+                    // Check if cand lies on segment (vA,vB)
+                    if (IsPointOnSegment3D(mesh.vertices[cand],
+                        mesh.vertices[vA],
+                        mesh.vertices[vB],
+                        epsilon))
+                    {
+                        // Perform the split and restart scanning
+                        SplitTriangleAtVertex(mesh, t, vA, vB, cand);
+                        anySplit = true;
+                        break;
+                    }
+                }
+                if (anySplit) {
+                    break;
+                }
+            }
+            if (anySplit) {
+                // A split occurred; break out to restart scanning from first triangle
+                break;
+            }
+        }
+        // If anySplit == true, the outer while loop continues and rescans the entire mesh.
+    }
+}
+
+
 // Check if two triangles share an edge (exactly 2 common vertices)
 static bool sharesEdge(uint32_t t1, uint32_t t2, const vector<uint32_t>& indices) {
     unordered_set<uint32_t> verts1 = { indices[3 * t1], indices[3 * t1 + 1], indices[3 * t1 + 2] };
@@ -245,19 +422,45 @@ vector<uint32_t> TriangulateSimplePolygon(const vector<uint32_t>& loop,
     return tris;
 }
 
+
 MeshUtils::PositionVerticesIndices MeshUtils::MergeCoplanarRegions(const MeshUtils::PositionVerticesIndices& mesh,
     float normalTolerance) {
     MeshUtils::PositionVerticesIndices result;
     result.vertices = mesh.vertices;
     size_t triCount = mesh.indices.size() / 3;
 
+    // Step 1: Vertex Welding
+    const float epsilon = 0.001f; // Adjust based on scale of mesh and gap size
+    std::vector<uint32_t> vertex_map(mesh.vertices.size());
+    for (uint32_t i = 0; i < mesh.vertices.size(); ++i) {
+        vertex_map[i] = i; // Initially, each vertex maps to itself
+    }
+
+    // Simple O(n^2) approach for clarity; optimize with spatial data structure if needed
+    for (uint32_t i = 0; i < mesh.vertices.size(); ++i) {
+        if (vertex_map[i] != i) continue; // Already mapped
+        for (uint32_t j = i + 1; j < mesh.vertices.size(); ++j) {
+            if (vertex_map[j] != j) continue; // Already mapped
+            if (distance(mesh.vertices[i], mesh.vertices[j]) < epsilon) {
+                vertex_map[j] = i; // Map j to i as representative
+            }
+        }
+    }
+
+    // Update indices to use representative vertices
+    std::vector<uint32_t> updated_indices = mesh.indices;
+    for (uint32_t& idx : updated_indices) {
+        idx = vertex_map[idx];
+    }
+
+    // Step 2: Proceed with original logic using updated indices
     // Build triangle adjacency by edges
     unordered_map<MeshUtils::Edge, vector<uint32_t>, MeshUtils::EdgeHash, MeshUtils::EdgeEq> edgeMap;
     edgeMap.reserve(triCount * 3);
     for (uint32_t t = 0; t < triCount; ++t) {
-        uint32_t v0 = mesh.indices[3 * t];
-        uint32_t v1 = mesh.indices[3 * t + 1];
-        uint32_t v2 = mesh.indices[3 * t + 2];
+        uint32_t v0 = updated_indices[3 * t];
+        uint32_t v1 = updated_indices[3 * t + 1];
+        uint32_t v2 = updated_indices[3 * t + 2];
         edgeMap[MeshUtils::Edge(v0, v1)].push_back(t);
         edgeMap[MeshUtils::Edge(v1, v2)].push_back(t);
         edgeMap[MeshUtils::Edge(v2, v0)].push_back(t);
@@ -265,16 +468,15 @@ MeshUtils::PositionVerticesIndices MeshUtils::MergeCoplanarRegions(const MeshUti
 
     vector<bool> used(triCount, false);
     auto getNormal = [&](uint32_t t) {
-        vec3 A = mesh.vertices[mesh.indices[3 * t]];
-        vec3 B = mesh.vertices[mesh.indices[3 * t + 1]];
-        vec3 C = mesh.vertices[mesh.indices[3 * t + 2]];
+        vec3 A = mesh.vertices[updated_indices[3 * t]];
+        vec3 B = mesh.vertices[updated_indices[3 * t + 1]];
+        vec3 C = mesh.vertices[updated_indices[3 * t + 2]];
         return normalize(cross(B - A, C - A));
         };
 
     for (uint32_t seed = 0; seed < triCount; ++seed) {
         if (used[seed]) continue;
         vec3 baseN = getNormal(seed);
-        // Keep only approximately horizontal
         if (std::fabs(baseN.y) < 0.8f) continue;
 
         // Flood-fill coplanar region
@@ -285,12 +487,12 @@ MeshUtils::PositionVerticesIndices MeshUtils::MergeCoplanarRegions(const MeshUti
         while (!q.empty()) {
             uint32_t t = q.front(); q.pop();
             region.push_back(t);
-            std::array<uint32_t, 3> verts = { { mesh.indices[3 * t], mesh.indices[3 * t + 1], mesh.indices[3 * t + 2] } };
+            std::array<uint32_t, 3> verts = { { updated_indices[3 * t], updated_indices[3 * t + 1], updated_indices[3 * t + 2] } };
             for (int e = 0; e < 3; ++e) {
                 MeshUtils::Edge ed(verts[e], verts[(e + 1) % 3]);
                 for (uint32_t nbr : edgeMap[ed]) {
                     if (!used[nbr] && dot(baseN, getNormal(nbr)) >= normalTolerance
-                        && sharesEdge(t, nbr, mesh.indices)) {
+                        && sharesEdge(t, nbr, updated_indices)) {
                         used[nbr] = true;
                         q.push(nbr);
                     }
@@ -301,9 +503,9 @@ MeshUtils::PositionVerticesIndices MeshUtils::MergeCoplanarRegions(const MeshUti
         // Count boundary edges
         unordered_map<MeshUtils::Edge, int, MeshUtils::EdgeHash, MeshUtils::EdgeEq> edgeCount;
         for (uint32_t t : region) {
-            uint32_t v0 = mesh.indices[3 * t];
-            uint32_t v1 = mesh.indices[3 * t + 1];
-            uint32_t v2 = mesh.indices[3 * t + 2];
+            uint32_t v0 = updated_indices[3 * t];
+            uint32_t v1 = updated_indices[3 * t + 1];
+            uint32_t v2 = updated_indices[3 * t + 2];
             edgeCount[MeshUtils::Edge(v0, v1)]++;
             edgeCount[MeshUtils::Edge(v1, v2)]++;
             edgeCount[MeshUtils::Edge(v2, v0)]++;
@@ -314,10 +516,8 @@ MeshUtils::PositionVerticesIndices MeshUtils::MergeCoplanarRegions(const MeshUti
         }
         if (boundary.size() < 3) continue;
 
-        // Extract loops and triangulate only the outer ones
         auto loops = ExtractBoundaryLoops(boundary);
         for (auto& loop : loops) {
-            // Project loop to 2D plane of region
             vec3 u = std::fabs(baseN.x) > std::fabs(baseN.z)
                 ? normalize(cross(vec3(0, 1, 0), baseN))
                 : normalize(cross(vec3(1, 0, 0), baseN));
@@ -327,7 +527,7 @@ MeshUtils::PositionVerticesIndices MeshUtils::MergeCoplanarRegions(const MeshUti
                 vec3 P = result.vertices[loop[i]];
                 pts2D[i] = { dot(P, u), dot(P, v) };
             }
-            if (!IsCCW(pts2D)) continue;  // skip holes
+            if (!IsCCW(pts2D)) continue;
 
             auto tris = TriangulateSimplePolygon(loop, pts2D);
             result.indices.insert(result.indices.end(), tris.begin(), tris.end());

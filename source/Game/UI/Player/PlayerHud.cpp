@@ -19,8 +19,13 @@ void PlayerHud::Init(Player* playerRef)
 	player = playerRef;
 
     hudCanvas = make_shared<UiCanvas>();
-
     img = make_shared<UiButton>();
+    crosshair = make_shared<UiImage>();
+
+    crosshair->pivot = vec2(0.5);
+    crosshair->origin = vec2(0.5);
+    crosshair->size = vec2(8);
+    crosshair->ImagePath = "GameData/cat.png";
 
     // Define a lambda function
     auto clickHandler = []() {
@@ -45,6 +50,7 @@ void PlayerHud::Init(Player* playerRef)
 
     hudCanvas->AddChild(img);
     hudCanvas->AddChild(text);
+    hudCanvas->AddChild(crosshair);
 
     EngineMain::Viewport.AddChild(hudCanvas);
 

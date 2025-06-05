@@ -77,6 +77,7 @@ public:
 		}
 	}
 
+
 	virtual void FromData(EntityData data)
 	{
 
@@ -121,6 +122,7 @@ public:
 	void FinalLevelRemove()
 	{
 		DestroyDrawables();
+		Logger::Log("Destroying " + ClassName + Id);
 	}
 
 	void UpdateDestroyDelay()

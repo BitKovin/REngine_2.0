@@ -68,12 +68,12 @@ public:
 		viewmodel->PlayAnimation("fire");
 		Camera::AddCameraShake(CameraShake(
 			0.13f,                            // interpIn
-			1.2f,                            // duration
-			vec3(0.0f, 0.0f, -0.2f),         // positionAmplitude
-			vec3(0.0f, 0.0f, 6.4f),          // positionFrequency
+			0.5f,                            // duration
+			vec3(0.0f, 0.0f, -0.1f),         // positionAmplitude
+			vec3(0.0f, 0.0f, 3.4f),          // positionFrequency
 			vec3(-4, 0.15f, 0.0f),        // rotationAmplitude
 			vec3(-2.0f, 18.8f, 0.0f),        // rotationFrequency
-			1.2f,                            // falloff
+			0.5f,                            // falloff
 			CameraShake::ShakeType::SingleWave // shakeType
 		));
 
@@ -91,13 +91,14 @@ public:
 
 		vec4 offset = vec4(0);
 
-		vec3 endLoc = Position + MathHelper::GetForwardVector(Rotation) * 80.0f + vec3(offset);
+		vec3 endLoc = Position + MathHelper::GetForwardVector(Camera::rotation) * 80.0f + vec3(offset);
 
+		bullet->Speed = 200.f;
 		bullet->Position = startLoc + vec3(offset) * 0.002f;
 		bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
 		bullet->Start();
 		bullet->LoadAssetsIfNeeded();
-		bullet->Damage = 50.0f / 21.0f;
+		bullet->Damage = 21;
 
 
 

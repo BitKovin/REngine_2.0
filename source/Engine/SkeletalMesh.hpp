@@ -314,6 +314,8 @@ public:
 
 	mat4 GetBoneMatrixWorld(string boneName);
 
+	float GetHitboxDamageMultiplier(string boneName);
+
 	void ClearHitboxes();
 
 	void CreateHitbox(Entity* owner, HitboxData data);

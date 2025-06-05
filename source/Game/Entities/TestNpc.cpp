@@ -128,6 +128,7 @@ void TestNpc::Death()
 
 void TestNpc::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon)
 {
+	Damage *= mesh->GetHitboxDamageMultiplier(bone);
 	Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
 
 	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point, MathHelper::FindLookAtRotation(vec3(0), Direction), vec3(Damage/10.0f));
@@ -385,7 +386,7 @@ void TestNpc::Deserialize(json& source)
 
 void TestNpc::LoadAssets()
 {
-	mesh->LoadFromFile("GameData/dog.glb");
+	mesh->LoadFromFile("GameData/models/enemies/dog/dog.glb");
 	mesh->CreateHitboxes(this);
 	mesh->PlayAnimation("run",true);
 	mesh->SetLooped(true);
