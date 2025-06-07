@@ -152,7 +152,7 @@ void NavigationSystem::GenerateNavData()
     cfg.walkableRadius = static_cast<int>(ceilf(0.2f / cfg.cs)); 
     cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);
     cfg.maxSimplificationError = 0.01f;
-    cfg.minRegionArea = 0.2f;      // Min region size
+    cfg.minRegionArea = 0;      // Min region size
     cfg.mergeRegionArea = 200 * 200;  // Merge region size
     cfg.maxVertsPerPoly = 6;
     cfg.tileSize = 128;                // Tile size in cells !!!!MAGIC NUMBER THAT RESULTS IN SMALLEST ERRORS

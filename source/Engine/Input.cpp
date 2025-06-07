@@ -567,6 +567,7 @@ int Input::IsAnyTouchEventPressedInBounds(vec2 min, vec2 max)
         }
 
     }
+    return 0;
 }
 
 int Input::IsAnyTouchReleasedPressedInBounds(vec2 min, vec2 max)
@@ -585,6 +586,7 @@ int Input::IsAnyTouchReleasedPressedInBounds(vec2 min, vec2 max)
         }
 
     }
+    return 0;
 }
 
 int Input::IsAnyTouchHoldingPressedInBounds(vec2 min, vec2 max)
@@ -601,4 +603,5 @@ int Input::IsAnyTouchHoldingPressedInBounds(vec2 min, vec2 max)
         }
 
     }
+    return 0;
 }
