@@ -50,6 +50,7 @@ void desktop_render_loop() {
 
     while (!quit) {
         Input::PendingMouseDelta = vec2(0);
+        Input::StartEventsFrame();
         while (SDL_PollEvent(&event)) 
         {
             ImGui_ImplSDL2_ProcessEvent(&event);
@@ -60,6 +61,9 @@ void desktop_render_loop() {
             }
 
             if (event.type == SDL_QUIT) quit = 1;
+
+            Input::ReceiveSdlEvent(event);
+
         }
         engine->MainLoop();
     }

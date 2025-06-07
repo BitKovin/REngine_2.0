@@ -1,7 +1,7 @@
 #ifndef LEVELOBJECTFACTORY_H
 #define LEVELOBJECTFACTORY_H
 
-#include "Entity.hpp"
+#include "Entity.h"
 #include <map>
 #include <string>
 

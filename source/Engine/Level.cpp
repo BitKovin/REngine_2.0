@@ -3,7 +3,7 @@
 #include "MapData.h"
 #include "MapParser.h"
 
-#include "Entity.hpp"
+#include "Entity.h"
 
 #include "Physics.h"
 
@@ -226,6 +226,54 @@ void Level::AsyncUpdate(bool paused)
 	asyncUpdateThreadPool->WaitForFinish();
 	AddPendingLevelObjects();
 	RemovePendingEntities();
+}
+
+void Level::RemovePendingEntities()
+{
+
+	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+	std::lock_guard<std::recursive_mutex> lockP(pendingEntityArrayLock);
+
+	for (auto& entity : PendingRemoveLevelObjects)
+	{
+
+		if (entity == nullptr) continue;
+
+		auto it = std::find(LevelObjects.begin(), LevelObjects.end(), entity);
+		if (it != LevelObjects.end())
+		{
+			LevelObjects.erase(it);
+		}
+
+		PendingMemoryCleanObjects.push_back(entity);
+
+		entity = nullptr;
+
+	}
+
+	PendingRemoveLevelObjects.clear();
+
+}
+
+void Level::MemoryCleanPendingEntities()
+{
+
+	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+	std::lock_guard<std::recursive_mutex> lockP(pendingEntityArrayLock);
+
+	for (auto& entity : PendingMemoryCleanObjects)
+	{
+
+		if (entity == nullptr) continue;
+
+		entity->FinalLevelRemove();
+		delete(entity);
+
+		entity = nullptr;
+	}
+
+	PendingMemoryCleanObjects.clear();
+
 }
 
 void Level::Update(bool paused)

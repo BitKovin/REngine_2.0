@@ -1,5 +1,5 @@
 #pragma once
-#include "../Entity.hpp"
+#include "../Entity.h"
 #include "../SoundSystem/SoundInstance.hpp"
 #include "../SoundSystem/SoundManager.hpp"
 

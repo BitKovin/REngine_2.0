@@ -1,4 +1,4 @@
-#include "Entity.hpp"
+#include "Entity.h"
 #include "LevelObjectFactory.h"
 
 Entity* Entity::Spawn(std::string technicalName)

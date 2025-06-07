@@ -131,9 +131,14 @@ void desktop_render_loop() {
     int quit = 0;
     while (!quit) {
         Input::PendingMouseDelta = ReadMouseDelta();
-        while (SDL_PollEvent(&event)) {
+        Input::StartEventsFrame();
+        while (SDL_PollEvent(&event)) 
+        {
             ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT) quit = 1;
+
+            Input::ReceiveSdlEvent(event);
+
         }
         engine->MainLoop();
     }

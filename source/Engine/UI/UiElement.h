@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+#include "../Input.h"
+
 enum class Origin {
     Top,
     Bottom,
@@ -27,9 +29,12 @@ namespace Origins {
     }
 }
 
-class UiElement {
+class UiElement : public std::enable_shared_from_this<UiElement>
+{
 public:
     static UiElement* Viewport;
+
+    bool HitCheck = false;
 
     glm::vec2 size = glm::vec2(1.0f);
     glm::vec2 position = glm::vec2(0.0f);
@@ -48,7 +53,8 @@ public:
     bool visible = true;
     bool drawBorder = false;
     static bool drawAllBorders;
-    bool hovering = false;
+
+    std::vector<TouchEvent> TouchEvents;
 
     UiElement* parent = nullptr;
     std::vector<std::shared_ptr<UiElement>> children;
@@ -67,6 +73,12 @@ public:
     virtual void UpdateOffsets();
     virtual void UpdateChildrenOffsets();
     virtual void FinalizeChildren();
+
+    virtual std::shared_ptr<UiElement> GetHitElementUnderPosition(vec2 position);
+
+    virtual void ResetTouchInputs();
+    virtual void TouchInputPostProcessing();
+    
 
     virtual glm::vec2 GetOrigin();
     virtual glm::vec2 GetSize();

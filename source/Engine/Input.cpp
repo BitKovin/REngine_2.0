@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include "glm.h"
+#include "Camera.h"
 
 #include "Time.hpp"
 
@@ -16,6 +17,7 @@ glm::vec2 Input::PendingMouseDelta;
 std::vector<glm::vec2> Input::MouseDeltas;
 int Input::MaxDeltas = 1;
 std::unordered_map<std::string, InputAction*> Input::actions;
+std::unordered_map<int, TouchEvent> Input::TouchActions;
 bool Input::LockCursor = false;
 float Input::sensitivity = 0.22f;
 glm::vec2 Input::windowCenter;
@@ -182,6 +184,136 @@ void Input::CenterCursor() {
     else {
         PendingCenterCursor = true;
     }
+}
+
+void Input::StartEventsFrame()
+{
+
+    vector<int> toRemove;
+
+    for (auto& action : TouchActions)
+    {
+
+        if (action.second.released)
+        {
+            toRemove.push_back(action.first);
+        }
+
+        action.second.pressed = false;
+        action.second.delta = vec2();
+
+    }
+
+    for (int i : toRemove)
+    {
+        TouchActions.erase(i);
+    }
+
+
+    float screenToViewportRatio = Camera::ScreenHeight / 1080.0F;
+
+
+
+    glm::vec2 mousePos = Input::MousePos / screenToViewportRatio; // assume scaled to screen
+
+    TouchEvent mouseTouchEvent;
+    mouseTouchEvent.id = 1;
+    mouseTouchEvent.delta = MouseDelta;
+    mouseTouchEvent.position = mousePos;
+    mouseTouchEvent.pressed = GetAction("click")->Pressed();
+    mouseTouchEvent.released = GetAction("click")->Released();
+
+    TouchActions[1] = mouseTouchEvent;
+
+}
+
+void Input::ReceiveSdlEvent(SDL_Event event)
+{
+
+    vec2 UiScreenSize = EngineMain::Viewport.GetSize();
+
+    if (event.type == SDL_FINGERDOWN) 
+    {
+
+        TouchEvent touchAction;
+        touchAction.id = event.tfinger.fingerId + 10;
+        touchAction.pressed = true;
+        touchAction.released = false;
+
+        touchAction.position = vec2(event.tfinger.x, event.tfinger.y) * UiScreenSize;
+        touchAction.delta = vec2(event.tfinger.dx, event.tfinger.dy) * UiScreenSize;
+
+        TouchActions[touchAction.id] = touchAction;
+
+    }
+    else if (event.type == SDL_FINGERMOTION) 
+    {
+
+        TouchEvent& touchAction = TouchActions[event.tfinger.fingerId + 10];
+
+        touchAction.position = vec2(event.tfinger.x, event.tfinger.y) * UiScreenSize;
+        touchAction.delta = vec2(event.tfinger.dx, event.tfinger.dy) * UiScreenSize;
+
+    }
+    else if (event.type == SDL_FINGERUP) 
+    {
+
+        TouchEvent& touchAction = TouchActions[event.tfinger.fingerId + 10];
+
+        touchAction.released = true;
+
+        touchAction.position = vec2(event.tfinger.x, event.tfinger.y) * UiScreenSize;
+        touchAction.delta = vec2(event.tfinger.dx, event.tfinger.dy) * UiScreenSize;
+
+    }
+}
+
+bool Input::IsTouchEventPressed(int id)
+{
+    auto event = GetTouchEventFromId(id);
+
+    if (event.id == 0) return false;
+
+    return event.pressed;
+
+}
+
+bool Input::IsTouchEventReleased(int id)
+{
+    auto event = GetTouchEventFromId(id);
+
+    if (event.id == 0) return false;
+
+    return event.released;
+}
+
+bool Input::IsTouchEventHolding(int id)
+{
+
+	auto event = GetTouchEventFromId(id);
+
+    return event.id != 0;
+
+}
+
+vec2 Input::GetTouchEventPosition(int id)
+{
+
+	auto event = GetTouchEventFromId(id);
+
+	if (event.id == 0) return vec2(0);
+
+	return event.position;
+
+}
+
+vec2 Input::GetTouchEventDelta(int id)
+{
+    auto event = GetTouchEventFromId(id);
+
+    if (event.id == 0) return vec2(0);
+
+    return event.delta;
 }
 
 vec2 Input::GetLeftStickPosition()
@@ -403,5 +535,70 @@ void InputAction::Update() {
     }
     else if (!pressing && oldPressing) {
         released = true;
+    }
+}
+
+TouchEvent Input::GetTouchEventFromId(int id)
+{
+    auto event = TouchActions.find(id);
+
+    if (event != TouchActions.end())
+    {
+        return event->second;
+    }
+
+    return TouchEvent();
+
+}
+
+int Input::IsAnyTouchEventPressedInBounds(vec2 min, vec2 max)
+{
+    for (auto& event : TouchActions)
+    {
+
+        if (event.second.pressed == false) continue;
+
+        vec2 pos = event.second.position;
+
+        if (pos.x >= min.x && pos.x <= max.x &&
+            pos.y >= min.y && pos.y <= max.y)
+        {
+            return event.first;
+        }
+
+    }
+}
+
+int Input::IsAnyTouchReleasedPressedInBounds(vec2 min, vec2 max)
+{
+    for (auto& event : TouchActions)
+    {
+
+        if (event.second.released == false) continue;
+
+        vec2 pos = event.second.position;
+
+        if (pos.x >= min.x && pos.x <= max.x &&
+            pos.y >= min.y && pos.y <= max.y)
+        {
+            return event.first;
+        }
+
+    }
+}
+
+int Input::IsAnyTouchHoldingPressedInBounds(vec2 min, vec2 max)
+{
+    for (auto& event : TouchActions)
+    {
+
+        vec2 pos = event.second.position;
+
+        if (pos.x >= min.x && pos.x <= max.x &&
+            pos.y >= min.y && pos.y <= max.y)
+        {
+            return event.first;
+        }
+
     }
 }

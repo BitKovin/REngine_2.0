@@ -2,7 +2,7 @@
 
 #include "Renderer/Renderer.h"
 
-#include "Entity.hpp"
+#include "Entity.h"
 
 #include "Helpers/StringHelper.h"
 

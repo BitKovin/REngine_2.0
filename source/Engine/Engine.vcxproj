@@ -244,7 +244,6 @@
     <ClCompile Include="EngineMain.cpp" />
     <ClCompile Include="Entities\SoundPlayer.cpp" />
     <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="Entity.hpp" />
     <ClCompile Include="EObject.hpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -319,6 +318,7 @@
     <ClInclude Include="Delay.hpp" />
     <ClInclude Include="EngineMain.h" />
     <ClInclude Include="Entities\SoundPlayer.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="FrustrumCull.hpp" />
     <ClInclude Include="gl.h" />
     <ClInclude Include="glm.h" />

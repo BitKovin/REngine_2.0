@@ -6,7 +6,7 @@
 #include <UI/UiHorizontalBox.hpp>
 #include <UI/UiButton.hpp>
 #include <UI/UiImage.hpp>
-#include <Entity.hpp>
+#include <Entity.h>
 
 class Player;
 

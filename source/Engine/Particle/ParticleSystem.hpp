@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ParticleEmitter.h"
-#include "../Entity.hpp"
+#include "../Entity.h"
 
 #include "../Time.hpp"
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <Entity.hpp>
+#include <Entity.h>
 #include <BSP/Quake3Bsp.h>
 
 #include <MapParser.h>

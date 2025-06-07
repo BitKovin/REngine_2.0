@@ -1,4 +1,4 @@
-#include <Entity.hpp>
+#include <Entity.h>
 
 #include <EngineMain.h>
 #include <Input.h>

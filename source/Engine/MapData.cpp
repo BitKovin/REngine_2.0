@@ -7,7 +7,7 @@
 
 #include "Level.hpp"
 
-#include "Entity.hpp"
+#include "Entity.h"
 
 #include "BrushFaceMesh.hpp"
 

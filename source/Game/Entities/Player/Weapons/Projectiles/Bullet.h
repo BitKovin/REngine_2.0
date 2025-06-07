@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Entity.hpp>
+#include <Entity.h>
 
 #include <Particle/ParticleSystem.hpp>
 

@@ -161,6 +161,23 @@ void EngineMain::MainLoop()
 
     Level::Current->LoadAssets();
 
+
+    Viewport.ResetTouchInputs();
+
+    for (auto& event : Input::TouchActions)
+    {
+
+        auto hit = Viewport.GetHitElementUnderPosition(event.second.position);
+
+        if (hit == nullptr) continue;
+
+        hit->TouchEvents.push_back(event.second);
+
+    }
+    Viewport.TouchInputPostProcessing();
+
+    Viewport.Update();
+
     if (asyncGameUpdate)
     {
         FinishFrame();
@@ -253,8 +270,6 @@ void EngineMain::Render()
     MainRenderer->RenderLevel(Level::Current);
 
     glDisable(GL_DEPTH_TEST);
-
-    Viewport.Update();
 
     Viewport.Draw();
     UiRenderer::EndFrame();

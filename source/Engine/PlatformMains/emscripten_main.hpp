@@ -58,6 +58,7 @@ static EM_BOOL on_canvas_blur(int eventType, const EmscriptenFocusEvent* e, void
 void emscripten_render_loop() {
     Input::PendingMouseDelta = vec2(0, 0);
     SDL_Event event;
+    Input::StartEventsFrame();
     while (SDL_PollEvent(&event)) {
         ImGui_ImplSDL2_ProcessEvent(&event);
         switch (event.type) {
@@ -72,6 +73,9 @@ void emscripten_render_loop() {
         default:
             break;
         }
+
+        Input::ReceiveSdlEvent(event);
+
     }
 
     delta_history.push_back(Input::PendingMouseDelta);

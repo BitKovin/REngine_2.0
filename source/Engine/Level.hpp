@@ -151,45 +151,9 @@ public:
 		pendingAddLevelObjects.clear();
 	}
 
-	void RemovePendingEntities()
-	{
+	void RemovePendingEntities();
 
-		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
-		std::lock_guard<std::recursive_mutex> lockP(pendingEntityArrayLock);
-
-		for (auto entity : PendingRemoveLevelObjects)
-		{
-			auto it = std::find(LevelObjects.begin(), LevelObjects.end(), entity);
-			if (it != LevelObjects.end())
-			{
-				LevelObjects.erase(it);
-			}
-
-			PendingMemoryCleanObjects.push_back(entity);
-
-		}
-
-		PendingRemoveLevelObjects.clear();
-		
-	}
-
-	void MemoryCleanPendingEntities()
-	{
-
-		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
-		std::lock_guard<std::recursive_mutex> lockP(pendingEntityArrayLock);
-
-		for (auto entity : PendingMemoryCleanObjects)
-		{
-
-			entity->FinalLevelRemove();
-			delete(entity);
-
-		}
-
-		PendingMemoryCleanObjects.clear();
-
-	}
+	void MemoryCleanPendingEntities();
 
 	void UpdatePhysics()
 	{

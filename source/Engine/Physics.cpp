@@ -1,6 +1,6 @@
 ﻿#include "Physics.h"
 
-#include "Entity.hpp"
+#include "Entity.h"
 
 TempAllocatorImpl* Physics::tempMemAllocator = nullptr;
 

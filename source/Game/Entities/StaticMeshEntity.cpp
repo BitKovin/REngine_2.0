@@ -1,4 +1,4 @@
-#include <Entity.hpp>
+#include <Entity.h>
 #include <StaticMesh.h>
 
 class StaticMeshEntity : public Entity

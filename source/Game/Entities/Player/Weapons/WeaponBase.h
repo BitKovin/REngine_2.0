@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Entity.hpp>
+#include <Entity.h>
 #include <json.hpp>
 #include <Helpers/JsonHelper.hpp>
 

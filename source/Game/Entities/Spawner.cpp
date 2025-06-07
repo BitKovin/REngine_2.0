@@ -1,4 +1,4 @@
-#include <Entity.hpp>
+#include <Entity.h>
 
 class Spawner : public Entity
 {

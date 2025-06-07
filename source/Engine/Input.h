@@ -87,7 +87,25 @@ enum class GamepadButton : int {
 
 #endif
 
-class Input {
+struct TouchEvent
+{
+    int id = 0;
+
+    bool pressed = false;
+    bool released = false;
+
+    vec2 position = vec2();
+    vec2 delta = vec2();
+
+    TouchEvent()
+    {
+
+    }
+
+};
+
+class Input 
+{
 public:
     // Mouse tracking
     static glm::vec2 MousePos;
@@ -106,6 +124,8 @@ public:
     static bool PendingCenterCursor;
 
     static bool PendingWindowStateReset;
+
+    static std::unordered_map<int, TouchEvent> TouchActions;
 
     // Optional custom mouse movement calculator
     static MouseMoveCalculator* mouseMoveCalculator;
@@ -131,6 +151,24 @@ public:
 
     // Centers the mouse cursor to the window center.
     static void CenterCursor();
+
+    static void StartEventsFrame();
+    static void ReceiveSdlEvent(SDL_Event event);
+
+    //to do
+    static bool IsTouchEventPressed(int id);
+    static bool IsTouchEventReleased(int id);
+    static bool IsTouchEventHolding(int id);
+    static vec2 GetTouchEventPosition(int id);
+    static vec2 GetTouchEventDelta(int id);
+
+    static TouchEvent GetTouchEventFromId(int id);
+
+    static int IsAnyTouchEventPressedInBounds(vec2 min, vec2 max);
+    static int IsAnyTouchReleasedPressedInBounds(vec2 min, vec2 max);
+    static int IsAnyTouchHoldingPressedInBounds(vec2 min, vec2 max);
+
+    //static TouchEvent* GetTouchEventFromId(int id);
 
     static vec2 GetLeftStickPosition();
 

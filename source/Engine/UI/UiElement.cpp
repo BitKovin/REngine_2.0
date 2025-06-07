@@ -57,6 +57,72 @@ void UiElement::FinalizeChildren() {
         child->FinalizeChildren();
 }
 
+std::shared_ptr<UiElement> UiElement::GetHitElementUnderPosition(vec2 hitPosition)
+{
+
+    std::shared_ptr<UiElement> hit = nullptr;
+
+    glm::vec2 p = position + offset;
+    glm::vec2 sz = GetSize();
+
+    bool hovering = (hitPosition.x >= p.x && hitPosition.x <= p.x + sz.x &&
+        hitPosition.y >= p.y && hitPosition.y <= p.y + sz.y);
+
+
+    if (hovering && HitCheck)
+    {
+        hit = shared_from_this();
+	}
+
+	for (auto& child : children)
+	{
+
+		auto childHit = child->GetHitElementUnderPosition(hitPosition);
+
+		if (childHit != nullptr)
+		{
+			hit = childHit;
+		}
+
+
+	}
+
+    return hit;
+
+}
+
+void UiElement::ResetTouchInputs()
+{
+
+    TouchEvents.clear();
+
+    for (auto child : children)
+    {
+        child->ResetTouchInputs();
+    }
+
+}
+
+void UiElement::TouchInputPostProcessing()
+{
+    if (TouchEvents.size() > 1)
+    {
+        TouchEvents.erase(
+            std::remove_if(TouchEvents.begin(), TouchEvents.end(),
+                [](const TouchEvent& event) { return event.id == 1; }),
+            TouchEvents.end()
+        );
+    }
+
+    for (auto child : children)
+    {
+        child->TouchInputPostProcessing();
+    }
+
+}
+
+
+
 void UiElement::Update() 
 {
     for (int i = 0; i < 5; ++i)  //Fixes issue with offsets not following parrent. Need to investigate issue better
@@ -70,24 +136,9 @@ void UiElement::Update()
 
     if (Input::LockCursor)
     {
-        hovering = false;
+        
         return;
     }
-
-    float screenToViewportRatio = Camera::ScreenHeight / 1080.0F;
-
-
-
-    glm::vec2 mousePos = Input::MousePos / screenToViewportRatio; // assume scaled to screen
-
-    //printf("%f   %f \n", mousePos.x, mousePos.y);
-
-    glm::vec2 p = position + offset;
-    glm::vec2 sz = GetSize();
-
-    hovering = (mousePos.x >= p.x && mousePos.x <= p.x + sz.x &&
-        mousePos.y >= p.y && mousePos.y <= p.y + sz.y);
-
 
 }
 

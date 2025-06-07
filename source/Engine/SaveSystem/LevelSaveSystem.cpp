@@ -6,7 +6,7 @@
 
 #include "../Level.hpp"
 
-#include "../Entity.hpp"
+#include "../Entity.h"
 
 #include "../json.hpp"
 

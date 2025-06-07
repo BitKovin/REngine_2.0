@@ -1,4 +1,4 @@
-#include <Entity.hpp>
+#include <Entity.h>
 #include <Camera.h>
 #include <Input.h>
 

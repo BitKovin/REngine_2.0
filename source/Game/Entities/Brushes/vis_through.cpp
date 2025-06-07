@@ -1,4 +1,4 @@
-#include <Entity.hpp>
+#include <Entity.h>
 #include <BSP/Quake3Bsp.h>
 
 class vis_through : public Entity

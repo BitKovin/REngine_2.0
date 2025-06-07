@@ -28,6 +28,7 @@ public:
 
 	UiButton()
 	{ 
+		HitCheck = true;
 	}
 	~UiButton()
 	{
@@ -39,7 +40,18 @@ public:
 
 		UiElement::Update();
 
+		for (const auto& touch : TouchEvents)
+		{
+			if (touch.pressed)
+			{
+				if (onClick)
+				{
+					(*onClick)();
+				}
+			}
+		}
 
+		/*
 		if (hovering) {
 			if (Input::GetAction("click")->Pressed())
 			{
@@ -49,6 +61,7 @@ public:
 				}
 			}
 		}
+		*/
 	}
 
 	bool HasPendingClick()

@@ -1,4 +1,4 @@
-#include <Entity.hpp>
+#include <Entity.h>
 #include <Physics.h>
 
 class TriggerBase : public Entity
