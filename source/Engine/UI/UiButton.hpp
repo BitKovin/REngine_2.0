@@ -22,7 +22,7 @@ public:
 
 	string ImagePath = "GameData/cat.png";
 
-
+	vec4 Color = vec4(1);
 
 	std::function<void()>* onClick = nullptr;
 
@@ -86,9 +86,9 @@ public:
 				tex = AssetRegistry::GetTextureFromFile("GameData/textures/generic/white.png");
 		}
 
-		vec2 pos = position + offset;
+		vec2 pos = finalizedPosition + finalizedOffset;
 
-		UiRenderer::DrawTexturedRect(pos, size, tex->getID());
+		UiRenderer::DrawTexturedRect(pos, finalizedSize, tex->getID(), Color);
 
 		UiElement::Draw();
 	}

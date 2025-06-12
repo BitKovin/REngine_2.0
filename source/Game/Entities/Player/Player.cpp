@@ -372,6 +372,13 @@ void Player::Update()
         cameraRotation.y += Input::MouseDelta.x;
         cameraRotation.x -= Input::MouseDelta.y;
 
+        vec2 touchMovement = Hud.ScreenControls->TouchArea->GetTouchMovement();
+
+        touchMovement /= -5.0;
+
+        cameraRotation.y += touchMovement.x;
+        cameraRotation.x -= touchMovement.y;
+
         cameraRotation.x = glm::clamp(cameraRotation.x, -89.0f,89.0f);
 
         if (on_bike)
@@ -384,6 +391,8 @@ void Player::Update()
 
 
     vec2 input = Input::GetLeftStickPosition();
+
+    input += Hud.ScreenControls->Joystick->InputPosition;
 
     if (Input::GetAction("forward")->Holding())
         input += vec2(0, 1);

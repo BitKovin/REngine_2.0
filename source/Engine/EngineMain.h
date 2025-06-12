@@ -1,7 +1,6 @@
+#pragma once
+
 #include <SDL2/SDL_video.h>
-
-
-
 
 #include "Camera.h"
 #include "Input.h"

@@ -16,6 +16,8 @@ public:
 
 	string ImagePath = "GameData/cat.png";
 
+	vec4 Color = vec4(1);
+
 	UiImage()
 	{ 
 		//tex = AssetRegistry::GetTextureFromFile("GameData/cat.png");
@@ -28,7 +30,7 @@ public:
 	void Draw()
 	{
 
-		vec2 pos = position + offset;
+		vec2 pos = finalizedPosition + finalizedOffset;
 
 		if (tex == nullptr)
 		{
@@ -37,7 +39,7 @@ public:
 				tex = AssetRegistry::GetTextureFromFile("GameData/textures/generic/white.png");
 		}
 
-		UiRenderer::DrawTexturedRect(pos, size, tex->getID());
+		UiRenderer::DrawTexturedRect(pos, finalizedSize, tex->getID(), Color);
 
 		UiElement::Draw();
 	}

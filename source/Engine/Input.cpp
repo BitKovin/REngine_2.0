@@ -18,6 +18,7 @@ std::vector<glm::vec2> Input::MouseDeltas;
 int Input::MaxDeltas = 1;
 std::unordered_map<std::string, InputAction*> Input::actions;
 std::unordered_map<int, TouchEvent> Input::TouchActions;
+bool Input::IsScrenTouched = false;
 bool Input::LockCursor = false;
 float Input::sensitivity = 0.22f;
 glm::vec2 Input::windowCenter;
@@ -129,7 +130,10 @@ EM_JS(void, lock_cursor_js, (), {
 void Input::UpdateMouse() {
 
 
-    
+    if (IsScrenTouched)
+    {
+        MouseDelta = vec2(0);
+    }
 
     JoystickCamera();
 
@@ -191,6 +195,8 @@ void Input::StartEventsFrame()
 
     vector<int> toRemove;
 
+    IsScrenTouched = false;
+
     for (auto& action : TouchActions)
     {
 
@@ -201,6 +207,11 @@ void Input::StartEventsFrame()
 
         action.second.pressed = false;
         action.second.delta = vec2();
+
+        if (action.second.id >= 10)
+        {
+            IsScrenTouched = true;
+        }
 
     }
 
@@ -244,6 +255,9 @@ void Input::ReceiveSdlEvent(SDL_Event event)
         touchAction.delta = vec2(event.tfinger.dx, event.tfinger.dy) * UiScreenSize;
 
         TouchActions[touchAction.id] = touchAction;
+
+        IsScrenTouched = true;
+
 
     }
     else if (event.type == SDL_FINGERMOTION) 
@@ -291,6 +305,14 @@ bool Input::IsTouchEventHolding(int id)
 {
 
 	auto event = GetTouchEventFromId(id);
+
+    if (event.id == 1)
+    {
+        if (GetAction("click")->Holding() == false)
+        {
+            return false;
+        }
+    }
 
     return event.id != 0;
 
@@ -461,6 +483,14 @@ void InputAction::Update() {
     bool newLmb = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
     bool newRmb = mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
     bool newMmb = mouseState & SDL_BUTTON(SDL_BUTTON_MIDDLE);
+
+
+    if (Input::IsScrenTouched)
+    {
+        newLmb = false;
+        newRmb = false;
+        newMmb = false;
+    }
 
     if (LMB && newLmb)
         pressing = true;

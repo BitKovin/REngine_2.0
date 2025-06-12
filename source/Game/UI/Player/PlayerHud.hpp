@@ -8,6 +8,8 @@
 #include <UI/UiImage.hpp>
 #include <Entity.h>
 
+#include "ScreenMobileControls.h"
+
 class Player;
 
 class PlayerHud
@@ -20,9 +22,12 @@ public:
 
 	void Update();
 
+	std::shared_ptr<ScreenMobileControls> ScreenControls;
+
 private:
 
 	Player* player = nullptr;
+
 
 	std::shared_ptr<UiCanvas> hudCanvas;
 

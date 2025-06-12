@@ -119,11 +119,7 @@ public:
 		Drawables.clear();
 	}
 
-	void FinalLevelRemove()
-	{
-		DestroyDrawables();
-		Logger::Log("Destroying " + ClassName + Id);
-	}
+	void FinalLevelRemove();
 
 	void UpdateDestroyDelay()
 	{
@@ -138,31 +134,7 @@ public:
 		destroyDelay.AddDelay(delay);
 	}
 
-	virtual void Destroy()
-	{
-
-		Destroyed = true;
-
-		if (OwnerId != "")
-		{
-			Entity* ownerRef = Level::Current->FindEntityWithId(OwnerId);
-			if (ownerRef)
-			{
-				ownerRef->OnAction("despawned");
-			}
-		}
-
-		Physics::DestroyBody(LeadBody);
-		LeadBody = nullptr;
-		for (Body* body : Bodies)
-		{
-			Physics::DestroyBody(body);
-		}
-		Bodies.clear();
-
-		Level::Current->RemoveEntity(this);
-
-	}
+	virtual void Destroy();
 
 	void Serialize(json& target)
 	{

@@ -51,7 +51,13 @@ void UiElement::UpdateChildren() {
     }
 }
 
-void UiElement::FinalizeChildren() {
+void UiElement::FinalizeChildren() 
+{
+
+    finalizedPosition = position;
+    finalizedOffset = offset;
+    finalizedSize = size;
+
     finalizedChildren = children;
     for (auto& child : finalizedChildren)
         child->FinalizeChildren();

@@ -54,6 +54,9 @@ void PlayerHud::Init(Player* playerRef)
 
     EngineMain::Viewport.AddChild(hudCanvas);
 
+    ScreenControls = make_shared<ScreenMobileControls>();
+    EngineMain::Viewport.AddChild(ScreenControls);
+
 }
 
 void PlayerHud::Update()

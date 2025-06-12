@@ -151,7 +151,7 @@ int main(int argc, char* args[]) {
     strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
     strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
     strategy.canvasResizedCallback = 0;
-    emscripten_enter_soft_fullscreen("canvas", &strategy); //not an error
+    //emscripten_enter_soft_fullscreen("canvas", &strategy); //not an error
 
     //emscripten_set_focus_callback("#canvas", nullptr, EM_FALSE, on_canvas_focus);
     //emscripten_set_blur_callback("#canvas", nullptr, EM_FALSE, on_canvas_blur);

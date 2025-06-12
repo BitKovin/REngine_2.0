@@ -44,11 +44,11 @@ public:
     glm::vec2 pivot = glm::vec2(0.0f);
     glm::vec2 offset = glm::vec2(0.0f);
 
-    glm::vec2 topLeft;
-    glm::vec2 bottomRight;
+    glm::vec2 topLeft = vec2();
+    glm::vec2 bottomRight = vec2();
 
-    glm::vec2 parentTopLeft;
-    glm::vec2 parentBottomRight;
+    glm::vec2 parentTopLeft = vec2();
+    glm::vec2 parentBottomRight = vec2();
 
     bool visible = true;
     bool drawBorder = false;
@@ -87,4 +87,11 @@ public:
 
     static glm::vec2 WorldToScreenSpace(const glm::vec3& pos);
     static glm::vec2 WorldToScreenSpace(const glm::vec3& pos, bool& inScreen);
+
+protected:
+
+    vec2 finalizedPosition = vec2(0);
+    vec2 finalizedOffset = vec2(0);
+    vec2 finalizedSize = vec2(0);
+
 };

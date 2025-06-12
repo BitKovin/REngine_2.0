@@ -127,6 +127,8 @@ public:
 
     static std::unordered_map<int, TouchEvent> TouchActions;
 
+    static bool IsScrenTouched;
+
     // Optional custom mouse movement calculator
     static MouseMoveCalculator* mouseMoveCalculator;
 

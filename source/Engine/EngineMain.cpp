@@ -15,6 +15,7 @@ UiViewport EngineMain::Viewport;
 #if __EMSCRIPTEN__
 
 #include "emscripten/emscripten.h"
+#include "emscripten/html5.h"
 
 EM_JS(int, canvas_get_width, (), {
 return canvas.width;
@@ -29,11 +30,20 @@ void EngineMain::UpdateScreenSize()
 {
 #if __EMSCRIPTEN__
 
-    int width = canvas_get_width();
-    int height = canvas_get_height();
+    int width, height;
+
+    EMSCRIPTEN_RESULT result = emscripten_get_canvas_element_size("#canvas", &width, &height);
+
+    if (result == EMSCRIPTEN_RESULT_SUCCESS) 
+    {
+        ScreenSize = ivec2(width, height);
+    }
+    else
+    {
+        printf("failed to get screen resolution\n");
+    }
 
 
-    ScreenSize = ivec2(width, height);
 
 #else
 
