@@ -223,11 +223,11 @@ bool CharacterController::CheckGroundAt(vec3 location,float radius, float& outhe
 	
 	if (radius > 0)
 	{
-		result = Physics::CylinderTrace(GetPosition(), location - vec3(0, height / 2 + stepHeight - 0.1f, 0), radius, 0.1f, BodyType::GroupCollisionTest, { body });
+		result = Physics::CylinderTrace(location, location - vec3(0, height / 2 + stepHeight - 0.1f, 0), radius, 0.1f, BodyType::GroupCollisionTest, { body });
 	}
 	else
 	{
-		result = Physics::LineTrace(GetPosition(), location - vec3(0, height / 2 + stepHeight, 0), BodyType::GroupCollisionTest, { body });
+		result = Physics::LineTrace(location, location - vec3(0, height / 2 + stepHeight, 0), BodyType::GroupCollisionTest, { body });
 	}
 
 
