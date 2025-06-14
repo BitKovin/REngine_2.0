@@ -176,8 +176,8 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 		for (int i = 0; i < numOfIterations; i++)
 		{
 			float angle = (2.0f * M_PI / numOfIterations) * i; // Full circle in radians
-			vec3 offset = vec3(cos(angle), 0.0f, sin(angle)) * radius * r - 0.11f;
 
+			vec3 offset = vec3(cos(angle), 0.0f, sin(angle)) * (radius * r - 0.11f);
 
 
 			if (CheckGroundAt(FromPhysics(body->GetPosition()) + offset - heightOffset,0.1f, outheight))
@@ -198,7 +198,7 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 	}
 
-	if (CheckGroundAt(FromPhysics(body->GetPosition()) - heightOffset, radius - 0.003f, outheight))
+	if (CheckGroundAt(FromPhysics(body->GetPosition()) - heightOffset, radius - 0.01f, outheight))
 	{
 
 		float heightComp = GetPosition().y - height / 2.0f - 0.001f;
@@ -218,14 +218,14 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 }
 
-bool CharacterController::CheckGroundAt(vec3 location,float radius, float& outheight)
+bool CharacterController::CheckGroundAt(vec3 location,float checkRadius, float& outheight)
 {
 
 	Physics::HitResult result;
 	
 	if (radius > 0)
 	{
-		result = Physics::CylinderTrace(location, location - vec3(0, height / 2 + stepHeight - 0.1f, 0), radius, 0.1f, BodyType::GroupCollisionTest, { body });
+		result = Physics::CylinderTrace(location, location - vec3(0, height / 2 + stepHeight - 0.1f, 0), checkRadius, 0.1f, BodyType::GroupCollisionTest, { body });
 	}
 	else
 	{
