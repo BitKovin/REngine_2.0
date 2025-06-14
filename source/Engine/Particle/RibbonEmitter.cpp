@@ -6,7 +6,7 @@
 RibbonEmitter::RibbonEmitter()
     : decl(VertexData::Declaration())
 {
-
+    DepthSorting = false;
 }
 
 RibbonEmitter::~RibbonEmitter()

@@ -88,7 +88,7 @@ public:
 
 		vec2 pos = finalizedPosition + finalizedOffset;
 
-		UiRenderer::DrawTexturedRect(pos, finalizedSize, tex->getID(), Color);
+		UiRenderer::DrawTexturedRect(pos, finalizedSize, tex->getID(), Color * GetFinalColor());
 
 		UiElement::Draw();
 	}

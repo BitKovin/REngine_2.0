@@ -16,7 +16,7 @@ public:
 
 		TouchArea->origin = vec2(1, 0.5);
 		TouchArea->pivot = vec2(1, 0.5);
-		TouchArea->Color.a = 0.1f;
+		TouchArea->DoubleTapAction = "attack";
 
 		AddChild(TouchArea);
 
@@ -24,7 +24,8 @@ public:
 		Joystick->origin = vec2(0, 1);
 		Joystick->pivot = vec2(0, 1);
 		Joystick->size = vec2(400,400);
-		Joystick->position = vec2(50,-50);
+		Joystick->position = vec2(0,0);
+		Joystick->FastTapAction = "jump";
 		AddChild(Joystick);
 
 	}
@@ -35,6 +36,7 @@ public:
 		UiElement::Update();
 
 		TouchArea->size = EngineMain::MainInstance->Viewport.GetSize() * vec2(0.5, 1);
+		Joystick->size = EngineMain::MainInstance->Viewport.GetSize() * vec2(0.4, 0.5);
 	}
 
 private:

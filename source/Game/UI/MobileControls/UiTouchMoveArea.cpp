@@ -2,6 +2,9 @@
 
 UiTouchMoveArea::UiTouchMoveArea()
 {
+
+	ImageColor = vec4(0);
+
 	HitCheck = true;
 }
 
@@ -17,22 +20,66 @@ vec2 UiTouchMoveArea::GetTouchMovement()
 void UiTouchMoveArea::Update()
 {
 
-	if (Input::IsTouchEventReleased(TrackingTouch))
+	UiElement::Update();
+
+
+	if (Input::IsTouchEventHolding(TrackingTouch) == false)
 	{
 		TrackingTouch = 0;
 	}
 
-	UiElement::Update();
-
-	for (auto& touch : TouchEvents)
+	if (TrackingTouch == 0)
 	{
-		if (touch.pressed && touch.id > 1)
-		{
-			TrackingTouch = touch.id;
 
-			//printf("%i \n", TrackingTouch);
+		holdingDoubleTap = false;
+
+		for (auto& touch : TouchEvents)
+		{
+
+			if (touch.released && touch.id == TrackingTouch && FastTapAction != "" && tapWindowDelay.Wait())
+			{
+				auto action = Input::GetAction(FastTapAction);
+
+				if (action)
+				{
+					action->SimulatePressed();
+				}
+			}
+
+			if (touch.pressed && touch.id > 1)
+			{
+
+				if (tapWindowDelay.Wait() && DoubleTapAction != "")
+				{
+					auto action = Input::GetAction(DoubleTapAction);
+
+					if (action)
+					{
+						action->SimulatePressed();
+						holdingDoubleTap = true;
+					}
+
+				}
+
+				TrackingTouch = touch.id;
+
+				tapWindowDelay.AddDelay(0.2);
+
+			}
 
 		}
-
 	}
+	else
+	{
+		if (holdingDoubleTap)
+		{
+			auto action = Input::GetAction(DoubleTapAction);
+
+			if (action)
+			{
+				action->SimulateHolding();
+			}
+		}
+	}
+
 }

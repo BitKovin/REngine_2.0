@@ -36,6 +36,8 @@ public:
 
     bool HitCheck = false;
 
+    glm::vec4 color = vec4(1);
+
     glm::vec2 size = glm::vec2(1.0f);
     glm::vec2 position = glm::vec2(0.0f);
     float rotation = 0.0f;
@@ -79,6 +81,7 @@ public:
     virtual void ResetTouchInputs();
     virtual void TouchInputPostProcessing();
     
+    virtual glm::vec4 GetFinalColor();
 
     virtual glm::vec2 GetOrigin();
     virtual glm::vec2 GetSize();

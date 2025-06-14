@@ -210,6 +210,10 @@ public:
     InputAction* AddButton(GamepadButton button);
     InputAction* RemoveButton(GamepadButton button);
 
+    void SimulatePressed();
+    void SimulateHolding();
+    void SimulateRelease();
+
     // Returns true on the frame the action was pressed.
     bool Pressed() const;
     // Returns true on the frame the action was released.

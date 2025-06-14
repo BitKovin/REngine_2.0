@@ -314,7 +314,7 @@ bool Input::IsTouchEventHolding(int id)
         }
     }
 
-    return event.id != 0;
+    return event.id != 0 && event.released == false;
 
 }
 
@@ -453,6 +453,26 @@ InputAction* InputAction::AddButton(GamepadButton button) {
 InputAction* InputAction::RemoveButton(GamepadButton button) {
     buttons.erase(std::remove(buttons.begin(), buttons.end(), button), buttons.end());
     return this;
+}
+
+void InputAction::SimulatePressed()
+{
+    pressed = true;
+    pressing = true;
+    released = false;
+}
+
+void InputAction::SimulateHolding()
+{
+    pressing = true;
+    released = false;
+}
+
+void InputAction::SimulateRelease()
+{
+    released = true;
+    pressing = false;
+    pressed = false;
 }
 
 bool InputAction::Pressed() const {

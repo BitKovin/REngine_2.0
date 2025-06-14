@@ -417,6 +417,8 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 	return hit;
 }
 
+
+
 bool TraceBodyFilter::ShouldCollideLocked(const Body& inBody) const
 {
 
@@ -499,6 +501,7 @@ Body* Physics::CreateCharacterBody(Entity* owner, vec3 Position, float Radius, f
 	body_settings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
 	body_settings.mMassPropertiesOverride.mMass = Mass;
 	body_settings.mFriction = 0.0f;  // Match box friction
+	body_settings.mRestitution = 0.0f; // No bounciness
 
 	// Allocate and attach collision properties to the body via the user data field:
 	BodyData* properties = new BodyData{ group, mask, owner };
@@ -506,7 +509,60 @@ Body* Physics::CreateCharacterBody(Entity* owner, vec3 Position, float Radius, f
 
 	// Create and add body to world
 	JPH::Body* character_body = bodyInterface->CreateBody(body_settings);
+	
 	AddBody(character_body);
 
 	return character_body;
+}
+
+Body* Physics::CreateCharacterCylinderBody(Entity* owner, vec3 Position, float Radius, float Height, float Mass,
+	BodyType group, BodyType mask)
+{
+	// Calculate cylinder half height (total height = 2 * half_height)
+	float cylinder_half_height = Height * 0.5f;
+	if (cylinder_half_height <= 0.0f) {
+		Logger::Log("Cylinder height must be positive, using minimal value");
+		cylinder_half_height = 0.01f;
+	}
+
+	// Create cylinder shape
+	auto cylinder_shape_settings = new JPH::CylinderShapeSettings(
+		cylinder_half_height,
+		Radius
+	);
+	cylinder_shape_settings->SetEmbedded();
+
+	JPH::Shape::ShapeResult shape_result = cylinder_shape_settings->Create();
+	JPH::Shape* cylinder_shape = shape_result.Get();
+
+	if (shape_result.HasError())
+		Logger::Log(shape_result.GetError().c_str());
+
+	// Configure body settings (identical to capsule version)
+	JPH::BodyCreationSettings body_settings(
+		cylinder_shape,
+		ToPhysics(Position),
+		JPH::Quat::sIdentity(),
+		JPH::EMotionType::Dynamic,  // Dynamic body type
+		Layers::MOVING              // Use moving layer
+	);
+
+	body_settings.mMotionQuality = EMotionQuality::LinearCast;
+	body_settings.mAllowedDOFs = JPH::EAllowedDOFs::TranslationX |
+		JPH::EAllowedDOFs::TranslationY |
+		JPH::EAllowedDOFs::TranslationZ;  // Lock rotation
+	body_settings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+	body_settings.mMassPropertiesOverride.mMass = Mass;
+	body_settings.mFriction = 0.0f;
+	body_settings.mRestitution = 0.0f;
+
+	// Attach collision properties
+	BodyData* properties = new BodyData{ group, mask, owner };
+	body_settings.mUserData = reinterpret_cast<uintptr_t>(properties);
+
+	// Create and add body to world
+	JPH::Body* cylinder_body = bodyInterface->CreateBody(body_settings);
+	AddBody(cylinder_body);
+
+	return cylinder_body;
 }

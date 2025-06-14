@@ -1,6 +1,7 @@
 #pragma once
 #include <UI/UiImage.hpp>
 #include <glm.h>
+#include <Delay.hpp>
 
 class UiTouchMoveArea : public UiImage
 {
@@ -14,7 +15,14 @@ public:
 
 	int TrackingTouch = 0;
 
+	string DoubleTapAction = "";
+	string FastTapAction = "";
+
 private:
+
+	Delay tapWindowDelay;
+
+	bool holdingDoubleTap = false;
 
 };
 

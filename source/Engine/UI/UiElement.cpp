@@ -128,6 +128,20 @@ void UiElement::TouchInputPostProcessing()
 }
 
 
+glm::vec4 UiElement::GetFinalColor()
+{
+
+    vec4 finalColor = color;
+
+    if (parent)
+    {
+        finalColor *= parent->color * parent->GetFinalColor();
+    }
+
+    return finalColor;
+
+}
+
 
 void UiElement::Update() 
 {

@@ -26,6 +26,8 @@
 #include <Entities/SoundPlayer.h>
 #include <SoundSystem/SoundManager.hpp>
 
+#include <Character/CharacterController.h>
+
 #include "../../UI/Player/PlayerHud.hpp"
 
 #include "Weapons/WeaponBase.h"
@@ -74,6 +76,8 @@ private:
 	Delay afterStepDelay;
 
 	Delay coyoteTime;
+
+	CharacterController controller;
 
 	glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
 		vel = MathHelper::XZ(vel);
@@ -128,7 +132,9 @@ private:
 
 	void Jump()
 	{
-		LeadBody->SetLinearVelocity(JPH::Vec3(velocity.x, 9.5, velocity.z));
+		vec3 velocity = controller.GetVelocity();
+		velocity.y = 9.5;
+		controller.SetVelocity(velocity);
 		jumpDelay.AddDelay(0.3);
 	}
 
@@ -140,7 +146,7 @@ private:
 
 		if (afterStepDelay.Wait()) return true;
 
-		auto result = Physics::LineTrace(location, location - vec3(0, 0.92, 0), BodyType::GroupCollisionTest, { LeadBody });
+		auto result = Physics::LineTrace(location, location - vec3(0, 0.92, 0), BodyType::GroupCollisionTest, {  });
 
 		return result.hasHit;
 
@@ -187,9 +193,7 @@ public:
 
 		Instance = this;
 
-		LeadBody = Physics::CreateCharacterBody(this, Position, 0.4, 1.8, 90);
-		Physics::SetGravityFactor(LeadBody, 3);
-		LeadBody->SetFriction(0.1f);
+		controller.Init(this, Position);
 
 
 		ParticleSystem::PreloadSystemAssets("decal_blood");

@@ -11,7 +11,7 @@ public:
 		SpawnRate = 100;
 		Emitting = true;
 		InitialSpawnCount = 1;
-
+		SimpleRibbon = true;
 	}
 
 	Particle UpdateParticle(Particle particle, float deltaTime) override

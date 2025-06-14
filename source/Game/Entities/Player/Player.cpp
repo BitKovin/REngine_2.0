@@ -27,25 +27,24 @@ void Player::UpdateWalkMovement(vec2 input)
 
 
 
-    Physics::Activate(LeadBody);
 
-    velocity = FromPhysics(LeadBody->GetLinearVelocity());
+    velocity = controller.GetVelocity();
 
     if (OnGround())
     {
-        TryStep(movement * 0.6f);
+        TryStep(movement * 0.8f);
 
-        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), 5));
-        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), -5));
+        TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), 5));
+        TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), -5));
 
-        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), 10));
-        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), -10));
+        TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), 10));
+        TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), -10));
 
-        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), 20));
-        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), -20));
+        TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), 20));
+        TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), -20));
 
-        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), 35));
-        TryStep(MathHelper::RotateVector(movement * 0.6f, vec3(0, 1, 0), -35));
+        TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), 35));
+        TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), -35));
     }
 
     if (OnGround())
@@ -58,12 +57,12 @@ void Player::UpdateWalkMovement(vec2 input)
     }
 
 
-    velocity.y = LeadBody->GetLinearVelocity().GetY();
+    velocity.y = controller.GetVelocity().y;
 
     if (freeFly)
         velocity = movement * 20.0f;
 
-    LeadBody->SetLinearVelocity(ToPhysics(velocity));
+    controller.SetVelocity(velocity);
 
     if (OnGround()) 
     {
@@ -95,8 +94,8 @@ void Player::UpdateBikeMovement(vec2 input)
     input = vec2(0, 1);
     vec3 movementDirection = input.x * right + input.y * forward;
 
-    Physics::Activate(LeadBody);
-    velocity = FromPhysics(LeadBody->GetLinearVelocity());
+    
+    velocity = controller.GetVelocity();
 
     // Separate vertical and horizontal components
     float verticalVelocity = velocity.y;
@@ -117,7 +116,7 @@ void Player::UpdateBikeMovement(vec2 input)
     vec3 newVelocity = vec3(newHorizontalVelocity.x, verticalVelocity, newHorizontalVelocity.z);
 
     // Update physics body velocity
-    LeadBody->SetLinearVelocity(ToPhysics(newVelocity));
+    controller.SetVelocity(newVelocity);
 
     bikeMesh->Rotation.z = -dot(velocity, right)*2.5f;
     bikeMesh->Rotation.y -= bikeMesh->Rotation.z * 0.2f;
@@ -281,6 +280,8 @@ void Player::PerformAttack()
 
 void Player::TryStep(vec3 dir)
 {
+    return;
+    /*
     if (stepDelay.Wait()) return;
 
     vec3 pos = Position + dir/1.3f;
@@ -341,6 +342,8 @@ void Player::TryStep(vec3 dir)
     cameraHeightOffset += newOffset;
     Position.y -= newOffset;
 
+    controller.SetPosition(lerpPose);
+
     Physics::SetBodyPosition(LeadBody,lerpPose);
 	//DebugDraw::Line(lerpPose - vec3(0, 0.9f, 0), lerpPose + vec3(0, 1, 0), 10, 0.1f);
 
@@ -348,23 +351,20 @@ void Player::TryStep(vec3 dir)
 
     stepDelay.AddDelay(0.05f);
     afterStepDelay.AddDelay(0.1f);
+    */
 }
 
 void Player::Update()
 {
-    if (CheckGroundAt(Position))
+
+    controller.Update(Time::DeltaTimeF);
+    Position = controller.GetSmoothPosition();
+
+    if (controller.onGround)
     {
         coyoteTime.AddDelay(0.1f);
     }
 
-    if (afterStepDelay.Wait())
-    {
-        Physics::SetGravityFactor(LeadBody,-0.1f);
-    }
-    else
-    {
-        Physics::SetGravityFactor(LeadBody, 3);
-    }
 
     if (Input::LockCursor)
     {
@@ -518,8 +518,9 @@ void Player::Deserialize(json& source)
     DESERIALIZE_FIELD(source, cameraRotation);
     DESERIALIZE_FIELD(source, velocity);
 
-    Physics::SetBodyPosition(LeadBody, Position);
-    Physics::SetLinearVelocity(LeadBody, velocity);
+    controller.SetVelocity(velocity);
+    controller.SetPosition(Position);
+
 
 }
 

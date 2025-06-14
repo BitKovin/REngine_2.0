@@ -145,7 +145,7 @@ void EngineMain::FinishFrame()
 
     Camera::Update(Time::DeltaTime);
     Level::Current->FinalizeFrame();
-    Viewport.FinalizeChildren();
+    
 
     NavigationSystem::DrawNavmesh();
 
@@ -186,7 +186,7 @@ void EngineMain::MainLoop()
     }
     Viewport.TouchInputPostProcessing();
 
-    Viewport.Update();
+
 
     if (asyncGameUpdate)
     {
@@ -204,6 +204,9 @@ void EngineMain::MainLoop()
     }
 
     Input::Update();
+
+    Viewport.Update();
+    Viewport.FinalizeChildren();
 
     Input::UpdateMouse();
 

@@ -29,6 +29,7 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Character/CharacterVirtual.h>
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Body/Body.h>
@@ -429,6 +430,7 @@ public:
 
 	}
 
+
 	static Body* GetBodyFromId(BodyID id)
 	{
 		auto res = bodyIdMap.find(id);
@@ -612,6 +614,7 @@ public:
 
 
 	}
+
 
 	static void SetBodyPosition(Body* body,vec3 pos)
 	{
@@ -906,6 +909,12 @@ public:
 	static Body* CreateCharacterBody(Entity* owner, vec3 Position, float Radius, float Height, float Mass,
 		BodyType group = BodyType::CharacterCapsule,
 		BodyType mask = BodyType::GroupCollisionTest);
+
+	static Body* CreateCharacterCylinderBody(Entity* owner, vec3 Position, float Radius, float Height, float Mass,
+		BodyType group = BodyType::CharacterCapsule,
+		BodyType mask = BodyType::GroupCollisionTest);
+
+	JPH::CharacterVirtual* CreateCharacter(vec3 position, float radius, float height);
 
 	struct HitResult
 	{

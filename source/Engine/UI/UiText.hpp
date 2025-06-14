@@ -13,7 +13,7 @@ public:
     TTF_Font* font = nullptr;   // Assign your default font here or externally
     std::string text;
     float fontSize = 48;
-    glm::vec4 baseColor = glm::vec4(1.0f); // White (RGBA)
+    glm::vec4 textColor = glm::vec4(1.0f); // White (RGBA)
 
     UiText() {
         font = AssetRegistry::GetFontFromFile("GameData/fonts/Kingthings_Calligraphica_2.ttf", 72);
@@ -48,7 +48,7 @@ public:
         glm::vec2 scale(fontSize / 72.f);
 
         // Draw the text.
-        UiRenderer::DrawText(text, font, pos, baseColor, scale);
+        UiRenderer::DrawText(text, font, pos, textColor * GetFinalColor(), scale);
 
         // Optionally, draw child elements and borders.
         UiElement::Draw();
