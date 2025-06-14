@@ -511,6 +511,89 @@ Physics::HitResult Physics::CylinderTrace(const vec3 start, const vec3 end, floa
 	return hit;
 }
 
+Physics::HitResult Physics::ShapeTrace(const Shape* shape, vec3 start, vec3 end, const BodyType mask, const vector<Body*> ignoreList)
+{
+	HitResult hit;
+	// Initialize default values
+	hit.fraction = 1.0f;
+	hit.position = end;
+	hit.normal = vec3(0, 0, 0);
+	hit.hitbody = nullptr;
+	hit.hasHit = false;
+	hit.shapePosition = end;
+	hit.entity = nullptr;
+
+	// Convert to Jolt coordinates
+	JPH::Vec3 startLoc = ToPhysics(start);
+	JPH::Vec3 endLoc = ToPhysics(end);
+	JPH::Vec3 direction = endLoc - startLoc;
+
+	// Handle zero-length trace
+	if (direction.IsNearZero()) {
+		return hit;
+	}
+
+
+	JPH::ShapeRefC cylinder_shape = shape;
+
+
+	// Align cylinder axis with trace direction
+	JPH::Vec3 normalizedDirection = direction.Normalized();
+	JPH::Quat rotation = JPH::Quat::sFromTo(JPH::Vec3::sAxisY(), normalizedDirection);
+	JPH::RMat44 start_transform = JPH::RMat44::sRotationTranslation(rotation, startLoc);
+
+	// Set up shape cast
+	JPH::RShapeCast shape_cast(cylinder_shape, JPH::Vec3::sReplicate(1.0f), start_transform, direction);
+
+	// Configure collision filter
+	TraceBodyFilter filter;
+	filter.mask = mask;
+	filter.ignoreList = ignoreList;
+
+	// Perform shape cast
+	// physicsMainLock.lock(); // Uncomment if thread safety required
+	ClosestHitShapeCastCollector collector;
+	physics_system->GetNarrowPhaseQuery().CastShape(shape_cast, JPH::ShapeCastSettings(), JPH::Vec3::sZero(), collector, {}, {}, filter);
+
+	if (collector.HadHit()) {
+		JPH::BodyLockRead body_lock(physics_system->GetBodyLockInterface(), collector.GetHit().mBodyID2);
+		const JPH::Body* body = &body_lock.GetBody();
+		if (body) {
+			// Process hit shape
+			const JPH::Shape* root_shape = body->GetShape();
+			JPH::SubShapeID remainder;
+			const JPH::Shape* hit_shape = root_shape->GetLeafShape(collector.GetHit().mSubShapeID2, remainder);
+			if (hit_shape) {
+				int hitSurfaceId = hit_shape->GetUserData();
+				if (hitSurfaceId) {
+					hit.surfaceName = FindSurfacyById(hitSurfaceId);
+				}
+			}
+
+			// Extract hit information
+			hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(collector.GetHit().mSubShapeID2, collector.GetHit().mContactPointOn2));
+			hit.fraction = collector.GetHit().mFraction;
+			hit.shapePosition = mix(start, end, hit.fraction);
+			hit.position = FromPhysics(collector.GetHit().mContactPointOn2);
+
+			auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
+			hit.entity = props->OwnerEntity;
+			hit.hitbody = body;
+			hit.hasHit = true;
+			hit.hitboxName = props->hitboxName;
+		}
+	}
+
+
+	// Validate hit entity
+	hit.hasHit = hit.hasHit && hit.entity != nullptr;
+	if (hit.hasHit && hit.entity->Destroyed) {
+		hit.hasHit = false;
+	}
+
+	return hit;
+}
+
 
 
 bool TraceBodyFilter::ShouldCollideLocked(const Body& inBody) const

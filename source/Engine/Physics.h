@@ -452,13 +452,35 @@ public:
 
 		if (data == nullptr) return;
 
-		
 
 		auto currentPos = body->GetPosition();
 		auto targetPos = FromPhysics(currentPos) + offset;
 
 		auto hit = SphereTrace(FromPhysics(currentPos), targetPos, 0.3, data->mask, {body});
 		
+		if (hit.hasHit)
+		{
+			targetPos = hit.shapePosition;
+		}
+
+		SetBodyPosition(body, targetPos);
+
+	}
+
+	static void SweepBody(Body* body, vec3 position)
+	{
+		if (body == nullptr) return;
+
+		auto data = GetBodyData(body);
+
+		if (data == nullptr) return;
+
+
+		auto currentPos = body->GetPosition();
+		auto targetPos = position;
+
+		auto hit = ShapeTrace(body->GetShape(), FromPhysics(currentPos), targetPos, data->mask, {body});
+
 		if (hit.hasHit)
 		{
 			targetPos = hit.shapePosition;
@@ -957,6 +979,6 @@ public:
 	
 	static HitResult SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
 	static HitResult CylinderTrace(const vec3 start, const vec3 end, float radius, float halfHeight, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
-
+	static HitResult ShapeTrace(const Shape* shape,vec3 start, vec3 end, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
 
 };

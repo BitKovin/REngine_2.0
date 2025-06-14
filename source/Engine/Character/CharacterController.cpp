@@ -52,9 +52,11 @@ void CharacterController::Update(float deltaTime)
 
 		float newVerticalPosition = verticalPosition + stepHeight + height / 2;
 
-		heightSmoothOffset += currentPosition.y - newVerticalPosition;
 
-		Physics::SetBodyPosition(body, vec3(currentPosition.x, newVerticalPosition, currentPosition.z));
+
+		Physics::SweepBody(body, vec3(currentPosition.x, newVerticalPosition, currentPosition.z));
+
+		heightSmoothOffset += (currentPosition.y - body->GetPosition().GetY());
 
 		velocity.y = 0;
 

@@ -193,7 +193,7 @@ public:
 
 		Instance = this;
 
-		controller.Init(this, Position);
+		controller.Init(this, Position,0.4f);
 
 
 		ParticleSystem::PreloadSystemAssets("decal_blood");
