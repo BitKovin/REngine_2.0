@@ -95,6 +95,10 @@ void CharacterController::SetPosition(vec3 position)
 
 void CharacterController::UpdateSmoothPosition(float deltaTime)
 {
+
+	heightSmoothOffset *= std::exp(-stepSmoothingSpeed * deltaTime);
+	return;
+
 	if (heightSmoothOffset != 0)
 	{
 
@@ -155,59 +159,55 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 	}
 
-	int numOfIterations = 8;
+	int numOfIterations = 16;
 
 	float accumulatedHeight = 0;
 	int numOfHits = 0;
 
-	for (int i = 0; i < numOfIterations; i++)
+	float outheight = 0;
+
+	vec3 heightOffset = vec3(0, stepHeight, 0);
+
+	for (float r = 0.1; r <= 1; r += 0.3)
 	{
-		float angle = (2.0f * M_PI / numOfIterations) * i; // Full circle in radians
-		vec3 offset = vec3(cos(angle), 0.0f, sin(angle)) * radius - 0.01f;
 
-		float outheight = 0;
-
-		vec3 heightOffset = vec3(0, stepHeight,0);
-
-		if (CheckGroundAt(FromPhysics(body->GetPosition()) + offset - heightOffset, outheight))
+		for (int i = 0; i < numOfIterations; i++)
 		{
+			float angle = (2.0f * M_PI / numOfIterations) * i; // Full circle in radians
+			vec3 offset = vec3(cos(angle), 0.0f, sin(angle)) * radius * r - 0.11f;
 
-			float heightComp = GetPosition().y - height / 2.0f - 0.001f;
 
-			if (outheight > heightComp)
+
+			if (CheckGroundAt(FromPhysics(body->GetPosition()) + offset - heightOffset,0.1f, outheight))
 			{
-				hitsGround = true;
+
+				float heightComp = GetPosition().y - height / 2.0f - 0.001f;
+
+				if (outheight > heightComp)
+				{
+					hitsGround = true;
+				}
+
+				accumulatedHeight += outheight;
+				numOfHits++;
 			}
 
-			accumulatedHeight += outheight;
-			numOfHits++;
 		}
 
 	}
 
-	for (int i = 0; i < numOfIterations; i++)
+	if (CheckGroundAt(FromPhysics(body->GetPosition()) - heightOffset, radius - 0.003f, outheight))
 	{
-		float angle = (2.0f * M_PI / numOfIterations) * i; // Full circle in radians
-		vec3 offset = vec3(cos(angle), 0.0f, sin(angle)) * radius / 2.0f - 0.01f;
 
-		float outheight = 0;
+		float heightComp = GetPosition().y - height / 2.0f - 0.001f;
 
-		vec3 heightOffset = vec3(0, stepHeight, 0);
-
-		if (CheckGroundAt(FromPhysics(body->GetPosition()) + offset - heightOffset, outheight))
+		if (outheight > heightComp)
 		{
-
-			float heightComp = GetPosition().y - height / 2.0f - 0.001f;
-
-			if (outheight > heightComp)
-			{
-				hitsGround = true;
-			}
-
-			accumulatedHeight += outheight;
-			numOfHits++;
+			hitsGround = true;
 		}
 
+		accumulatedHeight += outheight;
+		numOfHits++;
 	}
 
 	hitsGround = hitsGround && (numOfHits>0);
@@ -216,10 +216,19 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 }
 
-bool CharacterController::CheckGroundAt(vec3 location, float& outheight)
+bool CharacterController::CheckGroundAt(vec3 location,float radius, float& outheight)
 {
 
-	auto result = Physics::LineTrace(location, location - vec3(0, height/2 + stepHeight, 0), BodyType::GroupCollisionTest, { body });
+	Physics::HitResult result;
+	
+	if (radius > 0)
+	{
+		result = Physics::CylinderTrace(GetPosition(), location - vec3(0, height / 2 + stepHeight - 0.1f, 0), radius, 0.1f, BodyType::GroupCollisionTest, { body });
+	}
+	else
+	{
+		result = Physics::LineTrace(GetPosition(), location - vec3(0, height / 2 + stepHeight, 0), BodyType::GroupCollisionTest, { body });
+	}
 
 
 	outheight = result.position.y;

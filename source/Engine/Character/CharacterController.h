@@ -36,7 +36,7 @@ public:
 
 	float groundMaxAngle = 46;
 
-	float stepSmoothingSpeed = 3.5f;
+	float stepSmoothingSpeed = 30.0f;
 
 	bool onGround = false;
 
@@ -52,7 +52,7 @@ private:
 
 	void UpdateGroundCheck(bool& hitsGround, float& calculatedCharacterHeight);
 
-	bool CheckGroundAt(vec3 location, float& height);
+	bool CheckGroundAt(vec3 location,float radius, float& height);
 
 	//vec3 velocity = vec3(0);
 

@@ -956,6 +956,7 @@ public:
 	};
 	
 	static HitResult SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
+	static HitResult CylinderTrace(const vec3 start, const vec3 end, float radius, float halfHeight, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
 
 
 };
