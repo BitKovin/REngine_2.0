@@ -33,6 +33,7 @@ public:
 		fireSoundPlayer->Is2D = true;
 
 		attackDelay.AddDelay(0.4);
+		SwitchDelay.AddDelay(0.45);
 
 	}
 
@@ -69,6 +70,8 @@ public:
 
 		if (attackDelay.Wait())
 			return;
+
+		SwitchDelay.AddDelay(0.2f);
 
 		attackDelay.AddDelay(1);
 

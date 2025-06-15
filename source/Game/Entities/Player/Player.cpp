@@ -180,7 +180,7 @@ void Player::SwitchToSlot(int slot, bool forceChange)
 {
     if (!forceChange && !CanSwitchSlot(slot))
     {
-        if (currentWeapon->IsMelee() && slot != currentSlot)
+        if (slot != currentSlot) // currentWeapon->IsMelee() && 
         {
             lastSlot = currentSlot;
             currentSlot = slot;
@@ -557,7 +557,11 @@ void Player::Update()
     {
         if (currentWeapon->Data.slot != currentSlot)
         {
-            SwitchToSlot(currentSlot);
+            if (currentWeapon->CanChangeSlot())
+            {
+                SwitchWeapon(weaponSlots[currentSlot]);
+            }
+            
         }
     }
     else

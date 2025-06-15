@@ -34,6 +34,7 @@ public:
 		fireSoundPlayer->Is2D = true;
 
 		attackDelay.AddDelay(0.4);
+		SwitchDelay.AddDelay(0.45);
 
 	}
 
@@ -71,6 +72,8 @@ public:
 	{
 
 		fireSoundPlayer->Play();
+
+		SwitchDelay.AddDelay(0.2f);
 
 		viewmodel->PlayAnimation("fire",false,0.1f);
 		Camera::AddCameraShake(CameraShake(
