@@ -16,9 +16,13 @@ CharacterController::~CharacterController()
 
 void CharacterController::Init(Entity* owner, vec3 position,float radius, float height)
 {
+
+	Destroy();
+
 	body = Physics::CreateCharacterCylinderBody(owner, position, radius, height - stepHeight, 30);
 
 	body->GetMotionProperties()->SetLinearDamping(0);
+
 
 	this->height = height;
 	this->radius = radius;
@@ -29,6 +33,9 @@ void CharacterController::Init(Entity* owner, vec3 position,float radius, float 
 
 void CharacterController::Destroy()
 {
+
+	if (body == nullptr) return;
+
 	Physics::DestroyBody(body);
 	body = nullptr;
 }
@@ -39,13 +46,18 @@ void CharacterController::Update(float deltaTime)
 	UpdateSmoothPosition(deltaTime);
 
 	float verticalPosition;
-	UpdateGroundCheck(onGround, verticalPosition);
+
+	bool standsOnGround;
+
+	vec3 notWalkableNormal = vec3();
+
+	UpdateGroundCheck(standsOnGround, verticalPosition, onGround, notWalkableNormal);
 
 	vec3 velocity = GetVelocity();
 	velocity.y -= gravity * deltaTime;
 
 
-	if (onGround)
+	if (standsOnGround)
 	{
 
 		vec3 currentPosition = FromPhysics(body->GetPosition());
@@ -58,13 +70,27 @@ void CharacterController::Update(float deltaTime)
 
 		heightSmoothOffset += (currentPosition.y - body->GetPosition().GetY());
 
-		velocity.y = 0;
-
 	}
 
+	if (onGround)
+	{
+		velocity.y = 0;
+	}
+
+	vec3 applyVelocity = velocity;
+
+	if (onGround == false && standsOnGround)
+	{
+
+		vec3 n = normalize(MathHelper::XZ(notWalkableNormal)) * abs(velocity.y) / 3.0f;
+
+		applyVelocity = lerp(n,
+			velocity, 
+			notWalkableNormal.y);
+	}
 
 	//Physics::SetBodyPosition(body, FromPhysics(body->GetPosition()) + velocity * deltaTime);
-	SetVelocity(velocity);
+	SetVelocity(vec3(applyVelocity.x,velocity.y, applyVelocity.z));
 
 
 
@@ -149,10 +175,12 @@ float CharacterController::GroundAngleDeg(const glm::vec3& normal)
 	return glm::degrees(GroundAngleRad(normal));
 }
 
-void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedGroundHeight)
+void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedGroundHeight, bool& canStand, vec3& avgNormal)
 {
 	hitsGround = false;
 	calculatedGroundHeight = 0;
+	avgNormal = vec3(0,1,0);
+	canStand = false;
 
 	if (GetVelocity().y > 0)
 	{
@@ -167,8 +195,13 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 	int numOfHits = 0;
 
 	float outheight = 0;
+	bool outCanStand = false;
 
 	vec3 heightOffset = vec3(0, stepHeight, 0);
+
+	vec3 outNormal = vec3();
+
+	int nNotWalk = 0;
 
 	for (float r = 0.1; r <= 1; r += 0.3)
 	{
@@ -180,8 +213,16 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 			vec3 offset = vec3(cos(angle), 0.0f, sin(angle)) * (radius * r - 0.13f);
 
 
-			if (CheckGroundAt(FromPhysics(body->GetPosition()) + offset - heightOffset,0.1f, outheight))
+			if (CheckGroundAt(FromPhysics(body->GetPosition()) + offset - heightOffset,0.1f, outheight, outCanStand, outNormal))
 			{
+
+				if (outCanStand)
+				{
+					canStand = true;
+				}
+
+				avgNormal += outNormal;
+				nNotWalk++;
 
 				float heightComp = GetPosition().y - height / 2.0f - 0.001f;
 
@@ -198,8 +239,16 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 	}
 
-	if (CheckGroundAt(FromPhysics(body->GetPosition()) - heightOffset, radius - 0.01f, outheight))
+	if (CheckGroundAt(FromPhysics(body->GetPosition()) - heightOffset, radius - 0.01f, outheight, outCanStand, outNormal))
 	{
+
+		if (outCanStand)
+		{
+			canStand = true;
+		}
+		
+		avgNormal += outNormal;
+		nNotWalk++;
 
 		float heightComp = GetPosition().y - height / 2.0f - 0.001f;
 
@@ -212,13 +261,20 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 		numOfHits++;
 	}
 
+	if (nNotWalk)
+	{
+		avgNormal /= nNotWalk;
+	}
+
 	hitsGround = hitsGround && (numOfHits>0);
+
+	canStand = hitsGround && (GroundAngleDeg(avgNormal) <= groundMaxAngle);
 
 	calculatedGroundHeight = accumulatedHeight / numOfHits;
 
 }
 
-bool CharacterController::CheckGroundAt(vec3 location,float checkRadius, float& outheight)
+bool CharacterController::CheckGroundAt(vec3 location,float checkRadius, float& outheight, bool& canStand, vec3& normal)
 {
 
 	Physics::HitResult result;
@@ -232,8 +288,21 @@ bool CharacterController::CheckGroundAt(vec3 location,float checkRadius, float& 
 		result = Physics::LineTrace(location, location - vec3(0, height / 2 + stepHeight, 0), BodyType::GroupCollisionTest, { body });
 	}
 
+	if (result.normal.y < 0.1)
+		return false;
 
 	outheight = result.position.y;
 
-	return result.hasHit && (GroundAngleDeg(result.normal)<=groundMaxAngle);
+	canStand = result.hasHit && (GroundAngleDeg(result.normal) <= groundMaxAngle);
+
+	if (canStand == false && result.hasHit)
+	{
+		DebugDraw::Line(result.position, result.position + result.normal, 0.01f);
+	}
+
+
+
+	normal = result.normal;
+
+	return result.hasHit;
 }

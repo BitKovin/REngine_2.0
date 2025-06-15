@@ -2,6 +2,8 @@
 
 #include "Entity.h"
 
+#include <unordered_set>
+
 TempAllocatorImpl* Physics::tempMemAllocator = nullptr;
 
 JobSystemThreadPool* Physics::threadPool = nullptr;
@@ -104,15 +106,39 @@ void MyContactListener::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePa
 
 void Physics::UpdatePendingBodyExitsEnters()
 {
+
+	std::unordered_set<PendingBodyEnterPair> processedAdds;
+	std::unordered_set<PendingBodyEnterPair> processedRemovals;
+
 	for (auto& pair : gRemovals)
 	{
+
+		auto result = processedRemovals.find(pair);
+		if (result != processedRemovals.end()) 
+		{
+			Logger::Log("found duplicate exit pair");
+			continue;
+		}
+
 		pair.target->OnBodyExited(pair.entity->LeadBody, pair.entity);	
+		processedRemovals.insert(pair);
 	}
 	gRemovals.clear();
 
 	for (auto& pair : gAdds)
 	{
+
+		auto result = processedAdds.find(pair);
+		{
+			if (result != processedAdds.end()) 
+			{
+				Logger::Log("found duplicate enter pair");
+				continue;
+			}
+		}
+
 		pair.target->OnBodyEntered(pair.entity->LeadBody, pair.entity);
+		processedAdds.insert(pair);
 	}
 	gAdds.clear();
 

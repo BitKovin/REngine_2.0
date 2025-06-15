@@ -364,6 +364,7 @@ public:
 
 
 
+
 class Physics
 {
 
@@ -405,6 +406,12 @@ public:
 		Entity* target;
 
 		Entity* entity;
+
+		bool operator==(const PendingBodyEnterPair& other) const
+		{
+			return target == other.target && entity == other.entity;
+		}
+
 	};
 
 	static std::recursive_mutex physicsMainLock;
@@ -982,3 +989,14 @@ public:
 	static HitResult ShapeTrace(const Shape* shape,vec3 start, vec3 end, vec3 scale, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
 
 };
+
+namespace std {
+	template<>
+	struct hash<Physics::PendingBodyEnterPair>
+	{
+		size_t operator()(const Physics::PendingBodyEnterPair& pair) const noexcept
+		{
+			return hash<Entity*>()(pair.target) ^ (hash<Entity*>()(pair.entity) << 1);
+		}
+	};
+}
