@@ -16,6 +16,7 @@ public:
 
 	Delay attackDelay;
 
+
 	weapon_pistol()
 	{
 		viewmodel = new SkeletalMesh(this);
@@ -31,6 +32,9 @@ public:
 		fireSoundPlayer = SoundPlayer::Create("GameData/sounds/weapons/shotgun/shotgun_fire2.wav");
 		fireSoundPlayer->Volume = 0.5f;
 		fireSoundPlayer->Is2D = true;
+
+		attackDelay.AddDelay(0.4);
+
 	}
 
 	void LoadAssets()
@@ -128,6 +132,17 @@ public:
 
 		arms->Position = viewmodel->Position;
 		arms->Rotation = viewmodel->Rotation;
+	}
+
+
+	WeaponSlotData GetDefaultData() override
+	{
+
+		WeaponSlotData data;
+
+		data.className = "weapon_pistol";
+
+		return data;
 	}
 
 

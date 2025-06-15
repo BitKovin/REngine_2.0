@@ -57,6 +57,9 @@ private:
 	SoundPlayer* soundPlayer;
 
 	Weapon* currentWeapon = nullptr;
+	int currentSlot = 0;
+	int lastSlot = -1;
+	WeaponSlotData meleeWeapon;
 
 	std::vector<WeaponSlotData> weaponSlots;
 
@@ -152,6 +155,9 @@ private:
 
 	}
 
+	bool CanSwitchSlot(int slot);
+	void SwitchWeapon(const WeaponSlotData& data);
+
 	vec3 testStart;
 
 
@@ -174,6 +180,9 @@ public:
 		Health = 100;
 
 		LateUpdateWhenPaused = true;
+
+		weaponSlots.resize(10);
+
 
 	}
 	~Player() { Logger::Log("player destructor"); }
@@ -205,12 +214,18 @@ public:
 
 		Hud.Init(this);
 
-		CreateWeapon("weapon_pistol");
+		AddWeaponByName("weapon_pistol");
+		AddWeaponByName("weapon_shotgun");
 
 	}
 
 	void UpdateWalkMovement(vec2 input);
 	void UpdateBikeMovement(vec2 input);
+
+	void SwitchToSlot(int slot, bool forceChange = false);
+	void SwitchToMeleeWeapon(bool forceChange = false);
+	void AddWeapon(const WeaponSlotData& weaponData);
+	void AddWeaponByName(const string& className);
 
 	void CreateWeapon(const string& className);
 	void DestroyWeapon();

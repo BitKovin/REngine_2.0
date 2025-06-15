@@ -156,6 +156,90 @@ void Player::UpdateBikeMovement(vec2 input)
 
 }
 
+bool Player::CanSwitchSlot(int slot)
+{
+    if (!currentWeapon) return true;
+    if (slot == currentSlot) return false;
+    return currentWeapon->CanChangeSlot();
+}
+
+void Player::SwitchWeapon(const WeaponSlotData& data)
+{
+    DestroyWeapon();
+
+    if (!data.className.empty())
+    {
+        currentWeapon = (Weapon*)Spawn(data.className);
+        currentWeapon->Start();
+        currentWeapon->LoadAssetsIfNeeded();
+        currentWeapon->SetData(data); // Implement this in Weapon class
+    }
+}
+
+void Player::SwitchToSlot(int slot, bool forceChange)
+{
+    if (!forceChange && !CanSwitchSlot(slot))
+    {
+        if (currentWeapon->IsMelee() && slot != currentSlot)
+        {
+            lastSlot = currentSlot;
+            currentSlot = slot;
+        }
+        return;
+    }
+
+    if (slot < 0 || slot >= weaponSlots.size()) return;
+    if (weaponSlots[slot].className.empty()) return;
+
+    lastSlot = currentSlot;
+    currentSlot = slot;
+    SwitchWeapon(weaponSlots[slot]);
+}
+
+void Player::SwitchToMeleeWeapon(bool forceChange)
+{
+    if (!forceChange && currentWeapon && currentWeapon->IsMelee())
+        return;
+
+    if (!forceChange && currentWeapon && !currentWeapon->CanChangeSlot())
+        return;
+
+    if (!meleeWeapon.className.empty())
+    {
+        currentSlot = -1;
+        SwitchWeapon(meleeWeapon);
+    }
+}
+
+void Player::AddWeapon(const WeaponSlotData& weaponData)
+{
+    int slot = weaponData.slot;
+
+    if (slot < 0 || slot >= weaponSlots.size()) return;
+
+    if (weaponSlots[slot].className.empty() ||
+        weaponSlots[slot].priority < weaponData.priority)
+    {
+        weaponSlots[slot] = weaponData;
+
+        if (currentSlot == slot)
+        {
+            SwitchToSlot(slot, true);
+        }
+    }
+}
+
+void Player::AddWeaponByName(const string& className)
+{
+
+    Weapon* weap = (Weapon*)LevelObjectFactory::instance().create(className);
+
+    AddWeapon(weap->GetDefaultData());
+
+    delete(weap);
+
+}
+
 void Player::CreateWeapon(const string& className)
 {
 
@@ -468,6 +552,34 @@ void Player::Update()
     {
         LevelSaveSystem::LoadLevelFromFile("quicksave");
     }
+
+    if (currentWeapon != nullptr)
+    {
+        if (currentWeapon->Data.slot != currentSlot)
+        {
+            SwitchToSlot(currentSlot);
+        }
+    }
+    else
+    {
+        SwitchToSlot(currentSlot);
+    }
+
+    if (Input::GetAction("slotMelee")->Pressed())
+        SwitchToMeleeWeapon();
+
+    if (Input::GetAction("slot1")->Pressed())
+        SwitchToSlot(0);
+
+    if (Input::GetAction("slot2")->Pressed())
+        SwitchToSlot(1);
+
+    if (Input::GetAction("slot3")->Pressed())
+        SwitchToSlot(2);
+
+    if (Input::GetAction("lastSlot")->Pressed())
+        SwitchToSlot(lastSlot);
+
 }
 
 void Player::LateUpdate()

@@ -14,6 +14,8 @@ public:
 
 	vec3 weaponOffset = vec3(0.023, 0.013, -0.13);
 
+	Delay attackDelay;
+
 	weapon_shotgun()
 	{
 		viewmodel = new SkeletalMesh(this);
@@ -29,6 +31,9 @@ public:
 		fireSoundPlayer = SoundPlayer::Create("GameData/sounds/weapons/shotgun/shotgun_fire2.wav");
 		fireSoundPlayer->Volume = 0.5f;
 		fireSoundPlayer->Is2D = true;
+
+		attackDelay.AddDelay(0.4);
+
 	}
 
 	void LoadAssets()
@@ -53,7 +58,7 @@ public:
 
 	void Update()
 	{
-		if (Input::GetAction("attack")->Pressed())
+		if (Input::GetAction("attack")->Holding())
 		{
 			PerformAttack();
 		}
@@ -61,6 +66,11 @@ public:
 
 	void PerformAttack()
 	{
+
+		if (attackDelay.Wait())
+			return;
+
+		attackDelay.AddDelay(1);
 
 		fireSoundPlayer->Play();
 
@@ -134,6 +144,16 @@ public:
 		arms->Rotation = viewmodel->Rotation;
 	}
 
+	WeaponSlotData GetDefaultData() override
+	{
+
+		WeaponSlotData data;
+
+		data.className = "weapon_shotgun";
+		data.slot = 1;
+
+		return data;
+	}
 
 private:
 

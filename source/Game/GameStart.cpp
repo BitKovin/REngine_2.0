@@ -64,7 +64,13 @@ GameStart::GameStart()
     Input::AddAction("pause")->AddKeyboardKey(SDL_KeyCode::SDLK_ESCAPE)->AddButton(GamepadButton::Back);
 #endif
 
+    Input::AddAction("slot1")->AddKeyboardKey(SDL_KeyCode::SDLK_1);
+    Input::AddAction("slot2")->AddKeyboardKey(SDL_KeyCode::SDLK_2);
+    Input::AddAction("slot3")->AddKeyboardKey(SDL_KeyCode::SDLK_3);
+    Input::AddAction("slot4")->AddKeyboardKey(SDL_KeyCode::SDLK_4);
+    Input::AddAction("lastSlot")->AddKeyboardKey(SDL_KeyCode::SDLK_q);
 
+    Input::AddAction("slotMelee")->AddKeyboardKey(SDL_KeyCode::SDLK_f);
 
 }
 
