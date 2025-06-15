@@ -57,11 +57,9 @@ private:
 	SoundPlayer* soundPlayer;
 
 	Weapon* currentWeapon = nullptr;
-	int currentSlot = 0;
 	int lastSlot = -1;
 	WeaponSlotData meleeWeapon;
 
-	std::vector<WeaponSlotData> weaponSlots;
 
 	SkeletalMesh* bikeMesh = nullptr;
 	SkeletalMesh* bikeArmsMesh = nullptr;
@@ -163,6 +161,10 @@ private:
 
 
 public:
+
+	int currentSlot = 0;
+	std::vector<WeaponSlotData> weaponSlots;
+
 	Player()
 	{
 

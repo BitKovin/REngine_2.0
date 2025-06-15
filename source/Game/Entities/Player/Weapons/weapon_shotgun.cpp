@@ -32,8 +32,8 @@ public:
 		fireSoundPlayer->Volume = 0.5f;
 		fireSoundPlayer->Is2D = true;
 
-		attackDelay.AddDelay(0.4);
-		SwitchDelay.AddDelay(0.45);
+		attackDelay.AddDelay(0.3);
+		SwitchDelay.AddDelay(0.35);
 
 	}
 

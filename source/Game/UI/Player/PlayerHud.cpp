@@ -57,9 +57,53 @@ void PlayerHud::Init(Player* playerRef)
     ScreenControls = make_shared<ScreenMobileControls>();
     EngineMain::Viewport.AddChild(ScreenControls);
 
+    slots = make_shared<WeaponSlots>();
+    slots->player = player;
+    slots->origin = vec2(0.5,1);
+    slots->pivot = vec2(0.5, 1);
+    slots->position = vec2(0,-20);
+    hudCanvas->AddChild(slots);
+
 }
 
 void PlayerHud::Update()
 {
     text->text = std::to_string((int)player->Health);
+}
+
+void WeaponSlots::Update()
+{
+    children.clear();
+
+    for (WeaponSlotData data : player->weaponSlots)
+    {
+        if (data.className == "") continue;
+
+        auto img = make_shared<UiImage>();
+        img->size = vec2(120,120);
+
+        if (data.slot == player->currentSlot)
+        {
+            img->color = vec4(1,0.5,0.5,1);
+        }
+        else
+        {
+            img->color = vec4(1, 0.8, 0.8, 0.8);
+        }
+
+        auto text = make_shared<UiText>();
+        text->origin = vec2(0,1);
+        text->pivot = vec2(0, 1);
+        text->text = to_string(data.slot + 1);
+        text->fontSize = 50;
+        text->position = vec2(5,-5);
+
+        img->AddChild(text);
+
+        AddChild(img);
+
+    }
+
+    UiHorizontalBox::Update();
+
 }

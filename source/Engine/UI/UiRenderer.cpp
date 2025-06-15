@@ -142,10 +142,10 @@ namespace UiRenderer {
         else {
             // Convert color from [0.0, 1.0] to [0, 255] for SDL
             SDL_Color sdlColor = {
-                static_cast<Uint8>(color.r * 255),
-                static_cast<Uint8>(color.g * 255),
-                static_cast<Uint8>(color.b * 255),
-                static_cast<Uint8>(color.a * 255)
+                static_cast<Uint8>(255),
+                static_cast<Uint8>(255),
+                static_cast<Uint8>(255),
+                static_cast<Uint8>(255)
             };
 
             // Render text to an SDL_Surface

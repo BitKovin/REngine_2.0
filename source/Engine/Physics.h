@@ -479,7 +479,7 @@ public:
 		auto currentPos = body->GetPosition();
 		auto targetPos = position;
 
-		auto hit = ShapeTrace(body->GetShape(), FromPhysics(currentPos), targetPos, data->mask, {body});
+		auto hit = ShapeTrace(body->GetShape(), FromPhysics(currentPos), targetPos,vec3(0.99), data->mask, {body});
 
 		if (hit.hasHit)
 		{
@@ -979,6 +979,6 @@ public:
 	
 	static HitResult SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
 	static HitResult CylinderTrace(const vec3 start, const vec3 end, float radius, float halfHeight, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
-	static HitResult ShapeTrace(const Shape* shape,vec3 start, vec3 end, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
+	static HitResult ShapeTrace(const Shape* shape,vec3 start, vec3 end, vec3 scale, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
 
 };

@@ -177,7 +177,7 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 		{
 			float angle = (2.0f * M_PI / numOfIterations) * i; // Full circle in radians
 
-			vec3 offset = vec3(cos(angle), 0.0f, sin(angle)) * (radius * r - 0.12f);
+			vec3 offset = vec3(cos(angle), 0.0f, sin(angle)) * (radius * r - 0.13f);
 
 
 			if (CheckGroundAt(FromPhysics(body->GetPosition()) + offset - heightOffset,0.1f, outheight))
