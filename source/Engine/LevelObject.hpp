@@ -18,7 +18,7 @@ public:
 	bool LateUpdateWhenPaused = false;
 
 	LevelObject(){}
-	virtual ~LevelObject(){}
+	virtual ~LevelObject() = default;
 
 	virtual void Update() {}
 	virtual void LateUpdate() {}

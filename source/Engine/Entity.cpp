@@ -16,10 +16,17 @@ Entity* Entity::Spawn(std::string technicalName)
 void Entity::FinalLevelRemove()
 {
 	DestroyDrawables();
+	Logger::Log("FinalLevelRemove: " + Id);
 }
 
 void Entity::Destroy()
 {
+
+	if (Destroyed)
+	{
+		return;
+	}
+
 	Destroyed = true;
 
 	if (OwnerId != "")
