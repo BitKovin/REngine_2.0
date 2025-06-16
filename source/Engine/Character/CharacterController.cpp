@@ -42,34 +42,31 @@ void CharacterController::Destroy()
 
 void CharacterController::Update(float deltaTime)
 {
-
 	UpdateSmoothPosition(deltaTime);
 
 	float verticalPosition;
-
 	bool standsOnGround;
-
 	vec3 notWalkableNormal = vec3();
-
 	UpdateGroundCheck(standsOnGround, verticalPosition, onGround, notWalkableNormal);
 
-	vec3 velocity = GetVelocity();
-	velocity.y -= gravity * deltaTime;
 
+	vec3 velocity = GetVelocity();
+	
+	if (standsOnGround && velocity.y<0)
+	{
+		velocity.y -= gravity * deltaTime * (1.0f - notWalkableNormal.y);
+	}
+	else
+	{
+		velocity.y -= gravity * deltaTime;
+	}
 
 	if (standsOnGround)
 	{
-
 		vec3 currentPosition = FromPhysics(body->GetPosition());
-
 		float newVerticalPosition = verticalPosition + stepHeight + height / 2;
-
-
-
 		Physics::SweepBody(body, vec3(currentPosition.x, newVerticalPosition, currentPosition.z));
-
 		heightSmoothOffset += (currentPosition.y - body->GetPosition().GetY());
-
 	}
 
 	if (onGround)
@@ -81,19 +78,18 @@ void CharacterController::Update(float deltaTime)
 
 	if (onGround == false && standsOnGround)
 	{
+		// Project velocity onto the surface plane to maintain momentum along the slope
+		vec3 slopeNormal = normalize(notWalkableNormal);
+		vec3 slopeTangent = velocity - slopeNormal * dot(velocity, slopeNormal);
 
-		vec3 n = normalize(MathHelper::XZ(notWalkableNormal)) * abs(velocity.y) / 3.0f;
+		// Add downward slide effect while preserving horizontal momentum
+		applyVelocity = slopeTangent;
+		applyVelocity.y = velocity.y; // Maintain gravity effect
 
-		applyVelocity = lerp(n,
-			velocity, 
-			notWalkableNormal.y);
+		UpdateSmoothPosition(deltaTime * 2); // Smoothes camera offset faster
 	}
 
-	//Physics::SetBodyPosition(body, FromPhysics(body->GetPosition()) + velocity * deltaTime);
-	SetVelocity(vec3(applyVelocity.x,velocity.y, applyVelocity.z));
-
-
-
+	SetVelocity(vec3(applyVelocity.x, applyVelocity.y, applyVelocity.z));
 }
 
 //returns center of character controller
@@ -179,13 +175,13 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 {
 	hitsGround = false;
 	calculatedGroundHeight = 0;
-	avgNormal = vec3(0,1,0);
+	avgNormal = vec3(0,0,0);
 	canStand = false;
 
 	if (GetVelocity().y > 0)
 	{
 
-		return;
+		//return;
 
 	}
 
@@ -210,7 +206,7 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 		{
 			float angle = (2.0f * M_PI / numOfIterations) * i; // Full circle in radians
 
-			vec3 offset = vec3(cos(angle), 0.0f, sin(angle)) * (radius * r - 0.13f);
+			vec3 offset = vec3(cos(angle), 0.0f, sin(angle)) * (radius * r - 0.11f);
 
 
 			if (CheckGroundAt(FromPhysics(body->GetPosition()) + offset - heightOffset,0.1f, outheight, outCanStand, outNormal))
@@ -257,8 +253,8 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 			hitsGround = true;
 		}
 
-		accumulatedHeight += outheight;
-		numOfHits++;
+		accumulatedHeight += outheight * numOfHits;
+		numOfHits *= 2;
 	}
 
 	if (nNotWalk)
@@ -267,6 +263,8 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 	}
 
 	hitsGround = hitsGround && (numOfHits>0);
+
+	printf("%f \n", GroundAngleDeg(avgNormal));
 
 	canStand = hitsGround && (GroundAngleDeg(avgNormal) <= groundMaxAngle);
 
@@ -281,7 +279,10 @@ bool CharacterController::CheckGroundAt(vec3 location,float checkRadius, float& 
 	
 	if (radius > 0)
 	{
-		result = Physics::CylinderTrace(location, location - vec3(0, height / 2 + stepHeight - 0.1f, 0), checkRadius, 0.1f, BodyType::GroupCollisionTest, { body });
+		result = Physics::CylinderTrace(location, location - vec3(0, height / 2 + stepHeight - 0.05f, 0), checkRadius, 0.05f, BodyType::GroupCollisionTest, { body });
+
+		result.position = result.shapePosition - vec3(0, 0.02f,0);
+
 	}
 	else
 	{
@@ -295,10 +296,7 @@ bool CharacterController::CheckGroundAt(vec3 location,float checkRadius, float& 
 
 	canStand = result.hasHit && (GroundAngleDeg(result.normal) <= groundMaxAngle);
 
-	if (canStand == false && result.hasHit)
-	{
-		DebugDraw::Line(result.position, result.position + result.normal, 0.01f);
-	}
+	//DebugDraw::Line(result.position, result.position + result.normal, 0.01f);
 
 
 
