@@ -142,7 +142,7 @@ void NavigationSystem::GenerateNavData()
     memset(&cfg, 0, sizeof(cfg));
     cfg.cs = 0.2f;
     cfg.ch = 0.3f;
-    cfg.walkableSlopeAngle = 45.0f;
+    cfg.walkableSlopeAngle = 40.0f;
     cfg.walkableHeight = static_cast<int>(ceilf(2.0f / cfg.ch));
     cfg.walkableClimb = static_cast<int>(ceilf(0.6f / cfg.ch));
     cfg.walkableRadius = static_cast<int>(ceilf(0.2f / cfg.cs));
@@ -163,6 +163,7 @@ void NavigationSystem::GenerateNavData()
     const int ntilesX = static_cast<int>(ceilf((bmax.x - bmin.x) / tileWidth));
     const int ntilesZ = static_cast<int>(ceilf((bmax.z - bmin.z) / tileWidth));
     const int maxTiles = ntilesX * ntilesZ * 10;
+    const float borderWorld = cfg.borderSize * cfg.cs;  // World-space border size
 
     // Initialize nav mesh
     dtNavMeshParams navParams;
@@ -199,7 +200,7 @@ void NavigationSystem::GenerateNavData()
     const int nverts = vertices.size();
     const int ntris = indices.size() / 3;
 
-    // Precompute triangle bounding boxes
+    // Precompute triangle bounding boxes with border expansion
     std::vector<std::array<float, 4>> triBounds(ntris);
     for (int i = 0; i < ntris; i++) {
         const int* tri = &triInts[i * 3];
@@ -207,10 +208,44 @@ void NavigationSystem::GenerateNavData()
         const float* v1 = &vertFloats[tri[1] * 3];
         const float* v2 = &vertFloats[tri[2] * 3];
 
-        triBounds[i][0] = std::min(v0[0], std::min(v1[0], v2[0])); // min x
-        triBounds[i][1] = std::min(v0[2], std::min(v1[2], v2[2])); // min z
-        triBounds[i][2] = std::max(v0[0], std::max(v1[0], v2[0])); // max x
-        triBounds[i][3] = std::max(v0[2], std::max(v1[2], v2[2])); // max z
+        float minx = std::min(v0[0], std::min(v1[0], v2[0]));
+        float minz = std::min(v0[2], std::min(v1[2], v2[2]));
+        float maxx = std::max(v0[0], std::max(v1[0], v2[0]));
+        float maxz = std::max(v0[2], std::max(v1[2], v2[2]));
+
+        // Expand bounds by border size to include nearby tiles
+        triBounds[i][0] = minx - borderWorld;
+        triBounds[i][1] = minz - borderWorld;
+        triBounds[i][2] = maxx + borderWorld;
+        triBounds[i][3] = maxz + borderWorld;
+    }
+
+    // Precompute tile assignments for each triangle
+    std::vector<std::vector<int>> tileTriangles(ntilesX * ntilesZ);
+    for (int i = 0; i < ntris; i++) {
+        const float minx = triBounds[i][0];
+        const float minz = triBounds[i][1];
+        const float maxx = triBounds[i][2];
+        const float maxz = triBounds[i][3];
+
+        // Calculate tile ranges for this triangle
+        int tx0 = static_cast<int>((minx - bmin.x) / tileWidth);
+        int tx1 = static_cast<int>((maxx - bmin.x) / tileWidth);
+        int tz0 = static_cast<int>((minz - bmin.z) / tileWidth);
+        int tz1 = static_cast<int>((maxz - bmin.z) / tileWidth);
+
+        // Clamp to valid tile range
+        tx0 = std::max(0, tx0);
+        tx1 = std::min(ntilesX - 1, tx1);
+        tz0 = std::max(0, tz0);
+        tz1 = std::min(ntilesZ - 1, tz1);
+
+        // Add triangle to relevant tiles
+        for (int tz = tz0; tz <= tz1; tz++) {
+            for (int tx = tx0; tx <= tx1; tx++) {
+                tileTriangles[tz * ntilesX + tx].push_back(i);
+            }
+        }
     }
 
     // Context for Recast operations
@@ -244,14 +279,14 @@ void NavigationSystem::GenerateNavData()
                 // Create expanded tile bounds (with border)
                 rcConfig localCfg = cfg;
                 float expandedBmin[3] = {
-                    tileBmin[0] - localCfg.borderSize * localCfg.cs,
+                    tileBmin[0] - borderWorld,
                     tileBmin[1],
-                    tileBmin[2] - localCfg.borderSize * localCfg.cs
+                    tileBmin[2] - borderWorld
                 };
                 float expandedBmax[3] = {
-                    tileBmax[0] + localCfg.borderSize * localCfg.cs,
+                    tileBmax[0] + borderWorld,
                     tileBmax[1],
-                    tileBmax[2] + localCfg.borderSize * localCfg.cs
+                    tileBmax[2] + borderWorld
                 };
                 rcVcopy(localCfg.bmin, expandedBmin);
                 rcVcopy(localCfg.bmax, expandedBmax);
@@ -265,40 +300,30 @@ void NavigationSystem::GenerateNavData()
                     return nullptr;
                 }
 
-                // Collect triangles in expanded tile bounds
-                std::vector<int> tileTriIndices;
-                const float tbmin[2] = { expandedBmin[0], expandedBmin[2] };
-                const float tbmax[2] = { expandedBmax[0], expandedBmax[2] };
-
-                for (int i = 0; i < ntris; ++i) {
-                    // Check if triangle overlaps tile bounds in XZ plane
-                    if (triBounds[i][2] < tbmin[0] || triBounds[i][0] > tbmax[0] ||
-                        triBounds[i][3] < tbmin[1] || triBounds[i][1] > tbmax[1]) {
-                        continue;
-                    }
-                    tileTriIndices.push_back(i);
+                // Get precomputed triangles for this tile
+                std::vector<int>& tileTriIndices = tileTriangles[tz * ntilesX + tx];
+                if (tileTriIndices.empty()) {
+                    rcFreeHeightField(solid);
+                    return nullptr;
                 }
 
-                // Rasterize triangles if any found
-                if (!tileTriIndices.empty()) {
-                    // Create arrays for this tile's triangles
-                    std::vector<int> tileTris;
-                    std::vector<unsigned char> tileTriareas;
+                // Create arrays for this tile's triangles
+                std::vector<int> tileTris;
+                std::vector<unsigned char> tileTriareas;
 
-                    for (int i : tileTriIndices) {
-                        tileTris.push_back(triInts[i * 3]);
-                        tileTris.push_back(triInts[i * 3 + 1]);
-                        tileTris.push_back(triInts[i * 3 + 2]);
-                        tileTriareas.push_back(triareas[i]);
-                    }
+                for (int i : tileTriIndices) {
+                    tileTris.push_back(triInts[i * 3]);
+                    tileTris.push_back(triInts[i * 3 + 1]);
+                    tileTris.push_back(triInts[i * 3 + 2]);
+                    tileTriareas.push_back(triareas[i]);
+                }
 
-                    // Rasterize triangles
-                    if (!rcRasterizeTriangles(ctx, vertFloats.data(), nverts,
-                        tileTris.data(), tileTriareas.data(), tileTris.size() / 3,
-                        *solid, localCfg.walkableClimb)) {
-                        rcFreeHeightField(solid);
-                        return nullptr;
-                    }
+                // Rasterize triangles
+                if (!rcRasterizeTriangles(ctx, vertFloats.data(), nverts,
+                    tileTris.data(), tileTriareas.data(), tileTris.size() / 3,
+                    *solid, localCfg.walkableClimb)) {
+                    rcFreeHeightField(solid);
+                    return nullptr;
                 }
 
                 // Filter walkable surfaces
