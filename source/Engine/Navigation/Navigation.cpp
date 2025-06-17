@@ -117,8 +117,8 @@ void NavigationSystem::GenerateNavData()
     DestroyNavData();
 
     auto mesh = Level::Current->GetStaticNavObstaclesMesh();
-    mesh = MeshUtils::RemoveDegenerates(mesh, 0.01f, 0.01f);
-    mesh = MeshUtils::MergeMeshes({ MeshUtils::MergeCoplanarRegions(mesh), mesh });
+    //mesh = MeshUtils::RemoveDegenerates(mesh, 0.01f, 0.01f);
+    //mesh = MeshUtils::MergeMeshes({ MeshUtils::MergeCoplanarRegions(mesh), mesh });
 
     std::lock_guard<std::recursive_mutex> lock(mainLock);
 

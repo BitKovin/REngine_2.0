@@ -52,6 +52,11 @@ void CharacterController::Update(float deltaTime)
 
 	vec3 velocity = GetVelocity();
 	
+	if (velocity.y > 0)
+	{
+		onGround = false;
+	}
+
 	if (standsOnGround && velocity.y<0)
 	{
 		velocity.y -= gravity * deltaTime * (1.0f - notWalkableNormal.y);
@@ -76,7 +81,7 @@ void CharacterController::Update(float deltaTime)
 
 	vec3 applyVelocity = velocity;
 
-	if (onGround == false && standsOnGround)
+	if (onGround == false && standsOnGround && velocity.y <= 0)
 	{
 		// Project velocity onto the surface plane to maintain momentum along the slope
 		vec3 slopeNormal = normalize(notWalkableNormal);
