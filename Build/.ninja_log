@@ -205,3 +205,11 @@
 75	4688	7717755375290272	CMakeFiles/engine.dir/source/Engine/Character/CharacterController.cpp.o	65c4adbf6f1161fa
 4689	5699	7717755421422655	libengine.a	6e829b7f567674d
 5699	46180	7717755431531019	main.js	457c82df4f635c40
+556	11716	7717801530224081	CMakeFiles/game.dir/source/Game/UI/Player/PlayerHud.cpp.o	a00d553bb54f0992
+128	12211	7717801525944315	CMakeFiles/engine.dir/source/Engine/Character/CharacterController.cpp.o	65c4adbf6f1161fa
+284	12491	7717801527502996	CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/weapon_pistol.cpp.o	a35c9ce63cea01fa
+362	12532	7717801528275718	CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/weapon_shotgun.cpp.o	77b46a5649e7eea0
+462	12835	7717801529279135	CMakeFiles/game.dir/source/Game/Entities/TestNpc.cpp.o	3e1bf677c9de0bb9
+220	13530	7717801526863027	CMakeFiles/game.dir/source/Game/Entities/Player/Player.cpp.o	2172b8c8dd06ca71
+12212	13916	7717801646776331	libengine.a	6e829b7f567674d
+13916	69978	7717801663818944	main.js	457c82df4f635c40

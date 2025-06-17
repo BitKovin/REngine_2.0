@@ -253,8 +253,18 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 			hitsGround = true;
 		}
 
-		accumulatedHeight += outheight * numOfHits;
-		numOfHits *= 2;
+		if (numOfHits > 0)
+		{
+			accumulatedHeight += outheight * numOfHits;
+			numOfHits *= 2;
+		}
+		else
+		{
+			accumulatedHeight += outheight;
+			numOfHits ++;
+		}
+
+		
 	}
 
 	if (nNotWalk)
