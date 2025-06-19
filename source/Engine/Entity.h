@@ -65,7 +65,10 @@ public:
 	{
 
 	}
-	virtual ~Entity() { /* ... */ }
+	virtual ~Entity() 
+	{
+		DestroyDrawables();
+	}
 
 
 	void UpdatePhysics()

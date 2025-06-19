@@ -338,10 +338,10 @@ void Player::UpdateDebugUI()
     if (ImGui::Button("test DEserialization"))
     {
 
-        json jPlayer = json::parse(serializedPlayer);
-        Deserialize(jPlayer);
+        //json jPlayer = json::parse(serializedPlayer);
+        //Deserialize(jPlayer);
 
-        Logger::Log(jPlayer.dump(4));
+        //Logger::Log(jPlayer.dump(4));
 
     }
 
@@ -440,6 +440,8 @@ void Player::TryStep(vec3 dir)
 
 void Player::Update()
 {
+
+    //printf("%i \n",SkeletalMesh::skelMeshes);
 
     controller.Update(Time::DeltaTimeF);
     Position = controller.GetSmoothPosition();

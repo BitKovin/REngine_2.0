@@ -170,6 +170,16 @@ struct RenderBuffers // m_renderBuffers.m_faceVBOs[idx].m_vertexBuffer
     std::map<GLuint, GLuint> lm_ID; // optimized lightmap IDs
 };
 
+struct CachedFaceTextureData
+{
+    int textureId = 0;
+    string textureName = "";
+    bool isCube = false;
+    int lightmapId = 0;
+    bool transparent = false;
+    int numOfIndices = 0;
+};
+
 struct LightVolPointData {
     glm::vec3 directColor;
     glm::vec3 ambientColor;
@@ -367,6 +377,8 @@ class CQuake3BSP : public IDrawMesh
     std::vector<tBSPMeshVert> meshVerts;
     std::vector<tBSPEffect> effects;
     std::vector<tBSPLightvol> lightVols;
+
+    CachedFaceTextureData* cachedFaces;
 
     std::vector<BoundingBox> faceBounds;
 

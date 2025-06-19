@@ -10,10 +10,7 @@ public:
 
 	void Dispose()
 	{
-
 		OnDispose();
-
-
 	}
 
 	virtual void Serialize(json& target)

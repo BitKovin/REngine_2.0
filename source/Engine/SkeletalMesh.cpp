@@ -258,7 +258,7 @@ vector<AnimationEvent> SkeletalMesh::PullAnimationEvents()
 
 }
 
-unordered_map<string, SkeletalMeshMetaData> loaded_metas;
+
 
 void SkeletalMesh::ClearMetaDataCache()
 {

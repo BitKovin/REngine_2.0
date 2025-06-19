@@ -277,7 +277,6 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
 
     shader->SetUniform("brightness", 1.0f);
 
-    shader->AllowMissingUniforms = false;
 
     if (LightManager::DirectionalShadowsEnabled)
     {
@@ -303,13 +302,12 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
     }
     else
     {
-        shader->SetTexture("shadowMap", nullptr);
-        shader->SetTexture("shadowMapDetail", nullptr);
-        shader->SetTexture("shadowMapRaw", nullptr);
-        shader->SetTexture("shadowMapDetailRaw", nullptr);
+        //shader->SetTexture("shadowMap", nullptr);
+       // shader->SetTexture("shadowMapDetail", nullptr);
+        //shader->SetTexture("shadowMapRaw", nullptr);
+        //shader->SetTexture("shadowMapDetailRaw", nullptr);
     }
 
-    shader->AllowMissingUniforms = true;
 
     shader->SetUniform("cameraPosition", Camera::finalizedPosition);
     shader->SetUniform("shadowMapSize", LightManager::ShadowMapResolution);

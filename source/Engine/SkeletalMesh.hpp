@@ -211,6 +211,8 @@ protected:
 		shader_program->SetUniform("finalBonesMatrices", finalizedBoneTransforms);
 	}
 
+	static inline unordered_map<string, SkeletalMeshMetaData> loaded_metas;
+
 public:
 
 	SkeletalMeshMetaData metaData;
@@ -218,14 +220,19 @@ public:
 
 	bool UpdatePose = true;
 
+	static inline int skelMeshes = 0;
+
 	SkeletalMesh(Entity* owner) : StaticMesh(owner)
 	{
 		CastDetailShadows = true;
+		skelMeshes++;
 	}
 
-	virtual ~SkeletalMesh()
+	~SkeletalMesh()
 	{
 		ClearHitboxes();
+		skelMeshes--;
+		
 	}
 
 	AnimationPose GetAnimationPose()

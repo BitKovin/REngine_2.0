@@ -311,6 +311,7 @@
             "f:\\git\\sdlwasmengine\\libraries\\jolt\\physics\\body\\bodycreationsettings.h",
             "f:\\git\\sdlwasmengine\\libraries\\jolt\\physics\\body\\bodyactivationlistener.h",
             "f:\\git\\sdlwasmengine\\libraries\\jolt\\physics\\collision\\shape\\capsuleshape.h",
+            "f:\\git\\sdlwasmengine\\libraries\\jolt\\physics\\collision\\shape\\cylindershape.h",
             "f:\\git\\sdlwasmengine\\libraries\\jolt\\physics\\character\\charactervirtual.h",
             "f:\\git\\sdlwasmengine\\libraries\\jolt\\physics\\character\\characterbase.h",
             "f:\\git\\sdlwasmengine\\libraries\\jolt\\physics\\character\\characterid.h",

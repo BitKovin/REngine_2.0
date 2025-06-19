@@ -53,6 +53,7 @@ void Input::Update() {
 
     // Show or hide the cursor based on LockCursor.
     SDL_ShowCursor(LockCursor ? SDL_DISABLE : SDL_ENABLE);
+    SDL_CaptureMouse(LockCursor ? SDL_TRUE : SDL_FALSE);
 }
 
 void Input::UpdateMousePosition()

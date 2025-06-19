@@ -697,10 +697,10 @@ public:
 		BodyType mask = BodyType::GroupCollisionTest)
 	{
 		// Create a box shape (existing code)
-		auto box_shape_settings = new JPH::BoxShapeSettings();
-		box_shape_settings->SetEmbedded();
-		box_shape_settings->mHalfExtent = ToPhysics(Size) / 2.0f;
-		JPH::Shape::ShapeResult shape_result = box_shape_settings->Create();
+		BoxShapeSettings box_shape_settings = BoxShapeSettings();
+		box_shape_settings.SetEmbedded();
+		box_shape_settings.mHalfExtent = ToPhysics(Size) / 2.0f;
+		JPH::Shape::ShapeResult shape_result = box_shape_settings.Create();
 		JPH::Shape* box_shape = shape_result.Get();
 
 		if (shape_result.HasError())
@@ -765,27 +765,27 @@ public:
 		BodyType         mask = BodyType::None)
 	{
 		// 1) Base box, centered at its own origin
-		auto box_settings = new JPH::BoxShapeSettings();
-		box_settings->SetEmbedded();
-		box_settings->mHalfExtent = ToPhysics(Size) * 0.5f;
+		auto box_settings = JPH::BoxShapeSettings();
+		box_settings.SetEmbedded();
+		box_settings.mHalfExtent = ToPhysics(Size) * 0.5f;
 
 		// 2) Rotate & translate that box in shape‐local space
-		auto geo_settings = new JPH::RotatedTranslatedShapeSettings(
+		auto geo_settings = JPH::RotatedTranslatedShapeSettings(
 			ToPhysics(PositionOffset),   // translate
 			ToPhysics(RotationOffset),               // rotate
-			box_settings                  // child shape
+			&box_settings                  // child shape
 		);
-		geo_settings->SetEmbedded();
+		geo_settings.SetEmbedded();
 
 		// 3) Shift the COM back so it stays at the body‐origin
-		auto com_settings = new JPH::OffsetCenterOfMassShapeSettings(
+		auto com_settings = JPH::OffsetCenterOfMassShapeSettings(
 			-ToPhysics(PositionOffset),  // counter‐translate the computed COM
-			geo_settings                  // wrapped shape
+			&geo_settings                  // wrapped shape
 		);
-		com_settings->SetEmbedded();
+		com_settings.SetEmbedded();
 
 		// 4) Create the final shape
-		JPH::Shape::ShapeResult sr = com_settings->Create();
+		JPH::Shape::ShapeResult sr = com_settings.Create();
 		if (sr.HasError())
 			Logger::Log(sr.GetError().c_str());
 		JPH::Ref<JPH::Shape> final_shape = sr.Get();

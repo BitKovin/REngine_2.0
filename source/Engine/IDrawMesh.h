@@ -27,7 +27,7 @@ public:
 	double LastRenderedTime = 0;
 	bool WasRended = true;
 
-	virtual ~IDrawMesh() {}
+	virtual ~IDrawMesh() = default;
 
 	virtual float GetDistanceToCamera()
 	{

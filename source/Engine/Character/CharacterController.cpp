@@ -279,8 +279,6 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 	hitsGround = hitsGround && (numOfHits>0);
 
-	printf("%f \n", GroundAngleDeg(avgNormal));
-
 	canStand = hitsGround && (GroundAngleDeg(avgNormal) <= groundMaxAngle);
 
 	calculatedGroundHeight = accumulatedHeight / numOfHits;

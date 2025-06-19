@@ -37,7 +37,6 @@ void Level::CloseLevel()
 	Physics::DestroyAllBodies();
 
 	Current->RemovePendingEntities();
-
 	Current->MemoryCleanPendingEntities();
 
 	NavigationSystem::DestroyAllObstacles();

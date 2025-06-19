@@ -216,6 +216,9 @@ public:
 
 		Hud.Init(this);
 
+		PreloadEntityType("weapon_pistol");
+		PreloadEntityType("weapon_shotgun");
+
 		AddWeaponByName("weapon_pistol");
 		AddWeaponByName("weapon_shotgun");
 

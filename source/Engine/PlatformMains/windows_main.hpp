@@ -131,6 +131,7 @@ void desktop_render_loop() {
     int quit = 0;
     while (!quit) {
         Input::PendingMouseDelta = ReadMouseDelta();
+
         Input::StartEventsFrame();
         while (SDL_PollEvent(&event)) 
         {
@@ -422,6 +423,7 @@ int main(int argc, char* args[])
 
     InitImGui();
     SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE);
+    SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, "1", SDL_HINT_OVERRIDE);
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
     printf("GL Version={%s}\n", glGetString(GL_VERSION));
@@ -434,7 +436,6 @@ int main(int argc, char* args[])
     SDL_GL_SetSwapInterval(0);
 
     engine = new EngineMain(window);
-    engine->asyncGameUpdate = false;
     EngineMain::MainInstance = engine;
     engine->Init();
 

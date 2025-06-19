@@ -53,8 +53,9 @@ CQuake3BSP::~CQuake3BSP() {
     delete[] pLightmaps;
     if (m_lightmap_gen_IDs) {
         glDeleteTextures(m_numOfLightmaps, m_lightmap_gen_IDs);
-        delete[] m_lightmap_gen_IDs;
     }
+
+    delete[] cachedFaces;
 
     glDeleteTextures(1, &missing_LM_id);
 }
@@ -379,8 +380,6 @@ void CQuake3BSP::PreloadFace(int index)
         faceTexture = AssetRegistry::GetTextureFromFile(texturePath)->getID();
     }
 
-    if (faceTexture == 0) return;
-
     GLuint lightmapId = (pFace->lightmapID >= 0)
         ? m_lightmap_gen_IDs[pFace->lightmapID]
         : missing_LM_id;
@@ -397,10 +396,25 @@ void CQuake3BSP::PreloadFace(int index)
             lightmapId = missing_LM_id;
         }
     }
+
+    
+
+    CachedFaceTextureData data;
+    data.isCube = isCube;
+    data.lightmapId = lightmapId;
+    data.textureId = faceTexture;
+    data.textureName = textureName;
+    data.transparent = textureName.ends_with("_t");
+    data.numOfIndices = pFace->numOfIndices;
+    cachedFaces[index] = data;
+
 }
 
 void CQuake3BSP::PreloadFaces()
 {
+
+    cachedFaces = new CachedFaceTextureData[m_numOfFaces];
+
     for (size_t i = 0; i < m_numOfFaces; i++)
     {
         PreloadFace(i);
@@ -759,11 +773,12 @@ void CQuake3BSP::RenderTransparentFaces()
 
 bool CQuake3BSP::IsFaceTransparent(int index)
 {
+
+    return cachedFaces[index].transparent;
+
     tBSPFace* pFace = &m_pFaces[index];
 
-    string textureName = string(pTextures[pFace->textureID].strName);
 
-    return textureName.ends_with("_t");
 }
 
 vector<BSPModelRef> CQuake3BSP::GetAllModelRefs()
@@ -1013,79 +1028,23 @@ bool CQuake3BSP::RenderSingleFace(int index , bool lightmap, LightVolPointData l
 
     buffers.VAO->Bind();
 
-    // bind your textures as before
-    tBSPFace* pFace = &m_pFaces[index];
-    
-    string textureName = string(pTextures[pFace->textureID].strName);
 
-    int nameL = textureName.length();
+    const CachedFaceTextureData& data = cachedFaces[index];
 
-    bool isCube = false;
-
-    if (nameL > 5)
-    {
-        isCube =
-            (textureName[nameL - 1] == 'e') &&
-            (textureName[nameL - 2] == 'b') &&
-            (textureName[nameL - 3] == 'u') &&
-            (textureName[nameL - 4] == 'c');
-    }
+    bool isCube = data.isCube;
+    int faceTexture = data.textureId;
+    GLuint lightmapId = data.lightmapId;
 
     ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", isCube? "bsp_cube" : "bsp");
     shader->UseProgram();
 
-	string texturePath = "GameData/" + textureName + ".png";
 
-    if (isCube)
-    {
 
-        auto splitPath = StringHelper::Split(texturePath, '/');
-
-		string fileName = splitPath[splitPath.size() - 1];
-
-        texturePath = "GameData/env/" + fileName;
-        texturePath = texturePath;
-
-    }
-
-    int faceTexture;
     
-    if (isCube)
-    {
-        faceTexture = AssetRegistry::GetTextureCubeFromFile(texturePath)->getID();
-    }
-    else
-    {
-        faceTexture = AssetRegistry::GetTextureFromFile(texturePath)->getID();
-    }
     
     if (faceTexture == 0) return false;
 
-    GLuint lightmapId = (pFace->lightmapID >= 0)
-        ? m_lightmap_gen_IDs[pFace->lightmapID]
-        : missing_LM_id;
 
-    if (m_numOfLightmaps == 0 && isCube == false)
-    {
-
-        string lightMapPath = GetLightMapFilePathFromId(pFace->lightmapID, filePath);
-
-        lightmapId = AssetRegistry::GetTextureFromFile(lightMapPath)->getID();
-
-        if (lightmapId == 0)
-        {
-            lightmapId = missing_LM_id;
-        }
-            
-
-        //Logger::Log(lightMapPath);
-        //printf("%i \n", lightmapId);
-    }
-
-    if (lightmap == false)
-    {
-        lightmapId = missing_LM_id;
-    }
 
     shader->SetUniform("light_color", lightData.ambientColor);
     shader->SetUniform("direct_light_color", lightData.directColor);
@@ -1113,7 +1072,7 @@ bool CQuake3BSP::RenderSingleFace(int index , bool lightmap, LightVolPointData l
 
     // draw using the EBO already bound in the VAO; offset = 0
     glDrawElements(GL_TRIANGLES,
-        pFace->numOfIndices,
+        data.numOfIndices,
         GL_UNSIGNED_INT,
         0);
 

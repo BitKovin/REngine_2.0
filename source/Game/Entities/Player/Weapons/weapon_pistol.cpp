@@ -19,8 +19,6 @@ public:
 
 	weapon_pistol()
 	{
-		viewmodel = new SkeletalMesh(this);
-		arms = new SkeletalMesh(this);
 
 		LateUpdateWhenPaused = true;
 	}
@@ -40,6 +38,10 @@ public:
 
 	void LoadAssets()
 	{
+
+		viewmodel = new SkeletalMesh(this);
+		arms = new SkeletalMesh(this);
+
 		viewmodel->LoadFromFile("GameData/models/player/weapons/pistol/pistol.glb");
 		viewmodel->TexturesLocation = "GameData/models/player/weapons/pistol/";
 		viewmodel->PlayAnimation("draw");

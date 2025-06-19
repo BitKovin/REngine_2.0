@@ -18,8 +18,6 @@ public:
 
 	weapon_shotgun()
 	{
-		viewmodel = new SkeletalMesh(this);
-		arms = new SkeletalMesh(this);
 
 		LateUpdateWhenPaused = true;
 	}
@@ -39,6 +37,10 @@ public:
 
 	void LoadAssets()
 	{
+
+		viewmodel = new SkeletalMesh(this);
+		arms = new SkeletalMesh(this);
+
 		viewmodel->LoadFromFile("GameData/testViewmodel.glb");
 
 		viewmodel->PlayAnimation("draw");

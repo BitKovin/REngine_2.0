@@ -78,25 +78,6 @@ void emscripten_render_loop() {
 
     }
 
-    delta_history.push_back(Input::PendingMouseDelta);
-    if (delta_history.size() > history_size) {
-        delta_history.pop_front();
-    }
-
-    vec2 filtered_delta = Input::PendingMouseDelta;
-    if (delta_history.size() == history_size) {
-        std::array<float, history_size> x_deltas, y_deltas;
-        for (size_t i = 0; i < history_size; ++i) {
-            x_deltas[i] = delta_history[i].x;
-            y_deltas[i] = delta_history[i].y;
-        }
-        std::sort(x_deltas.begin(), x_deltas.end());
-        std::sort(y_deltas.begin(), y_deltas.end());
-        filtered_delta.x = (x_deltas[0] + x_deltas[1]) * 0.5f;
-        filtered_delta.y = (y_deltas[0] + y_deltas[1]) * 0.5f;
-    }
-
-    Input::PendingMouseDelta = filtered_delta;
     engine->MainLoop();
 }
 
@@ -130,7 +111,7 @@ int main(int argc, char* args[]) {
     }
 
     InitImGui();
-    SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE);
+    SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, "1", SDL_HINT_OVERRIDE);
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
     printf("GL Version={%s}\n", glGetString(GL_VERSION));

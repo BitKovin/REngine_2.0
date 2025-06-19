@@ -84,6 +84,8 @@ public:
 		OwnerEntity = owner;
 	}
 
+	virtual ~StaticMesh() = default;
+
 	void SetPixelShader(string name)
 	{
 		PixelShader = name;

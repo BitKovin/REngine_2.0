@@ -342,10 +342,10 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 	JPH::Vec3 endLoc = ToPhysics(end);
 
 	// Create a sphere shape for the trace.
-	auto sphere_shape_settings = new JPH::SphereShapeSettings();
-	sphere_shape_settings->SetEmbedded();
-	sphere_shape_settings->mRadius = radius;
-	JPH::Shape::ShapeResult shape_result = sphere_shape_settings->Create();
+	auto sphere_shape_settings = JPH::SphereShapeSettings();
+	sphere_shape_settings.SetEmbedded();
+	sphere_shape_settings.mRadius = radius;
+	JPH::Shape::ShapeResult shape_result = sphere_shape_settings.Create();
 	JPH::ShapeRefC sphere_shape = shape_result.Get();
 
 	if (shape_result.HasError())
@@ -358,7 +358,6 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 		hit.normal = vec3(0, 0, 0);
 		hit.hitbody = nullptr;
 		hit.hitboxName = "";
-		delete sphere_shape_settings;
 		return hit;
 	}
 
@@ -426,10 +425,6 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 		}
 	}
 
-	//physicsMainLock.unlock();
-
-	// Clean up the shape settings.
-	delete sphere_shape_settings;
 
 	hit.hasHit = hit.hasHit && hit.entity != nullptr;
 
@@ -466,14 +461,13 @@ Physics::HitResult Physics::CylinderTrace(const vec3 start, const vec3 end, floa
 	}
 
 	// Create cylinder shape
-	auto cylinder_shape_settings = new JPH::CylinderShapeSettings(halfHeight, radius);
-	cylinder_shape_settings->SetEmbedded();
-	JPH::Shape::ShapeResult shape_result = cylinder_shape_settings->Create();
+	auto cylinder_shape_settings = JPH::CylinderShapeSettings(halfHeight, radius);
+	cylinder_shape_settings.SetEmbedded();
+	JPH::Shape::ShapeResult shape_result = cylinder_shape_settings.Create();
 	JPH::ShapeRefC cylinder_shape = shape_result.Get();
 
 	if (shape_result.HasError()) {
 		Logger::Log(shape_result.GetError().c_str());
-		delete cylinder_shape_settings;
 		return hit;
 	}
 
@@ -525,8 +519,6 @@ Physics::HitResult Physics::CylinderTrace(const vec3 start, const vec3 end, floa
 	}
 	// physicsMainLock.unlock(); // Uncomment if thread safety required
 
-	// Cleanup
-	delete cylinder_shape_settings;
 
 	// Validate hit entity
 	hit.hasHit = hit.hasHit && hit.entity != nullptr;
@@ -656,12 +648,12 @@ Body* Physics::CreateCharacterBody(Entity* owner, vec3 Position, float Radius, f
 	}
 
 	// Create capsule shape
-	auto capsule_shape_settings = new JPH::CapsuleShapeSettings();
-	capsule_shape_settings->SetEmbedded();
-	capsule_shape_settings->mRadius = Radius;
-	capsule_shape_settings->mHalfHeightOfCylinder = cylinder_half_height;
+	auto capsule_shape_settings = JPH::CapsuleShapeSettings();
+	capsule_shape_settings.SetEmbedded();
+	capsule_shape_settings.mRadius = Radius;
+	capsule_shape_settings.mHalfHeightOfCylinder = cylinder_half_height;
 
-	JPH::Shape::ShapeResult shape_result = capsule_shape_settings->Create();
+	JPH::Shape::ShapeResult shape_result = capsule_shape_settings.Create();
 	JPH::Shape* capsule_shape = shape_result.Get();
 
 	if (shape_result.HasError())
@@ -710,13 +702,13 @@ Body* Physics::CreateCharacterCylinderBody(Entity* owner, vec3 Position, float R
 	}
 
 	// Create cylinder shape
-	auto cylinder_shape_settings = new JPH::CylinderShapeSettings(
+	auto cylinder_shape_settings = JPH::CylinderShapeSettings(
 		cylinder_half_height,
 		Radius
 	);
-	cylinder_shape_settings->SetEmbedded();
+	cylinder_shape_settings.SetEmbedded();
 
-	JPH::Shape::ShapeResult shape_result = cylinder_shape_settings->Create();
+	JPH::Shape::ShapeResult shape_result = cylinder_shape_settings.Create();
 	JPH::Shape* cylinder_shape = shape_result.Get();
 
 	if (shape_result.HasError())

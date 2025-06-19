@@ -37,7 +37,7 @@ void TestNpc::Start()
 	mesh->Position = Position - vec3(0, 1, 0);
 	mesh->Rotation = Rotation;
 
-	Drawables.push_back(mesh);
+	//Drawables.push_back(mesh);
 
 	LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 2, 50);
 

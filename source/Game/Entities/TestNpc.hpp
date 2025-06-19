@@ -56,6 +56,7 @@ public:
 	TestNpc()
 	{
 		mesh = new SkeletalMesh(this);
+		Drawables.push_back(mesh);
 
 		ClassName = "testnpc";
 		SaveGame = true;
