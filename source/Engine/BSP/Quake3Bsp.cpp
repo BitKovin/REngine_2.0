@@ -802,9 +802,13 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
     
     vector<RefConst<Shape>> shapes;
 
+    vector<RefConst<Shape>> shapesSky;
+
     // Iterate over all faces of the model
     for (int i = model.model.face; i < model.model.face + model.model.n_faces; i++)
     {
+
+        bool sky = false;
 
         RefConst<Shape> shape;
 
@@ -814,7 +818,10 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
         if (true)
         {
             if (StringHelper::Contains(textureName, "_cube"))
-                continue;
+            {
+                sky = true;
+            }
+                
         }
         // Get the vertex array for face i
         auto& vertices = model.bsp->Rbuffers.v_faceVBOs[i];
@@ -868,13 +875,19 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
             shape = Physics::CreateMeshShape(mesh.vertices, mesh.indices, textureName);
         }
 
-
-        shapes.push_back(shape);
+        if (sky)
+        {
+            shapesSky.push_back(shape);
+        }
+        else
+        {
+            shapes.push_back(shape);
+        }
+        
 
     }
 
     RefConst<Shape> finalShape = Physics::CreateStaticCompoundShapeFromConvexShapes(shapes);
-    
 
     Body* body = Physics::CreateBodyFromShape(entity, vec3(0), finalShape,10,true,BodyType::World, BodyType::GroupCollisionTest);
 
@@ -883,6 +896,14 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
     entity->LeadBody = body;
 
     model.StaticNavigation = entity->Static;
+
+    if (shapesSky.size())
+    {
+        RefConst<Shape> skyShape = Physics::CreateStaticCompoundShapeFromConvexShapes(shapesSky);
+        Body* bodySky = Physics::CreateBodyFromShape(entity, vec3(0), skyShape, 10, true, BodyType::None, BodyType::CharacterCapsule);
+        entity->Bodies.push_back(bodySky);
+    }
+   
 
 }
 
