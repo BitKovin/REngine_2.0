@@ -13,6 +13,11 @@ public:
 
 	Delay StopDelay = Delay(1000000000);
 
+	~ParticleSystem()
+	{
+
+	}
+
 	void Start() override
 	{
 		for (auto emitter : emitters)
@@ -74,13 +79,13 @@ public:
 
 	static void PreloadSystemAssets(string name)
 	{
-		Entity* ent = LevelObjectFactory::instance().create(name);
+		Entity* ent = Spawn(name);
 
 		auto system = (ParticleSystem*)(ent);
 		if (system)
 		{
 			system->LoadAssetsIfNeeded();
-			delete(system);
+			ent->Destroy();
 		}
 	}
 
