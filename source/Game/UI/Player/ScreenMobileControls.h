@@ -23,7 +23,7 @@ public:
 		Joystick = make_shared<UiJoystick>();
 		Joystick->origin = vec2(0, 1);
 		Joystick->pivot = vec2(0, 1);
-		Joystick->size = vec2(400,400);
+		Joystick->size = vec2(200,200);
 		Joystick->position = vec2(0,0);
 		Joystick->FastTapAction = "jump";
 		AddChild(Joystick);

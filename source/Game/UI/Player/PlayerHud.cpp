@@ -19,7 +19,6 @@ void PlayerHud::Init(Player* playerRef)
 	player = playerRef;
 
     hudCanvas = make_shared<UiCanvas>();
-    img = make_shared<UiButton>();
     crosshair = make_shared<UiImage>();
 
     crosshair->pivot = vec2(0.5);
@@ -27,17 +26,6 @@ void PlayerHud::Init(Player* playerRef)
     crosshair->size = vec2(8);
     crosshair->ImagePath = "GameData/cat.png";
 
-    // Define a lambda function
-    auto clickHandler = []() {
-        std::cout << "Button clicked!" << std::endl;
-        };
-
-    // Assign it to the pointer (needs dynamic allocation)
-    img->onClick = new std::function<void()>(clickHandler);
-
-
-    img->position = vec2(100, 100);
-    img->size = vec2(100);
 
     text = make_shared<UiText>();
 
@@ -48,14 +36,15 @@ void PlayerHud::Init(Player* playerRef)
 
     text->text = std::to_string((int)player->Health);
 
-    hudCanvas->AddChild(img);
+
     hudCanvas->AddChild(text);
     hudCanvas->AddChild(crosshair);
 
-    EngineMain::Viewport.AddChild(hudCanvas);
+
 
     ScreenControls = make_shared<ScreenMobileControls>();
     EngineMain::Viewport.AddChild(ScreenControls);
+    EngineMain::Viewport.AddChild(hudCanvas);
 
     slots = make_shared<WeaponSlots>();
     slots->player = player;
@@ -73,13 +62,20 @@ void PlayerHud::Update()
 
 void WeaponSlots::Update()
 {
+
+    if (oldSlot == player->currentSlot && oldSlots == player->weaponSlots)
+    {
+        UiHorizontalBox::Update();
+        return;
+    }
+
     children.clear();
 
     for (WeaponSlotData data : player->weaponSlots)
     {
         if (data.className == "") continue;
 
-        auto img = make_shared<UiImage>();
+        auto img = make_shared<UiButton>();
         img->size = vec2(120,120);
 
         if (data.slot == player->currentSlot)
@@ -90,6 +86,14 @@ void WeaponSlots::Update()
         {
             img->color = vec4(1, 0.8, 0.8, 0.8);
         }
+
+        img->OnlyTouch = true;
+        img->OnlyNotPaused = true;
+
+        img->onClick = [this, data]() {
+            player->SwitchToSlot(data.slot);
+            };
+
 
         auto text = make_shared<UiText>();
         text->origin = vec2(0,1);
@@ -103,6 +107,9 @@ void WeaponSlots::Update()
         AddChild(img);
 
     }
+
+    oldSlot = player->currentSlot;
+    oldSlots = player->weaponSlots;
 
     UiHorizontalBox::Update();
 

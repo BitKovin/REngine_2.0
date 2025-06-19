@@ -20,7 +20,7 @@ public:
 	string DoubleTapAction = "";
 	string FastTapAction = "";
 
-	vec2 MoveAreaSize = vec2(400);
+	vec2 MoveAreaSize = vec2(200);
 
 private:
 

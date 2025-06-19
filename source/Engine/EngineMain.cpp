@@ -6,7 +6,7 @@
 #include "SoundSystem/SoundManager.hpp"
 #include "Particle/ParticleEmitter.h"
 #include "DebugDraw.hpp"
-
+#include "UI/UiRenderer.h"
 
 EngineMain* EngineMain::MainInstance = nullptr;
 

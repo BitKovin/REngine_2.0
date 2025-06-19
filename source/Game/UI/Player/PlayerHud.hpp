@@ -8,6 +8,7 @@
 #include <UI/UiImage.hpp>
 #include <UI/UiHorizontalBox.hpp>
 #include <Entity.h>
+#include "../../Entities/Player/Weapons/WeaponBase.h"
 
 #include "ScreenMobileControls.h"
 
@@ -17,6 +18,9 @@ class WeaponSlots : public UiHorizontalBox
 {
 public:
 	
+	int oldSlot = -1;
+	std::vector<WeaponSlotData> oldSlots;
+
 	Player* player = nullptr;
 
 	void Update();

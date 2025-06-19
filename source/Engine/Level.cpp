@@ -111,6 +111,14 @@ Level* Level::OpenLevel(string filePath)
 		obj->Start();
 	}
 
+	auto gamestart = LevelObjectFactory::instance().create("gamestart");
+
+	if (gamestart)
+	{
+		Current->LevelObjects.insert(Current->LevelObjects.begin(), gamestart);
+	}
+	
+
 	Current->AddPendingLevelObjects();
 	Current->RemovePendingEntities();
 	Current->MemoryCleanPendingEntities();

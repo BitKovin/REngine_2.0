@@ -2,6 +2,7 @@
 #include <Input.h>
 
 #include <BSP/Quake3Bsp.h>
+#include <UI/UiManager.h>
 #include "Entities/TestBsp.h"
 
 class GameStart : public Entity
@@ -34,7 +35,20 @@ public:
 
 	}
 
-    
+    void Update()
+    {
+
+        if (Input::IsScrenTouched)
+        {
+            UiManager::UiScale = 2;
+        }
+
+        if (Input::MouseDelta != vec2())
+        {
+            UiManager::UiScale = 1;
+        }
+
+    }
 
 private:
 

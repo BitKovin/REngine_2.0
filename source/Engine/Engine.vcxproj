@@ -399,6 +399,7 @@
     <ClInclude Include="UI\UiElement.h" />
     <ClInclude Include="UI\UiHorizontalBox.hpp" />
     <ClInclude Include="UI\UiImage.hpp" />
+    <ClInclude Include="UI\UiManager.h" />
     <ClInclude Include="UI\UiRenderer.h" />
     <ClInclude Include="UI\UiText.hpp" />
     <ClInclude Include="UI\UiVerticalBox.hpp" />

@@ -290,7 +290,7 @@ bool CharacterController::CheckGroundAt(vec3 location,float checkRadius, float& 
 
 	Physics::HitResult result;
 	
-	if (radius > 0)
+	if (checkRadius > 0)
 	{
 		result = Physics::CylinderTrace(location, location - vec3(0, height / 2 + stepHeight - 0.05f, 0), checkRadius, 0.05f, BodyType::GroupCollisionTest, { body });
 

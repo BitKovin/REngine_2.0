@@ -6,7 +6,7 @@
 
 #include "../Texture.hpp"
 #include "../AssetRegistry.h"
-
+#include "../EngineMain.h"
 #include "../Input.h"
 
 class UiButton : public UiElement
@@ -24,7 +24,10 @@ public:
 
 	vec4 Color = vec4(1);
 
-	std::function<void()>* onClick = nullptr;
+	std::function<void()> onClick = nullptr;
+
+	bool OnlyTouch = false;
+	bool OnlyNotPaused = false;
 
 	UiButton()
 	{ 
@@ -40,13 +43,18 @@ public:
 
 		UiElement::Update();
 
+		if (EngineMain::MainInstance->Paused && OnlyNotPaused) return;
+
 		for (const auto& touch : TouchEvents)
 		{
+
+			if (touch.id < 10 && OnlyTouch) return;
+
 			if (touch.pressed)
 			{
 				if (onClick)
 				{
-					(*onClick)();
+					onClick();
 				}
 			}
 		}

@@ -14,6 +14,8 @@ class Time {
 public:
     static double DeltaTime;           // scaled delta time (seconds)
     static float DeltaTimeF;           // scaled delta time (seconds) (float)
+    static double DeltaTimeNoTimeScale;           // scaled delta time (seconds)
+    static float DeltaTimeFNoTimeScale;           // scaled delta time (seconds) (float)
     static double GameTime;            // total scaled game time (seconds)
     static double GameTimeNoPause;     // total unscaled game time (seconds)
     static bool GamePaused;

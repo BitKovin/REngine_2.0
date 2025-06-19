@@ -3,6 +3,8 @@
 // static member definitions
 double Time::DeltaTime = 0.0;
 float Time::DeltaTimeF = 0.0f;
+double Time::DeltaTimeNoTimeScale = 0.0;
+float Time::DeltaTimeFNoTimeScale = 0.0f;
 double Time::GameTime = 0.0;
 double Time::GameTimeNoPause = 0.0;
 bool Time::GamePaused = false;
@@ -37,6 +39,9 @@ void Time::Update() {
             ++it;
         }
     }
+
+    DeltaTimeNoTimeScale = rawDelta;
+    DeltaTimeFNoTimeScale = rawDelta;
 
     // Compute compounded time scales
     float finalScale = GetFinalTimeScale();

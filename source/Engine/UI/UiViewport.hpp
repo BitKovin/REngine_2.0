@@ -2,6 +2,7 @@
 
 #include "UiElement.h"
 #include "../Camera.h"
+#include "UiManager.h"
 
 class UiViewport : public UiElement
 {
@@ -29,7 +30,7 @@ public:
 
 	vec2 GetSize()
 	{
-		return vec2(1080 * Camera::AspectRatio, 1080);
+		return vec2(UiManager::GetScaledUiHeight() * Camera::AspectRatio, UiManager::GetScaledUiHeight());
 	}
 
 private:

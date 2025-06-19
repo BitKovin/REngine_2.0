@@ -5,6 +5,7 @@
 #include <cmath>
 #include "glm.h"
 #include "Camera.h"
+#include "UI/UiManager.h"
 
 #include "Time.hpp"
 
@@ -222,7 +223,7 @@ void Input::StartEventsFrame()
     }
 
 
-    float screenToViewportRatio = Camera::ScreenHeight / 1080.0F;
+    float screenToViewportRatio = Camera::ScreenHeight / UiManager::GetScaledUiHeight();
 
 
 

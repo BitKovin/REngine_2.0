@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include "../Time.hpp"
+#include "UiManager.h"
 
 // Cache entry structure
 struct TextureCacheEntry {
@@ -74,8 +75,8 @@ namespace UiRenderer {
     }
 
     void SetShaderProjection(ShaderProgram* shader) {
-        int screenWidth = 1080 * Camera::AspectRatio;
-        int screenHeight = 1080;
+        int screenWidth = UiManager::GetScaledUiHeight() * Camera::AspectRatio;
+        int screenHeight = UiManager::GetScaledUiHeight();
 
         glm::mat4 uiProjection = glm::ortho(
             0.0f,

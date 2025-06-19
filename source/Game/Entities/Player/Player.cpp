@@ -273,6 +273,15 @@ void Player::UpdateWeapon()
 
 void Player::UpdateDebugUI()
 {
+
+    auto draw = ImGui::GetForegroundDrawList();
+
+    string fps = "fps: " + to_string((int)(1.0 / Time::DeltaTimeNoTimeScale));
+
+    draw->AddText(NULL, 24.0f, ImVec2(10, 10), IM_COL32(255, 255, 255, 255), fps.c_str());
+
+    if (EngineMain::MainInstance->Paused == false) return;
+
     ImGui::Begin("navigation");
 
     ImGui::Checkbox("draw nav mesh", &NavigationSystem::DebugDrawNavMeshEnabled);

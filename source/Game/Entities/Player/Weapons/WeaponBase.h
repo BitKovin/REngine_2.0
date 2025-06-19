@@ -10,6 +10,8 @@ struct WeaponSlotData
 	int slot = 0;
 	int priority = 0;
 
+	auto operator<=>(const WeaponSlotData&) const = default;
+
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponSlotData, className,slot,priority)
 };
 
