@@ -90,6 +90,7 @@ Level* Level::OpenLevel(string filePath)
 		Current->BspData.GenerateLightmap();
 		Current->BspData.LoadToLevel();
 		Current->BspData.PreloadFaces();
+		Current->BspData.BuildStaticOpaqueObstacles();
 	}
 	else
 	{

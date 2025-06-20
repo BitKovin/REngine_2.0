@@ -295,6 +295,15 @@ struct FaceRenderData
     int faceIndex;
     bool useLightmap;
     LightVolPointData lightPointData;
+    mat4 modelMatrix;
+};
+
+
+struct OpaqueModelVBO
+{
+    VertexBuffer* vbo = nullptr;
+    IndexBuffer* ibo = nullptr;
+    VertexArrayObject* vao = nullptr;
 };
 
 class BSPModelRef;
@@ -326,7 +335,7 @@ class CQuake3BSP : public IDrawMesh
     // r3c:: new functions
     void GenerateTexture();
     void GenerateLightmap();
-    bool RenderSingleFace(int index, bool lightmap, LightVolPointData lightData);
+    bool RenderSingleFace(int index, bool lightmap, LightVolPointData lightData, mat4 model);
     void renderFaces();
     void VBOFiller(int index);
     void BuildVBO();
@@ -378,6 +387,8 @@ class CQuake3BSP : public IDrawMesh
     std::vector<tBSPEffect> effects;
     std::vector<tBSPLightvol> lightVols;
 
+    std::vector<OpaqueModelVBO> opaqueVBOs;
+
     CachedFaceTextureData* cachedFaces;
 
     std::vector<BoundingBox> faceBounds;
@@ -389,6 +400,7 @@ class CQuake3BSP : public IDrawMesh
     glm::vec3 originalMins; // Original model bounds in Z-up (before transformation)
     glm::vec3 originalMaxs;
 
+
     // Get lighting for a dynamic object at position (x, y, z)
     LightVolPointData GetLightvolColorPoint(const glm::vec3& position);
     LightVolPointData GetLightvolColor(const glm::vec3& position);
@@ -399,7 +411,7 @@ class CQuake3BSP : public IDrawMesh
     void DrawForward(mat4x4 view, mat4x4 projection);
 
     // Optimized rendering loop
-    void RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool useClusterVis, bool lightmap);
+    void RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, mat4 modelMatrix, bool useClusterVis, bool lightmap);
 
     void RenderTransparentFaces();
 
@@ -407,16 +419,17 @@ class CQuake3BSP : public IDrawMesh
 
     vector <BSPModelRef> GetAllModelRefs();
 
+    void BuildStaticOpaqueObstacles();
+
     void LoadToLevel();
 
 };
+
 
 class BSPModelRef : public IDrawMesh
 {
 private:
 
-    
-    
 
 public:
 
@@ -434,11 +447,18 @@ public:
 
     vec3 avgPosition = vec3(0);
 
+    mat4 finalWorldMatrix;
+
     BoundingBox bounds;
+
 
     mat4 GetWorldMatrix();
 
     BSPModelRef(CQuake3BSP* bsp_ptr, int model_id, tBSPModel& model_ref);
+    
+    ~BSPModelRef();
+
+    void BuildVisBlocker();
 
     float GetDistanceToCamera();
 
@@ -455,10 +475,13 @@ public:
     vector<tBSPFace> GetFaces();
 
     vector<MeshUtils::PositionVerticesIndices> GetNavObstacleMeshes();
-    vector<VertexData> GetVertices(bool collisionOnly = false);
-    vector<uint32_t> GetIndices(bool collisionOnly = false);
+    vector<VertexData> GetVertices(bool collisionOnly = false, bool opaqueOnly = false);
+    vector<uint32_t> GetIndices(bool collisionOnly = false, bool opaqueOnly = false);
     
+    void FinalizeFrameData();
+
     void DrawForward(mat4x4 view, mat4x4 projection);
+    void DrawDepth(mat4x4 view, mat4x4 projection);
 
 };
 

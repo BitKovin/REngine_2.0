@@ -61,6 +61,9 @@ public:
 
 	Delay destroyDelay = Delay(1000000000);
 
+	BodyType DefaultBrushGroup = BodyType::World;
+	BodyType DefaultBrushCollisionMask = BodyType::GroupCollisionTest;
+
 	Entity()
 	{
 

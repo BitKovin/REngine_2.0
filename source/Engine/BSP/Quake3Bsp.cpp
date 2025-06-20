@@ -45,7 +45,16 @@ CQuake3BSP::CQuake3BSP() {
     m_pIndices = NULL;
 }
 
-CQuake3BSP::~CQuake3BSP() {
+CQuake3BSP::~CQuake3BSP() 
+{
+
+    for (auto modelVBO : opaqueVBOs)
+    {
+        delete(modelVBO.vao);
+        delete(modelVBO.ibo);
+        delete(modelVBO.vbo);
+    }
+
     delete[] m_pVerts;
     delete[] m_pFaces;
     delete[] m_pIndices;
@@ -419,6 +428,8 @@ void CQuake3BSP::PreloadFaces()
     {
         PreloadFace(i);
     }
+
+
 }
 
 glm::vec3 computeLightDirection(const unsigned char vol_dir[2]) {
@@ -628,7 +639,7 @@ void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
 
         if (Camera::frustum.IsBoxVisible(min, max))
         {
-            RenderBSP(Camera::finalizedPosition, model, first, first);
+			RenderBSP(Camera::finalizedPosition, model, mat4(1.0f / MAP_SCALE), first, first);
         }
 
 
@@ -637,7 +648,7 @@ void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
 
 }
 
-void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool useClusterVis, bool lightmap)
+void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, mat4 modelMatrix, bool useClusterVis, bool lightmap)
 {
 
 
@@ -707,6 +718,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
                         renderData.faceIndex = faceIndex;
                         renderData.useLightmap = lightmap;
                         renderData.lightPointData = lightData;
+                        renderData.modelMatrix = modelMatrix;
 
                         if (IsFaceTransparent(faceIndex))
                         {
@@ -715,7 +727,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
                         else
                         {
 
-                            bool drawn = RenderSingleFace(faceIndex, lightmap, lightData);
+                            bool drawn = RenderSingleFace(faceIndex, lightmap, lightData, modelMatrix);
                             if (drawn)
                             {
                                 drawnFaces++;
@@ -736,6 +748,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
             renderData.faceIndex = i;
             renderData.useLightmap = lightmap;
             renderData.lightPointData = lightData;
+            renderData.modelMatrix = modelMatrix;
 
             if (IsFaceTransparent(i))
             {
@@ -743,7 +756,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, bool us
             }
             else
             {
-                bool drawn = RenderSingleFace(i, lightmap, lightData);
+                bool drawn = RenderSingleFace(i, lightmap, lightData, modelMatrix);
                 if (drawn)
                 {
                     drawnFaces++;
@@ -764,7 +777,7 @@ void CQuake3BSP::RenderTransparentFaces()
 
     for (auto& face : facesToDrawTransparent)
     {
-        bool drawn = RenderSingleFace(face.faceIndex, face.useLightmap, face.lightPointData);
+        bool drawn = RenderSingleFace(face.faceIndex, face.useLightmap, face.lightPointData, face.modelMatrix);
     }
 
     facesToDrawTransparent.clear();
@@ -795,6 +808,29 @@ vector<BSPModelRef> CQuake3BSP::GetAllModelRefs()
     return refs;
 }
 
+void CQuake3BSP::BuildStaticOpaqueObstacles()
+{
+
+    opaqueVBOs.resize(models.size());
+
+    for (int i = 0; i < models.size(); i++)
+    {
+
+        BSPModelRef ref(this, static_cast<int>(i), models[i]);
+
+        auto vertices = ref.GetVertices(false, true);
+        auto indices = ref.GetIndices(false, true);
+
+        OpaqueModelVBO modelVBO;
+        modelVBO.vbo = new VertexBuffer(vertices, VertexData::Declaration());
+        modelVBO.ibo = new IndexBuffer(indices);
+        modelVBO.vao = new VertexArrayObject(*modelVBO.vbo, *modelVBO.ibo);
+
+        opaqueVBOs[i] = modelVBO;
+
+    }
+}
+
 void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
 {
 
@@ -820,6 +856,10 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
             if (StringHelper::Contains(textureName, "_cube"))
             {
                 sky = true;
+
+                if (model.id != 0)
+                    continue;
+
             }
                 
         }
@@ -889,7 +929,7 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
 
     RefConst<Shape> finalShape = Physics::CreateStaticCompoundShapeFromConvexShapes(shapes);
 
-    Body* body = Physics::CreateBodyFromShape(entity, vec3(0), finalShape,10,true,BodyType::World, BodyType::GroupCollisionTest);
+    Body* body = Physics::CreateBodyFromShape(entity, vec3(0), finalShape,10,true,entity->DefaultBrushGroup, entity->DefaultBrushCollisionMask);
 
     Physics::SetBodyPosition(body, bodyPos);
 
@@ -1032,11 +1072,9 @@ std::string CQuake3BSP::GetLightMapFilePathFromId(int id, const std::string& fil
 
     return result;
 }
-bool CQuake3BSP::RenderSingleFace(int index , bool lightmap, LightVolPointData lightData)
+bool CQuake3BSP::RenderSingleFace(int index , bool lightmap, LightVolPointData lightData, mat4 model)
 {
 
-
-    mat4 model = glm::scale(vec3(1.0f / MAP_SCALE));
 
     auto bounds = faceBounds[index];
     bounds = bounds.Transform(model);
@@ -1170,12 +1208,12 @@ void CQuake3BSP::GenerateLightmap() {
 
 void CQuake3BSP::renderFaces() {
     for (auto& f : Rbuffers.v_faceVBOs)
-        RenderSingleFace(f.first, true, LightVolPointData());
+        RenderSingleFace(f.first, true, LightVolPointData(), scale(vec3(1.0f) / MAP_SCALE));
 }
 
 mat4 BSPModelRef::GetWorldMatrix()
 {
-	return translate(Position) * MathHelper::GetRotationMatrix(Rotation) * scale(Scale);
+	return translate(Position) * MathHelper::GetRotationMatrix(Rotation) * scale(Scale/MAP_SCALE);
 }
 
 BSPModelRef::BSPModelRef(CQuake3BSP* bsp_ptr, int model_id, tBSPModel& model_ref) 
@@ -1194,6 +1232,17 @@ BSPModelRef::BSPModelRef(CQuake3BSP* bsp_ptr, int model_id, tBSPModel& model_ref
 
     bounds = BoundingBox::FromPoints(points);
 
+}
+
+BSPModelRef::~BSPModelRef()
+{
+
+
+
+}
+
+void BSPModelRef::BuildVisBlocker()
+{
 }
 
 
@@ -1308,7 +1357,7 @@ vector<MeshUtils::PositionVerticesIndices> BSPModelRef::GetNavObstacleMeshes()
     return result;
 }
 
-std::vector<VertexData> BSPModelRef::GetVertices(bool collisionOnly) 
+std::vector<VertexData> BSPModelRef::GetVertices(bool collisionOnly, bool opaqueOnly)
 {
     std::vector<VertexData> result;
     // Iterate over all faces of the model
@@ -1323,6 +1372,16 @@ std::vector<VertexData> BSPModelRef::GetVertices(bool collisionOnly)
 			if (StringHelper::Contains(textureName, "_cube"))
 				continue;
 		}
+
+        if (opaqueOnly)
+        {
+            auto& faceData = bsp->cachedFaces[i];
+
+            if (faceData.textureId == 0 || faceData.transparent)
+                continue;
+            
+        }
+
         // Get the vertex array for face i
         auto& faceVertices = bsp->Rbuffers.v_faceVBOs[i];
         // Append all vertices from this face to the result
@@ -1331,7 +1390,7 @@ std::vector<VertexData> BSPModelRef::GetVertices(bool collisionOnly)
     return result;
 }
 
-std::vector<uint32_t> BSPModelRef::GetIndices(bool collisionOnly) {
+std::vector<uint32_t> BSPModelRef::GetIndices(bool collisionOnly, bool opaqueOnly) {
     std::vector<uint32_t> result;
     uint32_t vertexOffset = 0; // Tracks the number of vertices before the current face
     // Iterate over all faces of the model
@@ -1348,6 +1407,15 @@ std::vector<uint32_t> BSPModelRef::GetIndices(bool collisionOnly) {
                 continue;
         }
 
+        if (opaqueOnly)
+        {
+            auto& faceData = bsp->cachedFaces[i];
+
+            if (faceData.textureId == 0 || faceData.transparent)
+                continue;
+
+        }
+
         // Get the index array for face i
         auto& faceIndices = bsp->Rbuffers.v_faceIDXs[i];
         // Add each index, adjusted by the current offset
@@ -1360,11 +1428,51 @@ std::vector<uint32_t> BSPModelRef::GetIndices(bool collisionOnly) {
     return result;
 }
 
+void BSPModelRef::FinalizeFrameData()
+{
+    finalWorldMatrix = GetWorldMatrix();
+}
+
 void BSPModelRef::DrawForward(mat4x4 view, mat4x4 projection)
 {
-    bsp->RenderBSP(Camera::finalizedPosition, model, useBspVisibility, Static);
+    bsp->RenderBSP(Camera::finalizedPosition, model,finalWorldMatrix, useBspVisibility, Static);
 
     if(Transparent)
         bsp->RenderTransparentFaces();
+
+}
+
+void BSPModelRef::DrawDepth(mat4x4 view, mat4x4 projection)
+{
+
+    const auto& vbo = bsp->opaqueVBOs[id];
+
+    if (vbo.vao == nullptr)
+        return;
+
+    vbo.vao->Bind();
+
+    ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", "empty_pixel");
+    shader->UseProgram();
+
+
+
+
+    shader->SetUniform("view", view);
+    shader->SetUniform("projection", projection);
+    shader->SetUniform("model", finalWorldMatrix);
+
+
+
+
+
+    // draw using the EBO already bound in the VAO; offset = 0
+    glDrawElements(GL_TRIANGLES,
+        vbo.vao->IndexCount,
+        GL_UNSIGNED_INT,
+        0);
+
+
+    VertexArrayObject::Unbind();
 
 }
