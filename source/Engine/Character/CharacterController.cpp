@@ -66,7 +66,7 @@ void CharacterController::Update(float deltaTime)
 		velocity.y -= gravity * deltaTime;
 	}
 
-	if (standsOnGround)
+	if (standsOnGround && velocity.y <= 0)
 	{
 		vec3 currentPosition = FromPhysics(body->GetPosition());
 		float newVerticalPosition = verticalPosition + stepHeight + height / 2;
@@ -258,15 +258,15 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 			hitsGround = true;
 		}
 
-		if (numOfHits > 0)
+		if (numOfHits > 0 && false)
 		{
 			accumulatedHeight += outheight * numOfHits;
 			numOfHits *= 2;
 		}
 		else
 		{
-			accumulatedHeight += outheight;
-			numOfHits ++;
+			accumulatedHeight += outheight * 3;
+			numOfHits += 3;
 		}
 
 		
