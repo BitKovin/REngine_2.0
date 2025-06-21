@@ -13,6 +13,7 @@ void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 	oldRootMotionRot = vec3();
 	animator.totalRootMotionPosition = vec3();
 	animator.totalRootMotionRotation = vec3();
+	animator.oldRootBoneTransform = MathHelper::Transform();
 	rootMotionBasisQuat = quat();
 	currentAnimationData = GetAnimationDataFromName(name);	
 	Update(0);
@@ -34,7 +35,7 @@ MathHelper::Transform SkeletalMesh::PullRootMotion()
 
 	// 3) apply the offsets back to the skeleton (unchanged)
 	positionOffset = -animator.totalRootMotionPosition;
-	rotationOffset = -animator.totalRootMotionRotation;
+	rotationOffset = -animator.totalRootMotionRotation ;
 
 	// 4) build the output transform:
 	MathHelper::Transform t;
@@ -64,13 +65,7 @@ void SkeletalMesh::Update(float timeScale)
 	animator.update(Time::DeltaTimeF * timeScale);
 	UpdateAnimationEvents();
 
-	if (animator.m_currTime < oldAnimTime)
-	{
-		oldRootMotionPos = vec3();
-		oldRootMotionRot = vec3();
-		animator.totalRootMotionPosition = vec3();
-		animator.totalRootMotionRotation = vec3();
-	}
+
 	oldAnimTime = animator.m_currTime;
 
 	if (UpdatePose == false) return;

@@ -165,15 +165,7 @@ public:
 
 	}
 
-	bool IsInFrustrum(Frustum frustrum)
-	{
-
-		if (model == nullptr) return false;
-
-		auto sphere = model->boundingSphere.Transform(finalizedPosition, finalizedRotation, finalizedScale);
-
-		return frustrum.IsSphereVisible(sphere.offset, sphere.Radius);
-	};
+	bool IsInFrustrum(Frustum frustrum);
 
 	virtual bool isVisible()
 	{

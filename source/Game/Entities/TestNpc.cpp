@@ -72,6 +72,7 @@ void TestNpc::Stun(Entity* DamageCauser, Entity* Weapon)
 {
 	stuned = true;
 	mesh->PlayAnimation("stun");
+	mesh->PullRootMotion();
 	attacking = false;
 	attackingDamage = false;
 
@@ -88,6 +89,7 @@ void TestNpc::Attack()
 
 	inAttackDelay.AddDelay(2.5f);
 	mesh->PlayAnimation("attack");
+	mesh->PullRootMotion();
 	attacking = true;
 
 }
@@ -190,13 +192,11 @@ void TestNpc::AsyncUpdate()
 {
 
 
-
-	
-
-	//mesh->UpdatePose = mesh->WasRended;
+	mesh->UpdatePose = mesh->WasRended;
 
 	mesh->Update();
 	
+	DebugDraw::Line(Position, Position + vec3(0,1,0));
 
 	auto animEvents = mesh->PullAnimationEvents();
 

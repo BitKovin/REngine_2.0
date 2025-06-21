@@ -22,6 +22,17 @@ LightVolPointData StaticMesh::GetLightVolData()
 
 }
 
+bool StaticMesh::IsInFrustrum(Frustum frustrum)
+{
+	if (model == nullptr) return false;
+
+	auto sphere = model->boundingSphere.Transform(finalizedPosition, finalizedRotation, finalizedScale);
+
+	DebugDraw::Bounds(sphere.offset - vec3(sphere.Radius), sphere.offset + vec3(sphere.Radius), 0.01f);
+
+	return frustrum.IsSphereVisible(sphere.offset, sphere.Radius);
+}
+
 bool StaticMesh::IsCameraVisible()
 {
 	if (model == nullptr)

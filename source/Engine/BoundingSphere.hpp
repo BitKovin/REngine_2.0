@@ -126,6 +126,22 @@ public:
 
     }
 
+    BoundingSphere Transform(const glm::mat4& matrix)
+    {
+        // Transform the center (offset) as a point (w=1)
+        glm::vec3 transformedCenter = glm::vec3(matrix * glm::vec4(offset, 1.0f));
+
+        // Extract the scale from the matrix using column vectors of the upper-left 3x3 part
+        float scaleX = glm::length(glm::vec3(matrix[0])); // X-axis
+        float scaleY = glm::length(glm::vec3(matrix[1])); // Y-axis
+        float scaleZ = glm::length(glm::vec3(matrix[2])); // Z-axis
+
+        float maxScale = glm::max(scaleX, glm::max(scaleY, scaleZ));
+
+        return BoundingSphere(transformedCenter, Radius * maxScale);
+    }
+
+
 
 
 private:
