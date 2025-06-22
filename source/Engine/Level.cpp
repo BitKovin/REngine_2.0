@@ -67,8 +67,10 @@ Level* Level::OpenLevel(string filePath)
 	}
 
 	Time::Update();
-	Time::DeltaTime = 0;
+	Time::DeltaTime = 0.0;
 	Time::DeltaTimeF = 0;
+	Time::GameTime = 0;
+	Time::GameTimeNoPause = 0;
 
 	Level* newLevel = new Level();
 
@@ -134,7 +136,7 @@ Level* Level::OpenLevel(string filePath)
 	}
 
 	Time::Update();
-	Time::DeltaTime = 0;
+	Time::DeltaTime = 0.0;
 	Time::DeltaTimeF = 0;
 	Time::GameTime = 0;
 	Time::GameTimeNoPause = 0;
