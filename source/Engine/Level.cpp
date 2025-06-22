@@ -405,12 +405,11 @@ void Level::FinalizeFrame()
 		{
 
 			for (IDrawMesh* mesh : var->GetDrawMeshes())
-			{
-
-				mesh->FinalizeFrameData();
+			{		
 
 				if (mesh->IsCameraVisible())
-				{
+				{			
+
 					if (mesh->Transparent)
 					{
 						transparent.push_back(mesh);
@@ -420,8 +419,18 @@ void Level::FinalizeFrame()
 						opaque.push_back(mesh);
 					}
 
+					if (mesh->WasRended == false)
+					{
+						mesh->WasRended = true;
+
+						mesh->StartedRendering();
+					}
+
 					mesh->LastRenderedTime = Time::GameTime;
 					mesh->WasRended = true;
+
+					mesh->FinalizeFrameData();
+
 				}
 				else
 				{

@@ -51,6 +51,9 @@ public:
 
 	virtual bool IsInFrustrum(Frustum frustrum) { return true; };
 
+	//called when object wasn't rendered in previous frame
+	virtual void StartedRendering(){}
+
 	virtual void RemoveFromLevel(){}
 
 	virtual void PreloadAssets(){}

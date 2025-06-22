@@ -7,7 +7,13 @@ project(MyProject)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Build")
-add_definitions(-DNDEBUG -O3 -std=c++20)
+
+# Add Emscripten-specific compile options here (applies to all targets)
+if (EMSCRIPTEN)
+    add_compile_options(-O3 -DNDEBUG) #-pthread 
+else()
+    add_compile_options(-O3 -DNDEBUG)
+endif()
 
 # ——————————————————————————————————————————————————————————
 # Platform detection
@@ -103,6 +109,7 @@ set(WASM_COMMON_LINK_OPTIONS
     "SHELL:-s STACK_SIZE=500000"
     "SHELL:-s INITIAL_HEAP=83886080"
     "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+    #"SHELL:-s TOTAL_MEMORY=134217728"
     "SHELL:-s NO_DISABLE_EXCEPTION_CATCHING"
     "SHELL:-s WASM=1"
     "SHELL:-s ASSERTIONS=1"
@@ -110,6 +117,11 @@ set(WASM_COMMON_LINK_OPTIONS
     "SHELL:-s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1"
     "SHELL:-lidbfs.js"
     "SHELL:-msimd128"
+    #"SHELL:-pthread"
+    #"SHELL:-s USE_PTHREADS=1"
+    #"SHELL:-s PTHREAD_POOL_SIZE=32"
+    #"SHELL:-s PTHREAD_POOL_SIZE_STRICT=1"
+    #"SHELL:-s PROXY_TO_PTHREAD"
 )
 
 # ——————————————————————————————————————————————————————————

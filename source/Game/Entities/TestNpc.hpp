@@ -63,6 +63,8 @@ public:
 
 		Health = 50;
 
+		mesh->UpdatePoseOnlyWhenRendered = true;
+
 	}
 
 

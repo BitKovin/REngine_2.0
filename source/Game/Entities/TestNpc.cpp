@@ -196,7 +196,7 @@ void TestNpc::AsyncUpdate()
 
 	mesh->Update();
 	
-	DebugDraw::Line(Position, Position + vec3(0,1,0));
+	//DebugDraw::Line(Position, Position + vec3(0,1,0));
 
 	auto animEvents = mesh->PullAnimationEvents();
 

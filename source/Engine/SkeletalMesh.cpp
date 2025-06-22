@@ -62,6 +62,11 @@ void SkeletalMesh::Update(float timeScale)
 
 	animator.UpdatePose = UpdatePose;
 
+	if (UpdatePoseOnlyWhenRendered)
+	{
+		animator.UpdatePose = WasRended;
+	}
+
 	animator.update(Time::DeltaTimeF * timeScale);
 	UpdateAnimationEvents();
 
@@ -114,6 +119,15 @@ void SkeletalMesh::SetAnimationTime(float time)
 	if (animator.m_currAnim == nullptr) return;
 
 	animator.m_currTime = time;
+
+}
+
+void SkeletalMesh::StartedRendering()
+{
+
+	if (model == nullptr) return;
+	animator.update(0);
+	boneTransforms = animator.getBoneMatrices();
 
 }
 

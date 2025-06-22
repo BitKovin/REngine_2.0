@@ -219,6 +219,7 @@ public:
 	AnimationData* currentAnimationData = nullptr;
 
 	bool UpdatePose = true;
+	bool UpdatePoseOnlyWhenRendered = false;
 
 	static inline int skelMeshes = 0;
 
@@ -296,6 +297,8 @@ public:
 	float GetAnimationDuration();
 	float GetAnimationTime();
 	void SetAnimationTime(float time);
+
+	void StartedRendering();
 
 	void LoadFromFile(string path)
 	{

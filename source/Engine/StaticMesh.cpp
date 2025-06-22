@@ -26,7 +26,7 @@ bool StaticMesh::IsInFrustrum(Frustum frustrum)
 {
 	if (model == nullptr) return false;
 
-	auto sphere = model->boundingSphere.Transform(finalizedPosition, finalizedRotation, finalizedScale);
+	auto sphere = model->boundingSphere.Transform(Position, Rotation, Scale);
 
 	//DebugDraw::Bounds(sphere.offset - vec3(sphere.Radius), sphere.offset + vec3(sphere.Radius), 0.01f);
 
