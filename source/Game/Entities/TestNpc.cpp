@@ -192,7 +192,7 @@ void TestNpc::AsyncUpdate()
 {
 
 
-	mesh->UpdatePose = mesh->WasRended;
+	//mesh->UpdatePose = mesh->WasRended;
 
 	mesh->Update();
 	

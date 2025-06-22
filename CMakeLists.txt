@@ -109,6 +109,7 @@ set(WASM_COMMON_LINK_OPTIONS
     "SHELL:--preload-file ${CMAKE_SOURCE_DIR}/source/GameData@/GameData"
     "SHELL:-s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1"
     "SHELL:-lidbfs.js"
+    "SHELL:-msimd128"
 )
 
 # ——————————————————————————————————————————————————————————

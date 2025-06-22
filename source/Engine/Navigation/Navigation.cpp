@@ -151,7 +151,7 @@ void NavigationSystem::GenerateNavData()
     cfg.minRegionArea = 0;
     cfg.mergeRegionArea = 200 * 200;
     cfg.maxVertsPerPoly = 6;
-    cfg.tileSize = 32;
+    cfg.tileSize = 64;
     cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 3;
     cfg.width = cfg.tileSize + cfg.borderSize * 2;
     cfg.height = cfg.tileSize + cfg.borderSize * 2;
@@ -766,13 +766,13 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
 
     dtFreeNavMeshQuery(navQuery);
 
-    // --- 6) Collision sanity check ---
-	if (!CollisionCheckPath(start, outPath))
-	{
-		outPath.clear();
+ //   // --- 6) Collision sanity check ---
+	//if (!CollisionCheckPath(start, outPath))
+	//{
+	//	outPath.clear();
 
-	}
-        
+	//}
+ //       
 
     return outPath;
 }
