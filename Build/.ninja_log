@@ -92,3 +92,12 @@
 27	5066	7723254348112724	CMakeFiles/engine.dir/source/Engine/SkeletalMesh.cpp.o	874e0970ff1510d1
 5067	5318	7723254398509014	libengine.a	6e829b7f567674d
 5319	41886	7723254401026720	main.js	eeef50399fe0e077
+25	3101	7723394716324707	CMakeFiles/engine.dir/source/Engine/Navigation/PathFollowQuery.cpp.o	d80745528edcedfe
+52	4356	7723394716586067	CMakeFiles/game.dir/source/Game/UI/Player/PlayerHud.cpp.o	df5009dba0c2dfa4
+19	4359	7723394716259538	CMakeFiles/engine.dir/source/Engine/Level.cpp.o	d36182cc01ed5ecc
+41	4578	7723394716484918	CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/weapon_shotgun.cpp.o	f98b0bb8f3c0927a
+35	4597	7723394716424908	CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/weapon_pistol.cpp.o	123c46bf4c315146
+4359	4745	7723394759656850	libengine.a	6e829b7f567674d
+46	4868	7723394716536039	CMakeFiles/game.dir/source/Game/Entities/TestNpc.cpp.o	f6e55bf03a5db0a9
+30	5044	7723394716379772	CMakeFiles/game.dir/source/Game/Entities/Player/Player.cpp.o	9a8055ac78fc803e
+5044	42625	7723394766505941	main.js	eeef50399fe0e077

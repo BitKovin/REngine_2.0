@@ -120,7 +120,6 @@ int main(int argc, char* args[]) {
     SDL_GL_SetSwapInterval(0);
 
     engine = new EngineMain(window);
-    engine->asyncGameUpdate = false;
     EngineMain::MainInstance = engine;
     engine->Init();
 

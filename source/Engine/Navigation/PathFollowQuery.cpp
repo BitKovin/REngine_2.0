@@ -68,7 +68,7 @@ void PathFollowQuery::CalculatePathOnThread()
 		CalculatedTargetLocation = path[0];
 		FoundTarget = true;
 
-		DebugDraw::Path(path, 0.01f);
+		//DebugDraw::Path(path, 0.01f);
 
 	}
 	
