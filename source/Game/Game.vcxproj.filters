@@ -110,5 +110,8 @@
     <ClInclude Include="UI\Player\ScreenMobileControls.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Entities\Player\PlayerBodyAnimator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

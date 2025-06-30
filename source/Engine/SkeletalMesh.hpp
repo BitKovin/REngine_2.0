@@ -16,7 +16,7 @@
 
 #include "glm.h"
 
-#include "animator.hpp"
+#include "model_animator.hpp"
 
 #include "StaticMesh.h"
 

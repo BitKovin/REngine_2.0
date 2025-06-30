@@ -69,6 +69,15 @@ static void extractAnimations(const aiScene* scene, roj::SkinnedModel& model)
 		animation.ticksPerSec = sceneAnim->mTicksPerSecond;
 		animation.duration = sceneAnim->mDuration;
 
+		float durationSeconds = animation.duration / animation.ticksPerSec;
+
+		// Count frames (sum of all keyframes in channel[0])
+		int keyCount = sceneAnim->mChannels[0]->mNumPositionKeys
+			+ sceneAnim->mChannels[0]->mNumRotationKeys
+			+ sceneAnim->mChannels[0]->mNumScalingKeys;
+
+		animation.frameTime = keyCount / durationSeconds;
+
 		for (unsigned int i = 0; i < sceneAnim->mNumChannels; i++) {
 			aiNodeAnim* channel = sceneAnim->mChannels[i];
 			roj::FrameBoneTransform& track = animation.animationFrames[channel->mNodeName.C_Str()];

@@ -257,6 +257,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp" />
+    <ClInclude Include="Entities\Player\PlayerBodyAnimator.h" />
     <ClInclude Include="Entities\Player\Weapons\Projectiles\Bullet.h" />
     <ClInclude Include="Entities\Player\Weapons\WeaponBase.h" />
     <ClInclude Include="Entities\TestBsp.h" />

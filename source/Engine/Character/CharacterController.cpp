@@ -81,7 +81,7 @@ void CharacterController::Update(float deltaTime)
 
 	vec3 applyVelocity = velocity;
 
-	if (onGround == false && standsOnGround && velocity.y <= 0)
+	if (onGround == false && standsOnGround && (velocity.y <= 0))
 	{
 		// Project velocity onto the surface plane to maintain momentum along the slope
 		vec3 slopeNormal = normalize(notWalkableNormal);
@@ -92,6 +92,31 @@ void CharacterController::Update(float deltaTime)
 		applyVelocity.y = velocity.y; // Maintain gravity effect
 
 		UpdateSmoothPosition(deltaTime * 2); // Smoothes camera offset faster
+	}
+	else if(onGround == false && standsOnGround)
+	{
+		// Only apply projection if moving toward the slope
+		vec3 slopeNormal = normalize(notWalkableNormal);
+		float velocityTowardSlope = dot(velocity, slopeNormal);
+
+		if (velocityTowardSlope < 0) // Moving into the slope
+		{
+			// Project velocity onto surface plane
+			vec3 slopeTangent = velocity - slopeNormal * velocityTowardSlope;
+
+			// Preserve speed magnitude to prevent boosts
+			float originalSpeed = length(velocity);
+			applyVelocity = slopeTangent;
+			applyVelocity.y = velocity.y; // Maintain gravity effect
+
+			// Cap speed to prevent over-acceleration
+			float newSpeed = length(applyVelocity);
+			if (newSpeed > originalSpeed) {
+				applyVelocity = applyVelocity * (originalSpeed / newSpeed);
+			}
+
+			UpdateSmoothPosition(deltaTime * 2);
+		}
 	}
 
 	SetVelocity(vec3(applyVelocity.x, applyVelocity.y, applyVelocity.z));

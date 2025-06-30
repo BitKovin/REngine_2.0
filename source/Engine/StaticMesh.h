@@ -78,6 +78,7 @@ public:
 	bool CastHiddenShadows = false;
 	bool CastDetailShadows = false;
 
+	bool TwoSided = false;
 
 	StaticMesh(Entity* owner)
 	{

@@ -67,6 +67,15 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 		glDepthMask(GL_FALSE);
 	}
 
+	if (TwoSided)
+	{
+		glDisable(GL_CULL_FACE);
+	}
+	else
+	{
+		glEnable(GL_CULL_FACE);
+	}
+
 	if (forward_shader_program == nullptr)
 		forward_shader_program = ShaderManager::GetShaderProgram("default_vertex", PixelShader);
 
@@ -152,6 +161,7 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 
 	}
 
+	glEnable(GL_CULL_FACE);
 
 }
 

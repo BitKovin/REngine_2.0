@@ -32,6 +32,8 @@
 
 #include "Weapons/WeaponBase.h"
 
+#include "PlayerBodyAnimator.h"
+
 class Player : public Entity
 {
 
@@ -63,6 +65,7 @@ private:
 
 	SkeletalMesh* bikeMesh = nullptr;
 	SkeletalMesh* bikeArmsMesh = nullptr;
+	SkeletalMesh* bodyMesh = nullptr;
 
 	bool on_bike = false;
 
@@ -79,6 +82,9 @@ private:
 	Delay coyoteTime;
 
 	CharacterController controller;
+
+	PlayerBodyAnimator bodyAnimator = PlayerBodyAnimator(this);
+
 
 	glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
 		vel = MathHelper::XZ(vel);
@@ -173,6 +179,10 @@ public:
 		bikeArmsMesh = new SkeletalMesh(this);
 		Drawables.push_back(bikeArmsMesh);
 
+		bodyMesh = new SkeletalMesh(this);
+		bodyMesh->TwoSided = true;
+		Drawables.push_back(bodyMesh);
+
 		ClassName = "info_player_start";
 
 		SaveGame = true;
@@ -256,7 +266,10 @@ public:
 	void TryStep(vec3 dir);
 
 	void Update();
+	void AsyncUpdate();
 	void LateUpdate();
+
+	void UpdateBody();
 
 	void Serialize(json& target);
 	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);

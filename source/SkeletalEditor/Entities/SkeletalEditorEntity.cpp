@@ -192,6 +192,8 @@ public:
 
 		ImGui::Begin("Animation Editor");
 
+		ImGui::DragFloat("Speed", &Time::TimeScale, 0.003f, 0, 2);
+
 		auto animationNames = GetAnimationNames();
 
 		if (ImGui::ListBox("animations:", &selectedAnimation, animationNames.data(), animationNames.size()))

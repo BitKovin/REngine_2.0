@@ -59,6 +59,7 @@ namespace roj
 	struct Animation {
 		float duration = 0.0f;
 		float ticksPerSec = 1.0f;
+		float frameTime = 0.0;
 		BoneNode rootBone;
 		std::unordered_map<std::string, FrameBoneTransform> animationFrames = {};
 	};

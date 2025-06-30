@@ -531,19 +531,21 @@ void Player::Update()
     bikeArmsMesh->Position = bikeMesh->Position;
     bikeArmsMesh->PasteAnimationPose(bikeMesh->GetAnimationPose());
 
+    vec3 playerForward = MathHelper::GetForwardVector(vec3(0, cameraRotation.y, 0));
 
 	cameraHeightOffset = mix(cameraHeightOffset, 0.0f, Time::DeltaTimeF * 5.0f);
-    Camera::position = Position + vec3(0, 0.7, 0) - vec3(0,0.25f,0) * bike_progress + vec3(0,1,0) * cameraHeightOffset;
+    Camera::position = Position + vec3(0, 0.7, 0) - vec3(0,0.25f,0) * bike_progress + vec3(0,1,0) * cameraHeightOffset + playerForward*0.1f;
+
+    
+
     Camera::rotation = cameraRotation;
 
     vec3 right = MathHelper::GetRightVector(Camera::rotation);
 
     Camera::rotation.z = -dot(velocity, right) * mix(-0.2f, 0.3f, bike_progress);
 
-    Camera::ApplyCameraShake(Time::DeltaTimeF);
 
 
-    UpdateWeapon();
 
     if (Input::GetAction("bike")->Holding() && OnGround())
     {
@@ -597,6 +599,11 @@ void Player::Update()
 
 }
 
+void Player::AsyncUpdate()
+{
+    UpdateBody();
+}
+
 void Player::LateUpdate()
 {
 
@@ -610,8 +617,34 @@ void Player::LateUpdate()
     }
     Input::LockCursor = !EngineMain::MainInstance->Paused;
 
+    UpdateWeapon();
+
     Hud.Update();
 
+}
+
+void Player::UpdateBody()
+{
+    bodyAnimator.Update();
+
+    bodyAnimator.movementSpeed = length(MathHelper::XZ(velocity));
+
+    vec3 playerForward = MathHelper::GetForwardVector(vec3(0,cameraRotation.y,0));
+
+    auto pose = bodyAnimator.GetResultPose();
+    //pose.SetBoneTransform();
+
+    mat4 scale0 = scale(vec3(0));
+    //pose.SetBoneTransform("neck_01", scale0);
+    pose.SetBoneTransform("upperarm_r", scale0);
+    pose.SetBoneTransform("upperarm_l", scale0);
+
+    bodyMesh->PasteAnimationPose(pose);
+    bodyMesh->Position = Position - vec3(0, controller.height / 2.0f,0) - playerForward*0.3f;
+    bodyMesh->Rotation.y = cameraRotation.y;
+
+    Camera::position = MathHelper::DecomposeMatrix(bodyMesh->GetBoneMatrixWorld("head")).Position + playerForward * 0.3f;
+    Camera::ApplyCameraShake(Time::DeltaTimeF);
 }
 
 void Player::Serialize(json& target)
@@ -688,5 +721,11 @@ void Player::LoadAssets()
 
     bikeArmsMesh->LoadFromFile("GameData/arms.glb");
     bikeArmsMesh->PreloadAssets();
+
+    bodyMesh->LoadFromFile("GameData/models/player/body/player_body.glb");
+    bodyMesh->TexturesLocation = "GameData/models/player/body/textures/";
+    bodyMesh->PreloadAssets();
+
+    bodyAnimator.LoadAssetsIfNeeded();
 
 }
