@@ -13,6 +13,8 @@
 
 #include "SaveSystem/LevelSaveSystem.h"
 
+#include "LoadingScreen/LoadingScreenSystem.h"
+
 Level* Level::Current = nullptr;
 
 string Level::pendingLoadLevelPath = "";
@@ -53,6 +55,9 @@ Level* Level::OpenLevel(string filePath)
 {
 
 	bool isNewLevel = true;
+
+	LoadingScreenSystem::Progress = 0.5f;
+	LoadingScreenSystem::Draw();
 
 	if (Current)
 	{

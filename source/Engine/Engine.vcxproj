@@ -237,6 +237,7 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Animator.cpp" />
+    <ClCompile Include="LoadingScreen\LoadingScreenSystem.cpp" />
     <ClCompile Include="model_animator.cpp" />
     <ClCompile Include="AssetRegistry.cpp" />
     <ClCompile Include="BSP\Quake3Bsp.cpp" />
@@ -310,6 +311,8 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Animator.h" />
+    <ClInclude Include="LoadingScreen\LoadingScreenSystem.h" />
+    <ClInclude Include="LoadingScreen\UiLoadingScreenBase.h" />
     <ClInclude Include="model_animator.hpp" />
     <ClInclude Include="AssetRegistry.h" />
     <ClInclude Include="BoundingSphere.hpp" />

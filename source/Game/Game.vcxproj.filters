@@ -72,6 +72,9 @@
     <ClCompile Include="UI\MobileControls\UiTouchMoveArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UI\LoadingScreen\UiDefaultLoadingScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp">
@@ -111,6 +114,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Player\PlayerBodyAnimator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\LoadingScreen\UiDefaultLoadingScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

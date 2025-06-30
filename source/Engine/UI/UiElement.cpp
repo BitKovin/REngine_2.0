@@ -145,7 +145,7 @@ glm::vec4 UiElement::GetFinalColor()
 
 void UiElement::Update() 
 {
-    for (int i = 0; i < 5; ++i)  //Fixes issue with offsets not following parrent. Need to investigate issue better
+    for (int i = 0; i < 5; ++i)  //Fixes issue with offsets not following parent. Need to investigate issue better
     {
         UpdateChildrenOffsets();
         UpdateOffsets();

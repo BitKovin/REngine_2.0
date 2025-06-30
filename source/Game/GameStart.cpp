@@ -4,6 +4,8 @@
 #include <BSP/Quake3Bsp.h>
 #include <UI/UiManager.h>
 #include "Entities/TestBsp.h"
+#include <LoadingScreen/LoadingScreenSystem.h>
+#include "UI/LoadingScreen/UiDefaultLoadingScreen.h"
 
 class GameStart : public Entity
 {
@@ -13,6 +15,9 @@ public:
 
 	void Start()
 	{
+
+        LoadingScreenSystem::SetLoadingCanvas(std::make_shared<UiDefaultLoadingScreen>());
+
 		Level::OpenLevel("GameData/maps/test.bsp");
 
         for (size_t i = 0; i < 000; i++)
