@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <mutex>
+#include <set>
 #include "../glm.h"
 #include "SoundInstance.hpp"
 
@@ -29,7 +31,6 @@ public:
     static std::shared_ptr<FmodEventInstance> CreateFromId(const std::string& guid);
 
 protected:
-
     bool IsGamePaused() const;
     float GetPitchScale() const;
     float GetFinalVolume() const;
@@ -39,20 +40,15 @@ private:
     std::unordered_map<std::string, FMOD::Sound*> programmerSounds;
     FMOD::Sound* defaultProgrammerSound = nullptr;
     std::string soundTableKey;
-    std::vector<FMOD::Sound*> loadedSounds; // For sounds created in callbacks
-
-    //// Callback handling
-    //static FMOD_RESULT F_CALLBACK ProgrammerSoundCallbackStatic(
-    //    FMOD_STUDIO_EVENT_CALLBACK_TYPE type,
-    //    FMOD_STUDIO_EVENTINSTANCE* event,
-    //    void* parameters);
-
-    //FMOD_RESULT ProgrammerSoundCallback(
-    //    FMOD_STUDIO_EVENT_CALLBACK_TYPE type,
-    //    void* parameters);
+    std::set<FMOD::Sound*> ownedSounds; // For sounds we created and own
+    std::mutex ownedSoundsMutex;
 
     void Apply3D();
-
     FMOD::Sound* GetSoundByName(const std::string& name, FMOD_STUDIO_SOUND_INFO* outInfo);
-    
+
+    // Callback handling
+    static FMOD_RESULT F_CALLBACK EventCallback(
+        FMOD_STUDIO_EVENT_CALLBACK_TYPE type,
+        FMOD_STUDIO_EVENTINSTANCE* event,
+        void* parameters);
 };

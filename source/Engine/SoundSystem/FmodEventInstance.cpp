@@ -2,34 +2,105 @@
 #include "SoundManager.hpp"
 #include "../EngineMain.h"
 
+// Static callback implementation
+FMOD_RESULT F_CALLBACK FmodEventInstance::EventCallback(
+    FMOD_STUDIO_EVENT_CALLBACK_TYPE type,
+    FMOD_STUDIO_EVENTINSTANCE* event,
+    void* parameters)
+{
+    FmodEventInstance* instance = nullptr;
+    FMOD_Studio_EventInstance_GetUserData(event, (void**)&instance);
+
+    if (!instance) return FMOD_OK;
+
+    switch (type)
+    {
+    case FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND:
+    {
+        auto* props = (FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES*)parameters;
+        std::string soundName(props->name);
+
+        // Try to get from programmer sounds map
+        FMOD::Sound* sound = instance->GetProgrammerSound(soundName);
+        if (sound)
+        {
+            props->sound = (FMOD_SOUND*)sound;
+        }
+        // Try default programmer sound
+        else if (instance->defaultProgrammerSound)
+        {
+            props->sound = (FMOD_SOUND*)instance->defaultProgrammerSound;
+        }
+        // Try loading from sound table
+        else if (!instance->soundTableKey.empty())
+        {
+            FMOD_STUDIO_SOUND_INFO info;
+            FMOD::Sound* loadedSound = instance->GetSoundByName(instance->soundTableKey, &info);
+            if (loadedSound)
+            {
+                props->sound = (FMOD_SOUND*)loadedSound;
+                props->subsoundIndex = info.subsoundindex;
+
+                // Mark this sound as owned by us
+                std::lock_guard<std::mutex> lock(instance->ownedSoundsMutex);
+                instance->ownedSounds.insert(loadedSound);
+            }
+        }
+        break;
+    }
+    case FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND:
+    {
+        auto* props = (FMOD_STUDIO_PROGRAMMER_SOUND_PROPERTIES*)parameters;
+        FMOD::Sound* sound = (FMOD::Sound*)props->sound;
+
+        // Check if we own this sound
+        std::lock_guard<std::mutex> lock(instance->ownedSoundsMutex);
+        auto it = instance->ownedSounds.find(sound);
+        if (it != instance->ownedSounds.end()) {
+            (*it)->release();
+            instance->ownedSounds.erase(it);
+        }
+        break;
+    }
+    }
+
+    return FMOD_OK;
+}
+
 FmodEventInstance::FmodEventInstance(FMOD::Studio::EventInstance* instance)
     : eventInstance(instance)
 {
-    // Set user data for callback access
-    if (eventInstance) {
+    if (eventInstance)
+    {
         eventInstance->setUserData(this);
-        //eventInstance->setCallback(ProgrammerSoundCallbackStatic,
-        //    FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND |
-        //    FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND);
+        eventInstance->setCallback(EventCallback,
+            FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND |
+            FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND);
     }
 }
 
-FmodEventInstance::~FmodEventInstance() {
-    // Release loaded sounds
-    for (auto* sound : loadedSounds) {
-        sound->release();
-    }
-    loadedSounds.clear();
-
-    // Release event instance
-    if (eventInstance) {
+FmodEventInstance::~FmodEventInstance()
+{
+    // Stop event and prevent further callbacks
+    if (eventInstance)
+    {
+        eventInstance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
         eventInstance->setUserData(nullptr);
         eventInstance->setCallback(nullptr);
         eventInstance->release();
+        eventInstance = nullptr;
     }
+
+    // Release any remaining owned sounds
+    std::lock_guard<std::mutex> lock(ownedSoundsMutex);
+    for (auto* sound : ownedSounds) {
+        sound->release();
+    }
+    ownedSounds.clear();
 }
 
-void FmodEventInstance::Play() {
+void FmodEventInstance::Play()
+{
     if (!eventInstance) return;
 
     FMOD_STUDIO_PLAYBACK_STATE state;
@@ -43,13 +114,15 @@ void FmodEventInstance::Play() {
     eventInstance->setVolume(0); // Start muted until first update
 }
 
-void FmodEventInstance::Stop() {
+void FmodEventInstance::Stop()
+{
     if (eventInstance) {
         eventInstance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
     }
 }
 
-void FmodEventInstance::Update(float deltaTime) {
+void FmodEventInstance::Update(float deltaTime)
+{
     if (!eventInstance) return;
 
     // Update base properties
@@ -63,34 +136,37 @@ void FmodEventInstance::Update(float deltaTime) {
     }
 }
 
-void FmodEventInstance::Apply3D() {
+void FmodEventInstance::Apply3D()
+{
     FMOD_3D_ATTRIBUTES attributes = {};
     attributes.position = { Position.x, Position.y, Position.z };
     attributes.velocity = { Velocity.x, Velocity.y, Velocity.z };
     attributes.forward = { Direction.x, Direction.y, Direction.z };
-    attributes.up = { 0.0f, 1.0f, 0.0f }; // Default up vector
+    attributes.up = { 0.0f, 1.0f, 0.0f };
 
     eventInstance->set3DAttributes(&attributes);
 }
 
-void FmodEventInstance::SetParameter(const std::string& name, float value) {
+void FmodEventInstance::SetParameter(const std::string& name, float value)
+{
     if (eventInstance) {
         eventInstance->setParameterByName(name.c_str(), value);
     }
 }
 
-void FmodEventInstance::SetProgrammerSound(const std::string& name, FMOD::Sound* sound) {
+void FmodEventInstance::SetProgrammerSound(const std::string& name, FMOD::Sound* sound)
+{
     programmerSounds[name] = sound;
 }
 
-FMOD::Sound* FmodEventInstance::GetProgrammerSound(const std::string& name) {
+FMOD::Sound* FmodEventInstance::GetProgrammerSound(const std::string& name)
+{
     auto it = programmerSounds.find(name);
     return (it != programmerSounds.end()) ? it->second : nullptr;
 }
 
-
-
-FMOD::Sound* FmodEventInstance::GetSoundByName(const std::string& name, FMOD_STUDIO_SOUND_INFO* outInfo) {
+FMOD::Sound* FmodEventInstance::GetSoundByName(const std::string& name, FMOD_STUDIO_SOUND_INFO* outInfo)
+{
     if (!SoundManager::studioSystem || !SoundManager::coreSystem)
         return nullptr;
 
@@ -99,17 +175,19 @@ FMOD::Sound* FmodEventInstance::GetSoundByName(const std::string& name, FMOD_STU
         return nullptr;
 
     FMOD::Sound* sound = nullptr;
-    SoundManager::coreSystem->createSound(
+    result = SoundManager::coreSystem->createSound(
         outInfo->name_or_data,
         outInfo->mode,
         &outInfo->exinfo,
         &sound
     );
-    return sound;
+
+    return (result == FMOD_OK) ? sound : nullptr;
 }
 
 // Factory methods
-std::shared_ptr<FmodEventInstance> FmodEventInstance::Create(const std::string& eventPath) {
+std::shared_ptr<FmodEventInstance> FmodEventInstance::Create(const std::string& eventPath)
+{
     if (!SoundManager::studioSystem)
         return nullptr;
 
@@ -127,7 +205,8 @@ std::shared_ptr<FmodEventInstance> FmodEventInstance::Create(const std::string& 
     return instance ? std::make_shared<FmodEventInstance>(instance) : nullptr;
 }
 
-std::shared_ptr<FmodEventInstance> FmodEventInstance::CreateFromId(const std::string& guid) {
+std::shared_ptr<FmodEventInstance> FmodEventInstance::CreateFromId(const std::string& guid)
+{
     if (!SoundManager::studioSystem)
         return nullptr;
 

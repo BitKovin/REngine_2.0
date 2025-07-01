@@ -28,8 +28,7 @@ public:
 
 	void Start()
 	{
-		SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Weapons.bank");
-		SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/SFX.bank");
+
 		fireSoundPlayer = SoundPlayer::Create("event:/Weapons/pistol/pistol_fire");
 		fireSoundPlayer->Volume = 0.5f;
 		fireSoundPlayer->Is2D = true;
@@ -42,6 +41,9 @@ public:
 
 	void LoadAssets()
 	{
+
+		SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Weapons.bank");
+		SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/SFX.bank");
 
 		viewmodel = new SkeletalMesh(this);
 		arms = new SkeletalMesh(this);
