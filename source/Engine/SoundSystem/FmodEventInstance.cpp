@@ -1,5 +1,6 @@
 #include "FmodEventInstance.h"
 #include "SoundManager.hpp"
+#include "../EngineMain.h"
 
 FmodEventInstance::FmodEventInstance(FMOD::Studio::EventInstance* instance)
     : eventInstance(instance)
@@ -7,9 +8,9 @@ FmodEventInstance::FmodEventInstance(FMOD::Studio::EventInstance* instance)
     // Set user data for callback access
     if (eventInstance) {
         eventInstance->setUserData(this);
-        eventInstance->setCallback(ProgrammerSoundCallbackStatic,
-            FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND |
-            FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND);
+        //eventInstance->setCallback(ProgrammerSoundCallbackStatic,
+        //    FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND |
+        //    FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND);
     }
 }
 
@@ -52,9 +53,9 @@ void FmodEventInstance::Update(float deltaTime) {
     if (!eventInstance) return;
 
     // Update base properties
-    eventInstance->setVolume(Volume);
-    eventInstance->setPitch(Pitch);
-    eventInstance->setPaused(Paused);
+    eventInstance->setVolume(GetFinalVolume());
+    eventInstance->setPitch(GetPitchScale() * Pitch);
+    eventInstance->setPaused(Paused || IsGamePaused());
 
     // Apply 3D positioning if needed
     if (!Is2D) {
@@ -87,26 +88,7 @@ FMOD::Sound* FmodEventInstance::GetProgrammerSound(const std::string& name) {
     return (it != programmerSounds.end()) ? it->second : nullptr;
 }
 
-FMOD_RESULT F_CALLBACK FmodEventInstance::ProgrammerSoundCallbackStatic(
-    FMOD_STUDIO_EVENT_CALLBACK_TYPE type,
-    FMOD_STUDIO_EVENTINSTANCE* event,
-    void* parameters)
-{
-    void* userData = nullptr;
-    FMOD_Studio_EventInstance_GetUserData(event, &userData);
 
-    if (userData) {
-        return static_cast<FmodEventInstance*>(userData)->ProgrammerSoundCallback(type, parameters);
-    }
-    return FMOD_OK;
-}
-
-FMOD_RESULT FmodEventInstance::ProgrammerSoundCallback(
-    FMOD_STUDIO_EVENT_CALLBACK_TYPE type,
-    void* parameters)
-{
-    return FMOD_RESULT::FMOD_OK;
-}
 
 FMOD::Sound* FmodEventInstance::GetSoundByName(const std::string& name, FMOD_STUDIO_SOUND_INFO* outInfo) {
     if (!SoundManager::studioSystem || !SoundManager::coreSystem)
@@ -162,4 +144,22 @@ std::shared_ptr<FmodEventInstance> FmodEventInstance::CreateFromId(const std::st
     eventDesc->createInstance(&instance);
 
     return instance ? std::make_shared<FmodEventInstance>(instance) : nullptr;
+}
+
+bool FmodEventInstance::IsGamePaused() const
+{
+    return EngineMain::MainInstance->Paused;
+}
+
+float FmodEventInstance::GetPitchScale() const
+{
+    if (IsUISound)
+        return 1.0f;
+
+    return Time::GetSoundFinalTimeScale();
+}
+
+float FmodEventInstance::GetFinalVolume() const
+{
+    return Volume * SoundManager::GlobalVolume;
 }

@@ -42,38 +42,42 @@ void SoundManager::InitContext(ALCcontext* context)
 
 void SoundManager::InitFmod()
 {
+    FMOD::Studio::System::create(&studioSystem);
 
-    FMOD_RESULT result;
+    unsigned int flags = FMOD_STUDIO_INIT_LIVEUPDATE |
+        FMOD_STUDIO_INIT_ALLOW_MISSING_PLUGINS;
 
-    // Create the FMOD Studio System
-    result = FMOD::Studio::System::create(&studioSystem);
-    if (result != FMOD_OK)
-    {
-        std::cerr << "FMOD Studio create error: " << FMOD_ErrorString(result) << "\n";
-        return;
-    }
 
-    // Initialize Studio system with Live Update
-    result = studioSystem->initialize(
-        1024,
-        FMOD_STUDIO_INIT_LIVEUPDATE | FMOD_STUDIO_INIT_ALLOW_MISSING_PLUGINS,
-        FMOD_INIT_NORMAL,
-        nullptr
-    );
-    if (result != FMOD_OK)
-    {
-        std::cerr << "FMOD Studio init error: " << FMOD_ErrorString(result) << "\n";
-        return;
-    }
 
-    // Retrieve the Core (formerly LowLevel) system
-    result = studioSystem->getCoreSystem(&coreSystem);
-    if (result != FMOD_OK)
-    {
-        std::cerr << "Failed to get Core system: " << FMOD_ErrorString(result) << "\n";
-        return;
-    }
+    studioSystem->getCoreSystem(&coreSystem);
 
+    //coreSystem->setDSPBufferSize(512, 4);
+
+#if __EMSCRIPTEN__
+
+    flags |= FMOD_INIT_STREAM_FROM_UPDATE |
+        FMOD_INIT_MIX_FROM_UPDATE;
+
+    coreSystem->setDSPBufferSize(2048, 2);
+
+    unsigned int size;
+    int num;
+
+    coreSystem->getDSPBufferSize(&size, &num);
+    printf("DSP Buffer Size: %u, Number of Buffers: %d\n", size, num);
+    
+
+    //coreSystem->setSoftwareFormat(44100, FMOD_SPEAKERMODE::FMOD_SPEAKERMODE_STEREO, 0);
+
+#endif // _EMSCRIPTEN_
+
+
+#ifdef DEBUG
+    flags |= FMOD_STUDIO_INIT_LIVEUPDATE;
+#endif
+
+
+    studioSystem->initialize(512, flags, FMOD_INIT_NORMAL, nullptr);
 }
 
 void SoundManager::UpdateContext(ALCcontext* context)

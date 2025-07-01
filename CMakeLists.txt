@@ -119,6 +119,7 @@ set(WASM_COMMON_LINK_OPTIONS
     "SHELL:-s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1"
     "SHELL:-lidbfs.js"
     "SHELL:-msimd128"
+    "SHELL:-s EXPORTED_RUNTIME_METHODS=['cwrap','setValue','getValue']"
     #"SHELL:-pthread"
     #"SHELL:-s USE_PTHREADS=1"
     #"SHELL:-s PTHREAD_POOL_SIZE=32"
