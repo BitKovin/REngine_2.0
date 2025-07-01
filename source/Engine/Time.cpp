@@ -1,5 +1,7 @@
 #include "Time.hpp"
 
+#include "EngineMain.h"
+
 // static member definitions
 double Time::DeltaTime = 0.0;
 float Time::DeltaTimeF = 0.0f;
@@ -7,7 +9,6 @@ double Time::DeltaTimeNoTimeScale = 0.0;
 float Time::DeltaTimeFNoTimeScale = 0.0f;
 double Time::GameTime = 0.0;
 double Time::GameTimeNoPause = 0.0;
-bool Time::GamePaused = false;
 float Time::TimeScale = 1.0f;
 Uint64 Time::lastCounter = 0;
 double Time::frequency = 0.0;
@@ -54,7 +55,9 @@ void Time::Update() {
 
     // Update game times
     GameTimeNoPause += rawDelta;
-    if (!GamePaused) {
+    if (!EngineMain::MainInstance->Paused) 
+    {
+
         GameTime += scaledDelta;
     }
 }

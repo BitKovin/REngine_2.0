@@ -102,11 +102,15 @@ void SoundManager::UpdateContext(ALCcontext* context)
 
 void SoundManager::UpdateFmod()
 {
+
+    vec3 camForward = Camera::Forward();
+    vec3 camUp = Camera::Up() * -1.0f;
+
     // 1) Build your FMOD_VECTORs
     FMOD_VECTOR position = { Camera::position.x, Camera::position.y, Camera::position.z };
     FMOD_VECTOR velocity = { Camera::velocity.x, Camera::velocity.y, Camera::velocity.z };
-    FMOD_VECTOR forward = { Camera::Forward().x, Camera::Forward().y, Camera::Forward().z };
-    FMOD_VECTOR up = { Camera::Up().x,      Camera::Up().y,      Camera::Up().z };
+    FMOD_VECTOR forward = { camForward.x, camForward.y, camForward.z };
+    FMOD_VECTOR up = { camUp.x,      camUp.y,      camUp.z };
 
     // 2) Pack into the attributes struct
     FMOD_3D_ATTRIBUTES listenerAttr = { position, velocity, forward, up };

@@ -44,7 +44,7 @@ private:
 
 #define SET_SOUND_SAFE(playerPtr, soundExpr)               \
     do {                                                  \
-        shared_ptr<SoundInstance> __tmpSound = (soundExpr);          \
+        shared_ptr<SoundInstanceBase> __tmpSound = (soundExpr);          \
         if ((playerPtr) != nullptr)                       \
             (playerPtr)->SetSound(__tmpSound);            \
     } while (0)

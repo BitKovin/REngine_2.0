@@ -18,7 +18,6 @@ public:
     static float DeltaTimeFNoTimeScale;           // scaled delta time (seconds) (float)
     static double GameTime;            // total scaled game time (seconds)
     static double GameTimeNoPause;     // total unscaled game time (seconds)
-    static bool GamePaused;
     static float TimeScale;            // global time scale multiplier
 
     // Call at startup to initialize timing

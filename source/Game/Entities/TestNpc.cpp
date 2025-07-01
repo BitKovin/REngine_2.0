@@ -2,7 +2,7 @@
 #include "Player/Player.hpp"
 
 #include <Particle/GlobalParticleSystem.hpp>
-
+#include <SoundSystem/FmodEventInstance.h>
 #include <Navigation/Navigation.hpp>
 
 REGISTER_ENTITY(TestNpc, "testnpc")
@@ -391,17 +391,20 @@ void TestNpc::Deserialize(json& source)
 
 void TestNpc::LoadAssets()
 {
+
+	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/SFX.bank");
+
 	mesh->LoadFromFile("GameData/models/enemies/dog/dog.glb");
 	mesh->CreateHitboxes(this);
 	mesh->PlayAnimation("run",true);
 	mesh->SetLooped(true);
 	mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
-	SET_SOUND_SAFE(DeathSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_death.wav"));
+	SET_SOUND_SAFE(DeathSoundPlayer, FmodEventInstance::Create("event:/NPC/Dog/DogDeath"));
 	SET_SOUND_SAFE(HurtSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_hit.wav"));
-	SET_SOUND_SAFE(StunSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_stun.wav"));
-	SET_SOUND_SAFE(AttackSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_attack_start.wav"));
-	SET_SOUND_SAFE(AttackHitSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_attack.wav"));
+	SET_SOUND_SAFE(StunSoundPlayer, FmodEventInstance::Create("event:/NPC/Dog/DogStun"));
+	SET_SOUND_SAFE(AttackSoundPlayer, FmodEventInstance::Create("event:/NPC/Dog/DogAttackStart"));
+	SET_SOUND_SAFE(AttackHitSoundPlayer, FmodEventInstance::Create("event:/NPC/Dog/DogAttack"));
 
 }
 
