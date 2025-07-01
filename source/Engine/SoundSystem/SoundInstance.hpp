@@ -26,13 +26,13 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "../EObject.hpp"
+#include "SoundInstanceBase.h"
 #include "../glm.h"
 #include "../Time.hpp"
 
 #include "SoundBufferData.h"
 
-class SoundInstance : public EObject {
+class SoundInstance : public SoundInstanceBase {
 public:
     // ─── Construction & Destruction ────────────────────────────────────
 
@@ -56,8 +56,6 @@ public:
         Stop();
     }
 
-    // ─── Playback Control ───────────────────────────────────────────────
-
     /// Begins or resumes playback. Will acquire a source if needed.
     void Play();
 
@@ -68,24 +66,7 @@ public:
     /// Must be called every frame to advance virtual playhead and reclaim sources
     void Update(float deltaTime);
 
-    // ─── Public Properties ──────────────────────────────────────────────
-
-    float Priority = 0.0f;    // higher = more important
-
-    bool Paused = false;
-
-    bool   Is2D           = false;
-    bool   IsUISound      = false;
-    bool   Loop           = false;
-
-    float  Volume         = 1.0f;
-    float  Pitch          = 1.0f;
-    float  MinDistance    = 1.0f;
-    float  MaxDistance    = 20.0f;
-
-    glm::vec3 Position    = {0,0,0};
-    glm::vec3 Velocity    = {0,0,0};
-    glm::vec3 Direction   = {0,0,1};
+    // ─── Playback Control ───────────────────────────────────────────────
 
     float  ConeInnerAngle = 360.0f;
     float  ConeOuterAngle = 360.0f;
@@ -112,8 +93,9 @@ public:
 
 
 protected:
-    virtual bool IsGamePaused() const;
-    virtual float GetPitchScale() const;
+    bool IsGamePaused() const;
+    float GetPitchScale() const;
+    float GetFinalVolume() const;
 
 private:
     // ─── Internal State ────────────────────────────────────────────────
@@ -178,7 +160,7 @@ private:
         if (d < MinDistance) d = MinDistance;
         if (d >= MaxDistance) return 0.0f;
         float t = (d - MinDistance) / (MaxDistance - MinDistance);
-        return Volume * std::pow(1.0f - t, 2.0f);
+        return GetFinalVolume() * std::pow(1.0f - t, 2.0f);
     }
 
 #ifndef DISABLE_EFX

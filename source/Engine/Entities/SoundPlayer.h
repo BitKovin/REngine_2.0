@@ -9,7 +9,7 @@ class SoundPlayer: public Entity
 {
 public:
 
-	shared_ptr<SoundInstance> Sound = nullptr;
+	shared_ptr<SoundInstanceBase> Sound = nullptr;
 
 	vec3 Velocity = vec3();
 	float Volume = 1;
@@ -25,7 +25,7 @@ public:
 	SoundPlayer();
 	~SoundPlayer();
 
-	void SetSound(shared_ptr<SoundInstance> sound);
+	void SetSound(shared_ptr<SoundInstanceBase> sound);
 
 	void LateUpdate();
 

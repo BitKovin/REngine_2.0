@@ -2,6 +2,7 @@
 
 #  include <AL/alext.h>
 #include "../EngineMain.h"
+#include "SoundManager.hpp"
 
 #define SOUND_POOL_DEBUG
 
@@ -139,6 +140,11 @@ float SoundInstance::GetPitchScale() const
     return Time::GetSoundFinalTimeScale();
 }
 
+float SoundInstance::GetFinalVolume() const
+{
+    return Volume * SoundManager::GlobalVolume;
+}
+
 void SoundInstance::UpdateSourceParams()
 {
     if (!_source) return;
@@ -163,7 +169,7 @@ void SoundInstance::UpdateSourceParams()
         alSourcef(_source, AL_ROLLOFF_FACTOR, 0.0f);
 
         // 2) raw gain only
-        alSourcef(_source, AL_GAIN, Volume);
+        alSourcef(_source, AL_GAIN, GetFinalVolume());
 
 
 

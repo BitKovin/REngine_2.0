@@ -119,7 +119,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)../libraries/;$(IncludePath)</IncludePath>
-    <LibraryPath>F:\Git\SdlWasmEngine\Lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)../Lib/;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>..\Intermediage\$(ShortProjectName)\$(Configuration)\</IntDir>
     <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
@@ -299,6 +299,7 @@
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="SkeletalMesh.cpp" />
     <ClCompile Include="skinned_model.cpp" />
+    <ClCompile Include="SoundSystem\FmodEventInstance.cpp" />
     <ClCompile Include="SoundSystem\SoundInstance.cpp" />
     <ClCompile Include="SoundSystem\SoundManager.cpp" />
     <ClCompile Include="StaticMesh.cpp" />
@@ -390,8 +391,10 @@
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SkeletalMesh.hpp" />
     <ClInclude Include="skinned_model.hpp" />
+    <ClInclude Include="SoundSystem\FmodEventInstance.h" />
     <ClInclude Include="SoundSystem\SoundBufferData.h" />
     <ClInclude Include="SoundSystem\SoundInstance.hpp" />
+    <ClInclude Include="SoundSystem\SoundInstanceBase.h" />
     <ClInclude Include="SoundSystem\SoundManager.hpp" />
     <ClInclude Include="StaticMesh.h" />
     <ClInclude Include="Texture.hpp" />

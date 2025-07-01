@@ -15,6 +15,8 @@
 
 #include "LoadingScreen/LoadingScreenSystem.h"
 
+#include "SoundSystem/SoundManager.hpp"
+
 Level* Level::Current = nullptr;
 
 string Level::pendingLoadLevelPath = "";
@@ -106,7 +108,8 @@ Level* Level::OpenLevel(string filePath)
 		mapData.LoadToLevel();
 	}
 
-	
+	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Master.bank");
+	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Master.strings.bank");
 
 	Current->AddPendingLevelObjects();
 	Current->RemovePendingEntities();

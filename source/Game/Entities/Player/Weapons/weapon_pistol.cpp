@@ -4,6 +4,7 @@
 #include <Animation.h>
 
 #include "Projectiles/Bullet.h"
+#include <SoundSystem/FmodEventInstance.h>
 
 class weapon_pistol : public Weapon
 {
@@ -27,9 +28,12 @@ public:
 
 	void Start()
 	{
-		fireSoundPlayer = SoundPlayer::Create("GameData/sounds/weapons/shotgun/shotgun_fire2.wav");
+		SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Weapons.bank");
+		SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/SFX.bank");
+		fireSoundPlayer = SoundPlayer::Create("event:/Weapons/pistol/pistol_fire");
 		fireSoundPlayer->Volume = 0.5f;
 		fireSoundPlayer->Is2D = true;
+
 
 		attackDelay.AddDelay(0.3);
 		SwitchDelay.AddDelay(0.35);

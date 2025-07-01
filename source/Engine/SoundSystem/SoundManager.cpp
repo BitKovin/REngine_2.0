@@ -1,15 +1,19 @@
 #include "SoundManager.hpp"
 
 #include <AL/alext.h>
+#include <Fmod/fmod.hpp>
+#include <Fmod/fmod_errors.h>
+#include <Fmod/fmod_studio.hpp>
 
 std::unordered_map<std::string, SoundBufferData> SoundManager::loadedBuffers;
+std::unordered_map<std::string, FMOD::Studio::Bank*> SoundManager::loadedBanks;
 ALCdevice* SoundManager::device = nullptr;
 ALCcontext* SoundManager::contextMono = nullptr;
 ALCcontext* SoundManager::contextStereo = nullptr;
 
 float SoundManager::GlobalVolume = 0.3f;
-float SoundManager::SfxVolume = 1.0f;
-float SoundManager::MusicVolume = 1.0f;
+float SoundManager::SfxVolume = 1.0f; //unused after FMOD implementation
+float SoundManager::MusicVolume = 1.0f; //unused after FMOD implementation
 
 void SoundManager::InitContext(ALCcontext* context)
 {
@@ -36,6 +40,42 @@ void SoundManager::InitContext(ALCcontext* context)
     alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 }
 
+void SoundManager::InitFmod()
+{
+
+    FMOD_RESULT result;
+
+    // Create the FMOD Studio System
+    result = FMOD::Studio::System::create(&studioSystem);
+    if (result != FMOD_OK)
+    {
+        std::cerr << "FMOD Studio create error: " << FMOD_ErrorString(result) << "\n";
+        return;
+    }
+
+    // Initialize Studio system with Live Update
+    result = studioSystem->initialize(
+        1024,
+        FMOD_STUDIO_INIT_LIVEUPDATE | FMOD_STUDIO_INIT_ALLOW_MISSING_PLUGINS,
+        FMOD_INIT_NORMAL,
+        nullptr
+    );
+    if (result != FMOD_OK)
+    {
+        std::cerr << "FMOD Studio init error: " << FMOD_ErrorString(result) << "\n";
+        return;
+    }
+
+    // Retrieve the Core (formerly LowLevel) system
+    result = studioSystem->getCoreSystem(&coreSystem);
+    if (result != FMOD_OK)
+    {
+        std::cerr << "Failed to get Core system: " << FMOD_ErrorString(result) << "\n";
+        return;
+    }
+
+}
+
 void SoundManager::UpdateContext(ALCcontext* context)
 {
     alcMakeContextCurrent(context);
@@ -53,6 +93,29 @@ void SoundManager::UpdateContext(ALCcontext* context)
         camUp.x,      camUp.y,      camUp.z
     };
     alListenerfv(AL_ORIENTATION, orient);
+
+}
+
+void SoundManager::UpdateFmod()
+{
+    // 1) Build your FMOD_VECTORs
+    FMOD_VECTOR position = { Camera::position.x, Camera::position.y, Camera::position.z };
+    FMOD_VECTOR velocity = { Camera::velocity.x, Camera::velocity.y, Camera::velocity.z };
+    FMOD_VECTOR forward = { Camera::Forward().x, Camera::Forward().y, Camera::Forward().z };
+    FMOD_VECTOR up = { Camera::Up().x,      Camera::Up().y,      Camera::Up().z };
+
+    // 2) Pack into the attributes struct
+    FMOD_3D_ATTRIBUTES listenerAttr = { position, velocity, forward, up };
+
+    // 3) Call the Studio API
+    FMOD_RESULT result = studioSystem->setListenerAttributes(0, &listenerAttr);
+    if (result != FMOD_OK)
+    {
+        std::cerr << "FMOD Studio setListenerAttributes failed ("
+            << result << "): " << FMOD_ErrorString(result) << "\n";
+    }
+
+    studioSystem->update();
 
 }
 
@@ -87,12 +150,13 @@ void SoundManager::Initialize()
 
     InitContext(contextStereo);
 
+    InitFmod();
+
 
 }
 
 void SoundManager::Close()
 {
-
 
     for (auto& kv : loadedBuffers) {
         alDeleteBuffers(1, &kv.second.buffer);
@@ -104,12 +168,16 @@ void SoundManager::Close()
     contextMono = nullptr;
     if (device) alcCloseDevice(device);
     device = nullptr;
+
 }
 
 void SoundManager::Update()
 {
     UpdateContext(contextMono);
     UpdateContext(contextStereo);
+
+    UpdateFmod();
+
 }
 
 SoundBufferData SoundManager::LoadOrGetSoundFileBuffer(std::string path)
@@ -232,4 +300,79 @@ shared_ptr<SoundInstance> SoundManager::GetSoundFromPath(string path)
     //alSourcei(source, AL_BUFFER, buffer);
 
     return make_shared<SoundInstance>(buffer);
+}
+
+void SoundManager::CleanAllData()
+{
+
+    for (auto& kv : loadedBuffers) {
+        alDeleteBuffers(1, &kv.second.buffer);
+    }
+    loadedBuffers.clear();
+
+    for (auto b : loadedBanks)
+    {
+        if (b.second == nullptr) continue;
+
+        b.second->unloadSampleData();
+        b.second->unload();
+
+    }
+
+    loadedBanks.clear();
+
+}
+
+FMOD::Studio::Bank* SoundManager::LoadBankFromPath(const std::string& bankPath, bool loadSampleData)
+{
+    if (!studioSystem)
+    {
+        std::cerr << "[FMOD] LoadBankFromPath: studioSystem is null\n";
+        return nullptr;
+    }
+
+    auto searchResult = loadedBanks.find(bankPath);
+
+    if (searchResult != loadedBanks.end())
+    {
+        return searchResult->second;
+    }
+
+    // 1) Load the bank metadata (no sample data yet)
+    FMOD::Studio::Bank* bank = nullptr;
+    FMOD_RESULT result = studioSystem->loadBankFile(
+        bankPath.c_str(),
+        FMOD_STUDIO_LOAD_BANK_NORMAL,
+        &bank
+    );
+    if (result != FMOD_OK || !bank)
+    {
+        std::cerr << "[FMOD] Failed to load bank \"" << bankPath << "\" ("
+            << result << "): " << FMOD_ErrorString(result) << "\n";
+
+        loadedBanks[bankPath] = nullptr;
+
+        return nullptr;
+    }
+    std::cout << "[FMOD] Bank metadata loaded: " << bankPath << "\n";
+
+    // 2) Optionally load all sample data now
+    if (loadSampleData)
+    {
+        result = bank->loadSampleData();
+        if (result != FMOD_OK)
+        {
+            std::cerr << "[FMOD] Warning: sample data failed for \"" << bankPath << "\" ("
+                << result << "): " << FMOD_ErrorString(result) << "\n";
+            // We still return bank—samples can be loaded later on-demand.
+        }
+        else
+        {
+            std::cout << "[FMOD] Sample data loaded for: " << bankPath << "\n";
+        }
+    }
+
+    loadedBanks[bankPath] = bank;
+
+    return bank;
 }

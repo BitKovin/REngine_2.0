@@ -75,6 +75,8 @@ if (EMSCRIPTEN)
         "${CMAKE_SOURCE_DIR}/libsEms/libassimp.a"
         "${CMAKE_SOURCE_DIR}/libsEms/libIrrXML.a"
         "${CMAKE_SOURCE_DIR}/libsEms/libJolt.a"
+        "${CMAKE_SOURCE_DIR}/libsEms/fmod_wasm.a"
+        "${CMAKE_SOURCE_DIR}/libsEms/fmodstudio_wasm.a"
     )
 
 elseif (LINUX)

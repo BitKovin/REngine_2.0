@@ -1,6 +1,7 @@
 #include "SoundPlayer.h"
 
 #include "../MathHelper.hpp"
+#include "../SoundSystem/FmodEventInstance.h"
 
 SoundPlayer::SoundPlayer()
 {
@@ -12,7 +13,7 @@ SoundPlayer::~SoundPlayer()
 
 }
 
-void SoundPlayer::SetSound(shared_ptr<SoundInstance> sound)
+void SoundPlayer::SetSound(shared_ptr<SoundInstanceBase> sound)
 {
 	Sound = sound;
 }
@@ -25,7 +26,7 @@ void SoundPlayer::LateUpdate()
 		Sound->Position = Position;
 		Sound->Direction = MathHelper::GetForwardVector(Rotation);
 
-		Sound->Volume = CalculateVolume();
+		Sound->Volume = Volume;
 		Sound->Pitch = Pitch;
 		Sound->Is2D = Is2D;
 		Sound->MinDistance = MinDistance;
@@ -79,7 +80,17 @@ SoundPlayer* SoundPlayer::Create()
 SoundPlayer* SoundPlayer::Create(string soundPath)
 {
 	auto player = Create();
-	player->SetSound(SoundManager::GetSoundFromPath(soundPath));
+
+	if (soundPath.starts_with("event:"))
+	{
+		player->SetSound(FmodEventInstance::Create(soundPath));
+	}
+	else
+	{
+		player->SetSound(SoundManager::GetSoundFromPath(soundPath));
+	}
+
+	
 
 	return player;
 }
