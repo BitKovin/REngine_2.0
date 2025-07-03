@@ -3,7 +3,7 @@
 #include "../EngineMain.h"
 
 // Static callback implementation
-FMOD_RESULT F_CALLBACK FmodEventInstance::EventCallback(
+FMOD_RESULT FmodEventInstance::EventCallback(
     FMOD_STUDIO_EVENT_CALLBACK_TYPE type,
     FMOD_STUDIO_EVENTINSTANCE* event,
     void* parameters)
@@ -73,7 +73,7 @@ FmodEventInstance::FmodEventInstance(FMOD::Studio::EventInstance* instance)
     if (eventInstance)
     {
         eventInstance->setUserData(this);
-        eventInstance->setCallback(EventCallback,
+        eventInstance->setCallback(FmodEventInstance::EventCallback,
             FMOD_STUDIO_EVENT_CALLBACK_CREATE_PROGRAMMER_SOUND |
             FMOD_STUDIO_EVENT_CALLBACK_DESTROY_PROGRAMMER_SOUND);
     }

@@ -7,6 +7,7 @@
 #include "Particle/ParticleEmitter.h"
 #include "DebugDraw.hpp"
 #include "UI/UiRenderer.h"
+#include "LoadingScreen/LoadingScreenSystem.h"
 
 EngineMain* EngineMain::MainInstance = nullptr;
 
@@ -201,6 +202,9 @@ void EngineMain::MainLoop()
         Time::Update();
         Time::DeltaTime = 0.05;
         Time::DeltaTimeF = 0.05f;
+
+        LoadingFrames = 5;
+
     }
 
     Input::Update();
@@ -274,11 +278,10 @@ void EngineMain::Render()
 {
     glViewport(0, 0, ScreenSize.x, ScreenSize.y);
 
-    // Enable depth testing
     glEnable(GL_DEPTH_TEST);
 
-    glDisable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.0, 1.0);
+    //glDisable(GL_POLYGON_OFFSET_FILL);
+    //glPolygonOffset(1.0, 1.0);
 
     MainRenderer->RenderLevel(Level::Current);
 
@@ -290,6 +293,14 @@ void EngineMain::Render()
     Level::Current->DevUiUpdate();
 
     RenderImGui();
+
+    if (LoadingFrames > 0)
+    {
+        LoadingFrames--;
+
+        LoadingScreenSystem::Draw();
+        return;
+    }
 
     SDL_GL_SwapWindow(Window);
 }

@@ -48,6 +48,8 @@ public:
 
     bool Paused = false;
 
+    int LoadingFrames = 0;
+
 	EngineMain(SDL_Window* window)
 	{
 		Window = window;

@@ -47,7 +47,7 @@ private:
     FMOD::Sound* GetSoundByName(const std::string& name, FMOD_STUDIO_SOUND_INFO* outInfo);
 
     // Callback handling
-    static FMOD_RESULT F_CALLBACK EventCallback(
+    static FMOD_RESULT EventCallback(
         FMOD_STUDIO_EVENT_CALLBACK_TYPE type,
         FMOD_STUDIO_EVENTINSTANCE* event,
         void* parameters);

@@ -103,7 +103,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
         glDisable(GL_MULTISAMPLE);
     }
 
-#endif // !__EMSCRIPTEN__
+    #endif // !__EMSCRIPTEN__
 
     if (MultiSampleCount) 
     {
