@@ -1,16 +1,15 @@
 #pragma once
 
+#include "malloc_override.h"
+
 #include <SDL2/SDL_video.h>
 
 #include "Camera.h"
 #include "Input.h"
 
-
 #include "Level.hpp"
 
-
 #include "ShaderManager.h"
-
 
 #include "ThreadPool.h"
 

@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 
+#include "malloc_override.h"
+
 class Texture {
 public:
     Texture(const std::string& filename, bool generateMipmaps = true) {

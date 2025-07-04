@@ -4,6 +4,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "malloc_override.h"
+
 #include "glm.h"
 
 #include <unordered_map>

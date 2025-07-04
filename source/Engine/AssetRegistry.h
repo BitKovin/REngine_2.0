@@ -4,6 +4,8 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
+#include "malloc_override.h"
+
 #include "Shader.hpp"
 #include "skinned_model.hpp"
 #include "model.hpp"

@@ -1,5 +1,7 @@
 #include "LevelObjectFactory.h"
 
+#include "malloc_override.h"
+
 LevelObjectFactory& LevelObjectFactory::instance() {
     static LevelObjectFactory factory;
     return factory;

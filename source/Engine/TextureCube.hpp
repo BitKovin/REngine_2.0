@@ -7,6 +7,8 @@
 #include <vector>
 #include <iostream>
 
+#include "malloc_override.h"
+
 #include "Helpers/StringHelper.h"
 
 class CubemapTexture 

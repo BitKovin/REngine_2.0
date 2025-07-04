@@ -16,6 +16,8 @@
 
 #include "BSP/Quake3Bsp.h"
 
+#include "malloc_override.h"
+
 
 using namespace std;
 
@@ -28,9 +30,6 @@ private:
 	
 	vector<LevelObject*> PendingRemoveLevelObjects = vector<LevelObject*>();
 	vector<LevelObject*> PendingMemoryCleanObjects = vector<LevelObject*>();
-
-
-
 
 
 	std::recursive_mutex entityArrayLock = std::recursive_mutex();

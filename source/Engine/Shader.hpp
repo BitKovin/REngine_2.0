@@ -9,6 +9,8 @@
 
 #include "Texture.hpp"
 
+#include "malloc_override.h"
+
 using namespace std;
 
 enum ShaderType

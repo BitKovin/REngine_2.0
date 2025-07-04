@@ -25,23 +25,6 @@ dtTileCache* NavigationSystem::tileCache = nullptr;
 std::recursive_mutex NavigationSystem::mainLock;
 std::vector<dtObstacleRef> NavigationSystem::obstacles;
 
-// Custom allocator for tile cache
-struct LinearAllocator : public dtTileCacheAlloc {
-    unsigned char* buffer;
-    int capacity;
-    int top;
-
-    LinearAllocator(int cap) : buffer(new unsigned char[cap]), capacity(cap), top(0) {}
-    ~LinearAllocator() { delete[] buffer; }
-    void reset() override { top = 0; }
-    void* alloc(size_t size) override {
-        if (top + static_cast<int>(size) > capacity) return nullptr;
-        void* ptr = buffer + top;
-        top += static_cast<int>(size);
-        return ptr;
-    }
-    void free(void*) override {} // No-op; memory managed by reset or destruction
-};
 
 // Custom compressor (simplified, no real compression)
 struct FastLZCompressor : public dtTileCacheCompressor {
@@ -62,7 +45,7 @@ struct FastLZCompressor : public dtTileCacheCompressor {
     }
 };
 
-LinearAllocator* talloc = nullptr; // 1MB
+dtTileCacheAlloc* talloc = nullptr; // 1MB
 FastLZCompressor* tcomp = nullptr;
 
 void NavigationSystem::DestroyNavData()
