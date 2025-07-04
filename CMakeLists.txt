@@ -31,15 +31,30 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
     add_library(Assimp::Assimp STATIC IMPORTED GLOBAL)
     set_target_properties(Assimp::Assimp PROPERTIES
         IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libassimp.a"
-        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/libraries/assimp/"
     )
 
     # Imported Jolt static library
     add_library(Jolt::Jolt STATIC IMPORTED GLOBAL)
     set_target_properties(Jolt::Jolt PROPERTIES
         IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libJolt.a"
-        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/libraries/Jolt/"
     )
+    
+    add_library(FMOD::Core SHARED IMPORTED GLOBAL)
+    set_target_properties(FMOD::Core PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libfmod.so"
+    )
+
+    add_library(FMOD::Studio SHARED IMPORTED GLOBAL)
+    set_target_properties(FMOD::Studio PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libfmodstudio.so"
+    )
+    
+add_library(mimalloc::mimalloc STATIC IMPORTED GLOBAL)
+set_target_properties(mimalloc::mimalloc PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libmimalloc.a"
+)
+
+    
 
     # Find other Linux dependencies
     find_package(SDL2       REQUIRED)
@@ -65,8 +80,10 @@ include_directories(
 file(GLOB_RECURSE ENGINE_SOURCES "${CMAKE_SOURCE_DIR}/source/Engine/*.cpp")
 
 add_library(engine STATIC ${ENGINE_SOURCES})
-target_include_directories(engine PUBLIC
-    "${CMAKE_SOURCE_DIR}/source/Engine"
+target_include_directories(engine 
+    PUBLIC
+      "${CMAKE_SOURCE_DIR}/source/Engine"
+      "${CMAKE_SOURCE_DIR}/libraries"     
 )
 
 if (EMSCRIPTEN)
@@ -93,6 +110,9 @@ elseif (LINUX)
         GLEW::GLEW
         OpenGL::GL
         ZLIB::ZLIB
+	FMOD::Core
+        FMOD::Studio 
+        mimalloc::mimalloc 
     )
 endif()
 
