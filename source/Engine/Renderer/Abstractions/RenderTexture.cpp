@@ -5,7 +5,7 @@
 
 //------------------------------------------------------------------------------
 // On WebGL (Emscripten) we must fall back to single‐sample 2D only
-#if defined(__EMSCRIPTEN__)
+#if defined(GL_ES_PROFILE)
 #define DISABLE_MULTISAMPLE
 #endif
 

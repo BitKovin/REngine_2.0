@@ -52,7 +52,11 @@ void InitImGui() {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     ImGui::StyleColorsDark();
     ImGui_ImplSDL2_InitForOpenGL(window, glContext);
-    ImGui_ImplOpenGL3_Init();
+    const char* glsl_version = "#version 300 es";
+    if (!ImGui_ImplOpenGL3_Init(glsl_version)) {
+        fprintf(stderr, "Failed to initialize ImGui OpenGL3 backend!\n");
+        // handle error...
+    }
 }
 
 bool InitDirectInput(SDL_Window* sdlWindow) {
@@ -145,6 +149,9 @@ void desktop_render_loop() {
     }
 }
 
+#ifndef GL_ES_PROFILE
+
+
 int g_DebugSeverityLevel = 1; // 0: All, 1: Warnings+Errors, 2: Errors only
 void APIENTRY openglDebugCallback(GLenum source,
     GLenum type,
@@ -183,6 +190,8 @@ void APIENTRY openglDebugCallback(GLenum source,
     }
     std::cerr << "\n  Message: " << message << "\n\n";
 }
+
+#endif // !GL_ES_PROFILE
 
 // Link against dbghelp.lib
 #pragma comment(lib, "dbghelp.lib")
@@ -377,13 +386,36 @@ int main(int argc, char* args[])
         return 1;
     }
 
+#ifdef GL_ES_PROFILE
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, GL_TRUE);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+#else
+
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, GL_TRUE);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
+
+#endif // !GL_ES_PROFILE
+
+
+
+
+
+#ifdef GL_ES_PROFILE
+
+    SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
+
+#endif // GL_ES_PROFILE
+
 
 #if DEBUG
 
@@ -407,18 +439,22 @@ int main(int argc, char* args[])
         return 1;
     }
 
+#ifndef GL_ES_PROFILE
     GLenum glewError = glewInit();
     if (glewError != GLEW_OK) {
         fprintf(stderr, "Failed to initialize GLEW: %s\n", glewGetErrorString(glewError));
         return 1;
     }
+#endif
 
-#if DEBUG
+#if DEBUG 
+#ifndef GL_ES_PROFILE
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // For synchronous callback
     glDebugMessageCallback(openglDebugCallback, nullptr);
 
+#endif
 #endif
 
     InitImGui();
@@ -426,11 +462,13 @@ int main(int argc, char* args[])
     SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, "1", SDL_HINT_OVERRIDE);
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
-    printf("GL Version={%s}\n", glGetString(GL_VERSION));
-    printf("GLSL Version={%s}\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+    printf("GL_VERSION = %s\n", glGetString(GL_VERSION));
+    printf("GL_VENDOR = %s\n", glGetString(GL_VENDOR));
+    printf("GL_RENDERER = %s\n", glGetString(GL_RENDERER));
 
     Input::AddAction("test")->AddKeyboardKey(SDL_GetScancodeFromKey(SDLK_t));
     Input::AddAction("fullscreen")->AddKeyboardKey(SDL_GetScancodeFromKey(SDLK_F11));
+
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     SDL_GL_SetSwapInterval(0);

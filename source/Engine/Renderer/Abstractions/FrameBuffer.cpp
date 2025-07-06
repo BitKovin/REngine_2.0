@@ -8,7 +8,7 @@
 
 //------------------------------------------------------------------------------
 // On WebGL only COLOR_ATTACHMENT0 is allowed, no MRT
-#if defined(__EMSCRIPTEN__)
+#if defined(GL_ES_PROFILE)
 #define DISABLE_MRT
 #endif
 

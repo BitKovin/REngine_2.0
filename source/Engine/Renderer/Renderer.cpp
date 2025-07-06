@@ -9,14 +9,7 @@ Renderer::Renderer()
 {
 	ivec2 screenResolution = GetScreenResolution();
 
-    TextureFormat colorTextureFormat = TextureFormat::RGBA16F;
-
-#if __EMSCRIPTEN__
-
-    //colorTextureFormat = TextureFormat::RGB8;
-
-#endif // __EMSCRIPTEN__
-
+    TextureFormat colorTextureFormat = TextureFormat::RGB8;
 
 
 	colorBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2DMultisample, false, GL_LINEAR, GL_LINEAR,
@@ -92,7 +85,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 
     ivec2 res = GetScreenResolution();
 
-    #ifndef __EMSCRIPTEN__
+    #ifndef GL_ES_PROFILE
 
     if (MultiSampleCount)
     {
@@ -103,7 +96,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
         glDisable(GL_MULTISAMPLE);
     }
 
-    #endif // !__EMSCRIPTEN__
+    #endif // !GL_ES_PROFILE
 
     if (MultiSampleCount) 
     {

@@ -106,7 +106,7 @@ namespace UiRenderer {
     }
 
     void DrawBorderRect(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color) {
-#ifndef __EMSCRIPTEN__
+#ifndef GL_ES_PROFILE
         flatColorShader->UseProgram();
         SetShaderProjection(flatColorShader);
         glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
@@ -118,7 +118,7 @@ namespace UiRenderer {
         glBindVertexArray(quadVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif // !__EMSCRIPTEN
+#endif // !GL_ES_PROFILE
     }
 
     void DrawText(const std::string& text, TTF_Font* font, const glm::vec2& pos,

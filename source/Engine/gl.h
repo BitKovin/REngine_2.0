@@ -7,5 +7,6 @@
 #include <GLES3/gl31.h>
 
 #define glTexImage2DMultisample glTexStorage2DMultisample
+#define GL_ES_PROFILE
 
 #endif
