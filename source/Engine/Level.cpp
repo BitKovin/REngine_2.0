@@ -60,8 +60,7 @@ Level* Level::OpenLevel(string filePath)
 
 	bool isNewLevel = true;
 
-	LoadingScreenSystem::Progress = 0.5f;
-	LoadingScreenSystem::Draw();
+	LoadingScreenSystem::Update(0);
 
 	if (Current)
 	{
@@ -75,6 +74,8 @@ Level* Level::OpenLevel(string filePath)
 		delete(Current);
 	}
 
+
+
 	Time::Update();
 	Time::DeltaTime = 0.0;
 	Time::DeltaTimeF = 0;
@@ -87,7 +88,6 @@ Level* Level::OpenLevel(string filePath)
 
 	Current = newLevel;
 
-	
 
 	EngineMain::MainInstance->MainThreadPool = new ThreadPool();
 
@@ -96,11 +96,27 @@ Level* Level::OpenLevel(string filePath)
 	if (endsWith(filePath, ".bsp"))
 	{
 		Current->BspData.LoadBSP(filePath.c_str());
+
+		LoadingScreenSystem::Update(0.1f);
+
 		Current->BspData.BuildVBO();
+
 		Current->BspData.GenerateTexture();
+
+		LoadingScreenSystem::Update(0.15f);
+
 		Current->BspData.GenerateLightmap();
+
+		LoadingScreenSystem::Update(0.2f);
+
 		Current->BspData.LoadToLevel();
+
+		LoadingScreenSystem::Update(0.3f);
+
 		Current->BspData.PreloadFaces();
+
+		LoadingScreenSystem::Update(0.4f);
+
 		Current->BspData.BuildStaticOpaqueObstacles();
 	}
 	else
@@ -109,6 +125,8 @@ Level* Level::OpenLevel(string filePath)
 
 		mapData.LoadToLevel();
 	}
+
+	LoadingScreenSystem::Update(0.5f);
 
 	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Master.bank");
 	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Master.strings.bank");
@@ -136,6 +154,8 @@ Level* Level::OpenLevel(string filePath)
 	Current->RemovePendingEntities();
 	Current->MemoryCleanPendingEntities();
 
+	LoadingScreenSystem::Update(0.6f);
+
 	if (isNewLevel) 
 	{
 		printf("generating nav mesh\n");
@@ -144,6 +164,8 @@ Level* Level::OpenLevel(string filePath)
 
 		printf("generated nav mesh\n");
 	}
+
+	LoadingScreenSystem::Update(0.9f);
 
 	Time::Update();
 	Time::DeltaTime = 0.0;
@@ -168,6 +190,8 @@ Level* Level::OpenLevel(string filePath)
 
 	Time::Update();
 	Time::Update();
+
+	LoadingScreenSystem::Update(1);
 
 	return newLevel;
 }

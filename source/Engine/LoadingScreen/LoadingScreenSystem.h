@@ -11,6 +11,8 @@ public:
 
 	static void SetLoadingCanvas(std::shared_ptr<UiLoadingScreenBase> canvas);
 
+	static void Update(float newProgress);
+
 	static void Draw();
 
 	inline static float Progress = 0;

@@ -16,7 +16,7 @@ Entity* Entity::Spawn(std::string technicalName)
 void Entity::FinalLevelRemove()
 {
 	DestroyDrawables();
-	Logger::Log("FinalLevelRemove: " + Id);
+	//Logger::Log("FinalLevelRemove: " + Id);
 }
 
 void Entity::Destroy()

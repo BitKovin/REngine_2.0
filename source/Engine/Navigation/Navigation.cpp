@@ -15,6 +15,8 @@
 
 #include "../Time.hpp"
 
+#include "../LoadingScreen/LoadingScreenSystem.h"
+
 // Recast and Detour includes
 
 bool NavigationSystem::DebugDrawNavMeshEnabled = false;
@@ -244,7 +246,14 @@ void NavigationSystem::GenerateNavData()
         triareas.data());
 
     // Process each tile
-    for (int tz = 0; tz < ntilesZ; ++tz) {
+    for (int tz = 0; tz < ntilesZ; ++tz) 
+    {
+
+        float progress = (float)tz / (float)ntilesZ;
+
+        LoadingScreenSystem::Update(0.6 + progress * 0.3);
+
+
         for (int tx = 0; tx < ntilesX; ++tx) {
             float tileBmin[3] = {
                 bmin.x + tx * tileWidth,

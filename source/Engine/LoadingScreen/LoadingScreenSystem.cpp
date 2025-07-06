@@ -20,12 +20,22 @@ void LoadingScreenSystem::SetLoadingCanvas(std::shared_ptr<UiLoadingScreenBase> 
 
 }
 
+void LoadingScreenSystem::Update(float newProgress)
+{
+
+	Progress = newProgress;
+	Draw();
+
+}
+
 void LoadingScreenSystem::Draw()
 {
 
 	if (uiCanvas == nullptr) return;
 
 	uiCanvas->LoadingProgress = Progress;
+
+	glClearColor(0, 0, 0, 1);
 
 	viewport.Update();
 	viewport.FinalizeChildren();
