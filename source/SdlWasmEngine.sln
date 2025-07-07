@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{AACF0D7C
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SkeletalEditor", "SkeletalEditor\SkeletalEditor.vcxproj", "{8A221747-7EFF-4885-9B18-0261C4DBFCBB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiPlayer", "MauiPlayer\MauiPlayer.csproj", "{029B5570-C768-4DB7-824C-63AE28885DF3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -172,6 +174,37 @@ Global
 		{8A221747-7EFF-4885-9B18-0261C4DBFCBB}.Release|x64.Build.0 = Release|x64
 		{8A221747-7EFF-4885-9B18-0261C4DBFCBB}.Release|x86.ActiveCfg = Release|Win32
 		{8A221747-7EFF-4885-9B18-0261C4DBFCBB}.Release|x86.Build.0 = Release|Win32
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Debug|ARM.Build.0 = Debug|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Debug|ARM.Deploy.0 = Debug|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Debug|emscripten.ActiveCfg = Debug|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Debug|emscripten.Build.0 = Debug|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Debug|x64.Build.0 = Debug|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Debug|x86.Build.0 = Debug|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.emscripten|ARM.ActiveCfg = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.emscripten|ARM.Build.0 = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.emscripten|ARM64.ActiveCfg = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.emscripten|ARM64.Build.0 = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.emscripten|emscripten.ActiveCfg = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.emscripten|emscripten.Build.0 = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.emscripten|x64.ActiveCfg = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.emscripten|x64.Build.0 = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.emscripten|x86.ActiveCfg = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.emscripten|x86.Build.0 = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Release|ARM.ActiveCfg = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Release|ARM.Build.0 = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Release|ARM64.Build.0 = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Release|emscripten.ActiveCfg = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Release|emscripten.Build.0 = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Release|x64.ActiveCfg = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Release|x64.Build.0 = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Release|x86.ActiveCfg = Release|Any CPU
+		{029B5570-C768-4DB7-824C-63AE28885DF3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -179,5 +212,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A77E1D7E-81A0-4E0C-B963-5A566637F0CF} = {3468E4F9-0556-4EBB-86DD-4F95EB82F6FD}
 		{8A221747-7EFF-4885-9B18-0261C4DBFCBB} = {AACF0D7C-6B57-4686-BAD8-226C3B4BDC07}
+		{029B5570-C768-4DB7-824C-63AE28885DF3} = {3468E4F9-0556-4EBB-86DD-4F95EB82F6FD}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C41E39CC-6325-44E9-B7B6-7195C81E8219}
 	EndGlobalSection
 EndGlobal

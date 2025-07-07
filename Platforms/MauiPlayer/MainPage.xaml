@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             Title="WASM Game">
+    <Grid>
+        <WebView Source="http://127.0.0.1:9696/index.html" />
+    </Grid>
+</ContentPage>
