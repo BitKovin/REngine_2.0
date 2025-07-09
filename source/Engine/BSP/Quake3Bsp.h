@@ -306,6 +306,20 @@ struct OpaqueModelVBO
     VertexArrayObject* vao = nullptr;
 };
 
+struct MergedModelFacesData
+{
+    VertexBuffer* vbo = nullptr;
+    IndexBuffer* ibo = nullptr;
+    VertexArrayObject* vao = nullptr;
+
+    uint32 referenceFace = 0; //stores face data that will be referenced (for example for texturing)
+
+    uint32 uId = 0; //unique id to avoid drawing same faces multiple times
+
+    BoundingBox bounds;
+
+};
+
 class BSPModelRef;
 // This is our Quake3 BSP class
 class CQuake3BSP : public IDrawMesh
@@ -336,6 +350,7 @@ class CQuake3BSP : public IDrawMesh
     void GenerateTexture();
     void GenerateLightmap();
     bool RenderSingleFace(int index, bool lightmap, LightVolPointData lightData, mat4 model);
+    bool RenderMergedFace(int index, bool lightmap, LightVolPointData lightData, mat4 model);
     void renderFaces();
     void VBOFiller(int index);
     void BuildVBO();
@@ -348,6 +363,8 @@ class CQuake3BSP : public IDrawMesh
 
     void PreloadFace(int index);
     void PreloadFaces();
+
+    void BuildMergedModels();
 
     int m_numOfFaces;    // The number of faces in the model
     int m_numOfIndices;  // The number of indices for the model
@@ -389,6 +406,10 @@ class CQuake3BSP : public IDrawMesh
 
     std::vector<OpaqueModelVBO> opaqueVBOs;
 
+    std::vector<MergedModelFacesData> mergedFacesData;
+
+    vector<int> mergedFacesMapping;
+
     CachedFaceTextureData* cachedFaces;
 
     std::vector<BoundingBox> faceBounds;
@@ -400,6 +421,8 @@ class CQuake3BSP : public IDrawMesh
     glm::vec3 originalMins; // Original model bounds in Z-up (before transformation)
     glm::vec3 originalMaxs;
 
+    std::vector<VertexData> GetFaceVertices(int faceId);
+    std::vector<uint32_t> GetFaceIndices(int faceId);
 
     // Get lighting for a dynamic object at position (x, y, z)
     LightVolPointData GetLightvolColorPoint(const glm::vec3& position);

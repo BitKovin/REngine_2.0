@@ -103,17 +103,20 @@ Level* Level::OpenLevel(string filePath)
 
 		Current->BspData.GenerateTexture();
 
-		LoadingScreenSystem::Update(0.15f);
-
 		Current->BspData.GenerateLightmap();
 
-		LoadingScreenSystem::Update(0.2f);
+
+		LoadingScreenSystem::Update(0.15f);
 
 		Current->BspData.LoadToLevel();
 
-		LoadingScreenSystem::Update(0.3f);
+		LoadingScreenSystem::Update(0.2f);
 
 		Current->BspData.PreloadFaces();
+
+		LoadingScreenSystem::Update(0.3f);
+
+		Current->BspData.BuildMergedModels();
 
 		LoadingScreenSystem::Update(0.4f);
 

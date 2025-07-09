@@ -82,8 +82,7 @@ file(GLOB_RECURSE ENGINE_SOURCES "${CMAKE_SOURCE_DIR}/source/Engine/*.cpp")
 add_library(engine STATIC ${ENGINE_SOURCES})
 target_include_directories(engine 
     PUBLIC
-      "${CMAKE_SOURCE_DIR}/source/Engine"
-      "${CMAKE_SOURCE_DIR}/libraries"     
+      "${CMAKE_SOURCE_DIR}/source/Engine"   
 )
 
 if (EMSCRIPTEN)
@@ -99,6 +98,11 @@ if (EMSCRIPTEN)
 elseif (LINUX)
     # Link OpenAL via imported target
     target_link_libraries(engine PRIVATE OpenAL::OpenAL)
+
+	target_include_directories(engine 
+    PUBLIC
+      "${CMAKE_SOURCE_DIR}/libraries"     
+	)
 
     # Link the rest as before
     target_link_libraries(engine PRIVATE

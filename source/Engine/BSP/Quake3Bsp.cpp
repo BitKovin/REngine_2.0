@@ -55,11 +55,20 @@ CQuake3BSP::~CQuake3BSP()
         delete(modelVBO.vbo);
     }
 
+    for (auto mergedModel : mergedFacesData)
+    {
+        delete(mergedModel.vao);
+        delete(mergedModel.ibo);
+        delete(mergedModel.vbo);
+    }
+
     delete[] m_pVerts;
     delete[] m_pFaces;
     delete[] m_pIndices;
     delete[] pTextures;
     delete[] pLightmaps;
+
+
     if (m_lightmap_gen_IDs) {
         glDeleteTextures(m_numOfLightmaps, m_lightmap_gen_IDs);
     }
@@ -432,6 +441,86 @@ void CQuake3BSP::PreloadFaces()
 
 }
 
+void CQuake3BSP::BuildMergedModels()
+{
+
+    uint32 mId = -1;
+
+    unordered_map<string, vector<int>> facesMap;
+
+    for (const auto& model : models)
+    {
+        mId++;
+
+        string modelId = to_string(mId);
+
+        for (int i = model.face; i < model.face + model.n_faces; i++)
+        {
+
+            
+            string texId = to_string(m_pFaces[i].textureID);
+            string lightmapId = to_string(m_pFaces[i].lightmapID);
+
+            string finalString = modelId + "|" + texId + "|" + lightmapId;
+
+            auto searchRes = facesMap.find(finalString);
+
+            if (searchRes == facesMap.end())
+            {
+                facesMap[finalString] = vector<int>();
+            }
+
+            facesMap[finalString].push_back(i);
+
+
+        }
+    }
+
+    mergedFacesMapping.resize(m_numOfFaces);
+
+    for (const auto& keyPair : facesMap)
+    {
+
+        vector<MeshUtils::VerticesIndices> facesMeshes;
+
+        facesMeshes.reserve(keyPair.second.size());
+
+
+        for (int i : keyPair.second)
+        {
+
+            MeshUtils::VerticesIndices mesh;
+
+            mesh.vertices = GetFaceVertices(i);
+            mesh.indices = GetFaceIndices(i);
+
+            facesMeshes.push_back(mesh);
+
+        }
+
+        auto mergedMesh = MeshUtils::MergeMeshes(facesMeshes);
+
+        MergedModelFacesData data;
+        data.ibo = new IndexBuffer(mergedMesh.indices);
+        data.vbo = new VertexBuffer(mergedMesh.vertices, VertexData::Declaration());
+        data.vao = new VertexArrayObject(*data.vbo, *data.ibo);
+        data.referenceFace = keyPair.second[0];
+        data.uId = mergedFacesData.size();
+
+        data.bounds = BoundingBox::FromVertices(mergedMesh.vertices).Transform(glm::scale(vec3(1.0f / MAP_SCALE)));
+
+        mergedFacesData.push_back(data);
+
+        for (int i : keyPair.second)
+        {
+            mergedFacesMapping[i] = data.uId;
+        }
+
+
+    }
+
+}
+
 glm::vec3 computeLightDirection(const unsigned char vol_dir[2]) {
     // Quake 3 encodes pitch (elevation) from 0 (up) to 255 (down)
     float pitch = glm::radians((static_cast<float>(vol_dir[0]) / 255.0f) * 180.0f);
@@ -447,6 +536,16 @@ glm::vec3 computeLightDirection(const unsigned char vol_dir[2]) {
     glm::vec3 engine_vec = glm::vec3(quake_vec.x, quake_vec.z, -quake_vec.y);
 
     return glm::normalize(engine_vec);
+}
+
+std::vector<VertexData> CQuake3BSP::GetFaceVertices(int faceId)
+{
+    return Rbuffers.v_faceVBOs[faceId];
+}
+
+std::vector<uint32_t> CQuake3BSP::GetFaceIndices(int faceId)
+{
+    return Rbuffers.v_faceIDXs[faceId];
 }
 
 LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
@@ -651,7 +750,7 @@ void CQuake3BSP::DrawForward(mat4x4 view, mat4x4 projection)
 void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, mat4 modelMatrix, bool useClusterVis, bool lightmap)
 {
 
-
+    
     auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
     //printf("light : %f, %f, %f \n", light.ambientColor.x, light.ambientColor.y, light.ambientColor.z);
 
@@ -684,11 +783,12 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, mat4 mo
 
     }
 
+    std::vector<bool> renderedFaces(m_numOfFaces);
 
     if (useClusterVis)
     {
         // Initialize a boolean array to track rendered faces for this model
-        std::vector<bool> renderedFaces(model.n_faces, false);
+
 
         // 2. Iterate through all leaves
         for (const tBSPLeaf& leaf : leafs) {
@@ -706,8 +806,11 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, mat4 mo
 
                 if (model.face <= faceIndex && faceIndex < model.face + model.n_faces)
                 {
+
+                    int mergedIndex = mergedFacesMapping[faceIndex];
+
                     // Compute the local index within the model's face range
-                    int localIndex = faceIndex - model.face;
+                    int localIndex = mergedIndex;
 
                     // Only render if the face hasn’t been rendered yet
                     if (!renderedFaces[localIndex])
@@ -715,19 +818,19 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, mat4 mo
                         renderedFaces[localIndex] = true; // Mark as rendered
 
                         FaceRenderData renderData;
-                        renderData.faceIndex = faceIndex;
+                        renderData.faceIndex = mergedIndex;
                         renderData.useLightmap = lightmap;
                         renderData.lightPointData = lightData;
                         renderData.modelMatrix = modelMatrix;
 
-                        if (IsFaceTransparent(faceIndex))
+                        if (IsFaceTransparent(mergedFacesData[mergedIndex].referenceFace))
                         {
                             facesToDrawTransparent.push_back(renderData);
                         }
                         else
                         {
 
-                            bool drawn = RenderSingleFace(faceIndex, lightmap, lightData, modelMatrix);
+                            bool drawn = RenderMergedFace(mergedIndex, lightmap, lightData, modelMatrix);
                             if (drawn)
                             {
                                 drawnFaces++;
@@ -744,22 +847,29 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, mat4 mo
 		for (int i = model.face; i < model.face + model.n_faces; i++)
 		{
 
-            FaceRenderData renderData;
-            renderData.faceIndex = i;
-            renderData.useLightmap = lightmap;
-            renderData.lightPointData = lightData;
-            renderData.modelMatrix = modelMatrix;
+            const int& mergedIndex = mergedFacesMapping[i];
 
-            if (IsFaceTransparent(i))
+            if (!renderedFaces[mergedIndex])
             {
-                facesToDrawTransparent.push_back(renderData);
-            }
-            else
-            {
-                bool drawn = RenderSingleFace(i, lightmap, lightData, modelMatrix);
-                if (drawn)
+                renderedFaces[mergedIndex] = true; // Mark as rendered
+
+                FaceRenderData renderData;
+                renderData.faceIndex = mergedIndex;
+                renderData.useLightmap = lightmap;
+                renderData.lightPointData = lightData;
+                renderData.modelMatrix = modelMatrix;
+
+                if (IsFaceTransparent(mergedFacesData[renderData.faceIndex].referenceFace))
                 {
-                    drawnFaces++;
+                    facesToDrawTransparent.push_back(renderData);
+                }
+                else
+                {
+                    bool drawn = RenderMergedFace(renderData.faceIndex, lightmap, lightData, modelMatrix);
+                    if (drawn)
+                    {
+                        drawnFaces++;
+                    }
                 }
             }
 
@@ -777,7 +887,7 @@ void CQuake3BSP::RenderTransparentFaces()
 
     for (auto& face : facesToDrawTransparent)
     {
-        bool drawn = RenderSingleFace(face.faceIndex, face.useLightmap, face.lightPointData, face.modelMatrix);
+        bool drawn = RenderMergedFace(face.faceIndex, face.useLightmap, face.lightPointData, face.modelMatrix);
     }
 
     facesToDrawTransparent.clear();
@@ -1074,8 +1184,6 @@ std::string CQuake3BSP::GetLightMapFilePathFromId(int id, const std::string& fil
 }
 bool CQuake3BSP::RenderSingleFace(int index , bool lightmap, LightVolPointData lightData, mat4 model)
 {
-
-
     auto bounds = faceBounds[index];
     bounds = bounds.Transform(model);
 
@@ -1132,6 +1240,72 @@ bool CQuake3BSP::RenderSingleFace(int index , bool lightmap, LightVolPointData l
     // draw using the EBO already bound in the VAO; offset = 0
     glDrawElements(GL_TRIANGLES,
         data.numOfIndices,
+        GL_UNSIGNED_INT,
+        0);
+
+
+    VertexArrayObject::Unbind();
+
+    return true;
+}
+
+bool CQuake3BSP::RenderMergedFace(int mergedIndex, bool lightmap, LightVolPointData lightData, mat4 model)
+{
+
+    const auto& mergedFace = mergedFacesData[mergedIndex];
+
+
+    auto& bounds = mergedFace.bounds;
+
+	if (Camera::frustum.IsBoxVisible(bounds.Min, bounds.Max) == false)
+	    return false;
+
+
+    // bind the face's VAO (which has its VBO/EBO & attribs)
+    mergedFace.vao->Bind();
+
+
+    const CachedFaceTextureData& data = cachedFaces[mergedFace.referenceFace];
+
+    bool isCube = data.isCube;
+    int faceTexture = data.textureId;
+    GLuint lightmapId = data.lightmapId;
+
+    ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", isCube ? "bsp_cube" : "bsp");
+    shader->UseProgram();
+
+
+    if (faceTexture == 0) return false;
+
+
+
+    shader->SetUniform("light_color", lightData.ambientColor);
+    shader->SetUniform("direct_light_color", lightData.directColor);
+    shader->SetUniform("direct_light_dir", lightData.direction);
+
+    if (isCube)
+    {
+        shader->SetCubemapTexture("s_bspTexture", faceTexture);
+    }
+    else
+    {
+        shader->SetTexture("s_bspTexture", faceTexture);
+    }
+
+
+    shader->SetTexture("s_bspLightmap", lightmapId);
+    shader->SetUniform("view", Camera::finalizedView);
+    shader->SetUniform("projection", Camera::finalizedProjection);
+    shader->SetUniform("model", model);
+
+    EngineMain::MainInstance->MainRenderer->SetSurfaceShaderUniforms(shader);
+
+
+
+
+    // draw using the EBO already bound in the VAO; offset = 0
+    glDrawElements(GL_TRIANGLES,
+        mergedFace.vao->IndexCount,
         GL_UNSIGNED_INT,
         0);
 

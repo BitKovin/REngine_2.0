@@ -19,6 +19,11 @@ namespace MauiPlayer
         {
             base.OnCreate(savedInstanceState);
 
+            Window.SetFlags(
+                WindowManagerFlags.HardwareAccelerated,
+            WindowManagerFlags.HardwareAccelerated
+        );
+
             Platform.Init(this, savedInstanceState);
 
             EnableFullscreen();
@@ -70,7 +75,7 @@ namespace MauiPlayer
             window.Attributes = attrs;
 
             // Also no limits layout (just in case)
-            window.AddFlags(WindowManagerFlags.LayoutNoLimits);
+            window.AddFlags(WindowManagerFlags.LayoutNoLimits | WindowManagerFlags.HardwareAccelerated);
         }
 
     }

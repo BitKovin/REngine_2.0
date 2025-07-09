@@ -9,7 +9,7 @@ Renderer::Renderer()
 {
 	ivec2 screenResolution = GetScreenResolution();
 
-    TextureFormat colorTextureFormat = TextureFormat::RGB8;
+    TextureFormat colorTextureFormat = TextureFormat::RGBA16F;
 
 
 	colorBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2DMultisample, false, GL_LINEAR, GL_LINEAR,

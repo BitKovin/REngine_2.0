@@ -15,6 +15,15 @@ namespace MauiPlayer
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.ConfigureMauiHandlers(handlers =>
+            {
+#if IOS
+            handlers.AddHandler<Shell, Platforms.iOS.CustomiOSShellHandler>();
+#elif ANDROID
+                handlers.AddHandler<Shell, Platforms.Android.CustomAndroidShellHandler>();
+#endif
+            });
+
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif

@@ -45,16 +45,36 @@ public:
 
     static VerticesIndices MergeMeshes(const vector<VerticesIndices>& meshes)
     {
-        VerticesIndices merged;
-        uint32_t vertexOffset = 0;
-        for (auto const& mesh : meshes)
-        {
-            merged.vertices.insert(merged.vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
-            for (auto idx : mesh.indices)
-                merged.indices.push_back(idx + vertexOffset);
-            vertexOffset += uint32_t(mesh.vertices.size());
+        MeshUtils::VerticesIndices mergedMesh;
+
+        // Reserve memory to avoid multiple reallocations, improving performance.
+        size_t totalVertexCount = 0;
+        size_t totalIndexCount = 0;
+        for (const auto& mesh : meshes) {
+            totalVertexCount += mesh.vertices.size();
+            totalIndexCount += mesh.indices.size();
         }
-        return merged;
+        mergedMesh.vertices.reserve(totalVertexCount);
+        mergedMesh.indices.reserve(totalIndexCount);
+
+        uint32_t baseVertexIndex = 0;
+
+        for (const auto& mesh : meshes)
+        {
+            // 1. Append the new vertices to the merged list.
+            mergedMesh.vertices.insert(mergedMesh.vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
+
+            // 2. Append the new indices, but add the baseVertexIndex to each one.
+            for (uint32_t index : mesh.indices)
+            {
+                mergedMesh.indices.push_back(index + baseVertexIndex);
+            }
+
+            // 3. Update the base index for the next mesh.
+            baseVertexIndex += static_cast<uint32_t>(mesh.vertices.size());
+        }
+
+        return mergedMesh;
     }
 
     // --------------------------------------------------
