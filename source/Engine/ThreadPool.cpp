@@ -9,7 +9,7 @@ using namespace std::chrono_literals;
 
 void ThreadPool::Start() {
 #ifndef DISABLE_TREADPOOL
-	const uint32_t num_threads = (std::thread::hardware_concurrency()) / 1.5f; // Max # of threads the system supports
+	const uint32_t num_threads = (GetMaxThreads()) / 1.5f; // Max # of threads the system supports
 	for (uint32_t ii = 0; ii < num_threads; ++ii)
 	{
 		threads.emplace_back(std::thread(&ThreadPool::ThreadLoop, this));
@@ -82,6 +82,19 @@ void ThreadPool::WaitForFinish() {
 		return !IsBusy();
 		});
 #endif
+}
+
+int ThreadPool::GetMaxThreads()
+{
+#ifdef __EMSCRIPTEN__
+
+	return 4;
+
+#else
+
+	return std::thread::hardware_concurrency();
+
+#endif 
 }
 
 

@@ -55,8 +55,7 @@ void SoundManager::InitFmod()
 
 #if __EMSCRIPTEN__
 
-    flags |= FMOD_INIT_STREAM_FROM_UPDATE |
-        FMOD_INIT_MIX_FROM_UPDATE;
+    //flags |= FMOD_INIT_STREAM_FROM_UPDATE | FMOD_INIT_MIX_FROM_UPDATE;
 
     coreSystem->setDSPBufferSize(2048, 2);
 

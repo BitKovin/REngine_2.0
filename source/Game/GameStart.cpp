@@ -7,6 +7,9 @@
 #include <LoadingScreen/LoadingScreenSystem.h>
 #include "UI/LoadingScreen/UiDefaultLoadingScreen.h"
 
+#include <EngineMain.h>
+
+
 class GameStart : public Entity
 {
 public:
@@ -53,6 +56,11 @@ public:
             UiManager::UiScale = 1;
         }
 
+        if (Input::GetAction("debug_ui_toggle")->Pressed())
+        {
+            EngineMain::MainInstance->DebugUiEnabled = !EngineMain::MainInstance->DebugUiEnabled;
+        }
+
     }
 
 private:
@@ -90,6 +98,8 @@ GameStart::GameStart()
     Input::AddAction("lastSlot")->AddKeyboardKey(SDL_KeyCode::SDLK_q);
 
     Input::AddAction("slotMelee")->AddKeyboardKey(SDL_KeyCode::SDLK_f);
+
+    Input::AddAction("debug_ui_toggle")->AddKeyboardKey(SDL_KeyCode::SDLK_UP);
 
 }
 

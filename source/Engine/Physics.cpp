@@ -104,6 +104,63 @@ void MyContactListener::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePa
 
 }
 
+void Physics::Init()
+{
+
+	RegisterDefaultAllocator();
+	Factory::sInstance = new Factory();
+
+	RegisterTypes();
+
+	tempMemAllocator = new TempAllocatorImpl(30 * 1024 * 1024);
+
+	int numThreads = ThreadPool::GetMaxThreads();
+
+#ifdef __EMSCRIPTEN__
+
+	numThreads = 2;
+
+#endif // #__EMSCRIPTEN__
+
+#ifndef __EMSCRIPTEN_PTHREADS__
+
+	numThreads = std::thread::hardware_concurrency() - 2;
+
+#endif
+
+
+	threadPool = new JobSystemThreadPool(cMaxPhysicsJobs, cMaxPhysicsBarriers, numThreads);
+
+	const uint cMaxBodies = 65536;
+
+	const uint cNumBodyMutexes = 0;
+
+	const uint cMaxBodyPairs = 65536;
+
+	const uint cMaxContactConstraints = 20240;
+
+	object_vs_broadphase_layer_filter = new ObjectVsBroadPhaseLayerFilterImpl();
+
+	object_vs_object_layer_filter = new ObjectLayerPairFilterImpl();
+
+	broad_phase_layer_interface = new BPLayerInterfaceImpl();
+
+	physics_system = new PhysicsSystem();
+
+	physics_system->Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, *broad_phase_layer_interface, *object_vs_broadphase_layer_filter, *object_vs_object_layer_filter);
+
+
+	contact_listener = new MyContactListener();
+	physics_system->SetContactListener(contact_listener);
+
+	bodyInterface = &physics_system->GetBodyInterface();
+
+#ifdef JPH_DEBUG_RENDERER
+	debugRenderer = new MyDebugRenderer();
+#endif
+
+}
+
 void Physics::UpdatePendingBodyExitsEnters()
 {
 

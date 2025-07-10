@@ -24,6 +24,7 @@ namespace MauiPlatform
             _listener.Prefixes.Add($"http://*:{port}/");
             _listener.Start();
 
+
             // fire-and-forget the request loop
             _ = Task.Run(() => HandleRequestsAsync(_cts.Token), _cts.Token);
 
@@ -64,6 +65,11 @@ namespace MauiPlatform
         {
             var req = ctx.Request;
             var resp = ctx.Response;
+
+            resp.Headers.Add("Cross-Origin-Opener-Policy", "same-origin");
+            resp.Headers.Add("Cross-Origin-Embedder-Policy", "require-corp");
+            resp.Headers.Add("Cache-Control", "no-store, must-revalidate");
+            resp.Headers.Add("Permissions-Policy", "cross-origin-isolated=(*)");
 
             var urlPath = req.Url!.AbsolutePath.TrimStart('/');
             if (string.IsNullOrEmpty(urlPath))
@@ -111,5 +117,8 @@ namespace MauiPlatform
                 _ => "application/octet-stream",
             };
         }
+
+
+
     }
 }

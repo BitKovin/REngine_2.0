@@ -166,7 +166,11 @@ void EngineMain::MainLoop()
     // Wait for game update here
 
 
-    ImStartFrame();
+    if (DebugUiEnabled)
+    {
+        ImStartFrame();
+    }
+    
 
     bool loadedlevel = Level::LoadPendingLevel();
 
@@ -290,9 +294,14 @@ void EngineMain::Render()
     Viewport.Draw();
     UiRenderer::EndFrame();
 
-    Level::Current->DevUiUpdate();
+    if (DebugUiEnabled)
+    {
+        Level::Current->DevUiUpdate();
 
-    RenderImGui();
+        RenderImGui();
+    }
+
+
 
     if (LoadingFrames > 0)
     {

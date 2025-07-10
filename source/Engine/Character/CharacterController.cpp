@@ -229,6 +229,18 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 	int nNotWalk = 0;
 
+	float startRadius = 0.1;
+	
+	float stepRadius = 0.3;
+
+	if (ThreadPool::Supported() == false)
+	{
+		startRadius = 0.4;
+
+		numOfIterations = 8;
+
+	}
+
 	for (float r = 0.1; r <= 1; r += 0.3)
 	{
 

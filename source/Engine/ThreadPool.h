@@ -6,6 +6,7 @@
 
 #endif // __EMSCRIPTEN__
 
+#define DISABLE_TREADPOOL
 
 #include <mutex>
 #include <queue>
@@ -31,6 +32,8 @@ public:
     std::condition_variable finished_condition;
 
     void WaitForFinish();
+
+    static int GetMaxThreads();
 
     static inline bool Supported()
     {

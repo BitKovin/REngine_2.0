@@ -122,7 +122,13 @@ int main(int argc, char* args[]) {
     SDL_GL_SetSwapInterval(0);
 
     engine = new EngineMain(window);
+
+#ifndef  __EMSCRIPTEN_PTHREADS__
+
     engine->asyncGameUpdate = false;
+
+#endif // ! __EMSCRIPTEN_PTHREADS__
+
     EngineMain::MainInstance = engine;
     engine->Init();
 

@@ -10,7 +10,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Build")
 
 # Add Emscripten-specific compile options here (applies to all targets)
 if (EMSCRIPTEN)
-    add_compile_options(-O3 -DNDEBUG) #-pthread 
+    add_compile_options(-O3 -DNDEBUG ) #-pthread
 else()
     add_compile_options(-O3 -DNDEBUG)
 endif()
@@ -131,11 +131,10 @@ set(WASM_COMMON_LINK_OPTIONS
     "SHELL:-s USE_WEBGL2=1"
     "SHELL:-s MIN_WEBGL_VERSION=2"
     "SHELL:-s MAX_WEBGL_VERSION=2"
-    "SHELL:-s GL_PREINITIALIZED_CONTEXT=1"
+    #"SHELL:-s GL_PREINITIALIZED_CONTEXT=1"
     "SHELL:-s STACK_SIZE=500000"
-    "SHELL:-s INITIAL_HEAP=83886080"
-    "SHELL:-s ALLOW_MEMORY_GROWTH=1"
-    #"SHELL:-s TOTAL_MEMORY=134217728"
+    
+    
     "SHELL:-s NO_DISABLE_EXCEPTION_CATCHING"
     "SHELL:-s WASM=1"
     "SHELL:-s ASSERTIONS=1"
@@ -143,12 +142,26 @@ set(WASM_COMMON_LINK_OPTIONS
     "SHELL:-s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1"
     "SHELL:-lidbfs.js"
     "SHELL:-msimd128"
-    "SHELL:-s EXPORTED_RUNTIME_METHODS=['cwrap','setValue','getValue']"
+    "SHELL:-s EXPORTED_RUNTIME_METHODS=['cwrap','setValue','getValue']" #for fmod
+
+    "SHELL:-s AGGRESSIVE_VARIABLE_ELIMINATION=1"
+    "SHELL:-s ELIMINATE_DUPLICATE_FUNCTIONS=1"
+
+    "SHELL:--profiling-funcs"
+
+    #disable if using pthreads
+    "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+    "SHELL:-s INITIAL_HEAP=83886080"
+
+    #enable if using pthreads
+    #"SHELL:-s TOTAL_MEMORY=134217728"
     #"SHELL:-pthread"
     #"SHELL:-s USE_PTHREADS=1"
-    #"SHELL:-s PTHREAD_POOL_SIZE=32"
-    #"SHELL:-s PTHREAD_POOL_SIZE_STRICT=1"
+    #"SHELL:-s PTHREAD_POOL_SIZE=16" # 5 reserved for engine to work (IDK why, but it's required when disabling any thread pool), 4 for thread pools, 2 for physics and other are reserved for stability 
+
+    #"SHELL:-s PTHREAD_POOL_SIZE_STRICT=2"
     #"SHELL:-s PROXY_TO_PTHREAD"
+
 )
 
 # ——————————————————————————————————————————————————————————

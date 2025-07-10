@@ -65,7 +65,7 @@ using namespace JPH;
 
 using namespace std;
 
-enum class BodyType : uint32_t {
+enum BodyType : uint32_t {
 	None = 1,       // 1
 	MainBody = 2,       // 2
 	HitBox = 4,       // 4
@@ -606,47 +606,7 @@ public:
 		physicsMainLock.unlock();
 	}
 
-	static void Init()
-	{
-		RegisterDefaultAllocator();
-		Factory::sInstance = new Factory();
-
-		RegisterTypes();
-
-		tempMemAllocator = new TempAllocatorImpl(30 * 1024 * 1024);
-
-		threadPool = new JobSystemThreadPool(cMaxPhysicsJobs, cMaxPhysicsBarriers, thread::hardware_concurrency() - 2);
-
-		const uint cMaxBodies = 65536;
-
-		const uint cNumBodyMutexes = 0;
-
-		const uint cMaxBodyPairs = 65536;
-
-		const uint cMaxContactConstraints = 20240;
-
-		object_vs_broadphase_layer_filter = new ObjectVsBroadPhaseLayerFilterImpl();
-
-		object_vs_object_layer_filter = new ObjectLayerPairFilterImpl();
-
-		broad_phase_layer_interface = new BPLayerInterfaceImpl();
-
-		physics_system = new PhysicsSystem();
-
-		physics_system->Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, *broad_phase_layer_interface, *object_vs_broadphase_layer_filter, *object_vs_object_layer_filter);
-
-
-		contact_listener = new MyContactListener();
-		physics_system->SetContactListener(contact_listener);
-
-		bodyInterface = &physics_system->GetBodyInterface();
-		
-#ifdef JPH_DEBUG_RENDERER
-		debugRenderer = new MyDebugRenderer();
-#endif
-
-
-	}
+	static void Init();
 
 
 	static void SetBodyPosition(Body* body,vec3 pos)
@@ -947,7 +907,6 @@ public:
 		BodyType group = BodyType::CharacterCapsule,
 		BodyType mask = BodyType::GroupCollisionTest);
 
-	JPH::CharacterVirtual* CreateCharacter(vec3 position, float radius, float height);
 
 	struct HitResult
 	{

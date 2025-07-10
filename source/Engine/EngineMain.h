@@ -47,6 +47,8 @@ public:
 
     bool Paused = false;
 
+    bool DebugUiEnabled = true;
+
     int LoadingFrames = 0;
 
 	EngineMain(SDL_Window* window)

@@ -4,6 +4,7 @@ using EmbedIO.Files;
 using Swan.Logging;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -37,8 +38,14 @@ namespace GamePlayerApp
             };
             timer.Start();
 
+            Init();
 
+        }
 
+        public async void Init()
+        {
+            await GameWebView.EnsureCoreWebView2Async();
+            GameWebView.CoreWebView2.OpenDevToolsWindow();
         }
 
         Windows.UI.Core.CoreWindow appwindow;
@@ -107,17 +114,26 @@ namespace GamePlayerApp
             GameWebView.UpdateLayout();
         }
 
-        private async void InitializeWebView2()
+        public class AddDefaultHeadersModule : WebModuleBase
         {
-            try
-            {
-                // Ensure CoreWebView2 is created before navigation
-                await GameWebView.EnsureCoreWebView2Async();
+            public AddDefaultHeadersModule(string baseRoute)
+                : base(baseRoute) { }
 
-            }
-            catch (Exception ex)
+            // This module never “handles” the request fully, it just lets other modules run first.
+            public override bool IsFinalHandler => false;
+
+
+            protected override Task OnRequestAsync(IHttpContext context)
             {
-                System.Diagnostics.Debug.WriteLine($"WebView2 Error: {ex.Message}");
+                var headers = context.Response.Headers;
+
+                headers.Add("Cross-Origin-Opener-Policy", "same-origin");
+                headers.Add("Cross-Origin-Embedder-Policy", "require-corp");
+                headers.Add("Cache-Control", "no-store, must-revalidate");
+                headers.Add("Permissions-Policy", "cross-origin-isolated=(*)");
+
+
+                return Task.CompletedTask;
             }
         }
 
@@ -129,6 +145,7 @@ namespace GamePlayerApp
             var server = new WebServer(o => o
                     .WithUrlPrefix(url)
                     .WithMode(HttpListenerMode.EmbedIO))
+                .WithModule(new AddDefaultHeadersModule("/"))
                 // First, we will configure our web server by adding Modules.
                 .WithLocalSessionManager()
                 .WithStaticFolder("/", filesRoot, true, m => m
@@ -139,6 +156,7 @@ namespace GamePlayerApp
             server.AddCustomMimeType(".data", "application/octet-stream");
             server.AddCustomMimeType(".bin", "application/octet-stream");
             server.AddCustomMimeType(".symbols.json", "application/json");
+
 
             // Listen for state changes.
             server.StateChanged += (s, e) => $"WebServer New State - {e.NewState}".Info();

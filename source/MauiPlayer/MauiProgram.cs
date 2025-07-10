@@ -18,7 +18,7 @@ namespace MauiPlayer
             builder.ConfigureMauiHandlers(handlers =>
             {
 #if IOS
-            handlers.AddHandler<Shell, Platforms.iOS.CustomiOSShellHandler>();
+                handlers.AddHandler<Shell, Platforms.iOS.CustomiOSShellHandler>();
 #elif ANDROID
                 handlers.AddHandler<Shell, Platforms.Android.CustomAndroidShellHandler>();
 #endif
