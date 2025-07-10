@@ -6,7 +6,6 @@
 
 #endif // __EMSCRIPTEN__
 
-#define DISABLE_TREADPOOL
 
 #include <mutex>
 #include <queue>
