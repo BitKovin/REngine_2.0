@@ -104,7 +104,7 @@ glm::mat4 roj::Animator::interpolateScaling(roj::FrameBoneTransform& boneTransfo
 {
     int posIdx = getKeyTransformIdx(boneTransform.scaleTimestamps);
     if (posIdx == -1)
-        return glm::scale(glm::mat4(1.0f), boneTransform.scales[0]);
+        return glm::scale(boneTransform.scales[0]);
 
     if (Loop && posIdx == boneTransform.scaleTimestamps.size() - 1)
     {
@@ -116,7 +116,7 @@ glm::mat4 roj::Animator::interpolateScaling(roj::FrameBoneTransform& boneTransfo
             boneTransform.scales[0],
             scaleFactor
         );
-        return glm::scale(glm::mat4(1.0f), finalScale);
+        return glm::scale(finalScale);
     }
 
     float scaleFactor = getScaleFactor(
@@ -129,51 +129,44 @@ glm::mat4 roj::Animator::interpolateScaling(roj::FrameBoneTransform& boneTransfo
         boneTransform.scales[posIdx + 1],
         scaleFactor
     );
-    return glm::scale(glm::mat4(1.0f), finalScale);
+
+    //return glm::scale(glm::mat4(1.0f), finalScale);
+
+    return glm::scale(finalScale);
 }
 
-void roj::Animator::calcBoneTransform(BoneNode& node, glm::mat4 offset, bool stopAfterRoot)
-{
-    auto it = m_currAnim->animationFrames.find(node.name);
-    if (it != m_currAnim->animationFrames.end())
-    {
-        auto& boneTransform = it->second;
+void roj::Animator::calcBoneTransform(BoneNode& node, glm::mat4 offset, bool stopAfterRoot) {
+    // Check if we have cached FrameBoneTransform data for this bone
+    if (node.id < cachedFrameBoneTransforms.size()) {
+        auto& boneTransform = cachedFrameBoneTransforms[node.id];
         glm::mat4 translation = interpolatePosition(boneTransform);
         glm::mat4 rotation = interpolateRotation(boneTransform);
         glm::mat4 scale = interpolateScaling(boneTransform);
 
         currentPose[node.name] = translation * rotation * scale;
-
         offset *= currentPose[node.name];
     }
-    else
-    {
+    else {
+        // Fallback to node transform if no animation data
         currentPose[node.name] = node.transform;
         offset *= node.transform;
     }
 
-
-
-    auto it2 = m_model->boneInfoMap.find(node.name);
-    if (it2 != m_model->boneInfoMap.end())
-    {
-        auto& boneInfo = it2->second;
+    // Check if we have cached BoneInfo data for this bone
+    if (node.id < cachedBoneInfos.size()) {
+        auto& boneInfo = cachedBoneInfos[node.id];
         m_boneMatrices[boneInfo.id] = offset * boneInfo.offset;
     }
 
-    if (node.name == "root")
-    {
+    // Handle root bone special case
+    if (node.name == "root") {
         auto trans = MathHelper::DecomposeMatrix(offset);
-
         rootBoneTransform = trans;
-
-        if (stopAfterRoot)
-            return;
-
+        if (stopAfterRoot) return;
     }
 
-    for (roj::BoneNode& child : node.children)
-    {
+    // Recursively process children
+    for (roj::BoneNode& child : node.children) {
         calcBoneTransform(child, offset, stopAfterRoot);
     }
 }
@@ -231,6 +224,9 @@ void roj::Animator::set(const std::string& name)
         m_currAnim = &it->second;
         m_currTime = 0.0f;
         currentAnimationName = name;
+
+        precacheAnimation();
+
     }
 }
 std::vector<std::string> roj::Animator::get()
@@ -353,4 +349,47 @@ void roj::Animator::play()
 void roj::Animator::reset()
 {
     m_currTime = 0.0f;
+}
+
+void roj::Animator::precacheAnimation() {
+    if (!m_currAnim) return;
+
+    cachedFrameBoneTransforms.clear();
+    cachedBoneInfos.clear();
+
+    std::function<void(BoneNode&, uint16_t&)> assignIdsAndCache =
+        [&](BoneNode& node, uint16_t& currentId) {
+        node.id = currentId++;
+
+        auto frameIt = m_currAnim->animationFrames.find(node.name);
+        if (frameIt != m_currAnim->animationFrames.end()) {
+            cachedFrameBoneTransforms.push_back(frameIt->second);
+        }
+        else {
+            roj::FrameBoneTransform defaultTransform;
+            auto defaultTrans = MathHelper::DecomposeMatrix(node.transform);
+            defaultTransform.positionTimestamps = { 0.0f };
+            defaultTransform.positions = { defaultTrans.Position };
+            defaultTransform.rotationTimestamps = { 0.0f };
+            defaultTransform.rotations = { defaultTrans.RotationQuaternion };
+            defaultTransform.scaleTimestamps = { 0.0f };
+            defaultTransform.scales = { defaultTrans.Scale };
+            cachedFrameBoneTransforms.push_back(defaultTransform);
+        }
+
+        auto boneIt = m_model->boneInfoMap.find(node.name);
+        if (boneIt != m_model->boneInfoMap.end()) {
+            cachedBoneInfos.push_back(boneIt->second);
+        }
+        else {
+            cachedBoneInfos.push_back(roj::BoneInfo());
+        }
+
+        for (BoneNode& child : node.children) {
+            assignIdsAndCache(child, currentId);
+        }
+        };
+
+    uint16_t idCounter = 0;
+    assignIdsAndCache(m_currAnim->rootBone, idCounter);
 }

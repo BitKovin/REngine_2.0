@@ -1,6 +1,82 @@
 ﻿#include "SkeletalMesh.hpp"
 #include <algorithm>
 
+AnimationPose AnimationPose::Lerp(AnimationPose a, AnimationPose b, float progress)
+{
+
+	if (progress > 0.995) // not doing same with small value since root bone should always be blended to B
+		return b;
+
+	if (progress < 0.005) // not doing same with small value since root bone should always be blended to B
+	{
+
+		if (a.boneTransforms.find("root") != a.boneTransforms.end() &&
+			b.boneTransforms.find("root") != b.boneTransforms.end())
+		{
+			a.boneTransforms["root"] = b.boneTransforms["root"];
+			return a;
+		}
+
+
+	}
+
+	std::unordered_map<std::string, mat4> resultPose;
+
+	for (auto bonePose : a.boneTransforms)
+	{
+		mat4 aMat = a.boneTransforms[bonePose.first];
+		mat4 bMat = b.boneTransforms[bonePose.first];
+
+		if (bonePose.first == "root")
+		{
+			resultPose[bonePose.first] = bMat;
+			continue;
+		}
+
+		glm::vec3 aTrans = glm::vec3(aMat[3]);
+		glm::vec3 bTrans = glm::vec3(bMat[3]);
+
+		// Extract scale (length of each column)
+		glm::vec3 aScale, bScale;
+		for (int i = 0; i < 3; i++) {
+			aScale[i] = glm::length(aMat[i]);
+			bScale[i] = glm::length(bMat[i]);
+		}
+
+		// Extract rotation (normalize columns)
+		glm::mat3 aRotMat, bRotMat;
+		for (int i = 0; i < 3; i++) {
+			aRotMat[i] = aMat[i] / aScale[i];
+			bRotMat[i] = bMat[i] / bScale[i];
+		}
+
+		// Convert to quaternions
+		glm::quat aQuat = glm::quat_cast(aRotMat);
+		glm::quat bQuat = glm::quat_cast(bRotMat);
+
+		// Interpolate
+		glm::vec3 trans = glm::mix(aTrans, bTrans, progress);
+		glm::vec3 scale = glm::mix(aScale, bScale, progress);
+		glm::quat quat = glm::slerp(aQuat, bQuat, progress);
+
+		// Build result matrix
+		glm::mat3 rotMat = glm::mat3_cast(quat);
+		glm::mat3 scaleMat(scale.x, 0, 0, 0, scale.y, 0, 0, 0, scale.z);
+		glm::mat3 rsMat = rotMat * scaleMat; // Rotation * Scale
+		mat4 resultMat = glm::mat4(rsMat);         // Embed 3x3 into 4x4
+		resultMat[3] = glm::vec4(trans, 1.0f); // Set translation
+
+		resultPose[bonePose.first] = resultMat;
+	}
+
+	AnimationPose result;
+
+	result.boneTransforms = resultPose;
+
+	return result;
+
+}
+
 void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 {
 

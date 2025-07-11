@@ -44,6 +44,9 @@ namespace roj
 		std::string name;
 		glm::mat4 transform;
 		std::vector<BoneNode> children;
+
+		uint16_t id; //for lookup optimization
+
 	};
 
 	struct FrameBoneTransform {

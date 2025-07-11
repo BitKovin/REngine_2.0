@@ -35,42 +35,7 @@ struct AnimationPose
 {
 	std::unordered_map<std::string, mat4> boneTransforms;
 
-	static AnimationPose Lerp(AnimationPose a, AnimationPose b, float progress)
-	{
-
-		if (progress > 0.995) // not doing same with small value since root bone should always be blended to B
-			return b;
-
-		std::unordered_map<std::string, mat4> resultPose;
-
-		for (auto bonePose : a.boneTransforms)
-		{
-
-			mat4 aMat = a.boneTransforms[bonePose.first];
-			mat4 bMat = b.boneTransforms[bonePose.first];
-
-			if (bonePose.first == "root")
-			{
-				resultPose[bonePose.first] = bMat;
-				continue;
-			}
-
-			auto aTrans = MathHelper::DecomposeMatrix(aMat);
-			auto bTrans = MathHelper::DecomposeMatrix(bMat);
-
-			auto resultTrans = MathHelper::Transform::Lerp(aTrans, bTrans, progress);
-
-			resultPose[bonePose.first] = resultTrans.ToMatrix();
-
-		}
-
-		AnimationPose result;
-
-		result.boneTransforms = resultPose;
-
-		return result;
-
-	}
+	static AnimationPose Lerp(AnimationPose a, AnimationPose b, float progress);
 
 	void SetBoneTransform(std::string bone, mat4 transform)
 	{

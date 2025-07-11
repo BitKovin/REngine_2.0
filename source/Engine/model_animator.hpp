@@ -30,6 +30,10 @@ private:
     
     SkinnedModel* m_model;
 
+    std::vector<roj::FrameBoneTransform> cachedFrameBoneTransforms; // Cached animation frame data
+    std::vector<roj::BoneInfo> cachedBoneInfos;                    // Cached bone info data
+
+    void precacheAnimation();
 
     bool m_loopEnabled = false;
 private:

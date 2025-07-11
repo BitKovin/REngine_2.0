@@ -626,6 +626,12 @@ void Player::LateUpdate()
 
 void Player::UpdateBody()
 {
+
+
+	bodyAnimator.Update();
+	bodyAnimator.GetResultPose();
+
+
     bodyAnimator.Update();
 
     bodyAnimator.movementSpeed = length(MathHelper::XZ(velocity));
