@@ -1327,8 +1327,9 @@ static bool SideInBrush( side_t& side, const brush_t& b ){
 		return false;
 	}
 
+
 	/* inside */
-	//side.culled = true;
+	side.culled = true;
 	g_numHiddenFaces++;
 	return true;
 }
@@ -1341,7 +1342,6 @@ static bool SideInBrush( side_t& side, const brush_t& b ){
 
 static void CullSides( entity_t& e ){
 	int k, l, first, second, dir;
-
 
 	/* note it */
 	Sys_FPrintf( SYS_VRB, "--- CullSides ---\n" );
@@ -1482,8 +1482,13 @@ static void CullSides( entity_t& e ){
 
 					/* cull face 1 */
 					if ( !side2.culled && !( side2.compileFlags & C_TRANSLUCENT ) && !( side2.compileFlags & C_NODRAW ) ) {
-						//side1.culled = true;
+						
+						if(	e.classname() =="worldspawn")
+						{
+						side1.culled = true;
 						g_numCoinFaces++;
+						}
+						
 					}
 
 					if ( side1.planenum == side2.planenum && side1.culled ) {
@@ -1491,9 +1496,14 @@ static void CullSides( entity_t& e ){
 					}
 
 					/* cull face 2 */
-					if ( !side1.culled && !( side1.compileFlags & C_TRANSLUCENT ) && !( side1.compileFlags & C_NODRAW ) ) {
-						//side2.culled = true;
-						g_numCoinFaces++;
+					if ( !side1.culled && !( side1.compileFlags & C_TRANSLUCENT ) && !( side1.compileFlags & C_NODRAW ) ) 
+					{
+						if(	e.classname() =="worldspawn")
+						{
+							side2.culled = true;
+							g_numCoinFaces++;
+						}
+						
 					}
 
 					// TODO ? this culls only one of face-to-face windings; SideInBrush culls both tho; is this needed at all or should be improved?

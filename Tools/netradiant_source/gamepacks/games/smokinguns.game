@@ -1,0 +1,3 @@
+<?xml version="1.0" ?>
+<game archivetypes="pk3" basegame="smokinguns" basegamename="Smokin' Guns" brushtypes="quake3" engine_linux="smokinguns.x86_64" engine_macos="Smokin' Guns.app" engine_win32="smokinguns.exe" enginepath_linux="/usr/lib/smokinguns/" enginepath_macos="/Applications/Smokin' Guns/" enginepath_win32="C:/Program Files/Smokin' Guns/" entities="quake3" entityclass="quake3" entityclasstype="def" index="1" maptypes="mapq3" modeltypes="md3 ase lwo obj 3ds picoterrain" name="Smokin' Guns" patchtypes="quake3" prefix=".smokinguns" q3map2_type="smokinguns" shaderpath="scripts" shaders="quake3" texturetypes="tga jpg" type="smokinguns" unknowngamename="Custom Smokin' Guns modification"/>
+

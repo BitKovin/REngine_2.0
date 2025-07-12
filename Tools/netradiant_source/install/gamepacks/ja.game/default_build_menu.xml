@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<project version="2.0">
+<var name="q3map2">"[RadiantPath]q3map2.[ExecutableType]" -v<cond value="[MonitorAddress]"> -connect [MonitorAddress]</cond> -game ja -fs_basepath "[EnginePath]"<cond value="[GameName]"> -fs_game [GameName]</cond></var>
+<build name="Single: bsp stage">
+<command>[q3map2] -meta "[MapFile]"</command>
+</build>
+<build name="Single: vis stage">
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+</build>
+<build name="Single: light stage">
+<command>[q3map2] -light -fast "[MapFile]"</command>
+</build>
+<separator/>
+<build name="Entity-Only compile">
+<command>[q3map2] -onlyents "[BspFile]"</command>
+</build>
+<separator/>
+<build name="convert to .ASE model">
+<command>[q3map2] -meta -patchmeta "[MapFile]"</command>
+<command>[q3map2] -convert -format ase -shadersasbitmap "[BspFile]"</command>
+</build>
+<build name="convert to .OBJ model">
+<command>[q3map2] -meta -patchmeta "[MapFile]"</command>
+<command>[q3map2] -convert -format obj -shadersasbitmap "[BspFile]"</command>
+</build>
+<separator/>
+<build name="Export Lightmaps">
+<command>[q3map2] -export "[BspFile]"</command>
+</build>
+<build name="Import Lightmaps">
+<command>[q3map2] -import "[BspFile]"</command>
+</build>
+<build name="Create .pk3">
+<command>[q3map2] -pk3 "[BspFile]"</command>
+</build>
+<separator/>
+<build name="[Test] Quick and Crude">
+<command>[q3map2] -meta -samplesize 64 "[MapFile]"</command>
+<command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -fast -nogrid "[MapFile]"</command>
+</build>
+<build name="[Test] Floodlight">
+<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -fast -floodlight "[MapFile]"</command>
+</build>
+<build name="[Final] Fast">
+<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -vis "[MapFile]"</command>
+<command>[q3map2] -light -fast -patchshadows -samples 2 -filter -bounce 8 "[MapFile]"</command>
+</build>
+<build name="[Final] Extreme Quality">
+<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -vis "[MapFile]"</command>
+<command>[q3map2] -light -fastbounce -patchshadows -samples 4 -randomsamples -bounce 8 "[MapFile]"</command>
+</build>
+</project>

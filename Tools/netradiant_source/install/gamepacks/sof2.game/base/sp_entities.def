@@ -1,0 +1,1149 @@
+/*QUAKED func_brushmodel_child (0 .8 0) (-8 -8 -8) (8 8 8) 
+
+brushParent --- targetname of our parent brushmodel
+*/
+
+
+/*QUAKED client_model (1 0 0) (-16 -16 -16) (16 16 16) No-LOD
+This is a model which is handled solely on the client.  This model will not have any physics.
+
+"model"		arbitrary .md3 file to display
+"scale"		vector representing the scale
+*/
+
+
+/*QUAKED worldeffect_snow (1 0 0) (-16 -16 -16) (16 16 16)
+This world effect will spawn snow globally into the level.
+
+"count" the number of snow particles (default of 1000)
+*/
+
+
+/*QUAKED worldeffect_snowwind (1 0.5 0.5) (-16 -16 -16) (16 16 16)
+This world effect will spawn snow wind into the level.
+
+"origin" the location of the wind
+"velocity" the direction/velocity of the wind
+"size" the size of the wind brush
+*/
+
+
+/*QUAKED worldeffect_command (1 0.5 0.5) (-16 -16 -16) (16 16 16)
+This is a generic world effect command entity.
+
+"c0" first text command
+"c1" second text command
+...
+"c99" last text command
+*/
+
+
+/*QUAKED worldeffect_lightning (1 0.5 0.5) (-16 -16 -16) (16 16 16)
+This is a lightning command
+
+MinDelay	min delay (ms) between lightning low
+MaxDelay	max delay (ms) between lightning low
+MinFlash	min (ms) lightning flash
+MaxFlash	max (ms) lightning flash
+MinSoundDelay	min (ms) delay until sound
+MaxSoundDelay	max (ms) delay until sound
+FlashColor		vector color of lightning (0.0 - 1.0)
+NormalColor		vector color of regular sky (0.0 - 1.0)
+CheckForOutside	1 = check for outside flag
+Flicker			flicker rate (1 - 10) 10 lots of flicker, 1 = none
+SoundRange		max distance the thunder is away (500)
+*/
+
+
+/*QUAKED emplaced_wpn (0 .8 0) (-8 -8 -8) (8 8 8)
+
+  Please target an info_notnull entity somewhere behind the gun, so the guy knows where to stand;
+  about 25 units back and 25 units above the floor will do the job.
+
+type ---------- name of gun you want to use (use the 'name' field from ext_data/sof2.wpn)
+brushParent --- when mounting a weapon on a brushmodel (e.g. a helicopter)
+minYaw -------- how far the gun can turn to the right (in degrees, not negative)
+maxYaw -------- how far the gun can turn to the left (in degrees)
+minPitch ------ how far the gun can point down (in degrees, not negative)
+maxPitch ------ how far the gun can point up (in degrees)
+angles -------- pitch yaw roll
+accuracy ------ 0 = perfect aim, default 0.5 (npc only)
+npcDmg -------- how much damage the gun does when used by an NPC in health points (npc only)
+burst --------- number of shots fired in a burst, default 5 (npc only)
+burstrandom --- burst variance, default 0 (npc only)
+burstdelay ---- how long to wait between burst (in seconds), default 0.4 (npc only)
+delayrandom --- burstdelay variance in seconds, default 0.0 (npc only)
+ammo ---------- doesn't add to player's overall ammo totals. only used on this wpn.
+*/
+
+
+/*QUAKED mounted_wpn (.3 .8 0) (-40 -40 -40) (40 40 40) 
+
+
+  DON'T EVEN THINK ABOUT USING THIS RIGHT NOW -- FOR TESTING
+
+  GO ON... DELETE ME... YES NOW
+
+Use FACE_TARGET in an ICARUS script to orientate the Weapon
+
+type ---------- name of gun you want to use (use the 'name' field from ext_data/sof2.wpn)
+brushChild ---- func_brushmodel_child wpn is bolted to
+brushParent --- the brushmodel that the brushmodel child is attached to
+minYaw -------- how far the gun can turn to the right (in degrees, not negative)
+maxYaw -------- how far the gun can turn to the left (in degrees)
+minPitch ------ how far the gun can point down (in degrees, not negative)
+maxPitch ------ how far the gun can point up (in degrees)
+angles -------- pitch yaw roll
+accuracy ------ only while NPC is using, 0 = perfect aim, default 0.5
+
+*/
+
+
+/*QUAKED weapon_SAM (0 .3 .8) (-125 -145 -65) (125 145 45) NO_HOMING CHECK_DIST
+
+The Sam Launcher's base rotates(yaw) and the missle rack rotates(pitch). 
+
+Use FACE_TARGET in an ICARUS script to orientate the SAM towards a target, the missiles will home in on this target when fired
+Use SET_ENEMY in an ICARUS script to change the missiles targets, from the default FACE_TARGET entity
+
+
+NO_HOMING	missile will not adjust direction if target moves
+CHECK_DIST	missile does not need to impact with a target, will check if it flew close enough to it's target
+
+minYaw -------- how far the gun can turn to the right (in degrees, not negative)
+maxYaw -------- how far the gun can turn to the left (in degrees)
+minPitch ------ how far the gun can point down (in degrees, not negative)
+maxPitch ------ how far the gun can point up (in degrees)
+maxPitchVel---- how fast pitch changes (degrees per second) default 1
+maxYawVel------ how fast yaw changes (degress per second) default 2
+angles -------- pitch yaw roll
+wait ---------- time (in seconds) missile will wait after launch, before homing in on target, default 0.5
+type ---------- name of gun you want to use (use 'name' field from ext_data/sof2.wpn -- default is "SAM")
+
+*/
+
+
+/*QUAKED info_player_intermission (1 0 1) (-16 -16 -24) (16 16 32)
+The intermission will be viewed from this point.  Target an info_notnull for the view direction.
+*/
+
+
+/*QUAKED func_group (0 0 0) ?
+Used to group brushes together just for editor convenience.  They are turned into normal brushes by the utilities.
+"q3map_onlyvertexlighting" add this key along with any value to make the group have vertex only lighting (no lightmaps)
+
+  *****Metashaders*****
+
+"alphamap" "textures/heightmaps/imagename" - A grayscale image used to determine texture placement on a metashader terrain.
+"shader" "metashader/shadername" - References the core name of the metashader (Not mapx_0, just mapx)
+"layers" - How many different textures are layered onto the metashader.
+"terrain" - Set this to 1 creating a metashader terrain.
+
+*/
+
+
+/*QUAKED misc_model (1 0 0) (-16 -16 -16) (16 16 16) RMG
+"model"		arbitrary .md3 file to display
+*/
+
+
+/*QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4)
+Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
+*/
+
+
+/*QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
+Used as a positional target for in-game calculation by such ents as ref_tags and for camera TRACK commands
+(same as target_position)
+*/
+
+
+/*QUAKED target_position (0 0.5 0) (-4 -4 -4) (4 4 4)
+Used as a positional target for in-game calculation, like jumppad targets.
+(same as info_notnull)
+*/
+
+
+/*QUAKED info_NPClook (0 0.5 0) (-4 -4 -4) (4 4 4)
+Used as a positional location for npcs (like civilians), to want to look at.
+*/
+
+
+/*QUAKED info_NPCtouch (0 0.5 0) (-4 -4 -4) (4 4 4)
+Used as a positional location for npcs (like civilians), to want to reach out and touch.
+*/
+
+
+/*QUAKED info_NPCpoint (0 0.5 0) (-4 -4 -4) (4 4 4)
+Used as a positional location for npcs (like civilians), to want to point at.
+*/
+
+
+/*QUAKED info_NPCnav (0 0.5 0) (-4 -4 -4) (4 4 4)
+Turns into a nav point when spawned
+*/
+
+
+/*QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) linear noIncidence START_OFF
+Non-displayed light.
+"light" overrides the default 300 intensity. - affects size
+a negative "light" will subtract the light's color
+'Linear' checkbox gives linear falloff instead of inverse square
+'noIncidence' checkbox makes lighting smoother
+Lights pointed at a target will be spotlights.
+"radius" overrides the default 64 unit radius of a spotlight at the target point.
+"scale" multiplier for the light intensity - does not affect size (default 1)
+		greater than 1 is brighter, between 0 and 1 is dimmer.
+"color" sets the light's color
+"targetname" to indicate a switchable light
+"style" to specify a specify light style, even for switchable lights!
+"style_off" light style to use when switched off (Only for switchable lights)
+
+   1 FLICKER (first variety)
+   2 SLOW STRONG PULSE
+   3 CANDLE (first variety)
+   4 FAST STROBE
+   5 GENTLE PULSE 1
+   6 FLICKER (second variety)
+   7 CANDLE (second variety)
+   8 CANDLE (third variety)
+   9 SLOW STROBE (fourth variety)
+   10 FLUORESCENT FLICKER
+   11 SLOW PULSE NOT FADE TO BLACK
+   12 FAST PULSE FOR JEREMY
+   13 Test Blending
+*/
+
+
+/*QUAKED misc_bsp (1 0 0) (-16 -16 -16) (16 16 16)
+"bspmodel"		arbitrary .bsp file to display
+*/
+
+
+/*QUAKED info_NPCcover (0 0.5 0) (-4 -4 -4) (4 4 4)
+NPC Soldiers Will Perfer To Use This Cover Point If It Is Near By.  You MUST include a target as the place he will go to shoot.
+*/
+
+
+/*QUAKED ref_tag (0.5 0.5 1) (-8 -8 -8) (8 8 8)
+
+Reference tags which can be positioned throughout the level.
+These tags can later be refered to by the scripting system
+so that their origins and angles can be referred to.
+
+mTargetname	- the name of this tag
+*/
+
+
+/*QUAKED target_speaker (1 0 0) (-8 -8 -8) (8 8 8) LOOPED-ON LOOPED-OFF GLOBAL ACTIVATOR LONGRANGE
+"noise"		wav file to play
+"soundSet"	soundset name to use (do not combine with 'noise', ignores all other flags)
+
+LOOPED-ON:
+Looping sound starts on
+
+LOOPED-OFF:
+Looping sound starts off
+
+Looped sounds will be toggled by use functions.
+
+GLOBAL:
+A global sound will play full volume throughout the level.
+
+ACTIVATOR
+Activator sounds will play on the player that activated the target.
+
+LONGRANGE:
+A longrange sound will be heard over longer distance but still attenuate. DO NOT USE WITHOUT PERMISSION!
+Longrange can't be combined with global
+Longrange noise with looping can't be toggled off
+
+Global and activator sounds can't be combined with looping
+(actually 'Global' can, but this is a special case for a level-wide siren. DO NOT USE WITHOUT PERMISSION!)
+Normal sounds play each time the target is used.
+
+Multiple identical looping sounds will just increase volume without any speed cost.
+"wait" : Seconds between auto triggerings, 0 = don't auto trigger
+"random"	wait variance, default is 0
+*/
+
+
+/*QUAKED target_relay (.5 .5 .5) (-8 -8 -8) (8 8 8) RANDOM
+This doesn't perform any actions except fire its targets.
+The activator can be forced to be from a certain team.
+if RANDOM is checked, only one of the targets will be fired, not all of them
+*/
+
+
+/*QUAKED terrain (1.0 1.0 1.0) ?
+Terrain entity
+It will stretch to the full height of the brush
+
+numPatches - integer number of patches to split the terrain brush into (default 200)
+terxels - integer number of terxels on a patch side (default 4) (2 <= count <= 8)
+seed - integer seed for random terrain generation (default 0)
+textureScale - float scale of texture (default 0.005)
+heightMap - name of heightmap data image to use
+terrainDef - defines how the game textures the terrain (file is base/ext_data/*.terrain - default is grassyhills)
+instanceDef - defines which bsp instances appear
+generateDef - defines how the heightmap is randomly generated
+miscentDef - defines which client models spawn on the terrain (file is base/ext_data/*.miscents)
+densityMap - how dense the client models are packed
+
+*/
+
+
+/*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 70)
+potential spawning position for SOF2 multiplayer 
+ONLY USE THIS IF THE MAP YOU ARE WORKING ON IS FOR THE MULTIPLAYER EXECUTABLE
+*/
+
+
+/*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 70) NO_RMG
+player's initial spawnpoint
+*/
+
+
+/*QUAKED model_ghoul2 (0 .8 0) (-8 -8 -8) (8 8 8) 
+
+model ---------- filename of the Ghoul2 model you want to use
+*/
+
+
+/*QUAKED model_static (0 .5 0) (-8 -8 -8) (8 8 8)	NO_MP
+This guy is an awful lot like a misc_model, except this doesn't become part of the bsp. It's 
+an actual entity in the game that uses an MD3 model.
+
+model ---------- filename of the MD3 model you want to use
+cshader ---------- optional MD3 shader (e.g. /models/objects/Common/toilet_test)
+origin --------- like, uh, where the thing is
+angles --------- pitch, yaw, roll. I promise.
+*/
+
+
+/*QUAKED func_static (0 .5 .8) ? CHOPPER_FX
+A bmodel that just sits there, doing nothing.  Can be used for conditional walls and models.
+
+CHOPPER_FX - does expensive checks, spawning dust or ripples depending what surface is below the chopper
+
+parent			(0, 1) indicates whether or not this model has other models bolted to it
+*/
+
+
+/*QUAKED door_sliding (0 .5 .8) ? START_OPEN CRUSHER USABLE AUTO_CLOSE LOCKED
+
+START_OPEN	the door to moves to its destination when spawned, and operate in reverse.
+CRUSHER		if door's blocked, it'll continue to try to close, rather than reverse direction
+USABLE		door opens and closes via the player's USE key
+AUTO_CLOSE	door will automatically return to its original position after "wait" seconds
+LOCKED		"USABLE" will be disabled until the first time the door is opened via a script, trigger, etc.
+			Afterwards, the door will behave normally.
+
+"angles"	determines the opening direction [PITCH YAW ROLL]
+"color"		constantLight color
+"dmg"		damage to inflict when blocked (0 default)
+"light"		constantLight radius
+"lip"		lip remaining at end of move (8 default)
+"speed"		opening speed (100 units/s default)
+"wait"		on automatic-closing doors, wait in seconds before returning (3 default)
+"usescript"	name of script to play on Use.  Do NOT set this if you want default behavior. Set to NULL to return to default
+*/
+
+
+/*QUAKED door_rotating (0 .5 .8) ? X_AXIS Y_AXIS USABLE AUTO_CLOSE LOCKED START_OPEN SMART STAY_LOCKED NON_SOLID UNLOCK_ONLY
+You need to have an origin brush as part of this entity.  The center of that brush will be
+the point around which the door is rotated. It will rotate around the Z axis by default, opening in the
+counter clock-wise direction when viewed from above.  Use a negative "openangle" value to have it open the other
+direction.  Check the X or Y AXIS boxes to have it rotate about a different axis.
+
+USABLE		door opens and closes via the player's USE key
+AUTO_CLOSE	door will automatically return to its original position after "wait" seconds
+LOCKED		"USABLE" will be disabled until the first time the door is opened via a script, trigger, etc.
+			Afterwards, the door will behave normally.
+START_OPEN	the door to moves to its destination when spawned, and operate in reverse.
+SMART		door will rotate away from the player
+STAY_LOCKED door will remain locked even after it has been opened
+NON_SOLID	door will be non-solid while opening (USE SPARINGLY AND WITH CARE)
+UNLOCK_ONLY door (presumably locked) when first used, will unlock only, and not open. Note: STAY_LOCKED will override this.
+
+"openangle"	angle (degrees) through which the door will rotate; default value is 90
+"color"		constantLight color
+"dmg"		damage to inflict when blocked (0 default)
+"light"		constantLight radius
+"speed"		determines how fast it moves in degrees per second; default value is 90
+"wait"		wait time between openings and closings
+"usescript"	name of script to play on Use.  Do NOT set this if you want default behavior. Set to NULL to return to default
+*/
+
+
+/*QUAKED func_button (0 .5 .8) ? PLAYER_USE 
+When a button is used it moves some distance in the direction of it's angle, then triggers all of it's targets, then waits and returns to it's original position
+
+"model2"    .md3 model to also draw
+"angles"	determines the opening direction [PITCH YAW ROLL]
+"target"    all entities with a matching targetname will be used
+"speed"     override the default 40 speed
+"wait"      override the default 3 second wait (-1 = never return)
+"lip"       override the default 4 pixel lip remaining at end of move
+"health"    if set, the button must be killed instead of touched
+"color"     constantLight color
+"light"     constantLight radius
+"usescript"	name of script to play on Use.  Do NOT set this if you want default behavior. Set to NULL to return to default
+
+PLAYER_USE    player can use button
+
+*/
+
+
+/*QUAKED func_rotating (0 .5 .8) ? START_OFF X_AXIS Y_AXIS CRUSHER
+You need to have an origin brush as part of this entity.  The center of that brush will be
+the point around which it is rotated. It will rotate around the Z axis by default.  You can
+check either the X_AXIS or Y_AXIS box to change that. Toggles on/off when used
+
+"speed"   determines how fast it moves; default value is 100.
+"dmg"     damage to inflict when blocked (2 default)
+"usescript"	name of script to play on Use.  Do NOT set this if you want default behavior. Set to NULL to return to default
+
+START_OFF   - starts out not rotating
+CRUSHER     - does damage to entity blocking it
+
+*/
+
+
+/*QUAKED pickup_health_small (0 .6 .6) (-8 -8 0) (8 8 10)  NOT_EASY NOT_MEDIUM NOT_HARD NOT_SUPERHARD RESPAWN RMG
+amount - ??
+startoff - ??
+*/
+
+
+/*QUAKED pickup_health_big (0 .6 .6) (-17 -17 0) (17 17 10) NOT_EASY NOT_MEDIUM NOT_HARD NOT_SUPERHARD RESPAWN RMG  
+amount - ??
+startoff - ??
+*/
+
+
+/*QUAKED pickup_armor_small (0 .6 .6) (-16 -16 0) (16 16 13)  NOT_EASY NOT_MEDIUM NOT_HARD NOT_SUPERHARD RESPAWN RMG
+amount - ??
+startoff - ??
+*/
+
+
+/*QUAKED pickup_armor_big (0 .6 .6) (-18 -18 0) (18 18 34)  NOT_EASY NOT_MEDIUM NOT_HARD NOT_SUPERHARD RESPAWN RMG
+amount - ??
+startoff - ??
+*/
+
+
+/*QUAKED pickup_weapon (0 .6 .6) (-29 -5 -2) (15 9 10)  NOT_EASY NOT_MEDIUM NOT_HARD NOT_SUPERHARD RESPAWN RMG
+type ---------- weapon name (found in base/ext_data/sof2.wpn, see below for list as of 10/21/01)
+clip ---------- what's in the clip, defaults to full clip for this weapon
+altclip ------- what's in the altfire clip, defaults to full (for, say, the OICW. few weapons have this.)
+accessories --- 1 adds silencer, 2 adds light, 4 adds laser, 8 is the bayonet
+stationary ---- won't interfere with doors, won't be affected by gravity
+
+  AK74		(assault rifle)
+  M1911A1	(pistol)
+  M3A1		(sub-machine gun)
+  M4		(assault rifle)
+  M590		(shotgun)
+  M60		(machine gun)
+  Micro Uzi (sub-machine gun)
+  MM1		(grenade launcher)
+  MSG90A1	(sniper rifle)
+  OICW		(assault rifle)
+  RPG7		(rocket launcher)
+  US SOCOM	(pistol)
+  USAS-12	(shotgun)
+*/
+
+
+/*QUAKED pickup_ammo (0 .6 .6) (-8 -8 0) (8 8 18)  NOT_EASY NOT_MEDIUM NOT_HARD NOT_SUPERHARD RESPAWN RMG
+type ---------- ammo name (found in base/ext_data/sof2.ammo, see below for list as of 11/2/01)
+amount -------- how many ouchies you want to hand out (default values are in base/ext_data/sof2.ammo)
+size ---------- which size model to use (1 = small, 2 = large, default is 1)
+stationary ---- won't interfere with doors, won't be affected by gravity
+
+  0.45 ACP	(US SOCOM, M1911A1, M3A1)
+  12 gauge	(M590, USAS-12)
+  40mm grenade	(M4/M203, MM1)
+  20mm grenade	(OICW)
+  5.56mm	(AK74, M4, OICW)
+  7.62mm 	(M60, MSG90A1)
+  9mm		(Micro Uzi)
+  ANM14		(incendiary grenade)
+  F1		(grenade)
+  L2A2		(grenade)
+  M15		(phophorous grenade)
+  M67		(grenade)
+  M84		(stun grenade)
+  MDN11		(grenade)
+  SMOHG92	(grenade)
+  RPG7		(RPG7 rockets)
+  RMG_ammo	(**Random Mission Generator**)
+  
+*/
+
+
+/*QUAKED pickup_equipment (0 .6 .6) (-10 -10 -8) (10 10 1) NOT_EASY NOT_MEDIUM NOT_HARD NOT_SUPERHARD RESPAWN RMG
+type ---------- item name (found in base/ext_data/sof2.wpn, see below for list as of 10/21/01)
+stationary ---- won't interfere with doors, won't be affected by gravity
+
+  Binoculars
+  Night Vision
+  Thermal Vision
+*/
+
+
+/*QUAKED projectile_lobber (.5 .5 .8) (-5 -5 -5) (5 5 5)
+
+  lobs projectiles of any given type. "use" toggles it on and off.
+
+wait  : Seconds between triggerings, 3 second default
+randomwait:	wait variance in seconds, default is 0
+angles: direction in which the projectiles will be fired
+speed: initial speed of projectiles (default is 1000)
+randomspeed: speed variance (default is 0)
+altfire: using the altfire version of this projectile? (default is false)
+timer: if it's timed, how long until one of these projectiles detonates (default is 5 seconds)
+randomtimer: timer variance (default is 0 seconds)
+count: how many projectiles to use before turning itself off (defaults to 1, -1 is infinite)
+type: name of weapon projectile (default is "M67"). list is in sof2.wpn
+
+  possible types as of 4/8/02:
+
+  ANM14		(incendiary grenade)
+  F1		(grenade)
+  L2A2		(grenade)
+  M15		(phophorous grenade)
+  M67		(grenade)
+  M84		(stun grenade)
+  MDN11		(grenade)
+  SMOHG92	(grenade)
+  RPG7		(RPG7 rockets)
+
+*/
+
+
+/*QUAKED script_runner (0 0.5 0) (-4 -4 -4) (4 4 4) JERSEY_BUTTON RUN_ON_ACTIVATOR
+script : filename of the script
+
+RUN_ON_ACTIVATOR: run the script on whoever activates instead of on the scriptrunner
+
+*/
+
+
+/*QUAKED monster_spawner (1 0 0) (-17 -17 -45) (17 17 45) ONCE_ONLY FIRE_TRIGGERS
+npctype : NPC Type to be Spawned (this is the classname of the NPC)
+max : Maximum number of NPCs to be spawned
+removeinlos : If true, characters spawned will remove dead bodies even if in LOS to player
+neverdrop : If true, characters spawned will not drop guns when they die
+invinciblegun : If ture, characters spawned will have INVINCIBLE_GUN spawnflag set on them
+bodytime: How long in milliseconds a character from this MS will stick around after dead
+combatpoint: Any characters from this MS will acquire this combat point as their own
+attack:	These guys will attack while running to combat point.
+release: combat point will be abandoned for AI routines when enemy spotted.
+
+
+ONCE_ONLY: monster spawner disappears after one successful activation
+FIRE_TRIGGERS: moster spawner passes ability to fire triggers to spawned NPCs
+
+*/
+
+
+/*QUAKED traitor_handler (0 .8 0) (-8 -8 -8) (8 8 8) 
+finaltime	--- ammount of time to allow free for all before finalscript is run (default 60 seconds)
+finalscript --- name of script to punish player after free for all (default common/failed)
+maxhits ------- how many hits to take within buffertime before count down starts (default 3 hits)
+buffertime ---- duration before hit counter clears (default 30 seconds)
+voiceover ----- set to false if you dont want the voiceovers to play
+*/
+
+
+/*QUAKED security_camera (0 .8 0) (-8 -8 -24) (8 8 0) START_OFF NO_THINK
+
+------ flags ---------
+
+START_OFF ----- the usual start off 
+NO_THINK ------ never moves around but you can turn it on and off by using it
+
+
+------- keys ---------
+ 
+type ---------- name of camera you want to use: indoor (default) or outdoor
+minYaw -------- how far the camera can turn to the right (in degrees, not negative)
+maxYaw -------- how far the camera can turn to the left (in degrees, not negative)
+minPitch ------ how far the camera can point up (in degrees, not negative)
+maxPitch ------ how far the camera can point down (in degrees, not negative)
+camLight ------ non-0 if camera should have a spotlight
+angles -------- pitch yaw roll
+teamname ------ team the camera is on (e.g. Team_Prometheus ), if not set the camera only fires script if sees player
+script	------- name of script to fire when seeing foe (or player in the case of no team)
+time	------- ammount of time before auto reset (default is 10000)
+startangles --- "rest position" facing of camera.
+viewdist ------ how far the camera can see
+scripttime ---- time between firings of the script (default is 1000 milliseconds)
+deathScript ---	called when camera dies. if left blank, nothing happens
+
+  the bounding box you see in the editor is for the indoor camera. the outdoor bbox is much larger.
+*/
+
+
+/*QUAKED security_searchlight (0 .8 0) (-15 -15 0) (15 15 30) START_OFF NO_THINK
+
+------ flags ---------
+
+START_OFF ----- the usual start off 
+NO_THINK ------ never moves around but you can turn it on and off by using it
+
+
+------- keys ---------
+ 
+minYaw -------- how far the searchlight can turn to the right (in degrees, not negative)
+maxYaw -------- how far the searchlight can turn to the left (in degrees, not negative)
+minPitch ------ how far the searchlight can point up (in degrees, not negative)
+maxPitch ------ how far the searchlight can point down (in degrees, not negative)
+angles -------- pitch yaw roll
+teamname ------ team the searchlight is on (e.g. Team_Prometheus ), if not set the searchlight only fires script if sees player
+script	------- name of script to fire when seeing foe (or player in the case of no team)
+time	------- ammount of time before auto reset (default is 10000)
+startangles --- the "rest position" of the light
+viewdist ------ how far the searchlight can see
+longBeam ------ 1 will turn on a longer beam than normal (default = 0, meaning use the short beam)
+deathScript ---	called when light dies. if left blank, nothing happens
+
+*/
+
+
+/*QUAKED target_stealth (0 .8 0) (-8 -8 -8) (8 8 8) ONCE_ONLY DONTUSE1 ANYNPC INFINITETIMER DONTUSE2
+time	------- ammount of time before auto reset (default is 10000)
+*/
+
+
+/*QUAKED trigger_ladder (.5 .5 .8) ?
+material -- determines footstep sounds when climbing. defaults to 3 (solid metal). material list is below.
+angles -- which direction should the player be facing when climbing
+
+  this entity doesn't actually spawn into the game so it doesn't count against your max entity limit
+
+  ----- materials -----
+
+MATERIAL_NONE			0
+MATERIAL_SOLIDWOOD		1
+MATERIAL_HOLLOWWOOD		2
+MATERIAL_SOLIDMETAL		3
+MATERIAL_HOLLOWMETAL	4
+MATERIAL_SHORTGRASS		5
+MATERIAL_LONGGRASS		6
+MATERIAL_DIRT			7
+MATERIAL_SAND			8
+MATERIAL_GRAVEL			9
+MATERIAL_GLASS			10
+MATERIAL_CONCRETE		11
+MATERIAL_MARBLE			12
+MATERIAL_WATER			13
+MATERIAL_SNOW			14
+MATERIAL_ICE			15
+MATERIAL_FLESH			16
+MATERIAL_MUD			17
+MATERIAL_BPGLASS		18
+MATERIAL_DRYLEAVES		19
+MATERIAL_GREENLEAVES	20
+MATERIAL_FABRIC			21
+MATERIAL_CANVAS			22
+MATERIAL_ROCK			23
+MATERIAL_RUBBER			24
+MATERIAL_PLASTIC		25
+MATERIAL_TILES			26
+MATERIAL_CARPET			27
+MATERIAL_PLASTER		28
+MATERIAL_SHATTERGLASS	29
+MATERIAL_ARMOR			30
+MATERIAL_COMPUTER		31
+
+*/
+
+
+/*QUAKED trigger_multiple (.5 .5 .8) ? ONCE_ONLY PLAYER_USE INACTIVE PLAYER_ONLY NPC_ONLY FRIENDLY_ONLY DIRECTED
+wait  : Seconds between triggerings, 0.5 default
+random:	wait variance in seconds, default is 0
+delay : seconds to wait after triggering to fire targets, default 0
+
+  ONCE_ONLY: trigger goes away after first activation
+  PLAYER_USE: player must be touching and pressing use key to activate
+  INACTIVE:   starts inactive ( can't be used )	
+  PLAYER_ONLY: only player can activate/touch
+  NPC_ONLY:    only NPCs can activate/touch
+  FRIENDLY_ONLY:	only the player and friendly NPCs can activate this trigger
+  DIRECTED:		activation is restricted to force the player to be looking in a certain direction
+
+actAngle: an angle [PITCH YAW ROLL], defaults to 0 0 0, specifies which way the player must be facing to have the icon
+appear and to activate the trigger. 
+
+Variable sized repeatable trigger.  Must be targeted at one or more entities.
+The times between firing is a random time between (wait - random) and (wait + random)
+*/
+
+
+/*QUAKED trigger_health_check (.5 .5 .8) ? ONCE_ONLY PLAYER_USE INACTIVE X X X X ONLY_WHEN_USED
+wait  : Seconds between triggerings, 0.5 default
+random:	wait variance in seconds, default is 0
+delay : seconds to wait after triggering to fire targets, default 0
+healthlevel : is the health of the player's vehicle less than this? (defaults to 1000, will be scaled by difficulty just like the vehicle's health)
+
+  ONCE_ONLY: trigger goes away after first activation. I advise setting this if you DON'T set ONLY_WHEN_USED.
+  PLAYER_USE: player must be touching and pressing use key to activate
+  INACTIVE:   starts inactive ( can't be used )	
+  ONLY_WHEN_USED: by default, trigger_health_check constantly checks its health. 
+  with this flag trigger_health_check will only check its health when used.
+
+  ***This trigger will fire its targets and remove itself as soon as it is used (or thinks) when the 
+  vehicle's health is less than healthlevel.***
+
+
+Variable sized repeatable trigger.  Must be targeted at one or more entities.
+The times between firing is a random time between (wait - random) and (wait + random)
+*/
+
+
+/*QUAKED trigger_distance_warning (.5 .5 .8) ? ONCE_ONLY PLAYER_USE INACTIVE PLAYER_ONLY NPC_ONLY FRIENDLY_ONLY DIRECTED
+wait  : Seconds between triggerings, 0.5 default
+random:	wait variance in seconds, default is 0
+delay : seconds to wait after triggering to fire targets, default 0
+distancetarget : targetname of entity to gauge if we should fire targets based on distance
+distance : units distancetarget must be to fire targets
+lessthan : set to true if you want the target only fired when distancetarget is WITHIN range of user (default firing is out of range)
+
+  ONCE_ONLY: trigger goes away after first activation
+  PLAYER_USE: player must be touching and pressing use key to activate
+  INACTIVE:   starts inactive ( can't be used )	
+  PLAYER_ONLY: only player can activate/touch
+  NPC_ONLY:    only NPCs can activate/touch
+  FRIENDLY_ONLY:	only the player and friendly NPCs can activate this trigger
+  DIRECTED:		activation is restricted to force the player to be looking in a certain direction
+
+actAngle: an angle [PITCH YAW ROLL], defaults to 0 0 0, specifies which way the player must be facing to have the icon
+appear and to activate the trigger. 
+
+Variable sized repeatable trigger.  Must be targeted at one or more entities.
+The times between firing is a random time between (wait - random) and (wait + random)
+*/
+
+
+/*QUAKED trigger_remove (.5 .5 .8) ? ONCE_ONLY PLAYER_USE INACTIVE PLAYER_ONLY NPC_ONLY FRIENDLY_ONLY HIDE_REMOVE
+wait  : Seconds between triggerings, 0.5 default
+count : Entities to be deleted before firing donescript
+type1 : NPC class name to delete (if none provided, defaults to any class name)
+type2 : Second NPC class name to delete
+donescript : name of script to run when count entities have been removed
+
+  ONCE_ONLY: trigger goes away after first activation
+  PLAYER_USE: player must be touching and pressing use key to activate
+  INACTIVE:   starts inactive ( can't be used )	
+  PLAYER_ONLY: only player can activate/touch
+  NPC_ONLY:    only NPCs can activate/touch
+  FRIENDLY_ONLY:	only the player and friendly NPCs can activate this trigger
+  HIDE_REMOVE:	only removes when the player can not see
+  
+Variable sized repeatable trigger.  Must be targeted at one or more entities.
+The times between firing is a random time between (wait - random) and (wait + random)
+*/
+
+
+/*QUAKED trigger_sound (.5 .5 .8) ? ONCE_ONLY PLAYER_USE INACTIVE PLAYER_ONLY NPC_ONLY FRIENDLY_ONLY
+wait  : Seconds between triggerings, 0.5 default
+soundlevel : Sound level the entity touching this trigger must be at to fire targets, 0.7 default
+
+  ONCE_ONLY: trigger goes away after first activation
+  PLAYER_USE: player must be touching and pressing use key to activate
+  INACTIVE:   starts inactive ( can't be used )	
+  PLAYER_ONLY: only player can activate/touch
+  NPC_ONLY:    only NPCs can activate/touch
+  FRIENDLY_ONLY:	only the player and friendly NPCs can activate this trigger
+  
+Variable sized repeatable trigger.  Must be targeted at one or more entities.
+The times between firing is a random time between (wait - random) and (wait + random)
+*/
+
+
+/*QUAKED target_play_music (0 0.5 0) (-4 -4 -4) (4 4 4) ONCE_ONLY
+music : filename of the dynamic music
+speed : initial speed of music: fast, slow, or off (turns all DM off)
+ONCE_ONLY: target play music runner disappears after one successful activation
+
+
+*/
+
+
+/*QUAKED trigger_objective (.5 .5 .8) ?  ONCE_ONLY INACTIVE
+command : addmain, completemain, addsub, completesub, addinfomain, addinfosub
+item : index number of thing to display, goes with command
+command2 : addmain, completemain, addsub, completesub, addinfomain, addinfosub
+item2 : index number of thing to display, goes with command2
+command3 : addmain, completemain, addsub, completesub, addinfomain, addinfosub
+item3 : index number of thing to display, goes with command3
+*/
+
+
+/*QUAKED trigger_body_check (.5 .5 .8) ? ONCE_ONLY PLAYER_USE INACTIVE PLAYER_ONLY NPC_ONLY FRIENDLY_ONLY DIRECTED X
+wait  : Seconds between triggerings, 0.5 default
+random:	wait variance in seconds, default is 0
+delay : seconds to wait after triggering to fire targets, default 0
+
+  ONCE_ONLY: trigger goes away after first activation
+  PLAYER_USE: player must be touching and pressing use key to activate
+  INACTIVE:   starts inactive ( can't be used )	
+  PLAYER_ONLY: only player can activate/touch
+  NPC_ONLY:    only NPCs can activate/touch
+  FRIENDLY_ONLY:	only the player and friendly NPCs can activate this trigger
+  DIRECTED:		activation is restricted to force the player to be looking in a certain direction
+
+actAngle: an angle [PITCH YAW ROLL], defaults to 0 0 0, specifies which way the player must be facing to have the icon
+appear and to activate the trigger. 
+noDrop -- if 'true' you can't drop bodies here (defaults to false)
+
+Variable sized repeatable trigger.  Must be targeted at one or more entities.
+The times between firing is a random time between (wait - random) and (wait + random)
+*/
+
+
+/*QUAKED trigger_toolbox (.5 .5 .8) ? DIRECTED ONCE_ONLY INACTIVE 
+
+When a player steps into this trigger, an icon will be displayed on the HUD.  Pressing the USE key
+will activate this trigger's targets.  If the "holdtime" key is given a value, the USE key will need
+to be held for that time in seconds for the trigger to activate.
+
+DIRECTED: activation is restricted to force the player to be looking in a certain direction
+ONCE_ONLY: trigger disappears after one successful activation
+INACTIVE:  starts inactive ( can't be used )
+
+actAngle: an angle [PITCH YAW ROLL], defaults to 0 0 0, specifies which way the player must be facing to have the icon
+appear and to activate the trigger.
+holdtime: time (seconds) the use key needs to be held (defaults to 0)
+icon:  the icon that will be displayed.  Refers to an image file in base\gfx\menus.  (defaults to hud/blank32)
+wait:  time (seconds) between activations (defaults to 1)
+
+startSound: sound played when trigger is first used
+endSound:	sound played when trigger is done being used
+loopSound:	sound played while trigger is being used
+
+*/
+
+
+/*QUAKED trigger_arioche_objective (.5 .5 .8) ? 
+
+Generic objective for the arioche random mission generator system.   When a trigger is
+spawned it is associated with the objective object through the name param.
+
+target:   target to activate when objective is met
+objective:     name of objective (must match an objective in the .mission file)
+use:	  1 if this objective must be used to complete it
+icon:	  icon to display when in range of the use objective
+holdtime: amount of time the use button must be pressed before the objective is complete
+
+*/
+
+
+/*QUAKED trigger_hurt (.5 .5 .8) ? START_OFF ONCE_ONLY NO_PROTECTION FALLING INACTIVE
+Any entity that touches this will be hurt.
+It does dmg points of damage each time it's triggered
+
+"wait"      Seconds between triggerings, default 0.5
+"random"    wait variance in seconds, default 0
+"dmg"		default 5
+"damageType" 1 = fire (default), 2 = steam, 3 = outright death, 4 = just plain "Ow!"
+
+START_OFF      starts off
+ONCE_ONLY      trigger goes away after first activation
+NO_PROTECTION  nothing stops the damage
+FALLING        damage is a result of falling
+INACTIVE       starts inactive ( can't be used )
+
+
+*/
+
+
+/*QUAKED trigger_timer (0 .5 .8) ? START_OFF PLAYER_USE DISPLAY ONCE INACTIVE
+Counts down then fires its targets,
+will happen repeatedly unless ONCE is checked
+Can be turned on or off by using.
+
+"time"    seconds to wait until firing targets, default 1
+"usescript"	name of script to play on Use.  Do NOT set this if you want default behavior. Set to NULL to return to default
+
+
+START_OFF     timer starts off
+PLAYER_USE    player can use it, must be touching it
+DISPLAY       displays time counting down
+ONCE          will count down and fire once			
+INACTIVE      starts inactive ( can't be used )
+
+*/
+
+
+/*QUAKED trigger_push (0 .5 .8) ? START_OFF INACTIVE PLAYER_ONLY NPC_ONLY
+Pushes entity touching it in specified direction. Can be turned on or off by using.
+The direction of push can be specified in two ways
+1) manually enter the "angles" key/value pair
+2) "target" a target_position - if valid "angles" are ignored
+
+"push"    pitch yaw roll (in degrees) - determines direction of push
+270 0 0 = up
+ 90 0 0 = down
+"speed"     how fast ent is pushed, default 100
+"target"    direction to push entity in
+
+START_OFF      trigger starts off
+INACTIVE       starts inactive ( can't be used )
+PLAYER_ONLY    only player can activate/touch
+NPC_ONLY       only NPCs can activate/touch
+
+*/
+
+
+/*QUAKED func_breakable_brush (0 .5 .8) ? INVINCIBLE NO_USE START_OFF 
+Throws debris and dissapears when used or killed
+area portals can be used with this, whether it starts on or off.  
+if "direction" is given, debris will use it to determine explosion path, else game will determine direction
+The texture placed on the brush model determines the material -- look in the shader to determine the material type
+
+
+"splashDamage"  damage from explosion, default none
+"splashRadius"  area of effect, default none
+"health"        damage needed to die, default 1
+"direction"     pitch yaw roll (in degrees) - direction of debris explosion
+270 0 0 = up
+ 90 0 0 = down
+"sizescale"		overrides programmatic scale determination -- useful for long, thing things
+"speedscale"    scales speed of debris, default 1 -- only use in special cases
+"material"      material number, should ONLY be used in SPECIAL cases - i.e. when a brush needs an invisible texture, which has no material. 
+				-1 means no debris at all. period.
+"usescript"		name of script to play on Use.  Do NOT set this if you want default behavior. Set to NULL to return to default
+
+INVINCIBLE    can't be damaged, will only die when used
+NO_USE        using it will not break it, must be damaged
+START_OFF     starts invisible, won't be visible or interact in the world in anyway until its used once
+
+
+*/
+
+
+/*QUAKED func_wall (0 .5 .8) ? START_OFF PLAYER_USE WATER
+bmodel that just sits there, can be toggled on/off by using it
+area portals can be used with this, whether it starts on or off
+
+"usescript"	name of script to play on Use.  Do NOT set this if you want default behavior. Set to NULL to return to default
+
+START_OFF     wall starts off
+PLAYER_USE    player can use it
+WATER		  if it's water, it moves without doing any pushing or getting blocked
+
+*/
+
+
+/*QUAKED func_npcwall (0 .5 .8) ? START_OFF PLAYER_USE
+just like func_wall, except that it is a NPC clip brush instead
+of a solid wall 
+
+bmodel that just sits there, can be toggled on/off by using it
+area portals can be used with this, whether it starts on or off
+
+"usescript"	name of script to play on Use.  Do NOT set this if you want default behavior. Set to NULL to return to default
+
+START_OFF     wall starts off
+PLAYER_USE    player can use it
+
+*/
+
+
+/*QUAKED fx_play_effect (.2 .5 .8) (-8 -8 -8) (8 8 8) START_OFF
+Plays specified effect file
+
+"effect"    name of .efx file
+"wait"      seconds between triggerings, default 0.3
+"random"    wait variance in seconds, default 0
+"target"    direction of effect, default up
+"count"     plays effect this many times then deletes itself, default -1 = infinite 
+
+
+START_OFF    fx starts off
+
+
+*/
+
+
+/*QUAKED target_level_change ( 1 0 0) (-4 -4 -4) (4 4 4)
+load the specified map
+
+"mapname"		name of the map to load
+"menuname"		go to a menu instead of map (example: "select" without the quotes. this is the outfitting menu.). ALSO REQUIRES MAPNAME!!
+"menuWpnsFile"	(example: "col1" without the quotes) contains list of wpns to display in the provided menu. if you provide a "menuname" you need a "menuWpnsFile", too.
+"execFile"		the .cfg file (example: "hos1.cfg") to execute instead of immediately changing maps. this allows you to start the next map with no weapons.
+
+  This entity will try to switch to a menu first. If it doesn't have a "menuname" then it will try to run the "execFile". 
+  If it doesn't have an execFile it will try to change maps using "mapname".
+
+*/
+
+
+/*QUAKED target_activate ( 1 0 0) (-4 -4 -4) (4 4 4)
+Will set the target(s) to be usable/triggerable
+
+delay : seconds to wait after triggering to fire targets, default 0
+
+
+*/
+
+
+/*QUAKED target_deactivate ( 1 0 0) (-4 -4 -4) (4 4 4)
+Will set the target(s) to be not usable/triggerable
+
+delay : seconds to wait after triggering to fire targets, default 0
+
+
+*/
+
+
+/*QUAKED target_counter ( 1 0 0) (-4 -4 -4) (4 4 4)  
+After being used count times, will fire all its targets  
+
+"count"    number of times to be used, before firing targets, default 2
+
+"resetCount"   number of times the counter should reset to it's full count when it's done, default 0 (never reset), -1 = infinite
+
+
+*/
+
+
+/*QUAKED target_objective ( 0 0 1 ) (-8 -8 -8) (8 8 8)
+
+Does some objective stuff this isn't in yet.  Fun.
+*/
+
+
+/*QUAKED target_visible ( 0 0 1) (-8 -8 -8) (8 8 8)  START_OFF NOTRACE
+
+Fires targets as soon as player can see it, only fires targets once then removes itself. 
+Most target_visibles should START_OFF then turned on(used) once they're needed
+
+"radius"    player must be at least this close to 'see' this ent, default 512
+"degrees"   degrees player must be looking within(player's FOV), default 40
+"timer"		number of miliseconds player must be looking at target for it to fire
+  
+START_OFF   will not actively check if player is looking until 'used'
+NOTRACE     will not check if player's sight is blocked, will see through walls, etc... 
+
+
+*/
+
+
+/*QUAKED worldspawn (0 0 0) ?
+
+Every map should have exactly one worldspawn.
+"music"       path to WAV or MP3 files (e.g. "music\intro.mp3 music\loopfile.mp3")
+"gravity"     800 is default gravity
+"message"     Text to print during connection process
+"soundSet"	  Ambient sound set   
+"ambientFog"  Set to 1 if the fog is purely for ambience and not for distance culling.
+"npcView"     View Distance for NPCs
+"emplacement" player starts the map using this weapon
+"spawnscript" runs on the player on entering level
+"rDmgScript"	if the player lobs a grenade or similar explosive device anywhere in the level, this script is run
+"deathScript"	called when player dies. if left blank, common/failed is used by default
+"hearscript"  the first time player sound is above 0.7 this will fire
+"soundlevel"  override the default 0.7 soundlevel that triggers hearscript
+"dynamic_music" set to OFF to turn off all dynamic music on this level
+"vehicle"		is the player riding in a helicopter(1), truck(2), or nothing(0, the default)
+"vehicleWeapon"	use this in pra4, where the player will have a vehicle-mounted wpn but doesn't start the level attached to it
+"suit"			set to 1 if you want to use the SET_SUIT Icarus command in this map
+
+
+BSP Options
+"gridsize"      size of lighting grid to "X Y Z". default="64 64 128"
+"ambient"       scale of global light (from _color)
+"fog"           shader name of the global fog texture - must include the full path, such as "textures/rj/fog1"
+"distancecull"  value for vis for the maximum viewing distance
+"chopsize"      value for bsp on the maximum polygon / portal size
+"SkyTexture"    shader name for the sky texture
+"SkyHeight"     z height of the sky
+"SkyIntensity"  intensity modifier (default of 1.0, range from 0.0 to 3.0)
+"SkyAmbient"    ambient light vector (default is calculated)
+"SkyMinimum"    minimum modifier (default of 0.5, range from 0.0 to 1.0)
+"SkyEdge"       world edge error deviation (default of 100.0)
+"ls_Xr"	        override lightstyle X with this pattern for Red.
+"ls_Xg"	        green (valid patterns are "a-z")
+"ls_Xb"	        blue (a is OFF, z is ON)
+"ignoreleaks"   tells the bsp process to ignore any leaks, and continue on processing (for instances only)
+*/
+
+
+/*QUAKED NPC_spawner (1 0 0) (-16 -16 -24) (16 16 32) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+
+CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
+NOTSOLID - Starts not solid
+STARTINSOLID - Don't try to fix if spawn in solid
+SHY - Spawner is shy
+
+targetname - name this NPC goes by for targetting
+target - NPC will fire this when it spawns it's last NPC (should this be when the last NPC it spawned dies?)
+
+If targeted, will only spawn a NPC when triggered
+count - how many NPCs to spawn (only if targetted) default = 1
+
+NPC_type - name of NPC (in NPCs.cfg) to spawn
+
+NPC_targetname - NPC's targetname AND script_targetname
+NPC_target - NPC's target to fire when killed
+health - starting health (default = 100)
+playerTeam - Who not to shoot! (default is TEAM_STARFLEET)
+	TEAM_FREE (none) = 0
+	TEAM_RED = 1
+	TEAM_BLUE = 2
+	TEAM_GOLD = 3
+	TEAM_GREEN = 4
+	TEAM_STARFLEET = 5
+	TEAM_BORG = 6
+	TEAM_SCAVENGERS = 7
+	TEAM_STASIS = 8
+	TEAM_NPCS = 9
+	TEAM_HARVESTER, = 10
+	TEAM_FORGE = 11
+enemyTeam - Who to shoot (all but own if not set)
+
+spawnscript - default script to run once spawned (none by default)
+usescript - default script to run when used (none by default)
+awakescript - default script to run once awoken (none by default)
+angerscript - default script to run once angered (none by default)
+painscript - default script to run when hit (none by default)
+fleescript - default script to run when hit and below 50% health (none by default)
+deathscript - default script to run when killed (none by default)
+
+These strings can be used to activate behaviors instead of scripts - these are checked
+first and so no scripts should be names with these names:
+    default - 0: whatever
+	idle - 1: Stand around, do abolutely nothing
+	roam - 2: Roam around, collect stuff
+	walk - 3: Crouch-Walk toward their goals
+	run - 4: Run toward their goals
+	standshoot - 5: Stay in one spot and shoot- duck when neccesary
+	standguard - 6: Wait around for an enemy
+	patrol - 7: Follow a path, looking for enemies
+	huntkill - 8: Track down enemies and kill them
+	evade - 9: Run from enemies
+	evadeshoot - 10: Run from enemies, shoot them if they hit you
+	runshoot - 11: Run to your goal and shoot enemy when possible
+	defend - 12: Defend an entity or spot?
+	snipe - 13: Stay hidden, shoot enemy only when have perfect shot and back turned
+	combat - 14: Attack, evade, use cover, move about, etc.  Full combat AI - id NPC code
+	medic - 15: Go for lowest health buddy, hide and heal him.
+	takecover - 16: Find nearest cover from enemies
+	getammo - 17: Go get some ammo
+	advancefight - 18: Go somewhere and fight along the way
+	face - 19: turn until facing desired angles
+	wait - 20: do nothing
+	formation - 21: Maintain a formation
+	crouch - 22: Crouch-walk toward their goals
+
+delay - after spawned or triggered, how many seconds to wait to spawn the NPC
+*/
+
+

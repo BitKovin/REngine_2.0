@@ -512,7 +512,7 @@ default
 	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
-74 // ESurfaceType::Meta V: 9 I: 15 planar
+74 // ESurfaceType::Meta V: 5 I: 9 planar
 {
 	shader textures/generic/bricks
 	sampleSize 1

@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+build commands
+[RadiantPath]: path to Radiant .. C:\Program Files\Gtkradiant
+[EnginePath]: path to the engine .. C:\quake3\ C:\Program Files\Quake III Arena\ /usr/local/games/quake3/
+-->
+<project version="2.0">
+  <var name="csg">"[RadiantPath]/ZHLT/hlcsg" -wadinclude include</var>
+  <var name="bsp">"[RadiantPath]/ZHLT/hlbsp"</var>
+  <var name="vis">"[RadiantPath]/ZHLT/hlvis"</var>
+  <var name="rad">"[RadiantPath]/ZHLT/hlrad"</var>
+  <build name="CSG, BSP">
+       <command>[csg] "[MapFile]"</command>
+       <command>[bsp] "[MapFile]"</command>
+  </build>
+  <build name="CSG, BSP, VIS, RAD">
+       <command>[csg] "[MapFile]"</command>
+       <command>[bsp] "[MapFile]"</command>
+       <command>[vis] "[MapFile]"</command>
+       <command>[rad] "[MapFile]"</command>
+  </build>
+  <build name="CSG -onlyents">
+       <command>[csg] -onlyents "[MapFile]"</command>
+  </build>
+  <build name="CSG, BSP, VIS -fast, RAD">
+       <command>[csg] "[MapFile]"</command>
+       <command>[bsp] "[MapFile]"</command>
+       <command>[vis] -fast "[MapFile]"</command>
+       <command>[rad] "[MapFile]"</command>
+  </build>
+  <build name="CSG, BSP, VIS -fast, RAD -extra">
+       <command>[csg] "[MapFile]"</command>
+       <command>[bsp] "[MapFile]"</command>
+       <command>[vis] -fast "[MapFile]"</command>
+       <command>[rad] -extra "[MapFile]"</command>
+  </build>
+  <build name="CSG, BSP, VIS -fast">
+       <command>[csg] "[MapFile]"</command>
+       <command>[bsp] "[MapFile]"</command>
+       <command>[vis] "[MapFile]"</command>
+  </build>
+  <build name="CSG, BSP, VIS -full, RAD -extra">
+       <command>[csg] "[MapFile]"</command>
+       <command>[bsp] "[MapFile]"</command>
+       <command>[vis] "[MapFile]"</command>
+       <command>[rad] -extra "[MapFile]"</command>
+  </build>
+    <build name="CSG, BSP -nohull2, VIS -full, RAD -extra">
+       <command>[csg] "[MapFile]"</command>
+       <command>[bsp] -nohull2 "[MapFile]"</command>
+       <command>[vis] -full "[MapFile]"</command>
+       <command>[rad] -extra "[MapFile]"</command>
+  </build>
+</project>
+

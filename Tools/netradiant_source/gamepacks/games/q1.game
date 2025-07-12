@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes"?>
+<game
+  type="q1"
+  name="Quake"
+  enginepath_win32="c:/quake/"
+  enginepath_linux="/usr/local/games/quake/"
+  enginepath_macos="/Applications/Quake/"
+  engine_win32="quake.exe"
+  engine_linux="quake"
+  engine_macos="Quake.app"
+  basegame="id1"
+  basegamename="Quake"
+  unknowngamename="Custom Quake modification"
+  default_scale="1.0"
+  no_patch="1"
+  no_bsp_monitor="1"
+  show_wads="1"
+  archivetypes="pak wad"
+  texturetypes="tga jpg png mip hlw mdl"
+  modeltypes="mdl md3 obj"
+  maptypes="mapq1"
+  shaders="quake3"
+  shaderpath="scripts"
+  entityclass="quake3"
+  entityclasstype="def xml"
+  entities="quake"
+  brushtypes="quake"
+  patchtypes="quake3"
+  shader_weapclip = "textures/clip"
+  shader_caulk = "textures/skip"
+  shader_hintlocal = "textures/hintskip"
+  shader_nodraw = "textures/hintskip"
+  shader_nodrawnonsolid = "textures/hintskip"
+  shader_lavacaulk = "textures/*lavaskip"
+  shader_watercaulk = "textures/*waterskip"
+  shader_slimecaulk = "textures/*slimeskip"
+/>
+
+<!--
+  maptypes="mapq3"
+  brushtypes="quake3"
+for detail brush surfaceflag (supported since ericw-tools-v0.18.1-1)
+-->

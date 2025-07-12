@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<project version="2.0">
+  <build name="No build required">
+    <command>mapcompiler -options "[MapFile]"</command>
+  </build>
+</project>
+
+
