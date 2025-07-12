@@ -1,0 +1,1291 @@
+<?xml version="1.0"?>
+<classes>
+<!-- 
+// Urban Terror weapon and item entity definition file for Radiant
+// urtobjects.ent optimized for NetRadiant Custom
+// Updated by quak
+// Last Update: 2022-01-16
+// Based on ut_item_drop.def by Delirium
+// General changes:
+// Adds missing/new weapons
+// Updated 'count' key info and appropriate quick selections to get the useful numbers
+// Updated to xml for improved function with nrc
+-->
+
+
+
+<!--
+Lists
+-->
+
+<list name="clip4Index">
+	<item name="Empty or Other" value="0"/>
+	<item name="Loaded + 0 clips" value="100"/>
+	<item name="Loaded + 1 clips" value="300"/>
+	<item name="Loaded + 2 clips" value="600"/>
+	<item name="Loaded + 3 clips" value="800"/>
+	<item name="Loaded + 4 clips" value="1100"/>
+</list>
+
+<list name="negevIndex">
+	<item name="Empty or Other" value="0"/>
+	<item name="Loaded + 0 clips" value="100"/>
+	<item name="Loaded + 1 clips" value="500"/>
+	<item name="Loaded + 2 clips" value="1000"/>
+</list>
+
+<list name="p90Index">
+	<item name="Empty or Other" value="0"/>
+	<item name="Loaded + 0 clips" value="100"/>
+	<item name="Loaded + 1 clips" value="500"/>
+	<item name="Loaded + 2 clips" value="750"/>
+	<item name="Loaded + 3 clips" value="1000"/>
+	<item name="Loaded + 4 clips" value="1500"/>
+</list>
+
+<list name="clip6Index">
+	<item name="Empty or Other" value="0"/>
+	<item name="Loaded + 0 clips" value="100"/>
+	<item name="Loaded + 1 clips" value="300"/>
+	<item name="Loaded + 2 clips" value="600"/>
+	<item name="Loaded + 3 clips" value="800"/>
+	<item name="Loaded + 4 clips" value="1100"/>
+	<item name="Loaded + 5 clips" value="1300"/>
+	<item name="Loaded + 6 clips" value="1600"/>
+</list>
+
+<list name="nadeIndex">
+	<item name="0 Nades" value="0"/>
+	<item name="1 Nades" value="1"/>
+	<item name="2 Nades" value="2"/>
+</list>
+
+<!-- 
+//=============================================================================
+// Items
+//=============================================================================
+-->
+
+<point name="ut_item_silencer" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/m4/m4_silencer.md3">
+Silencer item
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_item_laser" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/m4/m4_laser.md3">
+Laser
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_item_nvg" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/players/athena/nvg.md3">
+Nightvision
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_item_medkit" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/players/gear/backpack.md3">
+Medpack
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_item_vest" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/players/athena/vest.md3">
+Kevalr
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_item_helmet" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/players/athena/helmet.md3">
+Helmet
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_item_apr" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/players/athena/helmet.md3">
+Exploding Monkey item - No effect on game?
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_item_extraammo" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/players/athena/helmet.md3">
+Extra Ammo - Can be used to refill ammo when picking up ingame.
+-------- NOTES --------
+ - Ammo from this can go over normal max!
+ - Refills ammo for all weapons
+ - Only refills from weapons normally affected by the Extra Ammo Item
+ - Will look like a helmet ingame but works fine
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!-- 
+//=============================================================================
+// Weapons - Primary - Auto
+//=============================================================================
+-->
+
+<point name="ut_weapon_g36" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/g36/g36.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some usefull numbers:
+count of 30 or less = x bullets 0 clips
+count of 300  = 30 bullets 1 clip
+count of 600  = 30 bullets 2 clip
+count of 800 = 30 bullets 3 clips
+count of 1100 = 30 bullets 4 clips
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip4Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip4Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_ak103" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/ak103/ak103.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 30 or less = x bullets 0 clips
+count of 300  = 30 bullets 1 clip
+count of 600  = 30 bullets 2 clip
+count of 800 = 30 bullets 3 clips
+count of 1100 = 30 bullets 4 clips
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip4Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip4Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_lr" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/zm300/lr.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 30 or less = x bullets 0 clips
+count of 300  = 30 bullets 1 clip
+count of 600  = 30 bullets 2 clip
+count of 800 = 30 bullets 3 clips
+count of 1100 = 30 bullets 4 clips
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip4Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip4Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_m4" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/m4/m4.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 30 or less = x bullets 0 clips
+count of 300  = 30 bullets 1 clip
+count of 600  = 30 bullets 2 clip
+count of 800 = 30 bullets 3 clips
+count of 1100 = 30 bullets 4 clips
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip4Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip4Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_negev" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/negev/negev.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 90   = 90 bullets 0 clips
+count of 500  = 90 bullets 1 clip
+count of 1000 = 90 bullets 2 clips [Max]
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<negevIndex key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</negevIndex>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!-- 
+//=============================================================================
+// Weapons - Primary - Single
+//=============================================================================
+-->
+
+<point name="ut_weapon_sr8" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/sr8/sr8.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 5 or less = x bullets 0 clips
+count of 300  = 5 bullets 1 clip
+count of 600  = 5 bullets 2 clip
+count of 800 = 5 bullets 3 clips
+count of 1100 = 5 bullets 4 clips
+count of 1300 = 5 bullets 5 clips
+count of 1600 or more = 5 bullets 6 clips [Max]
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip6Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip6Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_psg1" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/psg1/psg1.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 5 or less = x bullets 0 clips
+count of 300  = 5 bullets 1 clip
+count of 600  = 5 bullets 2 clip
+count of 800 = 5 bullets 3 clips
+count of 1100 = 5 bullets 4 clips
+count of 1300 = 5 bullets 5 clips
+count of 1600 or more = 5 bullets 6 clips [Max]
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip6Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip6Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_frf1" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/frf1/frf1.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 8 or less = x bullets 0 clips
+count of 300  = 8 bullets 1 clip
+count of 600  = 8 bullets 2 clip
+count of 800 = 8 bullets 3 clips
+count of 1100 = 8 bullets 4 clips
+count of 1300 = 8 bullets 5 clips
+count of 1600 or more = 8 bullets 6 clips [Max]
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip6Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip6Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_hk69" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/hk69/hk69.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 1 = 1 bullets 0 clips
+count of 300  = 1 bullets 1 clip
+count of 600  = 1 bullets 2 clip
+count of 800 = 1 bullets 3 clips
+count of 1100 = 1 bullets 4 clips
+count of 1300 = 1 bullets 5 clips
+count of 1600 or more = 1 bullets 6 clips [Max]
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip6Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip6Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!-- 
+//=============================================================================
+// Weapons - Secondary
+//=============================================================================
+-->
+
+<point name="ut_weapon_mp5k" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/mp5k/mp5k.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 30 or less = x bullets 0 clips
+count of 300  = 30 bullets 1 clip
+count of 600  = 30 bullets 2 clip
+count of 800 = 30 bullets 3 clips
+count of 1100 = 30 bullets 4 clips
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip4Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip4Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_ump45" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/ump45/ump45.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 30 or less = x bullets 0 clips
+count of 300  = 30 bullets 1 clip
+count of 600  = 30 bullets 2 clip
+count of 800 = 30 bullets 3 clips
+count of 1100 = 30 bullets 4 clips
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip4Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip4Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_mac11" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/mac11/mac11.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some usefull numbers:
+count of 32 or less = x bullets 0 clips
+count of 300  = 32 bullets 1 clip
+count of 600  = 32 bullets 2 clip
+count of 800 = 32 bullets 3 clips
+count of 1100 = 32 bullets 4 clips
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip4Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip4Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_p90" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/p90/p90.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 50 or less = x bullets 0 clips
+count of 500  = 50 bullets 1 clip
+count of 750  = 50 bullets 2 clip
+count of 1000 = 50 bullets 3 clips
+count of 1500 = 50 bullets 4 clips [Max]
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<p90Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</p90Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_spas12" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/spas12/spas12.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!! And stupid...
+But here are some useful numbers
+count of 100   = 8 bullets 0 clips
+count of 300  = 8 bullets 1 clip
+count of 600 = 8 bullets 2 clips
+And so on... Except it's not perfect and it skips some clip amounts...... Enjoy!
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<integer key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_benelli" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/benellim9/benellim9.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!! And stupid...
+But here are some useful numbers
+count of 100   = 8 bullets 0 clips
+count of 300  = 8 bullets 1 clip
+count of 600 = 8 bullets 2 clips
+And so on... Except it's not perfect and it skips some clip amounts...... Enjoy!
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<integer key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!-- 
+//=============================================================================
+// Weapons - Side Arm
+//=============================================================================
+-->
+
+<point name="ut_weapon_deagle" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/deserteagle/deagle.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 7 or less = x bullets 0 clips
+count of 300  = 7 bullets 1 clip
+count of 600  = 7 bullets 2 clip
+count of 800 = 7 bullets 3 clips
+count of 1100 = 7 bullets 4 clips
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip4Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip4Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_beretta" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/beretta/beretta.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 15 or less = x bullets 0 clips
+count of 300  = 15 bullets 1 clip
+count of 600  = 15 bullets 2 clip
+count of 800 = 15 bullets 3 clips
+count of 1100 = 15 bullets 4 clips
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip4Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip4Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_magnum" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/44magnum/44magnum.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 6 or less = x bullets 0 clips
+count of 300  = 6 bullets 1 clip
+count of 600  = 6 bullets 2 clip
+count of 800 = 6 bullets 3 clips
+count of 1100 = 6 bullets 4 clips
+count of 1300 = 6 bullets 5 clips
+count of 1600 or more = 6 bullets 6 clips [Max]
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip6Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip6Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_colt1911" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/colt1911/colt1911.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 10 or less = x bullets 0 clips
+count of 300  = 10 bullets 1 clip
+count of 600  = 10 bullets 2 clip
+count of 800 = 10 bullets 3 clips
+count of 1100 = 10 bullets 4 clips
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip4Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip4Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_glock" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/glock/glock.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!!
+But here are some useful numbers:
+count of 12 or less = x bullets 0 clips
+count of 300  = 12 bullets 1 clip
+count of 600  = 12 bullets 2 clip
+count of 800 = 12 bullets 3 clips
+count of 1100 = 12 bullets 4 clips
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<clip4Index key="count" name="Count" value="0">sets the amount of ammo given to the player when picked up (default 0).</clip4Index>
+<integer key="count" name="Count">Free pick slot for those who understands this madness.</integer>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!-- 
+//=============================================================================
+// Weapons - Nades
+//=============================================================================
+-->
+
+<point name="ut_weapon_grenade_he" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/grenade/grenade.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!! But makes sense for nades:
+count of 0 = 0 nades
+count of 1 = 1 nades
+count of 2 = 2 nades
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<nadeIndex key="count" name="Count">sets the amount of ammo given to the player when picked up (default 0).</nadeIndex>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_grenade_smoke" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/grenade/grenade.md3">
+-------- NOTES --------
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!! But makes sense for nades:
+count of 0 = 0 nades
+count of 1 = 1 nades
+count of 2 = 2 nades
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<nadeIndex key="count" name="Count">sets the amount of ammo given to the player when picked up (default 0).</nadeIndex>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_grenade_flash" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/grenade/grenade.md3">
+-------- NOTES --------
+Flash nades are not actually working!
+A count has to be set in order for ammo to be in the weapon when picked up 
+The count system is very weird!!! But makes sense for nades:
+count of 0 = 0 nades
+count of 1 = 1 nades
+count of 2 = 2 nades
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<nadeIndex key="count" name="Count">sets the amount of ammo given to the player when picked up (default 0).</nadeIndex>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!-- 
+//=============================================================================
+// Weapons - Other
+//=============================================================================
+-->
+
+<point name="ut_weapon_tod50" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/tod50/tod50.md3">
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_knife" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/knife/knife.md3">
+Gives 1 knife, can not go over 5.
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+
+<!--
+//=============================================================================
+-->
+
+<point name="ut_weapon_bomb" color="0.300000 0.900000 0.400000" box="-5 -5 -5 5 5 5" model="models/weapons2/bombbag/bombbag.md3">
+-------- KEYS --------
+<angle key="angle" name="Angle">direction in which model will be oriented.</angle>
+<angles key="angles" name="Angles">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
+<real key="wait" name="Wait" value="40">time in seconds before item respawns after being picked up (default 40, -1 = never respawn).</real>
+<real key="random" name="Random">random time variance in seconds added or subtracted from wait delay</real>
+<string key="gametype" name="Gametype">Specifies gametypes for the item to be in in. If this key is not used, the item will be in all gametypes. List types in this format: 01234
+Urban Terror gametype mappings are:
+	Free For All 0
+	Last Man Standing 1 (use FFA 0 for entities)
+	Team Deathmatch 3
+	Team Survivor 4
+	Assasins 5
+	Capture And Hold 6
+	Capture The Flag 7
+	Bomb 8
+	Jump Mode 9
+</string>
+<target key="target" name="Target">this points to the entity to activate.</target>
+<targetname key="targetname" name="Targetname">activating trigger points to this.</targetname>
+-------- SPAWNFLAGS --------
+<flag key="SUSPENDED" name="No Drop To Floor" bit="0">set to 1 to make suspended so the item will spawn where it was placed in map and won&apos;t drop to the floor.</flag>
+</point>
+</classes>
+
+
+

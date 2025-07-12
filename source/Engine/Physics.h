@@ -60,6 +60,7 @@
 #include "MathHelper.hpp"
 #include "Camera.h"
 #include <unordered_map>
+#include <set>
 
 using namespace JPH;
 
@@ -240,6 +241,12 @@ public:
 // An example contact listener
 class MyContactListener : public ContactListener
 {
+
+private:
+
+	static inline std::set<std::pair<Entity*, Entity*>> previousContacts;
+	static inline std::set<std::pair<Entity*, Entity*>> currentContacts;
+
 public:   
 	// See: ContactListener
 	virtual ValidateResult OnContactValidate(const Body& inBody1, const Body& inBody2,
@@ -263,6 +270,8 @@ public:
 		return ValidateResult::AcceptAllContactsForThisBodyPair;
 	}
 
+	static void beforeSimulation();
+	static void afterSimulation();
 
 	void			OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override;
 
@@ -626,10 +635,14 @@ public:
 
 	static void UpdatePendingBodyExitsEnters();
 
+
 	static void Simulate()
 	{
 
+		MyContactListener::beforeSimulation();
 		physics_system->Update(Time::DeltaTime, 1, tempMemAllocator, threadPool);
+		MyContactListener::afterSimulation();
+
 		UpdatePendingBodyExitsEnters();
 		
 	}

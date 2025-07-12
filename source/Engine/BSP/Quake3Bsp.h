@@ -474,6 +474,7 @@ public:
 
     BoundingBox bounds;
 
+    BoundingBox GetTransformedBounds();
 
     mat4 GetWorldMatrix();
 

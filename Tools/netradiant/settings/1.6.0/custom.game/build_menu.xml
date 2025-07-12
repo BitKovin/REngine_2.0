@@ -29,7 +29,7 @@
 <build name="(Final)">
 <command>[q3map2] -meta &quot;[MapFile]&quot;</command>
 <command>[q3map2] -vis &quot;[MapFile]&quot;</command>
-<command>[q3map2] -light -fast  -patchshadows -samples 4 -filter -bounce 8 -shade -bouncegrid -gamma 2 -compensate 2 -threads 24 -dirty  &quot;[MapFile]&quot;</command>
+<command>[q3map2] -light -fast  -patchshadows -samples 2 -filter -bounce 4 -shade -bouncegrid -gamma 2 -compensate 2 -threads 24 -dirty  &quot;[MapFile]&quot;</command>
 </build>
 <build name="(Final) Best">
 <command>[q3map2] -meta &quot;[MapFile]&quot;</command>

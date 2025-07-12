@@ -1255,7 +1255,9 @@ bool CQuake3BSP::RenderMergedFace(int mergedIndex, bool lightmap, LightVolPointD
     const auto& mergedFace = mergedFacesData[mergedIndex];
 
 
-    auto& bounds = mergedFace.bounds;
+    auto bounds = mergedFace.bounds;
+
+    bounds = bounds.Transform(model * scale(vec3(1.0f)*MAP_SCALE));
 
 	if (Camera::frustum.IsBoxVisible(bounds.Min, bounds.Max) == false)
 	    return false;
@@ -1385,6 +1387,11 @@ void CQuake3BSP::renderFaces() {
         RenderSingleFace(f.first, true, LightVolPointData(), scale(vec3(1.0f) / MAP_SCALE));
 }
 
+BoundingBox BSPModelRef::GetTransformedBounds()
+{
+    return bounds.Transform(finalWorldMatrix * scale(vec3(1.0f, 1.0f, 1.0f) * MAP_SCALE));
+}
+
 mat4 BSPModelRef::GetWorldMatrix()
 {
 	return translate(Position) * MathHelper::GetRotationMatrix(Rotation) * scale(Scale/MAP_SCALE);
@@ -1428,7 +1435,7 @@ float BSPModelRef::GetDistanceToCamera()
 void BSPModelRef::CalculateAveragePosition()
 {
 
-    avgPosition = bounds.Center();
+    avgPosition = GetTransformedBounds().Center();
     /*
     auto vertices = GetVertices();
 
@@ -1455,7 +1462,9 @@ bool BSPModelRef::IsCameraVisible()
 bool BSPModelRef::IsInFrustrum(Frustum frustrum)
 {
 
-    return frustrum.IsBoxVisible(bounds.Min, bounds.Max);
+    auto b = GetTransformedBounds();
+
+    return frustrum.IsBoxVisible(b.Min, b.Max);
 }
 
 bool BSPModelRef::IsBspVisible()
@@ -1463,19 +1472,21 @@ bool BSPModelRef::IsBspVisible()
 
     int sourceC = bsp->FindClusterAtPosition(Camera::finalizedPosition);
 
-    if (CheckPointBspVisible(sourceC, bounds.Center()))
+    auto b = GetTransformedBounds();
+
+    if (CheckPointBspVisible(sourceC, b.Center()))
         return true;
 
-    if (CheckPointBspVisible(sourceC, bounds.Max))
+    if (CheckPointBspVisible(sourceC, b.Max))
         return true;
 
-    if (CheckPointBspVisible(sourceC, bounds.Min))
+    if (CheckPointBspVisible(sourceC, b.Min))
         return true;
 
-    if (CheckPointBspVisible(sourceC, mix(bounds.Center(), bounds.Min,0.5)))
+    if (CheckPointBspVisible(sourceC, mix(b.Center(), b.Min,0.5)))
         return true;
 
-    if (CheckPointBspVisible(sourceC, mix(bounds.Center(), bounds.Min, 0.5)))
+    if (CheckPointBspVisible(sourceC, mix(b.Center(), b.Min, 0.5)))
         return true;
 
     return false;

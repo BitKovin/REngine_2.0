@@ -39,69 +39,99 @@ BodyType Physics::DebugDrawMask = BodyType::GroupAll & ~BodyType::CharacterCapsu
 std::vector<Physics::PendingBodyEnterPair> Physics::gRemovals;
 std::vector<Physics::PendingBodyEnterPair> Physics::gAdds;
 
+void MyContactListener::beforeSimulation()
+{
+	previousContacts = std::move(currentContacts); // Move for efficiency
+	currentContacts.clear(); // Reset for the new step
+}
+
+void MyContactListener::afterSimulation()
+{
+	std::vector<Physics::PendingBodyEnterPair> adds;
+	std::vector<Physics::PendingBodyEnterPair> removals;
+
+	// Find added contacts: in current but not in previous
+	for (const auto& pair : currentContacts)
+	{
+		if (previousContacts.find(pair) == previousContacts.end())
+		{
+			Physics::PendingBodyEnterPair p;
+			p.entity = pair.first;  // Sensor entity
+			p.target = pair.second; // Target entity
+			adds.push_back(p);
+		}
+	}
+
+	// Find removed contacts: in previous but not in current
+	for (const auto& pair : previousContacts)
+	{
+		if (currentContacts.find(pair) == currentContacts.end())
+		{
+			Physics::PendingBodyEnterPair p;
+			p.entity = pair.first;  // Sensor entity
+			p.target = pair.second; // Target entity
+			removals.push_back(p);
+		}
+	}
+
+	// Safely update global lists with lock
+	Physics::physicsMainLock.lock();
+	for (const auto& p : adds)
+	{
+		Physics::gAdds.push_back(p);
+	}
+	for (const auto& p : removals)
+	{
+		Physics::gRemovals.push_back(p);
+	}
+	Physics::physicsMainLock.unlock();
+}
+
 void MyContactListener::OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings)
 {
-
-	if (inBody1.IsSensor() == false && inBody2.IsSensor() == false) return;
-
 	auto data1 = Physics::GetBodyData(&inBody1);
 	auto data2 = Physics::GetBodyData(&inBody2);
-
-	Entity* entity1 = data1->OwnerEntity;
-	Entity* entity2 = data2->OwnerEntity;
+	Entity* entity1 = data1 ? data1->OwnerEntity : nullptr;
+	Entity* entity2 = data2 ? data2->OwnerEntity : nullptr;
 
 	if (entity1 == nullptr || entity2 == nullptr) return;
 
-	Physics::PendingBodyEnterPair pair1;
-	pair1.target = entity2;
-	pair1.entity = entity1;
-
-	Physics::PendingBodyEnterPair pair2;
-	pair2.target = entity1;
-	pair2.entity = entity2;
-
-
-	Physics::physicsMainLock.lock();
-	Physics::gAdds.push_back(pair1);
-	Physics::gAdds.push_back(pair2);
-	Physics::physicsMainLock.unlock();
-
+	// Add pair if body1 is a sensor
+	if (inBody1.IsSensor())
+	{
+		currentContacts.insert({ entity1, entity2 });
+	}
+	// Add pair if body2 is a sensor
+	if (inBody2.IsSensor())
+	{
+		currentContacts.insert({ entity2, entity1 });
+	}
 }
 
 void MyContactListener::OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings)
 {
+	auto data1 = Physics::GetBodyData(&inBody1);
+	auto data2 = Physics::GetBodyData(&inBody2);
+	Entity* entity1 = data1 ? data1->OwnerEntity : nullptr;
+	Entity* entity2 = data2 ? data2->OwnerEntity : nullptr;
 
+	if (entity1 == nullptr || entity2 == nullptr) return;
+
+	// Add pair if body1 is a sensor
+	if (inBody1.IsSensor())
+	{
+		currentContacts.insert({ entity1, entity2 });
+	}
+	// Add pair if body2 is a sensor
+	if (inBody2.IsSensor())
+	{
+		currentContacts.insert({ entity2, entity1 });
+	}
 }
 
 void MyContactListener::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair)
 {
-    
-	const Body* body1 = Physics::GetBodyFromId(inSubShapePair.GetBody1ID());
-	const Body* body2 = Physics::GetBodyFromId(inSubShapePair.GetBody2ID());
-
-	if (body1 == nullptr || body2 == nullptr) return;
-
-	if (body1->IsSensor() == false && body2->IsSensor() == false) return;
-
-	auto data1 = Physics::GetBodyData(body1);
-	auto data2 = Physics::GetBodyData(body2);
-	Entity* e1 = data1->OwnerEntity, * e2 = data2->OwnerEntity;
-	if (!e1 || !e2) return;
-
-	Physics::PendingBodyEnterPair pair1;
-	pair1.target = e2;
-	pair1.entity = e1;
-
-	Physics::PendingBodyEnterPair pair2;
-	pair2.target = e1;
-	pair2.entity = e2;
-
-
-	Physics::physicsMainLock.lock();
-	Physics::gRemovals.push_back(pair1);
-	Physics::gRemovals.push_back(pair2);
-	Physics::physicsMainLock.unlock();
-
+	// Leave empty; removals are handled in afterSimulation()
 }
 
 void Physics::Init()
@@ -178,6 +208,7 @@ void Physics::UpdatePendingBodyExitsEnters()
 		}
 
 		pair.target->OnBodyExited(pair.entity->LeadBody, pair.entity);	
+		pair.entity->OnBodyExited(pair.target->LeadBody, pair.target);
 		processedRemovals.insert(pair);
 	}
 	gRemovals.clear();
@@ -195,11 +226,13 @@ void Physics::UpdatePendingBodyExitsEnters()
 		}
 
 		pair.target->OnBodyEntered(pair.entity->LeadBody, pair.entity);
+		pair.entity->OnBodyEntered(pair.target->LeadBody, pair.target);
 		processedAdds.insert(pair);
 	}
 	gAdds.clear();
 
 }
+
 
 uint64_t Physics::FindSurfaceId(string surfaceName)
 {

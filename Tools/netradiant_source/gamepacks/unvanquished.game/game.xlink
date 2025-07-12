@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<links>
+	<item name="Unvanquished Website" url="https://unvanquished.net" />
+	<item name="Unvanquished Forums" url="https://forums.unvanquished.net" />
+	<item name="Unvanquished Wiki" url="https://wiki.unvanquished.net" />
+	<item name="Unvanquished Source" url="https://github.com/Unvanquished/Unvanquished" />
+	<item name="Unvanquished Bugtracker" url="https://github.com/Unvanquished/Unvanquished/issues" />
+	<item name="Unvanquished Gamepack Bugtracker" url="https://github.com/Unvanquished/unvanquished-mapeditor-support/issues" />
+</links>

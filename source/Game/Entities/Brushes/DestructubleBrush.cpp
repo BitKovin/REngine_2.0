@@ -19,7 +19,7 @@ public:
 
 			if (m)
 			{
-				m->Static = false;
+				m->Static = true;
 			}
 
 		}

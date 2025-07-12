@@ -64,9 +64,13 @@ public:
 	BodyType DefaultBrushGroup = BodyType::World;
 	BodyType DefaultBrushCollisionMask = BodyType::GroupCollisionTest;
 
+	double SpawnTime = 0;
+
+	vector<Body*> contactList;
+
 	Entity()
 	{
-
+		
 	}
 	virtual ~Entity() 
 	{
@@ -83,6 +87,10 @@ public:
 		}
 	}
 
+	void Start()
+	{
+		SpawnTime = Time::GameTime;
+	}
 
 	virtual void FromData(EntityData data)
 	{

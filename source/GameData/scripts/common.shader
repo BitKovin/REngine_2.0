@@ -30,3 +30,8 @@ textures/common/clip
 	surfaceparm playerclip
 	surfaceparm noimpact
 }
+
+textures/delvenPack/dlv_door1a
+{	
+	surfaceparm noclip
+}

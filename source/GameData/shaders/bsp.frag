@@ -29,7 +29,7 @@ void main()
 
     vec3 normal = normalize(g_normal);
 
-    o_lightmap += clamp(dot(normal, normalize(direct_light_dir))*0.7 + 0.3,0.0,1.0) * vec4(direct_light_color,0) ;
+    o_lightmap += clamp(dot(normal, normalize(direct_light_dir))*0.7 + 0.3,0.0,1.0) * vec4(direct_light_color,0) * 2.0;
 
     FragColor = o_texture * o_lightmap * 1.0;
 }
