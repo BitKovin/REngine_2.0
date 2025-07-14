@@ -58,6 +58,8 @@ public:
 
 	CQuake3BSP BspData;
 
+	std::unordered_set<void*> DeletedLevelObjectAdresses;
+
 	Level()
 	{
 		asyncUpdateThreadPool = new ThreadPool();

@@ -416,9 +416,9 @@ public:
 
 	struct PendingBodyEnterPair
 	{
-		Entity* target;
+		Entity* target = nullptr;
 
-		Entity* entity;
+		Entity* entity = nullptr;
 
 		bool operator==(const PendingBodyEnterPair& other) const
 		{

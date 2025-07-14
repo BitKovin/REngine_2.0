@@ -11,14 +11,14 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         html, body {
             height: 100%;
             overflow: hidden;
             background-color: #000;
             font-family: 'Courier New', monospace;
         }
-        
+
         .emscripten_border {
             position: absolute;
             top: 0;
@@ -27,14 +27,14 @@
             height: 100%;
             background-color: #000;
         }
-        
+
         canvas.emscripten {
             width: 100%;
             height: 100%;
             background-color: #000;
             display: block;
         }
-        
+
         #loading {
             position: absolute;
             bottom: 30px;
@@ -43,10 +43,10 @@
             text-align: right;
             min-width: 300px;
         }
-        
+
         #canvas:focus {
-        outline: none;
-        border: none;
+            outline: none;
+            border: none;
         }
 
         #status {
@@ -56,9 +56,9 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-bottom: 15px;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            text-shadow: 0很0 5px rgba(0, 0, 0, 0.8);
         }
-        
+
         #progress {
             height: 15px;
             width: 100%;
@@ -69,20 +69,20 @@
             border: none;
             background: #1a1515;
         }
-        
-        #progress::-webkit-progress-bar {
-            background: #1a1515;
-        }
-        
-        #progress::-webkit-progress-value {
-            background: #8b4513;
-            transition: width 0.3s ease;
-        }
-        
-        #progress::-moz-progress-bar {
-            background: #8b4513;
-        }
-        
+
+            #progress::-webkit-progress-bar {
+                background: #1a1515;
+            }
+
+            #progress::-webkit-progress-value {
+                background: #8b4513;
+                transition: width 0.3s ease;
+            }
+
+            #progress::-moz-progress-bar {
+                background: #8b4513;
+            }
+
         #emscripten_logo, #controls, #output {
             display: none;
         }
@@ -102,6 +102,7 @@
 
     <textarea id="output" rows="8"></textarea>
 
+    <!-- Existing script for Module setup -->
     <script type="text/javascript">
         var statusElement = document.getElementById("status");
         var progressElement = document.getElementById("progress");
@@ -129,19 +130,19 @@
             setStatus(text) {
                 if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: "" };
                 if (text === Module.setStatus.last.text) return;
-                
+
                 var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
                 var now = Date.now();
-                
+
                 if (m && now - Module.setStatus.last.time < 30) return;
                 Module.setStatus.last.time = now;
                 Module.setStatus.last.text = text;
-                
+
                 if (m) {
                     text = m[1];
                     var current = parseInt(m[2]);
                     var total = parseInt(m[4]);
-                    
+
                     progressElement.value = current * 100;
                     progressElement.max = total * 100;
                     progressElement.style.display = "block";
@@ -149,7 +150,7 @@
                     // Hide progress bar for non-downloading steps
                     progressElement.style.display = "none";
                 }
-                
+
                 statusElement.innerHTML = text.toUpperCase();
             },
             totalDependencies: 0,
@@ -158,10 +159,10 @@
                 Module.setStatus(
                     left
                         ? "Preparing... (" +
-                            (this.totalDependencies - left) +
-                            "/" +
-                            this.totalDependencies +
-                            ")"
+                        (this.totalDependencies - left) +
+                        "/" +
+                        this.totalDependencies +
+                        ")"
                         : "Initializing..."
                 );
             },
@@ -177,19 +178,20 @@
 
         // Enhanced resize handling
         function resizeCanvas() {
+            const resScale = 1;
             const dpr = window.devicePixelRatio || 1;
-            const containerWidth = containerElement.clientWidth / 2;
-            const containerHeight = containerElement.clientHeight / 2;
-            
-            if (canvasElement.width !== containerWidth * dpr || 
+            const containerWidth = containerElement.clientWidth * resScale;
+            const containerHeight = containerElement.clientHeight * resScale;
+
+            if (canvasElement.width !== containerWidth * dpr ||
                 canvasElement.height !== containerHeight * dpr) {
-                
+
                 canvasElement.width = Math.floor(containerWidth * dpr);
                 canvasElement.height = Math.floor(containerHeight * dpr);
-                
-                canvasElement.style.width = containerWidth + "px" * 2;
-                canvasElement.style.height = containerHeight + "px" * 2;
-                
+
+                canvasElement.style.width = containerWidth + "px" / resScale;
+                canvasElement.style.height = containerHeight + "px" / resScale;
+
                 if (typeof Module.onCanvasResized === 'function') {
                     Module.onCanvasResized(canvasElement.width, canvasElement.height);
                 }
@@ -200,12 +202,12 @@
         function setupResizeHandling() {
             let resizeTimeout;
             const resizeDebounceTime = 100;
-            
+
             function handleResize() {
                 clearTimeout(resizeTimeout);
                 resizeTimeout = setTimeout(resizeCanvas, resizeDebounceTime);
             }
-            
+
             if (typeof ResizeObserver === 'function') {
                 const resizeObserver = new ResizeObserver(handleResize);
                 resizeObserver.observe(containerElement);
@@ -213,11 +215,11 @@
             } else {
                 window.addEventListener('resize', handleResize);
             }
-            
+
             if (window.visualViewport) {
                 window.visualViewport.addEventListener('resize', handleResize);
             }
-            
+
             window.addEventListener('orientationchange', handleResize);
             setInterval(resizeCanvas, 1000);
         }
@@ -231,13 +233,69 @@
             // Show 100% progress before hiding
             progressElement.value = 100;
             progressElement.max = 100;
-            
+
             setTimeout(() => {
                 document.getElementById("loading").style.display = "none";
                 resizeCanvas();
             }, 500);
         };
     </script>
+
+
+
+    <!-- New script to force high-performance WebGL context -->
+    <script type="text/javascript">
+        (function () {
+            if (typeof HTMLCanvasElement !== "undefined") {
+                wrapGetContext(HTMLCanvasElement);
+            }
+            if (typeof OffscreenCanvas !== "undefined") {
+                wrapGetContext(OffscreenCanvas);
+            }
+
+            function wrapGetContext(ContextClass) {
+                const isWebGL = /webgl/i;
+
+                ContextClass.prototype.getContext = function (origFn) {
+                    return function (type, attributes) {
+                        if (isWebGL.test(type)) {
+                            attributes = Object.assign({}, attributes || {}, { powerPreference: "high-performance" });
+                        }
+                        return origFn.call(this, type, attributes);
+                    };
+                }(ContextClass.prototype.getContext);
+            }
+        })();
+    </script>
+
+    <!-- premultipliedAlpha false -->
+    <script type="text/javascript">
+        (function() {
+
+        if (typeof HTMLCanvasElement !== "undefined") {
+            wrapGetContext(HTMLCanvasElement);
+        }
+        if (typeof OffscreenCanvas !== "undefined") {
+            wrapGetContext(OffscreenCanvas);
+        }
+
+        function wrapGetContext(ContextClass) {
+            const isWebGL = /webgl/i;
+
+            ContextClass.prototype.getContext = function(origFn) {
+            return function(type, attributes) {
+                if (isWebGL.test(type)) {
+                attributes = Object.assign({}, attributes || {}, {premultipliedAlpha: false});
+                }
+                return origFn.call(this, type, attributes);
+            };
+            }(ContextClass.prototype.getContext);
+        }
+
+        }());
+    </script>
+
+    <!-- Emscripten-generated script -->
     <script async type="text/javascript" src="main.js"></script>
 </body>
 </html>

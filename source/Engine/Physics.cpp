@@ -207,7 +207,20 @@ void Physics::UpdatePendingBodyExitsEnters()
 			continue;
 		}
 
-		pair.target->OnBodyExited(pair.entity->LeadBody, pair.entity);	
+		if (pair.entity == nullptr || pair.target == nullptr || pair.target == nullptr)
+			continue;
+
+		//in case if one of them was deleted in previous frame
+		if (Level::Current->DeletedLevelObjectAdresses.find(pair.entity) != Level::Current->DeletedLevelObjectAdresses.end())
+		{
+			continue;
+		}
+		if (Level::Current->DeletedLevelObjectAdresses.find(pair.target) != Level::Current->DeletedLevelObjectAdresses.end())
+		{
+			continue;
+		}
+
+		//pair.target->OnBodyExited(pair.entity->LeadBody, pair.entity);	
 		pair.entity->OnBodyExited(pair.target->LeadBody, pair.target);
 		processedRemovals.insert(pair);
 	}
@@ -225,7 +238,20 @@ void Physics::UpdatePendingBodyExitsEnters()
 			}
 		}
 
-		pair.target->OnBodyEntered(pair.entity->LeadBody, pair.entity);
+		if (pair.entity == nullptr || pair.target == nullptr || pair.target == nullptr)
+			continue;
+
+		//in case if one of them was deleted in previous frame
+		if (Level::Current->DeletedLevelObjectAdresses.find(pair.entity) != Level::Current->DeletedLevelObjectAdresses.end())
+		{
+			continue;
+		}
+		if (Level::Current->DeletedLevelObjectAdresses.find(pair.target) != Level::Current->DeletedLevelObjectAdresses.end())
+		{
+			continue;
+		}
+
+		//pair.target->OnBodyEntered(pair.entity->LeadBody, pair.entity);
 		pair.entity->OnBodyEntered(pair.target->LeadBody, pair.target);
 		processedAdds.insert(pair);
 	}

@@ -578,6 +578,13 @@ build CMakeFiles/game.dir/source/Game/Entities/Brushes/DestructubleBrush.cpp.o: 
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Brushes
 
+build CMakeFiles/game.dir/source/Game/Entities/Brushes/MovebleBrush.cpp.o: CXX_COMPILER__game_unscanned_Release F$:/Git/SdlWasmEngine/source/Game/Entities/Brushes/MovebleBrush.cpp || cmake_object_order_depends_target_game
+  DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Brushes\MovebleBrush.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -std=gnu++20 -O3 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\game.dir
+  OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Brushes
+
 build CMakeFiles/game.dir/source/Game/Entities/Brushes/TriggerBase.cpp.o: CXX_COMPILER__game_unscanned_Release F$:/Git/SdlWasmEngine/source/Game/Entities/Brushes/TriggerBase.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Brushes\TriggerBase.cpp.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++20 -O3 -DNDEBUG
@@ -662,6 +669,13 @@ build CMakeFiles/game.dir/source/Game/Entities/WorldSpawn.cpp.o: CXX_COMPILER__g
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities
 
+build CMakeFiles/game.dir/source/Game/Entities/transformPoint.cpp.o: CXX_COMPILER__game_unscanned_Release F$:/Git/SdlWasmEngine/source/Game/Entities/transformPoint.cpp || cmake_object_order_depends_target_game
+  DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\transformPoint.cpp.o.d
+  FLAGS = -O3 -DNDEBUG -std=gnu++20 -O3 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\game.dir
+  OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities
+
 build CMakeFiles/game.dir/source/Game/GameStart.cpp.o: CXX_COMPILER__game_unscanned_Release F$:/Git/SdlWasmEngine/source/Game/GameStart.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\GameStart.cpp.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++20 -O3 -DNDEBUG
@@ -719,7 +733,7 @@ build CMakeFiles/game.dir/source/Game/UI/Player/PlayerHud.cpp.o: CXX_COMPILER__g
 #############################################
 # Link the executable main.js
 
-build main.js: CXX_EXECUTABLE_LINKER__game_Release CMakeFiles/game.dir/source/Game/Entities/Brushes/DestructubleBrush.cpp.o CMakeFiles/game.dir/source/Game/Entities/Brushes/TriggerBase.cpp.o CMakeFiles/game.dir/source/Game/Entities/Brushes/TriggerOnce.cpp.o CMakeFiles/game.dir/source/Game/Entities/Brushes/vis_through.cpp.o CMakeFiles/game.dir/source/Game/Entities/Player/Player.cpp.o CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/Projectiles/Bullet.cpp.o CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/weapon_pistol.cpp.o CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/weapon_shotgun.cpp.o CMakeFiles/game.dir/source/Game/Entities/Spawner.cpp.o CMakeFiles/game.dir/source/Game/Entities/StaticMeshEntity.cpp.o CMakeFiles/game.dir/source/Game/Entities/TestNpc.cpp.o CMakeFiles/game.dir/source/Game/Entities/TestParticleSystem.cpp.o CMakeFiles/game.dir/source/Game/Entities/WorldSpawn.cpp.o CMakeFiles/game.dir/source/Game/GameStart.cpp.o CMakeFiles/game.dir/source/Game/ParticleSystems/BulletTrail.cpp.o CMakeFiles/game.dir/source/Game/ParticleSystems/HitBlood.cpp.o CMakeFiles/game.dir/source/Game/UI/LoadingScreen/UiDefaultLoadingScreen.cpp.o CMakeFiles/game.dir/source/Game/UI/MobileControls/UiJoystick.cpp.o CMakeFiles/game.dir/source/Game/UI/MobileControls/UiTouchMoveArea.cpp.o CMakeFiles/game.dir/source/Game/UI/Player/PlayerHud.cpp.o | libengine.a F$:/Git/SdlWasmEngine/libsEms/libassimp.a F$:/Git/SdlWasmEngine/libsEms/libIrrXML.a F$:/Git/SdlWasmEngine/libsEms/libJolt.a F$:/Git/SdlWasmEngine/libsEms/fmod_wasm.a F$:/Git/SdlWasmEngine/libsEms/fmodstudio_wasm.a || libengine.a
+build main.js: CXX_EXECUTABLE_LINKER__game_Release CMakeFiles/game.dir/source/Game/Entities/Brushes/DestructubleBrush.cpp.o CMakeFiles/game.dir/source/Game/Entities/Brushes/MovebleBrush.cpp.o CMakeFiles/game.dir/source/Game/Entities/Brushes/TriggerBase.cpp.o CMakeFiles/game.dir/source/Game/Entities/Brushes/TriggerOnce.cpp.o CMakeFiles/game.dir/source/Game/Entities/Brushes/vis_through.cpp.o CMakeFiles/game.dir/source/Game/Entities/Player/Player.cpp.o CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/Projectiles/Bullet.cpp.o CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/weapon_pistol.cpp.o CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/weapon_shotgun.cpp.o CMakeFiles/game.dir/source/Game/Entities/Spawner.cpp.o CMakeFiles/game.dir/source/Game/Entities/StaticMeshEntity.cpp.o CMakeFiles/game.dir/source/Game/Entities/TestNpc.cpp.o CMakeFiles/game.dir/source/Game/Entities/TestParticleSystem.cpp.o CMakeFiles/game.dir/source/Game/Entities/WorldSpawn.cpp.o CMakeFiles/game.dir/source/Game/Entities/transformPoint.cpp.o CMakeFiles/game.dir/source/Game/GameStart.cpp.o CMakeFiles/game.dir/source/Game/ParticleSystems/BulletTrail.cpp.o CMakeFiles/game.dir/source/Game/ParticleSystems/HitBlood.cpp.o CMakeFiles/game.dir/source/Game/UI/LoadingScreen/UiDefaultLoadingScreen.cpp.o CMakeFiles/game.dir/source/Game/UI/MobileControls/UiJoystick.cpp.o CMakeFiles/game.dir/source/Game/UI/MobileControls/UiTouchMoveArea.cpp.o CMakeFiles/game.dir/source/Game/UI/Player/PlayerHud.cpp.o | libengine.a F$:/Git/SdlWasmEngine/libsEms/libassimp.a F$:/Git/SdlWasmEngine/libsEms/libIrrXML.a F$:/Git/SdlWasmEngine/libsEms/libJolt.a F$:/Git/SdlWasmEngine/libsEms/fmod_wasm.a F$:/Git/SdlWasmEngine/libsEms/fmodstudio_wasm.a || libengine.a
   FLAGS = -O3 -DNDEBUG
   LINK_FLAGS = -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 -s SDL2_IMAGE_FORMATS=[png,jpg,tga] -s USE_WEBGL2=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s STACK_SIZE=500000 -s NO_DISABLE_EXCEPTION_CATCHING -s WASM=1 -s ASSERTIONS=1 --preload-file F:/Git/SdlWasmEngine/source/GameData@/GameData -s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1 -lidbfs.js -msimd128 -s EXPORTED_RUNTIME_METHODS=[cwrap,setValue,getValue] -s AGGRESSIVE_VARIABLE_ELIMINATION=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 --profiling-funcs -s ALLOW_MEMORY_GROWTH=1 -s INITIAL_HEAP=83886080
   LINK_LIBRARIES = libengine.a  F:/Git/SdlWasmEngine/libsEms/libassimp.a  F:/Git/SdlWasmEngine/libsEms/libIrrXML.a  F:/Git/SdlWasmEngine/libsEms/libJolt.a  F:/Git/SdlWasmEngine/libsEms/fmod_wasm.a  F:/Git/SdlWasmEngine/libsEms/fmodstudio_wasm.a

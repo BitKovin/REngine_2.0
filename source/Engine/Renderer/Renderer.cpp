@@ -183,6 +183,8 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 
     DebugDraw::Draw();
     glUseProgram(0);
+
+    //this part makes it work correctly if premultiplied alpha is enabled by webgl. can be disabled by injecting js code in shell, but better to keep just in case
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
     glClearColor(0, 0, 0, 1);    // only alpha channel to 1
     glClear(GL_COLOR_BUFFER_BIT);

@@ -308,22 +308,21 @@ void Level::MemoryCleanPendingEntities()
 	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 	std::lock_guard<std::recursive_mutex> lockP(pendingEntityArrayLock);
 
-	std::unordered_set<void*> deletedAdressed;
-
-	deletedAdressed.reserve(PendingMemoryCleanObjects.size());
+	DeletedLevelObjectAdresses.clear();
+	DeletedLevelObjectAdresses.reserve(PendingMemoryCleanObjects.size());
 
 	for (auto& entity : PendingMemoryCleanObjects)
 	{
 
 		if (entity == nullptr) continue;
 
-		if (deletedAdressed.find(entity) != deletedAdressed.end())
+		if (DeletedLevelObjectAdresses.find(entity) != DeletedLevelObjectAdresses.end())
 		{
 			Logger::Log("entity was deleted twice. possible crash avoided");
 			continue;
 		}
 
-		deletedAdressed.insert(&entity);
+		DeletedLevelObjectAdresses.insert(entity);
 
 		entity->FinalLevelRemove();
 		delete(entity);

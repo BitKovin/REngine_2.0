@@ -57,7 +57,7 @@ void SoundManager::InitFmod()
 
     //flags |= FMOD_INIT_STREAM_FROM_UPDATE | FMOD_INIT_MIX_FROM_UPDATE;
 
-    coreSystem->setDSPBufferSize(2048, 2);
+    coreSystem->setDSPBufferSize(2048, 4);
 
     unsigned int size;
     int num;
