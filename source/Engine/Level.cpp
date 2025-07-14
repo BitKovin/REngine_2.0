@@ -47,6 +47,12 @@ void Level::CloseLevel()
 
 	NavigationSystem::DestroyAllObstacles();
 
+	//cleaning all history of contacts because we delete all objects outside of game loop. Done to avoid crash
+	MyContactListener::beforeSimulation();
+	MyContactListener::afterSimulation();
+	MyContactListener::beforeSimulation();
+	MyContactListener::afterSimulation();
+
 }
 
 inline bool endsWith(const std::string& str, const std::string& suffix) {
