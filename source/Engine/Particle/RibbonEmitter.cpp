@@ -147,7 +147,7 @@ void RibbonEmitter::DrawForward(mat4x4 view, mat4x4 projection)
 
     forward_shader_program->SetUniform("is_particle", true);
     forward_shader_program->SetUniform("is_decal", false);
-    forward_shader_program->SetUniform("world", glm::scale(vec3(1)));
+    forward_shader_program->SetUniform("world", glm::identity<mat4>());
     forward_shader_program->SetUniform("isViewmodel", false);
 
     Renderer::SetSurfaceShaderUniforms(forward_shader_program);

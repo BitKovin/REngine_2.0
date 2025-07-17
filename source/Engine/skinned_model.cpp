@@ -1,11 +1,12 @@
 #include "skinned_model.hpp"
-#include <filesystem>
+#include "FileSystem/FileSystem.h"
 
 #include "gl.h"
 
 #include "utils.hpp"
 
 #include "Logger.hpp"
+
 
 using namespace utils::assimp;
 
@@ -315,7 +316,10 @@ namespace roj
 		}
 		else
 		{
-			m_scene = m_import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+
+			auto fileData = FileSystemEngine::ReadFileBinary(path);
+
+			m_scene = m_import.ReadFileFromMemory(fileData.data(), fileData.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace, path.c_str());
 			m_cachedScene = m_scene;
 			m_lastLoadedPath = path;
 		}

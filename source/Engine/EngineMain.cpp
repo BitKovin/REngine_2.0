@@ -17,6 +17,7 @@ UiViewport EngineMain::Viewport;
 
 #include "emscripten/emscripten.h"
 #include "emscripten/html5.h"
+#include "FileSystem/FileSystem.h"
 
 EM_JS(int, canvas_get_width, (), {
 return canvas.width;
@@ -126,7 +127,8 @@ void EngineMain::Init()
 
     Physics::Init();
 
-    LevelSaveSystem::InitPersistence();
+    FileSystemEngine::Init();
+
     MainRenderer = new Renderer();
 
     UiRenderer::Init();

@@ -804,7 +804,8 @@
             "f:\\git\\sdlwasmengine\\source\\engine\\delay.hpp",
             "f:\\git\\sdlwasmengine\\source\\engine\\time.hpp",
             "f:\\git\\sdlwasmengine\\libraries\\jolt\\renderer\\debugrenderersimple.h",
-            "f:\\git\\sdlwasmengine\\source\\engine\\physicsconverter.h"
+            "f:\\git\\sdlwasmengine\\source\\engine\\physicsconverter.h",
+            "d:\\program files\\visual studio\\vc\\tools\\msvc\\14.44.35207\\include\\set"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

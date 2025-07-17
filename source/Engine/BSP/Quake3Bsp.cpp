@@ -23,6 +23,7 @@
 
 #include "../Renderer/Renderer.h"
 #include "../EngineMain.h"
+#include "../FileSystem/FileSystem.h"
 
 #ifndef _MSC_VER 
 
@@ -80,204 +81,295 @@ CQuake3BSP::~CQuake3BSP()
 
 bool CQuake3BSP::LoadBSP(const char* filename) {
     if (!filename) {
-        printf("ERROR:: You must specify BSP file as parameter");
-        return 0;
+        printf("ERROR:: You must specify BSP file as parameter\n");
+        return false;
     }
 
-    FILE* fp = NULL;
-    
-#ifndef _MSC_VER 
-
-    fp = fopen(filename, "rb");
-
-#else
-
-    fopen_s(&fp, filename, "rb");
-
-#endif
-
-    if (fp == NULL) {
-        printf("ERROR:: cannot open BSP file: %s\n", filename);
-        return 0;
+    // 1) Slurp entire BSP into RAM
+    std::vector<uint8_t> fileData;
+    try {
+        fileData = FileSystemEngine::ReadFileBinary(filename);
     }
+    catch (const std::exception& e) {
+        printf("ERROR:: cannot read BSP file '%s': %s\n",
+            filename, e.what());
+        return false;
+    }
+
+    const uint8_t* base = fileData.data();
+    size_t        totalSize = fileData.size();
+
+    // 2) Read header
+    if (totalSize < sizeof(tBSPHeader) + sizeof(tBSPLump) * kMaxLumps) {
+        printf("ERROR:: BSP too small\n");
+        return false;
+    }
+
+    tBSPHeader header;
+    memcpy(&header, base, sizeof(header));
+
+    tBSPLump lumps[kMaxLumps];
+    memcpy(lumps,
+        base + sizeof(header),
+        sizeof(lumps));
 
     filePath = filename;
 
-    tBSPHeader header = { 0 };
-    tBSPLump lumps[kMaxLumps] = { 0 };
+    // 3) Helper to validate a lump and compute element count
+    auto checkLump = [&](int idx, size_t elemSize, size_t& outCount) -> bool {
+        const auto& L = lumps[idx];
+        if (L.offset < 0 || L.length < 0 ||
+            size_t(L.offset) + size_t(L.length) > totalSize ||
+            (L.length % elemSize) != 0)
+        {
+            outCount = 0;
+            return false;
+        }
+        outCount = L.length / elemSize;
+        return true;
+        };
 
-    fread(&header, 1, sizeof(tBSPHeader), fp);
-    fread(&lumps, kMaxLumps, sizeof(tBSPLump), fp);
-
-    // Read Entities
-    if (lumps[kEntities].length > 0) {
-        fseek(fp, lumps[kEntities].offset, SEEK_SET);
-        std::vector<char> entData(lumps[kEntities].length + 1);
-        fread(entData.data(), 1, lumps[kEntities].length, fp);
-        entData.back() = '\0';
-        entities.assign(entData.data());
-    }
-
-    // Read Planes
-    planes.resize(lumps[kPlanes].length / sizeof(tBSPPlane));
-    fseek(fp, lumps[kPlanes].offset, SEEK_SET);
-    fread(planes.data(), sizeof(tBSPPlane), planes.size(), fp);
-
-    for (auto& plane : planes) {
-        // Quake3 uses Z-up, convert to Y-up
-        float oldY = plane.normal.y;
-        plane.normal.y = plane.normal.z;
-        plane.normal.z = -oldY;
-        // Do not recalculate plane distance; keep original
-    }
-
-    // Read Nodes
-    nodes.resize(lumps[kNodes].length / sizeof(tBSPNode));
-    fseek(fp, lumps[kNodes].offset, SEEK_SET);
-    fread(nodes.data(), sizeof(tBSPNode), nodes.size(), fp);
-
-    // Read Leafs
-    leafs.resize(lumps[kLeafs].length / sizeof(tBSPLeaf));
-    fseek(fp, lumps[kLeafs].offset, SEEK_SET);
-    fread(leafs.data(), sizeof(tBSPLeaf), leafs.size(), fp);
-
-    // Read LeafFaces
-    leafFaces.resize(lumps[kLeafFaces].length / sizeof(int));
-    fseek(fp, lumps[kLeafFaces].offset, SEEK_SET);
-    fread(leafFaces.data(), sizeof(int), leafFaces.size(), fp);
-
-    // Read LeafBrushes
-    leafBrushes.resize(lumps[kLeafBrushes].length / sizeof(int));
-    fseek(fp, lumps[kLeafBrushes].offset, SEEK_SET);
-    fread(leafBrushes.data(), sizeof(int), leafBrushes.size(), fp);
-
-    // Read Models
-    models.resize(lumps[kModels].length / sizeof(tBSPModel));
-    fseek(fp, lumps[kModels].offset, SEEK_SET);
-    fread(models.data(), sizeof(tBSPModel), models.size(), fp);
-
-    // Store original bounds before transformation
-    if (!models.empty()) {
-        originalMins = glm::vec3(models[0].mins[0], models[0].mins[1], models[0].mins[2]);
-        originalMaxs = glm::vec3(models[0].maxs[0], models[0].maxs[1], models[0].maxs[2]);
-    }
-
-    for (auto& model : models) {
-        // Convert mins
-        float temp = model.mins[1];
-        model.mins[1] = model.mins[2];
-        model.mins[2] = -temp;
-
-        // Convert maxs
-        temp = model.maxs[1];
-        model.maxs[1] = model.maxs[2];
-        model.maxs[2] = -temp;
-    }
-
-    for (auto& leaf : leafs)
+    // 4) Entities (text)
     {
-        float temp = leaf.mins[1];
-        leaf.mins[1] = leaf.mins[2];
-        leaf.mins[2] = -temp;
-
-        // Convert maxs
-        temp = leaf.maxs[1];
-        leaf.maxs[1] = leaf.maxs[2];
-        leaf.maxs[2] = -temp;
+        size_t cnt = 0;
+        if (checkLump(kEntities, 1, cnt) && cnt > 0) {
+            const char* ptr = reinterpret_cast<const char*>(base + lumps[kEntities].offset);
+            entities.assign(ptr, cnt);
+        }
     }
 
-    // Read Brushes
-    brushes.resize(lumps[kBrushes].length / sizeof(tBSPBrush));
-    fseek(fp, lumps[kBrushes].offset, SEEK_SET);
-    fread(brushes.data(), sizeof(tBSPBrush), brushes.size(), fp);
-
-    // Read BrushSides
-    brushSides.resize(lumps[kBrushSides].length / sizeof(tBSPBrushSide));
-    fseek(fp, lumps[kBrushSides].offset, SEEK_SET);
-    fread(brushSides.data(), sizeof(tBSPBrushSide), brushSides.size(), fp);
-
-    // Read Meshverts (kIndices corresponds to Meshverts)
-    meshVerts.resize(lumps[kIndices].length / sizeof(tBSPMeshVert));
-    fseek(fp, lumps[kIndices].offset, SEEK_SET);
-    fread(meshVerts.data(), sizeof(tBSPMeshVert), meshVerts.size(), fp);
-
-    // Read Effects (kShaders in the code's enum)
-    effects.resize(lumps[kShaders].length / sizeof(tBSPEffect));
-    fseek(fp, lumps[kShaders].offset, SEEK_SET);
-    fread(effects.data(), sizeof(tBSPEffect), effects.size(), fp);
-
-    // Read Lightvols
-    lightVols.resize(lumps[kLightVolumes].length / sizeof(tBSPLightvol));
-    fseek(fp, lumps[kLightVolumes].offset, SEEK_SET);
-    fread(lightVols.data(), sizeof(tBSPLightvol), lightVols.size(), fp);
-
-    // Read VisData
-    if (lumps[kVisData].length > 0) {
-        fseek(fp, lumps[kVisData].offset, SEEK_SET);
-        fread(&visData.n_vecs, sizeof(int), 1, fp);
-        fread(&visData.sz_vecs, sizeof(int), 1, fp);
-        visData.vecs.resize(visData.n_vecs * visData.sz_vecs);
-        fread(visData.vecs.data(), 1, visData.vecs.size(), fp);
+    // 5) Planes
+    {
+        size_t cnt = 0;
+        if (checkLump(kPlanes, sizeof(tBSPPlane), cnt)) {
+            planes.resize(cnt);
+            memcpy(planes.data(),
+                base + lumps[kPlanes].offset,
+                cnt * sizeof(tBSPPlane));
+            for (auto& p : planes) {
+                float oldY = p.normal.y;
+                p.normal.y = p.normal.z;
+                p.normal.z = -oldY;
+            }
+        }
     }
 
-    // Allocate the vertex memory
-    m_numOfVerts = lumps[kVertices].length / sizeof(tBSPVertex);
-    m_pVerts = new tBSPVertex[m_numOfVerts];
-
-    // Allocate the face memory
-    m_numOfFaces = lumps[kFaces].length / sizeof(tBSPFace);
-    m_pFaces = new tBSPFace[m_numOfFaces];
-
-    // Allocate the index memory
-    m_numOfIndices = lumps[kIndices].length / sizeof(int);
-    m_pIndices = new int[m_numOfIndices];
-
-    // Allocate memory to read in the texture information.
-    m_numOfTextures = lumps[kTextures].length / sizeof(tBSPTexture);
-
-    // Seek to the position in the file that stores the vertex information
-    fseek(fp, lumps[kVertices].offset, SEEK_SET);
-
-    // Convert vertices to Y-up
-    for (int i = 0; i < m_numOfVerts; i++) {
-        fread(&m_pVerts[i], 1, sizeof(tBSPVertex), fp);
-        float temp = m_pVerts[i].vPosition.y;
-        m_pVerts[i].vPosition.y = m_pVerts[i].vPosition.z;
-        m_pVerts[i].vPosition.z = -temp;
-
-        temp = m_pVerts[i].vNormal.y;
-        m_pVerts[i].vNormal.y = m_pVerts[i].vNormal.z;
-        m_pVerts[i].vNormal.z = -temp;
+    // 6) Nodes
+    {
+        size_t cnt = 0;
+        if (checkLump(kNodes, sizeof(tBSPNode), cnt)) {
+            nodes.resize(cnt);
+            memcpy(nodes.data(),
+                base + lumps[kNodes].offset,
+                cnt * sizeof(tBSPNode));
+        }
     }
 
-    pTextures = new tBSPTexture[m_numOfTextures];
-
-    fseek(fp, lumps[kIndices].offset, SEEK_SET);
-    fread(m_pIndices, m_numOfIndices, sizeof(int), fp);
-    fseek(fp, lumps[kFaces].offset, SEEK_SET);
-    fread(m_pFaces, m_numOfFaces, sizeof(tBSPFace), fp);
-    fseek(fp, lumps[kTextures].offset, SEEK_SET);
-    fread(pTextures, m_numOfTextures, sizeof(tBSPTexture), fp);
-
-    // Create textures
-    for (int i = 0; i < m_numOfTextures; i++) {
-        strcpy_s(tname[i], pTextures[i].strName);
-        strcat_s(tname[i], ".jpg");
-        //printf("loading: %s \n", tname[i]);
+    // 7) Leafs
+    {
+        size_t cnt = 0;
+        if (checkLump(kLeafs, sizeof(tBSPLeaf), cnt)) {
+            leafs.resize(cnt);
+            memcpy(leafs.data(),
+                base + lumps[kLeafs].offset,
+                cnt * sizeof(tBSPLeaf));
+            for (auto& lf : leafs) {
+                float t = lf.mins[1];
+                lf.mins[1] = lf.mins[2];
+                lf.mins[2] = -t;
+                t = lf.maxs[1];
+                lf.maxs[1] = lf.maxs[2];
+                lf.maxs[2] = -t;
+            }
+        }
     }
 
-    m_numOfLightmaps = lumps[kLightmaps].length / sizeof(tBSPLightmap);
-    pLightmaps = new tBSPLightmap[m_numOfLightmaps];
-    fseek(fp, lumps[kLightmaps].offset, SEEK_SET);
-
-    for (int i = 0; i < m_numOfLightmaps; i++) {
-        fread(&pLightmaps[i], 1, sizeof(tBSPLightmap), fp);
-        Rbuffers.G_lightMaps.push_back(pLightmaps[i]);
+    // 8) LeafFaces
+    {
+        size_t cnt = 0;
+        if (checkLump(kLeafFaces, sizeof(int), cnt)) {
+            leafFaces.resize(cnt);
+            memcpy(leafFaces.data(),
+                base + lumps[kLeafFaces].offset,
+                cnt * sizeof(int));
+        }
     }
 
-    fclose(fp);
-    return (fp);
+    // 9) LeafBrushes
+    {
+        size_t cnt = 0;
+        if (checkLump(kLeafBrushes, sizeof(int), cnt)) {
+            leafBrushes.resize(cnt);
+            memcpy(leafBrushes.data(),
+                base + lumps[kLeafBrushes].offset,
+                cnt * sizeof(int));
+        }
+    }
+
+    // 10) Models + original bounds
+    {
+        size_t cnt = 0;
+        if (checkLump(kModels, sizeof(tBSPModel), cnt)) {
+            models.resize(cnt);
+            memcpy(models.data(),
+                base + lumps[kModels].offset,
+                cnt * sizeof(tBSPModel));
+
+            if (!models.empty()) {
+                originalMins = glm::vec3(
+                    models[0].mins[0],
+                    models[0].mins[1],
+                    models[0].mins[2]);
+                originalMaxs = glm::vec3(
+                    models[0].maxs[0],
+                    models[0].maxs[1],
+                    models[0].maxs[2]);
+            }
+            for (auto& m : models) {
+                float t = m.mins[1];
+                m.mins[1] = m.mins[2];
+                m.mins[2] = -t;
+                t = m.maxs[1];
+                m.maxs[1] = m.maxs[2];
+                m.maxs[2] = -t;
+            }
+        }
+    }
+
+    // 11) Brushes & BrushSides
+    {
+        size_t cntB = 0, cntBS = 0;
+        if (checkLump(kBrushes, sizeof(tBSPBrush), cntB)) {
+            brushes.resize(cntB);
+            memcpy(brushes.data(),
+                base + lumps[kBrushes].offset,
+                cntB * sizeof(tBSPBrush));
+        }
+        if (checkLump(kBrushSides, sizeof(tBSPBrushSide), cntBS)) {
+            brushSides.resize(cntBS);
+            memcpy(brushSides.data(),
+                base + lumps[kBrushSides].offset,
+                cntBS * sizeof(tBSPBrushSide));
+        }
+    }
+
+    // 12) MeshVerts
+    {
+        size_t cnt = 0;
+        if (checkLump(kIndices, sizeof(tBSPMeshVert), cnt)) {
+            meshVerts.resize(cnt);
+            memcpy(meshVerts.data(),
+                base + lumps[kIndices].offset,
+                cnt * sizeof(tBSPMeshVert));
+        }
+    }
+
+    // 13) Effects
+    {
+        size_t cnt = 0;
+        if (checkLump(kShaders, sizeof(tBSPEffect), cnt)) {
+            effects.resize(cnt);
+            memcpy(effects.data(),
+                base + lumps[kShaders].offset,
+                cnt * sizeof(tBSPEffect));
+        }
+    }
+
+    // 14) Lightvols
+    {
+        size_t cnt = 0;
+        if (checkLump(kLightVolumes, sizeof(tBSPLightvol), cnt)) {
+            lightVols.resize(cnt);
+            memcpy(lightVols.data(),
+                base + lumps[kLightVolumes].offset,
+                cnt * sizeof(tBSPLightvol));
+        }
+    }
+
+    // 15) VisData
+    if (lumps[kVisData].length >= 2 * sizeof(int)) {
+        size_t off = lumps[kVisData].offset;
+        visData.n_vecs = *reinterpret_cast<const int*>(base + off);
+        visData.sz_vecs = *reinterpret_cast<const int*>(base + off + sizeof(int));
+        size_t totalVis = size_t(visData.n_vecs) * visData.sz_vecs;
+        visData.vecs.resize(totalVis);
+        memcpy(visData.vecs.data(),
+            base + off + 2 * sizeof(int),
+            totalVis);
+    }
+
+    // 16) Vertices (Y‑up)
+    {
+        size_t cnt = 0;
+        if (checkLump(kVertices, sizeof(tBSPVertex), cnt)) {
+            m_numOfVerts = static_cast<int>(cnt);
+            m_pVerts = new tBSPVertex[cnt];
+            const uint8_t* ptr = base + lumps[kVertices].offset;
+            for (size_t i = 0; i < cnt; ++i) {
+                memcpy(&m_pVerts[i],
+                    ptr + i * sizeof(tBSPVertex),
+                    sizeof(tBSPVertex));
+                float t = m_pVerts[i].vPosition.y;
+                m_pVerts[i].vPosition.y = m_pVerts[i].vPosition.z;
+                m_pVerts[i].vPosition.z = -t;
+                t = m_pVerts[i].vNormal.y;
+                m_pVerts[i].vNormal.y = m_pVerts[i].vNormal.z;
+                m_pVerts[i].vNormal.z = -t;
+            }
+        }
+    }
+
+    // 17) Indices, Faces, Textures, Lightmaps
+    {
+        size_t cntIdx = 0;
+        if (checkLump(kIndices, sizeof(int), cntIdx)) {
+            m_numOfIndices = static_cast<int>(cntIdx);
+            m_pIndices = new int[cntIdx];
+            memcpy(m_pIndices,
+                base + lumps[kIndices].offset,
+                cntIdx * sizeof(int));
+        }
+
+        size_t cntFaces = 0;
+        if (checkLump(kFaces, sizeof(tBSPFace), cntFaces)) {
+            m_numOfFaces = static_cast<int>(cntFaces);
+            m_pFaces = new tBSPFace[cntFaces];
+            memcpy(m_pFaces,
+                base + lumps[kFaces].offset,
+                cntFaces * sizeof(tBSPFace));
+        }
+
+        size_t cntTex = 0;
+        if (checkLump(kTextures, sizeof(tBSPTexture), cntTex)) {
+            m_numOfTextures = static_cast<int>(cntTex);
+            pTextures = new tBSPTexture[cntTex];
+            memcpy(pTextures,
+                base + lumps[kTextures].offset,
+                cntTex * sizeof(tBSPTexture));
+            for (int i = 0; i < m_numOfTextures; ++i) {
+                strcpy_s(tname[i], pTextures[i].strName);
+                strcat_s(tname[i], ".jpg");
+            }
+        }
+
+        size_t cntLM = 0;
+        if (checkLump(kLightmaps, sizeof(tBSPLightmap), cntLM)) {
+            m_numOfLightmaps = static_cast<int>(cntLM);
+            pLightmaps = new tBSPLightmap[cntLM];
+            memcpy(pLightmaps,
+                base + lumps[kLightmaps].offset,
+                cntLM * sizeof(tBSPLightmap));
+            for (int i = 0; i < m_numOfLightmaps; ++i) {
+                Rbuffers.G_lightMaps.push_back(pLightmaps[i]);
+            }
+        }
+    }
+
+    printf("BSP loaded successfully: %s\n", filename);
+    return true;
 }
+
+
 
 // int skipindices = 0;
 void CQuake3BSP::BuildVBO() {

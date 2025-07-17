@@ -121,33 +121,7 @@ public:
         return font;
     }
 
-    static std::string ReadFileToString(string filename) {
-        SDL_RWops* file = SDL_RWFromFile(filename.c_str(), "r");
-        if (!file) {
-            Logger::Log("Failed to open file: " + filename);
-            return "";
-        }
-
-        Sint64 fileSize = SDL_RWsize(file);
-        if (fileSize < 0) {
-            Logger::Log("Failed to get file size: " + filename);
-            SDL_RWclose(file);
-            return "";
-        }
-
-        std::string content(fileSize, '\0'); // Pre-allocate string space
-
-        Sint64 bytesRead = SDL_RWread(file, &content[0], 1, fileSize);
-        if (bytesRead != fileSize) {
-            SDL_Log("Could not read the entire file.");
-            Logger::Log("Could not read the entire file: " + filename);
-            SDL_RWclose(file);
-            return "";
-        }
-
-        SDL_RWclose(file);
-        return content;
-    }
+    static std::string ReadFileToString(string filename);
 
     static roj::SkinnedModel* GetSkinnedModelFromFile(const string& path);
     static roj::SkinnedModel* GetSkinnedAnimationFromFile(const string& path);

@@ -24,9 +24,5 @@ public:
 private:
 
 
-
-	static void WriteSaveFile(string fileName, string content);
-	static bool ReadSaveFile(string fileName, string& out);
-
 };
 

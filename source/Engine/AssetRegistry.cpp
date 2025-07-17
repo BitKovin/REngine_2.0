@@ -1,4 +1,5 @@
 #include "AssetRegistry.h"
+#include "FileSystem/FileSystem.h"
 
 std::unordered_map<std::string, Shader*> AssetRegistry::shaderCache;
 std::unordered_map<std::string, Texture*> AssetRegistry::textureCache;
@@ -6,6 +7,11 @@ std::unordered_map<std::string, CubemapTexture*> AssetRegistry::textureCubeCache
 std::unordered_map<std::string, roj::SkinnedModel*> AssetRegistry::skinnedModelCache;
 std::unordered_map<std::string, roj::SkinnedModel*> AssetRegistry::skinnedModelAnimationCache;
 std::unordered_map<std::string, TTF_Font*> AssetRegistry::fontCache;
+
+std::string AssetRegistry::ReadFileToString(string filename)
+{
+	return FileSystemEngine::ReadFile(filename);
+}
 
 roj::SkinnedModel* AssetRegistry::GetSkinnedModelFromFile(const string& path)
 {

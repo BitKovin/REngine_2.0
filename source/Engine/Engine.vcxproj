@@ -237,6 +237,7 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Animator.cpp" />
+    <ClCompile Include="FileSystem\FileSystem.cpp" />
     <ClCompile Include="LoadingScreen\LoadingScreenSystem.cpp" />
     <ClCompile Include="model_animator.cpp" />
     <ClCompile Include="AssetRegistry.cpp" />
@@ -312,6 +313,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Animator.h" />
+    <ClInclude Include="FileSystem\FileSystem.h" />
     <ClInclude Include="LoadingScreen\LoadingScreenSystem.h" />
     <ClInclude Include="LoadingScreen\UiLoadingScreenBase.h" />
     <ClInclude Include="malloc_override.h" />

@@ -4,6 +4,7 @@
 #include <Fmod/fmod.hpp>
 #include <Fmod/fmod_errors.h>
 #include <Fmod/fmod_studio.hpp>
+#include "../FileSystem/FileSystem.h"
 
 std::unordered_map<std::string, SoundBufferData> SoundManager::loadedBuffers;
 std::unordered_map<std::string, FMOD::Studio::Bank*> SoundManager::loadedBanks;
@@ -200,8 +201,26 @@ SoundBufferData SoundManager::LoadOrGetSoundFileBuffer(std::string path)
     Uint32 wavLength;
     Uint8* wavBuffer;
 
-    if (SDL_LoadWAV(path.c_str(), &wavSpec, &wavBuffer, &wavLength) == NULL) {
-        printf("Failed to load WAV file: %s\n", SDL_GetError());
+    // 1) pull the .wav into RAM
+    std::vector<uint8_t> fileData;
+    try {
+        fileData = FileSystemEngine::ReadFileBinary(path);
+    }
+    catch (const std::exception& e) {
+        printf("Failed to read WAV '%s': %s\n", path.c_str(), e.what());
+        return SoundBufferData();
+    }
+
+    // 2) wrap it in an SDL_RWops
+    SDL_RWops* rw = SDL_RWFromConstMem(fileData.data(), static_cast<int>(fileData.size()));
+    if (!rw) {
+        printf("SDL_RWFromConstMem failed for '%s': %s\n", path.c_str(), SDL_GetError());
+        return SoundBufferData();
+    }
+
+    // 3) load WAV from that RWops, freeing the RWops on success/failure
+    if (SDL_LoadWAV_RW(rw, /*freesrc=*/1, &wavSpec, &wavBuffer, &wavLength) == nullptr) {
+        printf("Failed to decode WAV '%s': %s\n", path.c_str(), SDL_GetError());
         return SoundBufferData();
     }
 
@@ -330,56 +349,65 @@ void SoundManager::CleanAllData()
 
 }
 
-FMOD::Studio::Bank* SoundManager::LoadBankFromPath(const std::string& bankPath, bool loadSampleData)
+
+FMOD::Studio::Bank* SoundManager::LoadBankFromPath(
+    const std::string& bankPath,
+    bool               loadSampleData)
 {
     if (!studioSystem)
     {
-        std::cerr << "[FMOD] LoadBankFromPath: studioSystem is null\n";
+        printf("[FMOD] LoadBankFromPath: studioSystem is null\n");
         return nullptr;
     }
 
-    auto searchResult = loadedBanks.find(bankPath);
+    // 1) cache check
+    auto it = loadedBanks.find(bankPath);
+    if (it != loadedBanks.end())
+        return it->second;
 
-    if (searchResult != loadedBanks.end())
-    {
-        return searchResult->second;
+    // 2) read .bank into RAM
+    std::vector<uint8_t> bankData;
+    try {
+        bankData = FileSystemEngine::ReadFileBinary(bankPath);
+    }
+    catch (const std::exception& e) {
+        printf("[FMOD] Failed to read bank '%s': %s\n",
+            bankPath.c_str(), e.what());
+        loadedBanks[bankPath] = nullptr;
+        return nullptr;
     }
 
-    // 1) Load the bank metadata (no sample data yet)
+    // 3) load from memory
     FMOD::Studio::Bank* bank = nullptr;
-    FMOD_RESULT result = studioSystem->loadBankFile(
-        bankPath.c_str(),
-        FMOD_STUDIO_LOAD_BANK_NORMAL,
-        &bank
+    FMOD_RESULT result = studioSystem->loadBankMemory(
+        /* memory      */ reinterpret_cast<const char*>(bankData.data()),
+        /* size        */ static_cast<int>(bankData.size()),
+        /* mem mode    */ FMOD_STUDIO_LOAD_MEMORY,
+        /* load flags  */ FMOD_STUDIO_LOAD_BANK_NORMAL,
+        /* out bank    */ &bank
     );
+
     if (result != FMOD_OK || !bank)
     {
-        std::cerr << "[FMOD] Failed to load bank \"" << bankPath << "\" ("
-            << result << "): " << FMOD_ErrorString(result) << "\n";
-
+        printf("[FMOD] Failed to load bank '%s' from memory (%d): %s\n",
+            bankPath.c_str(), result, FMOD_ErrorString(result));
         loadedBanks[bankPath] = nullptr;
-
         return nullptr;
     }
-    std::cout << "[FMOD] Bank metadata loaded: " << bankPath << "\n";
+    printf("[FMOD] Bank metadata loaded from memory: %s\n", bankPath.c_str());
 
-    // 2) Optionally load all sample data now
+    // 4) optionally load sample data
     if (loadSampleData)
     {
         result = bank->loadSampleData();
         if (result != FMOD_OK)
-        {
-            std::cerr << "[FMOD] Warning: sample data failed for \"" << bankPath << "\" ("
-                << result << "): " << FMOD_ErrorString(result) << "\n";
-            // We still return bank—samples can be loaded later on-demand.
-        }
+            printf("[FMOD] Warning: sample data failed for '%s' (%d): %s\n",
+                bankPath.c_str(), result, FMOD_ErrorString(result));
         else
-        {
-            std::cout << "[FMOD] Sample data loaded for: " << bankPath << "\n";
-        }
+            printf("[FMOD] Sample data loaded for: %s\n", bankPath.c_str());
     }
 
+    // 5) cache & return
     loadedBanks[bankPath] = bank;
-
     return bank;
 }
