@@ -267,12 +267,15 @@ public:
 
 			if (!collide1 && !collide2)
 				return ValidateResult::RejectContact;
+
+			if (props1->dynamicCollisionGroupOrMask || props2->dynamicCollisionGroupOrMask)
+			{
+				return ValidateResult::AcceptContact;
+			}
+
 		}
 
-		if (props1->dynamicCollisionGroupOrMask || props2->dynamicCollisionGroupOrMask)
-		{
-			return ValidateResult::AcceptContact;
-		}
+
 
 		return ValidateResult::AcceptAllContactsForThisBodyPair;
 
@@ -706,7 +709,7 @@ public:
 		body_settings.mFriction = 0.5f;
 
 		// Allocate and attach collision properties to the body via the user data field:
-		BodyData* properties = new BodyData{ group, mask, owner };
+		BodyData* properties = new BodyData{ group, mask, false, owner };
 		body_settings.mUserData = reinterpret_cast<uintptr_t>(properties);
 
 		JPH::Body* dynamic_body = bodyInterface->CreateBody(body_settings);
@@ -793,7 +796,7 @@ public:
 		bcs.mMassPropertiesOverride.mMass = Mass;
 		bcs.mFriction = 0.5f;
 
-		BodyData* props = new BodyData{ group, mask, owner, hitboxName};
+		BodyData* props = new BodyData{ group, mask,true, owner, hitboxName};
 		bcs.mUserData = reinterpret_cast<uintptr_t>(props);
 
 		// 7) Create & register
@@ -911,7 +914,7 @@ public:
 		body_settings.mFriction = 0.5f;
 
 		// Allocate and attach collision properties to the body via the user data field:
-		BodyData* properties = new BodyData{ group, mask, owner };
+		BodyData* properties = new BodyData{ group, mask,false, owner };
 		body_settings.mUserData = reinterpret_cast<uintptr_t>(properties);
 
 		// Create the body and add it to the physics system

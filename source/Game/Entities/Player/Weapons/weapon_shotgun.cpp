@@ -75,7 +75,7 @@ public:
 
 		SwitchDelay.AddDelay(0.2f);
 
-		attackDelay.AddDelay(0.01f);
+		attackDelay.AddDelay(1);
 
 		fireSoundPlayer->Play();
 

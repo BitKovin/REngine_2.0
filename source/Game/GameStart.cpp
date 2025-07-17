@@ -21,7 +21,7 @@ public:
 
         LoadingScreenSystem::SetLoadingCanvas(std::make_shared<UiDefaultLoadingScreen>());
 
-		Level::LoadLevelFromFile("GameData/maps/blank.bsp");
+		Level::LoadLevelFromFile("GameData/maps/test.bsp");
 
         for (size_t i = 0; i < 000; i++)
         {

@@ -801,7 +801,7 @@ Body* Physics::CreateCharacterBody(Entity* owner, vec3 Position, float Radius, f
 	body_settings.mRestitution = 0.0f; // No bounciness
 
 	// Allocate and attach collision properties to the body via the user data field:
-	BodyData* properties = new BodyData{ group, mask, owner };
+	BodyData* properties = new BodyData{ group, mask,false, owner };
 	body_settings.mUserData = reinterpret_cast<uintptr_t>(properties);
 
 	// Create and add body to world
@@ -854,7 +854,7 @@ Body* Physics::CreateCharacterCylinderBody(Entity* owner, vec3 Position, float R
 	body_settings.mRestitution = 0.0f;
 
 	// Attach collision properties
-	BodyData* properties = new BodyData{ group, mask, owner };
+	BodyData* properties = new BodyData{ group, mask, false, owner };
 	body_settings.mUserData = reinterpret_cast<uintptr_t>(properties);
 
 	// Create and add body to world
