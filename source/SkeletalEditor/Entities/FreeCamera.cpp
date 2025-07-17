@@ -39,7 +39,7 @@ public:
 
 		vec3 movement = input.x * right + input.y * forward;
 
-		Camera::position += movement * Time::DeltaTimeF;
+		Camera::position += movement * Time::DeltaTimeF * 3.0f;
 	}
 
 private:

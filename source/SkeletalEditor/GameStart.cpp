@@ -19,8 +19,7 @@ public:
 
 		Input::AddAction("rmb")->RMB = true;
 
-		Entity::Spawn("freecamera");
-		Entity::Spawn("skeletal_editor");
+		Level::LoadLevelFromFile("GameData/maps/blank.bsp");
 
 		EngineMain::MainInstance->asyncGameUpdate = false;
 
@@ -32,6 +31,8 @@ private:
 
 GameStart::GameStart()
 {
+
+
 }
 
 GameStart::~GameStart()

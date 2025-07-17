@@ -192,7 +192,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;OpenAL32.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp-vc143-mt.lib;Jolt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;OpenAL32.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp-vc143-mt.lib;Jolt.lib;fmod_vc.lib;fmodstudio_vc.lib;mimalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -211,7 +211,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;OpenAL32.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp-vc143-mt.lib;Jolt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;OpenAL32.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp-vc143-mt.lib;Jolt.lib;fmod_vc.lib;fmodstudio_vc.lib;mimalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -230,13 +230,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;OpenAL32.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp-vc143-mt.lib;Jolt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;OpenAL32.lib;glew32.lib;glew32s.lib;opengl32.lib;assimp-vc143-mt.lib;Jolt.lib;fmod_vc.lib;fmodstudio_vc.lib;mimalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Entities\FreeCamera.cpp" />
     <ClCompile Include="Entities\SkeletalEditorEntity.cpp" />
     <ClCompile Include="GameStart.cpp" />
+    <ClCompile Include="WorldSpawn.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">

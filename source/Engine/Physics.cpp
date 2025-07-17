@@ -134,6 +134,11 @@ void MyContactListener::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePa
 	// Leave empty; removals are handled in afterSimulation()
 }
 
+void Physics::SetMotionType(Body* body, JPH::EMotionType type)
+{
+	bodyInterface->SetMotionType(body->GetID(), type, JPH::EActivation::Activate);
+}
+
 void Physics::Init()
 {
 

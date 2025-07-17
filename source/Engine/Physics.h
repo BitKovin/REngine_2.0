@@ -120,6 +120,8 @@ struct BodyData
 	BodyType group;
 	BodyType mask;
 
+	bool dynamicCollisionGroupOrMask = false;
+
 	Entity* OwnerEntity;
 
 	string hitboxName = "";
@@ -267,7 +269,13 @@ public:
 				return ValidateResult::RejectContact;
 		}
 
+		if (props1->dynamicCollisionGroupOrMask || props2->dynamicCollisionGroupOrMask)
+		{
+			return ValidateResult::AcceptContact;
+		}
+
 		return ValidateResult::AcceptAllContactsForThisBodyPair;
+
 	}
 
 	static void beforeSimulation();
@@ -541,6 +549,8 @@ public:
 
 		physicsMainLock.unlock();
 	}
+
+	static void SetMotionType(Body* body, JPH::EMotionType type);
 
 	static BodyData* GetBodyData(const Body* body)
 	{

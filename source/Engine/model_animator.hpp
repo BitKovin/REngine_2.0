@@ -46,6 +46,8 @@ private:
 
     void ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& pose);
 
+    void ApplyNodePoseLocalSpace(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& pose, std::unordered_map<std::string, mat4>& overrideBones);
+
 public:
 
     Animation* m_currAnim{ nullptr };
@@ -69,6 +71,7 @@ public:
 
     void ApplyBonePoseArray(std::unordered_map<std::string, mat4> pose);
 
+    void ApplyLocalSpacePoseArray(std::unordered_map<std::string, mat4> pose, std::unordered_map<std::string, mat4> overridePose);
 
     void PopulateBonePoseArray(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& outVector);
 

@@ -646,6 +646,11 @@ void Player::UpdateBody()
     bodyMesh->Position = Position - vec3(0, controller.height / 2.0f,0) - playerForward*0.3f;
     bodyMesh->Rotation.y = cameraRotation.y;
 
+
+    //std::unordered_map<std::string, mat4> poseT;
+    //poseT["thigh_r"] = translate(Camera::position + Camera::Forward()) * scale(vec3(0.01f));
+    //bodyMesh->ApplyWorldSpaceBoneTransforms(poseT);
+
     Camera::position = MathHelper::DecomposeMatrix(bodyMesh->GetBoneMatrixWorld("head")).Position + playerForward * 0.3f;
     Camera::ApplyCameraShake(Time::DeltaTimeF);
 }

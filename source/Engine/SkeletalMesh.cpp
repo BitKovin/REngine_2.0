@@ -77,6 +77,21 @@ AnimationPose AnimationPose::Lerp(AnimationPose a, AnimationPose b, float progre
 
 }
 
+void SkeletalMesh::ApplyWorldSpaceBoneTransforms(std::unordered_map<std::string, mat4>& pose)
+{
+
+	mat4 world = GetWorldMatrix();
+
+	for (auto& bonePose : pose)
+	{
+		pose[bonePose.first] = inverse(world) * pose[bonePose.first];
+	}
+
+	animator.ApplyLocalSpacePoseArray(GetAnimationPose().boneTransforms, pose);
+	boneTransforms = animator.getBoneMatrices();
+
+}
+
 void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 {
 
@@ -244,6 +259,22 @@ float SkeletalMesh::GetHitboxDamageMultiplier(string boneName)
 	return 1.0f;
 }
 
+void SkeletalMesh::StartRagdoll()
+{
+
+	InRagdoll = true;
+
+	for (auto& hitbox : hitboxBodies)
+	{
+
+		Physics::SetMotionType(hitbox, JPH::EMotionType::Dynamic);
+
+		Physics::SetCollisionMask(hitbox, BodyType::World);
+
+	}
+
+}
+
 void SkeletalMesh::ClearHitboxes()
 {
 	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
@@ -283,6 +314,41 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 
 void SkeletalMesh::UpdateHitboxes()
 {
+
+	if (InRagdoll)
+	{
+
+		std::unordered_map<std::string, mat4> pose;
+
+		for (Body* body : hitboxBodies)
+		{
+
+			vec3 pos = FromPhysics(body->GetPosition());
+			quat rot = FromPhysics(body->GetRotation());
+
+			const auto& boneName = Physics::GetBodyData(body)->hitboxName;
+
+			auto res = animator.currentPose.find(boneName);
+
+			vec3 scale = MathHelper::DecomposeMatrix(GetBoneMatrixWorld(boneName)).Scale;
+
+
+
+			MathHelper::Transform boneTrans;
+
+			boneTrans.Position = pos;
+			boneTrans.RotationQuaternion = rot;
+			boneTrans.Scale = scale;
+
+			pose[boneName] = boneTrans.ToMatrix();
+
+
+		}
+
+		ApplyWorldSpaceBoneTransforms(pose);
+
+		return;
+	}
 
 	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
 

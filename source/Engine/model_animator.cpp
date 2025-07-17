@@ -200,6 +200,55 @@ void roj::Animator::ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unorder
     }
 }
 
+void roj::Animator::ApplyNodePoseLocalSpace(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& pose, std::unordered_map<std::string, mat4>& overrideBones)
+{
+
+    bool hasLocalPose = false;
+
+    mat4 localPose;
+
+    auto overRes = overrideBones.find(node.name);
+    
+    if (overRes != overrideBones.end())
+    {
+
+        localPose = overRes->second;
+
+        hasLocalPose = true;
+
+    }
+
+    auto poseRes = pose.find(node.name);
+    if (poseRes != pose.end())
+    {
+        currentPose[node.name] = pose[node.name];
+    }
+    else
+    {
+        currentPose[node.name] = node.transform;
+    }
+
+    offset *= currentPose[node.name];
+
+    if (hasLocalPose)
+    {
+        offset = localPose;
+    }
+
+    auto it2 = m_model->boneInfoMap.find(node.name);
+    if (it2 != m_model->boneInfoMap.end())
+    {
+        auto& boneInfo = it2->second;
+
+        m_boneMatrices[boneInfo.id] = offset * boneInfo.offset;
+    }
+
+    for (roj::BoneNode& child : node.children)
+    {
+        ApplyNodePoseLocalSpace(child, offset, pose, overrideBones);
+    }
+}
+
 roj::Animator::Animator(SkinnedModel* model)
     : m_model(model)
 {
@@ -262,6 +311,13 @@ void roj::Animator::ApplyBonePoseArray(std::unordered_map<std::string, mat4> pos
 {
 
     ApplyNodePose(m_model->defaultRoot, glm::identity<mat4>(), pose);
+}
+
+void roj::Animator::ApplyLocalSpacePoseArray(std::unordered_map<std::string, mat4> pose, std::unordered_map<std::string, mat4> overridePose)
+{
+
+    ApplyNodePoseLocalSpace(m_model->defaultRoot, glm::identity<mat4>(), pose, overridePose);
+
 }
 
 void roj::Animator::PopulateBonePoseArray(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& outVector)

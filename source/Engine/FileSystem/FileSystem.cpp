@@ -97,7 +97,13 @@ namespace FileSystemEngine {
         else {
             // --- GameData: use SDL_RWFromFile everywhere ---
             SDL_RWops* rw = SDL_RWFromFile(path.c_str(), "rb");
-            if (!rw) throw std::runtime_error("Failed open: " + path + " – " + SDL_GetError());
+            //if (!rw) throw std::runtime_error("Failed open: " + path + " – " + SDL_GetError());
+
+            if (!rw)
+            {
+                return std::vector<uint8_t>();
+            }
+
             Sint64 size = SDL_RWsize(rw);
             if (size < 0) { SDL_RWclose(rw); throw std::runtime_error("Bad file size: " + path); }
             std::vector<uint8_t> buf(size);

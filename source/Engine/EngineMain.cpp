@@ -8,6 +8,7 @@
 #include "DebugDraw.hpp"
 #include "UI/UiRenderer.h"
 #include "LoadingScreen/LoadingScreenSystem.h"
+#include "FileSystem/FileSystem.h"
 
 EngineMain* EngineMain::MainInstance = nullptr;
 

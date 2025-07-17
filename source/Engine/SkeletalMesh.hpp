@@ -104,7 +104,15 @@ struct HitboxData
 	vec3 position = vec3(0);
 	float damageMultiplier = 1;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(HitboxData, boneName, size, rotation, position, damageMultiplier)
+	string parentBone = "";
+
+	mat4 constraintLocal1 = mat4();
+	mat4 constraintLocal2 = mat4();
+
+	vec3 angularLowerLimit = vec3();
+	vec3 angularUpperLimit = vec3();
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(HitboxData, boneName, size, rotation, position, damageMultiplier, parentBone, constraintLocal1, constraintLocal2, angularLowerLimit, angularUpperLimit)
 };
 
 struct SkeletalMeshMetaData
@@ -186,6 +194,8 @@ public:
 	bool UpdatePose = true;
 	bool UpdatePoseOnlyWhenRendered = false;
 
+	bool InRagdoll = false;
+
 	static inline int skelMeshes = 0;
 
 	SkeletalMesh(Entity* owner) : StaticMesh(owner)
@@ -215,6 +225,8 @@ public:
 		animator.ApplyBonePoseArray(pose.boneTransforms);
 		boneTransforms = animator.getBoneMatrices();
 	}
+
+	void ApplyWorldSpaceBoneTransforms(std::unordered_map<std::string, mat4>& pose);
 
 	void PlayAnimation(string name, bool Loop = false, float interpIn = 0.12);
 
@@ -290,6 +302,8 @@ public:
 	mat4 GetBoneMatrixWorld(string boneName);
 
 	float GetHitboxDamageMultiplier(string boneName);
+
+	void StartRagdoll();
 
 	void ClearHitboxes();
 

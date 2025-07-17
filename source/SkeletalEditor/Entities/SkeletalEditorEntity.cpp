@@ -9,7 +9,7 @@ class SkeletalEditorEntity : public Entity
 public:
 	SkeletalMesh* mesh;
 
-	string filePath = "GameData/dog.glb";
+	string filePath = "GameData/models/enemies/dog/dog.glb";
 
 	int selectedHitbox = 0;
 	int selectedAnimation = 0;
@@ -34,7 +34,11 @@ public:
 
 	void Update()
 	{
-		mesh->CreateHitboxes(this);
+		if (mesh->InRagdoll == false)
+		{
+			mesh->CreateHitboxes(this);
+		}
+		
 		mesh->Update((int)animationPlaying);
 		mesh->UpdateHitboxes();
 
@@ -91,6 +95,18 @@ public:
 		ImGui::DragFloat3("position", &hitbox->position.x, 0.001f);
 		ImGui::DragFloat3("rotation", &hitbox->rotation.x, 0.1f);
 		ImGui::DragFloat3("size", &hitbox->size.x, 0.1f, 0.001);
+
+		static char buffer2[256];  // Fixed-size buffer (adjust size as needed)
+		strncpy_s(buffer2, hitbox->parentBone.c_str(), sizeof(buffer2));
+		buffer2[sizeof(buffer2) - 1] = '\0';  // Ensure null termination
+
+		if (ImGui::InputText("parent name", buffer2, sizeof(buffer2)))
+		{
+			hitbox->parentBone = std::string(buffer2);  // Update std::string only if user edited the input
+		}
+
+		ImGui::DragFloat3("angularLowerLimit", &hitbox->angularLowerLimit.x, 0.001f);
+		ImGui::DragFloat3("angularUpperLimit", &hitbox->angularLowerLimit.x, 0.001f);
 
 		hitbox->size.x = abs(hitbox->size.x);
 		hitbox->size.y = abs(hitbox->size.y);
@@ -173,6 +189,16 @@ public:
 			{
 				mesh->metaData.hitboxes.erase(mesh->metaData.hitboxes.begin() + selectedHitbox);
 			}
+		}
+
+		if (ImGui::Button("Start Ragdoll"))
+		{
+			mesh->StartRagdoll();
+		}
+
+		if (ImGui::Button("Stop Ragdoll"))
+		{
+			//mesh->StartRagdoll();
 		}
 
 		HitboxData* selectedHitboxRef = nullptr;
