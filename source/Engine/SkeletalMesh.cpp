@@ -112,6 +112,40 @@ void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 	boneTransforms = animator.getBoneMatrices();
 }
 
+bool SkeletalMesh::IsInFrustrum(Frustum frustrum)
+{
+
+	if (InRagdoll == false)
+	{
+		return StaticMesh::IsInFrustrum(frustrum);
+	}
+
+	mat4 world = GetWorldMatrix();
+
+	vector<vec3> bonePositions;
+	bonePositions.reserve(model->boneInfoMap.size());
+	
+	for (auto bone : model->boneInfoMap)
+	{
+		mat4 boneMatrix = world * GetBoneMatrix(bone.first);
+
+		vec3 pos = vec3(boneMatrix[3]);
+		bonePositions.push_back(pos);
+
+
+	}
+
+	auto box = BoundingBox::FromPoints(bonePositions);
+
+	box.Min -= vec3(1);
+	box.Max += vec3(1);
+
+	DebugDraw::Bounds(box.Min, box.Max, 0.01f);
+
+	return frustrum.IsBoxVisible(box.Min, box.Max);
+
+}
+
 // In your SkeletalMesh:
 MathHelper::Transform SkeletalMesh::PullRootMotion()
 {

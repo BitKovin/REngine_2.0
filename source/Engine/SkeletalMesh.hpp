@@ -231,6 +231,8 @@ public:
 
 	void PlayAnimation(string name, bool Loop = false, float interpIn = 0.12);
 
+	bool IsInFrustrum(Frustum frustrum);
+
 	void FinalizeFrameData()
 	{
 		StaticMesh::FinalizeFrameData();
