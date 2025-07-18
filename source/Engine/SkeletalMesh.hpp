@@ -109,10 +109,10 @@ struct HitboxData
 	mat4 constraintLocal1 = mat4();
 	mat4 constraintLocal2 = mat4();
 
-	vec3 angularLowerLimit = vec3();
-	vec3 angularUpperLimit = vec3();
+	vec3 twistParameters = vec3();
+	vec3 constraintRotation = vec3();
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(HitboxData, boneName, size, rotation, position, damageMultiplier, parentBone, constraintLocal1, constraintLocal2, angularLowerLimit, angularUpperLimit)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(HitboxData, boneName, size, rotation, position, damageMultiplier, parentBone, constraintLocal1, constraintLocal2, twistParameters, constraintRotation)
 };
 
 struct SkeletalMeshMetaData
@@ -172,6 +172,7 @@ private:
 	AnimationPose blendStartPose;
 
 	std::vector<Body*> hitboxBodies;
+	std::vector<Constraint*> hitboxConstraints; //to do: destroy them
 
 	std::recursive_mutex hitboxMutex;
 
@@ -304,12 +305,15 @@ public:
 	float GetHitboxDamageMultiplier(string boneName);
 
 	void StartRagdoll();
+	void StopRagdoll();
 
 	void ClearHitboxes();
 
 	void CreateHitbox(Entity* owner, HitboxData data);
 
 	void CreateHitboxes(Entity* owner);
+
+	Body* FindHitboxByName(string name);
 
 	void UpdateHitboxes();
 

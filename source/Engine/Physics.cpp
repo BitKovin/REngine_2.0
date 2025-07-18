@@ -4,6 +4,8 @@
 
 #include <unordered_set>
 
+#include <Jolt/Physics/Constraints/SwingTwistConstraint.h>
+
 TempAllocatorImpl* Physics::tempMemAllocator = nullptr;
 
 JobSystemThreadPool* Physics::threadPool = nullptr;
@@ -132,6 +134,20 @@ void MyContactListener::OnContactPersisted(const Body& inBody1, const Body& inBo
 void MyContactListener::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair)
 {
 	// Leave empty; removals are handled in afterSimulation()
+}
+
+void Physics::DestroyConstraint(Constraint* constraint)
+{
+
+	if (constraint == nullptr) return;
+
+	physicsMainLock.lock();
+
+	physics_system->RemoveConstraint(constraint);
+
+	physicsMainLock.unlock();
+
+
 }
 
 void Physics::SetMotionType(Body* body, JPH::EMotionType type)
@@ -264,6 +280,83 @@ void Physics::UpdatePendingBodyExitsEnters()
 
 }
 
+void Physics::DrawConstraint(Constraint* constraint)
+{
+
+	constraint->DrawConstraint(debugRenderer);
+	constraint->DrawConstraintLimits(debugRenderer);
+	constraint->DrawConstraintReferenceFrame(debugRenderer);
+
+}
+
+
+
+
+Constraint* Physics::CreateRagdollConstraint(Body* parent,
+	Body* child,
+	float    twistMinAngle,
+	float    twistMaxAngle,
+	float    swingHalfConeAngle,
+	JPH::QuatArg childSpaceConstraintRotation)
+{
+	
+	twistMinAngle /= 180.0/pi<double>();
+	twistMaxAngle /= 180.0 / pi<double>();
+	swingHalfConeAngle /= 180.0 / pi<double>();
+
+	SwingTwistConstraintSettings settings;
+	settings.mSpace = EConstraintSpace::LocalToBodyCOM;
+
+	// --- 1) grab the child's entity/world position (not its COM)
+	//     (assuming GetWorldTransform() returns a JPH::RMat44)
+	RMat44  childEntityX = child->GetWorldTransform();
+	Vec3    worldPivot = childEntityX.GetTranslation();
+
+	// --- 2) compute child‐space pivot (in child‐COM local coords)
+	RMat44  childCOMX = child->GetCenterOfMassTransform();
+	RMat44  invChildCOM = childCOMX.Inversed();
+	Vec4    local2_v4 = invChildCOM * Vec4(worldPivot, 1.0f);
+	settings.mPosition2 = Vec3(
+		local2_v4.GetX(), local2_v4.GetY(), local2_v4.GetZ()
+	);
+
+	// --- 3) compute parent‐space pivot (in parent‐COM local coords)
+	RMat44  parentCOMX = parent->GetCenterOfMassTransform();
+	RMat44  invParentCOM = parentCOMX.Inversed();
+	Vec4    local1_v4 = invParentCOM * Vec4(worldPivot, 1.0f);
+	settings.mPosition1 = Vec3(
+		local1_v4.GetX(), local1_v4.GetY(), local1_v4.GetZ()
+	);
+
+	// --- 4) build twist & plane axes from childSpaceConstraintRotation
+	Vec3 csTwistAxis = childSpaceConstraintRotation * Vec3(0, 1, 0);
+	Vec3 csPlaneAxis = childSpaceConstraintRotation * Vec3(1, 0, 0);
+
+	// world axes:
+	Vec3 worldTwist = (child->GetRotation() * csTwistAxis).Normalized();
+	Vec3 worldPlane = (child->GetRotation() * csPlaneAxis).Normalized();
+
+	// back into parent‐local:
+	Vec3 parentTwist = parent->GetRotation().Conjugated() * worldTwist;
+	Vec3 parentPlane = parent->GetRotation().Conjugated() * worldPlane;
+
+	settings.mTwistAxis1 = parentTwist;
+	settings.mTwistAxis2 = csTwistAxis;
+	settings.mPlaneAxis1 = parentPlane;
+	settings.mPlaneAxis2 = csPlaneAxis;
+
+	// --- 5) set rotational limits (translation is auto‐locked)
+	settings.mTwistMinAngle = twistMinAngle;
+	settings.mTwistMaxAngle = twistMaxAngle;
+	settings.mNormalHalfConeAngle = swingHalfConeAngle;
+	settings.mPlaneHalfConeAngle = swingHalfConeAngle;
+
+	// --- 6) create & register
+	Ref<Constraint> c = settings.Create(*parent, *child);
+	physics_system->AddConstraint(c);
+	return c;
+
+}
 
 uint64_t Physics::FindSurfaceId(string surfaceName)
 {

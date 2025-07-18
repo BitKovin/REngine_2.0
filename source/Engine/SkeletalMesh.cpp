@@ -275,6 +275,11 @@ void SkeletalMesh::StartRagdoll()
 
 }
 
+void SkeletalMesh::StopRagdoll()
+{
+	InRagdoll = false;
+}
+
 void SkeletalMesh::ClearHitboxes()
 {
 	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
@@ -284,8 +289,13 @@ void SkeletalMesh::ClearHitboxes()
 		Physics::DestroyBody(body);
 	}
 
-	hitboxBodies.clear();
+	for (auto constraint : hitboxConstraints)
+	{
+		Physics::DestroyConstraint(constraint);
+	}
 
+	hitboxBodies.clear();
+	hitboxConstraints.clear();
 }
 
 void SkeletalMesh::CreateHitbox(Entity* owner,HitboxData data)
@@ -310,6 +320,37 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 
 	UpdateHitboxes();
 
+	for (auto hitbox : metaData.hitboxes)
+	{
+
+		if (hitbox.parentBone == "") continue;
+		
+		Body* parentBody = FindHitboxByName(hitbox.parentBone);
+		Body* currentBody = FindHitboxByName(hitbox.boneName);
+
+		if (parentBody == nullptr || currentBody == nullptr) continue;
+
+		auto constraint = Physics::CreateRagdollConstraint(parentBody, currentBody, hitbox.twistParameters.x, hitbox.twistParameters.y, hitbox.twistParameters.z, ToPhysics(MathHelper::GetRotationQuaternion(hitbox.constraintRotation)));
+		
+		hitboxConstraints.push_back(constraint);
+
+	}
+
+}
+
+Body* SkeletalMesh::FindHitboxByName(string name)
+{
+	for (auto hitbox : hitboxBodies)
+	{
+
+		if (Physics::GetBodyData(hitbox)->hitboxName == name)
+		{
+			return hitbox;
+		}
+
+	}
+
+	return nullptr;
 }
 
 void SkeletalMesh::UpdateHitboxes()

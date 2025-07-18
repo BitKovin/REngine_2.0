@@ -105,8 +105,8 @@ public:
 			hitbox->parentBone = std::string(buffer2);  // Update std::string only if user edited the input
 		}
 
-		ImGui::DragFloat3("angularLowerLimit", &hitbox->angularLowerLimit.x, 0.001f);
-		ImGui::DragFloat3("angularUpperLimit", &hitbox->angularLowerLimit.x, 0.001f);
+		ImGui::DragFloat3("twistMinAngle, twistMaxAngle, swingHalfConeAngle", &hitbox->twistParameters.x, 0.5);
+		ImGui::DragFloat3("constraint rotation", &hitbox->constraintRotation.x, 1);
 
 		hitbox->size.x = abs(hitbox->size.x);
 		hitbox->size.y = abs(hitbox->size.y);
@@ -198,7 +198,7 @@ public:
 
 		if (ImGui::Button("Stop Ragdoll"))
 		{
-			//mesh->StartRagdoll();
+			mesh->StopRagdoll();
 		}
 
 		HitboxData* selectedHitboxRef = nullptr;

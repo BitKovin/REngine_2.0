@@ -42,7 +42,6 @@
 #include <Jolt/Physics/Body/BodyLockMulti.h>
 
 
-
 #include "DebugDraw.hpp"
 
 #ifdef JPH_DEBUG_RENDERER
@@ -553,6 +552,8 @@ public:
 		physicsMainLock.unlock();
 	}
 
+	static void DestroyConstraint(Constraint* constraint);
+
 	static void SetMotionType(Body* body, JPH::EMotionType type);
 
 	static BodyData* GetBodyData(const Body* body)
@@ -669,6 +670,8 @@ public:
 			BodyManager::DrawSettings draw_settings;
 			draw_settings.mDrawShape = true;
 			draw_settings.mDrawShapeWireframe = true;
+			
+		
 
 			DrawFilter filter;
 			filter.mask = DebugDrawMask;
@@ -677,10 +680,12 @@ public:
 			physics_system->DrawConstraints(debugRenderer);
 			physics_system->DrawConstraintLimits(debugRenderer);
 			physics_system->DrawConstraintReferenceFrame(debugRenderer);
-			//physics_system->DrawConstraints();  // draws joints, etc.
+
 		}
 #endif
 	}
+
+	static void DrawConstraint(Constraint* constraint);
 
 	static Body* CreateBoxBody(Entity* owner, vec3 Position, vec3 Size, float Mass = 10, bool Static = false,
 		BodyType group = BodyType::MainBody,
@@ -747,47 +752,40 @@ public:
 	}
 
 	static Body* CreateHitBoxBody(Entity* owner, string hitboxName,
-		vec3             PositionOffset,
-		quat        RotationOffset,   // now a quaternion
-		vec3             Size,
-		float            Mass = 10.0f,
-		BodyType         group = BodyType::HitBox,
-		BodyType         mask = BodyType::None)
+		vec3 PositionOffset,
+		quat RotationOffset,   // now a quaternion
+		vec3 Size,
+		float Mass = 10.0f,
+		BodyType group = BodyType::HitBox,
+		BodyType mask = BodyType::None)
 	{
 		// 1) Base box, centered at its own origin
 		auto box_settings = JPH::BoxShapeSettings();
 		box_settings.SetEmbedded();
 		box_settings.mHalfExtent = ToPhysics(Size) * 0.5f;
 
-		// 2) Rotate & translate that box in shape‐local space
+		// 2) Rotate and translate the box in shape-local space
 		auto geo_settings = JPH::RotatedTranslatedShapeSettings(
 			ToPhysics(PositionOffset),   // translate
-			ToPhysics(RotationOffset),               // rotate
-			&box_settings                  // child shape
+			ToPhysics(RotationOffset),   // rotate
+			&box_settings                // child shape
 		);
 		geo_settings.SetEmbedded();
 
-		// 3) Shift the COM back so it stays at the body‐origin
-		auto com_settings = JPH::OffsetCenterOfMassShapeSettings(
-			-ToPhysics(PositionOffset),  // counter‐translate the computed COM
-			&geo_settings                  // wrapped shape
-		);
-		com_settings.SetEmbedded();
-
-		// 4) Create the final shape
-		JPH::Shape::ShapeResult sr = com_settings.Create();
+		// 3) Create the final shape directly from geo_settings
+		JPH::Shape::ShapeResult sr = geo_settings.Create();
 		if (sr.HasError())
 			Logger::Log(sr.GetError().c_str());
 		JPH::Ref<JPH::Shape> final_shape = sr.Get();
 
-		// 5) Use the entity’s world‐space position as the body‐COM
-		JPH::RVec3 world_com = RVec3();
+		// 4) Use the entity’s (bone’s) world-space position as the body’s position
+		JPH::RVec3 world_com = Vec3(0,0,0);// ToPhysics(owner->GetPosition());
 
-		// 6) Build the body
+		// 5) Build the body
 		JPH::BodyCreationSettings bcs(
 			final_shape,
 			world_com,
-			JPH::Quat::sIdentity(),                     // shape‐rotation baked in already
+			JPH::Quat::sIdentity(),      // shape rotation is baked in
 			JPH::EMotionType::Kinematic,
 			Layers::MOVING
 		);
@@ -796,15 +794,22 @@ public:
 		bcs.mMassPropertiesOverride.mMass = Mass;
 		bcs.mFriction = 0.5f;
 
-		BodyData* props = new BodyData{ group, mask,true, owner, hitboxName};
+		BodyData* props = new BodyData{ group, mask, true, owner, hitboxName };
 		bcs.mUserData = reinterpret_cast<uintptr_t>(props);
 
-		// 7) Create & register
+		// 6) Create and register the body
 		JPH::Body* body = bodyInterface->CreateBody(bcs);
 		AddBody(body);
 
 		return body;
 	}
+
+	static Constraint* CreateRagdollConstraint(Body* parent,
+		Body* child,
+		float    twistMinAngle,
+		float    twistMaxAngle,
+		float    swingHalfConeAngle,
+		JPH::QuatArg childSpaceConstraintRotation);
 
 	static uint64_t FindSurfaceId(string surfaceName);
 	static string FindSurfacyById(uint64_t id);
