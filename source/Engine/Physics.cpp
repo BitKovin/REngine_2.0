@@ -283,6 +283,8 @@ void Physics::UpdatePendingBodyExitsEnters()
 void Physics::DrawConstraint(Constraint* constraint)
 {
 
+	if (constraint == nullptr) return;
+
 	constraint->DrawConstraint(debugRenderer);
 	constraint->DrawConstraintLimits(debugRenderer);
 	constraint->DrawConstraintReferenceFrame(debugRenderer);
@@ -291,6 +293,57 @@ void Physics::DrawConstraint(Constraint* constraint)
 
 
 
+
+Body* Physics::CreateHitBoxBody(Entity* owner, string hitboxName, vec3 PositionOffset, quat RotationOffset, vec3 Size, float Mass, BodyType group, BodyType mask)
+{
+	
+	// 1) Base box, centered at its own origin
+	auto box_settings = JPH::BoxShapeSettings();
+	box_settings.SetEmbedded();
+	box_settings.mHalfExtent = ToPhysics(Size) * 0.5f;
+
+	// 2) Rotate and translate the box in shape-local space
+	auto geo_settings = JPH::RotatedTranslatedShapeSettings(
+		ToPhysics(PositionOffset),   // translate
+		ToPhysics(RotationOffset),   // rotate
+		&box_settings                // child shape
+	);
+	geo_settings.SetEmbedded();
+
+	// 3) Create the final shape directly from geo_settings
+	JPH::Shape::ShapeResult sr = geo_settings.Create();
+	if (sr.HasError())
+		Logger::Log(sr.GetError().c_str());
+	JPH::Ref<JPH::Shape> final_shape = sr.Get();
+
+	// 4) Use the entity’s (bone’s) world-space position as the body’s position
+	JPH::RVec3 world_com = Vec3(0, 0, 0);// ToPhysics(owner->GetPosition());
+
+	// 5) Build the body
+	JPH::BodyCreationSettings bcs(
+		final_shape,
+		world_com,
+		JPH::Quat::sIdentity(),      // shape rotation is baked in
+		JPH::EMotionType::Kinematic,
+		Layers::MOVING
+	);
+
+	bcs.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+	bcs.mMassPropertiesOverride.mMass = Mass;
+	bcs.mFriction = 0.9f;
+
+	bcs.mAngularDamping = 6;
+
+	BodyData* props = new BodyData{ group, mask, true, owner, hitboxName };
+	bcs.mUserData = reinterpret_cast<uintptr_t>(props);
+
+	// 6) Create and register the body
+	JPH::Body* body = bodyInterface->CreateBody(bcs);
+	AddBody(body);
+
+	return body;
+
+}
 
 Constraint* Physics::CreateRagdollConstraint(Body* parent,
 	Body* child,
@@ -389,6 +442,24 @@ string Physics::FindSurfacyById(uint64_t id)
 
 	// Not found — choose what makes sense: empty, error, or throw
 	return std::string();  // empty = “unknown”
+}
+
+void Physics::AddImpulse(const Body* body, vec3 impulse)
+{
+
+	if (body == nullptr) return;
+
+	bodyInterface->AddImpulse(body->GetID(), ToPhysics(impulse));
+
+}
+
+void Physics::AddImpulseAtLocation(const Body* body, vec3 impulse, vec3 point)
+{
+
+	if (body == nullptr) return;
+
+	bodyInterface->AddImpulse(body->GetID(), ToPhysics(impulse), ToPhysics(point));
+
 }
 
 RefConst<Shape> Physics::CreateMeshShape(const std::vector<vec3>& vertices, const std::vector<uint32_t>& indices,string surfaceType)

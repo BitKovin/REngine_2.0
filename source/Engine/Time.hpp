@@ -2,12 +2,14 @@
 #include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL_timer.h>
 #include <vector>
+#include <string>
 
 // Represents a temporary time scale modifier
 typedef struct {
     float remainingDuration;   // in seconds (unscaled)
     float timeScale;          // multiplier to apply
     bool affectSound;         // whether this effect applies to sound
+    std::string key;
 } TimeScaleEffect;
 
 class Time {
@@ -25,7 +27,9 @@ public:
     // Call each frame to update timers and apply time scale effects
     static void Update();
     // Add a custom timescale effect (duration in seconds, multiplier, affectSound)
-    static void AddTimeScaleEffect(float duration, float scale, bool affectSound = false);
+    static void AddTimeScaleEffect(float duration, float scale,
+        bool affectSound = false,
+        const std::string& key = "");
 
     // Get the current compounded timescale (for gameplay)
     static float GetFinalTimeScale();

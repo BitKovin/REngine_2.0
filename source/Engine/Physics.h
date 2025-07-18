@@ -677,9 +677,9 @@ public:
 			filter.mask = DebugDrawMask;
 
 			physics_system->DrawBodies(draw_settings, debugRenderer, &filter);      // draws all bodies
-			physics_system->DrawConstraints(debugRenderer);
-			physics_system->DrawConstraintLimits(debugRenderer);
-			physics_system->DrawConstraintReferenceFrame(debugRenderer);
+			//physics_system->DrawConstraints(debugRenderer);
+			//physics_system->DrawConstraintLimits(debugRenderer);
+			//physics_system->DrawConstraintReferenceFrame(debugRenderer);
 
 		}
 #endif
@@ -757,52 +757,7 @@ public:
 		vec3 Size,
 		float Mass = 10.0f,
 		BodyType group = BodyType::HitBox,
-		BodyType mask = BodyType::None)
-	{
-		// 1) Base box, centered at its own origin
-		auto box_settings = JPH::BoxShapeSettings();
-		box_settings.SetEmbedded();
-		box_settings.mHalfExtent = ToPhysics(Size) * 0.5f;
-
-		// 2) Rotate and translate the box in shape-local space
-		auto geo_settings = JPH::RotatedTranslatedShapeSettings(
-			ToPhysics(PositionOffset),   // translate
-			ToPhysics(RotationOffset),   // rotate
-			&box_settings                // child shape
-		);
-		geo_settings.SetEmbedded();
-
-		// 3) Create the final shape directly from geo_settings
-		JPH::Shape::ShapeResult sr = geo_settings.Create();
-		if (sr.HasError())
-			Logger::Log(sr.GetError().c_str());
-		JPH::Ref<JPH::Shape> final_shape = sr.Get();
-
-		// 4) Use the entity’s (bone’s) world-space position as the body’s position
-		JPH::RVec3 world_com = Vec3(0,0,0);// ToPhysics(owner->GetPosition());
-
-		// 5) Build the body
-		JPH::BodyCreationSettings bcs(
-			final_shape,
-			world_com,
-			JPH::Quat::sIdentity(),      // shape rotation is baked in
-			JPH::EMotionType::Kinematic,
-			Layers::MOVING
-		);
-
-		bcs.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
-		bcs.mMassPropertiesOverride.mMass = Mass;
-		bcs.mFriction = 0.5f;
-
-		BodyData* props = new BodyData{ group, mask, true, owner, hitboxName };
-		bcs.mUserData = reinterpret_cast<uintptr_t>(props);
-
-		// 6) Create and register the body
-		JPH::Body* body = bodyInterface->CreateBody(bcs);
-		AddBody(body);
-
-		return body;
-	}
+		BodyType mask = BodyType::None);
 
 	static Constraint* CreateRagdollConstraint(Body* parent,
 		Body* child,
@@ -814,13 +769,13 @@ public:
 	static uint64_t FindSurfaceId(string surfaceName);
 	static string FindSurfacyById(uint64_t id);
 
-	static void Activate(Body* body)
+	static void Activate(const Body* body)
 	{
 
 		bodyInterface->ActivateBody(body->GetID());
 	}
 
-	static void SetGravityFactor(Body* body, float factor)
+	static void SetGravityFactor(const Body* body, float factor)
 	{
 		bodyInterface->SetGravityFactor(body->GetID(), factor);
 	}
@@ -831,10 +786,19 @@ public:
 		body->SetLinearVelocity(ToPhysics(velocity));
 	}
 
-	static void SetBodyCCDEnabled(Body* body, bool enabled)
+	static void SetAngularVelocity(Body* body, vec3 velocity)
+	{
+		bodyInterface->SetAngularVelocity(body->GetID(), ToPhysics(velocity));
+		body->SetAngularVelocity(ToPhysics(velocity));
+	}
+
+	static void SetBodyCCDEnabled(const Body* body, bool enabled)
 	{
 		bodyInterface->SetMotionQuality(body->GetID(), enabled ? EMotionQuality::LinearCast : EMotionQuality::Discrete);
 	}
+
+	static void AddImpulse(const Body* body, vec3 impulse);
+	static void AddImpulseAtLocation(const Body* body, vec3 impulse, vec3 point);
 
 	/**
  * Creates a MeshShape for a static mesh in Jolt Physics.

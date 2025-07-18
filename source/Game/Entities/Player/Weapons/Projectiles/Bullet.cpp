@@ -22,6 +22,8 @@ void Bullet::Update()
 
 	traveledDistance += travelDistance;
 
+	vec3 forward = MathHelper::GetForwardVector(Rotation);
+
 	Position += MathHelper::GetForwardVector(Rotation) * travelDistance;
 
 	trail->Position = Position;
@@ -32,7 +34,9 @@ void Bullet::Update()
 	{
 		hit.entity->OnPointDamage(Damage, hit.position, MathHelper::FastNormalize(Position - oldPos), hit.hitboxName, this, this);
 
-		Logger::Log(hit.surfaceName);
+		Physics::AddImpulseAtLocation(hit.hitbody, forward * Damage * 30.0f, hit.position);
+
+		//Logger::Log(hit.surfaceName);
 
 		//GlobalParticleSystem::SpawnParticleAt("hit_flesh", hit.position, MathHelper::FindLookAtRotation(vec3(0), MathHelper::FastNormalize(Position - oldPos)), vec3(2.0f));
 

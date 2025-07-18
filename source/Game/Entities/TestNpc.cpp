@@ -99,8 +99,9 @@ void TestNpc::Death()
 
 	if (dead) return;
 
-	mesh->ClearHitboxes();
-	mesh->PlayAnimation("death");
+	//mesh->ClearHitboxes();
+	mesh->StartRagdoll();
+	mesh->SetAnimationPaused(true);
 	Physics::SetLinearVelocity(LeadBody, vec3(0));
 
 	DeathSoundPlayer->Play();
@@ -135,7 +136,7 @@ void TestNpc::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bon
 
 	if (mesh->GetHitboxDamageMultiplier(bone) > 1.1f && dead)
 	{
-		Time::AddTimeScaleEffect(0.3f, 0.05f, true);
+		Time::AddTimeScaleEffect(0.3f, 0.15f, true, "hit_slow");
 	}
 
 	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point, MathHelper::FindLookAtRotation(vec3(0), Direction), vec3(Damage/10.0f));

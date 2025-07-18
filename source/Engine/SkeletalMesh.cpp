@@ -112,6 +112,18 @@ void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 	boneTransforms = animator.getBoneMatrices();
 }
 
+void SkeletalMesh::SetAnimationPaused(bool value)
+{
+
+	animator.m_playing = !value;
+
+}
+
+bool SkeletalMesh::GetAnimationPaused()
+{
+	return !animator.m_playing;
+}
+
 bool SkeletalMesh::IsInFrustrum(Frustum frustrum)
 {
 
@@ -140,7 +152,7 @@ bool SkeletalMesh::IsInFrustrum(Frustum frustrum)
 	box.Min -= vec3(1);
 	box.Max += vec3(1);
 
-	DebugDraw::Bounds(box.Min, box.Max, 0.01f);
+	//DebugDraw::Bounds(box.Min, box.Max, 0.01f);
 
 	return frustrum.IsBoxVisible(box.Min, box.Max);
 
@@ -302,8 +314,30 @@ void SkeletalMesh::StartRagdoll()
 	{
 
 		Physics::SetMotionType(hitbox, JPH::EMotionType::Dynamic);
+		hitbox->SetMotionType(JPH::EMotionType::Dynamic);
 
 		Physics::SetCollisionMask(hitbox, BodyType::World);
+
+		const string boneName = Physics::GetBodyData(hitbox)->hitboxName;
+
+		vec3 linearVel = vec3(0,0,0);
+		quat angularVel = quat();
+
+		auto linearRes = boneLinearVel.find(boneName);
+		auto angularRes = boneAngularVel.find(boneName);
+
+		if (linearRes != boneLinearVel.end())
+		{
+			linearVel = linearRes->second;
+		}
+
+		if (angularRes != boneAngularVel.end())
+		{
+			angularVel = angularRes->second;
+		}
+
+		Physics::SetLinearVelocity(hitbox, linearVel/3.0f);
+		Physics::SetAngularVelocity(hitbox, MathHelper::ToYawPitchRoll(angularVel)/3.0f);
 
 	}
 
@@ -335,7 +369,7 @@ void SkeletalMesh::ClearHitboxes()
 
 	for (auto constraint : hitboxConstraints)
 	{
-		Physics::DestroyConstraint(constraint);
+		Physics::DestroyConstraint(constraint.second);
 	}
 
 	hitboxBodies.clear();
@@ -380,12 +414,25 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 
 		auto constraint = Physics::CreateRagdollConstraint(parentBody, currentBody, hitbox.twistParameters.x, hitbox.twistParameters.y, hitbox.twistParameters.z, ToPhysics(MathHelper::GetRotationQuaternion(hitbox.constraintRotation)));
 		
-		hitboxConstraints.push_back(constraint);
+		hitboxConstraints[hitbox.boneName] = constraint;
 
 	}
 
 	animator.ApplyBonePoseArray(oldPose.boneTransforms); //restoring old pose just in case
 
+}
+
+Constraint* SkeletalMesh::GetConstraintByHitboxName(string name)
+{
+
+	auto res = hitboxConstraints.find(name);
+
+	if (res != hitboxConstraints.end())
+	{
+		return res->second;
+	}
+
+	return nullptr;
 }
 
 Body* SkeletalMesh::FindHitboxByName(string name)
@@ -449,7 +496,28 @@ void SkeletalMesh::UpdateHitboxes()
 
 		MathHelper::Transform boneTrans = MathHelper::DecomposeMatrix(GetBoneMatrixWorld(boneName));
 
-		Physics::SetBodyPositionAndRotation(body, boneTrans.Position, boneTrans.Rotation);
+		vec3 oldPos = FromPhysics(body->GetPosition());
+		vec3 newPos = boneTrans.Position;
+
+		quat oldRot = FromPhysics(body->GetRotation());
+		quat newRot = boneTrans.RotationQuaternion;
+
+		vec3 linearVelocity = (newPos - oldPos) / Time::DeltaTimeF;
+
+		quat deltaRot = newRot * glm::inverse(oldRot);
+		deltaRot = glm::normalize(deltaRot);
+
+		quat angularVelocityQuat = quat(
+			deltaRot.w - 1.0f,
+			deltaRot.x,
+			deltaRot.y,
+			deltaRot.z
+		) * (2.0f / Time::DeltaTimeF);
+
+		boneLinearVel[boneName] = linearVelocity;
+		boneAngularVel[boneName] = angularVelocityQuat;
+
+		Physics::SetBodyPositionAndRotation(body, boneTrans.Position, boneTrans.RotationQuaternion);
 
 	}
 

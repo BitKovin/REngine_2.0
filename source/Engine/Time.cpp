@@ -62,11 +62,29 @@ void Time::Update() {
     }
 }
 
-void Time::AddTimeScaleEffect(float duration, float scale, bool affectSound) {
+void Time::AddTimeScaleEffect(float duration, float scale,
+    bool affectSound, const std::string& key) 
+{
+    // Remove existing effects with same key if applicable
+    if (!key.empty()) {
+        timeScaleEffects.erase(
+            std::remove_if(
+                timeScaleEffects.begin(),
+                timeScaleEffects.end(),
+                [&](const TimeScaleEffect& e) {
+                    return e.key == key;
+                }
+            ),
+            timeScaleEffects.end()
+        );
+    }
+
+    // Create and add new effect
     TimeScaleEffect e;
     e.remainingDuration = duration;
     e.timeScale = scale;
     e.affectSound = affectSound;
+    e.key = key;  // Store key (empty if not provided)
     timeScaleEffects.push_back(e);
 }
 

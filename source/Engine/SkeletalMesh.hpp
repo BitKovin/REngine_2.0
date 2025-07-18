@@ -112,7 +112,9 @@ struct HitboxData
 	vec3 twistParameters = vec3();
 	vec3 constraintRotation = vec3();
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(HitboxData, boneName, size, rotation, position, damageMultiplier, parentBone, constraintLocal1, constraintLocal2, twistParameters, constraintRotation)
+	float mass = 5;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(HitboxData, boneName, size, rotation, position, damageMultiplier, parentBone, constraintLocal1, constraintLocal2, twistParameters, constraintRotation, mass)
 };
 
 struct SkeletalMeshMetaData
@@ -136,6 +138,9 @@ private:
 	std::vector<mat4> boneTransforms;
 
 	std::vector<mat4> finalizedBoneTransforms;
+
+	std::unordered_map<string, vec3> boneLinearVel;
+	std::unordered_map<string, quat> boneAngularVel;
 
 	double blendStartTime = 0;
 	double blendEndTime = 0;
@@ -172,7 +177,7 @@ private:
 	AnimationPose blendStartPose;
 
 	std::vector<Body*> hitboxBodies;
-	std::vector<Constraint*> hitboxConstraints; //to do: destroy them
+	std::unordered_map<string,Constraint*> hitboxConstraints; 
 
 	std::recursive_mutex hitboxMutex;
 
@@ -230,6 +235,10 @@ public:
 	void ApplyWorldSpaceBoneTransforms(std::unordered_map<std::string, mat4>& pose);
 
 	void PlayAnimation(string name, bool Loop = false, float interpIn = 0.12);
+
+	void SetAnimationPaused(bool value);
+
+	bool GetAnimationPaused();
 
 	bool IsInFrustrum(Frustum frustrum);
 
@@ -314,6 +323,8 @@ public:
 	void CreateHitbox(Entity* owner, HitboxData data);
 
 	void CreateHitboxes(Entity* owner);
+
+	Constraint* GetConstraintByHitboxName(string name);
 
 	Body* FindHitboxByName(string name);
 

@@ -59,6 +59,7 @@ public:
 			Logger::Log(event.eventName);
 		}
 
+
 	}
 
 	// Callback to resize the std::string buffer when editing
@@ -104,7 +105,7 @@ public:
 
 		ImGui::DragFloat3("position", &hitbox->position.x, 0.001f);
 		ImGui::DragFloat3("rotation", &hitbox->rotation.x, 0.1f);
-		ImGui::DragFloat3("size", &hitbox->size.x, 0.1f, 0.001);
+		ImGui::DragFloat3("size", &hitbox->size.x, 0.001f, 0.001);
 
 		static char buffer2[256];  // Fixed-size buffer (adjust size as needed)
 		strncpy_s(buffer2, hitbox->parentBone.c_str(), sizeof(buffer2));
@@ -121,6 +122,8 @@ public:
 		hitbox->size.x = abs(hitbox->size.x);
 		hitbox->size.y = abs(hitbox->size.y);
 		hitbox->size.z = abs(hitbox->size.z);
+
+		ImGui::DragFloat("mass", &hitbox->mass, 0.2f,0);
 
 		ImGui::InputFloat("damage multiplier", &hitbox->damageMultiplier);
 
@@ -225,6 +228,11 @@ public:
 		if (selectedHitboxRef)
 		{
 			HitboxWindow(selectedHitboxRef);
+
+			auto constraint = mesh->GetConstraintByHitboxName(selectedHitboxRef->boneName);
+
+			Physics::DrawConstraint(constraint);
+
 		}
 
 

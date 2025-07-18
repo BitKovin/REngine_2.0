@@ -201,7 +201,7 @@ vec3 ParticleEmitter::GetLightForParticle(const Particle& particle)
 
     vec3 normal = MathHelper::GetForwardVector(particle.globalRotation);
 
-    auto light = Level::Current->BspData.GetLightvolColor((particle.position + normal) * MAP_SCALE);
+    auto light = Level::Current->BspData.GetLightvolColorPoint((particle.position + normal) * MAP_SCALE);
 
     float dirFactor = 1.0;// glm::clamp(dot(normal, light.direction), 0.0f, 1.0f);
 
