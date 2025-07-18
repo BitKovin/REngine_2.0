@@ -366,7 +366,7 @@ public:
 
 		if (distance(Camera::position, start) > 100 && distance(Camera::position, end) > 100) return;
 
-		DebugDraw::Line(start, end, 0.01, 0.02);
+		DebugDraw::Line(start, end, Time::DeltaTimeF*1.5f, 0.01);
 	}
 
 	/*

@@ -57,16 +57,22 @@ default
 8 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/grass
-	lightmapAxis ( 0.000000 0.000000 1.000000 )
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
 9 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/grass
-	lightmapAxis ( 0.000000 1.000000 0.000000 )
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 10 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/generic/grass
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
+}
+
+11 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/grass
 	lightmapAxis ( 1.000000 0.000000 0.000000 )

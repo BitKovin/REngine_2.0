@@ -19,7 +19,10 @@ public:
 
 		Input::AddAction("rmb")->RMB = true;
 
-		Level::LoadLevelFromFile("GameData/maps/blank.bsp");
+		Level::OpenLevel("GameData/maps/blank.bsp");
+
+		Spawn("freecamera");
+		Spawn("skeletal_editor");
 
 		EngineMain::MainInstance->asyncGameUpdate = false;
 
