@@ -57,6 +57,9 @@
 		</relationship>
 	</object>
 	<object class="EventAutomatableProperties" id="{031daae4-8d5c-4b18-be92-6ac34a6d014d}">
+		<property name="priority">
+			<value>1</value>
+		</property>
 		<property name="maximumDistance">
 			<value>40</value>
 		</property>
@@ -108,7 +111,7 @@
 	</object>
 	<object class="EventMixerGroup" id="{993e4cb4-d51c-4d86-8bb2-2bf674b4c1ce}">
 		<property name="volume">
-			<value>4</value>
+			<value>-2</value>
 		</property>
 		<property name="name">
 			<value>Audio 1</value>

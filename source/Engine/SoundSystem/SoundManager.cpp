@@ -45,8 +45,7 @@ void SoundManager::InitFmod()
 {
     FMOD::Studio::System::create(&studioSystem);
 
-    unsigned int flags = FMOD_STUDIO_INIT_LIVEUPDATE |
-        FMOD_STUDIO_INIT_ALLOW_MISSING_PLUGINS;
+    unsigned int flags = FMOD_STUDIO_INIT_ALLOW_MISSING_PLUGINS;
 
 
 
@@ -56,18 +55,21 @@ void SoundManager::InitFmod()
 
 #if __EMSCRIPTEN__
 
-    flags |= FMOD_INIT_STREAM_FROM_UPDATE | FMOD_INIT_MIX_FROM_UPDATE;
+    flags |= FMOD_INIT_STREAM_FROM_UPDATE | FMOD_INIT_MIX_FROM_UPDATE | FMOD_INIT_THREAD_UNSAFE ;
 
-    coreSystem->setDSPBufferSize(2048, 4);
+    coreSystem->setDSPBufferSize(2048, 2);
 
     unsigned int size;
     int num;
 
     coreSystem->getDSPBufferSize(&size, &num);
+
+    coreSystem->setOutput(FMOD_OUTPUTTYPE_AUDIOWORKLET);
+
     printf("DSP Buffer Size: %u, Number of Buffers: %d\n", size, num);
     
 
-    coreSystem->setSoftwareFormat(44100, FMOD_SPEAKERMODE::FMOD_SPEAKERMODE_STEREO, 0);
+    //coreSystem->setSoftwareFormat(96000, FMOD_SPEAKERMODE::FMOD_SPEAKERMODE_STEREO, 0);
 
 #endif // _EMSCRIPTEN_
 
@@ -77,7 +79,7 @@ void SoundManager::InitFmod()
 #endif
 
 
-    studioSystem->initialize(512, flags, FMOD_INIT_NORMAL, nullptr);
+    studioSystem->initialize(512, FMOD_INIT_NORMAL | flags, FMOD_INIT_NORMAL | flags, nullptr);
 }
 
 void SoundManager::UpdateContext(ALCcontext* context)

@@ -57,8 +57,17 @@
 		</relationship>
 	</object>
 	<object class="EventAutomatableProperties" id="{031daae4-8d5c-4b18-be92-6ac34a6d014d}">
+		<property name="maxVoices">
+			<value>3</value>
+		</property>
+		<property name="priority">
+			<value>1</value>
+		</property>
 		<property name="maximumDistance">
 			<value>40</value>
+		</property>
+		<property name="triggerCooldown">
+			<value>140</value>
 		</property>
 	</object>
 	<object class="MarkerTrack" id="{9dd23a74-80a2-40d3-843b-ac70ed2158aa}" />

@@ -86,7 +86,6 @@ target_include_directories(engine
 )
 
 if (EMSCRIPTEN)
-    # Only list the .a files here; DO NOT apply Emscripten flags to engine
     target_link_libraries(engine PRIVATE
         "${CMAKE_SOURCE_DIR}/libsEms/libassimp.a"
         "${CMAKE_SOURCE_DIR}/libsEms/libIrrXML.a"

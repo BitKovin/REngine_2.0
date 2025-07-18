@@ -76,6 +76,9 @@
 		</relationship>
 	</object>
 	<object class="EventAutomatableProperties" id="{3cc52c8c-1811-4f6b-8c3c-ac623db12ca4}">
+		<property name="priority">
+			<value>4</value>
+		</property>
 		<property name="dopplerScale">
 			<value>500</value>
 		</property>

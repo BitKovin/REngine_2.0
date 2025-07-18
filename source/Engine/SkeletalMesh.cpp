@@ -409,6 +409,13 @@ void SkeletalMesh::StartRagdoll()
 			angularVel = angularRes->second;
 		}
 
+		auto constraint = GetConstraintByHitboxName(boneName);
+
+		if(constraint != nullptr)
+		{
+			constraint->SetEnabled(true);
+		}
+
 		Physics::SetLinearVelocity(hitbox, linearVel/3.0f);
 		Physics::SetAngularVelocity(hitbox, MathHelper::ToYawPitchRoll(angularVel)/3.0f);
 
@@ -427,6 +434,12 @@ void SkeletalMesh::StopRagdoll()
 
 		Physics::SetCollisionMask(hitbox, BodyType::None);
 
+
+	}
+
+	for (auto constraint : hitboxConstraints)
+	{
+		constraint.second->SetEnabled(false);
 	}
 
 }
@@ -487,6 +500,8 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 
 		auto constraint = Physics::CreateRagdollConstraint(parentBody, currentBody, hitbox.twistParameters.x, hitbox.twistParameters.y, hitbox.twistParameters.z, ToPhysics(MathHelper::GetRotationQuaternion(hitbox.constraintRotation)));
 		
+		constraint->SetEnabled(false);
+
 		hitboxConstraints[hitbox.boneName] = constraint;
 
 	}

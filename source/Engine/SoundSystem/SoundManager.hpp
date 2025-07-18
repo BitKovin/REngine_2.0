@@ -38,7 +38,7 @@ private:
 
     static void UpdateContext(ALCcontext* context);
 
-    static void UpdateFmod();
+
 
 public:
 
@@ -48,6 +48,8 @@ public:
     static float GlobalVolume;
     static float SfxVolume;
     static float MusicVolume;
+
+    static void UpdateFmod();
 
     static void Initialize();
     static void Close();
