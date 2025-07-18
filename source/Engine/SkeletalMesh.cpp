@@ -1,5 +1,6 @@
 ﻿#include "SkeletalMesh.hpp"
 #include <algorithm>
+#include "Level.hpp"
 
 AnimationPose AnimationPose::Lerp(AnimationPose a, AnimationPose b, float progress)
 {
@@ -124,6 +125,49 @@ bool SkeletalMesh::GetAnimationPaused()
 	return !animator.m_playing;
 }
 
+bool SkeletalMesh::IsCameraVisible()
+{
+	if (InRagdoll == false)
+	{
+		return StaticMesh::IsCameraVisible();
+	}
+
+	mat4 world = GetWorldMatrix();
+
+	vector<vec3> bonePositions;
+	bonePositions.reserve(model->boneInfoMap.size());
+
+	for (auto bone : model->boneInfoMap)
+	{
+		mat4 boneMatrix = world * GetBoneMatrix(bone.first);
+
+		vec3 pos = vec3(boneMatrix[3]);
+		bonePositions.push_back(pos);
+
+
+	}
+
+	auto box = BoundingBox::FromPoints(bonePositions);
+
+	if (Level::Current->BspData.m_numOfVerts)
+	{
+
+		int cameraC = Level::Current->BspData.FindClusterAtPosition(Camera::finalizedPosition);
+		int targetC = Level::Current->BspData.FindClusterAtPosition(box.Center() + vec3(0,1,0));
+
+		
+
+		if (Level::Current->BspData.IsClusterVisible(cameraC, targetC) == false)
+		{
+
+			//DebugDraw::Line(box.Center(), Camera::position - vec3(0, 1, 0));
+
+			return false;
+		}
+	}
+	return true;
+}
+
 bool SkeletalMesh::IsInFrustrum(Frustum frustrum)
 {
 
@@ -152,10 +196,39 @@ bool SkeletalMesh::IsInFrustrum(Frustum frustrum)
 	box.Min -= vec3(1);
 	box.Max += vec3(1);
 
-	//DebugDraw::Bounds(box.Min, box.Max, 0.01f);
 
 	return frustrum.IsBoxVisible(box.Min, box.Max);
 
+}
+
+LightVolPointData SkeletalMesh::GetLightVolData()
+{
+	if (InRagdoll == false)
+		return StaticMesh::GetLightVolData();
+
+	mat4 world = GetWorldMatrix();
+
+	vector<vec3> bonePositions;
+	bonePositions.reserve(model->boneInfoMap.size());
+
+	for (auto bone : model->boneInfoMap)
+	{
+		mat4 boneMatrix = world * GetBoneMatrix(bone.first);
+
+		vec3 pos = vec3(boneMatrix[3]);
+		bonePositions.push_back(pos);
+
+	}
+
+	auto box = BoundingBox::FromPoints(bonePositions);
+
+	if (model == nullptr ||
+		Level::Current->BspData.lightVols.size() == 0) return LightVolPointData{ vec3(0),vec3(1),vec3(0) };
+
+	vec3 samplePos = box.Center() + vec3(0, 0.5, 0);
+
+	auto light = Level::Current->BspData.GetLightvolColor(samplePos * MAP_SCALE);
+	return light;
 }
 
 // In your SkeletalMesh:

@@ -284,10 +284,11 @@ void Physics::DrawConstraint(Constraint* constraint)
 {
 
 	if (constraint == nullptr) return;
-
+#ifdef JPH_DEBUG_RENDERER
 	constraint->DrawConstraint(debugRenderer);
 	constraint->DrawConstraintLimits(debugRenderer);
 	constraint->DrawConstraintReferenceFrame(debugRenderer);
+#endif
 
 }
 

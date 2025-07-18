@@ -104,7 +104,7 @@ public:
 		return translate(Position) * rotOffset * MathHelper::GetRotationMatrix(Rotation) * scale(Scale) * posOffset;
 	}
 
-	LightVolPointData GetLightVolData();
+	virtual LightVolPointData GetLightVolData();
 
 	vector<MeshUtils::PositionVerticesIndices> GetNavObstacleMeshes()
 	{

@@ -1481,7 +1481,7 @@ void CQuake3BSP::renderFaces() {
 
 BoundingBox BSPModelRef::GetTransformedBounds()
 {
-    return bounds.Transform(finalWorldMatrix * scale(vec3(1.0f, 1.0f, 1.0f) * MAP_SCALE));
+    return bounds.Transform(GetWorldMatrix() * scale(vec3(1.0f, 1.0f, 1.0f) * MAP_SCALE));
 }
 
 mat4 BSPModelRef::GetWorldMatrix()
@@ -1580,6 +1580,8 @@ bool BSPModelRef::IsBspVisible()
 
     if (CheckPointBspVisible(sourceC, mix(b.Center(), b.Min, 0.5)))
         return true;
+
+    //DebugDraw::Line(Camera::position - vec3(0,1,0), b.Center(),0.01f);
 
     return false;
 

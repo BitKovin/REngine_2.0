@@ -240,7 +240,11 @@ public:
 
 	bool GetAnimationPaused();
 
+	bool IsCameraVisible();
+
 	bool IsInFrustrum(Frustum frustrum);
+
+	LightVolPointData GetLightVolData();
 
 	void FinalizeFrameData()
 	{

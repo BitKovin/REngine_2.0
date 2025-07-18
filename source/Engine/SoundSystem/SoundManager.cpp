@@ -56,7 +56,7 @@ void SoundManager::InitFmod()
 
 #if __EMSCRIPTEN__
 
-    //flags |= FMOD_INIT_STREAM_FROM_UPDATE | FMOD_INIT_MIX_FROM_UPDATE;
+    flags |= FMOD_INIT_STREAM_FROM_UPDATE | FMOD_INIT_MIX_FROM_UPDATE;
 
     coreSystem->setDSPBufferSize(2048, 4);
 
@@ -67,7 +67,7 @@ void SoundManager::InitFmod()
     printf("DSP Buffer Size: %u, Number of Buffers: %d\n", size, num);
     
 
-    //coreSystem->setSoftwareFormat(44100, FMOD_SPEAKERMODE::FMOD_SPEAKERMODE_STEREO, 0);
+    coreSystem->setSoftwareFormat(44100, FMOD_SPEAKERMODE::FMOD_SPEAKERMODE_STEREO, 0);
 
 #endif // _EMSCRIPTEN_
 
