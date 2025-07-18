@@ -355,6 +355,10 @@ void SkeletalMesh::CreateHitbox(Entity* owner,HitboxData data)
 void SkeletalMesh::CreateHitboxes(Entity* owner)
 {
 
+	auto oldPose = GetAnimationPose();
+
+	animator.ApplyBonePoseArray(std::unordered_map<std::string, mat4>{}); //applying rest pose without visual update
+
 	ClearHitboxes();
 
 	for (auto hitbox : metaData.hitboxes)
@@ -379,6 +383,8 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 		hitboxConstraints.push_back(constraint);
 
 	}
+
+	animator.ApplyBonePoseArray(oldPose.boneTransforms); //restoring old pose just in case
 
 }
 
