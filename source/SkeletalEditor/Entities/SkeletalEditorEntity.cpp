@@ -19,6 +19,8 @@ public:
 
 	bool animationPlaying = false;
 
+	bool restPose = false;
+
 	SkeletalEditorEntity()
 	{
 
@@ -39,7 +41,15 @@ public:
 			mesh->CreateHitboxes(this);
 		}
 		
-		mesh->Update((int)animationPlaying);
+		if (restPose)
+		{
+			mesh->PasteAnimationPose(AnimationPose());
+		}
+		else
+		{
+			mesh->Update((int)animationPlaying);
+		}
+		
 		mesh->UpdateHitboxes();
 
 		auto events = mesh->PullAnimationEvents();
@@ -167,7 +177,7 @@ public:
 
 		ImGui::End();
 
-		ImGui::Begin("hitbox editor");
+		ImGui::Begin("hitbox selector");
 
 		ImGui::Spacing();
 
@@ -200,6 +210,8 @@ public:
 		{
 			mesh->StopRagdoll();
 		}
+
+		ImGui::Checkbox("rest pose", &restPose);
 
 		HitboxData* selectedHitboxRef = nullptr;
 

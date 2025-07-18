@@ -278,6 +278,16 @@ void SkeletalMesh::StartRagdoll()
 void SkeletalMesh::StopRagdoll()
 {
 	InRagdoll = false;
+
+	for (auto& hitbox : hitboxBodies)
+	{
+
+		Physics::SetMotionType(hitbox, JPH::EMotionType::Kinematic);
+
+		Physics::SetCollisionMask(hitbox, BodyType::None);
+
+	}
+
 }
 
 void SkeletalMesh::ClearHitboxes()

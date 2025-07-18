@@ -181,7 +181,7 @@ void roj::Animator::ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unorder
     }
     else
     {
-        currentPose[node.name] = glm::identity<mat4>();
+        currentPose[node.name] = node.transform;
     }
     
     offset *= currentPose[node.name];
