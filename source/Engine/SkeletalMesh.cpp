@@ -393,8 +393,8 @@ void SkeletalMesh::StartRagdoll()
 
 		const string boneName = Physics::GetBodyData(hitbox)->hitboxName;
 
-		vec3 linearVel = vec3(0,0,0);
-		quat angularVel = quat();
+		vec3 linearVel = vec3();
+		vec3 angularVel = vec3();
 
 		auto linearRes = boneLinearVel.find(boneName);
 		auto angularRes = boneAngularVel.find(boneName);
@@ -416,8 +416,9 @@ void SkeletalMesh::StartRagdoll()
 			constraint->SetEnabled(true);
 		}
 
-		Physics::SetLinearVelocity(hitbox, linearVel/2.0f);
-		Physics::SetAngularVelocity(hitbox, MathHelper::ToYawPitchRoll(angularVel)/2.0f);
+
+		Physics::SetLinearVelocity(hitbox, linearVel/1.5f);
+		Physics::SetAngularVelocity(hitbox, angularVel/1.5f);
 
 	}
 
@@ -595,18 +596,12 @@ void SkeletalMesh::UpdateHitboxes()
 		quat deltaRot = newRot * glm::inverse(oldRot);
 		deltaRot = glm::normalize(deltaRot);
 
-		quat angularVelocityQuat = quat(
-			deltaRot.w - 1.0f,
-			deltaRot.x,
-			deltaRot.y,
-			deltaRot.z
-		) * (2.0f / Time::DeltaTimeF);
+		vec3 angularVelocity = (2.0f / Time::DeltaTimeF) * vec3(deltaRot.x, deltaRot.y, deltaRot.z);
 
 		boneLinearVel[boneName] = linearVelocity;
-		boneAngularVel[boneName] = angularVelocityQuat;
+		boneAngularVel[boneName] = angularVelocity;
 
 		Physics::SetBodyPositionAndRotation(body, boneTrans.Position, boneTrans.RotationQuaternion);
-
 	}
 
 }

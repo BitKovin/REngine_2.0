@@ -149,7 +149,7 @@ private:
 	std::vector<mat4> finalizedBoneTransforms;
 
 	std::unordered_map<string, vec3> boneLinearVel;
-	std::unordered_map<string, quat> boneAngularVel;
+	std::unordered_map<string, vec3> boneAngularVel;
 
 	double blendStartTime = 0;
 	double blendEndTime = 0;
