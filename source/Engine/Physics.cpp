@@ -52,6 +52,9 @@ void MyContactListener::afterSimulation()
 	std::vector<Physics::PendingBodyEnterPair> adds;
 	std::vector<Physics::PendingBodyEnterPair> removals;
 
+	// Safely update global lists with lock
+	Physics::physicsMainLock.lock();
+
 	// Find added contacts: in current but not in previous
 	for (const auto& pair : currentContacts)
 	{
@@ -76,8 +79,7 @@ void MyContactListener::afterSimulation()
 		}
 	}
 
-	// Safely update global lists with lock
-	Physics::physicsMainLock.lock();
+
 	for (const auto& p : adds)
 	{
 		Physics::gAdds.push_back(p);
@@ -98,6 +100,8 @@ void MyContactListener::OnContactAdded(const Body& inBody1, const Body& inBody2,
 
 	if (entity1 == nullptr || entity2 == nullptr) return;
 
+	Physics::physicsMainLock.lock();
+
 	// Add pair if body1 is a sensor
 	if (inBody1.IsSensor())
 	{
@@ -108,6 +112,8 @@ void MyContactListener::OnContactAdded(const Body& inBody1, const Body& inBody2,
 	{
 		currentContacts.insert({ entity2, entity1 });
 	}
+
+	Physics::physicsMainLock.unlock();
 }
 
 void MyContactListener::OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings)
@@ -119,6 +125,8 @@ void MyContactListener::OnContactPersisted(const Body& inBody1, const Body& inBo
 
 	if (entity1 == nullptr || entity2 == nullptr) return;
 
+	Physics::physicsMainLock.lock();
+
 	// Add pair if body1 is a sensor
 	if (inBody1.IsSensor())
 	{
@@ -129,6 +137,8 @@ void MyContactListener::OnContactPersisted(const Body& inBody1, const Body& inBo
 	{
 		currentContacts.insert({ entity2, entity1 });
 	}
+
+	Physics::physicsMainLock.unlock();
 }
 
 void MyContactListener::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair)

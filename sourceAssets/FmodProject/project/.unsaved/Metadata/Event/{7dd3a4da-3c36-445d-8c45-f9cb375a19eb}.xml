@@ -103,13 +103,16 @@
 	<object class="MixerBusPanner" id="{3c9440f5-24cd-41be-bc02-2fa00cf8c633}" />
 	<object class="SingleSound" id="{183dca64-3e69-4c82-b98a-d03cf359e0e9}">
 		<property name="length">
-			<value>1.3779166666666667</value>
+			<value>0.71875</value>
 		</property>
 		<property name="timelockedOffset">
 			<value>0.96875</value>
 		</property>
 		<relationship name="fadeInCurve">
 			<destination>{617d7719-7a15-409a-85fe-86d6afde0889}</destination>
+		</relationship>
+		<relationship name="fadeOutCurve">
+			<destination>{944a741d-740d-4df9-adf0-4da6eef96c62}</destination>
 		</relationship>
 		<relationship name="audioFile">
 			<destination>{e70b8170-737e-436b-b0a3-424db6c3f2d9}</destination>
@@ -148,6 +151,14 @@
 			<destination>{4016e511-a0ff-41d3-a8b5-5d1e7909c57b}</destination>
 		</relationship>
 	</object>
+	<object class="FadeCurve" id="{944a741d-740d-4df9-adf0-4da6eef96c62}">
+		<relationship name="startPoint">
+			<destination>{760b90b8-125c-4348-b0b0-0bb2b73abbfe}</destination>
+		</relationship>
+		<relationship name="endPoint">
+			<destination>{a75cd589-6ffa-421a-8cb6-5da37661ea43}</destination>
+		</relationship>
+	</object>
 	<object class="MixerBusEffectChain" id="{55c35956-ec22-4a21-bb9a-6ba8ea951aa1}">
 		<relationship name="effects">
 			<destination>{33083197-a782-4114-8a07-74187d7d19ff}</destination>
@@ -181,6 +192,25 @@
 		</property>
 		<property name="value">
 			<value>1</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{760b90b8-125c-4348-b0b0-0bb2b73abbfe}">
+		<property name="position">
+			<value>0.59375</value>
+		</property>
+		<property name="value">
+			<value>1</value>
+		</property>
+		<property name="curveShape">
+			<value>0.25471893</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{a75cd589-6ffa-421a-8cb6-5da37661ea43}">
+		<property name="position">
+			<value>0.71875</value>
+		</property>
+		<property name="value">
+			<value>0</value>
 		</property>
 	</object>
 	<object class="MixerBusFader" id="{33083197-a782-4114-8a07-74187d7d19ff}" />

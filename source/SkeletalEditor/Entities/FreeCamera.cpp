@@ -1,6 +1,7 @@
 #include <Entity.h>
 #include <Camera.h>
 #include <Input.h>
+#include <imgui.h>
 
 class FreeCamera : public Entity
 {
@@ -14,6 +15,8 @@ public:
 		Input::LockCursor = Input::GetAction("rmb")->Holding();
 
 		if (Input::GetAction("rmb")->Holding() == false) return;
+
+		ImGui::SetKeyboardFocusHere(-1);
 
 		vec2 input = Input::GetLeftStickPosition();
 

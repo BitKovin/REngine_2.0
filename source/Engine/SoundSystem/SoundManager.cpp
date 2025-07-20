@@ -46,7 +46,7 @@ void SoundManager::InitFmod()
     FMOD::Studio::System::create(&studioSystem);
 
     unsigned int flags = FMOD_STUDIO_INIT_ALLOW_MISSING_PLUGINS;
-
+    flags |= FMOD_INIT_3D_RIGHTHANDED;
 
 
     studioSystem->getCoreSystem(&coreSystem);
@@ -55,16 +55,16 @@ void SoundManager::InitFmod()
 
 #if __EMSCRIPTEN__
 
-    flags |= FMOD_INIT_STREAM_FROM_UPDATE | FMOD_INIT_MIX_FROM_UPDATE | FMOD_INIT_THREAD_UNSAFE ;
+    flags |= FMOD_INIT_STREAM_FROM_UPDATE | FMOD_INIT_MIX_FROM_UPDATE ;
 
-    coreSystem->setDSPBufferSize(2048, 2);
+
+    coreSystem->setDSPBufferSize(2048, 4);
 
     unsigned int size;
     int num;
 
     coreSystem->getDSPBufferSize(&size, &num);
 
-    coreSystem->setOutput(FMOD_OUTPUTTYPE_AUDIOWORKLET);
 
     printf("DSP Buffer Size: %u, Number of Buffers: %d\n", size, num);
     
@@ -78,8 +78,16 @@ void SoundManager::InitFmod()
     flags |= FMOD_STUDIO_INIT_LIVEUPDATE;
 #endif
 
+	int maxSounds = 512;
 
-    studioSystem->initialize(512, FMOD_INIT_NORMAL | flags, FMOD_INIT_NORMAL | flags, nullptr);
+#ifdef __EMSCRIPTEN__
+
+    maxSounds = 128;
+
+#endif // __EMSCRIPTEN__
+
+
+    studioSystem->initialize(maxSounds, FMOD_INIT_NORMAL, flags, nullptr);
 }
 
 void SoundManager::UpdateContext(ALCcontext* context)
@@ -106,7 +114,7 @@ void SoundManager::UpdateFmod()
 {
 
     vec3 camForward = Camera::Forward();
-    vec3 camUp = Camera::Up() * -1.0f;
+    vec3 camUp = Camera::Up();
 
     // 1) Build your FMOD_VECTORs
     FMOD_VECTOR position = { Camera::position.x, Camera::position.y, Camera::position.z };

@@ -68,7 +68,8 @@ void emscripten_render_loop() {
             }
             break;
         case SDL_MOUSEMOTION:
-            Input::PendingMouseDelta += vec2(event.motion.xrel, event.motion.yrel) * 3.0f;
+            Input::PendingMouseDelta += vec2(event.motion.xrel, event.motion.yrel) * 3.0f * vec2(Camera::AspectRatio,1);
+
             break;
         default:
             break;
