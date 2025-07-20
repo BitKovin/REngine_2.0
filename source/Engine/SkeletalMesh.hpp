@@ -73,7 +73,16 @@ struct AnimationState
 	float oldAnimationEventTime;
 	bool looping;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(AnimationState, playing, animationName, animationTime, oldAnimationEventTime,looping)
+
+	bool inRagdoll;
+	std::unordered_map<string, vec3> ragdollHitboxPositions;
+	std::unordered_map<string, quat> ragdollHitboxRotations;
+
+	std::unordered_map<string, vec3> ragdollHitboxLinearVelocty;
+	std::unordered_map<string, vec3> ragdollHitboxAngularVelocty;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(AnimationState, playing, animationName, animationTime, oldAnimationEventTime,looping, 
+		inRagdoll, ragdollHitboxPositions, ragdollHitboxRotations, ragdollHitboxLinearVelocty, ragdollHitboxAngularVelocty)
 
 };
 
@@ -353,6 +362,53 @@ public:
 		oldAnimationEventTime = animationState.oldAnimationEventTime;
 		Update(0);
 		PullAnimationEvents();
+
+		InRagdoll = animationState.inRagdoll;
+
+		if (InRagdoll)
+		{
+
+			StartRagdoll();
+
+			for (auto hitboxBody : hitboxBodies)
+			{
+
+
+				Physics::SetLinearVelocity(hitboxBody, vec3());
+				Physics::SetAngularVelocity(hitboxBody, vec3());
+
+				string hitboxName = Physics::GetBodyData(hitboxBody)->hitboxName;
+
+				auto posRes = animationState.ragdollHitboxPositions.find(hitboxName);
+				auto rotRes = animationState.ragdollHitboxRotations.find(hitboxName);
+
+				auto posVelRes = animationState.ragdollHitboxLinearVelocty.find(hitboxName);
+				auto rotVelRes = animationState.ragdollHitboxAngularVelocty.find(hitboxName);
+
+				if (posRes != animationState.ragdollHitboxPositions.end())
+				{
+					Physics::SetBodyPosition(hitboxBody, posRes->second);
+				}
+
+				if (rotRes != animationState.ragdollHitboxRotations.end())
+				{
+					Physics::SetBodyRotation(hitboxBody, rotRes->second);
+				}
+
+				if (posVelRes != animationState.ragdollHitboxLinearVelocty.end())
+				{
+					Physics::SetLinearVelocity(hitboxBody, posVelRes->second);
+				}
+
+				if (rotVelRes != animationState.ragdollHitboxAngularVelocty.end())
+				{
+					Physics::SetAngularVelocity(hitboxBody, rotVelRes->second);
+				}
+				
+
+			}
+		}
+
 	}
 
 
@@ -366,6 +422,35 @@ public:
 		animationState.animationTime = animator.m_currTime;
 		animationState.playing = animator.m_playing;
 		animationState.oldAnimationEventTime = oldAnimationEventTime;
+
+		unordered_map<string, vec3> hitboxPositions;
+		unordered_map<string, quat> hitboxRotations;
+
+		unordered_map<string, vec3> hitboxPositionsVel;
+		unordered_map<string, vec3> hitboxRotationsVel;
+
+		if (InRagdoll)
+		{
+			for (auto hitboxBody : hitboxBodies)
+			{
+
+				string hitboxName = Physics::GetBodyData(hitboxBody)->hitboxName;
+
+				hitboxPositions[hitboxName] = FromPhysics(hitboxBody->GetPosition());
+				hitboxRotations[hitboxName] = FromPhysics(hitboxBody->GetRotation());
+
+				hitboxPositionsVel[hitboxName] = FromPhysics(hitboxBody->GetLinearVelocity());
+				hitboxRotationsVel[hitboxName] = FromPhysics(hitboxBody->GetAngularVelocity());
+
+			}
+		}
+
+		animationState.inRagdoll = InRagdoll;
+		animationState.ragdollHitboxPositions = hitboxPositions;
+		animationState.ragdollHitboxRotations = hitboxRotations;
+
+		animationState.ragdollHitboxLinearVelocty = hitboxPositionsVel;
+		animationState.ragdollHitboxAngularVelocty = hitboxRotationsVel;
 
 		return animationState;
 	}

@@ -368,7 +368,6 @@ void TestNpc::Deserialize(json& source)
 	{
 		Physics::DestroyBody(LeadBody);
 		LeadBody = nullptr;
-		mesh->ClearHitboxes();
 
 		DeathSoundPlayer->Destroy();
 		HurtSoundPlayer->Destroy();

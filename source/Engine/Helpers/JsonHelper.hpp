@@ -143,6 +143,27 @@ namespace nlohmann {
         }
     };
 
+    template<> struct nlohmann::adl_serializer<glm::quat> {
+        static void to_json(json& j, const glm::quat& q) {
+            // Зберігаємо компоненти x,y,z і w
+            j = {
+                { "x", q.x },
+                { "y", q.y },
+                { "z", q.z },
+                { "w", q.w }
+            };
+        }
+
+        static void from_json(const json& j, glm::quat& q) {
+            // Відновлюємо компоненти з JSON
+            q.x = j.at("x").get<float>();
+            q.y = j.at("y").get<float>();
+            q.z = j.at("z").get<float>();
+            q.w = j.at("w").get<float>();
+        }
+    };
+
+
     // mat4
     template<> struct adl_serializer<glm::mat4> {
         static void to_json(json& j, const glm::mat4& m) {

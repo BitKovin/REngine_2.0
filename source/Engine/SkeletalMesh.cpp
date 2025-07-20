@@ -416,8 +416,8 @@ void SkeletalMesh::StartRagdoll()
 			constraint->SetEnabled(true);
 		}
 
-		Physics::SetLinearVelocity(hitbox, linearVel/3.0f);
-		Physics::SetAngularVelocity(hitbox, MathHelper::ToYawPitchRoll(angularVel)/3.0f);
+		Physics::SetLinearVelocity(hitbox, linearVel/2.0f);
+		Physics::SetAngularVelocity(hitbox, MathHelper::ToYawPitchRoll(angularVel)/2.0f);
 
 	}
 
