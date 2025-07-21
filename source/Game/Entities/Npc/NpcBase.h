@@ -42,6 +42,9 @@ protected:
 	Animation* getFromRagdollAnimation = nullptr;
 	AnimationPose ragdollPose;
 
+	AnimationState getFromRagdollAnimationSaveState;
+
+
 public:
 
 	SkeletalMesh* mesh;

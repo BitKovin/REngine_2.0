@@ -137,19 +137,17 @@ bool SkeletalMesh::IsCameraVisible()
 	mat4 world = GetWorldMatrix();
 
 	vector<vec3> bonePositions;
-	bonePositions.reserve(model->boneInfoMap.size());
+	bonePositions.reserve(hitboxBodies.size());
 
-	for (auto bone : model->boneInfoMap)
+	for (auto hitboxBody : hitboxBodies)
 	{
-		mat4 boneMatrix = world * GetBoneMatrix(bone.first);
-
-		vec3 pos = vec3(boneMatrix[3]);
-		bonePositions.push_back(pos);
-
-
+		bonePositions.push_back(FromPhysics(hitboxBody->GetPosition()));
 	}
 
 	auto box = BoundingBox::FromPoints(bonePositions);
+
+	box.Max += vec3(1);
+	box.Max -= vec3(1);
 
 	if (Level::Current->BspData.m_numOfVerts)
 	{
@@ -167,7 +165,7 @@ bool SkeletalMesh::IsCameraVisible()
 			return false;
 		}
 	}
-	return true;
+	return IsInFrustrum(Camera::frustum) && isVisible();
 }
 
 bool SkeletalMesh::IsInFrustrum(Frustum frustrum)
@@ -181,15 +179,12 @@ bool SkeletalMesh::IsInFrustrum(Frustum frustrum)
 	mat4 world = GetWorldMatrix();
 
 	vector<vec3> bonePositions;
-	bonePositions.reserve(model->boneInfoMap.size());
+	bonePositions.reserve(hitboxBodies.size());
 	
-	for (auto bone : model->boneInfoMap)
+	for (auto hitboxBody : hitboxBodies)
 	{
-		mat4 boneMatrix = world * GetBoneMatrix(bone.first);
 
-		vec3 pos = vec3(boneMatrix[3]);
-		bonePositions.push_back(pos);
-
+		bonePositions.push_back(FromPhysics(hitboxBody->GetPosition()));
 
 	}
 
@@ -197,6 +192,7 @@ bool SkeletalMesh::IsInFrustrum(Frustum frustrum)
 
 	box.Min -= vec3(1);
 	box.Max += vec3(1);
+
 
 
 	return frustrum.IsBoxVisible(box.Min, box.Max);
@@ -213,12 +209,10 @@ LightVolPointData SkeletalMesh::GetLightVolData()
 	vector<vec3> bonePositions;
 	bonePositions.reserve(model->boneInfoMap.size());
 
-	for (auto bone : model->boneInfoMap)
+	for (auto hitboxBody : hitboxBodies)
 	{
-		mat4 boneMatrix = world * GetBoneMatrix(bone.first);
 
-		vec3 pos = vec3(boneMatrix[3]);
-		bonePositions.push_back(pos);
+		bonePositions.push_back(FromPhysics(hitboxBody->GetPosition()));
 
 	}
 
@@ -228,6 +222,7 @@ LightVolPointData SkeletalMesh::GetLightVolData()
 		Level::Current->BspData.lightVols.size() == 0) return LightVolPointData{ vec3(0),vec3(1),vec3(0) };
 
 	vec3 samplePos = box.Center() + vec3(0, 0.5, 0);
+
 
 	auto light = Level::Current->BspData.GetLightvolColor(samplePos * MAP_SCALE);
 	return light;
@@ -739,4 +734,113 @@ AnimationData* SkeletalMesh::GetAnimationDataFromName(string name)
 
 	metaData.animations.push_back(AnimationData{ name });
 	return GetAnimationDataFromName(name);
+}
+
+void SkeletalMesh::SetAnimationState(const AnimationState& animationState)
+{
+
+	if (animationState.animationName != "")
+	{
+		PlayAnimation(animationState.animationName, animationState.looping, 0);
+	}
+	else
+	{
+		PasteAnimationPose(AnimationPose()); //setting to rest pose
+	}
+
+	animator.m_currTime = animationState.animationTime;
+	animator.UpdateAnimationPose();
+	animator.m_playing = animationState.playing;
+	oldAnimationEventTime = animationState.oldAnimationEventTime;
+	Update(0);
+	PullAnimationEvents();
+
+	InRagdoll = animationState.inRagdoll;
+
+	if (InRagdoll)
+	{
+
+		StartRagdoll();
+
+		for (auto hitboxBody : hitboxBodies)
+		{
+
+
+			Physics::SetLinearVelocity(hitboxBody, vec3());
+			Physics::SetAngularVelocity(hitboxBody, vec3());
+
+			string hitboxName = Physics::GetBodyData(hitboxBody)->hitboxName;
+
+			auto posRes = animationState.ragdollHitboxPositions.find(hitboxName);
+			auto rotRes = animationState.ragdollHitboxRotations.find(hitboxName);
+
+			auto posVelRes = animationState.ragdollHitboxLinearVelocty.find(hitboxName);
+			auto rotVelRes = animationState.ragdollHitboxAngularVelocty.find(hitboxName);
+
+			if (posRes != animationState.ragdollHitboxPositions.end())
+			{
+				Physics::SetBodyPosition(hitboxBody, posRes->second);
+			}
+
+			if (rotRes != animationState.ragdollHitboxRotations.end())
+			{
+				Physics::SetBodyRotation(hitboxBody, rotRes->second);
+			}
+
+			if (posVelRes != animationState.ragdollHitboxLinearVelocty.end())
+			{
+				Physics::SetLinearVelocity(hitboxBody, posVelRes->second);
+			}
+
+			if (rotVelRes != animationState.ragdollHitboxAngularVelocty.end())
+			{
+				Physics::SetAngularVelocity(hitboxBody, rotVelRes->second);
+			}
+
+
+		}
+	}
+
+}
+
+AnimationState SkeletalMesh::GetAnimationState()
+{
+	AnimationState animationState;
+
+	animationState.looping = animator.Loop;
+	animationState.animationName = animator.currentAnimationName;
+	animationState.animationTime = animator.m_currTime;
+	animationState.playing = animator.m_playing;
+	animationState.oldAnimationEventTime = oldAnimationEventTime;
+
+	unordered_map<string, vec3> hitboxPositions;
+	unordered_map<string, quat> hitboxRotations;
+
+	unordered_map<string, vec3> hitboxPositionsVel;
+	unordered_map<string, vec3> hitboxRotationsVel;
+
+	if (InRagdoll)
+	{
+		for (auto hitboxBody : hitboxBodies)
+		{
+
+			string hitboxName = Physics::GetBodyData(hitboxBody)->hitboxName;
+
+			hitboxPositions[hitboxName] = FromPhysics(hitboxBody->GetPosition());
+			hitboxRotations[hitboxName] = FromPhysics(hitboxBody->GetRotation());
+
+			hitboxPositionsVel[hitboxName] = FromPhysics(hitboxBody->GetLinearVelocity());
+			hitboxRotationsVel[hitboxName] = FromPhysics(hitboxBody->GetAngularVelocity());
+
+		}
+	}
+
+	animationState.inRagdoll = InRagdoll;
+	animationState.ragdollHitboxPositions = hitboxPositions;
+	animationState.ragdollHitboxRotations = hitboxRotations;
+
+	animationState.ragdollHitboxLinearVelocty = hitboxPositionsVel;
+	animationState.ragdollHitboxAngularVelocty = hitboxRotationsVel;
+
+	return animationState;
 }

@@ -85,10 +85,8 @@ void NpcBase::Death()
 	//Physics::SetBodyType(LeadBody, BodyType::None);
 	//Physics::SetCollisionMask(LeadBody, BodyType::World);
 
-	Physics::RemoveBodyFromSimulation(LeadBody);
-
-	//
-	//LeadBody = nullptr;
+	Physics::DestroyBody(LeadBody);
+	LeadBody = nullptr;
 
 	dead = true;
 	return;
@@ -147,7 +145,11 @@ void NpcBase::StartReturnFromRagdoll()
 
 	if (mesh->InRagdoll == false) return;
 
-	Physics::AddBody(LeadBody); //re adding body to physics world
+	if (LeadBody == nullptr)
+	{
+		LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 2, 50);
+	}
+
 
 	vec3 pelvisPos = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("pelvis")).Position;
 	vec3 pelvisRot = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("pelvis")).Rotation;
@@ -320,6 +322,8 @@ void NpcBase::Serialize(json& target)
 
 	animationStateSaveData = mesh->GetAnimationState();
 
+	getFromRagdollAnimationSaveState = getFromRagdollAnimation->GetAnimationState();
+
 	Rotation = mesh->Rotation;
 
 	SERIALIZE_FIELD(target, Rotation)
@@ -328,6 +332,8 @@ void NpcBase::Serialize(json& target)
 		SERIALIZE_FIELD(target, speed)
 		SERIALIZE_FIELD(target, dead)
 		SERIALIZE_FIELD(target, animationStateSaveData)
+		SERIALIZE_FIELD(target, getFromRagdollAnimationSaveState)
+		SERIALIZE_FIELD(target, ragdollPose)
 }
 
 void NpcBase::Deserialize(json& source)
@@ -341,6 +347,8 @@ void NpcBase::Deserialize(json& source)
 		DESERIALIZE_FIELD(source, speed)
 		DESERIALIZE_FIELD(source, dead)
 		DESERIALIZE_FIELD(source, animationStateSaveData)
+		DESERIALIZE_FIELD(source, getFromRagdollAnimationSaveState)
+		DESERIALIZE_FIELD(source, ragdollPose)
 
 
 		Physics::SetBodyPosition(LeadBody, Position);
@@ -350,7 +358,7 @@ void NpcBase::Deserialize(json& source)
 	{
 		Physics::DestroyBody(LeadBody);
 		LeadBody = nullptr;
-
+		/*
 		DeathSoundPlayer->Destroy();
 		HurtSoundPlayer->Destroy();
 		StunSoundPlayer->Destroy();
@@ -359,13 +367,16 @@ void NpcBase::Deserialize(json& source)
 		HurtSoundPlayer = nullptr;
 		StunSoundPlayer = nullptr;
 		AttackSoundPlayer = nullptr;
+		*/
 
 	}
 
 
 	mesh->Rotation = Rotation;
 
-	//mesh->SetAnimationState(animationStateSaveData);
+	mesh->SetAnimationState(animationStateSaveData);
+	getFromRagdollAnimation->SetAnimationState(getFromRagdollAnimationSaveState);
+
 	//mesh->Update(0);
 	//mesh->PullRootMotion();
 

@@ -151,6 +151,36 @@ void MyContactListener::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePa
 	// Leave empty; removals are handled in afterSimulation()
 }
 
+void Physics::DestroyBody(Body* body)
+{
+	if (body == nullptr)
+		return;
+
+	physicsMainLock.lock();
+
+	bodyIdMap.erase(body->GetID());
+
+	bodyInterface->RemoveBody(body->GetID());
+
+	bodyInterface->DestroyBody(body->GetID());
+
+	// Retrieve and delete collision properties if present.
+	auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
+	body->SetUserData(0);
+
+	if (props)
+	{
+		delete props;
+	}
+
+	// Remove body from existingBodies
+	auto it = std::find(existingBodies.begin(), existingBodies.end(), body);
+	if (it != existingBodies.end())
+		existingBodies.erase(it);
+
+	physicsMainLock.unlock();
+}
+
 void Physics::DestroyConstraint(Constraint* constraint)
 {
 

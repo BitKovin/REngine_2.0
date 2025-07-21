@@ -125,7 +125,6 @@ struct BodyData
 
 	string hitboxName = "";
 
-	bool isSimulated = false;
 
 };
 
@@ -452,7 +451,6 @@ public:
 	{
 		physicsMainLock.lock();
 
-		if (GetBodyData(body)->isSimulated) return;
 
 		existingBodies.push_back(body);
 
@@ -460,25 +458,6 @@ public:
 
 		bodyIdMap[body->GetID()] = body;
 
-		GetBodyData(body)->isSimulated = true;
-
-		physicsMainLock.unlock();
-
-	}
-
-	static void RemoveBodyFromSimulation(Body* body)
-	{
-		physicsMainLock.lock();
-
-		if (GetBodyData(body)->isSimulated == false) return;
-
-		existingBodies.push_back(body);
-
-		bodyInterface->RemoveBody(body->GetID());
-
-		bodyIdMap.erase(body->GetID());
-
-		GetBodyData(body)->isSimulated = false;
 
 		physicsMainLock.unlock();
 
@@ -544,39 +523,7 @@ public:
 
 	}
 
-	static void DestroyBody(Body* body)
-	{
-
-		if (body == nullptr)
-			return;
-
-		physicsMainLock.lock();
-
-		bodyIdMap.erase(body->GetID());
-		
-		if (GetBodyData(body)->isSimulated)
-		{
-			bodyInterface->RemoveBody(body->GetID());
-		}
-		
-		bodyInterface->DestroyBody(body->GetID());
-
-		// Retrieve and delete collision properties if present.
-		auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
-		body->SetUserData(0);
-
-		if (props)
-		{
-			delete props;
-		}
-
-		// Remove body from existingBodies
-		auto it = std::find(existingBodies.begin(), existingBodies.end(), body);
-		if (it != existingBodies.end())
-			existingBodies.erase(it);
-
-		physicsMainLock.unlock();
-	}
+	static void DestroyBody(Body* body);
 
 	static void DestroyConstraint(Constraint* constraint);
 
