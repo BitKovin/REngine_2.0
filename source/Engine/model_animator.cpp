@@ -228,12 +228,25 @@ void roj::Animator::ApplyNodePoseLocalSpace(BoneNode& node, glm::mat4 offset, st
         currentPose[node.name] = node.transform;
     }
 
-    offset *= currentPose[node.name];
 
     if (hasLocalPose)
     {
+
+        currentPose[node.name] = inverse(offset) * localPose;
+
         offset = localPose;
+
+        
+
     }
+    else
+    {
+        offset *= currentPose[node.name];
+    }
+
+    
+
+
 
     auto it2 = m_model->boneInfoMap.find(node.name);
     if (it2 != m_model->boneInfoMap.end())
@@ -298,6 +311,8 @@ std::vector<glm::mat4>& roj::Animator::getBoneMatrices()
 std::unordered_map<std::string, mat4> roj::Animator::GetBonePoseArray()
 {
     std::unordered_map<std::string, mat4> outVector = std::unordered_map<std::string, mat4>();
+
+    return currentPose;
 
     if (m_currAnim) 
     {

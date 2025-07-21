@@ -52,8 +52,7 @@ void MyContactListener::afterSimulation()
 	std::vector<Physics::PendingBodyEnterPair> adds;
 	std::vector<Physics::PendingBodyEnterPair> removals;
 
-	// Safely update global lists with lock
-	Physics::physicsMainLock.lock();
+
 
 	// Find added contacts: in current but not in previous
 	for (const auto& pair : currentContacts)
@@ -79,16 +78,22 @@ void MyContactListener::afterSimulation()
 		}
 	}
 
+	auto newAdds = Physics::gAdds;
+	auto newRemovs = Physics::gRemovals;
 
 	for (const auto& p : adds)
 	{
-		Physics::gAdds.push_back(p);
+		newAdds.push_back(p);
 	}
 	for (const auto& p : removals)
 	{
-		Physics::gRemovals.push_back(p);
+		newRemovs.push_back(p);
 	}
-	Physics::physicsMainLock.unlock();
+
+	Physics::gAdds = newAdds;
+	Physics::gRemovals = newRemovs;
+	
+
 }
 
 void MyContactListener::OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings)
@@ -343,7 +348,7 @@ Body* Physics::CreateHitBoxBody(Entity* owner, string hitboxName, vec3 PositionO
 	bcs.mMassPropertiesOverride.mMass = Mass;
 	bcs.mFriction = 0.9f;
 
-	bcs.mAngularDamping = 6;
+	bcs.mAngularDamping = 10;
 
 	BodyData* props = new BodyData{ group, mask, true, owner, hitboxName };
 	bcs.mUserData = reinterpret_cast<uintptr_t>(props);

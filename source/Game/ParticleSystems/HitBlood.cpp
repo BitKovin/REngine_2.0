@@ -30,7 +30,7 @@ public:
         // Use glm::mix to linearly interpolate between 1 and 0.1.
         float lerpVal = glm::mix(1.0f, 0.1f, incScale * incScale);
         float maxVal = (lerpVal > 0.0f) ? lerpVal : 0.0f;
-        particle.Size += deltaTime * maxVal * 0.3f;
+        particle.Size += deltaTime * maxVal * 0.15f;
 
         const float despawnTime = 4.0f;
         if ((particle.deathTime - particle.lifeTime - 0.1f) < despawnTime)
@@ -57,7 +57,7 @@ public:
         // Slightly adjust particle position.
         particle.position += normal * 0.03f;
 
-        particle.Size = 1.4f;
+        particle.Size = 1;
         //particle.MaxDrawDistance = 60.0f;
         particle.BouncePower = 0.1f;
 
@@ -107,7 +107,7 @@ public:
     {
         Particle particle = ParticleEmitter::GetNewParticle();
         particle.velocity = Rotation;
-        particle.Size = glm::mix(0.15f, 0.2f, RandomFloat()) * 2;
+        particle.Size = glm::mix(0.15f, 0.2f, RandomFloat());
         particle.Transparency = 1;
         particle.deathTime = 1.0f;
         particle.rotation = RandomFloat() * 500.0f;
@@ -201,7 +201,7 @@ public:
         Particle particle = ParticleEmitter::GetNewParticle();
         particle.BouncePower = 0.5f;
         particle.CollisionRadius = 0.2f;
-        particle.Size = 0.6f * 1.2;
+        particle.Size = 0.4;
 
         particle.position2 = Position;
 

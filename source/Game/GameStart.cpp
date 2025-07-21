@@ -77,6 +77,7 @@ GameStart::GameStart()
     Input::AddAction("jump")->AddKeyboardKey(SDL_KeyCode::SDLK_SPACE)->AddButton(GamepadButton::A);
 
     Input::AddAction("attack")->AddButton(GamepadButton::RightTrigger)->LMB = true;
+    Input::AddAction("attack2")->AddButton(GamepadButton::LeftTrigger)->RMB = true;
 
     Input::AddAction("qSave")->AddKeyboardKey(SDL_KeyCode::SDLK_F5);
     Input::AddAction("qLoad")->AddKeyboardKey(SDL_KeyCode::SDLK_F8);

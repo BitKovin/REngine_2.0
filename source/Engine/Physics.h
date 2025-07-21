@@ -125,6 +125,8 @@ struct BodyData
 
 	string hitboxName = "";
 
+	bool isSimulated = false;
+
 };
 
 struct ShapeData
@@ -450,11 +452,33 @@ public:
 	{
 		physicsMainLock.lock();
 
+		if (GetBodyData(body)->isSimulated) return;
+
 		existingBodies.push_back(body);
 
 		bodyInterface->AddBody(body->GetID(), JPH::EActivation::Activate);
 
 		bodyIdMap[body->GetID()] = body;
+
+		GetBodyData(body)->isSimulated = true;
+
+		physicsMainLock.unlock();
+
+	}
+
+	static void RemoveBodyFromSimulation(Body* body)
+	{
+		physicsMainLock.lock();
+
+		if (GetBodyData(body)->isSimulated == false) return;
+
+		existingBodies.push_back(body);
+
+		bodyInterface->RemoveBody(body->GetID());
+
+		bodyIdMap.erase(body->GetID());
+
+		GetBodyData(body)->isSimulated = false;
 
 		physicsMainLock.unlock();
 
@@ -529,15 +553,17 @@ public:
 		physicsMainLock.lock();
 
 		bodyIdMap.erase(body->GetID());
+		
+		if (GetBodyData(body)->isSimulated)
+		{
+			bodyInterface->RemoveBody(body->GetID());
+		}
+		
+		bodyInterface->DestroyBody(body->GetID());
 
 		// Retrieve and delete collision properties if present.
 		auto* props = reinterpret_cast<BodyData*>(body->GetUserData());
-
-
 		body->SetUserData(0);
-			
-		bodyInterface->RemoveBody(body->GetID());
-		bodyInterface->DestroyBody(body->GetID());
 
 		if (props)
 		{

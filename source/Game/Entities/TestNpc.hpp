@@ -1,13 +1,9 @@
 #pragma once
 
 #include <Entity.h>
-
 #include <Input.h>
-
 #include <MathHelper.hpp>
-
 #include <Camera.h>
-
 #include <SkeletalMesh.hpp>
 #include <AssetRegistry.h>
 

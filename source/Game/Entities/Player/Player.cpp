@@ -325,9 +325,9 @@ void Player::UpdateDebugUI()
 
     ImGui::Checkbox("draw physics", &Physics::DebugDraw);
 
-    if (ImGui::Button("spawn test dog"))
+    if (ImGui::Button("spawn base npc"))
     {
-        Entity* entity = Spawn("testnpc");
+        Entity* entity = Spawn("npc_base");
         entity->Position = Camera::position + Camera::Forward() * 2.0f;
         entity->Start();
     }

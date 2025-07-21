@@ -281,8 +281,17 @@ public:
 			blendEndTime = Time::GameTime + interpIn;
 		}
 
+		if (animator.m_currAnim == nullptr)
+		{
+			string name = model->animations.begin()->first;
+
+			animator.set(name);
+		}
+
 		animator.play();
 	}
+
+	bool IsAnimationPlaying();
 
 	void Update(float timeScale = 1);
 

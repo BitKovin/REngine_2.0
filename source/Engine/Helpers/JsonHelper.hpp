@@ -12,13 +12,17 @@ namespace nlohmann {
     struct adl_serializer<Delay> {
         static void to_json(json& j, const Delay& d) {
             j = json{
-                {"remainTime", d.GetRemainTime()}
+                {"remainTime", d.GetRemainTime()},
+                { "totalDuration", d.totalDuration },
+                { "active", d.Active }
             };
         }
 
         static void from_json(const json& j, Delay& d) {
             if (j.contains("remainTime") && j["remainTime"].is_number()) {
                 d.AddDelay(j["remainTime"].get<double>());
+                d.totalDuration = j["totalDuration"].get<double>();
+                d.Active = j["active"].get<bool>();
             }
         }
     };

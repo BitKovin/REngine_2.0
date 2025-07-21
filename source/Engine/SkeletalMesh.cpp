@@ -23,6 +23,8 @@ AnimationPose AnimationPose::Lerp(AnimationPose a, AnimationPose b, float progre
 
 	std::unordered_map<std::string, mat4> resultPose;
 
+	resultPose = b.boneTransforms;
+
 	for (auto bonePose : a.boneTransforms)
 	{
 		mat4 aMat = a.boneTransforms[bonePose.first];
@@ -266,6 +268,10 @@ MathHelper::Transform SkeletalMesh::PullRootMotion()
 	return t;
 }
 
+bool SkeletalMesh::IsAnimationPlaying()
+{
+	return animator.m_playing;
+}
 
 void SkeletalMesh::Update(float timeScale)
 {
@@ -309,7 +315,7 @@ float SkeletalMesh::GetAnimationDuration()
 	if (animator.m_currAnim == nullptr) return 0;
 
 
-	return animator.m_currAnim->duration;
+	return animator.m_currAnim->duration / animator.m_currAnim->ticksPerSec;
 
 }
 
@@ -319,7 +325,7 @@ float SkeletalMesh::GetAnimationTime()
 
 	if (animator.m_currAnim == nullptr) return 0;
 
-	return animator.m_currTime;
+	return animator.m_currTime / animator.m_currAnim->ticksPerSec;
 }
 
 void SkeletalMesh::SetAnimationTime(float time)
@@ -328,7 +334,7 @@ void SkeletalMesh::SetAnimationTime(float time)
 
 	if (animator.m_currAnim == nullptr) return;
 
-	animator.m_currTime = time;
+	animator.m_currTime = time * animator.m_currAnim->ticksPerSec;
 
 }
 

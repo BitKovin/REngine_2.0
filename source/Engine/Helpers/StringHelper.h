@@ -2,6 +2,19 @@
 
 #include <string>
 
+namespace std
+{
+
+	inline string to_string(vec3 vector)
+	{
+		return "x: " + to_string(vector.x)
+			+ " y: " + to_string(vector.y)
+			+ " z: " + to_string(vector.z);
+
+	}
+
+}
+
 class StringHelper
 {
 public:
