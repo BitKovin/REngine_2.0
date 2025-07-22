@@ -245,6 +245,7 @@ public:
 		if (ImGui::ListBox("animations:", &selectedAnimation, animationNames.data(), animationNames.size()))
 		{
 			mesh->PlayAnimation(animationNames[selectedAnimation], true, 0.2);
+
 		}
 
 		ImGui::Checkbox("playing", &animationPlaying);
@@ -301,7 +302,7 @@ public:
 						selectedAnimationEventRef->eventName = std::string(buffer);  // Update std::string only if user edited the input
 					}
 
-					ImGui::DragFloat("event time", &selectedAnimationEventRef->time,1,0, mesh->GetAnimationDuration());
+					ImGui::DragFloat("event time", &selectedAnimationEventRef->time,0.01,0, mesh->GetAnimationDuration());
 
 
 
@@ -321,6 +322,7 @@ public:
 					{
 						selectedAnimationEventRef->userData2 = std::string(buffer);  // Update std::string only if user edited the input
 					}
+
 
 					static char buffer[256];  // Fixed-size buffer (adjust size as needed)
 					strncpy_s(buffer, selectedAnimationEventRef->userData3.c_str(), sizeof(buffer));

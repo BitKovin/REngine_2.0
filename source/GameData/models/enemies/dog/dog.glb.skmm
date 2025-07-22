@@ -8,14 +8,14 @@
             "animationEvents": [
                 {
                     "eventName": "attack_start",
-                    "time": 139.28599548339844,
+                    "time": 0.13899999856948853,
                     "userData1": "",
                     "userData2": "",
                     "userData3": ""
                 },
                 {
                     "eventName": "attack_end",
-                    "time": 678.572021484375,
+                    "time": 0.6779999732971191,
                     "userData1": "",
                     "userData2": "",
                     "userData3": ""
@@ -39,7 +39,7 @@
             "animationEvents": [
                 {
                     "eventName": "stun_end",
-                    "time": 659.0139770507813,
+                    "time": 0.6700000166893005,
                     "userData1": "",
                     "userData2": "",
                     "userData3": ""
