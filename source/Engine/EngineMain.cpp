@@ -61,6 +61,31 @@ void EngineMain::UpdateScreenSize()
 #endif // __EMSCRIPTEN__
 }
 
+void EngineMain::ToggleFullscreen(SDL_Window* Window)
+{
+
+    auto context = SDL_GL_GetCurrentContext();
+
+    Uint32 FullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP;
+    bool IsFullscreen = SDL_GetWindowFlags(Window) & FullscreenFlag;
+
+    // Ensure pending GL commands are done
+    glFinish();
+
+
+    // Toggle fullscreen
+    SDL_SetWindowFullscreen(Window, IsFullscreen ? 0 : FullscreenFlag);
+
+    // Rebind the context to the window
+    SDL_GL_MakeCurrent(Window, context);
+
+    // Ensure double-buffer swap is clean
+    SDL_GL_SwapWindow(Window);
+
+    SDL_ShowCursor(SDL_ENABLE);
+
+}
+
 void EngineMain::initGame()
 {
 
@@ -285,6 +310,9 @@ void EngineMain::GameUpdate()
 
 void EngineMain::Render()
 {
+
+
+
     glViewport(0, 0, ScreenSize.x, ScreenSize.y);
 
     glEnable(GL_DEPTH_TEST);
@@ -315,6 +343,9 @@ void EngineMain::Render()
         LoadingScreenSystem::Draw();
         return;
     }
+
+    glFinish();
+    glFlush();
 
     SDL_GL_SwapWindow(Window);
 }

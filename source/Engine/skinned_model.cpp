@@ -1,7 +1,6 @@
 #include "skinned_model.hpp"
 #include "FileSystem/FileSystem.h"
 
-#include "gl.h"
 
 #include "utils.hpp"
 

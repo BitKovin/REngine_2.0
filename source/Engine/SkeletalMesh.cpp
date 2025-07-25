@@ -193,7 +193,7 @@ bool SkeletalMesh::IsInFrustrum(Frustum frustrum)
 	box.Min -= vec3(1);
 	box.Max += vec3(1);
 
-	DebugDraw::Bounds(box.Min, box.Max, 0.01f);
+	//DebugDraw::Bounds(box.Min, box.Max, 0.01f);
 
 
 	return frustrum.IsBoxVisible(box.Min, box.Max);

@@ -41,6 +41,9 @@ void LoadingScreenSystem::Draw()
 	viewport.FinalizeChildren();
 	viewport.Draw();
 
+	glFinish();
+	glFlush();
+
 	SDL_GL_SwapWindow(EngineMain::MainInstance->Window);
 
 }
