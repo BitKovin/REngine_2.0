@@ -85,53 +85,7 @@ public:
 	}
 
 	// Update all particles. deltaTime is the elapsed time since last call.
-	void Update(float deltaTime)
-	{
-		if (destroyed)
-			return;
-		std::lock_guard<std::recursive_mutex> lock(particlesMutex);
-		elapsedTime += deltaTime;
-		if (elapsedTime > Duration)
-			Emitting = false;
-
-		// Spawn new particles at a fixed spawn rate.
-		float spawnInterval = (SpawnRate > 0.0f) ? (1.0f / SpawnRate) : 0.0f;
-		{
-			
-			if (SpawnRate > 0.0f && Emitting) {
-				while (elapsedTime >= spawnInterval) {
-					Particle particle = GetNewParticle();
-					Particles.push_back(particle);
-					elapsedTime -= spawnInterval;
-				}
-			}
-
-			// Update lifetime and prepare to remove expired particles.
-			for (auto& particle : Particles) {
-				particle.lifeTime += deltaTime;
-			}
-
-			// Remove expired particles.
-			Particles.erase(
-				std::remove_if(Particles.begin(), Particles.end(),
-					[](const Particle& p) { return p.lifeTime >= p.deathTime; }),
-				Particles.end());
-
-			// Update each particle.
-			for (auto& particle : Particles) {
-				// Here, because UpdateParticle might itself require locking,
-				// using a recursive mutex permits re-locking if needed.
-				particle = UpdateParticle(particle, deltaTime);
-			}
-
-			// Copy updated particles to finalizedParticles.
-			
-
-			// If we are no longer emitting and there are no particles left, mark as destroyed.
-			if (!Emitting && Particles.empty())
-				destroyed = true;
-		}
-	}
+	void Update(float deltaTime);
 
 
 	// Update a single particle.

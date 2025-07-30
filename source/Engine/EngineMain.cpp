@@ -145,7 +145,7 @@ void EngineMain::Init()
 
     MainThreadPool = new ThreadPool();
 
-    MainThreadPool->Start();
+    MainThreadPool->Start(ThreadPool::GetNumThreadsForThreadPool());
 
     SoundManager::Initialize();
 
@@ -202,8 +202,6 @@ void EngineMain::MainLoop()
 
     bool loadedlevel = Level::LoadPendingLevel();
 
-    Level::Current->LoadAssets();
-
 
     Viewport.ResetTouchInputs();
 
@@ -220,11 +218,7 @@ void EngineMain::MainLoop()
     Viewport.TouchInputPostProcessing();
 
 
-
-    if (asyncGameUpdate)
-    {
-        FinishFrame();
-    }
+    Level::Current->LoadAssets();
 
 
     Time::Update();
@@ -274,8 +268,12 @@ void EngineMain::MainLoop()
                 gameUpdateFuture.wait();
             }
         }
+
+		FinishFrame();
+
     }
 
+    FinishRender();
 
     if (Input::GetAction("fullscreen")->Pressed())
     {
@@ -343,9 +341,14 @@ void EngineMain::Render()
         LoadingScreenSystem::Draw();
         return;
     }
+}
+
+void EngineMain::FinishRender()
+{
 
     glFinish();
     glFlush();
 
     SDL_GL_SwapWindow(Window);
+
 }

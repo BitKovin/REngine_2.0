@@ -7,6 +7,8 @@
 #include "../Texture.hpp"
 #include "../AssetRegistry.h"
 
+#include "../Level.hpp"
+
 class UiImage : public UiElement
 {
 
@@ -15,8 +17,6 @@ private:
 public:
 
 	string ImagePath = "GameData/cat.png";
-
-	vec4 ImageColor = vec4(1);
 
 	UiImage()
 	{ 
@@ -32,15 +32,21 @@ public:
 
 		vec2 pos = finalizedPosition + finalizedOffset;
 
-		if (tex == nullptr)
+		if (Level::ChangingLevel)
 		{
 			tex = AssetRegistry::GetTextureFromFile(ImagePath);
-			if (tex->valid == false)
-				tex = AssetRegistry::GetTextureFromFile("GameData/textures/generic/white.png");
+		}
+		else
+		{
+			if (tex == nullptr)
+			{
+				tex = AssetRegistry::GetTextureFromFile(ImagePath);
+				if (tex->valid == false)
+					tex = AssetRegistry::GetTextureFromFile("GameData/textures/generic/white.png");
+			}
 		}
 
-
-		UiRenderer::DrawTexturedRect(pos, finalizedSize, tex->getID(), ImageColor * GetFinalColor());
+		UiRenderer::DrawTexturedRect(pos, finalizedSize, tex->getID(), GetFinalColor());
 
 		UiElement::Draw();
 	}

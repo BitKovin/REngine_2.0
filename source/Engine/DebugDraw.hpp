@@ -26,7 +26,7 @@ class DrawCommandLine : public DebugDrawCommand
     vec3 end;
     float thickness;
     StaticMesh lineMesh = StaticMesh(nullptr);
-
+    
 
 public:
     DrawCommandLine(vec3 s, vec3 e, float th, double duration)
@@ -81,6 +81,14 @@ private:
     }
 
 public:
+
+    static void ClearCommands()
+    {
+        std::lock_guard<std::mutex> lock(mainLock);
+        commands.clear();
+        finalizedCommands.clear();
+    }
+
     // Called from any thread to add a draw command.
     static void Line(vec3 start, vec3 end, float duration = 0.1f, float thickness = 0.02f)
     {

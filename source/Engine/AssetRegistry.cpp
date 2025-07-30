@@ -8,6 +8,45 @@ std::unordered_map<std::string, roj::SkinnedModel*> AssetRegistry::skinnedModelC
 std::unordered_map<std::string, roj::SkinnedModel*> AssetRegistry::skinnedModelAnimationCache;
 std::unordered_map<std::string, TTF_Font*> AssetRegistry::fontCache;
 
+void AssetRegistry::ClearMemory()
+{
+
+	for (auto texCube : textureCubeCache)
+	{
+		if (texCube.second == nullptr) continue;
+		delete(texCube.second);
+	}
+
+	textureCubeCache.clear();
+
+	for (auto tex : textureCache)
+	{
+		if (tex.second == nullptr) continue;
+		delete(tex.second);
+	}
+	textureCache.clear();
+
+	for (auto model : skinnedModelCache)
+	{
+		if (model.second == nullptr) continue;
+
+		model.second->clear();
+		delete(model.second);
+	}
+	skinnedModelCache.clear();
+
+	for (auto model : skinnedModelAnimationCache)
+	{
+		if (model.second == nullptr) continue;
+
+		model.second->clear();
+		delete(model.second);
+	}
+	skinnedModelAnimationCache.clear();
+
+
+}
+
 std::string AssetRegistry::ReadFileToString(string filename)
 {
 	return FileSystemEngine::ReadFile(filename);

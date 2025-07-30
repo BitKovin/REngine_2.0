@@ -100,4 +100,6 @@ public:
 
     void Render();
 
+    void FinishRender();
+
 };

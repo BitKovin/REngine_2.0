@@ -64,7 +64,13 @@ inline bool endsWith(const std::string& str, const std::string& suffix) {
 Level* Level::OpenLevel(string filePath)
 {
 
+	ChangingLevel = true;
+
+	CurrentLevelChangeId++;
+
 	bool isNewLevel = true;
+
+	EngineMain::Viewport.ClearChildren();
 
 	LoadingScreenSystem::Update(0);
 
@@ -78,6 +84,13 @@ Level* Level::OpenLevel(string filePath)
 
 		Current->Dispose();
 		delete(Current);
+	}
+
+	if (isNewLevel)
+	{
+		AssetRegistry::ClearMemory();
+		DebugDraw::ClearCommands();
+		SoundManager::CleanAllData();
 	}
 
 
@@ -97,7 +110,7 @@ Level* Level::OpenLevel(string filePath)
 
 	EngineMain::MainInstance->MainThreadPool = new ThreadPool();
 
-	EngineMain::MainInstance->MainThreadPool->Start();
+	EngineMain::MainInstance->MainThreadPool->Start(ThreadPool::GetNumThreadsForAsyncUpdate());
 
 	if (endsWith(filePath, ".bsp"))
 	{
@@ -201,6 +214,8 @@ Level* Level::OpenLevel(string filePath)
 	Time::Update();
 
 	LoadingScreenSystem::Update(1);
+
+	ChangingLevel = false;
 
 	return newLevel;
 }

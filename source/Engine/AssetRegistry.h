@@ -27,6 +27,8 @@ private:
 
 public:
 	
+    static void ClearMemory();
+
     static Shader* GetShaderByName(const std::string& name, ShaderType shaderType)
     {
 

@@ -117,15 +117,12 @@ struct HitboxData
 
 	string parentBone = "";
 
-	mat4 constraintLocal1 = mat4();
-	mat4 constraintLocal2 = mat4();
-
 	vec3 twistParameters = vec3();
 	vec3 constraintRotation = vec3();
 
 	float mass = 5;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(HitboxData, boneName, size, rotation, position, damageMultiplier, parentBone, constraintLocal1, constraintLocal2, twistParameters, constraintRotation, mass)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(HitboxData, boneName, size, rotation, position, damageMultiplier, parentBone, twistParameters, constraintRotation, mass)
 };
 
 struct SkeletalMeshMetaData

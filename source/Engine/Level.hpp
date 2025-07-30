@@ -60,10 +60,14 @@ public:
 
 	std::unordered_set<void*> DeletedLevelObjectAdresses;
 
+	inline static bool ChangingLevel = false;
+
+	inline static uint16 CurrentLevelChangeId = 0;
+
 	Level()
 	{
 		asyncUpdateThreadPool = new ThreadPool();
-		asyncUpdateThreadPool->Start();
+		asyncUpdateThreadPool->Start(ThreadPool::GetNumThreadsForAsyncUpdate());
 	}
 
 	~Level()

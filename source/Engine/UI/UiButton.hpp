@@ -87,11 +87,18 @@ public:
 	{
 
 
-		if (tex == nullptr)
+		if (Level::ChangingLevel)
 		{
 			tex = AssetRegistry::GetTextureFromFile(ImagePath);
-			if(tex->valid == false)
-				tex = AssetRegistry::GetTextureFromFile("GameData/textures/generic/white.png");
+		}
+		else
+		{
+			if (tex == nullptr)
+			{
+				tex = AssetRegistry::GetTextureFromFile(ImagePath);
+				if (tex->valid == false)
+					tex = AssetRegistry::GetTextureFromFile("GameData/textures/generic/white.png");
+			}
 		}
 
 		vec2 pos = finalizedPosition + finalizedOffset;

@@ -112,6 +112,12 @@ namespace roj
 
 	void SkinnedModel::clear()
 	{
+
+		for (auto mesh : meshes)
+		{
+			mesh.DestroyBuffers();
+		}
+
 		meshes.clear();
 		boneInfoMap.clear();
 	}

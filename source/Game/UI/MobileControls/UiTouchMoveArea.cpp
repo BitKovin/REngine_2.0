@@ -3,7 +3,7 @@
 UiTouchMoveArea::UiTouchMoveArea()
 {
 
-	ImageColor = vec4(0);
+	color = vec4(0);
 
 	HitCheck = true;
 }

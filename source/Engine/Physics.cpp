@@ -210,17 +210,11 @@ void Physics::Init()
 
 	tempMemAllocator = new TempAllocatorImpl(30 * 1024 * 1024);
 
-	int numThreads = ThreadPool::GetMaxThreads();
-
-#ifdef __EMSCRIPTEN__
-
-	numThreads = 2;
-
-#endif // #__EMSCRIPTEN__
+	int numThreads = 2;
 
 #ifndef __EMSCRIPTEN_PTHREADS__
 
-	numThreads = std::thread::hardware_concurrency() - 2;
+	numThreads = ThreadPool::GetNumThreadsForPhysics();
 
 #endif
 

@@ -21,7 +21,7 @@
 
 class ThreadPool {
 public:
-    void Start();
+    void Start(const uint32_t num_threads);
     void QueueJob(const std::function<void()>& job);
     void Stop();
     bool IsBusy();
@@ -33,6 +33,10 @@ public:
     void WaitForFinish();
 
     static int GetMaxThreads();
+
+    static int GetNumThreadsForPhysics();
+    static int GetNumThreadsForAsyncUpdate();
+    static int GetNumThreadsForThreadPool();
 
     static inline bool Supported()
     {

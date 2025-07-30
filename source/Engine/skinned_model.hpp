@@ -35,6 +35,30 @@ namespace roj
 		Texture* cachedBaseColor = nullptr;
 		Texture* cachedEmissiveColor = nullptr;
 
+		void DestroyBuffers()
+		{
+			if (vertices != nullptr)
+			{
+				delete(vertices);
+			}
+
+			vertices = nullptr;
+
+			if (indices != nullptr)
+			{
+				delete(indices);
+			}
+
+			indices = nullptr;
+
+			if (VAO != nullptr)
+			{
+				delete(VAO);
+			}
+
+			VAO = nullptr;
+		}
+
 	};
 
 

@@ -7,9 +7,9 @@
 using namespace std::chrono_literals;
 #endif
 
-void ThreadPool::Start() {
+void ThreadPool::Start(const uint32_t num_threads) 
+{
 #ifndef DISABLE_TREADPOOL
-	const uint32_t num_threads = (GetMaxThreads()) / 1.5f; // Max # of threads the system supports
 	for (uint32_t ii = 0; ii < num_threads; ++ii)
 	{
 		threads.emplace_back(std::thread(&ThreadPool::ThreadLoop, this));
@@ -92,9 +92,26 @@ int ThreadPool::GetMaxThreads()
 
 #else
 
-	return std::thread::hardware_concurrency();
+	return std::thread::hardware_concurrency() - 1; //1 is always taken by game thread
 
 #endif 
+}
+
+//physics thread and async update aren't performed at the same time
+
+int ThreadPool::GetNumThreadsForPhysics()
+{
+	return ceil(GetMaxThreads() * 0.6);
+}
+
+int ThreadPool::GetNumThreadsForAsyncUpdate()
+{
+	return ceil(GetMaxThreads() * 0.6);
+}
+
+int ThreadPool::GetNumThreadsForThreadPool()
+{
+	return ceil(GetMaxThreads() * 0.4);
 }
 
 

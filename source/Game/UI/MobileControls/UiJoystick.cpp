@@ -8,12 +8,12 @@ UiJoystick::UiJoystick()
 	bgImage->ImagePath = "GameData/textures/ui/circle.png";
 	bgImage->origin = vec2(0);
 	bgImage->pivot = vec2(0.5);
-	bgImage->ImageColor = vec4(1,0.7,0.7,0.3);
+	bgImage->color = vec4(1,0.7,0.7,0.3);
 	stickImage = make_shared<UiImage>();
 	stickImage->pivot = vec2(0.5);
 	stickImage->origin = vec2(0);
 	stickImage->ImagePath = "GameData/textures/ui/circle.png";
-	stickImage->ImageColor = vec4(1, 0.7, 0.7, 0.3);
+	stickImage->color = vec4(1, 0.7, 0.7, 0.3);
 
 	AddChild(bgImage);
 	AddChild(stickImage);
