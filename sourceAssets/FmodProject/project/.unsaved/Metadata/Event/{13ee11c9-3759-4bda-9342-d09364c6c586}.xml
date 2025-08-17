@@ -1056,7 +1056,7 @@
 			<value>0</value>
 		</property>
 		<property name="maximum">
-			<value>1</value>
+			<value>0.5</value>
 		</property>
 		<relationship name="parameter">
 			<destination>{baeb28b7-7d52-4ce0-8cde-3a23dee2ab2d}</destination>

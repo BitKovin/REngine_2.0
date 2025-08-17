@@ -67,7 +67,7 @@ public:
 
     ThreadPool* MainThreadPool;
 
-    void ToggleFullscreen(SDL_Window* Window);
+    void ToggleFullscreen();
 
     void initGame();
 

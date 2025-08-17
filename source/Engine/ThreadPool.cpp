@@ -92,7 +92,7 @@ int ThreadPool::GetMaxThreads()
 
 #else
 
-	return std::thread::hardware_concurrency() - 1; //1 is always taken by game thread
+	return std::max(std::thread::hardware_concurrency() - 1 - 2, 1u); //1 is always taken by game thread and about 2 by sound engine
 
 #endif 
 }

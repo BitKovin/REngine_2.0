@@ -324,7 +324,15 @@ namespace roj
 
 			auto fileData = FileSystemEngine::ReadFileBinary(path);
 
-			m_scene = m_import.ReadFileFromMemory(fileData.data(), fileData.size(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace, path.c_str());
+			m_scene = m_import.ReadFileFromMemory(fileData.data(), fileData.size(),
+				aiProcess_Triangulate |
+				aiProcess_GenSmoothNormals |
+				aiProcess_FlipUVs |
+				aiProcess_CalcTangentSpace |
+				aiProcess_LimitBoneWeights |
+				aiProcess_JoinIdenticalVertices |
+				aiProcess_GlobalScale,
+				path.c_str());
 			m_cachedScene = m_scene;
 			m_lastLoadedPath = path;
 		}

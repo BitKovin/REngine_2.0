@@ -230,7 +230,7 @@ public:
 		PreloadEntityType("weapon_pistol");
 		PreloadEntityType("weapon_shotgun");
 
-		AddWeaponByName("weapon_pistol");
+		AddWeaponByName("weapon_cane");
 		AddWeaponByName("weapon_shotgun");
 
 	}

@@ -61,7 +61,7 @@ void EngineMain::UpdateScreenSize()
 #endif // __EMSCRIPTEN__
 }
 
-void EngineMain::ToggleFullscreen(SDL_Window* Window)
+void EngineMain::ToggleFullscreen()
 {
 
     auto context = SDL_GL_GetCurrentContext();
@@ -252,12 +252,12 @@ void EngineMain::MainLoop()
         GameUpdate();
     }
 
+    Render();
+
     if (asyncGameUpdate == false)
     {
         FinishFrame();
     }
-
-    Render();
 
 
     if (asyncGameUpdate)
@@ -277,7 +277,7 @@ void EngineMain::MainLoop()
 
     if (Input::GetAction("fullscreen")->Pressed())
     {
-        ToggleFullscreen(Window);
+        ToggleFullscreen();
 
         //Level::OpenLevel("GameData/Maps/test.map");
 

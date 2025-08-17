@@ -89,6 +89,9 @@ namespace roj
 		std::vector<VertexData>  getMeshVertices(aiMesh* mesh);
 		std::vector<MeshTexture> getMeshTextures(aiMaterial* material, const aiScene* scene);
 		std::vector<MeshTexture> loadTextureMap(aiMaterial* mat, aiTextureType type, const aiScene* scene);
+
+		void LoadTextureFromScene(const aiTexture* texture);
+
 	public:
 
 		bool SkipVisual = false;
@@ -146,13 +149,24 @@ namespace roj
 
 			int id = std::stoi(str);
 
-			
 
 			std::string fileName = scene->mTextures[id]->mFilename.C_Str();
 			std::string fileExtension = scene->mTextures[id]->achFormatHint;
 
 			textures.emplace_back(type, fileName + "." + fileExtension);
+
+			const aiTexture* tex = scene->GetEmbeddedTexture(fileName.c_str());
+
+			// If the texture is embedded (starts with '*')
+			if (tex != nullptr)
+			{
+				LoadTextureFromScene(tex);
+
+			}
+
 		}
+
+		
 
 		return textures;
 	}

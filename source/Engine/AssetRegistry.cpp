@@ -47,6 +47,13 @@ void AssetRegistry::ClearMemory()
 
 }
 
+void AssetRegistry::RegisterTexture(Texture* texture, string path)
+{
+
+	textureCache[path] = texture;
+
+}
+
 std::string AssetRegistry::ReadFileToString(string filename)
 {
 	return FileSystemEngine::ReadFile(filename);

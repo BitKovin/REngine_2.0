@@ -103,6 +103,8 @@ public:
         //return textureCubeCache[key]->valid ? textureCubeCache[key] : nullptr;
     }
 
+    static void RegisterTexture(Texture* texture, string path);
+
 
     static TTF_Font* GetFontFromFile(const char* filename, int fontSize) {
         std::string key = std::string(filename) + "_" + std::to_string(fontSize);

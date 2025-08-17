@@ -265,6 +265,8 @@ public:
 	void PlayAnimation(float interpIn = 0.12)
 	{
 
+		if (model == nullptr) return;
+
 		if (firstAnimation || animator.m_currAnim == nullptr)
 		{
 			interpIn = 0;
@@ -282,9 +284,14 @@ public:
 
 		if (animator.m_currAnim == nullptr)
 		{
-			string name = model->animations.begin()->first;
 
-			animator.set(name);
+			if (model->animations.size() > 0)
+			{
+				string name = model->animations.begin()->first;
+
+				animator.set(name);
+			}
+
 		}
 
 		animator.play();
