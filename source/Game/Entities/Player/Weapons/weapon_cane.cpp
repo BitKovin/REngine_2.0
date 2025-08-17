@@ -84,7 +84,7 @@ public:
 
 		SwitchDelay.AddDelay(0.2f);
 
-		viewmodel->PlayAnimation("idle", false, 0.1f);
+		viewmodel->PlayAnimation("throw", false, 0.05f);
 		Camera::AddCameraShake(CameraShake(
 			0.13f,                            // interpIn
 			0.5f,                            // duration
