@@ -176,6 +176,32 @@ void Player::SwitchWeapon(const WeaponSlotData& data)
     }
 }
 
+void Player::SwitchWeaponOffhand(const string& classname)
+{
+
+    DestroyWeaponOffhand();
+
+    if (!classname.empty())
+    {
+        currentOffhandWeapon = (Weapon*)Spawn(classname);
+        currentOffhandWeapon->Start();
+    }
+
+}
+
+void Player::DestroyWeaponOffhand()
+{
+
+    if (currentOffhandWeapon != nullptr)
+    {
+
+        currentOffhandWeapon->Destroy();
+        currentOffhandWeapon = nullptr;
+
+    }
+
+}
+
 void Player::SwitchToSlot(int slot, bool forceChange)
 {
     if (!forceChange && !CanSwitchSlot(slot))
@@ -263,11 +289,23 @@ void Player::DestroyWeapon()
 
 void Player::UpdateWeapon()
 {
-    if (currentWeapon == nullptr) return;
+    if (currentWeapon != nullptr)
+    {
 
-    currentWeapon->HideWeapon = bike_progress;
-    currentWeapon->Position = Camera::position;
-    currentWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.5f);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
+        currentWeapon->HideWeapon = bike_progress;
+        currentWeapon->Position = Camera::position;
+        currentWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.5f);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
+
+    }
+
+    if (currentOffhandWeapon != nullptr)
+    {
+
+        currentOffhandWeapon->Position = Camera::position;
+        currentOffhandWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.7f);
+
+    }
+
 
 }
 

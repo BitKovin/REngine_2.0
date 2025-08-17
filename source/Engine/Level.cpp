@@ -362,7 +362,7 @@ void Level::Update(bool paused)
 	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 	for (auto var : LevelObjects)
 	{
-		if (var->UpdateWhenPaused || paused == false)
+		if (var->UpdateWhenPaused || paused == false && var->Destroyed == false)
 		{
 			var->Update();
 		}
@@ -381,7 +381,7 @@ void Level::LateUpdate(bool paused)
 	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 	for (auto var : LevelObjects)
 	{
-		if (var->LateUpdateWhenPaused || paused == false)
+		if (var->LateUpdateWhenPaused || paused == false && var->Destroyed == false)
 		{
 			var->LateUpdate();
 		}
@@ -402,7 +402,7 @@ vector<Entity*> Level::FindAllEntitiesWithName(const std::string& name)
 	{
 		Entity* entity = (Entity*)var;
 
-		if (entity && entity->Name == name)
+		if (entity && entity->Name == name && entity->Destroyed == false)
 		{
 			result.push_back(entity);
 		}
@@ -435,7 +435,7 @@ Entity* Level::FindEntityWithId(const std::string& id)
 	{
 		Entity* entity = (Entity*)var;
 
-		if (entity && entity->Id == id)
+		if (entity && entity->Id == id && entity->Destroyed == false)
 		{
 			return entity;
 		}

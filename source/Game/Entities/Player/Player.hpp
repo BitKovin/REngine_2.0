@@ -59,6 +59,9 @@ private:
 	SoundPlayer* soundPlayer;
 
 	Weapon* currentWeapon = nullptr;
+
+	Weapon* currentOffhandWeapon = nullptr;
+
 	int lastSlot = -1;
 	WeaponSlotData meleeWeapon;
 
@@ -163,6 +166,9 @@ private:
 	bool CanSwitchSlot(int slot);
 	void SwitchWeapon(const WeaponSlotData& data);
 
+	void SwitchWeaponOffhand(const string& classname);
+	void DestroyWeaponOffhand();
+
 	vec3 testStart;
 
 
@@ -230,8 +236,10 @@ public:
 		PreloadEntityType("weapon_pistol");
 		PreloadEntityType("weapon_shotgun");
 
-		AddWeaponByName("weapon_cane");
+		AddWeaponByName("weapon_pistol");
 		AddWeaponByName("weapon_shotgun");
+
+		SwitchWeaponOffhand("weapon_cane");
 
 	}
 

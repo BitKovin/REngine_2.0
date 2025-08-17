@@ -14,6 +14,8 @@ public:
 
 	bool Static = false;
 
+	bool Destroyed = false;
+
 	bool UpdateWhenPaused = false;
 	bool LateUpdateWhenPaused = false;
 

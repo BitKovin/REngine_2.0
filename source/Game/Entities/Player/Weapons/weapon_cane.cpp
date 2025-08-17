@@ -3,8 +3,9 @@
 
 #include <Animation.h>
 
-#include "Projectiles/Bullet.h"
+#include "Projectiles/CaneProjectile.h"
 #include <SoundSystem/FmodEventInstance.h>
+
 
 class weapon_cane : public Weapon
 {
@@ -17,6 +18,7 @@ public:
 
 	Delay attackDelay;
 
+	vec3 projectileOffset = vec3(0.03f, -0.15f, -0.3f);
 
 	weapon_cane()
 	{
@@ -64,30 +66,28 @@ public:
 		arms->IsViewmodel = true;
 		Drawables.push_back(arms);
 
-		PreloadEntityType("bullet");
+		PreloadEntityType("caneProjectile");
 
 	}
 
 	void Update()
 	{
-		if (Input::GetAction("attack")->Holding())
+		if (Input::GetAction("attack2")->Pressed())
 		{
 			if (attackDelay.Wait() == false)
-				PerformAttack();
+				Attack();
 		}
 	}
 
-	void PerformAttack()
+	void Attack()
 	{
-
-		fireSoundPlayer->Play();
 
 		SwitchDelay.AddDelay(0.2f);
 
 		viewmodel->PlayAnimation("throw", false, 0.05f);
 		Camera::AddCameraShake(CameraShake(
 			0.13f,                            // interpIn
-			0.5f,                            // duration
+			0.0f,                            // duration
 			vec3(0.0f, 0.0f, -0.1f),         // positionAmplitude
 			vec3(0.0f, 0.0f, 3.4f),          // positionFrequency
 			vec3(-4, 0.15f, 0.0f),        // rotationAmplitude
@@ -96,37 +96,68 @@ public:
 			CameraShake::ShakeType::SingleWave // shakeType
 		));
 
+		auto projectiles = Level::Current->FindAllEntitiesWithName("caneProjectile");
 
-		mat4 boneMat = viewmodel->GetBoneMatrixWorld("muzzle");
+		for (auto p : projectiles)
+		{
+			p->Destroy();
+		}
 
-		vec3 startLoc = MathHelper::DecomposeMatrix(boneMat).Position;
+		attackDelay.AddDelay(1.0f);
 
-		startLoc = mix(startLoc, Camera::position, 0.6f) - Camera::Forward() * 0.1f;
+	}
+
+	void UpdateDebugUI()
+	{
+
+		//ImGui::Begin("cane options");
+
+		//ImGui::DragFloat3("projectile offset", &projectileOffset.x, 0.01f);
+
+		//ImGui::End();
+
+	}
+
+	void PerformAttack()
+	{
+
+		vec3 startLoc = Camera::position +
+			MathHelper::TransformVector(projectileOffset,
+				Camera::GetRotationMatrix());
 
 
-
-		Bullet* bullet = new Bullet();
+		CaneProjectile* bullet = new CaneProjectile();
 		Level::Current->AddEntity(bullet);
 
 		vec4 offset = vec4(0);
 
 		vec3 endLoc = Position + MathHelper::GetForwardVector(Camera::rotation) * 80.0f + vec3(offset);
 
-		bullet->Speed = 200.f;
+		bullet->Speed = 30.f;
 		bullet->Position = startLoc + vec3(offset) * 0.002f;
 		bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
 		bullet->Start();
 		bullet->LoadAssetsIfNeeded();
 		bullet->Damage = 21;
 
-
-		attackDelay.AddDelay(0.3f);
+		fireSoundPlayer->Play();
 
 	}
 
 	void AsyncUpdate()
 	{
-		viewmodel->Update();
+		viewmodel->Update(1.4f);
+
+		auto events = viewmodel->PullAnimationEvents();
+
+		for (auto event : events)
+		{
+			if (event.eventName == "throw")
+			{
+				PerformAttack();
+			}
+		}
+
 		auto pose = viewmodel->GetAnimationPose();
 
 		arms->PasteAnimationPose(pose);

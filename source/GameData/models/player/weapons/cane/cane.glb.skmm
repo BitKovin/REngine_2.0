@@ -1,0 +1,25 @@
+{
+    "animations": [
+        {
+            "animationEvents": [],
+            "animationName": "run"
+        },
+        {
+            "animationEvents": [],
+            "animationName": "attack"
+        },
+        {
+            "animationEvents": [
+                {
+                    "eventName": "throw",
+                    "time": 0.30000001192092896,
+                    "userData1": "",
+                    "userData2": "",
+                    "userData3": ""
+                }
+            ],
+            "animationName": "throw"
+        }
+    ],
+    "hitboxes": []
+}

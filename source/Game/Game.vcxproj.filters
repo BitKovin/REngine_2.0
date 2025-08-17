@@ -90,6 +90,9 @@
     <ClCompile Include="Entities\Player\Weapons\weapon_cane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\CaneProjectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp">
@@ -141,6 +144,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Npc\Animators\NpcAnimatorBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Player\Weapons\Projectiles\CaneProjectile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -49,7 +49,6 @@ public:
 
 	float Health = 0;
 
-	bool Destroyed = false;
 
 	bool AssetsLoaded = false;
 
