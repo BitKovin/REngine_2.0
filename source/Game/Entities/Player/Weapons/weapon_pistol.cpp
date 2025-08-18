@@ -83,7 +83,7 @@ public:
 
 		SwitchDelay.AddDelay(0.2f);
 
-		viewmodel->PlayAnimation("fire",false,0.0f);
+		viewmodel->PlayAnimation("fire",false,0.1f);
 		Camera::AddCameraShake(CameraShake(
 			0.13f,                            // interpIn
 			0.5f,                            // duration

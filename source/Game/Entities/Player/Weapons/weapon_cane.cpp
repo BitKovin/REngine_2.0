@@ -130,7 +130,7 @@ public:
 
 				bodyToPush = proj->bodyToPush;
 				impulseToApply = proj->impulseToApply;
-				pushDelay.AddDelay(0.1f);
+				pushDelay.AddDelay(0.07f);
 
 			}
 
@@ -162,7 +162,6 @@ public:
 		viewmodel->PlayAnimation("grab", false, 0.0f);
 		Time::AddTimeScaleEffect(0.65, 0.2, true, "weapon", 0.15f, 0.2);
 
-		SoundPlayer::PlayOneshot("event:/General/BassDrop", 3, true);
 
 		thrown = false;
 
@@ -180,6 +179,9 @@ public:
 		viewmodel->PlayAnimation("take", false, 0);
 
 		grabStartPos = Player::Instance->Position;
+
+
+		SoundPlayer::PlayOneshot("event:/General/BassDrop", 3, true);
 
 	}
 
@@ -411,7 +413,7 @@ public:
 		bullet->LoadAssetsIfNeeded();
 		bullet->Damage = 60;
 
-		fireSoundPlayer->Play();
+		//fireSoundPlayer->Play();
 
 	}
 
