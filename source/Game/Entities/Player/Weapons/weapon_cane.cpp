@@ -20,7 +20,17 @@ public:
 
 	vec3 projectileOffset = vec3(0.03f, -0.15f, -0.3f);
 
-	bool thrown = false;
+
+	const Body* bodyToPush = nullptr;
+	vec3 impulseToApply = vec3();
+	Delay pushDelay = Delay(1000000000);
+
+	Delay grabDelay;
+	bool grabing = false;
+
+	vec3 grabStartPos = vec3();
+
+	bool thrown;
 
 	weapon_cane()
 	{
@@ -40,6 +50,8 @@ public:
 
 		//attackDelay.AddDelay(0.3);
 		SwitchDelay.AddDelay(0.35);
+
+		pushDelay.AddDelay(100000000);
 
 	}
 
@@ -78,7 +90,6 @@ public:
 
 	void ReturnCane()
 	{
-		thrown = false;
 
 		auto projectiles = Level::Current->FindAllEntitiesWithName("caneProjectile");
 
@@ -89,28 +100,160 @@ public:
 
 		viewmodel->PlayAnimation("idle", true, 0.3f);
 
+		thrown = false;
+
 	}
 
 	void GrabCane()
 	{
-		thrown = false;
+
+		attackDelay.AddDelay(1);
+
+		MathHelper::Transform projectileTransform;
 
 		auto projectiles = Level::Current->FindAllEntitiesWithName("caneProjectile");
 
 		for (auto p : projectiles)
 		{
-			p->Destroy();
+
+			CaneProjectile* proj = (CaneProjectile*)p;
+
+			if (proj != nullptr)
+			{
+
+				proj->DamageEntity();
+
+				proj->Destroy();
+
+				projectileTransform.Position = proj->Position;
+				projectileTransform.Rotation = proj->Rotation;
+
+				bodyToPush = proj->bodyToPush;
+				impulseToApply = proj->impulseToApply;
+				pushDelay.AddDelay(0.1f);
+
+			}
+
 		}
+
+		vec3 safePosition = projectileTransform.Position + MathHelper::GetForwardVector(projectileTransform.Rotation) * - 0.3f;
+
+		vec3 directionToPlayer = normalize(MathHelper::XZ((MathHelper::GetForwardVector(projectileTransform.Rotation) * -1.0f)));
+
+		vec3 playerToCameraDif = Camera::position - Player::Instance->Position;
+
+
+
+		auto hit = Physics::SphereTrace(safePosition, safePosition - vec3(0, 1, 0), 0.001f, BodyType::World | BodyType::MainBody);
+
+
+
+		if (hit.hasHit)
+		{
+			safePosition = hit.shapePosition + hit.normal;
+		}
+
+		Player::Instance->Teleport(safePosition + directionToPlayer - playerToCameraDif + vec3(0, 0.1f, 0));
+
+
 
 		SetViewmodelScaleFactor(0.5);
 
 		viewmodel->PlayAnimation("grab", false, 0.0f);
-		Time::AddTimeScaleEffect(0.65, 0.2, true, "weapon", 0.2f, 0.2);
+		Time::AddTimeScaleEffect(0.65, 0.2, true, "weapon", 0.15f, 0.2);
+
+		SoundPlayer::PlayOneshot("event:/General/BassDrop", 3, true);
+
+		thrown = false;
+
+	}
+
+	void StartGrab()
+	{
+		grabing = true;
+		thrown = false;
+
+		grabDelay.AddDelay(0.12f);
+
+		attackDelay.AddDelay(1);
+
+		viewmodel->PlayAnimation("take", false, 0);
+
+		grabStartPos = Player::Instance->Position;
+
+	}
+
+	void UpdateGrab()
+	{
+		if (!grabing) return;
+
+		if (grabDelay.GetProgress() >= 1)
+		{
+
+			grabing = false;
+
+			GrabCane();
+
+			return;
+		}
+
+		viewmodel->SetAnimationTime(viewmodel->GetAnimationDuration()*grabDelay.GetProgress());
+
+		auto projectiles = Level::Current->FindAllEntitiesWithName("caneProjectile");
+
+		MathHelper::Transform projectileTransform;
+
+		for (auto p : projectiles)
+		{
+
+			CaneProjectile* proj = (CaneProjectile*)p;
+
+			if (proj != nullptr)
+			{
+
+				projectileTransform.Position = proj->Position;
+				projectileTransform.Rotation = proj->Rotation;
+				proj->movingTo = true;
+
+
+			}
+
+		}
+
+		vec3 safePosition = projectileTransform.Position + MathHelper::GetForwardVector(projectileTransform.Rotation) * -0.3f;
+
+		vec3 directionToPlayer = normalize(MathHelper::XZ((MathHelper::GetForwardVector(projectileTransform.Rotation) * -1.0f)));
+
+		vec3 playerToCameraDif = Camera::position - Player::Instance->Position;
+
+
+
+		auto hit = Physics::SphereTrace(safePosition, safePosition - vec3(0, 1, 0), 0.001f, BodyType::World | BodyType::MainBody);
+
+
+
+		if (hit.hasHit)
+		{
+			safePosition = hit.shapePosition + hit.normal;
+		}
+
+		vec3 destinationPos = safePosition + directionToPlayer - playerToCameraDif + vec3(0, 0.1f, 0);
+
+		printf("%f \n", grabDelay.GetProgress());
+
+		Player::Instance->Teleport(lerp(grabStartPos, destinationPos, grabDelay.GetProgress()));
+
+
+
 
 	}
 
 	void Update()
 	{
+
+		auto projectile = (CaneProjectile*) Level::Current->FindEntityWithName("caneProjectile");
+
+		thrown = projectile != nullptr;
 
 		if (Input::GetAction("attack2")->Pressed())
 		{
@@ -119,7 +262,17 @@ public:
 
 				if (thrown)
 				{
-					GrabCane();
+
+					if (projectile->inEnemy)
+					{
+						StartGrab();
+					}
+					else
+					{
+						ReturnCane();		
+					}
+
+					
 				}
 				else
 				{
@@ -129,29 +282,51 @@ public:
 			}
 		}
 
-		Entity* caneProjectile = Level::Current->FindEntityWithName("caneProjectile");
+		UpdateGrab();
 
-		if (caneProjectile == nullptr && thrown)
-		{
-			ReturnCane();
-		}
-		else
+		if (pushDelay.Wait() == false)
 		{
 
-			if (caneProjectile != nullptr && attackDelay.Wait() == false)
+			pushDelay.AddDelay(100000000);
+
+			if (bodyToPush != nullptr)
 			{
-				if (viewmodel->currentAnimationData->animationName != "throw")
-				{
-					viewmodel->PlayAnimation("throw", false, 0);
-					viewmodel->SetAnimationTime(viewmodel->GetAnimationDuration());
-					viewmodel->Update();
-					viewmodel->PullAnimationEvents();
-				}	
 
+				Physics::AddImpulse(bodyToPush, impulseToApply);
+				bodyToPush = nullptr;
 
 			}
 
 		}
+
+		if (attackDelay.Wait() == false)
+		{
+
+
+			if (projectile == nullptr && viewmodel->currentAnimationData->animationName == "throw")
+			{
+				ReturnCane();
+			}
+			else
+			{
+
+				if (projectile != nullptr && attackDelay.Wait() == false)
+				{
+					if (viewmodel->currentAnimationData->animationName != "throw")
+					{
+						viewmodel->PlayAnimation("throw", false, 0);
+						viewmodel->SetAnimationTime(viewmodel->GetAnimationDuration());
+						viewmodel->Update();
+						viewmodel->PullAnimationEvents();
+					}
+
+
+				}
+
+			}
+
+		}
+		
 
 		auto events = viewmodel->PullAnimationEvents();
 
@@ -213,7 +388,7 @@ public:
 			MathHelper::TransformVector(projectileOffset,
 				Camera::GetRotationMatrix());
 
-		thrown = true;
+
 		auto projectiles = Level::Current->FindAllEntitiesWithName("caneProjectile");
 
 		for (auto p : projectiles)
@@ -234,7 +409,7 @@ public:
 		bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
 		bullet->Start();
 		bullet->LoadAssetsIfNeeded();
-		bullet->Damage = 21;
+		bullet->Damage = 60;
 
 		fireSoundPlayer->Play();
 

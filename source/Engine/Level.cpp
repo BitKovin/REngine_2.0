@@ -281,8 +281,13 @@ void Level::AsyncUpdate(bool paused)
 	AddPendingLevelObjects();
 	RemovePendingEntities();
 
-	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
-	for (auto var : LevelObjects)
+	entityArrayLock.lock();
+
+	auto objects = LevelObjects;
+
+	entityArrayLock.unlock();
+
+	for (auto var : objects)
 	{
 
 		if (var->UpdateWhenPaused || paused == false)
@@ -392,13 +397,30 @@ void Level::LateUpdate(bool paused)
 
 vector<Entity*> Level::FindAllEntitiesWithName(const std::string& name)
 {
-	std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 
 	vector<Entity*> result;
 
+	entityArrayLock.lock();
+	pendingEntityArrayLock.lock();
+
 	auto curLevelObjects = LevelObjects;
+	auto pendingLevelObjects = pendingAddLevelObjects;
+
+	entityArrayLock.unlock();
+	pendingEntityArrayLock.unlock();
 
 	for (auto var : curLevelObjects)
+	{
+		Entity* entity = (Entity*)var;
+
+		if (entity && entity->Name == name && entity->Destroyed == false)
+		{
+			result.push_back(entity);
+		}
+
+	}
+
+	for (auto var : pendingLevelObjects)
 	{
 		Entity* entity = (Entity*)var;
 
@@ -429,7 +451,14 @@ Entity* Level::FindEntityWithId(const std::string& id)
 {
 	//std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 
+	entityArrayLock.lock();
+	pendingEntityArrayLock.lock();
+
 	auto curLevelObjects = LevelObjects;
+	auto pendingLevelObjects = pendingAddLevelObjects;
+
+	entityArrayLock.unlock();
+	pendingEntityArrayLock.unlock();
 
 	for (auto var : curLevelObjects)
 	{
@@ -441,6 +470,18 @@ Entity* Level::FindEntityWithId(const std::string& id)
 		}
 
 	}
+
+	for (auto var : pendingLevelObjects)
+	{
+		Entity* entity = (Entity*)var;
+
+		if (entity && entity->Id == id && entity->Destroyed == false)
+		{
+			return entity;
+		}
+
+	}
+
 	return nullptr;
 }
 

@@ -127,6 +127,8 @@ void TestNpc::Death()
 		AttackSoundPlayer = nullptr;
 	}
 
+	//Tags.clear();
+
 }
 
 void TestNpc::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon)

@@ -286,6 +286,8 @@ public:
 
 	void Deserialize(json& source);
 
+	void Teleport(vec3 target);
+
 	void StartBike();
 	void StopBike();
 	void ToggleBike();

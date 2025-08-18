@@ -93,6 +93,9 @@
     <ClCompile Include="Entities\Player\Weapons\Projectiles\CaneProjectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleSystems\CaneTrail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp">
@@ -147,6 +150,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Player\Weapons\Projectiles\CaneProjectile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\IEnemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

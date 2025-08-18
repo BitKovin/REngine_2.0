@@ -730,6 +730,17 @@ void Player::Deserialize(json& source)
 
 }
 
+void Player::Teleport(vec3 target)
+{
+
+    Position = target;
+
+    controller.SetPosition(target);
+    controller.heightSmoothOffset = 0;
+    
+
+}
+
 void Player::StartBike()
 {
     if (on_bike) return;

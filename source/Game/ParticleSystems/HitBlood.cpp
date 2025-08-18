@@ -107,7 +107,7 @@ public:
     {
         Particle particle = ParticleEmitter::GetNewParticle();
         particle.velocity = Rotation;
-        particle.Size = glm::mix(0.15f, 0.2f, RandomFloat());
+        particle.Size = glm::mix(0.12f, 0.14f, RandomFloat());
         particle.Transparency = 1;
         particle.deathTime = 1.0f;
         particle.rotation = RandomFloat() * 500.0f;
@@ -145,7 +145,7 @@ public:
             particle.UserValue1 += deltaTime;
 
 
-        const float spawnInterval = 0.07f;
+        float spawnInterval = 0.05f * Time::TimeScale;
         if (particle.UserValue1 > spawnInterval)
         {
             particle.UserValue1 -= spawnInterval;
@@ -201,16 +201,16 @@ public:
         Particle particle = ParticleEmitter::GetNewParticle();
         particle.BouncePower = 0.5f;
         particle.CollisionRadius = 0.2f;
-        particle.Size = 0.4;
+        particle.Size = 0.3;
 
         particle.position2 = Position;
 
-        glm::vec3 randPos = RandomPosition(0.1f);
+        glm::vec3 randPos = RandomPosition(0.03f);
         particle.position += randPos;
 
         glm::vec3 randomDir = RandomPosition(1.0f);
-        glm::vec3 velocity = glm::normalize(randomDir) * 2.5f;
-        velocity.y += 2.0f * glm::mix(1.0f, 2.0f, RandomFloat());
+        glm::vec3 velocity = glm::normalize(randomDir) * 1.5f;
+        velocity.y += 1.8f * glm::mix(1.0f, 2.0f, RandomFloat());
         velocity += GetForwardFromRotation(Rotation) * 2.5f;
         velocity *= glm::mix(0.3f, 1.0f, RandomFloat());
 

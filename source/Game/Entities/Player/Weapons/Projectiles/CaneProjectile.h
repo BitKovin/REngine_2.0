@@ -25,6 +25,18 @@ public:
 
 	StaticMesh* mesh = nullptr;
 
+	string hitEntityId = "";
+
+	vec3 relativeOffset = vec3(0,0,0);
+
+
+	const Body* bodyToPush = nullptr;
+	vec3 impulseToApply = vec3();
+
+	bool movingTo = false;
+
+	bool inEnemy = false;
+
 	CaneProjectile()
 	{
 
@@ -42,7 +54,7 @@ public:
 	void LoadAssets()
 	{
 
-		PreloadEntityType("bullet_trail");
+		PreloadEntityType("cane_trail");
 		mesh->LoadFromFile("GameData/models/player/weapons/cane/cane.obj");
 		mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/models/player/weapons/cane/cane.png");
 
@@ -52,7 +64,7 @@ public:
 	{
 		oldPos = Position;
 
-		trail = (ParticleSystem*)Spawn("bullet_trail");
+		trail = (ParticleSystem*)Spawn("cane_trail");
 		trail->Position = Position;
 		trail->Rotation = Rotation;
 		trail->Start();
@@ -70,8 +82,9 @@ public:
 			trail = nullptr;
 		}
 
-
 	}
+
+	void DamageEntity();
 
 	void Serialize(json& target)
 	{
@@ -80,6 +93,9 @@ public:
 
 		SERIALIZE_FIELD(target, oldPos)
 		SERIALIZE_FIELD(target, traveledDistance)
+		SERIALIZE_FIELD(target, hited)
+		SERIALIZE_FIELD(target, hitEntityId)
+		SERIALIZE_FIELD(target, relativeOffset)
 
 	}
 
@@ -89,7 +105,10 @@ public:
 		Entity::Deserialize(source);
 
 		DESERIALIZE_FIELD(source, oldPos)
-			DESERIALIZE_FIELD(source, traveledDistance)
+		DESERIALIZE_FIELD(source, traveledDistance)
+		DESERIALIZE_FIELD(source, hited)
+		DESERIALIZE_FIELD(source, hitEntityId)
+		DESERIALIZE_FIELD(source, relativeOffset)
 
 	}
 

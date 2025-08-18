@@ -94,3 +94,17 @@ SoundPlayer* SoundPlayer::Create(string soundPath)
 
 	return player;
 }
+
+void SoundPlayer::PlayOneshot(string soundPath,float destroyAfterSeconds, bool UiSound, vec3 position)
+{
+
+	auto player = Create(soundPath);
+
+	player->Position = position;
+	player->Sound->IsUISound = UiSound;
+
+	player->DestroyWithDelay(destroyAfterSeconds);
+
+	player->Play();
+
+}

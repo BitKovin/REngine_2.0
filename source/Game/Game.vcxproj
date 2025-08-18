@@ -256,6 +256,7 @@
     <ClCompile Include="Entities\WorldSpawn.cpp" />
     <ClCompile Include="GameStart.cpp" />
     <ClCompile Include="ParticleSystems\BulletTrail.cpp" />
+    <ClCompile Include="ParticleSystems\CaneTrail.cpp" />
     <ClCompile Include="ParticleSystems\HitBlood.cpp" />
     <ClCompile Include="UI\LoadingScreen\UiDefaultLoadingScreen.cpp" />
     <ClCompile Include="UI\MobileControls\UiJoystick.cpp" />
@@ -263,6 +264,7 @@
     <ClCompile Include="UI\Player\PlayerHud.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Entities\IEnemy.h" />
     <ClInclude Include="Entities\Npc\Animators\NpcAnimatorBase.h" />
     <ClInclude Include="Entities\Npc\NpcBase.h" />
     <ClInclude Include="Entities\Player\Player.hpp" />

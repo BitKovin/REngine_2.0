@@ -66,14 +66,15 @@ using namespace JPH;
 using namespace std;
 
 enum BodyType : uint32_t {
-	None = 1,       // 1
-	MainBody = 2,       // 2
-	HitBox = 4,       // 4
-	WorldOpaque = 8,       // 8
-	CharacterCapsule = 16,      // 16
-	NoRayTest = 32,      // 32
-	Liquid = 64,      // 64
-	WorldTransparent = 128,     // 128
+	None = 1,       
+	MainBody = 2,       
+	HitBox = 4,       
+	WorldOpaque = 8,       
+	CharacterCapsule = 16,      
+	NoRayTest = 32,      
+	Liquid = 64,      
+	WorldTransparent = 128,    
+	WorldSkybox = 256,     
 
 	// Combined groups:
 	World = WorldOpaque | WorldTransparent,

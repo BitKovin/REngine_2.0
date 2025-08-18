@@ -49,6 +49,7 @@ void SoundManager::InitFmod()
     flags |= FMOD_INIT_3D_RIGHTHANDED;
 
 
+
     studioSystem->getCoreSystem(&coreSystem);
 
     //coreSystem->setDSPBufferSize(512, 4);
@@ -74,8 +75,10 @@ void SoundManager::InitFmod()
 #endif // _EMSCRIPTEN_
 
 
+    unsigned int studioFlags = FMOD_INIT_NORMAL;
+
 #ifdef DEBUG
-    flags |= FMOD_STUDIO_INIT_LIVEUPDATE;
+    studioFlags |= FMOD_STUDIO_INIT_LIVEUPDATE;
 #endif
 
 	int maxSounds = 512;
@@ -87,7 +90,7 @@ void SoundManager::InitFmod()
 #endif // __EMSCRIPTEN__
 
 
-    studioSystem->initialize(maxSounds, FMOD_INIT_NORMAL, flags, nullptr);
+    studioSystem->initialize(maxSounds, studioFlags, flags, nullptr);
 }
 
 void SoundManager::UpdateContext(ALCcontext* context)

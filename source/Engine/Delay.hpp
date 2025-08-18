@@ -74,7 +74,7 @@ public:
 
 	float GetProgress()
 	{
-		return 1.0f -((totalDuration - GetRemainTime()) / totalDuration);
+		return ((totalDuration - GetRemainTime()) / totalDuration);
 	}
 
 private:

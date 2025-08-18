@@ -1142,7 +1142,7 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
     if (shapesSky.size())
     {
         RefConst<Shape> skyShape = Physics::CreateStaticCompoundShapeFromConvexShapes(shapesSky);
-        Body* bodySky = Physics::CreateBodyFromShape(entity, vec3(0), skyShape, 10, true, BodyType::None, BodyType::CharacterCapsule);
+        Body* bodySky = Physics::CreateBodyFromShape(entity, vec3(0), skyShape, 10, true, BodyType::WorldSkybox, BodyType::CharacterCapsule);
         entity->Bodies.push_back(bodySky);
     }
    

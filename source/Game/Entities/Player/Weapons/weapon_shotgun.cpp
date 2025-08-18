@@ -12,7 +12,7 @@ public:
 	SkeletalMesh* viewmodel;
 	SkeletalMesh* arms;
 
-	vec3 weaponOffset = vec3(0.023, 0.013, -0.13);
+	vec3 weaponOffset = vec3(0.013, 0.013, -0.13);
 
 	Delay attackDelay;
 

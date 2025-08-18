@@ -16,6 +16,8 @@ public:
 	/// Must be called every frame to advance virtual playhead and reclaim sources
 	virtual void Update(float deltaTime){}
 
+	virtual bool IsPlaying() { return true; }
+
 	// ─── Public Properties ──────────────────────────────────────────────
 
 	float Priority = 0.0f;    // higher = more important

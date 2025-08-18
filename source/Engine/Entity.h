@@ -47,7 +47,7 @@ public:
 
 	string Name = "";
 
-	float Health = 0;
+	float Health = 1;
 
 
 	bool AssetsLoaded = false;
@@ -149,25 +149,9 @@ public:
 
 	virtual void Destroy();
 
-	void Serialize(json& target)
-	{
-		SERIALIZE_FIELD(target, Name);
-		SERIALIZE_FIELD(target, Position);
-		SERIALIZE_FIELD(target, Rotation);
-		SERIALIZE_FIELD(target, Scale);
-		SERIALIZE_FIELD(target, Health);
-		SERIALIZE_FIELD(target, destroyDelay);
-	}
+	void Serialize(json& target);
 
-	void Deserialize(json& source)
-	{
-		DESERIALIZE_FIELD(source, Name);
-		DESERIALIZE_FIELD(source, Position);
-		DESERIALIZE_FIELD(source, Rotation);
-		DESERIALIZE_FIELD(source, Scale);
-		DESERIALIZE_FIELD(source, Health);
-		DESERIALIZE_FIELD(source, destroyDelay)
-	}
+	void Deserialize(json& source);
 
 	void LoadAssetsIfNeeded()
 	{

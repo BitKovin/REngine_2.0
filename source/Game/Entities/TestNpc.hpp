@@ -13,6 +13,7 @@
 #include <Entities/SoundPlayer.h>
 #include <Delay.hpp>
 
+
 class TestNpc : public Entity
 {
 
@@ -60,6 +61,8 @@ public:
 		Health = 50;
 
 		mesh->UpdatePoseOnlyWhenRendered = true;
+
+		Tags.push_back("enemy");
 
 	}
 

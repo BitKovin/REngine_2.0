@@ -21,6 +21,8 @@ NpcBase::NpcBase()
 
 	animator = NpcAnimatorBase(this);
 
+	Tags.push_back("enemy");
+
 }
 
 NpcBase::~NpcBase()
@@ -89,6 +91,9 @@ void NpcBase::Death()
 	LeadBody = nullptr;
 
 	dead = true;
+
+	//Tags.clear();
+
 	return;
 	if (DeathSoundPlayer)
 	{
@@ -236,7 +241,7 @@ void NpcBase::AsyncUpdate()
 		ProcessAnimationEvent(event);
 	}
 
-	if (Input::GetAction("attack2")->Pressed())
+	if (Input::GetAction("attack2")->Pressed() && false)
 	{
 
 		Health = 100;

@@ -46,9 +46,11 @@ public:
 	/// Same, but returns degrees.
 	static float GroundAngleDeg(const glm::vec3& normal);
 
+	float heightSmoothOffset = 0;
+
 private:
 
-	float heightSmoothOffset = 0;
+
 
 	void UpdateGroundCheck(bool& hitsGround, float& calculatedCharacterHeight, bool& canStand, vec3& notWalkableNormal);
 

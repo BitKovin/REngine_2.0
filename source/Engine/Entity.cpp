@@ -48,3 +48,26 @@ void Entity::Destroy()
 
 	Level::Current->RemoveEntity(this);
 }
+
+void Entity::Serialize(json& target)
+{
+	SERIALIZE_FIELD(target, Name);
+	SERIALIZE_FIELD(target, Position);
+	SERIALIZE_FIELD(target, Rotation);
+	SERIALIZE_FIELD(target, Scale);
+	SERIALIZE_FIELD(target, Health);
+	SERIALIZE_FIELD(target, destroyDelay);
+	SERIALIZE_FIELD(target, Tags);
+
+}
+
+void Entity::Deserialize(json& source)
+{
+	DESERIALIZE_FIELD(source, Name);
+	DESERIALIZE_FIELD(source, Position);
+	DESERIALIZE_FIELD(source, Rotation);
+	DESERIALIZE_FIELD(source, Scale);
+	DESERIALIZE_FIELD(source, Health);
+	DESERIALIZE_FIELD(source, destroyDelay);
+	DESERIALIZE_FIELD(source, Tags);
+}
