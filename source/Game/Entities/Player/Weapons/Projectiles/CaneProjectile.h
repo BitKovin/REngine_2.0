@@ -83,10 +83,6 @@ public:
 
 	}
 
-	void ReturnToPlayer();
-
-	void PerformGrabFromEnemy();
-
 	void Deserialize(json& source)
 	{
 

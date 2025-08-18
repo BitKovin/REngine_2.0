@@ -4,14 +4,7 @@
 
 REGISTER_ENTITY(CaneProjectile, "caneProjectile")
 
-void CaneProjectile::ReturnToPlayer()
-{
 
-	//Player::Instance.
-
-	Destroy();
-
-}
 
 void CaneProjectile::Update()
 {
@@ -22,11 +15,14 @@ void CaneProjectile::Update()
 
 	vec3 forward = MathHelper::GetForwardVector(Rotation);
 
-	Position += MathHelper::GetForwardVector(Rotation) * travelDistance;
 
 	trail->Position = Position;
 	mesh->Position = Position;
 	mesh->Rotation = Rotation;
+
+	if (hited) return;
+
+	Position += MathHelper::GetForwardVector(Rotation) * travelDistance;
 
 	auto hit = Physics::LineTrace(oldPos, Position, BodyType::GroupHitTest);
 
@@ -38,6 +34,7 @@ void CaneProjectile::Update()
 
 		trail->Position = hit.position;
 		mesh->Position = hit.position;
+		Position = hit.position;
 
 		hited = true;
 
@@ -48,10 +45,12 @@ void CaneProjectile::Update()
 
 	if (traveledDistance > MaxDistance)
 	{
-		Destroy();
 		trail->Position = hit.position;
 		trail->StopAll();
 		trail = nullptr;
+
+		Destroy();
+
 	}
 
 	oldPos = Position;

@@ -292,7 +292,7 @@ void Player::UpdateWeapon()
     if (currentWeapon != nullptr)
     {
 
-        currentWeapon->HideWeapon = bike_progress;
+        currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
         currentWeapon->Position = Camera::position;
         currentWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.5f);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 

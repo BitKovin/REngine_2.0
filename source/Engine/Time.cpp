@@ -63,7 +63,8 @@ void Time::Update() {
 }
 
 void Time::AddTimeScaleEffect(float duration, float scale,
-    bool affectSound, const std::string& key) 
+    bool affectSound, const std::string& key,
+    float blendIn /*=0.0f*/, float blendOut /*=0.0f*/)
 {
     // Remove existing effects with same key if applicable
     if (!key.empty()) {
@@ -79,26 +80,66 @@ void Time::AddTimeScaleEffect(float duration, float scale,
         );
     }
 
-    // Create and add new effect
     TimeScaleEffect e;
-    e.remainingDuration = duration;
+    e.remainingDuration = duration + blendIn + blendOut;
+    e.totalDuration = e.remainingDuration;
     e.timeScale = scale;
+    e.blendIn = blendIn;
+    e.blendOut = blendOut;
     e.affectSound = affectSound;
-    e.key = key;  // Store key (empty if not provided)
+    e.key = key;
+
     timeScaleEffects.push_back(e);
 }
 
+
 float Time::GetFinalTimeScale() {
     float result = TimeScale;
-    for (const auto& e : timeScaleEffects)
-        result *= e.timeScale;
+
+    for (const auto& e : timeScaleEffects) {
+        float t = e.totalDuration - e.remainingDuration;
+
+        float effectiveScale = e.timeScale;
+
+        // Blend in
+        if (t < e.blendIn && e.blendIn > 0.0f) {
+            float alpha = t / e.blendIn;
+            effectiveScale = 1.0f + (e.timeScale - 1.0f) * alpha;
+        }
+        // Blend out
+        else if (e.remainingDuration < e.blendOut && e.blendOut > 0.0f) {
+            float alpha = e.remainingDuration / e.blendOut;
+            effectiveScale = 1.0f + (e.timeScale - 1.0f) * alpha;
+        }
+
+        result *= effectiveScale;
+    }
+
     return result;
 }
 
+
 float Time::GetSoundFinalTimeScale() {
     float result = TimeScale;
-    for (const auto& e : timeScaleEffects)
-        if (e.affectSound)
-            result *= e.timeScale;
+
+    for (const auto& e : timeScaleEffects) {
+        if (!e.affectSound) continue;
+
+        float t = e.totalDuration - e.remainingDuration;
+        float effectiveScale = e.timeScale;
+
+        if (t < e.blendIn && e.blendIn > 0.0f) {
+            float alpha = t / e.blendIn;
+            effectiveScale = 1.0f + (e.timeScale - 1.0f) * alpha;
+        }
+        else if (e.remainingDuration < e.blendOut && e.blendOut > 0.0f) {
+            float alpha = e.remainingDuration / e.blendOut;
+            effectiveScale = 1.0f + (e.timeScale - 1.0f) * alpha;
+        }
+
+        result *= effectiveScale;
+    }
+
     return result;
 }
+

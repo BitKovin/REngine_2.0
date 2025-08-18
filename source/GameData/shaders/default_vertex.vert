@@ -19,6 +19,8 @@ uniform mat4 lightMatrix4;
 
 uniform float brightness;
 
+uniform float viewmodelScaleFactor;
+
 const int MAX_BONES = 128;
 const int MAX_BONE_INFLUENCE = 4;
 uniform mat4 finalBonesMatrices[MAX_BONES];
@@ -70,7 +72,7 @@ void main()
     v_clipPosition = projection * view * vertWorldTrans * vec4(Position, 1.0);
 
 	if(isViewmodel)
-		v_clipPosition.z*=0.01;
+		v_clipPosition.z*=0.02 * viewmodelScaleFactor;
 
 	gl_Position = v_clipPosition;
 	v_worldPosition = (vertWorldTrans * vec4(Position, 1.0)).xyz;

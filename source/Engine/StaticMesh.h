@@ -78,6 +78,8 @@ public:
 	bool CastHiddenShadows = false;
 	bool CastDetailShadows = false;
 
+	float ViewmodelScaleFactor = 1.0f;
+
 	bool TwoSided = false;
 
 	StaticMesh(Entity* owner)

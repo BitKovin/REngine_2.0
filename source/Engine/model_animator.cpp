@@ -404,7 +404,7 @@ void roj::Animator::play()
 {
     m_playing = true;
 
-    if (m_currAnim)
+    if (m_currAnim && Loop)
     {
         m_currTime = m_currAnim->frameTime;
     }

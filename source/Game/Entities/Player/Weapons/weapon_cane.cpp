@@ -20,6 +20,8 @@ public:
 
 	vec3 projectileOffset = vec3(0.03f, -0.15f, -0.3f);
 
+	bool thrown = false;
+
 	weapon_cane()
 	{
 
@@ -36,9 +38,15 @@ public:
 		fireSoundPlayer->Is2D = true;
 
 
-		attackDelay.AddDelay(0.3);
+		//attackDelay.AddDelay(0.3);
 		SwitchDelay.AddDelay(0.35);
 
+	}
+
+	void SetViewmodelScaleFactor(float factor)
+	{
+		viewmodel->ViewmodelScaleFactor = factor;
+		arms->ViewmodelScaleFactor = factor;
 	}
 
 	void LoadAssets()
@@ -53,10 +61,8 @@ public:
 		viewmodel->LoadFromFile("GameData/models/player/weapons/cane/cane.glb");
 		//viewmodel->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/textures/cat.png");
 		viewmodel->TexturesLocation = "GameData/models/player/weapons/cane/"; // to search in file:   cane.glb/
-		viewmodel->PlayAnimation("idle");
+		viewmodel->PlayAnimation("idle",true);
 		viewmodel->PreloadAssets();
-
-		viewmodel->Transparent = true;
 
 		viewmodel->IsViewmodel = true;
 
@@ -70,13 +76,98 @@ public:
 
 	}
 
+	void ReturnCane()
+	{
+		thrown = false;
+
+		auto projectiles = Level::Current->FindAllEntitiesWithName("caneProjectile");
+
+		for (auto p : projectiles)
+		{
+			p->Destroy();
+		}
+
+		viewmodel->PlayAnimation("idle", true, 0.3f);
+
+	}
+
+	void GrabCane()
+	{
+		thrown = false;
+
+		auto projectiles = Level::Current->FindAllEntitiesWithName("caneProjectile");
+
+		for (auto p : projectiles)
+		{
+			p->Destroy();
+		}
+
+		SetViewmodelScaleFactor(0.5);
+
+		viewmodel->PlayAnimation("grab", false, 0.0f);
+		Time::AddTimeScaleEffect(0.65, 0.2, true, "weapon", 0.2f, 0.2);
+
+	}
+
 	void Update()
 	{
+
 		if (Input::GetAction("attack2")->Pressed())
 		{
 			if (attackDelay.Wait() == false)
-				Attack();
+			{
+
+				if (thrown)
+				{
+					GrabCane();
+				}
+				else
+				{
+					Attack();
+				}
+
+			}
 		}
+
+		Entity* caneProjectile = Level::Current->FindEntityWithName("caneProjectile");
+
+		if (caneProjectile == nullptr && thrown)
+		{
+			ReturnCane();
+		}
+		else
+		{
+
+			if (caneProjectile != nullptr && attackDelay.Wait() == false)
+			{
+				if (viewmodel->currentAnimationData->animationName != "throw")
+				{
+					viewmodel->PlayAnimation("throw", false, 0);
+					viewmodel->SetAnimationTime(viewmodel->GetAnimationDuration());
+					viewmodel->Update();
+					viewmodel->PullAnimationEvents();
+				}	
+
+
+			}
+
+		}
+
+		auto events = viewmodel->PullAnimationEvents();
+
+		for (auto event : events)
+		{
+			if (event.eventName == "throw")
+			{
+				PerformAttack();
+			}
+
+			if (event.eventName == "restore_size")
+			{
+				SetViewmodelScaleFactor(2);
+			}
+		}
+
 	}
 
 	void Attack()
@@ -84,7 +175,9 @@ public:
 
 		SwitchDelay.AddDelay(0.2f);
 
-		viewmodel->PlayAnimation("throw", false, 0.05f);
+		SetViewmodelScaleFactor(2);
+
+		viewmodel->PlayAnimation("throw", false, 0);
 		Camera::AddCameraShake(CameraShake(
 			0.13f,                            // interpIn
 			0.0f,                            // duration
@@ -96,12 +189,7 @@ public:
 			CameraShake::ShakeType::SingleWave // shakeType
 		));
 
-		auto projectiles = Level::Current->FindAllEntitiesWithName("caneProjectile");
 
-		for (auto p : projectiles)
-		{
-			p->Destroy();
-		}
 
 		attackDelay.AddDelay(1.0f);
 
@@ -125,6 +213,13 @@ public:
 			MathHelper::TransformVector(projectileOffset,
 				Camera::GetRotationMatrix());
 
+		thrown = true;
+		auto projectiles = Level::Current->FindAllEntitiesWithName("caneProjectile");
+
+		for (auto p : projectiles)
+		{
+			p->Destroy();
+		}
 
 		CaneProjectile* bullet = new CaneProjectile();
 		Level::Current->AddEntity(bullet);
@@ -133,7 +228,8 @@ public:
 
 		vec3 endLoc = Position + MathHelper::GetForwardVector(Camera::rotation) * 80.0f + vec3(offset);
 
-		bullet->Speed = 30.f;
+		bullet->Speed = 60.f;
+		bullet->MaxDistance = 120;
 		bullet->Position = startLoc + vec3(offset) * 0.002f;
 		bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
 		bullet->Start();
@@ -146,17 +242,7 @@ public:
 
 	void AsyncUpdate()
 	{
-		viewmodel->Update(1.4f);
-
-		auto events = viewmodel->PullAnimationEvents();
-
-		for (auto event : events)
-		{
-			if (event.eventName == "throw")
-			{
-				PerformAttack();
-			}
-		}
+		viewmodel->Update();
 
 		auto pose = viewmodel->GetAnimationPose();
 
@@ -170,6 +256,8 @@ public:
 
 		arms->Position = viewmodel->Position;
 		arms->Rotation = viewmodel->Rotation;
+
+		viewmodel->Visible = !thrown;
 	}
 
 

@@ -4,13 +4,17 @@
 #include <vector>
 #include <string>
 
-// Represents a temporary time scale modifier
+
 typedef struct {
     float remainingDuration;   // in seconds (unscaled)
-    float timeScale;          // multiplier to apply
-    bool affectSound;         // whether this effect applies to sound
+    float totalDuration;       // full duration (including blends)
+    float timeScale;           // target multiplier
+    float blendIn;             // duration of blend in seconds
+    float blendOut;            // duration of blend out seconds
+    bool affectSound;          // whether this effect applies to sound
     std::string key;
 } TimeScaleEffect;
+
 
 class Time {
 public:
@@ -28,8 +32,8 @@ public:
     static void Update();
     // Add a custom timescale effect (duration in seconds, multiplier, affectSound)
     static void AddTimeScaleEffect(float duration, float scale,
-        bool affectSound = false,
-        const std::string& key = "");
+        bool affectSound, const std::string& key,
+        float blendIn =0.0f, float blendOut = 0.0f);
 
     // Get the current compounded timescale (for gameplay)
     static float GetFinalTimeScale();

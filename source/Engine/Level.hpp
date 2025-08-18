@@ -185,8 +185,6 @@ public:
 			var->UpdateDebugUI();
 		}
 
-		RemovePendingEntities();
-
 	}
 
 	vector<Entity*> FindAllEntitiesWithName(const std::string& name);

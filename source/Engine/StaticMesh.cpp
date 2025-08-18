@@ -93,6 +93,7 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 
 	forward_shader_program->SetUniform("view", view);
 	forward_shader_program->SetUniform("projection", projection);
+	forward_shader_program->SetUniform("viewmodelScaleFactor", ViewmodelScaleFactor);
 
 	forward_shader_program->SetUniform("world", world);
 
@@ -178,6 +179,7 @@ void StaticMesh::DrawDepth(mat4x4 view, mat4x4 projection)
 
 	shader_program->SetUniform("view", view);
 	shader_program->SetUniform("projection", projection);
+	shader_program->SetUniform("viewmodelScaleFactor", ViewmodelScaleFactor);
 
 	shader_program->SetUniform("world", world);
 
