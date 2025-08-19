@@ -101,6 +101,13 @@ int ThreadPool::GetMaxThreads()
 
 int ThreadPool::GetNumThreadsForPhysics()
 {
+
+#ifdef DISABLE_TREADPOOL
+
+	return 0;
+
+#endif
+
 	return ceil(GetMaxThreads() * 0.6);
 }
 

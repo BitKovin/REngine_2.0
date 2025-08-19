@@ -14,7 +14,6 @@
 #include "ThreadPool.h"
 
 #include <future>
-
 #include <thread>
 
 #include "ImGuiEngineImpl.h"

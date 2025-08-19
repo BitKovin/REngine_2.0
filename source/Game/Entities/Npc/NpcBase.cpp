@@ -2,7 +2,7 @@
 
 #include <SoundSystem/FmodEventInstance.h>
 
-#include <GlobalParticleSystem.hpp>
+#include <Particle/GlobalParticleSystem.hpp>
 
 #include <Input.h>
 

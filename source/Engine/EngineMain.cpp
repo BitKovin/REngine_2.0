@@ -151,7 +151,10 @@ void EngineMain::Init()
 
     Time::Init();
 
+
+    printf("initPhys\n");
     Physics::Init();
+    printf("initPhys\n");
 
     FileSystemEngine::Init();
 
@@ -164,6 +167,8 @@ void EngineMain::Init()
     InitInputs();
 
     initGame();
+
+    printf("init finished\n");
 }
 
 void EngineMain::FinishFrame()
@@ -240,14 +245,14 @@ void EngineMain::MainLoop()
 
     Input::UpdateMouse();
 
-    // Start GameUpdate here, either asynchronously or synchronously.
-    if (asyncGameUpdate) {
-        // Optionally, check if a previous async GameUpdate is still running.
-
-        // Launch GameUpdate asynchronously.
+    
+    if (asyncGameUpdate) 
+    {
         gameUpdateFuture = std::async(std::launch::async, &EngineMain::GameUpdate, this);
     }
-    else {
+    else 
+    {
+
         // Run GameUpdate on the main thread.
         GameUpdate();
     }

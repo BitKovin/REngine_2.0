@@ -133,6 +133,7 @@ int main(int argc, char* args[]) {
     EngineMain::MainInstance = engine;
     engine->Init();
 
+    Input::AddAction("fullscreen")->AddKeyboardKey(SDL_GetScancodeFromKey(SDLK_F11));
 
     EmscriptenFullscreenStrategy strategy;
     strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_STRETCH;

@@ -219,6 +219,8 @@ void Physics::Init()
 #endif
 
 
+
+
 	threadPool = new JobSystemThreadPool(cMaxPhysicsJobs, cMaxPhysicsBarriers, numThreads);
 
 	const uint cMaxBodies = 65536;
@@ -445,8 +447,10 @@ Constraint* Physics::CreateRagdollConstraint(Body* parent,
 	settings.mPlaneHalfConeAngle = swingHalfConeAngle;
 
 	// --- 6) create & register
-	Ref<Constraint> c = settings.Create(*parent, *child);
+	Ref<TwoBodyConstraint> c = settings.Create(*parent, *child);
 	physics_system->AddConstraint(c);
+
+
 	return c;
 
 }

@@ -14,7 +14,7 @@
 
 
 #ifndef DISABLE_TREADPOOL
-#include <atomic> // add this
+#include <atomic>
 #include <thread>
 #include <condition_variable>
 #endif
