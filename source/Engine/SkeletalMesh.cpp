@@ -80,6 +80,35 @@ AnimationPose AnimationPose::Lerp(AnimationPose a, AnimationPose b, float progre
 
 }
 
+std::vector<Physics::HitboxData> SkeletalMesh::GetPhysicsHitboxData()
+{
+	
+	std::vector<Physics::HitboxData> output;
+
+	output.reserve(metaData.hitboxes.size());
+
+	for (auto hitbox : metaData.hitboxes)
+	{
+		Physics::HitboxData out;
+
+		out.boneName = hitbox.boneName;
+		out.size = hitbox.size;
+		out.rotation = hitbox.rotation;
+		out.position = hitbox.position;
+		out.parentBone = hitbox.parentBone;
+		out.twistParameters = hitbox.twistParameters;
+		out.constraintRotation = hitbox.constraintRotation;
+		out.mass = hitbox.mass;
+
+
+		output.push_back(out);
+
+	}
+
+	return output;
+
+}
+
 void SkeletalMesh::ApplyWorldSpaceBoneTransforms(std::unordered_map<std::string, mat4>& pose)
 {
 
@@ -451,66 +480,52 @@ void SkeletalMesh::ClearHitboxes()
 {
 	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
 
-	for (Body* body : hitboxBodies)
-	{
-		Physics::DestroyBody(body);
-	}
-
-	for (auto constraint : hitboxConstraints)
-	{
-		Physics::DestroyConstraint(constraint.second);
-	}
-
+	Physics::DestroyRagdoll(ragdollHandle);
+	ragdollHandle = nullptr;
+	
 	hitboxBodies.clear();
 	hitboxConstraints.clear();
 }
 
-void SkeletalMesh::CreateHitbox(Entity* owner,HitboxData data)
-{
-	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
-
-	Body* body = Physics::CreateHitBoxBody(owner, data.boneName, data.position, MathHelper::GetRotationQuaternion(data.rotation), data.size);
-
-	hitboxBodies.push_back(body);
-
-}
 
 void SkeletalMesh::CreateHitboxes(Entity* owner)
 {
+	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
 
+	// 0) capture and switch to REST (bind) pose so restPoseModelSpace is correct
 	auto oldPose = GetAnimationPose();
+	animator.ApplyBonePoseArray(std::unordered_map<std::string, glm::mat4>{}); // rest pose (no visual update)
 
-	animator.ApplyBonePoseArray(std::unordered_map<std::string, mat4>{}); //applying rest pose without visual update
-
-	ClearHitboxes();
-
-	for (auto hitbox : metaData.hitboxes)
-	{
-		CreateHitbox(owner, hitbox);
+	// 1) Build a bone->bindModel matrix dictionary (for inverse bind transforms)
+	std::unordered_map<std::string, glm::mat4> restPoseModelSpace;
+	restPoseModelSpace.reserve(metaData.hitboxes.size());
+	for (auto& hb : metaData.hitboxes)
+	{	
+		restPoseModelSpace[hb.boneName] = GetBoneMatrixWorld(hb.boneName);
 	}
 
-	UpdateHitboxes();
+	// 2) Destroy old ragdoll (if any)
+	if (ragdollHandle) Physics::DestroyRagdoll(ragdollHandle);
 
-	for (auto hitbox : metaData.hitboxes)
+	// 3) Create the NEW ragdoll in one shot
+	ragdollHandle = Physics::CreateRagdollFromHitboxes(
+		owner,
+		GetPhysicsHitboxData(),
+		restPoseModelSpace,
+		Layers::MOVING,        // or your ragdoll layer
+		0  // your configured GroupFilterTable entry
+	);
+
+	for (auto& hb : metaData.hitboxes)
 	{
 
-		if (hitbox.parentBone == "") continue;
-		
-		Body* parentBody = FindHitboxByName(hitbox.parentBone);
-		Body* currentBody = FindHitboxByName(hitbox.boneName);
-
-		if (parentBody == nullptr || currentBody == nullptr) continue;
-
-		auto constraint = Physics::CreateRagdollConstraint(parentBody, currentBody, hitbox.twistParameters.x, hitbox.twistParameters.y, hitbox.twistParameters.z, ToPhysics(MathHelper::GetRotationQuaternion(hitbox.constraintRotation)));
-		
-		constraint->SetEnabled(false);
-
-		hitboxConstraints[hitbox.boneName] = constraint;
+		hitboxBodies.push_back(Physics::GetRagdollBody(ragdollHandle, hb.boneName));
+		hitboxConstraints[hb.boneName] = (Physics::GetRagdollConstraint(ragdollHandle, hb.boneName));
 
 	}
 
-	animator.ApplyBonePoseArray(oldPose.boneTransforms); //restoring old pose just in case
-
+	// 4) Restore previous visual pose
+	animator.ApplyBonePoseArray(oldPose.boneTransforms);
 }
 
 Constraint* SkeletalMesh::GetConstraintByHitboxName(string name)
@@ -574,7 +589,8 @@ void SkeletalMesh::UpdateHitboxes()
 
 		}
 
-		ApplyWorldSpaceBoneTransforms(pose);
+
+		Physics::SetRagdollPose(ragdollHandle, pose);
 
 		return;
 	}

@@ -187,9 +187,13 @@ private:
 	std::vector<Body*> hitboxBodies;
 	std::unordered_map<string,Constraint*> hitboxConstraints; 
 
+	Physics::RagdollHandle* ragdollHandle;
+
 	std::recursive_mutex hitboxMutex;
 
 	std::vector<AnimationEvent> pendingAnimationEvents;
+
+	std::vector<Physics::HitboxData> GetPhysicsHitboxData();
 
 protected:
 
@@ -347,8 +351,7 @@ public:
 	void StopRagdoll();
 
 	void ClearHitboxes();
-
-	void CreateHitbox(Entity* owner, HitboxData data);
+	
 
 	void CreateHitboxes(Entity* owner);
 

@@ -40,6 +40,9 @@
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Core/Reference.h>
 #include <Jolt/Physics/Body/BodyLockMulti.h>
+#include <Jolt/Physics/Ragdoll/Ragdoll.h>
+#include <Jolt/Skeleton/Skeleton.h>
+#include <Jolt/Physics/Constraints/SwingTwistConstraint.h>
 
 
 #include "DebugDraw.hpp"
@@ -439,6 +442,31 @@ public:
 
 	};
 
+	struct HitboxData
+	{
+		std::string boneName;
+		std::string parentBone;         // "" or name of parent bone
+		glm::vec3   position;           // local (to bone) offset of the hit box
+		glm::quat   rotation;           // local (to bone) rot of the hit box
+		glm::vec3   size;               // box size
+		float       mass = 1.0f;
+
+		// constraint:
+		glm::vec3   twistParameters;    // (minDeg, maxDeg, swingHalfConeDeg)
+		glm::quat   constraintRotation; // child-space axes orientation
+	};
+
+	// Thin handle you can store in SkeletalMesh instead of vectors of bodies/constraints
+	struct RagdollHandle
+	{
+		JPH::Ref<JPH::Ragdoll>     ragdoll;
+		JPH::Ref<JPH::Skeleton>    skeleton; // joint names + hierarchy
+		std::unordered_map<std::string, JPH::Body*> boneToBody;
+		std::unordered_map<std::string, JPH::TwoBodyConstraint*> constraintOf;
+		uint32_t groupFilterID = 0;      // for self-collision filtering
+	};
+
+
 	static std::recursive_mutex physicsMainLock;
 
 	static PhysicsSystem* physics_system;
@@ -471,7 +499,19 @@ public:
 
 		if (res != bodyIdMap.end())
 		{
+
 			return res->second;
+		}
+
+		{
+			JPH::BodyLockWrite lock(physics_system->GetBodyLockInterface(), id);
+			if (lock.Succeeded())
+			{
+				JPH::Body& body = lock.GetBody();
+				
+				bodyIdMap[id] = &body;
+
+			}
 		}
 
 		return nullptr;
@@ -924,6 +964,31 @@ public:
 	static HitResult SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
 	static HitResult CylinderTrace(const vec3 start, const vec3 end, float radius, float halfHeight, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
 	static HitResult ShapeTrace(const Shape* shape,vec3 start, vec3 end, vec3 scale, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
+
+	// Build a ragdoll from your hitbox list (one call replaces all per-bone work)
+	static RagdollHandle* CreateRagdollFromHitboxes(
+		Entity* owner,
+		const std::vector<HitboxData>& hitboxes,
+		const std::unordered_map<std::string, glm::mat4>& restPoseModelSpace, // boneName -> model-space bind matrix
+		JPH::ObjectLayer layer,                                               // e.g. Layers::MOVING
+		uint32_t groupFilterID                                                // configured GroupFilterTable ID for self-collisions
+	);
+
+	static void DestroyRagdoll(RagdollHandle*&);
+
+	// Convenience getters
+	static JPH::Body* GetRagdollBody(RagdollHandle*, const std::string& boneName);
+	static JPH::TwoBodyConstraint* GetRagdollConstraint(RagdollHandle*, const std::string& childBone);
+
+	// Mode switching
+	static void SetRagdollSimulated(RagdollHandle*, bool enable_dynamic); // true => dynamic simulate, false => kinematic
+
+	// Posing / driving (optional, if you’ll do active ragdoll later)
+	static void SetRagdollPose(RagdollHandle*, const std::unordered_map<std::string, mat4>& pose);
+	static void DriveRagdollToPoseUsingKinematics(RagdollHandle*, const std::unordered_map<std::string, mat4>& pose, float dt);
+	static void DriveRagdollToPoseUsingMotors(RagdollHandle*, const std::unordered_map<std::string, mat4>& pose);
+
+	static JPH::SkeletonPose BuildSkeletonPoseFromMap(RagdollHandle* h, const std::unordered_map<std::string, glm::mat4>& bonePose);
 
 };
 

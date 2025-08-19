@@ -1071,3 +1071,446 @@ Body* Physics::CreateCharacterCylinderBody(Entity* owner, vec3 Position, float R
 
 	return cylinder_body;
 }
+
+static int EnsureJoint(
+	JPH::Skeleton& skel,
+	std::unordered_map<std::string, int>& indexOf,
+	const std::string& name,
+	int parent_idx)
+{
+	auto it = indexOf.find(name);
+	if (it != indexOf.end()) return it->second;
+
+	int idx = (int)skel.GetJointCount();
+	skel.AddJoint(name.c_str(), parent_idx);
+	indexOf[name] = idx;
+	return idx;
+}
+
+static Ref<Shape> MakeHitboxShape(const Physics::HitboxData& hb)
+{
+	// 1) box in its local origin
+	BoxShapeSettings box;
+	box.mHalfExtent = ToPhysics(hb.size * 0.5f);
+	box.SetEmbedded();
+
+	// 2) offset/rotate in shape space
+	RotatedTranslatedShapeSettings rts(
+		ToPhysics(hb.position),
+		ToPhysics(hb.rotation),
+		&box
+	);
+	rts.SetEmbedded();
+
+	auto sr = rts.Create();
+	JPH_ASSERT(!sr.HasError());
+	return sr.Get();
+}
+
+static void ComputeSwingTwistAxesLocalToBodies(
+	const Body& parent, const Body& child,
+	const Quat& childSpaceConstraintRotation,
+	Vec3& twistAxis1, Vec3& planeAxis1,
+	Vec3& twistAxis2, Vec3& planeAxis2)
+{
+	// child-space canonical axes
+	Vec3 csTwist = childSpaceConstraintRotation * Vec3(0, 1, 0);
+	Vec3 csPlane = childSpaceConstraintRotation * Vec3(1, 0, 0);
+
+	// world from child
+	Vec3 wTwist = (child.GetRotation() * csTwist).Normalized();
+	Vec3 wPlane = (child.GetRotation() * csPlane).Normalized();
+
+	// parent local (1) and child local (2)
+	twistAxis1 = parent.GetRotation().Conjugated() * wTwist; // parent local
+	planeAxis1 = parent.GetRotation().Conjugated() * wPlane;
+	twistAxis2 = csTwist;                                     // child local by definition
+	planeAxis2 = csPlane;
+}
+
+static void ComputeLocalPivotsAtJointPosition(
+	const Body& parent, const Body& child,
+	Vec3& p1_local, Vec3& p2_local)
+{
+	// use child's current (bind) joint location as pivot
+	RMat44 childX = child.GetWorldTransform();
+	Vec3   worldPivot = childX.GetTranslation();
+
+	// to child COM local:
+	RMat44 invChildCOM = child.GetCenterOfMassTransform().Inversed();
+	p2_local = Vec3(invChildCOM * Vec4(worldPivot, 1.0f));
+
+	// to parent COM local:
+	RMat44 invParentCOM = parent.GetCenterOfMassTransform().Inversed();
+	p1_local = Vec3(invParentCOM * Vec4(worldPivot, 1.0f));
+}
+
+// -----------------------------------------------------------------------------------
+
+Physics::RagdollHandle* Physics::CreateRagdollFromHitboxes(
+	Entity* owner,
+	const std::vector<HitboxData>& hitboxes,
+	const std::unordered_map<std::string, glm::mat4>& restPoseModelSpace,
+	JPH::ObjectLayer layer,
+	uint32_t groupFilterID)
+{
+	if (hitboxes.empty())
+		return nullptr;
+
+	// -------- 0) Build a parent-before-child ordering (topological sort on names) --------
+	// Map bone name -> list of children
+	std::unordered_map<std::string, std::vector<std::string>> children;
+	std::unordered_map<std::string, int> indeg;
+	std::unordered_map<std::string, HitboxData> byName;
+
+	for (auto& hb : hitboxes) {
+		byName[hb.boneName] = hb;
+		indeg.try_emplace(hb.boneName, 0);
+	}
+	for (auto& hb : hitboxes) {
+		if (!hb.parentBone.empty() && byName.count(hb.parentBone)) {
+			children[hb.parentBone].push_back(hb.boneName);
+			indeg[hb.boneName]++;
+		}
+	}
+
+	std::vector<std::string> order;
+	order.reserve(hitboxes.size());
+	std::queue<std::string> q;
+	for (auto& kv : indeg) if (kv.second == 0) q.push(kv.first);
+	while (!q.empty()) {
+		auto n = q.front(); q.pop();
+		order.push_back(n);
+		for (auto& c : children[n]) {
+			if (--indeg[c] == 0) q.push(c);
+		}
+	}
+	if (order.size() != hitboxes.size()) {
+		// cycle or missing parents — fallback to input order
+		order.clear();
+		for (auto& hb : hitboxes) order.push_back(hb.boneName);
+	}
+
+	// -------- 1) Build Skeleton with parents BEFORE children --------
+	JPH::Ref<JPH::Skeleton> skeleton = new JPH::Skeleton();
+	skeleton->GetJoints().resize(order.size());
+
+	// name -> index and parent index resolution
+	std::unordered_map<std::string, int> nameToIndex;
+	nameToIndex.reserve(order.size());
+	for (int i = 0; i < (int)order.size(); ++i)
+		nameToIndex[order[i]] = i;
+
+	for (int i = 0; i < (int)order.size(); ++i) {
+		const HitboxData& hb = byName[order[i]];
+		JPH::Skeleton::Joint& j = skeleton->GetJoints()[i];
+		j.mName = hb.boneName;
+		j.mParentJointIndex = -1;
+		if (!hb.parentBone.empty()) {
+			auto pit = nameToIndex.find(hb.parentBone);
+			if (pit != nameToIndex.end()) j.mParentJointIndex = pit->second;
+		}
+	}
+
+	// -------- 2) Ragdoll settings with one Part per joint --------
+	JPH::Ref<JPH::RagdollSettings> settings = new JPH::RagdollSettings();
+	settings->mSkeleton = skeleton;
+	settings->mParts.resize(skeleton->GetJointCount());
+
+	// Helper to fetch model-space (skeleton space) rest transforms
+	auto getRestModel = [&](const std::string& bone) -> JPH::Mat44 {
+		auto it = restPoseModelSpace.find(bone);
+		if (it == restPoseModelSpace.end())
+			return JPH::Mat44::sIdentity();
+		return ToPhysics(it->second);
+		};
+
+	// -------- 3) Fill each Part (shape, mass, initial pose, user data, etc.) --------
+	for (int i = 0; i < (int)order.size(); ++i)
+	{
+		const HitboxData& hb = byName[order[i]];
+		JPH::RagdollSettings::Part& part = settings->mParts[i]; // derives BodyCreationSettings
+
+		// Shape: same approach as your CreateHitBoxBody (offset box in the body's local space)
+		JPH::BoxShapeSettings box_ss(ToPhysics(hb.size) * 0.5f);
+		box_ss.SetEmbedded();
+
+		JPH::RotatedTranslatedShapeSettings rts_ss(
+			ToPhysics(hb.position),
+			ToPhysics(hb.rotation),
+			&box_ss
+		);
+		rts_ss.SetEmbedded();
+
+		// Create final shape now and set it on the part
+		JPH::Shape::ShapeResult sr = rts_ss.Create();
+		if (sr.HasError()) {
+			Logger::Log(sr.GetError().c_str());
+			return nullptr;
+		}
+		JPH::RefConst<JPH::Shape> final_shape = sr.Get();
+		part.SetShape(final_shape);
+
+		// Initial transform of this body in MODEL space (not world!)
+		// We use the rest pose (model space) as starting transform.
+		JPH::Mat44 m_model = getRestModel(hb.boneName);
+		JPH::Vec3  pos_m = m_model.GetTranslation();
+		JPH::Quat  rot_m = m_model.GetRotation().GetQuaternion();
+
+		part.mPosition = JPH::RVec3(pos_m);     // Body in "skeleton/model" space
+		part.mRotation = rot_m;
+		part.mObjectLayer = layer;
+		part.mMotionType = JPH::EMotionType::Dynamic;
+
+		// Mass & damping etc.
+		part.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
+		part.mMassPropertiesOverride.mMass = hb.mass > 0.0f ? hb.mass : 1.0f;
+		part.mFriction = 0.9f;
+		part.mAngularDamping = 10.0f;
+
+		// User data (like your CreateHitBoxBody)
+		BodyData* props = new BodyData{ BodyType::HitBox, BodyType::None, true, owner, hb.boneName };
+		part.mUserData = reinterpret_cast<uintptr_t>(props);
+
+		// -------- Constraint to parent (if any) in LocalToBodyCOM --------
+		if (!hb.parentBone.empty())
+		{
+			// Child & parent model-space COM transforms
+			JPH::Mat44 childCOM = JPH::Mat44::sRotationTranslation(rot_m, pos_m);
+
+			const int parentIdx = skeleton->GetJoints()[i].mParentJointIndex;
+			JPH::Mat44 parentCOM = JPH::Mat44::sIdentity();
+			JPH::Quat  parentRot = JPH::Quat::sIdentity();
+			if (parentIdx >= 0) {
+				const std::string& pname = skeleton->GetJoints()[parentIdx].mName.c_str();
+				parentCOM = getRestModel(pname);
+				parentRot = parentCOM.GetRotation().GetQuaternion();
+			}
+
+			// Joint pivot in model space = child joint position (rest)
+			const JPH::Vec3 jointPosModel = pos_m;
+
+			// Local pivots (relative to each COM)
+			JPH::RMat44 invParent = JPH::RMat44(parentCOM).Inversed();
+			JPH::RMat44 invChild = JPH::RMat44(childCOM).Inversed();
+
+			JPH::Vec3 pivot1_local = (invParent * JPH::RVec3(jointPosModel));
+			JPH::Vec3 pivot2_local = (invChild * JPH::RVec3(jointPosModel));
+
+			// Axes:
+			// child-space axes come from hb.constraintRotation (child local frame)
+			const JPH::Quat childConstraintRot = ToPhysics(hb.rotation) * ToPhysics(hb.constraintRotation);
+			// if you already baked rotation offset in shape, you may use just hb.constraintRotation
+
+			const JPH::Vec3 childTwistAxis = (childConstraintRot * JPH::Vec3(0, 1, 0)).Normalized();
+			const JPH::Vec3 childPlaneAxis = (childConstraintRot * JPH::Vec3(1, 0, 0)).Normalized();
+
+			// Convert those axes to MODEL space using child rest rotation, then into parent's local
+			const JPH::Vec3 modelTwistAxis = (rot_m * childTwistAxis).Normalized();
+			const JPH::Vec3 modelPlaneAxis = (rot_m * childPlaneAxis).Normalized();
+
+			const JPH::Vec3 parentTwistAxis = (parentRot.Conjugated() * modelTwistAxis).Normalized();
+			const JPH::Vec3 parentPlaneAxis = (parentRot.Conjugated() * modelPlaneAxis).Normalized();
+
+			// Build constraint settings
+			JPH::Ref<JPH::SwingTwistConstraintSettings> cs = new JPH::SwingTwistConstraintSettings();
+			cs->mSpace = JPH::EConstraintSpace::LocalToBodyCOM;
+
+			// Local pivots
+			cs->mPosition1 = pivot1_local;   // in parent COM local space
+			cs->mPosition2 = pivot2_local;   // in child COM local space
+
+			// Local axes
+			cs->mTwistAxis1 = parentTwistAxis;  // in parent local
+			cs->mTwistAxis2 = childTwistAxis;   // in child local
+			cs->mPlaneAxis1 = parentPlaneAxis;  // in parent local
+			cs->mPlaneAxis2 = childPlaneAxis;   // in child local
+
+			// Limits (degrees -> radians)
+			cs->mTwistMinAngle = MathHelper::ToRadians(hb.twistParameters.x);
+			cs->mTwistMaxAngle = MathHelper::ToRadians(hb.twistParameters.y);
+			cs->mNormalHalfConeAngle = MathHelper::ToRadians(hb.twistParameters.z);
+			cs->mPlaneHalfConeAngle = MathHelper::ToRadians(hb.twistParameters.z);
+
+			part.mToParent = cs; // Ref<TwoBodyConstraintSettings>
+		}
+	}
+
+	// -------- 4) Collision filtering & stabilization --------
+	// (passing nullptr matrices lets Jolt figure out overlaps using current shapes)
+	settings->DisableParentChildCollisions(nullptr, 0.0f);
+	settings->Stabilize();
+
+	// -------- 5) Create ragdoll & add to physics --------
+	JPH::CollisionGroup::GroupID group_id = static_cast<JPH::CollisionGroup::GroupID>(groupFilterID);
+	JPH::Ragdoll* ragdoll = settings->CreateRagdoll(group_id, reinterpret_cast<uint64_t>(owner), physics_system);
+	if (!ragdoll)
+		return nullptr;
+
+	ragdoll->AddToPhysicsSystem(JPH::EActivation::Activate);
+
+	// -------- 6) Wrap into handle, fill maps --------
+	Physics::RagdollHandle* handle = new Physics::RagdollHandle();
+	handle->ragdoll = ragdoll;
+	handle->groupFilterID = groupFilterID;
+	handle->skeleton = skeleton;
+
+
+	for (int i = 0; i < ragdoll->GetBodyCount(); i++)
+	{
+
+		Body* body = GetBodyFromId(ragdoll->GetBodyID(i));
+
+		handle->boneToBody[Physics::GetBodyData(body)->hitboxName] = body;
+	}
+		
+
+	// bone -> constraint mapping (constraint c corresponds to body c+1)
+	
+	const uint ccount = ragdoll->GetConstraintCount();
+	for (uint c = 0; c < ccount; ++c) {
+		JPH::TwoBodyConstraint* con = ragdoll->GetConstraint(c);
+		if (!con) continue;
+		const uint childIdx = c + 1;
+		if (childIdx < order.size()) {
+			const std::string& boneName = order[childIdx];
+			handle->constraintOf[boneName] = con; // requires handle->constraintOf map
+		}
+	}
+
+
+	return handle;
+}
+
+
+
+// -----------------------------------------------------------------------------------
+// Convenience API impl
+
+void Physics::DestroyRagdoll(RagdollHandle*& h)
+{
+	if (!h) return;
+	if (h->ragdoll)
+	{
+		h->ragdoll->RemoveFromPhysicsSystem();
+		h->ragdoll = nullptr;
+	}
+	delete h;
+	h = nullptr;
+}
+
+JPH::Body* Physics::GetRagdollBody(RagdollHandle* h, const std::string& bone)
+{
+	if (!h || !h->ragdoll)
+		return nullptr;
+
+	auto it = h->boneToBody.find(bone);
+	if (it == h->boneToBody.end())
+		return nullptr;
+
+
+
+	return it->second;
+}
+
+
+JPH::TwoBodyConstraint* Physics::GetRagdollConstraint(RagdollHandle* h, const std::string& childBone)
+{
+	if (!h) return nullptr;
+	auto it = h->constraintOf.find(childBone);
+	return (it != h->constraintOf.end()) ? it->second : nullptr;
+}
+
+
+
+void Physics::SetRagdollSimulated(RagdollHandle* h, bool enable_dynamic)
+{
+	if (!h || !h->ragdoll) return;
+	for (uint i = 0; i < h->ragdoll->GetBodyCount(); ++i)
+	{
+		Body* b = GetBodyFromId(h->ragdoll->GetBodyID(i));
+		bodyInterface->SetMotionType(b->GetID(),
+			enable_dynamic ? EMotionType::Dynamic : EMotionType::Kinematic,
+			EActivation::Activate);
+	}
+}
+
+
+void Physics::SetRagdollPose(RagdollHandle* h, const std::unordered_map<std::string, mat4>& bonePose)
+{
+	if (!h || !h->ragdoll) return;
+	auto pose = BuildSkeletonPoseFromMap(h, bonePose);
+	h->ragdoll->SetPose(pose);
+}
+
+void Physics::DriveRagdollToPoseUsingKinematics(RagdollHandle* h, const std::unordered_map<std::string, mat4>& bonePose, float dt)
+{
+	if (!h || !h->ragdoll) return;
+	auto pose = BuildSkeletonPoseFromMap(h, bonePose);
+	h->ragdoll->DriveToPoseUsingKinematics(pose, dt);
+}
+
+void Physics::DriveRagdollToPoseUsingMotors(RagdollHandle* h, const std::unordered_map<std::string, mat4>& bonePose)
+{
+	if (!h || !h->ragdoll) return;
+	auto pose = BuildSkeletonPoseFromMap(h, bonePose);
+	h->ragdoll->DriveToPoseUsingMotors(pose);
+}
+
+JPH::SkeletonPose Physics::BuildSkeletonPoseFromMap(RagdollHandle* h, const std::unordered_map<std::string, glm::mat4>& bonePose)
+{
+	{
+		JPH::SkeletonPose pose;
+		pose.SetSkeleton(h->skeleton);
+
+		const JPH::Skeleton* skel = h->skeleton;
+
+		for (auto& [boneName, mm] : bonePose)
+		{
+			/*
+			auto it = h->boneToBodyIndex.find(boneName);
+			if (it == h->boneToBodyIndex.end())
+				continue;
+
+			auto matModel = ToPhysics(mm);
+
+			int boneIdx = it->second;
+			int parentIdx = skel->GetJoint(boneIdx).mParentJointIndex;
+
+			JPH::Mat44 matLocal;
+
+			if (parentIdx >= 0)
+			{
+				auto parentIt = bonePose.find(skel->GetJoint(parentIdx).mName.c_str());
+				if (parentIt != bonePose.end())
+				{
+					JPH::Mat44 parentModel = ToPhysics(parentIt->second);
+					matLocal = parentModel.Inversed() * matModel;
+				}
+				else
+				{
+					// fallback: assume given matrix is already local
+					matLocal = matModel;
+				}
+			}
+			else
+			{
+				// root: treat as local
+				matLocal = matModel;
+			}
+
+			// Decompose matLocal into rotation + translation
+			JPH::Vec3 translation = matLocal.GetTranslation();
+			JPH::Quat rotation = matLocal.GetRotation().GetQuaternion();
+
+			JPH::SkeletonPose::JointState& js = pose.GetJoint(boneIdx);
+			js.mTranslation = translation;
+			js.mRotation = rotation;
+
+			*/
+
+		}
+
+		return pose;
+	}
+}
