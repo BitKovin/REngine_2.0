@@ -40,6 +40,7 @@
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Core/Reference.h>
 #include <Jolt/Physics/Body/BodyLockMulti.h>
+#include <Jolt/Physics/Constraints/SwingTwistConstraint.h>
 
 
 #include "DebugDraw.hpp"
@@ -417,6 +418,10 @@ private:
 	static std::unordered_map<uint64_t, std::string> SurfaceNames;
 	static uint64_t nextSurfaceId;
 
+	static inline std::unordered_map<TwoBodyConstraint*, float> mConstraintBaseTorque;
+	static inline std::unordered_map<TwoBodyConstraint*, float> mConstraintLastStrength;
+	static inline std::unordered_map<TwoBodyConstraint*, JPH::Quat> mConstraintPrevTarget;
+
 
 #ifdef JPH_DEBUG_RENDERER
 	static MyDebugRenderer* debugRenderer;
@@ -738,12 +743,21 @@ public:
 		BodyType group = BodyType::HitBox,
 		BodyType mask = BodyType::None);
 
-	static Constraint* CreateRagdollConstraint(Body* parent,
+	static TwoBodyConstraint* CreateRagdollConstraint(Body* parent,
 		Body* child,
 		float    twistMinAngle,
 		float    twistMaxAngle,
 		float    swingHalfConeAngle,
 		JPH::QuatArg childSpaceConstraintRotation);
+
+	// Enable & configure swing/twist position motors (call once when creating the ragdoll joint)
+	static void ConfigureSwingTwistMotor(TwoBodyConstraint* constraint,
+		float frequencyHz = 40.0f,
+		float damping = 1.0f,
+		float max_torque = 10000);
+
+	// Update the motor target every frame (childTransformRelParent = child transform in parent space)
+	static void UpdateSwingTwistMotor(TwoBodyConstraint* constraint, const mat4& childTransformRelParent, const float& strength);
 
 	static uint64_t FindSurfaceId(string surfaceName);
 	static string FindSurfacyById(uint64_t id);

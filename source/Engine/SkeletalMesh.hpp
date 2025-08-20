@@ -185,7 +185,7 @@ private:
 	AnimationPose blendStartPose;
 
 	std::vector<Body*> hitboxBodies;
-	std::unordered_map<string,Constraint*> hitboxConstraints; 
+	std::unordered_map<string, TwoBodyConstraint*> hitboxConstraints;
 
 	std::recursive_mutex hitboxMutex;
 
@@ -209,6 +209,9 @@ public:
 	bool UpdatePoseOnlyWhenRendered = false;
 
 	bool InRagdoll = false;
+	float RagdollPoseFollowStrength = 0;
+
+	bool UpdateRagdollPose = false;
 
 	static inline int skelMeshes = 0;
 

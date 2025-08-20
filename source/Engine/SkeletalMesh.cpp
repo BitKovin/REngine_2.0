@@ -494,6 +494,8 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 	for (auto hitbox : metaData.hitboxes)
 	{
 
+
+
 		if (hitbox.parentBone == "") continue;
 		
 		Body* parentBody = FindHitboxByName(hitbox.parentBone);
@@ -503,6 +505,8 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 
 		auto constraint = Physics::CreateRagdollConstraint(parentBody, currentBody, hitbox.twistParameters.x, hitbox.twistParameters.y, hitbox.twistParameters.z, ToPhysics(MathHelper::GetRotationQuaternion(hitbox.constraintRotation)));
 		
+		Physics::ConfigureSwingTwistMotor(constraint);
+
 		constraint->SetEnabled(false);
 
 		hitboxConstraints[hitbox.boneName] = constraint;
@@ -547,7 +551,43 @@ void SkeletalMesh::UpdateHitboxes()
 	if (InRagdoll)
 	{
 
+		
+
+		if (hitboxConstraints.size() > 0)
+		{
+
+			std::unordered_map<std::string, mat4> animationPose;
+
+			for (const HitboxData& data : metaData.hitboxes)
+			{
+
+				if (data.parentBone == "") continue;
+
+				const auto& boneName = data.boneName;
+
+				mat4 relativeTransform;
+
+				if (RagdollPoseFollowStrength > 0)
+				{
+					mat4 parentBone = GetBoneMatrix(data.parentBone);
+					mat4 childBone = GetBoneMatrix(data.boneName);
+
+					relativeTransform = inverse(parentBone) * childBone;
+				}
+
+				
+				Physics::UpdateSwingTwistMotor(hitboxConstraints[boneName], inverse(relativeTransform), RagdollPoseFollowStrength);
+				
+
+			}
+
+		}
+
+		
+
 		std::unordered_map<std::string, mat4> pose;
+
+		
 
 		for (Body* body : hitboxBodies)
 		{
@@ -556,6 +596,11 @@ void SkeletalMesh::UpdateHitboxes()
 			quat rot = FromPhysics(body->GetRotation());
 
 			const auto& boneName = Physics::GetBodyData(body)->hitboxName;
+
+			if (RagdollPoseFollowStrength > 0)
+			{
+				Physics::Activate(body);
+			}
 
 			auto res = animator.currentPose.find(boneName);
 

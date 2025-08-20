@@ -4,7 +4,6 @@
 
 #include <unordered_set>
 
-#include <Jolt/Physics/Constraints/SwingTwistConstraint.h>
 
 TempAllocatorImpl* Physics::tempMemAllocator = nullptr;
 
@@ -370,6 +369,8 @@ Body* Physics::CreateHitBoxBody(Entity* owner, string hitboxName, vec3 PositionO
 		Layers::MOVING
 	);
 
+	bcs.mMotionQuality = EMotionQuality::LinearCast;
+
 	bcs.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
 	bcs.mMassPropertiesOverride.mMass = Mass;
 	bcs.mFriction = 0.9f;
@@ -387,7 +388,7 @@ Body* Physics::CreateHitBoxBody(Entity* owner, string hitboxName, vec3 PositionO
 
 }
 
-Constraint* Physics::CreateRagdollConstraint(Body* parent,
+TwoBodyConstraint* Physics::CreateRagdollConstraint(Body* parent,
 	Body* child,
 	float    twistMinAngle,
 	float    twistMaxAngle,
@@ -452,6 +453,70 @@ Constraint* Physics::CreateRagdollConstraint(Body* parent,
 
 
 	return c;
+
+}
+
+void Physics::ConfigureSwingTwistMotor(TwoBodyConstraint* constraint, float frequencyHz, float damping, float max_torque)
+{
+
+	if (constraint == nullptr) return;
+	if (constraint->GetSubType() != EConstraintSubType::SwingTwist)
+		return; // not the right constraint
+
+	SwingTwistConstraint* st = static_cast<SwingTwistConstraint*>(constraint);
+
+	// Swing motor
+	MotorSettings& swing = st->GetSwingMotorSettings();
+	swing.mSpringSettings.mMode = ESpringMode::FrequencyAndDamping;
+	swing.mSpringSettings.mFrequency = frequencyHz;
+	swing.mSpringSettings.mDamping = damping;
+	swing.SetTorqueLimits(-max_torque, max_torque);
+
+	// Twist motor
+	MotorSettings& twist = st->GetTwistMotorSettings();
+	twist.mSpringSettings.mMode = ESpringMode::FrequencyAndDamping;
+	twist.mSpringSettings.mFrequency = frequencyHz;
+	twist.mSpringSettings.mDamping = damping;
+	twist.SetTorqueLimits(-max_torque, max_torque);
+
+	// Turn motors on in POSITION mode (drive to target orientation)
+	st->SetSwingMotorState(EMotorState::Position);
+	st->SetTwistMotorState(EMotorState::Position);
+
+	// If you just changed motor settings after the constraint already ran in the sim,
+	// reset warm start so previous impulses aren't applied to the new config.
+	st->ResetWarmStart();
+
+}
+
+void Physics::UpdateSwingTwistMotor(TwoBodyConstraint* constraint, const mat4& childTransformRelParent, const float& strength)
+{
+
+	if (constraint == nullptr) return;
+	if (constraint->GetSubType() != EConstraintSubType::SwingTwist) return;
+
+	SwingTwistConstraint* st = static_cast<SwingTwistConstraint*>(constraint);
+
+	// Update target orientation
+	Quat targetRel = ToPhysics(childTransformRelParent).GetQuaternion();
+	st->SetTargetOrientationBS(targetRel);
+
+	// Scale torque limits by strength
+	float maxTorque = 1000 * strength; // or a tuned value instead of FLT_MAX
+	st->GetSwingMotorSettings().SetTorqueLimits(-maxTorque, maxTorque);
+	st->GetTwistMotorSettings().SetTorqueLimits(-maxTorque, maxTorque);
+
+	st->GetTwistMotorSettings().mSpringSettings.mStiffness = 10 * strength;
+
+	// Optional: completely disable motors if strength == 0
+	if (strength <= 0.0f) {
+		st->SetSwingMotorState(EMotorState::Off);
+		st->SetTwistMotorState(EMotorState::Off);
+	}
+	else {
+		st->SetSwingMotorState(EMotorState::Position);
+		st->SetTwistMotorState(EMotorState::Position);
+	}
 
 }
 

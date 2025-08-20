@@ -6,6 +6,8 @@
 
 #include <Input.h>
 
+#include <imgui/imgui.h>
+
 NpcBase::NpcBase()
 {
 
@@ -79,6 +81,9 @@ void NpcBase::Death()
 
 	//mesh->ClearHitboxes();
 	mesh->StartRagdoll();
+
+	animator.PainProgress = 1;
+
 	mesh->SetAnimationPaused(true);
 	Physics::SetLinearVelocity(LeadBody, vec3(0));
 
@@ -253,7 +258,7 @@ void NpcBase::AsyncUpdate()
 
 	if (dead) 
 	{
-
+		UpdateAnimations();
 		mesh->UpdateHitboxes();
 		return;
 	}
@@ -384,6 +389,18 @@ void NpcBase::Deserialize(json& source)
 
 	//mesh->Update(0);
 	//mesh->PullRootMotion();
+
+}
+
+void NpcBase::UpdateDebugUI()
+{
+
+	ImGui::Begin(Id.c_str());
+
+	ImGui::DragFloat("activeragdoll strength", &mesh->RagdollPoseFollowStrength,0.1f);
+	ImGui::Checkbox("update ragdoll pose", &mesh->UpdateRagdollPose);
+
+	ImGui::End();
 
 }
 

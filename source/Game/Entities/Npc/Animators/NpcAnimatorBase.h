@@ -10,10 +10,14 @@ public:
 
 	float movementSpeed = 0;
 
+	float PainProgress = 0;
+
 protected:
 
 	Animation* idle = nullptr;
 	Animation* run_f = nullptr;
+
+	Animation* inPain = nullptr;
 
 	void LoadAssets();
 

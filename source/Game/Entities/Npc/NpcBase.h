@@ -90,6 +90,8 @@ public:
 	void Serialize(json& target);
 	void Deserialize(json& source);
 
+	void UpdateDebugUI();
+
 protected:
 
 	void UpdateAnimations();
