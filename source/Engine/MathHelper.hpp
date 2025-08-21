@@ -22,7 +22,25 @@ public:
 		return glm::degrees(radians);
 	}
 
+	inline static float MapRange(
+		float value,
+		float inMin, float inMax,
+		float outMin, float outMax,
+		bool clamp = true)
+	{
+		if (inMin == inMax) // avoid divide by zero
+			return outMin;
 
+		float t = (value - inMin) / (inMax - inMin);
+
+		if (clamp)
+		{
+			if (t < 0.0f) t = 0.0f;
+			if (t > 1.0f) t = 1.0f;
+		}
+
+		return outMin + t * (outMax - outMin);
+	}
 
 	// Constructs a quaternion from a rotation vector (pitch, yaw, roll)
 	// following the XNA convention: Y (yaw), X (pitch), Z (roll)

@@ -305,13 +305,9 @@ public:
 		{
 
 
-			if (projectile == nullptr && viewmodel->currentAnimationData->animationName == "throw")
+			if ((projectile == nullptr && viewmodel->currentAnimationData->animationName == "throw") == false)
 			{
-				ReturnCane();
-			}
-			else
-			{
-
+				
 				if (projectile != nullptr && attackDelay.Wait() == false)
 				{
 					if (viewmodel->currentAnimationData->animationName != "throw")
@@ -322,8 +318,13 @@ public:
 						viewmodel->PullAnimationEvents();
 					}
 
-
 				}
+
+			}
+			else
+			{
+
+				ReturnCane();
 
 			}
 

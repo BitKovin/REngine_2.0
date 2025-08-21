@@ -27,6 +27,7 @@
 #include <SoundSystem/SoundManager.hpp>
 
 #include <Character/CharacterController.h>
+#include <Particle/GlobalParticleSystem.hpp>
 
 #include "../../UI/Player/PlayerHud.hpp"
 
@@ -226,6 +227,7 @@ public:
 
 		ParticleSystem::PreloadSystemAssets("decal_blood");
 		ParticleSystem::PreloadSystemAssets("hit_flesh");
+
 
 		soundPlayer = new SoundPlayer();
 		Level::Current->AddEntity(soundPlayer);

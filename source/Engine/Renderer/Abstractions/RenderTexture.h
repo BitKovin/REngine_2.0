@@ -49,7 +49,9 @@ public:
     uint32_t width() const { return m_width; }
     uint32_t height() const { return m_height; }
 
-
+    void copyTo(RenderTexture& dst,
+        GLbitfield mask = GL_COLOR_BUFFER_BIT,
+        GLenum filter = GL_NEAREST) const;
 
 private:
     GLuint m_id;

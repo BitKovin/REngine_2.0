@@ -170,6 +170,50 @@ std::tuple<GLenum, GLenum, GLenum> RenderTexture::getFormatInfo() const {
     throw std::runtime_error("RenderTexture: unknown TextureFormat");
 }
 
+void RenderTexture::copyTo(RenderTexture& dst,
+    GLbitfield mask,
+    GLenum filter) const
+{
+    GLuint fboSrc = 0, fboDst = 0;
+    glGenFramebuffers(1, &fboSrc);
+    glGenFramebuffers(1, &fboDst);
+
+    // Bind source (read FBO)
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, fboSrc);
+    GLenum targetSrc = (m_type == TextureType::Texture2DMultisample)
+        ? GL_TEXTURE_2D_MULTISAMPLE
+        : (m_type == TextureType::Cubemap ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D);
+
+    glFramebufferTexture2D(GL_READ_FRAMEBUFFER,
+        (m_format >= TextureFormat::Depth16 ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0),
+        targetSrc,
+        m_id, 0);
+
+    // Bind destination (draw FBO)
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboDst);
+    GLenum targetDst = (dst.m_type == TextureType::Texture2DMultisample)
+        ? GL_TEXTURE_2D_MULTISAMPLE
+        : (dst.m_type == TextureType::Cubemap ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D);
+
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER,
+        (dst.m_format >= TextureFormat::Depth16 ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0),
+        targetDst,
+        dst.m_id, 0);
+
+    // Blit (this automatically resolves multisample → non-multisample)
+    glBlitFramebuffer(
+        0, 0, m_width, m_height,
+        0, 0, dst.m_width, dst.m_height,
+        mask, filter);
+
+    // Cleanup
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDeleteFramebuffers(1, &fboSrc);
+    glDeleteFramebuffers(1, &fboDst);
+}
+
+
+
 void RenderTexture::validateSampleCount() const {
 #if defined(DISABLE_MULTISAMPLE)
     // no checks under WebGL

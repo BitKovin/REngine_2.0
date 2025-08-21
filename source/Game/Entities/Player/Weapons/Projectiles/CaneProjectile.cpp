@@ -103,7 +103,7 @@ void CaneProjectile::Update()
 
 	Position += MathHelper::GetForwardVector(Rotation) * travelDistance;
 
-	auto hit = Physics::SphereTrace(oldPos, Position,0.2f, BodyType::GroupHitTest | BodyType::WorldSkybox);
+	auto hit = Physics::SphereTrace(oldPos, Position,0.1f, BodyType::GroupHitTest | BodyType::WorldSkybox);
 
 	if (hit.hasHit)
 	{

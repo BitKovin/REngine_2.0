@@ -5,6 +5,8 @@
 #include "../LightSystem/LightManager.h"
 #include "../DebugDraw.hpp"
 
+#include "../FogManager.h"
+
 Renderer::Renderer()
 {
 	ivec2 screenResolution = GetScreenResolution();
@@ -18,8 +20,11 @@ Renderer::Renderer()
 	depthBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2DMultisample, false, GL_LINEAR, GL_LINEAR,
 		GL_CLAMP_TO_EDGE, 1);
 
+
 	colorResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2D);
 	depthResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2D);
+
+    depthBufferCopy = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2D);
 
 	forwardFBO.attachDepth(depthBuffer);
 	forwardFBO.attachColor(colorBuffer, 0);
@@ -146,6 +151,14 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 
     }
     glUseProgram(0);
+
+    forwardFBO.unbind();
+
+    forwardFBO.resolve(forwardResolveFBO,
+        GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+        GL_LINEAR);
+
+    forwardFBO.bind();
 
     //
     // B) Opaque + transparent color passes
@@ -302,6 +315,13 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
         //shader->SetTexture("shadowMapRaw", nullptr);
         //shader->SetTexture("shadowMapDetailRaw", nullptr);
     }
+
+    shader->SetTexture("depthTexture", EngineMain::MainInstance->MainRenderer->depthResolveBuffer->id());
+
+    shader->SetUniform("fog_start", FogManager::StartDistance);
+    shader->SetUniform("fog_end", FogManager::EndDistance);
+    shader->SetUniform("fog_opacity", FogManager::Opacity);
+    shader->SetUniform("fog_color", FogManager::Color);
 
 
     shader->SetUniform("cameraPosition", Camera::finalizedPosition);

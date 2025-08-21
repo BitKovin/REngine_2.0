@@ -479,9 +479,9 @@ void Physics::ConfigureSwingTwistMotor(TwoBodyConstraint* constraint, float freq
 	twist.mSpringSettings.mDamping = damping;
 	twist.SetTorqueLimits(-max_torque, max_torque);
 
-	// Turn motors on in POSITION mode (drive to target orientation)
-	st->SetSwingMotorState(EMotorState::Position);
-	st->SetTwistMotorState(EMotorState::Position);
+
+	st->SetSwingMotorState(EMotorState::Off);
+	st->SetTwistMotorState(EMotorState::Off);
 
 	// If you just changed motor settings after the constraint already ran in the sim,
 	// reset warm start so previous impulses aren't applied to the new config.

@@ -68,14 +68,7 @@ public:
 	}
 
 	// Spawn a given number of new particles.
-	void SpawnParticles(int num)
-	{
-		std::lock_guard<std::recursive_mutex> lock(particlesMutex);
-		for (int i = 0; i < num; i++) {
-			Particle particle = GetNewParticle();
-			AddParticle(particle);
-		}
-	}
+	void SpawnParticles(int num);
 
 	// Adds a particle to the main container (thread-safe using recursive mutex).
 	void AddParticle(const Particle& particle)
@@ -132,6 +125,8 @@ public:
 	void DrawForward(mat4x4 view, mat4x4 projection);
 
 	void FinalizeFrameData();
+
+	int MaxParticles = 0;
 
 	// Data members
 	std::vector<Particle> finalizedParticles; // finalized copy of active particles.

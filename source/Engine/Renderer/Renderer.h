@@ -39,6 +39,9 @@ private:
 	RenderTexture* colorBuffer;
 	RenderTexture* depthBuffer;
 
+	RenderTexture* depthBufferCopy;
+	RenderTexture* depthBufferCopyResolve;
+
 	RenderTexture* colorResolveBuffer;
 	RenderTexture* depthResolveBuffer;
 

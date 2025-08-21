@@ -257,6 +257,7 @@
     <ClCompile Include="GameStart.cpp" />
     <ClCompile Include="ParticleSystems\BulletTrail.cpp" />
     <ClCompile Include="ParticleSystems\CaneTrail.cpp" />
+    <ClCompile Include="ParticleSystems\Fog.cpp" />
     <ClCompile Include="ParticleSystems\HitBlood.cpp" />
     <ClCompile Include="UI\LoadingScreen\UiDefaultLoadingScreen.cpp" />
     <ClCompile Include="UI\MobileControls\UiJoystick.cpp" />

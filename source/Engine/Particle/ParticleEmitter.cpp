@@ -18,53 +18,68 @@ mat4 GetWorldMatrix(const Particle& particle)
     return translate(particle.position) * MathHelper::GetRotationMatrix(particle.globalRotation) * scale(vec3(particle.Size));
 }
 
+void ParticleEmitter::SpawnParticles(int num)
+{
+    std::lock_guard<std::recursive_mutex> lock(particlesMutex);
+    for (int i = 0; i < num; i++) {
+        Particle particle = GetNewParticle();
+        particle.deathTime *= i + 1;
+        AddParticle(particle);
+    }
+}
+
 void ParticleEmitter::Update(float deltaTime)
 {
     if (destroyed)
         return;
 
     std::lock_guard<std::recursive_mutex> lock(particlesMutex);
+
     elapsedTime += deltaTime;
     if (elapsedTime > Duration)
         Emitting = false;
 
     // Spawn new particles at a fixed spawn rate.
-    float spawnInterval = (SpawnRate > 0.0f) ? (1.0f / SpawnRate) : 0.0f;
+    const float spawnInterval = (SpawnRate > 0.0f) ? (1.0f / SpawnRate) : 0.0f;
+
+    if (SpawnRate > 0.0f && Emitting && spawnInterval > 0.0f)
     {
-
-        if (SpawnRate > 0.0f && Emitting) {
-            while (elapsedTime >= spawnInterval) {
-                Particle particle = GetNewParticle();
-                Particles.push_back(particle);
-                elapsedTime -= spawnInterval;
-            }
+        while (elapsedTime >= spawnInterval)
+        {
+            Particles.push_back(GetNewParticle());
+            elapsedTime -= spawnInterval;
         }
-
-        // Update lifetime and prepare to remove expired particles.
-        for (auto& particle : Particles) {
-            particle.lifeTime += deltaTime;
-        }
-
-        // Remove expired particles.
-        Particles.erase(
-            std::remove_if(Particles.begin(), Particles.end(),
-                [](const Particle& p) { return p.lifeTime >= p.deathTime; }),
-            Particles.end());
-
-        // Update each particle.
-        for (auto& particle : Particles) {
-            // Here, because UpdateParticle might itself require locking,
-            // using a recursive mutex permits re-locking if needed.
-            particle = UpdateParticle(particle, deltaTime);
-        }
-
-
-
-        // If we are no longer emitting and there are no particles left, mark as destroyed.
-        if (!Emitting && Particles.empty())
-            destroyed = true;
     }
+
+    // Update lifetime.
+    for (auto& p : Particles)
+        p.lifeTime += deltaTime;
+
+    // Remove expired particles.
+    Particles.erase(
+        std::remove_if(Particles.begin(), Particles.end(),
+            [](const Particle& p) { return p.lifeTime >= p.deathTime; }),
+        Particles.end());
+
+    // Enforce MaxParticles (0 => unlimited). Remove oldest first.
+    if (MaxParticles > 0 && Particles.size() > MaxParticles)
+    {
+        const size_t excess = Particles.size() - MaxParticles;
+        // Oldest are at the front because we push_back() new ones.
+        Particles.erase(
+            Particles.begin(),
+            Particles.begin() + static_cast<std::ptrdiff_t>(excess));
+    }
+
+    // Update each remaining particle.
+    for (auto& p : Particles)
+        p = UpdateParticle(p, deltaTime);
+
+    // If we are no longer emitting and there are no particles left, mark as destroyed.
+    if (!Emitting && Particles.empty())
+        destroyed = true;
 }
+
 
 void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
 {
@@ -113,75 +128,113 @@ void ParticleEmitter::DrawForward(mat4x4 view, mat4x4 projection)
 
 void ParticleEmitter::FinalizeFrameData()
 {
-    std::lock_guard<std::recursive_mutex> lock(particlesMutex);
-    finalizedParticles = Particles;
-
-    // Use finalized camera data for consistency
-    vec3 cameraPosition = Camera::finalizedPosition;
-    vec3 cameraRotation = Camera::finalizedRotation;
-
-    // Compute camera orientation vectors
-    vec3 cameraForward = MathHelper::GetForwardVector(cameraRotation);
-    vec3 cameraRight = MathHelper::GetRightVector(cameraRotation);
-    vec3 cameraUp = MathHelper::GetUpVector(cameraRotation);
-
-    int cameraC = Level::Current->BspData.FindClusterAtPosition(Camera::finalizedPosition);
-
-
-    if (DepthSorting) 
+    // 1) Snapshot particles quickly under a short lock (one copy) and release the lock.
     {
-
-        // Sort particles back-to-front (farthest first)
-        std::sort(finalizedParticles.begin(), finalizedParticles.end(),
-            [cameraForward, cameraPosition](const Particle& a, const Particle& b) {
-                float depthA = glm::dot(cameraForward, a.position - cameraPosition);
-                float depthB = glm::dot(cameraForward, b.position - cameraPosition);
-                return depthA > depthB; // Farther particles first
-            });
+        std::lock_guard<std::recursive_mutex> lock(particlesMutex);
+        finalizedParticles = Particles; // single copy while locked
     }
-    // Prepare instance data
+
+    // 2) Read camera once
+    const vec3 cameraPosition = Camera::finalizedPosition;
+    const vec3 cameraRotation = Camera::finalizedRotation;
+    const vec3 cameraForward = MathHelper::GetForwardVector(cameraRotation);
+    const vec3 cameraRight = MathHelper::GetRightVector(cameraRotation);
+    const vec3 cameraUp = MathHelper::GetUpVector(cameraRotation);
+
+    const int cameraC = Level::Current->BspData.FindClusterAtPosition(cameraPosition);
+
+    // 3) Prepare containers
     instances.clear();
-    instances.reserve(finalizedParticles.size());
 
-    for (const auto& particle : finalizedParticles) {
-        // Optional: Frustum culling to skip off-screen particles
-        if (!Camera::frustum.IsSphereVisible(particle.position, particle.Size))
-            continue;
 
-        int targetC = Level::Current->BspData.FindClusterAtPosition(particle.position);
+    if (DepthSorting)
+    {
+        std::vector<std::pair<float, InstanceData>> visible;
+        visible.reserve(finalizedParticles.size());
 
-        if (Level::Current->BspData.IsClusterVisible(cameraC, targetC) == false)
+        for (const auto& particle : finalizedParticles)
         {
-            continue;
+            // Frustum - cheap reject
+            if (!Camera::frustum.IsSphereVisible(particle.position, particle.Size))
+                continue;
+
+            // PVS / cluster visibility
+            int targetC = Level::Current->BspData.FindClusterAtPosition(particle.position);
+            if (!Level::Current->BspData.IsClusterVisible(cameraC, targetC))
+                continue;
+
+            // Create world/billboard matrix only for visible particles
+            mat4x4 world;
+            if (particle.UseWorldRotation)
+                world = GetWorldMatrix(particle);
+            else
+                world = MathHelper::CreateBillboardMatrix(
+                    particle.position,
+                    cameraPosition,
+                    cameraForward,
+                    cameraRight,
+                    cameraUp,
+                    vec3(particle.Size),
+                    particle.rotation
+                );
+
+            InstanceData data;
+            data.ModelMatrix = world;
+            data.Color = particle.Color * vec4(GetLightForParticle(particle), 1.0f);
+            data.Color.a *= particle.Transparency;
+
+            // compute depth only for visible particles
+            float depth = glm::dot(cameraForward, particle.position - cameraPosition);
+            visible.emplace_back(depth, std::move(data));
         }
 
-        mat4x4 world;
-        if (particle.UseWorldRotation) 
+        if (!visible.empty())
         {
-            // Placeholder: Implement custom world matrix if needed
-            world = GetWorldMatrix(particle);
-        }
-        else 
-        {
-            // Billboard matrix ensures the particle faces the camera
-            world = MathHelper::CreateBillboardMatrix(
-                particle.position,
-                cameraPosition,
-                cameraForward,
-                cameraRight,
-                cameraUp,
-                vec3(particle.Size),
-                particle.rotation
-            );
-        }
+            // sort visible set by depth (farthest first)
+            std::sort(visible.begin(), visible.end(),
+                [](const auto& a, const auto& b) { return a.first > b.first; });
 
-        InstanceData data;
-        data.ModelMatrix = world;
-        data.Color = particle.Color * vec4(GetLightForParticle(particle),1.0f);
-        data.Color.a *= particle.Transparency;
-        instances.push_back(data);
+            instances.reserve(visible.size());
+            for (auto& v : visible)
+                instances.push_back(std::move(v.second));
+        }
+    }
+    else
+    {
+        // No depth sorting: build instances in one pass (no sorting overhead)
+        instances.reserve(finalizedParticles.size());
+        for (const auto& particle : finalizedParticles)
+        {
+            if (!Camera::frustum.IsSphereVisible(particle.position, particle.Size))
+                continue;
+
+            int targetC = Level::Current->BspData.FindClusterAtPosition(particle.position);
+            if (!Level::Current->BspData.IsClusterVisible(cameraC, targetC))
+                continue;
+
+            mat4x4 world;
+            if (particle.UseWorldRotation)
+                world = GetWorldMatrix(particle);
+            else
+                world = MathHelper::CreateBillboardMatrix(
+                    particle.position,
+                    cameraPosition,
+                    cameraForward,
+                    cameraRight,
+                    cameraUp,
+                    vec3(particle.Size),
+                    particle.rotation
+                );
+
+            InstanceData data;
+            data.ModelMatrix = world;
+            data.Color = particle.Color * vec4(GetLightForParticle(particle), 1.0f);
+            data.Color.a *= particle.Transparency;
+            instances.push_back(std::move(data));
+        }
     }
 }
+
 
 void ParticleEmitter::InitBilboardVaoIfNeeded()
 {
