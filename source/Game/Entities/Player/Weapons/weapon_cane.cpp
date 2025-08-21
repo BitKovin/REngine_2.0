@@ -257,6 +257,8 @@ public:
 
 		thrown = projectile != nullptr;
 
+		this_thread::sleep_for(8ms);
+
 		if (Input::GetAction("attack2")->Pressed())
 		{
 			if (attackDelay.Wait() == false)
@@ -271,7 +273,7 @@ public:
 					}
 					else
 					{
-						ReturnCane();		
+						ReturnCane();	
 					}
 
 					
@@ -304,27 +306,27 @@ public:
 		if (attackDelay.Wait() == false)
 		{
 
+			projectile = (CaneProjectile*) Level::Current->FindEntityWithName("caneProjectile");
 
-			if ((projectile == nullptr && viewmodel->currentAnimationData->animationName == "throw") == false)
+			if (projectile == nullptr && viewmodel->currentAnimationData->animationName == "throw")
 			{
-				
+
+				ReturnCane();
+
+			}
+			else
+			{
 				if (projectile != nullptr && attackDelay.Wait() == false)
 				{
 					if (viewmodel->currentAnimationData->animationName != "throw")
 					{
 						viewmodel->PlayAnimation("throw", false, 0);
-						viewmodel->SetAnimationTime(viewmodel->GetAnimationDuration());
+						viewmodel->SetAnimationTime(viewmodel->GetAnimationDuration() - 0.5f);
 						viewmodel->Update();
 						viewmodel->PullAnimationEvents();
 					}
 
 				}
-
-			}
-			else
-			{
-
-				ReturnCane();
 
 			}
 

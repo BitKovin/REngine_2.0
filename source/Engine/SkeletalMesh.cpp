@@ -111,7 +111,6 @@ void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
 	rootMotionBasisQuat = quat();
 	currentAnimationData = GetAnimationDataFromName(name);	
 	Update(0);
-	//animator.UpdateAnimationPose();
 	boneTransforms = animator.getBoneMatrices();
 }
 
@@ -338,7 +337,9 @@ void SkeletalMesh::StartedRendering()
 {
 
 	if (model == nullptr) return;
-	animator.update(0);
+
+	Update(0);
+
 	boneTransforms = animator.getBoneMatrices();
 
 }
