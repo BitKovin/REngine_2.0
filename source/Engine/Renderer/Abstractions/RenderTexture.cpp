@@ -20,6 +20,7 @@ RenderTexture::RenderTexture(uint32_t width, uint32_t height,
     , m_height(height)
     , m_format(format)
     , m_type(type)
+    , m_minFilter(minFilter), m_magFilter(magFilter), m_wrapF(wrap)
     , m_samples(samples), m_sampleDepth(sampleDepth)
 {
 #ifndef DISABLE_MULTISAMPLE
@@ -55,6 +56,31 @@ void RenderTexture::resize(uint32_t width, uint32_t height) {
     m_width = width;
     m_height = height;
     allocateStorage();
+}
+
+void RenderTexture::setTextureType(TextureType newType)
+{
+
+    if (newType == m_type) return;
+
+    m_type = newType;
+
+    glDeleteTextures(1, &m_id);
+
+#ifndef DISABLE_MULTISAMPLE
+    validateSampleCount();
+#else
+    // force single‐sample on WebGL
+    m_samples = 1;
+    // if someone passed Texture2DMultisample, silently treat as Texture2D
+    if (m_type == TextureType::Texture2DMultisample)
+        m_type = TextureType::Texture2D;
+#endif
+
+    glGenTextures(1, &m_id);
+    allocateStorage();
+    setParameters(m_minFilter, m_magFilter, m_wrapF);
+
 }
 
 void RenderTexture::setSamples(uint32_t samples) {

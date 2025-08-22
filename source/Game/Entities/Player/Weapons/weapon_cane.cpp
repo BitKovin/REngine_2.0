@@ -257,7 +257,6 @@ public:
 
 		thrown = projectile != nullptr;
 
-		this_thread::sleep_for(8ms);
 
 		if (Input::GetAction("attack2")->Pressed())
 		{

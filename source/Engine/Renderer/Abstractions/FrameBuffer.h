@@ -24,6 +24,8 @@ public:
     RenderTexture* colorAttachment(uint32_t index = 0) const;
     RenderTexture* depthAttachment() const { return m_depthAttachment; }
 
+    GLuint id() { return m_id; }
+
 private:
     GLuint m_id;
     std::vector<RenderTexture*> m_colorAttachments;

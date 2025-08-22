@@ -33,27 +33,27 @@ private:
 
 	void InitFullscreenVAO();
 
+	void InitFrameBuffers();
+	void InitResolveFrameBuffers();
+
 	unsigned int quadVAO;
 	unsigned int quadVBO;
 
-	RenderTexture* colorBuffer;
-	RenderTexture* depthBuffer;
+	RenderTexture* colorBuffer = nullptr;
+	RenderTexture* depthBuffer = nullptr;
 
-	RenderTexture* depthBufferCopy;
-	RenderTexture* depthBufferCopyResolve;
+	RenderTexture* colorResolveBuffer = nullptr;
+	RenderTexture* depthResolveBuffer = nullptr;
 
-	RenderTexture* colorResolveBuffer;
-	RenderTexture* depthResolveBuffer;
+	Framebuffer* forwardFBO = nullptr;
+	Framebuffer* forwardResolveFBO = nullptr;
 
-	Framebuffer forwardFBO;
-	Framebuffer forwardResolveFBO;
+	RenderTexture* DirectionalShadowMap = nullptr;
+	Framebuffer* DirectionalShadowMapFBO = nullptr;
 
-	RenderTexture* DirectionalShadowMap;
-	Framebuffer DirectionalShadowMapFBO;
+	RenderTexture* DetailDirectionalShadowMap = nullptr;
+	Framebuffer* DetailDirectionalShadowMapFBO = nullptr;
 
-	RenderTexture* DetailDirectionalShadowMap;
-	Framebuffer DetailDirectionalShadowMapFBO;
-
-	ShaderProgram* fullscreenShader;
+	ShaderProgram* fullscreenShader = nullptr;
 
 };

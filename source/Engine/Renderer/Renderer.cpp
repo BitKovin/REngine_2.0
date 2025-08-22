@@ -11,47 +11,22 @@ Renderer::Renderer()
 {
 	ivec2 screenResolution = GetScreenResolution();
 
-    TextureFormat colorTextureFormat = TextureFormat::RGBA16F;
-
-
-	colorBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2DMultisample, false, GL_LINEAR, GL_LINEAR,
-		GL_CLAMP_TO_EDGE, 1);
-
-	depthBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2DMultisample, false, GL_LINEAR, GL_LINEAR,
-		GL_CLAMP_TO_EDGE, 1);
-
-
-	colorResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2D);
-	depthResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2D);
-
-    depthBufferCopy = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2D);
-
-	forwardFBO.attachDepth(depthBuffer);
-	forwardFBO.attachColor(colorBuffer, 0);
-
-	forwardResolveFBO.attachDepth(depthResolveBuffer);
-	forwardResolveFBO.attachColor(colorResolveBuffer);
-
-
+    InitFrameBuffers();
+    InitResolveFrameBuffers();
 
 	fullscreenShader = ShaderManager::GetShaderProgram("fullscreen_vertex","postprocessing");
 
-    // resize all our buffers
-    colorBuffer->resize(screenResolution.x, screenResolution.y);
-    depthBuffer->resize(screenResolution.x, screenResolution.y);
-    colorBuffer->setSamples(MultiSampleCount);
-    depthBuffer->setSamples(MultiSampleCount);
 
-    colorResolveBuffer->resize(screenResolution.x, screenResolution.y);
-    depthResolveBuffer->resize(screenResolution.x, screenResolution.y);
 
     if (LightManager::DirectionalShadowsEnabled)
     {
         DirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
-        DirectionalShadowMapFBO.attachDepth(DirectionalShadowMap);
+        DirectionalShadowMapFBO = new Framebuffer();
+        DirectionalShadowMapFBO->attachDepth(DirectionalShadowMap);
 
         DetailDirectionalShadowMap = new RenderTexture(LightManager::ShadowMapResolution, LightManager::ShadowMapResolution, TextureFormat::Depth32F, TextureType::Texture2D);
-        DetailDirectionalShadowMapFBO.attachDepth(DetailDirectionalShadowMap);
+        DetailDirectionalShadowMapFBO = new Framebuffer();
+        DetailDirectionalShadowMapFBO->attachDepth(DetailDirectionalShadowMap);
     }
 
 
@@ -72,8 +47,8 @@ void Renderer::RenderLevel(Level* level)
 {
     if (LightManager::DirectionalShadowsEnabled)
     {
-        RenderDirectionalLightShadows(level->ShadowRenderList, DirectionalShadowMapFBO, 4);
-        RenderDirectionalLightShadows(level->DetailShadowRenderList, DetailDirectionalShadowMapFBO, 3);
+        RenderDirectionalLightShadows(level->ShadowRenderList, *DirectionalShadowMapFBO, 4);
+        RenderDirectionalLightShadows(level->DetailShadowRenderList, *DirectionalShadowMapFBO, 3);
     }
 	RenderCameraForward(level->VissibleRenderList);
 
@@ -105,11 +80,23 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 
     if (MultiSampleCount) 
     {
+
+        if (colorBuffer->type() == TextureType::Texture2D)
+        {
+            InitFrameBuffers();
+        }
+
         colorBuffer->setSamples(MultiSampleCount);
         depthBuffer->setSamples(MultiSampleCount);
     }
     else
     {
+
+        if (colorBuffer->type() == TextureType::Texture2DMultisample)
+        {
+            InitFrameBuffers();
+        }
+
         colorBuffer->setSamples(1);
         depthBuffer->setSamples(1);
     }
@@ -123,9 +110,12 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 
 
     // 1) bind the one multisample FBO with both attachments
-    forwardFBO.bind();
+    forwardFBO->bind();
 
     glViewport(0, 0, res.x, res.y);
+
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.0f, 1.0f); // slopeScale, units
 
     //
     // A) Depth‑only pass
@@ -152,13 +142,14 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     }
     glUseProgram(0);
 
-    forwardFBO.unbind();
+    forwardFBO->unbind();
+    glDisable(GL_POLYGON_OFFSET_FILL);
 
-    forwardFBO.resolve(forwardResolveFBO,
+    forwardFBO->resolve(*forwardResolveFBO,
         GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
         GL_LINEAR);
 
-    forwardFBO.bind();
+    forwardFBO->bind();
 
     //
     // B) Opaque + transparent color passes
@@ -203,12 +194,12 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     glClear(GL_COLOR_BUFFER_BIT);
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-    forwardFBO.unbind();
+    forwardFBO->unbind();
 
     // 2) resolve to single‐sample FBO
-    forwardFBO.resolve(forwardResolveFBO,
+    forwardFBO->resolve(*forwardResolveFBO,
         GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,  
-        GL_LINEAR);
+        GL_NEAREST);
 
 }
 
@@ -356,4 +347,65 @@ void Renderer::InitFullscreenVAO()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 	glBindVertexArray(0);
+}
+
+void Renderer::InitFrameBuffers()
+{
+
+    TextureFormat colorTextureFormat = TextureFormat::RGBA16F;
+
+    ivec2 screenResolution = GetScreenResolution();
+
+    if (colorBuffer != nullptr)
+    {
+        delete(colorBuffer);
+    }
+
+    if (depthBuffer != nullptr)
+    {
+        delete(depthBuffer);
+    }
+
+    if (forwardFBO != nullptr)
+    {
+        delete(forwardFBO);
+    }
+
+    TextureType textureType = (MultiSampleCount > 0) ? TextureType::Texture2DMultisample : TextureType::Texture2D;
+
+    colorBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, textureType, false, GL_LINEAR, GL_LINEAR,
+        GL_CLAMP_TO_EDGE, 1);
+
+    depthBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, textureType, false, GL_LINEAR, GL_LINEAR,
+        GL_CLAMP_TO_EDGE, 1);
+
+    forwardFBO = new Framebuffer();
+    forwardFBO->attachDepth(depthBuffer);
+    forwardFBO->attachColor(colorBuffer, 0);
+
+    // resize all our buffers
+    colorBuffer->resize(screenResolution.x, screenResolution.y);
+    depthBuffer->resize(screenResolution.x, screenResolution.y);
+    colorBuffer->setSamples(MultiSampleCount);
+    depthBuffer->setSamples(MultiSampleCount);
+
+}
+
+void Renderer::InitResolveFrameBuffers()
+{
+
+    ivec2 screenResolution = GetScreenResolution();
+    TextureFormat colorTextureFormat = TextureFormat::RGBA16F;
+
+    colorResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2D);
+    depthResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2D);
+
+    forwardResolveFBO = new Framebuffer();
+
+    forwardResolveFBO->attachDepth(depthResolveBuffer);
+    forwardResolveFBO->attachColor(colorResolveBuffer);
+
+    colorResolveBuffer->resize(screenResolution.x, screenResolution.y);
+    depthResolveBuffer->resize(screenResolution.x, screenResolution.y);
+
 }

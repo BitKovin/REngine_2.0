@@ -39,6 +39,8 @@ public:
     void unbind() const;
     void resize(uint32_t width, uint32_t height);
 
+    void setTextureType(TextureType newType);
+
     // Add sample management
     void setSamples(uint32_t samples);
     uint32_t samples() const { return m_samples; }
@@ -59,6 +61,10 @@ private:
     TextureFormat m_format;
     TextureType m_type;
     uint32_t m_samples;  // Add sample count
+
+    GLenum m_minFilter;
+    GLenum m_magFilter;
+    GLenum m_wrapF;
 
     bool m_sampleDepth = false;
 
