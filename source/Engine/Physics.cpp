@@ -489,16 +489,32 @@ void Physics::ConfigureSwingTwistMotor(TwoBodyConstraint* constraint, float freq
 
 }
 
-void Physics::UpdateSwingTwistMotor(TwoBodyConstraint* constraint, const mat4& childTransformRelParent, const float& strength)
+void Physics::UpdateSwingTwistMotor(TwoBodyConstraint* constraint,
+	const mat4& childTransformRelParent,
+	const float& strength)
 {
-
 	if (constraint == nullptr) return;
 	if (constraint->GetSubType() != EConstraintSubType::SwingTwist) return;
 
 	SwingTwistConstraint* st = static_cast<SwingTwistConstraint*>(constraint);
 
-	// Update target orientation
+	// Convert and normalize
 	Quat targetRel = ToPhysics(childTransformRelParent).GetQuaternion();
+
+	// 1) Ensure no NaNs / infinities
+	if (!std::isfinite(targetRel.GetX()) || !std::isfinite(targetRel.GetY()) ||
+		!std::isfinite(targetRel.GetZ()) || !std::isfinite(targetRel.GetW()))
+	{
+		// Fallback: identity quaternion instead of bad input
+		targetRel = Quat::sIdentity();
+	}
+
+	// 2) Normalize (avoid drift)
+	if (targetRel.LengthSq() > 1e-6f)
+		targetRel = targetRel.Normalized();
+	else
+		targetRel = Quat::sIdentity();
+
 	st->SetTargetOrientationBS(targetRel);
 
 	// Scale torque limits by strength

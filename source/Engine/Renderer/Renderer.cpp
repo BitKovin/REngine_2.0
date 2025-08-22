@@ -115,7 +115,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     glViewport(0, 0, res.x, res.y);
 
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.0f, 1.0f); // slopeScale, units
+    glPolygonOffset(2.0f, 2.0f); // slopeScale, units
 
     //
     // A) Depth‑only pass
