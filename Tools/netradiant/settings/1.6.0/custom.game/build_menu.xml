@@ -34,7 +34,7 @@
 <build name="(Final) Best">
 <command>[q3map2] -meta &quot;[MapFile]&quot;</command>
 <command>[q3map2] -vis &quot;[MapFile]&quot;</command>
-<command>[q3map2] -light -patchshadows -samples 6 -super 2 -shade -samplesize 1 -bouncegrid -filter -filterwindow 2 -dirty -bounce 8 -gamma 2 -compensate 2 -threads 24 -lightmapsize 256 &quot;[MapFile]&quot;</command>
+<command>[q3map2] -light -patchshadows -samples 6 -super 2 -shade -samplesize 1 -bouncegrid -filter -filterwindow 2 -dirty -bounce 8 -gamma 2 -compensate 2 -threads 24 -lightmapsize 512 &quot;[MapFile]&quot;</command>
 </build>
 <separator/>
 <build name="convert to .ASE">

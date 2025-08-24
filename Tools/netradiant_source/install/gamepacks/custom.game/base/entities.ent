@@ -130,6 +130,19 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
         EXTRUDE_UPWARDS+AXIAL_BACKPLANE
     </point>
 
+    <point name="counter" color="0.8 0.3 0.7" box="-5 -5 -6 5 5 6">
+    
+        <string key="targetname" name="Name"></string>
+        <integer key="startNum" name="Start Number" value="0"></integer>
+        <integer key="targetNum" name="Target Number" value="1"></integer>
+        <string key="target" name="Target"></string>
+        <string key="onReached" name="on reached event" value = "reached"></string>
+    </point>
+
+
+    <point name="logicOnce" color="0.6 0.1 0.7" box="-4 -4 -4 4 4 4">
+        <string key="targetname" name="Name"></string>
+    </point>
 
     <!-- Moveable Brush -->
     <group name="func_door" color="0.8 0.8 0.2">

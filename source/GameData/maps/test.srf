@@ -2352,3 +2352,99 @@ default
 	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
+330 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 59
+	castShadows 0
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+}
+
+331 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 59
+	castShadows 0
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+}
+
+332 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 59
+	castShadows 0
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+}
+
+333 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 59
+	castShadows 0
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
+}
+
+334 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 59
+	castShadows 0
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
+}
+
+335 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 59
+	castShadows 0
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
+}
+
+336 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 60
+	castShadows 0
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+}
+
+337 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 60
+	castShadows 0
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+}
+
+338 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 60
+	castShadows 0
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+}
+
+339 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 60
+	castShadows 0
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
+}
+
+340 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 60
+	castShadows 0
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
+}
+
+341 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 60
+	castShadows 0
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
+}
+

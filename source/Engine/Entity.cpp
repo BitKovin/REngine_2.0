@@ -58,6 +58,7 @@ void Entity::Serialize(json& target)
 	SERIALIZE_FIELD(target, Health);
 	SERIALIZE_FIELD(target, destroyDelay);
 	SERIALIZE_FIELD(target, Tags);
+	SERIALIZE_FIELD(target, OwnerId);
 
 }
 
@@ -70,4 +71,5 @@ void Entity::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, Health);
 	DESERIALIZE_FIELD(source, destroyDelay);
 	DESERIALIZE_FIELD(source, Tags);
+	DESERIALIZE_FIELD(source, OwnerId);
 }

@@ -239,6 +239,8 @@
     <ClCompile Include="Entities\Brushes\MovebleBrush.cpp" />
     <ClCompile Include="Entities\Brushes\TriggerOnce.cpp" />
     <ClCompile Include="Entities\Brushes\vis_through.cpp" />
+    <ClCompile Include="Entities\Editor\Counter.cpp" />
+    <ClCompile Include="Entities\Editor\LogicOnce.cpp" />
     <ClCompile Include="Entities\Npc\Animators\NpcAnimatorBase.cpp" />
     <ClCompile Include="Entities\Npc\NpcBase.cpp" />
     <ClCompile Include="Entities\Player\Player.cpp" />

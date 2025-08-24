@@ -708,12 +708,14 @@
 // entity 9
 {
 "classname" "spawner"
-"origin" "80 -432 48"
+"origin" "80 -640 48"
 "className" "testnpc"
 "targetname" "sp1"
-"onSpawned" "spawned"
+"onSpawned" "add"
 "angle" "-21.7186"
 "angles" "44.2998 309.4 0"
+"target" "c1"
+"onDespawned" "sub"
 }
 // entity 10
 {
@@ -1055,7 +1057,7 @@
 ( -144 352 32 ) ( -144 352 16 ) ( -144 240 32 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
 ( -160 240 16 ) ( -144 240 16 ) ( -160 352 16 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
 ( -160 240 16 ) ( -160 352 16 ) ( -160 240 32 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
-( -144 304 96 ) ( -144 304 112 ) ( -128 304 96 ) common/caulk 0 0 0 0.5 0.5 0 0 0
+( -144 304 96 ) ( -144 304 112 ) ( -128 304 96 ) delvenPack/dlv_door1a 0 0 0 0.5 0.5 0 0 0
 }
 }
 // entity 55
@@ -1071,6 +1073,68 @@
 ( -144 416 32 ) ( -144 416 16 ) ( -144 304 32 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
 ( -208 368 16 ) ( -192 368 16 ) ( -144 432 16 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
 ( -160 304 16 ) ( -160 416 16 ) ( -160 304 32 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
-( -192 368 16 ) ( -208 368 16 ) ( -160 368 128 ) common/caulk 0 0 0 0.5 0.5 0 0 0
+( -192 368 16 ) ( -208 368 16 ) ( -160 368 128 ) delvenPack/dlv_door1a 0 0 0 0.5 0.5 0 0 0
+}
+}
+// entity 56
+{
+"classname" "spawner"
+"origin" "-32 -592 48"
+"className" "testnpc"
+"targetname" "sp1"
+"onSpawned" "add"
+"angle" "-21.7186"
+"angles" "44.2998 309.4 0"
+"target" "c1"
+"onDespawned" "sub"
+}
+// entity 57
+{
+"classname" "spawner"
+"origin" "176 -576 48"
+"className" "testnpc"
+"targetname" "sp1"
+"onSpawned" "add"
+"angle" "-21.7186"
+"angles" "44.2998 309.4 0"
+"target" "c1"
+"onDespawned" "sub"
+}
+// entity 58
+{
+"classname" "counter"
+"origin" "64 -736 224"
+"targetname" "c1"
+"target" "fd_1"
+"onReached" "open"
+}
+// entity 59
+{
+"classname" "func_door"
+"targetLocation" "0 0 -53"
+"targetname" "fd_1"
+// brush 0
+{
+( 112 -880 32 ) ( 16 -880 32 ) ( 112 -880 16 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
+( 112 -864 32 ) ( 112 -864 16 ) ( 112 -880 32 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
+( 16 -880 16 ) ( 112 -880 16 ) ( 16 -864 16 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
+( 16 -896 16 ) ( 16 -896 32 ) ( 112 -896 16 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
+( 16 -880 16 ) ( 16 -864 16 ) ( 16 -880 32 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
+( 112 -880 68 ) ( 16 -880 68 ) ( 112 -784 68 ) common/caulk 0 0 0 0.5 0.5 0 0 0
+}
+}
+// entity 60
+{
+"classname" "func_door"
+"targetLocation" "0 0 53"
+"targetname" "fd_1"
+// brush 0
+{
+( 112 -864 120 ) ( 112 -880 120 ) ( 16 -864 120 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
+( 112 -880 32 ) ( 16 -880 32 ) ( 112 -880 16 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
+( 112 -864 32 ) ( 112 -864 16 ) ( 112 -880 32 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
+( 16 -896 16 ) ( 16 -896 32 ) ( 112 -896 16 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
+( 16 -880 16 ) ( 16 -864 16 ) ( 16 -880 32 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
+( 112 -880 68 ) ( 112 -784 68 ) ( 16 -880 68 ) common/caulk 0 0 0 0.5 0.5 0 0 0
 }
 }

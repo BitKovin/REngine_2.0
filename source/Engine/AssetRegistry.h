@@ -70,38 +70,9 @@ public:
         return shaderCache[key];
     }
 
-    static Texture* GetTextureFromFile(string filename)
-    {
+    static Texture* GetTextureFromFile(string filename);
 
-        string key = filename;
-
-        auto it = textureCache.find(key);
-        if (it != textureCache.end())
-        {
-            return it->second; // Return cached shader
-        }
-
-        textureCache[key] = new Texture(filename, true);
-
-        return textureCache[key];
-    }
-
-    static CubemapTexture* GetTextureCubeFromFile(string filename)
-    {
-
-        string key = filename;
-
-        auto it = textureCubeCache.find(key);
-        if (it != textureCubeCache.end())
-        {
-            return it->second; // Return cached shader
-        }
-
-        textureCubeCache[key] = new CubemapTexture(filename, true);
-
-        return textureCubeCache[key];
-        //return textureCubeCache[key]->valid ? textureCubeCache[key] : nullptr;
-    }
+    static CubemapTexture* GetTextureCubeFromFile(string filename);
 
     static void RegisterTexture(Texture* texture, string path);
 

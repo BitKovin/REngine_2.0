@@ -491,7 +491,36 @@ void Player::Update()
     //printf("%i \n",SkeletalMesh::skelMeshes);
 
     controller.Update(Time::DeltaTimeF);
+
+	if (teleported == false)
+	{
+
+        vec3 dir = normalize(controller.GetPosition() - oldPos);
+
+
+		auto hit = Physics::LineTrace(oldPos - dir * 0.2f, controller.GetPosition(), BodyType::World | BodyType::WorldSkybox);
+
+		if (hit.hasHit)
+		{
+			controller.SetPosition(hit.position - dir * 0.3f);
+
+		}
+
+		hit = Physics::SphereTrace(oldPos - dir * 0.1f, controller.GetPosition(), 0.2f, BodyType::World | BodyType::WorldSkybox);
+
+		if (hit.hasHit)
+		{
+			controller.SetPosition(hit.shapePosition);
+
+		}
+
+
+	}
+	teleported = false;
+    oldPos = controller.GetPosition();
+
     Position = controller.GetSmoothPosition();
+
 
     if (controller.onGround)
     {
@@ -725,7 +754,7 @@ void Player::Deserialize(json& source)
     DESERIALIZE_FIELD(source, velocity);
 
     controller.SetVelocity(velocity);
-    controller.SetPosition(Position);
+    Teleport(Position);
 
 
 }
@@ -733,11 +762,33 @@ void Player::Deserialize(json& source)
 void Player::Teleport(vec3 target)
 {
 
+    teleported = true;
+
     Position = target;
+    oldPos = Position;
 
     controller.SetPosition(target);
     controller.heightSmoothOffset = 0;
     
+
+}
+
+void Player::MoveTo(vec3 target)
+{
+
+    auto hit = Physics::SphereTrace(Position, target, 0.2f, BodyType::World | BodyType::WorldSkybox);
+
+    if (hit.hasHit)
+    {
+
+        target = hit.shapePosition;
+
+    }
+
+    Position = target;
+
+    controller.SetPosition(target);
+    controller.heightSmoothOffset = 0;
 
 }
 

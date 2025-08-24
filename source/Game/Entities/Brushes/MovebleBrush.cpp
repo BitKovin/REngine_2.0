@@ -26,6 +26,26 @@ public:
 
 	}
 
+	void Serialize(json& target)
+	{
+
+		Entity::Serialize(target);
+
+		SERIALIZE_FIELD(target, open);
+		SERIALIZE_FIELD(target, progress);
+
+	}
+
+	void Deserialize(json& source)
+	{
+
+		Entity::Deserialize(source);
+
+		DESERIALIZE_FIELD(source, open);
+		DESERIALIZE_FIELD(source, progress);
+
+	}
+
 	void FromData(EntityData data)
 	{
 

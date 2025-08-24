@@ -153,7 +153,7 @@ public:
 			safePosition = hit.shapePosition + hit.normal;
 		}
 
-		Player::Instance->Teleport(safePosition + directionToPlayer - playerToCameraDif + vec3(0, 0.1f, 0));
+		Player::Instance->MoveTo(safePosition + directionToPlayer - playerToCameraDif + vec3(0, 0.1f, 0));
 
 
 
@@ -243,7 +243,7 @@ public:
 
 		printf("%f \n", grabDelay.GetProgress());
 
-		Player::Instance->Teleport(lerp(grabStartPos, destinationPos, grabDelay.GetProgress()));
+		Player::Instance->MoveTo(lerp(grabStartPos, destinationPos, grabDelay.GetProgress()));
 
 
 

@@ -112,6 +112,8 @@ void TestNpc::Death()
 	Physics::DestroyBody(LeadBody);
 	LeadBody = nullptr;
 
+	CallActionOnEntityWithId(OwnerId, "despawned");
+
 	dead = true;
 
 	if (DeathSoundPlayer)

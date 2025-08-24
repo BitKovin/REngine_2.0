@@ -51,6 +51,8 @@ private:
 
 	vec3 weaponOffset = vec3(0.023, 0.013, -0.13);
 
+	vec3 oldPos = vec3();
+
 	Delay jumpDelay;
 
 	bool freeFly = false;
@@ -89,6 +91,7 @@ private:
 
 	PlayerBodyAnimator bodyAnimator = PlayerBodyAnimator(this);
 
+	bool teleported = false;
 
 	glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
 		vel = MathHelper::XZ(vel);
@@ -223,7 +226,7 @@ public:
 		Instance = this;
 
 		controller.Init(this, Position,0.4f);
-
+		oldPos = controller.GetPosition();
 
 		ParticleSystem::PreloadSystemAssets("decal_blood");
 		ParticleSystem::PreloadSystemAssets("hit_flesh");
@@ -289,6 +292,8 @@ public:
 	void Deserialize(json& source);
 
 	void Teleport(vec3 target);
+
+	void MoveTo(vec3 target);
 
 	void StartBike();
 	void StopBike();

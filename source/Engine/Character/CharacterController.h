@@ -17,6 +17,7 @@ public:
 	vec3 GetPosition();
 	vec3 GetSmoothPosition();
 	void SetPosition(vec3 position);
+	void SetSmoothPosition(vec3 position);
 
 	void UpdateSmoothPosition(float deltaTime);
 

@@ -24,6 +24,7 @@ void CharacterController::Init(Entity* owner, vec3 position,float radius, float 
 	body->GetMotionProperties()->SetLinearDamping(0);
 
 
+
 	this->height = height;
 	this->radius = radius;
 
@@ -144,6 +145,14 @@ void CharacterController::SetPosition(vec3 position)
 	if (body)
 	{
 		Physics::SetBodyPosition(body, position + vec3(0, stepHeight, 0));
+	}
+}
+
+void CharacterController::SetSmoothPosition(vec3 position)
+{
+	if (body)
+	{
+		Physics::SetBodyPosition(body, position + vec3(0, stepHeight, 0) - vec3(0, heightSmoothOffset, 0));
 	}
 }
 

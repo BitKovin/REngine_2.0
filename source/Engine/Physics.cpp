@@ -505,8 +505,7 @@ void Physics::UpdateSwingTwistMotor(TwoBodyConstraint* constraint,
 	if (!std::isfinite(targetRel.GetX()) || !std::isfinite(targetRel.GetY()) ||
 		!std::isfinite(targetRel.GetZ()) || !std::isfinite(targetRel.GetW()))
 	{
-		// Fallback: identity quaternion instead of bad input
-		targetRel = Quat::sIdentity();
+		return;
 	}
 
 	// 2) Normalize (avoid drift)

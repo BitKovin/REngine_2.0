@@ -22,7 +22,7 @@ public:
 		Rotation.y = data.GetPropertyFloat("angle") + 90;
 		spawnClassName = data.GetPropertyString("className", spawnClassName);
 		onSpawnedAction = data.GetPropertyString("onSpawned", onSpawnedAction);
-		onSpawnedAction = data.GetPropertyString("onDespawned", onDespawnedAction);
+		onDespawnedAction = data.GetPropertyString("onDespawned", onDespawnedAction);
 		actionTarget = data.GetPropertyString("target", actionTarget);
 	}
 
@@ -34,17 +34,16 @@ public:
 	void PerformSpawn()
 	{
 		Entity* entity = Spawn(spawnClassName);
-		Logger::Log("1");
 		if (entity == nullptr)
 		{
 			Logger::Log("failed to spawn entity of type :" + spawnClassName);
 			return;
 		}
-		Logger::Log("2");
 		entity->Position = Position;
 		entity->Rotation = Rotation;
-		Logger::Log("3");
 		entity->Start();
+
+		entity->OwnerId = Id;
 		
 		Logger::Log("calling action");
 

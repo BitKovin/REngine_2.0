@@ -47,6 +47,39 @@ void AssetRegistry::ClearMemory()
 
 }
 
+Texture* AssetRegistry::GetTextureFromFile(string filename)
+{
+
+	string key = filename;
+
+	auto it = textureCache.find(key);
+	if (it != textureCache.end())
+	{
+		return it->second;
+	}
+
+	textureCache[key] = new Texture(filename, true);
+
+	return textureCache[key];
+
+}
+
+CubemapTexture* AssetRegistry::GetTextureCubeFromFile(string filename)
+{
+
+	string key = filename;
+
+	auto it = textureCubeCache.find(key);
+	if (it != textureCubeCache.end())
+	{
+		return it->second; 
+	}
+
+	textureCubeCache[key] = new CubemapTexture(filename, true);
+
+	return textureCubeCache[key];
+}
+
 void AssetRegistry::RegisterTexture(Texture* texture, string path)
 {
 

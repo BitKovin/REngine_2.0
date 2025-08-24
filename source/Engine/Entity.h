@@ -197,6 +197,22 @@ public:
 
 	}
 
+	static void CallActionOnEntityWithId(std::string id, std::string action)
+	{
+
+		if (id == "") return;
+
+		auto entity = Level::Current->FindEntityWithId(id);
+
+		if (entity != nullptr)
+		{
+			entity->OnAction(action);
+		}
+
+
+
+	}
+
 	static void PreloadEntityType(std::string technicalName)
 	{
 		auto entity = Spawn(technicalName);
