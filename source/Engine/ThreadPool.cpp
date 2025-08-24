@@ -108,17 +108,17 @@ int ThreadPool::GetNumThreadsForPhysics()
 
 #endif
 
-	return ceil(GetMaxThreads() * 0.6);
+	return std::max(floor(GetMaxThreads() * 0.6),1.0);
 }
 
 int ThreadPool::GetNumThreadsForAsyncUpdate()
 {
-	return ceil(GetMaxThreads() * 0.6);
+	return std::max(floor(GetMaxThreads() * 0.6),1.0);
 }
 
 int ThreadPool::GetNumThreadsForThreadPool()
 {
-	return ceil(GetMaxThreads() * 0.4);
+	return std::max(floor(GetMaxThreads() * 0.4),1.0);
 }
 
 

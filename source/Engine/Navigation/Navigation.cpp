@@ -22,8 +22,6 @@
 bool NavigationSystem::DebugDrawNavMeshEnabled = false;
 
 // Static member initialization
-dtNavMesh* NavigationSystem::navMesh = nullptr;
-dtTileCache* NavigationSystem::tileCache = nullptr;
 std::recursive_mutex NavigationSystem::mainLock;
 std::vector<dtObstacleRef> NavigationSystem::obstacles;
 
@@ -71,6 +69,9 @@ void NavigationSystem::DestroyNavData()
 	if (tcomp)
 		delete tcomp;
 
+    if (tmproc)
+        delete tmproc;
+
     
 }
 
@@ -95,6 +96,16 @@ void NavigationSystem::Update()
     }
 }
 
+// Set areas -> flags when the cache creates Detour data
+struct MeshProcess : public dtTileCacheMeshProcess {
+    unsigned short walkFlag = 1; // SAMPLE_POLYFLAGS_WALK
+    void process(dtNavMeshCreateParams* params, unsigned char* polyAreas, unsigned short* polyFlags) override {
+        for (int i = 0; i < params->polyCount; ++i) {
+            if (polyAreas[i] == RC_WALKABLE_AREA) polyAreas[i] = 0; // SAMPLE_POLYAREA_GROUND
+            polyFlags[i] = walkFlag;
+        }
+    }
+};
 
 
 void NavigationSystem::GenerateNavData()
@@ -102,29 +113,19 @@ void NavigationSystem::GenerateNavData()
     DestroyNavData();
 
     auto mesh = Level::Current->GetStaticNavObstaclesMesh();
-    //mesh = MeshUtils::RemoveDegenerates(mesh, 0.01f, 0.01f);
-    //mesh = MeshUtils::MergeMeshes({ MeshUtils::MergeCoplanarRegions(mesh), mesh });
 
     std::lock_guard<std::recursive_mutex> lock(mainLock);
 
     std::vector<glm::vec3> vertices = mesh.vertices;
     std::vector<uint32_t> indices = mesh.indices;
-
     if (vertices.size() < 3) return;
 
-    glm::vec3 bmin = vertices[0];
-    glm::vec3 bmax = vertices[0];
-    for (const auto& v : vertices) {
-        bmin = glm::min(bmin, v);
-        bmax = glm::max(bmax, v);
-    }
+    glm::vec3 bmin = vertices[0], bmax = vertices[0];
+    for (const auto& v : vertices) { bmin = glm::min(bmin, v); bmax = glm::max(bmax, v); }
+    bmin -= glm::vec3(5); bmax += glm::vec3(5);
 
-    bmin -= vec3(5);
-    bmax += vec3(5);
-
-    // Recast configuration
-    rcConfig cfg;
-    memset(&cfg, 0, sizeof(cfg));
+    // ---- Recast config (similar to yours)
+    rcConfig cfg{};
     cfg.cs = 0.2f;
     cfg.ch = 0.3f;
     cfg.walkableSlopeAngle = 40.0f;
@@ -143,318 +144,204 @@ void NavigationSystem::GenerateNavData()
     cfg.detailSampleDist = 0.1f;
     cfg.detailSampleMaxError = 0.1f;
 
-    // Calculate number of tiles
-    const float tileWidth = cfg.tileSize * cfg.cs;
-    const int ntilesX = static_cast<int>(ceilf((bmax.x - bmin.x) / tileWidth));
-    const int ntilesZ = static_cast<int>(ceilf((bmax.z - bmin.z) / tileWidth));
-    const int maxTiles = ntilesX * ntilesZ * 10;
-    const float borderWorld = cfg.borderSize * cfg.cs;  // World-space border size
+    const float tileWorld = cfg.tileSize * cfg.cs;
+    const int ntilesX = static_cast<int>(ceilf((bmax.x - bmin.x) / tileWorld));
+    const int ntilesZ = static_cast<int>(ceilf((bmax.z - bmin.z) / tileWorld));
+    const int expectedLayersPerTile = 4; // conservative upper bound; tune if you know your data
+    const int maxTiles = ntilesX * ntilesZ * expectedLayersPerTile;
+    const float borderWorld = cfg.borderSize * cfg.cs;
 
-    // Initialize nav mesh
-    dtNavMeshParams navParams;
-    memset(&navParams, 0, sizeof(navParams));
-    navParams.orig[0] = bmin.x;
-    navParams.orig[1] = bmin.y;
-    navParams.orig[2] = bmin.z;
-    navParams.tileWidth = tileWidth;
-    navParams.tileHeight = tileWidth;
-    navParams.maxTiles = maxTiles;
-    navParams.maxPolys = 16384;
+    // ---- Init Detour navmesh
+    dtNavMeshParams navParams{};
+    navParams.orig[0] = bmin.x; navParams.orig[1] = bmin.y; navParams.orig[2] = bmin.z;
+    navParams.tileWidth = tileWorld;
+    navParams.tileHeight = tileWorld;
+    navParams.maxTiles = ntilesX * ntilesZ * expectedLayersPerTile; // Detour needs enough for all layers
+    navParams.maxPolys = 1 << 14;
 
     navMesh = dtAllocNavMesh();
     if (!navMesh || dtStatusFailed(navMesh->init(&navParams))) {
-        std::cerr << "Failed to initialize navMesh" << std::endl;
-        dtFreeNavMesh(navMesh);
-        navMesh = nullptr;
+        dtFreeNavMesh(navMesh); navMesh = nullptr;
+        std::cerr << "Failed to initialize dtNavMesh\n";
         return;
     }
 
-    // Convert geometry to Recast format
-    std::vector<float> vertFloats;
-    vertFloats.reserve(vertices.size() * 3);
-    for (const auto& v : vertices) {
-        vertFloats.push_back(v.x);
-        vertFloats.push_back(v.y);
-        vertFloats.push_back(v.z);
-    }
-    std::vector<int> triInts;
-    triInts.reserve(indices.size());
-    for (const auto& index : indices) {
-        triInts.push_back(static_cast<int>(index));
-    }
-    const int nverts = vertices.size();
-    const int ntris = indices.size() / 3;
+    // ---- Init Tile Cache
+    talloc = new dtTileCacheAlloc();     // 4–16 MB temp buffer is typical
+    tcomp = new FastLZCompressor();         // or your own compressor
+    tmproc = new MeshProcess();
 
-    // Precompute triangle bounding boxes with border expansion
+    dtTileCacheParams tcParams{};
+    tcParams.orig[0] = bmin.x; tcParams.orig[1] = bmin.y; tcParams.orig[2] = bmin.z;
+    tcParams.cs = cfg.cs; tcParams.ch = cfg.ch;
+    tcParams.width = cfg.tileSize;          // in cells (not world units)
+    tcParams.height = cfg.tileSize;          // in cells
+    tcParams.walkableHeight = 2.0f;          // same as your dtCreateNavMeshData params
+    tcParams.walkableRadius = 0.2f;
+    tcParams.walkableClimb = 0.6f;
+    tcParams.maxTiles = maxTiles;
+    tcParams.maxObstacles = 2048;            // tune for your runtime needs
+
+    tileCache = dtAllocTileCache();
+    if (!tileCache || dtStatusFailed(tileCache->init(&tcParams, talloc, tcomp, tmproc))) {
+        if (tileCache) dtFreeTileCache(tileCache); tileCache = nullptr;
+        std::cerr << "Failed to initialize dtTileCache\n";
+        return;
+    }
+
+    // ---- Flatten your geometry for Recast
+    std::vector<float> vertFloats; vertFloats.reserve(vertices.size() * 3);
+    for (auto& v : vertices) { vertFloats.push_back(v.x); vertFloats.push_back(v.y); vertFloats.push_back(v.z); }
+    std::vector<int> triInts; triInts.reserve(indices.size());
+    for (auto i : indices) triInts.push_back((int)i);
+
+    const int nverts = (int)vertices.size();
+    const int ntris = (int)indices.size() / 3;
+
+    // ---- Precompute expanded tri bounds & tile bins (kept from your code)
     std::vector<std::array<float, 4>> triBounds(ntris);
-    for (int i = 0; i < ntris; i++) {
+    for (int i = 0; i < ntris; ++i) {
         const int* tri = &triInts[i * 3];
         const float* v0 = &vertFloats[tri[0] * 3];
         const float* v1 = &vertFloats[tri[1] * 3];
         const float* v2 = &vertFloats[tri[2] * 3];
-
         float minx = std::min(v0[0], std::min(v1[0], v2[0]));
         float minz = std::min(v0[2], std::min(v1[2], v2[2]));
         float maxx = std::max(v0[0], std::max(v1[0], v2[0]));
         float maxz = std::max(v0[2], std::max(v1[2], v2[2]));
-
-        // Expand bounds by border size to include nearby tiles
-        triBounds[i][0] = minx - borderWorld;
-        triBounds[i][1] = minz - borderWorld;
-        triBounds[i][2] = maxx + borderWorld;
-        triBounds[i][3] = maxz + borderWorld;
+        triBounds[i] = { minx - borderWorld, minz - borderWorld, maxx + borderWorld, maxz + borderWorld };
     }
-
-    // Precompute tile assignments for each triangle
     std::vector<std::vector<int>> tileTriangles(ntilesX * ntilesZ);
-    for (int i = 0; i < ntris; i++) {
-        const float minx = triBounds[i][0];
-        const float minz = triBounds[i][1];
-        const float maxx = triBounds[i][2];
-        const float maxz = triBounds[i][3];
-
-        // Calculate tile ranges for this triangle
-        int tx0 = static_cast<int>((minx - bmin.x) / tileWidth);
-        int tx1 = static_cast<int>((maxx - bmin.x) / tileWidth);
-        int tz0 = static_cast<int>((minz - bmin.z) / tileWidth);
-        int tz1 = static_cast<int>((maxz - bmin.z) / tileWidth);
-
-        // Clamp to valid tile range
-        tx0 = std::max(0, tx0);
-        tx1 = std::min(ntilesX - 1, tx1);
-        tz0 = std::max(0, tz0);
-        tz1 = std::min(ntilesZ - 1, tz1);
-
-        // Add triangle to relevant tiles
-        for (int tz = tz0; tz <= tz1; tz++) {
-            for (int tx = tx0; tx <= tx1; tx++) {
+    for (int i = 0; i < ntris; ++i) {
+        const float minx = triBounds[i][0], minz = triBounds[i][1];
+        const float maxx = triBounds[i][2], maxz = triBounds[i][3];
+        int tx0 = (int)((minx - bmin.x) / tileWorld);
+        int tx1 = (int)((maxx - bmin.x) / tileWorld);
+        int tz0 = (int)((minz - bmin.z) / tileWorld);
+        int tz1 = (int)((maxz - bmin.z) / tileWorld);
+        tx0 = std::max(0, tx0); tx1 = std::min(ntilesX - 1, tx1);
+        tz0 = std::max(0, tz0); tz1 = std::min(ntilesZ - 1, tz1);
+        for (int tz = tz0; tz <= tz1; ++tz)
+            for (int tx = tx0; tx <= tx1; ++tx)
                 tileTriangles[tz * ntilesX + tx].push_back(i);
-            }
-        }
     }
 
-    // Context for Recast operations
     rcContext* ctx = new rcContext();
-    const unsigned char SAMPLE_POLYAREA_GROUND = 0;
-    const unsigned char SAMPLE_POLYFLAGS_WALK = 1;
-
-    // Precompute walkable areas for all triangles
-    std::vector<unsigned char> triareas(ntris);
+    std::vector<unsigned char> triareas(ntris, 0);
     rcMarkWalkableTriangles(ctx, cfg.walkableSlopeAngle,
-        vertFloats.data(), nverts,
-        triInts.data(), ntris,
-        triareas.data());
+        vertFloats.data(), nverts, triInts.data(), ntris, triareas.data());
 
-    // Process each tile
-    for (int tz = 0; tz < ntilesZ; ++tz) 
-    {
-
-        float progress = (float)tz / (float)ntilesZ;
-
-        LoadingScreenSystem::Update(0.6 + progress * 0.3);
-
+    // ---- Build cache tiles
+    for (int tz = 0; tz < ntilesZ; ++tz) {
+        float progress = (float)tz / (float)std::max(1, ntilesZ - 1);
+        LoadingScreenSystem::Update(0.6f + progress * 0.3f);
 
         for (int tx = 0; tx < ntilesX; ++tx) {
-            float tileBmin[3] = {
-                bmin.x + tx * tileWidth,
-                bmin.y,
-                bmin.z + tz * tileWidth
-            };
-            float tileBmax[3] = {
-                bmin.x + (tx + 1) * tileWidth,
-                bmax.y,
-                bmin.z + (tz + 1) * tileWidth
-            };
+            // Tight world bounds for this tile (no border)
+            float tbmin[3] = { bmin.x + tx * tileWorld, bmin.y, bmin.z + tz * tileWorld };
+            float tbmax[3] = { bmin.x + (tx + 1) * tileWorld, bmax.y, bmin.z + (tz + 1) * tileWorld };
 
-            int dataSize = 0;
-            unsigned char* data = [&]() -> unsigned char* {
-                // Create expanded tile bounds (with border)
-                rcConfig localCfg = cfg;
-                float expandedBmin[3] = {
-                    tileBmin[0] - borderWorld,
-                    tileBmin[1],
-                    tileBmin[2] - borderWorld
-                };
-                float expandedBmax[3] = {
-                    tileBmax[0] + borderWorld,
-                    tileBmax[1],
-                    tileBmax[2] + borderWorld
-                };
-                rcVcopy(localCfg.bmin, expandedBmin);
-                rcVcopy(localCfg.bmax, expandedBmax);
+            // Expanded bounds used for rasterization (add border)
+            float ebmin[3] = { tbmin[0] - borderWorld, tbmin[1], tbmin[2] - borderWorld };
+            float ebmax[3] = { tbmax[0] + borderWorld, tbmax[1], tbmax[2] + borderWorld };
 
-                // Allocate and initialize heightfield
-                rcHeightfield* solid = rcAllocHeightfield();
-                if (!solid || !rcCreateHeightfield(ctx, *solid, localCfg.width, localCfg.height,
-                    localCfg.bmin, localCfg.bmax, localCfg.cs, localCfg.ch)) {
-                    ctx->log(RC_LOG_ERROR, "Failed to create solid heightfield");
-                    if (solid) rcFreeHeightField(solid);
-                    return nullptr;
-                }
+            // Build heightfield for this tile
+            rcHeightfield* solid = rcAllocHeightfield();
+            if (!solid || !rcCreateHeightfield(ctx, *solid, cfg.width, cfg.height, ebmin, ebmax, cfg.cs, cfg.ch)) {
+                if (solid) rcFreeHeightField(solid);
+                continue;
+            }
 
-                // Get precomputed triangles for this tile
-                std::vector<int>& tileTriIndices = tileTriangles[tz * ntilesX + tx];
-                if (tileTriIndices.empty()) {
-                    rcFreeHeightField(solid);
-                    return nullptr;
-                }
+            const auto& triList = tileTriangles[tz * ntilesX + tx];
+            if (triList.empty()) { rcFreeHeightField(solid); continue; }
 
-                // Create arrays for this tile's triangles
-                std::vector<int> tileTris;
-                std::vector<unsigned char> tileTriareas;
+            std::vector<int>    ttris;      ttris.reserve(triList.size() * 3);
+            std::vector<unsigned char> ta;  ta.reserve(triList.size());
+            for (int i : triList) {
+                ttris.push_back(triInts[i * 3 + 0]);
+                ttris.push_back(triInts[i * 3 + 1]);
+                ttris.push_back(triInts[i * 3 + 2]);
+                ta.push_back(triareas[i]);
+            }
 
-                for (int i : tileTriIndices) {
-                    tileTris.push_back(triInts[i * 3]);
-                    tileTris.push_back(triInts[i * 3 + 1]);
-                    tileTris.push_back(triInts[i * 3 + 2]);
-                    tileTriareas.push_back(triareas[i]);
-                }
-
-                // Rasterize triangles
-                if (!rcRasterizeTriangles(ctx, vertFloats.data(), nverts,
-                    tileTris.data(), tileTriareas.data(), tileTris.size() / 3,
-                    *solid, localCfg.walkableClimb)) {
-                    rcFreeHeightField(solid);
-                    return nullptr;
-                }
-
-                // Filter walkable surfaces
-                rcFilterLowHangingWalkableObstacles(ctx, localCfg.walkableClimb, *solid);
-                rcFilterLedgeSpans(ctx, localCfg.walkableHeight, localCfg.walkableClimb, *solid);
-                rcFilterWalkableLowHeightSpans(ctx, localCfg.walkableHeight, *solid);
-
-                // Build compact heightfield
-                rcCompactHeightfield* chf = rcAllocCompactHeightfield();
-                if (!chf || !rcBuildCompactHeightfield(ctx, localCfg.walkableHeight,
-                    localCfg.walkableClimb, *solid, *chf)) {
-                    ctx->log(RC_LOG_ERROR, "Failed to build compact heightfield");
-                    rcFreeHeightField(solid);
-                    if (chf) rcFreeCompactHeightfield(chf);
-                    return nullptr;
-                }
+            if (!rcRasterizeTriangles(ctx, vertFloats.data(), nverts,
+                ttris.data(), ta.data(), (int)triList.size(),
+                *solid, cfg.walkableClimb)) {
                 rcFreeHeightField(solid);
+                continue;
+            }
 
-                // Erode walkable area
-                if (!rcErodeWalkableArea(ctx, localCfg.walkableRadius, *chf)) {
-                    ctx->log(RC_LOG_ERROR, "Failed to erode walkable area");
-                    rcFreeCompactHeightfield(chf);
-                    return nullptr;
-                }
+            rcFilterLowHangingWalkableObstacles(ctx, cfg.walkableClimb, *solid);
+            rcFilterLedgeSpans(ctx, cfg.walkableHeight, cfg.walkableClimb, *solid);
+            rcFilterWalkableLowHeightSpans(ctx, cfg.walkableHeight, *solid);
 
-                // Partition walkable surface (Watershed partitioning)
-                if (!rcBuildDistanceField(ctx, *chf) ||
-                    !rcBuildRegions(ctx, *chf, localCfg.borderSize,
-                        localCfg.minRegionArea, localCfg.mergeRegionArea)) {
-                    ctx->log(RC_LOG_ERROR, "Failed to build distance field or regions");
-                    rcFreeCompactHeightfield(chf);
-                    return nullptr;
-                }
+            rcCompactHeightfield* chf = rcAllocCompactHeightfield();
+            if (!chf || !rcBuildCompactHeightfield(ctx, cfg.walkableHeight, cfg.walkableClimb, *solid, *chf)) {
+                if (chf) rcFreeCompactHeightfield(chf);
+                rcFreeHeightField(solid);
+                continue;
+            }
+            rcFreeHeightField(solid);
 
-                // Build contours
-                rcContourSet* cset = rcAllocContourSet();
-                if (!cset || !rcBuildContours(ctx, *chf, localCfg.maxSimplificationError,
-                    localCfg.maxEdgeLen, *cset)) {
-                    ctx->log(RC_LOG_ERROR, "Failed to build contours");
-                    rcFreeCompactHeightfield(chf);
-                    if (cset) rcFreeContourSet(cset);
-                    return nullptr;
-                }
-                if (cset->nconts == 0) {
-                    rcFreeCompactHeightfield(chf);
-                    rcFreeContourSet(cset);
-                    return nullptr;
-                }
-
-                // Build poly mesh
-                rcPolyMesh* pmesh = rcAllocPolyMesh();
-                if (!pmesh || !rcBuildPolyMesh(ctx, *cset, localCfg.maxVertsPerPoly, *pmesh)) {
-                    ctx->log(RC_LOG_ERROR, "Failed to build polygon mesh");
-                    rcFreeCompactHeightfield(chf);
-                    rcFreeContourSet(cset);
-                    if (pmesh) rcFreePolyMesh(pmesh);
-                    return nullptr;
-                }
-
-                // Build detail mesh
-                rcPolyMeshDetail* dmesh = rcAllocPolyMeshDetail();
-                if (!dmesh || !rcBuildPolyMeshDetail(ctx, *pmesh, *chf,
-                    localCfg.detailSampleDist, localCfg.detailSampleMaxError, *dmesh)) {
-                    ctx->log(RC_LOG_ERROR, "Failed to build detail mesh");
-                    rcFreeCompactHeightfield(chf);
-                    rcFreeContourSet(cset);
-                    rcFreePolyMesh(pmesh);
-                    if (dmesh) rcFreePolyMeshDetail(dmesh);
-                    return nullptr;
-                }
-
-                // Clean up intermediate structures
+            if (!rcErodeWalkableArea(ctx, cfg.walkableRadius, *chf)) {
                 rcFreeCompactHeightfield(chf);
-                rcFreeContourSet(cset);
+                continue;
+            }
 
-                // Set polygon areas and flags
-                for (int i = 0; i < pmesh->npolys; ++i) {
-                    if (pmesh->areas[i] == RC_WALKABLE_AREA)
-                        pmesh->areas[i] = SAMPLE_POLYAREA_GROUND;
-                    pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK;
+            // Build heightfield *layers* for tile cache
+            rcHeightfieldLayerSet* lset = rcAllocHeightfieldLayerSet();
+            if (!lset || !rcBuildHeightfieldLayers(ctx, *chf, cfg.borderSize, cfg.walkableHeight, *lset)) {
+                if (lset) rcFreeHeightfieldLayerSet(lset);
+                rcFreeCompactHeightfield(chf);
+                continue;
+            }
+            rcFreeCompactHeightfield(chf);
+
+            // For each layer, build compressed cache data and add to tile cache
+            for (int li = 0; li < lset->nlayers; ++li) {
+                const rcHeightfieldLayer* layer = &lset->layers[li];
+                dtTileCacheLayerHeader header{};
+                header.magic = DT_TILECACHE_MAGIC;
+                header.version = DT_TILECACHE_VERSION;
+                header.tx = tx; header.ty = tz; header.tlayer = (unsigned char)li;
+                // Copy layer spatial info (cells)
+                rcVcopy(header.bmin, layer->bmin);
+                rcVcopy(header.bmax, layer->bmax);
+                header.width = (unsigned char)layer->width;
+                header.height = (unsigned char)layer->height;
+                header.minx = (unsigned char)layer->minx;
+                header.maxx = (unsigned char)layer->maxx;
+                header.miny = (unsigned char)layer->miny;
+                header.maxy = (unsigned char)layer->maxy;
+                header.hmin = (unsigned short)layer->hmin;
+                header.hmax = (unsigned short)layer->hmax;
+
+                unsigned char* compressed = nullptr;
+                int compressedSize = 0;
+                if (dtStatusFailed(dtBuildTileCacheLayer(tcomp, &header,
+                    layer->heights, layer->areas, layer->cons,
+                    &compressed, &compressedSize))) {
+                    continue;
                 }
 
-                // Generate Detour navmesh data
-                dtNavMeshCreateParams params;
-                memset(&params, 0, sizeof(params));
-                params.verts = pmesh->verts;
-                params.vertCount = pmesh->nverts;
-                params.polys = pmesh->polys;
-                params.polyAreas = pmesh->areas;
-                params.polyFlags = pmesh->flags;
-                params.polyCount = pmesh->npolys;
-                params.nvp = pmesh->nvp;
-                params.detailMeshes = dmesh->meshes;
-                params.detailVerts = dmesh->verts;
-                params.detailVertsCount = dmesh->nverts;
-                params.detailTris = dmesh->tris;
-                params.detailTriCount = dmesh->ntris;
-                params.walkableHeight = 2.0f;
-                params.walkableRadius = 0.2f;
-                params.walkableClimb = 0.6f;
-                params.tileX = tx;
-                params.tileY = tz;
-                params.tileLayer = 0;
-                rcVcopy(params.bmin, pmesh->bmin);
-                rcVcopy(params.bmax, pmesh->bmax);
-                params.cs = localCfg.cs;
-                params.ch = localCfg.ch;
-                params.buildBvTree = true;
-
-                unsigned char* navData = nullptr;
-                int navDataSize = 0;
-                if (!dtCreateNavMeshData(&params, &navData, &navDataSize)) {
-                    rcFreePolyMesh(pmesh);
-                    rcFreePolyMeshDetail(dmesh);
-                    return nullptr;
-                }
-
-                rcFreePolyMesh(pmesh);
-                rcFreePolyMeshDetail(dmesh);
-                return navData;
-                }(); // End of tile processing lambda
-
-            // Add tile to navmesh
-            if (data) {
-                // Remove existing tile
-                dtTileRef existingTile = navMesh->getTileRefAt(tx, tz, 0);
-                if (existingTile)
-                    navMesh->removeTile(existingTile, nullptr, nullptr);
-
-                // Add new tile
-                if (dtStatusFailed(navMesh->addTile(data, dataSize, DT_TILE_FREE_DATA, 0, nullptr))) {
-                    dtFree(data);
+                dtCompressedTileRef cref = 0;
+                // DT_COMPRESSEDTILE_FREE_DATA: cache will own & free the memory. :contentReference[oaicite:2]{index=2}
+                if (dtStatusFailed(tileCache->addTile(compressed, compressedSize, DT_COMPRESSEDTILE_FREE_DATA, &cref))) {
+                    // If add fails, free ourselves:
+                    dtFree(compressed);
                 }
             }
+
+            rcFreeHeightfieldLayerSet(lset);
+
+            // Build all detour tiles at this grid coordinate from the cache
+            (void)tileCache->buildNavMeshTilesAt(tx, tz, navMesh); // builds one or more layers. :contentReference[oaicite:3]{index=3}
         }
     }
 
     delete ctx;
 }
+
 
 void NavigationSystem::DrawNavmesh()
 {

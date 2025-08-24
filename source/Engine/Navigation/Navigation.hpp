@@ -22,8 +22,12 @@ class NavigationSystem
 
 private:
 
-	static dtNavMesh* navMesh;
-	static dtTileCache* tileCache;
+    static inline dtNavMesh* navMesh = nullptr;
+    static inline dtTileCache* tileCache = nullptr;
+    static inline dtTileCacheAlloc* talloc = nullptr;
+    static inline dtTileCacheCompressor* tcomp = nullptr;
+    static inline dtTileCacheMeshProcess* tmproc = nullptr;
+
 
     static std::recursive_mutex mainLock;
 

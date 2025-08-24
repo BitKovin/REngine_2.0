@@ -67,7 +67,7 @@ void CaneProjectile::Update()
 
 			if (movingTo == false)
 			{
-				Rotation.y = MathHelper::FindLookAtRotation(Position, Player::Instance->Position).y;
+				Rotation.y = MathHelper::FindLookAtRotation(hitedEntity->Position, Player::Instance->Position).y;
 
 
 				Position = hitedEntity->Position + MathHelper::RotateVector(relativeOffset, vec3(0, Rotation.y, 0));
