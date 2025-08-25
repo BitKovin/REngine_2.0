@@ -252,9 +252,7 @@ void Renderer::RenderFullscreenQuad(GLuint textureID)
 
     ivec2 screenResolution = GetScreenResolution();
 
-	// Bind texture to unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	
 	fullscreenShader->SetTexture("screenTexture", textureID);
     fullscreenShader->SetUniform("screenResolution", screenResolution);
 	// Draw quad

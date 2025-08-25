@@ -1,5 +1,9 @@
 ﻿#include "Shader.hpp"
 
+#include "AssetRegistry.h"
+
+#include <regex>
+
 bool Shader::Reload()
 {
     // 1) obtain new source (file if available, otherwise stored source)
@@ -130,4 +134,87 @@ bool Shader::Reload()
 
     Logger::Log("Shader::Reload succeeded for " + filePath);
     return true;
+}
+
+std::unordered_map<std::string, std::string> ShaderProgram::ParseTextureBindings(const std::string& shaderCode)
+{
+    std::unordered_map<std::string, std::string> result;
+
+    // Regex: match `uniform sampler2D <name>; // @texture <path>`
+    std::regex re(R"(uniform\s+sampler2D\s+(\w+)\s*;.*@texture\s+([^\s]+))");
+
+    std::smatch match;
+    std::string::const_iterator searchStart(shaderCode.cbegin());
+
+    while (std::regex_search(searchStart, shaderCode.cend(), match, re))
+    {
+        std::string uniformName = match[1].str();
+        std::string texturePath = match[2].str();
+        result[uniformName] = texturePath;
+
+        searchStart = match.suffix().first;
+    }
+
+    return result;
+}
+
+std::unordered_map<std::string, std::string> ShaderProgram::ParseAllTextureBindings() const
+{
+    std::unordered_map<std::string, std::string> result;
+
+    // Regex matches: uniform sampler2D myTex; // @texture path/to/file.png
+    std::regex re(R"(uniform\s+(?:sampler2D|samplerCube)\s+(\w+)\s*;.*@texture\s+([^\s]+))");
+
+    for (const Shader* s : attachedShaders)
+    {
+        if (!s) continue;
+
+        const std::string& code = s->shaderCode;
+
+        std::smatch match;
+        std::string::const_iterator searchStart(code.cbegin());
+
+        while (std::regex_search(searchStart, code.cend(), match, re))
+        {
+            std::string uniformName = match[1].str();
+            std::string texturePath = match[2].str();
+
+            // overwrite if duplicate uniform name across shaders
+            result[uniformName] = texturePath;
+
+            searchStart = match.suffix().first;
+        }
+    }
+
+    return result;
+}
+
+void ShaderProgram::ParseShaders()
+{
+
+    // For each attached shader, parse bindings
+    for (Shader* s : attachedShaders)
+    {
+        auto parsed = ParseTextureBindings(s->shaderCode);
+        for (auto& kv : parsed)
+        {
+            textureBindings[kv.first] = kv.second;
+        }
+    }
+
+}
+
+void ShaderProgram::ApplyTextureBindings()
+{
+
+    for (const auto& pair : textureBindings)
+    {
+        const std::string& uniformName = pair.first;
+        const std::string& path = pair.second;
+
+        Texture* tex = AssetRegistry::GetTextureFromFile(path); 
+        if (tex)
+            SetTexture(uniformName, tex);
+    }
+
 }

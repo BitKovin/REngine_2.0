@@ -127,6 +127,8 @@ public:
     std::vector<GLAttribute> attributes;  // Stores shader attributes.
     std::unordered_map<std::string, GLint> uniformLocations; // Cache for uniform locations.
 
+    std::unordered_map<std::string, std::string> textureBindings; 
+
     // Keep track of Shader* that are attached to this program (so we can unregister on destruction).
     std::vector<Shader*> attachedShaders;
 
@@ -186,6 +188,9 @@ public:
 
         FillAttributes();
         CacheUniformLocations();
+
+        textureBindings = ParseAllTextureBindings();
+
         return this;
     }
 
@@ -204,6 +209,9 @@ public:
 
         // Activate this shader program
         glUseProgram(program);
+
+        ApplyTextureBindings();
+
     }
 
     // Fills the attributes vector by querying the linked program.
@@ -343,6 +351,7 @@ public:
         glUniform1i(location, unit);
     }
 
+
     // === Uniform setting functions with cached locations ===
     
         // Set uniform integer
@@ -473,5 +482,15 @@ public:
                 GL_FALSE,
                 glm::value_ptr(values[0]));
     }
+
+    
+
+    static std::unordered_map<std::string, std::string> ParseTextureBindings(const std::string& shaderCode);
+
+    std::unordered_map<std::string, std::string> ParseAllTextureBindings() const;
+
+    void ParseShaders();
+
+    void ApplyTextureBindings();
 
 };

@@ -4,6 +4,7 @@ precision highp float;
 out vec4 FragColor;
 in vec2 TexCoords;
 uniform sampler2D screenTexture;
+uniform sampler2D noiseTexture;// @texture GameData/textures/noise/grainy5_256.png
 
 
 /**
@@ -168,26 +169,21 @@ float hash21(vec2 p) {
 }
 
 // Smooth 2D noise
-float smoothNoise(vec2 uv) {
-    vec2 i = floor(uv);
-    vec2 f = fract(uv);
-
-    // corners
-    float a = hash21(i + vec2(0.0, 0.0));
-    float b = hash21(i + vec2(1.0, 0.0));
-    float c = hash21(i + vec2(0.0, 1.0));
-    float d = hash21(i + vec2(1.0, 1.0));
-
-    // smoothstep interpolation
-    vec2 u = f * f * (3.0 - 2.0 * f);
-    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+float smoothNoise(vec2 uv) 
+{
+    return texture(noiseTexture, uv).r;
 }
 
+float getAspectRatio()
+{
+    ivec2 size = textureSize(noiseTexture, 0);
+    return float(size.x) / float(size.y);
+}
 
 // --- Smooth posterization with large noise ---
 vec3 smoothPosterize(vec3 color, float steps, float softness, vec2 uv) {
     // Add smooth large-scale noise
-    float n = (smoothNoise(uv * 0.8) - 0.5) / steps * 0.7; // big noise, low frequency
+    float n = (smoothNoise(uv * 2.8) - 0.5) / steps * 0.8; // big noise, low frequency
     color += n;
 
     // Posterize with smooth transitions
@@ -206,11 +202,13 @@ void main() {
     int index = y * 4 + x;
     float bayer_value = bayer4x4[index];
     
+    float aspectRatio = getAspectRatio();
+
     ivec2 res = textureSize(screenTexture, 0);
     // Sample the texture color (16-bit precision, normalized to [0,1])
     vec3 color = applyFxaa(screenTexture, gl_FragCoord.xy, vec2(res)).rgb;
     
-    color = smoothPosterize(color, 48.0,0.35,gl_FragCoord.xy);
+    color = smoothPosterize(color, 48.0,0.35,TexCoords*vec2(aspectRatio,1.0));
 
     vec3 colorHue = normalize(color);
     float colorBrightness = length(color);
