@@ -7,136 +7,154 @@
 using namespace std::chrono_literals;
 #endif
 
-void ThreadPool::Start(const uint32_t num_threads) 
-{
-#ifndef DISABLE_TREADPOOL
-	for (uint32_t ii = 0; ii < num_threads; ++ii)
-	{
-		threads.emplace_back(std::thread(&ThreadPool::ThreadLoop, this));
-	}
-#endif
-}
-
-
-void ThreadPool::ThreadLoop() {
-#ifndef DISABLE_TREADPOOL
-	while (true) {
-		std::function<void()> job;
-		{
-			std::unique_lock<std::mutex> lock(queue_mutex);
-			mutex_condition.wait(lock, [this] {
-				return !jobs.empty() || should_terminate;
-				});
-
-			if (should_terminate && jobs.empty()) {
-				return;
-			}
-
-			job = std::move(jobs.front());
-			jobs.pop();
-			performingJobs++;
-		}
-
-		job();
-		{
-			std::unique_lock<std::mutex> lock(queue_mutex);
-			performingJobs--;
-			if (jobs.empty() && performingJobs == 0) {
-				finished_condition.notify_all();
-			}
-		}
-	}
-#endif
-}
-
-
-void ThreadPool::QueueJob(const std::function<void()>& job)
-{
-
-#ifdef DISABLE_TREADPOOL
-	job();
+void ThreadPool::Start(uint32_t num_threads) {
+#ifdef DISABLE_THREADPOOL
+    (void)num_threads;
 #else
-
-
-	std::unique_lock<std::mutex> lock(queue_mutex);
-	jobs.push(job);
-
-	mutex_condition.notify_one();
+    std::lock_guard<std::mutex> lk(mtx_);
+    if (!threads_.empty()) return; // already started
+    stopping_ = false;
+    threads_.reserve(num_threads);
+    for (uint32_t i = 0; i < num_threads; ++i) {
+        threads_.emplace_back(&ThreadPool::Worker, this);
+    }
 #endif
 }
 
-bool ThreadPool::IsBusy() {
-#ifdef DISABLE_TREADPOOL
-	return false;
+void ThreadPool::Worker() {
+#ifndef DISABLE_THREADPOOL
+    for (;;) {
+        std::function<void()> job;
+        {
+            std::unique_lock<std::mutex> lk(mtx_);
+            cv_job_.wait(lk, [this] {
+                return stopping_ || !jobs_.empty();
+                });
+            if (stopping_ && jobs_.empty()) {
+                return; // graceful exit after draining
+            }
+            job = std::move(jobs_.front());
+            jobs_.pop();
+            performingJobs.fetch_add(1, std::memory_order_relaxed);
+        }
+
+        job(); // run outside lock
+
+        {
+            std::lock_guard<std::mutex> lk(mtx_);
+            performingJobs.fetch_sub(1, std::memory_order_relaxed);
+            // Decrement work counter and signal completion when it hits zero.
+            if (work_count_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+                cv_done_.notify_all();
+            }
+        }
+    }
+#endif
+}
+
+void ThreadPool::QueueJob(const std::function<void()>& job) {
+#ifdef DISABLE_THREADPOOL
+    // Run inline when disabled.
+    performingJobs.fetch_add(1, std::memory_order_relaxed);
+    job();
+    performingJobs.fetch_sub(1, std::memory_order_relaxed);
 #else
-	// Simply check the conditions without locking here
-	return !jobs.empty() || performingJobs > 0;
+    {
+        std::lock_guard<std::mutex> lk(mtx_);
+        jobs_.push(job); // copy here is fine; prefer the rvalue overload below for zero-copy
+        work_count_.fetch_add(1, std::memory_order_acq_rel);
+    }
+    cv_job_.notify_one(); // notify after unlock
 #endif
 }
 
+void ThreadPool::QueueJob(std::function<void()>&& job) {
+#ifdef DISABLE_THREADPOOL
+    performingJobs.fetch_add(1, std::memory_order_relaxed);
+    job();
+    performingJobs.fetch_sub(1, std::memory_order_relaxed);
+#else
+    {
+        std::lock_guard<std::mutex> lk(mtx_);
+        jobs_.push(std::move(job));
+        work_count_.fetch_add(1, std::memory_order_acq_rel);
+    }
+    cv_job_.notify_one();
+#endif
+}
+
+template <class F, class... Args>
+auto ThreadPool::Enqueue(F&& f, Args&&... args)
+-> std::future<std::invoke_result_t<F, Args...>> {
+    using R = std::invoke_result_t<F, Args...>;
+    auto task = std::make_shared<std::packaged_task<R()>>(
+        std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+    std::future<R> fut = task->get_future();
+    QueueJob([task]() mutable { (*task)(); });
+    return fut;
+}
 
 void ThreadPool::WaitForFinish() {
-#ifndef DISABLE_TREADPOOL
-	std::unique_lock<std::mutex> lock(queue_mutex);
-	finished_condition.wait(lock, [this] {
-		return !IsBusy();
-		});
+#ifndef DISABLE_THREADPOOL
+    std::unique_lock<std::mutex> lk(mtx_);
+    cv_done_.wait(lk, [this] { return work_count_.load(std::memory_order_acquire) == 0; });
 #endif
 }
 
-int ThreadPool::GetMaxThreads()
-{
-#ifdef __EMSCRIPTEN__
+void ThreadPool::Stop() {
+#ifndef DISABLE_THREADPOOL
+    {
+        std::lock_guard<std::mutex> lk(mtx_);
+        if (threads_.empty()) return;
+        // Let workers exit after they drain jobs_
+        stopping_ = true;
+    }
+    cv_job_.notify_all();
+    for (auto& t : threads_) t.join();
+    threads_.clear();
+    // cleanup for potential restart
+    {
+        std::lock_guard<std::mutex> lk(mtx_);
+        while (!jobs_.empty()) jobs_.pop();
+        stopping_ = false;
+        work_count_.store(0, std::memory_order_release);
+        performingJobs.store(0, std::memory_order_release);
+    }
+#endif
+}
 
-	return 4;
-
+int ThreadPool::GetMaxThreads() {
+#ifdef DISABLE_THREADPOOL
+    return 0;
 #else
-
-	return std::max(std::thread::hardware_concurrency() - 1 - 2, 1u); //1 is always taken by game thread and about 2 by sound engine
-
-#endif 
+    unsigned hc = std::thread::hardware_concurrency(); // may be 0 (unknown)
+    // Reserve threads for game/sound/etc., then clamp to [1, hc] sensibly.
+    int reserve = 3;
+    int hint = hc ? static_cast<int>(hc) : 0;
+    int usable = hint > reserve ? (hint - reserve) : 1;
+    return std::max(1, usable);
+#endif
 }
 
-//physics thread and async update aren't performed at the same time
-
-int ThreadPool::GetNumThreadsForPhysics()
+// physics + async update do not overlap
+int ThreadPool::GetNumThreadsForPhysics() 
 {
 
-#ifdef DISABLE_TREADPOOL
-
-	return 0;
-
+#ifdef DISABLE_THREADPOOL
+    return 0;
 #endif
 
-	return std::max(floor(GetMaxThreads() * 0.6),1.0);
+    int mx = GetMaxThreads();
+    int n = (mx * 6) / 10; // 60%
+    return std::max(n, 1);
 }
-
-int ThreadPool::GetNumThreadsForAsyncUpdate()
-{
-	return std::max(floor(GetMaxThreads() * 0.6),1.0);
+int ThreadPool::GetNumThreadsForAsyncUpdate() {
+    int mx = GetMaxThreads();
+    int n = (mx * 6) / 10; // 60%
+    return std::max(n, 1);
 }
-
-int ThreadPool::GetNumThreadsForThreadPool()
-{
-	return std::max(floor(GetMaxThreads() * 0.4),1.0);
-}
-
-
-void ThreadPool::Stop()
-{
-
-#ifndef DISABLE_TREADPOOL
-
-	{
-		std::unique_lock<std::mutex> lock(queue_mutex);
-		should_terminate = true;
-	}
-	mutex_condition.notify_all();
-	for (std::thread& active_thread : threads) {
-		active_thread.join();
-	}
-	threads.clear();
-
-#endif
-
+int ThreadPool::GetNumThreadsForThreadPool() {
+    int mx = GetMaxThreads();
+    int n = (mx * 4) / 10; // 40%
+    return std::max(n, 1);
 }

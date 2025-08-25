@@ -351,9 +351,8 @@ void EngineMain::Render()
 void EngineMain::FinishRender()
 {
 
+    SDL_GL_SwapWindow(Window);
     glFinish();
     glFlush();
-
-    SDL_GL_SwapWindow(Window);
 
 }

@@ -606,7 +606,6 @@ void Player::Update()
     
 
     Camera::rotation = cameraRotation;
-    UpdateBody();
 
     vec3 right = MathHelper::GetRightVector(Camera::rotation);
 
@@ -669,7 +668,7 @@ void Player::Update()
 
 void Player::AsyncUpdate()
 {
-
+    UpdateBody();
 }
 
 void Player::LateUpdate()

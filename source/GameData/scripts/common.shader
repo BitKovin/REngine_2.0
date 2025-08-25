@@ -5,7 +5,7 @@ textures/common/nolightmap
 
 textures/common/trigger
 {
-    qer_editorimage textures/common/trigger.png
+    qer_editorimage textures/lq_utility/trigger.png
 
     // make this surface invisible to the standard light build
     //surfaceparm nodraw
@@ -21,6 +21,7 @@ textures/common/trigger
 
 textures/common/clip
 {
+    qer_editorimage textures/lq_utility/clip.png
 	qer_trans 0.40
 	surfaceparm 	nolightmap
 	surfaceparm nomarks

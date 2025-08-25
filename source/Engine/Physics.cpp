@@ -209,15 +209,7 @@ void Physics::Init()
 
 	tempMemAllocator = new TempAllocatorImpl(30 * 1024 * 1024);
 
-	int numThreads = 2;
-
-#ifndef __EMSCRIPTEN_PTHREADS__
-
-	numThreads = ThreadPool::GetNumThreadsForPhysics();
-
-#endif
-
-
+	int numThreads = ThreadPool::GetNumThreadsForPhysics();
 
 
 	threadPool = new JobSystemThreadPool(cMaxPhysicsJobs, cMaxPhysicsBarriers, numThreads);

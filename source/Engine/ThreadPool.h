@@ -1,64 +1,88 @@
 #pragma once
-
-#ifdef __EMSCRIPTEN__
-
-#define DISABLE_TREADPOOL
-
-#endif // __EMSCRIPTEN__
-
-
+#include <atomic>
+#include <condition_variable>
+#include <cstdint>
+#include <functional>
+#include <future>
 #include <mutex>
 #include <queue>
-#include <vector>
-#include <functional>
-
-
-#ifndef DISABLE_TREADPOOL
-#include <atomic>
 #include <thread>
-#include <condition_variable>
+#include <type_traits>
+#include <utility>
+#include <vector>
+
+// --- Feature toggles / portability -------------------------------------------
+
+// Keep backward compat with your original macro name, but prefer the fixed one.
+#if defined(DISABLE_TREADPOOL) && !defined(DISABLE_THREADPOOL)
+#define DISABLE_THREADPOOL
+#endif
+
+#if defined(__EMSCRIPTEN__) && !defined(USE_EMSCRIPTEN_PTHREADS)
+// If not building with pthreads on Emscripten, hard-disable threads.
+#ifndef DISABLE_THREADPOOL
+#define DISABLE_THREADPOOL
+#endif
 #endif
 
 class ThreadPool {
 public:
-    void Start(const uint32_t num_threads);
+    ThreadPool() = default;
+    ~ThreadPool() { Stop(); }
+
+    void Start(uint32_t num_threads);
     void QueueJob(const std::function<void()>& job);
-    void Stop();
-    bool IsBusy();
+    void QueueJob(std::function<void()>&& job);
+    void Stop();                 // drains remaining jobs then joins
+    bool IsBusy() const noexcept 
+    {
 
-    std::atomic<int> performingJobs{ 0 };
+#ifdef DISABLE_THREADPOOL
 
-    std::condition_variable finished_condition;
+        return false;
 
+#else
+        return work_count_.load(std::memory_order_acquire) != 0; 
+#endif
+
+    }
     void WaitForFinish();
 
-    static int GetMaxThreads();
+    // Optional convenience API: returns a future<T>
+    template <class F, class... Args>
+    auto Enqueue(F&& f, Args&&... args)
+        -> std::future<std::invoke_result_t<F, Args...>>;
 
+    static int GetMaxThreads();
     static int GetNumThreadsForPhysics();
     static int GetNumThreadsForAsyncUpdate();
     static int GetNumThreadsForThreadPool();
 
-    static inline bool Supported()
-    {
-#ifdef DISABLE_TREADPOOL
+    static inline bool Supported() {
+#ifdef DISABLE_THREADPOOL
         return false;
-#endif // DISABLE_TREADPOOL
+#else
         return true;
+#endif
     }
 
+    // Number of tasks currently executing (informational)
+    std::atomic<int> performingJobs{ 0 };
+
 private:
-    void ThreadLoop();
 
-#ifndef DISABLE_TREADPOOL
+    void Worker();
 
-    bool should_terminate = false;           // Tells threads to stop looking for jobs
-    std::mutex queue_mutex;                  // Prevents data races to the job queue
-    std::condition_variable mutex_condition; // Allows threads to wait on new jobs or termination 
-    std::vector<std::thread> threads;
-    std::queue<std::function<void()>> jobs;
+#ifndef DISABLE_THREADPOOL
 
-#endif // !DISABLE_TREADPOOL
+    mutable std::mutex mtx_;
+    std::condition_variable cv_job_;
+    std::condition_variable cv_done_;
 
+    std::vector<std::thread> threads_;
+    std::queue<std::function<void()>> jobs_;
 
-
+    std::atomic<uint32_t> work_count_{ 0 };  // queued + running tasks
+    bool stopping_ = false;
+#endif
 };

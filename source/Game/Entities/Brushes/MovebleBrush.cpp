@@ -108,9 +108,6 @@ public:
 
 		Position -= offsetPosition;
 
-		DebugDraw::Line(offsetPosition + vec3(0,0.1,0), offsetPosition + MathHelper::GetForwardVector(Rotation) + vec3(0, 0.1, 0), 0.01f, 0.05f);
-
-		DebugDraw::Line(offsetPosition + vec3(0, 0.5, 0), offsetPosition + MathHelper::GetForwardVector(offsetRotation) + vec3(0, 0.5, 0), 0.01f, 0.05f);
 
 		quat rotationQuat = MathHelper::GetRotationQuaternion(offsetRotation);
 

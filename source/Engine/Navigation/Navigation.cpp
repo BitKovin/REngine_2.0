@@ -45,8 +45,6 @@ struct FastLZCompressor : public dtTileCacheCompressor {
     }
 };
 
-dtTileCacheAlloc* talloc = nullptr; // 1MB
-FastLZCompressor* tcomp = nullptr;
 
 void NavigationSystem::DestroyNavData()
 {
