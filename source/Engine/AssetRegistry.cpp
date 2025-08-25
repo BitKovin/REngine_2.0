@@ -47,6 +47,57 @@ void AssetRegistry::ClearMemory()
 
 }
 
+Shader* AssetRegistry::GetShaderByName(const std::string& name, ShaderType shaderType)
+{
+	string fileEnding;
+
+	switch (shaderType)
+	{
+
+	case(ShaderType::PixelShader):
+		fileEnding = ".frag";
+		break;
+	case(ShaderType::VertexShader):
+		fileEnding = ".vert";
+		break;
+
+	default:
+		break;
+	}
+
+
+	string fileName = name + fileEnding;
+
+
+	std::string key = fileName; // Unique key for each shader type
+
+	// Check if the shader is already cached
+	auto it = shaderCache.find(key);
+	if (it != shaderCache.end())
+	{
+		return it->second; // Return cached shader
+	}
+
+	std::string filePath = "GameData/shaders/" + fileName;
+
+	// Cache the newly loaded shader
+	shaderCache[key] = Shader::FromFile(filePath.c_str(), shaderType);
+
+	return shaderCache[key];
+}
+
+void AssetRegistry::ReloadShaders()
+{
+
+	for (auto shader : shaderCache)
+	{
+
+		shader.second->Reload();
+
+	}
+
+}
+
 Texture* AssetRegistry::GetTextureFromFile(string filename)
 {
 

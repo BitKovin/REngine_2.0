@@ -3,12 +3,13 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
 #include "Logger.hpp"
 #include "gl.h"
 #include "glm.h"
 
 #include "Texture.hpp"
-
+#include "FileSystem/FileSystem.h"
 #include "malloc_override.h"
 
 using namespace std;
@@ -18,6 +19,9 @@ enum ShaderType
     VertexShader,
     PixelShader
 };
+
+// Forward declare so Shader can reference ShaderProgram and vice-versa
+class ShaderProgram;
 
 // Struct for storing OpenGL attribute information.
 struct GLAttribute
@@ -35,8 +39,11 @@ public:
 
     GLuint shaderPointer = 0;
     std::string shaderCode = "";
-
+    std::string filePath = "";
     ShaderType shaderType = ShaderType::PixelShader;
+
+    // List of programs that currently have this shader attached (registered via ShaderProgram::AttachShader).
+    std::vector<ShaderProgram*> attachedPrograms;
 
     // Creates a Shader object from source code.
     static Shader* FromCode(const char* code, ShaderType shaderType, bool autoCompile = true)
@@ -59,6 +66,14 @@ public:
         return output;
     }
 
+    static Shader* FromFile(const char* filePath, ShaderType shaderType, bool autoCompile = true)
+    {
+        Shader* output = FromCode(FileSystemEngine::ReadFile(filePath).c_str(), shaderType, autoCompile);
+        output->filePath = filePath;
+
+        return output;
+    }
+
     // Compiles the shader and logs compile errors if any.
     void CompileShader()
     {
@@ -76,6 +91,25 @@ public:
             Logger::Log(shaderCode);
         }
     }
+
+    // Register/unregister programs that use this shader
+    void RegisterProgram(ShaderProgram* prog)
+    {
+        if (std::find(attachedPrograms.begin(), attachedPrograms.end(), prog) == attachedPrograms.end())
+            attachedPrograms.push_back(prog);
+    }
+
+    void UnregisterProgram(ShaderProgram* prog)
+    {
+        auto it = std::find(attachedPrograms.begin(), attachedPrograms.end(), prog);
+        if (it != attachedPrograms.end())
+            attachedPrograms.erase(it);
+    }
+
+    // Hot reloads shader source (from file if filePath is set, otherwise uses stored shaderCode).
+    // Returns true if reload succeeded and programs were relinked, false if compilation or linking failed
+    // (in case of failure the old shader stays attached).
+    bool Reload();
 };
 
 class ShaderProgram
@@ -93,19 +127,44 @@ public:
     std::vector<GLAttribute> attributes;  // Stores shader attributes.
     std::unordered_map<std::string, GLint> uniformLocations; // Cache for uniform locations.
 
+    // Keep track of Shader* that are attached to this program (so we can unregister on destruction).
+    std::vector<Shader*> attachedShaders;
+
     string name;
 
-    bool AllowMissingUniforms = true;
+    bool AllowMissingUniforms = true; // keep your original semantics (you had 'true' earlier)
 
     ShaderProgram() {
         glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, (GLint*)&m_maxTextureUnits);
         program = glCreateProgram();
     }
 
+    ~ShaderProgram()
+    {
+        // unregister this program from attached shaders
+        for (auto* s : attachedShaders)
+        {
+            if (s) s->UnregisterProgram(this);
+        }
+
+        if (program != 0)
+            glDeleteProgram(program);
+    }
+
     // Attaches a compiled shader to the program.
     ShaderProgram* AttachShader(Shader* shader)
     {
+        if (!shader) return this;
+
         glAttachShader(program, shader->shaderPointer);
+
+        // remember locally
+        if (std::find(attachedShaders.begin(), attachedShaders.end(), shader) == attachedShaders.end())
+            attachedShaders.push_back(shader);
+
+        // register this program with the shader so Shader::Reload can find all programs using it
+        shader->RegisterProgram(this);
+
         return this;
     }
 
@@ -204,12 +263,12 @@ public:
 
         uniformLocations[name] = location;
 
-        if(location>0)
+        if (location >= 0)
             return location;
 
 
 
-        if(AllowMissingUniforms == false)
+        if (AllowMissingUniforms == false)
             Logger::Log("Warning: Uniform \"" + name + "\" not found in program " + std::to_string(program) + ".");
 
         return -1;

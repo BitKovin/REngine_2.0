@@ -29,46 +29,9 @@ public:
 	
     static void ClearMemory();
 
-    static Shader* GetShaderByName(const std::string& name, ShaderType shaderType)
-    {
+    static Shader* GetShaderByName(const std::string& name, ShaderType shaderType);
 
-        string fileEnding;
-
-        switch (shaderType)
-        {
-
-        case(ShaderType::PixelShader):
-                fileEnding = ".frag";
-                break;
-        case(ShaderType::VertexShader):
-            fileEnding = ".vert";
-            break;
-
-        default:
-            break;
-        }
-
-
-        string fileName = name + fileEnding;
-
-
-        std::string key = fileName; // Unique key for each shader type
-
-        // Check if the shader is already cached
-        auto it = shaderCache.find(key);
-        if (it != shaderCache.end())
-        {
-            return it->second; // Return cached shader
-        }
-
-        std::string filePath = "GameData/shaders/" + fileName;
-        std::string shaderCode = ReadFileToString(filePath);
-
-        // Cache the newly loaded shader
-        shaderCache[key] = Shader::FromCode(shaderCode.c_str(), shaderType);
-
-        return shaderCache[key];
-    }
+    static void ReloadShaders();
 
     static Texture* GetTextureFromFile(string filename);
 

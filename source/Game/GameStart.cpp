@@ -43,6 +43,14 @@ public:
 
 	}
 
+    void Finalize()
+    {
+        if (Input::GetAction("reload_shaders")->Pressed())
+        {
+            AssetRegistry::ReloadShaders();
+        }
+    }
+
     void Update()
     {
 
@@ -65,10 +73,17 @@ public:
 
 private:
 
+    static inline bool startedGame = false;
+
 };
 
 GameStart::GameStart()
 {
+
+    if (startedGame) return;
+
+    startedGame = true;
+
     Input::AddAction("forward")->AddKeyboardKey(SDL_KeyCode::SDLK_w);
     Input::AddAction("backward")->AddKeyboardKey(SDL_KeyCode::SDLK_s);
     Input::AddAction("left")->AddKeyboardKey(SDL_KeyCode::SDLK_a);
@@ -97,6 +112,8 @@ GameStart::GameStart()
     Input::AddAction("slot3")->AddKeyboardKey(SDL_KeyCode::SDLK_3);
     Input::AddAction("slot4")->AddKeyboardKey(SDL_KeyCode::SDLK_4);
     Input::AddAction("lastSlot")->AddKeyboardKey(SDL_KeyCode::SDLK_q);
+
+    Input::AddAction("reload_shaders")->AddKeyboardKey(SDL_KeyCode::SDLK_F3);
 
     Input::AddAction("slotMelee")->AddKeyboardKey(SDL_KeyCode::SDLK_f);
 

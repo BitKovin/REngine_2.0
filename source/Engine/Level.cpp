@@ -504,6 +504,8 @@ void Level::FinalizeFrame()
 		for (auto var : LevelObjects)
 		{
 
+			var->Finalize();
+
 			for (IDrawMesh* mesh : var->GetDrawMeshes())
 			{		
 

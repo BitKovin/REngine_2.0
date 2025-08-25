@@ -160,6 +160,23 @@ const float bayer4x4[16] = float[16](
    15.0 / 16.0,  7.0 / 16.0, 13.0 / 16.0,  5.0 / 16.0
 );
 
+float bayer2(vec2 p) {
+    int x = int(mod(p.x, 2.0));
+    int y = int(mod(p.y, 2.0));
+    return float((x ^ y) & 1) / 2.0;
+}
+
+vec3 smoothPosterize(vec3 color, float steps, float softness, vec2 uv) {
+    // add dithering to break up banding
+    float d = bayer2(uv * 512.0) * softness;
+    color = clamp(color + d / steps, 0.0, 1.0);
+    
+    color *= steps;
+    vec3 floored = floor(color);
+    vec3 frac = smoothstep(0.5 - softness, 0.5 + softness, fract(color));
+    return (floored + frac) / steps;
+}
+
 void main() {
     // Calculate the position within the 4x4 Bayer matrix
     int x = int(gl_FragCoord.x) % 4;
@@ -168,10 +185,11 @@ void main() {
     float bayer_value = bayer4x4[index];
     
     ivec2 res = textureSize(screenTexture, 0);
-
     // Sample the texture color (16-bit precision, normalized to [0,1])
     vec3 color = applyFxaa(screenTexture, gl_FragCoord.xy, vec2(res)).rgb;
     
+    color = smoothPosterize(color, 7.0,0.35,gl_FragCoord.xy);
+
     vec3 colorHue = normalize(color);
     float colorBrightness = length(color);
     colorHue = mix(colorHue, vec3(1,0,0),0.2);

@@ -297,6 +297,7 @@
     <ClCompile Include="Renderer\Abstractions\RenderTexture.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="SaveSystem\LevelSaveSystem.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="SkeletalMesh.cpp" />
     <ClCompile Include="skinned_model.cpp" />
