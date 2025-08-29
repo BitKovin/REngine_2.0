@@ -159,7 +159,7 @@ public:
         particle = ParticleEmitter::UpdateParticle(particle, deltaTime);
 
 
-        if (particle.UserValue2 < 2)
+        if (particle.UserValue2 < 1.9)
         {
             
 
@@ -172,15 +172,24 @@ public:
 				if (hit.hasHit)
 				{
 
+                    if (dot(hit.normal, particle.velocity) > 0)
+                    {
+                        particle.deathTime = 0;
+                        return particle;
+                    }
+
 					if (RandomFloat() < ((particle.UserValue2 == 0) ? 0.5f : 0.5f))
 					{
 
 						GlobalParticleSystem::SpawnParticleAt("decal_blood", hit.position, hit.normal, vec3(1));
 
-						if (particle.UserValue2 < 1)
+						if (particle.UserValue2 < 1.1)
 						{
-							particle.position.y = hit.position.y + particle.CollisionRadius;
-							particle.velocity.y *= -particle.BouncePower;
+                            particle.position = hit.position + hit.normal * (particle.CollisionRadius+0.002f);
+                            particle.velocity = reflect(particle.velocity, hit.normal) * particle.BouncePower;
+
+                            particle.UserValue2 = 3;
+
 						}
 						particle.UserValue2++;
 
@@ -224,7 +233,7 @@ public:
 
         particle.UserValue3 = RandomFloat() / 3;
 
-        particle.position2 = particle.position;
+        particle.position2 = Position;
 
         return particle;
     }

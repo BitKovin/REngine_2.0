@@ -183,7 +183,7 @@ float getAspectRatio()
 // --- Smooth posterization with large noise ---
 vec3 smoothPosterize(vec3 color, float steps, float softness, vec2 uv) {
     // Add smooth large-scale noise
-    float n = (smoothNoise(uv * 2.8) - 0.5) / steps * 0.8; // big noise, low frequency
+    float n = (smoothNoise(uv * 2.3) - 0.5) / steps * 0.6; // big noise, low frequency
     color += n;
 
     // Posterize with smooth transitions
@@ -208,7 +208,7 @@ void main() {
     // Sample the texture color (16-bit precision, normalized to [0,1])
     vec3 color = applyFxaa(screenTexture, gl_FragCoord.xy, vec2(res)).rgb;
     
-    color = smoothPosterize(color, 48.0,0.35,TexCoords*vec2(aspectRatio,1.0));
+    color = smoothPosterize(color, 40.0,0.35,TexCoords*vec2(aspectRatio,1.0));
 
     vec3 colorHue = normalize(color);
     float colorBrightness = length(color);

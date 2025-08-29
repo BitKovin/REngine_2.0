@@ -3,46 +3,44 @@ precision highp float;
 
 in vec2 v_texcoord;
 in vec4 v_color;
-in vec4 v_clipPosition;  // particle’s clip position
 
 out vec4 FragColor;
 
-uniform sampler2D u_texture;
-uniform sampler2D depthTexture;
-float LinearizeDepth(float depth) 
-{
+uniform sampler2D u_texture;      // particle texture
+uniform sampler2D depthTexture;   // resolved scene depth (non-MSAA)
+uniform vec2  u_invViewport;      // 1 / (width, height)
+uniform float u_near;
+uniform float u_far;
+uniform float u_softDistance;     // e.g. 1.0..3.0 (world units if linearized)
 
-    float nearPlane = 0.05; // near plane distance
-    float farPlane = 3000.0; // far plane distance
-
-
-    // depth is [0,1] sampled from depth buffer
-    float z = depth * 2.0 - 1.0; // back to NDC [-1,1]
-    return (2.0 * nearPlane * farPlane) / (farPlane + nearPlane - z * (farPlane - nearPlane));
+float LinearizeDepth(float d) {
+    float z = d * 2.0 - 1.0; // [0,1] -> NDC [-1,1]
+    return (2.0 * u_near * u_far) / (u_far + u_near - z * (u_far - u_near));
 }
 
 void main() {
     vec4 texColor = texture(u_texture, v_texcoord) * v_color;
     if (texColor.a < 0.001) discard;
 
-    // Screen UV
-    vec2 screenUV = (v_clipPosition.xy / v_clipPosition.w) * 0.5 + 0.5;
+    // Sample scene depth at this pixel
+    vec2 screenUV   = gl_FragCoord.xy * u_invViewport;
+    float sceneNDC  = texture(depthTexture, screenUV).r;   // [0,1]
+    float fragNDC   = gl_FragCoord.z;                      // [0,1]
 
-    // Fragment depth (from clip pos)
-    float fragDepthNDC = (v_clipPosition.z / v_clipPosition.w) * 0.5 + 0.5;
-    float fragDepthLinear = LinearizeDepth(fragDepthNDC);
+    // --- Option A (simple, works well) ---
+    // If your main pass uses reversed-Z, flip the sign: (fragNDC - sceneNDC)
+    //float fade = clamp((sceneNDC - fragNDC) * (u_softDistance * 200.0), 0.0, 1.0);
 
-    // Scene depth (from depth buffer)
-    float sceneDepth = texture(depthTexture, screenUV).r;
-    float sceneDepthLinear = LinearizeDepth(sceneDepth);
+    // --- Option B (world-unit fade; comment Option A and use this) ---
+// Try normal Z
+float diff = sceneNDC - fragNDC;
 
-    // Difference in world units (eye-space z)
-    float diff = sceneDepthLinear - fragDepthLinear;
+// If everything is invisible, flip the sign:
+diff = fragNDC - sceneNDC;
 
-    float fadeDistance = 0.1; // fade distance
+// Normalize by a soft range in NDC (try 0.01 first)
+float fade = clamp(diff / 0.04, 0.0, 1.0);
 
-    // Fade smoothly if close to geometry
-    float fade = clamp(diff / fadeDistance, 0.0, 1.0);
 
     FragColor = vec4(texColor.rgb, texColor.a * fade);
 }

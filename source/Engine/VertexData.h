@@ -89,6 +89,12 @@ private:
     size_t m_indexCount;
 };
 
+// ------------------------------------------------------------
+// VertexArrayObject: real VAO on non-GLES2, emulated on GLES2
+// ------------------------------------------------------------
+#ifndef GL_ES_2
+
+// --- original VAO implementation for non-GLES2 platforms ---
 class VertexArrayObject : public EObject {
 public:
     int IndexCount = 0;
@@ -173,6 +179,156 @@ public:
 private:
     GLuint m_id;
 };
+
+#else // GL_ES_2
+
+// --- GLES2 fallback: emulate VAO by replaying attribute setup ---
+// Behavior:
+//  - On Bind() we bind vertex/index buffers and call glEnableVertexAttribArray + glVertexAttribPointer for every element.
+//  - On Unbind() we disable the attributes that this VAO enabled and unbind buffers.
+//  - Integer attribute types (GL_INT etc.) are NOT supported in GLES2 => they are treated as GL_FLOAT here.
+//  - Instancing (divisor > 0) is NOT supported in core GLES2. If you enable ANGLE/EXT instanced arrays and have a loader,
+//    you can extend this code to call the corresponding glVertexAttribDivisor* functions.
+//
+// Usage: same as desktop path. Compilation: define GL_ES_2 to select this path.
+//
+class VertexArrayObject : public EObject {
+public:
+    int IndexCount = 0;
+    VertexBuffer* vertexBuffer = nullptr;
+    IndexBuffer* indexBuffer = nullptr;
+    VertexBuffer* instanceBuffer = nullptr;
+
+    VertexArrayObject(VertexBuffer& vb, IndexBuffer& ib, VertexBuffer* instanceBuf = nullptr)
+        : vertexElements(vb.GetDeclaration().GetElements()) {
+        IndexCount = ib.GetIndexCount();
+        vertexBuffer = &vb;
+        indexBuffer = &ib;
+        instanceBuffer = instanceBuf;
+        if (instanceBuffer) instanceElements = instanceBuffer->GetDeclaration().GetElements();
+    }
+
+    ~VertexArrayObject() { /* nothing to free in GLES2 emulation */ }
+
+    // Bind: set up attributes (emulates binding a VAO)
+    void Bind() const {
+        // Bind buffers first
+        vertexBuffer->Bind();
+        indexBuffer->Bind();
+
+        m_enabledAttributes.clear();
+
+        // Vertex attributes
+        for (const auto& element : vertexElements) {
+            // Enable attribute
+            glEnableVertexAttribArray(element.index);
+            m_enabledAttributes.push_back(element.index);
+
+            // GLES2: integer attribute types do not exist. Fallback to GL_FLOAT here.
+            GLenum attrType = element.type;
+            if (attrType == GL_INT || attrType == GL_UNSIGNED_INT ||
+                attrType == GL_SHORT || attrType == GL_UNSIGNED_SHORT ||
+                attrType == GL_BYTE || attrType == GL_UNSIGNED_BYTE) {
+                // integer types will be passed as floats to the shader
+                attrType = GL_FLOAT;
+            }
+
+            glVertexAttribPointer(
+                element.index,
+                element.componentCount,
+                attrType,
+                element.normalized,
+                element.stride,
+                element.offset
+            );
+
+            // NOTE: element.divisor is ignored in core GLES2. To support instancing you must:
+            //   1) have the ANGLE_instanced_arrays or EXT_instanced_arrays extension
+            //   2) load the extension functions (glVertexAttribDivisorANGLE / glDrawElementsInstancedANGLE etc.)
+            // This header does not attempt to load those function pointers automatically.
+        }
+
+        // Instance attributes (emulated: attributes are enabled, but divisor is ignored unless you add extension loading)
+        if (instanceBuffer) {
+            instanceBuffer->Bind();
+            for (const auto& element : instanceElements) {
+                glEnableVertexAttribArray(element.index);
+                m_enabledAttributes.push_back(element.index);
+
+                GLenum attrType = element.type;
+                if (attrType == GL_INT || attrType == GL_UNSIGNED_INT ||
+                    attrType == GL_SHORT || attrType == GL_UNSIGNED_SHORT ||
+                    attrType == GL_BYTE || attrType == GL_UNSIGNED_BYTE) {
+                    attrType = GL_FLOAT;
+                }
+
+                glVertexAttribPointer(
+                    element.index,
+                    element.componentCount,
+                    attrType,
+                    element.normalized,
+                    element.stride,
+                    element.offset
+                );
+
+                // If element.divisor > 0: instancing requires extension; divisor not set here.
+            }
+        }
+
+        // record that *this* is bound (used by static Unbind)
+        s_bound = this;
+    }
+
+    // Unbind: disable attributes enabled by the last Bind() and unbind buffers
+    static void Unbind() {
+        if (!s_bound) {
+            // nothing bound
+            VertexBuffer::Unbind();
+            IndexBuffer::Unbind();
+            return;
+        }
+
+        // disable attributes that were enabled by the last Bind
+        for (auto idx : s_bound->m_enabledAttributes) {
+            glDisableVertexAttribArray(idx);
+        }
+        s_bound->m_enabledAttributes.clear();
+
+        VertexBuffer::Unbind();
+        IndexBuffer::Unbind();
+
+        s_bound = nullptr;
+    }
+
+    bool IsInstanced() const {
+        // Return true only if the instance buffer exists and at least one element uses a divisor.
+        // Note: without extension this will not actually perform instanced draws.
+        if (!instanceBuffer) return false;
+        for (const auto& el : instanceElements) {
+            if (el.divisor > 0) return true;
+        }
+        return false;
+    }
+
+    size_t GetInstanceCount() const {
+        // Instance counting needs actual instancing support to be meaningful.
+        // We return 0 to indicate "not supported" by default on GLES2 without extension.
+        return 0;
+    }
+
+private:
+    // attributes enabled during Bind() so we can disable them on Unbind()
+    mutable std::vector<GLuint> m_enabledAttributes;
+
+    // cached copies of element declarations so Bind() doesn't access transient refs
+    std::vector<VertexDeclaration::Element> vertexElements;
+    std::vector<VertexDeclaration::Element> instanceElements;
+
+    // last bound emulated VAO instance (used by Unbind)
+    inline static VertexArrayObject* s_bound = nullptr;
+};
+
+#endif // GL_ES_2
 
 struct VertexData {
     glm::vec3 Position = glm::vec3();

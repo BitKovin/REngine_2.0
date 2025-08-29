@@ -350,7 +350,7 @@ void Renderer::InitFullscreenVAO()
 void Renderer::InitFrameBuffers()
 {
 
-    TextureFormat colorTextureFormat = TextureFormat::RGBA16F;
+    TextureFormat colorTextureFormat = TextureFormat::RGB8;
 
     ivec2 screenResolution = GetScreenResolution();
 
@@ -394,6 +394,8 @@ void Renderer::InitResolveFrameBuffers()
 
     ivec2 screenResolution = GetScreenResolution();
     TextureFormat colorTextureFormat = TextureFormat::RGBA16F;
+
+    colorTextureFormat = TextureFormat::RGB8;
 
     colorResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2D);
     depthResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2D);

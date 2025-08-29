@@ -611,7 +611,7 @@ void Player::Update()
 
     Camera::rotation.z = -dot(velocity, right) * mix(-0.2f, 0.3f, bike_progress);
 
-
+    UpdateBody();
 
 
     if (Input::GetAction("bike")->Holding() && OnGround())
@@ -668,7 +668,7 @@ void Player::Update()
 
 void Player::AsyncUpdate()
 {
-    UpdateBody();
+    bodyAnimator.Update();
 }
 
 void Player::LateUpdate()
@@ -692,9 +692,6 @@ void Player::LateUpdate()
 
 void Player::UpdateBody()
 {
-
-
-    bodyAnimator.Update();
 
     bodyAnimator.movementSpeed = length(MathHelper::XZ(velocity));
 

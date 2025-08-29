@@ -738,6 +738,7 @@
             "d:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\include\\iostream",
             "d:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\include\\ostream",
             "f:\\git\\sdlwasmengine\\source\\engine\\malloc_override.h",
+            "f:\\git\\sdlwasmengine\\source\\engine\\filesystem\\filesystem.h",
             "f:\\git\\sdlwasmengine\\source\\engine\\assetregistry.h",
             "f:\\git\\sdlwasmengine\\libraries\\sdl2\\sdl_ttf.h",
             "f:\\git\\sdlwasmengine\\libraries\\sdl2\\begin_code.h",

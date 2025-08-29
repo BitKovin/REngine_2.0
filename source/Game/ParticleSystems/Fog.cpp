@@ -1,5 +1,5 @@
 ﻿#include <Particle/GlobalParticleSystem.hpp>
-
+#include <FogManager.h>
 
 class particle_volumetricFogEmitter: public ParticleEmitter
 {
@@ -16,7 +16,7 @@ public:
 
         Duration = 1000000;
 
-
+        PixelShader = "fog_particle";
 
     }
 
@@ -128,6 +128,8 @@ public:
 
     VolumetricFogSystem()
     {
+
+        FogManager::Opacity = 1;
 
         particle_fog = new particle_volumetricFogEmitter();
 
