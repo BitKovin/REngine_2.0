@@ -1220,7 +1220,7 @@
 // entity 58
 {
 "classname" "counter"
-"origin" "64 -736 128"
+"origin" "128 -736 96"
 "targetname" "c1"
 "target" "fd_1"
 "onReached" "open"

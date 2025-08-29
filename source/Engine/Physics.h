@@ -308,6 +308,24 @@ public:
 	virtual bool ShouldCollideLocked(const Body& inBody) const override;
 };
 
+class TraceBodyFilterIncludeOnly : public BodyFilter
+{
+public:
+	// List of bodies to ignore during the ray cast.
+	std::vector<Body*> ignoreList = {};
+
+	std::vector<Entity*> includeEntityList = {};
+
+	// Collision mask to filter out bodies that don't belong to the desired groups.
+	BodyType mask = BodyType::GroupHitTest;
+
+	TraceBodyFilterIncludeOnly() = default;
+	virtual ~TraceBodyFilterIncludeOnly() = default;
+
+	/// Filter function when the Body is locked.
+	virtual bool ShouldCollideLocked(const Body& inBody) const override;
+};
+
 #ifdef JPH_DEBUG_RENDERER
 
 class DrawFilter : public BodyDrawFilter
@@ -936,6 +954,8 @@ public:
 	};
 	
 	static HitResult SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
+	static HitResult SphereTraceForEntity(vector<Entity*> entityties, const vec3 start, const vec3 end, float radius, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
+
 	static HitResult CylinderTrace(const vec3 start, const vec3 end, float radius, float halfHeight, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
 	static HitResult ShapeTrace(const Shape* shape,vec3 start, vec3 end, vec3 scale, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
 

@@ -462,6 +462,8 @@ void SkeletalMesh::ClearHitboxes()
 		Physics::DestroyConstraint(constraint.second);
 	}
 
+	defaultBoneScale.clear();
+
 	hitboxBodies.clear();
 	hitboxConstraints.clear();
 }
@@ -471,6 +473,8 @@ void SkeletalMesh::CreateHitbox(Entity* owner,HitboxData data)
 	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
 
 	Body* body = Physics::CreateHitBoxBody(owner, data.boneName, data.position, MathHelper::GetRotationQuaternion(data.rotation), data.size);
+
+	defaultBoneScale[data.boneName] = MathHelper::DecomposeMatrix(GetBoneMatrixWorld(data.boneName)).Scale;
 
 	hitboxBodies.push_back(body);
 
@@ -485,17 +489,17 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 
 	ClearHitboxes();
 
+
 	for (auto hitbox : metaData.hitboxes)
 	{
 		CreateHitbox(owner, hitbox);
+
 	}
 
 	UpdateHitboxes();
 
 	for (auto hitbox : metaData.hitboxes)
 	{
-
-
 
 		if (hitbox.parentBone == "") continue;
 		
@@ -605,7 +609,7 @@ void SkeletalMesh::UpdateHitboxes()
 
 			auto res = animator.currentPose.find(boneName);
 
-			vec3 scale = MathHelper::DecomposeMatrix(GetBoneMatrixWorld(boneName)).Scale;
+			vec3 scale = defaultBoneScale[boneName];
 
 
 

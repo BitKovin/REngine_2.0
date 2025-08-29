@@ -186,6 +186,7 @@ private:
 
 	std::vector<Body*> hitboxBodies;
 	std::unordered_map<string, TwoBodyConstraint*> hitboxConstraints;
+	std::unordered_map<string, vec3> defaultBoneScale;
 
 	std::recursive_mutex hitboxMutex;
 

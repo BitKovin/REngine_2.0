@@ -767,7 +767,7 @@
 // entity 2
 {
 "classname" "info.navpoint"
-"origin" "-968 328 24"
+"origin" "-1000 328 24"
 }
 // entity 3
 {
@@ -1273,6 +1273,6 @@
 {
 "classname" "light"
 "origin" "-1300 -1300 -472"
-"light" "40000"
+"light" "60000"
 "_color" "1 0.3 0.3"
 }
