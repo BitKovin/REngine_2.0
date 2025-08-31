@@ -1,9 +1,8 @@
 #include "SoundManager.hpp"
 
 #include <AL/alext.h>
-#include <Fmod/fmod.hpp>
-#include <Fmod/fmod_errors.h>
-#include <Fmod/fmod_studio.hpp>
+#include "fmod_include.h"
+
 #include "../FileSystem/FileSystem.h"
 
 std::unordered_map<std::string, SoundBufferData> SoundManager::loadedBuffers;

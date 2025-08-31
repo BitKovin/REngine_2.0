@@ -4,8 +4,8 @@
 /* NOLINTBEGIN */
 #include <float.h>
 
-#include "alc.h"
-#include "al.h"
+#include <AL/alc.h>
+#include <AL/al.h>
 
 #ifdef __cplusplus
 extern "C" {

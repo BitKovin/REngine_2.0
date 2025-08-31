@@ -166,9 +166,8 @@ void EngineMain::Init()
 
     InitInputs();
 
-    initGame();
+    Level::Current = new Level();
 
-    printf("init finished\n");
 }
 
 void EngineMain::FinishFrame()
@@ -196,7 +195,12 @@ void EngineMain::FinishFrame()
 
 void EngineMain::MainLoop()
 {
-    // Wait for game update here
+    
+
+    if (frame == 5) //some platforms require it
+    {
+        initGame();
+    }
 
 
     if (DebugUiEnabled)
@@ -288,6 +292,7 @@ void EngineMain::MainLoop()
 
     }
 
+    frame++;
 
 }
 

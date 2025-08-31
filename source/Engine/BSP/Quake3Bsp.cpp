@@ -49,6 +49,8 @@ CQuake3BSP::CQuake3BSP() {
 CQuake3BSP::~CQuake3BSP() 
 {
 
+    if (filePath == "") return;
+
     for (auto modelVBO : opaqueVBOs)
     {
         delete(modelVBO.vao);
@@ -62,19 +64,37 @@ CQuake3BSP::~CQuake3BSP()
         delete(mergedModel.ibo);
         delete(mergedModel.vbo);
     }
-
-    delete[] m_pVerts;
-    delete[] m_pFaces;
-    delete[] m_pIndices;
-    delete[] pTextures;
-    delete[] pLightmaps;
+    if (m_pVerts != nullptr)
+    {
+        delete[] m_pVerts;
+    }
+    if (m_pFaces != nullptr)
+    {
+        delete[] m_pFaces;
+    }
+    if (m_pIndices != nullptr)
+    {
+        delete[] m_pIndices;
+    }
+    if (pTextures != nullptr)
+    {
+        delete[] pTextures;
+    }
+    if (pLightmaps != nullptr)
+    {
+        delete[] pLightmaps;
+    }
 
 
     if (m_lightmap_gen_IDs) {
         glDeleteTextures(m_numOfLightmaps, m_lightmap_gen_IDs);
     }
 
-    delete[] cachedFaces;
+    if (cachedFaces != nullptr)
+    {
+        delete[] cachedFaces;
+    }
+    
 
     glDeleteTextures(1, &missing_LM_id);
 }

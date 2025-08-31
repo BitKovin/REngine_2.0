@@ -50,6 +50,8 @@ public:
 
     int LoadingFrames = 0;
 
+    unsigned long frame = 0;
+
 	EngineMain(SDL_Window* window)
 	{
 		Window = window;

@@ -47,525 +47,525 @@ build cmake_object_order_depends_target_engine: phony || .
 build CMakeFiles/engine.dir/source/Engine/Animation.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Animation.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Animation.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/Animator.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Animator.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Animator.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/AssetRegistry.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/AssetRegistry.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\AssetRegistry.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/BSP/Quake3Bsp.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BSP/Quake3Bsp.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\BSP\Quake3Bsp.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BSP
 
 build CMakeFiles/engine.dir/source/Engine/Camera.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Camera.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Camera.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/Character/CharacterController.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Character/CharacterController.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Character\CharacterController.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Character
 
 build CMakeFiles/engine.dir/source/Engine/DebugDraw.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/DebugDraw.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\DebugDraw.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/EngineMain.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/EngineMain.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\EngineMain.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/Entities/SoundPlayer.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Entities/SoundPlayer.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Entities\SoundPlayer.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Entities
 
 build CMakeFiles/engine.dir/source/Engine/Entity.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Entity.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Entity.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/FileSystem/FileSystem.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/FileSystem/FileSystem.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\FileSystem\FileSystem.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\FileSystem
 
 build CMakeFiles/engine.dir/source/Engine/Input.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Input.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Input.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/Level.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Level.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Level.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/LevelObjectFactory.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/LevelObjectFactory.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\LevelObjectFactory.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/LightSystem/LightManager.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/LightSystem/LightManager.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\LightSystem\LightManager.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\LightSystem
 
 build CMakeFiles/engine.dir/source/Engine/LoadingScreen/LoadingScreenSystem.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/LoadingScreen/LoadingScreenSystem.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\LoadingScreen\LoadingScreenSystem.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\LoadingScreen
 
 build CMakeFiles/engine.dir/source/Engine/MapData.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/MapData.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\MapData.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/MapParser.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/MapParser.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\MapParser.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/MeshUtils.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/MeshUtils.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\MeshUtils.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourAlloc.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourAlloc.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourAlloc.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourAssert.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourAssert.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourAssert.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourCommon.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourCommon.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourCommon.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNavMesh.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourNavMesh.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourNavMesh.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNavMeshBuilder.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourNavMeshBuilder.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourNavMeshBuilder.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNavMeshQuery.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourNavMeshQuery.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourNavMeshQuery.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNode.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourNode.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourNode.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourTileCache.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourTileCache.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourTileCache.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourTileCacheBuilder.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourTileCacheBuilder.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourTileCacheBuilder.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Navigation.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Navigation.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Navigation.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/PathFollowQuery.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/PathFollowQuery.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\PathFollowQuery.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Recast/Recast.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Recast/Recast.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Recast\Recast.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Recast
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastAlloc.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Recast/RecastAlloc.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Recast\RecastAlloc.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Recast
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastArea.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Recast/RecastArea.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Recast\RecastArea.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Recast
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastAssert.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Recast/RecastAssert.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Recast\RecastAssert.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Recast
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastContour.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Recast/RecastContour.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Recast\RecastContour.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Recast
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastFilter.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Recast/RecastFilter.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Recast\RecastFilter.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Recast
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastLayers.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Recast/RecastLayers.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Recast\RecastLayers.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Recast
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastMesh.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Recast/RecastMesh.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Recast\RecastMesh.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Recast
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastMeshDetail.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Recast/RecastMeshDetail.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Recast\RecastMeshDetail.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Recast
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastRasterization.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Recast/RecastRasterization.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Recast\RecastRasterization.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Recast
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastRegion.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Recast/RecastRegion.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Recast\RecastRegion.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Recast
 
 build CMakeFiles/engine.dir/source/Engine/Particle/GlobalParticleSystem.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Particle/GlobalParticleSystem.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Particle\GlobalParticleSystem.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Particle
 
 build CMakeFiles/engine.dir/source/Engine/Particle/ParticleEmitter.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Particle/ParticleEmitter.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Particle\ParticleEmitter.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Particle
 
 build CMakeFiles/engine.dir/source/Engine/Particle/RibbonEmitter.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Particle/RibbonEmitter.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Particle\RibbonEmitter.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Particle
 
 build CMakeFiles/engine.dir/source/Engine/Physics.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Physics.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Physics.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/Renderer/Abstractions/FrameBuffer.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Renderer/Abstractions/FrameBuffer.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Renderer\Abstractions\FrameBuffer.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Renderer\Abstractions
 
 build CMakeFiles/engine.dir/source/Engine/Renderer/Abstractions/RenderTexture.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Renderer/Abstractions/RenderTexture.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Renderer\Abstractions\RenderTexture.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Renderer\Abstractions
 
 build CMakeFiles/engine.dir/source/Engine/Renderer/Renderer.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Renderer/Renderer.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Renderer\Renderer.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Renderer
 
 build CMakeFiles/engine.dir/source/Engine/SaveSystem/LevelSaveSystem.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/SaveSystem/LevelSaveSystem.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\SaveSystem\LevelSaveSystem.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\SaveSystem
 
 build CMakeFiles/engine.dir/source/Engine/Shader.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Shader.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Shader.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/ShaderManager.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/ShaderManager.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\ShaderManager.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/SkeletalMesh.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/SkeletalMesh.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\SkeletalMesh.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/SoundSystem/FmodEventInstance.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/SoundSystem/FmodEventInstance.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\SoundSystem\FmodEventInstance.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\SoundSystem
 
 build CMakeFiles/engine.dir/source/Engine/SoundSystem/SoundInstance.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/SoundSystem/SoundInstance.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\SoundSystem\SoundInstance.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\SoundSystem
 
 build CMakeFiles/engine.dir/source/Engine/SoundSystem/SoundManager.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/SoundSystem/SoundManager.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\SoundSystem\SoundManager.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\SoundSystem
 
 build CMakeFiles/engine.dir/source/Engine/StaticMesh.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/StaticMesh.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\StaticMesh.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/ThreadPool.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/ThreadPool.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\ThreadPool.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/Time.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Time.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Time.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/UI/UiElement.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/UI/UiElement.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\UI\UiElement.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\UI
 
 build CMakeFiles/engine.dir/source/Engine/UI/UiRenderer.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/UI/UiRenderer.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\UI\UiRenderer.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\UI
 
 build CMakeFiles/engine.dir/source/Engine/glm/detail/glm.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/glm/detail/glm.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\glm\detail\glm.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\glm\detail
 
 build CMakeFiles/engine.dir/source/Engine/http/http_client_emscripten.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/http/http_client_emscripten.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\http\http_client_emscripten.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\http
 
 build CMakeFiles/engine.dir/source/Engine/http/http_client_httplib.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/http/http_client_httplib.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\http\http_client_httplib.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\http
 
 build CMakeFiles/engine.dir/source/Engine/imgui/imgui.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/imgui/imgui.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\imgui\imgui.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\imgui
 
 build CMakeFiles/engine.dir/source/Engine/imgui/imgui_demo.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/imgui/imgui_demo.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\imgui\imgui_demo.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\imgui
 
 build CMakeFiles/engine.dir/source/Engine/imgui/imgui_draw.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/imgui/imgui_draw.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\imgui\imgui_draw.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\imgui
 
 build CMakeFiles/engine.dir/source/Engine/imgui/imgui_impl_opengl3.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/imgui/imgui_impl_opengl3.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\imgui\imgui_impl_opengl3.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\imgui
 
 build CMakeFiles/engine.dir/source/Engine/imgui/imgui_impl_sdl2.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/imgui/imgui_impl_sdl2.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\imgui\imgui_impl_sdl2.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\imgui
 
 build CMakeFiles/engine.dir/source/Engine/imgui/imgui_tables.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/imgui/imgui_tables.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\imgui\imgui_tables.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\imgui
 
 build CMakeFiles/engine.dir/source/Engine/imgui/imgui_widgets.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/imgui/imgui_widgets.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\imgui\imgui_widgets.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\imgui
 
 build CMakeFiles/engine.dir/source/Engine/main.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/main.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\main.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/model.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/model.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\model.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/model_animator.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/model_animator.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\model_animator.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/skinned_model.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/skinned_model.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\skinned_model.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
 build CMakeFiles/engine.dir/source/Engine/utils.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/utils.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\utils.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
@@ -596,210 +596,210 @@ build cmake_object_order_depends_target_game: phony || cmake_object_order_depend
 build CMakeFiles/game.dir/source/Game/Entities/Brushes/DestructubleBrush.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Brushes/DestructubleBrush.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Brushes\DestructubleBrush.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Brushes
 
 build CMakeFiles/game.dir/source/Game/Entities/Brushes/MovebleBrush.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Brushes/MovebleBrush.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Brushes\MovebleBrush.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Brushes
 
 build CMakeFiles/game.dir/source/Game/Entities/Brushes/TriggerBase.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Brushes/TriggerBase.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Brushes\TriggerBase.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Brushes
 
 build CMakeFiles/game.dir/source/Game/Entities/Brushes/TriggerOnce.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Brushes/TriggerOnce.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Brushes\TriggerOnce.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Brushes
 
 build CMakeFiles/game.dir/source/Game/Entities/Brushes/vis_through.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Brushes/vis_through.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Brushes\vis_through.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Brushes
 
 build CMakeFiles/game.dir/source/Game/Entities/Editor/Counter.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Editor/Counter.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Editor\Counter.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Editor
 
 build CMakeFiles/game.dir/source/Game/Entities/Editor/LogicOnce.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Editor/LogicOnce.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Editor\LogicOnce.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Editor
 
 build CMakeFiles/game.dir/source/Game/Entities/Npc/Animators/NpcAnimatorBase.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Npc/Animators/NpcAnimatorBase.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Npc\Animators\NpcAnimatorBase.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Npc\Animators
 
 build CMakeFiles/game.dir/source/Game/Entities/Npc/NpcBase.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Npc/NpcBase.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Npc\NpcBase.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Npc
 
 build CMakeFiles/game.dir/source/Game/Entities/Player/Player.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Player/Player.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Player\Player.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Player
 
 build CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/Projectiles/Bullet.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Player/Weapons/Projectiles/Bullet.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Player\Weapons\Projectiles\Bullet.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Player\Weapons\Projectiles
 
 build CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/Projectiles/CaneProjectile.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Player/Weapons/Projectiles/CaneProjectile.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Player\Weapons\Projectiles\CaneProjectile.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Player\Weapons\Projectiles
 
 build CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/weapon_cane.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Player/Weapons/weapon_cane.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Player\Weapons\weapon_cane.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Player\Weapons
 
 build CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/weapon_pistol.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Player/Weapons/weapon_pistol.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Player\Weapons\weapon_pistol.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Player\Weapons
 
 build CMakeFiles/game.dir/source/Game/Entities/Player/Weapons/weapon_shotgun.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Player/Weapons/weapon_shotgun.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Player\Weapons\weapon_shotgun.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities\Player\Weapons
 
 build CMakeFiles/game.dir/source/Game/Entities/Spawner.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/Spawner.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\Spawner.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities
 
 build CMakeFiles/game.dir/source/Game/Entities/StaticMeshEntity.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/StaticMeshEntity.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\StaticMeshEntity.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities
 
 build CMakeFiles/game.dir/source/Game/Entities/TestNpc.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/TestNpc.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\TestNpc.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities
 
 build CMakeFiles/game.dir/source/Game/Entities/TestParticleSystem.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/TestParticleSystem.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\TestParticleSystem.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities
 
 build CMakeFiles/game.dir/source/Game/Entities/WorldSpawn.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/WorldSpawn.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\WorldSpawn.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities
 
 build CMakeFiles/game.dir/source/Game/Entities/transformPoint.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/Entities/transformPoint.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\Entities\transformPoint.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\Entities
 
 build CMakeFiles/game.dir/source/Game/GameStart.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/GameStart.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\GameStart.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game
 
 build CMakeFiles/game.dir/source/Game/ParticleSystems/BulletTrail.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/ParticleSystems/BulletTrail.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\ParticleSystems\BulletTrail.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\ParticleSystems
 
 build CMakeFiles/game.dir/source/Game/ParticleSystems/CaneTrail.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/ParticleSystems/CaneTrail.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\ParticleSystems\CaneTrail.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\ParticleSystems
 
 build CMakeFiles/game.dir/source/Game/ParticleSystems/Fog.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/ParticleSystems/Fog.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\ParticleSystems\Fog.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\ParticleSystems
 
 build CMakeFiles/game.dir/source/Game/ParticleSystems/HitBlood.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/ParticleSystems/HitBlood.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\ParticleSystems\HitBlood.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\ParticleSystems
 
 build CMakeFiles/game.dir/source/Game/UI/LoadingScreen/UiDefaultLoadingScreen.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/UI/LoadingScreen/UiDefaultLoadingScreen.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\UI\LoadingScreen\UiDefaultLoadingScreen.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\UI\LoadingScreen
 
 build CMakeFiles/game.dir/source/Game/UI/MobileControls/UiJoystick.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/UI/MobileControls/UiJoystick.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\UI\MobileControls\UiJoystick.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\UI\MobileControls
 
 build CMakeFiles/game.dir/source/Game/UI/MobileControls/UiTouchMoveArea.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/UI/MobileControls/UiTouchMoveArea.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\UI\MobileControls\UiTouchMoveArea.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\UI\MobileControls
 
 build CMakeFiles/game.dir/source/Game/UI/Player/PlayerHud.cpp.o: CXX_COMPILER__game_unscanned_ F$:/Git/SdlWasmEngine/source/Game/UI/Player/PlayerHud.cpp || cmake_object_order_depends_target_game
   DEP_FILE = CMakeFiles\game.dir\source\Game\UI\Player\PlayerHud.cpp.o.d
   FLAGS = -std=gnu++20 -O3 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/librariesEms -IF:/Git/SdlWasmEngine/source/Engine
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\game.dir
   OBJECT_FILE_DIR = CMakeFiles\game.dir\source\Game\UI\Player
 
@@ -868,14 +868,14 @@ build all: phony libengine.a main.js
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja F$:/Git/SdlWasmEngine/Build/cmake_install.cmake: RERUN_CMAKE | C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCXXInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCommonLanguageInclude.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeGenericSystem.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeInitializeConfigs.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeLanguageInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeSystemSpecificInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeSystemSpecificInitialize.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang-C.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang-CXX.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/GNU.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCLinkerInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCXXLinkerInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCommonLinkerInformation.cmake CMakeCache.txt CMakeFiles/4.1.0/CMakeCCompiler.cmake CMakeFiles/4.1.0/CMakeCXXCompiler.cmake CMakeFiles/4.1.0/CMakeSystem.cmake F$:/Git/SdlWasmEngine/CMakeLists.txt F$:/Tools/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake
+build build.ninja F$:/Git/SdlWasmEngine/Build/cmake_install.cmake: RERUN_CMAKE | C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCCompiler.cmake.in C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCXXCompiler.cmake.in C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCXXInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCommonLanguageInclude.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeDetermineCCompiler.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeDetermineCXXCompiler.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeDetermineCompiler.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeDetermineSystem.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeFindBinUtils.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeGenericSystem.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeInitializeConfigs.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeLanguageInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeNinjaFindMake.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeSystem.cmake.in C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeSystemSpecificInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeSystemSpecificInitialize.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeTestCCompiler.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeTestCXXCompiler.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang-C.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang-CXX.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang-FindBinUtils.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/GNU.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCLinkerInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCXXLinkerInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCommonLinkerInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeInspectCLinker.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeInspectCXXLinker.cmake CMakeCache.txt CMakeFiles/4.1.0/CMakeCCompiler.cmake CMakeFiles/4.1.0/CMakeCXXCompiler.cmake CMakeFiles/4.1.0/CMakeSystem.cmake F$:/Git/SdlWasmEngine/CMakeLists.txt F$:/Tools/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake
   pool = console
 
 
 #############################################
 # A missing CMake input file is not an error.
 
-build C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCXXInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCommonLanguageInclude.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeGenericSystem.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeInitializeConfigs.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeLanguageInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeSystemSpecificInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeSystemSpecificInitialize.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang-C.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang-CXX.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/GNU.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCLinkerInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCXXLinkerInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCommonLinkerInformation.cmake CMakeCache.txt CMakeFiles/4.1.0/CMakeCCompiler.cmake CMakeFiles/4.1.0/CMakeCXXCompiler.cmake CMakeFiles/4.1.0/CMakeSystem.cmake F$:/Git/SdlWasmEngine/CMakeLists.txt F$:/Tools/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake: phony
+build C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCCompiler.cmake.in C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCXXCompiler.cmake.in C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCXXInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeCommonLanguageInclude.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeDetermineCCompiler.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeDetermineCXXCompiler.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeDetermineCompiler.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeDetermineSystem.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeFindBinUtils.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeGenericSystem.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeInitializeConfigs.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeLanguageInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeNinjaFindMake.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeSystem.cmake.in C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeSystemSpecificInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeSystemSpecificInitialize.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeTestCCompiler.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/CMakeTestCXXCompiler.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/CMakeCommonCompilerMacros.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang-C.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang-CXX.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang-FindBinUtils.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/Clang.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Compiler/GNU.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCLinkerInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCXXLinkerInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeCommonLinkerInformation.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeInspectCLinker.cmake C$:/Program$ Files/CMake/share/cmake-4.1/Modules/Internal/CMakeInspectCXXLinker.cmake CMakeCache.txt CMakeFiles/4.1.0/CMakeCCompiler.cmake CMakeFiles/4.1.0/CMakeCXXCompiler.cmake CMakeFiles/4.1.0/CMakeSystem.cmake F$:/Git/SdlWasmEngine/CMakeLists.txt F$:/Tools/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake: phony
 
 
 #############################################

@@ -3,8 +3,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include <Fmod/fmod.hpp>
-#include <Fmod/fmod_studio.hpp>
+#include "fmod_include.h"
 
 
 #include <SDL2/SDL_audio.h>

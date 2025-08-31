@@ -70,7 +70,7 @@ endif()
 # Common includes
 # ——————————————————————————————————————————————————————————
 include_directories(
-    "${CMAKE_SOURCE_DIR}/librariesEms"
+    "${CMAKE_SOURCE_DIR}/libraries"
     "${CMAKE_SOURCE_DIR}/source/Engine"
 )
 
@@ -172,7 +172,7 @@ file(GLOB_RECURSE GAME_SOURCES "${CMAKE_SOURCE_DIR}/source/Game/*.cpp")
 
 add_executable(game ${GAME_SOURCES})
 target_include_directories(game PUBLIC
-    "${CMAKE_SOURCE_DIR}/librariesEms"
+    "${CMAKE_SOURCE_DIR}/libraries"
     "${CMAKE_SOURCE_DIR}/source/Engine"
 )
 target_link_libraries(game PRIVATE engine)
