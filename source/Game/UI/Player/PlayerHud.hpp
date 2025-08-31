@@ -56,4 +56,6 @@ private:
 	std::shared_ptr<UiText> text;
 	std::shared_ptr<UiImage> crosshair;
 
+	std::shared_ptr<UiImage> testImage;
+
 };

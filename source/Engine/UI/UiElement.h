@@ -52,6 +52,8 @@ public:
     glm::vec2 parentTopLeft = vec2();
     glm::vec2 parentBottomRight = vec2();
 
+    std::string PixelShader = ""; //if supported by element
+
     bool visible = true;
     bool drawBorder = false;
     static bool drawAllBorders;

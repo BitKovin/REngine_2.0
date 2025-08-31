@@ -46,7 +46,15 @@ public:
 			}
 		}
 
-		UiRenderer::DrawTexturedRect(pos, finalizedSize, tex->getID(), GetFinalColor());
+		if (PixelShader.empty())
+		{
+			UiRenderer::DrawTexturedRect(pos, finalizedSize, tex->getID(), GetFinalColor());
+		}
+		else
+		{
+			UiRenderer::DrawTexturedRectShader(pos, finalizedSize, tex->getID(), GetFinalColor(), PixelShader);
+		}
+
 
 		UiElement::Draw();
 	}

@@ -16,6 +16,8 @@ public:
 	GameStart();
 	~GameStart();
 
+    void testHttp();
+
 	void Start()
 	{
 
@@ -71,6 +73,20 @@ public:
 
     }
 
+    void UpdateDebugUI()
+    {
+
+        ImGui::Begin("game debug");
+
+        if (ImGui::Button("test http request"))
+        {
+            testHttp();
+        }
+
+        ImGui::End();
+
+    }
+
 private:
 
     static inline bool startedGame = false;
@@ -123,6 +139,90 @@ GameStart::GameStart()
 
 GameStart::~GameStart()
 {
+}
+
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+#include <http/http_client.h>
+void GameStart::testHttp()
+{
+
+    http_client::Request req;
+    req.method = http_client::Method::GET;
+    req.url = "http://httpbin.org/image/png";
+    req.headers["Accept"] = "application/json";
+
+    http_client::RequestId id = start_request(req);
+
+    std::cout << "Request started. Polling until response...\n";
+
+    // Simulate frame loop: poll until done
+    while (!http_client::is_done(id)) {
+        std::cout << ".";
+        std::cout.flush();
+#ifdef __EMSCRIPTEN__
+        // In browser we can't sleep; just break after some spins
+        emscripten_sleep(100);
+#else
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+#endif
+    }
+    std::cout << "\n";
+
+    http_client::Response resp;
+    if (http_client::get_response(id, resp)) {
+        if (resp.status == http_client::Status::Success) 
+        {
+            std::cout << "HTTP " << resp.status_code << "\n";
+            std::cout << "Body:\n" << resp.body << "\n"; // print first 300 chars
+
+            std::ofstream out("image.png", std::ios::binary);
+            out.write(resp.body.data(), resp.body.size());
+            out.close();
+
+
+        }
+        else {
+            std::cout << "Request failed: " << resp.error << "\n";
+        }
+    }
+    else {
+        std::cout << "No response available.\n";
+    }
+
+    // Second test: POST with JSON body
+    http_client::Request postReq;
+    postReq.method = http_client::Method::POST;
+    postReq.url = "http://httpbin.org/post";
+    postReq.headers["Content-Type"] = "application/json";
+    postReq.body = R"({"hello":"world"})";
+
+    http_client::RequestId postId = start_request(postReq);
+    std::cout << "\nPOST started...\n";
+
+    while (!http_client::is_done(postId)) {
+#ifdef __EMSCRIPTEN__
+        // In browser we can't sleep; just break after some spins
+        emscripten_sleep(100);
+#else
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+#endif
+    }
+
+    http_client::Response postResp;
+    if (get_response(postId, postResp)) {
+        if (postResp.status == http_client::Status::Success) {
+            std::cout << "POST HTTP " << postResp.status_code << "\n";
+            std::cout << "POST Body:\n" << postResp.body << "\n";
+        }
+        else {
+            std::cout << "POST failed: " << postResp.error << "\n";
+        }
+    }
+
 }
 
 REGISTER_ENTITY(GameStart,"gamestart")

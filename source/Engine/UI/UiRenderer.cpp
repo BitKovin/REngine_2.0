@@ -105,6 +105,24 @@ namespace UiRenderer {
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
+    void DrawTexturedRectShader(const glm::vec2& pos, const glm::vec2& size, GLuint texture, const glm::vec4& color, const string& shader) 
+    {
+        auto shaderProgram = ShaderManager::GetShaderProgram("ui", shader); 
+        shaderProgram->UseProgram();
+
+        SetShaderProjection(shaderProgram);
+
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
+        model = glm::scale(model, glm::vec3(size, 1.0f));
+        shaderProgram->SetUniform("u_Model", model);
+        shaderProgram->SetUniform("u_Color", color);
+
+        shaderProgram->SetTexture("u_Texture", texture);
+
+        glBindVertexArray(quadVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
+
     void DrawBorderRect(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color) {
 #ifndef GL_ES_PROFILE
         flatColorShader->UseProgram();
@@ -122,7 +140,7 @@ namespace UiRenderer {
     }
 
     void DrawText(const std::string& text, TTF_Font* font, const glm::vec2& pos,
-        const glm::vec4& color, const glm::vec2& scale) {
+        const glm::vec4& color, const glm::vec2& scale, const string& shader) {
         if (!font) {
             std::cerr << "No font provided for DrawText." << std::endl;
             return;
@@ -207,8 +225,17 @@ namespace UiRenderer {
         // Calculate draw size
         glm::vec2 drawSize(scale.x * textureWidth, scale.y * textureHeight);
 
-        // Draw the cached texture
-        DrawTexturedRect(pos, drawSize, textureID, color);
+        if (shader.empty())
+        {
+            // Draw the cached texture
+            DrawTexturedRect(pos, drawSize, textureID, color);
+        }
+        else
+        {
+            DrawTexturedRectShader(pos, drawSize, textureID, color,shader);
+        }
+
+
     }
 
     void MaintainCache() {

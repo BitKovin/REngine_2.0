@@ -103,7 +103,14 @@ public:
 
 		vec2 pos = finalizedPosition + finalizedOffset;
 
-		UiRenderer::DrawTexturedRect(pos, finalizedSize, tex->getID(), Color * GetFinalColor());
+		if (PixelShader.empty())
+		{
+			UiRenderer::DrawTexturedRect(pos, finalizedSize, tex->getID(), GetFinalColor());
+		}
+		else
+		{
+			UiRenderer::DrawTexturedRectShader(pos, finalizedSize, tex->getID(), GetFinalColor(), PixelShader);
+		}
 
 		UiElement::Draw();
 	}

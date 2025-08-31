@@ -21,6 +21,14 @@ void PlayerHud::Init(Player* playerRef)
     hudCanvas = make_shared<UiCanvas>();
     crosshair = make_shared<UiImage>();
 
+    testImage = make_shared<UiImage>();
+    testImage->PixelShader = "ui_sliced";
+    testImage->ImagePath = "GameData/textures/ui/test_button.png";
+    testImage->origin = vec2(0.5f,0.5f);
+    testImage->pivot = vec2(0.5f,0.0f);
+    //testImage->position = vec2(0,20);
+    hudCanvas->AddChild(testImage);
+
     crosshair->pivot = vec2(0.5);
     crosshair->origin = vec2(0.5);
     crosshair->size = vec2(8);
@@ -58,6 +66,9 @@ void PlayerHud::Init(Player* playerRef)
 void PlayerHud::Update()
 {
     text->text = std::to_string((int)player->Health);
+
+    testImage->size = vec2(player->Position.x*15, player->Position.z*15);
+
 }
 
 void WeaponSlots::Update()

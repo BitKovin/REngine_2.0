@@ -3,7 +3,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 
 
-#if WINDOWS
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/transform.hpp>
@@ -20,23 +19,6 @@
 #include <glm/geometric.hpp>
 #include <glm/gtx/euler_angles.hpp>
 
-#else
-#include "glm/glm.hpp"
-#include "glm/gtc/quaternion.hpp"
-#include "glm/gtx/transform.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/matrix_decompose.hpp"
-#include "glm/gtc/constants.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/quaternion.hpp"
-#include "glm/gtx/hash.hpp"
-#include "glm/gtc/reciprocal.hpp"
-#include "glm/gtx/compatibility.hpp"
-#include "glm/gtx/rotate_vector.hpp"
-#include "glm/geometric.hpp"
-#include "glm/ext/scalar_common.hpp"
-#include "glm/gtx/euler_angles.hpp"
-#endif
 
 using namespace glm;
 
