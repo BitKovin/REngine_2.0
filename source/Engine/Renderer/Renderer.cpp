@@ -76,7 +76,13 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
         glDisable(GL_MULTISAMPLE);
     }
 
+    #else
+
+    MultiSampleCount = 0;
+
     #endif // !GL_ES_PROFILE
+
+#ifndef GL_ES_PROFILE
 
     if (MultiSampleCount) 
     {
@@ -100,6 +106,9 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
         colorBuffer->setSamples(1);
         depthBuffer->setSamples(1);
     }
+
+#endif
+
     // resize all our buffers
     colorBuffer->resize(res.x, res.y);
     depthBuffer->resize(res.x, res.y);
