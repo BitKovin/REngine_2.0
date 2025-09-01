@@ -1,2 +1,0 @@
-// this file lists all shader files, visible by editing tools
-q3shadersCopyForRadiant

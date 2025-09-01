@@ -137,8 +137,11 @@ void EngineMain::InitInputs()
 
 }
 
-void EngineMain::Init()
+void EngineMain::Init(std::vector<std::string> args)
 {
+
+    Arguments = ParseCommands(args);
+
     UpdateScreenSize();
 
     printf("init\n");
@@ -168,6 +171,85 @@ void EngineMain::Init()
 
     Level::Current = new Level();
 
+}
+
+std::map<std::string, std::vector<std::string>> EngineMain::ParseCommands(const std::vector<std::string>& args)
+{
+    std::map<std::string, std::vector<std::string>> out;
+    std::string currentKey;
+    bool positionalOnly = false;
+
+    auto isNegativeNumber = [](const std::string& s) {
+        if (s.size() < 2 || s[0] != '-') return false;
+        if (std::isdigit((unsigned char)s[1])) return true;
+        if (s[1] == '.' && s.size() > 2 && std::isdigit((unsigned char)s[2])) return true;
+        return false;
+        };
+
+    auto isOptionToken = [&](const std::string& s) {
+        if (s.empty() || s == "-") return false;
+        if (s == "--") return true;
+        if (s[0] != '-') return false;
+        if (isNegativeNumber(s)) return false;
+        return true;
+        };
+
+    auto stripDashes = [](const std::string& s) {
+        size_t i = 0;
+        while (i < s.size() && s[i] == '-') ++i;
+        return s.substr(i);
+        };
+
+    for (const std::string& tok : args) {
+        if (!positionalOnly && tok == "--") {
+            positionalOnly = true;
+            currentKey.clear();
+            continue;
+        }
+
+        if (!positionalOnly && isOptionToken(tok)) {
+            std::string body = stripDashes(tok);
+
+            // --key=value
+            size_t eq = body.find('=');
+            if (eq != std::string::npos) {
+                std::string k = body.substr(0, eq);
+                std::string v = body.substr(eq + 1);
+                out[k].push_back(v);
+                currentKey.clear();
+            }
+            // -a (single char short flag)
+            else if (body.size() == 1) {
+                currentKey = body;
+                out[currentKey]; // mark presence
+            }
+            // -abc (grouped short flags) -> only if ALL single letters
+            else if (body.size() > 1 && body.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") == std::string::npos) {
+                for (char c : body) {
+                    std::string k(1, c);
+                    out[k];
+                }
+                currentKey.clear();
+            }
+            // long option like -working_dir
+            else {
+                currentKey = body;
+                out[currentKey];
+            }
+        }
+        else {
+            if (!currentKey.empty() && !positionalOnly) {
+                out[currentKey].push_back(tok);
+            }
+            else {
+                out["_"].push_back(tok);
+            }
+        }
+    }
+
+    return out;
+
+    return out;
 }
 
 void EngineMain::FinishFrame()

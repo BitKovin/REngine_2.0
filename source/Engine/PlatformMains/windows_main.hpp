@@ -12,6 +12,9 @@
 #include <array>
 #include <dinput.h>
 #include <SDL2/SDL_syswm.h>
+
+#include <direct.h>
+
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 #include <Windows.h>
@@ -380,6 +383,29 @@ int main(int argc, char* args[])
     EnsureDbgHelpInitialized();
 
     SetUnhandledExceptionFilter(EngineUnhandledExceptionFilter);
+
+    std::vector<std::string> args_s(args, args + argc);
+    auto args_m = EngineMain::ParseCommands(args_s);
+
+    for (auto a : args_m)
+    {
+        Logger::Log(a.first);
+        for (auto o : a.second)
+        {
+            Logger::Log("arg: " + o);
+        }
+    }
+
+    auto workingDirOverride = args_m.find("working_dir");
+
+    if (workingDirOverride != args_m.end())
+    {
+
+        Logger::Log("switching working directory to " + workingDirOverride->second[0]);
+
+        _chdir(workingDirOverride->second[0].c_str());
+
+    }
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
         fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());

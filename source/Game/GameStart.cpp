@@ -23,7 +23,17 @@ public:
 
         LoadingScreenSystem::SetLoadingCanvas(std::make_shared<UiDefaultLoadingScreen>());
 
-		Level::LoadLevelFromFile("GameData/maps/test.bsp");
+        auto mapArg = EngineMain::MainInstance->Arguments.find("map");
+
+        if (mapArg!= EngineMain::MainInstance->Arguments.end()&& mapArg->second.size()>0)
+        {
+            Level::LoadLevelFromFile(std::string("GameData/maps/") + mapArg->second[0]);
+        }
+        else
+        {
+            Level::LoadLevelFromFile("GameData/maps/test3.bsp");
+        }
+		
 
         for (size_t i = 0; i < 000; i++)
         {

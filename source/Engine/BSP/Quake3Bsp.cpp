@@ -90,6 +90,7 @@ CQuake3BSP::~CQuake3BSP()
         glDeleteTextures(m_numOfLightmaps, m_lightmap_gen_IDs);
     }
 
+
     if (cachedFaces != nullptr)
     {
         delete[] cachedFaces;
@@ -97,6 +98,7 @@ CQuake3BSP::~CQuake3BSP()
     
 
     glDeleteTextures(1, &missing_LM_id);
+    glDeleteTextures(1, &white_LM_id);
 }
 
 bool CQuake3BSP::LoadBSP(const char* filename) {
@@ -662,6 +664,12 @@ std::vector<uint32_t> CQuake3BSP::GetFaceIndices(int faceId)
 
 LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
 {
+
+    if (lightVols.size() == 0)
+    {
+        return { vec3(0), vec3(0.3f), vec3(0,-1,0) };
+    }
+
     // Transform position from Y-up (engine) to Z-up (Quake 3)
     glm::vec3 pos_quake(position.x, -position.z, position.y);
 
@@ -702,6 +710,7 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
     // Fetch light volumes at the eight corners
     auto getLightVolData = [&](int x, int y, int z) -> std::tuple<glm::vec3, glm::vec3, glm::vec3> {
         int index = z * (lightVolGridDims.x * lightVolGridDims.y) + y * lightVolGridDims.x + x;
+
         const tBSPLightvol& vol = lightVols[index];
         glm::vec3 ambient(
             static_cast<float>(vol.ambient[0]) / 255.0f,
@@ -772,6 +781,12 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
 
 LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
 {
+
+    if (lightVols.size() == 0)
+    {
+        return { vec3(0), vec3(0.3f), vec3(0,-1,0) };
+    }
+
     auto data = GetLightvolColorPoint(position);
     auto centerData = data;
     float radius = lightVolGridSize.x;
@@ -1384,6 +1399,11 @@ bool CQuake3BSP::RenderMergedFace(int mergedIndex, bool lightmap, LightVolPointD
     bool isCube = data.isCube;
     int faceTexture = data.textureId;
     GLuint lightmapId = data.lightmapId;
+    if (lightmap == false)
+    {
+        lightmapId = white_LM_id;
+    }
+    
 
     ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", isCube ? "bsp_cube" : "bsp");
     shader->UseProgram();
@@ -1441,6 +1461,37 @@ void CQuake3BSP::GenerateLightmap() {
 
     float b = 1.0f;
 
+    const int missingLmColor = 40;
+
+    // generate missing lightmap
+    GLubyte missing_lightmap[] = {
+        missingLmColor,missingLmColor,missingLmColor,missingLmColor,   // pixel #1 (RGBA)
+        missingLmColor,missingLmColor,missingLmColor,missingLmColor,   // pixel #2
+        missingLmColor,missingLmColor,missingLmColor,missingLmColor,   // pixel #3
+        missingLmColor,missingLmColor,missingLmColor,missingLmColor    // pixel #4
+    };
+
+    glGenTextures(1, &missing_LM_id);
+    glBindTexture(GL_TEXTURE_2D, missing_LM_id);
+
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA,             // internalFormat
+        2, 2,
+        0,
+        GL_RGBA,             // format
+        GL_UNSIGNED_BYTE,    // type
+        missing_lightmap       // data pointer
+    );
+    //glGenerateMipmap(GL_TEXTURE_2D);
+
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
     // generate missing lightmap
     GLubyte white_lightmap[] = {
         255,255,255,255,   // pixel #1 (RGBA)
@@ -1449,8 +1500,8 @@ void CQuake3BSP::GenerateLightmap() {
         255,255,255,255    // pixel #4
     };
 
-    glGenTextures(1, &missing_LM_id);
-    glBindTexture(GL_TEXTURE_2D, missing_LM_id);
+    glGenTextures(1, &white_LM_id);
+    glBindTexture(GL_TEXTURE_2D, white_LM_id);
 
     glTexImage2D(
         GL_TEXTURE_2D,

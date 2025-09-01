@@ -380,6 +380,7 @@ class CQuake3BSP : public IDrawMesh
     GLuint* m_lightmap_gen_IDs;
     GLuint* m_Textures;
     GLuint  missing_LM_id;
+    GLuint  white_LM_id;
     GLuint  missing_id;
 
     int*        m_pIndices; // The object's indices for rendering

@@ -62,7 +62,7 @@ public:
 	}
 
 
-
+    std::map<std::string, std::vector<std::string>> Arguments;
 
     void UpdateScreenSize();
 
@@ -76,14 +76,9 @@ public:
 
 
 
+    void Init(const std::vector<std::string> args = {});
 
-
-    void click()
-    {
-        printf("clicked \n");
-    }
-
-    void Init();
+    static std::map<std::string, std::vector<std::string>> ParseCommands(const std::vector<std::string>& args);
 
     void FinishFrame();
 
