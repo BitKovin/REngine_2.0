@@ -38,13 +38,14 @@ void main()
     vec3 lmSample = texture(s_bspLightmap, g_LmapCoord).rgb;
     vec3 lightmap = lmSample * light_color;
 
-    float vertexLightScale = 4.04;
-
     // vertex/lightgrid color (RGB) scaled by tunable uniform
     vec3 vertexLight = vec3(1.0);
     
     if(useVertexLight)
     {
+
+        const float vertexLightScale = 4.04;
+
         vertexLight = g_color.rgb * vertexLightScale;
     }
 
