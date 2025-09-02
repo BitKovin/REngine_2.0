@@ -173,10 +173,15 @@ void EngineMain::Init(std::vector<std::string> args)
 
 }
 
+#include <map>
+#include <string>
+#include <vector>
+#include <cctype>
+#include <algorithm>
+
 std::map<std::string, std::vector<std::string>> EngineMain::ParseCommands(const std::vector<std::string>& args)
 {
     std::map<std::string, std::vector<std::string>> out;
-    std::string currentKey;
     bool positionalOnly = false;
 
     auto isNegativeNumber = [](const std::string& s) {
@@ -200,57 +205,85 @@ std::map<std::string, std::vector<std::string>> EngineMain::ParseCommands(const 
         return s.substr(i);
         };
 
-    for (const std::string& tok : args) {
+    for (size_t i = 0; i < args.size(); ++i) {
+        const std::string& tok = args[i];
+
         if (!positionalOnly && tok == "--") {
             positionalOnly = true;
-            currentKey.clear();
             continue;
         }
 
         if (!positionalOnly && isOptionToken(tok)) {
             std::string body = stripDashes(tok);
 
-            // --key=value
+            // --key=value or -key=value
             size_t eq = body.find('=');
             if (eq != std::string::npos) {
                 std::string k = body.substr(0, eq);
                 std::string v = body.substr(eq + 1);
                 out[k].push_back(v);
-                currentKey.clear();
+                continue;
             }
-            // -a (single char short flag)
-            else if (body.size() == 1) {
-                currentKey = body;
-                out[currentKey]; // mark presence
-            }
-            // -abc (grouped short flags) -> only if ALL single letters
-            else if (body.size() > 1 && body.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") == std::string::npos) {
-                for (char c : body) {
-                    std::string k(1, c);
-                    out[k];
+
+            bool singleDash = (tok.size() >= 1 && tok[0] == '-' && !(tok.size() > 1 && tok[1] == '-'));
+
+            // Single-dash multi-character token
+            if (singleDash && body.size() > 1) {
+                const std::string* nextTok = (i + 1 < args.size()) ? &args[i + 1] : nullptr;
+                bool nextIsValue = nextTok && !isOptionToken(*nextTok);
+
+                if (nextIsValue) {
+                    // Treat as long option with value
+                    out[body].push_back(*nextTok);
+                    ++i; // skip next token
+                    continue;
                 }
-                currentKey.clear();
+                else {
+                    // Treat as grouped short flags if all letters
+                    bool allLetters = std::all_of(body.begin(), body.end(), [](char c) { return std::isalpha((unsigned char)c); });
+                    if (allLetters) {
+                        for (char c : body) {
+                            std::string k(1, c);
+                            out[k]; // presence
+                        }
+                        continue;
+                    }
+                    else {
+                        // fallback: treat as long option without value
+                        out[body];
+                        continue;
+                    }
+                }
             }
-            // long option like -working_dir
-            else {
-                currentKey = body;
-                out[currentKey];
+
+            // Single-letter flag: -a
+            if (body.size() == 1) {
+                out[body];
+                continue;
             }
+
+            // Double-dash long option without value
+            out[body];
         }
         else {
-            if (!currentKey.empty() && !positionalOnly) {
-                out[currentKey].push_back(tok);
+            // Positional or value for previous option
+            if (!out.empty()) {
+                // find last key without value
+                auto it = std::find_if(out.rbegin(), out.rend(), [](const auto& p) { return p.second.empty(); });
+                if (it != out.rend()) {
+                    const std::string& lastKey = it->first;
+                    out[lastKey].push_back(tok);
+                    continue;
+                }
             }
-            else {
-                out["_"].push_back(tok);
-            }
+            // positional argument
+            out["_"].push_back(tok);
         }
     }
 
     return out;
-
-    return out;
 }
+
 
 void EngineMain::FinishFrame()
 {

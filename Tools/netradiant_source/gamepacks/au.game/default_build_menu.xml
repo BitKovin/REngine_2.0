@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!--
+build commands
+[RadiantPath]: path to Radiant .. C:\Program Files\Gtkradiant
+[EnginePath]: path to the engine .. C:\quake3\ C:\Program Files\Quake III Arena\ /usr/local/games/quake3/
+-->
+<project version="2.0">
+<var name="q3map2">"[RadiantPath]q3map2.[ExecutableType]" -v<cond value="[MonitorAddress]"> -connect [MonitorAddress]</cond> -game quake3 -fs_basepath "[EnginePath]"<cond value="[GameName]"> -fs_game [GameName]</cond></var>
+<var name="mbspc">"[RadiantPath]mbspc.[ExecutableType]"</var>
+<var name="arenau">"[RadiantPath]StartAU.bat"</var>
+<build name="Build: Final">
+<command>[q3map2] -meta -flares "[MapFile]"</command>
+<command>[q3map2] -vis "[MapFile]"</command>
+<command>[q3map2] -light -styles -novertex -fast -fastgrid -patchshadows -samples 4 -filter -bounce 8 "[MapFile]"</command>
+</build>
+<build name="Build: Fast visibility">
+<command>[q3map2] -meta -flares "[MapFile]"</command>
+<command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -styles -novertex -fast -fastgrid -patchshadows -samples 2 "[MapFile]"</command>
+</build>
+<build name="Build: Fast but bad">
+<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -styles -novertex -fast -fastgrid "[MapFile]"</command>
+</build>
+<separator />
+<build name="Debug: Fast compile">
+<command>[q3map2] -meta -debuginset -debugsurfaces -debugportals -debugclip "[MapFile]"</command>
+<command>[q3map2] -vis "[MapFile]"</command>
+<command>[q3map2] -light -styles -novertex -fast -fastgrid "[MapFile]"</command>
+</build>
+<build name="Debug: Analyze">
+<command>[q3map2] -analyze "[BspFile]"</command>
+<command>PAUSE</command>
+</build>
+<build name="Debug: Info">
+<command>[q3map2] -info "[BspFile]"</command>
+<command>PAUSE</command>
+</build>
+<separator />
+<build name="Edit: Update entities">
+<command>[q3map2] -onlyents "[MapFile]"</command>
+</build>
+<build name="Edit: Export entities">
+<command>[q3map2] -exportents "[BspFile]"</command>
+</build>
+<separator />
+<build name="Make: AAS for bots supports">
+<command>[mbspc] -forcesidesvisible -grapplereach -optimize -bsp2aas &quot;[BspFile]&quot;</command>
+<command>PAUSE</command>
+</build>
+<build name="Make: Game archive">
+<command>[q3map2] -pk3 -png "[BspFile]"</command>
+<command>PAUSE</command>
+</build>
+<build name="Make: Json">
+<command>[q3map2] -json "[BspFile]"</command>
+</build>
+<separator />
+<build name="Convert: ASE">
+<command>[q3map2] -meta -patchmeta "[MapFile]"</command>
+<command>[q3map2] -convert -format ase -shadersasbitmap "[BspFile]"</command>
+</build>
+<build name="Convert: OBJ">
+<command>[q3map2] -meta -patchmeta "[MapFile]"</command>
+<command>[q3map2] -convert -format obj -shadersasbitmap "[BspFile]"</command>
+</build>
+</project>
+

@@ -1,0 +1,26 @@
+//
+// worldspawn
+//
+
+@SolidClass = worldspawn : "This is the world entity. Each map can only contain one, and it's automatically created for you."
+[
+]
+
+@PointClass = light : "Invisible lightsource."
+[
+	_light(integer) : "Brightness" : 300
+	_color(color1) : "Color" : "1 1 1"
+]
+
+@SolidClass color(0 112 178) = func_group : "Solid brushes"
+[
+]
+
+@PointClass color(255 128 64) = misc_model : "Arbitrary model"
+[
+	model(studio) : "Model path"
+	angle(string) : "Yaw Angle" : 0 : "Direction in which model will be oriented."
+	angles(string) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
+	modelscale(string) : "Uniform Scale" : 1 : "Floating-point value used to scale a model up or down (default 1.0)." 
+	modelscale_vec(string) : "Scale XYZ" : "1 1 1" : "Floating-point vector used to scale a model's axes individually (default 1.0 1.0 1.0)."
+]

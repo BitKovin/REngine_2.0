@@ -848,6 +848,9 @@ bool CQuake3BSP::IsClusterVisible(int sourceCluster, int testCluster)
     int byteIndex = (sourceCluster * visData.sz_vecs) + (testCluster / 8);
     int bitIndex = testCluster % 8;
 
+    if (visData.n_vecs == 0)
+        return true;
+
     // Convert std::byte to unsigned integer for bitwise operations
     unsigned char byteValue = (visData.vecs[byteIndex]);
     return (byteValue & (1 << bitIndex)) != 0;
@@ -1403,7 +1406,6 @@ bool CQuake3BSP::RenderMergedFace(int mergedIndex, bool lightmap, LightVolPointD
     {
         lightmapId = white_LM_id;
     }
-    
 
     ShaderProgram* shader = ShaderManager::GetShaderProgram("bsp", isCube ? "bsp_cube" : "bsp");
     shader->UseProgram();
@@ -1412,6 +1414,8 @@ bool CQuake3BSP::RenderMergedFace(int mergedIndex, bool lightmap, LightVolPointD
     if (faceTexture == 0) return false;
 
 
+
+    shader->SetUniform("useVertexLight", data.lightmapId == missing_LM_id);
 
     shader->SetUniform("light_color", lightData.ambientColor);
     shader->SetUniform("direct_light_color", lightData.directColor);
@@ -1461,7 +1465,7 @@ void CQuake3BSP::GenerateLightmap() {
 
     float b = 1.0f;
 
-    const int missingLmColor = 40;
+    const int missingLmColor = 200;
 
     // generate missing lightmap
     GLubyte missing_lightmap[] = {

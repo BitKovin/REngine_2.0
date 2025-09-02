@@ -22,7 +22,6 @@ void PlayerHud::Init(Player* playerRef)
     crosshair = make_shared<UiImage>();
 
 
-    hudCanvas->AddChild(testImage);
 
     crosshair->pivot = vec2(0.5);
     crosshair->origin = vec2(0.5);

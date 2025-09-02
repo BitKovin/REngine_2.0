@@ -504,7 +504,7 @@ int main(int argc, char* args[])
     engine->asyncGameUpdate = ThreadPool::Supported();
 
     EngineMain::MainInstance = engine;
-    engine->Init();
+    engine->Init(args_s);
 
     desktop_render_loop();
 

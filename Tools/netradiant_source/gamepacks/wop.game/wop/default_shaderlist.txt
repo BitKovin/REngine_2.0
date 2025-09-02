@@ -1,0 +1,28 @@
+// World of Padman default shaderlist file
+// last modified by Kai-Li (December 17th 2011)
+// Version 1.6
+//=============================================================================
+common
+pad_airplane
+pad_asia
+pad_attic
+pad_bookroom
+pad_cloister
+pad_cyb
+pad_effects
+pad_fridge
+pad_gamemodels
+pad_garden
+pad_gfx
+pad_glowmaps
+pad_harm
+pad_harmwestern
+pad_jail
+pad_journey
+pad_kitchen
+pad_mapobjects
+pad_pirate
+pad_shop
+pad_steps
+pad_tex02
+pad_trash

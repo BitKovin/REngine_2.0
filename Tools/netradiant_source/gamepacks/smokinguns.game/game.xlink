@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<links>
+	<item name="Smokin' Guns Website" url="https://www.smokin-guns.org/" />
+	<item name="Smokin' Guns Forums" url="http://forum.smokin-guns.org/" />
+	<item name="Smokin' Guns Wiki" url="http://wiki.smokin-guns.org/" />
+	<item name="Smokin' Guns Source" url="https://github.com/smokin-guns/SmokinGuns" />
+	<item name="Smokin' Guns Bugtracker" url="https://github.com/smokin-guns/SmokinGuns/issues" />
+	<item name="Smokin' Guns Gamepack Bugtracker" url="https://github.com/smokin-guns/smokinguns-mapeditor-support/issues" />
+</links>
