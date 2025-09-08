@@ -5,7 +5,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 uniform sampler2D screenTexture;
 uniform sampler2D noiseTexture;// @texture GameData/textures/noise/grainy5_256.png
-
+uniform sampler2D LutTexture;// @texture GameData/textures/pp/main.png
 
 /**
 Basic FXAA implementation based on the code on geeks3d.com with the
@@ -193,7 +193,30 @@ vec3 smoothPosterize(vec3 color, float steps, float softness, vec2 uv) {
     return (floored + frac) / steps;
 }
 
+vec3 GetFromLUT(vec3 color)
+{
+    // replicate HLSL saturate
+    color = clamp(color, 0.0, 1.0);
 
+    float N = float(textureSize(LutTexture,0).y);
+    float maxColor = N - 1.0;
+
+    // index (slice) for the blue channel
+    float cell = floor(color.b * maxColor);
+
+    // compute normalized UV that maps the packed (N*N x N) LUT layout:
+    // u = (cell*N + color.r*(N-1) + 0.5) / (N*N)
+    // v = (color.g*(N-1) + 0.5) / N
+    // the +0.5 replicates the half-texel offset used in the HLSL code.
+    float u = (cell * N + color.r * maxColor + 0.5) / (N * N);
+    float v = (color.g * maxColor + 0.5) / N;
+
+    // D3D/HLSL vs OpenGL texture origin: flip Y if required
+    //v = 1.0 - v;
+
+    vec3 gradedCol = textureLod(LutTexture, vec2(u, v),0.0).rgb;
+    return gradedCol;
+}
 
 void main() {
     // Calculate the position within the 4x4 Bayer matrix
@@ -208,12 +231,22 @@ void main() {
     // Sample the texture color (16-bit precision, normalized to [0,1])
     vec3 color = applyFxaa(screenTexture, gl_FragCoord.xy, vec2(res)).rgb;
     
+
+    color = GetFromLUT(color);
+
     color = smoothPosterize(color, 40.0,0.35,TexCoords*vec2(aspectRatio,1.0));
 
-    vec3 colorHue = normalize(color);
-    float colorBrightness = length(color);
-    colorHue = mix(colorHue, vec3(1,0,0),0.2);
-    color = colorHue * colorBrightness;
+
+    if(false) 
+    {
+        vec3 colorHue = normalize(color);
+        float colorBrightness = length(color);
+
+        colorBrightness = mix(colorBrightness, 0.3f, 0.1f);
+
+        colorHue = mix(colorHue, vec3(1, 0.15f, 0.15f), 0.25f);
+        color = colorHue * colorBrightness;
+    }
 
     // Apply dithering by adding the scaled Bayer value to RGB channels
     // Use /256.0 for precise dithering range

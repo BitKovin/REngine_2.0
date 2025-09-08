@@ -33,6 +33,8 @@ private:
 
     static vector<dtObstacleRef> obstacles;
 
+    static bool HasLineOfSight(const vec3& pointA, const vec3& pointB);
+
 public:
 
     static void DestroyNavData();
@@ -66,5 +68,11 @@ public:
 // Returns true if a valid path was found.
 // =====================================================================
     static std::vector<glm::vec3> FindSimplePath(glm::vec3 start, glm::vec3 target);
+
+    static std::vector<glm::vec3> FindFleePath(
+        const glm::vec3& start,
+        const glm::vec3& threatPos,
+        float desiredDist = 25,
+        int maxCandidates = 10);
 
 };

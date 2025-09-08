@@ -8,6 +8,8 @@
 
 #include <imgui/imgui.h>
 
+#include "../Player/Player.hpp"
+
 NpcBase::NpcBase()
 {
 
@@ -246,13 +248,19 @@ void NpcBase::AsyncUpdate()
 		ProcessAnimationEvent(event);
 	}
 
-	if (Input::GetAction("attack2")->Pressed() && false)
+	if (Input::GetAction("attack2")->Pressed())
 	{
 
-		Health = 100;
-		dead = false;
+		//Health = 100;
+		//dead = false;
 
-		StartReturnFromRagdoll();
+		//StartReturnFromRagdoll();
+
+		auto fleePath = NavigationSystem::FindFleePath(Position, Player::Instance->Position, 15, 50);
+
+
+		DebugDraw::Path(fleePath,20);
+		DebugDraw::Line(fleePath[0], Position, 20);
 
 	}
 

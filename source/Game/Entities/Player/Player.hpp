@@ -59,6 +59,9 @@ private:
 
 	PlayerHud Hud;
 
+	float bobProgress = 0;
+	float bobSpeed = 0.9;
+
 	SoundPlayer* soundPlayer;
 
 	Weapon* currentWeapon = nullptr;
@@ -258,6 +261,8 @@ public:
 
 	void CreateWeapon(const string& className);
 	void DestroyWeapon();
+
+	vec3 GetBobForMainWeapon();
 
 	void Destroy()
 	{

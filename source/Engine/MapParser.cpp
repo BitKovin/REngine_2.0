@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <regex>
 
 
 // ----------------------------------------------------------------------
@@ -145,27 +146,33 @@ namespace MapParser {
         EntityData currentEntity;
         bool inEntity = false;
 
-        while (std::getline(stream, line)) {
-            // Remove carriage returns if present
-            line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+        // NOTE: every backslash and every quote that should be part of the regex
+        // must be escaped for a normal C++ string literal.
+        const std::regex kvRegex("\\s*\"([^\"]*)\"\\s*\"([^\"]*)\"");
 
-            if (line.find('{') != std::string::npos) {
-                // Start new entity
+        while (std::getline(stream, line)) {
+            // remove CR if present
+            if (!line.empty() && line.back() == '\r') line.pop_back();
+
+            // trim whitespace
+            auto first = line.find_first_not_of(" \t");
+            if (first == std::string::npos) continue;
+            auto last = line.find_last_not_of(" \t");
+            std::string t = line.substr(first, last - first + 1);
+
+            if (t == "{") {
                 inEntity = true;
                 currentEntity = EntityData();
                 continue;
             }
 
-            if (line.find('}') != std::string::npos) {
-                // Finish current entity
+            if (t == "}") {
                 if (inEntity) {
-                    // Store classname separately
                     auto it = currentEntity.Properties.find("classname");
                     if (it != currentEntity.Properties.end()) {
                         currentEntity.Classname = it->second;
                         currentEntity.Properties.erase(it);
                     }
-
                     entities.push_back(currentEntity);
                     inEntity = false;
                 }
@@ -173,21 +180,9 @@ namespace MapParser {
             }
 
             if (inEntity) {
-                // Parse key/value pairs
-                size_t quote1 = line.find('"');
-                size_t quote2 = line.find('"', quote1 + 1);
-                size_t quote3 = line.find('"', quote2 + 1);
-                size_t quote4 = line.find('"', quote3 + 1);
-
-                if (quote1 != std::string::npos &&
-                    quote2 != std::string::npos &&
-                    quote3 != std::string::npos &&
-                    quote4 != std::string::npos) {
-
-                    std::string key = line.substr(quote1 + 1, quote2 - quote1 - 1);
-                    std::string value = line.substr(quote3 + 1, quote4 - quote3 - 1);
-
-                    currentEntity.Properties[key] = value;
+                std::smatch m;
+                if (std::regex_search(t, m, kvRegex) && m.size() >= 3) {
+                    currentEntity.Properties[m[1].str()] = m[2].str(); // handles empty ""
                 }
             }
         }

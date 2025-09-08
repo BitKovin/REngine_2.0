@@ -472,7 +472,7 @@ void SkeletalMesh::CreateHitbox(Entity* owner,HitboxData data)
 {
 	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
 
-	Body* body = Physics::CreateHitBoxBody(owner, data.boneName, data.position, MathHelper::GetRotationQuaternion(data.rotation), data.size);
+	Body* body = Physics::CreateHitBoxBody(owner, this, data.boneName, data.position, MathHelper::GetRotationQuaternion(data.rotation), data.size);
 
 	defaultBoneScale[data.boneName] = MathHelper::DecomposeMatrix(GetBoneMatrixWorld(data.boneName)).Scale;
 
@@ -519,6 +519,30 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 	}
 
 	animator.ApplyBonePoseArray(oldPose.boneTransforms); //restoring old pose just in case
+
+}
+
+void SkeletalMesh::ApplyImpulseToAllHitboxes(vec3 impulse, bool scaleWithMass)
+{
+
+	if (scaleWithMass)
+	{
+		for (Body* body : hitboxBodies)
+		{
+
+			float invMass = body->GetMotionProperties()->GetInverseMass();
+			float mass = (invMass > 0.0f) ? 1.0f / invMass : FLT_MAX;
+
+			Physics::AddImpulse(body, impulse * mass);
+		}
+	}
+	else
+	{
+		for (Body* body : hitboxBodies)
+		{
+			Physics::AddImpulse(body, impulse);
+		}
+	}
 
 }
 

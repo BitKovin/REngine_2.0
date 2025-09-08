@@ -109,6 +109,7 @@ inline BodyType& operator&=(BodyType& a, BodyType b) {
 }
 
 class Entity;
+class SkeletalMesh;
 
 struct BodyData 
 {
@@ -127,6 +128,7 @@ struct BodyData
 
 	string hitboxName = "";
 
+	SkeletalMesh* OwnerSkeletalMesh = nullptr; //for hitbox bodies
 
 };
 
@@ -255,33 +257,7 @@ public:
 	// See: ContactListener
 	virtual ValidateResult OnContactValidate(const Body& inBody1, const Body& inBody2,
 		RVec3Arg inBaseOffset,
-		const CollideShapeResult& inCollisionResult) override
-	{
-		auto* props1 = reinterpret_cast<BodyData*>(inBody1.GetUserData());
-		auto* props2 = reinterpret_cast<BodyData*>(inBody2.GetUserData());
-
-		if (props1 && props2) {
-			// Only allow collision if both:
-			// 1. The first body's group is contained in the second body's mask.
-			// 2. The second body's group is contained in the first body's mask.
-			bool collide1 = (static_cast<uint32_t>(props1->group) & static_cast<uint32_t>(props2->mask)) != 0;
-			bool collide2 = (static_cast<uint32_t>(props2->group) & static_cast<uint32_t>(props1->mask)) != 0;
-
-			if (!collide1 && !collide2)
-				return ValidateResult::RejectContact;
-
-			if (props1->dynamicCollisionGroupOrMask || props2->dynamicCollisionGroupOrMask)
-			{
-				return ValidateResult::AcceptContact;
-			}
-
-		}
-
-
-
-		return ValidateResult::AcceptAllContactsForThisBodyPair;
-
-	}
+		const CollideShapeResult& inCollisionResult) override;
 
 	static void beforeSimulation();
 	static void afterSimulation();
@@ -753,7 +729,7 @@ public:
 		return result.Get();
 	}
 
-	static Body* CreateHitBoxBody(Entity* owner, string hitboxName,
+	static Body* CreateHitBoxBody(Entity* owner, SkeletalMesh* mesh, string hitboxName,
 		vec3 PositionOffset,
 		quat RotationOffset,   // now a quaternion
 		vec3 Size,

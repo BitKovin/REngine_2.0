@@ -20,9 +20,9 @@ void CharacterController::Init(Entity* owner, vec3 position,float radius, float 
 	Destroy();
 
 	body = Physics::CreateCharacterCylinderBody(owner, position, radius, height - stepHeight, 30);
-
 	body->GetMotionProperties()->SetLinearDamping(0);
 
+	Physics::GetBodyData(body)->dynamicCollisionGroupOrMask = true;
 
 
 	this->height = height;

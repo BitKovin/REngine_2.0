@@ -462,31 +462,9 @@ dtObstacleRef NavigationSystem::CreateObstacleBox(const glm::vec3& min, const gl
     return obstacleRef;
 }
 
-bool HasLineOfSight(const vec3& pointA, const vec3& pointB)
+bool NavigationSystem::HasLineOfSight(const vec3& pointA, const vec3& pointB)
 {
-    return Physics::SphereTrace(pointA, pointB, 0.4, BodyType::World).hasHit == false;
-}
-
-bool CollisionCheckPath(glm::vec3 start, std::vector<glm::vec3> path)
-{
-
-    if (path.size() == 0) return false;
-
-    vec3 oldPos = start;
-
-
-    for (auto pos : path)
-    {
-
-        auto hit = Physics::LineTrace(oldPos + vec3(0,1,0), pos + vec3(0, 1, 0), BodyType::World);
-
-        if (hit.hasHit)
-            return false;
-
-        oldPos = pos;
-
-    }
-    return true;
+    return Physics::SphereTrace(pointA, pointB, 0.1, BodyType::World).hasHit == false;
 }
 
 // Custom filter to check polygon area instead of flags
@@ -653,3 +631,182 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
 
     return outPath;
 }
+
+// Returns a path (list of waypoints) that attempts to make the NPC run AWAY from player.
+// npcPos: NPC world position. playerPos: Player world position.
+// maxSearchRadius: how far we search for flee points (tuneable).
+// npcSpeed / playerSpeed: used to convert distance -> time for scoring; tune to your agents.
+std::vector<glm::vec3> NavigationSystem::FindFleePath(
+    const glm::vec3& start,
+    const glm::vec3& threatPos,
+    float desiredDist,
+    int maxCandidates)
+{
+    std::vector<glm::vec3> outPath;
+    if (!navMesh) return outPath;
+    std::lock_guard<std::recursive_mutex> _lock(mainLock);
+
+    dtNavMeshQuery* navQuery = dtAllocNavMeshQuery();
+    if (!navQuery) return outPath;
+    if (dtStatusFailed(navQuery->init(navMesh, 2048)))
+    {
+        dtFreeNavMeshQuery(navQuery);
+        return outPath;
+    }
+
+    // Clamp start to ground
+    auto hit = Physics::LineTrace(start, start - glm::vec3(0, 300, 0), BodyType::World);
+    glm::vec3 startFixed = hit.hasHit ? hit.position + glm::vec3(0, 1, 0) : start;
+
+    CustomFilter filter;
+    filter.setIncludeFlags(0xffff);
+    filter.setExcludeFlags(0);
+
+    // --- find nearest poly to start
+    dtPolyRef startRef = 0;
+    float startNearest[3];
+    {
+        float sPos[3] = { startFixed.x, startFixed.y, startFixed.z };
+        const glm::vec3 EXTENTS[3] = {
+            {0.5f, 1.5f, 0.5f},
+            {1.0f, 1.5f, 1.0f},
+            {1.5f, 1.5f, 1.5f}
+        };
+
+        bool found = false;
+        for (auto& e : EXTENTS)
+        {
+            float extents[3] = { e.x, e.y, e.z };
+            if (dtStatusSucceed(navQuery->findNearestPoly(sPos, extents, &filter, &startRef, startNearest)) && startRef)
+            {
+                if (IsPointReallyOnPoly(navQuery, startRef, sPos))
+                {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found)
+        {
+            dtFreeNavMeshQuery(navQuery);
+            return outPath;
+        }
+    }
+
+    // --- candidate sampling around threat
+    struct Candidate { glm::vec3 pos; dtPolyRef ref; float score; };
+    std::vector<Candidate> candidates;
+
+    const int NUM_DIRS = 16;
+    const float radius = desiredDist;
+
+    for (int i = 0; i < NUM_DIRS; i++)
+    {
+        float angle = (glm::two_pi<float>() / NUM_DIRS) * i;
+        glm::vec3 dir = glm::normalize(glm::vec3(std::cos(angle), 0, std::sin(angle)));
+
+        // outward-ish relative to threat
+        glm::vec3 away = glm::normalize(startFixed - threatPos);
+        float align = glm::dot(dir, away);
+        if (align < 0.3f) continue;
+
+        glm::vec3 samplePos = startFixed + dir * radius;
+
+        float samplePosF[3] = { samplePos.x, samplePos.y, samplePos.z };
+        dtPolyRef candRef = 0;
+        float candNearest[3];
+
+        float extSample[3] = { 1.0f, 2.0f, 1.0f };
+        if (!dtStatusSucceed(navQuery->findNearestPoly(samplePosF, extSample, &filter, &candRef, candNearest)) || !candRef)
+            continue;
+
+        // query nearby polys for safety
+        const int MAX_AROUND = 128;
+        dtPolyRef resultRef[MAX_AROUND];
+        dtPolyRef resultParent[MAX_AROUND];
+        float     resultCost[MAX_AROUND];
+        int       resultCount = 0;
+
+        if (!dtStatusSucceed(navQuery->findPolysAroundCircle(
+            candRef, candNearest, 3.0f, &filter,
+            resultRef, resultParent, resultCost, &resultCount, MAX_AROUND)))
+        {
+            continue;
+        }
+
+        glm::vec3 candPos(candNearest[0], candNearest[1], candNearest[2]);
+
+        // --- scoring ---
+        float dist = glm::distance(candPos, threatPos);
+        float jitter = ((rand() % 100) / 100.0f) * 0.25f;
+
+        // add line of sight check (with eye offset)
+        glm::vec3 threatEye = threatPos + glm::vec3(0, 1.6f, 0);
+        glm::vec3 candEye = candPos + glm::vec3(0, 1.6f, 0);
+        bool visible = HasLineOfSight(threatEye, candEye);
+
+        float score = dist + jitter;
+        if (!visible) score += 2.0f; // strong bonus for hidden spots
+
+        candidates.push_back({ candPos, candRef, score });
+    }
+
+    if (candidates.empty())
+    {
+        dtFreeNavMeshQuery(navQuery);
+        return outPath;
+    }
+
+    std::sort(candidates.begin(), candidates.end(),
+        [](const Candidate& a, const Candidate& b) { return a.score > b.score; });
+
+    // try best candidates
+    for (int ci = 0; ci < (int)candidates.size() && ci < maxCandidates; ci++)
+    {
+        auto& cand = candidates[ci];
+
+        const int MAX_POLYS = 512;
+        dtPolyRef polyPath[MAX_POLYS];
+        int polyCount = 0;
+
+        float candPosF[3] = { cand.pos.x, cand.pos.y, cand.pos.z };
+        if (dtStatusFailed(navQuery->findPath(
+            startRef, cand.ref,
+            startNearest, candPosF,
+            &filter,
+            polyPath, &polyCount, MAX_POLYS)) || polyCount == 0)
+        {
+            continue;
+        }
+
+        // straight path
+        const int MAX_STRAIGHT = 512;
+        float straight[MAX_STRAIGHT * 3];
+        unsigned char flags[MAX_STRAIGHT];
+        dtPolyRef strPolys[MAX_STRAIGHT];
+        int strCount = 0;
+
+        if (dtStatusSucceed(navQuery->findStraightPath(
+            startNearest, candPosF,
+            polyPath, polyCount,
+            straight, flags, strPolys,
+            &strCount, MAX_STRAIGHT)))
+        {
+            outPath.reserve(strCount);
+            for (int i = 1; i < strCount; i++)
+            {
+                outPath.emplace_back(
+                    straight[i * 3 + 0],
+                    straight[i * 3 + 1],
+                    straight[i * 3 + 2]
+                );
+            }
+            break; // got a valid path
+        }
+    }
+
+    dtFreeNavMeshQuery(navQuery);
+    return outPath;
+}
+
+

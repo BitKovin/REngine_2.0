@@ -161,7 +161,14 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
     </group>
 
 
+    <point name="relativeTeleporter" color="43 64 83" box="-5 -5 -5 5 5 5">
+        <string key="targetname" name="Name"></string>
+        <string key="start" name="Start Name"></string>
+        <string key="end" name="End Name"></string> 
+    </point>
+
     <point name="transformPoint" color="0 0 0" box="-3 -3 -3 3 3 3">
+        triggered when "teleport" action is called
         <angles key="angles" name="Rotation" value="0 0 0"></angles>
         <string key="targetname" name="Name"></string>
     </point>

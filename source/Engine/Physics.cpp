@@ -40,6 +40,43 @@ BodyType Physics::DebugDrawMask = BodyType::GroupAll & ~BodyType::CharacterCapsu
 std::vector<Physics::PendingBodyEnterPair> Physics::gRemovals;
 std::vector<Physics::PendingBodyEnterPair> Physics::gAdds;
 
+ValidateResult MyContactListener::OnContactValidate(const Body& inBody1, const Body& inBody2, RVec3Arg inBaseOffset, const CollideShapeResult& inCollisionResult)
+{
+	
+	auto* props1 = reinterpret_cast<BodyData*>(inBody1.GetUserData());
+	auto* props2 = reinterpret_cast<BodyData*>(inBody2.GetUserData());
+
+	if (props1 && props2)
+	{
+
+		if (props1->mask == BodyType::None)
+			return ValidateResult::RejectContact;
+
+		if (props2->mask == BodyType::None)
+			return ValidateResult::RejectContact;
+
+		// Only allow collision if both:
+		// 1. The first body's group is contained in the second body's mask.
+		// 2. The second body's group is contained in the first body's mask.
+		bool collide1 = (static_cast<uint32_t>(props1->group) & static_cast<uint32_t>(props2->mask)) != 0;
+		bool collide2 = (static_cast<uint32_t>(props2->group) & static_cast<uint32_t>(props1->mask)) != 0;
+
+		if (!collide1 && !collide2)
+			return ValidateResult::RejectContact;
+
+		if (props1->dynamicCollisionGroupOrMask || props2->dynamicCollisionGroupOrMask)
+		{
+			return ValidateResult::AcceptContact;
+		}
+
+	}
+
+
+
+	return ValidateResult::AcceptAllContactsForThisBodyPair;
+
+}
+
 void MyContactListener::beforeSimulation()
 {
 	previousContacts = std::move(currentContacts); // Move for efficiency
@@ -327,7 +364,7 @@ void Physics::DrawConstraint(Constraint* constraint)
 
 
 
-Body* Physics::CreateHitBoxBody(Entity* owner, string hitboxName, vec3 PositionOffset, quat RotationOffset, vec3 Size, float Mass, BodyType group, BodyType mask)
+Body* Physics::CreateHitBoxBody(Entity* owner, SkeletalMesh* mesh, string hitboxName, vec3 PositionOffset, quat RotationOffset, vec3 Size, float Mass, BodyType group, BodyType mask)
 {
 	
 	// 1) Base box, centered at its own origin
@@ -350,7 +387,7 @@ Body* Physics::CreateHitBoxBody(Entity* owner, string hitboxName, vec3 PositionO
 	JPH::Ref<JPH::Shape> final_shape = sr.Get();
 
 	// 4) Use the entity’s (bone’s) world-space position as the body’s position
-	JPH::RVec3 world_com = Vec3(0, 0, 0);// ToPhysics(owner->GetPosition());
+	JPH::RVec3 world_com = Vec3(0, 0, 0);
 
 	// 5) Build the body
 	JPH::BodyCreationSettings bcs(
@@ -369,7 +406,7 @@ Body* Physics::CreateHitBoxBody(Entity* owner, string hitboxName, vec3 PositionO
 
 	bcs.mAngularDamping = 10;
 
-	BodyData* props = new BodyData{ group, mask, true, owner, hitboxName };
+	BodyData* props = new BodyData{ group, mask, true, owner, hitboxName, mesh };
 	bcs.mUserData = reinterpret_cast<uintptr_t>(props);
 
 	// 6) Create and register the body

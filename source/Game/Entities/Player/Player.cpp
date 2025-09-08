@@ -30,8 +30,12 @@ void Player::UpdateWalkMovement(vec2 input)
 
     velocity = controller.GetVelocity();
 
+
     if (OnGround())
     {
+
+        bobProgress += length(MathHelper::XZ(velocity)) * Time::DeltaTime;
+
         TryStep(movement * 0.8f);
 
         TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), 5));
@@ -287,13 +291,29 @@ void Player::DestroyWeapon()
     }
 }
 
+vec3 Player::GetBobForMainWeapon()
+{
+    
+    vec3 bobT = vec3(0);
+
+    bobT.y = (float)(sin(bobProgress * bobSpeed * 2) + 0.2f) * -0.15f;
+    bobT.x = (float)((sin(bobProgress * bobSpeed * 1)) - 0.15f) * 0.3f;
+
+    return bobT * 0.02f;
+}
+
 void Player::UpdateWeapon()
 {
+
+    vec3 bob = GetBobForMainWeapon();
+
+    vec3 forwardOffset = Camera::Forward() * Camera::rotation.x * 0.01f;
+
     if (currentWeapon != nullptr)
     {
 
         currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
-        currentWeapon->Position = Camera::position;
+        currentWeapon->Position = Camera::position + MathHelper::TransformVector(bob ,Camera::GetRotationMatrix());
         currentWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.5f);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 
     }
@@ -301,7 +321,9 @@ void Player::UpdateWeapon()
     if (currentOffhandWeapon != nullptr)
     {
 
-        currentOffhandWeapon->Position = Camera::position;
+
+
+        currentOffhandWeapon->Position = Camera::position + MathHelper::TransformVector(vec3(0, -bob.y+0.001, bob.x)*2.0f, Camera::GetRotationMatrix());
         currentOffhandWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.7f);
 
     }
@@ -359,7 +381,19 @@ void Player::UpdateDebugUI()
     
 	ImGui::DragFloat("time scale", &Time::TimeScale, 0.01f, 0.f, 3);
 
-    ImGui::Checkbox("fly", &freeFly);
+    if (ImGui::Checkbox("fly", &freeFly))
+    {
+        if (freeFly)
+        {
+            controller.SetCollisionMask(BodyType::None);
+            controller.SetCollisionMask(BodyType::None);
+        }
+        else
+        {
+            controller.SetCollisionMask(BodyType::GroupCollisionTest);
+            controller.SetCollisionMask(BodyType::CharacterCapsule);
+        }
+    }
 
     ImGui::Checkbox("draw physics", &Physics::DebugDraw);
 
@@ -490,9 +524,10 @@ void Player::Update()
 
     //printf("%i \n",SkeletalMesh::skelMeshes);
 
+
     controller.Update(Time::DeltaTimeF);
 
-	if (teleported == false)
+	if (teleported == false && freeFly == false)
 	{
 
         vec3 dir = normalize(controller.GetPosition() - oldPos);

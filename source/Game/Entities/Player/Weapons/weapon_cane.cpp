@@ -294,8 +294,20 @@ public:
 
 			if (bodyToPush != nullptr)
 			{
+				
+				auto hitMesh = Physics::GetBodyData(bodyToPush)->OwnerSkeletalMesh;
 
-				Physics::AddImpulse(bodyToPush, impulseToApply);
+				if (hitMesh)
+				{
+					hitMesh->ApplyImpulseToAllHitboxes(impulseToApply*0.01f, true);
+					Physics::AddImpulse(bodyToPush, impulseToApply * 0.25f);
+				}
+				else
+				{
+					Physics::AddImpulse(bodyToPush, impulseToApply);
+				}
+
+
 				bodyToPush = nullptr;
 
 			}

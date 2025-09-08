@@ -121,6 +121,7 @@ bool Shader::Reload()
         // success for this program -> update caches & record it
         prog->FillAttributes();
         prog->CacheUniformLocations();
+        prog->textureBindings = prog->ParseAllTextureBindings();
         modifiedPrograms.push_back(prog);
     }
 

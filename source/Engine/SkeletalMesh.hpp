@@ -356,6 +356,8 @@ public:
 
 	void CreateHitboxes(Entity* owner);
 
+	void ApplyImpulseToAllHitboxes(vec3 impulse, bool scaleWithMass = false);
+
 	Constraint* GetConstraintByHitboxName(string name);
 
 	Body* FindHitboxByName(string name);

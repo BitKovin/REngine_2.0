@@ -22,8 +22,6 @@ uniform float fog_end;
 uniform float fog_opacity;
 uniform vec3  fog_color;
 
-uniform bool useVertexLight;
-
 //final color
 out vec4 FragColor;
 
@@ -31,43 +29,20 @@ vec4 ApplyFog(vec4 fragColor);
 
 void main()
 {
-    // base color
-    vec4 baseTex = texture(s_bspTexture, g_TexCoord);
-
-    // lightmap (RGB)
-    vec3 lmSample = texture(s_bspLightmap, g_LmapCoord).rgb;
-    vec3 lightmap = lmSample * light_color;
-
-    // vertex/lightgrid color (RGB) scaled by tunable uniform
-    vec3 vertexLight = vec3(1.0);
-    
-    if(useVertexLight)
-    {
-
-        const float vertexLightScale = 4.04;
-
-        vertexLight = g_color.rgb * vertexLightScale;
-    }
+    vec4 o_texture  = texture(s_bspTexture,  g_TexCoord);
 
 
-    // directional light (per-pixel diffuse-ish)
-    vec3 N = normalize(g_normal);
-    vec3 L = normalize(direct_light_dir);
-    float NdotL = max(dot(N, L), 0.0);
+    float vertexLightComp = 4.04;
 
-    // keep the shape of your previous bias but computed cleanly
-    float dirFactor = clamp(NdotL * 0.7 + 0.3, 0.0, 1.0);
-    vec3 directLight = dirFactor * direct_light_color;
 
-    // combine: vertexLight * lightmap are multiplicative on base texture;
-    // directLight is added (emissive) so it brightens the result.
-    vec3 totalLighting = vertexLight * lightmap + directLight;
+    vec4 o_lightmap = texture(s_bspLightmap, g_LmapCoord) * vec4(light_color, 1) * vertexLightComp * g_color;
+    o_lightmap.a = 1.0;
 
-    // prevent negative or NaN (safety) and apply to base texture
-    totalLighting = max(totalLighting, vec3(0.0));
-    vec3 finalRGB = baseTex.rgb * totalLighting;
+    vec3 normal = normalize(g_normal);
 
-    FragColor = ApplyFog(vec4(finalRGB, baseTex.a));
+    o_lightmap += clamp(dot(normal, normalize(direct_light_dir))*0.7 + 0.3,0.0,1.0) * vec4(direct_light_color,0) * 2.0;
+
+    FragColor = ApplyFog(o_texture * o_lightmap * 1.0);
 }
 
 vec4 ApplyFog(vec4 fragColor)

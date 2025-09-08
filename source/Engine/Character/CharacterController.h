@@ -49,6 +49,16 @@ public:
 
 	float heightSmoothOffset = 0;
 
+	void SetCollisionMask(BodyType mask)
+	{
+		Physics::SetCollisionMask(body,mask);
+	}
+
+	void SetBodyType(BodyType type)
+	{
+		Physics::SetBodyType(body, type);
+	}
+
 private:
 
 

@@ -839,7 +839,6 @@ bool CQuake3BSP::IsClusterVisible(int sourceCluster, int testCluster)
 
     if (sourceCluster < 0)
     {
-        Logger::Log("camera out of bounds. possible frame drop");
         return true;
     }
 
