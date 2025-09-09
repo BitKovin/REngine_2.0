@@ -7,6 +7,29 @@
 
 REGISTER_ENTITY(TestNpc, "testnpc")
 
+void TestNpc::UpdateFleeTarget()
+{
+
+	if (fleeSearchDelay.Wait() == false)
+	{
+
+		Entity* target = Player::Instance;
+
+		auto path = NavigationSystem::FindFleePath(Position, target->Position);
+
+		if (path.empty() == false)
+		{
+
+			pathFollow.UpdateStartAndTarget(Position, path[path.size() - 1]);
+			pathFollow.TryPerform();
+
+		}
+
+		fleeSearchDelay.AddDelay(0.2f);
+	}
+
+}
+
 void TestNpc::ProcessAnimationEvent(AnimationEvent& event)
 {
 	
@@ -168,6 +191,11 @@ void TestNpc::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
 		HurtSoundPlayer->Play();
 	}
 
+	if (Health < 30)
+	{
+		fleeing = true;
+		UpdateFleeTarget();
+	}
 
 }
 
@@ -201,7 +229,6 @@ void TestNpc::AsyncUpdate()
 
 	mesh->Update();
 	
-	//DebugDraw::Line(Position, Position + vec3(0,1,0));
 
 	auto animEvents = mesh->PullAnimationEvents();
 
@@ -212,9 +239,7 @@ void TestNpc::AsyncUpdate()
 
 	mesh->Position = Position - vec3(0, 1, 0);
 
-	//auto testTrans = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("Bone.013"));
 
-	//DebugDraw::Line(testTrans.Position - vec3(0, 1, 0), testTrans.Position + vec3(0, 2, 0), 0.005f, 0.2);
 
 	auto rootMotion = mesh->PullRootMotion();
 
@@ -263,12 +288,6 @@ void TestNpc::AsyncUpdate()
 	if (attacking)
 	{
 
-		if (target)
-		{
-			pathFollow.UpdateStartAndTarget(Position, target->Position);
-			pathFollow.TryPerform();
-
-		}
 
 		return;
 	}
@@ -284,8 +303,17 @@ void TestNpc::AsyncUpdate()
 
 	if (target)
 	{
-		pathFollow.UpdateStartAndTarget(Position, target->Position);
-		pathFollow.TryPerform();
+		if (fleeing)
+		{
+			UpdateFleeTarget();
+		}
+		else
+		{
+
+			pathFollow.UpdateStartAndTarget(Position, target->Position);
+			pathFollow.TryPerform();
+
+		}
 
 	}
 	if (pathFollow.FoundTarget)

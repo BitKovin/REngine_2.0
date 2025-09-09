@@ -35,6 +35,9 @@ private:
 
 	bool dead = false;
 
+	bool fleeing = false;
+	Delay fleeSearchDelay = Delay();
+
 	AnimationState animationStateSaveData;
 
 	Delay inAttackDelay;
@@ -43,6 +46,8 @@ private:
 	bool stuned = false;
 
 	bool attackingDamage = false;
+
+	void UpdateFleeTarget();
 
 public:
 
@@ -58,7 +63,7 @@ public:
 		ClassName = "testnpc";
 		SaveGame = true;
 
-		Health = 50;
+		Health = 70;
 
 		mesh->UpdatePoseOnlyWhenRendered = true;
 
