@@ -36,6 +36,7 @@ void Player::UpdateWalkMovement(vec2 input)
 
         bobProgress += length(MathHelper::XZ(velocity)) * Time::DeltaTime;
 
+        /*
         TryStep(movement * 0.8f);
 
         TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), 5));
@@ -49,6 +50,7 @@ void Player::UpdateWalkMovement(vec2 input)
 
         TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), 35));
         TryStep(MathHelper::RotateVector(movement * 0.8f, vec3(0, 1, 0), -35));
+        */
     }
 
     if (OnGround())
