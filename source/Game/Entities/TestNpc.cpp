@@ -366,15 +366,16 @@ void TestNpc::Serialize(json& target)
 
 	Rotation = mesh->Rotation;
 
-	SERIALIZE_FIELD(target, Rotation)
-	SERIALIZE_FIELD(target, desiredDirection)
-	SERIALIZE_FIELD(target, movingDirection)
-	SERIALIZE_FIELD(target, speed)
-	SERIALIZE_FIELD(target, dead)
-	SERIALIZE_FIELD(target, animationStateSaveData)
-	SERIALIZE_FIELD(target, attacking)
-	SERIALIZE_FIELD(target, stuned)
-	SERIALIZE_FIELD(target, attackingDamage)
+	SERIALIZE_FIELD(target, Rotation);
+	SERIALIZE_FIELD(target, desiredDirection);
+	SERIALIZE_FIELD(target, movingDirection);
+	SERIALIZE_FIELD(target, speed);
+	SERIALIZE_FIELD(target, dead);
+	SERIALIZE_FIELD(target, animationStateSaveData);
+	SERIALIZE_FIELD(target, attacking);
+	SERIALIZE_FIELD(target, stuned);
+	SERIALIZE_FIELD(target, attackingDamage);
+	SERIALIZE_FIELD(target, fleeing);
 }
 
 void TestNpc::Deserialize(json& source)
@@ -382,15 +383,16 @@ void TestNpc::Deserialize(json& source)
 
 	Entity::Deserialize(source);
 
-	DESERIALIZE_FIELD(source, Rotation)
-	DESERIALIZE_FIELD(source, desiredDirection)
-	DESERIALIZE_FIELD(source, movingDirection)
-	DESERIALIZE_FIELD(source, speed)
-	DESERIALIZE_FIELD(source, dead)
-	DESERIALIZE_FIELD(source, animationStateSaveData)
-	DESERIALIZE_FIELD(source, attacking)
-	DESERIALIZE_FIELD(source, stuned)
-	DESERIALIZE_FIELD(source, attackingDamage)
+	DESERIALIZE_FIELD(source, Rotation);
+	DESERIALIZE_FIELD(source, desiredDirection);
+	DESERIALIZE_FIELD(source, movingDirection);
+	DESERIALIZE_FIELD(source, speed);
+	DESERIALIZE_FIELD(source, dead);
+	DESERIALIZE_FIELD(source, animationStateSaveData);
+	DESERIALIZE_FIELD(source, attacking);
+	DESERIALIZE_FIELD(source, stuned);
+	DESERIALIZE_FIELD(source, attackingDamage);
+	DESERIALIZE_FIELD(source, fleeing);
 
 
 	Physics::SetBodyPosition(LeadBody, Position);

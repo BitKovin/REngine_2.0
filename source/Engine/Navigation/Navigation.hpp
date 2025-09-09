@@ -73,7 +73,7 @@ public:
         const glm::vec3& start,
         const glm::vec3& threatPos,
         float desiredDist = 25,
-        int maxCandidates = 10,
+        int maxCandidates = 20,
         float npcSpeed = 4.0f,
         float playerSpeed = 5.0f);
 

@@ -650,7 +650,7 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
     if (!navMesh) return outPath;
     std::lock_guard<std::recursive_mutex> _lock(mainLock);
 
-    // --- create navQuery ---
+    // --- navQuery ---
     dtNavMeshQuery* navQuery = dtAllocNavMeshQuery();
     if (!navQuery) return outPath;
     if (dtStatusFailed(navQuery->init(navMesh, 2048)))
@@ -659,7 +659,7 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
         return outPath;
     }
 
-    // Snap to ground (same as your FindSimplePath)
+    // --- snap to ground like FindSimplePath ---
     auto hit = Physics::LineTrace(start, start - glm::vec3(0, 300, 0), BodyType::World);
     glm::vec3 startFixed = hit.hasHit ? hit.position + glm::vec3(0, 1, 0) : start;
     hit = Physics::LineTrace(threatPos, threatPos - glm::vec3(0, 300, 0), BodyType::World);
@@ -669,7 +669,7 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
     filter.setIncludeFlags(0xffff);
     filter.setExcludeFlags(0);
 
-    // helper: find nearest poly with progressive extents (same approach you used)
+    // --- helper: findNearestPoly with progressive extents (same as your code) ---
     const glm::vec3 EXTENTS_LIST[] = {
         {0.50f, 1.5f, 0.50f},
         {0.60f, 1.5f, 0.60f},
@@ -689,20 +689,63 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
         return false;
         };
 
-    // localize start and threat
+    // --- localize start & threat ---
     dtPolyRef startRef = 0, threatRef = 0;
     float startNearest[3], threatNearest[3];
-    float startPosF[3] = { startFixed.x, startFixed.y, startFixed.z };
-    float threatPosF[3] = { threatFixed.x, threatFixed.y, threatFixed.z };
+    float startF[3] = { startFixed.x, startFixed.y, startFixed.z };
+    float threatF[3] = { threatFixed.x, threatFixed.y, threatFixed.z };
 
-    if (!findOnPoly(startPosF, startRef, startNearest))
+    if (!findOnPoly(startF, startRef, startNearest))
     {
         dtFreeNavMeshQuery(navQuery);
         return outPath;
     }
-    findOnPoly(threatPosF, threatRef, threatNearest); // threatRef may be 0 (we handle that)
+    findOnPoly(threatF, threatRef, threatNearest); // may fail; we handle below
 
-    // --- prepare sample angles biased forward but covering 360 ---
+    const int MAX_POLYS = 512;
+    const int MAX_STRAIGHT = 512;
+
+    // --- compute baseline: player -> current NPC (navmesh path length) ---
+    float playerToStartLen = 0.0f;
+    if (threatRef != 0)
+    {
+        dtPolyRef ppath[MAX_POLYS];
+        int pcount = 0;
+        if (dtStatusSucceed(navQuery->findPath(threatRef, startRef, threatNearest, startNearest, &filter, ppath, &pcount, MAX_POLYS)) && pcount > 0)
+        {
+            float straightP[3 * MAX_STRAIGHT];
+            unsigned char flagsP[MAX_STRAIGHT];
+            dtPolyRef spPolysP[MAX_STRAIGHT];
+            int spCount = 0;
+            if (dtStatusSucceed(navQuery->findStraightPath(threatNearest, startNearest, ppath, pcount, straightP, flagsP, spPolysP, &spCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && spCount > 0)
+            {
+                for (int s = 1; s < spCount; ++s)
+                {
+                    float dx = straightP[s * 3 + 0] - straightP[(s - 1) * 3 + 0];
+                    float dy = straightP[s * 3 + 1] - straightP[(s - 1) * 3 + 1];
+                    float dz = straightP[s * 3 + 2] - straightP[(s - 1) * 3 + 2];
+                    playerToStartLen += sqrtf(dx * dx + dy * dy + dz * dz);
+                }
+            }
+            else
+            {
+                // fallback euclidean
+                playerToStartLen = glm::distance(threatFixed, startFixed);
+            }
+        }
+        else
+        {
+            // fallback euclidean
+            playerToStartLen = glm::distance(threatFixed, startFixed);
+        }
+    }
+    else
+    {
+        // threat not localized on navmesh: use Euclidean distance as baseline
+        playerToStartLen = glm::distance(threatFixed, startFixed);
+    }
+
+    // --- sampling: forward-biased full-circle (densities tuned) ---
     glm::vec3 fleeDir = glm::vec3(startFixed.x - threatFixed.x, 0.0f, startFixed.z - threatFixed.z);
     if (glm::length2(fleeDir) < 1e-6f)
     {
@@ -714,13 +757,12 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
 
     struct AngleSample { float ang; float weight; };
     std::vector<AngleSample> angleSamples;
-
-    // front dense (-75..+75 deg)
-    const int FRONT_SAMPLES = 14;
-    const float FRONT_HALF = glm::radians(75.0f);
+    // front dense
+    const int FRONT_SAMPLES = 12;
+    const float FRONT_HALF = glm::radians(70.0f);
     for (int i = 0; i < FRONT_SAMPLES; ++i)
     {
-        float t = FRONT_SAMPLES == 1 ? 0.0f : (float)i / (float)(FRONT_SAMPLES - 1);
+        float t = FRONT_SAMPLES == 1 ? 0.0f : (float)i / float(FRONT_SAMPLES - 1);
         float a = baseAng - FRONT_HALF + t * (2.0f * FRONT_HALF);
         angleSamples.push_back({ a, 1.0f });
     }
@@ -729,22 +771,22 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
     const float SIDE_MIN = glm::radians(75.0f), SIDE_MAX = glm::radians(135.0f);
     for (int i = 0; i < SIDE_SAMPLES / 2; ++i)
     {
-        float t = float(i) / float(SIDE_SAMPLES / 2 - 1);
+        float t = (float)i / float(SIDE_SAMPLES / 2 - 1);
         float a = baseAng + SIDE_MIN + t * (SIDE_MAX - SIDE_MIN);
-        angleSamples.push_back({ a, 0.65f });
+        angleSamples.push_back({ a, 0.6f });
     }
     for (int i = 0; i < SIDE_SAMPLES / 2; ++i)
     {
-        float t = float(i) / float(SIDE_SAMPLES / 2 - 1);
+        float t = (float)i / float(SIDE_SAMPLES / 2 - 1);
         float a = baseAng - SIDE_MIN - t * (SIDE_MAX - SIDE_MIN);
-        angleSamples.push_back({ a, 0.65f });
+        angleSamples.push_back({ a, 0.6f });
     }
     // back sparse
     const int BACK_SAMPLES = 4;
     const float BACK_HALF = glm::radians(25.0f);
     for (int i = 0; i < BACK_SAMPLES; ++i)
     {
-        float t = BACK_SAMPLES == 1 ? 0.0f : (float)i / (float)(BACK_SAMPLES - 1);
+        float t = BACK_SAMPLES == 1 ? 0.0f : (float)i / float(BACK_SAMPLES - 1);
         float a = baseAng + glm::pi<float>() - BACK_HALF + t * (2.0f * BACK_HALF);
         angleSamples.push_back({ a, 0.35f });
     }
@@ -756,7 +798,6 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
         angleSamples.push_back({ a, 0.25f });
     }
 
-    // radii to sample
     std::vector<float> radii = { desiredDist * 0.6f, desiredDist, desiredDist * 1.5f, desiredDist * 2.0f };
     struct Candidate {
         glm::vec3 pos;
@@ -765,28 +806,22 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
         float npcPathLen;
         float angleWeight;
         glm::vec3 dirFromThreat;
-        // we will compute extras in evaluation
     };
     std::vector<Candidate> candidates;
     candidates.reserve(128);
 
-    // small extents used for findNearestPoly samples
+    // small extent for findNearestPoly
     float extSample[3] = { 0.6f, 1.5f, 0.6f };
 
-    auto dirFromAngle = [](float a)->glm::vec3 {
-        return glm::vec3(cosf(a), 0.0f, sinf(a));
-        };
+    auto dirFromAngle = [](float a)->glm::vec3 { return glm::vec3(cosf(a), 0.0f, sinf(a)); };
 
-    const int MAX_POLYS = 512;
-    // collect candidate points projected to navmesh and compute npc path len
+    // collect candidates: map samples to navmesh and compute NPC path-length
     for (const auto& as : angleSamples)
     {
         glm::vec3 d = dirFromAngle(as.ang);
         for (float r : radii)
         {
-            // cap candidates to avoid explode
             if ((int)candidates.size() >= 128) break;
-
             glm::vec3 sampleWorld = glm::vec3(startNearest[0], startNearest[1], startNearest[2]) + d * r;
             float sampleF[3] = { sampleWorld.x, sampleWorld.y, sampleWorld.z };
 
@@ -802,17 +837,15 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
                 continue;
             if (polyCount == 0 && startRef != candRef) continue;
 
-            // string-pull length
-            const int MAX_STRAIGHT = 512;
+            // compute string-pulled length
             float straight[MAX_STRAIGHT * 3];
             unsigned char flags[MAX_STRAIGHT];
-            dtPolyRef strPolys[MAX_STRAIGHT];
-            int strCount = 0;
+            dtPolyRef spPolys[MAX_STRAIGHT];
+            int spCount = 0;
             float npcLen = 0.0f;
-            if (dtStatusSucceed(navQuery->findStraightPath(startNearest, candNearest, polyPath, polyCount,
-                straight, flags, strPolys, &strCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && strCount > 0)
+            if (dtStatusSucceed(navQuery->findStraightPath(startNearest, candNearest, polyPath, polyCount, straight, flags, spPolys, &spCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && spCount > 0)
             {
-                for (int s = 1; s < strCount; ++s)
+                for (int s = 1; s < spCount; ++s)
                 {
                     float dx = straight[s * 3 + 0] - straight[(s - 1) * 3 + 0];
                     float dy = straight[s * 3 + 1] - straight[(s - 1) * 3 + 1];
@@ -822,7 +855,6 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
             }
             else
             {
-                // fallback euclidean XZ
                 float dx = candNearest[0] - startNearest[0];
                 float dz = candNearest[2] - startNearest[2];
                 npcLen = sqrtf(dx * dx + dz * dz);
@@ -843,11 +875,10 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
     if (candidates.empty())
     {
         dtFreeNavMeshQuery(navQuery);
-        // fallback short step along fleeDir
         return FindSimplePath(startFixed, startFixed + fleeDir * 3.0f);
     }
 
-    // sort promising ones by angleWeight * pathlen (forward bias)
+    // prefer forward candidates but keep coverage
     std::sort(candidates.begin(), candidates.end(), [](const Candidate& a, const Candidate& b) {
         return (a.angleWeight * a.npcPathLen) > (b.angleWeight * b.npcPathLen);
         });
@@ -856,22 +887,23 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
     float bestScore = -1e9f;
     int bestIndex = -1;
 
-    // scoring/tuning constants
+    // scoring tuning constants (tweak to your game)
     const float AREA_RADIUS = 5.5f;
     const int MAX_AROUND = 256;
-    const float WALL_CHECK_RADIUS = 6.0f;    // how far distance-to-wall looks
-    const float MIN_FREE_DIST = 1.6f;        // consider <1.6m as tight
+    const float WALL_CHECK_RADIUS = 6.0f;
+    const float MIN_FREE_DIST = 1.6f;
     const float MIN_AREA_POLYS = 6.0f;
 
     for (int i = 0; i < evaluateTop; ++i)
     {
         Candidate& cand = candidates[i];
 
-        // 1) player path length (if threat localized)
-        float playerPathLen = 0.0f;
+        // --- 1) player -> candidate path length (navmesh if possible; unreachable => huge) ---
+        float playerToCandLen = 0.0f;
         if (threatRef == 0)
         {
-            playerPathLen = 1e6f; // unknown, assume unreachable
+            // threat not on mesh: fallback to Euclidean
+            playerToCandLen = glm::distance(threatFixed, cand.pos);
         }
         else
         {
@@ -879,41 +911,49 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
             int pcount = 0;
             if (!dtStatusSucceed(navQuery->findPath(threatRef, cand.ref, threatNearest, cand.posF, &filter, ppath, &pcount, MAX_POLYS)) || pcount == 0)
             {
-                playerPathLen = 1e6f;
+                // unreachable from player -> great (assign huge)
+                playerToCandLen = 1e6f;
             }
             else
             {
-                const int MAX_STRAIGHT = 512;
-                float straightP[MAX_STRAIGHT * 3];
+                float straightP[3 * MAX_STRAIGHT];
                 unsigned char flagsP[MAX_STRAIGHT];
                 dtPolyRef spPolysP[MAX_STRAIGHT];
                 int spCount = 0;
                 if (dtStatusSucceed(navQuery->findStraightPath(threatNearest, cand.posF, ppath, pcount, straightP, flagsP, spPolysP, &spCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && spCount > 0)
                 {
-                    float len = 0.0f;
                     for (int s = 1; s < spCount; ++s)
                     {
                         float dx = straightP[s * 3 + 0] - straightP[(s - 1) * 3 + 0];
                         float dy = straightP[s * 3 + 1] - straightP[(s - 1) * 3 + 1];
                         float dz = straightP[s * 3 + 2] - straightP[(s - 1) * 3 + 2];
-                        len += sqrtf(dx * dx + dy * dy + dz * dz);
+                        playerToCandLen += sqrtf(dx * dx + dy * dy + dz * dz);
                     }
-                    playerPathLen = len;
                 }
                 else
                 {
-                    float dx = cand.posF[0] - threatNearest[0];
-                    float dz = cand.posF[2] - threatNearest[2];
-                    playerPathLen = sqrtf(dx * dx + dz * dz);
+                    // fallback euclidean
+                    playerToCandLen = glm::distance(threatFixed, cand.pos);
                 }
             }
         }
 
+        // --- 2) compute intercept margin (time-based) ---
         float npcTime = cand.npcPathLen / std::max(0.0001f, npcSpeed);
-        float playerTime = playerPathLen / std::max(0.0001f, playerSpeed);
-        float interceptMargin = playerTime - npcTime; // positive => safer
+        float playerTime = playerToCandLen / std::max(0.0001f, playerSpeed);
+        float interceptMargin = playerTime - npcTime;
 
-        // 2) local area count
+        // --- 3) compute distance-gain-per-meter (the requested priority) ---
+        // playerToStartLen computed earlier, use candidate unreachable as huge gain
+        float deltaDist = playerToCandLen - playerToStartLen; // positive -> candidate farther from player than current
+        // normalized by npcPathLen so we prefer candidates that give more gain per meter of travel
+        float gainPerMeter = deltaDist / std::max(0.01f, cand.npcPathLen);
+
+        // if playerToCandLen is huge (unreachable), favor strongly
+        if (playerToCandLen > 1e5f)
+            gainPerMeter = 1e3f;
+
+        // --- 4) local area (polys) ---
         dtPolyRef aroundRef[MAX_AROUND];
         dtPolyRef aroundParent[MAX_AROUND];
         float aroundCost[MAX_AROUND];
@@ -921,60 +961,45 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
         if (!dtStatusSucceed(navQuery->findPolysAroundCircle(cand.ref, cand.posF, AREA_RADIUS, &filter, aroundRef, aroundParent, aroundCost, &aroundCount, MAX_AROUND)))
             aroundCount = 0;
 
-        // 3) distance-to-wall at the candidate (primary openness metric)
-        float candHitDist = 0.0f;
-        float candHitPos[3] = { 0,0,0 };
-        float candHitNormal[3] = { 0,0,0 };
-        if (!dtStatusSucceed(navQuery->findDistanceToWall(cand.ref, cand.posF, WALL_CHECK_RADIUS, &filter, &candHitDist, candHitPos, candHitNormal)))
+        // --- 5) distance-to-wall sampling along path (minFreeDist) ---
+        // compute straight path again and sample a few points (start/mid/end)
+        float minFreeDist = WALL_CHECK_RADIUS;
         {
-            // if the call fails or returns no hit inside radius, treat as open
-            candHitDist = WALL_CHECK_RADIUS;
-        }
-        // clamp
-        candHitDist = std::max(0.0f, std::min(candHitDist, WALL_CHECK_RADIUS));
-
-        // 4) sample a few points along the straight path (start, mid, end) and take min distance-to-wall
-        float minFreeDist = candHitDist; // start with candidate value
-        {
-            // rebuild the NPC straight path for this candidate (cheap: we already computed earlier for candidate creation,
-            // but to keep the code clear we recompute; small evaluateTop keeps this acceptable)
             dtPolyRef ppoly[MAX_POLYS];
             int pcount = 0;
             if (dtStatusSucceed(navQuery->findPath(startRef, cand.ref, startNearest, cand.posF, &filter, ppoly, &pcount, MAX_POLYS)) && pcount > 0)
             {
-                const int MAX_STRAIGHT = 512;
-                float straight[MAX_STRAIGHT * 3];
-                unsigned char flags[MAX_STRAIGHT];
-                dtPolyRef spPolys[MAX_STRAIGHT];
+                float straightPath[3 * MAX_STRAIGHT];
+                unsigned char flagsSP[MAX_STRAIGHT];
+                dtPolyRef spPolysSP[MAX_STRAIGHT];
                 int spCount = 0;
-                if (dtStatusSucceed(navQuery->findStraightPath(startNearest, cand.posF, ppoly, pcount, straight, flags, spPolys, &spCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && spCount > 0)
+                if (dtStatusSucceed(navQuery->findStraightPath(startNearest, cand.posF, ppoly, pcount, straightPath, flagsSP, spPolysSP, &spCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && spCount > 0)
                 {
-                    // sample indices: 0(start), mid, last
+                    // sample up to three points: start, mid, end
                     std::vector<int> sampleIdx;
                     sampleIdx.push_back(0);
                     sampleIdx.push_back(spCount / 2);
                     sampleIdx.push_back(spCount - 1);
                     for (int si : sampleIdx)
                     {
-                        float sx = straight[si * 3 + 0];
-                        float sy = straight[si * 3 + 1];
-                        float sz = straight[si * 3 + 2];
+                        float sx = straightPath[si * 3 + 0];
+                        float sy = straightPath[si * 3 + 1];
+                        float sz = straightPath[si * 3 + 2];
                         float samplePos[3] = { sx, sy, sz };
 
-                        // localize sample pos on poly (to get a startRef)
+                        // localize sample point (robustness)
                         dtPolyRef sampleRef = 0;
                         float sampleNearest[3];
                         if (!findOnPoly(samplePos, sampleRef, sampleNearest))
                         {
-                            // fallback: use candidate ref and candidate pos for wall-distance
                             sampleRef = cand.ref;
                             sampleNearest[0] = cand.posF[0]; sampleNearest[1] = cand.posF[1]; sampleNearest[2] = cand.posF[2];
                         }
+
                         float hitDist = WALL_CHECK_RADIUS;
-                        float hpos[3], hnorm[3];
-                        if (dtStatusSucceed(navQuery->findDistanceToWall(sampleRef, sampleNearest, WALL_CHECK_RADIUS, &filter, &hitDist, hpos, hnorm)))
+                        float hitPos[3]; float hitNormal[3];
+                        if (dtStatusSucceed(navQuery->findDistanceToWall(sampleRef, sampleNearest, WALL_CHECK_RADIUS, &filter, &hitDist, hitPos, hitNormal)))
                         {
-                            // clamp
                             hitDist = std::max(0.0f, std::min(hitDist, WALL_CHECK_RADIUS));
                         }
                         else
@@ -987,26 +1012,39 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
             }
         }
 
-        // 5) LoS check (use eye height)
+        // --- 6) LoS check with eye height (1.6m) ---
         glm::vec3 threatEye = threatFixed + glm::vec3(0, 1.6f, 0);
         glm::vec3 candEye = cand.pos + glm::vec3(0, 1.6f, 0);
         bool visible = HasLineOfSight(threatEye, candEye);
 
-        // 6) final score (weights tuned for avoiding walls and open-space preference)
-        float score = 0.0f;
-        score += 3.5f * interceptMargin;        // core: player slower -> good
-        score += 2.2f * minFreeDist;            // prefer large minimum clearance along path
-        score += 0.18f * (float)aroundCount;    // prefer bigger local area
-        score += 0.8f * cand.angleWeight;       // forward bias
-        score += visible ? -3.0f : 2.0f;        // reward hidden positions
-        score -= 0.05f * cand.npcPathLen;       // small penalty for long travel
-        // penalties for bad cases
-        if (minFreeDist < MIN_FREE_DIST) score -= 3.0f;     // too tight anywhere -> penalize heavily
-        if (aroundCount < (int)MIN_AREA_POLYS) score -= 2.0f; // tiny pocket
-        if (interceptMargin < -2.0f) score -= 5.0f;         // player much faster -> avoid
+        // --- 7) final score: include gainPerMeter with heavy weight (user request) ---
+        // weights: tune these if needed
+        const float W_GAIN = 4.0f;            // weight for gain-per-meter (primary fix)
+        const float W_INTERCEPT = 1.5f;       // still prefer positive intercept margins
+        const float W_MINFREE = 2.2f;         // openness along the path
+        const float W_AREA = 0.14f;           // local area
+        const float W_ANGLE = 0.9f;           // forward bias multiplier (0..1)
+        const float VISIBLE_PENALTY = -3.5f;
+        const float HIDDEN_BONUS = 2.0f;
+        const float PATHTIME_PENALTY = -0.06f;
 
-        // tie-break jitter
-        score += ((rand() % 100) / 100.0f) * 0.05f;
+        float score = 0.0f;
+        score += W_GAIN * gainPerMeter;
+        score += W_INTERCEPT * interceptMargin;
+        score += W_MINFREE * minFreeDist;
+        score += W_AREA * (float)aroundCount;
+        score += W_ANGLE * cand.angleWeight;
+        score += (visible ? VISIBLE_PENALTY : HIDDEN_BONUS);
+        score += PATHTIME_PENALTY * npcTime;
+
+        // strong penalties for truly bad candidates
+        if (minFreeDist < MIN_FREE_DIST) score -= 4.0f;           // too narrow anywhere
+        if (aroundCount < (int)MIN_AREA_POLYS) score -= 2.5f;     // tiny pocket
+        if (gainPerMeter < -0.05f) score -= 3.0f;                 // moving closer per meter -> strongly bad
+        if (interceptMargin < -2.0f) score -= 5.0f;              // player reaches much faster -> avoid
+
+        // tiny jitter
+        score += ((rand() % 100) / 100.0f) * 0.02f;
 
         if (score > bestScore)
         {
@@ -1015,7 +1053,7 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
         }
     }
 
-    // If no good candidate found, try lateral sidestep (same idea as before)
+    // lateral sidestep fallback (prefer safe lateral moves)
     if (bestIndex < 0 || bestScore < 0.6f)
     {
         glm::vec3 up(0, 1, 0);
@@ -1040,16 +1078,15 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
                 continue;
             if (polyCount == 0 && startRef != ltRef) continue;
 
-            // compute straight length
-            const int MAX_STRAIGHT = 512;
+            // straight path length
             float straight[MAX_STRAIGHT * 3];
             unsigned char flags[MAX_STRAIGHT];
-            dtPolyRef strPolys[MAX_STRAIGHT];
-            int strCount = 0;
+            dtPolyRef spPolys[MAX_STRAIGHT];
+            int spCount = 0;
             float ltLen = 0.0f;
-            if (dtStatusSucceed(navQuery->findStraightPath(startNearest, ltNearest, polyPath, polyCount, straight, flags, strPolys, &strCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && strCount > 0)
+            if (dtStatusSucceed(navQuery->findStraightPath(startNearest, ltNearest, polyPath, polyCount, straight, flags, spPolys, &spCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && spCount > 0)
             {
-                for (int s = 1; s < strCount; ++s)
+                for (int s = 1; s < spCount; ++s)
                 {
                     float dx = straight[s * 3 + 0] - straight[(s - 1) * 3 + 0];
                     float dy = straight[s * 3 + 1] - straight[(s - 1) * 3 + 1];
@@ -1064,79 +1101,68 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
                 ltLen = sqrtf(dx * dx + dz * dz);
             }
 
-            // compute player margin quickly
-            float playerPathLen = 0.0f;
-            if (threatRef == 0) playerPathLen = 1e6f;
+            // compute player margin to lateral target (cheap fallback like earlier)
+            float playerLen = 0.0f;
+            if (threatRef == 0)
+                playerLen = glm::distance(threatFixed, lt);
             else
             {
                 dtPolyRef ppath[MAX_POLYS];
                 int pcount = 0;
                 if (!dtStatusSucceed(navQuery->findPath(threatRef, ltRef, threatNearest, ltNearest, &filter, ppath, &pcount, MAX_POLYS)) || pcount == 0)
-                    playerPathLen = 1e6f;
+                    playerLen = 1e6f;
                 else
                 {
-                    const int MAX_STRAIGHT = 512;
-                    float straightP[MAX_STRAIGHT * 3];
+                    float straightP[3 * MAX_STRAIGHT];
                     unsigned char flagsP[MAX_STRAIGHT];
                     dtPolyRef spPolysP[MAX_STRAIGHT];
                     int spCount = 0;
                     if (dtStatusSucceed(navQuery->findStraightPath(threatNearest, ltNearest, ppath, pcount, straightP, flagsP, spPolysP, &spCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && spCount > 0)
                     {
-                        float len = 0.0f;
                         for (int s = 1; s < spCount; ++s)
                         {
                             float dx = straightP[s * 3 + 0] - straightP[(s - 1) * 3 + 0];
                             float dy = straightP[s * 3 + 1] - straightP[(s - 1) * 3 + 1];
                             float dz = straightP[s * 3 + 2] - straightP[(s - 1) * 3 + 2];
-                            len += sqrtf(dx * dx + dy * dy + dz * dz);
+                            playerLen += sqrtf(dx * dx + dy * dy + dz * dz);
                         }
-                        playerPathLen = len;
                     }
                     else
                     {
-                        float dx = ltNearest[0] - threatNearest[0];
-                        float dz = ltNearest[2] - threatNearest[2];
-                        playerPathLen = sqrtf(dx * dx + dz * dz);
+                        playerLen = glm::distance(threatFixed, lt);
                     }
                 }
             }
 
             float ltNpcTime = ltLen / std::max(0.0001f, npcSpeed);
-            float ltPlayerTime = playerPathLen / std::max(0.0001f, playerSpeed);
+            float ltPlayerTime = playerLen / std::max(0.0001f, playerSpeed);
             float ltMargin = ltPlayerTime - ltNpcTime;
             if (ltMargin > -0.3f && ltLen > 0.6f)
             {
-                // return path to ltNearest
-                bool reached = false;
-                dtPolyRef polyPath2[MAX_POLYS];
-                int polyCount2 = 0;
-                if (dtStatusSucceed(navQuery->findPath(startRef, ltRef, startNearest, ltNearest, &filter, polyPath2, &polyCount2, MAX_POLYS)) && polyCount2 > 0)
-                {
-                    reached = (polyPath2[polyCount2 - 1] == ltRef);
-                    float gNearest[3];
-                    if (!reached)
-                        navQuery->closestPointOnPoly(polyPath2[polyCount2 - 1], ltNearest, gNearest, nullptr);
-                    else { gNearest[0] = ltNearest[0]; gNearest[1] = ltNearest[1]; gNearest[2] = ltNearest[2]; }
+                // return straight path to ltNearest
+                bool reached = (polyPath[polyCount - 1] == ltRef);
+                float gNearest[3];
+                if (!reached)
+                    navQuery->closestPointOnPoly(polyPath[polyCount - 1], ltNearest, gNearest, nullptr);
+                else { gNearest[0] = ltNearest[0]; gNearest[1] = ltNearest[1]; gNearest[2] = ltNearest[2]; }
 
-                    const int MAX_STRAIGHT2 = 512;
-                    float straight2[3 * MAX_STRAIGHT2];
-                    unsigned char flags2[MAX_STRAIGHT2];
-                    dtPolyRef strPolys2[MAX_STRAIGHT2];
-                    int strCount2 = 0;
-                    if (dtStatusSucceed(navQuery->findStraightPath(startNearest, reached ? ltNearest : gNearest, polyPath2, polyCount2, straight2, flags2, strPolys2, &strCount2, MAX_STRAIGHT2, DT_STRAIGHTPATH_ALL_CROSSINGS)) && strCount2 > 0)
-                    {
-                        outPath.reserve(strCount2);
-                        for (int idx = 1; idx < strCount2; ++idx)
-                            outPath.emplace_back(straight2[idx * 3 + 0], straight2[idx * 3 + 1], straight2[idx * 3 + 2]);
-                        dtFreeNavMeshQuery(navQuery);
-                        return outPath;
-                    }
+                float straight2[MAX_STRAIGHT * 3];
+                unsigned char flags2[MAX_STRAIGHT];
+                dtPolyRef sp2[MAX_STRAIGHT];
+                int sc = 0;
+                if (dtStatusSucceed(navQuery->findStraightPath(startNearest, reached ? ltNearest : gNearest, polyPath, polyCount, straight2, flags2, sp2, &sc, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && sc > 0)
+                {
+                    outPath.reserve(sc);
+                    for (int idx = 1; idx < sc; ++idx)
+                        outPath.emplace_back(straight2[idx * 3 + 0], straight2[idx * 3 + 1], straight2[idx * 3 + 2]);
+                    dtFreeNavMeshQuery(navQuery);
+                    return outPath;
                 }
             }
         }
     }
 
-    // Final: use best candidate if any
+    // --- final: build path to best candidate if found ---
     if (bestIndex >= 0)
     {
         Candidate& best = candidates[bestIndex];
@@ -1145,25 +1171,25 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
         if (dtStatusSucceed(navQuery->findPath(startRef, best.ref, startNearest, best.posF, &filter, polyPath, &polyCount, MAX_POLYS)) && polyCount > 0)
         {
             bool reached = (polyPath[polyCount - 1] == best.ref);
-            float gNearest[3];
+            float gNearest[3] = { 0,0,0 };
             if (!reached)
                 navQuery->closestPointOnPoly(polyPath[polyCount - 1], best.posF, gNearest, nullptr);
             else { gNearest[0] = best.posF[0]; gNearest[1] = best.posF[1]; gNearest[2] = best.posF[2]; }
 
-            const int MAX_STRAIGHT = 512;
             float straight[MAX_STRAIGHT * 3];
             unsigned char flags[MAX_STRAIGHT];
-            dtPolyRef strPolys[MAX_STRAIGHT];
-            int strCount = 0;
-            if (dtStatusSucceed(navQuery->findStraightPath(startNearest, reached ? best.posF : gNearest, polyPath, polyCount, straight, flags, strPolys, &strCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && strCount > 0)
+            dtPolyRef spPolys[MAX_STRAIGHT];
+            int spCount = 0;
+            if (dtStatusSucceed(navQuery->findStraightPath(startNearest, reached ? best.posF : gNearest, polyPath, polyCount, straight, flags, spPolys, &spCount, MAX_STRAIGHT, DT_STRAIGHTPATH_ALL_CROSSINGS)) && spCount > 0)
             {
-                outPath.reserve(strCount);
-                for (int i = 1; i < strCount; ++i)
-                    outPath.emplace_back(straight[i * 3 + 0], straight[i * 3 + 1], straight[i * 3 + 2]);
+                outPath.reserve(spCount);
+                for (int s = 1; s < spCount; ++s)
+                    outPath.emplace_back(straight[s * 3 + 0], straight[s * 3 + 1], straight[s * 3 + 2]);
             }
             else
             {
-                outPath.emplace_back(best.pos);
+                // fallback single point
+                outPath.emplace_back(glm::vec3(best.posF[0], best.posF[1], best.posF[2]));
             }
         }
         else
@@ -1175,3 +1201,4 @@ std::vector<glm::vec3> NavigationSystem::FindFleePath(
     dtFreeNavMeshQuery(navQuery);
     return outPath;
 }
+
