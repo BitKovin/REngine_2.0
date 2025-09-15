@@ -4,16 +4,25 @@ project(MyProject)
 # ——————————————————————————————————————————————————————————
 # Global settings
 # ——————————————————————————————————————————————————————————
+
+option(ENABLE_PTHREADS "Enable Emscripten pthread support (WASM threads)" OFF)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Build")
 
-# Add Emscripten-specific compile options here (applies to all targets)
-if (EMSCRIPTEN)
-    add_compile_options(-O3 -DNDEBUG ) #-pthread
+# Global compile options (applies to all targets)
+add_compile_options(-O3 -DNDEBUG)
+
+if (EMSCRIPTEN AND ENABLE_PTHREADS)
+    message(STATUS "Emscripten pthreads: ENABLED")
+    add_compile_options(-pthread)   # compile with pthread support
 else()
-    add_compile_options(-O3 -DNDEBUG)
+    if (EMSCRIPTEN)
+        message(STATUS "Emscripten pthreads: DISABLED")
+    endif()
 endif()
+
 
 # ——————————————————————————————————————————————————————————
 # Platform detection
@@ -86,12 +95,17 @@ target_include_directories(engine
 )
 
 if (EMSCRIPTEN)
+    set(FMOD_SUFFIX "")
+    if (ENABLE_PTHREADS)
+        set(FMOD_SUFFIX "P")
+    endif()
+
     target_link_libraries(engine PRIVATE
         "${CMAKE_SOURCE_DIR}/libsEms/libassimp.a"
         "${CMAKE_SOURCE_DIR}/libsEms/libIrrXML.a"
         "${CMAKE_SOURCE_DIR}/libsEms/libJolt.a"
-        "${CMAKE_SOURCE_DIR}/libsEms/fmod_wasm.a"
-        "${CMAKE_SOURCE_DIR}/libsEms/fmodstudio_wasm.a"
+        "${CMAKE_SOURCE_DIR}/libsEms/fmod${FMOD_SUFFIX}_wasm.a"
+        "${CMAKE_SOURCE_DIR}/libsEms/fmodstudio${FMOD_SUFFIX}_wasm.a"
     )
 
 elseif (LINUX)
@@ -133,9 +147,9 @@ set(WASM_COMMON_LINK_OPTIONS
     #"SHELL:-s GL_PREINITIALIZED_CONTEXT=1"
     "SHELL:-s STACK_SIZE=500000"
 
-    "SHELL:-sFETCH"   
-    "SHELL:-sASYNCIFY"    
-    
+    "SHELL:-sFETCH"
+    "SHELL:-sASYNCIFY"
+
     "SHELL:-s NO_DISABLE_EXCEPTION_CATCHING"
     "SHELL:-s WASM=1"
     "SHELL:-s ASSERTIONS=1"
@@ -143,27 +157,30 @@ set(WASM_COMMON_LINK_OPTIONS
     "SHELL:-s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1"
     "SHELL:-lidbfs.js"
     "SHELL:-msimd128"
-    "SHELL:-s EXPORTED_RUNTIME_METHODS=['cwrap','setValue','getValue']" #for fmod
+    "SHELL:-s EXPORTED_RUNTIME_METHODS=['cwrap','setValue','getValue']" # for fmod
 
     "SHELL:-s AGGRESSIVE_VARIABLE_ELIMINATION=1"
     "SHELL:-s ELIMINATE_DUPLICATE_FUNCTIONS=1"
 
     "SHELL:--profiling-funcs"
-
-    #disable if using pthreads
-    "SHELL:-s ALLOW_MEMORY_GROWTH=1"
-    "SHELL:-s INITIAL_HEAP=83886080"
-
-    #enable if using pthreads
-    #"SHELL:-s TOTAL_MEMORY=134217728"
-    #"SHELL:-pthread"
-    #"SHELL:-s USE_PTHREADS=1"
-    #"SHELL:-s PTHREAD_POOL_SIZE=16" # 5 reserved for engine to work (IDK why, but it's required when disabling any thread pool), 4 for thread pools, 2 for physics and other are reserved for stability 
-
-    #"SHELL:-s PTHREAD_POOL_SIZE_STRICT=2"
-    #"SHELL:-s PROXY_TO_PTHREAD"
-
 )
+if (EMSCRIPTEN AND ENABLE_PTHREADS)
+    # PTHREADS: threads require fixed TOTAL_MEMORY and thread flags. Remove memory-growth usage.
+    list(APPEND WASM_COMMON_LINK_OPTIONS
+        "SHELL:-pthread"                      # pass -pthread to linker
+        "SHELL:-s USE_PTHREADS=1"             # enable wasm threads in emscripten
+        "SHELL:-s PTHREAD_POOL_SIZE=16"       # adjust pool size as needed
+        #"SHELL:-s PROXY_TO_PTHREAD=1"        # optional: proxy main to a worker
+        "SHELL:-s TOTAL_MEMORY=999948288"   
+    )
+else()
+    # When not using pthreads you can allow memory growth (useful for dev)
+    list(APPEND WASM_COMMON_LINK_OPTIONS
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s INITIAL_HEAP=83886080"
+    )
+endif()
+
 
 # ——————————————————————————————————————————————————————————
 # Game executable

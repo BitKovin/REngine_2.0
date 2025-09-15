@@ -6,6 +6,8 @@
 
 #include "Helpers/StringHelper.h"
 
+#include "LightSystem/LightManager.h"
+
 LightVolPointData StaticMesh::GetLightVolData()
 {
 
@@ -32,6 +34,14 @@ bool StaticMesh::IsInFrustrum(Frustum frustrum)
 
 	return frustrum.IsSphereVisible(sphere.offset, sphere.Radius);
 }
+
+BoundingBox StaticMesh::GetBoundingBox()
+{
+
+	return model->boundingBox.Transform(finalizedWorld);
+
+}
+
 
 bool StaticMesh::IsCameraVisible()
 {
@@ -101,6 +111,10 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 
 	ApplyAdditionalShaderParams(forward_shader_program);
 
+
+	auto bounds = GetBoundingBox();
+
+	LightManager::ApplyPointLightToShader(forward_shader_program, bounds.Min, bounds.Max);
 
 	for (roj::SkinnedMesh& mesh : model->meshes)
 	{

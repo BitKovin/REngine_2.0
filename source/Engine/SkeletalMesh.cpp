@@ -167,6 +167,36 @@ bool SkeletalMesh::IsCameraVisible()
 	return IsInFrustrum(Camera::frustum) && isVisible();
 }
 
+BoundingBox SkeletalMesh::GetBoundingBox()
+{
+	if (InRagdoll == false)
+	{
+		return StaticMesh::GetBoundingBox();
+	}
+
+	mat4 world = GetWorldMatrix();
+
+	vector<vec3> bonePositions;
+	bonePositions.reserve(hitboxBodies.size());
+
+	for (auto hitboxBody : hitboxBodies)
+	{
+
+		bonePositions.push_back(FromPhysics(hitboxBody->GetPosition()));
+
+	}
+
+	auto box = BoundingBox::FromPoints(bonePositions);
+
+	box.Min -= vec3(1);
+	box.Max += vec3(1);
+
+	//DebugDraw::Bounds(box.Min, box.Max, 0.01f);
+
+
+	return box;
+}
+
 bool SkeletalMesh::IsInFrustrum(Frustum frustrum)
 {
 

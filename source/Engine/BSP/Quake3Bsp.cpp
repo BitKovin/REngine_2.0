@@ -25,6 +25,8 @@
 #include "../EngineMain.h"
 #include "../FileSystem/FileSystem.h"
 
+#include "../LightSystem/LightManager.h"
+
 #ifndef _MSC_VER 
 
 #define strcpy_s strcpy
@@ -1437,7 +1439,7 @@ bool CQuake3BSP::RenderMergedFace(int mergedIndex, bool lightmap, LightVolPointD
 
     EngineMain::MainInstance->MainRenderer->SetSurfaceShaderUniforms(shader);
 
-
+    LightManager::ApplyPointLightToShader(shader, bounds.Min, bounds.Max);
 
 
     // draw using the EBO already bound in the VAO; offset = 0

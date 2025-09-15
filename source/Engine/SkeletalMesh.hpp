@@ -254,6 +254,8 @@ public:
 
 	bool IsCameraVisible();
 
+	BoundingBox GetBoundingBox();
+
 	bool IsInFrustrum(Frustum frustrum);
 
 	LightVolPointData GetLightVolData();

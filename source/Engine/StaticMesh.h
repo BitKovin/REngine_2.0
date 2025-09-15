@@ -170,6 +170,8 @@ public:
 
 	bool IsInFrustrum(Frustum frustrum);
 
+	BoundingBox GetBoundingBox();
+
 	virtual bool isVisible()
 	{
 

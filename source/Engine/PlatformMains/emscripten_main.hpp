@@ -131,6 +131,9 @@ int main(int argc, char* args[]) {
 #endif // ! __EMSCRIPTEN_PTHREADS__
 
     EngineMain::MainInstance = engine;
+
+    emscripten_sleep(300);//some time for js bounce back for correct start resolution
+
     engine->Init();
 
     Input::AddAction("fullscreen")->AddKeyboardKey(SDL_GetScancodeFromKey(SDLK_F11));
@@ -144,6 +147,8 @@ int main(int argc, char* args[]) {
 
     //emscripten_set_focus_callback("#canvas", nullptr, EM_FALSE, on_canvas_focus);
     //emscripten_set_blur_callback("#canvas", nullptr, EM_FALSE, on_canvas_blur);
+
+    emscripten_sleep(300);//some time for js bounce back for correct start resolution
 
     emscripten_set_main_loop(emscripten_render_loop, 0, 1);
 

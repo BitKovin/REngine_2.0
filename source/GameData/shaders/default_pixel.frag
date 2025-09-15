@@ -4,6 +4,7 @@ in vec2 v_texcoord;
 in vec4 v_color;
 in vec3 v_normal;
 in vec3 v_worldPosition;
+in vec3 v_light;
 
 out vec4 FragColor;
 uniform sampler2D u_texture; 
@@ -50,7 +51,11 @@ vec3 CalculateLight()
 
     vec3 light = light_color + clamp(dot(normal, normalize(direct_light_dir))*0.8 + 0.2,0.0,1.0) * direct_light_color;
 
-    return light.rgb*2.0;
+    light*=2.0;
+
+    light+= v_light;
+
+    return light;
 }
 
 vec4 ApplyFog(vec4 fragColor)

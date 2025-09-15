@@ -7,6 +7,7 @@
 #include "glm.h"
 
 #include "FrustrumCull.hpp"
+#include "BoundingBox.hpp"
 #include "Camera.h"
 
 #include "MeshUtils.hpp"
@@ -57,5 +58,7 @@ public:
 	virtual void RemoveFromLevel(){}
 
 	virtual void PreloadAssets(){}
+
+	virtual BoundingBox GetBoundingBox() { return BoundingBox(); }
 
 };

@@ -2,6 +2,7 @@
 #define GLM_FORCE_PURE
 #define GLM_ENABLE_EXPERIMENTAL
 
+#define GLM_FORCE_INTRINSICS
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>

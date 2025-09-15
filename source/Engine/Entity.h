@@ -102,7 +102,7 @@ public:
 
 	}
 
-	void Finalize()
+	virtual void Finalize()
 	{
 
 	}

@@ -2,13 +2,31 @@
 
 #include "../glm.h"
 
+#include <vector>
+
+class ShaderProgram;
+
 class LightManager
 {
 public:
+
+	struct PointLightInfo
+	{
+		vec3 position;
+		vec3 color;
+		float radius;
+		vec3 direction;
+		float innerConeAngleDegrees;
+		float outerConeAngleDegrees;
+	};
+
 	LightManager();
 	~LightManager();
 
 	static void Update();
+	static void UpdateLightSource(PointLightInfo light);
+
+	static void ApplyPointLightToShader(ShaderProgram* shader, vec3 boundsMin, vec3 boundsMax);
 
 	static vec3 LightDirection;
 
@@ -50,6 +68,11 @@ private:
 		glm::mat4& outLightView,
 		glm::mat4& outLightProjection
 	);
+
+	static void FinishPointLights();
+
+	static inline std::vector<PointLightInfo> m_lights;
+	static inline std::vector<PointLightInfo> m_finalLights;
 
 };
 

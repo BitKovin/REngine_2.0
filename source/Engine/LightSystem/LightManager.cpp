@@ -123,7 +123,95 @@ void LightManager::Update()
     CalculateLightMatrices(casc3.Radius, casc3.offset, lightView3, lightProjection3);
     CalculateLightMatrices(casc4.Radius, casc4.offset, lightView4, lightProjection4);
 
+    FinishPointLights();
+
 }
+
+void LightManager::UpdateLightSource(PointLightInfo light)
+{
+
+    m_lights.push_back(light);
+
+}
+
+void LightManager::ApplyPointLightToShader(ShaderProgram* shader, vec3 boundsMin, vec3 boundsMax)
+{
+    if (!shader) return;
+
+    BoundingBox box(boundsMin, boundsMax);
+
+    const size_t MAX_LIGHTS = 16u;
+
+    std::vector<vec4> positions;    positions.reserve(MAX_LIGHTS); // xyz = pos, w = innerConeCos
+    std::vector<vec3> colors;       colors.reserve(MAX_LIGHTS);
+    std::vector<vec4> directions;   directions.reserve(MAX_LIGHTS); // xyz = dir(normalized), w = outerConeCos
+    std::vector<float> radiuses;    radiuses.reserve(MAX_LIGHTS);
+
+    auto degToRad = [](float deg) -> float {
+        return deg * (float)(M_PI / 180.0);
+        };
+
+    // clamp degrees to [0, 179.999] to avoid cos() producing degenerate equal edges
+    auto clampAngleDegSafe = [](float deg) -> float {
+        // If user uses 360 to mean "omni", treat it like ~180 degrees so cos is near -1
+        if (deg >= 360.0f) return 179.999f;
+        if (deg < 0.0f) return 0.0f;
+        return std::min(deg, 179.999f);
+        };
+
+    int added = 0;
+    for (const auto& L : m_finalLights)
+    {
+        if (added >= static_cast<int>(MAX_LIGHTS)) break;
+        if (!box.Intersects(L.position, L.radius)) continue;
+
+        // read and sanitize angles
+        float innerDeg = clampAngleDegSafe(L.innerConeAngleDegrees);
+        float outerDeg = clampAngleDegSafe(L.outerConeAngleDegrees);
+
+        // ensure innerAngle is the smaller cone (full-bright), outer is larger (falloff)
+        if (innerDeg > outerDeg) std::swap(innerDeg, outerDeg);
+
+        // convert to cosines (matches dot(...) output of shader)
+        float innerCos = std::cos(degToRad(innerDeg));
+        float outerCos = std::cos(degToRad(outerDeg));
+
+        // numeric safety: innerCos should be >= outerCos for smoothstep(outer, inner, x)
+        if (innerCos < outerCos) std::swap(innerCos, outerCos);
+
+        // store position + innerCos
+        positions.emplace_back(L.position, innerCos);
+
+        // color (rgb) — keep alpha if you want by using vec4 color uploads instead
+        colors.emplace_back(L.color.r, L.color.g, L.color.b);
+
+        // normalize direction (fallback to +Z if degenerate) and store outerCos
+        vec3 dir = L.direction;
+        float dirLen = std::sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
+        if (dirLen > 1e-6f) dir /= dirLen;
+        else dir = vec3(0.0f, 0.0f, 1.0f);
+
+        directions.emplace_back(dir, outerCos);
+
+        radiuses.push_back(L.radius);
+
+        ++added;
+    }
+
+    // pad to MAX_LIGHTS to keep uniform array sizes stable
+    while (positions.size() < MAX_LIGHTS) positions.emplace_back(vec4(0.0f));
+    while (colors.size() < MAX_LIGHTS) colors.emplace_back(vec3(0.0f));
+    while (directions.size() < MAX_LIGHTS) directions.emplace_back(vec4(0.0f));
+    while (radiuses.size() < MAX_LIGHTS) radiuses.push_back(0.0f);
+
+    shader->SetUniform("PointLightsNumber", added);
+    shader->SetUniform("LightPositions", positions);
+    shader->SetUniform("LightColors", colors);
+    shader->SetUniform("LightRadiuses", radiuses);
+    shader->SetUniform("LightDirections", directions);
+}
+
+
 
 void LightManager::CalculateLightMatrices(
     float lightDistance, glm::vec3 cameraPos,
@@ -164,6 +252,33 @@ void LightManager::CalculateLightMatrices(
     // 4) output
     outLightView = view;
     outLightProjection = proj;
+}
+
+void LightManager::FinishPointLights()
+{
+
+    m_finalLights.clear();
+
+
+    for (auto& light : m_lights)
+    {
+
+        if (Camera::frustum.IsSphereVisible(light.position, light.radius))
+        {
+
+            m_finalLights.push_back(light);
+
+        }
+
+    }
+
+    std::sort(m_finalLights.begin(), m_finalLights.end(),
+        [](PointLightInfo a, PointLightInfo b) {
+            return distance2(a.position,Camera::position) < distance2(b.position, Camera::position);
+        });
+
+    m_lights.clear();
+
 }
 
 
