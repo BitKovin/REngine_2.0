@@ -6,11 +6,9 @@
 
 #define SOUND_POOL_DEBUG
 
-std::recursive_mutex mtx;
-
 void SoundInstance::SourcePool::Init()
 {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lock(SoundManager::audioMutex);
     if (initialized) return;
     initialized = true;
 
@@ -43,7 +41,7 @@ void SoundInstance::SourcePool::Init()
 ALuint SoundInstance::SourcePool::Acquire(bool stereo, SoundInstance* requester)
 {
     alGetError();
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lock(SoundManager::audioMutex);
 
     alcMakeContextCurrent(requester->_bufferData.context);
 
@@ -112,7 +110,7 @@ void SoundInstance::SourcePool::Release(ALuint src, bool stereo, SoundInstance* 
 
     alcMakeContextCurrent(inst->_bufferData.context);
 
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lock(SoundManager::audioMutex);
     alSourceStop(src);
     alSourcei(src, AL_BUFFER, 0);
     liveOwners.erase(src);
@@ -218,7 +216,7 @@ void SoundInstance::Play()
 
 void SoundInstance::Stop()
 {
-    std::lock_guard<std::recursive_mutex> lock(mtx);
+    std::lock_guard<std::recursive_mutex> lock(SoundManager::audioMutex);
 
     alcMakeContextCurrent(this->_bufferData.context);
 

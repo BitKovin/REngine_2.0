@@ -42,6 +42,8 @@ public:
     static ALCcontext* contextMono;
     static ALCcontext* contextStereo;
 
+    inline static std::recursive_mutex audioMutex;
+
     inline static FMOD::Studio::System* studioSystem = nullptr;
     inline static FMOD::System* coreSystem = nullptr;
 

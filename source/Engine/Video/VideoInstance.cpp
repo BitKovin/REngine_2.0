@@ -47,6 +47,9 @@ static void plm_instance_audio_cb(plm_t* plm, plm_samples_t* samples, void* user
     if (!user || !samples || samples->count == 0) return;
     VideoInstance* self = (VideoInstance*)user;
 
+    std::lock_guard<std::recursive_mutex> lock(SoundManager::audioMutex);
+    alcMakeContextCurrent(SoundManager::contextStereo);
+
     //std::cout << "Audio callback: " << samples->count << " samples" << std::endl;
 
     ALuint buffer;
@@ -75,6 +78,7 @@ VideoInstance::VideoInstance(Video* video)
 {
     _frameGrab = new FrameGrab();
 
+    std::lock_guard<std::recursive_mutex> lock(SoundManager::audioMutex);
     alcMakeContextCurrent(SoundManager::contextStereo);
 
     alGenSources(1, &_audioSource);
@@ -89,6 +93,7 @@ VideoInstance::VideoInstance(Video* video)
 VideoInstance::~VideoInstance() {
     DestroyDecoder();
 
+    std::lock_guard<std::recursive_mutex> lock(SoundManager::audioMutex);
     alcMakeContextCurrent(SoundManager::contextStereo);
 
     alSourceStop(_audioSource);
@@ -127,7 +132,7 @@ void VideoInstance::InitDecoder() {
     if (plm_get_num_audio_streams((plm_t*)_plm) > 0) {
         plm_set_audio_stream((plm_t*)_plm, 0);
         _sampleRate = plm_get_samplerate((plm_t*)_plm);
-        plm_set_audio_lead_time((plm_t*)_plm, 0.2); // Buffer 200ms ahead for smooth playback
+        plm_set_audio_lead_time((plm_t*)_plm, _audioLeadTime); // Buffer ahead for smooth playback
         std::cout << "Audio stream selected, sample rate: " << _sampleRate << std::endl;
     }
     else {
@@ -145,6 +150,9 @@ void VideoInstance::DestroyDecoder() {
 
 void VideoInstance::Start() {
     _playing = true;
+
+    std::lock_guard<std::recursive_mutex> lock(SoundManager::audioMutex);
+
     alcMakeContextCurrent(SoundManager::contextStereo);
 
     if (_plm && _sampleRate > 0) {
@@ -159,6 +167,8 @@ void VideoInstance::Start() {
 
 void VideoInstance::Pause() {
     _playing = false;
+
+    std::lock_guard<std::recursive_mutex> lock(SoundManager::audioMutex);
     alcMakeContextCurrent(SoundManager::contextStereo);
     alSourcePause(_audioSource);
     CheckALError("alSourcePause");
@@ -174,7 +184,7 @@ void VideoInstance::SetTime(float time) {
     if (result != 0) {
         std::cerr << "VideoInstance::SetTime: failed to seek to " << time << " seconds\n";
     }
-
+    std::lock_guard<std::recursive_mutex> lock(SoundManager::audioMutex);
     alcMakeContextCurrent(SoundManager::contextStereo);
 
     // Flush audio queues after seek
@@ -208,18 +218,38 @@ void VideoInstance::Update(double deltaTime) {
 
     if (_video == nullptr) return;
 
+    plm_decode((plm_t*)_plm, deltaTime);
+
     alcMakeContextCurrent(SoundManager::contextStereo);
 
-    plm_decode((plm_t*)_plm, deltaTime);
+    std::lock_guard<std::recursive_mutex> lock(SoundManager::audioMutex);
+
     UpdateAudio();
 
     if (plm_has_ended((plm_t*)_plm)) {
         if (_loop) {
+            alSourceStop(_audioSource);
+            CheckALError("alSourceStop in loop");
+
+            ALint queued = 0;
+            alGetSourcei(_audioSource, AL_BUFFERS_QUEUED, &queued);
+            CheckALError("alGetSourcei queued in loop");
+            while (queued > 0) {
+                ALuint buffer = 0;
+                alSourceUnqueueBuffers(_audioSource, 1, &buffer);
+                CheckALError("alSourceUnqueueBuffers in loop");
+                alDeleteBuffers(1, &buffer);
+                CheckALError("alDeleteBuffers in loop");
+                queued--;
+            }
+
             plm_rewind((plm_t*)_plm);
             _currentTime = 0.0f;
             // Pre-fill after rewind
             plm_decode((plm_t*)_plm, 0.0);
             UpdateAudio();
+            alSourcePlay(_audioSource);
+            CheckALError("alSourcePlay in loop");
         }
         else {
             _playing = false;
@@ -248,7 +278,7 @@ void VideoInstance::UpdateAudio() {
 
     // 2. PROACTIVELY refill the queue to prevent underruns.
     // Define a minimum number of buffers we want to keep queued.
-    const int MIN_BUFFERS_QUEUED = 2;
+    const int MIN_BUFFERS_QUEUED = 3;
 
     ALint queued = 0;
     alGetSourcei(_audioSource, AL_BUFFERS_QUEUED, &queued);
@@ -256,9 +286,12 @@ void VideoInstance::UpdateAudio() {
 
     // While playing and the queue is below our minimum threshold...
     while (_playing && queued < MIN_BUFFERS_QUEUED && !plm_has_ended((plm_t*)_plm)) {
+        // Temporarily boost lead time to decode more audio without advancing time
+        plm_set_audio_lead_time((plm_t*)_plm, 2.0f);
         // ...decode a small amount of audio to trigger the audio callback.
         // Using 0.0 for deltaTime just decodes what's already buffered by pl_mpeg.
         plm_decode((plm_t*)_plm, 0.0);
+        plm_set_audio_lead_time((plm_t*)_plm, _audioLeadTime);
 
         ALint new_queued = 0;
         alGetSourcei(_audioSource, AL_BUFFERS_QUEUED, &new_queued);
@@ -275,7 +308,7 @@ void VideoInstance::UpdateAudio() {
     alGetSourcei(_audioSource, AL_SOURCE_STATE, &state);
     CheckALError("alGetSourcei state");
 
-    if (_playing && state != AL_PLAYING) {
+    if (_playing && state != AL_PLAYING && queued > 0) {
         // This will now mostly trigger on the very first start or after a seek.
         alSourcePlay(_audioSource);
         CheckALError("alSourcePlay on underrun/restart");

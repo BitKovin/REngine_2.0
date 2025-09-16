@@ -54,6 +54,8 @@ public:
     int _sampleRate = 0;
     ALuint _audioSource = 0;
 
+    float _audioLeadTime = 0.5;
+
     void InitDecoder();
     void DestroyDecoder();
     void UpdateAudio();

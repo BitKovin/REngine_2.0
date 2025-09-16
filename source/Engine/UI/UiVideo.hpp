@@ -39,7 +39,7 @@ public:
 
 		if (videoInstance)
 		{
-			videoInstance->Update(Time::DeltaTime);
+			videoInstance->Update(Time::DeltaTimeNoTimeScale);
 		}
 		
 	}
