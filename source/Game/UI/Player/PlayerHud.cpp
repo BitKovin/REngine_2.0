@@ -19,14 +19,14 @@ void PlayerHud::Init(Player* playerRef)
 	player = playerRef;
 
     hudCanvas = make_shared<UiCanvas>();
-    crosshair = make_shared<UiImage>();
+    crosshair = make_shared<UiVideo>();
 
 
 
     crosshair->pivot = vec2(0.5);
     crosshair->origin = vec2(0.5);
-    crosshair->size = vec2(8);
-    crosshair->ImagePath = "GameData/cat.png";
+    crosshair->size = vec2(512);
+    crosshair->VideoPath = "GameData/videos/meowl.mpg";
 
 
     text = make_shared<UiText>();

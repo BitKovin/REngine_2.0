@@ -25,8 +25,6 @@ class SoundManager
 {
 private:
     static ALCdevice* device;
-    static ALCcontext* contextMono;
-    static ALCcontext* contextStereo;
 
     static std::unordered_map<std::string, SoundBufferData> loadedBuffers;
     static std::unordered_map<std::string, FMOD::Studio::Bank*> loadedBanks;
@@ -40,6 +38,9 @@ private:
 
 
 public:
+
+    static ALCcontext* contextMono;
+    static ALCcontext* contextStereo;
 
     inline static FMOD::Studio::System* studioSystem = nullptr;
     inline static FMOD::System* coreSystem = nullptr;

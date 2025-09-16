@@ -53,7 +53,7 @@ vec3 CalculateLight()
 
     light*=2.0;
 
-    light+= v_light;
+    light += v_light;
 
     return light;
 }

@@ -12,6 +12,7 @@
 #include "Texture.hpp"
 #include "TextureCube.hpp"
 #include "Logger.hpp"
+#include "Video/Video.h"
 
 class AssetRegistry
 {
@@ -19,6 +20,7 @@ class AssetRegistry
 private:
     static std::unordered_map<std::string, Shader*> shaderCache;
     static std::unordered_map<std::string, Texture*> textureCache;
+    static std::unordered_map<std::string, Video*> videoCache;
     static std::unordered_map<std::string, CubemapTexture*> textureCubeCache;
     static std::unordered_map<std::string, roj::SkinnedModel*> skinnedModelCache;
     static std::unordered_map<std::string, roj::SkinnedModel*> skinnedModelAnimationCache;
@@ -39,6 +41,7 @@ public:
 
     static void RegisterTexture(Texture* texture, string path);
 
+    static Video* GetVideoFromFile(string filename);
 
     static TTF_Font* GetFontFromFile(const char* filename, int fontSize) {
         std::string key = std::string(filename) + "_" + std::to_string(fontSize);

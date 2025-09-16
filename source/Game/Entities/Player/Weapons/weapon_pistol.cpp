@@ -5,6 +5,7 @@
 
 #include "Projectiles/Bullet.h"
 #include <SoundSystem/FmodEventInstance.h>
+#include "WeaponFireFlash.h"
 
 class weapon_pistol : public Weapon
 {
@@ -118,6 +119,7 @@ public:
 		bullet->LoadAssetsIfNeeded();
 		bullet->Damage = 21;
 
+		WeaponFireFlash::CreateAt(bullet->Position);
 
 		attackDelay.AddDelay(0.3f);
 

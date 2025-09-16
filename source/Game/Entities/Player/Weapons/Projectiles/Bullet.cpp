@@ -42,9 +42,6 @@ void Bullet::Update()
 
 		//GlobalParticleSystem::SpawnParticleAt("hit_flesh", hit.position, MathHelper::FindLookAtRotation(vec3(0), MathHelper::FastNormalize(Position - oldPos)), vec3(2.0f));
 
-		PointLight* pointLight = new PointLight();
-		pointLight->Position = hit.position + hit.normal*0.5f;
-		Level::Current->AddEntity(pointLight);
 
 		Destroy();
 		trail->Position = hit.position;

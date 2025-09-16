@@ -6,6 +6,7 @@
 #include <UI/UiHorizontalBox.hpp>
 #include <UI/UiButton.hpp>
 #include <UI/UiImage.hpp>
+#include <UI/UiVideo.hpp>
 #include <UI/UiHorizontalBox.hpp>
 #include <Entity.h>
 #include "../../Entities/Player/Weapons/WeaponBase.h"
@@ -54,7 +55,7 @@ private:
 
 	std::shared_ptr<UiButton> img;
 	std::shared_ptr<UiText> text;
-	std::shared_ptr<UiImage> crosshair;
+	std::shared_ptr<UiVideo> crosshair;
 
 
 };

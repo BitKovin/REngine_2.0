@@ -312,7 +312,10 @@
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="UI\UiElement.cpp" />
     <ClCompile Include="UI\UiRenderer.cpp" />
+    <ClCompile Include="UI\UiVideo.hpp" />
     <ClCompile Include="utils.cpp" />
+    <ClCompile Include="Video\Video.cpp" />
+    <ClCompile Include="Video\VideoInstance.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -425,6 +428,9 @@
     <ClInclude Include="UI\UiViewport.hpp" />
     <ClInclude Include="utils.hpp" />
     <ClInclude Include="VertexData.h" />
+    <ClInclude Include="Video\pl_mpeg.h" />
+    <ClInclude Include="Video\Video.h" />
+    <ClInclude Include="Video\VideoInstance.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

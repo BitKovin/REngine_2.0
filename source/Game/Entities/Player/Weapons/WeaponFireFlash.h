@@ -1,0 +1,55 @@
+#pragma once
+
+#include "Entities/PointLight.h"
+
+class WeaponFireFlash : public PointLight
+{
+public:
+	WeaponFireFlash();
+	~WeaponFireFlash();
+
+	float duration = 0.2f;
+	float flashRadius = 5;
+	float flashIntencity = 1;
+
+	void LateUpdate()
+	{
+		float progress = saturate(Time::GameTime - SpawnTime) / duration;
+
+		if (progress >= 1)
+		{
+			Destroy();
+			return;
+		}
+
+		radius = flashRadius * lerp(1, 0.5f, progress);
+		intensity = lerp(flashIntencity, 0, progress);
+
+	}
+
+	static void CreateAt(vec3 position, float duration = 0.1f, float radius = 6, float intencity = 0.3)
+	{
+
+		WeaponFireFlash* flash = new WeaponFireFlash();
+		flash->Position = position;
+		flash->duration = duration;
+		flash->flashRadius = radius;
+		flash->flashIntencity = intencity;
+		Level::Current->AddEntity(flash);
+		flash->Start();
+		flash->LateUpdate();
+
+	}
+
+private:
+
+};
+
+WeaponFireFlash::WeaponFireFlash()
+{
+	color = vec3(1,1,0.4f);
+}
+
+WeaponFireFlash::~WeaponFireFlash()
+{
+}

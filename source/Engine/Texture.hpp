@@ -15,6 +15,11 @@ public:
         loadFromFile(filename, generateMipmaps);
     }
 
+    Texture() 
+    {
+        
+    }
+
     // Load from compressed data (PNG/JPEG in memory)
     Texture(const unsigned char* data, size_t size, bool generateMipmaps = true) {
         loadFromMemoryCompressed(data, size, generateMipmaps);

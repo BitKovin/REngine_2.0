@@ -3,6 +3,7 @@
 
 std::unordered_map<std::string, Shader*> AssetRegistry::shaderCache;
 std::unordered_map<std::string, Texture*> AssetRegistry::textureCache;
+std::unordered_map<std::string, Video*> AssetRegistry::videoCache;
 std::unordered_map<std::string, CubemapTexture*> AssetRegistry::textureCubeCache;
 std::unordered_map<std::string, roj::SkinnedModel*> AssetRegistry::skinnedModelCache;
 std::unordered_map<std::string, roj::SkinnedModel*> AssetRegistry::skinnedModelAnimationCache;
@@ -43,6 +44,14 @@ void AssetRegistry::ClearMemory()
 		delete(model.second);
 	}
 	skinnedModelAnimationCache.clear();
+
+	for (auto model : videoCache)
+	{
+		if (model.second == nullptr) continue;
+
+		delete(model.second);
+	}
+	videoCache.clear();
 
 
 }
@@ -135,6 +144,25 @@ void AssetRegistry::RegisterTexture(Texture* texture, string path)
 {
 
 	textureCache[path] = texture;
+
+}
+
+Video* AssetRegistry::GetVideoFromFile(string filename)
+{
+
+	auto it = videoCache.find(filename);
+	if (it != videoCache.end())
+	{
+		return it->second;
+	}
+
+	auto data = FileSystemEngine::ReadFileBinary(filename);
+
+	Video* video = Video::FromVector(data);
+
+	videoCache[filename] = video;
+
+	return video;
 
 }
 

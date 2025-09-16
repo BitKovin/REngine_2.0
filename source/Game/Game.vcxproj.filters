@@ -167,5 +167,8 @@
     <ClInclude Include="Entities\IEnemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Entities\Player\Weapons\WeaponFireFlash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

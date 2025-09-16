@@ -13,7 +13,7 @@ void PointLight::Finalize()
 {
 
 	LightManager::UpdateLightSource(LightManager::PointLightInfo{ 
-		Position,color, radius, 
+		Position,color*intensity, radius, 
 		MathHelper::GetForwardVector(Rotation),
 		innerConeAngleDegrees, outerConeAngleDegrees });
 
