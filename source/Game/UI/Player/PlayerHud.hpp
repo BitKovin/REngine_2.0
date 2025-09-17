@@ -55,7 +55,7 @@ private:
 
 	std::shared_ptr<UiButton> img;
 	std::shared_ptr<UiText> text;
-	std::shared_ptr<UiVideo> crosshair;
+	std::shared_ptr<UiImage> crosshair;
 
 
 };

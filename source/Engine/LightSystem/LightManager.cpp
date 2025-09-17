@@ -138,78 +138,117 @@ void LightManager::ApplyPointLightToShader(ShaderProgram* shader, vec3 boundsMin
 {
     if (!shader) return;
 
-    BoundingBox box(boundsMin, boundsMax);
+    // Inline AABB extents for fast intersection test (we avoid calling box.Intersects)
+    const float minX = boundsMin.x, minY = boundsMin.y, minZ = boundsMin.z;
+    const float maxX = boundsMax.x, maxY = boundsMax.y, maxZ = boundsMax.z;
 
-    const size_t MAX_LIGHTS = 16u;
+    constexpr size_t MAX_LIGHTS = 16u;
+    const int maxLights = static_cast<int>(MAX_LIGHTS);
 
-    std::vector<vec4> positions;    positions.reserve(MAX_LIGHTS); // xyz = pos, w = innerConeCos
-    std::vector<vec3> colors;       colors.reserve(MAX_LIGHTS);
-    std::vector<vec4> directions;   directions.reserve(MAX_LIGHTS); // xyz = dir(normalized), w = outerConeCos
-    std::vector<float> radiuses;    radiuses.reserve(MAX_LIGHTS);
+    // Pre-size to MAX_LIGHTS to avoid push_back / allocations in the tight loop.
+    std::vector<vec4> positions;    positions.assign(MAX_LIGHTS, vec4(0.0f)); // xyz = pos, w = innerCos
+    std::vector<vec3> colors;       colors.assign(MAX_LIGHTS, vec3(0.0f));
+    std::vector<vec4> directions;   directions.assign(MAX_LIGHTS, vec4(0.0f)); // xyz = dir, w = outerCos
+    std::vector<float> radiuses;    radiuses.assign(MAX_LIGHTS, 0.0f);
 
-    auto degToRad = [](float deg) -> float {
-        return deg * (float)(M_PI / 180.0);
-        };
-
-    // clamp degrees to [0, 179.999] to avoid cos() producing degenerate equal edges
-    auto clampAngleDegSafe = [](float deg) -> float {
-        // If user uses 360 to mean "omni", treat it like ~180 degrees so cos is near -1
-        if (deg >= 360.0f) return 179.999f;
-        if (deg < 0.0f) return 0.0f;
-        return std::min(deg, 179.999f);
-        };
+    // constants
+    const float DEG2RAD = 3.14159265358979323846f / 180.0f;
+    const float MAX_SAFE_DEG = 179.999f;
+    const float EPS_LEN_SQ = 1e-12f; // compare squared length
 
     int added = 0;
-    for (const auto& L : m_finalLights)
+    const auto& lights = m_finalLights;
+    const size_t nLights = lights.size();
+
+    for (size_t i = 0; i < nLights && added < maxLights; ++i)
     {
-        if (added >= static_cast<int>(MAX_LIGHTS)) break;
-        if (!box.Intersects(L.position, L.radius)) continue;
+        const auto& L = lights[i];
 
-        // read and sanitize angles
-        float innerDeg = clampAngleDegSafe(L.innerConeAngleDegrees);
-        float outerDeg = clampAngleDegSafe(L.outerConeAngleDegrees);
+        // --- inline AABB-sphere intersection (fast, avoids a function call) ---
+        // closest point on AABB to L.position
+        const float cx = L.position.x;
+        const float cy = L.position.y;
+        const float cz = L.position.z;
 
-        // ensure innerAngle is the smaller cone (full-bright), outer is larger (falloff)
-        if (innerDeg > outerDeg) std::swap(innerDeg, outerDeg);
+        const float closestX = (cx < minX) ? minX : ((cx > maxX) ? maxX : cx);
+        const float closestY = (cy < minY) ? minY : ((cy > maxY) ? maxY : cy);
+        const float closestZ = (cz < minZ) ? minZ : ((cz > maxZ) ? maxZ : cz);
 
-        // convert to cosines (matches dot(...) output of shader)
-        float innerCos = std::cos(degToRad(innerDeg));
-        float outerCos = std::cos(degToRad(outerDeg));
+        const float dx = closestX - cx;
+        const float dy = closestY - cy;
+        const float dz = closestZ - cz;
 
-        // numeric safety: innerCos should be >= outerCos for smoothstep(outer, inner, x)
-        if (innerCos < outerCos) std::swap(innerCos, outerCos);
+        const float distSq = dx * dx + dy * dy + dz * dz;
+        const float radius = L.radius;
+        if (distSq > radius * radius) continue; // no intersection
 
-        // store position + innerCos
-        positions.emplace_back(L.position, innerCos);
+        // --- cone angle sanitization (inlined, float ops)
+        float innerDeg = L.innerConeAngleDegrees;
+        float outerDeg = L.outerConeAngleDegrees;
 
-        // color (rgb) — keep alpha if you want by using vec4 color uploads instead
-        colors.emplace_back(L.color.r, L.color.g, L.color.b);
+        if (innerDeg >= 360.0f) innerDeg = MAX_SAFE_DEG;
+        else if (innerDeg < 0.0f) innerDeg = 0.0f;
 
-        // normalize direction (fallback to +Z if degenerate) and store outerCos
+        if (outerDeg >= 360.0f) outerDeg = MAX_SAFE_DEG;
+        else if (outerDeg < 0.0f) outerDeg = 0.0f;
+
+        if (innerDeg > outerDeg) { float t = innerDeg; innerDeg = outerDeg; outerDeg = t; }
+
+        // compute cosines using float versions
+        const float innerCos = cosf(innerDeg * DEG2RAD);
+        const float outerCos = cosf(outerDeg * DEG2RAD);
+
+        // numeric safety: ensure innerCos >= outerCos
+        float finalInnerCos = innerCos;
+        float finalOuterCos = outerCos;
+        if (finalInnerCos < finalOuterCos) { float t = finalInnerCos; finalInnerCos = finalOuterCos; finalOuterCos = t; }
+
+        // --- write into presized arrays (no push_back)
+        positions[added].x = L.position.x;
+        positions[added].y = L.position.y;
+        positions[added].z = L.position.z;
+        positions[added].w = finalInnerCos;
+
+        colors[added].x = L.color.r;
+        colors[added].y = L.color.g;
+        colors[added].z = L.color.b;
+
+        // normalize direction (use squared len and sqrtf)
         vec3 dir = L.direction;
-        float dirLen = std::sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
-        if (dirLen > 1e-6f) dir /= dirLen;
-        else dir = vec3(0.0f, 0.0f, 1.0f);
+        const float lenSq = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
+        if (lenSq > EPS_LEN_SQ)
+        {
+            const float invLen = 1.0f / sqrtf(lenSq);
+            dir.x *= invLen;
+            dir.y *= invLen;
+            dir.z *= invLen;
+        }
+        else
+        {
+            // degenerate direction -> fallback +Z
+            dir.x = 0.0f;
+            dir.y = 0.0f;
+            dir.z = 1.0f;
+        }
 
-        directions.emplace_back(dir, outerCos);
+        directions[added].x = dir.x;
+        directions[added].y = dir.y;
+        directions[added].z = dir.z;
+        directions[added].w = finalOuterCos;
 
-        radiuses.push_back(L.radius);
+        radiuses[added] = radius;
 
         ++added;
     }
 
-    // pad to MAX_LIGHTS to keep uniform array sizes stable
-    while (positions.size() < MAX_LIGHTS) positions.emplace_back(vec4(0.0f));
-    while (colors.size() < MAX_LIGHTS) colors.emplace_back(vec3(0.0f));
-    while (directions.size() < MAX_LIGHTS) directions.emplace_back(vec4(0.0f));
-    while (radiuses.size() < MAX_LIGHTS) radiuses.push_back(0.0f);
-
+    // upload (we kept vectors at MAX_LIGHTS so no padding loop needed)
     shader->SetUniform("PointLightsNumber", added);
     shader->SetUniform("LightPositions", positions);
     shader->SetUniform("LightColors", colors);
     shader->SetUniform("LightRadiuses", radiuses);
     shader->SetUniform("LightDirections", directions);
 }
+
 
 
 

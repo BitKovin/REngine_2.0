@@ -123,21 +123,27 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 		{
 
 			string baseTextureName;
+			string emissiveTextureName;
 
 			for (auto texture : mesh.textures)
 			{
 				if (texture.type == aiTextureType_BASE_COLOR)
 				{
 					baseTextureName = texture.src;
-					break;
+
 				}
+
+				if (texture.type == aiTextureType_EMISSIVE)
+				{
+					emissiveTextureName = texture.src;
+
+				}
+
 			}
-
-
 
 			if (mesh.cachedBaseColor == nullptr)
 			{
-				const string& textureRoot = TexturesLocation;
+				const string textureRoot = TexturesLocation;
 
 				mesh.cachedBaseColor = AssetRegistry::GetTextureFromFile(textureRoot + baseTextureName);
 			}
@@ -146,7 +152,15 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 			{
 				const string& textureRoot = TexturesLocation;
 
-				mesh.cachedEmissiveColor = AssetRegistry::GetTextureFromFile(textureRoot + StringHelper::Replace(baseTextureName, ".", "_em."));
+				if (emissiveTextureName != "")
+				{
+					mesh.cachedEmissiveColor = AssetRegistry::GetTextureFromFile(textureRoot + emissiveTextureName);
+				}
+				else
+				{
+					mesh.cachedEmissiveColor = AssetRegistry::GetTextureFromFile(textureRoot + StringHelper::Replace(baseTextureName, ".", "_em."));
+				}
+
 			}
 
 			Texture* texture = mesh.cachedBaseColor;
@@ -338,15 +352,23 @@ void StaticMesh::PreloadAssets()
 		if (ColorTexture == nullptr)
 		{
 
-			string baseTextureName;
+			string baseTextureName = "";
+			string emissiveTextureName = "";
 
 			for (auto texture : mesh.textures)
 			{
 				if (texture.type == aiTextureType_BASE_COLOR)
 				{
 					baseTextureName = texture.src;
-					break;
+
 				}
+
+				if (texture.type == aiTextureType_EMISSIVE)
+				{
+					emissiveTextureName = texture.src;
+
+				}
+
 			}
 
 			if (mesh.cachedBaseColor == nullptr)
@@ -354,6 +376,21 @@ void StaticMesh::PreloadAssets()
 				const string textureRoot = TexturesLocation;
 
 				mesh.cachedBaseColor = AssetRegistry::GetTextureFromFile(textureRoot + baseTextureName);
+			}
+
+			if (mesh.cachedEmissiveColor == nullptr)
+			{
+				const string& textureRoot = TexturesLocation;
+
+				if (emissiveTextureName != "")
+				{
+					mesh.cachedEmissiveColor = AssetRegistry::GetTextureFromFile(textureRoot + emissiveTextureName);
+				}
+				else
+				{
+					mesh.cachedEmissiveColor = AssetRegistry::GetTextureFromFile(textureRoot + StringHelper::Replace(baseTextureName, ".", "_em."));
+				}
+
 			}
 
 		}

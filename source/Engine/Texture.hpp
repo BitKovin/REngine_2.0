@@ -48,26 +48,65 @@ public:
 private:
     GLuint textureID = 0;
 
-    void setupTexture(GLint width, GLint height, GLenum format, const void* pixels, bool generateMipmaps) {
+    static inline bool isPowerOfTwo(int v) { return v > 0 && ((v & (v - 1)) == 0); }
+
+    void setupTexture(int width, int height, GLenum format, const void* pixels, bool generateMipmaps) {
+        if (width <= 0 || height <= 0) return;
+        if (!pixels) return;
+
         glGenTextures(1, &textureID);
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
 
-        if (generateMipmaps) {
+        // Ensure proper alignment for 3-byte RGB rows
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+        // On WebGL / GLES the base internalFormat must equal the format (GL_RGB/GL_RGBA).
+        // Use 'format' as the internalFormat to be safe on ANGLE/WebGL and desktop.
+        GLenum internalFormat = format;
+
+        // If the uploaded pixel format is BGR/BGRA, convert to RGB/RGBA because WebGL typically doesn't accept BGR.
+        const unsigned char* uploadPixels = reinterpret_cast<const unsigned char*>(pixels);
+        std::vector<unsigned char> converted; // will hold converted data if needed
+
+
+        // NPOT handling: WebGL1 forbids mipmaps + repeat for NPOT textures.
+        bool npot = false;// !isPowerOfTwo(width) || !isPowerOfTwo(height);
+        bool useMips = generateMipmaps && !npot;
+
+        // Upload
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, uploadPixels);
+
+        // Debug GL error right after upload (useful to catch ANGLE errors)
+        GLenum err = glGetError();
+        if (err != GL_NO_ERROR) {
+            std::cerr << "glTexImage2D failed with GL error: 0x" << std::hex << err << std::dec << std::endl;
+            // still continue to set parameters (but texture may be invalid)
+        }
+
+        if (useMips) {
             glGenerateMipmap(GL_TEXTURE_2D);
         }
 
-        // Anisotropic filtering (if supported)
-        GLfloat maxAniso = 0.0f;
-        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
-        if (maxAniso > 0.0f) {
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+        // Set sensible parameters based on NPOT/mips
+        if (npot) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, useMips ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
         }
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, generateMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST);
+        else {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, useMips ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST);
+        }
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
+		GLfloat maxAniso = 0.0f;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+		if (maxAniso > 0.0f) {
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+		}
+
 
         valid = true;
     }
@@ -115,6 +154,15 @@ private:
     }
 
     void loadFromRawData(const unsigned char* data, int width, int height, GLenum format, bool generateMipmaps) {
+        // quick sanity check for commonly expected RGB buffer size
+        if (!data) {
+            std::cerr << "loadFromRawData: null data pointer\n";
+            return;
+        }
+        if (format == GL_RGB) {
+            // If you expect RGB, verify size externally (frame vector length etc.)
+            // (Cannot check here without knowing buffer size.)
+        }
         setupTexture(width, height, format, data, generateMipmaps);
     }
 };

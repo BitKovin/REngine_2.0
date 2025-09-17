@@ -5,8 +5,11 @@
 class WeaponFireFlash : public PointLight
 {
 public:
-	WeaponFireFlash();
-	~WeaponFireFlash();
+	WeaponFireFlash()
+	{
+		color = vec3(1, 1, 0.4f);
+	}
+	~WeaponFireFlash(){}
 
 	float duration = 0.2f;
 	float flashRadius = 5;
@@ -44,12 +47,3 @@ public:
 private:
 
 };
-
-WeaponFireFlash::WeaponFireFlash()
-{
-	color = vec3(1,1,0.4f);
-}
-
-WeaponFireFlash::~WeaponFireFlash()
-{
-}

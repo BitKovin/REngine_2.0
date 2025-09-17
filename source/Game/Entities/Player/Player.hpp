@@ -243,9 +243,11 @@ public:
 
 		PreloadEntityType("weapon_pistol");
 		PreloadEntityType("weapon_shotgun");
+		PreloadEntityType("weapon_tommy");
 
 		AddWeaponByName("weapon_pistol");
 		AddWeaponByName("weapon_shotgun");
+		AddWeaponByName("weapon_tommy");
 
 		SwitchWeaponOffhand("weapon_cane");
 

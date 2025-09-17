@@ -122,6 +122,12 @@ namespace roj
 		std::vector<MeshTexture> diffuseMaps = loadTextureMap(material, aiTextureType_BASE_COLOR, scene);
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
+		std::vector<MeshTexture> emissiveMaps = loadTextureMap(material, aiTextureType_EMISSIVE, scene);
+		textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
+
+		std::vector<MeshTexture> emissiveColorMaps = loadTextureMap(material, aiTextureType_EMISSION_COLOR, scene);
+		textures.insert(textures.end(), emissiveColorMaps.begin(), emissiveColorMaps.end());
+
 		std::vector<MeshTexture> specularMaps = loadTextureMap(material, aiTextureType_SPECULAR, scene);
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 

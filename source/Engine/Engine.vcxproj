@@ -296,6 +296,7 @@
     <ClCompile Include="Particle\RibbonEmitter.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Physics.h" />
+    <ClCompile Include="RandomHelper.cpp" />
     <ClCompile Include="Renderer\Abstractions\FrameBuffer.cpp" />
     <ClCompile Include="Renderer\Abstractions\RenderTexture.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
@@ -393,6 +394,7 @@
     <ClInclude Include="PlatformMains\emscripten_main.hpp" />
     <ClInclude Include="PlatformMains\linux_main.hpp" />
     <ClInclude Include="PlatformMains\windows_main.hpp" />
+    <ClInclude Include="RandomHelper.h" />
     <ClInclude Include="RegisterLevelObject.h" />
     <ClInclude Include="Renderer\Abstractions\FrameBuffer.h" />
     <ClInclude Include="Renderer\Renderer.h" />
