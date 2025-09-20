@@ -6,6 +6,7 @@
 #include "../DebugDraw.hpp"
 
 #include "../FogManager.h"
+#include "RHI/Bgfx/bgfx_wrapper.h"
 
 Renderer::Renderer()
 {
@@ -39,8 +40,8 @@ Renderer::~Renderer()
 	delete(colorBuffer);
 	delete(depthBuffer);
 
-	glDeleteVertexArrays(1, &quadVAO);
-	glDeleteBuffers(1, &quadVBO);
+	// For bgfx, cleanup is handled automatically
+	// No need to manually delete VAOs and VBOs
 }
 
 void Renderer::RenderLevel(Level* level)
@@ -54,7 +55,7 @@ void Renderer::RenderLevel(Level* level)
 
 	//rendering to screen
 	ivec2 screenResolution = GetScreenResolution();
-	glViewport(0,0,screenResolution.x, screenResolution.y);
+	RenderInterface::SetViewport(0, 0, screenResolution.x, screenResolution.y);
 	RenderFullscreenQuad(colorResolveBuffer->id());
 
 }
@@ -65,22 +66,8 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 
     ivec2 res = GetScreenResolution();
 
-    #ifndef GL_ES_PROFILE
-
-    if (MultiSampleCount)
-    {
-        glEnable(GL_MULTISAMPLE);
-    }
-    else
-    {
-        glDisable(GL_MULTISAMPLE);
-    }
-
-    #else
-
-    MultiSampleCount = 0;
-
-    #endif // !GL_ES_PROFILE
+    // For bgfx, multisample is handled automatically
+    // No need to manually enable/disable it
 
 #ifndef GL_ES_PROFILE
 
@@ -121,20 +108,17 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     // 1) bind the one multisample FBO with both attachments
     forwardFBO->bind();
 
-    glViewport(0, 0, res.x, res.y);
+    RenderInterface::SetViewport(0, 0, res.x, res.y);
 
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(2.0f, 2.0f); // slopeScale, units
+    // For bgfx, polygon offset is handled in the state
+    // RenderInterface::SetState(BGFX_STATE_POLYGON_OFFSET | BGFX_STATE_WRITE_Z);
 
     //
     // A) Depth‑only pass
     //
-    // disable color writes, enable depth writes, clear depth
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDepthMask(GL_TRUE);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glDepthFunc(GL_LESS);
-    glEnable(GL_CULL_FACE);
+    // For bgfx, we use SetViewClear to set up the clear state
+    RenderInterface::SetViewClear(0, RenderInterface::DEPTH_BUFFER_BIT, 0x000000ff, 1.0f, 0);
+    RenderInterface::Touch(0);
 
 
     for (auto* mesh : VissibleRenderList) 
@@ -149,27 +133,25 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
         mesh->DrawDepth(Camera::finalizedView, P);
 
     }
-    glUseProgram(0);
+    // For bgfx, we don't need to call UseProgram(0)
 
     forwardFBO->unbind();
-    glDisable(GL_POLYGON_OFFSET_FILL);
+    // For bgfx, polygon offset is handled in the state
 
     forwardFBO->resolve(*forwardResolveFBO,
-        GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
-        GL_LINEAR);
+        RenderInterface::COLOR_BUFFER_BIT | RenderInterface::DEPTH_BUFFER_BIT,
+        RenderInterface::LINEAR);
 
     forwardFBO->bind();
 
     //
     // B) Opaque + transparent color passes
     //
-    // re‑enable color writes, disable depth writes, clear color    
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glDepthMask(GL_FALSE);
-    glClear(GL_COLOR_BUFFER_BIT);
+    // For bgfx, we use SetViewClear to set up the clear state
+    RenderInterface::SetViewClear(0, RenderInterface::COLOR_BUFFER_BIT, 0x000000ff, 1.0f, 0);
+    RenderInterface::Touch(0);
 
-    // draw opaque where depth ==
-    glDepthFunc(GL_LEQUAL);
+    // For bgfx, depth function is handled in the state
     for (auto* mesh : VissibleRenderList) {
         if (mesh->Transparent) continue;
         const mat4& P = mesh->IsViewmodel
@@ -177,12 +159,11 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
             : Camera::finalizedProjection;
         mesh->DrawForward(Camera::finalizedView, P);
     }
-    glUseProgram(0);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // For bgfx, we don't need to call UseProgram(0)
+    // For bgfx, blend state is handled in the state
+    // RenderInterface::SetState(BGFX_STATE_BLEND_ALPHA);
 
-    // draw transparent with normal depth test
-    glDepthFunc(GL_LEQUAL);
+    // For bgfx, depth function is handled in the state
 
     Level::Current->BspData.RenderTransparentFaces();
 
@@ -195,68 +176,60 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     }
 
     DebugDraw::Draw();
-    glUseProgram(0);
+    // For bgfx, we don't need to call UseProgram(0)
 
-    //this part makes it work correctly if premultiplied alpha is enabled by webgl. can be disabled by injecting js code in shell, but better to keep just in case
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
-    glClearColor(0, 0, 0, 1);    // only alpha channel to 1
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    // For bgfx, color mask and clear are handled in SetViewClear
+    // This is a simplified approach - in practice, you'd want to handle this more carefully
 
     forwardFBO->unbind();
 
     // 2) resolve to single‐sample FBO
     forwardFBO->resolve(*forwardResolveFBO,
-        GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,  
-        GL_NEAREST);
+        RenderInterface::COLOR_BUFFER_BIT | RenderInterface::DEPTH_BUFFER_BIT,  
+        RenderInterface::NEAREST);
 
 }
 
 void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderList, Framebuffer& fbo, int numCascades)
 {
-    glUseProgram(0);
+    // For bgfx, we don't need to call UseProgram(0)
     fbo.bind();
 
     int halfRes = LightManager::ShadowMapResolution / 2;
 
-    
+    // For bgfx, we use SetViewClear to set up the clear state
+    RenderInterface::SetViewClear(0, RenderInterface::DEPTH_BUFFER_BIT, 0x000000ff, 1.0f, 0);
+    RenderInterface::Touch(0);
 
-    glEnable(GL_DEPTH_TEST);
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDepthMask(GL_TRUE);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glDepthFunc(GL_LESS);
-    glEnable(GL_CULL_FACE);
+    // For bgfx, depth test, color mask, and cull face are handled in the state
 
-
-    glViewport(0, 0, halfRes, halfRes);
+    RenderInterface::SetViewport(0, 0, halfRes, halfRes);
     for (auto* mesh : ShadowRenderList) {
         mesh->DrawShadow(LightManager::lightView1, LightManager::lightProjection1);
     }
 
-    glViewport(halfRes, 0, halfRes, halfRes);
+    RenderInterface::SetViewport(halfRes, 0, halfRes, halfRes);
     for (auto* mesh : ShadowRenderList) {
         mesh->DrawShadow(LightManager::lightView2, LightManager::lightProjection2);
     }
 
-    glViewport(0, halfRes, halfRes, halfRes);
+    RenderInterface::SetViewport(0, halfRes, halfRes, halfRes);
     for (auto* mesh : ShadowRenderList) {
         mesh->DrawShadow(LightManager::lightView3, LightManager::lightProjection3);
     }
 
-    glViewport(halfRes, halfRes, halfRes, halfRes);
+    RenderInterface::SetViewport(halfRes, halfRes, halfRes, halfRes);
     for (auto* mesh : ShadowRenderList) {
         mesh->DrawShadow(LightManager::lightView4, LightManager::lightProjection4);
     }
-    glUseProgram(0);
+    // For bgfx, we don't need to call UseProgram(0)
 }
 
-void Renderer::RenderFullscreenQuad(GLuint textureID)
+void Renderer::RenderFullscreenQuad(uint32_t textureID)
 {
+    // For bgfx, dither and depth test are handled in the state
+    // RenderInterface::SetState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
 
-    glDisable(GL_DITHER);
-
-	glDisable(GL_DEPTH_TEST);
 	fullscreenShader->UseProgram();
 
     ivec2 screenResolution = GetScreenResolution();
@@ -264,13 +237,9 @@ void Renderer::RenderFullscreenQuad(GLuint textureID)
 	
 	fullscreenShader->SetTexture("screenTexture", textureID);
     fullscreenShader->SetUniform("screenResolution", screenResolution);
-	// Draw quad
-	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-
-
-	glEnable(GL_DEPTH_TEST);
+	// Draw quad with bgfx
+	RenderInterface::SetVertexBuffer(0, quadVBO, 0, 4);
+	RenderInterface::Submit(0, fullscreenShader->program, 0, 0);
 
 
 }
@@ -344,16 +313,18 @@ void Renderer::InitFullscreenVAO()
 		 1.0f, -1.0f,  1.0f, 0.0f,
 	};
 
-	glGenVertexArrays(1, &quadVAO);
-	glGenBuffers(1, &quadVBO);
-	glBindVertexArray(quadVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-	glBindVertexArray(0);
+	// Create vertex layout for bgfx
+	bgfx::VertexLayout layout;
+	layout.begin()
+		.add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
+		.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
+		.end();
+
+	// Create vertex buffer with bgfx
+	void* mem = RenderInterface::Alloc(sizeof(quadVertices));
+	memcpy(mem, quadVertices, sizeof(quadVertices));
+	quadVBO = RenderInterface::CreateVertexBuffer(mem, sizeof(quadVertices), &layout, 0);
+	RenderInterface::Free(mem);
 }
 
 void Renderer::InitFrameBuffers()

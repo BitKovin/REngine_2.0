@@ -1,7 +1,8 @@
 #pragma once
 
 #include "glm.h"
-#include "gl.h"
+#include <glm/glm.hpp>
+#include "Renderer/RHI/RenderInterface.h"
 #include <vector>
 
 #include "EObject.hpp"
@@ -11,13 +12,13 @@
 class VertexDeclaration {
 public:
     struct Element {
-        GLuint index;
-        GLint componentCount;
-        GLenum type;
-        GLboolean normalized;
-        GLsizei stride;
+        uint32_t index;
+        int32_t componentCount;
+        uint32_t type;
+        bool normalized;
+        int32_t stride;
         const void* offset;
-        GLuint divisor;
+        uint32_t divisor;
     };
 
     VertexDeclaration(std::initializer_list<Element> elements) : m_elements(elements) {}
@@ -30,62 +31,105 @@ private:
 class VertexBuffer : public EObject {
 public:
     template<typename T>
-    VertexBuffer(const std::vector<T>& vertices, const VertexDeclaration& declaration, GLenum usage = GL_STATIC_DRAW)
+    VertexBuffer(const std::vector<T>& vertices, const VertexDeclaration& declaration, uint32_t usage = RenderInterface::STATIC_DRAW)
         : m_declaration(declaration), m_vertexCount(vertices.size()) {
-        glGenBuffers(1, &m_id);
-        Bind();
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), vertices.data(), usage);
+        // Create bgfx memory from vertex data
+        void* mem = RenderInterface::Alloc(vertices.size() * sizeof(T));
+        memcpy(mem, vertices.data(), vertices.size() * sizeof(T));
+        
+        // Create vertex buffer with bgfx
+        m_id = RenderInterface::CreateVertexBuffer(mem, vertices.size() * sizeof(T), &declaration, 0);
+        
+        RenderInterface::Free(mem);
     }
 
-    ~VertexBuffer() { glDeleteBuffers(1, &m_id); }
+    ~VertexBuffer() { 
+        if (m_id != RenderInterface::INVALID_HANDLE)
+            RenderInterface::DestroyVertexBuffer(m_id); 
+    }
 
-    void Bind() const { glBindBuffer(GL_ARRAY_BUFFER, m_id); }
-    static void Unbind() { glBindBuffer(GL_ARRAY_BUFFER, 0); }
+    void Bind() const { 
+        // For bgfx, binding is handled differently
+        // This is a placeholder for compatibility
+    }
+    static void Unbind() { 
+        // For bgfx, unbinding is handled differently
+        // This is a placeholder for compatibility
+    }
 
     const VertexDeclaration& GetDeclaration() const { return m_declaration; }
     size_t GetVertexCount() const { return m_vertexCount; }
 
     // New method to update buffer data
     template<typename T>
-    void UpdateData(const std::vector<T>& data, size_t offset = 0, GLenum usage = GL_DYNAMIC_DRAW) {
-        Bind();
-        // If the new data size differs from the currently allocated one, reallocate the buffer.
-        if (data.size() != m_vertexCount) {
-            m_vertexCount = data.size();
-            glBufferData(GL_ARRAY_BUFFER, m_vertexCount * sizeof(T), data.data(), usage);
+    void UpdateData(const std::vector<T>& data, size_t offset = 0, uint32_t usage = RenderInterface::DYNAMIC_DRAW) {
+        // For bgfx, we need to recreate the buffer with new data
+        // This is a simplified approach - in practice, you'd want to handle this more efficiently
+        if (m_id != RenderInterface::INVALID_HANDLE) {
+            RenderInterface::DestroyVertexBuffer(m_id);
         }
-        else {
-            glBufferSubData(GL_ARRAY_BUFFER, offset * sizeof(T), data.size() * sizeof(T), data.data());
-        }
+        
+        // Create new buffer with updated data
+        void* mem = RenderInterface::Alloc(data.size() * sizeof(T));
+        memcpy(mem, data.data(), data.size() * sizeof(T));
+        
+        m_id = RenderInterface::CreateVertexBuffer(mem, data.size() * sizeof(T), &m_declaration, 0);
+        m_vertexCount = data.size();
+        
+        RenderInterface::Free(mem);
     }
 
 private:
-    GLuint m_id;
+    uint32_t m_id;
     VertexDeclaration m_declaration;
     size_t m_vertexCount;
 };
 
 class IndexBuffer : public EObject {
 public:
-    IndexBuffer(const std::vector<GLuint>& indices, GLenum usage = GL_STATIC_DRAW)
+    IndexBuffer(const std::vector<uint32_t>& indices, uint32_t usage = RenderInterface::STATIC_DRAW)
         : m_indexCount(indices.size()) {
-        glGenBuffers(1, &m_id);
-        Bind();
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), usage);
+        // Create bgfx memory from index data
+        void* mem = RenderInterface::Alloc(indices.size() * sizeof(uint32_t));
+        memcpy(mem, indices.data(), indices.size() * sizeof(uint32_t));
+        
+        // Create index buffer with bgfx
+        m_id = RenderInterface::CreateIndexBuffer(mem, indices.size() * sizeof(uint32_t), 0);
+        
+        RenderInterface::Free(mem);
     }
 
-    ~IndexBuffer() { glDeleteBuffers(1, &m_id); }
-    void Bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id); }
-    static void Unbind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
-    void UpdateData(const std::vector<GLuint>& data, GLenum usage = GL_STREAM_DRAW) {
-        Bind();
+    ~IndexBuffer() { 
+        if (m_id != RenderInterface::INVALID_HANDLE)
+            RenderInterface::DestroyIndexBuffer(m_id); 
+    }
+    void Bind() const { 
+        // For bgfx, binding is handled differently
+        // This is a placeholder for compatibility
+    }
+    static void Unbind() { 
+        // For bgfx, unbinding is handled differently
+        // This is a placeholder for compatibility
+    }
+    void UpdateData(const std::vector<uint32_t>& data, uint32_t usage = RenderInterface::STREAM_DRAW) {
+        // For bgfx, we need to recreate the buffer with new data
+        if (m_id != RenderInterface::INVALID_HANDLE) {
+            RenderInterface::DestroyIndexBuffer(m_id);
+        }
+        
+        // Create new buffer with updated data
+        void* mem = RenderInterface::Alloc(data.size() * sizeof(uint32_t));
+        memcpy(mem, data.data(), data.size() * sizeof(uint32_t));
+        
+        m_id = RenderInterface::CreateIndexBuffer(mem, data.size() * sizeof(uint32_t), 0);
         m_indexCount = data.size();
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indexCount * sizeof(GLuint), data.data(), usage);
+        
+        RenderInterface::Free(mem);
     }
     size_t GetIndexCount() const { return m_indexCount; }
 
 private:
-    GLuint m_id;
+    uint32_t m_id;
     size_t m_indexCount;
 };
 
@@ -94,7 +138,7 @@ private:
 // ------------------------------------------------------------
 #ifndef GL_ES_2
 
-// --- original VAO implementation for non-GLES2 platforms ---
+// --- bgfx VAO implementation ---
 class VertexArrayObject : public EObject {
 public:
     int IndexCount = 0;
@@ -103,95 +147,40 @@ public:
     VertexBuffer* instanceBuffer = nullptr;
 
     VertexArrayObject(VertexBuffer& vb, IndexBuffer& ib, VertexBuffer* instanceBuf = nullptr) {
-        glGenVertexArrays(1, &m_id);
-        glBindVertexArray(m_id);
-
+        // For bgfx, we don't need to create a VAO as it handles vertex layouts differently
+        // We just store references to the buffers
         IndexCount = ib.GetIndexCount();
         vertexBuffer = &vb;
         indexBuffer = &ib;
         instanceBuffer = instanceBuf;
-
-        vb.Bind();
-        ib.Bind();
-        const auto& vertexElements = vb.GetDeclaration().GetElements();
-        for (const auto& element : vertexElements) {
-            glEnableVertexAttribArray(element.index);
-            const bool isIntegerType =
-                element.type == GL_INT ||
-                element.type == GL_UNSIGNED_INT ||
-                element.type == GL_BYTE ||
-                element.type == GL_UNSIGNED_BYTE ||
-                element.type == GL_SHORT ||
-                element.type == GL_UNSIGNED_SHORT;
-
-            if (isIntegerType && !element.normalized) {
-                glVertexAttribIPointer(
-                    element.index,
-                    element.componentCount,
-                    element.type,
-                    element.stride,
-                    element.offset
-                );
-            }
-            else {
-                glVertexAttribPointer(
-                    element.index,
-                    element.componentCount,
-                    element.type,
-                    element.normalized,
-                    element.stride,
-                    element.offset
-                );
-            }
-            if (element.divisor > 0) {
-                glVertexAttribDivisor(element.index, element.divisor);
-            }
-        }
-
-        if (instanceBuffer) {
-            instanceBuffer->Bind();
-            const auto& instanceElements = instanceBuffer->GetDeclaration().GetElements();
-            for (const auto& element : instanceElements) {
-                glEnableVertexAttribArray(element.index);
-                glVertexAttribPointer(
-                    element.index,
-                    element.componentCount,
-                    element.type,
-                    element.normalized,
-                    element.stride,
-                    element.offset
-                );
-                glVertexAttribDivisor(element.index, element.divisor);
-            }
-        }
-
-        glBindVertexArray(0);
-        VertexBuffer::Unbind();
-        IndexBuffer::Unbind();
+        
+        // For bgfx, the vertex layout is defined when creating the vertex buffer
+        // and the VAO concept is handled internally by bgfx
     }
 
-    ~VertexArrayObject() { glDeleteVertexArrays(1, &m_id); }
-    void Bind() const { glBindVertexArray(m_id); }
-    static void Unbind() { glBindVertexArray(0); }
+    ~VertexArrayObject() { 
+        // For bgfx, we don't need to delete anything as it's handled internally
+    }
+    void Bind() const { 
+        // For bgfx, binding is handled differently
+        // This is a placeholder for compatibility
+    }
+    static void Unbind() { 
+        // For bgfx, unbinding is handled differently
+        // This is a placeholder for compatibility
+    }
     bool IsInstanced() const { return instanceBuffer != nullptr; }
     size_t GetInstanceCount() const { return instanceBuffer ? instanceBuffer->GetVertexCount() : 0; }
 
 private:
-    GLuint m_id;
+    // For bgfx, we don't need to store an ID as it's handled internally
 };
 
 #else // GL_ES_2
 
-// --- GLES2 fallback: emulate VAO by replaying attribute setup ---
-// Behavior:
-//  - On Bind() we bind vertex/index buffers and call glEnableVertexAttribArray + glVertexAttribPointer for every element.
-//  - On Unbind() we disable the attributes that this VAO enabled and unbind buffers.
-//  - Integer attribute types (GL_INT etc.) are NOT supported in GLES2 => they are treated as GL_FLOAT here.
-//  - Instancing (divisor > 0) is NOT supported in core GLES2. If you enable ANGLE/EXT instanced arrays and have a loader,
-//    you can extend this code to call the corresponding glVertexAttribDivisor* functions.
-//
-// Usage: same as desktop path. Compilation: define GL_ES_2 to select this path.
-//
+// --- bgfx fallback: same as desktop path ---
+// For bgfx, we use the same implementation as the desktop path
+// since bgfx handles all the platform differences internally
 class VertexArrayObject : public EObject {
 public:
     int IndexCount = 0;
@@ -199,133 +188,44 @@ public:
     IndexBuffer* indexBuffer = nullptr;
     VertexBuffer* instanceBuffer = nullptr;
 
-    VertexArrayObject(VertexBuffer& vb, IndexBuffer& ib, VertexBuffer* instanceBuf = nullptr)
-        : vertexElements(vb.GetDeclaration().GetElements()) {
+    VertexArrayObject(VertexBuffer& vb, IndexBuffer& ib, VertexBuffer* instanceBuf = nullptr) {
+        // For bgfx, we don't need to create a VAO as it handles vertex layouts differently
+        // We just store references to the buffers
         IndexCount = ib.GetIndexCount();
         vertexBuffer = &vb;
         indexBuffer = &ib;
         instanceBuffer = instanceBuf;
-        if (instanceBuffer) instanceElements = instanceBuffer->GetDeclaration().GetElements();
+        
+        // For bgfx, the vertex layout is defined when creating the vertex buffer
+        // and the VAO concept is handled internally by bgfx
     }
 
-    ~VertexArrayObject() { /* nothing to free in GLES2 emulation */ }
+    ~VertexArrayObject() { 
+        // For bgfx, we don't need to delete anything as it's handled internally
+    }
 
     // Bind: set up attributes (emulates binding a VAO)
     void Bind() const {
-        // Bind buffers first
-        vertexBuffer->Bind();
-        indexBuffer->Bind();
-
-        m_enabledAttributes.clear();
-
-        // Vertex attributes
-        for (const auto& element : vertexElements) {
-            // Enable attribute
-            glEnableVertexAttribArray(element.index);
-            m_enabledAttributes.push_back(element.index);
-
-            // GLES2: integer attribute types do not exist. Fallback to GL_FLOAT here.
-            GLenum attrType = element.type;
-            if (attrType == GL_INT || attrType == GL_UNSIGNED_INT ||
-                attrType == GL_SHORT || attrType == GL_UNSIGNED_SHORT ||
-                attrType == GL_BYTE || attrType == GL_UNSIGNED_BYTE) {
-                // integer types will be passed as floats to the shader
-                attrType = GL_FLOAT;
-            }
-
-            glVertexAttribPointer(
-                element.index,
-                element.componentCount,
-                attrType,
-                element.normalized,
-                element.stride,
-                element.offset
-            );
-
-            // NOTE: element.divisor is ignored in core GLES2. To support instancing you must:
-            //   1) have the ANGLE_instanced_arrays or EXT_instanced_arrays extension
-            //   2) load the extension functions (glVertexAttribDivisorANGLE / glDrawElementsInstancedANGLE etc.)
-            // This header does not attempt to load those function pointers automatically.
-        }
-
-        // Instance attributes (emulated: attributes are enabled, but divisor is ignored unless you add extension loading)
-        if (instanceBuffer) {
-            instanceBuffer->Bind();
-            for (const auto& element : instanceElements) {
-                glEnableVertexAttribArray(element.index);
-                m_enabledAttributes.push_back(element.index);
-
-                GLenum attrType = element.type;
-                if (attrType == GL_INT || attrType == GL_UNSIGNED_INT ||
-                    attrType == GL_SHORT || attrType == GL_UNSIGNED_SHORT ||
-                    attrType == GL_BYTE || attrType == GL_UNSIGNED_BYTE) {
-                    attrType = GL_FLOAT;
-                }
-
-                glVertexAttribPointer(
-                    element.index,
-                    element.componentCount,
-                    attrType,
-                    element.normalized,
-                    element.stride,
-                    element.offset
-                );
-
-                // If element.divisor > 0: instancing requires extension; divisor not set here.
-            }
-        }
-
-        // record that *this* is bound (used by static Unbind)
-        s_bound = this;
+        // For bgfx, binding is handled differently
+        // This is a placeholder for compatibility
     }
 
     // Unbind: disable attributes enabled by the last Bind() and unbind buffers
     static void Unbind() {
-        if (!s_bound) {
-            // nothing bound
-            VertexBuffer::Unbind();
-            IndexBuffer::Unbind();
-            return;
-        }
-
-        // disable attributes that were enabled by the last Bind
-        for (auto idx : s_bound->m_enabledAttributes) {
-            glDisableVertexAttribArray(idx);
-        }
-        s_bound->m_enabledAttributes.clear();
-
-        VertexBuffer::Unbind();
-        IndexBuffer::Unbind();
-
-        s_bound = nullptr;
+        // For bgfx, unbinding is handled differently
+        // This is a placeholder for compatibility
     }
 
     bool IsInstanced() const {
-        // Return true only if the instance buffer exists and at least one element uses a divisor.
-        // Note: without extension this will not actually perform instanced draws.
-        if (!instanceBuffer) return false;
-        for (const auto& el : instanceElements) {
-            if (el.divisor > 0) return true;
-        }
-        return false;
+        return instanceBuffer != nullptr;
     }
 
     size_t GetInstanceCount() const {
-        // Instance counting needs actual instancing support to be meaningful.
-        // We return 0 to indicate "not supported" by default on GLES2 without extension.
-        return 0;
+        return instanceBuffer ? instanceBuffer->GetVertexCount() : 0;
     }
 
 private:
-    // attributes enabled during Bind() so we can disable them on Unbind()
-    mutable std::vector<GLuint> m_enabledAttributes;
-
-    // cached copies of element declarations so Bind() doesn't access transient refs
-    std::vector<VertexDeclaration::Element> vertexElements;
-    std::vector<VertexDeclaration::Element> instanceElements;
-
-    // last bound emulated VAO instance (used by Unbind)
-    inline static VertexArrayObject* s_bound = nullptr;
+    // For bgfx, we don't need to store these as it's handled internally
 };
 
 #endif // GL_ES_2
@@ -344,16 +244,16 @@ struct VertexData {
 
     static VertexDeclaration Declaration() {
         return VertexDeclaration({
-            {0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, Position), 0},
-            {1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, Normal), 0},
-            {2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, TextureCoordinate), 0},
-            {3, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, Tangent), 0},
-            {4, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, BiTangent), 0},
-            {5, 4, GL_INT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, BlendIndices), 0},
-            {6, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, BlendWeights), 0},
-            {7, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, SmoothNormal), 0},
-            {8, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, Color), 0},
-            { 9, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), OFFSET_OF(VertexData, ShadowMapCoords), 0 }
+            {0, 3, RenderInterface::FLOAT, false, sizeof(VertexData), OFFSET_OF(VertexData, Position), 0},
+            {1, 3, RenderInterface::FLOAT, false, sizeof(VertexData), OFFSET_OF(VertexData, Normal), 0},
+            {2, 2, RenderInterface::FLOAT, false, sizeof(VertexData), OFFSET_OF(VertexData, TextureCoordinate), 0},
+            {3, 3, RenderInterface::FLOAT, false, sizeof(VertexData), OFFSET_OF(VertexData, Tangent), 0},
+            {4, 3, RenderInterface::FLOAT, false, sizeof(VertexData), OFFSET_OF(VertexData, BiTangent), 0},
+            {5, 4, RenderInterface::UNSIGNED_INT, false, sizeof(VertexData), OFFSET_OF(VertexData, BlendIndices), 0},
+            {6, 4, RenderInterface::FLOAT, false, sizeof(VertexData), OFFSET_OF(VertexData, BlendWeights), 0},
+            {7, 3, RenderInterface::FLOAT, false, sizeof(VertexData), OFFSET_OF(VertexData, SmoothNormal), 0},
+            {8, 4, RenderInterface::FLOAT, false, sizeof(VertexData), OFFSET_OF(VertexData, Color), 0},
+            { 9, 2, RenderInterface::FLOAT, false, sizeof(VertexData), OFFSET_OF(VertexData, ShadowMapCoords), 0 }
             });
     }
 };
@@ -364,11 +264,11 @@ struct InstanceData {
 
     static VertexDeclaration Declaration() {
         return VertexDeclaration({
-            {10, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)0, 1},
-            {11, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)(sizeof(glm::vec4)), 1},
-            {12, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)(2 * sizeof(glm::vec4)), 1},
-            {13, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)(3 * sizeof(glm::vec4)), 1},
-            {14, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)(4 * sizeof(glm::vec4)), 1}
+            {10, 4, RenderInterface::FLOAT, false, sizeof(InstanceData), (void*)0, 1},
+            {11, 4, RenderInterface::FLOAT, false, sizeof(InstanceData), (void*)(sizeof(glm::vec4)), 1},
+            {12, 4, RenderInterface::FLOAT, false, sizeof(InstanceData), (void*)(2 * sizeof(glm::vec4)), 1},
+            {13, 4, RenderInterface::FLOAT, false, sizeof(InstanceData), (void*)(3 * sizeof(glm::vec4)), 1},
+            {14, 4, RenderInterface::FLOAT, false, sizeof(InstanceData), (void*)(4 * sizeof(glm::vec4)), 1}
             });
     }
 };

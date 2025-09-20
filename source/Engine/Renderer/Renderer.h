@@ -8,6 +8,8 @@
 
 #include "../ShaderManager.h"
 #include "../Shader.hpp"
+#include "RHI/RenderInterface.h"
+#include "RHI/Bgfx/bgfx_wrapper.h"
 
 class Renderer
 {
@@ -21,7 +23,7 @@ public:
 
 	void RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderList, Framebuffer& fbo, int numCascades);
 
-	void RenderFullscreenQuad(GLuint textureID);
+	void RenderFullscreenQuad(uint32_t textureID);
 
 	static void SetSurfaceShaderUniforms(ShaderProgram* shader);
 
@@ -36,8 +38,7 @@ private:
 	void InitFrameBuffers();
 	void InitResolveFrameBuffers();
 
-	unsigned int quadVAO;
-	unsigned int quadVBO;
+	uint32_t quadVBO;
 
 	RenderTexture* colorBuffer = nullptr;
 	RenderTexture* depthBuffer = nullptr;

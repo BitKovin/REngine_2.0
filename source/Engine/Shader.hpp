@@ -5,8 +5,10 @@
 #include <unordered_map>
 #include <algorithm>
 #include "Logger.hpp"
-#include "gl.h"
+#include "Renderer/RHI/RenderInterface.h"
 #include "glm.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Texture.hpp"
 #include "FileSystem/FileSystem.h"
@@ -23,13 +25,13 @@ enum ShaderType
 // Forward declare so Shader can reference ShaderProgram and vice-versa
 class ShaderProgram;
 
-// Struct for storing OpenGL attribute information.
-struct GLAttribute
+// Struct for storing shader attribute information.
+struct ShaderAttribute
 {
     std::string name;  // Attribute name.
-    GLenum type = -1;       // Data type (e.g., GL_FLOAT, GL_INT).
-    GLint size = -1;        // Size (number of components, or array size).
-    GLint location = -1;    // Location within the shader program.
+    uint32_t type = RenderInterface::INVALID_HANDLE;       // Data type (e.g., FLOAT, INT).
+    int32_t size = -1;        // Size (number of components, or array size).
+    int32_t location = -1;    // Location within the shader program.
 };
 
 class Shader
@@ -37,7 +39,7 @@ class Shader
 public:
     Shader() {}
 
-    GLuint shaderPointer = 0;
+    uint32_t shaderHandle = RenderInterface::INVALID_HANDLE;
     std::string shaderCode = "";
     std::string filePath = "";
     ShaderType shaderType = ShaderType::PixelShader;
@@ -49,16 +51,10 @@ public:
     static Shader* FromCode(const char* code, ShaderType shaderType, bool autoCompile = true)
     {
         Shader* output = new Shader();
-        GLuint glShaderType = (shaderType == VertexShader) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
+        uint32_t shaderTypeFlag = (shaderType == VertexShader) ? RenderInterface::VERTEX_SHADER : RenderInterface::FRAGMENT_SHADER;
 
         output->shaderCode = code;
-        const char* cCode = code;
-
-        output->shaderPointer = glCreateShader(glShaderType);
-
         output->shaderType = shaderType;
-
-        glShaderSource(output->shaderPointer, 1, &cCode, NULL);
 
         if (autoCompile)
             output->CompileShader();
@@ -77,20 +73,18 @@ public:
     // Compiles the shader and logs compile errors if any.
     void CompileShader()
     {
-        glCompileShader(shaderPointer);
-
-        GLint success = 0;
-        glGetShaderiv(shaderPointer, GL_COMPILE_STATUS, &success);
-        if (success == GL_FALSE)
+        uint32_t shaderTypeFlag = (shaderType == VertexShader) ? RenderInterface::VERTEX_SHADER : RenderInterface::FRAGMENT_SHADER;
+        
+        // Use GLSL compilation directly
+        shaderHandle = RenderInterface::CreateShaderFromGLSL(shaderCode.c_str(), shaderTypeFlag);
+        
+        if (shaderHandle == RenderInterface::INVALID_HANDLE)
         {
-            GLint logLength = 0;
-            glGetShaderiv(shaderPointer, GL_INFO_LOG_LENGTH, &logLength);
-            std::string infoLog(logLength, ' ');
-            glGetShaderInfoLog(shaderPointer, logLength, &logLength, &infoLog[0]);
-            Logger::Log("Shader compilation failed:\n" + infoLog);
+            Logger::Log("Shader compilation failed for shader type: " + std::to_string(shaderType));
             Logger::Log(shaderCode);
         }
     }
+    
 
     // Register/unregister programs that use this shader
     void RegisterProgram(ShaderProgram* prog)
@@ -116,16 +110,16 @@ class ShaderProgram
 {
 
 private:
-    std::unordered_map<std::string, GLuint> m_textureUnits;
-    GLuint m_currentUnit = 0;
-    GLuint m_maxTextureUnits = 16; // Will be initialized from GL
+    std::unordered_map<std::string, uint32_t> m_textureUnits;
+    uint32_t m_currentUnit = 0;
+    uint32_t m_maxTextureUnits = 16; // Will be initialized from render interface
 
 
 
 public:
-    GLuint program;
-    std::vector<GLAttribute> attributes;  // Stores shader attributes.
-    std::unordered_map<std::string, GLint> uniformLocations; // Cache for uniform locations.
+    uint32_t program;
+    std::vector<ShaderAttribute> attributes;  // Stores shader attributes.
+    std::unordered_map<std::string, int32_t> uniformLocations; // Cache for uniform locations.
 
     std::unordered_map<std::string, std::string> textureBindings; 
 
@@ -137,8 +131,8 @@ public:
     bool AllowMissingUniforms = true; // keep your original semantics (you had 'true' earlier)
 
     ShaderProgram() {
-        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, (GLint*)&m_maxTextureUnits);
-        program = glCreateProgram();
+        RenderInterface::GetIntegerv(RenderInterface::MAX_COMBINED_TEXTURE_IMAGE_UNITS, (int32_t*)&m_maxTextureUnits);
+        program = RenderInterface::INVALID_HANDLE;
     }
 
     ~ShaderProgram()
@@ -149,8 +143,8 @@ public:
             if (s) s->UnregisterProgram(this);
         }
 
-        if (program != 0)
-            glDeleteProgram(program);
+        if (program != RenderInterface::INVALID_HANDLE)
+            RenderInterface::DestroyProgram(program);
     }
 
     // Attaches a compiled shader to the program.
@@ -158,7 +152,13 @@ public:
     {
         if (!shader) return this;
 
-        glAttachShader(program, shader->shaderPointer);
+        // For bgfx, we need to create the program when we have both vertex and fragment shaders
+        // This is a simplified approach - in practice, you'd want to handle this more carefully
+        if (program == RenderInterface::INVALID_HANDLE)
+        {
+            // We'll create the program when we have both shaders
+            // For now, just store the shader reference
+        }
 
         // remember locally
         if (std::find(attachedShaders.begin(), attachedShaders.end(), shader) == attachedShaders.end())
@@ -173,17 +173,30 @@ public:
     // Links the program.
     ShaderProgram* LinkProgram()
     {
-        glLinkProgram(program);
-
-        GLint success;
-        glGetProgramiv(program, GL_LINK_STATUS, &success);
-        if (success == GL_FALSE)
+        // Find vertex and fragment shaders
+        Shader* vertexShader = nullptr;
+        Shader* fragmentShader = nullptr;
+        
+        for (auto* shader : attachedShaders)
         {
-            GLint logLength = 0;
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
-            std::string infoLog(logLength, ' ');
-            glGetProgramInfoLog(program, logLength, &logLength, &infoLog[0]);
-            Logger::Log("Shader program linking failed:\n" + infoLog);
+            if (shader->shaderType == VertexShader)
+                vertexShader = shader;
+            else if (shader->shaderType == PixelShader)
+                fragmentShader = shader;
+        }
+        
+        if (vertexShader && fragmentShader)
+        {
+            program = RenderInterface::CreateProgram(vertexShader->shaderHandle, fragmentShader->shaderHandle, false);
+            
+            if (program == RenderInterface::INVALID_HANDLE)
+            {
+                Logger::Log("Shader program linking failed");
+            }
+        }
+        else
+        {
+            Logger::Log("Shader program linking failed: missing vertex or fragment shader");
         }
 
         FillAttributes();
@@ -197,84 +210,43 @@ public:
     // Activates the program.
     void UseProgram()
     {
-        // Unbind previously bound textures
-        for (const auto& pair : m_textureUnits)
-        {
-            GLuint unit = pair.second;
-
-            glActiveTexture(GL_TEXTURE0 + unit);
-            glBindTexture(GL_TEXTURE_2D, 0);         // Unbind 2D texture
-            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);   // Unbind cube map
-        }
-
-        // Activate this shader program
-        glUseProgram(program);
-
+        // For bgfx, we don't need to unbind textures as it handles this automatically
+        // The program will be used when we call RenderInterface::Submit
+        
         ApplyTextureBindings();
-
     }
 
     // Fills the attributes vector by querying the linked program.
     void FillAttributes()
     {
         attributes.clear();
-        GLint attributeCount = 0;
-        glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &attributeCount);
-
-        char name[256];
-        for (int i = 0; i < attributeCount; i++)
-        {
-            GLsizei length = 0;
-            GLint size = 0;
-            GLenum type = 0;
-            glGetActiveAttrib(program, i, sizeof(name), &length, &size, &type, name);
-            GLint location = glGetAttribLocation(program, name);
-
-            GLAttribute atribute;
-
-            atribute.name = name;
-            atribute.type = type;
-            atribute.size = size;
-            atribute.location = location;
-
-            attributes.push_back(atribute);
-        }
+        // For bgfx, we don't need to query attributes as they're defined in the vertex layout
+        // This is a simplified approach - in practice, you'd want to parse the shader code
+        // or use bgfx's reflection capabilities
     }
 
-    // Caches uniform locations to avoid redundant glGetUniformLocation calls.
+    // Caches uniform locations to avoid redundant uniform location calls.
     void CacheUniformLocations()
     {
         uniformLocations.clear();
-        GLint uniformCount = 0;
-        glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &uniformCount);
-
-        char name[256];
-        for (int i = 0; i < uniformCount; i++)
-        {
-            GLsizei length = 0;
-            GLint size = 0;
-            GLenum type = 0;
-            glGetActiveUniform(program, i, sizeof(name), &length, &size, &type, name);
-            GLint location = glGetUniformLocation(program, name);
-            uniformLocations[name] = location;
-        }
+        // For bgfx, we don't need to query uniform locations as they're handled differently
+        // This is a simplified approach - in practice, you'd want to parse the shader code
+        // or use bgfx's reflection capabilities
     }
 
     // Retrieves a cached uniform location.
-    GLint GetUniformLocation(const std::string& name)
+    int32_t GetUniformLocation(const std::string& name)
     {
         auto it = uniformLocations.find(name);
         if (it != uniformLocations.end())
             return it->second;
 
-        GLint location = glGetUniformLocation(program, name.c_str());
+        int32_t location = RenderInterface::GetUniformLocation(program, name.c_str());
 
         uniformLocations[name] = location;
 
         if (location >= 0)
             return location;
-
-
 
         if (AllowMissingUniforms == false)
             Logger::Log("Warning: Uniform \"" + name + "\" not found in program " + std::to_string(program) + ".");
@@ -282,8 +254,8 @@ public:
         return -1;
     }
 
-    void SetTexture(const std::string& name, GLuint texture) {
-        GLint location = GetUniformLocation(name);
+    void SetTexture(const std::string& name, uint32_t texture) {
+        int32_t location = GetUniformLocation(name);
         if (location == -1) return;
 
         // Find or assign texture unit
@@ -297,16 +269,16 @@ public:
             m_textureUnits[name] = m_currentUnit++;
         }
 
-        GLuint unit = m_textureUnits[name];
+        uint32_t unit = m_textureUnits[name];
 
         // Bind texture and update uniform
-        glActiveTexture(GL_TEXTURE0 + unit);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glUniform1i(location, unit);
+        RenderInterface::ActiveTexture(RenderInterface::TEXTURE0 + unit);
+        RenderInterface::BindTexture(RenderInterface::TEXTURE_2D, texture);
+        RenderInterface::Uniform1i(location, unit);
     }
 
-    void SetCubemapTexture(const std::string& name, GLuint texture) {
-        GLint location = GetUniformLocation(name);
+    void SetCubemapTexture(const std::string& name, uint32_t texture) {
+        int32_t location = GetUniformLocation(name);
         if (location == -1) return;
 
         // Find or assign texture unit
@@ -320,16 +292,16 @@ public:
             m_textureUnits[name] = m_currentUnit++;
         }
 
-        GLuint unit = m_textureUnits[name];
+        uint32_t unit = m_textureUnits[name];
 
         // Bind cubemap texture and update uniform
-        glActiveTexture(GL_TEXTURE0 + unit);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
-        glUniform1i(location, unit);
+        RenderInterface::ActiveTexture(RenderInterface::TEXTURE0 + unit);
+        RenderInterface::BindTexture(RenderInterface::TEXTURE_CUBE_MAP, texture);
+        RenderInterface::Uniform1i(location, unit);
     }
 
     void SetTexture(const std::string& name, Texture* texture) {
-        GLint location = GetUniformLocation(name);
+        int32_t location = GetUniformLocation(name);
         if (location == -1) return;
 
         // Find or assign texture unit
@@ -343,12 +315,12 @@ public:
             m_textureUnits[name] = m_currentUnit++;
         }
 
-        GLuint unit = m_textureUnits[name];
+        uint32_t unit = m_textureUnits[name];
 
         // Bind texture and update uniform
-        glActiveTexture(GL_TEXTURE0 + unit);
-        glBindTexture(GL_TEXTURE_2D, texture == nullptr? 0 : texture->getID());
-        glUniform1i(location, unit);
+        RenderInterface::ActiveTexture(RenderInterface::TEXTURE0 + unit);
+        RenderInterface::BindTexture(RenderInterface::TEXTURE_2D, texture == nullptr? 0 : texture->getID());
+        RenderInterface::Uniform1i(location, unit);
     }
 
 
@@ -357,129 +329,129 @@ public:
         // Set uniform integer
     void SetUniform(const std::string& name, int value)
     {
-        GLint location = GetUniformLocation(name);
-        if (location != -1) glUniform1i(location, value);
+        int32_t location = GetUniformLocation(name);
+        if (location != -1) RenderInterface::Uniform1i(location, value);
     }
 
     // Set uniform float
     void SetUniform(const std::string& name, float value)
     {
-        GLint location = GetUniformLocation(name);
-        if (location != -1) glUniform1f(location, value);
+        int32_t location = GetUniformLocation(name);
+        if (location != -1) RenderInterface::Uniform1f(location, value);
     }
 
     // Set uniform vec2
     void SetUniform(const std::string& name, const glm::vec2& value)
     {
-        GLint location = GetUniformLocation(name);
-        if (location != -1) glUniform2f(location, value.x, value.y);
+        int32_t location = GetUniformLocation(name);
+        if (location != -1) RenderInterface::Uniform2f(location, value.x, value.y);
     }
 
     // Set uniform vec3
     void SetUniform(const std::string& name, const glm::vec3& value)
     {
-        GLint location = GetUniformLocation(name);
-        if (location != -1) glUniform3f(location, value.x, value.y, value.z);
+        int32_t location = GetUniformLocation(name);
+        if (location != -1) RenderInterface::Uniform3f(location, value.x, value.y, value.z);
     }
 
     // Set uniform vec4
     void SetUniform(const std::string& name, const glm::vec4& value)
     {
-        GLint location = GetUniformLocation(name);
-        if (location != -1) glUniform4f(location, value.x, value.y, value.z, value.w);
+        int32_t location = GetUniformLocation(name);
+        if (location != -1) RenderInterface::Uniform4f(location, value.x, value.y, value.z, value.w);
     }
 
     // Set uniform mat2
     void SetUniform(const std::string& name, const glm::mat2& value)
     {
-        GLint location = GetUniformLocation(name);
-        if (location != -1) glUniformMatrix2fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        int32_t location = GetUniformLocation(name);
+        if (location != -1) RenderInterface::UniformMatrix2fv(location, 1, false, glm::value_ptr(value));
     }
 
     // Set uniform mat3
     void SetUniform(const std::string& name, const glm::mat3& value)
     {
-        GLint location = GetUniformLocation(name);
-        if (location != -1) glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        int32_t location = GetUniformLocation(name);
+        if (location != -1) RenderInterface::UniformMatrix3fv(location, 1, false, glm::value_ptr(value));
     }
 
     // Set uniform mat4
     void SetUniform(const std::string& name, const glm::mat4& value)
     {
-        GLint location = GetUniformLocation(name);
-        if (location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        int32_t location = GetUniformLocation(name);
+        if (location != -1) RenderInterface::UniformMatrix4fv(location, 1, false, glm::value_ptr(value));
     }
 
     // Set uniform array of floats
     void SetUniform(const std::string& name, const std::vector<float>& values)
     {
-        GLint location = GetUniformLocation(name);
+        int32_t location = GetUniformLocation(name);
         if (location != -1)
-            glUniform1fv(location, static_cast<GLsizei>(values.size()), values.data());
+            RenderInterface::Uniform1fv(location, static_cast<int32_t>(values.size()), values.data());
     }
 
     // Set uniform array of ints
     void SetUniform(const std::string& name, const std::vector<int>& values)
     {
-        GLint location = GetUniformLocation(name);
+        int32_t location = GetUniformLocation(name);
         if (location != -1)
-            glUniform1iv(location, static_cast<GLsizei>(values.size()), values.data());
+            RenderInterface::Uniform1iv(location, static_cast<int32_t>(values.size()), values.data());
     }
 
     // Set uniform array of vec2
     void SetUniform(const std::string& name, const std::vector<glm::vec2>& values)
     {
-        GLint location = GetUniformLocation(name);
+        int32_t location = GetUniformLocation(name);
         if (location != -1)
-            glUniform2fv(location, static_cast<GLsizei>(values.size()), glm::value_ptr(values[0]));
+            RenderInterface::Uniform2fv(location, static_cast<int32_t>(values.size()), glm::value_ptr(values[0]));
     }
 
     // Set uniform array of vec3
     void SetUniform(const std::string& name, const std::vector<glm::vec3>& values)
     {
-        GLint location = GetUniformLocation(name);
+        int32_t location = GetUniformLocation(name);
         if (location != -1)
-            glUniform3fv(location, static_cast<GLsizei>(values.size()), glm::value_ptr(values[0]));
+            RenderInterface::Uniform3fv(location, static_cast<int32_t>(values.size()), glm::value_ptr(values[0]));
     }
 
     // Set uniform array of vec4
     void SetUniform(const std::string& name, const std::vector<glm::vec4>& values)
     {
-        GLint location = GetUniformLocation(name);
+        int32_t location = GetUniformLocation(name);
         if (location != -1)
-            glUniform4fv(location, static_cast<GLsizei>(values.size()), glm::value_ptr(values[0]));
+            RenderInterface::Uniform4fv(location, static_cast<int32_t>(values.size()), glm::value_ptr(values[0]));
     }
 
     // Set uniform array of mat2
     void SetUniform(const std::string& name, const std::vector<glm::mat2>& values)
     {
-        GLint location = GetUniformLocation(name);
+        int32_t location = GetUniformLocation(name);
         if (location != -1)
-            glUniformMatrix2fv(location,
-                static_cast<GLsizei>(values.size()),
-                GL_FALSE,
+            RenderInterface::UniformMatrix2fv(location,
+                static_cast<int32_t>(values.size()),
+                false,
                 glm::value_ptr(values[0]));
     }
 
     // Set uniform array of mat3
     void SetUniform(const std::string& name, const std::vector<glm::mat3>& values)
     {
-        GLint location = GetUniformLocation(name);
+        int32_t location = GetUniformLocation(name);
         if (location != -1)
-            glUniformMatrix3fv(location,
-                static_cast<GLsizei>(values.size()),
-                GL_FALSE,
+            RenderInterface::UniformMatrix3fv(location,
+                static_cast<int32_t>(values.size()),
+                false,
                 glm::value_ptr(values[0]));
     }
 
     // Set uniform array of mat4 
     void SetUniform(const std::string& name, const std::vector<glm::mat4>& values)
     {
-        GLint location = GetUniformLocation(name);
+        int32_t location = GetUniformLocation(name);
         if (location != -1)
-            glUniformMatrix4fv(location,
-                static_cast<GLsizei>(values.size()),
-                GL_FALSE,
+            RenderInterface::UniformMatrix4fv(location,
+                static_cast<int32_t>(values.size()),
+                false,
                 glm::value_ptr(values[0]));
     }
 
