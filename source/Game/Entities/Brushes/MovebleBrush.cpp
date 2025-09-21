@@ -18,6 +18,10 @@ public:
 	vec3 offsetPosition = vec3();
 	vec3 offsetRotation = vec3();
 
+	float oldProgress = 0;
+
+	Delay updateSleepDelay;
+
 	MovebleBrush() : Entity()
 	{
 		SaveGame = true;
@@ -83,10 +87,10 @@ public:
 
 	}
 
-	void Update()
+	void LateUpdate()
 	{
 
-		Entity::Update();
+		Entity::LateUpdate();
 
 		if (open)
 		{
@@ -99,6 +103,10 @@ public:
 
 		progress = glm::clamp(progress, 0.0f, 1.0f);
 
+		if (progress == oldProgress && updateSleepDelay.Wait() == false)
+		{
+			return;
+		}
 
 		vec3 startPos = Position;
 
@@ -120,7 +128,7 @@ public:
 		Position += offsetPosition;
 
 
-		Physics::SetBodyPositionAndRotation(LeadBody, Position, Rotation);
+		Physics::MoveKinematic(LeadBody, Position, Rotation);
 
 		for (const auto& drawable : Drawables)
 		{
@@ -131,6 +139,9 @@ public:
 			model->Rotation = Rotation;
 
 		}
+
+		oldProgress = progress;
+		updateSleepDelay.AddDelay(0.2);
 
 	}
 

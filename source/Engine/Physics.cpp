@@ -297,7 +297,7 @@ void Physics::UpdatePendingBodyExitsEnters()
 			continue;
 		}
 
-		if (pair.entity == nullptr || pair.target == nullptr || pair.target == nullptr)
+		if (pair.entity == nullptr || pair.target == nullptr)
 			continue;
 
 		//in case if one of them was deleted in previous frame
@@ -311,7 +311,8 @@ void Physics::UpdatePendingBodyExitsEnters()
 		}
 
 		//pair.target->OnBodyExited(pair.entity->LeadBody, pair.entity);	
-		pair.entity->OnBodyExited(pair.target->LeadBody, pair.target);
+
+
 		processedRemovals.insert(pair);
 	}
 	gRemovals.clear();
@@ -328,7 +329,7 @@ void Physics::UpdatePendingBodyExitsEnters()
 			}
 		}
 
-		if (pair.entity == nullptr || pair.target == nullptr || pair.target == nullptr)
+		if (pair.entity == nullptr || pair.target == nullptr)
 			continue;
 
 		//in case if one of them was deleted in previous frame
@@ -341,8 +342,13 @@ void Physics::UpdatePendingBodyExitsEnters()
 			continue;
 		}
 
+		if (pair.target->LeadBody != nullptr)
+		{
+			pair.entity->OnBodyEntered(pair.target->LeadBody, pair.target);
+		}
+
 		//pair.target->OnBodyEntered(pair.entity->LeadBody, pair.entity);
-		pair.entity->OnBodyEntered(pair.target->LeadBody, pair.target);
+
 		processedAdds.insert(pair);
 	}
 	gAdds.clear();

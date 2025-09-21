@@ -625,6 +625,21 @@ public:
 		bodyInterface->SetPositionAndRotation(body->GetID(), ToPhysics(pos), ToPhysics(MathHelper::GetRotationQuaternion(rot)), JPH::EActivation::Activate);
 	}
 
+	static void MoveKinematic(Body* body, vec3 pos, vec3 rot)
+	{
+		if (!body) return;
+
+		// target transforms
+		JPH::RVec3 targetPos = ToPhysics(pos);
+		JPH::Quat  targetRot = ToPhysics(MathHelper::GetRotationQuaternion(rot));
+
+		// MoveKinematic every physics update (wakes body if sleeping; updates internal velocities).
+		bodyInterface->MoveKinematic(body->GetID(), targetPos, targetRot, Time::DeltaTimeF);
+
+		// Make sure it's active (optional, MoveKinematic should already wake it, but this is safe):
+		bodyInterface->ActivateBody(body->GetID());
+	}
+
 	static void UpdatePendingBodyExitsEnters();
 
 
@@ -850,7 +865,7 @@ public:
 	uint64_t GetShapeDataIdFromName(string name);
 
 	// Create a body from the provided shape
-	static JPH::Body* CreateBodyFromShape(Entity* owner, vec3 Position, RefConst<Shape> shape, float Mass = 10, bool Static = false,
+	static JPH::Body* CreateBodyFromShape(Entity* owner, vec3 Position, RefConst<Shape> shape, float Mass = 10, JPH::EMotionType motionType = JPH::EMotionType::Dynamic,
 		BodyType group = BodyType::MainBody,
 		BodyType mask = BodyType::GroupCollisionTest)
 	{
@@ -859,12 +874,18 @@ public:
 			shape.GetPtr(),                        // Pass the shape's raw pointer
 			ToPhysics(Position),                   // Convert position to physics coordinates
 			JPH::Quat::sIdentity(),                // Default orientation (no rotation)
-			Static ? JPH::EMotionType::Static : JPH::EMotionType::Dynamic,  // Motion type based on Static flag
-			Static ? Layers::NON_MOVING : Layers::MOVING);                  // Collision layer
+			motionType,  
+			motionType == JPH::EMotionType::Static ? Layers::NON_MOVING : Layers::MOVING);                  // Collision layer
 
 		// Set mass properties
 		body_settings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
 		body_settings.mMassPropertiesOverride.mMass = Mass;
+
+		if (motionType == JPH::EMotionType::Kinematic)
+		{
+			body_settings.mCollideKinematicVsNonDynamic = true;   // <— Important
+			body_settings.mMotionQuality = JPH::EMotionQuality::LinearCast; // optional CCD
+		}
 
 		// Set friction
 		body_settings.mFriction = 0.5f;

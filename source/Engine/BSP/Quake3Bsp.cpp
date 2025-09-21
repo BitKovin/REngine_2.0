@@ -1170,7 +1170,7 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
 
     RefConst<Shape> finalShape = Physics::CreateStaticCompoundShapeFromConvexShapes(shapes);
 
-    Body* body = Physics::CreateBodyFromShape(entity, vec3(0), finalShape,10,true,entity->DefaultBrushGroup, entity->DefaultBrushCollisionMask);
+    Body* body = Physics::CreateBodyFromShape(entity, vec3(0), finalShape,10, JPH::EMotionType::Kinematic,entity->DefaultBrushGroup, entity->DefaultBrushCollisionMask);
 
     Physics::SetBodyPosition(body, bodyPos);
 
@@ -1181,7 +1181,7 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
     if (shapesSky.size())
     {
         RefConst<Shape> skyShape = Physics::CreateStaticCompoundShapeFromConvexShapes(shapesSky);
-        Body* bodySky = Physics::CreateBodyFromShape(entity, vec3(0), skyShape, 10, true, BodyType::WorldSkybox, BodyType::CharacterCapsule);
+        Body* bodySky = Physics::CreateBodyFromShape(entity, vec3(0), skyShape, 10, JPH::EMotionType::Static, BodyType::WorldSkybox, BodyType::CharacterCapsule);
         entity->Bodies.push_back(bodySky);
     }
    

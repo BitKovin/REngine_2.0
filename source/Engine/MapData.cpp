@@ -288,7 +288,7 @@ void MapData::LoadToLevel()
         }
             auto compoundShape = Physics::CreateStaticCompoundShapeFromConvexShapes(colShapes);
 
-            ent->LeadBody = Physics::CreateBodyFromShape(ent, vec3(0), compoundShape, 1000, true, BodyType::World | (BodyType::WorldOpaque));
+            ent->LeadBody = Physics::CreateBodyFromShape(ent, vec3(0), compoundShape, 1000, JPH::EMotionType::Static, BodyType::World | (BodyType::WorldOpaque));
 
             entBrushes = BrushFaceMesh::MergeMeshesByMaterial(entBrushes);
 

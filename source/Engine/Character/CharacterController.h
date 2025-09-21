@@ -26,7 +26,7 @@ public:
 
 	Body* body = nullptr;
 
-
+	const Body* standingOnBody = nullptr;
 
 	float gravity = 27;
 
@@ -61,11 +61,22 @@ public:
 
 private:
 
+	const Body* lastStandingOnBody = nullptr;
+	glm::vec3 baseLocalAttachPoint = glm::vec3(0.0f);
+	glm::vec3 prevAttachWorldPos = glm::vec3(0.0f);
+	glm::quat prevBaseRotation = glm::quat(1, 0, 0, 0);
+	glm::vec3 prevBasePosition = glm::vec3(0.0f);
+	glm::vec3 lastPlatformVelocity = glm::vec3(0.0f);
+	bool wasOnPlatform = false;
+
+	// for attach velocity remapping
+	glm::vec3 attachedLocalVelocity = glm::vec3(0.0f);
+	bool attachedLocalVelValid = false;
 
 
 	void UpdateGroundCheck(bool& hitsGround, float& calculatedCharacterHeight, bool& canStand, vec3& notWalkableNormal);
 
-	bool CheckGroundAt(vec3 location,float radius, float& height, bool& canStand, vec3& normal);
+	bool CheckGroundAt(vec3 location,float radius, float& height, bool& canStand, vec3& normal, const Body** hitBody);
 
 	//vec3 velocity = vec3(0);
 
