@@ -311,7 +311,7 @@ void Physics::UpdatePendingBodyExitsEnters()
 		}
 
 		//pair.target->OnBodyExited(pair.entity->LeadBody, pair.entity);	
-
+		pair.entity->OnBodyExited(pair.target->LeadBody, pair.target);
 
 		processedRemovals.insert(pair);
 	}
@@ -342,12 +342,11 @@ void Physics::UpdatePendingBodyExitsEnters()
 			continue;
 		}
 
-		if (pair.target->LeadBody != nullptr)
-		{
-			pair.entity->OnBodyEntered(pair.target->LeadBody, pair.target);
-		}
 
+		pair.entity->OnBodyEntered(pair.target->LeadBody, pair.target);
 		//pair.target->OnBodyEntered(pair.entity->LeadBody, pair.entity);
+
+		pair.entity->OnBodyEntered(pair.target->LeadBody, pair.target);
 
 		processedAdds.insert(pair);
 	}
