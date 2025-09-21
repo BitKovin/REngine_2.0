@@ -220,6 +220,24 @@ Level* Level::OpenLevel(string filePath)
 	return newLevel;
 }
 
+void Level::AddLoadedEntityType(const std::string& className)
+{
+
+	std::lock_guard<std::recursive_mutex> lock(loadedEntitiesLock);
+
+	loadedEntityTypes.emplace(className);
+
+}
+
+bool Level::IsEntityTypeLoaded(const std::string& className)
+{
+
+	std::lock_guard<std::recursive_mutex> lock(loadedEntitiesLock);
+
+	return loadedEntityTypes.find(className) != loadedEntityTypes.end();
+
+}
+
 void Level::AddEntity(LevelObject* obj)
 {
 

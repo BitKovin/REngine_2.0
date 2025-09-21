@@ -301,6 +301,8 @@ bool SkeletalMesh::IsAnimationPlaying()
 void SkeletalMesh::Update(float timeScale)
 {
 
+	if (model == nullptr) return;
+
 	animator.UpdatePose = UpdatePose;
 
 	if (UpdatePoseOnlyWhenRendered)

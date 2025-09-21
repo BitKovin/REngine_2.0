@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-
+#include <unordered_set>
 #include "LevelObject.hpp"
 #include "EObject.hpp"
 
@@ -19,8 +19,6 @@
 #include "malloc_override.h"
 
 
-using namespace std;
-
 class Entity;
 
 class Level : EObject
@@ -35,11 +33,16 @@ private:
 	std::recursive_mutex entityArrayLock = std::recursive_mutex();
 	std::recursive_mutex pendingEntityArrayLock = std::recursive_mutex();
 
+	std::recursive_mutex loadedEntitiesLock = std::recursive_mutex();
+
 	ThreadPool* asyncUpdateThreadPool;
 
-	static string pendingLoadLevelPath;
+	static std::string pendingLoadLevelPath;
 
-	vector<LevelObject*> pendingAddLevelObjects;
+	std::vector<LevelObject*> pendingAddLevelObjects;
+
+	std::unordered_set<std::string> loadedEntityTypes;
+	
 
 public:
 
@@ -128,6 +131,10 @@ public:
 		return resultMesh;
 
 	}
+
+	void AddLoadedEntityType(const std::string& className);
+
+	bool IsEntityTypeLoaded(const std::string& className);
 
 	void LoadAssets()
 	{

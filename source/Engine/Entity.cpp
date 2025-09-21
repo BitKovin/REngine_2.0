@@ -10,7 +10,25 @@ Entity* Entity::Spawn(std::string technicalName)
 		Level::Current->AddEntity(entity);
 	}
 
+
 	return entity;
+}
+
+void Entity::PreloadEntityType(std::string technicalName)
+{
+
+	if (Level::Current->IsEntityTypeLoaded(technicalName)) return; //already preloaded
+
+	auto entity = Spawn(technicalName);
+
+	if (entity)
+	{
+		//entity->Start();
+		entity->LoadAssets();
+		entity->SaveGame = false;
+		entity->Destroy();
+	}
+	Level::Current->AddLoadedEntityType(technicalName);
 }
 
 void Entity::FinalLevelRemove()

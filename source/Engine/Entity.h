@@ -159,6 +159,12 @@ public:
 		{
 			LoadAssets();
 			AssetsLoaded = true;
+
+			if (Level::Current->IsEntityTypeLoaded(ClassName) == false)
+			{
+				Level::Current->AddLoadedEntityType(ClassName);
+			}
+
 		}
 	}
 
@@ -213,19 +219,7 @@ public:
 
 	}
 
-	static void PreloadEntityType(std::string technicalName)
-	{
-		auto entity = Spawn(technicalName);
-
-		if (entity)
-		{
-			//entity->Start();
-			entity->LoadAssets();
-			entity->SaveGame = false;
-			entity->Destroy();
-		}
-
-	}
+	static void PreloadEntityType(std::string technicalName);
 
 protected:
 
