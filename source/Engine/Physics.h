@@ -654,6 +654,16 @@ public:
 		
 	}
 
+	static void ResetSimulation()
+	{
+
+		MyContactListener::beforeSimulation();
+		MyContactListener::beforeSimulation();
+		gAdds.clear();
+		gRemovals.clear();
+
+	}
+
 	static void Update()
 	{
 #ifdef JPH_DEBUG_RENDERER

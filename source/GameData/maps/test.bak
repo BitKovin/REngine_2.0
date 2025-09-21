@@ -1207,7 +1207,7 @@
 "angles" "32 20 29"
 "model" "models/npc_base.obj"
 "modelscale" "32"
-"modelscale_vec" "64 8 32"
+"modelscale_vec" "32 16 32"
 }
 // entity 7
 {
@@ -1338,7 +1338,7 @@
 {
 "classname" "light"
 "origin" "80 256 80"
-"light" "200"
+"light" "0"
 "_sun" "1"
 "target" "lp1"
 "_color" "1 0.95 0.73"

@@ -99,12 +99,40 @@ void CharacterController::Update(float deltaTime)
 	if (wasAttached && !isAttached)
 	{
 		// Detached: apply last platform velocity to character
+		// (use fresh computation for accuracy on rotation)
+		vec3 basePos = FromPhysics(lastStandingOnBody->GetPosition());
+		glm::quat baseRot = FromPhysics(lastStandingOnBody->GetRotation());
+		vec3 linearVel = FromPhysics(lastStandingOnBody->GetLinearVelocity());
+		vec3 angularVel = FromPhysics(lastStandingOnBody->GetAngularVelocity());
+		vec3 worldOffset = baseRot * baseLocalAttachPoint;
+		vec3 platformVelAtAttach = linearVel + glm::cross(angularVel, worldOffset);
+
 		vec3 currentVel = GetVelocity();
-		currentVel += lastPlatformVelocity;
+		currentVel += platformVelAtAttach;
 		SetVelocity(currentVel);
 		lastPlatformVelocity = vec3(0.0f);
 	}
-	else if (!wasAttached && isAttached)
+	else if (wasAttached && isAttached && (currentBase != lastStandingOnBody))
+	{
+		// Switched platforms: detach from old, attach to new
+		// Detach from old
+		vec3 oldBasePos = FromPhysics(lastStandingOnBody->GetPosition());
+		glm::quat oldBaseRot = FromPhysics(lastStandingOnBody->GetRotation());
+		vec3 oldLinearVel = FromPhysics(lastStandingOnBody->GetLinearVelocity());
+		vec3 oldAngularVel = FromPhysics(lastStandingOnBody->GetAngularVelocity());
+		vec3 oldWorldOffset = oldBaseRot * baseLocalAttachPoint;
+		vec3 oldPlatformVel = oldLinearVel + glm::cross(oldAngularVel, oldWorldOffset);
+
+		vec3 currentVel = GetVelocity();
+		currentVel += oldPlatformVel;
+		SetVelocity(currentVel);
+		lastPlatformVelocity = vec3(0.0f);  // Temporary reset
+
+		// Attach to new (fall through to attach logic below)
+		wasAttached = false;  // Force attach block to run
+	}
+
+	if (!wasAttached && isAttached)
 	{
 		// Attaching to a new platform: store local attach point
 		vec3 basePos = FromPhysics(currentBase->GetPosition());
@@ -357,6 +385,8 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 	}
 
+	
+
 	for (float r = 0.1; r <= 1; r += 0.3)
 	{
 
@@ -392,7 +422,7 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 		}
 
 	}
-
+	
 
 	if (CheckGroundAt(FromPhysics(body->GetPosition()) - heightOffset, radius - 0.01f, outheight, outCanStand, outNormal, &hitBody))
 	{

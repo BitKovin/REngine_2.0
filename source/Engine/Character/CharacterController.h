@@ -69,9 +69,7 @@ private:
 	glm::vec3 lastPlatformVelocity = glm::vec3(0.0f);
 	bool wasOnPlatform = false;
 
-	// for attach velocity remapping
-	glm::vec3 attachedLocalVelocity = glm::vec3(0.0f);
-	bool attachedLocalVelValid = false;
+
 
 
 	void UpdateGroundCheck(bool& hitsGround, float& calculatedCharacterHeight, bool& canStand, vec3& notWalkableNormal);

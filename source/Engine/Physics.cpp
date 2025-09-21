@@ -346,7 +346,6 @@ void Physics::UpdatePendingBodyExitsEnters()
 		pair.entity->OnBodyEntered(pair.target->LeadBody, pair.target);
 		//pair.target->OnBodyEntered(pair.entity->LeadBody, pair.entity);
 
-		pair.entity->OnBodyEntered(pair.target->LeadBody, pair.target);
 
 		processedAdds.insert(pair);
 	}

@@ -65,6 +65,7 @@ LevelSaveData LevelSaveSystem::SaveLevelToData()
 void LevelSaveSystem::LoadLevelFromData(LevelSaveData data)
 {
 
+    Physics::ResetSimulation();
     Physics::Simulate();
 
     Time::DeltaTime = 0.0001;
