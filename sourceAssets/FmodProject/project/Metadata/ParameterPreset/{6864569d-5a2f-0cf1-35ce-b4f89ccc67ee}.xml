@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.00.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="ParameterPreset" id="{6864569d-5a2f-0cf1-35ce-b4f89ccc67ee}">
 		<property name="name">
 			<value>Size</value>

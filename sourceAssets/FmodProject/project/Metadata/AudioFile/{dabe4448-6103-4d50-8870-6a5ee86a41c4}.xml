@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{dabe4448-6103-4d50-8870-6a5ee86a41c4}">
 		<property name="assetPath">
 			<value>Music/choirTest/FF_CA_foley_church_bell_attack_high_C#.wav</value>

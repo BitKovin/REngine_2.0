@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="EventFolder" id="{9d891e9c-895a-4dfc-ad67-23164d56327f}">
 		<property name="name">
 			<value>Player</value>

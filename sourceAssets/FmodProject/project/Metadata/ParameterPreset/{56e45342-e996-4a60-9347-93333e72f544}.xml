@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.00.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="ParameterPreset" id="{56e45342-e996-4a60-9347-93333e72f544}">
 		<property name="name">
 			<value>Spatializer</value>

@@ -41,7 +41,8 @@ public:
 		viewmodel = new SkeletalMesh(this);
 		arms = new SkeletalMesh(this);
 
-		viewmodel->LoadFromFile("GameData/testViewmodel.glb");
+		viewmodel->LoadFromFile("GameData/models/player/weapons/shotgun/shotgun.glb");
+		viewmodel->TexturesLocation = "GameData/models/player/weapons/shotgun/shotgun.glb/";
 
 		viewmodel->PlayAnimation("draw");
 
@@ -79,7 +80,7 @@ public:
 
 		fireSoundPlayer->Play();
 
-		viewmodel->PlayAnimation("attack");
+		viewmodel->PlayAnimation("attack_alt");
 		Camera::AddCameraShake(CameraShake(
 			0.13f,                            // interpIn
 			1.2f,                            // duration
@@ -134,7 +135,7 @@ public:
 
 		auto leftHandPose = pose.GetBoneTransform("clavicle_l");
 
-		leftHandPose.Rotation += vec3(50,0,0) * HideWeapon;
+		leftHandPose.Rotation += vec3(50,0,0) * 1.0f;
 
 		pose.SetBoneTransformEuler("clavicle_l", leftHandPose);
 		arms->PasteAnimationPose(pose);

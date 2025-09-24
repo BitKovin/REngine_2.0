@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="Snapshot" id="{65edd454-a6a2-4490-8463-3682e7f0ac8a}">
 		<property name="name">
 			<value>GameSpeed</value>
@@ -73,10 +73,18 @@
 			<destination>{33a25c96-7ecc-44e3-9c5d-4e8384e51704}</destination>
 		</relationship>
 		<relationship name="automationPoints">
+			<destination>{d689a3fa-3281-423a-bc98-7479bcf23c92}</destination>
 			<destination>{bab40f6d-2100-4c48-91e9-1b833e504e49}</destination>
 			<destination>{7720e79c-b81c-47b5-b50f-2980e1f54e4f}</destination>
-			<destination>{d689a3fa-3281-423a-bc98-7479bcf23c92}</destination>
 		</relationship>
+	</object>
+	<object class="AutomationPoint" id="{d689a3fa-3281-423a-bc98-7479bcf23c92}">
+		<property name="position">
+			<value>2</value>
+		</property>
+		<property name="value">
+			<value>24</value>
+		</property>
 	</object>
 	<object class="AutomationPoint" id="{bab40f6d-2100-4c48-91e9-1b833e504e49}">
 		<property name="position">
@@ -92,14 +100,6 @@
 		</property>
 		<property name="value">
 			<value>-24</value>
-		</property>
-	</object>
-	<object class="AutomationPoint" id="{d689a3fa-3281-423a-bc98-7479bcf23c92}">
-		<property name="position">
-			<value>2</value>
-		</property>
-		<property name="value">
-			<value>24</value>
 		</property>
 	</object>
 </objects>

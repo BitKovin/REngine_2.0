@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.00.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="ParameterPreset" id="{6795b9c3-5b9c-0c41-2203-61cbdab47b0c}">
 		<property name="name">
 			<value>RPM</value>

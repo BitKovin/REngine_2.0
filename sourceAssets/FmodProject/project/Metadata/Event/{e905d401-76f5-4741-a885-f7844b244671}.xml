@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="Event" id="{e905d401-76f5-4741-a885-f7844b244671}">
 		<property name="note">
 			<value>This is an example of a one-shot event using a parameter for different surfaces.
@@ -110,8 +110,8 @@ Recordings by David at Track Time Audio.</value>
 	</object>
 	<object class="ParameterProxy" id="{3541a49a-849e-046f-2c6a-d5f71f548e2b}">
 		<relationship name="modules">
-			<destination>{308d8aa2-9498-48bf-9c33-8de1f2fcad94}</destination>
 			<destination>{c20932ee-3f55-4a2d-9e19-360418e793b5}</destination>
+			<destination>{308d8aa2-9498-48bf-9c33-8de1f2fcad94}</destination>
 			<destination>{4d3a5bd5-f153-41bb-b698-c19027d564c9}</destination>
 		</relationship>
 		<relationship name="preset">
@@ -170,8 +170,8 @@ Recordings by David at Track Time Audio.</value>
 			<value>3</value>
 		</property>
 		<relationship name="modulators">
-			<destination>{bbee94c0-039e-4699-97a9-e8aefd5df9eb}</destination>
 			<destination>{cd05ae94-c431-4dba-b16a-4facc0f57802}</destination>
+			<destination>{bbee94c0-039e-4699-97a9-e8aefd5df9eb}</destination>
 		</relationship>
 		<relationship name="sounds">
 			<destination>{f1849734-0d5f-4a86-a43f-30d3e6d291a8}</destination>
@@ -279,20 +279,20 @@ Recordings by David at Track Time Audio.</value>
 			<destination>{fcd9921a-2274-48ad-b734-dc3b15606131}</destination>
 		</relationship>
 	</object>
-	<object class="RandomizerModulator" id="{bbee94c0-039e-4699-97a9-e8aefd5df9eb}">
-		<property name="nameOfPropertyBeingModulated">
-			<value>volume</value>
-		</property>
-		<property name="amount">
-			<value>3</value>
-		</property>
-	</object>
 	<object class="RandomizerModulator" id="{cd05ae94-c431-4dba-b16a-4facc0f57802}">
 		<property name="nameOfPropertyBeingModulated">
 			<value>pitch</value>
 		</property>
 		<property name="amount">
 			<value>8.33333015</value>
+		</property>
+	</object>
+	<object class="RandomizerModulator" id="{bbee94c0-039e-4699-97a9-e8aefd5df9eb}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="amount">
+			<value>3</value>
 		</property>
 	</object>
 	<object class="SingleSound" id="{f1849734-0d5f-4a86-a43f-30d3e6d291a8}">

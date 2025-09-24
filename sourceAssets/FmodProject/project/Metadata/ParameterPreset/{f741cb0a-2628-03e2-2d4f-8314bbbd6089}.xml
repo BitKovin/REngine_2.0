@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="ParameterPreset" id="{f741cb0a-2628-03e2-2d4f-8314bbbd6089}">
 		<property name="name">
 			<value>VO Sidechain</value>
@@ -25,6 +25,9 @@
 	<object class="SidechainModulator" id="{81769f05-7404-46f1-8403-1151049f77f1}">
 		<property name="nameOfPropertyBeingModulated">
 			<value>cursorPosition</value>
+		</property>
+		<property name="clockSource">
+			<value>1</value>
 		</property>
 		<property name="amount">
 			<value>100</value>

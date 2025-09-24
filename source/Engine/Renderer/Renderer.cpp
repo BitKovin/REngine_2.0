@@ -124,7 +124,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     glViewport(0, 0, res.x, res.y);
 
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(2.0f, 2.0f); // slopeScale, units
+    glPolygonOffset(3.0f, 3.0f); // slopeScale, units
 
     //
     // A) Depth‑only pass
@@ -359,7 +359,7 @@ void Renderer::InitFullscreenVAO()
 void Renderer::InitFrameBuffers()
 {
 
-    TextureFormat colorTextureFormat = TextureFormat::RGB8;
+    TextureFormat colorTextureFormat = TextureFormat::RGBA16F;
 
     ivec2 screenResolution = GetScreenResolution();
 

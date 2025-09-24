@@ -81,7 +81,9 @@ public:
 	void PerformAttack()
 	{
 
-		fireSoundPlayer->Play();
+		//fireSoundPlayer->Play();
+
+		SoundPlayer::PlayOneshot("event:/Weapons/pistol/pistol_fire", 1.2f);
 
 		SwitchDelay.AddDelay(0.09f);
 
@@ -126,7 +128,7 @@ public:
 
 		WeaponFireFlash::CreateAt(bullet->Position);
 
-		attackDelay.AddDelay(0.1f);
+		attackDelay.AddDelay(0.13f);
 
 	}
 

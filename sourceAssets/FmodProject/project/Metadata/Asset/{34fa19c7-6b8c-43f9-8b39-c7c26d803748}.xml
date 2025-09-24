@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="EncodableAsset" id="{34fa19c7-6b8c-43f9-8b39-c7c26d803748}">
 		<property name="assetPath">
 			<value>NPC/enemy1/</value>

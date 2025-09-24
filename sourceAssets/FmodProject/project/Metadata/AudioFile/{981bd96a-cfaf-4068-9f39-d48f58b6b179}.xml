@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{981bd96a-cfaf-4068-9f39-d48f58b6b179}">
 		<property name="assetPath">
 			<value>Weapons/ESM_GW_gun_one_shot_pistol_revolver_fast_reload_and_reload_mechanical_quick_bullet_1.wav</value>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{864181e6-b680-41d0-94b4-756ffebd6366}">
 		<property name="assetPath">
 			<value>Music/action2sample/LWTW_Emo_Guitar_Loop_Yellow_Lead_150_BPM_F.wav</value>

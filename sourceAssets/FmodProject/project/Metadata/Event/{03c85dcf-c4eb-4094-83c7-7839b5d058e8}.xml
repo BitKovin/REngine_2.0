@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="Event" id="{03c85dcf-c4eb-4094-83c7-7839b5d058e8}">
 		<property name="note">
 			<value>This is an example of an event using crossfades.
@@ -105,9 +105,9 @@ Weapon sounds courtesy of Frank Bry at The Recordist.</value>
 	</object>
 	<object class="Timeline" id="{1eba8222-099b-44e0-a656-54745500b38c}">
 		<relationship name="modules">
+			<destination>{ed14d41a-a523-41fa-8cc6-a9a2560a24be}</destination>
 			<destination>{9ff99ef7-b94a-45b4-8092-1f4ebbd55450}</destination>
 			<destination>{68afee84-8b56-44a8-9a77-567f1e367348}</destination>
-			<destination>{ed14d41a-a523-41fa-8cc6-a9a2560a24be}</destination>
 		</relationship>
 	</object>
 	<object class="EventMixerMaster" id="{48946ba3-a2a8-4a24-bfd2-4f5adfa276af}">

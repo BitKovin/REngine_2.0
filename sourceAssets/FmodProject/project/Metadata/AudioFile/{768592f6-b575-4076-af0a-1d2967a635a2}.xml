@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{768592f6-b575-4076-af0a-1d2967a635a2}">
 		<property name="assetPath">
 			<value>Music/Menu/InTheWind_Drone.wav</value>

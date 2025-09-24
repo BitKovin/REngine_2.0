@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.00.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="MasterTagFolder" id="{1b486b69-30e1-4779-90d4-f45386aa7367}">
 		<relationship name="items">
 			<destination>{2e193f8d-92b5-4f55-a7d7-fbd073e56354}</destination>

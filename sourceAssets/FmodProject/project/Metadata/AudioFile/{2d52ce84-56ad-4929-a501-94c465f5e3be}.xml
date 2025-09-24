@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{2d52ce84-56ad-4929-a501-94c465f5e3be}">
 		<property name="assetPath">
 			<value>Weapons/shotgun/GunFoleyShotgun_BW.55906.wav</value>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.01.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="MixerReturn" id="{524ae5a9-928c-4391-9635-34b41d4602af}">
 		<property name="volume">
 			<value>-80</value>

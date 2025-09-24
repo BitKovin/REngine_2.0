@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{181efa75-506a-48f5-84fc-0497f863f3d3}">
 		<property name="assetPath">
 			<value>NPC/Dog/ESM_FG_animal_one_shot_dog_hound_bark_short_deep_1.wav</value>

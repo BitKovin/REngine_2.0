@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.00.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="ParameterPreset" id="{d6d20b9d-62c5-08ad-04cb-eca76a1fc890}">
 		<property name="name">
 			<value>Intensity</value>

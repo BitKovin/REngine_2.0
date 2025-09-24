@@ -51,6 +51,9 @@ public:
 
 		viewmodel->LoadFromFile("GameData/models/player/weapons/pistol/pistol.glb");
 		viewmodel->TexturesLocation = "GameData/models/player/weapons/pistol/";
+
+		viewmodel->LoadFromFile("GameData/models/player/weapons/revolver/revolver.glb");
+		viewmodel->TexturesLocation = "GameData/models/player/weapons/revolver/revolver.glb/";
 		viewmodel->PlayAnimation("draw");
 		viewmodel->PreloadAssets();
 
@@ -84,15 +87,15 @@ public:
 
 		SwitchDelay.AddDelay(0.2f);
 
-		viewmodel->PlayAnimation("fire",false,0.1f);
+		viewmodel->PlayAnimation("fire",false,0.08f);
 		Camera::AddCameraShake(CameraShake(
-			0.13f,                            // interpIn
-			0.5f,                            // duration
-			vec3(0.0f, 0.0f, -0.1f),         // positionAmplitude
-			vec3(0.0f, 0.0f, 3.4f),          // positionFrequency
-			vec3(-4, 0.15f, 0.0f),        // rotationAmplitude
-			vec3(-2.0f, 18.8f, 0.0f),        // rotationFrequency
-			0.5f,                            // falloff
+			0.13f,                             // interpIn
+			0.5f,                              // duration
+			vec3(0.0f, 0.0f, -0.1f),           // positionAmplitude
+			vec3(0.0f, 0.0f, 3.4f),            // positionFrequency
+			vec3(-4, 0.15f, 0.0f),             // rotationAmplitude
+			vec3(-2.0f, 18.8f, 0.0f),          // rotationFrequency
+			0.5f,                              // falloff
 			CameraShake::ShakeType::SingleWave // shakeType
 		));
 

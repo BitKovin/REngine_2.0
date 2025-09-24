@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="Snapshot" id="{9f8cf69c-46ef-4a76-b474-3252e186b9db}">
 		<property name="name">
 			<value>UnderWater</value>
@@ -36,8 +36,8 @@
 			<destination>{0aa4e8ea-18cf-4b15-ad10-d3153c769e15}</destination>
 		</relationship>
 		<relationship name="snapshotTracks">
-			<destination>{30fa8de3-5474-4c70-8d8a-cec0c92fe236}</destination>
 			<destination>{ac75acde-939d-42a6-b9a4-7919d154b76a}</destination>
+			<destination>{30fa8de3-5474-4c70-8d8a-cec0c92fe236}</destination>
 		</relationship>
 	</object>
 	<object class="EventAutomatableProperties" id="{e6a4c3d9-0d9b-43e0-998b-d37e4064f3b7}" />
@@ -165,14 +165,14 @@
 			<destination>{5b412495-6e4e-4ef9-8b55-3c0619d0ae3d}</destination>
 		</relationship>
 	</object>
-	<object class="SnapshotTrack" id="{30fa8de3-5474-4c70-8d8a-cec0c92fe236}">
-		<relationship name="mixerStrip">
-			<destination>{7e33a2b3-db05-4b7a-ba1e-e862f2bfde36}</destination>
-		</relationship>
-	</object>
 	<object class="SnapshotTrack" id="{ac75acde-939d-42a6-b9a4-7919d154b76a}">
 		<relationship name="mixerStrip">
 			<destination>{d320eb98-3d4a-4cd9-a001-fdb4e071c58e}</destination>
+		</relationship>
+	</object>
+	<object class="SnapshotTrack" id="{30fa8de3-5474-4c70-8d8a-cec0c92fe236}">
+		<relationship name="mixerStrip">
+			<destination>{7e33a2b3-db05-4b7a-ba1e-e862f2bfde36}</destination>
 		</relationship>
 	</object>
 </objects>

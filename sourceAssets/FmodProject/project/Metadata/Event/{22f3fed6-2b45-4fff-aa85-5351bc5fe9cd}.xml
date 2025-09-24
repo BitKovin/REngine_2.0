@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="Event" id="{22f3fed6-2b45-4fff-aa85-5351bc5fe9cd}">
 		<property name="note">
 			<value>This is an example of a persistent event and use of snapshot instruments.
@@ -242,13 +242,21 @@ https://commons.wikimedia.org/wiki/File:Heartbeat.ogg</value>
 			<destination>{b1dc55b5-1863-4645-a918-a52d80cb9c65}</destination>
 		</relationship>
 		<relationship name="automationPoints">
+			<destination>{06f08bb6-4329-485b-81a4-171a5f26310a}</destination>
 			<destination>{c4ba615b-a1d4-49ae-a470-e96f9e92dfa7}</destination>
 			<destination>{75fd53fe-014b-451a-9ca5-32e1843313a1}</destination>
-			<destination>{06f08bb6-4329-485b-81a4-171a5f26310a}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusFader" id="{85ed5024-67b1-43cd-ba69-2e565f654728}" />
 	<object class="MixerBusFader" id="{0cb9e02c-636b-4ef9-9c12-37a7db7afcaa}" />
+	<object class="AutomationPoint" id="{06f08bb6-4329-485b-81a4-171a5f26310a}">
+		<property name="position">
+			<value>2.083333333313675e-05</value>
+		</property>
+		<property name="value">
+			<value>-5.00000381</value>
+		</property>
+	</object>
 	<object class="AutomationPoint" id="{c4ba615b-a1d4-49ae-a470-e96f9e92dfa7}">
 		<property name="position">
 			<value>0</value>
@@ -263,14 +271,6 @@ https://commons.wikimedia.org/wiki/File:Heartbeat.ogg</value>
 		</property>
 		<property name="value">
 			<value>-30</value>
-		</property>
-	</object>
-	<object class="AutomationPoint" id="{06f08bb6-4329-485b-81a4-171a5f26310a}">
-		<property name="position">
-			<value>2.083333333313675e-05</value>
-		</property>
-		<property name="value">
-			<value>-5.00000381</value>
 		</property>
 	</object>
 </objects>

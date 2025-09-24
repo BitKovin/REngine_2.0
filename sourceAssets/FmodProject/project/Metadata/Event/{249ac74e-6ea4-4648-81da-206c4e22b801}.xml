@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="Event" id="{249ac74e-6ea4-4648-81da-206c4e22b801}">
 		<property name="note">
 			<value>This is an example of an ambient event using a parameter with 5.1 surround looped sources.
@@ -121,8 +121,8 @@ Recordings by David at Track Time Audio.</value>
 	<object class="ParameterProxy" id="{ad58c3a7-2bc9-0263-14d6-c1fa1cb73367}">
 		<relationship name="modules">
 			<destination>{2b55c42d-9a83-4425-bfcb-8c2d7b2f5908}</destination>
-			<destination>{eaee7c89-ba7d-4f7d-91b3-dc9ecb256e5a}</destination>
 			<destination>{826af8c9-9f5c-43b4-bb44-1baf24d38710}</destination>
+			<destination>{eaee7c89-ba7d-4f7d-91b3-dc9ecb256e5a}</destination>
 			<destination>{90d816b5-c5d6-431d-872c-c07dc1226d51}</destination>
 		</relationship>
 		<relationship name="preset">

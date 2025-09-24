@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="Snapshot" id="{b695eec0-fe78-4755-b806-9690c06dfc0b}">
 		<property name="name">
 			<value>Cave Reverb</value>
@@ -36,8 +36,8 @@
 			<destination>{8ea59954-5621-4f43-a3a8-0a61ac36397d}</destination>
 		</relationship>
 		<relationship name="snapshotTracks">
-			<destination>{5078e726-0f0f-41ae-9f01-97b6b646ac29}</destination>
 			<destination>{b4d37818-6771-43bd-b1ab-9744ef7ea508}</destination>
+			<destination>{5078e726-0f0f-41ae-9f01-97b6b646ac29}</destination>
 		</relationship>
 	</object>
 	<object class="EventAutomatableProperties" id="{6a677dd6-6dc7-473e-a218-767b4130af51}">
@@ -202,14 +202,14 @@
 			<destination>{14730547-569d-4f6f-8348-b9db65f87eb1}</destination>
 		</relationship>
 	</object>
-	<object class="SnapshotTrack" id="{5078e726-0f0f-41ae-9f01-97b6b646ac29}">
-		<relationship name="mixerStrip">
-			<destination>{524ae5a9-928c-4391-9635-34b41d4602af}</destination>
-		</relationship>
-	</object>
 	<object class="SnapshotTrack" id="{b4d37818-6771-43bd-b1ab-9744ef7ea508}">
 		<relationship name="mixerStrip">
 			<destination>{d320eb98-3d4a-4cd9-a001-fdb4e071c58e}</destination>
+		</relationship>
+	</object>
+	<object class="SnapshotTrack" id="{5078e726-0f0f-41ae-9f01-97b6b646ac29}">
+		<relationship name="mixerStrip">
+			<destination>{524ae5a9-928c-4391-9635-34b41d4602af}</destination>
 		</relationship>
 	</object>
 	<object class="ADSRModulator" id="{b51a8f9e-1b77-4c37-a672-b626e33024f5}">

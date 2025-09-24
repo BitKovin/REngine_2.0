@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{277874b7-c66f-4bb3-ac14-3a509fbebcd6}">
 		<property name="assetPath">
 			<value>NPC/enemy1/ZombieGrunt_BW.13591.wav</value>

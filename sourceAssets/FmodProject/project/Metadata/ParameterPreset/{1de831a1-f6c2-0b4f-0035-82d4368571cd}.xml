@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.00.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="ParameterPreset" id="{1de831a1-f6c2-0b4f-0035-82d4368571cd}">
 		<property name="name">
 			<value>Surface</value>

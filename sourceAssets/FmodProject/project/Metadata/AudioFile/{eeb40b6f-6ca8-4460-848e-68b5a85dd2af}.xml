@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{eeb40b6f-6ca8-4460-848e-68b5a85dd2af}">
 		<property name="assetPath">
 			<value>NPC/Dog/ESM_One_Shot_Vocal_Hellhound_Monster_Growl_Dog_Wolf_Creature.wav</value>

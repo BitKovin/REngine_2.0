@@ -27,7 +27,7 @@ public:
 		Particle particle = ParticleEmitter::GetNewParticle();
 		
 		particle.Size = 0.03f;
-		particle.Color = vec4(0.5, 0, 0, 0.8);
+		particle.Color = vec4(0.4, 0, 0, 0.65);
 		particle.Transparency = 0.8;
 		particle.deathTime = 0.1f;
 

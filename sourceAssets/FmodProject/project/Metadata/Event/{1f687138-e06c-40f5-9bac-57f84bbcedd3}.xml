@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.02.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="Event" id="{1f687138-e06c-40f5-9bac-57f84bbcedd3}">
 		<property name="note">
 			<value>This is an example of a one-shot event using custom distance attenuation and built-in parameters.
@@ -128,9 +128,9 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<destination>{07a1a6cb-4f95-41aa-9474-609887901ce2}</destination>
 		</relationship>
 		<relationship name="modules">
-			<destination>{3d5d315d-42f4-426e-a313-7bed84e8833c}</destination>
 			<destination>{9dd34737-f8f1-4abf-b18b-deed3cd6ec3e}</destination>
 			<destination>{8a787309-4b9d-4de9-8b9a-ea4015ce51e7}</destination>
+			<destination>{3d5d315d-42f4-426e-a313-7bed84e8833c}</destination>
 		</relationship>
 		<relationship name="mixerGroup">
 			<destination>{59b91bea-c2e6-40fd-bc28-b8af0f259f6d}</destination>
@@ -141,8 +141,8 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<destination>{2106a7b1-87a3-4b2a-8072-b23fc9eea9c8}</destination>
 		</relationship>
 		<relationship name="modules">
-			<destination>{fdfca356-11ad-4ace-979b-eb1135b666af}</destination>
 			<destination>{1a9dc6e0-aec9-47ce-85ff-6b386a99d2c6}</destination>
+			<destination>{fdfca356-11ad-4ace-979b-eb1135b666af}</destination>
 			<destination>{811f3017-0fa8-4f48-9970-d29b391a6fdc}</destination>
 		</relationship>
 		<relationship name="mixerGroup">
@@ -172,11 +172,11 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 	</object>
 	<object class="ParameterProxy" id="{40cdc3a6-2873-03d1-1991-e3dbb51d9808}">
 		<relationship name="modules">
+			<destination>{1a9dc6e0-aec9-47ce-85ff-6b386a99d2c6}</destination>
+			<destination>{811f3017-0fa8-4f48-9970-d29b391a6fdc}</destination>
 			<destination>{3d5d315d-42f4-426e-a313-7bed84e8833c}</destination>
 			<destination>{fdfca356-11ad-4ace-979b-eb1135b666af}</destination>
-			<destination>{1a9dc6e0-aec9-47ce-85ff-6b386a99d2c6}</destination>
 			<destination>{9dd34737-f8f1-4abf-b18b-deed3cd6ec3e}</destination>
-			<destination>{811f3017-0fa8-4f48-9970-d29b391a6fdc}</destination>
 			<destination>{8a787309-4b9d-4de9-8b9a-ea4015ce51e7}</destination>
 		</relationship>
 		<relationship name="preset">
@@ -229,21 +229,6 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<destination>{5bf46cf0-2b9e-4091-b3b5-ab511b512ce7}</destination>
 		</relationship>
 	</object>
-	<object class="SingleSound" id="{3d5d315d-42f4-426e-a313-7bed84e8833c}">
-		<property name="length">
-			<value>0.80000007152557373</value>
-		</property>
-		<property name="voiceStealing">
-			<value>3</value>
-		</property>
-		<relationship name="modulators">
-			<destination>{3f1c2e93-de42-4e23-bd11-9304de1836d9}</destination>
-			<destination>{fcdcdd0e-0684-406f-aac1-79d4e05185e0}</destination>
-		</relationship>
-		<relationship name="audioFile">
-			<destination>{7ade0af7-aec3-4cab-9a68-a69740878d96}</destination>
-		</relationship>
-	</object>
 	<object class="SingleSound" id="{9dd34737-f8f1-4abf-b18b-deed3cd6ec3e}">
 		<property name="start">
 			<value>1</value>
@@ -273,11 +258,26 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<value>3</value>
 		</property>
 		<relationship name="modulators">
-			<destination>{461f4baf-bc58-4e95-9b14-ebd86d0f8bcc}</destination>
 			<destination>{4f45a9af-1b9b-4dad-a3b4-2f5d3558a2b4}</destination>
+			<destination>{461f4baf-bc58-4e95-9b14-ebd86d0f8bcc}</destination>
 		</relationship>
 		<relationship name="audioFile">
 			<destination>{72719323-515f-4907-b1cb-1ecaf003bb1b}</destination>
+		</relationship>
+	</object>
+	<object class="SingleSound" id="{3d5d315d-42f4-426e-a313-7bed84e8833c}">
+		<property name="length">
+			<value>0.80000007152557373</value>
+		</property>
+		<property name="voiceStealing">
+			<value>3</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{fcdcdd0e-0684-406f-aac1-79d4e05185e0}</destination>
+			<destination>{3f1c2e93-de42-4e23-bd11-9304de1836d9}</destination>
+		</relationship>
+		<relationship name="audioFile">
+			<destination>{7ade0af7-aec3-4cab-9a68-a69740878d96}</destination>
 		</relationship>
 	</object>
 	<object class="EventMixerGroup" id="{59b91bea-c2e6-40fd-bc28-b8af0f259f6d}">
@@ -305,30 +305,6 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<destination>{730d7d95-bb0c-4664-8173-6719cd3ca986}</destination>
 		</relationship>
 	</object>
-	<object class="SingleSound" id="{fdfca356-11ad-4ace-979b-eb1135b666af}">
-		<property name="length">
-			<value>0.80000007152557373</value>
-		</property>
-		<property name="delayType">
-			<value>0</value>
-		</property>
-		<property name="minimumTimeDelay">
-			<value>350</value>
-		</property>
-		<property name="maximumTimeDelay">
-			<value>350</value>
-		</property>
-		<property name="volume">
-			<value>-10</value>
-		</property>
-		<relationship name="modulators">
-			<destination>{3172dc37-9761-4b4f-a961-cb3bbdddeb49}</destination>
-			<destination>{fb1d8400-5ef9-48cf-8039-eb33eadcdb3e}</destination>
-		</relationship>
-		<relationship name="audioFile">
-			<destination>{c853f504-2bc6-4d07-8030-e173a9b00c84}</destination>
-		</relationship>
-	</object>
 	<object class="SingleSound" id="{1a9dc6e0-aec9-47ce-85ff-6b386a99d2c6}">
 		<property name="start">
 			<value>2</value>
@@ -348,6 +324,30 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 		</relationship>
 		<relationship name="audioFile">
 			<destination>{add6bc41-6e0f-4fb6-8f01-6749a1436daa}</destination>
+		</relationship>
+	</object>
+	<object class="SingleSound" id="{fdfca356-11ad-4ace-979b-eb1135b666af}">
+		<property name="length">
+			<value>0.80000007152557373</value>
+		</property>
+		<property name="delayType">
+			<value>0</value>
+		</property>
+		<property name="minimumTimeDelay">
+			<value>350</value>
+		</property>
+		<property name="maximumTimeDelay">
+			<value>350</value>
+		</property>
+		<property name="volume">
+			<value>-10</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{fb1d8400-5ef9-48cf-8039-eb33eadcdb3e}</destination>
+			<destination>{3172dc37-9761-4b4f-a961-cb3bbdddeb49}</destination>
+		</relationship>
+		<relationship name="audioFile">
+			<destination>{c853f504-2bc6-4d07-8030-e173a9b00c84}</destination>
 		</relationship>
 	</object>
 	<object class="SingleSound" id="{811f3017-0fa8-4f48-9970-d29b391a6fdc}">
@@ -475,22 +475,6 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 	</object>
 	<object class="MixerBusPanner" id="{81aefcc3-980e-4fda-8450-0849a15ea98c}" />
 	<object class="MixerBusFader" id="{e6ccbcdf-f872-4db7-8054-e30813f8b3c7}" />
-	<object class="RandomizerModulator" id="{3f1c2e93-de42-4e23-bd11-9304de1836d9}">
-		<property name="nameOfPropertyBeingModulated">
-			<value>pitch</value>
-		</property>
-		<property name="amount">
-			<value>4.16666698</value>
-		</property>
-	</object>
-	<object class="RandomizerModulator" id="{fcdcdd0e-0684-406f-aac1-79d4e05185e0}">
-		<property name="nameOfPropertyBeingModulated">
-			<value>volume</value>
-		</property>
-		<property name="amount">
-			<value>2</value>
-		</property>
-	</object>
 	<object class="RandomizerModulator" id="{eab00dcc-8a77-4097-93c1-28af9a768f5c}">
 		<property name="nameOfPropertyBeingModulated">
 			<value>volume</value>
@@ -507,6 +491,14 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<value>2.5</value>
 		</property>
 	</object>
+	<object class="RandomizerModulator" id="{4f45a9af-1b9b-4dad-a3b4-2f5d3558a2b4}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="amount">
+			<value>2</value>
+		</property>
+	</object>
 	<object class="RandomizerModulator" id="{461f4baf-bc58-4e95-9b14-ebd86d0f8bcc}">
 		<property name="nameOfPropertyBeingModulated">
 			<value>pitch</value>
@@ -515,12 +507,20 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<value>4.16666698</value>
 		</property>
 	</object>
-	<object class="RandomizerModulator" id="{4f45a9af-1b9b-4dad-a3b4-2f5d3558a2b4}">
+	<object class="RandomizerModulator" id="{fcdcdd0e-0684-406f-aac1-79d4e05185e0}">
 		<property name="nameOfPropertyBeingModulated">
 			<value>volume</value>
 		</property>
 		<property name="amount">
 			<value>2</value>
+		</property>
+	</object>
+	<object class="RandomizerModulator" id="{3f1c2e93-de42-4e23-bd11-9304de1836d9}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>pitch</value>
+		</property>
+		<property name="amount">
+			<value>4.16666698</value>
 		</property>
 	</object>
 	<object class="Automator" id="{5bf46cf0-2b9e-4091-b3b5-ab511b512ce7}">
@@ -537,22 +537,6 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{c69f408b-0ab2-4ed1-b572-dd20ec6422fb}" />
-	<object class="RandomizerModulator" id="{3172dc37-9761-4b4f-a961-cb3bbdddeb49}">
-		<property name="nameOfPropertyBeingModulated">
-			<value>pitch</value>
-		</property>
-		<property name="amount">
-			<value>2.08333349</value>
-		</property>
-	</object>
-	<object class="RandomizerModulator" id="{fb1d8400-5ef9-48cf-8039-eb33eadcdb3e}">
-		<property name="nameOfPropertyBeingModulated">
-			<value>volume</value>
-		</property>
-		<property name="amount">
-			<value>2</value>
-		</property>
-	</object>
 	<object class="RandomizerModulator" id="{8f0a1642-75d6-4af6-baee-e9ff6cf4590b}">
 		<property name="nameOfPropertyBeingModulated">
 			<value>pitch</value>
@@ -567,6 +551,22 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 		</property>
 		<property name="amount">
 			<value>2</value>
+		</property>
+	</object>
+	<object class="RandomizerModulator" id="{fb1d8400-5ef9-48cf-8039-eb33eadcdb3e}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>volume</value>
+		</property>
+		<property name="amount">
+			<value>2</value>
+		</property>
+	</object>
+	<object class="RandomizerModulator" id="{3172dc37-9761-4b4f-a961-cb3bbdddeb49}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>pitch</value>
+		</property>
+		<property name="amount">
+			<value>2.08333349</value>
 		</property>
 	</object>
 	<object class="RandomizerModulator" id="{cc845fec-e755-4f83-831d-3a8dc245ca8d}">
@@ -617,8 +617,8 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<destination>{b53728c5-53bd-4679-bdb1-cd4395b4dbc9}</destination>
 		</relationship>
 		<relationship name="automationPoints">
-			<destination>{a294f858-5400-4b2b-98c4-770270249778}</destination>
 			<destination>{6d3af845-d414-420a-8381-391c0f87d0ec}</destination>
+			<destination>{a294f858-5400-4b2b-98c4-770270249778}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusFader" id="{d6c948fd-73ab-4658-bf6d-dacfa0f14546}" />
@@ -662,8 +662,8 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<destination>{b53728c5-53bd-4679-bdb1-cd4395b4dbc9}</destination>
 		</relationship>
 		<relationship name="automationPoints">
-			<destination>{a54f49ae-39e9-42d7-bc2b-fcdc0a38f4b0}</destination>
 			<destination>{3e7f0630-654a-47a1-8a91-59fd99e6f903}</destination>
+			<destination>{a54f49ae-39e9-42d7-bc2b-fcdc0a38f4b0}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusFader" id="{b130a7ee-db7c-45dd-8438-3d31c0c8a759}" />
@@ -677,6 +677,14 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 		</relationship>
 	</object>
 	<object class="MixerBusFader" id="{5474fc38-10fa-40ec-a00a-6fe4f3334b6a}" />
+	<object class="AutomationPoint" id="{6d3af845-d414-420a-8381-391c0f87d0ec}">
+		<property name="position">
+			<value>100</value>
+		</property>
+		<property name="value">
+			<value>-80</value>
+		</property>
+	</object>
 	<object class="AutomationPoint" id="{a294f858-5400-4b2b-98c4-770270249778}">
 		<property name="position">
 			<value>60</value>
@@ -686,14 +694,6 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 		</property>
 		<property name="curveShape">
 			<value>1</value>
-		</property>
-	</object>
-	<object class="AutomationPoint" id="{6d3af845-d414-420a-8381-391c0f87d0ec}">
-		<property name="position">
-			<value>100</value>
-		</property>
-		<property name="value">
-			<value>-80</value>
 		</property>
 	</object>
 	<object class="Automator" id="{c72efcd0-49f9-4a88-8c7f-262ff5c97580}">
@@ -723,14 +723,6 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<value>1.59999847</value>
 		</property>
 	</object>
-	<object class="AutomationPoint" id="{a54f49ae-39e9-42d7-bc2b-fcdc0a38f4b0}">
-		<property name="position">
-			<value>100</value>
-		</property>
-		<property name="value">
-			<value>-80</value>
-		</property>
-	</object>
 	<object class="AutomationPoint" id="{3e7f0630-654a-47a1-8a91-59fd99e6f903}">
 		<property name="position">
 			<value>0</value>
@@ -740,6 +732,14 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 		</property>
 		<property name="curveShape">
 			<value>-1</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{a54f49ae-39e9-42d7-bc2b-fcdc0a38f4b0}">
+		<property name="position">
+			<value>100</value>
+		</property>
+		<property name="value">
+			<value>-80</value>
 		</property>
 	</object>
 	<object class="Automator" id="{a991c5bf-13fd-4d99-9076-0a56726503ed}">
@@ -755,8 +755,8 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<destination>{2860903d-d2a5-4ff6-826d-77426e47a44f}</destination>
 		</relationship>
 		<relationship name="automationPoints">
-			<destination>{6827876e-b0cb-465c-bde9-757571a8f365}</destination>
 			<destination>{2d746fc1-0da3-47e8-83e4-a433b494d8d2}</destination>
+			<destination>{6827876e-b0cb-465c-bde9-757571a8f365}</destination>
 		</relationship>
 	</object>
 	<object class="AutomationCurve" id="{2bad7976-e67d-481d-b65c-59e11ca83e95}">
@@ -764,9 +764,17 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<destination>{b53728c5-53bd-4679-bdb1-cd4395b4dbc9}</destination>
 		</relationship>
 		<relationship name="automationPoints">
-			<destination>{4ce10aaa-89a5-4d6a-a783-58feea8f169c}</destination>
 			<destination>{5e16416a-c4e0-4273-bf8f-7055ebb30f80}</destination>
+			<destination>{4ce10aaa-89a5-4d6a-a783-58feea8f169c}</destination>
 		</relationship>
+	</object>
+	<object class="AutomationPoint" id="{2d746fc1-0da3-47e8-83e4-a433b494d8d2}">
+		<property name="position">
+			<value>3</value>
+		</property>
+		<property name="value">
+			<value>30.6667004</value>
+		</property>
 	</object>
 	<object class="AutomationPoint" id="{6827876e-b0cb-465c-bde9-757571a8f365}">
 		<property name="position">
@@ -779,22 +787,6 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<value>0.695007026</value>
 		</property>
 	</object>
-	<object class="AutomationPoint" id="{2d746fc1-0da3-47e8-83e4-a433b494d8d2}">
-		<property name="position">
-			<value>3</value>
-		</property>
-		<property name="value">
-			<value>30.6667004</value>
-		</property>
-	</object>
-	<object class="AutomationPoint" id="{4ce10aaa-89a5-4d6a-a783-58feea8f169c}">
-		<property name="position">
-			<value>70</value>
-		</property>
-		<property name="value">
-			<value>320</value>
-		</property>
-	</object>
 	<object class="AutomationPoint" id="{5e16416a-c4e0-4273-bf8f-7055ebb30f80}">
 		<property name="position">
 			<value>0.08203445447087776</value>
@@ -804,6 +796,14 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 		</property>
 		<property name="curveShape">
 			<value>0.47888419</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{4ce10aaa-89a5-4d6a-a783-58feea8f169c}">
+		<property name="position">
+			<value>70</value>
+		</property>
+		<property name="value">
+			<value>320</value>
 		</property>
 	</object>
 </objects>

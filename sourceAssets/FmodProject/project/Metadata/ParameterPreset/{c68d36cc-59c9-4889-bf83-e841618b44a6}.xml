@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.00.00">
+<objects serializationModel="Studio.02.03.00">
 	<object class="ParameterPreset" id="{c68d36cc-59c9-4889-bf83-e841618b44a6}">
 		<property name="name">
 			<value>Event Orientation</value>
