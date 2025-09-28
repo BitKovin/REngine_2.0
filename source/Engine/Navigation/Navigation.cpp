@@ -131,7 +131,7 @@ void NavigationSystem::GenerateNavData()
     cfg.walkableClimb = static_cast<int>(ceilf(0.6f / cfg.ch));
     cfg.walkableRadius = static_cast<int>(ceilf(0.2f / cfg.cs));
     cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);
-    cfg.maxSimplificationError = 0.01f;
+    cfg.maxSimplificationError = 0.05f;
     cfg.minRegionArea = 0;
     cfg.mergeRegionArea = 200 * 200;
     cfg.maxVertsPerPoly = 6;
@@ -139,8 +139,8 @@ void NavigationSystem::GenerateNavData()
     cfg.borderSize = static_cast<int>(ceilf(0.5f / cfg.cs)) + 3;
     cfg.width = cfg.tileSize + cfg.borderSize * 2;
     cfg.height = cfg.tileSize + cfg.borderSize * 2;
-    cfg.detailSampleDist = 0.1f;
-    cfg.detailSampleMaxError = 0.1f;
+    cfg.detailSampleDist = 0.2f;
+    cfg.detailSampleMaxError = 0.2f;
 
     const float tileWorld = cfg.tileSize * cfg.cs;
     const int ntilesX = static_cast<int>(ceilf((bmax.x - bmin.x) / tileWorld));

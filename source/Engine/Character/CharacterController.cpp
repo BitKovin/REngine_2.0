@@ -427,11 +427,20 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 	if (CheckGroundAt(FromPhysics(body->GetPosition()) - heightOffset, radius - 0.01f, outheight, outCanStand, outNormal, &hitBody))
 	{
 
+		if (Physics::GetBodyData(hitBody)->group == BodyType::CharacterCapsule)
+		{
+			Physics::AddImpulse(body, vec3(0, 1.1f, 0));
+		}
+
 		if (outCanStand)
 		{
+
+
+
 			canStand = true;
 
 			standingOnBody = hitBody;
+
 
 		}
 		
@@ -497,7 +506,7 @@ bool CharacterController::CheckGroundAt(vec3 location,float checkRadius, float& 
 
 	outheight = result.position.y;
 
-	canStand = result.hasHit && (GroundAngleDeg(result.normal) <= groundMaxAngle);
+	canStand = result.hasHit && (GroundAngleDeg(result.normal) <= groundMaxAngle) && Physics::GetBodyData(result.hitbody)->group != BodyType::CharacterCapsule;
 
 	//DebugDraw::Line(result.position, result.position + result.normal, 0.01f);
 

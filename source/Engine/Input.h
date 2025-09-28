@@ -188,7 +188,8 @@ public:
     static void RemoveAction(const std::string& actionName);
 };
 
-class InputAction {
+class InputAction 
+{
 public:
     std::vector<SDL_Scancode> keys;
     // For joystick buttons, we simply use int indices.
@@ -225,6 +226,8 @@ public:
 
     // Call every frame to update the action state.
     void Update();
+
+    static InputAction NullAction;
 
 protected:
 

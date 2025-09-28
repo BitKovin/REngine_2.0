@@ -333,6 +333,8 @@ void Player::UpdateWeapon()
 
 }
 
+char* debug_level_name = new char[100];
+
 void Player::UpdateDebugUI()
 {
 
@@ -395,6 +397,13 @@ void Player::UpdateDebugUI()
             controller.SetCollisionMask(BodyType::GroupCollisionTest);
             controller.SetCollisionMask(BodyType::CharacterCapsule);
         }
+    }
+
+    ImGui::InputText("level name", debug_level_name, 100);
+    ImGui::SameLine();
+    if (ImGui::Button("load"))
+    {
+        Level::LoadLevelFromFile(string(debug_level_name));
     }
 
     ImGui::Checkbox("draw physics", &Physics::DebugDraw);
@@ -659,6 +668,45 @@ void Player::Update()
     {
         StopBike();
     }
+
+    bool dashEnded = false;
+
+    if (wasDashing && dashProgress.Wait() == false)
+    {
+        dashEnded = true;
+    }
+
+    wasDashing = false;
+    if (dashProgress.Wait())
+    {
+        controller.SetVelocity(dashVector);
+        wasDashing = true;
+    }
+    else
+    {
+
+        if (dashEnded)
+        {
+            controller.SetVelocity(normalize(dashVector) * Speed);
+        }
+
+        if (Input::GetAction("dash")->Pressed())
+        {
+
+            vec3 dashDir = right * input.x + playerForward * input.y;
+
+            if (length(input) < 0.1)
+            {
+                dashDir = playerForward;
+            }
+
+            dashVector = dashDir * 20.0f;
+
+            dashProgress.AddDelay(0.2f);
+        }
+    }
+
+
 
     if (Input::GetAction("qSave")->Pressed())
     {

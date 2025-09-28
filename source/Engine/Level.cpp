@@ -215,6 +215,8 @@ Level* Level::OpenLevel(string filePath)
 
 	LoadingScreenSystem::Update(1);
 
+	Physics::ResetSimulation();
+
 	ChangingLevel = false;
 
 	return newLevel;

@@ -96,6 +96,10 @@ private:
 
 	bool teleported = false;
 
+	Delay dashProgress;
+	vec3 dashVector = vec3(0);
+	bool wasDashing = false;
+
 	glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
 		vel = MathHelper::XZ(vel);
 		float length = glm::length(vel);

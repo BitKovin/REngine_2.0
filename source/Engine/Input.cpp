@@ -29,6 +29,8 @@ MouseMoveCalculator* Input::mouseMoveCalculator = nullptr;
 SDL_Window* Input::window = nullptr;
 SDL_Joystick* Input::joystick = nullptr;
 
+InputAction InputAction::NullAction = InputAction();
+
 // Helper function to compute distance between two glm::vec2 points.
 static float Distance(const glm::vec2& a, const glm::vec2& b) {
     glm::vec2 diff = a - b;
@@ -396,7 +398,7 @@ void Input::UpdateActions() {
 
 InputAction* Input::GetAction(const std::string& actionName) {
     if (actions.find(actionName) == actions.end())
-        return nullptr;
+        return &InputAction::NullAction;
     return actions[actionName];
 }
 

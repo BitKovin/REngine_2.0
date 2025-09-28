@@ -83,7 +83,7 @@ public:
 
 		//fireSoundPlayer->Play();
 
-		SoundPlayer::PlayOneshot("event:/Weapons/pistol/pistol_fire", 1.2f);
+		SoundPlayer::PlayOneshot("event:/Weapons/pistol/pistol_fire", 1.2f, 0.4f);
 
 		SwitchDelay.AddDelay(0.09f);
 

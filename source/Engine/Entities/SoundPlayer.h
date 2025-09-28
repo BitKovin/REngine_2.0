@@ -36,7 +36,7 @@ public:
 	static SoundPlayer* Create();
 	static SoundPlayer* Create(string soundPath);
 
-	static void PlayOneshot(string soundPath, float destroyAfterSeconds, bool UiSound = false, vec3 position = vec3(0));
+	static void PlayOneshot(string soundPath, float destroyAfterSeconds, float volume = 1.0f, bool UiSound = false, vec3 position = vec3(0));
 
 private:
 

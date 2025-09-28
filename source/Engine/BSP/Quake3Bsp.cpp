@@ -709,6 +709,12 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
     int ny1 = glm::clamp(ny + 1, 0, lightVolGridDims.y - 1);
     int nz1 = glm::clamp(nz + 1, 0, lightVolGridDims.z - 1);
 
+    // Function to get grid position in engine space
+    auto getGridEnginePos = [&](int x, int y, int z) -> glm::vec3 {
+        glm::vec3 quake = modelMins + glm::vec3(x, y, z) * lightVolGridSize;
+        return glm::vec3(quake.x, quake.z, -quake.y);
+        };
+
     // Fetch light volumes at the eight corners
     auto getLightVolData = [&](int x, int y, int z) -> std::tuple<glm::vec3, glm::vec3, glm::vec3> {
         int index = z * (lightVolGridDims.x * lightVolGridDims.y) + y * lightVolGridDims.x + x;
@@ -737,46 +743,65 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
     auto [amb011, dir011, vec011] = getLightVolData(nx0, ny1, nz1);
     auto [amb111, dir111, vec111] = getLightVolData(nx1, ny1, nz1);
 
-    // Trilinear interpolation
-    auto lerp = [](float a, float b, float t) { return a + t * (b - a); };
-    auto lerpVec3 = [](const glm::vec3& a, const glm::vec3& b, float t) {
-        return a + t * (b - a);
-        };
+    // Validity checks (scale to world units)
+    bool valid000 = FindClusterAtPosition(getGridEnginePos(nx0, ny0, nz0) / MAP_SCALE) >= 0;
+    bool valid100 = FindClusterAtPosition(getGridEnginePos(nx1, ny0, nz0) / MAP_SCALE) >= 0;
+    bool valid010 = FindClusterAtPosition(getGridEnginePos(nx0, ny1, nz0) / MAP_SCALE) >= 0;
+    bool valid110 = FindClusterAtPosition(getGridEnginePos(nx1, ny1, nz0) / MAP_SCALE) >= 0;
+    bool valid001 = FindClusterAtPosition(getGridEnginePos(nx0, ny0, nz1) / MAP_SCALE) >= 0;
+    bool valid101 = FindClusterAtPosition(getGridEnginePos(nx1, ny0, nz1) / MAP_SCALE) >= 0;
+    bool valid011 = FindClusterAtPosition(getGridEnginePos(nx0, ny1, nz1) / MAP_SCALE) >= 0;
+    bool valid111 = FindClusterAtPosition(getGridEnginePos(nx1, ny1, nz1) / MAP_SCALE) >= 0;
 
-    // Interpolate along X for each plane
-    glm::vec3 amb_x00 = lerpVec3(amb000, amb100, fx);
-    glm::vec3 amb_x10 = lerpVec3(amb010, amb110, fx);
-    glm::vec3 amb_x01 = lerpVec3(amb001, amb101, fx);
-    glm::vec3 amb_x11 = lerpVec3(amb011, amb111, fx);
+    // Define data and weights
+    struct LightData { glm::vec3 amb, dir_color, dir_vec; };
+    LightData datas[8] = {
+        {amb000, dir000, vec000},
+        {amb100, dir100, vec100},
+        {amb010, dir010, vec010},
+        {amb110, dir110, vec110},
+        {amb001, dir001, vec001},
+        {amb101, dir101, vec101},
+        {amb011, dir011, vec011},
+        {amb111, dir111, vec111}
+    };
+    bool valids[8] = { valid000, valid100, valid010, valid110, valid001, valid101, valid011, valid111 };
+    float weights[8] = {
+        (1 - fx) * (1 - fy) * (1 - fz),
+        fx * (1 - fy) * (1 - fz),
+        (1 - fx) * fy * (1 - fz),
+        fx * fy * (1 - fz),
+        (1 - fx) * (1 - fy) * fz,
+        fx * (1 - fy) * fz,
+        (1 - fx) * fy * fz,
+        fx * fy * fz
+    };
 
-    glm::vec3 dir_x00 = lerpVec3(dir000, dir100, fx);
-    glm::vec3 dir_x10 = lerpVec3(dir010, dir110, fx);
-    glm::vec3 dir_x01 = lerpVec3(dir001, dir101, fx);
-    glm::vec3 dir_x11 = lerpVec3(dir011, dir111, fx);
+    // Weighted sum for valid samples
+    glm::vec3 sum_amb(0), sum_dir_color(0), sum_dir_vec(0);
+    float total_weight = 0.0f;
+    for (int i = 0; i < 8; ++i) {
+        if (valids[i]) {
+            float w = weights[i];
+            sum_amb += datas[i].amb * w;
+            sum_dir_color += datas[i].dir_color * w;
+            sum_dir_vec += datas[i].dir_vec * w;
+            total_weight += w;
+        }
+    }
 
-    glm::vec3 vec_x00 = lerpVec3(vec000, vec100, fx);
-    glm::vec3 vec_x10 = lerpVec3(vec010, vec110, fx);
-    glm::vec3 vec_x01 = lerpVec3(vec001, vec101, fx);
-    glm::vec3 vec_x11 = lerpVec3(vec011, vec111, fx);
-
-    // Interpolate along Y
-    glm::vec3 amb_y0 = lerpVec3(amb_x00, amb_x10, fy);
-    glm::vec3 amb_y1 = lerpVec3(amb_x01, amb_x11, fy);
-
-    glm::vec3 dir_y0 = lerpVec3(dir_x00, dir_x10, fy);
-    glm::vec3 dir_y1 = lerpVec3(dir_x01, dir_x11, fy);
-
-    glm::vec3 vec_y0 = lerpVec3(vec_x00, vec_x10, fy);
-    glm::vec3 vec_y1 = lerpVec3(vec_x01, vec_x11, fy);
-
-    // Interpolate along Z
-    glm::vec3 ambient = lerpVec3(amb_y0, amb_y1, fz);
-    glm::vec3 directional = lerpVec3(dir_y0, dir_y1, fz);
-    glm::vec3 dir_engine = lerpVec3(vec_y0, vec_y1, fz);
-
-
-	dir_engine = glm::normalize(dir_engine);
-
+    glm::vec3 ambient, directional, dir_engine;
+    if (total_weight > 0.0001f) {
+        ambient = sum_amb / total_weight;
+        directional = sum_dir_color / total_weight;
+        dir_engine = glm::normalize(sum_dir_vec / total_weight);
+    }
+    else {
+        // Default if no valid samples
+        ambient = vec3(0.3f);
+        directional = vec3(0);
+        dir_engine = vec3(0, -1, 0);
+    }
 
     return LightVolPointData{ directional, ambient, dir_engine };
 }
@@ -813,7 +838,7 @@ int CQuake3BSP::FindClusterAtPosition(glm::vec3 cameraPos)
 
     int nodeIndex = 0;
     int depth = 0;
-    while (nodeIndex >= 0 && depth < 100) { // Add depth limit to prevent infinite loops
+    while (nodeIndex >= 0 && depth < 200) {
 		const tBSPNode& node = nodes[nodeIndex];
 
 		const vec3 min = vec3(node.mins[0], node.mins[1], node.mins[2]) / MAP_SCALE;
