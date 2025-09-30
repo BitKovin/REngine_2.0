@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiPlayer", "MauiPlayer\Ma
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Games", "Games", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShooterGame", "Games\Game\Game.vcxproj", "{20812A9D-5CE8-485F-8814-7499BCB5FB04}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShooterGame", "Games\ShooterGame\Game.vcxproj", "{20812A9D-5CE8-485F-8814-7499BCB5FB04}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HorrorGame", "Games\HorrorGame\HorrorGame.vcxproj", "{00B429CD-9A0D-46D6-AAFA-1CD1482945E4}"
 EndProject

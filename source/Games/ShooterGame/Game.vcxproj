@@ -236,12 +236,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Entities\Brushes\DestructubleBrush.cpp" />
-    <ClCompile Include="Entities\Brushes\MovebleBrush.cpp" />
-    <ClCompile Include="Entities\Brushes\TriggerOnce.cpp" />
-    <ClCompile Include="Entities\Brushes\vis_through.cpp" />
-    <ClCompile Include="Entities\Editor\Counter.cpp" />
-    <ClCompile Include="Entities\Editor\LogicOnce.cpp" />
     <ClCompile Include="Entities\Npc\Animators\NpcAnimatorBase.cpp" />
     <ClCompile Include="Entities\Npc\NpcBase.cpp" />
     <ClCompile Include="Entities\Player\Player.cpp" />
@@ -252,13 +246,8 @@
     <ClCompile Include="Entities\Player\Weapons\weapon_shotgun.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_tommy.cpp" />
     <ClCompile Include="Entities\RelativeTeleporter.cpp" />
-    <ClCompile Include="Entities\Spawner.cpp" />
-    <ClCompile Include="Entities\StaticMeshEntity.cpp" />
     <ClCompile Include="Entities\TestNpc.cpp" />
     <ClCompile Include="Entities\TestParticleSystem.cpp" />
-    <ClCompile Include="Entities\Brushes\TriggerBase.cpp" />
-    <ClCompile Include="Entities\transformPoint.cpp" />
-    <ClCompile Include="Entities\WorldSpawn.cpp" />
     <ClCompile Include="GameStart.cpp" />
     <ClCompile Include="ParticleSystems\BulletTrail.cpp" />
     <ClCompile Include="ParticleSystems\CaneTrail.cpp" />
@@ -282,9 +271,6 @@
     <ClInclude Include="Entities\TestBsp.h" />
     <ClInclude Include="Entities\TestNpc.hpp" />
     <ClInclude Include="Entities\TestParticleSystem.hpp" />
-    <ClInclude Include="Entities\Brushes\TriggerBase.hpp" />
-    <ClInclude Include="Entities\transformPoint.h" />
-    <ClInclude Include="Entities\WorldSpawn.h" />
     <ClInclude Include="UI\LoadingScreen\UiDefaultLoadingScreen.h" />
     <ClInclude Include="UI\MobileControls\UiJoystick.h" />
     <ClInclude Include="UI\MobileControls\UiTouchMoveArea.h" />

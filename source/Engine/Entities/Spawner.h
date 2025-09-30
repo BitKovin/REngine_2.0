@@ -1,4 +1,5 @@
-#include <Entity.h>
+#pragma once
+#include "../Entity.h"
 
 class Spawner : public Entity
 {
@@ -70,5 +71,3 @@ public:
 private:
 
 };
-
-REGISTER_ENTITY(Spawner, "spawner")

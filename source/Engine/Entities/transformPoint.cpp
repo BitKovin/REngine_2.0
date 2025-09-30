@@ -9,5 +9,3 @@ void TransformPoint::FromData(EntityData data)
 
 	Rotation = EntityData::ConvertRotation(angles, false);
 }
-
-REGISTER_ENTITY(TransformPoint, "transformPoint")

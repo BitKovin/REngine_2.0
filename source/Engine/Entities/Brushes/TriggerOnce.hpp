@@ -1,3 +1,5 @@
+#pragma once
+
 #include "TriggerBase.hpp"
 
 class TriggerOnce : public TriggerBase
@@ -23,5 +25,3 @@ public:
 private:
 
 };
-
-REGISTER_ENTITY(TriggerOnce, "triggerOnce")

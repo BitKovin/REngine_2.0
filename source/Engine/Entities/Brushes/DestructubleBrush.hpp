@@ -1,4 +1,6 @@
-#include <Entity.h>
+#pragma once
+
+#include "../../Entity.h"
 
 
 class DestructubleBrush : public Entity
@@ -27,4 +29,3 @@ public:
 private:
 
 };
-REGISTER_ENTITY(DestructubleBrush,"destructible")

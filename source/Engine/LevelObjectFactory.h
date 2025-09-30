@@ -11,6 +11,8 @@ class LevelObjectFactory {
 public:
     static LevelObjectFactory& instance();
 
+    void registerDefaults();
+
     void registerType(const std::string& technicalName, CreateEntityFn func);
 
     bool isRegistered(const std::string& technicalName) const;
@@ -25,5 +27,9 @@ private:
 
     std::map<std::string, CreateEntityFn> registry_;
 };
+
+#define REGISTER_ENTITY_INLINE(NAME, TYPE) \
+    LevelObjectFactory::instance().registerType(NAME, []() -> Entity* { return new TYPE(); })
+
 
 #endif // LEVELOBJECTFACTORY_H

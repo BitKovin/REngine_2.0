@@ -1,5 +1,7 @@
-#include <Entity.h>
-#include <Physics.h>
+#pragma once
+
+#include "../../Entity.h"
+#include "../../Physics.h"
 
 class TriggerBase : public Entity
 {

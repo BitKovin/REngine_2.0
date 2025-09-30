@@ -1,5 +1,7 @@
-#include <Entity.h>
-#include <BSP/Quake3Bsp.h>
+#pragma once
+
+#include "../Entity.h"
+#include "../BSP/Quake3Bsp.h"
 
 class WorldSpawn : public Entity
 {

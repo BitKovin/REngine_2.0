@@ -142,6 +142,8 @@ void EngineMain::Init(std::vector<std::string> args)
 
     Arguments = ParseCommands(args);
 
+    LevelObjectFactory::instance().registerDefaults();
+
     UpdateScreenSize();
 
     printf("init\n");

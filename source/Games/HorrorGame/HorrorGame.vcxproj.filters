@@ -105,10 +105,10 @@
     <ClCompile Include="Entities\Editor\LogicOnce.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Entities\RelativeTeleporter.cpp">
+    <ClCompile Include="Entities\Player\Weapons\weapon_tommy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Entities\Player\Weapons\weapon_tommy.cpp">
+    <ClCompile Include="Entities\RelativeTeleporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

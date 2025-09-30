@@ -1,5 +1,6 @@
-#include <Entity.h>
-#include <StaticMesh.h>
+#pragma once
+#include "../Entity.h"
+#include "../StaticMesh.h"
 
 class StaticMeshEntity : public Entity
 {
@@ -38,5 +39,3 @@ public:
 private:
 
 };
-
-REGISTER_ENTITY(StaticMeshEntity, "static_mesh")

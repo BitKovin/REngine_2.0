@@ -237,7 +237,9 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Animator.cpp" />
+    <ClCompile Include="Entities\Brushes\TriggerBase.cpp" />
     <ClCompile Include="Entities\PointLight.cpp" />
+    <ClCompile Include="Entities\transformPoint.cpp" />
     <ClCompile Include="FileSystem\FileSystem.cpp" />
     <ClCompile Include="http\http_client_emscripten.cpp" />
     <ClCompile Include="http\http_client_httplib.cpp" />
@@ -321,7 +323,18 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Animator.h" />
+    <ClInclude Include="Entities\Brushes\DestructubleBrush.hpp" />
+    <ClInclude Include="Entities\Brushes\MovebleBrush.hpp" />
+    <ClInclude Include="Entities\Brushes\TriggerBase.hpp" />
+    <ClInclude Include="Entities\Brushes\TriggerOnce.hpp" />
+    <ClInclude Include="Entities\Brushes\vis_through.hpp" />
+    <ClInclude Include="Entities\Editor\Counter.h" />
+    <ClInclude Include="Entities\Editor\LogicOnce.h" />
     <ClInclude Include="Entities\PointLight.h" />
+    <ClInclude Include="Entities\Spawner.h" />
+    <ClInclude Include="Entities\StaticMeshEntity.h" />
+    <ClInclude Include="Entities\transformPoint.h" />
+    <ClInclude Include="Entities\WorldSpawn.h" />
     <ClInclude Include="FileSystem\FileSystem.h" />
     <ClInclude Include="FogManager.h" />
     <ClInclude Include="http\http_client.h" />

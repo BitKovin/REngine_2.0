@@ -34,3 +34,30 @@ Entity* LevelObjectFactory::create(const std::string& technicalName) const
     }
     return nullptr;
 }
+
+#include "Entities/WorldSpawn.h"
+#include "Entities/StaticMeshEntity.h"
+#include "Entities/Spawner.h"
+#include "Entities/Editor/Counter.h"
+#include "Entities/Editor/LogicOnce.h"
+#include "Entities/transformPoint.h"
+#include "Entities/Brushes/DestructubleBrush.hpp"
+#include "Entities/Brushes/MovebleBrush.hpp"
+#include "Entities/Brushes/TriggerBase.hpp"
+#include "Entities/Brushes/TriggerOnce.hpp"
+#include "Entities/Brushes/vis_through.hpp"
+
+void LevelObjectFactory::registerDefaults()
+{
+    REGISTER_ENTITY_INLINE("static_mesh", StaticMeshEntity);
+    REGISTER_ENTITY_INLINE("worldspawn", WorldSpawn);
+    REGISTER_ENTITY_INLINE("spawner", Spawner);
+    REGISTER_ENTITY_INLINE("counter", Counter);
+    REGISTER_ENTITY_INLINE("logicOnce", LogicOnce);
+    REGISTER_ENTITY_INLINE("transformPoint", TransformPoint);
+    REGISTER_ENTITY_INLINE("destructuble", DestructubleBrush);
+    REGISTER_ENTITY_INLINE("func_door", MovebleBrush);
+    REGISTER_ENTITY_INLINE("trigger", TriggerBase);
+    REGISTER_ENTITY_INLINE("triggerOnce", TriggerOnce);
+    REGISTER_ENTITY_INLINE("vis_through", vis_through);
+}

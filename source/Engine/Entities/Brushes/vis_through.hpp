@@ -1,5 +1,7 @@
-#include <Entity.h>
-#include <BSP/Quake3Bsp.h>
+#pragma once
+
+#include "../../Entity.h"
+#include "../../BSP/Quake3Bsp.h"
 
 class vis_through : public Entity
 {
@@ -23,5 +25,3 @@ public:
 private:
 
 };
-
-REGISTER_ENTITY(vis_through, "vis_through")

@@ -1,4 +1,6 @@
-#include <Entity.h>
+#pragma once
+
+#include "../../Entity.h"
 #include "../transformPoint.h"
 
 class MovebleBrush : public Entity
@@ -169,5 +171,3 @@ public:
 private:
 	 
 };
-
-REGISTER_ENTITY(MovebleBrush, "func_door")
