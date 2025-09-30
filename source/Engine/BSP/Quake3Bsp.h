@@ -428,7 +428,7 @@ class CQuake3BSP : public IDrawMesh
     // Get lighting for a dynamic object at position (x, y, z)
     LightVolPointData GetLightvolColorPoint(const glm::vec3& position);
     LightVolPointData GetLightvolColor(const glm::vec3& position);
-    inline int FindClusterAtPosition(glm::vec3 cameraPos);
+    int FindClusterAtPosition(glm::vec3 cameraPos);
 
     bool IsClusterVisible(int sourceCluster, int testCluster);
 

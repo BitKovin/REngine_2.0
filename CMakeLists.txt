@@ -2,15 +2,22 @@ cmake_minimum_required(VERSION 3.16)
 project(MyProject)
 
 # ——————————————————————————————————————————————————————————
+# Game selection (user-visible, cached)
+# ——————————————————————————————————————————————————————————
+# You can pass -DGAME_NAME=MyGame or -DGAME_PATH=/absolute/or/relative/path
+set(GAME_NAME "Game" CACHE STRING "Name of the game project subdirectory under source/Games")
+set(GAME_PATH "" CACHE PATH "Optional path to the game project directory. If set, overrides GAME_NAME/GAME_DIR")
+
+# ——————————————————————————————————————————————————————————
 # Global settings
 # ——————————————————————————————————————————————————————————
-
 option(ENABLE_PTHREADS "Enable Emscripten pthread support (WASM threads)" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Build")
 
+# We'll put final runtime / archive / library outputs under Build/<GAME_NAME>/<platform>
+# (these are set later after we detect platform and GAME_DIR)
 # Global compile options (applies to all targets)
 add_compile_options(-O3 -DNDEBUG)
 
@@ -22,7 +29,6 @@ else()
         message(STATUS "Emscripten pthreads: DISABLED")
     endif()
 endif()
-
 
 # ——————————————————————————————————————————————————————————
 # Platform detection
@@ -50,20 +56,18 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
     
     add_library(FMOD::Core SHARED IMPORTED GLOBAL)
     set_target_properties(FMOD::Core PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libfmod.so"
+        IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libfmod.so"
     )
 
     add_library(FMOD::Studio SHARED IMPORTED GLOBAL)
     set_target_properties(FMOD::Studio PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libfmodstudio.so"
+        IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libfmodstudio.so"
     )
     
-add_library(mimalloc::mimalloc STATIC IMPORTED GLOBAL)
-set_target_properties(mimalloc::mimalloc PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libmimalloc.a"
-)
-
-    
+    add_library(mimalloc::mimalloc STATIC IMPORTED GLOBAL)
+    set_target_properties(mimalloc::mimalloc PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/Lib/Linux/libmimalloc.a"
+    )
 
     # Find other Linux dependencies
     find_package(SDL2       REQUIRED)
@@ -83,7 +87,7 @@ include_directories(
     "${CMAKE_SOURCE_DIR}/source/Engine"
 )
 
-# ——————————————————————————————————————————————————————————
+# ——————————————————————————————————————————————————————————————————————
 # Engine library
 # ——————————————————————————————————————————————————————————
 file(GLOB_RECURSE ENGINE_SOURCES "${CMAKE_SOURCE_DIR}/source/Engine/*.cpp")
@@ -112,10 +116,10 @@ elseif (LINUX)
     # Link OpenAL via imported target
     target_link_libraries(engine PRIVATE OpenAL::OpenAL)
 
-	target_include_directories(engine 
-    PUBLIC
-      "${CMAKE_SOURCE_DIR}/libraries"     
-	)
+    target_include_directories(engine 
+        PUBLIC
+          "${CMAKE_SOURCE_DIR}/libraries"     
+    )
 
     # Link the rest as before
     target_link_libraries(engine PRIVATE
@@ -127,10 +131,39 @@ elseif (LINUX)
         GLEW::GLEW
         OpenGL::GL
         ZLIB::ZLIB
-	FMOD::Core
+        FMOD::Core
         FMOD::Studio 
         mimalloc::mimalloc 
     )
+endif()
+
+# ——————————————————————————————————————————————————————————
+# Resolve GAME_DIR, create source/game folder if missing, save selection
+# ——————————————————————————————————————————————————————————
+if(GAME_PATH)
+    # explicit path override (absolute or relative)
+    set(GAME_DIR "${GAME_PATH}")
+else()
+    # default layout: source/Games/<GAME_NAME>
+    set(GAME_DIR "${CMAKE_SOURCE_DIR}/source/Games/${GAME_NAME}")
+
+    # backward compatibility: if that path doesn't exist but old `source/Game` does, fall back
+    if(NOT IS_DIRECTORY "${GAME_DIR}" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/source/Game")
+        message(WARNING "Game directory '${GAME_DIR}' not found. Falling back to legacy 'source/Game'. Consider passing -DGAME_NAME or -DGAME_PATH to specify the game project.")
+        set(GAME_DIR "${CMAKE_SOURCE_DIR}/source/Game")
+    endif()
+endif()
+
+message(STATUS "Using game source directory: ${GAME_DIR}")
+# Attempt to create the directory if it's missing (CMake will create it in the source tree or wherever GAME_PATH points)
+if(NOT IS_DIRECTORY "${GAME_DIR}")
+    file(MAKE_DIRECTORY "${GAME_DIR}")
+    file(MAKE_DIRECTORY "${GAME_DIR}/include" "${GAME_DIR}/src" "${GAME_DIR}/assets")
+    message(STATUS "Created game folder structure at: ${GAME_DIR}")
+    # create a small README if none exists
+    if(NOT EXISTS "${GAME_DIR}/README.md")
+        file(WRITE "${GAME_DIR}/README.md" "Game: ${GAME_NAME}\nCreated by CMake on ${CMAKE_HOST_SYSTEM}\n")
+    endif()
 endif()
 
 # ——————————————————————————————————————————————————————————
@@ -153,7 +186,7 @@ set(WASM_COMMON_LINK_OPTIONS
     "SHELL:-s NO_DISABLE_EXCEPTION_CATCHING"
     "SHELL:-s WASM=1"
     "SHELL:-s ASSERTIONS=1"
-    "SHELL:--preload-file ${CMAKE_SOURCE_DIR}/source/GameData@/GameData"
+    "SHELL:--preload-file ${GAME_DIR}/GameData@/GameData"
     "SHELL:-s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1"
     "SHELL:-lidbfs.js"
     "SHELL:-msimd128"
@@ -182,25 +215,113 @@ else()
 endif()
 
 
-# ——————————————————————————————————————————————————————————
-# Game executable
-# ——————————————————————————————————————————————————————————
-file(GLOB_RECURSE GAME_SOURCES "${CMAKE_SOURCE_DIR}/source/Game/*.cpp")
 
-add_executable(game ${GAME_SOURCES})
-target_include_directories(game PUBLIC
+# Persist last selected game to build dir so it's easy to query later
+file(WRITE "${CMAKE_BINARY_DIR}/last_game.txt" "${GAME_NAME}\n")
+message(STATUS "Saved last selected game into: ${CMAKE_BINARY_DIR}/last_game.txt")
+# Note: GAME_NAME is also a cached variable and is stored in CMakeCache.txt automatically.
+
+# ——————————————————————————————————————————————————————————
+# Create platform-specific build subfolder structure under source-level Build/
+# (Build/<GameName>/<platform>), and set global output directories
+# ——————————————————————————————————————————————————————————
+if(EMSCRIPTEN)
+    set(PLATFORM_DIR "emscripten")
+elseif(LINUX)
+    set(PLATFORM_DIR "linux")
+elseif(WIN32)
+    set(PLATFORM_DIR "windows")
+else()
+    # fallback: lower-case system name
+    string(TOLOWER "${CMAKE_SYSTEM_NAME}" PLATFORM_DIR)
+endif()
+
+set(OUTPUT_BASE_DIR "${CMAKE_SOURCE_DIR}/Build/${GAME_NAME}/${PLATFORM_DIR}")
+file(MAKE_DIRECTORY "${OUTPUT_BASE_DIR}")
+file(MAKE_DIRECTORY "${OUTPUT_BASE_DIR}/bin" "${OUTPUT_BASE_DIR}/lib" "${OUTPUT_BASE_DIR}/assets")
+
+# set global output dirs (single-config and multi-config)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/lib")
+
+foreach(cfg IN ITEMS Debug Release RelWithDebInfo MinSizeRel)
+    string(TOUPPER "${cfg}" CFGU)
+    set("CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFGU}" "${OUTPUT_BASE_DIR}/bin")
+    set("CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFGU}" "${OUTPUT_BASE_DIR}/lib")
+    set("CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFGU}" "${OUTPUT_BASE_DIR}/lib")
+endforeach()
+
+message(STATUS "Build output base: ${OUTPUT_BASE_DIR}")
+
+# Ensure targets created earlier (engine) will emit to the new dirs as well
+if(TARGET engine)
+    set_target_properties(engine PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/bin"
+    )
+endif()
+
+# ——————————————————————————————————————————————————————————
+# Collect game sources
+# ——————————————————————————————————————————————————————————
+file(GLOB_RECURSE GAME_SOURCES "${GAME_DIR}/*.cpp")
+
+# Include legacy sources if the old directory exists (transitional support)
+set(LEGACY_GAME_DIR "${CMAKE_SOURCE_DIR}/source/Game")
+if(IS_DIRECTORY "${LEGACY_GAME_DIR}")
+    message(STATUS "Legacy game directory found: Including sources from ${LEGACY_GAME_DIR}")
+    file(GLOB_RECURSE LEGACY_GAME_SOURCES "${LEGACY_GAME_DIR}/*.cpp")
+    list(APPEND GAME_SOURCES ${LEGACY_GAME_SOURCES})
+    list(REMOVE_DUPLICATES GAME_SOURCES)
+endif()
+
+# ——————————————————————————————————————————————————————————
+# Game executable target (target name follows GAME_NAME)
+# ——————————————————————————————————————————————————————————
+# sanitize GAME_NAME to create a valid CMake target name (replace non-alnum with '_')
+string(REGEX REPLACE "[^A-Za-z0-9_]" "_" GAME_TARGET_NAME "${GAME_NAME}")
+
+# If no sources found, we still create the target so the user can populate the folder.
+if (NOT GAME_SOURCES)
+    message(FATAL_ERROR "No C++ sources found in ${GAME_DIR}. Cannot build ${GAME_NAME}.")
+endif()
+
+add_executable(${GAME_TARGET_NAME} ${GAME_SOURCES})
+
+# include directories for the game
+target_include_directories(${GAME_TARGET_NAME} PUBLIC
     "${CMAKE_SOURCE_DIR}/libraries"
     "${CMAKE_SOURCE_DIR}/source/Engine"
+    "${GAME_DIR}"
 )
-target_link_libraries(game PRIVATE engine)
+
+# link engine
+target_link_libraries(${GAME_TARGET_NAME} PRIVATE engine)
+
+# Set executable output name: keep 'main' for emscripten builds (compat), otherwise use GAME_NAME
+if(EMSCRIPTEN)
+    set_target_properties(${GAME_TARGET_NAME} PROPERTIES OUTPUT_NAME "main")
+    set_target_properties(${GAME_TARGET_NAME} PROPERTIES SUFFIX ".html")
+    message(STATUS "Emscripten build: final module OUTPUT_NAME set to 'main' for web compatibility, with SUFFIX '.html' to generate HTML output")
+else()
+    set_target_properties(${GAME_TARGET_NAME} PROPERTIES OUTPUT_NAME "${GAME_NAME}")
+endif()
+
+# Ensure this game target also emits binaries/libs to our platform-specific output directories
+set_target_properties(${GAME_TARGET_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/bin"
+    ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/lib"
+)
 
 if (EMSCRIPTEN)
-    message(STATUS "Applying WASM linker flags to final 'game' target")
-    set_target_properties(game PROPERTIES OUTPUT_NAME "main")
-    target_link_options(game PRIVATE ${WASM_COMMON_LINK_OPTIONS})
+    message(STATUS "Applying WASM linker flags to final '${GAME_TARGET_NAME}' target")
+    target_link_options(${GAME_TARGET_NAME} PRIVATE ${WASM_COMMON_LINK_OPTIONS})
 endif()
 
 if (LINUX)
-    target_link_options(game PRIVATE -pthread -ldl)
-    install(TARGETS game DESTINATION bin)
+    target_link_options(${GAME_TARGET_NAME} PRIVATE -pthread -ldl)
+    install(TARGETS ${GAME_TARGET_NAME} DESTINATION bin)
 endif()
