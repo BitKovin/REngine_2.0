@@ -37,7 +37,7 @@ public:
 
     void bind(uint32_t unit = 0) const;
     void unbind() const;
-    void resize(uint32_t width, uint32_t height);
+    bool resize(uint32_t width, uint32_t height);
 
     void setTextureType(TextureType newType);
 
@@ -51,9 +51,7 @@ public:
     uint32_t width() const { return m_width; }
     uint32_t height() const { return m_height; }
 
-    void copyTo(RenderTexture& dst,
-        GLbitfield mask = GL_COLOR_BUFFER_BIT,
-        GLenum filter = GL_NEAREST) const;
+    void copyFrom(const RenderTexture* src);
 
 private:
     GLuint m_id;

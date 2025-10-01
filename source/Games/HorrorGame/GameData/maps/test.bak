@@ -1338,7 +1338,7 @@
 {
 "classname" "light"
 "origin" "80 256 80"
-"light" "0"
+"light" "200"
 "_sun" "1"
 "target" "lp1"
 "_color" "1 0.95 0.73"

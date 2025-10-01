@@ -21,7 +21,7 @@ public:
 
 	void RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderList, Framebuffer& fbo, int numCascades);
 
-	void RenderFullscreenQuad(GLuint textureID);
+	void RenderFullscreenQuad();
 
 	static void SetSurfaceShaderUniforms(ShaderProgram* shader);
 
@@ -42,6 +42,10 @@ private:
 	RenderTexture* colorBuffer = nullptr;
 	RenderTexture* depthBuffer = nullptr;
 
+	Framebuffer* blurRenderFrameBuffer = nullptr;
+	RenderTexture* BlurResultBuffer = nullptr;
+	RenderTexture* BlurAccumulatedBuffer = nullptr;
+
 	RenderTexture* colorResolveBuffer = nullptr;
 	RenderTexture* depthResolveBuffer = nullptr;
 
@@ -55,5 +59,6 @@ private:
 	Framebuffer* DetailDirectionalShadowMapFBO = nullptr;
 
 	ShaderProgram* fullscreenShader = nullptr;
+	ShaderProgram* blurShader = nullptr;
 
 };

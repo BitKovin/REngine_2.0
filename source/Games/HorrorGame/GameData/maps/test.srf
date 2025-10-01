@@ -114,7 +114,7 @@ default
 	sampleSize 0
 }
 
-18 // ESurfaceType::Meta V: 10 I: 24 planar
+18 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/skies/skybox1_cube
 	sampleSize 0
@@ -132,33 +132,33 @@ default
 	sampleSize 0
 }
 
-21 // ESurfaceType::Meta V: 4 I: 6 planar
+21 // ESurfaceType::Meta V: 10 I: 24 planar
 {
-	shader textures/skies/skybox1_cube
+	shader textures/skies/skybox2_overcast_cube
 	sampleSize 0
 }
 
 22 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/skies/skybox1_cube
+	shader textures/skies/skybox2_overcast_cube
 	sampleSize 0
 }
 
 23 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/skies/skybox1_cube
+	shader textures/skies/skybox2_overcast_cube
 	sampleSize 0
 }
 
 24 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/skies/skybox1_cube
+	shader textures/skies/skybox2_overcast_cube
 	sampleSize 0
 }
 
 25 // ESurfaceType::Meta V: 5 I: 9 planar
 {
-	shader textures/skies/skybox1_cube
+	shader textures/skies/skybox2_overcast_cube
 	sampleSize 0
 }
 

@@ -15,8 +15,12 @@ Renderer::Renderer()
     InitResolveFrameBuffers();
 
 	fullscreenShader = ShaderManager::GetShaderProgram("fullscreen_vertex","postprocessing");
+    blurShader = ShaderManager::GetShaderProgram("fullscreen_vertex", "motionBlur");
 
-
+    BlurResultBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::RGBA16F);
+    BlurAccumulatedBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::RGBA16F);
+    blurRenderFrameBuffer = new Framebuffer();
+    blurRenderFrameBuffer->attachColor(BlurResultBuffer);
 
     if (LightManager::DirectionalShadowsEnabled)
     {
@@ -52,10 +56,30 @@ void Renderer::RenderLevel(Level* level)
     }
 	RenderCameraForward(level->VissibleRenderList);
 
+    ivec2 screenResolution = GetScreenResolution();
+    glViewport(0, 0, screenResolution.x, screenResolution.y);
+
+    BlurAccumulatedBuffer->resize(screenResolution.x, screenResolution.y);
+    BlurResultBuffer->resize(screenResolution.x, screenResolution.y);
+
+    BlurAccumulatedBuffer->copyFrom(BlurResultBuffer);
+
+    blurRenderFrameBuffer->bind();
+    blurShader->UseProgram();
+    blurShader->SetTexture("uAccumulated", BlurAccumulatedBuffer->id());
+    blurShader->SetUniform("uDeltaTime", EngineMain::MainInstance->Paused ? 0.0f : Time::DeltaTimeF);
+    blurShader->SetUniform("GameTime", (float)Time::GameTime);
+    blurShader->SetUniform("uPersistence", 0.15f);
+    blurShader->SetUniform("uMotionScale", 0.5f);
+    blurShader->SetTexture("screenTexture", colorResolveBuffer->id());
+    RenderFullscreenQuad();
+    Framebuffer::unbind();
+
 	//rendering to screen
-	ivec2 screenResolution = GetScreenResolution();
-	glViewport(0,0,screenResolution.x, screenResolution.y);
-	RenderFullscreenQuad(colorResolveBuffer->id());
+    fullscreenShader->UseProgram();
+    fullscreenShader->SetTexture("screenTexture", BlurResultBuffer->id());
+    fullscreenShader->SetUniform("screenResolution", screenResolution);
+	RenderFullscreenQuad();
 
 }
 
@@ -251,19 +275,12 @@ void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderLis
     glUseProgram(0);
 }
 
-void Renderer::RenderFullscreenQuad(GLuint textureID)
+void Renderer::RenderFullscreenQuad()
 {
 
     glDisable(GL_DITHER);
-
 	glDisable(GL_DEPTH_TEST);
-	fullscreenShader->UseProgram();
 
-    ivec2 screenResolution = GetScreenResolution();
-
-	
-	fullscreenShader->SetTexture("screenTexture", textureID);
-    fullscreenShader->SetUniform("screenResolution", screenResolution);
 	// Draw quad
 	glBindVertexArray(quadVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

@@ -51,11 +51,12 @@ void RenderTexture::unbind() const {
     glBindTexture(static_cast<GLenum>(m_type), 0);
 }
 
-void RenderTexture::resize(uint32_t width, uint32_t height) {
-    if (width == m_width && height == m_height) return;
+bool RenderTexture::resize(uint32_t width, uint32_t height) {
+    if (width == m_width && height == m_height) return false;
     m_width = width;
     m_height = height;
     allocateStorage();
+    return true;
 }
 
 void RenderTexture::setTextureType(TextureType newType)
@@ -196,49 +197,79 @@ std::tuple<GLenum, GLenum, GLenum> RenderTexture::getFormatInfo() const {
     throw std::runtime_error("RenderTexture: unknown TextureFormat");
 }
 
-void RenderTexture::copyTo(RenderTexture& dst,
-    GLbitfield mask,
-    GLenum filter) const
+void RenderTexture::copyFrom(const RenderTexture* src) 
 {
-    GLuint fboSrc = 0, fboDst = 0;
-    glGenFramebuffers(1, &fboSrc);
-    glGenFramebuffers(1, &fboDst);
+    if (!src) {
+        throw std::runtime_error("RenderTexture::copyFrom: source pointer is null");
+    }
 
-    // Bind source (read FBO)
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, fboSrc);
-    GLenum targetSrc = (m_type == TextureType::Texture2DMultisample)
-        ? GL_TEXTURE_2D_MULTISAMPLE
-        : (m_type == TextureType::Cubemap ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D);
+    if (m_width != src->width() || m_height != src->height() ||
+        m_type != src->type() || m_format != src->format() ||
+        m_samples != src->samples()) {
+        throw std::runtime_error(
+            "RenderTexture::copyFrom: source and destination must have same dimensions, type, format, and sample count");
+    }
 
-    glFramebufferTexture2D(GL_READ_FRAMEBUFFER,
-        (m_format >= TextureFormat::Depth16 ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0),
-        targetSrc,
-        m_id, 0);
+    GLuint fboRead = 0, fboDraw = 0;
+    glGenFramebuffers(1, &fboRead);
+    glGenFramebuffers(1, &fboDraw);
 
-    // Bind destination (draw FBO)
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboDst);
-    GLenum targetDst = (dst.m_type == TextureType::Texture2DMultisample)
-        ? GL_TEXTURE_2D_MULTISAMPLE
-        : (dst.m_type == TextureType::Cubemap ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : GL_TEXTURE_2D);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, fboRead);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboDraw);
 
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER,
-        (dst.m_format >= TextureFormat::Depth16 ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0),
-        targetDst,
-        dst.m_id, 0);
+    auto [internalFmt, baseFmt, dataType] = getFormatInfo();  // Same for src and this
 
-    // Blit (this automatically resolves multisample → non-multisample)
-    glBlitFramebuffer(
-        0, 0, m_width, m_height,
-        0, 0, dst.m_width, dst.m_height,
-        mask, filter);
+    GLenum attachment;
+    GLbitfield mask;
+    if (baseFmt == GL_DEPTH_STENCIL) {
+        attachment = GL_DEPTH_STENCIL_ATTACHMENT;
+        mask = GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+    }
+    else if (baseFmt == GL_DEPTH_COMPONENT) {
+        attachment = GL_DEPTH_ATTACHMENT;
+        mask = GL_DEPTH_BUFFER_BIT;
+    }
+    else {
+        attachment = GL_COLOR_ATTACHMENT0;
+        mask = GL_COLOR_BUFFER_BIT;
+    }
 
-    // Cleanup
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glDeleteFramebuffers(1, &fboSrc);
-    glDeleteFramebuffers(1, &fboDst);
+    GLenum filter = (mask & GL_COLOR_BUFFER_BIT) ? GL_LINEAR : GL_NEAREST;
+
+    GLenum target = static_cast<GLenum>(m_type);
+
+    if (m_type == TextureType::Cubemap) {
+        for (GLuint face = 0; face < 6; ++face) {
+            GLenum faceTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + face;
+            glFramebufferTexture2D(GL_READ_FRAMEBUFFER, attachment, faceTarget, src->id(), 0);
+            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachment, faceTarget, m_id, 0);
+
+            if (attachment == GL_COLOR_ATTACHMENT0) {
+                glReadBuffer(attachment);
+                glDrawBuffer(attachment);
+            }
+
+            glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, mask, filter);
+        }
+    }
+    else {
+        glFramebufferTexture2D(GL_READ_FRAMEBUFFER, attachment, target, src->id(), 0);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachment, target, m_id, 0);
+
+        if (attachment == GL_COLOR_ATTACHMENT0) {
+            glReadBuffer(attachment);
+            glDrawBuffer(attachment);
+        }
+
+        glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, mask, filter);
+    }
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+    glDeleteFramebuffers(1, &fboRead);
+    glDeleteFramebuffers(1, &fboDraw);
 }
-
-
 
 void RenderTexture::validateSampleCount() const {
 #if defined(DISABLE_MULTISAMPLE)
