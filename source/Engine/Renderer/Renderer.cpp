@@ -67,7 +67,7 @@ void Renderer::RenderLevel(Level* level)
     blurRenderFrameBuffer->bind();
     blurShader->UseProgram();
     blurShader->SetTexture("uAccumulated", BlurAccumulatedBuffer->id());
-    blurShader->SetUniform("uDeltaTime", EngineMain::MainInstance->Paused ? 0.0f : Time::DeltaTimeF);
+    blurShader->SetUniform("uDeltaTime", EngineMain::MainInstance->Paused ? 0.0f : Time::DeltaTimeFNoTimeScale);
     blurShader->SetUniform("GameTime", (float)Time::GameTime);
     blurShader->SetUniform("uPersistence", 0.15f);
     blurShader->SetUniform("uMotionScale", 0.5f);

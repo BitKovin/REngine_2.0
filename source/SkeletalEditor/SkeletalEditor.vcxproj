@@ -111,14 +111,14 @@
     <LibraryPath>F:\Git\SdlWasmEngine\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)../libraries/;$(SolutionDir)Engine/;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)../libraries/;$(SolutionDir)Engine/;$(SolutionDir)../emscriptenLibraries/;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)../Lib/;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>..\Intermediage\$(ShortProjectName)\$(Configuration)\</IntDir>
     <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)../libraries/;$(SolutionDir)Engine/;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)../libraries/;$(SolutionDir)Engine/;$(SolutionDir)../emscriptenLibraries/;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)../Lib/;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>..\Intermediage\$(ShortProjectName)\$(Configuration)\</IntDir>
@@ -126,7 +126,7 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='emscripten|x64'">
-    <IncludePath>$(SolutionDir)../libraries/;$(SolutionDir)Engine/;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)../libraries/;$(SolutionDir)Engine/;$(SolutionDir)../emscriptenLibraries/;$(IncludePath)</IncludePath>
     <LibraryPath>F:\Git\SdlWasmEngine\Lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>..\Intermediage\$(ShortProjectName)\$(Configuration)\</IntDir>
@@ -240,7 +240,6 @@
     <ClCompile Include="Entities\FreeCamera.cpp" />
     <ClCompile Include="Entities\SkeletalEditorEntity.cpp" />
     <ClCompile Include="GameStart.cpp" />
-    <ClCompile Include="WorldSpawn.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">

@@ -66,7 +66,7 @@ void LevelSaveSystem::LoadLevelFromData(LevelSaveData data)
 {
 
     Physics::ResetSimulation();
-    Physics::Simulate();
+    Physics::SimulateWorldNoContacts();
 
     Time::DeltaTime = 0.0001;
     Time::DeltaTimeF = 0.0001f;
@@ -113,7 +113,7 @@ void LevelSaveSystem::LoadLevelFromData(LevelSaveData data)
 
     Level::Current->AddPendingLevelObjects();
 
-    Physics::Simulate();
+    Physics::SimulateWorldNoContacts();
 
     for (auto entity : createdEntities)
     {
@@ -121,7 +121,7 @@ void LevelSaveSystem::LoadLevelFromData(LevelSaveData data)
         entity->LoadAssetsIfNeeded();
     }
 
-    Physics::Simulate();
+    Physics::SimulateWorldNoContacts();
 
     Level::Current->AddPendingLevelObjects();
 
@@ -134,7 +134,8 @@ void LevelSaveSystem::LoadLevelFromData(LevelSaveData data)
 
     }
 
-    Physics::Simulate();
+    Physics::SimulateWorldNoContacts();
+    Physics::ResetSimulation();
     Logger::Log("save loaded\n");
 }
 

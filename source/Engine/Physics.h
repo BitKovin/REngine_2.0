@@ -642,6 +642,10 @@ public:
 
 	static void UpdatePendingBodyExitsEnters();
 
+	static void SimulateWorldNoContacts()
+	{
+		physics_system->Update(Time::DeltaTime, 1, tempMemAllocator, threadPool);
+	}
 
 	static void Simulate()
 	{
