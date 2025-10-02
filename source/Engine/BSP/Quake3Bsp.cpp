@@ -664,7 +664,7 @@ std::vector<uint32_t> CQuake3BSP::GetFaceIndices(int faceId)
     return Rbuffers.v_faceIDXs[faceId];
 }
 
-LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
+LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, bool wallCheck)
 {
 
     if (lightVols.size() == 0)
@@ -744,14 +744,27 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
     auto [amb111, dir111, vec111] = getLightVolData(nx1, ny1, nz1);
 
     // Validity checks (scale to world units)
-    bool valid000 = FindClusterAtPosition(getGridEnginePos(nx0, ny0, nz0) / MAP_SCALE) >= 0;
-    bool valid100 = FindClusterAtPosition(getGridEnginePos(nx1, ny0, nz0) / MAP_SCALE) >= 0;
-    bool valid010 = FindClusterAtPosition(getGridEnginePos(nx0, ny1, nz0) / MAP_SCALE) >= 0;
-    bool valid110 = FindClusterAtPosition(getGridEnginePos(nx1, ny1, nz0) / MAP_SCALE) >= 0;
-    bool valid001 = FindClusterAtPosition(getGridEnginePos(nx0, ny0, nz1) / MAP_SCALE) >= 0;
-    bool valid101 = FindClusterAtPosition(getGridEnginePos(nx1, ny0, nz1) / MAP_SCALE) >= 0;
-    bool valid011 = FindClusterAtPosition(getGridEnginePos(nx0, ny1, nz1) / MAP_SCALE) >= 0;
-    bool valid111 = FindClusterAtPosition(getGridEnginePos(nx1, ny1, nz1) / MAP_SCALE) >= 0;
+    bool valid000 = true;// FindClusterAtPosition(getGridEnginePos(nx0, ny0, nz0) / MAP_SCALE) >= 0;
+    bool valid100 = true;// FindClusterAtPosition(getGridEnginePos(nx1, ny0, nz0) / MAP_SCALE) >= 0;
+    bool valid010 = true;// FindClusterAtPosition(getGridEnginePos(nx0, ny1, nz0) / MAP_SCALE) >= 0;
+    bool valid110 = true;// FindClusterAtPosition(getGridEnginePos(nx1, ny1, nz0) / MAP_SCALE) >= 0;
+    bool valid001 = true;// FindClusterAtPosition(getGridEnginePos(nx0, ny0, nz1) / MAP_SCALE) >= 0;
+    bool valid101 = true;// FindClusterAtPosition(getGridEnginePos(nx1, ny0, nz1) / MAP_SCALE) >= 0;
+    bool valid011 = true;// FindClusterAtPosition(getGridEnginePos(nx0, ny1, nz1) / MAP_SCALE) >= 0;
+    bool valid111 = true;// FindClusterAtPosition(getGridEnginePos(nx1, ny1, nz1) / MAP_SCALE) >= 0;
+
+    if (wallCheck)
+    {
+        valid000 = FindClusterAtPosition(getGridEnginePos(nx0, ny0, nz0) / MAP_SCALE) >= 0;
+        valid010 = FindClusterAtPosition(getGridEnginePos(nx0, ny1, nz0) / MAP_SCALE) >= 0;
+        valid100 = FindClusterAtPosition(getGridEnginePos(nx1, ny0, nz0) / MAP_SCALE) >= 0;
+        valid110 = FindClusterAtPosition(getGridEnginePos(nx1, ny1, nz0) / MAP_SCALE) >= 0;
+        valid001 = FindClusterAtPosition(getGridEnginePos(nx0, ny0, nz1) / MAP_SCALE) >= 0;
+        valid101 = FindClusterAtPosition(getGridEnginePos(nx1, ny0, nz1) / MAP_SCALE) >= 0;
+        valid011 = FindClusterAtPosition(getGridEnginePos(nx0, ny1, nz1) / MAP_SCALE) >= 0;
+        valid111 = FindClusterAtPosition(getGridEnginePos(nx1, ny1, nz1) / MAP_SCALE) >= 0;
+    }
+
 
     // Define data and weights
     struct LightData { glm::vec3 amb, dir_color, dir_vec; };
@@ -806,7 +819,7 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position)
     return LightVolPointData{ directional, ambient, dir_engine };
 }
 
-LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
+LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position, bool wallCheck)
 {
 
     if (lightVols.size() == 0)
@@ -817,10 +830,10 @@ LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position)
     auto data = GetLightvolColorPoint(position);
     auto centerData = data;
     float radius = lightVolGridSize.x;
-    data += GetLightvolColorPoint(position + vec3(radius,0,0));
-    data += GetLightvolColorPoint(position + vec3(-radius, 0, 0));
-    data += GetLightvolColorPoint(position + vec3(0, 0, radius));
-    data += GetLightvolColorPoint(position + vec3(0, 0, -radius));
+    data += GetLightvolColorPoint(position + vec3(radius,0,0), wallCheck);
+    data += GetLightvolColorPoint(position + vec3(-radius, 0, 0), wallCheck);
+    data += GetLightvolColorPoint(position + vec3(0, 0, radius), wallCheck);
+    data += GetLightvolColorPoint(position + vec3(0, 0, -radius), wallCheck);
 
     data /= 5.0f;
 
@@ -907,7 +920,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, mat4 mo
 {
 
     
-    auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
+    //auto light = GetLightvolColor(Camera::finalizedPosition * MAP_SCALE);
     //printf("light : %f, %f, %f \n", light.ambientColor.x, light.ambientColor.y, light.ambientColor.z);
 
     //DebugDraw::Line(Camera::finalizedPosition + Camera::Forward(), Camera::finalizedPosition + Camera::Forward() + light.direction, 0.01f);
@@ -931,7 +944,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model, mat4 mo
         vec3 min = vec3(model.mins[0], model.mins[1], model.mins[2]);
         vec3 max = vec3(model.maxs[0], model.maxs[1], model.maxs[2]);
 
-		lightData = GetLightvolColor((min + max) / 2.0f);
+		lightData = GetLightvolColorPoint((min + max) / 2.0f);
 
         //lightData.ambientColor = vec3(1);
 

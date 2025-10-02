@@ -231,8 +231,8 @@ void main() {
     // Sample the texture color (16-bit precision, normalized to [0,1])
     vec3 color = applyFxaa(screenTexture, gl_FragCoord.xy, vec2(res)).rgb;
     
-    //FragColor = vec4(color,1);
-   // return;
+    FragColor = vec4(color,1);
+    return;
 
     color = GetFromLUT(color);
 

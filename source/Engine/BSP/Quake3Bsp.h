@@ -417,6 +417,8 @@ class CQuake3BSP : public IDrawMesh
 
     tBSPVisData visData;
 
+    std::vector<bool> lightVolValid;
+
     vector<FaceRenderData> facesToDrawTransparent;
 
     glm::vec3 originalMins; // Original model bounds in Z-up (before transformation)
@@ -426,8 +428,8 @@ class CQuake3BSP : public IDrawMesh
     std::vector<uint32_t> GetFaceIndices(int faceId);
 
     // Get lighting for a dynamic object at position (x, y, z)
-    LightVolPointData GetLightvolColorPoint(const glm::vec3& position);
-    LightVolPointData GetLightvolColor(const glm::vec3& position);
+    LightVolPointData GetLightvolColorPoint(const glm::vec3& position, bool wallCheck = false);
+    LightVolPointData GetLightvolColor(const glm::vec3& position, bool wallCheck = false);
     int FindClusterAtPosition(glm::vec3 cameraPos);
 
     bool IsClusterVisible(int sourceCluster, int testCluster);
