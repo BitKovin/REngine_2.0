@@ -53,8 +53,13 @@ public:
 
     void copyFrom(const RenderTexture* src);
 
+    // New methods for FBO management
+    GLuint framebuffer() const { return m_fbo; }
+    void bindFramebuffer(GLenum target = GL_FRAMEBUFFER) const;
+
 private:
     GLuint m_id;
+    GLuint m_fbo = 0;
     uint32_t m_width, m_height;
     TextureFormat m_format;
     TextureType m_type;
@@ -66,8 +71,11 @@ private:
 
     bool m_sampleDepth = false;
 
+    GLenum m_attachment;
+
     void allocateStorage();
     void setParameters(GLenum minFilter, GLenum magFilter, GLenum wrap);
     std::tuple<GLenum, GLenum, GLenum> getFormatInfo() const;
     void validateSampleCount() const;
+    void setupFramebuffer();
 };

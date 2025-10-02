@@ -19,8 +19,6 @@ Renderer::Renderer()
 
     BlurResultBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::RGBA16F);
     BlurAccumulatedBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::RGBA16F);
-    blurRenderFrameBuffer = new Framebuffer();
-    blurRenderFrameBuffer->attachColor(BlurResultBuffer);
 
     if (LightManager::DirectionalShadowsEnabled)
     {
@@ -64,7 +62,7 @@ void Renderer::RenderLevel(Level* level)
 
     BlurAccumulatedBuffer->copyFrom(BlurResultBuffer);
 
-    blurRenderFrameBuffer->bind();
+    BlurResultBuffer->bindFramebuffer();
     blurShader->UseProgram();
     blurShader->SetTexture("uAccumulated", BlurAccumulatedBuffer->id());
     blurShader->SetUniform("uDeltaTime", EngineMain::MainInstance->Paused ? 0.0f : Time::DeltaTimeFNoTimeScale);

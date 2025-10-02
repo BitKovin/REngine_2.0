@@ -42,7 +42,6 @@ private:
 	RenderTexture* colorBuffer = nullptr;
 	RenderTexture* depthBuffer = nullptr;
 
-	Framebuffer* blurRenderFrameBuffer = nullptr;
 	RenderTexture* BlurResultBuffer = nullptr;
 	RenderTexture* BlurAccumulatedBuffer = nullptr;
 

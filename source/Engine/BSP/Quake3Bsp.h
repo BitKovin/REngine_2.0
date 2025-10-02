@@ -417,8 +417,6 @@ class CQuake3BSP : public IDrawMesh
 
     tBSPVisData visData;
 
-    std::vector<bool> lightVolValid;
-
     vector<FaceRenderData> facesToDrawTransparent;
 
     glm::vec3 originalMins; // Original model bounds in Z-up (before transformation)

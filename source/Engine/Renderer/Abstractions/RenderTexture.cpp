@@ -11,7 +11,7 @@
 
 RenderTexture::RenderTexture(uint32_t width, uint32_t height,
     TextureFormat format,
-    TextureType type,bool sampleDepth,
+    TextureType type, bool sampleDepth,
     GLenum minFilter,
     GLenum magFilter,
     GLenum wrap,
@@ -36,9 +36,23 @@ RenderTexture::RenderTexture(uint32_t width, uint32_t height,
     glGenTextures(1, &m_id);
     allocateStorage();
     setParameters(minFilter, magFilter, wrap);
+
+    // Set up attachment type and FBO if applicable
+    auto [internalFmt, baseFmt, dataType] = getFormatInfo();
+    if (baseFmt == GL_DEPTH_STENCIL) {
+        m_attachment = GL_DEPTH_STENCIL_ATTACHMENT;
+    }
+    else if (baseFmt == GL_DEPTH_COMPONENT) {
+        m_attachment = GL_DEPTH_ATTACHMENT;
+    }
+    else {
+        m_attachment = GL_COLOR_ATTACHMENT0;
+    }
+    setupFramebuffer();
 }
 
 RenderTexture::~RenderTexture() {
+    if (m_fbo) glDeleteFramebuffers(1, &m_fbo);
     glDeleteTextures(1, &m_id);
 }
 
@@ -61,8 +75,12 @@ bool RenderTexture::resize(uint32_t width, uint32_t height) {
 
 void RenderTexture::setTextureType(TextureType newType)
 {
-
     if (newType == m_type) return;
+
+    if (m_fbo) {
+        glDeleteFramebuffers(1, &m_fbo);
+        m_fbo = 0;
+    }
 
     m_type = newType;
 
@@ -82,6 +100,8 @@ void RenderTexture::setTextureType(TextureType newType)
     allocateStorage();
     setParameters(m_minFilter, m_magFilter, m_wrapF);
 
+    // Recreate FBO if applicable
+    setupFramebuffer();
 }
 
 void RenderTexture::setSamples(uint32_t samples) {
@@ -111,6 +131,13 @@ void RenderTexture::allocateStorage() {
             GL_TRUE
         );
         glBindTexture(target, 0);
+
+        // Reattach to FBO if exists
+        if (m_fbo) {
+            glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, m_attachment, GL_TEXTURE_2D_MULTISAMPLE, m_id, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
         return;
     }
 #endif
@@ -138,6 +165,13 @@ void RenderTexture::allocateStorage() {
     }
 
     glBindTexture(target, 0);
+
+    // Reattach to FBO if exists (for non-cubemap)
+    if (m_fbo) {
+        glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, m_attachment, target, m_id, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }
 
 void RenderTexture::setParameters(GLenum minFilter,
@@ -167,8 +201,6 @@ void RenderTexture::setParameters(GLenum minFilter,
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
     }
 
-
-
     glBindTexture(target, 0);
 }
 
@@ -197,7 +229,7 @@ std::tuple<GLenum, GLenum, GLenum> RenderTexture::getFormatInfo() const {
     throw std::runtime_error("RenderTexture: unknown TextureFormat");
 }
 
-void RenderTexture::copyFrom(const RenderTexture* src) 
+void RenderTexture::copyFrom(const RenderTexture * src)
 {
     if (!src) {
         throw std::runtime_error("RenderTexture::copyFrom: source pointer is null");
@@ -210,27 +242,16 @@ void RenderTexture::copyFrom(const RenderTexture* src)
             "RenderTexture::copyFrom: source and destination must have same dimensions, type, format, and sample count");
     }
 
-    GLuint fboRead = 0, fboDraw = 0;
-    glGenFramebuffers(1, &fboRead);
-    glGenFramebuffers(1, &fboDraw);
-
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, fboRead);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboDraw);
-
     auto [internalFmt, baseFmt, dataType] = getFormatInfo();  // Same for src and this
 
-    GLenum attachment;
     GLbitfield mask;
     if (baseFmt == GL_DEPTH_STENCIL) {
-        attachment = GL_DEPTH_STENCIL_ATTACHMENT;
         mask = GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
     }
     else if (baseFmt == GL_DEPTH_COMPONENT) {
-        attachment = GL_DEPTH_ATTACHMENT;
         mask = GL_DEPTH_BUFFER_BIT;
     }
     else {
-        attachment = GL_COLOR_ATTACHMENT0;
         mask = GL_COLOR_BUFFER_BIT;
     }
 
@@ -239,36 +260,48 @@ void RenderTexture::copyFrom(const RenderTexture* src)
     GLenum target = static_cast<GLenum>(m_type);
 
     if (m_type == TextureType::Cubemap) {
+        // Use temporary FBOs for cubemaps
+        GLuint fboRead = 0, fboDraw = 0;
+        glGenFramebuffers(1, &fboRead);
+        glGenFramebuffers(1, &fboDraw);
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fboRead);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboDraw);
+
         for (GLuint face = 0; face < 6; ++face) {
             GLenum faceTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + face;
-            glFramebufferTexture2D(GL_READ_FRAMEBUFFER, attachment, faceTarget, src->id(), 0);
-            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachment, faceTarget, m_id, 0);
+            glFramebufferTexture2D(GL_READ_FRAMEBUFFER, m_attachment, faceTarget, src->id(), 0);
+            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, m_attachment, faceTarget, m_id, 0);
 
-            if (attachment == GL_COLOR_ATTACHMENT0) {
-                glReadBuffer(attachment);
-                glDrawBuffer(attachment);
+            if (m_attachment == GL_COLOR_ATTACHMENT0) {
+                glReadBuffer(m_attachment);
+                glDrawBuffer(m_attachment);
             }
 
             glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, mask, filter);
         }
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+        glDeleteFramebuffers(1, &fboRead);
+        glDeleteFramebuffers(1, &fboDraw);
     }
     else {
-        glFramebufferTexture2D(GL_READ_FRAMEBUFFER, attachment, target, src->id(), 0);
-        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachment, target, m_id, 0);
+        // Use member FBOs for non-cubemaps
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, src->m_fbo);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
 
-        if (attachment == GL_COLOR_ATTACHMENT0) {
-            glReadBuffer(attachment);
-            glDrawBuffer(attachment);
+        if (m_attachment == GL_COLOR_ATTACHMENT0) {
+            glReadBuffer(m_attachment);
+            glDrawBuffer(m_attachment);
         }
 
         glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, mask, filter);
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     }
-
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-    glDeleteFramebuffers(1, &fboRead);
-    glDeleteFramebuffers(1, &fboDraw);
 }
 
 void RenderTexture::validateSampleCount() const {
@@ -280,4 +313,29 @@ void RenderTexture::validateSampleCount() const {
             "Samples > 1 requires Texture2DMultisample type");
     }
 #endif
+}
+
+void RenderTexture::setupFramebuffer() {
+    if (m_type == TextureType::Cubemap) {
+        return;  // No persistent FBO for cubemaps
+    }
+
+    glGenFramebuffers(1, &m_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+
+    GLenum attachTarget = static_cast<GLenum>(m_type);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, m_attachment, attachTarget, m_id, 0);
+
+    // Optional: Check status
+    // GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    // if (status != GL_FRAMEBUFFER_COMPLETE) { ... }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderTexture::bindFramebuffer(GLenum target) const {
+    if (!m_fbo) {
+        throw std::runtime_error("No FBO available for this RenderTexture (e.g., cubemap)");
+    }
+    glBindFramebuffer(target, m_fbo);
 }
