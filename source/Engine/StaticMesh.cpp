@@ -109,6 +109,10 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 
 	forward_shader_program->SetUniform("isViewmodel", IsViewmodel);
 
+	forward_shader_program->SetUniform("view", view);
+
+	forward_shader_program->SetUniform("customId", CustomId);
+
 	ApplyAdditionalShaderParams(forward_shader_program);
 
 
@@ -210,6 +214,82 @@ void StaticMesh::DrawDepth(mat4x4 view, mat4x4 projection)
 	shader_program->SetUniform("viewmodelScaleFactor", ViewmodelScaleFactor);
 
 	shader_program->SetUniform("world", world);
+
+	shader_program->SetUniform("isViewmodel", IsViewmodel);
+
+	ApplyAdditionalShaderParams(shader_program);
+
+
+	for (roj::SkinnedMesh& mesh : model->meshes)
+	{
+		if (mask)
+		{
+			if (ColorTexture == nullptr)
+			{
+
+				string baseTextureName;
+
+				for (auto texture : mesh.textures)
+				{
+					if (texture.type == aiTextureType_BASE_COLOR)
+					{
+						baseTextureName = texture.src;
+						break;
+					}
+				}
+
+
+
+				if (mesh.cachedBaseColor == nullptr)
+				{
+					const string textureRoot = TexturesLocation;
+
+					mesh.cachedBaseColor = AssetRegistry::GetTextureFromFile(textureRoot + baseTextureName);
+				}
+
+				Texture* texture = mesh.cachedBaseColor;
+
+				shader_program->SetTexture("u_texture", texture);
+			}
+			else
+			{
+				shader_program->SetTexture("u_texture", ColorTexture);
+			}
+		}
+		mesh.VAO->Bind();
+
+		if (mesh.VAO->IsInstanced())
+		{
+			glDrawElementsInstanced(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0, mesh.VAO->GetInstanceCount());
+		}
+		else if (numInstances < 0)
+		{
+			glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VAO->IndexCount), GL_UNSIGNED_INT, 0);
+		}
+
+		VertexArrayObject::Unbind();
+
+	}
+}
+
+void StaticMesh::DrawCustomId(mat4x4 view, mat4x4 projection)
+{
+
+	bool mask = Transparent;
+
+	ShaderProgram* shader_program = ShaderManager::GetShaderProgram("default_vertex", "customId");
+
+	shader_program->UseProgram();
+
+	mat4x4 world = finalizedWorld;
+
+	shader_program->SetUniform("view", view);
+	shader_program->SetUniform("projection", projection);
+	shader_program->SetUniform("viewmodelScaleFactor", ViewmodelScaleFactor);
+
+	shader_program->SetUniform("world", world);
+
+	shader_program->SetUniform("customId", CustomId);
 
 	shader_program->SetUniform("isViewmodel", IsViewmodel);
 

@@ -51,6 +51,9 @@ private:
 	Framebuffer* forwardFBO = nullptr;
 	Framebuffer* forwardResolveFBO = nullptr;
 
+	RenderTexture* customIdResolveBuffer = nullptr;
+	Framebuffer* customIdFBO = nullptr;
+
 	RenderTexture* DirectionalShadowMap = nullptr;
 	Framebuffer* DirectionalShadowMapFBO = nullptr;
 
@@ -59,5 +62,6 @@ private:
 
 	ShaderProgram* fullscreenShader = nullptr;
 	ShaderProgram* blurShader = nullptr;
+	ShaderProgram* blurApplyShader = nullptr;
 
 };

@@ -235,7 +235,6 @@ void roj::Animator::ApplyNodePoseLocalSpace(BoneNode& node, glm::mat4 offset, st
         currentPose[node.name] = inverse(offset) * localPose;
 
         offset = localPose;
-
         
 
     }

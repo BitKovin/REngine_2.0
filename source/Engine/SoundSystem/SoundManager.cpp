@@ -90,6 +90,20 @@ void SoundManager::InitFmod()
 
 
     studioSystem->initialize(maxSounds, studioFlags, flags, nullptr);
+
+    unsigned int version;
+
+    coreSystem->getVersion(&version);
+
+    int major = (version >> 16) & 0xFFFF;
+    int minor = (version >> 8) & 0xFF;
+    int patch = version & 0xFF;
+
+    std::cout << "FMOD version: "
+        << major << "."
+        << minor << "."
+        << patch << std::endl;
+
 }
 
 void SoundManager::UpdateContext(ALCcontext* context)

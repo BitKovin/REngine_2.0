@@ -433,6 +433,7 @@ void TestNpc::LoadAssets()
 	mesh->PlayAnimation("run",true);
 	mesh->SetLooped(true);
 	mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
+	mesh->CustomId = 1;
 
 	SET_SOUND_SAFE(DeathSoundPlayer, FmodEventInstance::Create("event:/NPC/Dog/DogDeath"));
 	SET_SOUND_SAFE(HurtSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_hit.wav"));

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{4980ac08-6064-4461-a69f-d6f80dac6d45}">
+		<property name="name">
+			<value>Stinger</value>
+		</property>
+		<relationship name="folder">
+			<destination>{3e59dc97-b9c6-4910-89b6-66f75e53bb5c}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{b045090a-b061-4c45-90d8-54a5c15e2188}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{b045090a-b061-4c45-90d8-54a5c15e2188}">
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+		<property name="velocity">
+			<value>-4</value>
+		</property>
+	</object>
+</objects>

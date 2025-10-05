@@ -16,6 +16,7 @@ Renderer::Renderer()
 
 	fullscreenShader = ShaderManager::GetShaderProgram("fullscreen_vertex","postprocessing");
     blurShader = ShaderManager::GetShaderProgram("fullscreen_vertex", "motionBlur");
+    blurApplyShader = ShaderManager::GetShaderProgram("fullscreen_vertex", "motionBlur_apply");
 
     BlurResultBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::RGBA16F);
     BlurAccumulatedBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::RGBA16F);
@@ -60,18 +61,40 @@ void Renderer::RenderLevel(Level* level)
     BlurAccumulatedBuffer->resize(screenResolution.x, screenResolution.y);
     BlurResultBuffer->resize(screenResolution.x, screenResolution.y);
 
+    BlurResultBuffer->bindFramebuffer();
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_FALSE);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glDisable(GL_BLEND);
+        
+    blurShader->UseProgram();
+    blurShader->SetTexture("uAccumulated", BlurAccumulatedBuffer->id());
+    blurShader->SetTexture("uCustomIdTex", customIdResolveBuffer->id());
+    blurShader->SetUniform("uDeltaTime", EngineMain::MainInstance->Paused ? 0.0f : Time::DeltaTimeFNoTimeScale);
+    blurShader->SetUniform("GameTime", (float)Time::GameTime);
+    blurShader->SetUniform("uPersistence", 0.10f);
+    blurShader->SetUniform("uMotionScale", 1.0f);
+    blurShader->SetTexture("screenTexture", colorResolveBuffer->id());
+    RenderFullscreenQuad();
+    glEnable(GL_BLEND);
+
     BlurAccumulatedBuffer->copyFrom(BlurResultBuffer);
 
     BlurResultBuffer->bindFramebuffer();
-    blurShader->UseProgram();
-    blurShader->SetTexture("uAccumulated", BlurAccumulatedBuffer->id());
-    blurShader->SetUniform("uDeltaTime", EngineMain::MainInstance->Paused ? 0.0f : Time::DeltaTimeFNoTimeScale);
-    blurShader->SetUniform("GameTime", (float)Time::GameTime);
-    blurShader->SetUniform("uPersistence", 0.15f);
-    blurShader->SetUniform("uMotionScale", 0.5f);
-    blurShader->SetTexture("screenTexture", colorResolveBuffer->id());
+    blurApplyShader->UseProgram();
+    blurApplyShader->SetTexture("screenTexture", colorResolveBuffer->id());
+    blurApplyShader->SetTexture("blurTexture", BlurAccumulatedBuffer->id());
     RenderFullscreenQuad();
     Framebuffer::unbind();
+
+
+
+    fullscreenShader->UseProgram();
+    fullscreenShader->SetTexture("screenTexture", BlurResultBuffer->id());
+    fullscreenShader->SetUniform("screenResolution", screenResolution);
+    RenderFullscreenQuad();
 
 	//rendering to screen
     fullscreenShader->UseProgram();
@@ -136,6 +159,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     depthBuffer->resize(res.x, res.y);
 
     colorResolveBuffer->resize(res.x, res.y);
+    customIdResolveBuffer->resize(res.x, res.y);
     depthResolveBuffer->resize(res.x, res.y);
 
 
@@ -231,6 +255,24 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
     forwardFBO->resolve(*forwardResolveFBO,
         GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,  
         GL_NEAREST);
+
+    customIdFBO->bind();
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_FALSE);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    for (auto* mesh : VissibleRenderList)
+    {
+
+        const mat4& P = mesh->IsViewmodel
+            ? Camera::finalizedProjectionViewmodel
+            : Camera::finalizedProjection;
+        mesh->DrawCustomId(Camera::finalizedView, P);
+
+    }
+
+    customIdFBO->unbind();
 
 }
 
@@ -398,12 +440,13 @@ void Renderer::InitFrameBuffers()
     colorBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, textureType, false, GL_LINEAR, GL_LINEAR,
         GL_CLAMP_TO_EDGE, 1);
 
+
     depthBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, textureType, false, GL_LINEAR, GL_LINEAR,
         GL_CLAMP_TO_EDGE, 1);
 
     forwardFBO = new Framebuffer();
     forwardFBO->attachDepth(depthBuffer);
-    forwardFBO->attachColor(colorBuffer, 0);
+    forwardFBO->attachColor(colorBuffer, 0u);
 
     // resize all our buffers
     colorBuffer->resize(screenResolution.x, screenResolution.y);
@@ -419,17 +462,23 @@ void Renderer::InitResolveFrameBuffers()
     ivec2 screenResolution = GetScreenResolution();
     TextureFormat colorTextureFormat = TextureFormat::RGBA16F;
 
-    colorTextureFormat = TextureFormat::RGB8;
+    //colorTextureFormat = TextureFormat::RGB8;
 
     colorResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, colorTextureFormat, TextureType::Texture2D);
+    customIdResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::RGB8, TextureType::Texture2D);
     depthResolveBuffer = new RenderTexture(screenResolution.x, screenResolution.y, TextureFormat::Depth24, TextureType::Texture2D);
 
     forwardResolveFBO = new Framebuffer();
 
     forwardResolveFBO->attachDepth(depthResolveBuffer);
-    forwardResolveFBO->attachColor(colorResolveBuffer);
+    forwardResolveFBO->attachColor(colorResolveBuffer,0u);
 
     colorResolveBuffer->resize(screenResolution.x, screenResolution.y);
+    customIdResolveBuffer->resize(screenResolution.x, screenResolution.y);
     depthResolveBuffer->resize(screenResolution.x, screenResolution.y);
+
+    customIdFBO = new Framebuffer();
+    customIdFBO->attachDepth(depthResolveBuffer);
+    customIdFBO->attachColor(customIdResolveBuffer);
 
 }

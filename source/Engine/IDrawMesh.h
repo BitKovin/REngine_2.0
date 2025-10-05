@@ -41,6 +41,7 @@ public:
 	virtual void DrawForward(mat4x4 view, mat4x4 projection) {}
 
 	virtual void DrawDepth(mat4x4 view, mat4x4 projection) {}
+	virtual void DrawCustomId(mat4x4 view, mat4x4 projection) {}
 
 	virtual void DrawShadow(mat4x4 view, mat4x4 projection) {}
 

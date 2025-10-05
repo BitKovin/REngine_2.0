@@ -136,7 +136,8 @@ void ShutdownDirectInput() {
 void desktop_render_loop() {
     SDL_Event event;
     int quit = 0;
-    while (!quit) {
+    while (!quit) 
+    {
         Input::PendingMouseDelta = ReadMouseDelta();
 
         Input::StartEventsFrame();

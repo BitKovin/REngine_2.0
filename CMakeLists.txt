@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # We'll put final runtime / archive / library outputs under Build/<GAME_NAME>/<platform>
 # (these are set later after we detect platform and GAME_DIR)
 # Global compile options (applies to all targets)
-add_compile_options(-O3 -DNDEBUG)
+add_compile_options(-O2 -DNDEBUG)
 
 if (EMSCRIPTEN AND ENABLE_PTHREADS)
     message(STATUS "Emscripten pthreads: ENABLED")

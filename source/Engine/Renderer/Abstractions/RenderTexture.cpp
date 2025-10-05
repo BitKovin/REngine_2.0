@@ -275,7 +275,8 @@ void RenderTexture::copyFrom(const RenderTexture * src)
 
             if (m_attachment == GL_COLOR_ATTACHMENT0) {
                 glReadBuffer(m_attachment);
-                glDrawBuffer(m_attachment);
+                GLenum drawBuf = m_attachment;
+                glDrawBuffers(1, &drawBuf);
             }
 
             glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, mask, filter);
@@ -294,7 +295,8 @@ void RenderTexture::copyFrom(const RenderTexture * src)
 
         if (m_attachment == GL_COLOR_ATTACHMENT0) {
             glReadBuffer(m_attachment);
-            glDrawBuffer(m_attachment);
+            GLenum drawBuf = m_attachment;
+            glDrawBuffers(1, &drawBuf);
         }
 
         glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, mask, filter);

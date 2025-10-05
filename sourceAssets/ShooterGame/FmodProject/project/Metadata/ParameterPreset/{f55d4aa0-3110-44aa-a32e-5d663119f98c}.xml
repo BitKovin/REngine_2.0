@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{f55d4aa0-3110-44aa-a32e-5d663119f98c}">
+		<property name="name">
+			<value>Traffic</value>
+		</property>
+		<relationship name="folder">
+			<destination>{6aa8d7fb-2516-4568-a9b8-00b66d27f502}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{35dee4f7-9565-4215-8ca7-3eb446a2ab8c}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{35dee4f7-9565-4215-8ca7-3eb446a2ab8c}">
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+		<relationship name="modulators">
+			<destination>{1a0f0199-66b2-43f1-bf6e-c342f2b7152b}</destination>
+		</relationship>
+	</object>
+	<object class="SeekModulator" id="{1a0f0199-66b2-43f1-bf6e-c342f2b7152b}">
+		<property name="nameOfPropertyBeingModulated">
+			<value>cursorPosition</value>
+		</property>
+		<property name="clockSource">
+			<value>1</value>
+		</property>
+		<property name="speedAscending">
+			<value>0.5</value>
+		</property>
+	</object>
+</objects>

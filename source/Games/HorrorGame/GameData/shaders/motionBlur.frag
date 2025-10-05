@@ -6,6 +6,7 @@ in vec2 TexCoords;
 
 uniform sampler2D screenTexture;   // current frame
 uniform sampler2D uAccumulated;    // previous accumulated blur
+uniform sampler2D uCustomIdTex;    // previous accumulated blur
 uniform float uDeltaTime;          // seconds since last frame
 uniform float uPersistence;        // blur persistence (τ) in seconds
 uniform float GameTime;            // absolute game time in seconds
@@ -18,9 +19,21 @@ vec2 hash2(vec2 p) {
     return fract(sin(p) * 43758.5453123);
 }
 
+int decodeId24(vec3 color) //use in other place to decode
+{
+    int r = int(color.r * 255.0 + 0.5);
+    int g = int(color.g * 255.0 + 0.5);
+    int b = int(color.b * 255.0 + 0.5);
+
+    return (r << 16) | (g << 8) | b;
+}
+
 void main()
 {
-    vec3 history = texture(uAccumulated, TexCoords).rgb;
+
+    int customId = decodeId24(texture(uCustomIdTex, TexCoords).rgb);
+
+    vec4 history = texture(uAccumulated, TexCoords);
 
     // --- constants
     const float STATIC_JITTER = 0.0025;
@@ -50,19 +63,33 @@ void main()
     vec2 totalOffset = staticOffset + motionOffset;
 
     // --- sample current frame
-    vec3 c_center = texture(screenTexture, TexCoords).rgb;
-    vec3 c_p = texture(screenTexture, clamp(TexCoords + totalOffset, 0.0, 1.0)).rgb;
-    vec3 c_m = texture(screenTexture, clamp(TexCoords - totalOffset, 0.0, 1.0)).rgb;
-    vec3 currentBlur = (c_center * 0.5) + (c_p + c_m) * 0.25;
+    vec4 c_center = texture(screenTexture, TexCoords);
+    vec4 c_p = texture(screenTexture, clamp(TexCoords + totalOffset, 0.0, 1.0));
+    vec4 c_m = texture(screenTexture, clamp(TexCoords - totalOffset, 0.0, 1.0));
+    vec4 currentBlur = (c_center * 0.5) + (c_p + c_m) * 0.25;
+    
+    if(customId != 1)
+    {
+        currentBlur.a = 0.0f;
+    }
 
     // --- sample history (stretched only by motion offset)
-    vec3 historyOffset = texture(uAccumulated,
-                                 clamp(TexCoords - motionOffset * 0.6, 0.0, 1.0)).rgb;
-    vec3 historyCombined = mix(history, historyOffset, 0.5);
+    vec4 historyOffset = texture(uAccumulated,
+                                 clamp(TexCoords - motionOffset * 0.6, 0.0, 1.0));
+    vec4 historyCombined = mix(history, historyOffset, 0.5);
+
+    float w;
 
     // --- exponential accumulation
-    float w = exp(-dt / max(1e-6, uPersistence));
-    vec3 accum = mix(currentBlur, historyCombined, w);
+    if(customId != 1) 
+    {
+        w = exp(-dt / max(1e-6f, uPersistence));
+    } 
+    else 
+    {
+        w = exp(-dt / 0.007);
+    }
+    vec4 accum = mix(currentBlur, historyCombined, w);
 
-    FragColor = vec4(accum, 1.0);
+    FragColor = accum;
 }

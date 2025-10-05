@@ -82,6 +82,8 @@ public:
 
 	bool TwoSided = false;
 
+	int CustomId = 0;
+
 	StaticMesh(Entity* owner)
 	{
 		OwnerEntity = owner;
@@ -197,6 +199,7 @@ public:
 	void DrawForward(mat4x4 view, mat4x4 projection);
 
 	void DrawDepth(mat4x4 view, mat4x4 projection);
+	void DrawCustomId(mat4x4 view, mat4x4 projection);
 
 	void DrawShadow(mat4x4 view, mat4x4 projection);
 
