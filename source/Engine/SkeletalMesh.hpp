@@ -326,6 +326,11 @@ public:
 	void LoadFromFile(string path)
 	{
 		
+		if (TexturesLocation == "")
+		{
+			TexturesLocation = path + "/";
+		}
+
 		StaticMesh::LoadFromFile(path);
 		filePath = path;
 

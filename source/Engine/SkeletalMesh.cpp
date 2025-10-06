@@ -254,7 +254,7 @@ LightVolPointData SkeletalMesh::GetLightVolData()
 	vec3 samplePos = box.Center() + vec3(0, 0.5, 0);
 
 
-	auto light = Level::Current->BspData.GetLightvolColor(samplePos * MAP_SCALE, true);
+	auto light = Level::Current->BspData.GetLightvolColorPoint(samplePos * MAP_SCALE, true);
 	return light;
 }
 

@@ -69,7 +69,7 @@ public:
 
 	vec3 Scale = vec3(1);
 
-	string TexturesLocation = "GameData/textures/";
+	string TexturesLocation = "";
 
 	bool DepthWrite = true;
 
