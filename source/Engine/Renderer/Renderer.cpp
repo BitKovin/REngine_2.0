@@ -74,8 +74,8 @@ void Renderer::RenderLevel(Level* level)
     blurShader->SetTexture("uCustomIdTex", customIdResolveBuffer->id());
     blurShader->SetUniform("uDeltaTime", EngineMain::MainInstance->Paused ? 0.0f : Time::DeltaTimeFNoTimeScale);
     blurShader->SetUniform("GameTime", (float)Time::GameTime);
-    blurShader->SetUniform("uPersistence", 0.10f);
-    blurShader->SetUniform("uMotionScale", 1.0f);
+    blurShader->SetUniform("uPersistence", 0.20f);
+    blurShader->SetUniform("uMotionScale", 3.0f);
     blurShader->SetTexture("screenTexture", colorResolveBuffer->id());
     RenderFullscreenQuad();
     glEnable(GL_BLEND);

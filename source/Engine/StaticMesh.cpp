@@ -86,6 +86,7 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 		glEnable(GL_CULL_FACE);
 	}
 
+
 	if (forward_shader_program == nullptr)
 		forward_shader_program = ShaderManager::GetShaderProgram("default_vertex", PixelShader);
 

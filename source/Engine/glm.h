@@ -19,6 +19,7 @@
 #include <glm/ext/scalar_common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/common.hpp>
 
 
 using namespace glm;

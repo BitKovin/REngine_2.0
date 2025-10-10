@@ -10,6 +10,38 @@ Player* Player::Instance = nullptr;
 
 string serializedPlayer = "";
 
+void Player::Start()
+{
+
+    Entity::Start();
+
+    Instance = this;
+
+    controller.Init(this, Position, 0.4f);
+    oldPos = controller.GetPosition();
+
+    ParticleSystem::PreloadSystemAssets("decal_blood");
+    ParticleSystem::PreloadSystemAssets("hit_flesh");
+
+
+    soundPlayer = new SoundPlayer();
+    Level::Current->AddEntity(soundPlayer);
+    soundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/sounds/mew.wav");
+
+    Hud.Init(this);
+
+    PreloadEntityType("weapon_pistol");
+    PreloadEntityType("weapon_shotgun");
+    PreloadEntityType("weapon_tommy");
+
+    AddWeaponByName("weapon_knife");
+    AddWeaponByName("weapon_shotgun");
+    AddWeaponByName("weapon_tommy");
+
+    SwitchWeaponOffhand("weapon_cane");
+
+}
+
 void Player::UpdateWalkMovement(vec2 input)
 {
 
@@ -657,7 +689,7 @@ void Player::Update()
 
     Camera::rotation.z = -dot(velocity, right) * mix(-0.2f, 0.3f, bike_progress);
 
-    UpdateBody();
+    UpdateCameraBobAndSway();
 
 
     if (Input::GetAction("bike")->Holding() && OnGround())
@@ -775,31 +807,55 @@ void Player::LateUpdate()
 
 }
 
-void Player::UpdateBody()
+// Updated function with juicier sway: compound trig for organic wobble, added positional for immersion
+void Player::UpdateCameraBobAndSway() 
 {
+    float phase = bobProgress * bobSpeed; // Phase based on distance traveled
 
-    bodyAnimator.movementSpeed = length(MathHelper::XZ(velocity));
+    // Positional vertical bob (kept as per your update)
+    float verticalAmp = 0.05f;  // Amplitude (adjust for feel)
+    glm::vec3 cameraBobPos = glm::vec3(0.0f);
+    cameraBobPos.y = (glm::sin(phase * 2.0f + glm::pi<float>() / 2.0f)) * verticalAmp;
 
-    vec3 playerForward = MathHelper::GetForwardVector(vec3(0,cameraRotation.y,0));
+    // Rotational side tilt (roll; kept as per your update, using glm::pi for accuracy)
+    float rollAmp = 1.0f;  // Roll in degrees
+    glm::vec3 cameraBobRot = glm::vec3(0.0f);
+    cameraBobRot.z = glm::sin(phase) / glm::pi<float>() * rollAmp;  // z=roll
 
-    auto pose = bodyAnimator.GetResultPose();
-    //pose.SetBoneTransform();
+    // Step detection: trigger when phase mod pi crosses pi/2 (coincides with vertical minima/lowest points)
+    constexpr float pi = glm::pi<float>();
+    float halfPi = pi / 2.0f;
+    float currentModPhase = glm::fmod(phase, pi);
+    if (lastBobModPhase < halfPi && currentModPhase >= halfPi) {
+        printf("step\n"); // Can replace with soundPlayer->PlayStepSound() or similar for footstep effects
+    }
+    lastBobModPhase = currentModPhase;
 
-    mat4 scale0 = scale(vec3(0));
-    //pose.SetBoneTransform("neck_01", scale0);
-    pose.SetBoneTransform("upperarm_r", scale0);
-    pose.SetBoneTransform("upperarm_l", scale0);
-
-    bodyMesh->PasteAnimationPose(pose);
-    bodyMesh->Position = Position - vec3(0, controller.height / 2.0f,0) - playerForward*0.3f;
-    bodyMesh->Rotation.y = cameraRotation.y;
+    //swayStrength = 1;
 
 
-    //std::unordered_map<std::string, mat4> poseT;
-    //poseT["thigh_r"] = translate(Camera::position + Camera::Forward()) * scale(vec3(0.01f));
-    //bodyMesh->ApplyWorldSpaceBoneTransforms(poseT);
 
-    Camera::position = MathHelper::DecomposeMatrix(bodyMesh->GetBoneMatrixWorld("head")).Position + playerForward * 0.3f;
+    // Enhanced sway for injury: compound trig with unique asymmetric "limp" (bias to one side), added small y-yaw for turning disorientation
+    glm::vec3 cameraSwayRot = glm::vec3(0.0f);
+    glm::vec3 cameraSwayPos = glm::vec3(0.0f);
+    if (swayStrength > 0.0f) {
+        swayProgress += Time::DeltaTimeF * swaySpeed; // Accumulate over time
+        float p = swayProgress;
+
+        // Rotational sway: compound for organic feel, with unique limp bias (positive roll offset for "favoring one side")
+        cameraSwayRot.x = (glm::sin(p * 1.1f) + glm::sin(p * 2.5f) * 0.5f) * swayStrength * 3.0f; // Pitch nod
+        cameraSwayRot.z = (glm::cos(p * 0.9f) + glm::cos(p * 1.8f) * 0.7f + 0.5f) * swayStrength * 2.0f; // Roll tilt with limp bias (+0.5f offset)
+        cameraSwayRot.y = glm::sin(p * 0.6f) * swayStrength * 0.5f; // Small y-yaw for unique subtle head-turn disorientation (less amplitude as requested)
+
+        // Positional sway: enhanced with unique vertical "heave" for breathing-like injury effect
+        cameraSwayPos.x = (glm::sin(p * 1.3f) + glm::cos(p * 0.6f) * 0.3f) * swayStrength * 0.05f; // Lateral stumble
+        cameraSwayPos.y = (glm::sin(p * 0.7f) + glm::sin(p * 0.3f) * 0.4f) * swayStrength * 0.03f; // Vertical heave (unique breathing/jolt)
+    }
+
+    // Combine all and apply (assuming base position/rotation reset each frame)
+    Camera::position += cameraBobPos + cameraSwayPos;
+    Camera::rotation += cameraBobRot + cameraSwayRot;
+
     Camera::ApplyCameraShake(Time::DeltaTimeF);
 }
 
@@ -911,9 +967,6 @@ void Player::LoadAssets()
     bikeArmsMesh->LoadFromFile("GameData/arms.glb");
     bikeArmsMesh->PreloadAssets();
 
-    bodyMesh->LoadFromFile("GameData/models/player/body/player_body.glb");
-    bodyMesh->TexturesLocation = "GameData/models/player/body/textures/";
-    bodyMesh->PreloadAssets();
 
     bodyAnimator.LoadAssetsIfNeeded();
 

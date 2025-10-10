@@ -323,7 +323,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Animator.h" />
-    <ClInclude Include="Entities\Brushes\DestructubleBrush.hpp" />
+    <ClInclude Include="Entities\Brushes\DestructibleBrush.hpp" />
     <ClInclude Include="Entities\Brushes\MovebleBrush.hpp" />
     <ClInclude Include="Entities\Brushes\TriggerBase.hpp" />
     <ClInclude Include="Entities\Brushes\TriggerOnce.hpp" />

@@ -40,7 +40,7 @@ class Player : public Entity
 
 private:
 
-	float maxSpeed = 7;
+	float maxSpeed = 4;
 	float maxSpeedAir = 2;
 	float acceleration = 90;
 	float airAcceleration = 30;
@@ -60,7 +60,12 @@ private:
 	PlayerHud Hud;
 
 	float bobProgress = 0;
-	float bobSpeed = 0.9;
+	float bobSpeed = 1.2;
+
+	float swayStrength = 0.0f; // Default to 0 (no sway); increase for injury effects (e.g., 1.0f for mild, 2.0f for strong)
+	float swayProgress = 0.0f; // Internal progress tracker for sway oscillation
+	float swaySpeed = 1.5f;    // Speed of sway oscillation; adjust as needed
+	float lastBobModPhase = 0.0f;
 
 	SoundPlayer* soundPlayer;
 
@@ -74,7 +79,6 @@ private:
 
 	SkeletalMesh* bikeMesh = nullptr;
 	SkeletalMesh* bikeArmsMesh = nullptr;
-	SkeletalMesh* bodyMesh = nullptr;
 
 	bool on_bike = false;
 
@@ -197,10 +201,6 @@ public:
 		bikeArmsMesh = new SkeletalMesh(this);
 		Drawables.push_back(bikeArmsMesh);
 
-		bodyMesh = new SkeletalMesh(this);
-		bodyMesh->TwoSided = true;
-		Drawables.push_back(bodyMesh);
-
 		ClassName = "info_player_start";
 
 		SaveGame = true;
@@ -227,35 +227,7 @@ public:
 		cameraRotation.y = data.GetPropertyFloat("angle") + 90;
 	}
 
-	void Start()
-	{
-
-		Instance = this;
-
-		controller.Init(this, Position,0.4f);
-		oldPos = controller.GetPosition();
-
-		ParticleSystem::PreloadSystemAssets("decal_blood");
-		ParticleSystem::PreloadSystemAssets("hit_flesh");
-
-
-		soundPlayer = new SoundPlayer();
-		Level::Current->AddEntity(soundPlayer);
-		soundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/sounds/mew.wav");
-
-		Hud.Init(this);
-
-		PreloadEntityType("weapon_pistol");
-		PreloadEntityType("weapon_shotgun");
-		PreloadEntityType("weapon_tommy");
-
-		AddWeaponByName("weapon_pistol");
-		AddWeaponByName("weapon_shotgun");
-		AddWeaponByName("weapon_tommy");
-
-		SwitchWeaponOffhand("weapon_cane");
-
-	}
+	void Start();
 
 	void UpdateWalkMovement(vec2 input);
 	void UpdateBikeMovement(vec2 input);
@@ -294,7 +266,7 @@ public:
 	void AsyncUpdate();
 	void LateUpdate();
 
-	void UpdateBody();
+	void UpdateCameraBobAndSway();
 
 	void Serialize(json& target);
 	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
