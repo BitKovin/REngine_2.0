@@ -1,0 +1,1950 @@
+/*QUAKED monster_fish (1 .5 0) (-25 -25 -14) (25 25 14)
+Monster_fish:  An underwater creature.
+Keys:
+	Wakeup_target:	Will fire this target the first time it wakes up.
+	Pain_target:	Will fire this target the first time it gets hurt.
+
+model="models/monsters/fish/tris.fm"  */
+/*QUAKED misc_flag (1 .5 0) (-10 -10 0) (10 10 80)
+*/
+/*QUAKED monster_elflord (1 .5 0) (-16 -16 -0) (16 16 32)
+Monster_elflord:  A boss in the Silverspring Palace.
+
+model="models/monsters/elflord/tris.fm" */
+/*QUAKED SP_monster_elflord (0.5 0.5 1) (-24 -24 -64) (24 24 16)
+Monster_elflord:  A boss in the Silverspring Palace.
+
+model="models/monsters/elflord/tris.fm" */
+/*QUAKED obj_corpse_ogle (1 .5 0) (-30 -12 -2) (30 12 2) pushing pick_up pick_down chisel_up chisel_down hammer_up hammer_down
+Obj_corpse_ogle:  Poor little ogles.
+Has key value style. Default is 0.
+	0) Damage skin
+	1) Normal skin.
+
+model="models/monsters/ogle/tris.fm" */
+/*QUAKED monster_ogle(1 .5 0) (-16 -16 -24) (16 16 16) pushing pick_up pick_down chisel_up chisel_down hammer_up hammer_down singing CINEMATIC
+Monster_ogle:  The small guys in the Mines. Don't hurt 'em!
+Flags:
+	Pushing:	Will appear to be pushing something.
+	Pick_up:	Will start in frames using pick on walls.
+	Pick_down:	Will start in frames using pick on rocks.
+	Chisel_up:	Will start in frames using chisel on walls.
+	Chisel_down:	Will start in frames using chisel on floor.
+	Hammer_up:	Will start in frames using hammer on wall.
+	Hammer_down:	Will start in frames using hammer on floor.
+	Singing:	Will sing a song while working.
+	Cinematic:	Puts an ogle in cinematic mode.
+Keys:
+	Mintel:	Default 16.
+	Melee_Range:	Default 48.
+	Missile_Range:	Default 0.
+	Min_Missile_Range:	Default 0.
+	Jump_Chance:	Default 10.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/ogle/tris.fm" */
+/*QUAKED character_highpriestess(1 .5 0) (-24 -24 -36) (24 24 36)  INVISIBLE
+Character_highpriestess:  The High Priestess used in the High Priestess level.
+
+model="models/monsters/highpriestess/cinematic/tris.fm" */
+/*QUAKED monster_assassin (1 .5 0) (-16 -16 -32) (16 16 48) AMBUSH ASLEEP WALKING FwdJumpAmbush NoCloak NoTeleport CINEMATIC FIXED WANDER MELEE_LEAD STALK COWARD TeleportAmbush CloakAmbush SideJumpAmbush TeleportDodge
+Monster_assassin:  Found throughout the entire game. Quite a nasty fellow he is.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Walking:	Not used.
+	FwdJumpAmbush:	Will jump in front of or behind player when triggered.
+	NoCloak:	Will never cloak.
+	NoTeleport:	Will never teleport.
+	Cinematic:	Not used.
+	Fixed:	Will stay in a fixed location and never move.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+	TeleportAmbush:	Invisible until triggered, appears to be teleporting in.
+	CloakAmbush:	Starts cloaked and decloaks when woken up.
+	SideJumpAmbush:	Will jump out to the left or right.
+	Teleport Dodge:	Will use his teleport to dodge attacks.
+Keys:
+	Mintel:	Default 64.
+	Melee_Range:	Default 48.
+	Missile_Range:	Default 1024.
+	Min_Missile_Range:	Default 64.
+	Jump_Chance:	Default 100.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/assassin/tris.fm" */
+/*QUAKED character_tome (1 .5 0) (-4 -8 -12) (4 8 12) INVISIBLE
+Character_tome:  The one and only (actually there are 7) tome.
+
+model="models/spells/book/tris.fm" */
+/*QUAKED character_corvus1 (1 .5 0) (-17 -25 -32) (22 12 32) INVISIBLE
+Character_corvus1:  The Corvus model used in the dungeon level.
+
+model="models/player/cinematic/tris.fm" */
+/*QUAKED character_corvus2 (1 .5 0) (-17 -25 -32) (22 12 32)  INVISIBLE
+Character_corvus2:  The Corvus model used in the sspalace level.
+
+model="models/player/cinematic/tris.fm" */
+/*QUAKED character_corvus3 (1 .5 0) (-17 -25 -32) (22 12 32) INVISIBLE
+Character_corvus3:  The Corvus model used in the hivepriestess level.
+
+model="models/player/highpriestess_scene/tris.fm" */
+/*QUAKED character_corvus4 (1 .5 0) (-16 -16 -34) (16 16 25) INVISIBLE
+Character_corvus4:  The Corvus model used in the canyon level.
+
+model="models/player/scout_scene/tris.fm" */
+/*QUAKED character_corvus5 (1 .5 0) (-16 -16 -34) (16 16 25) INVISIBLE
+Character_corvus5:  The Corvus model used in the ssdocks level.
+
+model="models/player/dranor_scene/tris.fm" */
+/*QUAKED character_corvus6 (1 .5 0) (-16 -16 -34) (16 16 25) INVISIBLE
+Character_corvus6:  The Corvus model used in the dmireswamp level.
+
+model="models/player/dranor_scene/tris.fm" */
+/*QUAKED character_corvus7 (1 .5 0) (-17 -25 -32) (22 12 32) INVISIBLE
+Character_corvus7:  The Corvus model used in the cloudsanctum level.
+
+model="models/player/morcalavin_scene/tris.fm" */
+/*QUAKED character_corvus8 (1 .5 0) (-17 -25 -32) (22 12 32) INVISIBLE
+Character_corvus8:  The Corvus model used in the andhealer level.
+
+model="models/player/siernan_scene/tris.fm" */
+/*QUAKED character_corvus9 (1 .5 0) (-17 -25 -32) (22 12 32) INVISIBLE
+Character_corvus9:  The Corvus model used in the hive1 level.
+
+model="models/player/t'chekrikscene/tris.fm" */
+/*QUAKED monster_bee (1 .5 0) (-16 -16 -24) (16 16 16)
+*/
+/*QUAKED monster_morcalavin(1 .5 0) (-24 -24 -50) (24 24 40)
+Monster_morcalavin:  The main man.
+
+model="models/monsters/morcalavin/tris.fm" */
+/*QUAKED obj_morcalavin_barrier (1 .5 0) ? ?
+*/
+/*QUAKED monster_imp(1 .5 0) (-16 -16 0) (16 16 32) AMBUSH ASLEEP Perching 8 16 32 64 FIXED
+*/
+/*QUAKED monster_rat (1 .5 0) (-16 -16 -0) (16 16 32) AMBUSH ASLEEP EATING 8 16 32 64 FIXED(na) WANDER(na) MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_rat:  All through the game.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Eating:	Will look like it's eating something.
+	Fixed:	Not used.
+	Wander:	Will wander aroung the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+
+model="models/monsters/rat/tris.fm" */
+/*QUAKED monster_rat_giant (1 .5 0) (-16 -16 0) (16 16 32) AMBUSH ASLEEP EATING 8 16 32 64 FIXED(na) WANDER(na) MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_rat_giant:  In palace level.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Eating:	Will look like it's eating something. Changes wakeup_distance to 100.
+	Fixed:	Not used.
+	Wander:	Will wander aroung the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+
+model="models/monsters/rat/superduperat/tris.fm" */
+/*QUAKED item_weapon_hellstaff (.3 .3 1) (-16 -16 -16) (16 16 16) COOP_ONLY
+model="models/items/weapons/hellstaff/tris.fm" */
+/*QUAKED item_weapon_magicmissile (.3 .3 1) (-16 -16 -16) (16 16 16) COOP_ONLY
+model="models/items/weapons/magicmissile/tris.fm" */
+/*QUAKED item_weapon_redrain_bow (.3 .3 1) (-16 -16 -16) (16 16 16)  COOP_ONLY
+model="models/items/weapons/bow/tris.fm" */
+/*QUAKED item_weapon_firewall (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+model="models/items/weapons/firewall/tris.fm" */
+/*QUAKED item_weapon_phoenixbow (.3 .3 1) (-16 -16 -16) (16 16 16)  COOP_ONLY
+model="models/radiant/items/weapons/pbow/tris.fm" */
+/*QUAKED item_weapon_sphereofannihilation (.3 .3 1) (-16 -16 -16) (16 16 16)  COOP_ONLY
+model="models/items/weapons/sphere/tris.fm" */
+/*QUAKED item_weapon_maceballs (.3 .3 1) (-16 -16 -16) (16 16 16)  COOP_ONLY
+model="models/items/weapons/maceballs/tris.fm" */
+/*QUAKED item_defense_ringofrepulsion (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+model="models/items/defense/repulsion/tris.fm" */
+/*QUAKED item_defense_shield (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+model="models/items/defense/lightshield/tris.fm" */
+/*QUAKED item_defense_teleport (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+model="models/items/defense/teleport/tris.fm" */
+/*QUAKED item_defense_polymorph (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+model="models/items/defense/polymorph/tris.fm" */
+/*QUAKED item_defense_meteorbarrier (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+model="models/items/defense/meteorbarrier/tris.fm" */
+/*QUAKED item_defense_tornado (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+model="models/items/defense/tornado/tris.fm" */
+/*QUAKED item_mana_offensive_half (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+Item_mana_offensive_half:  An offensive mana icon (green), worth 20 points.
+
+model="models/items/mana/half/tris.fm" */
+/*QUAKED item_mana_offensive_full (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+Item_mana_offensive_full:  An offensive mana icon (green), worth 40 points.
+
+model="models/items/mana/full/tris.fm" */
+/*QUAKED item_mana_defensive_half (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+Item_mana_defensive_half:  A defensive mana icon (blue), worth 20 points.
+
+model="models/radiant/items/mana/defensive/half/tris.fm" */
+/*QUAKED item_mana_defensive_full (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+Item_mana_defensive_full:  A defensive mana icon (blue), worth 40 points.
+
+model="models/radiant/items/mana/defensive/full/tris.fm"  */
+/*QUAKED item_mana_combo_half (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+Item_mana_combo_half:  A mana combo icon, worth 50 points.
+Uses same model as 'item_mana_combo_quarter'.
+
+model="models/items/mana/combo/tris.fm" */
+/*QUAKED item_mana_combo_quarter (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+Item_mana_combo_quarter:  A mana combo icon, worth 25 points.
+Uses same model as 'item_mana_combo_half'.
+
+model="models/items/mana/combo/tris.fm" */
+/*QUAKED item_ammo_redrain (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+model="models/items/ammo/redrain/tris.fm"   */
+/*QUAKED item_ammo_phoenix (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+model="models/items/ammo/phoenix/tris.fm"   */
+/*QUAKED item_ammo_hellstaff (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+model="models/items/ammo/hellstaff/tris.fm"   */
+/*QUAKED item_health_half (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+Item_health_half:  A health icon, worth 10 points.
+
+model="models/items/health/healthsmall/tris.fm"   */
+/*QUAKED item_health_full (.3 .3 1) (-16 -16 -16) (16 16 16)   COOP_ONLY
+Item_health_full:  A health icon, worth 30 points.
+
+model="models/items/health/healthbig/tris.fm"   */
+/*QUAKED item_puzzle_townkey (.3 .3 1) (-8 -8 -4) (8 8 4)  x NO_DROP
+model="models/items/puzzles/townkey/tris.fm"   */
+/*QUAKED item_puzzle_cog (.3 .3 1) (-10 -10 -24) (10 10 20)  x  NO_DROP
+model="models/items/puzzles/cog/tris.fm"   */
+/*QUAKED item_puzzle_shield (.3 .3 1) (-2 -6 -12) (2 6 12)  x  NO_DROP
+model="models/items/puzzles/shield/tris.fm"   */
+/*QUAKED item_puzzle_potion (.3 .3 1) (-3 -3 -10) (3 3 10)  x  NO_DROP
+model="models/items/puzzles/potion/tris.fm"   */
+/*QUAKED item_puzzle_plazacontainer (.3 .3 1) (-6 -6 -8) (6 6 6)  x  NO_DROP
+model="models/items/puzzles/plazajug/tris.fm"   */
+/*QUAKED item_puzzle_slumcontainer (.3 .3 1) (-6 -6 -8) (6 6 6)  x  NO_DROP
+model="models/items/puzzles/jugfull/tris.fm"   */
+/*QUAKED item_puzzle_crystal (.3 .3 1) (-16 -16 -16) (16 16 16)  x  NO_DROP
+model="models/items/puzzles/crystalshard/tris.fm"   */
+/*QUAKED item_puzzle_canyonkey (.3 .3 1) (-16 -16 -16) (16 16 16)  x  NO_DROP
+model="models/items/puzzles/hivekey/tris.fm"   */
+/*QUAKED item_puzzle_hive2amulet (.3 .3 1) (-16 -16 -16) (16 16 16)  x  NO_DROP
+model="models/items/puzzles/amulet/tris.fm"  */
+/*QUAKED item_puzzle_hive2spear (.3 .3 1) (-16 -16 -16) (16 16 16)  x  NO_DROP
+model="models/items/puzzles/spear/tris.fm"   */
+/*QUAKED item_puzzle_hive2gem (.3 .3 1) (-16 -16 -16) (16 16 16)  x  NO_DROP
+model="models/items/puzzles/tcheckrikgem/tris.fm"   */
+/*QUAKED item_puzzle_minecartwheel (.3 .3 1) (-1 -6 -6) (1 6 6)  x  NO_DROP
+model="models/items/puzzles/wheel/tris.fm"   */
+/*QUAKED item_puzzle_ore (.3 .3 1) (-10 -10 -8) (10 10 8)  x  NO_DROP
+model="models/items/puzzles/oreunrefined/tris.fm"   */
+/*QUAKED item_puzzle_refinedore (.3 .3 1) (-3 -12 -2) (3 12 2) x   NO_DROP
+model="models/items/puzzles/orerefined/tris.fm"   */
+/*QUAKED item_puzzle_dungeonkey (.3 .3 1) (-1 -18 -9) (1 18 9)  x  NO_DROP
+model="models/items/puzzles/dungeonkey/tris.fm"   */
+/*QUAKED item_puzzle_cloudkey (.3 .3 1) (-8 -8 -3) (8 8 6)  x  NO_DROP
+model="models/items/puzzles/cloudkey/tris.fm"   */
+/*QUAKED item_puzzle_highpriestesskey (.3 .3 1) (-12 -12 -6) (12 12 6) x   NO_DROP
+model="models/items/puzzles/hivekey/tris.fm"   */
+/*QUAKED item_puzzle_highpriestesssymbol (.3 .3 1) (-12 -12 -4) (12 12 4) x   NO_DROP
+model="models/items/puzzles/hiveidol/tris.fm"   */
+/*QUAKED item_puzzle_tome (.3 .3 1) (-12 -12 -4) (12 12 4)  x  NO_DROP
+model="models/items/puzzles/book/tris.fm"   */
+/*QUAKED item_puzzle_tavernkey (.3 .3 1) (-8 -8 -4) (8 8 4)    x   NO_DROP
+model="models/items/puzzles/townkey/tris.fm"   */
+/*QUAKED target_changelevel (1 0 0) (-8 -8 -8) (8 8 8)
+Target_changelevel:  Target this with a trigger_once, trigger_multiple or misc_magic_portal to change from one level to another.
+Keys:
+	Map:	The map to load next. If you are going to a map with multiple single start spots, the syntax to follow is, newmap$currentmap. The start spots in the new map should have a targetname of the current map. If a targetname is not given to the start spots, the changelevel will dump you at a random one.
+ */
+/*QUAKED target_splash (1 0 0) (-8 -8 -8) (8 8 8)
+Target_splash:  Creates a particle splash effect when used.
+Keys:
+	Sounds:
+		0) blue water
+		1) brown water
+		2) slime
+		3) lava
+		4) blood
+	Count:	How many pixels in the splash
+	Dmg:	The splash does a radius damage. Useful for lava.
+ */
+/*QUAKED target_crosslevel_trigger (.5 .5 .5) (-8 -8 -8) (8 8 8) trigger1 trigger2 trigger3 trigger4 trigger5 trigger6 trigger7 trigger8
+Target_crosslevel_trigger:  Used in conjunction with crosslevel_target, this triggers an event that happens in a different level. The event doesn't actually take place until you load the new level. It can trigger multiple targets, as long as they have matching flags.
+Flags:
+	Trigger1-8:	Set the flags to match the corresponding target.
+Keys:
+	Message:	Display a text line.
+	Delay:	Amount of time before target fires after level loads.
+	Target:	Can target other entities besides crosslevel_target
+	Killtarget:	Can kill other entities.
+	Target_earthquake:	Makes an earthquake type event when triggered. All players and monsters are effected.
+Keys:
+	Speed:	The severity of the earthquake. Default is 200.
+	Count:	Length of time the quake lasts. Default is 5 seconds.
+ */
+/*QUAKED target_crosslevel_target (.5 .5 .5) (-8 -8 -8) (8 8 8) trigger1 trigger2 trigger3 trigger4 trigger5 trigger6 trigger7 trigger8
+Target_crosslevel_target:  Used in conjunction with crosslevel_trigger. You can have a trigger in one level effect something in another level with these two entities. Set a combination of flags so that the trigger and target match.
+Flags:
+	Trigger1-8:	Set up flags that match between the trigger and target.
+Keys:
+	Delay:	Amount of time before targeted triggers goes off.
+	Target:	The target can target other entities.
+	Killtarget:	Kills entities that are targeted off this one.
+  */
+/*QUAKED target_lightramp (0 .5 .8) (-8 -8 -8) (8 8 8) TOGGLE
+Target_lightramp:  An entity that allows a light to change levels over a length of time. Must be triggered.
+Flags:
+	Toggle:	Can work in forward and reverse when triggered.
+Keys:
+	Speed:	The amount of time it takes to change levels.
+	Message:	Two letters indicating the starting level and ending level. No space should be in-between the letters. The letters go from a, the brightest, to z, the darkest.
+  */
+/*QUAKED trigger_multiple (.5 .5 .5) ? MONSTER NOT_PLAYER TRIGGERED ANY
+Trigger_multiple:  A workhorse of scripting. Can be made to any size. Works only if it targets something.
+Flags:
+	Monster:	A monster can trigger this.
+	Not_player:	The player cannot trigger this.
+	Triggered:	Cannot be touched, must be triggered.
+	Any:	Any entity can trigger this.
+Keys:
+	Delay :	Waits some time before firing after activation.
+	Wait:	The amount of time between triggerings. Default is .2.
+	Message:	Displays a text string. The value is the line-number of the message in the levelmsg file in htic2-1.pak. For a custom message, it is usually best to use the text_msg key instead.
+	Text_msg:	Value is the text displayed when the trigger fires. Doesn't seem to be able to play an audio file.
+	Sounds:	The sounds played when triggered.
+	1) Secret
+2) Beep beep
+3) Large switch
+*/
+/*QUAKED trigger_once (.5 .5 .5) ? MONSTER NOT_PLAYER TRIGGERED ANY
+Trigger_once:  Similar to trigger_multiple, but only fires once before removing itself.
+Flags:
+	Monster:	A monster can trigger this.
+	Not_player:	The player cannot trigger this.
+	Triggered:	Cannot be touched, must be triggered.
+	Any:	Any entity can trigger this.TriggeredIf used, the trigger must be used before it is active.
+Keys:
+	Message:	Displays a text string. The value is the line-number of the message in the levelmsg file in htic2-1.pak. For a custom message, it is usually best to use the text_msg key instead.
+	Text_msg:	Value is the text displayed when the trigger fires. Doesn't seem to be able to play an audio file.
+	Sounds:	The sound it plays when triggered
+	1) Secret
+2) Beep beep
+3) Large Switch
+*/
+/*QUAKED trigger_relay (.5 .5 .5) (-8 -8 -8) (8 8 8)
+Trigger_relay:  A trigger that never shows in the world, it is used as a midpoint between two events, such as trigger_multiple, and func_door. It is most often used when a trigger is going to control multiple events.
+
+*/
+/*QUAKED trigger_puzzle (.5 .5 .5) (-8 -8 -8) (8 8 8)  NO_TEXT  NO_TAKE
+Trigger_puzzle:  Works much like a trigger_once, but only works if a puzzle piece is used.
+Flags:
+	No_text:	No text is displayed indicating a piece is needed.
+	No_take:	Checks for a puzzle piece but doesn't remove it.
+Keys:
+	Item:	Specify which puzzle piece to look for.
+  */
+/*QUAKED trigger_counter (.5 .5 .5) ? NOMESSAGE
+Trigger_counter:  Much like a relay, but it counts down every time it is fired. When it gets to 0 it triggers its targets and removes itself.
+Flags:
+	Nomessage:	If this flag is not set, the trigger will print, one more to go, etc. when fired.
+Keys:
+	Count:	Amount of time the counter will fire before removing itself. Default is 2.
+  */
+/*QUAKED trigger_always (.5 .5 .5) (-8 -8 -8) (8 8 8)
+Trigger_always:  This trigger always fires. It starts when the level starts.
+
+*/
+/*QUAKED trigger_playerusepuzzle (.5 .5 .5) ?  MONSTER NOT_PLAYER TRIGGERED ANY NO_INVENTORY DONT_REMOVE
+Trigger_playerusepuzzle:  Lets player entity know he is near a puzzle destination so if the action key is used,and the puzzle inventory is displayed.
+
+*/
+/*QUAKED trigger_playerpushbutton (.5 .5 .5) ?
+Trigger_playerpushbutton:  Lets player entity know he is near a button, so if the action key is used, he goes into push animation. This trigger must target the button. Exact size of the entities' brush doesn't matter much; the push animation is only produced if Corvus is in an appropriate position to actually push the button.
+Keys:
+	Target:	Targets the func_button that player is to push.
+  */
+/*QUAKED trigger_elevator (0.3 0.1 0.6) (-8 -8 -8) (8 8 8)
+Trigger_elevator:  An entity that is never visible in the world, use this in conjunction with func_train, path corners, and a button or trigger to make an elevator type system. We left this entity in, but it is not used in Heretic II.
+
+*/
+/*QUAKED trigger_Deactivate (.5 .5 .5) ? MONSTER NOT_PLAYER TRIGGERED ANY
+Trigger_Deactivate:  This will deactivate other triggers. Useful if you want to have a conditional trigger.
+Flags:
+	Monster:	A monster can trigger this.
+	Not_player:	The player cannot trigger this.
+	Triggered:	Cannot be touched, must be triggered.
+	Any :	Any entity can trigger this.
+Keys:
+	Delay:	Waits some time before firing after activation.
+	Wait:	The amount of time between triggerings. Default is .2.
+	Message:	Displays a text string.
+  */
+/*QUAKED trigger_Activate (.5 .5 .5) ? MONSTER NOT_PLAYER TRIGGERED ANY
+Trigger_Activate:  Activates objects that are targeted by it. Used mostly for having other triggers inactive until triggered.
+Flags:
+	Monster:	A monster can trigger this.
+	Not_player:	The player cannot trigger this.
+	Triggered:	Cannot be touched, must be triggered.
+	Any:	Any entity can trigger this.
+Keys:
+	Delay:	Waits some time before firing after activation.
+	Wait:	The amount of time between triggerings. Default is .2.
+	Message:	Displays a text string.
+  */
+/*QUAKED choose_CDTrack (.5 .5 .5) ? NO_LOOP
+Choose_CDTrack:  Changes the CD track during a level instead of in between. This is used in the Cloudsanctum level.
+Flags:
+	No_Loop:	The track will only play once.
+Keys:
+	Style:	Which CD track to play.
+  */
+/*QUAKED trigger_quit_to_menu (.5 .5 .5) ?
+Trigger_quit_to_menu:  Player triggers this to return to the menu. It is used in the tutorial level.
+
+*/
+/*QUAKED trigger_mappercentage (0.3 0.1 0.6) ?  MONSTER NOT_PLAYER TRIGGERED ANY
+Trigger_mappercentage:  Used for single player to update the map in the Tome.
+Keys:
+	Count:	Amount of level completed.
+  */
+/*QUAKED trigger_lightning (0.3 0.1 0.6) ? MONSTER NOT_PLAYER TRIGGERED ANY
+Trigger_lightning:  Makes a Lighting Bolt
+Flags:
+	Monster:	Only a monster can trigger it.
+	Not_player:	Can't be triggered by the player.
+	Triggered:	Starts deactivated
+	Any:	Anything can trigger it.
+Keys:
+	Origin:	Starting point of lightning. Doesn't have to be within trigger.
+	Target:	End point entity. Target an info_notnull.
+	Delay:	Duration of lightning. Default is 0.
+	Materialtype:	0 = blue. 1 = red.
+	Style:	Width of bolt. Red Rain is 6 which is the default.
+	Wait:	The amount of time between triggerings. Default is 10.
+  */
+/*QUAKED trigger_quake (0.3 0.1 0.6) ? MONSTER NOT_PLAYER TRIGGERED ANY
+Trigger_quake:  Creates a camera shake that looks like an earthquake.
+Flags:
+	Monster:	A monster can trigger this.
+	Not_player:	The player cannot trigger this.
+	Triggered:	Cannot be touched, must be triggered.
+	Any:	Any entity can trigger this.
+Keys:
+	Wait:	Amount of time until it can be triggered again. Default is 10, -1 makes it go away after one use.
+	Count:	Number of pixels to shake the screen. Default is 20.
+	Time:	Duration of quake. Default is 2.
+	Style:	Direction of quake.
+	1) shake_lateral
+2) shake_vertical
+	1) shake_depth
+	0) shake_all_dir (default)
+  */
+/*QUAKED trigger_mission_give (0.3 0.1 0.6) ? MONSTER NOT_PLAYER TRIGGERED ANY
+Trigger_mission_give:  Gives an objective to the player in the objectives part of the menu.
+Keys:
+	Message:	Number of line from levelmsg.txt
+  */
+/*QUAKED trigger_mission_take (0.3 0.1 0.6) ? MONSTER NOT_PLAYER TRIGGERED ANY TAKE1  TAKE2
+Trigger_mission_take:  Takes an objective from the menu. Only two objectives can be active at a time, so you can either take the first or second one.
+Flags:
+	Take1:	Take the first objective.
+	Take2:	Take the second objective.
+  */
+/*QUAKED trigger_farclip (0.5 0.5 0.5) ?
+Trigger_farclip:  Changes the console variable r_farclipdist. If the current value is default, it sets it to the trigger's key value. If set to the trigger's key value, it sets it back to default. Do not have teleport points, or start spots of any kind inside or inbetween this trigger.
+Keys:
+	Scale:	Amount to set distance to. Default is 4096.
+  */
+/*QUAKED trigger_endgame (.5 .5 .5) ?
+Trigger_endgame:  Used to end the game and go to the outro.smk file.
+
+*/
+/*QUAKED trigger_playerpushlever (.5 .5 .5) ?  x1 x2 TRIGGERED
+Trigger_playerpushlever:  Lets player entity know he is near a lever, so if the action key is used, he goes into lever animation. This trigger must target the lever, which then targets the entities to use.
+
+*/
+/*QUAKED character_ssithra_victim (1 .5 0) (-40 -16 -2) (40 16 2) INVISIBLE
+Character_ssithra_victim:  The Ssithra Victim is found in the Dungeons.
+
+model="models/monsters/ssithra/tris.fm"   */
+/*QUAKED monster_harpy(1 .5 0) (-16 -16 -12) (16 16 12) AMBUSH ASLEEP PERCHING CIRCLING
+Monster_harpy:  A reptilian bird.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Perching:	Will watch the player until he gets too close.
+	Circling:	Will circle in the air like vultures.
+
+model="models/monsters/harpy/tris.fm"   */
+/*QUAKED env_water_drip (1 .5 0) (-4 -4 0) (4 4 4) YELLOW
+Env_water_drip:  Creates a drip that falls straight down and disappears when it hits the ground. If it hits water, it causes a ripple.
+Flags:
+	Yellow:	Makes the drip yellow.
+Keys:
+	Count:	Drips per minute. Defaults to 20.
+  */
+/*QUAKED env_water_fountain (1 .5 0) (-4 -4 0) (4 4 4) RED GREEN BLUE DARK DARKER START_OFF
+Env_water_fountain:  Creates a fountain that can be shot in any direction. Gravity does take its toll though.
+Flags:
+	Red:	Doesn't work.
+	Green:	Doesn't work.
+	Blue:	Doesn't work.
+	Dark:	Doesn't work.
+	Darker:	Doesn't work.
+	Start_off:	Starts fountain off. This effect is triggerable.
+Keys:
+	Angles:	This value needs to have three angles. They aren't really angles per se, but how far in a direction it will go. For example, 0 256 0 will travel towards 90 degrees in the XY view, but will travel 256 units in that direction. If you want a 45 degree angle give the X and Y values the same number, such as 128 128 0. The Z number will cause it to aim slightly up or down, but remember what I said about gravity.
+	Delay:	This is the distance from the emitter to the surface it's hitting. 256 units is the maximum is should go.
+  */
+/*QUAKED env_waterfall_base (1 1 0) (-8 -8 -8) (8 8 8)
+Env_waterfall_base:  A misting effect good for the bottom of waterfalls.
+Keys:
+	Angles:	Give ana x, y, and z value. In this case x is the x radius, y is the yaw, and z is the y radius of the effect.
+  */
+/*QUAKED env_mist (1 .5 0) (-64 -1 -32) (64 1 32)
+Env_mist:  Creates a small fog cloud that disappears as you get closer to it.
+Keys:
+	Scale:	Make the mist bigger or smaller.
+  */
+/*QUAKED env_bubbler (1 .5 0) (-4 -4 0) (4 4 4)
+Env_bubbler:  A bubble spawner for use under water. The bubbles float up until they hit the surface of the water. Do not give this entity an angle.
+Keys:
+	Count:	How many bubbles are spawned per minute.
+  */
+/*QUAKED env_dust (1 .5 0) ?
+Env_dust:  Generates a puff of dust and falling rocks. This entity can be sized. Needs a trigger targeting it to work.
+Keys:
+	Count:	How many rocks to generate per 28x28 square (default 1)
+  */
+/*QUAKED env_smoke (1 .5 0) (-4 -4 -4) (4 4 4)  START_OFF
+Env_smoke:  Generates a smoke cloud that moves up and eventually disappears. This effect is triggerable.
+Flags:
+	Start_off:	Make the smoke start off.
+Keys:
+	Scale:	Make the cloud bigger or smaller. Default has it start about the size of the player and grow to about twice his size. Has a range of 0 to 8.
+	Wait:	Time between puffs. Default is 5 seconds. Range 1-255.
+	Angle:	Direction to move in. Defaults to up.
+	Speed:	How quickly the puffs travel. Defaults to 100. Range 10-2500.
+	Distance:	Distance the puffs move before they begin to dissipate. Default is 100. Range 1-255.
+  */
+/*QUAKED env_muck (1 .5 0) ?
+Env_muck:  Not used.
+
+*/
+/*QUAKED monster_mssithra (1 .5 0) (-36 -36 0) (36 36 96) AMBUSH ASLEEP 4 8 16 32 64 FIXED WANDER MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_mssithra:  A big, ugly Ssithra... and then some!
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Fixed:	Will stay in a fixed location and never move.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+Keys:
+	Mintel:	Default 16.
+	Melee_Range:	Default 100.
+	Missile_Range:	Default 400.
+	Min_Missile_Range:	Default 100.
+	Jump_Chance:	Default 25.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/ssithra/tris.fm"   */
+/*QUAKED character_ssithra_scout (1 .5 0) (-26 -16 -13) (26 16 13)
+Character_ssithra_scout:  The Ssithra Scout is found in the Canyon.
+
+model="models/monsters/ssithra/scout_scene/tris.fm"   */
+/*QUAKED monster_gkrokon (1 .5 0) (-20 -20 -0) (20 20 32) AMBUSH ASLEEP EATING 8 16 32 64 FIXED WANDER MELEE_LEAD STALK COWARD RESTING EXTRA2 EXTRA3 EXTRA4
+Monster_gkrokon:  A beetle.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Eating:	Will look like it's eating something.
+	Fixed:	Will stay in a fixed location and never move.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+	Resting:	Appears to be taking a break.
+Keys:
+	Mintel:	Default 12.
+	Melee_Range:	Default 0.
+	Missile_Range:	Default 256.
+	Min_Missile_Range:	Default 48.
+	Jump_Chance:	Default 100.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/gkrokon/tris.fm"   */
+/*QUAKED obj_fishhead1 (1 .5 0) (0 -76 -86) (136 76 86)  NODRIP
+model="models/objects/fishheads/fishhead1/tris.fm"   */
+/*QUAKED obj_fishhead2 (1 .5 0) (0 -110 -118) (136 110 118) NODRIP
+model="models/objects/fishheads/fishhead2/tris.fm"   */
+/*QUAKED obj_banner (1 .5 0) (-8 -44 -296) (8 44 0) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/banner/wall/tris.fm"   */
+/*QUAKED obj_banneronpole (1 .5 0) (-8 -28 -30) (8 28 30) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/banner/onpole/tris.fm"   */
+/*QUAKED obj_barrel (1 .5 0) (-12 -12 -19) (12 12 19) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/barrel/normal/tris.fm"   */
+/*QUAKED obj_broom (1 .5 0) (-2 -2 -25) (2 2 25) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/broom/tris.fm"   */
+/*QUAKED obj_chair1 (1 .5 0) (-12 -8 -26) (12 8 26)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/chairs/chair1/tris.fm"   */
+/*QUAKED obj_chair2 (1 .5 0) (-18 -29 -30) (18 29 30)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/chairs/chair2/tris.fm"   */
+/*QUAKED obj_chair3 (1 .5 0) (-14 -21 -28) (14 21 28)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/chairs/chair3/tris.fm"   */
+/*QUAKED obj_chest1 (1 .5 0) (-10 -18 -19) (10 18 19) INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_chest1:  Trigger to have it open.
+
+model="models/objects/chests/chest1/tris.fm"   */
+/*QUAKED obj_chest2 (1 .5 0) (-14 -17 -9) (14 17 9) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/chests/chest2/tris.fm"   */
+/*QUAKED obj_chest3 (1 .5 0) (-10 -17 -6) (10 17 6) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/chests/chest3/tris.fm"   */
+/*QUAKED obj_cog1 (1 .5 0) (-8 -4 0) (8 4 20) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/cogs/cog1/tris.fm"   */
+/*QUAKED obj_corpse1 (1 .5 0) (-30 -12 0) (30 12 5) INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_corpse1:  Has key value style. Default is 0.
+	0) Both arms above head
+	1) On side
+	2) Arm over face
+	3) Arms out to side
+	4) Skewered
+
+model="models/monsters/plaguelf/tris.fm"  */
+/*QUAKED obj_corpse2 (1 .5 0) (-30 -12 0) (30 12 5)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_corpse2:  Has key value style. Default is 0.
+	0) Both arms above head
+	1) On side
+	2) Arm over face
+	3) Arms out to side
+	4)
+	5) Skewered
+
+model="models/monsters/plaguelf/tris.fm"   */
+/*QUAKED obj_dying_elf (1 .5 0) (-30 -12 0) (30 12 5) INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_dying_elf:  I'm not quite dead yet. Has key value style to set skin, seems to do nothing.
+
+model="models/monsters/plaguelf/tris.fm"   */
+/*QUAKED obj_sign1 (1 .5 0) (-29 -4 -16) (29 4 16)   INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_sign1:  Has key value style. Default is 0.
+	0) sign with a dragon
+	1) sign with two steins
+	2) sign with a fish
+
+model="models/objects/signs/sign1/tris.fm"   */
+/*QUAKED obj_sign4 (1 .5 0) (-8 -18 -29) (8 18 29)   INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_sign4:  Has key value style. Default is 0.
+	0) sign to Andoria
+	1) sign to K'Chekrik
+
+model="models/objects/signs/sign4/tris.fm"   */
+/*QUAKED obj_statue_corvus (1 .5 0) (-16 -16 0) (16 16 32) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/corvus/tris.fm"   */
+/*QUAKED obj_statue_dolphin1 (1 .5 0) (-68 -22 -30) (68 22 30) VULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/dolphin/tris.fm"   */
+/*QUAKED obj_statue_dolphin2 (1 .5 0) (-17 -20 -70) (17 20 70) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/dolphin/tris.fm"   */
+/*QUAKED obj_statue_dolphin3 (1 .5 0) (-17 -20 -70) (17 20 70) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/dolphin/tris.fm"   */
+/*QUAKED obj_statue_dolphin4 (1 .5 0) (-63 -22 -37) (63 22 37) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/dolphin/tris.fm"   */
+/*QUAKED obj_statue_guardian (1 .5 0) (-100 -64 0) (64 64 128) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/guardian/tris.fm"   */
+/*QUAKED obj_table1 (1 .5 0) (-28 -54 -18) (28 54 18) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/tables/table1/tris.fm"   */
+/*QUAKED obj_table2 (1 .5 0) (-28 -54 -17) (28 54 17) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/tables/table2/tris.fm"   */
+/*QUAKED obj_throne (1 .5 0) (-20 -22 -44) (20 22 44) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/chairs/throne/tris.fm"   */
+/*QUAKED obj_kettle (1 .5 0) (-8 -8 0) (8 8 10) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pots/kettle/tris.fm"  */
+/*QUAKED obj_cauldron (1 .5 0) (-22 -22 -10) (22 22 10) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pots/caldrn/tris.fm"  */
+/*QUAKED obj_firepot (1 .5 0) (-18 -18 -12) (18 18 12) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pots/firepot/tris.fm"   */
+/*QUAKED obj_statue_duckbill1 (1 .5 0) (-67 -24 -51) (67 24 51) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/duckbill/tris.fm"   */
+/*QUAKED obj_statue_duckbill2 (1 .5 0) (-67 -24 -50) (67 24 50) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/duckbill/tris.fm"   */
+/*QUAKED obj_seasonglobe (1 .5 0) (-80 -80 0) (80 80 100) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/globe/globetop/tris.fm"   */
+/*QUAKED obj_stein (1 .5 0) (-2 -2 -3) (2 2 3)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/stein/tris.fm"   */
+/*QUAKED obj_scroll (1 .5 0) (-2 -18 -3) (2 18 3)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/scroll/tris.fm"   */
+/*QUAKED obj_fountain_fish (1 .5 0) (-52 -34 -48) (52 34 48) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/fountainfish/tris.fm"   */
+/*QUAKED obj_statue_boulderfish (1 .5 0) (-26 -16 -27) (26 16 27) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/boulderfish/tris.fm"   */
+/*QUAKED obj_pottedplant (1 .5 0) (-20 -20 -30) (20 20 30)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pots/plant/tris.fm"   */
+/*QUAKED obj_plant1 (1 .5 0) (-8 -8 -24) (8 8 24) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/plants/plant1/tris.fm"   */
+/*QUAKED obj_plant2 (1 .5 0) (-20 -20 -10) (20 20 20) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/plants/plant2/tris.fm"   */
+/*QUAKED obj_plant3 (1 .5 0) (-8 -8 -12) (8 8 12) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/plants/plant3/tris.fm"   */
+/*QUAKED obj_treetop (1 .5 0) (-176 -176 -125) (176 176 125) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/plants/treetop/tris.fm"   */
+/*QUAKED obj_tree (1 .5 0) (-100 -100 -120) (100 100 120) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/plants/tree/tris.fm"   */
+/*QUAKED obj_tree2 (1 .5 0) (-50 -50 -286) (50 50 286) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/plants/tree2/tris.fm"   */
+/*QUAKED obj_tree3 (1 .5 0) (-50 -50 -286) (50 50 286) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/plants/tree3/tris.fm"   */
+/*QUAKED obj_treetall (1 .5 0) (-46 -46 -340) (46 46 340) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/plants/talltree/trunk1/tris.fm"   */
+/*QUAKED obj_treefallen (1 .5 0) (-24 -62 -35) (24 62 35) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/plants/cactus/tris.fm"   */
+/*QUAKED obj_shovel (1 .5 0) (-8 -8 -20) (8 8 20)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/shovel/tris.fm"   */
+/*QUAKED obj_woodpile (1 .5 0) (-12 -20 -7) (12 20 7) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/wood/tris.fm"   */
+/*QUAKED obj_fishtrap (1 .5 0) (-14 -28 -13) (14 28 13) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/fishtrap/tris.fm"   */
+/*QUAKED obj_bench (1 .5 0) (-10 -21 -10) (10 21 10)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/chairs/bench/tris.fm"   */
+/*QUAKED obj_bucket (1 .5 0) (-8 -8 -9) (8 8 10) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/bucket/tris.fm"   */
+/*QUAKED obj_ropechain (1 .5 0) (-20 -20 -14) (20 20 14) INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_ropechain:  Pile of rope or chain. Has key value skinnum. 0 = rope, 1 = chain.
+
+model="models/objects/rope/tris.fm"   */
+/*QUAKED obj_wheelbarrow (1 .5 0) (-37 -20 -21) (37 20 21) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/wheelbarrow/tris.fm"   */
+/*QUAKED obj_wheelbarrowdamaged (1 .5 0) (-38 -26 -20) (38 26 20) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/wheelbarrow/tris.fm"   */
+/*QUAKED obj_urn (1 .5 0) (-8 -8 -27) (8 8 30) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pots/urn/tris.fm"   */
+/*QUAKED obj_bigcrystal (1 .5 0) (-35 -35 -50) (35 35 50) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/crystals/bigcrystal/tris.fm"   */
+/*QUAKED obj_moss1 (1 .5 0) (-4 -10 -40) (4 10 40) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/moss/tris.fm"   */
+/*QUAKED obj_moss2 (1 .5 0) (-4 -9 -40) (4 9 40)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/moss/tris.fm"   */
+/*QUAKED obj_moss3 (1 .5 0) (-4 -15 -40) (4 15 40) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/moss/tris.fm"   */
+/*QUAKED obj_moss4 (1 .5 0) (-4 -12 -40) (4 12 40)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/moss/tris.fm"   */
+/*QUAKED obj_moss5 (1 .5 0) (-4 -10 -40) (4 10 40) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/moss/tris.fm"   */
+/*QUAKED obj_floor_candelabrum (1 .5 0) (-8 -8 -35) (8 8 35) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/lights/candelabrum/tris.fm"   */
+/*QUAKED obj_statue_dragonhead (1 .5 0) (-76 -28 -46) (76 28 46) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/dragonhead/tris.fm"   */
+/*QUAKED obj_statue_dragon (1 .5 0) (-53 -33 -72) (53 33 72)  INVULNERABLE  ANIMATE  EXPLODING  NOPUSH
+Obj_statue_dragon:  Has key value style. Default is 0.
+	0) dragon looking left
+	1) dragon looking right
+
+model="models/objects/statue/dragon/tris.fm"   */
+/*QUAKED obj_flagonpole (1 .5 0) (-8 -8 0) (8 8 60)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+model="models/objects/flags/onpole/tris.fm"   */
+/*QUAKED obj_lever1 (1 .5 0) (-6 -14 -17) (6 14 17)  INVULNERABLE  ANIMATE   EXPLODING   NOPUSH
+Obj_lever1:  Animates if triggered. Must be used with trigger_playeruselever. Target entities to be fired with the lever, not the trigger_playeruselever.
+
+model="models/objects/levers/lever1/tris.fm"   */
+/*QUAKED obj_lever2 (1 .5 0) (-14 -14 -9) (14 14 9)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+Obj_level2:  Animates if triggered. Must be used with trigger_playeruselever. Target entities to be fired with the lever, not the trigger_playeruselever.
+
+model="models/objects/levers/lever2/tris.fm"   */
+/*QUAKED obj_lever3 (1 .5 0) (-4 -6 -16) (4 6 16)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+Obj_lever3:  Animates if triggered. Must be used with trigger_playeruselever. Target entities to be fired with the lever, not the trigger_playeruselever.
+
+model="models/objects/levers/lever3/tris.fm"   */
+/*QUAKED obj_bush1 (1 .5 0) (-34 -34 -19) (34 34 19)  INVULNERABLE  ANIMATE  EXPLODING  NOPUSH
+model="models/objects/plants/bush1/tris.fm"   */
+/*QUAKED obj_bush2 (1 .5 0) (-56 -56 -40) (56 56 40)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+model="models/objects/plants/bush2/tris.fm"   */
+/*QUAKED obj_cactus (1 .5 0) (-18 -18 -44) (18 18 44)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+Obj_cactus:  The player takes one point of damage when touching this.
+
+model="models/objects/plants/cactus/tris.fm"   */
+/*QUAKED obj_cactus3 (1 .5 0) (-14 -14 -32) (14 14 32)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+Obj_cactus3:  The player takes one point of damage when touching this.
+
+model="models/objects/plants/cactus3/tris.fm"   */
+/*QUAKED obj_cactus4 (1 .5 0) (-11 -11 -11) (11 11 11)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+Obj_cactus4:  A cactus that opens and closes if triggered.
+
+model="models/objects/plants/cactus4/tris.fm"   */
+/*QUAKED obj_basket (1 .5 0) (-13 -13 -21) (13 13 21)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+model="models/objects/pots/basket/tris.fm"   */
+/*QUAKED obj_claybowl (1 .5 0) (-6 -6 -2) (6 6 2)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+model="models/objects/pots/claybowl/tris.fm"   */
+/*QUAKED obj_clayjar (1 .5 0) (-15 -15 -24) (15 15 24)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+model="models/objects/pots/clayjar/tris.fm"   */
+/*QUAKED obj_gorgonbones (1 .5 0) (-18 -38 -9) (18 38 1)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+model="models/objects/bones/gorgon/tris.fm"   */
+/*QUAKED obj_grass (1 .5 0) (-8 -8 -10) (8 8 10)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+model="models/objects/plants/grass/tris.fm"   */
+/*QUAKED obj_swampflat_top (1 .5 0) (0 -100 -48) (2 100 48)  INVULNERABLE  ANIMATE EXPLODING NOPUSH
+model="models/objects/plants/swampflat/tris.fm"   */
+/*QUAKED obj_swampflat_bottom (1 .5 0) (0 -100 -48) (2 100 48)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+model="models/objects/plants/swampflat/tris.fm"   */
+/*QUAKED obj_treestump (1 .5 0) (-18 -18 -16) (18 18 16)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+model="models/objects/plants/treestump/tris.fm"   */
+/*QUAKED obj_jawbone (1 .5 0) (-11 -11 -12) (11 11 12)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+model="models/objects/bones/jaws/tris.fm"   */
+/*QUAKED obj_barrel_metal (1 .5 0) (-11 -12 -18) (11 12 18)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+model="models/objects/barrel/metal/tris.fm"   */
+/*QUAKED obj_barrel_explosive (1 .5 0) (-11 -12 -18) (11 12 18)  INVULNERABLE  ANIMATE   EXPLODING  NOPUSH
+Obj_barrel_explosive:  Doesn't seem to work (no explosion; use obj_barrel with spawnflag 4 EXPLODING set).
+
+model="models/objects/barrel/normal/tris.fm"   */
+/*QUAKED obj_gascan (1 .5 0) (-8 -9 -13) (8 9 13)  INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/barrel/gascan/tris.fm"   */
+/*QUAKED obj_pipe1 (1 .5 0) (-11 -24 -7) (11 24 7)  INVULNERABLE  ANIMATE   EXPLODING NOPUSH
+model="models/objects/pipes/pipe1/tris.fm"   */
+/*QUAKED obj_pipe2 (1 .5 0) (-6 -25 -4) (6 25 4) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pipes/pipe2/tris.fm"   */
+/*QUAKED obj_pipewheel (1 .5 0) (-14 -14 -12) (14 14 12) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pipes/pipewheel/tris.fm"   */
+/*QUAKED obj_minecart (1 .5 0) (-18 -29 -20) (18 29 20) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/carts/mine/tris.fm"   */
+/*QUAKED obj_minecart2 (1 .5 0) (-18 -29 -20) (18 29 20) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/carts/mine/tris.fm"   */
+/*QUAKED obj_minecart3 (1 .5 0) (-18 -29 -15) (18 29 20) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/carts/mine/tris.fm"   */
+/*QUAKED obj_andwallhanging (1 .5 0) ( 0 -19 -24) (4 19 24) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/andwallhang/tris.fm"   */
+/*QUAKED obj_pick (1 .5 0) ( -12 -13 -2) (12 13 2) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/tools/pick/tris.fm"   */
+/*QUAKED obj_metalchunk1 (1 .5 0) ( -10 -26 -4) (10 26 4) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pipes/metalchunks/tris.fm"   */
+/*QUAKED obj_metalchunk2 (1 .5 0) ( -10 -26 -7) (10 26 7) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pipes/metalchunks/tris.fm"   */
+/*QUAKED obj_metalchunk3 (1 .5 0) ( -9 -30 -4) (9 30 4) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pipes/metalchunks/tris.fm"   */
+/*QUAKED obj_rocks1 (1 .5 0) ( -12 -13 -4) (12 13 4) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/rocks/rock1/tris.fm"   */
+/*QUAKED obj_rocks2 (1 .5 0) ( -9 -30 -4) (9 30 4) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/rocks/rock2/tris.fm"   */
+/*QUAKED obj_hivepriestessssymbol (1 .5 0) ( -4 -4 -13) (4 4 13) INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_hivepriestessssymbol:  Spawns when triggered
+Keys:
+	angle:	direction it faces
+	targetname:	spawns when this is triggered
+
+model="models/items/puzzles/hiveidol/tris.fm"   */
+/*QUAKED obj_queenthrone (1 .5 0) ( -40 -56 -49) (40 56 49) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/chairs/throne/tris.fm"   */
+/*QUAKED obj_queenchair (1 .5 0) ( -30 -28 -31) (30 28 31) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/chairs/queen/tris.fm"   */
+/*QUAKED obj_shrine (1 .5 0) ( -26 -38 -38) (26 38 38) INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_shrine:  The model for the shrines throughout the game.
+	Key Value, style determines the type of shrine.
+		0) heal
+		1) mana
+		2) lungs
+		3) light
+		4) powerup
+		5) armor
+		6) flyarmor gold
+		7) invisiblerandom
+		8) reflection
+		9) staff
+		10) ghost
+
+model="models/objects/shrine/tris.fm"   */
+/*QUAKED obj_larvaegg (1 .5 0) ( -6 -14 -6) (6 14 6) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/eggs/egg/tris.fm"   */
+/*QUAKED obj_larvabrokenegg (1 .5 0) ( -6 -7 -5) (6 7 5) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/eggs/brokenegg/tris.fm"   */
+/*QUAKED obj_cocoon (1 .5 0) ( -20 -20 -36) (20 20 36) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/eggs/cocoon/tris.fm"   */
+/*QUAKED obj_cocoonopen (1 .5 0) ( -20 -20 -34) (20 20 34) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/eggs/cocoon/tris.fm"   */
+/*QUAKED obj_venusflytrap (1 .5 0) ( -20 -20 -24) (20 20 24) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/plants/venus/tris.fm"   */
+/*QUAKED obj_statue_techeckriktomb (1 .5 0) ( -41 -11 -14) (41 11 14) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/tomb/tris.fm"   */
+/*QUAKED obj_statue_techeckrikright (1 .5 0) ( -26 -40 -50) (26 40 50) INVULNERABLE ANIMATE EXPLODING NOPUSH NOGEM
+model="models/objects/statue/tcheckrik/tris.fm"  */
+/*QUAKED obj_statue_techeckrikleft (1 .5 0) ( -26 -40 -50) (26 40 50) INVULNERABLE ANIMATE EXPLODING NOPUSH NOGEM
+model="models/objects/statue/tcheckrik/tris.fm"   */
+/*QUAKED obj_spellbook (1 .5 0) ( -14 -14 -35) (14 14 40) INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_spellbook:  If triggered, the book closes and the ray disappears.
+
+model="models/objects/spellbook/book/tris.fm"   */
+/*QUAKED obj_skullpole (1 .5 0) ( -10 -10 -47) (10 10 47) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/flags/totempole/tris.fm"   */
+/*QUAKED obj_pot1 (1 .5 0) ( -3 -8 -8) (3 8 8) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pots/pot/tris.fm"   */
+/*QUAKED obj_pot2 (1 .5 0) ( -7 -7 -3) (7 7 3) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pots/pot/tris.fm"   */
+/*QUAKED obj_bottle1 (1 .5 0) ( -3 -3 -7) (3 3 7) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/jars/bottle/tris.fm"   */
+/*QUAKED obj_jug1 (1 .5 0) ( -6 -6 -6) (6 6 6) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/jars/jug/tris.fm"   */
+/*QUAKED obj_torture_table (1 .5 0) ( -46 -14 -14) (46 14 14) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/torture/table/tris.fm"   */
+/*QUAKED obj_torture_wallring (1 .5 0) ( -2 -4 -6) (2 4 6) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/torture/wallring/tris.fm"   */
+/*QUAKED obj_statue_tchecktrik_bust (1 .5 0) (-8 -12 -15) (8 12 15) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/tchecktrikbust/tris.fm"   */
+/*QUAKED obj_statue_sithraguard (1 .5 0) (-22 -20 -57) (22 20 57) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/sithraguard/tris.fm"   */
+/*QUAKED obj_torture_ironmaiden (1 .5 0) (-18 -18 -49) (18 18 49) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/torture/ironmaiden/tris.fm"   */
+/*QUAKED obj_torture_rack (1 .5 0) (-22 -46 -19) (22 46 19) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/torture/rack/tris.fm"   */
+/*QUAKED obj_torture_bed (1 .5 0) (-21 -43 -94) (21 43 94) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/torture/bed/tris.fm"   */
+/*QUAKED obj_statue_saraphbust (1 .5 0) (-10 -20 -24) (10 20 24) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/saraphbust/tris.fm"   */
+/*QUAKED obj_biotank (1 .5 0) (-20 -33 -52) (20 33 52) INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_biotank:  Style sets kind of critter in the tank.
+Keys:
+	Style:	Type of floating critter
+		0) empty
+		1) floating head
+		2) hairless critter
+		3) three fish
+		4) wasp
+
+model="models/objects/labs/biotank/tris.fm"   */
+/*QUAKED obj_tapper (1 .5 0) (-2 -5 -2) (2 5 2) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/tapper/tris.fm"   */
+/*QUAKED obj_wallringplaque (1 .5 0) (-3 -20 -55) (3 20 55) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/torture/plaque/tris.fm"   */
+/*QUAKED obj_hangingdude (1 .5 0) (-3 -20 -55) (3 20 55) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/torture/guy1/tris.fm"   */
+/*QUAKED obj_frypan (1 .5 0) (-1 -3 -10) (1 3 10) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pots/frypan/tris.fm"  */
+/*QUAKED obj_eggpan (1 .5 0) (-4 -10 -1) (4 10 1) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/pots/eggpan/tris.fm"   */
+/*QUAKED obj_nest (1 .5 0) (-25 -25 -4) (25 25 4) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/nest/tris.fm"   */
+/*QUAKED obj_choppeddude (1 .5 0) (-15 -40 -8) (15 40 8) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/torture/guy2/tris.fm"   */
+/*QUAKED obj_lab_parts_container (1 .5 0) (-8 -8 -11) (8 8 11) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/labs/container2/tris.fm"   */
+/*QUAKED obj_eyeball_jar (1 .5 0) (-13 -13 -18) (13 13 18) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/labs/bioglass2/tris.fm"   */
+/*QUAKED obj_lab_tray (1 .5 0) (-8 -8 -5) (8 8 5) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model"models/objects/labs/tray/tris.fm"=   */
+/*QUAKED obj_hanging_ogle (1 .5 0) (-8 -16 -34) (8 16 34) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/torture/ogle/tris.fm"   */
+/*QUAKED obj_ring_plaque2 (1 .5 0) (-2 -24 -20) (2 24 20) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/torture/plaque2/tris.fm"   */
+/*QUAKED obj_statue_sariph (1 .5 0) (-13 -16 -41) (13 16 41) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/statue/sariph/tris.fm"   */
+/*QUAKED obj_pushcart (1 .5 0) (-13 -16 -41) (13 16 41) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/carts/pushcart/tris.fm"   */
+/*QUAKED obj_bookopen (1 .5 0) (-8 -16 -2) (8 16 2) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/books/bookopen/tris.fm"   */
+/*QUAKED obj_bookclosed (1 .5 0) (-8 -8 -2) (8 8 2) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/books/bookclosed/tris.fm"   */
+/*QUAKED obj_web (1 .5 0) (-2 -18 -20) (2 18 20) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/web/web/tris.fm"   */
+/*QUAKED obj_larva (1 .5 0) (-8 -8 -2) (8 8 2) INVULNERABLE ANIMATE EXPLODING NOPUSH
+model="models/objects/eggs/larva/tris.fm"   */
+/*QUAKED obj_bloodsplat (1 .5 0) (-8 -8 -2) (8 8 2) INVULNERABLE ANIMATE EXPLODING NOPUSH
+*/
+/*QUAKED monster_plagueElf (1 .5 0) (-17 -25 -1) (22 12 63) AMBUSH ASLEEP WALKING CINEMATIC Missile 32 64 FIXED WANDER MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_plagueElf:  Inhabitants of Silverspring, now plagued.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Walking:	Not used.
+	Cinematic:	Puts a guard in cinematic mode.
+	Missile:	Will shoot a missile instead of melee.
+	Fixed:	Will stay in a fixed location and never move.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+Keys:
+	Mintel:	Default 16.
+	Melee_Range:	Default 0.
+	Missile_Range:	Default 512.
+	Min_Missile_Range:	Default 30, 0 for missile plague elf.
+	Jump_Chance:	Default 50.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/plaguelf/tris.fm"   */
+/*QUAKED monster_palace_plague_guard (1 .5 0) (-17 -25 -1) (22 12 63) AMBUSH ASLEEP WALKING CINEMATIC Missile 32 64 FIXED WANDER MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_palace_plague_guard:  Special Sidhe guards for the palace.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Walking:	Not used.
+	Cinematic:	Puts a guard in cinematic mode.
+	Missile:	Will shoot a missile instead of melee.
+	Fixed:	Will stay in a fixed location and never move.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+Keys:
+	Mintel:	Default 16.
+	Melee_Range:	Default 0.
+	Missile_Range:	Default 512.
+	Min_Missile_Range:	Default 0.
+	Jump_Chance:	Default 50.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/plaguelf/tris.fm"   */
+/*QUAKED monster_palace_plague_guard_invisible (1 .5 0) (-17 -25 -1) (22 12 63) AMBUSH ASLEEP WALKING CINEMATIC Missile 32 64 FIXED WANDER MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 StartVisible
+Monster_palace_plague_guard_invis:  Special Sidhe guards for the palace who are invisible unless attacking or moving.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Walking:	Not used.
+	Cinematic:	Puts a guard in cinematic mode.
+	Missile:	Will shoot a missile instead of melee.
+	Fixed:	Will stay in a fixed location and never move.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+	StartVisible:	Starts visible, turns invisible when he stops moving.
+Keys:
+	Mintel:	Default 16.
+	Melee_Range:	Default 64.
+	Missile_Range:	Default 512.
+	Min_Missile_Range:	Default 30.
+	Jump_Chance:	Default 50.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/plaguelf/tris.fm"   */
+/*QUAKED func_plat (0 .5 .8) ? PLAT_LOW_TRIGGER
+Func_plat:
+A plat is much like a door that moves up and down, but it can have acceleration attached to it.
+Flags:
+	PLAT_LOW_TRIGGER:	Don't know
+Keys:
+	Targetname:	If this is set, the plat must be triggered to work.
+	Speed:	The speed at which the plat moves. Default is 150.
+	Accel:	The acceleration to its intended speed. Default is 500.
+	Lip:	A plat will move a distance equal to it's height minus the lip. A negative lip will cause it to move farther. Default is 8.
+	Height:	A height value will override the default of the brush's height.
+	Sounds:	The sound that is played when triggered.
+		0) Base fast
+		1) Chain Slow
+
+*/
+/*QUAKED func_rotating (0 .5 .8) ? START_ON REVERSE X_AXIS Y_AXIS TOUCH_PAIN STOP ANIMATED ANIMATED_FAST CRUSHER
+Func_rotating:  Much like a rotating door except it moves 360 degrees about an axis.
+Flags:
+	Start On:	Will move immediately and keep moving.
+	Reverse:	Will move in the opposite direction around the axis.
+	X-Axis:	Will move around the x-axis instead of the z-axis.
+	Y-Axis:	Will move around the y-axis instead of the z-axis
+	Touch Pain:	
+	Stop:	If the entity comes in contact with another entity, it will stop moving.
+	Animated:	Don't know. Animated textures work on it.
+	Animated_fast:	Don't know. Animated textures animate faster.
+	Crusher:	Does just that when the player blocks it.
+Keys:
+	Speed:	The speed at which the entity rotates. Default is 100.
+	Dmg:	The amount of damage the entity does to another entity. Default is 2.
+	Sounds:	The sound that is played when triggered.
+		0) Silent
+		1) Generic Rotate
+		2) Huge wheel in Cloudlabs
+		3) Rock Crusher in Oglemine2
+		4) Paddles in Gauntlet
+
+*/
+/*QUAKED func_button (0 .5 .8) ? TOUCH
+Func_button:  A button is just what it says, but it can also be used as a pressure plate type device. It moves in a direction, triggers something, waits a predetermined time, then moves back to its original position. Ordinary buttons that are to be pushed should have a trigger_playerpushbutton targeting them so that Corvus will use the animation to push them, rather than just bumping into them like a bumbling space-marine.
+Flags:
+	Touch:	Supposedly allows the button to be fired without the trigger_playerpushbutton, as for example a floor button. But actually I find it's not needed, & doesn't seem to do anything. If a button has no targetname-value, it will push when the player bumps into it, just like in Quake.
+Keys:
+	Angle:	The direction you want the button to move.
+	Target:	You must target another entity for this to have any real function to it.
+	Targetname:	Has same value as target-field of the trigger_playerpushbutton that tells Corvus to use the button-push animation.
+	Speed:	The speed at which the button will move to its destination. Default is 40.
+	Wait:	The amount of time the button waits before returning to its original position. Default is 1. A wait of -1 will cause the button to never return.
+	Lip:	A button moves a default distance of the width of the brush minus the lip. A negative lip will cause the button to move farther than its width. The default lip is 4.
+	Health:	Use health for shootable buttons. Once its health reaches 0, it triggers. This seems able to work together with targetting by a trigger_playerpushbutton, but I can't think of a good reason to do this.
+	Sounds:	The sound to play as it moves. Default is 0.
+		0) Silent
+		1) Basic Button
+		2) Clanky Button
+		3) Steam Button
+	Message:	Displays a text string when the button is fully in. The value is the line-number of the message in the levelmsg file in htic2-1.pak. For a custom message, it is usually best to use the text_msg key instead.
+	Text_msg:	Value is the text displayed when the button is fully pushed in. Doesn't seem to be able to play an audio file.
+
+*/
+/*QUAKED func_door (0 .5 .8) ? START_OPEN x CRUSHER NOMONSTER ANIMATED TOGGLE ANIMATED_FAST
+Func_door:  A door is a multipurpose entity that can be used as a door in the normal sense or a platform of sorts. With multiple func_doors moving in opposite directions, an exciting visual entity can be created.
+Flags:
+	Start Open:	Starts in its final position. Sometimes it's easier to build a door where you want it to end.
+	Crusher:	A door without this flag will stop when it hits another entity. With this flag set, it will keep moving towards its destination, causing damage to it and eventually destroying it.
+	No Monster:	Monsters cannot use this door.
+	Animated:	Don't know. An animated texture will work on the door with this flag.
+	Toggle:	When this flag is set, the door will wait in its start and end position until it's triggered again.
+	Animated_fast:	Don't know. An animated texture works, but animates faster.
+Keys:
+	Message:	Put a text message on the door. For example, when the player walks up to a door that hasn't been triggered, the door can print the message, This door is locked. Messages are set by a number corresponding to a line in levelmsg.txt, as listed here (45, "I'll have to open this elsewhere", is probably the most useful value). text_msg does not seem to work for func_door.
+	Angle:	Sets the direction the door will move in.
+	Targetname:	If targetname is set, the door must be triggered to work.
+	Health:	If health is set, the door must be killed to work.
+	Height:	If the door has an angle of -1 or -2, this is the distance for the door to move.
+	Speed:	The speed the door moves to its destination. Default is 100.
+	Wait:	Amount of time the door waits in its destination position. Default is 3. If wait is set to -1, the door will not return. If the wait is set to -2, once triggered, it will constantly cycle from its start to its destination position.
+	Lip:	A door moves a default distance of the width of the brush minus the lip. A negative lip will cause it to move farther than its width. The default lip is 8.
+	Dmg:	The amount of damage the door does if it hits another entity. The default is 2.
+	Team:	If you have two touching doors that you want to open at the same time, make both doors have the team key value.
+	Sounds:	The sound to play when it moves.
+		0) Silent (Default)
+		1) Generic door
+		2) Heavy stone door
+		3) Swinging arm for palace
+		4) Sliding bridge for palace
+		5) Small/Medium wood door swinging
+		6) Large/Huge wood door swinging
+		7) Medium wood/stone door sliding
+		8) Large wood/stone door sliding
+		9) Medium metal door swinging
+		10) Fast sliding door
+		11) Hive/ multipaneled sliding door
+		12) Huge stone door swinging
+		13) Medium/large elevator
+		14) Crane (warehouse level)
+		15) Hammerlike pump in Oglemine1
+		16) Sliding metal table in Cloudlabs
+		17) Lab Table which rotates up to the ceiling in cloudlab
+		18) Piston Sound
+		19) Short, sharp metal clang
+		20) Something going on under water
+
+*/
+/*QUAKED func_door_rotating (0 .5 .8) ? START_OPEN REVERSE CRUSHER NOMONSTER ANIMATED TOGGLE X_AXIS Y_AXIS SWINGAWAY x x x x x x x
+Func_door_rotating:  A rotating door is an entity that must have an origin brush associated with it to work. It can rotate on any of the axis, and can be used for objects other than doors. In Heretic II, you will see constantly moving gears that are rotating doors.
+Flags:
+	Start Open:	Starts in its final position. Sometimes it's easier to build a door where you want it to end.
+	Reverse:	When you give a door a distance (angle) to rotate, reverse will make it go that many degrees in the opposite direction.
+	Crusher:	A door without this flag will stop when it hits another entity. With this flag set, it will keep moving towards its destination, causing damage to it and eventually destroying it.
+	No Monster:	Monsters cannot use this door.
+	Animated:	An animated texture will work on the door with this flag. Don't know
+	Toggle:	When this flag is set, the door will wait in its start and end position until it's triggered again.
+	X-Axis:	Rotates about the x-axis instead of the z-axis.
+	Y-Axis:	Rotates about the y-axis instead of the z-axis.
+	Swingaway:	Door will always swing away from the player in the distance specified.
+Keys:
+	Distance:	This is actually the amount of rotation you want.
+	Speed:	How fast it rotates. Default is 100.
+	Message:	Attach a text string to the door.
+	Angle:	No effect.
+	Targetname:	If this is used, the door must be triggered to work.
+	Health:	If this is used, the door must reach 0 HP before working.
+	Wait:	The amount of time the door waits at its destination. Default is 3. Wait -1 causes it to never return. Wait -2 causes it to constantly cycle.
+	Dmg:	The amount of damage the door does to an entity if blocked.
+	Sounds:	The sound played when triggered or used. Same as func_door.
+  */
+/*QUAKED func_water (0 .5 .8) ? START_OPEN
+Func_water:  Func_water is a moveable water brush. It can only move up or down, but gives the illusion that a room is filling with water, or draining. It must be targeted to work and must use a water texture. Currently, the brush must also be non-transparent.
+Flags:
+	Start Open:	Will start in its destination position.
+Keys:
+	Angle:	Direction to move. Must be angle -1 or -2.
+	Speed:	The speed at which it will move. Default is 25.
+	Wait:	The amount of time it will wait in its destination position. Default is -1, which is that it must be triggered to move back to its original position.
+	Lip:	The water will move a distance equal to it's height minus the lip. A negative lip will cause it to move farther. Default is 0.
+	Sounds:	The sound that is played as it moves.
+		0) No sound
+		1) Water
+		2) Lava
+
+*/
+/*QUAKED func_train (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS HASORIGIN NO_CLIP PUSHPULL
+Func_train:  Trains are entities that move on a path predetermined by the designer. Used in conjunction with path corners, this is one of the most powerful entities in the game. It can be used as a platform that carries the player on a non-linear course, it can be used for objects that look to be falling, or it can be used for objects that look to be sliding across a surface. Trains can carry models also. Rotating trains must have an origin brush.
+Flags:
+	Start On:	The train is active at the start of the level.
+	Toggle:	Waits at each path corner to be triggered again.
+	Block_Stop:	If the train runs into another entity, it will stop.
+	Has Origin:	Uses the origin brush rather than the lower left corner of the train.
+	No_clip:	The train is no_clip. Used for moving cameras. (see misc_remote_camera for details.)
+	PushPull:	With this flag selected, an object becomes pushable by Corvus. If you stand Corvus in front of it and hit his action key, he should go into a slight crouch. He can then push it, or pull it. This is no longer used.
+Keys:
+	Speed:	The speed of the train. Default is 100. Path corners can be given speed also.
+	Damage:	The amount of damage the train does to another entity. Default is 2.
+	Noise:	The sound that is played while the train is moving.
+	Rotate:	The speed that the train should rotate at. The actual rotation of the train is based on the path corners.
+	Wait:	The amount of time to wait at each path corner. A wait of -1 will cause the train to wait at a path corner until it is triggered again. A wait of -3 will cause the train to explode, and should be only put on one path corner. A wait of -4 will cause a model attached to go through its frames of animation. Use in conjunction with count.
+	Count:	Number of frames in a model.
+	File:	The name of the file if you want to move a model. An example is models/objects/broom/tris.fm.
+	Materialtype:	What rubble to use if it explodes. Look at the breakable brush rubble.
+
+  */
+/*QUAKED func_timer (0.3 0.1 0.6) (-8 -8 -8) (8 8 8) START_ON
+Func_timer:  A timer is used if you want an object to trigger at either a regular interval or a random interval. This is cool for broken objects as it gives them a sporadic feel. Timer's can not be touched.
+Flags:
+	Start On:	The timer is immediately active, and doesn't need to be triggered.
+Keys:
+	Wait:	The amount of time between triggering. Default is 1.
+	Random:	Used in conjunction with wait, the amount of time will vary. Default is 0. The range of time becomes wait+random to wait-random.
+	Delay:	The amount of time before firing when first activated. Default is 0.
+	Pausetime:	An additional delay for the first activation, this only works with the Start On flag checked.
+
+  */
+/*QUAKED func_door_secret (0 .5 .8) ? always_shoot 1st_left 1st_down
+Func_door_secret:  Secret doors move in two directions, usually a short move back or to the side, then towards its angle.
+Flags:
+	Always Shoot:	Door can be shot open, even if it is targeted by something.
+	1st Left:	The door's first move is to the left of the angle.
+	1st Down:	The door's first move is to towards angle -2.
+Keys:
+	Angle:	This is the second direction the door will move.
+	Dmg:	This is the amount of damage the door does to an entity if blocked.
+	Wait:	The amount of time the door waits at its destination. Default is 5. Wait -1 causes it to never return.
+	Lip:	Distance minus the length of the brush to stick out, on its second move.
+	Sounds:	Uses all the same sounds of func_door.
+
+  */
+/*QUAKED func_monsterspawner (0 .5 .8) (-8 -8 -8) (8 8 8) ONDEATH RANDOMBUOY PEACEFUL
+Func_monsterspawner:  The monster spawner is used to have monsters either reappear in places you've already cleared, a level you might have to return to, or to have lots come out of a small area (like a rat hole).
+Flags:
+	On Death:	A new monster will not spawn until the previous one is dead.
+	Randombuoy:	The monster will be teleported to a random buoy not in the players view.
+	Peaceful:	The monster is not spawned angry if this flag is checked. Monsters will spawn angry by default only if the player triggered the monster spawner.
+Keys:
+	Count:	The number of creatures this spawner will produce. Default is 1.
+	Distance:	The radius at which the monster can spawn from the entity. It picks a random angle when spawning.
+	Style:	The type of monster to spawn.
+		0) Nothing
+		1) Rat
+		2) Plague Elf
+		3) Plague Spreader
+		4) Gorgon
+		5) Chkroktk (Doesn't really exist)
+		6) T'chekrik Male (bug people)
+		7) T'chekrik Female
+		8) T'chekrik Mothers
+		9) High Priestess
+		10) Ogle
+		11) Seraph Overlord
+		12) Seraph Guard
+		13) Assassin
+		14) Morcalavin
+		15) Dranor
+		16) Sidhe Guard
+		17) Siernan
+		18) Ssithra Scout
+		19) Ssithra Victim
+		20) Mutant Ssithra
+		21) Harpy
+		22) Fish
+		23) Chicken
+		24) Plague Ssithra
+		25) Gkrokon (Beetle)
+		26) Giant Rat
+		27) Palace Plague Guard
+		28) Invisible Palace Plague Guard
+	Wait:	The amount of time between spawns. Default is 10.
+	Mintel:	How long the monster will chase you.
+	Melee_Range:	How close the player is maximum for the monster to melee. 0 means the monster won't melee, and a negative number means the monster will try and keep a distance.
+	Missile_Range:	Maximum distance the player can be and still let the monster use its ranged attack.
+	Min_Missile_Range:	Minimum distance the player can be and still let the monster use its ranged attack.
+	Jump_Chance:	A percent chance that the monster will jump. Use -1 for 0% chance.
+	Wakeup_Distance:	How far away the player can be before the monster wakes up.
+  */
+/*QUAKED info_buoy (0.6 0 0.8) (-24 -24 -24) (24 24 24) JUMP ACTIVATE TURN ONEWAY
+Info_buoy:  The buoy system is a Raven addition that is intended to improve the AI of monsters. While the concept is easy there is a lot to know about buoys.
+Flags:
+	Jump:	Will cause the monster to jump. Use with key values speed and height.
+	Activate:	Will allow a monster to use an object. Must be used in conjunction with pathtarget and pathtargetname.
+	Turn:	Will allow a monster to turn to the buoys angles.
+	Oneway:	If a monster goes through this buoy, he cannot return the same way.
+Keys:
+	Jumptarget:	Tells the monster to jump to a buoy with a corresponding targetname. This doesn't actually make the monster jump, just lets it know it can. You also need the jump flag set.
+	Wait:	Used in conjunction with Activate, it sets a time before the monster can attempt another activate.
+	Delay:	Used in conjunction with Activate, it makes the monster wait for a time for the activated object to move.
+	Angles:	XYZ value of buoy.
+	Pathtarget:	Use this to have a buoy target an object.
+	Target:	Use this to target a buoy to another buoy.
+	Target2:	Use this to target the buoy to a completely different one.
+	Targetname:	Every buoy must have a targetname and it must be unique.
+	Speed:	Speed that monsters will jump if the jump flag is set.
+	Height:	The height a monster will jump if the jump flag is set.
+
+  */
+/*QUAKED monster_trial_beast (1 .5 0) (-100 -100 -36) (100 100 150) ?
+Monster_trial_beast:  Gigantic pit beast in the hive.
+Keys:
+	Mintel:	Default 100.
+	Melee_Range:	Default 400(bite).
+	Missile_Range:	Default 1500(charge).
+	Min_Missile_Range:	Default 100.
+	Jump_Chance:	Default 100.
+	Wakeup_Distance:	Default 3000.
+
+model="models/monsters/beast/tris.fm"  */
+/*QUAKED func_group (0 0 0) ?
+Func_group:  This function is used if you want to group a bunch of brushes together to move them in the editor. It has no purpose in the game.
+
+*/
+/*QUAKED func_areaportal (0 0 0) ?
+Func_areaportal:  An areaportal is an entity that actually doesn't draw anything beyond it. If you are building a level with doors, this is an incredibly useful tool for cutting down poly counts. It is also very tricky to set up. Basically you build a door, build an areaportal inside the door but as wide and tall (or a bit more) and target the door to the areaportal. When the door opens, the areaportal disappears, and when the door closes, it reappears. The tricky part comes in having it actually work. Areaportals have to separate two distinct regions, and there can be no other openings between those two regions. There are many tutorials on the net for making areaportals work, but just remember that the regions have to be separate and distinct.
+
+*/
+/*QUAKED path_corner (.5 .3 0) (-8 -8 -8) (8 8 8) TELEPORT
+Path Corner:  A path corner is used in association with func_train. It sets up waypoints for the train to travel to. Some key values between train and path corner are interchangeable.
+Keys:
+	Target:	Targets the next path corner
+	Pathtarget:	Used when an entity that has this path corner targeted touches it.
+	Angles:	Used to make the train rotate when it hits the path corner. The train must have an origin brush as part of it. Angles are cumulative, so if the first path corner has 0 40 0 and the second one has 0 50 0, then it will have rotated 90 degrees on the y-axis.
+	Wait:	Amount of time the train waits at a path corner. Wait of -1 will make the train stop until it is retriggered, while -3 causes the train to explode upon reaching the path corner.
+	Noise:	File to play when path corner is hit by traintrain hits path_corner.
+
+*/
+/*QUAKED point_combat (0.5 0.3 0) (-8 -8 -8) (8 8 8) Hold
+Point Combat:  Make a monster target this and he will go to it before attacking the activator.
+Flags:
+	Hold:	The mosntermonster will stay at the destination.
+
+*/
+/*QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4)
+*/
+/*QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
+*/
+/*QUAKED func_wall (0 .5 .8) ? TRIGGER_SPAWN TOGGLE START_ON ANIMATED ANIMATED_FAST
+Func_wall:  A wall entity is one that simply acts as a normal wall, but it can blink into existence or remove itself. Useful for forcefields and such.
+Flags:
+	Trigger_spawn:	Will come into existence when it is triggered. It will kill anything in its way when spawned.
+	Toggle:	Use with trigger_spawn flag, it will allow the wall to be turned on and off.
+	Start On:	Use with trigger_spawn flag, it will start the wall spawned at which point it may be removed.
+	Animated:	Don't know. Animated textures work on it.
+	Animated_fast:	Don't know. Animated textures animate faster.
+*/
+/*QUAKED func_object (0 .5 .8) ? TRIGGER_SPAWN ANIMATED ANIMATED_FAST
+Func_object:  If you make a brush into this entity, it can sit on top of other entities, and when they are removed, it falls to the ground. This probably doesn't even work willth our new physics system.
+Flags:
+	Trigger_sp:	Don't know
+	Animated:	Don't know. Animated textures are usable on it.
+	Animated_fast:	Don't know. Animated textures animate faster.
+
+*/
+/*QUAKED item_spitter (0 .5 .8) (-4 -4 -4)  (4 4 4)	NOFLASH
+Item_spitter:  Spits a out an item out. Should be targeted by an object like a chest.
+Flags:
+	Noflash:	No flash is created when the item spits out.
+Keys:
+	Target:	Name of item to spit out. For example, target, item_torchpuzzle_townkey..
+	Count:	Number of items to spit out.
+	Radius:	Distance from emitter to spit the item.
+	Spawnflags2:	Spawnflags to set for the item created.
+*/
+/*QUAKED misc_update_spawner (.5 .5 .5) ?
+Misc_update_spawner:  Update the spawn point through the level for the teleport spell. This will stop the player from teleporting back to the start of the level.
+
+*/
+/*QUAKED misc_teleporter (1 0 0) ? NO_MODEL DEATHMATCH_RANDOM START_OFF MULT_DEST
+Misc_teleporter:  Used in conjunction with a teleporter_dest, a character stepping in the teleporter will be sent to the destination with a cool effect.
+Flags:
+	No_model:	Make the teleporter invisible, that is, don't show the effect.
+	Deathmatch_Random:	Makes the teleporter go to a random deathmatch start spot.
+	Start_Off:	Starts off.
+	Mult_Dest:	Targeted at more than one destination.
+Keys:
+	Style:	Number of destinations the teleporter has.
+
+*/
+/*QUAKED misc_teleporter_dest (1 0 0) (-32 -32 -24) (32 32 -16)
+Misc_teleporter_dest:  Used as the target for a teleporter.
+
+*/
+/*QUAKED misc_magic_portal (1 .5 0) (-16 -16 -32) (16 16 32)  START_OFF
+Misc_magic_portal:  A glowing magic portal, can target a target_changelevel
+Flags:
+	Start_off:	Starts off.
+Keys:
+	Angles:	Change the facing.
+	Style:	Change the color.
+	target:	targets a target_changelevel that player is sent by upon stepping thru portal (some other kinds of targets I have tested crash the game).
+		0) Blue
+		1) Red
+		2) Green
+	Count:	Closes after a number of seconds. 0 means stay until triggered.
+
+*/
+/*QUAKED sound_ambient_cloudfortress (1 0 0) (-4 -4 0) (4 4 4) NON_LOCAL START_OFF
+Sound_ambient_cloudfortress:
+Style Which sound to play.
+	1 :	Cauldron bubbling (looping)
+	2 :	Wind, low, eerie (looping)
+	3 :	Wind, low, noisy (looping)
+	4 :	Wind, high, soft (looping)
+	5 :	Wind, low, soft (looping)
+	6 :	Wind, low, strong (looping)
+	7 :	Wind, high, strong (looping)
+	8 :	Wind, whistling, strong (looping)
+*/
+/*QUAKED sound_ambient_mine (1 0 0) (-4 -4 0) (4 4 4) NON_LOCAL START_OFF
+Sound_ambient_mine:
+Style Which sound to play.
+	1 :	Mud pool bubbling (looping)
+	2 :	Rocks falling (3 sounds)
+	3 :	Wind, low, eerie (looping)
+	4 :	Wind, low, soft (looping)
+	5 :	Conveyor belt (looping)
+	6 :	Bucket conveyor belt (looping)
+	7 :	Creaking timbers (3 sounds)
+  */
+/*QUAKED sound_ambient_hive (1 0 0) (-4 -4 0) (4 4 4) NON_LOCAL  START_OFF
+Sound_ambient_hive:
+Style Which sound to play.
+	1 :	Gong
+	2 :	Wind, low, eerie (looping)
+	3 :	Wind, low, noisy (looping)
+	4 :	Wind, high, soft (looping)
+	5 :	Wind, low, soft (looping)
+	6 :	Wind, low, strong (looping)
+	7 :	Wind, high, strong (looping)
+	8 :	Wind, whistling, strong (looping)
+
+*/
+/*QUAKED sound_ambient_andoria (1 0 0) (-4 -4 0) (4 4 4) NON_LOCAL  START_OFF
+Sound_ambient_andoria:
+StyleWhich sound to play.
+	1 :	small fountain (constant loop)
+	2 :	large fountain (constant loop)
+	3 :	water running out of sewer (constant loop)
+	4:	rushing waterway outside (constant loop)
+	5 :	wind chime
+
+*/
+/*QUAKED sound_ambient_swampcanyon (1 0 0) (-4 -4 0) (4 4 4) NON_LOCAL  START_OFF
+Sound_ambient_swampcanyon:
+Style Which sound to play.
+	1 :	Bird, quick, high pitch
+	2 :	Bird, low, medium pitch
+	3 :	Huge waterfall
+	4 :	Mud pool bubbling (looping)
+	5 :	Wind, low, eerie (looping)
+	6 :	Wind, low, noisy (looping)
+	7 :	Wind, high, soft (looping)
+	8 :	Wind, low, soft (looping)
+	9 :	Wind, low, strong (looping)
+	10 :	Wind, high, strong (looping)
+	11 :	Wind, whistling, strong (looping)
+
+*/
+/*QUAKED sound_ambient_silverspring (1 0 0) (-4 -4 -4) (4 4 4) NON_LOCAL  START_OFF
+Sound_ambient_silverspring:
+Style Which sound to play.
+	1 :	fire (looping)
+	2 :	water lapping (looping)
+	3 :	seagulls (2 random)
+	4 :	ocean
+	5 :	birds (10 random)
+	6 :	crickets (3 random)
+	7 :	frogs (2 random)
+	8 :	distant women/children crying (4 total)
+	9 :	mosquitoes (2 random)
+	10 :	bubbles
+	11 :	bell tolling
+	12 :	footsteps (3 random)
+	13 :	moans/screams/coughing (5 random)
+	14 :	sewer drips (3 random)
+	15 :	water drips (3 random)
+	16 :	solid heavy drips (3 random)
+	17 :	Cauldron bubbling (looping)
+	18 :	Spit turning and creaking
+
+*/
+/*QUAKED misc_remote_camera (0 0.5 0.8) (-4 -4 -4) (4 4 4) ACTIVATING SCRIPTED NO_DELETE
+Misc_remote_camera:  Not implemented yet .A camera that can look at other views besides the player. Used for showing effects to the world in other places, and for cinematics.
+Flags:
+	Activating:	Only the player who activated the camera will see the effects. (Warning: Activating and scripted doesn't work together if the script has enable cinematics.)
+	Scripted:	This is a scripted camera, using external scripts.
+	No_delete:	Doesn't delete the camera after using it.
+Keys:
+	Pathtarget:	Use this if you want cameras to move. Create a func_train, and set up path corners so that it will move where you want the camera to move. Set the camera in the same place as the train, and give the train a targetname the same as the camera's pathtarget. When the camera is activated, activate the train also, and the camera will move.
+	Target:	What the camera itself is looking at. The target can be an info_notnull for static cameras, or a func_train or func_door for moving targets.
+
+*/
+/*QUAKED misc_fire_sparker (0 0 0) (-4 -4 0) (4 4 8) FIREBALL
+Misc_fire_sparker:  Creates sparks.
+Flags:
+	Fireball:	More like a fireball than sparks
+Keys:
+	Delay:	How long to stay (default is always).
+
+*/
+/*QUAKED monster_tcheckrik_mothers (1 .5 0) (-40 -40 -75) (40 40 75)
+Monster_tchekrik_mother:  Insect breeders in the High Priestess level. They don't actually have any attacks or movement, they're just big and ugly.
+
+model="models/monsters/mother/tris.fm"   */
+/*QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) START_OFF
+Light:  The workhorse of lighting. It doesn't show up in the game, but you can see its effects.
+Flags:
+	Start off:	The light will start off and turn on when triggered.
+Keys:
+	Light:	The value of the light. Default is 300.
+	Style:	A dynamic light style. Default is 0; there are 11 styles.
+	Cone:	Changes the cone of light. Default is 10. Use with spotlights, meaning the light targets an info_null.
+	Color:	The RGB value of a light.
+
+*/
+/*QUAKED env_fire (1 .5 0) (0 -10 -24) (20 10 0)  INVULNERABLE ANIMATE EXPLODING  FIRE_OFF MOVEABLE LIGHT_ON
+Env_fire:  An awesome particle fire. The first three flags don't do anything.
+Flags:
+	Fire_off:	Start the fire off. Fire is triggerable.
+	Moveable:	If set, the fire will move at a set velocity.
+	Light_On:	If set, the fire will cast light.
+Keys:
+	Scale:	Make the fire bigger or smaller. (Default is campfire size); 1) (Max is 8)
+
+*/
+/*QUAKED light_walltorch (1 .5 0) (-16 -10 -12) (10 10 12)  INVULNERABLE ANIMATE EXPLODING STARTOFF
+Light_walltorch:  A torch sconce similar in style to floortorch.
+Addtional Flags:
+	Animate:	Places a flame in the torch.
+
+model="models/objects/lights/walltorch/tris.fm"   */
+/*QUAKED light_floortorch (1 .5 0) (-14 -14 -17) (14 14 17)  INVULNERABLE ANIMATE EXPLODING STARTOFF
+Light_floortorch:  A torch holder that sits on the floor.
+Addtional Flags:
+	Animate:	Sets a flame on top.
+
+model="models/objects/lights/floortorch/tris.fm"   */
+/*QUAKED light_torch1 (1 .5 0) (-4 -6 -5) (6 6 20)  INVULNERABLE  ANIMATE   EXPLODING  STARTOFF  NOHALO
+Light_torch1:  A torch sconce with a gem for Andoria.
+Addtional Flags:
+	No_Halo:	Turns off the halo effect.
+
+model="models/objects/lights/sinkcity/light-3/tris.fm"   */
+/*QUAKED light_gem2 (1 .5 0) (-1 -6 -8) (4 6 8)  INVULNERABLE  ANIMATE   EXPLODING  STARTOFF  NOHALO
+Light_gem2:  A gem light for Andoria.
+Addtional Flags:
+	No_Halo:	Turns off the halo effect.
+Keys:
+	Style:	Change the gem from yellow to green.
+		0) Yellow
+		1) Green
+
+model="models/objects/lights/sinkcity/light-2/tris.fm"   */
+/*QUAKED light_chandelier1 (1 .5 0) (-36 -36 -43) (34 34 43)  INVULNERABLE ANIMATE EXPLODING STARTOFF
+Light_chandelier1:  A big gold chandelier for the Palace.
+
+model="models/objects/chandelier/chan1/tris.fm"   */
+/*QUAKED light_chandelier2 (1 .5 0) (-18 -18 -40) (18 18 40)  INVULNERABLE ANIMATE EXPLODING  STARTOFF
+Light_chandelier2:  An iron chandelier.
+Addtional Flags:
+	Animate:	Causes flames to animate.
+
+model="models/objects/chandelier/chan2/tris.fm"   */
+/*QUAKED light_chandelier3 (1 .5 0) (-34 -34 -80) (34 34 0)  INVULNERABLE ANIMATE EXPLODING STARTOFF
+Light_chandelier3:  A smaller gold chandelier.
+
+model="models/objects/chandelier/chan3/tris.fm"   */
+/*QUAKED light_lantern1 (1 .5 0) (-28 -8 -22) (4 8 22)  INVULNERABLE ANIMATE EXPLODING STARTOFF  NOHALO
+Light_lantern1:  A lantern on a wooden arm for Silverspring.
+Addtional Flags:
+	No_Halo:	Turns off the halo effect.
+
+model="models/objects/lights/lantern-1/tris.fm"   */
+/*QUAKED light_lantern2 (1 .5 0) (-6 -6 -24) (6 6 40)  INVULNERABLE ANIMATE EXPLODING STARTOFF  NOHALO
+Light_lantern2:  A lantern on a long chain for Silverspring.
+Addtional Flags:
+	No_Halo:	Turns off the halo effect.
+
+model="models/objects/lights/lantern-2/tris.fm"   */
+/*QUAKED light_lantern3 (1 .5 0) (-6 -6 -12) (6 6 11)  INVULNERABLE ANIMATE EXPLODING STARTOFF  NOHALO
+Light_lantern3:  A ceiling lantern for Silverspring.
+Addtional Flags:
+	No_Halo:	Turns off the halo effect.
+
+model="models/objects/lights/lantern-3/tris.fm"   */
+/*QUAKED light_lantern4 (1 .5 0) (-18 -7 -7) (7 7 14)  INVULNERABLE ANIMATE EXPLODING STARTOFF  NOHALO
+Light_lantern4:  A wall lantern for the Mines.
+Addtional Flags:
+	No_Halo:	Turns off the halo effect.
+
+model="models/objects/lights/lantern-4/tris.fm"   */
+/*QUAKED light_lantern5 (1 .5 0) (-7 -7 -7) (7 7 14)  INVULNERABLE ANIMATE EXPLODING STARTOFF NOHALO
+Light_lantern5:  A lantern for tables and floors for the Mines.
+Addtional Flags:
+	No_Halo:	Turns off the halo effect.
+
+model="models/objects/lights/lantern-4/tris.fm"   */
+/*QUAKED light_buglight (1 .5 0) (-7 -7 -7) (7 7 25)  INVULNERABLE ANIMATE EXPLODING STARTOFF NOHALO
+Light_buglight:  A light for the hive levels.
+Addtional Flags:
+	No_Halo:	Turns off the halo effect.
+
+model="models/objects/lights/bug/tris.fm"   */
+/*QUAKED env_sun1 (1 .5 0) (-12 -12 0) (12 12 38) INVULNERABLE ANIMATE  EXPLODING
+Env_sun1:  Put this anywhere in a level, and when you look at the sky you'll get a double lens flare for Parthoris' two suns. Don't use at night!
+
+*/
+/*QUAKED obj_rope (.3 .2 .8) ? VINE CHAIN TENDRIL HANGING_CHICKEN
+Obj_rope:  Something to swing on, defaults to rope if no flag specified. To make a rope, create an origin brush at the top of a brush that is the length of the desired rope. Select both and create obj_rope. If origin brush is not near top of rope brush, display of rope will be erratic.
+Flags:
+	VINE
+	CHAIN
+	TENDRIL
+	HANGING_CHICKEN
+
+*/
+/*QUAKED character_highpriestess2(1 .5 0) (-24 -24 -36) (24 24 36)  INVISIBLE
+Character_highpriestess2:  The Priestess part 2.
+
+model="models/monsters/highpriestess/pod_scene/tris.fm"   */
+/*QUAKED monster_seraph_guard(1 .5 0) (-24 -24 -34) (24 24 34) AMBUSH ASLEEP GOLEM 8 16 32 64 FIXED WANDER MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_seraph_guard:  The big guards in the MinesCloud Fortress.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Golem:	The guards that come to life in Morcalavin's chamber.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+Keys:
+	Mintel:	Default 20.
+	Melee_Range:	Default 100.
+	Missile_Range:	Default 0.
+	Min_Missile_Range:	Default 0.
+	Jump_Chance:	Default 20.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/guard/tris.fm"   */
+/*QUAKED monster_high_priestess (1 .5 0) (-24 -24 0) (24 24 72)
+Monster_high_priestess:  The boss in the Hive High Priestess level.
+
+model="models/monsters/highpriestess/tris.fm"  */
+/*QUAKED character_elflord (1 .5 0) (-24 -24 -78) (24 24 16) INVISIBLE
+Character_elflord:  The Celestial Watcher in the Silverspring Palace.
+
+model="models/player/c_watcher/tris.fm"   */
+/*QUAKED trigger_fogdensity (.5 .5 .5) ?
+Trigger_fogdensity:  Changes the density of fog as you progress through a level. Doesn't work in software.
+Keys:
+	Target:	A number between .01 and .0001 that changes the density.
+	Color:	RGB values (0 0 0). Range is 0.0 to 1.0. Not implemented, as it won't work on Voodoo1 or software..
+
+*/
+/*QUAKED trigger_push (.5 .5 .5) ? FORCE_ONCE
+Trigger_push:  Pushes the player in a direction.
+Flags:
+	Force_Once:	Pushes the player one time then removes itself.
+Keys:
+	Speed:	The speed the player is pushed at. Default is 500.
+	Angle:	The angle the player is pushed in the XY plane.
+	Zangle:	The direction in Z to push the player. 0 is straight up, 180 is straight down. Default is 0, so zangle must be set to 90 if only XY movement is desired.
+
+*/
+/*QUAKED trigger_Damage (.5 .5 .5) ? START_OFF TOGGLE SILENT NO_PROTECTION SLOW
+Trigger_Damage:  Does damage to an entity when it touches this trigger.
+Flags:
+	Start_Off:	Must be triggered to work.
+	Toggle:	Can be turned on and off.
+	Silent:	Will not play a sound when triggered.
+	No_Protection:	Nothing will stop the entity from taking damage.
+	Slow:	Does one point of damage per second.
+Keys:
+	Dmg:	The amount of damage per second. Default is 5.
+
+*/
+/*QUAKED trigger_Gravity (.5 .5 .5) ?
+Trigger_Gravity:  Was supposed to change the gravity of a level when this is triggered, but actually just seems to keep the map from loading (not used in Raven maps). You can however use the gravity key of the worldspawn entity to set gravity for the level (but it can't be changed in-play).
+Keys:
+	Gravity:	Change gravity value for a level. Default is 1.0.
+
+*/
+/*QUAKED trigger_MonsterJump (.5 .5 .5) ?
+Trigger_MonsterJump:  A monster that walks into this trigger will jump in the direction of the angle.
+Keys:
+	Angle:	The direction the monster will jump when he hits the trigger.
+	Speed:	The speed the monster is thrown forward at. Default is 200.
+	Height:	The height the monster is thrown up. Default is 200.
+
+*/
+/*QUAKED trigger_goto_buoy (.5 .5 .5) ? Touch IgnoreEnemy TeleportSafe TeleportUnSafe FIXED STAND WANDER
+Trigger_goto_buoy:  A monster that touches this trigger or is targeted by it will go to a buoy named.
+Flags:
+	Touch:	Allows the monster to touch it.
+	IgnoreEnemy:	Will totally ignore player to get to its buoy.
+	TeleportSafe:	Will teleport monster to the buoy if the player can't see the monster, and the buoy is clear.
+	TeleportUnsafe:	Will teleport monster to the buoy, but doesn't care if the player can see. Used for assassin, since it teleports anyways.
+	Fixed:	Monster will become fixed when it gets to the target buoy.
+	Stand:	Monster will forget enemies when it gets to buoy and return to idle state.
+	Wander:	Monster will wander around when it gets to the target buoy.
+Keys:
+	Pathtarget:	Targetname of buoy the monster should go to.
+	Delay:	Waits some time before firing after activation.
+	Wait:	The amount of time between triggerings.
+
+*/
+/*QUAKED shrine_heal (.5 .3 .5) ? PERMANENT
+*/
+/*QUAKED shrine_armor (.5 .3 .5) ? PERMANENT
+*/
+/*QUAKED shrine_armor_gold (.5 .3 .5) ? PERMANENT
+*/
+/*QUAKED shrine_staff (.5 .3 .5) ? PERMANENT
+*/
+/*QUAKED shrine_lung (.5 .3 .5) ? PERMANENT
+*/
+/*QUAKED shrine_light (.5 .3 .5) ? PERMANENT
+ */
+/*QUAKED shrine_mana (.5 .3 .5) ? PERMANENT
+*/
+/*QUAKED shrine_ghost (.5 .3 .5) ? PERMANENT
+*/
+/*QUAKED shrine_reflect (.5 .3 .5) ? PERMANENT
+*/
+/*QUAKED shrine_powerup (.5 .3 .5) ? PERMANENT
+*/
+/*QUAKED shrine_speed (.5 .3 .5) ? PERMANENT
+*/
+/*QUAKED shrine_random (.5 .3 .5) ? PERMANENT
+*/
+/*QUAKED monster_tcheckrik_male (1 .5 0) (-16 -16 -32) (16 16 32) AMBUSH ASLEEP WALKING CINEMATIC BEAST_FODDER YELLOWJACKET 64 FIXED WANDER LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_tcheckrik_male:  The insects in the Hive.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Walking:	Not used.
+	Cinematic:	Puts the tchekrik male in cinematic mode.
+	Beast_fodder:	Runs away if the trial beast is in the same area.
+	Yellowjacket:	Uses different skin and shoots different projectile.
+	Fixed:	Will stay in a fixed location and never move.
+	Wander:	Will wander around the level following buoys.
+	Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+Keys:
+	Mintel:	Default 32.
+	Melee_Range:	Default 30.
+	Missile_Range:	Default 512.
+	Min_Missile_Range:	Default 48.
+	Jump_Chance:	Default 40.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/Tcheckrik/male/tris.fm"   */
+/*QUAKED monster_tcheckrik_female (1 .5 0) (-16 -16 -32) (16 16 32) AMBUSH ASLEEP WALKING CINEMATIC 16 ALTERNATE 64 FIXED WANDER MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_tcheckrik_female:  The female, spell-casting insects in the Hive.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Walking:	Not used.
+	Cinematic:	Not used.
+	Alternate:	Uses different projectile.
+	Fixed:	Will stay in a fixed location and never move.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+Keys:
+	Mintel:	Default 32.
+	Melee_Range:	Default 72.
+	Missile_Range:	Default 512.
+	Min_Missile_Range:	Default 48.
+	Jump_Chance:	Default 40.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/Tcheckrik/male/tris.fm"   */
+/*QUAKED monster_seraph_overlord(1 .5 0) (-24 -24 -34) (24 24 34) AMBUSH ASLEEP 4 8 16 32 64 FIXED WANDER MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_seraph_overlord:  The same race as the guards, in the Cloud and Mine levels.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+Keys:
+	Mintel:	Default 24.
+	Melee_Range:	Default 100.
+	Missile_Range:	Default 0.
+	Min_Missile_Range:	Default 0.
+	Jump_Chance:	Default 30.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/overlord/tris.fm"   */
+/*QUAKED character_siernan1 (1 .5 0) (-10 -10 -20) (10 10 20) INVISIBLE x LEANING
+Character_siernan1:  Siernan is a Ssithra found in the Andoria Healer's Tower.
+
+model="models/monsters/siernan/standing/tris.fm"   */
+/*QUAKED character_siernan2 (1 .5 0) (-17 -25 0) (22 12 16) INVISIBLE
+Character_siernan2:  Siernan, part2.
+
+model="models/monsters/siernan/laying/tris.fm"   */
+/*QUAKED monster_spreader (1 .5 0) (-16 -16 -0) (16 16 32) AMBUSH ASLEEP WALKING 8 16 32 64 FIXED WANDER MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_spreader:  The plague spreaders created by Morcalavin.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Walking:	Not used.
+	Fixed:	Will stay in a fixed location and never move.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+Keys:
+	Mintel:	Default 24.
+	Melee_Range:	Default 100.
+	Missile_Range:	Default 512.
+	Min_Missile_Range:	Default 200.
+	Jump_Chance:	Default 30.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/spreader/tris.fm"   */
+/*QUAKED flamethrower (.5 .5 .5) ? STEAM MONSTERTOUCH
+Flamethrower:  Creates a flamethrower. Works just like the rope. Make a brush with an origin brush. Grab them both and make the entity. Give it an angle, and the flame will start at the origin and fire in the direction of the angle. when triggered with trigger_flamethrower.
+Flags:
+	Steam:	Sprays steam instead of fire.
+Keys:
+	Dmg:	Damage per frame [1/10 of a second] (Default 1)
+	Wait:	Amount of time between bursts Default is 2. -1 signifys toggled effect.
+	Angles:	Direction for the effect.
+	Speed:	Speed of the burst. Default is 400.
+
+*/
+/*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
+Info_player_start:  A player start for a single player game. A startspot can have a targetname if a level has multiple startspots (hub).
+
+*/
+/*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32)
+Info_player_deathmatch:  A player start for a deathmatch game.
+
+*/
+/*QUAKED info_player_coop (1 0 1) (-16 -16 -24) (16 16 32)
+Info_player_coop:  A player start for a coop game. Heretic II supports four coop players per level. A startspot can have a targetname if a level has multiple startspots (hub).
+
+*/
+/*QUAKED info_player_intermission (1 0 1) (-16 -16 -24) (16 16 32)
+*/
+/*QUAKED character_morcalavin (1 .5 0) (-24 -24 -50) (24 24 50) INVISIBLE
+Character_morcalavin:  Morcalavin is the big guy used in the Inner Sanctum.
+
+model="models/monsters/morcalavin/cinematic/tris.fm"   */
+/*QUAKED monster_chicken (1 .5 0) (-16 -16 -0) (16 16 32) AMBUSH ASLEEP EATING
+Monster_chicken:  You know what this is. But doesn't work as a placeable monster.
+
+model="models/monsters/chicken2/tris.fm"   */
+/*QUAKED breakable_brush (1 .5 0) ? KILLALL NOLINK ORDERED TRANSLUCENT INVULNERABLE INVISIBLE PUSHPULL NOTPLAYERDAMAGE
+Breakable_Brush:
+Flags:
+	Kill All:	This flag will cause the breakable brush to kill other brush entities it is touching when it is triggered.
+	No Link:	This flag will allow the brush to touch another brush with Kill All set and not be affected by it.
+	Ordered:	This is left over from Hexen 2. Not sure. It was a way that breakable brushes could be set, but it was replaced by targeting. In other words, it doesn't work.
+	Translucent:	Doesn't work.
+	Invulnerable:	The character cannot break the brush; it can only break by being triggered.
+	Invisible:	The brush doesn't draw.
+	PushPull:	Not used.
+	NotPlayerDamage:	Players cannot damage this brush.
+Keys:
+	Angle:	No function, really, as you don't rotate these like other entities.
+	Health:	Setting this will let it take a number of HP is in damage before being destroyed.
+	Materialtype:	This is what type of chunks are spawned when the brush is broken.
+		0 = WoodStone
+		1 = Grey Stone (default)
+		2 = Cloth
+		3 = Metal
+		4 = Flesh
+		5 = Pottery
+		6 = Glass
+		7 = Leaf
+		8 = Wood
+		9 = Brown Stone
+		10 = None - just makes smoke
+
+*/
+/*QUAKED character_dranor (1 .5 0) (-17 -25 -32) (22 12 32)  INVISIBLE
+Character_dranor:  Dranor is the elf found in the Silverspring Docks.
+
+model="models/monsters/plaguelf/dranor/tris.fm"   */
+/*QUAKED monster_ssithra (1 .5 0) (-16 -16 -32) (16 16 26) AMBUSH ASLEEP 4 Namor Spin ToughGuy Clothed FIXED WANDER MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_ssithra:  An aquatic race in Andoria.
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Namor:	Will go for water whenever possible.
+	Spin:	Not sure.
+	ToughGuy:	A bit tougher than a normal Ssithra.
+	Fixed:	Will stay in a fixed location and never move.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+Keys:
+	Mintel:	Default 28.
+	Melee_Range:	Default 48.
+	Missile_Range:	Default 512.
+	Min_Missile_Range:	Default 48.
+	Jump_Chance:	Default 100.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/ssithra/tris.fm"   */
+/*QUAKED obj_corpse_ssithra (1 .5 0) (-30 -12 -2) (30 12 2) INVULNERABLE ANIMATE EXPLODING NOPUSH
+Obj_corpse_ssithra:
+Has key value style. Default is 0.
+	0) Damage skin
+	1) Not used
+	2) Normal skin
+
+model="models/monsters/ssithra/tris.fm"   */
+/*QUAKED monster_gorgon_leader (1 .5 0) (-16 -16 -0) (16 16 32) AMBUSH ASLEEP EATING 8 16 32 64 128
+Monster_gorgon_leader:  The leader of the gorgon's pack. No longer used.
+
+model="models/monsters/gorgon/tris.fm"   */
+/*QUAKED monster_gorgon (1 .5 0) (-16 -16 0) (16 16 32) AMBUSH ASLEEP EATING SPEEDY 16 32 64 128 WANDER MELEE_LEAD STALK COWARD EXTRA1 EXTRA2 EXTRA3 EXTRA4
+Monster_gorgon:  A dinosaur.
+	:
+Flags:
+	Ambush:	Will only wakeup by sight not sound.
+	Asleep:	Will not appear until triggered. Trigger them when the player can't see them.
+	Eating:	Will look like it's eating something. Changes wakeup_distance to 300.
+	Speedy:	A fast gorgon.
+	Wander:	Will wander around the level following buoys.
+	Melee_Lead:	Will try to cut you off from the front. Best used in groups.
+	Stalk:	Will only try and attack from behind.
+	Coward:	Will run away when player gets close.
+Keys:
+	Mintel:	Default 20.
+	Melee_Range:	Default 48.
+	Missile_Range:	Default 0.
+	Min_Missile_Range:	Default 0.
+	Jump_Chance:	Default 80.
+	Wakeup_Distance:	Default 1024.
+
+model="models/monsters/gorgon/tris.fm"   */
+/*QUAKED worldspawn (0 0 0) ? NOBODIES
+Worldspawn:  This is not actually an entity, but it is any scripting associated with the world itself. It will know which CD track to play and which sky to use.
+Flags:
+	Nobodies:	In DM, no bodies will stay when they die.
+Keys:
+	Sounds:	The CD track to play.
+	Sky:	The sky to use.
+	:	Sky1 Andoria - Night Silverspring skySky for andoria levels.
+	:	Desert - Sky for Canyon level.
+	:	Hive - Sky for Hive levels.
+	:	Sky1 - Sky for Silverspring docks.
+	:	Sky2 - Day skyStorm - Sky for Cloud Fortress.
+	:	Sky3 Swamp - Andoria Day skySky for Swamp and Andslums
+	:	Town - Sky for Silverspring levels.
+	Skyaxis:	Rotates the sky about an axis
+	Skyrotate:	Speed of rotation of the sky. Measured in degrees per second, and used with skyaxis.
+	Gravity:	The gravity of a level. The default is 800.
+	Message:	Text that prints in the console upon loading the level.
+	Skinnum:	Plague skin for Corvus in single player. 0 is normal, 1 is plagued, and 2 is really plagued.
+	Cooptimeout:	Sets a wait in seconds to allow all co-op players to join. This is useful if a cinematic is at the beginning of the level.
+	Offensive:	Starting weapons for co-op. Add together for combinations of weapons.
+	1:	Swordstaff
+	2:	Fireball
+	4:	Hellstaff
+	8:	Magic Missile
+	16:	Storm Bow
+	32:	Sphere of Annihilation
+	64:	Phoenix Bow
+	128:	Mace Ball
+	8192:	Firewall
+	Defensive:	Starting defensive spells for co-op. Add together for combinations.
+	1:	Ring of Repulsion
+	2:	Lightning Shield
+	4:	Teleport
+	8:	Morph Ovum
+	16 :	Meteor Barrier
+
+*/

@@ -6,7 +6,7 @@
 "_keeplights" "1"
 "_lightmapscale" "0.1"
 "_ambient" "0"
-"gridsize" "8 8 16"
+"gridsize" "4 4 8"
 "_tb_mod" "textures"
 // brush 0
 {
@@ -1706,17 +1706,17 @@
 {
 "classname" "light"
 "origin" "-256 -112 128"
-"light" "200"
+"light" "300"
 "_color" "1 0 0"
-"radius" "128"
+"radius" "256"
 }
 // entity 68
 {
 "classname" "light"
 "origin" "-256 176 128"
-"light" "200"
+"light" "300"
 "_color" "0 0.0156863 1"
-"radius" "128"
+"radius" "256"
 }
 // entity 69
 {

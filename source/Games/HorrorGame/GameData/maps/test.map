@@ -6,7 +6,7 @@
 "_keeplights" "1"
 "_lightmapscale" "0.1"
 "_ambient" "0"
-"gridsize" "8 8 16"
+"gridsize" "16 16 32"
 "_tb_mod" "textures"
 // brush 0
 {

@@ -21,7 +21,7 @@ public:
 
 		printf("world spawn created\n");
 
-		CQuake3BSP::lightVolGridSize = data.GetPropertyVector("gridsize", vec3(64, 64, 128));
+		CQuake3BSP::lightVolGridSize = data.GetPropertyVector("gridsize", vec3(32, 32, 64));
 
 	}
 

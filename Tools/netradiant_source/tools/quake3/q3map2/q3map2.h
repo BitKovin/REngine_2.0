@@ -198,7 +198,7 @@ inline bool style_is_valid( int style ){ return LS_NORMAL <= style && style < LS
 #define MAX_MAP_LEAFS           0x20000
 #define MAX_MAP_PORTALS         0x20000
 #define MAX_MAP_LIGHTING        0x800000
-#define MAX_MAP_LIGHTGRID       0x100000    //%	0x800000 /* ydnar: set to points, not bytes */
+#define MAX_MAP_LIGHTGRID       0x500000    //%	0x800000 /* ydnar: set to points, not bytes */
 #define MAX_MAP_VISCLUSTERS     0x4000 // <= MAX_MAP_LEAFS
 #define MAX_MAP_VISIBILITY      ( VIS_HEADER_SIZE + MAX_MAP_VISCLUSTERS * ( ( ( MAX_MAP_VISCLUSTERS + 63 ) & ~63 ) >> 3 ) )
 
@@ -2077,7 +2077,7 @@ inline int numVertsIlluminated;
 /* lightgrid */
 inline Vector3 gridMins;
 inline int gridBounds[ 3 ];
-inline Vector3 gridSize = { 64, 64, 128 };
+inline Vector3 gridSize = { 32, 32, 64 };
 
 
 

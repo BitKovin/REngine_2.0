@@ -1740,7 +1740,7 @@ static void SetupGrid(){
 
 		/* increase grid size a bit */
 		if ( num > MAX_MAP_LIGHTGRID ) {
-			gridSize[ j++ % 3 ] += 16.0f;
+			gridSize[ j++ % 3 ] += 2.0f;
 		}
 		else{
 			/* set grid size */

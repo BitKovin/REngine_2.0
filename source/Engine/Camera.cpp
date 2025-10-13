@@ -6,7 +6,6 @@
 #include <SDL2/SDL_video.h>
 
 
-    // Define static members (one definition per static member)
     float Camera::AspectRatio = 1.7777f;
     vec3 Camera::position = vec3(0.0f);
     vec3 Camera::rotation = vec3(45.0f, 0.0f, 0.0f);
@@ -23,7 +22,7 @@
     vec3 Camera::finalizedPosition = vec3(0.0f);
     vec3 Camera::finalizedRotation = vec3(0.0f);
     Frustum Camera::frustum = Frustum(mat4(1.0f), vec3(0));
-    float Camera::FOV = 80.0f;
+    float Camera::FOV = 75.0f;
     float Camera::ViewmodelFOV = 60.0f;
     float Camera::FarPlane = 3000.0f;
 

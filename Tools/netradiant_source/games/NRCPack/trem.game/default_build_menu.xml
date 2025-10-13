@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!--
+Build commands for Tremulous maps
+
+[RadiantPath]: path to GtkRadiant/NetRadiant
+[EnginePath]: path to the Tremulous game data
+-->
+
+<project version="2.0">
+<var name="q3map2">"[RadiantPath]q3map2.[ExecutableType]" -v<cond value="[MonitorAddress]"> -connect [MonitorAddress]</cond> -game tremulous -fs_basepath "[EnginePath]"<cond value="[GameName]"> -fs_game [GameName]</cond></var>
+
+<build name="build without visibility and lights">
+<command>[q3map2] -meta -custinfoparms "[MapFile]"</command>
+</build>
+
+<build name="build without lights">
+<command>[q3map2] -meta -custinfoparms "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+</build>
+
+<build name="build with test settings (fast)">
+<command>[q3map2] -meta -custinfoparms "[MapFile]"</command>
+<command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -faster -patchshadows "[MapFile]"</command>
+</build>
+
+<build name="build with test settings (normal)">
+<command>[q3map2] -meta -custinfoparms "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -faster -patchshadows "[MapFile]"</command>
+</build>
+
+<build name="build with test settings (slow)">
+<command>[q3map2] -meta -custinfoparms -samplesize 16 "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -faster -dirty -patchshadows -samples 2 "[MapFile]"</command>
+</build>
+
+<build name="build with final settings (very slow)">
+<command>[q3map2] -meta -custinfoparms -samplesize 8 "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -fast -shade -dirty -patchshadows -samples 3 -bouncegrid -bounce 6 "[MapFile]"</command>
+</build>
+
+<build name="minimap (small)">
+<command>[q3map2] -minimap  -size 256 -sharpen 1 -border 0 "[MapFile]"</command>
+</build>
+
+</project>

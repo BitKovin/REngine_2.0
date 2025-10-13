@@ -14,6 +14,6 @@ tools/quake3/q3map2/image.o: tools/quake3/q3map2/image.cpp \
  libs/stream/textstream.h include/itextstream.h libs/generic/static.h \
  libs/stream/stringstream.h tools/quake3/common/bitflags.h \
  tools/quake3/common/maxworld.h tools/quake3/q3map2/games.h \
- D:/msys64/mingw64/include/libpng16/png.h \
- D:/msys64/mingw64/include/libpng16/pnglibconf.h \
- D:/msys64/mingw64/include/libpng16/pngconf.h libs/ddslib.h
+ C:/msys64/mingw64/include/libpng16/png.h \
+ C:/msys64/mingw64/include/libpng16/pnglibconf.h \
+ C:/msys64/mingw64/include/libpng16/pngconf.h libs/ddslib.h

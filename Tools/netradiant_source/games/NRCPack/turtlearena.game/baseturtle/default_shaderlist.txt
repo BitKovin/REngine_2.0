@@ -1,0 +1,27 @@
+// Non-texture shader list
+se_gfx
+se_icons
+se_menu
+se_models
+se_powerups
+se_sprites
+se_teams
+se_ui
+
+// Texture shaders
+tex_base_floor
+tex_base_light
+tex_base_wall
+tex_city
+tex_common
+tex_ctf2
+tex_fog
+tex_liquid
+tex_plants
+tex_sfx
+tex_singleplayer
+tex_skies
+tex_tech
+tex_terrain
+tex_video
+

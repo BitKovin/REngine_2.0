@@ -664,9 +664,8 @@ std::vector<uint32_t> CQuake3BSP::GetFaceIndices(int faceId)
     return Rbuffers.v_faceIDXs[faceId];
 }
 
-LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, bool wallCheck)
+LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, bool wallCheck) 
 {
-
     if (lightVols.size() == 0)
     {
         return { vec3(0), vec3(0.3f), vec3(0,-1,0) };
@@ -718,7 +717,6 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
     // Fetch light volumes at the eight corners
     auto getLightVolData = [&](int x, int y, int z) -> std::tuple<glm::vec3, glm::vec3, glm::vec3> {
         int index = z * (lightVolGridDims.x * lightVolGridDims.y) + y * lightVolGridDims.x + x;
-
         const tBSPLightvol& vol = lightVols[index];
         glm::vec3 ambient(
             static_cast<float>(vol.ambient[0]) / 255.0f,
@@ -743,15 +741,15 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
     auto [amb011, dir011, vec011] = getLightVolData(nx0, ny1, nz1);
     auto [amb111, dir111, vec111] = getLightVolData(nx1, ny1, nz1);
 
-    // Validity checks (scale to world units)
-    bool valid000 = true;// FindClusterAtPosition(getGridEnginePos(nx0, ny0, nz0) / MAP_SCALE) >= 0;
-    bool valid100 = true;// FindClusterAtPosition(getGridEnginePos(nx1, ny0, nz0) / MAP_SCALE) >= 0;
-    bool valid010 = true;// FindClusterAtPosition(getGridEnginePos(nx0, ny1, nz0) / MAP_SCALE) >= 0;
-    bool valid110 = true;// FindClusterAtPosition(getGridEnginePos(nx1, ny1, nz0) / MAP_SCALE) >= 0;
-    bool valid001 = true;// FindClusterAtPosition(getGridEnginePos(nx0, ny0, nz1) / MAP_SCALE) >= 0;
-    bool valid101 = true;// FindClusterAtPosition(getGridEnginePos(nx1, ny0, nz1) / MAP_SCALE) >= 0;
-    bool valid011 = true;// FindClusterAtPosition(getGridEnginePos(nx0, ny1, nz1) / MAP_SCALE) >= 0;
-    bool valid111 = true;// FindClusterAtPosition(getGridEnginePos(nx1, ny1, nz1) / MAP_SCALE) >= 0;
+    // Validity checks (scale to world units) for the 8 corners
+    bool valid000 = true;
+    bool valid100 = true;
+    bool valid010 = true;
+    bool valid110 = true;
+    bool valid001 = true;
+    bool valid101 = true;
+    bool valid011 = true;
+    bool valid111 = true;
 
     if (wallCheck)
     {
@@ -764,7 +762,6 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
         valid011 = FindClusterAtPosition(getGridEnginePos(nx0, ny1, nz1) / MAP_SCALE) >= 0;
         valid111 = FindClusterAtPosition(getGridEnginePos(nx1, ny1, nz1) / MAP_SCALE) >= 0;
     }
-
 
     // Define data and weights
     struct LightData { glm::vec3 amb, dir_color, dir_vec; };
@@ -809,15 +806,85 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
         directional = sum_dir_color / total_weight;
         dir_engine = glm::normalize(sum_dir_vec / total_weight);
     }
-    else {
-        // Default if no valid samples
-        ambient = vec3(0.3f);
-        directional = vec3(0);
-        dir_engine = vec3(0, -1, 0);
+    else
+    {
+        // --- Fallback search: find nearest sample within a radius (engine units) ---
+        const float SEARCH_RADIUS = 128; // engine units; change to fit your scale
+        const float SEARCH_RADIUS_SQR = SEARCH_RADIUS * SEARCH_RADIUS;
+
+        // Convert radius to number of grid steps in each axis (safe integer radius)
+        int rx = static_cast<int>(std::ceil(SEARCH_RADIUS / lightVolGridSize.x));
+        int ry = static_cast<int>(std::ceil(SEARCH_RADIUS / lightVolGridSize.y));
+        int rz = static_cast<int>(std::ceil(SEARCH_RADIUS / lightVolGridSize.z));
+
+        // Use clamped center index as search center
+        int cx = glm::clamp(nx, 0, lightVolGridDims.x - 1);
+        int cy = glm::clamp(ny, 0, lightVolGridDims.y - 1);
+        int cz = glm::clamp(nz, 0, lightVolGridDims.z - 1);
+
+        int bestIdx = -1;
+        float bestDist2 = std::numeric_limits<float>::max();
+        LightData bestData{ glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f) };
+
+        // iterate within bounding box around center, clamped to grid extents
+        int x0 = glm::max(0, cx - rx), x1 = glm::min(lightVolGridDims.x - 1, cx + rx);
+        int y0 = glm::max(0, cy - ry), y1 = glm::min(lightVolGridDims.y - 1, cy + ry);
+        int z0 = glm::max(0, cz - rz), z1 = glm::min(lightVolGridDims.z - 1, cz + rz);
+
+        for (int z = z0; z <= z1; ++z) {
+            for (int y = y0; y <= y1; ++y) {
+                for (int x = x0; x <= x1; ++x) {
+                    glm::vec3 engPos = getGridEnginePos(x, y, z);
+                    float d2 = glm::distance2(position, engPos);
+                    if (d2 > SEARCH_RADIUS_SQR) continue; // outside radius
+
+                    // Respect wallCheck: if requested, require cluster check to pass
+                    if (wallCheck) {
+                        if (FindClusterAtPosition(engPos / MAP_SCALE) < 0) continue;
+                    }
+
+                    // Get sample data
+                    int index = z * (lightVolGridDims.x * lightVolGridDims.y) + y * lightVolGridDims.x + x;
+                    const tBSPLightvol& vol = lightVols[index];
+                    LightData ld{
+                        glm::vec3(static_cast<float>(vol.ambient[0]) / 255.0f,
+                                  static_cast<float>(vol.ambient[1]) / 255.0f,
+                                  static_cast<float>(vol.ambient[2]) / 255.0f),
+                        glm::vec3(static_cast<float>(vol.directional[0]) / 255.0f,
+                                  static_cast<float>(vol.directional[1]) / 255.0f,
+                                  static_cast<float>(vol.directional[2]) / 255.0f),
+                        computeLightDirection(vol.dir)
+                    };
+
+                    if (d2 < bestDist2) {
+                        bestDist2 = d2;
+                        bestData = ld;
+                        bestIdx = index;
+                    }
+                }
+            }
+        }
+
+        if (bestIdx >= 0) {
+            ambient = bestData.amb;
+            directional = bestData.dir_color;
+            if (glm::length2(bestData.dir_vec) > 1e-6f)
+                dir_engine = glm::normalize(bestData.dir_vec);
+            else
+                dir_engine = glm::vec3(0, -1, 0);
+        }
+        else {
+            // Final fallback when nothing found in radius
+            ambient = vec3(0.3f);
+            directional = vec3(0);
+            dir_engine = vec3(0, -1, 0);
+        }
     }
 
     return LightVolPointData{ directional, ambient, dir_engine };
 }
+
+
 
 LightVolPointData CQuake3BSP::GetLightvolColor(const glm::vec3& position, bool wallCheck)
 {

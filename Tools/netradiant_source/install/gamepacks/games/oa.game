@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<game
+  type="q3"
+  index="1"
+  name="Open Arena"
+  enginepath_win32="C:/Program Files/OpenArena/"
+  enginepath_linux="/usr/local/games/openarena/"
+  enginepath_macos="/Applications/OpenArena/"
+  engine_win32="openarena.exe"
+  engine_linux="openarena.x86"
+  engine_macos="OpenArena.app"
+  prefix=".openarena"
+  basegame="baseoa"
+  basegamename="OpenArena"
+  unknowngamename="OpenArena modification"
+  shaderpath="scripts"
+  archivetypes="pk3"
+  texturetypes="tga jpg png"
+  modeltypes="md3 ase lwo obj 3ds picoterrain"
+  maptypes="mapq3"
+  shaders="quake3"
+  entityclass="quake3"
+  entityclasstype="xml"
+  entities="quake3"
+  brushtypes="quake3"
+  patchtypes="quake3"
+/>
+<!--
+  knowngame="missionpack"
+  knowngamename="OpenArena Missionpack"
+-->

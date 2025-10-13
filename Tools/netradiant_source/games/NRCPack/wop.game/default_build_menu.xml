@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+build commands
+[RadiantPath]: path to Radiant .. C:\Program Files\Gtkradiant
+[EnginePath]: path to the engine .. C:\wop\ C:\Program Files\World of Padman\ /usr/local/games/WoP/
+-->
+<project version="2.0">
+<var name="q3map2">"[RadiantPath]q3map2.[ExecutableType]" -v<cond value="[MonitorAddress]"> -connect [MonitorAddress]</cond> -game quake3 -fs_basepath "[EnginePath]"<cond value="[GameName]"> -fs_game [GameName]</cond>-fs_basegame wop</var>
+<build name="Q3Map2: (single) BSP -meta">
+<command>[q3map2] -custinfoparms -meta "[MapFile]"</command>
+</build>
+<build name="Q3Map2: (single flares) BSP -flares -meta">
+<command>[q3map2] -custinfoparms -flares -meta "[MapFile]"</command>
+</build>
+<build name="Q3Map2: (single) -vis">
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+</build>
+<build name="Q3Map2: (single test) -vis -fast">
+<command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
+</build>
+<build name="Q3Map2: (single test) -light -faster">
+<command>[q3map2] -light -custinfoparms -faster "[MapFile]"</command>
+</build>
+<build name="Q3Map2: (single test) -light -fast -super 2">
+<command>[q3map2] -light -custinfoparms -fast -super 2 "[MapFile]"</command>
+</build>
+<build name="Q3Map2: (single) -light -fast -filter -patchshadows -bounce 8 -super 2">
+<command>[q3map2] -light -custinfoparms -fast -filter -patchshadows -bounce 8 -super 2 "[MapFile]"</command>
+</build>
+<build name="Q3Map2: (wop test) BSP -meta, -vis -fast, -light -fast -filter -super 2">
+<command>[q3map2] -custinfoparms -meta "[MapFile]"</command>
+<command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -custinfoparms -fast -filter -super 2 "[MapFile]"</command>
+</build>
+<build name="Q3Map2: (wop test flares) BSP -flares -meta, -vis -fast, -light -fast -filter -super 2">
+<command>[q3map2] -custinfoparms -flares -meta "[MapFile]"</command>
+<command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -custinfoparms -fast -filter -super 2 "[MapFile]"</command>
+</build>
+<build name="Q3Map2: (wop final) BSP -meta, -vis, -light -fast -filter -patchshadows -bounce 8 -super 2">
+<command>[q3map2] -custinfoparms -meta "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -custinfoparms -fast -filter -patchshadows -bounce 8 -super 2 "[MapFile]"</command>
+</build>
+<build name="Q3Map2: (wop final flares) BSP -flares -meta, -vis, -light -fast -filter -patchshadows -bounce 8 -super 2">
+<command>[q3map2] -custinfoparms -flares -meta "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -custinfoparms -fast -filter -patchshadows -bounce 8 -super 2 "[MapFile]"</command>
+</build>
+<build name="Q3Map2: (map2ase) BSP -np 1 -meta -patchmeta -subdivisions 1, -convert ase">
+<command>[q3map2] -np 1 -meta -patchmeta -subdivisions 1 "[MapFile]"</command>
+<command>[q3map2] -convert ase "[MapFile]"</command>
+</build>
+</project>
+

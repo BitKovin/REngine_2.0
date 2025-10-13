@@ -128,7 +128,10 @@ namespace FileSystemEngine {
             auto real = path;
             std::ifstream ifs(std::wstring(real.begin(), real.end()));
 
-            if (!ifs) throw std::runtime_error("Cannot open save file: " + real);
+            if (!ifs)
+            {
+                return "";
+            }
             std::ostringstream ss;
             ss << ifs.rdbuf();
             return ss.str();

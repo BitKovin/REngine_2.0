@@ -38,7 +38,7 @@ void Player::Start()
     AddWeaponByName("weapon_shotgun");
     AddWeaponByName("weapon_tommy");
 
-    SwitchWeaponOffhand("weapon_cane");
+    //SwitchWeaponOffhand("weapon_cane");
 
 }
 

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<!-- [RadiantPath] : path to NetRadiant -->
+<!-- [EnginePath]  : path to game data -->
+
+<project version="2.0">
+<var name="q3map2">"[RadiantPath]q3map2.[ExecutableType]" -v<cond value="[MonitorAddress]"> -connect [MonitorAddress]</cond> -game unrealarena -fs_basepath "[EnginePath]" -fs_homepath "[UserEnginePath]"<cond value="[GameName]"> -fs_game [GameName]</cond></var>
+
+<build name="build without visibility or lights">
+<command>[q3map2] -meta "[MapFile]"</command>
+</build>
+
+<build name="build without lights">
+<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+</build>
+
+<build name="build with test settings (fast)">
+<command>[q3map2] -meta "[MapFile]"</command>
+<command>[q3map2] -vis -fast -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -faster -patchshadows "[MapFile]"</command>
+</build>
+
+<build name="build with test settings">
+<command>[q3map2] -meta -samplesize 16 "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -faster -dirty -patchshadows -samples 2 -samplesize 16 -deluxe -lightmapsize 1024 -external "[MapFile]"</command>
+</build>
+
+<build name="build with final settings">
+<command>[q3map2] -meta -samplesize 8 "[MapFile]"</command>
+<command>[q3map2] -vis -saveprt "[MapFile]"</command>
+<command>[q3map2] -light -fast -shade -dirty -patchshadows -samples 3 -samplesize 8 -bouncegrid -bounce 16 -deluxe -lightmapsize 1024 -external "[MapFile]"</command>
+</build>
+
+</project>

@@ -1,0 +1,174 @@
+//
+// The Osirion Project
+// Entity definition file for GtkRadiant
+//
+
+// ---- WORLDSPAWN -------------------------------------------------
+
+/*QUAKED worldspawn (0 0 0) ?
+The building blocks of the model. Faces with common/caulk are ignored.
+Detail brushes are used for LOD and will not be visible from a 
+distance.
+
+enginecolor	color used for engine flares and common/engine, default 1 0 0
+enginesound	engine sound loop (maps to sounds/engines/loop??.wav), default 0
+*/
+
+// ---- LIGHT ------------------------------------------------------
+
+/*QUAKED light (.65 .65 1) (-8 -8 -8) (8 8 8) strobe entity engine entity_second
+An exterior light. A light sprite is always oriented towards the camera.
+
+strobe		make a strobe light (spawflag 1)
+engine		light is activated by engine thrust (spawnflag 4)
+entity		light has entity primary color (spawflag 2)
+entity_second	light has entity secondary color (spawflag 8)
+setting both entity and entity_second resolts into entity tertiary color.
+
+_color		RGB color of the light
+light		light radius, default is 100
+frequency	strobe frequency, in flashes per second
+offset		strobe offset, in seconds
+time		strobe time fraction, 0 (always off) - 1 (always on)
+flare		flare texture number (maps to textures/fx/flare??.tga), default 0
+*/
+
+// ---- FX_FLARE ---------------------------------------------------
+
+/*QUAKED fx_flare (1 1 .5) (-8 -8 -8) (8 8 8) strobe entity engine entity_second
+A light flare. A flare sprite has a fixed orientation.
+
+strobe		make a strobe flare (spawflag 1)
+engine		flare is actived by engine thrust (spawnflag 4)
+entity		flare has entity primary color (spawflag 2)
+entity_second	flare has entity secondary color (spawflag 8)
+setting both entity and entity_second resolts into entity tertiary color.
+
+_color		RGB color of the flare
+angle		yaw angle of the flare, e.g. angle 90
+angles		pitch, yaw and roll angle of the flare, angles overrides angle. e.g. angles 0 90 0
+pitch		pitch angle of the flare
+yaw		yaw angle of the flare
+roll		roll angle of the flare
+radius		flare radius, default is 100
+frequency	strobe frequency, in flashes per second
+offset		strobe offset, in seconds
+time		strobe time fraction, 0 (always off) - 1 (always on)
+flare		flare number texture (maps to textures/fx/flare??.tga), default 0
+cull		cull side, back(back side), front(front side), none(no culling)
+*/
+
+// ---- FX_PARTICLES -----------------------------------------------
+
+/*QUAKED fx_particles (.7 .5 1) (-8 -8 -8) (8 8 8) ? entity engine entity_second
+A particle system
+
+engine		particles have engine color (spawnflag 4)
+entity		particles have entity primary color (spawflag 2)
+entity_second	particles have entity secondary color (spawflag 8)
+setting both entity and entity_second resolts into entity tertiary color.
+
+angle		yaw angle of the particle system, e.g. angle 90
+angles		pitch, yaw and roll angle of the particle system, angles overrides angle. e.g. angles 0 90 0
+pitch		pitch angle of the particle system
+yaw		yaw angle of the particle system
+roll		roll angle of the particle system
+script		name of the particle system script to load
+scale		scale factor for all particle systems in the script
+*/
+
+// ---- FX_SOUND ---------------------------------------------------
+
+/*QUAKED fx_sound (1 0 0) (-8 -8 -8) (8 8 8) ? 
+A sound effect. Only sound loops are supported.
+
+name		name of the sound effect
+noise		name of the sound effect
+*/
+
+// ---- LOCATION_CANNON---------------------------------------------
+
+/*QUAKED location_cannon (0 0 1) (-8 -8 -8) (8 8 8) ?
+Provides the model with a cannon (not implemented)
+
+model		name of the cannon model, default is none
+*/
+
+// ---- LOCATION_TURRET --------------------------------------------
+
+/*QUAKED location_turret (0.5 0.5 1) (-8 -8 -8) (8 8 8) ?
+Provides the model with a turret (not implemented)
+
+model		name of the turret model, default is none
+*/
+
+// ---- LOCATION_COCKPIT -------------------------------------------
+
+/*QUAKED location_cockpit (0 1 0) (-8 -8 -8) (8 8 8) ?
+Location of the cockpit (not implemented)
+*/
+
+// ---- LOCATION_DOCK ----------------------------------------------
+
+/*QUAKED location_dock (0 1 1) (-16 -16 -16) (16 16 16) ?
+Location of a docking port
+*/
+
+// ---- FUNC_GROUP -------------------------------------------------
+
+/*QUAKED func_group (0 .5 .8) ?
+Editor utility to group brushes together
+*/
+
+// ---- FUNC_ROTATE ------------------------------------------------
+
+/*QUAKED func_rotate (0 .5 .9) ? ? ? engine
+A group of brushes rotating around an axis
+
+engine		rotation is activated by engine thrust (spawnflag 4)
+
+speed		speed of rotation, in degrees per second
+
+angle		yaw angle of the rotation axis, e.g. angle 90
+angles		pitch, yaw and roll angle of the rotation axis, angles overrides angle. e.g. angles 0 90 0
+pitch		pitch angle of the rotation axis
+yaw		yaw angle of the rotation axis
+roll		roll angle of the rotation axis
+*/
+
+// ---- FUNC_MOVE --------------------------------------------------
+
+/*QUAKED func_move (0 .6 .6) ? ? ? engine
+A group of brushes moving back and forth along an axis
+
+engine		movement is activated by engine thrust (spawnflag 4)
+
+speed		average speed of movement, in units per second
+distance	travel distance of the group
+
+angle		yaw angle of the movement axis, e.g. angle 90
+angles		pitch, yaw and roll angle of the movement axis, angles overrides angle. e.g. angles 0 90 0
+pitch		pitch angle of the movement axis
+yaw		yaw angle of the movement axis
+roll		roll angle of the movement axis
+*/
+
+// ---- FUNC_DOOR --------------------------------------------------
+
+/*QUAKED func_door (0 .5 1) ?
+A door (not implemented)
+*/
+
+// ---- MISC_MODEL -------------------------------------------------
+
+/*QUAKED misc_model (1 .5 .25) (-8 -8 -8) (8 8 8) ?
+Generic placeholder for inserting submodels
+
+angle		yaw angle of the submodel, e.g. angle 90
+angles		pitch, yaw and roll angle of the submodel, angles overrides angle. e.g. angles 0 90 0
+pitch		pitch angle of the submodel
+yaw		yaw angle of the submodel
+roll		roll angle of the submodel
+model		path/name of model to use, e.g. models/objects/engine_part.ase
+modelscale	submodel scaling factor
+*/

@@ -1,0 +1,3079 @@
+
+
+/*QUAKED ai_boundary (.5 .5 0) ?
+Character will abort pursuing player when touching this brush. Will take cover until the player is out of view, then return to guarding position (if character has been assigned one).
+"moral"		Only characters with an equal or lower moral will be affected by this brush. Range from 1 (Coward) to 7 (Psycotic).
+"cast_group"	Gang number -- 0 = neutral, 1 = friendly, 2+ = enemy
+*/
+
+
+/*QUAKED ai_combat_spot (.5 .5 1) (-16 -16 -24) (16 16 48)
+A good place to go to get a vantage point during fighting. Same code as ai_safespot.
+*/
+
+
+/*QUAKED ai_event_follow (.5 .5 0) ?
+Client touching this brush will become a leader to all other characters in line of sight, that have the same "cast_group" as the brush ("cast_group" must be greater than 0 to work).
+"cast_group"	Gang number -- 1 = friendly, 2+ = enemy
+*/
+
+
+/*QUAKED ai_event_hostile (.5 .5 0) ?
+Character touching this brush will become a hostile enemy to all other characters in line of sight, that have the same "cast_group" as the brush ("cast_group" must be greater than 0 to work).
+"cast_group"	Gang number -- 1 = friendly, 2+ = enemy
+*/
+
+
+/*QUAKED ai_guard (.5 .5 1) (-16 -16 -24) (16 16 48)
+Set a cast's 'guard_target' to the 'targetname' of this entity. That character will then guard this location. Same code as ai_safespot just no guard_radius.
+"guard_radius"		Max guarding radius (default=512)
+*/
+
+
+/*QUAKED ai_locked_door (.5 .5 0) ?
+A character touching this brush will check the targeted door to see if it is closed. If so, the character will head towards the specified path_corner_cast.
+Example use: guiding AI characters away from a locked door
+"target"		Door's ID
+"pathtarget"	path_corner_cast's ID to head for
+*/
+
+
+/*QUAKED ai_safespot (.5 .5 1) (-16 -16 -24) (16 16 48)
+A good place to go to get a vantage point during fighting. Same code as ai_combat_spot.
+*/
+
+
+/*QUAKED ai_territory (.5 .5 0) ?
+This entity marks the boundary of a gang's territory. 
+A character touching this will be deemed inside the gang's territory. This means war if sighted. 
+Point the "angle" in the direction of the territory. This lets the AI know if the character is walking into or out of the territory.
+"cast_group"	Gang number that owns the territory -- 1 = friendly, 2+ = enemy (default=2)
+"angle"		Points to the direction of the territory
+"radius"		Distance from brush before the player will be attacked (default=512)
+"moral"		Moral -- 1 to 7 = coward to psychotic (default=4)
+*/
+
+
+/*QUAKED ai_trigger_character (.5 .5 0) ?
+When the player touches this brush, the targeted character will start following it's path_corner_cast.
+"target"		Character's ID to be triggered
+"cast_group"	Gang number -- 1 = friendly, 2+ = enemy (default=2)
+*/
+
+
+/*QUAKED ammo_308 (.3 .3 1) (-16 -16 -16) (16 16 16) 
+Bullets clip for the heavy submachine gun (weapon_heavymachinegun), 30 bullets per clip (max: 90).
+
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/hmgclip/tris.md2"
+*/
+
+
+/*QUAKED ammo_bullets (.3 .3 1) (-16 -16 -16) (16 16 16)
+Bullets clip for the pistol (weapon_pistol, weapon_spistol) and Thompson submachine gun (weapon_tommygun), 20 bullets per clip (max: 200).
+
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/pclip/tris.md2"  
+*/
+
+
+/*QUAKED ammo_cylinder (.3 .3 1) (-16 -16 -16) (16 16 16)
+Bullets for the Thompson submachine gun (weapon_tommygun) or pistol (weapon_pistol, weapon_spistol), 50 bullets per drum (max: 200).
+
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/tgclip/tris.md2"  
+*/
+
+
+/*QUAKED ammo_flametank (.3 .3 1) (-16 -16 -16) (16 16 16)
+Gaz for the flame thrower (weapon_flamethrower), 50 units of gaz per tank (max: 200)
+
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/flametank/tris.md2"
+*/
+
+/*QUAKED ammo_grenades (.3 .3 1) (-16 -16 -16) (16 16 16)
+Grenades for the grenade launcher (weapon_grenadelauncher), 3 per box (max: 12).
+
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/grenade/tris.md2"
+*/
+
+/*QUAKED ammo_rockets (.3 .3 1) (-16 -16 -16) (16 16 16)
+Missiles for the rocket launcher (weapon_bazooka), 5 missiles per box (max: 25).
+
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/rocket/tris.md2" 
+*/
+
+/*QUAKED ammo_shells (.3 .3 1) (-16 -16 -16) (16 16 16)
+Shells box for the shotgun (weapon_shotgun), 10 shells per box (max: 100).
+
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/shotgun_shell/tris.md2" 
+*/
+
+
+
+/*QUAKED cast_bitch (1 .5 0) (-16 -16 -24) (16 16 48) x TRIGGER_SPAWN x x x IMMEDIATE_FOLLOW_PATH MELEE NO_SHADOW NOT_EASY NOT_MEDIUM NOT_HARD NOT_DEATHMATCH NOT_COOP
+One-handed weapon chick (gender: female)
+"head"				Head shape - 0 = default, 2 = pony tail
+"art_skins"			Head -- torso -- legs skin number (always three digits)
+"scale"				Model scale -- 0 to 1 (default=1)
+"cast_group"		Gang number -- 0 = neutral, 1 = friendly, 2+ = enemy
+"currentcash"		Money (negative value to hire)
+"localteam"			Gang name
+"angle"				Facing direction
+"health"			Health points (default=100)
+"name"				Character's name
+"acc"				Accuracy (default=2)
+"cal"				Weapon caliber (default=3)
+"moral"				Moral -- 1 to 7 = coward to psychotic, 0 = random
+"item"				Item name to drop on death
+"target"			Walk to (path_corner_cast)
+"guard_target"		Link to ai_guard entity
+"combattarget"		Link to path_corner_cast
+"deathtarget"		Target to trigger on death
+"killtarget"		Entity to delete on death
+"leader_target"		Link to another gang member
+"health_target"		Target to health threshold events 1 (trigger or run to)
+"health_threshold"	Must be set if health_target is used
+"health_target2"	Target to health threshold events 2 (trigger or run to)
+"health_threshold2"	Must be set if health_target2 is used
+"health_target3"	Target to health threshold events 3 (trigger or run to)
+"health_threshold3"	Must be set if health_target3 is used
+"gun_noise_delay"	React delay befor hear gun and thake action
+"aiflags"			AI flags
+
+model="models\actors\bitch\head.mdx;models\actors\bitch\body.mdx;models\actors\bitch\legs.mdx"
+skin="models\actors\bitch\head_001.tga;models\actors\bitch\body_001.tga;models\actors\bitch\legs_001.tga"
+*/
+
+
+/*QUAKED cast_bum_sit (1 .5 0) (-24 -24 -24) (24 24 48) x TRIGGER_SPAWN x x x x x x NOT_EASY NOT_MEDIUM NOT_HARD NOT_DEATHMATCH NOT_COOP
+A bum, should always be neutral (gender: male).
+"art_skins"		Head -- torso -- legs skin number (always three digits)
+"currentcash"	Money
+"scale"			Model scale -- 0 to 1 (default=1)
+"cast_group"	Gang number -- 0 = neutral
+"angle"			Facing direction
+"health"		Health points (default=100)
+"name"			Character's name
+"count"			+1 cigar, +2 fedora, +4 stetson, +8 cap
+
+model="models\actors\bum_sit\head.mdx;models\actors\bum_sit\body.mdx;models\actors\bum_sit\legs.mdx"
+skin="models\actors\thug\head_001.tga;models\actors\thug\body_001.tga;models\actors\thug\legs_001.tga"
+*/
+
+
+/*QUAKED cast_dog (1 .5 0) (-16 -16 -16) (16 16 22) x TRIGGER_SPAWN x x x x x x NOT_EASY NOT_MEDIUM NOT_HARD NOT_DEATHMATCH NOT_COOP
+Dog
+"skin"				Skin - 1 or 2 (default=1)
+"scale"				Model scale -- 0 to 1 (default=1)
+"currentcash"		Money
+"cast_group"		Gang number -- 0 = neutral, 1 = friendly, 2+ = enemy
+"localteam"			Gang name
+"angle"				Facing direction
+"health"			Health points (default=100)
+"target"			Walk to (path_corner_cast)
+"guard_target"		Link to ai_guard entity
+"combattarget"		Link to path_corner_cast
+"deathtarget"		Target to trigger on death
+"killtarget"		Entity to delete on death
+"leader_target"		Link to another gang member
+"health_target"		Target to health threshold events 1 (trigger or run to)
+"health_threshold"	Must be set if health_target is used
+"health_target2"	Target to health threshold events 2 (trigger or run to)
+"health_threshold2"	Must be set if health_target2 is used
+"health_target3"	Target to health threshold events 3 (trigger or run to)
+"health_threshold3"	Must be set if health_target3 is used
+"gun_noise_delay"	React delay befor hear gun and thake action
+"aiflags"			AI flags
+
+model="models\actors\enemy_dog\enemy_dog.mdx"
+skin="models\actors\enemy_dog\dog_001.tga"
+*/
+
+
+/*QUAKED cast_punk (1 .5 0) (-16 -16 -24) (16 16 48) FLASH_LIGHT TRIGGER_SPAWN FLAMETHROWER BAZOOKA HMG IMMEDIATE_FOLLOW_PATH TOMMYGUN GRENADE NOT_EASY NOT_MEDIUM NOT_HARD NOT_DEATHMATCH NOT_COOP SHOTGUN  
+Two handed weapon thug (gender: male)
+"art_skins"			Head -- torso -- legs skin number (always three digits)
+"head"				Head shape - 0 = default, 1 = bald, 3 = weld head
+"scale"				Model scale -- 0 to 1 (default=1)
+"count"				+1 cigar, +2 hat1, +4 hat2, +8 cap
+"cast_group"		Gang number -- 0 = neutral, 1 = friendly, 2+ = enemy
+"currentcash"		Money (negative value to hire)
+"localteam"			Gang name
+"angle"				Facing direction
+"health"			Health points (default=100)
+"name"				Character's name
+"acc"				Accuracy (default=2)
+"cal"				Weapon caliber (default=3)
+"moral"				Moral -- 1 to 7 = coward to psychotic, 0 = random
+"item"				Item name to drop on death
+"target"			Walk to (path_corner_cast)
+"guard_target"		Link to ai_guard entity
+"combattarget"		Link to path_corner_cast
+"deathtarget"		Target to trigger on death
+"killtarget"		Entity to delete on death
+"leader_target"		Link to another gang member
+"health_target"		Target to health threshold events 1 (trigger or run to)
+"health_threshold"	Must be set if health_target is used
+"health_target2"	Target to health threshold events 2 (trigger or run to)
+"health_threshold2"	Must be set if health_target2 is used
+"health_target3"	Target to health threshold events 3 (trigger or run to)
+"health_threshold3"	Must be set if health_target3 is used
+"gun_noise_delay"	React delay befor hear gun and thake action
+"aiflags"			AI flags
+
+model="models\actors\punk\head.mdx;models\actors\punk\body.mdx;models\actors\punk\legs.mdx"
+skin="models\actors\thug\head_001.tga;models\actors\thug\body_001.tga;models\actors\thug\legs_001.tga"
+*/
+
+
+/*QUAKED cast_runt (1 .5 0) (-16 -16 -24) (16 16 48) x TRIGGER_SPAWN x x x IMMEDIATE_FOLLOW_PATH MELEE NO_SHADOW NOT_EASY NOT_MEDIUM NOT_HARD NOT_DEATHMATCH NOT_COOP
+One handed weapon runt (gender: male)
+"art_skins"			Head -- torso -- legs skin number (always three digits)
+"scale"				Model scale -- 0 to 1 (default=1)
+"count"				+1 cigar, +2 hat1, +4 hat2, +8 cap
+"cast_group"		Gang number -- 0 = neutral, 1 = friendly, 2+ = enemy
+"currentcash"		Money (negative value to hire)
+"localteam"			Gang name
+"angle"				Facing direction
+"health"			Health points (default=100)
+"name"				Character's name
+"acc"				Accuracy (default=2)
+"cal"				Weapon caliber (default=3)
+"moral"				Moral -- 1 to 7 = coward to psychotic, 0 = random
+"item"				Item name to drop on death
+"target"			Walk to (path_corner_cast)
+"guard_target"		Link to ai_guard entity
+"combattarget"		Link to path_corner_cast
+"deathtarget"		Target to trigger on death
+"killtarget"		Entity to delete on death
+"leader_target"		Link to another gang member
+"health_target"		Target to health threshold events 1 (trigger or run to)
+"health_threshold"	Must be set if health_target is used
+"health_target2"	Target to health threshold events 2 (trigger or run to)
+"health_threshold2"	Must be set if health_target2 is used
+"health_target3"	Target to health threshold events 3 (trigger or run to)
+"health_threshold3"	Must be set if health_target3 is used
+"gun_noise_delay"	React delay befor hear gun and thake action
+"aiflags"			AI flags
+
+model="models\actors\runt\head.mdx;models\actors\runt\body.mdx;models\actors\runt\legs.mdx"
+skin="models\actors\runt\head_001.tga;models\actors\runt\body_001.tga;models\actors\thug\legs_001.tga"
+*/
+
+
+/*QUAKED cast_shorty (1 .5 0) (-16 -16 -24) (16 16 48) FLASH_LIGHT TRIGGER_SPAWN FLAMETHROWER BAZOOKA HMG IMMEDIATE_FOLLOW_PATH TOMMYGUN GRENADE NOT_EASY NOT_MEDIUM NOT_HARD NOT_DEATHMATCH NOT_COOP SHOTGUN  
+Two handed weapon runt (gender: male)
+"art_skins"			Head -- torso -- legs skin number (always three digits)
+"scale"				Model scale -- 0 to 1 (default=1)
+"cast_group"		Gang number -- 0 = neutral, 1 = friendly, 2+ = enemy
+"currentcash"		Money (negative value to hire)
+"localteam"			Gang name
+"angle"				Facing direction
+"health"			Health points (default=100, 200 when friendly)
+"name"				Character's name
+"acc"				Accuracy (default=2)
+"cal"				Weapon caliber (default=3)
+"moral"				Moral -- 1 to 7 = coward to psychotic, 0 = random
+"item"				Item name to drop on death
+"target"			Walk to (path_corner_cast)
+"guard_target"		Link to ai_guard entity
+"combattarget"		Link to path_corner_cast
+"deathtarget"		Target to trigger on death
+"killtarget"		Entity to delete on death
+"leader_target"		Link to another gang member
+"health_target"		Target to health threshold events 1 (trigger or run to)
+"health_threshold"	Must be set if health_target is used
+"health_target2"	Target to health threshold events 2 (trigger or run to)
+"health_threshold2"	Must be set if health_target2 is used
+"health_target3"	Target to health threshold events 3 (trigger or run to)
+"health_threshold3"	Must be set if health_target3 is used
+"gun_noise_delay"	React delay befor hear gun and thake action
+"aiflags"			AI flags
+
+model="models\actors\shorty\head.mdx;models\actors\shorty\body.mdx;models\actors\shorty\legs.mdx"
+skin="models\actors\runt\head_001.tga;models\actors\runt\body_001.tga;models\actors\thug\legs_001.tga"
+*/
+
+
+/*QUAKED cast_thug (1 .5 0) (-16 -16 -24) (16 16 48) x TRIGGER_SPAWN x x x IMMEDIATE_FOLLOW_PATH MELEE NO_SHADOW NOT_EASY NOT_MEDIUM NOT_HARD NOT_DEATHMATCH NOT_COOP
+One handed weapon thug (gender: male)
+"head"				Head shape - 0 = default, 1 = bald, 3 = weld head
+"art_skins"			Head -- torso -- legs skin number (always three digits)
+"scale"				Model scale -- 0 to 1 (default=1)
+"currentcash"		Money (negative value to hire)
+"count"				+1 cigar, +2 hat1, +4 hat2, +8 cap
+"cast_group"		Gang number -- 0 = neutral, 1 = friendly, 2+ = enemy
+"localteam"			Gang name
+"angle"				Facing direction
+"health"			Health points (default=100, 200 when friendly)
+"name"				Character's name
+"acc"				Accuracy (default=2)
+"cal"				Weapon caliber (default=3)
+"moral"				Moral -- 1 to 7 = coward to psychotic, 0 = random
+"item"				Item name to drop on death
+"target"			Walk to (path_corner_cast)
+"guard_target"		Link to ai_guard entity
+"combattarget"		Link to path_corner_cast
+"deathtarget"		Target to trigger on death
+"killtarget"		Entity to delete on death
+"leader_target"		Link to another gang member
+"health_target"		Target to health threshold events 1 (trigger or run to)
+"health_threshold"	Must be set if health_target is used
+"health_target2"	Target to health threshold events 2 (trigger or run to)
+"health_threshold2"	Must be set if health_target2 is used
+"health_target3"	Target to health threshold events 3 (trigger or run to)
+"health_threshold3"	Must be set if health_target3 is used
+"gun_noise_delay"	React delay befor hear gun and thake action
+"aiflags"			AI flags
+
+model="models\actors\thug\head.mdx;models\actors\thug\body.mdx;models\actors\thug\legs.mdx"
+skin="models\actors\thug\head_001.tga;models\actors\thug\body_001.tga;models\actors\thug\legs_001.tga"
+*/
+
+
+/*QUAKED cast_thug_sit (1 .5 0) (-16 -16 -24) (16 16 48) x TRIGGER_SPAWN x x x IMMEDIATE_FOLLOW_PATH MELEE NO_SHADOW NOT_EASY NOT_MEDIUM NOT_HARD NOT_DEATHMATCH NOT_COOP
+Guy with the pistol, should always be neutral (gender: male).
+"head"			Head shape - 0 = default, 1 = bald, 3 = weld head
+"art_skins"		Head -- torso -- legs skin number (always three digits)
+"scale"			Model scale -- 0 to 1 (default=1)
+"count"			+1 cigar, +2 hat1, +4 hat2, +8 cap
+"cast_group"	Gang number -- 0 = neutral
+"angle"			Facing direction
+"health"		Health points (default=100)
+"name"			Character's name
+"gun_noise_delay"	React delay befor hear gun and thake action
+"aiflags"			AI flags
+
+model="models\actors\thug_sit\head.mdx;models\actors\thug_sit\body.mdx;models\actors\thug_sit\legs.mdx"
+skin="models\actors\thug\head_001.tga;models\actors\thug\body_001.tga;models\actors\thug\legs_001.tga"
+*/
+
+
+/*QUAKED cast_whore (1 .5 0) (-16 -16 -24) (16 16 48) FLASH_LIGHT TRIGGER_SPAWN FLAMETHROWER BAZOOKA HMG IMMEDIATE_FOLLOW_PATH TOMMYGUN GRENADE NOT_EASY NOT_MEDIUM NOT_HARD NOT_DEATHMATCH NOT_COOP SHOTGUN
+Two handed weapon chick (gender: female)
+"head"				Head shape - 0 = default, 1 = bald, 2 = pony tail
+"art_skins"			Head -- torso -- legs skin number (always three digits)
+"scale"				Model scale -- 0 to 1 (default=1)
+"cast_group"		Gang number -- 0 = neutral, 1 = friendly, 2+ = enemy
+"currentcash"		Money (negative value to hire)
+"localteam"			Gang name
+"angle"				Facing direction
+"health"			Health points (default=100, 200 when friendly)
+"name"				Character's name
+"acc"				Accuracy (default=2)
+"cal"				Weapon caliber (default=3)
+"moral"				Moral -- 1 to 7 = coward to psychotic, 0 = random
+"item"				Item name to drop on death
+"target"			Walk to (path_corner_cast)
+"guard_target"		Link to ai_guard entity
+"combattarget"		Link to path_corner_cast
+"deathtarget"		Target to trigger on death
+"killtarget"		Entity to delete on death
+"leader_target"		Link to another gang member
+"health_target"		Target to health threshold events 1 (trigger or run to)
+"health_threshold"	Must be set if health_target is used
+"health_target2"	Target to health threshold events 2 (trigger or run to)
+"health_threshold2"	Must be set if health_target2 is used
+"health_target3"	Target to health threshold events 3 (trigger or run to)
+"health_threshold3"	Must be set if health_target3 is used
+"gun_noise_delay"	React delay befor hear gun and thake action
+"aiflags"			AI flags
+
+model="models\actors\whore\head.mdx;models\actors\whore\body.mdx;models\actors\whore\legs.mdx"
+skin="models\actors\bitch\head_001.tga;models\actors\bitch\body_001.tga;models\actors\bitch\legs_001.tga"
+*/
+
+/*QUAKED dm_cashspawn (0.5 0 1) (-16 -16 -16) (16 16 16)
+Spawn location for cash in "Grab da Loot" games.
+"angle"		Direction to project cash upon spawning
+"speed"		Projection's speed
+"type"		"cashroll" or "cashbag" ("cashbag" takes longer to spawn)
+*/
+
+
+/*QUAKED dm_props_banner (.5 0 1) (-47 -6 -100) (47 6 100) 
+Temp banner for teamplay.
+"style"		Team that this banner belongs to (1 or 2)
+"scale"		Model scale (default=1)
+
+model="models\props\flag\flag1.md2"
+skin="models\props\flag\flag_01.tga"
+*/
+
+
+/*QUAKED dm_safebag (0.5 0 1) (-12 -12 -16) (12 12 12)
+Bag that holds the money in the safe.
+"style"		Team that this bag belongs to (1 or 2)
+
+model="models/pu_icon/money/money_lg.md2"
+skin="models/pu_icon/money/money.tga"
+*/
+
+
+
+
+/*QUAKED elements_raincloud (0 .5 .8) ?
+Rain falls from this invisible cloud at random points; the center of the cloud to ground trace determines the drop fall distance. Cloud can only be rectangular.
+"fxdensity"	Total number of drops in the sky, 1 to 1000 (default=400) 
+"firetype"	Type of drops -- 0 = rain, 1 = drip (default=0)
+*/
+
+/*QUAKED elements_snowcloud (0 .5 .8) ?
+Snow falls from this invisible cloud at random points; the center of the cloud to ground trace determines the drop fall distance. Cloud can only be rectangular.
+"fxdensity"	Total number of drops in the sky, 1 to 1000 (default=400) 
+*/
+
+
+/*QUAKED elements_raincloud (0 .5 .8) ?
+Rain falls from this invisible cloud at random points; the center of the cloud to ground trace determines the drop fall distance. Cloud can only be rectangular.
+"fxdensity"	Total number of drops in the sky, 1 to 1000 (default=400) 
+"firetype"	Type of drops -- 0 = rain, 1 = drip (default=0)
+*/
+
+/*QUAKED elements_snowcloud (0 .5 .8) ?
+Snow falls from this invisible cloud at random points; the center of the cloud to ground trace determines the drop fall distance. Cloud can only be rectangular.
+"fxdensity"	Total number of drops in the sky, 1 to 1000 (default=400) 
+*/
+
+
+
+/*QUAKED func_areaportal (0 0 0) ?
+Area portal (Vis blocker), Toggle visibility portal's when activated, usually enclosed in the middle of a door so when it is closed, the area beyond is not rendered (the door must target this entity)
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED func_button (0 .5 .8) ? AUTO_OPEN ONOFF NO_MONSTER
+When a button is touched, it moves some distance in the direction of its angle, triggers all of it's targets, waits some time, then returns to it's original position where it can be triggered again.
+"angle"			Determines the sliding direction
+"target"		All entities with a matching ID will be used
+"targetname"	This entity's ID
+"killtarget"	ID of the entity to delete when triggered
+"speed"			Moving speed (default=40)
+"accel"			Acceleration (default=speed)
+"decel"			Deceleration (default=speed)
+"wait"			Wait before return (default=1) (set to -1=never return)
+"lip"			Lip (default=4) 
+"health"		If set, the button is shootable
+"sounds"		0 or 1=silent, 2=butn2, 3=valve, 4=wheel, 5=console, 6=push, 7=thunk, 8=wall
+"message"		Activation message
+"pathtarget"	Entity to trigger when an entity that has this path_corner targeted touches it
+*/
+
+
+/*QUAKED func_clock (0 0 1) (-8 -8 -8) (8 8 8) TIMER_UP TIMER_DOWN START_OFF MULTI_USE
+Clock: target a target_string with this
+
+The default is to be a time of day clock
+
+TIMER_UP and TIMER_DOWN run for "count" seconds and the fire "pathtarget"
+If START_OFF, this entity must be used before it starts
+
+"count" 		Clock Count
+"pathtarget"	Entity to trigger when an entity that has this path_corner targeted touches it
+"style"			0=xx, 1 xx:xx, 2 =xx:xx:xx
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED func_conveyor (0 .5 .8) ? START_ON TOGGLE
+Conveyors are stationary brushes that move what's on them. The brush should have a surface with at least one current content enabled.
+"targetname"	This entity's ID
+"speed"			Traveling speed (default=100)
+*/
+
+
+/*QUAKED func_door (0 .5 .8) ? START_OPEN AUTO_OPEN CRUSHER NO_MONSTER ANIMATED TOGGLE ANIMATED_FAST SURF2_ALPHA
+A sliding door.
+"message"		Message printed once when the door is touched if it is a trigger door
+"team"			Trigger every door with the same team name 
+"angle"			Determines the opening direction (-1=top, -2=bottom)
+"targetname"	This entity's ID, must be triggered with a button or a trigger field if set.
+"target"		Targeted entity's ID, will be triggered on opening
+"target2"		Point to an ai_safespot's ID (for lockpicking purpose), can also be used as an alternate "targetname" field.
+"killtarget"	ID of the entity to delete when triggered
+"health"		If set, door must be shot open
+"speed"			Movement speed (default=100)
+"accel"			Acceleration (default=speed)
+"decel"			Deceleration (default=speed)
+"wait"			wait before returning (default=3, -1 = never return)
+"lip"			lip remaining at end of move (default=8)
+"dmg"			damage to inflict when blocked (default=2)
+"key"			Key number required to unlock (-1=trigger unlock or pick, 1=Store Room Key, 2=Electrical_Room, 3=Chem_Plant_Key, 4=Bridge_Key, 5=Shipyard_Key,6=Warehouse_Key, 7=Shop_Key, 8=Ticket, 9=Office_Key, 10=Key10)
+"sounds"   		0 or 1=silent, 2=metal sliding, 3=wooden swinging #1, 4=metal swinging, 5=metal sliding train, 6=metal rolling, 7=metal swing-up garage door, 8=wooden swinging #2, 9=wooden drawer, 10=metal drawer (default=2)
+*/
+
+
+/*QUAKED func_door_rotating (0 .5 .8) ? START_OPEN REVERSE SURF2_ALPHA NO_MONSTER ANIMATED TOGGLE X_AXIS Y_AXIS
+Rotating Door
+You need to have an origin brush as part of this entity. The center of that brush will be the point around which it is rotated. It will rotate around the Z axis by default. You can check either the X_AXIS or Y_AXIS box to change that.
+"distance"		How many degrees the door will be rotated.
+"speed"			Movement speed (100 default)
+"style"			0 = rotate away from it's activator, 1 = fixed rotation (default 0)
+"message"		Message printed once when the door is touched if it is a trigger door
+"team"			Trigger every door with the same team name 
+"angle"			determines the opening direction
+"targetname"	This entity's ID, must be triggered with a button or a trigger field if set.
+"target"		Targeted entity's ID, will be triggered on opening
+"target2"		Point to an ai_safespot's ID (for lockpicking purpose), can also be used as an alternate "targetname" field.
+"killtarget"	ID of the entity to delete when triggered
+"health"		if set, door must be shot open
+"wait"			wait before returning (default=3, -1 = never return)
+"dmg"			damage to inflict when blocked (default=2)
+"key"			Key number required to unlock (-1=trigger unlock or pick, 1=Store Room Key, 2=Electrical_Room, 3=Chem_Plant_Key, 4=Bridge_Key, 5=Shipyard_Key,6=Warehouse_Key, 7=Shop_Key, 8=Ticket, 9=Office_Key, 10=Key10)
+"sounds"   		0 or 1=silent, 2=metal sliding, 3=wooden swinging, 4=metal swinging, 5=metal sliding train, 6=metal rolling, 7=metal swing-up garage door, 8=wooden swinging, 9=wooden drawer, 10=metal drawer (default=2)
+*/
+
+
+/*QUAKED func_door_secret (0 .5 .8) ? ALWAYS_SHOOT 1ST_LEFT 1ST_DOWN
+A secret door.  Slide back and then to the side.
+"targetname"	This entity's ID
+"target"		Target entity's ID
+"angle"			Moving direction
+"dmg"			Damage to inflic when blocked (default=2)
+"wait"			How long to hold in the open position, stay forever if '-1' (default=5)
+"health"		Strength, must be shot-open if set.
+"killtarget"	ID of the entity to delete when triggered
+"message"		Message printed once when the door is touched if it is a trigger door
+*/
+
+
+
+/*QUAKED func_explosive (0 .5 .8) ? TRIGGER_SPAWN ANIMATED ANIMATED_FAST SURF2_ALPHA
+Any brush that you want to explode or break apart.  If you want an explosion, set dmg and it will do a radius explosion of that amount at the center of the bursh.
+"health"		Hit points (default=100)
+"type"			Type of debris ("glass", "wood" or "metal", default="glass")
+"mass"			Amount of debris (default=75)
+"dmg"			How much radius damage should be done (default=0)
+"fxdensity"		Size of explosion 1 to 100 (default=10)
+"target"		Entity to trigger when broken
+"killtarget"	ID of the entity to delete when broken
+*/
+
+
+/*QUAKED func_group (0 0 0) ?
+Used to group brushes together just for editor convenience.
+*/
+
+
+/*QUAKED func_killbox (1 0 0) ?
+Kills everything inside when fired, irrespective of protection.
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED func_lift (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS
+Lifts are moving platforms that players and ai_characters can ride (up and down only!!). The targets origin specifies the min point of the train at each corner. The train spawns at the first target it is pointing at. If the train is the target of a button or trigger, it will not begin moving until activated. A button is required for the AI to use.
+"speed"			Movement speed (default=100)
+"dmg"			Damage to inflict when blocked (default=100; BLOCK_STOPS default=0)
+"noise"			looping sound to play when the train is in motion
+"target2"		ID string for attached button
+"target"		Destination point
+"killtarget"	ID of the entity to delete when triggered
+*/
+
+
+/*QUAKED func_object (0 .5 .8) ? TRIGGER_SPAWN ANIMATED ANIMATED_FAST
+Solid bmodel, will fall if its support is removed.
+"dmg"			Damages inflicted to crushed entities (default=100)
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED func_object_repair (1 .5 0) (-8 -8 -8) (8 8 8)
+Object to be repaired.
+"delay"		Time in seconds for sparks to occur (default=1)
+"target"		Target entity ID to trigger on death
+*/
+
+
+/*QUAKED func_plat (0 .5 .8) ? PLAT_LOW_TRIGGER
+Platform
+Plats are always rendered in the extended position when compiling map, so they will light correctly. If the plat is the target of another trigger or button, it will start out disabled in the extended position until it is triggered, when it will lower and become a normal plat.
+"speed"			Moving speed (default=20)
+"accel"			Acceleration (default=5)
+"decel"			Deceleration (default=5)
+"dmg"			Damages when blocked (default=2)
+"lip"			Lip remaining after move (default=8)
+"height"		Movement distance
+"targetname"	This entity's ID
+"wait"			Time to wait before trigger
+*/
+
+
+/*QUAKED func_rotating (0 .5 .8) ? START_ON REVERSE X_AXIS Y_AXIS TOUCH_PAIN STOP ANIMATED ANIMATED_FAST
+Rotating brush
+You need to have an origin brush as part of this entity. The center of that brush will be the point around which it is rotated. It will rotate around the Z axis by default. You can check either the X_AXIS or Y_AXIS spawnflag to change the rotation axe.
+"speed"			Moving speed (default=100)
+"dmg"			Damages when blocked (default=2)
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED func_timer (0.3 0.1 0.6) (-8 -8 -8) (8 8 8) START_ON
+Timer
+Automatic trigger, can be activated, toggle.
+"targetname"	This entity's ID
+"target"		Targeted entity's ID
+"killtarget"	ID of the entity to delete when triggered
+"wait"			Base time between triggering all targets, in seconds (default=1)
+"random"		Wait variance (+/-), in seconds (default=0)
+"delay"			Delay before first firing when activated (default=0)
+"pausetime"		Additional delay used only the very first time, if START_ON is set
+*/
+
+
+/*QUAKED func_train (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS SURF2_ALPHA
+Moving platform
+Trains are moving platforms that players can ride. The targets origin specifies the min point of the train at each corner. The train spawns at the first target it is pointing at. If the train is the target of a button or trigger, it will not begin moving until activated.
+"speed"			Movement speed (default=100)
+"dmg"			Damage to inflict when blocked (default=2 ; BLOCK_STOPS default=100)
+"noise"			Sound (path/file.wav)
+"targetname"	This entity's ID
+"target"		First 'path_corner' entity's ID
+"killtarget"	ID of the entity to delete when triggered
+*/
+
+
+/*QUAKED func_train_rotating (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS SURF2_ALPHA
+Trains are moving platforms that players can ride. The targets origin specifies the min point of the train at each corner. The train spawns at the first target it is pointing at. If the train is the target of a button or trigger, it will not begin moving until activated.
+"speed"			Movement speed (default=100)
+"dmg"			Damage to inflict when blocked, set to 666 to kill on touch! (default=100; BLOCK_STOPS default=0)
+"noise"	 		Sound (path/file.wav)
+"reactdelay"	Sound length in second (default=1)
+"targetname"	This entity's ID
+"target"		Path_corner's ID
+"killtarget"	ID of the entity to delete when triggered
+*/
+
+
+/*QUAKED func_wall (0 .5 .8) ? TRIGGER_SPAWN TOGGLE START_ON ANIMATED ANIMATED_FAST SURF2_ALPHA
+Solid Wall
+This is just a solid wall if not inhibited. Wall is always present by default, unless TRIGGER_SPAWN is set -- When triggered, the wall will shift from OFF to ON (or ON to OFF).
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED func_water (0 .5 .8) ? START_OPEN TRANSLUCENT
+Movable water brush, must be targeted to operate. Use a non-water texture at your own risk.
+"targetname"	This entity's ID
+"angle"			Determines the opening direction (-1=up, -2=down –only-)
+"speed"			Movement speed (default=25)
+"wait"			Wait before returning (default=-1, TOGGLE)
+"lip"			Lip remaining at end of move (default=0)
+"sounds"		0=silent, 1=water, 2=water
+*/
+
+
+/*QUAKED hmg_mod_cooling (.7 .3 .4) (-16 -16 -16) (16 16 16)
+Cooling sleeves for the heavy submachine gun (weapon_heavymachinegun), increase rate of fire, lasts 30 shots before breaking up.
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models\pu_icon\coolmod\tris.md2"
+skin="models\weapons\v_hmg\hmgskin.tga"
+*/
+
+
+/*QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
+Used as a positional target for lightning.
+"targetname"		This point's ID
+*/
+
+/*QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4)
+Used as a positional target for spotlights, etc. If no targetname it's removed.
+"targetname"		This point's ID
+*/
+
+/*QUAKED info_player_coop (1 0 1) (-16 -16 -24) (16 16 48)
+Spawning point for AI gang members in a single-player game. Every single-player map should contain two of these near to the client's start point.
+"angle"			Yaw view direction, 0 to 360
+"targetname"		This start point's ID
+*/
+
+/*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 48) 
+Spawning point for players in deathmatch games.
+"angle"			Yaw view direction, 0 to 360
+"style"			Team number for Teamplay (1 or 2)
+*/
+
+/*QUAKED info_player_intermission (1 0 1) (-16 -16 -24) (16 16 32)
+Potential intermission viewpoint for deathmatch games.
+"angles"		Pitch, yaw and roll view direction.
+"angle"			Yaw view direction, 0 to 360
+*/
+
+/*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 48) 
+The normal starting point for a level.
+"angle"		Yaw view direction, 0 to 360
+"targetname"	This start point's ID
+*/
+
+
+/*QUAKED item_armor_helmet (.3 .3 1) (-16 -16 -16) (16 16 16)
+Armor: Helmet armor, light.
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/armor_head/armor_head.md2"
+skin="models/pu_icon/armor_head/armor_head.tga"
+*/
+
+
+/*QUAKED item_armor_helmet_heavy (.3 .3 1) (-16 -16 -16) (16 16 16)
+Armor: Helmet armor, heavy.
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+
+model="models/pu_icon/armor_head/armor_head_hd.md2"
+skin="models/pu_icon/armor_head/armor_head_hd.tga"
+*/
+
+
+/*QUAKED item_armor_jacket (.3 .3 1) (-16 -16 -16) (16 16 16)
+Armor: Jacket armor, light.
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+
+model="models/pu_icon/armor/tris.md2"
+model="models/pu_icon/armor/armor_vest.tga"
+*/
+
+
+/*QUAKED item_armor_jacket_heavy (.3 .3 1) (-16 -16 -16) (16 16 16)
+Armor: Jacket armor, heavy.
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+
+model="models/pu_icon/armor/armorhdtop.md2"
+model="models/pu_icon/armor/armor_hd_top.tga"
+*/
+
+
+/*QUAKED item_armor_legs (.3 .3 1) (-16 -16 -16) (16 16 16)
+Armor: Legs armor, light.
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/armor_lo/armor_lo.md2"
+model="models/pu_icon/armor_lo/armor_lo.tga"
+*/
+
+
+/*QUAKED item_armor_legs_heavy (.3 .3 1) (-16 -16 -16) (16 16 16)
+Armor: Legs armor, heavy.
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+
+model="models/pu_icon/armor_lo/armor_lo_hd.md2"
+model="models/pu_icon/armor_lo/armor_lo_hd.tga"
+*/
+
+
+/*QUAKED item_adrenaline (.3 .3 1) (-16 -16 -16) (16 16 16)
+Health: adrenaline (totally restores health).
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/adrenaline/tris.md2"
+model="models/pu_icon/adrenaline/adrenaline.pcx"
+*/
+
+
+/*QUAKED item_battery (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pickup item: bike battery ('Battery').
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/battery/tris.md2"
+model="models/pu_icon/battery/batt.pcx"
+*/
+
+
+/*QUAKED item_cashbaglarge (.3 .3 1) (-16 -16 -16) (16 16 16)
+Cash the player can pick up.
+"targetname"	This entity's ID
+"currentcash"	Set amount of cash in the bag
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/money/money_lg.md2"
+model="models/pu_icon/money/money.tga"
+*/
+
+
+/*QUAKED item_cashbagsmall (.3 .3 1) (-16 -16 -16) (16 16 16)
+Cash the player can pick up.
+"targetname"	This entity's ID
+"currentcash"	Set amount of cash in the bag
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/money/money_sm.md2"
+model="models/pu_icon/money/money.tga"
+*/
+
+
+/*QUAKED item_cashroll (.3 .3 1) (-16 -16 -16) (16 16 16)
+Cash the player can pick up.
+"targetname"	This entity's ID
+"currentcash"	Set amount of cash in the bag
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/cash/tris.md2"
+model="models/pu_icon/cash/cash.pcx"
+*/
+
+
+/*QUAKED item_coil (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pickup item: coil ('Coil').
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/coil/tris.md2"
+model="models/pu_icon/coil/coil.pcx"
+*/
+
+
+/*QUAKED item_flashlight (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pickup item: flashlight ('Flashlight').
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/f_light/tris.md2"
+model="models/pu_icon/f_light/f_light.pcx"
+*/
+
+
+/*QUAKED item_health_lg (.3 .3 1) (-16 -16 -16) (16 16 16)
+Health: large medicine bag.
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/health/tris.md2"
+model="models/pu_icon/health/health_l.pcx"
+*/
+
+
+/*QUAKED item_health_sm (.3 .3 1) (-16 -16 -16) (16 16 16)
+Health: small medkit.
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/health_s/tris.md2"
+model="models/pu_icon/health_s/health_s.pcx"
+*/
+
+
+/*QUAKED item_lizzyhead (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pickup item: Lizzy's head ('Lizzy Head').
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/head/head.mdx"
+skin="models/pu_icon/head/head.tga"
+*/
+
+
+/*QUAKED item_oilcan (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pickup item: oil can ('Oil Can').
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/oilcan/tris.md2"
+skin="models/pu_icon/oilcan/oilcan.tga"
+*/
+
+
+/*QUAKED item_pack (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pickup item: ammo pack ('Ammo Pack'), provides a few ammos for every weapon.
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/backpack/tris.md2"
+skin="models/pu_icon/backpack/backpack.tga"
+*/
+
+
+/*QUAKED item_safedocs (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pickup item: important documents ('Safe docs').
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/folder/tris.md2"
+skin="models/pu_icon/folder/folder.tga"
+*/
+
+
+/*QUAKED item_valve (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pickup item: valve ('Valve').
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/valve/tris.md2"
+skin="models/pu_icon/valve/valve.tga"
+*/
+
+
+/*QUAKED item_watch (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pickup item: Lenny's watch in Skidrow ('Watch').
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/watch/tris.md2"
+skin="models/pu_icon/watch/watch.tga"
+*/
+
+
+/*QUAKED item_whiskey (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pickup item: whiskey for the bum in Skidrow ('Whiskey').
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/whiskey/tris.md2"
+skin="models/pu_icon/whiskey/bottle.tga"
+*/
+
+
+/*QUAKED key_key1 (0 .5 .8) (-16 -16 -16) (16 16 16)
+Store_Room_Key, will allow player to unlock doors with a 'key' value of '1'
+
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/key/key_a.md2"
+skin="models/pu_icon/key/key_a.pcx"
+*/
+
+
+/*QUAKED key_key2 (0 .5 .8) (-16 -16 -16) (16 16 16)
+Electrical_Room, will allow player to unlock doors with a 'key' value of '2'
+
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/key/key_b.md2"
+skin="models/pu_icon/key/key_c.pcx"
+*/
+
+
+/*QUAKED key_key3 (0 .5 .8) (-16 -16 -16) (16 16 16)
+Chem_Plant_Key, will allow player to unlock doors with a 'key' value of '3'
+
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/key/key_c.md2"
+skin="models/pu_icon/key/key_c.pcx"
+*/
+
+
+/*QUAKED key_key4 (0 .5 .8) (-16 -16 -16) (16 16 16)
+Bridge_Key, will allow player to unlock doors with a 'key' value of '4'
+
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/key/key_c.md2"
+skin="models/pu_icon/key/key_c.pcx"
+*/
+
+
+/*QUAKED key_key5 (0 .5 .8) (-16 -16 -16) (16 16 16)
+Shipyard_Key, will allow player to unlock doors with a 'key' value of '5'
+
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/key/key_c.md2"
+skin="models/pu_icon/key/key_c.pcx"
+*/
+
+
+/*QUAKED key_key6 (0 .5 .8) (-16 -16 -16) (16 16 16)
+Warehouse_Key, will allow player to unlock doors with a 'key' value of '6'
+
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/key/key_c.md2"
+skin="models/pu_icon/key/key_c.pcx"
+*/
+
+
+/*QUAKED key_key7 (0 .5 .8) (-16 -16 -16) (16 16 16)
+Shop_Key, will allow player to unlock doors with a 'key' value of '7'
+
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/key/key_c.md2"
+skin="models/pu_icon/key/key_c.pcx"
+*/
+
+
+/*QUAKED key_key8 (0 .5 .8) (-16 -16 -16) (16 16 16)
+Ticket, will allow player to unlock doors with a 'key' value of '8'
+
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/key/key_c.md2"
+skin="models/pu_icon/key/key_c.pcx"
+*/
+
+
+/*QUAKED key_key9 (0 .5 .8) (-16 -16 -16) (16 16 16)
+Office_Key, will allow player to unlock doors with a 'key' value of '9'
+
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/key/key_c.md2"
+skin="models/pu_icon/key/key_c.pcx"
+*/
+
+
+/*QUAKED key_key10 (0 .5 .8) (-16 -16 -16) (16 16 16)
+Key10, will allow player to unlock doors with a 'key' value of '10'
+
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/key/key_c.md2"
+skin="models/pu_icon/key/key_c.pcx"
+*/
+
+/*QUAKED key_fuse (0 .5 .8) (-8 -8 -16) (8 8 16) TRIGGER_SPAWN NO_TOUCH
+Pickup item: fuse ('Fuse').
+
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/fuse/tris.md2"
+skin="models/pu_icon/fuse/fuse.tga"
+*/
+
+
+/*QUAKED junior (0 1 0) (-8 -8 -8) (8 8 8) START_OFF
+Used for dynamic lighting of characters and alias models.
+"light"			Light radius (default=300)
+"targetname"	This entity's ID, can be toggled on and off
+"_color"		Defines the color in scalar R G B values (default=0 0 0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+*/
+
+
+/*QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) START_OFF FLARE NORESIZE DYNAMIC
+Non-displayed light, used during lightning compilation.
+"light"			Light radius (default=300)
+"targetname"	This entity's ID, can be toggled on and off
+"_cone"			Defines spotlights size (default=10)
+"_color"		Defines the color in scalar R G B values default=1 1 1)
+"movedir"		Defines the color in scalar R G B values of the flare
+"health"		Diameter of the flare (default=24)
+"dmg"			Flare type (0=white, 1=sun, 2=amber, 3=red, 4=blue, 5=green) (default=0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+-------------------
+ArghRad Settings
+-------------------
+"_mangle"		Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector
+"_spotvector"	Spot direction set by vector X Y Z, or you can use _spotpoint
+"_spotpoint"	Spot direction set by coordinate X Y Z.
+"_focus"		Cone attenuation for spotlights
+"_falloff"		Fall off style -- 0=linear, 1=invese, 2=inverse square (default=1)
+"_wait"			Light distance attenuation
+"_angwait"		Light angle attenuation
+*/
+
+
+/*QUAKED light_bulb (1 1 1) (-2 -2 -5) (2 2 5) START_OFF FLARE NORESIZE DYNAMIC
+A bulb that outputs light. 
+"light"			Light radius (default=300)
+"targetname"	This entity's ID, can be toggled on and off
+"_cone"			Defines spotlights size (default=10)
+"_color"		Defines the color in scalar R G B values default=1 1 1)
+"movedir"		Defines the color in scalar R G B values of the flare
+"health"		Diameter of the flare (default=24)
+"dmg"			Flare type (0=white, 1=sun, 2=amber, 3=red, 4=blue, 5=green) (default=0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+-------------------
+ArghRad Settings
+-------------------
+"_mangle"		Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector
+"_spotvector"	Spot direction set by vector X Y Z, or you can use _spotpoint
+"_spotpoint"	Spot direction set by coordinate X Y Z.
+"_focus"		Cone attenuation for spotlights
+"_falloff"		Fall off style -- 0=linear, 1=invese, 2=inverse square (default=1)   
+"_wait"			Light distance attenuation
+"_angwait"		Light angle attenuation
+
+model="models\props\light\tris.md2"
+skin="models\props\light\bulb.tga"
+*/
+
+
+/*QUAKED light_chandelier (1 1 1) (-36 -34 -32) (36 34 32) START_OFF FLARE NORESIZE DYNAMIC
+A chandelier.
+"light"			Light radius (default=300)
+"targetname"	This entity's ID, can be toggled on and off
+"_cone"			Defines spotlights size (default=10)
+"_color"		Defines the color in scalar R G B values default=1 1 1)
+"movedir"		Defines the color in scalar R G B values of the flare
+"health"		Diameter of the flare (default=24)
+"dmg"			Flare type (0=white, 1=sun, 2=amber, 3=red, 4=blue, 5=green) (default=0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+-------------------
+ArghRad Settings
+-------------------
+"_mangle"		Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector
+"_spotvector"	Spot direction set by vector X Y Z, or you can use _spotpoint
+"_spotpoint"	Spot direction set by coordinate X Y Z.
+"_focus"		Cone attenuation for spotlights
+"_falloff"		Fall off style -- 0=linear, 1=inverse, 2=inverse square (default=1)   
+"_wait"			Light distance attenuation
+"_angwait"		Light angle attenuation
+
+model="models\props\chandelier\tris.md2"
+skin="models\props\chandelier\chandelier.tga"
+*/
+
+
+/*QUAKED light_deco_sconce (1 1 1) (-8 -8 -12) (8 8 12) START_OFF FLARE NORESIZE DYNAMIC
+A deco sconce.
+"light"			Light radius (default=300)
+"targetname"	This entity's ID, can be toggled on and off
+"_cone"			Defines spotlights size (default=10)
+"_color"		Defines the color in scalar R G B values default=1 1 1)
+"movedir"		Defines the color in scalar R G B values of the flare
+"health"		Diameter of the flare (default=24)
+"dmg"			Flare type (0=white, 1=sun, 2=amber, 3=red, 4=blue, 5=green) (default=0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+-------------------
+ArghRad Settings
+-------------------
+"_mangle"		Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector
+"_spotvector"	Spot direction set by vector X Y Z, or you can use _spotpoint
+"_spotpoint"	Spot direction set by coordinate X Y Z.
+"_focus"		Cone attenuation for spotlights
+"_falloff"		Fall off style -- 0=linear, 1=inverse, 2=inverse square (default=1)   
+"_wait"			Light distance attenuation
+"_angwait"		Light angle attenuation
+
+model="models\props\decosconce\tris.md2"
+skin="models\props\light\deco.tga"
+*/
+
+
+/*QUAKED light_fire_esm (1 0 0) (-8 -8 -8) (8 8 8) X X X DYNAMIC
+Extra-small fire.
+"alphalevel"	Opacity level -- 1 to 10 (default=5)
+"light"			Light radius (default=300)
+"_cone"			Defines spotlights size (default=10)
+"_color"		Defines the color in scalar R G B values default=1 1 1)
+"movedir"		Defines the color in scalar R G B values of the flare
+"health"		Diameter of the flare (default=24)
+"dmg"			Flare type (0=white, 1=sun, 2=amber, 3=red, 4=blue, 5=green) (default=0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+-------------------
+ArghRad Settings
+-------------------
+"_mangle"		Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector
+"_spotvector"	Spot direction set by vector X Y Z, or you can use _spotpoint
+"_spotpoint"	Spot direction set by coordinate X Y Z.
+"_focus"		Cone attenuation for spotlights
+"_falloff"		Fall off style -- 0=linear, 1=inverse, 2=inverse square (default=1)   
+"_wait"			Light distance attenuation
+"_angwait"		Light angle attenuation
+*/
+
+
+/*QUAKED light_fire_lg (1 0 0) (-32 -32 -32) (32 32 32) X X X DYNAMIC
+Cool fire large
+"alphalevel"	Opacity level -- 1 to 10 (default=5)
+"light"			Light radius (default=300)
+"_cone"			Defines spotlights size (default=10)
+"_color"		Defines the color in scalar R G B values default=1 1 1)
+"movedir"		Defines the color in scalar R G B values of the flare
+"health"		Diameter of the flare (default=24)
+"dmg"			Flare type (0=white, 1=sun, 2=amber, 3=red, 4=blue, 5=green) (default=0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+-------------------
+ArghRad Settings
+-------------------
+"_mangle"		Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector
+"_spotvector"	Spot direction set by vector X Y Z, or you can use _spotpoint
+"_spotpoint"	Spot direction set by coordinate X Y Z.
+"_focus"		Cone attenuation for spotlights
+"_falloff"		Fall off style -- 0=linear, 1=inverse, 2=inverse square (default=1)   
+"_wait"			Light distance attenuation
+"_angwait"		Light angle attenuation
+*/
+
+
+/*QUAKED light_fire_med (1 0 0) (-24 -24 -24) (24 24 24) X X X DYNAMIC
+Cool fire medium
+"alphalevel"	Opacity level -- 1 to 10 (default=5)
+"light"			Light radius (default=300)
+"_cone"			Defines spotlights size (default=10)
+"_color"		Defines the color in scalar R G B values default=1 1 1)
+"movedir"		Defines the color in scalar R G B values of the flare
+"health"		Diameter of the flare (default=24)
+"dmg"			Flare type (0=white, 1=sun, 2=amber, 3=red, 4=blue, 5=green) (default=0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+-------------------
+ArghRad Settings
+-------------------
+"_mangle"		Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector
+"_spotvector"	Spot direction set by vector X Y Z, or you can use _spotpoint
+"_spotpoint"	Spot direction set by coordinate X Y Z.
+"_focus"		Cone attenuation for spotlights
+"_falloff"		Fall off style -- 0=linear, 1=inverse, 2=inverse square (default=1)   
+"_wait"			Light distance attenuation
+"_angwait"		Light angle attenuation
+*/
+
+/*QUAKED light_fire_sm (1 0 0) (-16 -16 -16) (16 16 16) X X X DYNAMIC
+Cool fire small
+"alphalevel"	Opacity level -- 1 to 10 (default=5)
+"light"			Light radius (default=300)
+"_cone"			Defines spotlights size (default=10)
+"_color"		Defines the color in scalar R G B values default=1 1 1)
+"movedir"		Defines the color in scalar R G B values of the flare
+"health"		Diameter of the flare (default=24)
+"dmg"			Flare type (0=white, 1=sun, 2=amber, 3=red, 4=blue, 5=green) (default=0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+-------------------
+ArghRad Settings
+-------------------
+"_mangle"		Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector
+"_spotvector"	Spot direction set by vector X Y Z, or you can use _spotpoint
+"_spotpoint"	Spot direction set by coordinate X Y Z.
+"_focus"		Cone attenuation for spotlights
+"_falloff"		Fall off style -- 0=linear, 1=inverse, 2=inverse square (default=1)   
+"_wait"			Light distance attenuation
+"_angwait"		Light angle attenuation
+*/
+
+
+/*QUAKED light_pendant (1 1 1) (-16 -16 -4) (16 16 4) START_OFF FLARE NORESIZE DYNAMIC
+A pendant light.
+"light"			Light radius (default=300)
+"targetname"	This entity's ID, can be toggled on and off
+"_cone"			Defines spotlights size (default=10)
+"_color"		Defines the color in scalar R G B values default=1 1 1)
+"movedir"		Defines the color in scalar R G B values of the flare
+"health"		Diameter of the flare (default=24)
+"dmg"			Flare type (0=white, 1=sun, 2=amber, 3=red, 4=blue, 5=green) (default=0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+-------------------
+ArghRad Settings
+-------------------
+"_mangle"		Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector
+"_spotvector"	Spot direction set by vector X Y Z, or you can use _spotpoint
+"_spotpoint"	Spot direction set by coordinate X Y Z.
+"_focus"		Cone attenuation for spotlights
+"_falloff"		Fall off style -- 0=linear, 1=inverse, 2=inverse square (default=1)   
+"_wait"			Light distance attenuation
+"_angwait"		Light angle attenuation
+
+model="models\props\pendant\tris.md2"
+skin="models\props\light\pendant.tga"
+*/
+
+
+/*QUAKED light_sconce (1 1 1) (-4 -4 -8) (4 4 8) START_OFF FLARE NORESIZE DYNAMIC BLUE_MODEL GREEN_MODEL RED_MODEL YELLOW_MODEL
+A cage light model, set correct skin with spawnflags (default skin: white).
+"light"			Light radius (default=300)
+"targetname"	This entity's ID, can be toggled on and off
+"_cone"			Defines spotlights size (default=10)
+"_color"		Defines the color in scalar R G B values default=1 1 1)
+"movedir"		Defines the color in scalar R G B values of the flare
+"health"		Diameter of the flare (default=24)
+"dmg"			Flare type (0=white, 1=sun, 2=amber, 3=red, 4=blue, 5=green) (default=0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+-------------------
+ArghRad Settings
+-------------------
+"_mangle"		Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector
+"_spotvector"	Spot direction set by vector X Y Z, or you can use _spotpoint
+"_spotpoint"	Spot direction set by coordinate X Y Z.
+"_focus"		Cone attenuation for spotlights
+"_falloff"		Fall off style -- 0=linear, 1=inverse, 2=inverse square (default=1)   
+"_wait"			Light distance attenuation
+"_angwait"		Light angle attenuation
+
+model="models\props\sconce\light.md2"
+skin="models\props\sconce\light.tga"
+*/
+
+
+/*QUAKED sfx_beacon (0 0 1) (-16 -16 -16) (16 16 16)
+Some rotating beam.
+*/
+
+
+/*QUAKED lightflare (0 1 0) (-2 -2 -2) (2 2 2) START_OFF FLARE NORESIZE DYNAMIC
+Non-displayed light.
+"light"			Light radius (default=300)
+"targetname"	This entity's ID, can be toggled on and off
+"_cone"			Defines spotlights size (default=10)
+"_color"		Defines the color in scalar R G B values default=1 1 1)
+"movedir"		Defines the color in scalar R G B values of the flare
+"health"		Diameter of the flare (default=24)
+"dmg"			Flare type (0=white, 1=sun, 2=amber, 3=red, 4=blue, 5=green) (default=0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+-------------------
+ArghRad Settings
+-------------------
+"_mangle"		Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector
+"_spotvector"	Spot direction set by vector X Y Z, or you can use _spotpoint
+"_spotpoint"	Spot direction set by coordinate X Y Z.
+"_focus"		Cone attenuation for spotlights
+"_falloff"		Fall off style -- 0=linear, 1=invese, 2=inverse square (default=1)   
+"_wait"			Light distance attenuation
+"_angwait"		Light angle attenuation
+*/
+
+
+/*QUAKED misc_alarm (1 .5 0) (-8 -8 -8) (8 8 8) 
+Rings when triggered, when turned on, triggers the 'alarm' eventscript.
+"targetname"	This entity's ID
+"speed"			Wait time before alarmed (default=3)
+"count"			Duration of alarm ringing (default=60)
+*/
+
+
+/*QUAKED misc_cutscene_camera (0 0 1) (-16 -16 -16) (16 16 16)
+Camera, must be triggered by a 'misc_cutscene_trigger' or 'misc_use_cutscene', relay from 'misc_cutscene_camera' to 'misc_cutscene_camera' using 'target', cutscene will end when there's no more camera.
+"targetname"		This camera's ID
+"target"			Next camera's ID to target
+"cameraorigin"		X Y Z camera start position (overrides entity's origin)
+"cameraangle"		X Y Z start angles
+"rotate"			X Y Z rotational velocity during cut scene
+"target2"			Always look at that entity (overrides angles when moving)
+"cameravel"			[forward] [right] [up] speed to move from initial angle
+"cameravelrel"		[forward] [right] [up] speed to move relative to current frame angle
+"wait"				Time before switching to next camera in seconds (default=5)
+"accel"				Acceleration rate when starting to move
+"decel"				Deceleration rate when approaching the end of use
+"delay"				Delay before starting to move ('decel' and 'accel' must be set)
+"reactdelay"		Moving time ('accel' must be set, if there's no 'decel', will never stop moving)
+"duration"			Fade out time
+"name"				Sound to play once triggered
+"sight_target"		Talking actor (if there's a sound to play)
+"deadticks"			Fov for this camera (default=90)
+"scriptname"		Script name to trigger when starting the camera
+*/
+
+
+/*QUAKED misc_cutscene_trigger (0 0 1) ?
+This entity tells the code to unlink the camera from the client, so we can move it around. Once triggered, this entity should trigger a 'misc_cutscene_camera'.
+"target"		misc_cutscene_camera to trigger
+"debugprint"	when set to 1, will print out camera end position and angles
+"duration"		fade in time in seconds
+*/
+
+
+/*QUAKED misc_use_cutscene (.5 .5 .5) (-8 -8 -8) (8 8 8)
+This entity tells the code to unlink the camera from the client, so we can move it around. Once triggered, this entity should trigger a 'misc_cutscene_camera'.
+"target"		misc_cutscene_camera to trigger
+"debugprint"	when set to 1, will print out camera end position and angles
+"duration"		fade in time in seconds
+*/
+
+
+/*QUAKED path_attractor (.4 .3 .8) (-16 -16 -24) (16 16 48)
+When this is placed on the map it will attract actors by name from the episode ai routines
+
+"delay"		number of seconds before attract ai(default=10)
+*/
+
+
+/*QUAKED path_corner (.5 .3 0) (-8 -8 -8) (8 8 8) TELEPORT
+It defines a destination point for moving brush entities. Use path_corner_cast for AI's paths.
+
+"target"		Next path_corner's ID
+"targetname"	This path_corner's ID
+"killtarget"	ID of the entity to delete when reached
+"pathtarget"	Entity to trigger when an entity that has this path_corner targeted touches it
+"wait"		Wait (in seconds)
+"speed"		Func_train_rotating only: departure speed from that corner 
+"rotate"	Func_train_rotating only: angle change for X Y Z to next corner 
+"duration"	Func_train_rotating only: duration for angle change (overrides speed)  
+*/
+
+
+/*QUAKED path_corner_cast (.5 .3 0) (-16 -16 -24) (16 16 42) TELEPORT
+It defines a destination point for moving actors, when an actor reach the point, an event can be triggered. Use path_corner for brush-based entities.
+
+"target"		Next path_corner_cast's ID
+"targetname"	This path_corner_cast's ID
+"killtarget"	ID of the entity to delete when reached
+"name"		Sound to play when reached.
+"pathtarget"	Entity to trigger when an entity that has this path_corner targeted touches it
+"combattarget"	When the cast reaches this marker, they'll attack this target
+"scriptname"	Hard-coded script to call when reaching this marker
+"wait"		Wait (in seconds)
+*/
+
+/*QUAKED pawn_o_matic (1 .5 0) (-64 -8 -36) (64 8 28)
+Two-sided panels used to select stuff in any pawn-o-matic.
+
+"count"	 Used to check what pawn-o-matic we're in. 1 or 2, 2 got more items to buy.  But only works on episode skidrow (default=1)
+
+model="models/props/menu_mdx/frame.mdx"
+skin="models/props/menu_mdx/skin_frame.pcx"
+*/
+
+
+/*QUAKED pistol_mod_damage (.7 .3 .4) (-16 -16 -16) (16 16 16)
+Magnum mod for the pistol (weapon_pistol, weapon_spistol), increases damages.
+
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/magmod/tris.md2"
+skin="models/pu_icon/magmod/magmod.tga"
+*/
+
+
+/*QUAKED pistol_mod_reload (.7 .3 .4) (-16 -16 -16) (16 16 16)
+Reload mod for the pistol (weapon_pistol, weapon_spistol), increases the reload speed.
+
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/reload_mod/tris.md2"
+skin="models/pu_icon/reload_mod/reloadmod.tga"
+*/
+
+
+/*QUAKED pistol_mod_rof (.7 .3 .4) (-16 -16 -16) (16 16 16)
+Rate of fire mod for the pistol (weapon_pistol, weapon_spistol), increases rate of fire.
+
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/ro_fire_mod/tris.md2"
+skin="models/pu_icon/ro_fire_mod/ro_fire.tga"
+*/
+
+
+
+/*QUAKED props_aircon (0 .5 .8) (-16 -16 -24) (16 16 24)
+A cool box deluxe
+
+model="models\props\aircon\tris.md2"
+skin="models\props\aircon\skin.pcx"
+*/
+
+
+/*QUAKED props_ammocrate_bust (0 .5 .8) (-32 -16 -8) (32 16 8)
+An ammo crate you may bust with a melee weapon (crowbar or pipe) to get its content, will explose if broken otherwise, the bounding box can be rotated in angles of 90 deg and block properly.
+"mass"		Weigth (default=400)
+"health"	Strength (default=10)
+"dmg"		Damages to inflic on destruction (default=0)
+"item"		Item to spawn on destruction
+
+model="models\props\crate\tris.md2"
+skin="models\props\crate\exp_crate.tga"
+*/
+
+
+/*QUAKED props_antenna1a (0 .5 .8) (-28 -22 -22) (28 22 22)
+An antenna
+
+model="models\props\antenna\antenna.mdx"
+skin="models\props\antenna\antenna.pcx"
+*/
+
+
+/*QUAKED props_antenna1b (0 .5 .8) (-41 -33 -32) (41 33 32)
+An antenna
+
+model="models\props\ant1b\antenna.mdx"
+skin="models\props\antenna\antenna.pcx"
+*/
+
+
+/*QUAKED props_antenna1c (0 .5 .8) (-55 -44 -43) (55 44 43)
+An antenna
+
+model="models\props\ant1c\antenna.mdx"
+skin="models\props\antenna\antenna.pcx"
+*/
+
+
+/*QUAKED props_antenna2a (0 .5 .8) (-26 -30 -22) (26 30 22)
+An antenna
+
+model="models\props\ant2a\antenna.mdx"
+skin="models\props\antenna\antenna.pcx"
+*/
+
+
+
+/*QUAKED props_antenna2b (0 .5 .8) (-38 -45 -32) (38 45 32)
+An antenna
+
+model="models\props\ant2b\antenna.mdx"
+skin="models\props\antenna\antenna.pcx"
+*/
+
+
+/*QUAKED props_antenna2c (0 .5 .8) (-50 -60 -43) (60 50 43)
+An antenna
+
+model="models\props\ant2c\antenna.mdx"
+skin="models\props\antenna\antenna.pcx"
+*/
+
+
+/*QUAKED props_antenna3a (0 .5 .8) (-14 -2 -22) (14 2 22)
+An antenna
+
+model="models\props\ant3a\antenna.mdx"
+skin="models\props\antenna\antenna.pcx"
+*/
+
+
+/*QUAKED props_antenna3b (0 .5 .8) (-21 -3 -33) (21 3 33)
+An antenna
+
+model="models\props\ant3b\antenna.mdx"
+skin="models\props\antenna\antenna.pcx"
+*/
+
+
+/*QUAKED props_antenna3c (0 .5 .8) (-28 -3 -44) (28 3 44)
+An antenna
+
+model="models\props\ant3c\antenna.mdx"
+skin="models\props\antenna\antenna.pcx"
+*/
+
+
+
+/*QUAKED props_blimp (0 .5 .8) (-140 -40 -58) (140 40 58)
+A moving blimp, trigger to make visible and start moving.
+"speed"		Movement speed (default=20)
+"target"		Target path corner ID
+"targetname"	This entity's ID
+
+model="models\props\blimp\tris.md2"
+skin="models\props\blimp\blimp.tga"
+*/
+
+
+/*QUAKED props_chair (0 .5 .8) (-11 -13 -26) (11 13 26)
+A chair
+
+model="models\props\chair\chair.mdx"
+skin="models\props\chair\chair1.tga"
+*/
+
+
+/*QUAKED props_cig_machine (0 .5 .8) (-16 -24 -32) (16 24 32)
+A cigarette machine, bounding box can be rotated in angles of 90 deg and block properly
+
+model="models\props\cigmachine\tris.md2"
+skin="models\props\vending_mach\cigarette.tga"
+*/
+
+
+/*QUAKED props_cola_machine (0 .5 .8) (-16 -24 -32) (24 32 32)
+A cola machine, bounding box can be rotated in angles of 90 deg and block properly
+
+model="models\props\vending_mach\tris.md2"
+skin="models\props\vending_mach\cola.tga"
+*/
+
+
+/*QUAKED props_crate_bust_32 (0 .5 .8) (-16 -16 -16) (16 16 16) X NON_MOVEABLE TYPE_WOOD TYPE_WOOD2 TYPE_METAL TYPE_CARDBOARD
+Crate can bust and you can push.
+"mass"		Weigth (default=400)
+"health"	Strength (default=10)
+"dmg"		Damages to inflic on destruction (default=0)
+"item"		Item to spawn on destruction
+
+model="models\props\crate\stillcrate32_1.mdx"
+skin="models\props\crate\breakable.tga"
+*/
+
+
+/*QUAKED props_crate_bust_48 (0 .5 .8) (-24 -24 -24) (24 24 24) X NON_MOVEABLE TYPE_WOOD TYPE_WOOD2 TYPE_METAL TYPE_CARDBOARD
+Crate can bust and you can push.
+"mass"		Weigth (default=400)
+"health"	Strength (default=10)
+"dmg"		Damages to inflic on destruction (default=0)
+"item"		Item to spawn on destruction
+
+model="models\props\crate\stillcrate48_1.mdx"
+skin="models\props\crate\breakable.tga"
+*/
+
+
+/*QUAKED props_crate_bust_64 (0 .5 .8) (-32 -32 -32) (32 32 32) X X TYPE_WOOD TYPE_WOOD2 TYPE_METAL TYPE_CARDBOARD 
+Pushable crate can bust.
+"mass"		Weigth (default=400)
+"health"	Strength (default=10)
+"dmg"		Damages to inflic on destruction (default=0)
+"item"		Item to spawn on destruction
+
+model="models\props\crate\stillcrate64_1.mdx"
+skin="models\props\crate\breakable.tga"
+*/
+
+
+/*QUAKED props_extinguisherA (0 .5 .8) (-16 -16 -16) (16 16 16)
+A breakable extinguisher.
+"dmg"		Damages inflicted on destruction (default=25)
+
+model="models\pu_icon\exting\ext1.md2"
+skin="models\pu_icon\exting\ext.pcx"
+*/
+
+
+/*QUAKED props_extinguisherB (0 .5 .8) (-16 -16 -16) (16 16 16)
+A breakable extinguisher.
+"dmg"		Damages inflicted on destruction (default=25)
+
+model="models\pu_icon\exting\ext2.md2"
+skin="models\pu_icon\exting\ext2.pcx"
+*/
+
+
+/*QUAKED props_fan (0 .5 .8) (-8 -12 -16) (8 12 16)
+A fan
+
+model="models\props\fan\tris.md2"
+skin="models\props\fan\skin.pcx"
+*/
+
+
+/*QUAKED props_hydrant (0 .5 .8) (-10 -10 -19) (10 10 19)
+A hydrant that does jack
+
+model="models\props\hydrant\tris.md2"
+skin="models\props\hydrant\newskin.pcx"
+*/
+
+
+/*QUAKED props_mattressA (0 .5 .8) (-36 -28 -38) (36 28 38)
+A mattress
+
+model="models/props/mattress/matt.md2"
+skin="textures/props2/mattress.pcx"
+*/
+
+
+/*QUAKED props_mattressB (0 .5 .8) (-8 -34-38) (8 34 38)
+A mattress
+
+model="models/props/mattress/matt2.md2"
+skin="textures/props2/mattress.pcx"
+*/
+
+
+/*QUAKED props_mattressC (0 .5 .8) (-34 -38 -8) (34 38 8)
+A mattress
+
+model="models/props/mattress/matt3.md2"
+skin="textures/props2/mattress.pcx"
+*/
+
+
+/*QUAKED props_motorcycle (0 .5 .8) (-60 -20 -26) (60 20 26)
+
+A motorcycle
+
+model="models\props\moto\moto.mdx;models\props\moto\chrome.mdx"
+skin="models\props\moto\motoskin.tga;models\props\moto\motoskin_a.tga"
+*/
+
+
+/*QUAKED props_motorcycle_run (0 .5 .8) (-16 -16 -16) (16 16 16)
+A motorcycle speeding away
+
+model="models/props/ride/head.mdx;models/props/ride/moto.mdx;models/props/ride/body.mdx;models/props/ride/legs.mdx;models/props/ride/cigar.mdx"
+skin="models/actors/thug/head_009.tga;models/props/ride/bike12a.tga;models/actors/thug/body_019.tga;models/actors/thug/legs_017.tga;models/props/cigar/cigar1.tga"
+*/
+
+
+/*QUAKED props_motorcycle_runaway (0 .5 .8) (-16 -16 -16) (16 16 16)
+A motorcycle riding in place
+
+model="models/props/runaway/head.mdx;models/props/runaway/moto.mdx;models/props/runaway/body.mdx;models/props/runaway/legs.mdx"
+skin="models/actors/thug/head_009.tga;models/props/ride/bike12a.tga;models/actors/thug/body_019.tga;models/actors/thug/legs_017.tga"
+*/
+
+
+/*QUAKED props_phone (0 .5 .8) (-8 -8 -6) (8 8 6)
+A phone (telephone)
+
+model="models\props\phone\tris.md2"
+skin="models\props\phone\skin.pcx"
+*/
+
+
+/*QUAKED props_radio (0 .5 .8) (-8 -12 -8) (8 12 8)
+A radio that will take damage and activate triggers on destruction.
+"health"		Strength, unbreakable if 666(default=25)
+
+model="models\props\radio\tris.md2"
+skin="models\props\radio\skin_radio.pcx"
+*/
+
+
+/*QUAKED props_rat (0 .5 .8) (-12 -12 0) (12 12 10)
+A rat.
+"option"		Set to '1' to make them dissapear if cvar props == 0
+"health"		Rat health (default=10)
+"dmg"		Rat bite damage (default=2)
+
+model="models/actors/rat/rat.mdx"
+skin="models/actors/rat/skin_rat.tga"
+*/
+
+
+/*QUAKED props_rat_spawner (0 .5 .8) (-16 -16 -16) (16 16 16)
+Base rat spawner, props_rat_spawner_node  determine possible spawn point
+"option"		Set to '1' to make them dissapear if cvar props == 0
+"health"		Rat health (default=10)
+"dmg"			Rat bite damage (default=2)
+"target"		ID string for spawner 
+"deadticks"		Total number of rats in level from spawner at a time (default 5)
+*/
+
+
+/*QUAKED props_rat_spawner_node (0 .5 .8) (-16 -16 -16) (16 16 16)
+Possible rat spawn point for 'props_rat_spawner'
+"targetname"	ID string for spawner
+*/
+
+
+/*QUAKED props_rat_trigger (0 .5 .8) (-12 -12 0) (12 12 10)
+A rat that is spawned when triggered.
+"option"		Set to '1' to make them dissapear if cvar props == 0
+"health"		Rat health (default=10)
+"dmg"			Rat bite damage (default=2)
+"targetname"	This entity's ID
+
+model="models/actors/rat/rat.mdx"
+skin="models/actors/rat/skin_rat.tga"
+*/
+
+
+/*QUAKED props_roof_vent (0 .5 .8) (-32 -36 -48) (32 36 48)
+A breakable moving roof vent.
+"health"		Strength (default=25)
+
+model="models\props\roof_vent\tris.md2"
+skin="models\props\roof_vent\vent.tga"
+*/
+
+
+/*QUAKED props_shelf (0 .5 .8) (-40 -85 -51) (40 85 51)
+The pawn shop shelf 
+
+model="models\props\shelf\flametank.mdx;models\props\shelf\pistol.mdx;models\props\shelf\shotgun.mdx;models\props\shelf\sshell.mdx;models\props\shelf\tomgun.mdx"
+skin="models\props\shelf\flametank.tga;models\props\shelf\tg.tga;models\props\shelf\sht.tga;models\props\shelf\ssbox.tga;models\props\shelf\tg.tga"
+*/
+
+
+/*QUAKED props_steam_machine (0 .5 .8) (-8 -8 -8) (8 8 8)
+A real steam producer, always on, no model
+"alphalevel"	Opacity level, 1 to 10 (default=2)
+"firetype"		Length of steam, 1 to 100 (default=15)
+"thudsurf"		Start size of steam, 1 to 10 (default=5)
+"thudsnd"		End size steam increase, 1 to 10 (default=5)
+"deadticks"		Number of steam puffs per length element, 1 to 10 (default=2)
+*/
+
+
+/*QUAKED props_tablesetA (0 .5 .8) (-26 -27 -6) (26 27 6)
+Card-shark table setting
+
+model="models\props\tablesets\set.mdx"
+skin="models\props\tablesets\card_skin.pcx"
+*/
+
+
+/*QUAKED props_trash (0 .5 .8) (-64 -64 -4) (64 64 4)
+Some trash
+
+model="models\props\trash\tris.md2"
+skin="models\props\trash\trash.tga"
+*/
+
+
+/*QUAKED props_trashbottle (0 .5 .8) (-8 -2 -2) (8 2 2)
+Some trash
+
+model="models\props\trashbottle\tris.md2"
+skin="models\props\trash\trash.tga"
+*/
+
+
+/*QUAKED props_trashbottle_vert (0 .5 .8) (-2 -2 -8) (2 2 8)
+A vertical trash bottle
+
+model="models\props\trashbottle_vert\tris.md2"
+skin="models\props\trash\trash.tga"
+*/
+
+
+/*QUAKED props_trashcan_fall (0 .5 .8) (-16 -16 -21) (16 16 21)
+Trash can you can push.
+"mass"		Weight (default=400)
+"health"		Strength (default=10)
+"dmg"		Damages inflicted on destruction (default=0)
+"item"		Item to spawn on push down or destruction
+
+model="models/props/t_can2/tris.md2"
+skin="models/props/t_can/skin.pcx"
+*/
+
+
+/*QUAKED props_trashcanA (0 .5 .8) (-16 -16 -21) (16 16 21) ? NON_MOVEABLE
+A trash can you can push.
+"mass"		Weigth (default=400)
+"health"		Strength (default=10)
+"dmg"		Damages to inflic on destruction (default=0)
+"item"		Item to spawn on destruction
+
+model="models/props/t_can/tris.md2"
+skin="models/props/t_can/skin.pcx"
+*/
+
+
+/*QUAKED props_trashcorner (0 .5 .8) (-40 -40 -8) (40 40 8)
+Some trash
+
+model="models\props\trashcorner\tris.md2"
+skin="models\props\trash\trash.tga"
+*/
+
+
+/*QUAKED props_trashpaper (0 .5 .8) (-18 -18 -2) (18 18 2)
+Some trash
+
+model="models\props\trashpaper\tris.md2"
+skin="models\props\trash\trash.tga"
+*/
+
+
+/*QUAKED props_trashwall (0 .5 .8) (-70 -25 -10) (70 25 10)
+Some trash
+
+model="models\props\trashwall\tris.md2"
+skin="models\props\trash\trash.tga"
+*/
+
+
+/*QUAKED props_tv (0 .5 .8) (-8 -16 -22) (8 16 22)
+A television
+
+model="models\props\tv\tv.md2"
+skin="models\props\tv\tv.tga"
+*/
+
+
+/*QUAKED props_wall_fall (0 .5 .8) (-64 -26 -48) (64 26 48)
+A wall that falls when trigered.
+"targetname"	This entity's ID
+
+model="models\props\wall\wall.mdx"
+skin="models\props\wall\b_mf_v2a.tga"
+*/
+
+
+
+/*QUAKED props2_ashtray (0 .5 .8) (-12 -18 -4) (12 18 4)
+An ashtray
+
+model="models\props\ashtray_set\tris.md2"
+skin="models\props\ashtray_set\ashtray.tga"
+*/
+
+
+/*QUAKED props2_barrels_fall_ST (0 .5 .8) (-89 -48 -56) (89 48 56)
+A set of barrels that you can trigger to fall
+"targetname"	This entity's ID
+
+model="models\props\barl_steel\barrels.mdx;models\props\barl_steel\door.mdx;models\props\barl_steel\tops.mdx"
+skin="textures\props\barrel_v2.tga;textures\floors\dr_pv_vv2.tga;textures\props\barrel_v3t.tga"
+*/
+
+
+/*QUAKED props2_barrels_fallA (0 .5 .8) (-69 -33 -49) (69 33 49)
+A set of barrels that you can trigger to fall
+"targetname"	This entity's ID
+
+model="models\props\barl1\barrels.mdx;models\props\barl1\tops.mdx"
+skin="textures\props\barrel_v4.tga;textures\props\barrel_v3t.tga"
+*/
+
+
+/*QUAKED props2_barrels_fallB (0 .5 .8) (-33 -81 -49) (33 81 49)
+Another set of barrels that  you can trigger to fall
+"targetname"	This entity's ID
+
+model="models\props\barl2\barrels2.mdx;models\props\barl2\tops2.mdx"
+skin="textures\props\barrel_v4.tga;textures\props\barrel_v3t.tga"
+*/
+
+
+/*QUAKED props2_barrels_PV_A (0 .5 .8) (-90 -32 -48) (90 32 48)
+A set of barrels that you can trigger to fall
+"targetname"	This entity's ID
+
+model="models/props/pv_barl1/top_barrel_v4.mdx;models/props/pv_barl1/barrel_v2.mdx;models/props/pv_barl1/barrel_v4.mdx;models/props/pv_barl1/top_barrel_v2.mdx"
+skin="textures/props/barrel_v3t.tga;textures/props/barrel_v2.tga;textures/props/barrel_v4.tga;textures/props/barrel_v3t.tga"
+*/
+
+
+/*QUAKED props2_barrels_PV_B (0 .5 .8) (-17 -77 -49) (17 77 49)
+A set of barrels that you can trigger to fall
+"targetname"	This entity's ID
+
+model="models/props/pv_barl7/top_barrel_v4.mdx;models/props/pv_barl7/barrel_v2.mdx;models/props/pv_barl7/barrel_v4.mdx;models/props/pv_barl7/top_barrel_v2.mdx"
+skin="textures/props/barrel_v3t.tga;textures/props/barrel_v2.tga;textures/props/barrel_v4.tga;textures/props/barrel_v3t.tga"
+*/
+
+
+/*QUAKED props2_barrels_PV_C (0 .5 .8) (-68 -50 -48) (68 50 48)
+A set of barrels that you can trigger to fall
+"targetname"	This entity's ID
+
+model="models/props/pv_barl3/top_barrel_v4.mdx;models/props/pv_barl3/barrel_v2.mdx;models/props/pv_barl3/barrel_v4.mdx;models/props/pv_barl3/top_barrel_v2.mdx"
+skin="textures/props/barrel_v3t.tga;textures/props/barrel_v2.tga;textures/props/barrel_v4.tga;textures/props/barrel_v3t.tga"
+*/
+
+
+/*QUAKED props2_barrels_PV_D (0 .5 .8) (-20 -52 -48) (20 52 48)
+A set of barrels that you can trigger to fall
+"targetname"	This entity's ID
+
+model="models/props/pv_barl4/top_barrel_v4.mdx;models/props/pv_barl4/barrel_v2.mdx;models/props/pv_barl4/barrel_v4.mdx;models/props/pv_barl4/top_barrel_v2.mdx"
+skin="textures/props/barrel_v3t.tga;textures/props/barrel_v2.tga;textures/props/barrel_v4.tga;textures/props/barrel_v3t.tga"
+*/
+
+
+/*QUAKED props2_barrels_PV_E (0 .5 .8) (-24 -64 -48) (24 64 48)
+A set of barrels that you can trigger to fall
+"targetname"	This entity's ID
+
+model="models/props/pv_barl5/barrel_v4.mdx;models/props/pv_barl5/barrel_v2.mdx;models/props/pv_barl5/top_barrel_v4.mdx;models/props/pv_barl5/top_barrel_v2.mdx"
+skin="textures/props/barrel_v3t.tga;textures/props/barrel_v2.tga;textures/props/barrel_v4.tga;textures/props/barrel_v3t.tga"
+*/
+
+
+/*QUAKED props2_barrels_PV_F (0 .5 .8) (-20 -32 -24) (20 32 24)
+A set of barrels that you can trigger to fall
+"targetname"	This entity's ID
+
+model="models/props/pv_barl5/top_barrel_v4.mdx;models/props/pv_barl5/barrel_v2.mdx;models/props/pv_barl5/barrel_v4.mdx;models/props/pv_barl5/top_barrel_v2.mdx"
+skin="textures/props/barrel_v3t.tga;textures/props/barrel_v2.tga;textures/props/barrel_v4.tga;textures/props/barrel_v3t.tga"
+*/
+
+
+/*QUAKED props2_boat (0 .5 .8) (-80 -160 -38) (80 160 38)
+A boat, the bounding box can be rotated in angles of 90 deg and block properly
+
+model="models\props\boat\boat.mdx;models\props\boat\glass.mdx"
+skin="models\props\boat\boat.tga;models\props\boat\boat.tga"
+*/
+
+
+/*QUAKED props2_boat_animate (0 .5 .8) (-80 -160 -38) (80 160 38)
+An animated boat
+
+model="models\props\boata\boat.mdx;models\props\boata\window.mdx"
+skin="models\props\boat\boat20.tga;models\props\boat\boat20.tga"
+*/
+
+
+/*QUAKED props2_boatphone (0 .5 .8) (-5 -9 -12) (5 9 12)
+A boat phone
+
+model="models\props\boatphone\tris.md2"
+skin="models\props\boatphone\tbphone.tga"
+*/
+
+
+/*QUAKED props2_buoy (0 .5 .8) (-41 -41 -75) (41 41 75)
+A buoy
+
+model="models\props\buoy\buoy.mdx;models\props\buoy\light.mdx"
+skin="models\props\buoy\buoy.tga;models\props\sconce\lightr.tga"
+*/
+
+
+/*QUAKED props2_buoy_animate (0 .5 .8) (-41 -41 -75) (41 41 75)
+An animated buoy
+
+model="models\props\buoya\buoy.mdx;models\props\buoya\light.mdx"
+skin="models\props\buoy\buoy.tga;models\props\sconce\lightr.tga"
+*/
+
+
+/*QUAKED props2_buoy_side (1 0 0) (-81 -55 -64) (81 55 64)
+
+A buoy on it's side
+
+model="models\props\buoyside\buoy.mdx;models\props\buoyside\light.mdx"
+skin="models\props\buoy\buoy.tga;models\props\sconce\lightb.tga"
+*/
+
+
+/*QUAKED props2_car_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+A car and actors (Blunt & Nikki Blanco) that animate when trigered
+"targetname"	This entity's ID
+
+model="models/props/cars/car.mdx;models/props/cars/legs_boss.mdx;models/props/cars/body_boss.mdx;models/props/cars/head_boss.mdx;models/props/cars/legs_chick.mdx;models/props/cars/body_chick.mdx;models/props/cars/head_chick.mdx"
+skin="models/props/cars/car60.tga;models/actors/thug/legs_122.tga;models/actors/thug/body_122.tga;models/actors/thug/head_122.tga;models/actors/bitch/legs_059.tga;models/actors/bitch/body_059.tga;models/actors/bitch/head_080.tga"
+*/
+
+
+/*QUAKED props2_car_topdown (0 .5 .8) (-50 -102 -33) (50 102 33)
+A car with top down, the bounding box can be rotated in angles of 90 deg and block properly
+
+model="models\props\car\car_td.md2"
+skin="models\props\car\car_td.tga"
+*/
+
+
+/*QUAKED props2_car_topup (0 .5 .8) (-50 -102 -35) (50 102 35)
+A car with top up, the bounding box can be rotated in angles of 90 deg and block properly
+
+model="models\props\car\car_up.md2"
+skin="models\props\car\car_up.tga"
+*/
+
+
+/*QUAKED props2_chair_conf (0 .5 .8) (-24 -24 -32) (24 24 32)
+An pushable chair
+"mass"		Weight (default=400)
+"health"	Strength (default=25)
+
+model="models/props/confchair/tris.md2"
+skin="models/props/confchair/confchair.tga"
+*/
+
+
+/*QUAKED props2_chair_push (0 .5 .8) (-16 -16 -26) (16 16 26)
+A pushable chair
+"mass"		Weigth (default=400)
+"health"	Strength (default=25)
+
+model="models\props\chair\chair.mdx"
+skin="models\props\chair\chair1.tga"
+*/
+
+
+/*QUAKED props2_clothesline (0 .5 .8) (-4 -85 -25) (4 85 25) ? DONOTMOVE
+A clothes line
+
+model="models/props/clothes/tris.md2"
+skin="models/props/clothes/clothes.tga"
+*/
+
+
+/*QUAKED props2_clubchair (0 .5 .8) (-32 -32 -24) (32 32 24)
+A pushable chair
+"mass"		Weigth (default=400)
+"health"	Strength (default=25)
+
+model="models/props/clubchair/tris.md2"
+skin="models/props/clubchair/clubchair.tga"
+*/
+
+
+/*QUAKED props2_clubcouch (0 .5 .8) (-32 -64 -24) (32 64 24)
+A couch, the bounding box can be rotated in angles of 90 deg and block properly
+
+model="models/props/clubcouch/tris.md2"
+skin="models/props/clubcouch/clubcouch.tga"
+*/
+
+
+/*QUAKED props2_deadgal_headless (0 .5 .8) (-32 -26 -7) (32 26 7)
+An headless female body you can shoot, the bounding box can be rotated in angles of 90 deg and block properly.
+"health"	Strength (default=50)
+"item"		Item to spawn when gibbed
+
+model="models\props\dead_fem\body.mdx;models\props\dead_fem\legs.mdx"
+skin="models\props\dead_fem\body.tga;models\props\dead_fem\legs.tga"
+*/
+
+
+/*QUAKED props2_deadguy (0 .5 .8) (-40 -27 -9) (40 27 9)
+A dead guy body you can shoot, the bounding box can be rotated in angles of 90 deg and block properly.
+"health"	Strength (default=50)
+"item"		Item to spawn when gibbed
+
+model="models\props\deadguy\body.mdx;models\props\deadguy\head.mdx;models\props\deadguy\legs.mdx"
+skin="models\props\deadguy\body_001p2.tga;models\props\deadguy\head_001p2.tga;models\props\deadguy\legs_001p2.tga"
+*/
+
+
+/*QUAKED props2_deadguy_underwater (0 .5 .8) (-17 -50 0) (13 30 88)
+A drown guy in cement you can shoot, the bounding box can be rotated in angles of 90 deg and block properly.
+"health"	Strength (default=50)
+"item"		Item to spawn when gibbed
+
+model="models\props\cementguy\body.mdx;models\props\cementguy\head.mdx;models\props\cementguy\legs.mdx"
+skin="models\props\cementguy\body.tga;models\props\cementguy\head.tga;models\props\cementguy\legs.tga"
+*/
+
+
+/*QUAKED props2_fish (0 .5 .8) (-12 -12 0) (12 12 10)
+A shrimp.
+"option"		If set to '1', will not appear if the cvar 'props' is '0'
+"dmg"			Shrimp bite damage (default=2)
+"health"		Health (default=10)
+
+model="models\actors\shrimp\shrimp.mdx"
+skin="models\actors\shrimp\shrimp.tga"
+*/
+
+
+/*QUAKED props2_fish_spawner (0 .5 .8) (-16 -16 -16) (16 16 16)
+Base shrimp spawner, props2_fish_spawner_node  determine possible spawn point.
+"target"		ID string for spawner
+"option"		If set to '1', will not appear if the cvar 'props' is '0'
+"dmg"			Shrimp bite damage (default=2)
+"health"		Health (default=10)
+"deadticks"		Total number of shrimps in level from spawner at a time (default=5)
+*/
+
+
+/*QUAKED props2_fish_spawner_node (0 .5 .8) (-16 -16 -16) (16 16 16)
+Possible shrimp spawn point for props2_fish_spawner
+"targetname"	ID string for spawner
+*/
+
+
+/*QUAKED props2_fish_trigger (0 .5 .8) (-12 -12 0) (12 12 10)
+A shrimp that is spawned when triggered.
+"targetname"	This entity's ID
+"option"		If set to '1', will not appear if the cvar 'props' is '0'
+"dmg"			Shrimp bite damage (default=2)
+"health"		Health (default=10)
+model="models\actors\shrimp\shrimp.mdx"
+skin="models\actors\shrimp\shrimp.tga"
+*/
+
+
+/*QUAKED props2_flag (0 .5 .8) (-47 -6 -100) (47 6 100) ? FLAG1 FLAG2 FLAG3
+A flag, the bounding box can be rotated in angles of 90 deg and block properly
+
+model="models\props\flag\flag1.md2"
+skin="models\props\flag\flag_01.tga"
+*/
+
+
+/*QUAKED props2_gargoyle (0 .5 .8) (-47 -22 -50) (47 22 50)
+A stone gargoyle
+
+model="models/props/gargoyle/tris.md2"
+skin="models/props/gargoyle/gargoyle.tga"
+*/
+
+
+/*QUAKED props2_helicopter_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+A helicopter and actor (Blunt) that animate when trigered
+"targetname"	This entity's ID
+
+model="models/props/helicopter/helicopter.mdx;models/props/helicopter/rotor.mdx;models/props/helicopter/legs.mdx;models/props/helicopter/body.mdx;models/props/helicopter/foot.mdx;models/props/helicopter/head.mdx"
+skin="models/props/helicopter/heli_final8.tga;models/props/helicopter/heli_final8.tga;models/actors/bitch/legs_059.tga;models/actors/bitch/body_059.tga;models/props/helicopter/heli_final8.tga;models/actors/bitch/head_080.tga"
+*/
+
+
+/*QUAKED props2_lighthouse_beam (0 .5 .8) (-16 -16 -88) (16 16 -40)
+A light house light beam that rotates.
+"reactdelay"	Light distance from center (default=40)
+
+model="models\props\litecone\litecone.mdx"
+skin="sprites\lighthouse.tga"
+*/
+
+
+/*QUAKED props2_lunch (0 .5 .8) (-10 -7 -5) (10 7 5)
+A lunch
+
+model="models\props\lunch_set\tris.md2"
+skin="models\props\lunch_set\lunch.tga"
+*/
+
+
+/*QUAKED props2_pinball_machine (0 .5 .8) (-42 -18 -38) (42 18 38) ? PINNUM1 PINNUM2 PINNUM3
+A pinball machine, the bounding box can be rotated in angles of 90 deg and block properly, animate when triggered.
+"targetname"	This entity's ID
+
+model="models\props\pin1\pinball_m.mdx;models\props\pinball\ball.mdx;models\props\pinball\glass.mdx"
+skin="models\props\pinball\pinball.tga;models\props\pinball\ball.tga;models\props\pinball\pinball.tga"
+*/
+
+
+/*QUAKED props2_plant_bush (0 .5 .8) (-9 -11 -32) (9 11 32)
+A bush like plant
+"health"		Strength (default=25)
+
+model="models\props\bush\tris.md2"
+skin="models\props\plants\bush.tga"
+*/
+
+
+/*QUAKED props2_plant_fern (0 .5 .8) (-50 -46 -40) (50 46 40)
+A fern plant
+"health"		Strength (default=25)
+
+model="models\props\fern\tris.md2"
+skin="models\props\plants\plant1.tga"
+*/
+
+
+/*QUAKED props2_plant_SM (0 .5 .8) (-12 -9 -20) (12 9 20)
+A plant small.
+"health"		Strength (default=25)
+
+model="models\props\plants\plant_sm.md2"
+skin="models\props\plants\plant1.tga"
+*/
+
+
+/*QUAKED props2_plant_XL (0 .5 .8) (-50 -46 -53) (50 46 53)
+A plant big.
+"health"		Strength (default=25)
+
+model="models\props\plants\plant_xl.md2"
+skin="models\props\plants\plant2.tga"
+*/
+
+
+/*QUAKED props2_shelf_metal_A_fall (0 .5 .8) (-60 -20 -56) (60 20 66)
+A falling metal shelf, bounding box can be rotated in angles of 90 deg and block properly.
+
+model="models/props/shelfmetal1/shelf1.mdx;models/props/shelfmetal1/tanktops.mdx;models/props/shelfmetal1/shelf2.mdx;models/props/shelfmetal1/barre1.mdx;models/props/shelfmetal1/barre2.mdx;models/props/shelfmetal1/barre3.mdx;models/props/shelfmetal1/barre4.mdx;models/props/shelfmetal1/tank_lg1.mdx;models/props/shelfmetal1/tank_lg2.mdx;models/props/shelfmetal1/tank_lg3.mdx;models/props/shelfmetal1/tank_sm.mdx;models/props/shelfmetal1/tank_sm1.mdx;models/props/shelfmetal1/tank_sm2.mdx;models/props/shelfmetal1/barreltops.mdx"
+skin="models/props/shelf/wd_st_m2.tga;models/props/shelf/barrel_v3t.tga;models/props/shelf/mt_pv_17b.tga;models/props/shelf/barrel_v3.tga;models/props/shelf/pa_ca_c03.tga;models/props/shelf/pa_ca_c03.tga;models/props/shelf/barrel_v2.tga;models/props/shelf/barrel_v4.tga;models/props/shelf/barrel_v2.tga;models/props/shelf/barrel_v2.tga;models/props/shelf/barrel_v4.tga;models/props/shelf/barrel_v4.tga;models/props/shelf/barrel_v4.tga;models/props/shelf/barrel_v3t.tga"
+*/
+
+
+/*QUAKED props2_shelf_metal_B_fall (0 .5 .8) (-60 -20 -56) (60 20 66)
+Another falling metal shelf, bounding box can be rotated in angles of 90 deg and block properly.
+
+model="models/props/shelfmetal2/shelf1.mdx;models/props/shelfmetal2/tanktops.mdx;models/props/shelfmetal2/shelf2.mdx;models/props/shelfmetal2/barre1.mdx;models/props/shelfmetal2/barre2.mdx;models/props/shelfmetal2/barre3.mdx;models/props/shelfmetal2/barre4.mdx;models/props/shelfmetal2/cartboard1.mdx;models/props/shelfmetal2/cartboard2.mdx;models/props/shelfmetal2/tank_lg1.mdx;models/props/shelfmetal2/tank_lg2.mdx;models/props/shelfmetal2/tank_sm.mdx;models/props/shelfmetal2/tank_sm1.mdx;models/props/shelfmetal2/tank_sm2.mdx;models/props/shelfmetal2/barreltops.mdx"
+skin="models/props/shelf/wd_st_m2.tga;models/props/shelf/barrel_v3t.tga;models/props/shelf/mt_pv_17b.tga;models/props/shelf/barrel_v3.tga;models/props/shelf/pa_ca_c03.tga;models/props/shelf/pa_ca_c03.tga;models/props/shelf/barrel_v2.tga;models/props/shelf/box_sr_m15.tga;models/props/shelf/box_sr_m14.tga;models/props/shelf/barrel_v4.tga;models/props/shelf/barrel_v2.tga;models/props/shelf/barrel_v4.tga;models/props/shelf/barrel_v4.tga;models/props/shelf/barrel_v4.tga;models/props/shelf/barrel_v3t.tga"
+*/
+
+
+/*QUAKED props2_sign (0 .5 .8) (-4 -44 -44) (4 44 44)
+A bar swingin sign, the bounding box can be rotated in angles of 90 deg and block properly.
+
+model="models\props\sign\sign.mdx;models\props\sign\bar.mdx"
+skin="textures\props2\si_lh_c01.tga;textures\wood\wd_hl_v4f.tga"
+*/
+
+
+/*QUAKED props2_truck_die (0 .5 .8)  (-61 -148 -78) (61 148 78)
+An exploding truck, animated when triggered.
+"targetname"	This entity's ID
+
+model="models/props/truck/box.mdx;models/props/truck/c4.mdx;models/props/truck/m26y.mdx;models/props/truck/mn3.mdx;models/props/truck/mp1a.mdx;models/props/truck/tires.mdx;models/props/truck/v1a.mdx"
+skin="textures/props/box_sr_m6sa.tga;textures/props/ma_rc_c4.tga;textures/metals/mt_pv_m26y.tga;textures/metals/mt_sr_mn3.tga;textures/metals/mt_sr_mp1a.tga;textures/props2/tire_v2.tga;textures/props2/truck_v1a.tga"
+*/
+
+
+/*QUAKED props2_vaseA (0 .5 .8) (-16 -16 -24) (16 16 24)
+A breakable vase.
+"health"		Strength (default=25)
+
+model="models/props/vase1/tris.md2"
+skin="models/props/vase1/vase1.tga"
+*/
+
+
+/*QUAKED props2_vaseB (0 .5 .8) (-16 -16 -24) (16 16 24)
+A breakable vase.
+"health"		Strength (default=25)
+
+model="models/props/vase2/tris.md2"
+skin="models/props/vase2/vase2.tga"
+*/
+
+
+/*QUAKED props2_wall_fish (0 .5 .8) (-2 -40 -12) (2 40 12)
+A fish on the wall, the bounding box can be rotated in angles of 90 deg and block properly.
+
+model="models\props\fish\tris.md2"
+skin="models\props\fish\fish.tga"
+*/
+
+
+
+
+/*QUAKED props3_barrels_fall_nikki_A (0 .5 .8) (-44 -60 -49) (44 60 49)
+A set of exploding barrels, must be triggered. This set is used in "pv_boss".
+"targetname"	This entity's ID
+
+model="models/props/nikki1/barrel_v4.mdx;models/props/nikki1/top_barrel_v4.mdx"
+skin="textures/props/barrel_v3t.tga;textures/props/barrel_v4.tga"
+*/
+
+
+/*QUAKED props3_barrels_fall_nikki_B (0 .5 .8) (-24 -48 -24) (24 48 24)
+A set of exploding barrels, must be triggered. This set is used in "pv_boss".
+"targetname"	This entity's ID
+
+model="models/props/nikki2/barrel_v4.mdx;models/props/nikki2/top_barrel_v4.mdx"
+skin="textures/props/barrel_v4t.tga;textures/props/barrel_v3t.tga"
+*/
+
+
+/*QUAKED props3_cash (0 .5 .8) (-12 -11 -5) (12 11 5)
+Some cash (model only, not a collectible item).
+
+model="models\props\cash\cashstack.mdx"
+skin="models\props\bill_counter\counter.tga"
+*/
+
+
+/*QUAKED props3_cash_counter_animate (0 .5 .8) (-12 -14 -8) (12 18 7)
+A cash counter machine that animates when triggered.
+"targetname"	This entity's ID
+
+model="models\props\bill_counter\cashstack.mdx;models\props\bill_counter\numbers.mdx;models\props\bill_counter\machine.mdx;
+skin="models\props\bill_counter\counter.tga;models\props\bill_counter\numbers.tga;models\props\bill_counter\counter.tga"
+*/
+
+
+/*QUAKED props3_cut_A_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+The boss (Kingpin) sitting on a chair, will animate when triggered.
+"targetname"	This entity's ID
+
+model="models\props\kpcut1\body.mdx;models\props\kpcut1\legs.mdx;models\props\kpcut1\head.mdx;
+skin="models\actors\runt\body_120.tga;models\actors\thug\legs_120.tga;models\actors\runt\head_120.tga"
+*/
+
+
+/*QUAKED props3_cut_B_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+Talking boss (Kingpin), will animate when triggered.
+"targetname"	This entity's ID
+
+model="models\props\kpcut2\body.mdx;models\props\kpcut2\legs.mdx;models\props\kpcut2\head.mdx;
+skin="models\actors\runt\body_120.tga;models\actors\thug\legs_120.tga;models\actors\runt\head_120.tga"
+*/
+
+
+/*QUAKED props3_cut_boss_chick_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+A boss (Kingpin) and chick (Blunt) that animate on a balcony when trigered
+"targetname"	This entity's ID
+
+model="models\props\cutbc\body_chick.mdx;models\props\cutbc\legs_chick.mdx;models\props\cutbc\head_chick.mdx;models\props\cutbc\body.mdx;models\props\cutbc\legs.mdx;models\props\cutbc\head.mdx;models\props\cutbc\cigar.mdx"
+skin="models\actors\bitch\body_059.tga;models\actors\bitch\legs_059.tga;models\actors\bitch\head_080.tga;models\actors\runt\body_120.tga;models\actors\thug\legs_120.tga;models\actors\runt\head_120.tga;models\props\cigar\cigar1.tga"
+*/
+
+
+/*QUAKED props3_cut_boss_player_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+A boss (Nikki Blanco) and player that animate when trigered.
+"targetname"		This entity's ID
+
+model="models\props\player\bodyP.mdx;models\props\player\legsP.mdx;models\props\player\headP.mdx;models\props\boss\body_boss.mdx;models\props\boss\legs_boss.mdx;models\props\boss\head_boss.mdx"
+skin="models\actors\thug\body_019.tga;models\actors\thug\legs_017.tga;models\actors\thug\head_009.tga;models\actors\thug\body_122.tga;models\actors\thug\legs_122.tga;models\actors\thug\head_122.tga"
+*/
+
+
+/*QUAKED props3_cut_C_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+Talking boss (Kingpin), will animate when triggered.
+"targetname"	This entity's ID
+
+model="models\props\kpcut3\body.mdx;models\props\kpcut3\legs.mdx;models\props\kpcut3\head.mdx;
+skin="models\actors\runt\body_120.tga;models\actors\thug\legs_120.tga;models\actors\runt\head_120.tga"
+*/
+
+
+/*QUAKED props3_cut_D_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+Talking boss (Kingpin), will animate when triggered.
+"targetname"	This entity's ID
+
+model="models\props\kpcut4\body.mdx;models\props\kpcut4\legs.mdx;models\props\kpcut4\head.mdx;
+skin="models\actors\runt\body_120.tga;models\actors\thug\legs_120.tga;models\actors\runt\head_120.tga"
+*/
+
+
+/*QUAKED props3_cut_final_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+The final cut scene (thug standing, then sitting on a chair), animated when triggered.
+"targetname"	This entity's ID
+
+model="models\props\finale\body_bossf.mdx;models\props\finale\legs_bossf.mdx;models\props\finale\head_bossf.mdx;models\props\finale\cigarf.mdx
+skin="models\actors\thug\body_124.tga;models\actors\thug\legs_070.tga;models\actors\thug\head_009.tga;models\props\cigar\cigar1.tga"
+*/
+
+
+/*QUAKED props3_cut_run_to_car_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+Nikki Blanco running to a car, animated when triggered.
+"targetname"	This entity's ID
+
+model="models\props\run_to_car\body_boss.mdx;models\props\run_to_car\legs_boss.mdx;models\props\run_to_car\head_boss.mdx"
+skin="models\actors\thug\body_122.tga;models\actors\thug\legs_122.tga;model\actors\thug\head_122.tga"
+*/
+
+/*QUAKED props3_cut_train_run_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+A player running to a train, will animate when triggered.
+"targetname"	This entity's ID
+
+model="models\props\train_jump\bodyP.mdx;models\props\train_jump\legsP.mdx;models\props\train_jump\headP.mdx;
+skin="models\actors\thug\body_019.tga;models\actors\thug\legs_017.tga;models\actors\thug\head_009.tga"
+*/
+
+
+/*QUAKED props3_cut_truck_driver (0 .5 .8) (-67 -16 -58) (0 17 8)
+The guy driving a truck in shipyard cutscene, animate when triggered.
+"targetname"	This entity's ID
+
+model="models\props\driver\body_driver.mdx;models\props\driver\legs_driver.mdx;models\props\driver\head_driver.mdx;models\props\driver\wheel.mdx"
+skin="models\actors\thug\body_047.tga;models\actors\thug\legs_041.tga;models\actors\thug\head_110.tga;textures\wood\wd_hl_v4f.tga"
+*/
+
+
+/*QUAKED props3_cut_pinball_guy_animate (0 .5 .8) (-16 -16 -16) (16 16 16)
+A cut scene of a boss (Kingpin) and his pinball machine
+"targetname"		This entity's ID
+
+model="models/props/kpcut4_pinball/body.mdx;models/props/kpcut4_pinball/head.mdx;models/props/kpcut4_pinball/legs.mdx"
+skin="models/actors/runt/body_120.tga;models/actors/runt/head_120.tga;models/actors/thug/legs_120.tga"
+*/
+
+
+/*QUAKED props3_dead_louie (0 .5 .8) (-40 -48 -14) (40 48 14)
+A dead Louie body you can shoot.
+"health"		Strength (default=50)
+"item"			Item to spawn when gibbed
+
+model="models\props\louie\body.mdx;models\props\louie\head.mdx;models\props\louie\legs.mdx"
+skin="models\props\louie\body.tga;models\props\louie\head.tga;models\props\louie\legs.tga"
+*/
+
+
+/*QUAKED props3_decanter (0 .5 .8) (-3 -5 -6) (3 5 6)
+A decanter.
+
+model="models\props\decanter\solid.mdx;models\props\decanter\glass.mdx"
+skin="models\props\decanter\decanter.tga;models\props\decanter\decanter.tga"
+*/
+
+
+/*QUAKED props3_deco_fixture (0 .5 .8) (-32 -8 -58) (32 8 58)
+A deco fixture.
+
+model="models\props\deco_fixture\deco_fixture.mdx"
+skin="textures\bricks\b_cp_v15.tga"
+*/
+
+
+/*QUAKED props3_whiskey_glass (0 .5 .8) (-2 -2 -2) (2 2 2)
+A glass of whiskey.
+
+model="models\props\whiskeyglass\solid.mdx;models\props\whiskeyglass\glass.mdx"
+skin="models\props\decanter\decanter.tga;models\props\decanter\decanter.tga"
+*/
+
+
+/*QUAKED smoke_esm (1 0 0) (-8 -8 -8) (8 8 8) 
+Smoke effect, extra-small
+"alphalevel"	Opacity level, 1 to 10 
+*/
+
+
+/*QUAKED smoke_lg (1 0 0) (-32 -32 -32) (32 32 32) 
+Smoke effect, large
+"alphalevel"	Opacity level, 1 to 10
+*/
+
+
+/*QUAKED smoke_med (1 0 0) (-24 -24 -24) (24 24 24) 
+Smoke effect, medium
+"alphalevel"	Opacity level, 1 to 10
+*/
+
+
+/*QUAKED smoke_sm (1 0 0) (-16 -16 -16) (16 16 16) 
+Smoke effect, small
+"alphalevel"	Opacity level, 1 to 10
+*/
+
+
+/*QUAKED target_blaster (1 0 0) (-8 -8 -8) (8 8 8) NOTRAIL NOEFFECTS
+Fires a blaster bold in the set direction when triggered.
+"dmg"			Damage inflicted (default=15)
+"speed"			Bold speed (default=1000)
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED target_character (0 0 1) ?
+Used with target_string (must be on same "team")
+Also can be used with target_clock
+"count" 		is position in the string (starts at 1)
+"team"			Team
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED target_changelevel (1 0 0) (-8 -8 -8) (8 8 8)
+Load a new map when triggered. You can specify the info_player_start to use in the next map, adding its ID after a $ symbol (example: "map2$start1" will load "map2.bsp" and use the info_player_start called "start1"). Put a * symbol before the next map name to create a new unit, so the game forget infos regarding visited levels (example: "*map2")
+"map"		(*)(destination level)($)(info_player_start ID)
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED target_crosslevel_target (.5 .5 .5) (-8 -8 -8) (8 8 8) TRIGGER1 TRIGGER2 TRIGGER3 TRIGGER4 TRIGGER5 TRIGGER6 TRIGGER7 TRIGGER8
+Triggered by a trigger_crosslevel_trigger elsewhere within a unit. If multiple triggers are checked, all must be true. Delay, target and killtarget also work.
+"target"		Target entity's ID
+"targetname"	This entity's ID
+"delay"			Delay before using targets if the trigger has been activated (default=1)
+"killtarget"	ID of the entity to delete when triggered
+"message"		Message to display on trigger
+*/
+
+
+/*QUAKED target_crosslevel_trigger (.5 .5 .5) (-8 -8 -8) (8 8 8) TRIGGER1 TRIGGER2 TRIGGER3 TRIGGER4 TRIGGER5 TRIGGER6 TRIGGER7 TRIGGER8
+Once this trigger is touched/used, any trigger_crosslevel_target with the same trigger number is automatically used when a level is started within the same unit.  It is OK to check multiple triggers.  Message, delay, target, and killtarget also work.
+"target"		Target entity's ID
+"targetname"	This entity's ID
+"delay"			Delay before using targets if the trigger has been activated (default=1)
+"killtarget"	ID of the entity to delete when triggered
+"message"		Message to display on trigger
+*/
+
+
+/*QUAKED target_earthquake (1 0 0) (-8 -8 -8) (8 8 8)
+When triggered, this initiates a level-wide earthquake, all players and monsters are affected.
+"speed"			Severity of the quake (default=200)
+"count"			Duration of the quake (default=5)
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED target_explosion (1 0 0) (-8 -8 -8) (8 8 8)
+Spawns an explosion when used.
+"targetname"	This entity's ID
+"target"		Target entity's ID
+"delay"			Wait time before explosion
+"dmg"			how much radius damage should be done (default=0)
+"fxdensity"		explosion size -- 1 to 100 (default=10)
+*/
+
+
+/*QUAKED target_fire (1 0 0) (-8 -8 -8) (8 8 8)
+Spawn a fire.
+"fxdensity"		Size of fire -- 1 to 100 (default=10)
+"deadticks"		Random fire sections per frame (default=3)
+"duration"		How long fire stay alive in seconds, last forever if -1 (default=5.0)
+"dmg"			Damage per second (default=10)
+"reactdelay"	Fire spread factor -- 0.0 to 10.0 (default=1)
+"target"		Target entity's ID
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED target_flamethrower (1 0 0) (-8 -8 -8) (8 8 8)
+Shoots flame when triggered on, does not when triggered off.
+"dmg"			Damage the flame does per frame (default=2)
+"fxdensity"		Set to 1 to start on
+"deadticks"		Angle adjustment up and down -- -90 to 90 (default=0)
+"targetname"		This entity's ID
+
+model="models/weapons/sshell_md2/tris.md2"
+skin="models/weapons/shell_md2/shellskin.pcx"
+*/
+
+
+/*QUAKED target_goal (1 0 1) (-8 -8 -8) (8 8 8)
+Can be triggered once only, Counts a goal completed. These are single use targets.
+"noise"			Wav sound to play when triggered (default='misc/secret.wav')
+"targetname"	This entity's ID
+*/
+
+
+/*QUAKED target_laser (0 .5 .8) (-8 -8 -8) (8 8 8) START_ON RED GREEN BLUE YELLOW ORANGE FAT
+Fires a laser when triggered.
+"target"		Target entity's ID -- shooting direction (overrides angle)
+"targetname"	This entity's ID
+"angle"			Shooting direction
+"dmg"			Damage inflicted when blocked (default=1)
+*/
+
+
+/*QUAKED target_lightramp (0 .5 .8) (-8 -8 -8) (8 8 8) TOGGLE
+Light ramp
+"target"		Target entity's ID
+"targetname"	This entity's ID
+"speed"			How many seconds the ramping will take
+"message"		Two letters: starting lightlevel and ending lightlevel ('a'=dark to 'z'=bright)
+*/
+
+
+/*QUAKED target_mal_laser (1 0 0) (-8 -8 -8) (8 8 8) START_ON RED GREEN BLUE YELLOW ORANGE FAT
+Mal's laser.
+"targetname"	This entity's ID
+"angle"			Shooting direction
+"delay"			Delay before first shot (default=0.1)
+"wait"			Time between two shots (default=0.1)
+"dmg"			Damage inflicted when blocked (default=5)
+*/
+
+
+/*QUAKED target_secret (1 0 1) (-8 -8 -8) (8 8 8)
+Can be triggered once only, counts a secret found.
+"targetname"	This entity's ID
+"noise"			Wav sound to play when triggered (default='misc/secret.wav')
+message 		Message to print
+*/
+
+
+/*QUAKED target_spawner (1 0 0) (-8 -8 -8) (8 8 8)
+Will spawn an entity when triggered, the spawned entity inherit this entity's spawnflags, angle and origin.
+"targetname"	This entity's ID
+"target"		Spawned entity's classname
+"speed"			Spawned entity's velocity
+"angle"			Spawned entity's direction
+*/
+
+
+/*QUAKED target_speaker (1 0 0) (-8 -8 -8) (8 8 8) LOOPED_ON LOOPED_OFF RELIABLE
+Sound emitter, play a sound each time the entity is triggered, can be toggled on and off if LOOPED-ON or LOOPED-OFF is set (looped sounds are always 'attenuation=3', 'volume=1')
+"targetname"		This entity's ID
+"noise"				Sound (path/file.wav)
+"attenuation"		Radius -- -1=whole level, 1=normal fighting sound, 2=idle sound, 3=ambient sound (default=1)
+"volume"			Volume -- 0.0 to 1.0 (default=1.0)
+*/
+
+
+/*QUAKED target_splash (1 0 0) (-8 -8 -8) (8 8 8)
+A particle emitter, spawns particles when triggered.
+"targetname"	This entity's ID
+"sounds"		Particle type - 1 = sparks, 2 = blue water, 3 = brown water, 4 = lava, 5 = multicolored patricles, 6 = blood, 7 = fireworks, 8 = smoke
+"count"			Amount of particles -- 1 to 10 (default=3)
+"dmg"			Radius damage (default=0)
+"alphalevel"	Smoke only: Opacity level -- 1 to 10 (default=4)
+"firetype"		Smoke only: Smoke size -- 5 to 32 (default=24)
+"deadticks"		Smoke only: Lifetime in seconds -- 1 to 60 (default=6)
+"fxdensity"		Smoke only: Speed of rising -- 1 to 100  (default=24)
+"rotate"		Smoke only: X Y Z velocity (default=up)
+*/
+
+
+/*QUAKED target_string (0 0 1) (-8 -8 -8) (8 8 8)
+targetname"		This entity's ID
+"message"		Message to display on trigger"
+"team"			Team
+*/
+
+
+/*QUAKED target_temp_entity (1 0 0) (-8 -8 -8) (8 8 8)
+Fire an origin based temp entity event to the clients.
+"style"		type byte
+*/
+
+
+
+/*QUAKED trigger_always (.5 .5 .5) (-8 -8 -8) (8 8 8)
+This trigger will always fire. It is activated by the world.
+"delay" 		Wait before triggering targeted entities
+"target"		Entity to trigger
+*/
+
+
+/*QUAKED trigger_counter (.5 .5 .5) ? NOMESSAGE
+Acts as an intermediary for an action that takes multiple inputs. If the cvar 'developer' is '1' and 'nomessage' is unset, each time this entity is triggered, the message "X more to go..." will appear (and "Armageddon virus installed successfully" when the sequence is completed)
+"killtarget"	ID of the entity to delete when triggered
+"count"			Number of times this trigger must be activated before triggering its targets (default=2)
+"targetname"	This entity's ID
+"target"		Entity to trigger
+*/
+
+
+/*QUAKED trigger_elevator (0.3 0.1 0.6) (-8 -8 -8) (8 8 8)
+Elevator trigger
+"targetname"	This entity's ID
+"target"		func_train's ID
+*/
+
+
+/*QUAKED trigger_gravity (.5 .5 .5) ?
+Changes the touching entites gravity to the value of "gravity".  1.0 is standard gravity for the level.
+*/
+
+
+/*QUAKED trigger_hurt (.5 .5 .5) ? START_OFF TOGGLE SILENT NO_PROTECTION SLOW
+Any entity taking damage touching this trigger will loose 'dmg' health points each server frame (or every second if SLOW spawnflag is set).
+"dmg"		Damages inflicted when touched (default=5)
+*/
+
+
+/*QUAKED trigger_hurt_electric (.5 .5 .5) ? START_OFF TOGGLE SILENT NO_PROTECTION SLOW
+Any entity taking damage touching this trigger will be electrocuted and loose 'dmg' health points each server frame (or every second if SLOW spawnflag is set).
+"dmg"		Damages inflicted when touched (default=5)
+*/
+
+
+/*QUAKED trigger_hurt_fire (.5 .5 .5) ? START_OFF TOGGLE SILENT NO_PROTECTION SLOW
+Any entity taking damage touching this trigger will burn and loose 'dmg' health points each server frame (or every second if SLOW spawnflag is set).
+"dmg"		Damages inflicted when touched (default=5)
+*/
+
+
+/*QUAKED trigger_key (.5 .5 .5) (-8 -8 -8) (8 8 8)
+A relay trigger that only fires it's targets if player has the proper key.
+"target"		Targeted entity's ID
+"targetname"	This entity's ID
+"item"			Item required (pickup name)
+*/
+
+
+/*QUAKED trigger_monsterjump (.5 .5 .5) ?
+Walking monsters that touch this entity will jump in the direction of the trigger's angle.
+"angle"		Thrown direction
+"speed"		Speed thrown forward (default=200)
+"height"		Speed thrown upwards (default=200)
+*/
+
+
+/*QUAKED trigger_motorcycle (.5 .5 .5) ?
+Skidrow only, will trigger the motorcycle cutscene script. If 'Battery' is in player's inventory, the item is taken away, the targeted entity is triggered, every 'props_motorcycle' entities are removed from the map while a new entity is spawned to make the cutscene animation. If 'Battery' is not in player's inventory, EP_SKIDROW_FOUND_BIKE flag is registered ("Found the bike... Broken down piece of junk doesn't have a battery...") and nothing else happen.
+"target"		Entity to trigger (misc_use_cutscene for instance)
+"killtarget"	ID of the entity to delete when triggered
+*/
+
+
+/*QUAKED trigger_multiple (.5 .5 .5) ? MONSTER NOT_PLAYER TRIGGERED
+Repeatable trigger. Must be targeted at one or more entities.
+"target"		Target entity ID
+"targetname"	This entity's ID
+"killtarget"	ID of the entity to delete when triggered
+"wait"			Seconds between triggerings (default=.2)
+"delay"			Wait before triggering targeted entities
+"message"		String to be displayed when triggered
+"sounds"		Sound emitted on trigger -- 0=silent, 1=secret.wav, 2=talk.Wav, 3=trigger1.wav (default=0)
+*/
+
+
+/*QUAKED trigger_once (.5 .5 .5) ? x x TRIGGERED SCENERIC
+Triggers once, then removes itself. You must set the key 'target' to the name of another object in the level that has a matching 'targetname'. If TRIGGERED is set, this trigger must be triggered before it is live.
+"target"		Target entity ID
+"targetname"	This entity's ID
+"killtarget"	ID of the entity to delete when triggered
+"delay"			Wait before triggering targeted entities
+"message"		String to be displayed when triggered
+"sounds"		Sound emitted on trigger -- 0=silent, 1=secret.wav, 2=talk.Wav, 3=trigger1.wav (default=0)
+*/
+
+
+/*QUAKED trigger_push (.5 .5 .5) ? PUSH_ONCE
+Pushes the player.
+"angle"		Push direction
+"speed"		Push speed (default=1000)
+*/
+
+
+/*QUAKED trigger_relay (.5 .5 .5) (-8 -8 -8) (8 8 8)
+This fixed size trigger cannot be touched, it can only be fired by other events.
+"delay"			Time in seconds before triggering the target
+"targetname"	This entity's ID
+"target"		Target entity
+"killtarget"	ID of the entity to delete when triggered
+"message"		String to be displayed when triggered
+*/
+
+
+/*QUAKED trigger_unlock (.5 .5 .5) ?
+Player will unlock a targeted door when this brush is touched, can also be triggered (door's 'key' must be '-1')
+"targetname"	This entity's ID
+"target"		Target ID to match door
+*/
+
+
+
+/*QUAKED weapon_bazooka (.3 .3 1) (-16 -16 -16) (16 16 16)
+Rocket launcher (clip size: 3) -- Requires ammo_rockets. 
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/weapons/g_rocket_launcher/tris.md2"
+skin="models/weapons/g_rocket_launcher/pu_launch.tga"
+*/
+
+
+/*QUAKED weapon_crowbar (.3 .3 1) (-16 -16 -16) (16 16 16)
+Crowbar (no clip) -- Melee weapon.
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/weapons/g_crowbar/tris.md2"
+skin="models/weapons/g_crowbar/crowbar.pcx"
+*/
+
+/*QUAKED weapon_flamethrower (.3 .3 1) (-16 -16 -16) (16 16 16)
+Flame thrower (no clip) -- Requires ammo_flametank.
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/pu_icon/flame_shell/tris.md2"
+skin="models/weapons/g_flamegun/pu_flame.tga"
+*/
+
+
+/*QUAKED weapon_grenadelauncher (.3 .3 1) (-16 -16 -16) (16 16 16)
+Grenade launcher (clip size: 3) -- Requires ammo_grenades.
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/weapons/g_grenade_launcher/tris.md2"
+skin="models/weapons/v_grenade_launcher/glskin.tga"
+*/
+
+
+/*QUAKED weapon_heavymachinegun (.3 .3 1) (-16 -16 -16) (16 16 16)
+Heavy submachine gun (clip size: 30) -- Requires ammo_308, can be equipped with Cooling Sleeves (hmg_mod_cooling).
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/weapons/g_hmg/tris.md2"
+skin="models/weapons/v_hmg/hmgskin.tga"
+*/
+
+
+/*QUAKED weapon_pistol (.3 .3 1) (-16 -16 -16) (16 16 16)
+Standard pistol (clip size: 10) -- Requires ammo_bullets or ammo_cylinder, can be equipped with magnum mod (pistol_mod_damage), rate of fire (pistol_mod_rof), reload (pistol_mod_reload).
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/weapons/g_pistol/tris.md2"
+skin="models/weapons/g_pistol/tg.tga"
+*/
+
+
+/*QUAKED weapon_shotgun (.3 .3 1) (-16 -16 -16) (16 16 16)
+Shotgun (clip size: 8) -- Requires ammo_shells.
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/weapons/g_shotgun/tris.md2"
+skin="models/weapons/g_shotgun/sht.tga"
+*/
+
+
+/*QUAKED weapon_spistol (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pistol with silencer (clip size: 10) -- Requires ammo_bullets or ammo_cylinder can be equipped with magnum mod (pistol_mod_damage), rate of fire (pistol_mod_rof), reload (pistol_mod_reload). Silencer lasts 20 shots before breaking up.
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/weapons/silencer_mdx/pistol.mdx"
+skin="models/weapons/v_colt/pistolskin.tga"
+*/
+
+
+/*QUAKED weapon_tommygun (.3 .3 1) (-16 -16 -16) (16 16 16)
+Thompson submachine gun (clip size: 50) -- Requires ammo_bullets or ammo_cylinder.
+"targetname"	This entity's ID
+"target"		Target to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/weapons/g_tomgun/tris.md2"
+skin="models/weapons/v_tomgun/tgskin.tga"
+*/
+
+
+
+/*QUAKED worldspawn (0 0 0) ?
+Only used for the world.
+"episode"		Episode number
+"sky"			Environment map name (skybox), also used for reflection
+"sounds"		Music cd track number
+"gravity"		Gravity (default=800)
+"light"			Set a low value to LIGHT the entire map without using individual bulbs
+"message"		Map name
+"fogdensity"	Fog density for opengl cards
+"fogdensity2"	Fog density for 3dfx cards
+"fogval"		RGB values of fog for opengl cards
+"fogval2"		RGB values of fog for 3dfx cards
+-------------------
+ArghRad Settings
+-------------------
+"_sun_light"	Set sun brightness
+"_sun_target"	Defines sun yaw and pitch pointing to a spotlight target
+"_sun_angle"	Defines sun yaw and pitch manually (0 to 360) (-90 to 90)
+"_sun_vector"	Defines sun yaw and pitch using a X Y Z direction vector
+"_sun_color"	Defines sun color in scalar R G B
+"_sun_diffuse"	Diffuse light brightness
+"_sun_difwait"	Diffuse light attenuation
+"_sun_ambient"	Set sun ambient brightness
+"_sun_surface"	Set sun surface brightness
+
+To apply the same values to other suns (you can have 4 suns in a map), simply enter _sun2_xxxx, _sun3_xxx, and _sun4_xxx
+*/
+
+
+
+/*QUAKED item_jetpack (.3 .3 1) (-16 -16 -16) (16 16 16)
+Pickup item: jetpack ('Jetpack'). No model and broken code.
+"targetname"	This entity's ID
+"target"		Entity's ID to trigger when picked up
+"killtarget"	ID of the entity to delete when picked up
+
+model="models/items/misc/jetpack/jetpack.mdx"
+model="models/items/misc/jetpack/jetpack.tga"
+*/
+
+
+/*QUAKED light_mine1 (0 1 0) (-2 -2 -12) (2 2 12)
+Dusty fluorescent light fixture
+"light"			Light radius (default=300)
+"targetname"	This entity's ID, can be toggled on and off
+"_color"		Defines the color in scalar R G B values (default=0 0 0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+
+model="models\objects\minelite\light1\tris.md2"
+skin="models\objects\minelite\light1\base.pcx"
+*/
+
+
+/*QUAKED light_mine2 (0 1 0) (-2 -2 -12) (2 2 12)
+Clean fluorescent light fixture
+"light"			Light radius (default=300)
+"targetname"	This entity's ID, can be toggled on and off
+"_color"		Defines the color in scalar R G B values (default=0 0 0)
+"style"			Light frequency (0=normal, 1=fire flicker #1, 2=slow strong pulse, 3=candle #1, 4=fast strobe, 5=gentle pulse #1, 6=fire flicker #2, 7=candle #2, 8=candle #3, 9=slow strong strobe, 10=fluorescent flicker #1, 11=slow pulse fades to black, 12=fire flicker #3, 13=fluorescent flicker #2, 14=fluorescent flicker #3, 15=realistic fade #1, 16=realistic fade #2, 17=slow strongstrobe (out of phase), 18=three cycle strobe #1, 19=three cycle strobe #2, 20=three cycle strobe #3 (styles  32-62 are assigned by the light program for switchable lights)
+
+model="models\objects\minelite\light2\tris.md2"
+skin="models\objects\minelite\light2\base.pcx"
+*/
+
+
+/*QUAKED misc_gib_arm (1 0 0) (-8 -8 -8) (8 8 8)
+Gib Arm. Q2 leftover.
+
+model="models/objects/gibs/arm/tris.md2"
+skin="models/objects/gibs/arm/skin.pcx"
+*/
+
+
+/*QUAKED misc_gib_head (1 0 0) (-8 -8 -8) (8 8 8)
+Gib Head. Q2 leftover.
+
+model="models/objects/gibs/head/tris.md2"
+skin="models/objects/gibs/head/skin.pcx"
+*/
+
+
+/*QUAKED misc_gib_leg (1 0 0) (-8 -8 -8) (8 8 8)
+Gib Leg. Q2 leftover.
+
+model="models/objects/gibs/leg/tris.md2"
+skin="models/objects/gibs/leg/skin.pcx"
+*/
+
+
+/*QUAKED misc_teleporter (1 0 0) (-32 -32 -24) (32 32 -16)
+Stepping onto this disc will teleport players to the targeted 'misc_teleporter_dest' object.
+"target"		Target entity's ID
+model="models\objects\dmspot\tris.md2"
+skin="models\objects\dmspot\skin2.pcx"
+*/
+
+
+/*QUAKED misc_teleporter_dest (1 0 0) (-32 -32 -24) (32 32 -16)
+Teleporter destination point.
+"targetname"	This entity's ID
+"angle"		Facing angle when exiting teleporter
+model="models\objects\dmspot\tris.md2"
+skin="models\objects\dmspot\skin.pcx"
+*/
+
+
+/*QUAKED rotating_light (0 .5 .8) (-8 -8 -8) (8 8 8) START_OFF ALARM
+a rotating light. From Q2 Xatrix mod.
+"targetname"	This entity's ID
+"health"		Strength, the light can be destroyed if set
+"speed"			Light radius (default=32)
+
+model="models/objects/light/tris.md2"
+skin="models/objects/light/l_skin.pcx"
+*/

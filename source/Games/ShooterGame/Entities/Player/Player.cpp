@@ -315,7 +315,7 @@ void Player::UpdateWeapon()
     {
 
         currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
-        currentWeapon->Position = Camera::position + MathHelper::TransformVector(bob ,Camera::GetRotationMatrix());
+        currentWeapon->Position = Camera::position + MathHelper::TransformVector(bob, Camera::GetRotationMatrix());
         currentWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.5f);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 
     }
