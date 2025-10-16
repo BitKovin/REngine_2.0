@@ -1,0 +1,31 @@
+{
+    "blackboard": null,
+    "isRunning": false,
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "abortMode": 3,
+                        "children": [],
+                        "condition": {
+                            "sourceType": 0,
+                            "value": true
+                        },
+                        "name": "Conditional",
+                        "observerKeys": [],
+                        "type": "ConditionalDecorator"
+                    }
+                ],
+                "name": "Sequence",
+                "type": "SequenceNode"
+            }
+        ],
+        "name": "Repeat",
+        "repeatCount": {
+            "sourceType": 0,
+            "value": -1
+        },
+        "type": "RepeatDecorator"
+    }
+}

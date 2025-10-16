@@ -619,6 +619,10 @@ void SkeletalMesh::UpdateHitboxes()
 
 			std::unordered_map<std::string, mat4> animationPose;
 
+			std::unordered_map<std::string, quat> hitboxRelativePose;
+
+			bool hasInvalidTransform = false;
+
 			for (const HitboxData& data : metaData.hitboxes)
 			{
 
@@ -626,7 +630,7 @@ void SkeletalMesh::UpdateHitboxes()
 
 				const auto& boneName = data.boneName;
 
-				mat4 relativeTransform;
+				mat4 relativeTransform = mat4();
 
 				if (RagdollPoseFollowStrength > 0)
 				{
@@ -636,14 +640,29 @@ void SkeletalMesh::UpdateHitboxes()
 					relativeTransform = inverse(parentBone) * childBone;
 				}
 
+				quat resultQuat = normalize(quat_cast(relativeTransform));
 				
-				Physics::UpdateSwingTwistMotor(hitboxConstraints[boneName], inverse(relativeTransform), RagdollPoseFollowStrength);
-				
+				// 1) Ensure no NaNs / infinities
+				if (!std::isfinite(resultQuat.x) || !std::isfinite(resultQuat.y) ||
+					!std::isfinite(resultQuat.z) || !std::isfinite(resultQuat.w))
+				{
+					hasInvalidTransform = true;
+				}
+
+				hitboxRelativePose[boneName] = resultQuat;
 
 			}
 
-		}
+			if (hasInvalidTransform == false)
+			{
+				for (auto relHitboxPos : hitboxRelativePose)
+				{
+					Physics::UpdateSwingTwistMotor(hitboxConstraints[relHitboxPos.first], relHitboxPos.second, RagdollPoseFollowStrength);
+				}
+			}
 
+
+		}
 		
 
 		std::unordered_map<std::string, mat4> pose;

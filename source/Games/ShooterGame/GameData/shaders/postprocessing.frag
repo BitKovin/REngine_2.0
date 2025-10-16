@@ -7,6 +7,8 @@ uniform sampler2D screenTexture;
 uniform sampler2D noiseTexture;// @texture GameData/textures/noise/grainy5_256.png
 uniform sampler2D LutTexture;// @texture GameData/textures/pp/main.png
 
+uniform vec2 screenResolution;
+
 /**
 Basic FXAA implementation based on the code on geeks3d.com with the
 modification that the texture2DLod stuff was removed since it's
@@ -218,7 +220,9 @@ vec3 GetFromLUT(vec3 color)
     return gradedCol;
 }
 
-void main() {
+void main() 
+{
+
     // Calculate the position within the 4x4 Bayer matrix
     int x = int(gl_FragCoord.x) % 4;
     int y = int(gl_FragCoord.y) % 4;
@@ -227,10 +231,22 @@ void main() {
     
     float aspectRatio = getAspectRatio();
 
-    ivec2 res = textureSize(screenTexture, 0);
+    ivec2 res = ivec2(screenResolution);
     // Sample the texture color (16-bit precision, normalized to [0,1])
-    vec3 color = applyFxaa(screenTexture, gl_FragCoord.xy, vec2(res)).rgb;
-    
+    vec3 color;
+
+    if(true)
+    {
+        color = applyFxaa(screenTexture, gl_FragCoord.xy, vec2(res)).rgb;
+    }
+    else
+    {
+        ivec2 size = textureSize(screenTexture, 0);      // requires GL 3.0 / GLES3
+        ivec2 texel = ivec2(floor(TexCoords * vec2(size))); // integer texel coords
+        color = texelFetch(screenTexture, texel, 0).rgb;
+    }
+
+
 
     color = GetFromLUT(color);
 

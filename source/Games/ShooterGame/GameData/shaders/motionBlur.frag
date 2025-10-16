@@ -31,6 +31,9 @@ int decodeId24(vec3 color) //use in other place to decode
 void main()
 {
 
+    FragColor = vec4(0);
+    return;
+
     int customId = decodeId24(texture(uCustomIdTex, TexCoords).rgb);
 
     vec4 history = texture(uAccumulated, TexCoords);

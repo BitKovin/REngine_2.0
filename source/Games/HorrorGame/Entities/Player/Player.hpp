@@ -197,8 +197,10 @@ public:
 	{
 
 		bikeMesh = new SkeletalMesh(this);
+		bikeMesh->Visible = false;
 		Drawables.push_back(bikeMesh);
 		bikeArmsMesh = new SkeletalMesh(this);
+		bikeArmsMesh->Visible = false;
 		Drawables.push_back(bikeArmsMesh);
 
 		ClassName = "info_player_start";

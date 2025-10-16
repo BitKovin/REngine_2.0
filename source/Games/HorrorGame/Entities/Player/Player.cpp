@@ -411,6 +411,7 @@ void Player::UpdateDebugUI()
 
     ImGui::Begin("graphic");
     ImGui::SliderInt("multisample count",&EngineMain::MainInstance->MainRenderer->MultiSampleCount,0,8);
+    ImGui::SliderFloat("resolution scale", &EngineMain::MainInstance->MainRenderer->ResolutionScale, 0, 10);
     ImGui::End();
 
     ImGui::Begin("debug");

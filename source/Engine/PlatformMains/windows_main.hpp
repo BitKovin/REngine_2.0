@@ -47,10 +47,27 @@ void update_screen_size(int w, int h) {
     SDL_SetWindowSize(window, w, h);
 }
 
+#include "../imgui/FA6FreeSolidFontData.h"
+#include "../imgui/IconsFontAwesome6.h"
+
 void InitImGui() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+
+    io.Fonts->AddFontDefault(); // base font (or load your preferred UI TTF here)
+
+    // icon glyph range provided by IconsFontAwesome6.h
+    static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+
+    ImFontConfig icons_config;
+    icons_config.MergeMode = true;      // merge into previous font
+    icons_config.PixelSnapH = true;     // optional - keeps crisp outlines
+
+    // Point this to the correct FontAwesome *solid* TTF (fa-solid-900.ttf)
+    // Make sure you use the solid/regular/brands file that contains the icons you need.
+    io.Fonts->AddFontFromFileTTF("GameData/fonts/fa-regular-400.ttf", 16.0f, &icons_config, icons_ranges);
+
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     ImGui::StyleColorsDark();

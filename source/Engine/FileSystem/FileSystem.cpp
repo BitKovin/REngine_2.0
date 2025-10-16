@@ -144,13 +144,17 @@ namespace FileSystemEngine {
         }
     }
 
-    bool FileSystemEngine::WriteFile(const std::string& path, const std::string& content) {
+    bool FileSystemEngine::WriteFile(const std::string& path, const std::string& content) 
+    {
+
+#ifdef __EMSCRIPTEN__
+
         if (!isSavePath(path)) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                 "WriteFile only allowed under SaveData/: %s", path.c_str());
             return false;
         }
-
+#endif
         auto rel = path;// stripSavePrefix(path);
 
 #ifdef __EMSCRIPTEN__

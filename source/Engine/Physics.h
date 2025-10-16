@@ -780,7 +780,7 @@ public:
 		float max_torque = 10000);
 
 	// Update the motor target every frame (childTransformRelParent = child transform in parent space)
-	static void UpdateSwingTwistMotor(TwoBodyConstraint* constraint, const mat4& childTransformRelParent, const float& strength);
+	static void UpdateSwingTwistMotor(TwoBodyConstraint* constraint, const quat& childTransformRelParent, const float& strength);
 
 	static uint64_t FindSurfaceId(string surfaceName);
 	static string FindSurfacyById(uint64_t id);

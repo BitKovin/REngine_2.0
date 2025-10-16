@@ -61,45 +61,48 @@ void Renderer::RenderLevel(Level* level)
     BlurAccumulatedBuffer->resize(screenResolution.x, screenResolution.y);
     BlurResultBuffer->resize(screenResolution.x, screenResolution.y);
 
-    BlurResultBuffer->bindFramebuffer();
+    const bool bulurEnabled = false;
 
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glDepthMask(GL_FALSE);
-    glClear(GL_COLOR_BUFFER_BIT);
+    if (bulurEnabled)
+    {
+        BlurResultBuffer->bindFramebuffer();
 
-    glDisable(GL_BLEND);
-        
-    blurShader->UseProgram();
-    blurShader->SetTexture("uAccumulated", BlurAccumulatedBuffer->id());
-    blurShader->SetTexture("uCustomIdTex", customIdResolveBuffer->id());
-    blurShader->SetUniform("uDeltaTime", EngineMain::MainInstance->Paused ? 0.0f : Time::DeltaTimeFNoTimeScale);
-    blurShader->SetUniform("GameTime", (float)Time::GameTime);
-    blurShader->SetUniform("uPersistence", 0.20f);
-    blurShader->SetUniform("uMotionScale", 3.0f);
-    blurShader->SetTexture("screenTexture", colorResolveBuffer->id());
-    RenderFullscreenQuad();
-    glEnable(GL_BLEND);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glDepthMask(GL_FALSE);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-    BlurAccumulatedBuffer->copyFrom(BlurResultBuffer);
+        glDisable(GL_BLEND);
 
-    BlurResultBuffer->bindFramebuffer();
-    blurApplyShader->UseProgram();
-    blurApplyShader->SetTexture("screenTexture", colorResolveBuffer->id());
-    blurApplyShader->SetTexture("blurTexture", BlurAccumulatedBuffer->id());
-    RenderFullscreenQuad();
-    Framebuffer::unbind();
+        blurShader->UseProgram();
+        blurShader->SetTexture("uAccumulated", BlurAccumulatedBuffer->id());
+        blurShader->SetTexture("uCustomIdTex", customIdResolveBuffer->id());
+        blurShader->SetUniform("uDeltaTime", EngineMain::MainInstance->Paused ? 0.0f : Time::DeltaTimeFNoTimeScale);
+        blurShader->SetUniform("GameTime", (float)Time::GameTime);
+        blurShader->SetUniform("uPersistence", 0.20f);
+        blurShader->SetUniform("uMotionScale", 3.0f);
+        blurShader->SetTexture("screenTexture", colorResolveBuffer->id());
+        RenderFullscreenQuad();
+        glEnable(GL_BLEND);
 
+        BlurAccumulatedBuffer->copyFrom(BlurResultBuffer);
 
+        BlurResultBuffer->bindFramebuffer();
+        blurApplyShader->UseProgram();
+        blurApplyShader->SetTexture("screenTexture", colorResolveBuffer->id());
+        blurApplyShader->SetTexture("blurTexture", BlurAccumulatedBuffer->id());
+        RenderFullscreenQuad();
+        Framebuffer::unbind();
+    }
 
-    fullscreenShader->UseProgram();
-    fullscreenShader->SetTexture("screenTexture", BlurResultBuffer->id());
-    fullscreenShader->SetUniform("screenResolution", screenResolution);
-    RenderFullscreenQuad();
+    int resultTexId = bulurEnabled ? BlurResultBuffer->id() : colorResolveBuffer->id();
+
+    ivec2 nativeScreenResolution = GetNativeScreenResolution();
+    glViewport(0, 0, nativeScreenResolution.x, nativeScreenResolution.y);
 
 	//rendering to screen
     fullscreenShader->UseProgram();
-    fullscreenShader->SetTexture("screenTexture", BlurResultBuffer->id());
-    fullscreenShader->SetUniform("screenResolution", screenResolution);
+    fullscreenShader->SetTexture("screenTexture", resultTexId);
+    fullscreenShader->SetUniform("screenResolution", nativeScreenResolution);
 	RenderFullscreenQuad();
 
 }
@@ -274,6 +277,10 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
 
     customIdFBO->unbind();
 
+#ifndef GL_ES_PROFILE
+    glDisable(GL_MULTISAMPLE);   
+#endif
+
 }
 
 void Renderer::RenderDirectionalLightShadows(vector<IDrawMesh*>& ShadowRenderList, Framebuffer& fbo, int numCascades)
@@ -388,7 +395,12 @@ void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
 
 inline ivec2 Renderer::GetScreenResolution() const
 {
-	return ivec2(EngineMain::MainInstance->ScreenSize.x, EngineMain::MainInstance->ScreenSize.y);
+	return ivec2(EngineMain::MainInstance->ScreenSize.x * ResolutionScale, EngineMain::MainInstance->ScreenSize.y * ResolutionScale);
+}
+
+inline ivec2 Renderer::GetNativeScreenResolution() const
+{
+    return ivec2(EngineMain::MainInstance->ScreenSize.x, EngineMain::MainInstance->ScreenSize.y);
 }
 
 void Renderer::InitFullscreenVAO()

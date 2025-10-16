@@ -27,9 +27,12 @@ public:
 
 	int MultiSampleCount = 1;
 
+	float ResolutionScale = 1.0f;
+
 private:
 
 	inline ivec2 GetScreenResolution() const;
+	inline ivec2 GetNativeScreenResolution() const;
 
 	void InitFullscreenVAO();
 
