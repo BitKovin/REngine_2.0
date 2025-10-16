@@ -13,13 +13,41 @@ void TreeNode::AddChild(std::shared_ptr<TreeNode> child) {
     }
 }
 
-void TreeNode::RemoveChild(TreeNode* child)
-{
+bool TreeNode::RemoveChild(TreeNode* child) {
     auto it = std::find_if(children_.begin(), children_.end(),
         [child](const std::shared_ptr<TreeNode>& c) { return c.get() == child; });
     if (it != children_.end()) {
+        (*it)->SetParent(nullptr);
         children_.erase(it);
+        return true;
     }
+    return false;
+}
+
+std::shared_ptr<TreeNode> TreeNode::ExtractChild(TreeNode* child) {
+    auto it = std::find_if(children_.begin(), children_.end(),
+        [child](const std::shared_ptr<TreeNode>& c) { return c.get() == child; });
+    if (it != children_.end()) {
+        auto extracted = *it;
+        extracted->SetParent(nullptr);
+        children_.erase(it);
+        return extracted;
+    }
+    return nullptr;
+}
+
+void TreeNode::InsertChild(size_t index, std::shared_ptr<TreeNode> child) {
+    if (index > children_.size()) {
+        index = children_.size();
+    }
+    child->SetParent(this);
+    children_.insert(children_.begin() + index, child);
+}
+
+int TreeNode::FindChildIndex(TreeNode* child) const {
+    auto it = std::find_if(children_.begin(), children_.end(),
+        [child](const std::shared_ptr<TreeNode>& c) { return c.get() == child; });
+    return (it != children_.end()) ? static_cast<int>(std::distance(children_.begin(), it)) : -1;
 }
 
 json TreeNode::ToJson() const {
@@ -65,7 +93,7 @@ void TreeNode::OnStart(BehaviorTreeContext& context)
 NodeStatus TreeNode::Tick(BehaviorTreeContext& context) {
 
 
-    if (status_ == NodeStatus::Idle) {
+    if (status_ != NodeStatus::Running) {
         OnStart(context);
         status_ = NodeStatus::Running;
     }

@@ -12,6 +12,7 @@
 #include <imgui_stdlib.h>
 #include <FileSystem/FileSystem.h>
 #include <json.hpp>
+#include <iostream>
 
 // --- Utilities ---
 static std::string MakeGameDataPath(const std::string& fileName) {
@@ -24,7 +25,9 @@ static std::string MakeSaveDataPath(const std::string& fileName) {
 using nlohmann::json;
 
 BehaviorTreeEditor::BehaviorTreeEditor() {
-    tree_ = std::make_unique<BehaviorTree>();
+	tree_ = std::make_unique<BehaviorTree>();
+	columnWidth = 420.0f;
+	propertiesHeight = 200.0f;
 }
 
 void BehaviorTreeEditor::Init() {
@@ -50,7 +53,14 @@ void BehaviorTreeEditor::Init() {
 	}
 }
 
-void BehaviorTreeEditor::Update(float deltaTime) {
+void BehaviorTreeEditor::Update(float deltaTime)
+{
+	// Clear drag state if not actually dragging anymore
+	if (dragDrop_.isDragging && !ImGui::IsMouseDragging(0)) {
+		dragDrop_.isDragging = false;
+		dragDrop_.draggedNode = nullptr;
+	}
+
 	// Simulation stepping
 	if (sim_.playing && !sim_.paused) {
 		// Use real-time delta for continuous simulation
@@ -78,12 +88,30 @@ void BehaviorTreeEditor::Draw() {
 		ImGui::Separator();
 
 		// Layout: left tree, right properties and blackboard
-		ImGui::Columns(2, nullptr, true);
-		ImGui::SetColumnWidth(0, 420.0f);
+		ImGui::Columns(2, nullptr, false);
+		ImGui::SetColumnWidth(0, columnWidth);
 		DrawTreeView();
+		columnWidth = ImGui::GetColumnWidth(0);
 		ImGui::NextColumn();
 		DrawPropertiesPanel();
-		ImGui::Separator();
+
+		// Vertical splitter between properties and blackboard
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.6f, 0.6f, 0.4f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.5f, 0.5f, 0.5f));
+		ImGui::Button("##vsplitter", ImVec2(-1.0f, 3.0f));
+		ImGui::PopStyleColor(3);
+		if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
+			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+		}
+		if (ImGui::IsItemActive()) {
+			float old_height = propertiesHeight;
+			propertiesHeight += ImGui::GetIO().MouseDelta.y;
+			float min_h = 50.0f;
+			float max_h = old_height + ImGui::GetContentRegionAvail().y - min_h;
+			propertiesHeight = std::clamp(propertiesHeight, min_h, max_h);
+		}
+
 		DrawBlackboardPanel();
 		ImGui::Columns(1);
 	}
@@ -113,11 +141,11 @@ void BehaviorTreeEditor::DrawMenuBar() {
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Reset")) {
-            tree_->Reset();
+			tree_->Reset();
 		}
 		if (!file_.lastError.empty()) {
 			ImGui::SameLine();
-			ImGui::TextColored(ImVec4(1,0.4f,0.4f,1), "%s", file_.lastError.c_str());
+			ImGui::TextColored(ImVec4(1, 0.4f, 0.4f, 1), "%s", file_.lastError.c_str());
 		}
 	}
 	ImGui::EndChild();
@@ -128,18 +156,19 @@ void BehaviorTreeEditor::DrawSimulationControls() {
 		if (ImGui::Button(sim_.playing ? (sim_.paused ? "Resume" : "Pause") : "Play")) {
 			if (!sim_.playing) {
 				// Start
-                tree_->Start();
+				tree_->Start();
 				sim_.playing = true;
 				sim_.paused = false;
 				sim_.accumulator = 0.0f;
-			} else {
+			}
+			else {
 				// Toggle pause
 				sim_.paused = !sim_.paused;
 			}
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Stop")) {
-            tree_->Stop();
+			tree_->Stop();
 			sim_.playing = false;
 			sim_.paused = true;
 		}
@@ -147,7 +176,7 @@ void BehaviorTreeEditor::DrawSimulationControls() {
 		if (ImGui::Button("Step")) {
 			if (!sim_.playing) {
 				// Ensure context is initialized
-                tree_->Start();
+				tree_->Start();
 				sim_.playing = true;
 				sim_.paused = true;
 			}
@@ -155,12 +184,12 @@ void BehaviorTreeEditor::DrawSimulationControls() {
 		}
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(110.0f);
-        ImGui::DragFloat("dt", &sim_.fixedDeltaTime, 0.001f, 0.001f, 1.0f, "%.3f");
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(110.0f);
-        ImGui::DragFloat("speed", &sim_.timeScale, 0.01f, 0.01f, 10.0f, "%.2fx");
-        ImGui::SameLine();
-        ImGui::Checkbox("loop", &sim_.loop);
+		ImGui::DragFloat("dt", &sim_.fixedDeltaTime, 0.001f, 0.001f, 1.0f, "%.3f");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(110.0f);
+		ImGui::DragFloat("speed", &sim_.timeScale, 0.01f, 0.01f, 10.0f, "%.2fx");
+		ImGui::SameLine();
+		ImGui::Checkbox("loop", &sim_.loop);
 	}
 	ImGui::EndChild();
 }
@@ -186,11 +215,12 @@ bool BehaviorTreeEditor::IsActiveNode(TreeNode* node, const std::vector<TreeNode
 
 
 void BehaviorTreeEditor::DrawTreeView() {
-	if (ImGui::BeginChild("##tree", ImVec2(0, 360), true)) {
+	if (ImGui::BeginChild("##tree", ImVec2(0, 0), true)) {
 		auto root = tree_->GetRoot();
 		if (root) {
 			DrawNodeRecursive(root.get(), 0);
-		} else {
+		}
+		else {
 			ImGui::TextDisabled("No root node");
 		}
 	}
@@ -200,10 +230,13 @@ void BehaviorTreeEditor::DrawTreeView() {
 void BehaviorTreeEditor::DrawNodeRecursive(TreeNode* node, int depth) {
 	if (!node) return;
 
+	bool isRoot = (node == tree_->GetRoot().get());
+
 	const bool leafAtStart = node->GetChildren().empty();
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
 	if (selection_.selected == node) flags |= ImGuiTreeNodeFlags_Selected;
 	if (leafAtStart) flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+	if (isRoot) flags |= ImGuiTreeNodeFlags_DefaultOpen;
 
 	// Get execution state
 	TreeNode* lastExecuted = tree_->GetLastExecutedNode();
@@ -213,25 +246,21 @@ void BehaviorTreeEditor::DrawNodeRecursive(TreeNode* node, int depth) {
 
 	// Determine visual style based on execution state
 	ImU32 textColor;
-	ImU32 bgColor = 0; // No background by default
+	ImU32 bgColor = 0;
 
 	if (isLastExecuted) {
-		// Bright highlight for the VERY LAST executed node
-		textColor = IM_COL32(255, 255, 255, 255); // White text
-		bgColor = IM_COL32(255, 165, 0, 255);     // Orange background
+		textColor = IM_COL32(255, 255, 255, 255);
+		bgColor = IM_COL32(255, 165, 0, 255);
 	}
 	else if (isActive && node->GetStatus() == NodeStatus::Running) {
-		// Currently running and active
-		textColor = IM_COL32(255, 255, 255, 255); // White text  
-		bgColor = IM_COL32(65, 105, 225, 255);    // Royal blue background
+		textColor = IM_COL32(255, 255, 255, 255);
+		bgColor = IM_COL32(65, 105, 225, 255);
 	}
 	else if (isActive) {
-		// Active but not currently running (completed this frame)
-		textColor = IM_COL32(255, 255, 255, 255); // White text
-		bgColor = IM_COL32(100, 149, 237, 255);   // Cornflower blue background
+		textColor = IM_COL32(255, 255, 255, 255);
+		bgColor = IM_COL32(100, 149, 237, 255);
 	}
 	else {
-		// Use status-based coloring for inactive nodes
 		textColor = StatusColor(node->GetStatus());
 	}
 
@@ -248,49 +277,115 @@ void BehaviorTreeEditor::DrawNodeRecursive(TreeNode* node, int depth) {
 		);
 	}
 
+	// Set item spacing for better drag/drop visualization
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(2, 2));
+
 	ImGui::PushStyleColor(ImGuiCol_Text, textColor);
 	bool open = ImGui::TreeNodeEx((void*)node, flags, "%s (%s)", node->GetName().c_str(), node->GetType().c_str());
 	ImGui::PopStyleColor();
 
+	// Draw drag drop preview
+	if (ImGui::IsItemHovered() && dragDrop_.isDragging && dragDrop_.draggedNode != node && dragDrop_.draggedNode != nullptr) {
+		auto pos = CalculateDropPosition(node);
+		if (CanPerformDrop(dragDrop_.draggedNode, node, pos)) {
+			ImDrawList* draw_list = ImGui::GetWindowDrawList();
+			ImVec2 rect_min = ImGui::GetItemRectMin();
+			ImVec2 rect_max = ImGui::GetItemRectMax();
+			ImU32 color = IM_COL32(255, 255, 0, 255);
+			float thickness = 2.0f;
+			switch (pos) {
+			case DragDropState::DropPosition::Before:
+				draw_list->AddLine(ImVec2(rect_min.x, rect_min.y), ImVec2(rect_max.x, rect_min.y), color, thickness);
+				break;
+			case DragDropState::DropPosition::After:
+				draw_list->AddLine(ImVec2(rect_min.x, rect_max.y), ImVec2(rect_max.x, rect_max.y), color, thickness);
+				break;
+			case DragDropState::DropPosition::On:
+				draw_list->AddRect(rect_min, rect_max, color, 0.0f, ImDrawFlags_None, thickness);
+				break;
+			}
+		}
+	}
+
+	// Handle drag source (skip for root)
+	if (!isRoot) {
+		HandleDragSource(node);
+	}
+
 	// Add execution indicator
 	if (isLastExecuted) {
 		ImGui::SameLine();
-		ImGui::TextColored(ImVec4(1, 1, 0, 1), " <--");
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), " ⬅");
 	}
 
 	if (ImGui::IsItemClicked()) {
 		OnSelectionChanged(node);
 	}
 
+	// Enhanced tooltip with execution info
+	if (ImGui::IsItemHovered()) {
+		ImGui::BeginTooltip();
 
-	// Context menu for adding/removing children
-	if (ImGui::BeginPopupContextItem()) 
-	{
-		auto compositeNode = dynamic_cast<CompositeNode*>(node);
-		auto decoratorNode = dynamic_cast<DecoratorNode*>(node);
-
-		if (compositeNode != nullptr || decoratorNode != nullptr)
-		{
-			if (ImGui::BeginMenu("Add Child")) {
-				for (const auto& typeName : NodeFactory::GetInstance().GetRegisteredNodeTypes()) {
-					if (ImGui::MenuItem(typeName.c_str())) {
-						auto newNode = NodeFactory::GetInstance().CreateNode(typeName);
-						if (newNode) {
-							if (auto* dec = dynamic_cast<DecoratorNode*>(node)) {
-								dec->SetChild(newNode);
-							}
-							else {
-								node->AddChild(newNode);
-							}
-						}
-						ImGui::CloseCurrentPopup();
-					}
-				}
-				ImGui::EndMenu();
-			}
+		if (isLastExecuted) {
+			ImGui::TextColored(ImVec4(1, 1, 0, 1), "LAST EXECUTED");
+			ImGui::Separator();
 		}
 
-		if (node->GetParent() != nullptr) {
+		if (isActive) {
+			ImGui::TextColored(ImVec4(0, 1, 1, 1), "ACTIVE");
+		}
+
+		ImGui::Text("Status: %s",
+			node->GetStatus() == NodeStatus::Idle ? "Idle" :
+			node->GetStatus() == NodeStatus::Running ? "Running" :
+			node->GetStatus() == NodeStatus::Success ? "Success" : "Failure");
+
+		ImGui::Text("Type: %s", node->GetType().c_str());
+		ImGui::Text("Name: %s", node->GetName().c_str());
+		ImGui::Text("Children: %zu", node->GetChildren().size());
+
+		ImGui::Separator();
+		ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1), "Drag: Click and drag to move");
+		ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1), "Drop: Middle - child, Top - before, Bottom - after");
+
+		ImGui::EndTooltip();
+	}
+
+	// Context menu for adding/removing children
+	if (ImGui::BeginPopupContextItem()) {
+		if (ImGui::BeginMenu("Add Child")) {
+			for (const auto& typeName : NodeFactory::GetInstance().GetRegisteredNodeTypes()) {
+				if (ImGui::MenuItem(typeName.c_str())) {
+					auto newNode = NodeFactory::GetInstance().CreateNode(typeName);
+					if (newNode) {
+						// Check if this is a decorator that already has a child
+						if (auto* decorator = dynamic_cast<DecoratorNode*>(node)) {
+							if (decorator->GetChildren().empty()) {
+								decorator->SetChild(newNode);
+							}
+							else {
+								// Decorator already has a child, add to parent instead
+								if (node->GetParent()) {
+									node->GetParent()->AddChild(newNode);
+								}
+								else {
+									// If no parent (shouldn't happen for decorator), just add as child anyway
+									decorator->SetChild(newNode);
+								}
+							}
+						}
+						else {
+							// Regular node - just add child
+							node->AddChild(newNode);
+						}
+					}
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			ImGui::EndMenu();
+		}
+
+		if (node->GetParent() != nullptr && !isRoot) {
 			if (ImGui::MenuItem("Remove")) {
 				node->GetParent()->RemoveChild(node);
 				if (selection_.selected == node) OnSelectionChanged(nullptr);
@@ -299,12 +394,140 @@ void BehaviorTreeEditor::DrawNodeRecursive(TreeNode* node, int depth) {
 		ImGui::EndPopup();
 	}
 
-	// Draw children
-	if (!leafAtStart && open) {
+	// Handle drop target for ALL nodes (including root as drop target)
+	HandleDropTarget(node);
+
+	if (open && !leafAtStart) {
 		for (auto& child : node->GetChildren()) {
 			DrawNodeRecursive(child.get(), depth + 1);
 		}
 		ImGui::TreePop();
+	}
+
+	ImGui::PopStyleVar(); // ItemSpacing
+}
+
+void BehaviorTreeEditor::HandleDragSource(TreeNode* node) {
+	// Don't allow dragging the root node
+	if (node == tree_->GetRoot().get()) {
+		return;
+	}
+
+	// Start drag when item is dragged
+	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+		dragDrop_.draggedNode = node;
+		dragDrop_.isDragging = true;
+
+		// Set drag payload
+		ImGui::SetDragDropPayload("BT_NODE", &node, sizeof(TreeNode*));
+
+		// Preview of what's being dragged
+		ImGui::Text("Moving: %s", node->GetName().c_str());
+
+		// Show children count if any
+		if (!node->GetChildren().empty()) {
+			ImGui::Text("+ %zu children", node->GetChildren().size());
+		}
+
+		ImGui::EndDragDropSource();
+	}
+}
+
+BehaviorTreeEditor::DragDropState::DropPosition BehaviorTreeEditor::CalculateDropPosition(TreeNode* target) {
+	ImVec2 rectMin = ImGui::GetItemRectMin();
+	ImVec2 rectMax = ImGui::GetItemRectMax();
+	float height = rectMax.y - rectMin.y;
+	float mouseY = ImGui::GetMousePos().y - rectMin.y;
+	float relative = mouseY / height;
+	if (relative < 0.3f) return DragDropState::DropPosition::Before;
+	if (relative > 0.7f) return DragDropState::DropPosition::After;
+	return DragDropState::DropPosition::On;
+}
+
+void BehaviorTreeEditor::HandleDropTarget(TreeNode* target) {
+	// Use the tree node itself as the drop target
+	if (ImGui::BeginDragDropTarget()) {
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("BT_NODE")) {
+			IM_ASSERT(payload->DataSize == sizeof(TreeNode*));
+			TreeNode* draggedNode = *(TreeNode**)payload->Data;
+
+			if (draggedNode && draggedNode != target) {
+				auto pos = CalculateDropPosition(target);
+				if (CanPerformDrop(draggedNode, target, pos)) {
+					PerformDrop(draggedNode, target, pos);
+				}
+			}
+		}
+		ImGui::EndDragDropTarget();
+	}
+}
+
+bool BehaviorTreeEditor::CanPerformDrop(TreeNode* dragged, TreeNode* target, DragDropState::DropPosition pos) {
+	if (!dragged || !target) return false;
+	if (dragged == target) return false;
+	if (dragged == tree_->GetRoot().get()) return false;
+
+	TreeNode* newParent = (pos == DragDropState::DropPosition::On) ? target : target->GetParent();
+	if (!newParent) return false;
+
+	// Check for circular dependency
+	TreeNode* parentCheck = newParent;
+	while (parentCheck) {
+		if (parentCheck == dragged) return false;
+		parentCheck = parentCheck->GetParent();
+	}
+
+	// Check if newParent can accept more children
+	if (auto decorator = dynamic_cast<DecoratorNode*>(newParent)) {
+		size_t maxChildren = 1;
+		size_t currentChildren = newParent->GetChildren().size();
+		bool isExistingChild = (dragged->GetParent() == newParent);
+		if (currentChildren >= maxChildren && !isExistingChild) {
+			return false;
+		}
+	}
+
+	// Allow for composites without limit
+	return true;
+}
+
+void BehaviorTreeEditor::PerformDrop(TreeNode* dragged, TreeNode* target, DragDropState::DropPosition pos) {
+	if (!dragged || !target) return;
+	if (!CanPerformDrop(dragged, target, pos)) return;
+
+	TreeNode* oldParent = dragged->GetParent();
+	if (!oldParent) return;
+
+	std::shared_ptr<TreeNode> draggedShared = oldParent->ExtractChild(dragged);
+	if (!draggedShared) return;
+
+	TreeNode* newParent = (pos == DragDropState::DropPosition::On) ? target : target->GetParent();
+
+	if (auto decorator = dynamic_cast<DecoratorNode*>(newParent)) {
+		decorator->SetChild(draggedShared);
+	}
+	else {
+		if (pos == DragDropState::DropPosition::On) {
+			newParent->AddChild(draggedShared);
+		}
+		else {
+			auto& children = newParent->GetChildren();
+			auto it = std::find_if(children.begin(), children.end(), [&](const std::shared_ptr<TreeNode>& c) { return c.get() == target; });
+			if (it == children.end()) return;
+			size_t index = std::distance(children.begin(), it);
+			if (pos == DragDropState::DropPosition::After) ++index;
+			children.insert(children.begin() + index, draggedShared);
+			draggedShared->SetParent(newParent);
+		}
+	}
+
+	// Clear drag state
+	dragDrop_.draggedNode = nullptr;
+	dragDrop_.isDragging = false;
+
+	// Update selection
+	if (selection_.selected == dragged) {
+		OnSelectionChanged(draggedShared.get());
 	}
 }
 
@@ -344,22 +567,23 @@ static bool EditJsonObject(json& j);
 static bool EditJsonValue(const char* label, json& v);
 
 void BehaviorTreeEditor::DrawPropertiesPanel() {
-	if (ImGui::BeginChild("##props", ImVec2(0, 200), true)) {
+	if (ImGui::BeginChild("##props", ImVec2(0, propertiesHeight), true)) {
 		if (!selection_.selected) {
 			ImGui::TextDisabled("Select a node to edit properties");
-		} else {
+		}
+		else {
 			ImGui::Text("%s (%s)", selection_.selected->GetName().c_str(), selection_.selected->GetType().c_str());
 			ImGui::Separator();
 
 			json params = json::parse(selection_.cachedParamsSerialized, nullptr, false);
 			if (params.is_discarded()) { params = json::object(); }
-            bool changed = EditJsonObject(params);
-            if (changed) {
-                // Auto-apply changes immediately to avoid UI reverting on focus change
-                selection_.cachedParamsSerialized = params.dump(2);
-                ApplyParamsSerializedToNode(selection_.cachedParamsSerialized, selection_.selected);
-                selection_.dirty = false;
-            }
+			bool changed = EditJsonObject(params);
+			if (changed) {
+				// Auto-apply changes immediately to avoid UI reverting on focus change
+				selection_.cachedParamsSerialized = params.dump(2);
+				ApplyParamsSerializedToNode(selection_.cachedParamsSerialized, selection_.selected);
+				selection_.dirty = false;
+			}
 		}
 	}
 	ImGui::EndChild();
@@ -387,8 +611,9 @@ static bool EditBTVariable(const char* label, json& jVar) {
 			if (sourceType == 0) {
 				jVar.erase("blackboardKey");
 				if (!jVar.contains("value")) jVar["value"] = 0; // default
-			} else {
-				jVar.erase("value");
+			}
+			else {
+				// jVar.erase("value");  // Removed to preserve original value and type
 				if (!jVar.contains("blackboardKey")) jVar["blackboardKey"] = std::string("");
 			}
 			changed = true;
@@ -400,17 +625,21 @@ static bool EditBTVariable(const char* label, json& jVar) {
 			if (v.is_number_integer()) {
 				int val = v.get<int>();
 				if (ImGui::DragInt("##ival", &val)) { v = val; changed = true; }
-			} else if (v.is_number_float()) {
+			}
+			else if (v.is_number_float()) {
 				float val = v.get<float>();
 				if (ImGui::DragFloat("##fval", &val, 0.01f)) { v = val; changed = true; }
-			} else if (v.is_boolean()) {
+			}
+			else if (v.is_boolean()) {
 				bool val = v.get<bool>();
 				if (ImGui::Checkbox("##bval", &val)) { v = val; changed = true; }
-			} else {
+			}
+			else {
 				std::string val = v.is_string() ? v.get<std::string>() : std::string("");
 				if (ImGui::InputText("##sval", &val)) { v = val; changed = true; }
 			}
-		} else {
+		}
+		else {
 			std::string key = jVar.value("blackboardKey", std::string(""));
 			if (ImGui::InputText("##bbkey", &key)) { jVar["blackboardKey"] = key; changed = true; }
 		}
@@ -425,7 +654,8 @@ static bool EditJsonValue(const char* label, json& v) {
 		// Heuristic: If object looks like BTVariable (has sourceType)
 		if (v.contains("sourceType")) {
 			changed = EditBTVariable(label, v);
-		} else {
+		}
+		else {
 			if (ImGui::TreeNode(label)) {
 				for (auto it = v.begin(); it != v.end(); ++it) {
 					std::string childLabel = std::string(label) + "." + it.key();
@@ -434,7 +664,8 @@ static bool EditJsonValue(const char* label, json& v) {
 				ImGui::TreePop();
 			}
 		}
-	} else if (v.is_array()) {
+	}
+	else if (v.is_array()) {
 		if (ImGui::TreeNode(label)) {
 			for (size_t i = 0; i < v.size(); ++i) {
 				std::string elemLabel = std::string(label) + "[" + std::to_string(i) + "]";
@@ -442,16 +673,20 @@ static bool EditJsonValue(const char* label, json& v) {
 			}
 			ImGui::TreePop();
 		}
-	} else if (v.is_boolean()) {
+	}
+	else if (v.is_boolean()) {
 		bool b = v.get<bool>();
 		if (ImGui::Checkbox(label, &b)) { v = b; changed = true; }
-	} else if (v.is_number_integer()) {
+	}
+	else if (v.is_number_integer()) {
 		int i = v.get<int>();
 		if (ImGui::DragInt(label, &i)) { v = i; changed = true; }
-	} else if (v.is_number_float()) {
+	}
+	else if (v.is_number_float()) {
 		float f = v.get<float>();
 		if (ImGui::DragFloat(label, &f, 0.01f)) { v = f; changed = true; }
-	} else {
+	}
+	else {
 		std::string s = v.is_string() ? v.get<std::string>() : std::string("");
 		if (ImGui::InputText(label, &s)) { v = s; changed = true; }
 	}
@@ -535,7 +770,8 @@ bool BehaviorTreeEditor::LoadTree(const std::string& fileName) {
 		// Clear selection cache as structure changed
 		OnSelectionChanged(nullptr);
 		return true;
-	} catch (const std::runtime_error& e) {
+	}
+	catch (const std::runtime_error& e) {
 		file_.lastError = e.what();
 		return false;
 	}
@@ -551,4 +787,3 @@ bool BehaviorTreeEditor::SaveTree(const std::string& fileName) {
 	}
 	return true;
 }
-

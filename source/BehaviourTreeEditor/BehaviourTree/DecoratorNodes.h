@@ -94,6 +94,8 @@ public:
     json ToJson() const override;
     void FromJson(const json& j) override;
 
+    bool inverse = false;
+
 private:
     BTVariable condition_;
 };

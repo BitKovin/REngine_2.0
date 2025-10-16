@@ -19,8 +19,21 @@ public:
 	void Update(float deltaTime);
 	void Draw();
 
-    // Optional integration helpers
-    BehaviorTree& GetTree() { return *tree_; }
+
+	struct DragDropState {
+		TreeNode* draggedNode = nullptr;
+		TreeNode* dropTarget = nullptr;
+		enum class DropPosition { On, Before, After } dropPosition;
+		bool isDragging = false;
+	};
+
+   DragDropState::DropPosition CalculateDropPosition(TreeNode* target);
+
+   bool CanPerformDrop(TreeNode* dragged, TreeNode* target, DragDropState::DropPosition pos);
+
+   void PerformDrop(TreeNode* dragged, TreeNode* target, DragDropState::DropPosition pos);
+
+ 
 
 private:
 	// --- Editor State ---
@@ -75,4 +88,14 @@ private:
 	SimulationState sim_{};
 	FileState file_{};
 	SelectionState selection_{};
+
+	float columnWidth = 420.0f;
+	float propertiesHeight = 200.0f;
+    
+    DragDropState dragDrop_;
+
+    // Drag and drop methods
+    void HandleDragSource(TreeNode* node);
+    void HandleDropTarget(TreeNode* node);
+
 };

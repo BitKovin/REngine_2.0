@@ -13,22 +13,31 @@ NodeStatus SequenceNode::Execute(BehaviorTreeContext& context) {
     for (size_t i = currentChildIndex_; i < children_.size(); ++i) {
         auto& child = children_[i];
 
-        bool startingNode = child->GetStatus() == NodeStatus::Idle;
+        bool startingNode = child->GetStatus() != NodeStatus::Running;
 
         NodeStatus childStatus = child->Tick(context);
 
-
-        if (childStatus == NodeStatus::Running || startingNode) {
-            currentChildIndex_ = i;
-            return NodeStatus::Running;
-        }
-        else if (childStatus == NodeStatus::Failure) {
+        if (childStatus == NodeStatus::Failure) 
+        {
             // UE: on failure, sequence fails immediately; next tick should start from first child again
             currentChildIndex_ = 0;
+            child->SetStatus(NodeStatus::Idle);
             return NodeStatus::Failure;
         }
+		else if ((childStatus == NodeStatus::Running || startingNode) && childStatus != NodeStatus::Success) {
+			currentChildIndex_ = i;
+			return NodeStatus::Running;
+		}
+         
+
+        if (childStatus == NodeStatus::Success)
+        {
+            child->SetStatus(NodeStatus::Idle);
+        }
+
         // Success: advance to next child; next child will OnStart on first Tick
     }
+
 
     // All children succeeded. Keep returning Success until external flow changes (e.g., aborts or reset).
     // Next evaluation should begin from first child again.

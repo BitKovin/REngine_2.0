@@ -21,7 +21,7 @@ InverterDecorator::InverterDecorator() : DecoratorNode("Inverter", "InverterDeco
 NodeStatus InverterDecorator::Execute(BehaviorTreeContext& context) {
     if (children_.empty()) return NodeStatus::Failure;
 
-    NodeStatus childStatus = children_[0]->Execute(context);
+    NodeStatus childStatus = children_[0]->Tick(context);
 
     switch (childStatus) {
     case NodeStatus::Success: return NodeStatus::Failure;
@@ -47,7 +47,7 @@ NodeStatus RepeatDecorator::Execute(BehaviorTreeContext& context) {
     int resolvedRepeatCount = context.blackboard->ResolveBTVariable(repeatCount_, -1);
 
     while (resolvedRepeatCount < 0 || currentCount_ < resolvedRepeatCount) {
-        NodeStatus childStatus = children_[0]->Execute(context);
+        NodeStatus childStatus = children_[0]->Tick(context);
 
         if (childStatus == NodeStatus::Running) {
             return NodeStatus::Running;
@@ -102,7 +102,7 @@ SucceederDecorator::SucceederDecorator() : DecoratorNode("Succeeder", "Succeeder
 NodeStatus SucceederDecorator::Execute(BehaviorTreeContext& context) {
     if (children_.empty()) return NodeStatus::Success;
 
-    NodeStatus childStatus = children_[0]->Execute(context);
+    NodeStatus childStatus = children_[0]->Tick(context);
 
     if (childStatus == NodeStatus::Running) {
         return NodeStatus::Running;
@@ -116,7 +116,7 @@ FailerDecorator::FailerDecorator() : DecoratorNode("Failer", "FailerDecorator") 
 NodeStatus FailerDecorator::Execute(BehaviorTreeContext& context) {
     if (children_.empty()) return NodeStatus::Failure;
 
-    NodeStatus childStatus = children_[0]->Execute(context);
+    NodeStatus childStatus = children_[0]->Tick(context);
 
     if (childStatus == NodeStatus::Running) {
         return NodeStatus::Running;
@@ -125,6 +125,7 @@ NodeStatus FailerDecorator::Execute(BehaviorTreeContext& context) {
     return NodeStatus::Failure;
 }
 
+// New decorator with abort capability
 ConditionalDecorator::ConditionalDecorator()
     : DecoratorNode("Conditional", "ConditionalDecorator") {
     condition_.SetConstantValue(true);
@@ -139,7 +140,7 @@ NodeStatus ConditionalDecorator::Execute(BehaviorTreeContext& context) {
         return NodeStatus::Failure;
     }
 
-    return children_[0]->Execute(context);
+    return children_[0]->Tick(context);
 }
 
 bool ConditionalDecorator::CheckCondition(BehaviorTreeContext& context) const {
@@ -157,6 +158,8 @@ json ConditionalDecorator::ToJson() const {
     }
     j["observerKeys"] = observerArray;
 
+    j["inverse"] = inverse;
+
     return j;
 }
 
@@ -164,6 +167,9 @@ void ConditionalDecorator::FromJson(const json& j) {
     DecoratorNode::FromJson(j);
     if (j.contains("condition")) {
         condition_.FromJson(j["condition"]);
+    }
+    if (j.contains("inverse")) {
+        inverse << j["inverse"];
     }
     if (j.contains("abortMode")) {
         abortMode_ = static_cast<FlowAbortMode>(j["abortMode"].get<int>());

@@ -1,20 +1,116 @@
 {
-    "blackboard": null,
+    "blackboard": {
+        "close_to_player": true,
+        "sees_player": true
+    },
     "isRunning": false,
     "root": {
         "children": [
             {
                 "children": [
                     {
-                        "abortMode": 3,
-                        "children": [],
-                        "condition": {
-                            "sourceType": 0,
-                            "value": true
-                        },
-                        "name": "Conditional",
-                        "observerKeys": [],
-                        "type": "ConditionalDecorator"
+                        "children": [
+                            {
+                                "abortMode": 1,
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [],
+                                                "message": {
+                                                    "sourceType": 0,
+                                                    "value": "attacking player"
+                                                },
+                                                "name": "PrintMessage",
+                                                "type": "PrintMessageNode"
+                                            },
+                                            {
+                                                "children": [],
+                                                "name": "Wait",
+                                                "type": "WaitNode",
+                                                "waitTime": {
+                                                    "sourceType": 0,
+                                                    "value": 0.5
+                                                }
+                                            }
+                                        ],
+                                        "name": "Sequence",
+                                        "type": "SequenceNode"
+                                    }
+                                ],
+                                "condition": {
+                                    "blackboardKey": "close_to_player",
+                                    "sourceType": 1
+                                },
+                                "inverse": false,
+                                "name": "Conditional",
+                                "observerKeys": [],
+                                "type": "ConditionalDecorator"
+                            },
+                            {
+                                "abortMode": 1,
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [],
+                                                "message": {
+                                                    "sourceType": 0,
+                                                    "value": "moving to player"
+                                                },
+                                                "name": "PrintMessage",
+                                                "type": "PrintMessageNode"
+                                            },
+                                            {
+                                                "children": [],
+                                                "name": "Wait",
+                                                "type": "WaitNode",
+                                                "waitTime": {
+                                                    "sourceType": 0,
+                                                    "value": 0.5
+                                                }
+                                            }
+                                        ],
+                                        "name": "Sequence",
+                                        "type": "SequenceNode"
+                                    }
+                                ],
+                                "condition": {
+                                    "blackboardKey": "sees_player",
+                                    "sourceType": 1
+                                },
+                                "inverse": false,
+                                "name": "Conditional",
+                                "observerKeys": [],
+                                "type": "ConditionalDecorator"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "message": {
+                                            "sourceType": 0,
+                                            "value": "doing work"
+                                        },
+                                        "name": "PrintMessage",
+                                        "type": "PrintMessageNode"
+                                    },
+                                    {
+                                        "children": [],
+                                        "name": "Wait",
+                                        "type": "WaitNode",
+                                        "waitTime": {
+                                            "sourceType": 0,
+                                            "value": 0.5
+                                        }
+                                    }
+                                ],
+                                "name": "Sequence",
+                                "type": "SequenceNode"
+                            }
+                        ],
+                        "name": "Selector",
+                        "type": "SelectorNode"
                     }
                 ],
                 "name": "Sequence",

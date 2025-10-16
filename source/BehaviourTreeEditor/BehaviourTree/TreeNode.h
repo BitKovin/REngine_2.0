@@ -27,9 +27,12 @@ public:
 
     // Hierarchy
     void AddChild(std::shared_ptr<TreeNode> child);
-    const std::vector<std::shared_ptr<TreeNode>>& GetChildren() const { return children_; }
+    std::vector<std::shared_ptr<TreeNode>>& GetChildren() { return children_; }
 
-    void RemoveChild(TreeNode* child);
+    bool RemoveChild(TreeNode* child);
+    std::shared_ptr<TreeNode> ExtractChild(TreeNode* child);
+    void InsertChild(size_t index, std::shared_ptr<TreeNode> child);
+    int FindChildIndex(TreeNode* child) const;
 
     // Properties
     const std::string& GetName() const { return name_; }
