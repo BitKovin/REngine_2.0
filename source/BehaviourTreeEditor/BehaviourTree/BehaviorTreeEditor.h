@@ -44,7 +44,6 @@ private:
 		float fixedDeltaTime = 0.1f;
 		float timeScale = 1.0f;
 		float accumulator = 0.0f;
-		bool loop = true; // when false, stop on root completion
 	};
 
 	struct FileState {

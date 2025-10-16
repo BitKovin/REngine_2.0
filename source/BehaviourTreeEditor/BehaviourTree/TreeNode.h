@@ -55,8 +55,9 @@ public:
     // Tick wrapper managing lifecycle. Non-virtual; calls virtual Execute/OnStart/OnStop.
     NodeStatus Tick(BehaviorTreeContext& context);
 
-protected:
     std::string name_;
+
+protected:
     std::string type_;
     NodeStatus status_ = NodeStatus::Idle;
     std::vector<std::shared_ptr<TreeNode>> children_;

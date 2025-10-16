@@ -65,12 +65,6 @@ void BehaviorTreeEditor::Update(float deltaTime)
 	if (sim_.playing && !sim_.paused) {
 		// Use real-time delta for continuous simulation
 		tree_->Update(deltaTime * sim_.timeScale);
-		if (!sim_.loop) {
-			// If not looping, stop when root resolves
-			if (tree_->GetLastRootStatus() != NodeStatus::Running) {
-				sim_.paused = true;
-			}
-		}
 	}
 	else if (sim_.stepOnce) {
 		// Use fixed delta only for single-step
@@ -189,7 +183,6 @@ void BehaviorTreeEditor::DrawSimulationControls() {
 		ImGui::SetNextItemWidth(110.0f);
 		ImGui::DragFloat("speed", &sim_.timeScale, 0.01f, 0.01f, 10.0f, "%.2fx");
 		ImGui::SameLine();
-		ImGui::Checkbox("loop", &sim_.loop);
 	}
 	ImGui::EndChild();
 }
@@ -573,6 +566,7 @@ void BehaviorTreeEditor::DrawPropertiesPanel() {
 		}
 		else {
 			ImGui::Text("%s (%s)", selection_.selected->GetName().c_str(), selection_.selected->GetType().c_str());
+			ImGui::InputText("display name", &selection_.selected->name_);
 			ImGui::Separator();
 
 			json params = json::parse(selection_.cachedParamsSerialized, nullptr, false);
