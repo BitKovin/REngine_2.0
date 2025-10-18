@@ -6,6 +6,7 @@ public:
     SequenceNode();
 
     void OnStart(BehaviorTreeContext& context) override;
+    void OnStop(BehaviorTreeContext& context) override;
     NodeStatus Execute(BehaviorTreeContext& context) override;
     void OnReset() override;
     void Abort(BehaviorTreeContext& context) override;

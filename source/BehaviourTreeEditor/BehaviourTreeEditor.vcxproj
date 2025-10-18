@@ -242,7 +242,9 @@
     <ClCompile Include="BehaviourTree\Blackboard.cpp" />
     <ClCompile Include="BehaviourTree\BTVariable.cpp" />
     <ClCompile Include="BehaviourTree\CompositeNodes.cpp" />
+    <ClCompile Include="BehaviourTree\CustomTask.cpp" />
     <ClCompile Include="BehaviourTree\DecoratorNodes.cpp" />
+    <ClCompile Include="BehaviourTree\HoldTask.cpp" />
     <ClCompile Include="BehaviourTree\NodeFactory.cpp" />
     <ClCompile Include="BehaviourTree\TaskNodes.cpp" />
     <ClCompile Include="BehaviourTree\TreeNode.cpp" />
@@ -261,7 +263,9 @@
     <ClInclude Include="BehaviourTree\BTVariable.h" />
     <ClInclude Include="BehaviourTree\CompositeNode.h" />
     <ClInclude Include="BehaviourTree\CompositeNodes.h" />
+    <ClInclude Include="BehaviourTree\CustomTask.h" />
     <ClInclude Include="BehaviourTree\DecoratorNodes.h" />
+    <ClInclude Include="BehaviourTree\HoldTask.h" />
     <ClInclude Include="BehaviourTree\NodeFactory.h" />
     <ClInclude Include="BehaviourTree\TaskNodes.h" />
     <ClInclude Include="BehaviourTree\TreeNode.h" />

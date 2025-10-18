@@ -18,7 +18,7 @@ public:
     // Core functionality
     virtual NodeStatus Execute(BehaviorTreeContext& context) = 0;
     virtual void OnStart(BehaviorTreeContext& context);
-    virtual void OnStop(BehaviorTreeContext& context) {}
+    virtual void OnStop(BehaviorTreeContext& context);
     virtual void OnReset() { status_ = NodeStatus::Idle; }
     virtual void Abort(BehaviorTreeContext& context) {
         OnStop(context);
@@ -53,7 +53,7 @@ public:
     virtual void LoadState(const json& j);
 
     // Tick wrapper managing lifecycle. Non-virtual; calls virtual Execute/OnStart/OnStop.
-    NodeStatus Tick(BehaviorTreeContext& context);
+    NodeStatus TickNode(BehaviorTreeContext& context);
 
     std::string name_;
 
@@ -62,4 +62,7 @@ protected:
     NodeStatus status_ = NodeStatus::Idle;
     std::vector<std::shared_ptr<TreeNode>> children_;
     TreeNode* parent_ = nullptr;
+
+    bool isTask = true;
+
 };

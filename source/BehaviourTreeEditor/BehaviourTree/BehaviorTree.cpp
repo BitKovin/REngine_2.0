@@ -43,12 +43,13 @@ void BehaviorTree::Update(float deltaTime) {
     if (!isRunning_ || !root_) return;
 
     context_.deltaTime = deltaTime;
+    context_.reachedTask = false;
 
     // Process any pending aborts first
     ProcessAborts();
 
     // Execute the tree
-    NodeStatus status = root_->Tick(context_);
+    NodeStatus status = root_->TickNode(context_);
     lastRootStatus_ = status;
 
     // Do not auto-reset on Success/Failure; leave tree state stable until explicitly Reset/Start

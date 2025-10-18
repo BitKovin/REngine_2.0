@@ -4,7 +4,9 @@
 class CompositeNode : public TreeNode {
 public:
     CompositeNode(const std::string& name, const std::string& type)
-        : TreeNode(name, type) {
+        : TreeNode(name, type)
+    {
+        isTask = false;
     }
 
     // Common composite interface

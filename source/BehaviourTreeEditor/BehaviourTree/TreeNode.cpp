@@ -90,8 +90,24 @@ void TreeNode::OnStart(BehaviorTreeContext& context)
     }
 }
 
-NodeStatus TreeNode::Tick(BehaviorTreeContext& context) {
+void TreeNode::OnStop(BehaviorTreeContext& context)
+{
 
+    SetStatus(NodeStatus::Idle);
+
+    for (auto child : children_)
+    {
+        child->OnStop(context);
+    }
+}
+
+NodeStatus TreeNode::TickNode(BehaviorTreeContext& context) {
+
+
+    if (isTask)
+    {
+        context.reachedTask = true;
+    }
 
     if (status_ != NodeStatus::Running) {
         OnStart(context);
@@ -106,7 +122,6 @@ NodeStatus TreeNode::Tick(BehaviorTreeContext& context) {
     }
 
     if (result != NodeStatus::Running) {
-        OnStop(context);
         status_ = result;
     }
     else {

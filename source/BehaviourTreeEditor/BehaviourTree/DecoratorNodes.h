@@ -96,6 +96,8 @@ public:
 
     bool inverse = false;
 
+    bool previousCondition = false;
+
 private:
     BTVariable condition_;
 };

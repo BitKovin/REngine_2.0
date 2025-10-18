@@ -5,7 +5,13 @@ SequenceNode::SequenceNode() : CompositeNode("Sequence", "SequenceNode") {}
 void SequenceNode::OnStart(BehaviorTreeContext& context) 
 {
 
+    //currentChildIndex_ = 0;
+}
+
+void SequenceNode::OnStop(BehaviorTreeContext& context)
+{
     currentChildIndex_ = 0;
+    TreeNode::OnStop(context);
 }
 
 NodeStatus SequenceNode::Execute(BehaviorTreeContext& context) {
@@ -15,25 +21,43 @@ NodeStatus SequenceNode::Execute(BehaviorTreeContext& context) {
 
         bool startingNode = child->GetStatus() != NodeStatus::Running;
 
-        NodeStatus childStatus = child->Tick(context);
+        NodeStatus childStatus = child->TickNode(context);
 
-        if (childStatus == NodeStatus::Failure) 
-        {
-            // UE: on failure, sequence fails immediately; next tick should start from first child again
-            currentChildIndex_ = 0;
-            child->SetStatus(NodeStatus::Idle);
-            return NodeStatus::Failure;
-        }
-		else if ((childStatus == NodeStatus::Running || startingNode) && childStatus != NodeStatus::Success) {
-			currentChildIndex_ = i;
-			return NodeStatus::Running;
-		}
-         
 
-        if (childStatus == NodeStatus::Success)
+
+        if (context.reachedTask)
         {
-            child->SetStatus(NodeStatus::Idle);
+            if (childStatus == NodeStatus::Success || childStatus == NodeStatus::Failure)
+            {
+                child->SetStatus(NodeStatus::Idle);
+
+                currentChildIndex_ = i + 1;
+                if (currentChildIndex_ == children_.size())
+                    currentChildIndex_ = 0;
+
+                return childStatus;
+            }
+            else if ((childStatus == NodeStatus::Running)) {
+                currentChildIndex_ = i;
+
+                if (currentChildIndex_ == children_.size())
+                    currentChildIndex_ = 0;
+
+                return NodeStatus::Running;
+            }
         }
+        else
+        {
+			if (childStatus == NodeStatus::Failure)
+			{
+				// UE: on failure, sequence fails immediately; next tick should start from first child again
+				currentChildIndex_ = 0;
+				child->SetStatus(NodeStatus::Idle);
+				return NodeStatus::Failure;
+			}
+        }
+
+
 
         // Success: advance to next child; next child will OnStart on first Tick
     }
@@ -83,7 +107,7 @@ void SelectorNode::OnStart(BehaviorTreeContext& context) {
 NodeStatus SelectorNode::Execute(BehaviorTreeContext& context) {
     for (size_t i = currentChildIndex_; i < children_.size(); ++i) {
         auto& child = children_[i];
-        NodeStatus childStatus = child->Tick(context);
+        NodeStatus childStatus = child->TickNode(context);
 
         if (childStatus == NodeStatus::Running) {
             currentChildIndex_ = i;

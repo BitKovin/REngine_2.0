@@ -308,7 +308,7 @@ void BehaviorTreeEditor::DrawNodeRecursive(TreeNode* node, int depth) {
 	// Add execution indicator
 	if (isLastExecuted) {
 		ImGui::SameLine();
-		ImGui::TextColored(ImVec4(1, 1, 0, 1), " ⬅");
+		ImGui::TextColored(ImVec4(1, 1, 0, 1), " <--");
 	}
 
 	if (ImGui::IsItemClicked()) {

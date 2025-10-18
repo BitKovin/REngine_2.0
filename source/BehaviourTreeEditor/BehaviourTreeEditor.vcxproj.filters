@@ -11,6 +11,8 @@
     <ClCompile Include="BehaviourTree\NodeFactory.cpp" />
     <ClCompile Include="BehaviourTree\BehaviorTree.cpp" />
     <ClCompile Include="BehaviourTree\BehaviorTreeEditor.cpp" />
+    <ClCompile Include="BehaviourTree\CustomTask.cpp" />
+    <ClCompile Include="BehaviourTree\HoldTask.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BehaviourTree\BTVariable.h" />
@@ -24,5 +26,7 @@
     <ClInclude Include="BehaviourTree\BehaviorTreeTypes.h" />
     <ClInclude Include="BehaviourTree\CompositeNode.h" />
     <ClInclude Include="BehaviourTree\BehaviorTreeEditor.h" />
+    <ClInclude Include="BehaviourTree\CustomTask.h" />
+    <ClInclude Include="BehaviourTree\HoldTask.h" />
   </ItemGroup>
 </Project>

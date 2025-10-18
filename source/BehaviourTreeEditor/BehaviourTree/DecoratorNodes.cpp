@@ -2,7 +2,9 @@
 #include "BehaviorTree.h"
 
 DecoratorNode::DecoratorNode(const std::string& name, const std::string& type)
-    : TreeNode(name, type) {
+    : TreeNode(name, type) 
+{
+    isTask = false;
 }
 
 void DecoratorNode::SetChild(std::shared_ptr<TreeNode> child) {
@@ -21,7 +23,7 @@ InverterDecorator::InverterDecorator() : DecoratorNode("Inverter", "InverterDeco
 NodeStatus InverterDecorator::Execute(BehaviorTreeContext& context) {
     if (children_.empty()) return NodeStatus::Failure;
 
-    NodeStatus childStatus = children_[0]->Tick(context);
+    NodeStatus childStatus = children_[0]->TickNode(context);
 
     switch (childStatus) {
     case NodeStatus::Success: return NodeStatus::Failure;
@@ -47,7 +49,11 @@ NodeStatus RepeatDecorator::Execute(BehaviorTreeContext& context) {
     int resolvedRepeatCount = context.blackboard->ResolveBTVariable(repeatCount_, -1);
 
     while (resolvedRepeatCount < 0 || currentCount_ < resolvedRepeatCount) {
-        NodeStatus childStatus = children_[0]->Tick(context);
+        NodeStatus childStatus = children_[0]->TickNode(context);
+
+        currentCount_++;
+
+        return childStatus;
 
         if (childStatus == NodeStatus::Running) {
             return NodeStatus::Running;
@@ -55,8 +61,6 @@ NodeStatus RepeatDecorator::Execute(BehaviorTreeContext& context) {
         else if (childStatus == NodeStatus::Failure) {
             return NodeStatus::Failure;
         }
-
-        currentCount_++;
 
         if (resolvedRepeatCount > 0 && currentCount_ >= resolvedRepeatCount) {
             return NodeStatus::Success;
@@ -102,7 +106,7 @@ SucceederDecorator::SucceederDecorator() : DecoratorNode("Succeeder", "Succeeder
 NodeStatus SucceederDecorator::Execute(BehaviorTreeContext& context) {
     if (children_.empty()) return NodeStatus::Success;
 
-    NodeStatus childStatus = children_[0]->Tick(context);
+    NodeStatus childStatus = children_[0]->TickNode(context);
 
     if (childStatus == NodeStatus::Running) {
         return NodeStatus::Running;
@@ -116,7 +120,7 @@ FailerDecorator::FailerDecorator() : DecoratorNode("Failer", "FailerDecorator") 
 NodeStatus FailerDecorator::Execute(BehaviorTreeContext& context) {
     if (children_.empty()) return NodeStatus::Failure;
 
-    NodeStatus childStatus = children_[0]->Tick(context);
+    NodeStatus childStatus = children_[0]->TickNode(context);
 
     if (childStatus == NodeStatus::Running) {
         return NodeStatus::Running;
@@ -136,11 +140,22 @@ NodeStatus ConditionalDecorator::Execute(BehaviorTreeContext& context) {
     if (children_.empty()) return NodeStatus::Failure;
 
     bool condition = CheckCondition(context);
-    if (!condition) {
+
+    if (!condition) 
+    {
+
+        if (previousCondition)
+        {
+            children_[0]->OnStop(context);
+        }
+
+        previousCondition = condition;
         return NodeStatus::Failure;
     }
 
-    return children_[0]->Tick(context);
+    previousCondition = condition;
+
+    return children_[0]->TickNode(context);
 }
 
 bool ConditionalDecorator::CheckCondition(BehaviorTreeContext& context) const {
@@ -156,7 +171,7 @@ json ConditionalDecorator::ToJson() const {
     for (const auto& key : observerKeys_) {
         observerArray.push_back(key);
     }
-    j["observerKeys"] = observerArray;
+    //j["observerKeys"] = observerArray;
 
     j["inverse"] = inverse;
 

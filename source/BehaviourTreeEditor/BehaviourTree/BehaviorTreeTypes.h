@@ -18,6 +18,7 @@ struct BehaviorTreeContext {
     Blackboard* blackboard;
     float deltaTime;
     BehaviorTree* tree;
+    bool reachedTask;
 };
 
 enum class FlowAbortMode {
