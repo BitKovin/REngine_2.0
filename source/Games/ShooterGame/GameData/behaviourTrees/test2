@@ -11,7 +11,6 @@
                     {
                         "children": [
                             {
-                                "abortMode": 1,
                                 "children": [
                                     {
                                         "children": [
@@ -26,12 +25,12 @@
                                             },
                                             {
                                                 "children": [],
-                                                "name": "Wait",
-                                                "type": "WaitNode",
-                                                "waitTime": {
+                                                "hold": {
                                                     "sourceType": 0,
-                                                    "value": 0.5
-                                                }
+                                                    "value": true
+                                                },
+                                                "name": "Hold",
+                                                "type": "HoldTask"
                                             }
                                         ],
                                         "name": "Sequence",
@@ -42,13 +41,12 @@
                                     "blackboardKey": "close_to_player",
                                     "sourceType": 1
                                 },
+                                "finish before stop": true,
                                 "inverse": false,
                                 "name": "attack",
-                                "observerKeys": [],
                                 "type": "ConditionalDecorator"
                             },
                             {
-                                "abortMode": 1,
                                 "children": [
                                     {
                                         "children": [
@@ -63,12 +61,12 @@
                                             },
                                             {
                                                 "children": [],
-                                                "name": "Wait",
-                                                "type": "WaitNode",
-                                                "waitTime": {
+                                                "hold": {
                                                     "sourceType": 0,
-                                                    "value": 0.5
-                                                }
+                                                    "value": true
+                                                },
+                                                "name": "Hold",
+                                                "type": "HoldTask"
                                             }
                                         ],
                                         "name": "Sequence",
@@ -79,9 +77,9 @@
                                     "blackboardKey": "sees_player",
                                     "sourceType": 1
                                 },
+                                "finish before stop": true,
                                 "inverse": false,
                                 "name": "follow",
-                                "observerKeys": [],
                                 "type": "ConditionalDecorator"
                             },
                             {

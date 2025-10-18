@@ -44,6 +44,7 @@ void BehaviorTree::Update(float deltaTime) {
 
     context_.deltaTime = deltaTime;
     context_.reachedTask = false;
+    context_.hasToFinishDecorator = false;
 
     // Process any pending aborts first
     ProcessAborts();

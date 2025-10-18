@@ -19,6 +19,7 @@ struct BehaviorTreeContext {
     float deltaTime;
     BehaviorTree* tree;
     bool reachedTask;
+    bool hasToFinishDecorator;
 };
 
 enum class FlowAbortMode {

@@ -10,6 +10,8 @@
 #include "BoundingSphere.hpp"
 #include "BoundingBox.hpp"
 
+#include "utility/hashed_string.hpp"
+
 #define MAX_BONE_INFLUENCE 4
 
 #define MAX_SKINNED_BONES 128
@@ -65,7 +67,7 @@ namespace roj
 
 	struct BoneNode
 	{
-		std::string name;
+		hashed_string name;
 		glm::mat4 transform;
 		std::vector<BoneNode> children;
 
@@ -88,7 +90,7 @@ namespace roj
 		float ticksPerSec = 1.0f;
 		float frameTime = 0.0;
 		BoneNode rootBone;
-		std::unordered_map<std::string, FrameBoneTransform> animationFrames = {};
+		std::unordered_map<hashed_string, FrameBoneTransform> animationFrames = {};
 	};
 
 
@@ -103,8 +105,8 @@ namespace roj
 		aiCamera* sceneCamera;
 		glm::mat4 globalInversed;
 		std::vector<SkinnedMesh> meshes;
-		std::unordered_map<std::string, BoneInfo> boneInfoMap;
-		std::unordered_map<std::string, Animation> animations;
+		std::unordered_map<hashed_string, BoneInfo> boneInfoMap;
+		std::unordered_map<hashed_string, Animation> animations;
 
 		BoneNode defaultRoot;
 

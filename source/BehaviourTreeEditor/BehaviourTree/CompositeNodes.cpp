@@ -104,18 +104,31 @@ void SelectorNode::OnStart(BehaviorTreeContext& context) {
     currentChildIndex_ = 0;
 }
 
-NodeStatus SelectorNode::Execute(BehaviorTreeContext& context) {
+NodeStatus SelectorNode::Execute(BehaviorTreeContext& context) 
+{
+
     for (size_t i = currentChildIndex_; i < children_.size(); ++i) {
         auto& child = children_[i];
         NodeStatus childStatus = child->TickNode(context);
 
-        if (childStatus == NodeStatus::Running) {
+        if (context.hasToFinishDecorator)
+        {
+
             currentChildIndex_ = i;
+
+            return NodeStatus::Running;
+        }
+
+        if (childStatus == NodeStatus::Running) 
+        {
+            currentChildIndex_ = 0;
+            
             return NodeStatus::Running;
         }
         else if (childStatus == NodeStatus::Success) {
             // UE: on success, selector succeeds immediately; next tick should start from first child again
             currentChildIndex_ = 0;
+            
             return NodeStatus::Success;
         }
     }
@@ -123,6 +136,7 @@ NodeStatus SelectorNode::Execute(BehaviorTreeContext& context) {
     // All children failed
     currentChildIndex_ = 0;
     return NodeStatus::Failure;
+
 }
 
 void SelectorNode::OnReset() {

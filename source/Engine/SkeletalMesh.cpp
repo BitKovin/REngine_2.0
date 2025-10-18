@@ -21,7 +21,7 @@ AnimationPose AnimationPose::Lerp(AnimationPose a, AnimationPose b, float progre
 
 	}
 
-	std::unordered_map<std::string, mat4> resultPose;
+	std::unordered_map<hashed_string, mat4> resultPose;
 
 	resultPose = b.boneTransforms;
 
@@ -80,7 +80,7 @@ AnimationPose AnimationPose::Lerp(AnimationPose a, AnimationPose b, float progre
 
 }
 
-void SkeletalMesh::ApplyWorldSpaceBoneTransforms(std::unordered_map<std::string, mat4>& pose)
+void SkeletalMesh::ApplyWorldSpaceBoneTransforms(std::unordered_map<hashed_string, mat4>& pose)
 {
 
 	mat4 world = GetWorldMatrix();
@@ -95,7 +95,7 @@ void SkeletalMesh::ApplyWorldSpaceBoneTransforms(std::unordered_map<std::string,
 
 }
 
-void SkeletalMesh::PlayAnimation(string name, bool Loop, float interpIn)
+void SkeletalMesh::PlayAnimation(std::string name, bool Loop, float interpIn)
 {
 
 	if (model == nullptr) return;
@@ -517,7 +517,7 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 
 	auto oldPose = GetAnimationPose();
 
-	animator.ApplyBonePoseArray(std::unordered_map<std::string, mat4>{}); //applying rest pose without visual update
+	animator.ApplyBonePoseArray(std::unordered_map<hashed_string, mat4>{}); //applying rest pose without visual update
 
 	ClearHitboxes();
 
@@ -665,7 +665,7 @@ void SkeletalMesh::UpdateHitboxes()
 		}
 		
 
-		std::unordered_map<std::string, mat4> pose;
+		std::unordered_map<hashed_string, mat4> pose;
 
 		
 
@@ -848,7 +848,7 @@ void SkeletalMesh::LoadMetaFromFile()
 
 }
 
-AnimationData* SkeletalMesh::GetAnimationDataFromName(string name)
+AnimationData* SkeletalMesh::GetAnimationDataFromName(std::string name)
 {
 	for (AnimationData& data : metaData.animations)
 	{
@@ -858,7 +858,7 @@ AnimationData* SkeletalMesh::GetAnimationDataFromName(string name)
 		}
 	}
 
-	metaData.animations.push_back(AnimationData{ name });
+	metaData.animations.push_back(AnimationData{ name});
 	return GetAnimationDataFromName(name);
 }
 

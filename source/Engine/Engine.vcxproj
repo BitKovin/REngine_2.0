@@ -446,6 +446,7 @@
     <ClInclude Include="UI\UiText.hpp" />
     <ClInclude Include="UI\UiVerticalBox.hpp" />
     <ClInclude Include="UI\UiViewport.hpp" />
+    <ClInclude Include="utility\hashed_string.hpp" />
     <ClInclude Include="utils.hpp" />
     <ClInclude Include="VertexData.h" />
     <ClInclude Include="Video\pl_mpeg.h" />

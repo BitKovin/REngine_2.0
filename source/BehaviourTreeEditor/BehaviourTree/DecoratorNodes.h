@@ -96,6 +96,8 @@ public:
 
     bool inverse = false;
 
+    bool finishBeforeStop = false;
+
     bool previousCondition = false;
 
 private:

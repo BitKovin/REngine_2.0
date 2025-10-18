@@ -33,21 +33,21 @@ using namespace std;
 
 struct AnimationPose 
 {
-	std::unordered_map<std::string, mat4> boneTransforms;
+	std::unordered_map<hashed_string, mat4> boneTransforms;
 
 	static AnimationPose Lerp(AnimationPose a, AnimationPose b, float progress);
 
-	void SetBoneTransform(std::string bone, mat4 transform)
+	void SetBoneTransform(hashed_string bone, mat4 transform)
 	{
 		boneTransforms[bone] = transform;
 	}
 
-	void SetBoneTransform(std::string bone, MathHelper::Transform transform)
+	void SetBoneTransform(hashed_string bone, MathHelper::Transform transform)
 	{
 		boneTransforms[bone] = transform.ToMatrix();
 	}
 
-	void SetBoneTransformEuler(std::string bone, MathHelper::Transform transform)
+	void SetBoneTransformEuler(hashed_string bone, MathHelper::Transform transform)
 	{
 		boneTransforms[bone] = transform.ToMatrixEuler();
 	}
@@ -244,9 +244,9 @@ public:
 		boneTransforms = animator.getBoneMatrices();
 	}
 
-	void ApplyWorldSpaceBoneTransforms(std::unordered_map<std::string, mat4>& pose);
+	void ApplyWorldSpaceBoneTransforms(std::unordered_map<hashed_string, mat4>& pose);
 
-	void PlayAnimation(string name, bool Loop = false, float interpIn = 0.12);
+	void PlayAnimation(std::string name, bool Loop = false, float interpIn = 0.12);
 
 	void SetAnimationPaused(bool value);
 
@@ -293,7 +293,7 @@ public:
 
 			if (model->animations.size() > 0)
 			{
-				string name = model->animations.begin()->first;
+				hashed_string name = model->animations.begin()->first;
 
 				animator.set(name);
 			}
@@ -379,7 +379,7 @@ public:
 
 	static void ClearMetaDataCache();
 
-	AnimationData* GetAnimationDataFromName(string name);
+	AnimationData* GetAnimationDataFromName(std::string name);
 
 	void SetAnimationState(const AnimationState& animationState);
 

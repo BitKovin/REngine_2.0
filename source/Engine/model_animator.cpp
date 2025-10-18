@@ -171,7 +171,7 @@ void roj::Animator::calcBoneTransform(BoneNode& node, glm::mat4 offset, bool sto
     }
 }
 
-void roj::Animator::ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& pose)
+void roj::Animator::ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unordered_map<hashed_string, mat4>& pose)
 {
 
     auto poseRes = pose.find(node.name);
@@ -200,7 +200,7 @@ void roj::Animator::ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unorder
     }
 }
 
-void roj::Animator::ApplyNodePoseLocalSpace(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& pose, std::unordered_map<std::string, mat4>& overrideBones)
+void roj::Animator::ApplyNodePoseLocalSpace(BoneNode& node, glm::mat4 offset, std::unordered_map<hashed_string, mat4>& pose, std::unordered_map<hashed_string, mat4>& overrideBones)
 {
 
     bool hasLocalPose = false;
@@ -278,13 +278,13 @@ roj::Animator::~Animator()
 
 }
 
-void roj::Animator::set(const std::string& name)
+void roj::Animator::set(const hashed_string& name)
 {
     auto it = m_model->animations.find(name);
     if (it != m_model->animations.end()) {
         m_currAnim = &it->second;
         m_currTime = 0.0f;
-        currentAnimationName = name;
+        currentAnimationName = name.str();
 
         precacheAnimation();
 
@@ -296,7 +296,7 @@ std::vector<std::string> roj::Animator::get()
     animNames.reserve(m_model->animations.size());
     for (auto& anim : m_model->animations)
     {
-        animNames.emplace_back(anim.first);
+        animNames.emplace_back(anim.first.str());
     }
 
     return animNames;
@@ -307,9 +307,9 @@ std::vector<glm::mat4>& roj::Animator::getBoneMatrices()
     return m_boneMatrices;
 }
 
-std::unordered_map<std::string, mat4> roj::Animator::GetBonePoseArray()
+std::unordered_map<hashed_string, mat4> roj::Animator::GetBonePoseArray()
 {
-    std::unordered_map<std::string, mat4> outVector = std::unordered_map<std::string, mat4>();
+    std::unordered_map<hashed_string, mat4> outVector = std::unordered_map<hashed_string, mat4>();
 
     return currentPose;
 
@@ -321,20 +321,20 @@ std::unordered_map<std::string, mat4> roj::Animator::GetBonePoseArray()
     return outVector;
 }
 
-void roj::Animator::ApplyBonePoseArray(std::unordered_map<std::string, mat4> pose)
+void roj::Animator::ApplyBonePoseArray(std::unordered_map<hashed_string, mat4> pose)
 {
 
     ApplyNodePose(m_model->defaultRoot, glm::identity<mat4>(), pose);
 }
 
-void roj::Animator::ApplyLocalSpacePoseArray(std::unordered_map<std::string, mat4> pose, std::unordered_map<std::string, mat4> overridePose)
+void roj::Animator::ApplyLocalSpacePoseArray(std::unordered_map<hashed_string, mat4> pose, std::unordered_map<hashed_string, mat4> overridePose)
 {
 
     ApplyNodePoseLocalSpace(m_model->defaultRoot, glm::identity<mat4>(), pose, overridePose);
 
 }
 
-void roj::Animator::PopulateBonePoseArray(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& outVector)
+void roj::Animator::PopulateBonePoseArray(BoneNode& node, glm::mat4 offset, std::unordered_map<hashed_string, mat4>& outVector)
 {
     
     outVector[node.name] = currentPose[node.name];

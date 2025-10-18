@@ -52,7 +52,7 @@ void Animator::LoadAssetsIfNeeded()
 	loaded = true;
 }
 
-Animation* Animator::AddAnimation(string path, string name, bool loop)
+Animation* Animator::AddAnimation(string path, std::string name, bool loop)
 {
 
 	Animation* animation = new Animation(owner);
@@ -65,7 +65,7 @@ Animation* Animator::AddAnimation(string path, string name, bool loop)
 
 		if (animation->model->animations.size() > 0)
 		{
-			name = animation->model->animations.begin()->first;
+			name = animation->model->animations.begin()->first.str();
 		}
 
 		

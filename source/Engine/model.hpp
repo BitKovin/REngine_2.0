@@ -13,8 +13,6 @@
 
 #include "utils.hpp"
 
-#include <string>
-
 #include "VertexData.h"
 
 namespace roj

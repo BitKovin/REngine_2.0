@@ -14,7 +14,7 @@ static void extractBoneVertexData(std::vector<VertexData>& vertices, aiMesh* mes
 	for (unsigned int i = 0; i < mesh->mNumBones; ++i)
 	{
 		int boneId = -1;
-		std::string boneName = mesh->mBones[i]->mName.C_Str();
+		hashed_string boneName = mesh->mBones[i]->mName.C_Str();
 		if (model.boneInfoMap.find(boneName) == model.boneInfoMap.end())
 		{
 			model.boneInfoMap[boneName] = roj::BoneInfo{ model.boneCount, toGlmMat4(mesh->mBones[i]->mOffsetMatrix) };

@@ -141,19 +141,52 @@ NodeStatus ConditionalDecorator::Execute(BehaviorTreeContext& context) {
 
     bool condition = CheckCondition(context);
 
-    if (!condition) 
-    {
-
-        if (previousCondition)
-        {
-            children_[0]->OnStop(context);
-        }
-
-        previousCondition = condition;
+    if (previousCondition == false && condition == false)
         return NodeStatus::Failure;
+
+    auto childStatus = children_[0]->GetStatus();
+
+    bool needsToFinish = false;
+
+	if (!condition)
+	{
+
+		if (finishBeforeStop == false)
+		{
+
+			if (previousCondition && childStatus == NodeStatus::Running)
+			{
+				children_[0]->OnStop(context);
+
+				previousCondition = condition;
+				return NodeStatus::Failure;
+			}
+        }
+        else
+        {
+
+            if (previousCondition && childStatus != NodeStatus::Running)
+            {
+                children_[0]->OnStop(context);
+
+                previousCondition = condition;
+                return NodeStatus::Failure;
+            }
+
+            needsToFinish = true;
+        }
+	}
+
+    if (finishBeforeStop && previousCondition && childStatus == NodeStatus::Running)
+    {
+        context.hasToFinishDecorator = true;
     }
 
-    previousCondition = condition;
+    if (needsToFinish == false)
+    {
+        previousCondition = condition;
+    }
+
 
     return children_[0]->TickNode(context);
 }
@@ -165,14 +198,7 @@ bool ConditionalDecorator::CheckCondition(BehaviorTreeContext& context) const {
 json ConditionalDecorator::ToJson() const {
     auto j = DecoratorNode::ToJson();
     j["condition"] = condition_.ToJson();
-    j["abortMode"] = static_cast<int>(abortMode_);
-
-    json observerArray = json::array();
-    for (const auto& key : observerKeys_) {
-        observerArray.push_back(key);
-    }
-    //j["observerKeys"] = observerArray;
-
+    j["finish before stop"] = finishBeforeStop;
     j["inverse"] = inverse;
 
     return j;
@@ -184,15 +210,10 @@ void ConditionalDecorator::FromJson(const json& j) {
         condition_.FromJson(j["condition"]);
     }
     if (j.contains("inverse")) {
-        inverse << j["inverse"];
+        inverse = j["inverse"].get<bool>();
     }
-    if (j.contains("abortMode")) {
-        abortMode_ = static_cast<FlowAbortMode>(j["abortMode"].get<int>());
+    if (j.contains("finish before stop")) {
+        finishBeforeStop = j["finish before stop"].get<bool>();
     }
-    if (j.contains("observerKeys")) {
-        observerKeys_.clear();
-        for (const auto& key : j["observerKeys"]) {
-            observerKeys_.push_back(key.get<std::string>());
-        }
-    }
+
 }

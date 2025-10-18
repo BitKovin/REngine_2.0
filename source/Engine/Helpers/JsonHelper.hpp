@@ -3,9 +3,21 @@
 #include "../glm.h"
 
 #include "../Delay.hpp"
+#include "../utility/hashed_string.hpp"
 
 namespace nlohmann {
 
+
+    template <>
+    struct adl_serializer<hashed_string> {
+        static void to_json(json& j, const hashed_string& hs) {
+            j = hs.str();
+        }
+
+        static void from_json(const json& j, hashed_string& hs) {
+            hs = hashed_string(j.get<std::string>());
+        }
+    };
 
     // Specialization for Delay
     template<>

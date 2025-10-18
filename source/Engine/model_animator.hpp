@@ -44,9 +44,9 @@ private:
     glm::mat4 interpolateScaling(FrameBoneTransform& boneTransform);
     void calcBoneTransform(BoneNode& node, glm::mat4 offset, bool stopAfterRoot);
 
-    void ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& pose);
+    void ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unordered_map<hashed_string, mat4>& pose);
 
-    void ApplyNodePoseLocalSpace(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& pose, std::unordered_map<std::string, mat4>& overrideBones);
+    void ApplyNodePoseLocalSpace(BoneNode& node, glm::mat4 offset, std::unordered_map<hashed_string, mat4>& pose, std::unordered_map<hashed_string, mat4>& overrideBones);
 
 public:
 
@@ -58,22 +58,22 @@ public:
 	Animator(SkinnedModel* model);
     ~Animator();
     void play();
-    void set(const std::string& name);
+    void set(const hashed_string& name);
 
     bool UpdatePose = true;
 
     std::vector<std::string> get();
     std::vector<glm::mat4>& getBoneMatrices();
 
-    std::unordered_map<string, glm::mat4> currentPose;
+    std::unordered_map<hashed_string, glm::mat4> currentPose;
 
-    std::unordered_map<std::string, mat4> GetBonePoseArray();
+    std::unordered_map<hashed_string, mat4> GetBonePoseArray();
 
-    void ApplyBonePoseArray(std::unordered_map<std::string, mat4> pose);
+    void ApplyBonePoseArray(std::unordered_map<hashed_string, mat4> pose);
 
-    void ApplyLocalSpacePoseArray(std::unordered_map<std::string, mat4> pose, std::unordered_map<std::string, mat4> overridePose);
+    void ApplyLocalSpacePoseArray(std::unordered_map<hashed_string, mat4> pose, std::unordered_map<hashed_string, mat4> overridePose);
 
-    void PopulateBonePoseArray(BoneNode& node, glm::mat4 offset, std::unordered_map<std::string, mat4>& outVector);
+    void PopulateBonePoseArray(BoneNode& node, glm::mat4 offset, std::unordered_map<hashed_string, mat4>& outVector);
 
     void UpdateAnimationPose();
 

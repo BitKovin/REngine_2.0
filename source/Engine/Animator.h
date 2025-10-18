@@ -26,7 +26,7 @@ protected:
 
 	bool loaded = false;
 
-	Animation* AddAnimation(string path, string name = "", bool loop = true);
+	Animation* AddAnimation(string path, std::string name = "", bool loop = true);
 
 	virtual AnimationPose ProcessResultPose();
 
