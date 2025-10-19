@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <json.hpp>
+#include "../json.hpp"
 #include <deque>
 
 using nlohmann::json;
@@ -72,6 +72,10 @@ public:
     }
 
     const std::deque<TreeNode*>& GetExecutionHistory() const { return executionHistory_; }
+
+    static void RegisterTypes();
+
+    void* Owner = nullptr;
 
 private:
     std::shared_ptr<TreeNode> CreateNodeFromJson(const json& j);

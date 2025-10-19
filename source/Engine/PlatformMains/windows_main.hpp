@@ -54,29 +54,11 @@ void InitImGui() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-
-    io.Fonts->AddFontDefault(); // base font (or load your preferred UI TTF here)
-
-    // icon glyph range provided by IconsFontAwesome6.h
-    static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-
-    ImFontConfig icons_config;
-    icons_config.MergeMode = true;      // merge into previous font
-    icons_config.PixelSnapH = true;     // optional - keeps crisp outlines
-
-    // Point this to the correct FontAwesome *solid* TTF (fa-solid-900.ttf)
-    // Make sure you use the solid/regular/brands file that contains the icons you need.
-    io.Fonts->AddFontFromFileTTF("GameData/fonts/fa-regular-400.ttf", 16.0f, &icons_config, icons_ranges);
-
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     ImGui::StyleColorsDark();
     ImGui_ImplSDL2_InitForOpenGL(window, glContext);
-    const char* glsl_version = "#version 300 es";
-    if (!ImGui_ImplOpenGL3_Init(glsl_version)) {
-        fprintf(stderr, "Failed to initialize ImGui OpenGL3 backend!\n");
-        // handle error...
-    }
+    ImGui_ImplOpenGL3_Init();
 }
 
 bool InitDirectInput(SDL_Window* sdlWindow) {

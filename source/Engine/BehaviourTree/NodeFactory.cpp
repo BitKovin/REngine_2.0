@@ -37,15 +37,3 @@ std::vector<std::string> NodeFactory::GetRegisteredNodeTypes() const {
     }
     return types;
 }
-
-// Register nodes
-REGISTER_BT_NODE(SequenceNode)
-REGISTER_BT_NODE(SelectorNode)
-REGISTER_BT_NODE(WaitNode)
-REGISTER_BT_NODE(PrintMessageNode)
-REGISTER_BT_NODE(ConditionalWaitNode)
-REGISTER_BT_NODE(InverterDecorator)
-REGISTER_BT_NODE(RepeatDecorator)
-REGISTER_BT_NODE(SucceederDecorator)
-REGISTER_BT_NODE(FailerDecorator)
-REGISTER_BT_NODE(ConditionalDecorator)

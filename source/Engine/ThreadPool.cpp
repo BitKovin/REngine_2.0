@@ -145,16 +145,16 @@ int ThreadPool::GetNumThreadsForPhysics()
 #endif
 
     int mx = GetMaxThreads();
-    int n = (mx * 6) / 10; // 60%
+    int n = (mx * 7) / 10; // 70%
     return std::max(n, 1);
 }
 int ThreadPool::GetNumThreadsForAsyncUpdate() {
     int mx = GetMaxThreads();
-    int n = (mx * 6) / 10; // 60%
+    int n = (mx * 7) / 10; // 70%
     return std::max(n, 1);
 }
 int ThreadPool::GetNumThreadsForThreadPool() {
     int mx = GetMaxThreads();
-    int n = (mx * 4) / 10; // 40%
+    int n = (mx * 3) / 10; // 30%
     return std::max(n, 1);
 }

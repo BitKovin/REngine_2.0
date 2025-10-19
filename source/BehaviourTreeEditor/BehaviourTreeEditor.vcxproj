@@ -237,38 +237,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BehaviourTree\BehaviorTree.cpp" />
-    <ClCompile Include="BehaviourTree\BehaviorTreeEditor.cpp" />
-    <ClCompile Include="BehaviourTree\Blackboard.cpp" />
-    <ClCompile Include="BehaviourTree\BTVariable.cpp" />
-    <ClCompile Include="BehaviourTree\CompositeNodes.cpp" />
-    <ClCompile Include="BehaviourTree\CustomTask.cpp" />
-    <ClCompile Include="BehaviourTree\DecoratorNodes.cpp" />
-    <ClCompile Include="BehaviourTree\HoldTask.cpp" />
-    <ClCompile Include="BehaviourTree\NodeFactory.cpp" />
-    <ClCompile Include="BehaviourTree\TaskNodes.cpp" />
-    <ClCompile Include="BehaviourTree\TreeNode.cpp" />
     <ClCompile Include="GameStart.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{d353d7f2-b610-486e-b37f-eac38f0a6e35}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="BehaviourTree\BehaviorTree.h" />
-    <ClInclude Include="BehaviourTree\BehaviorTreeEditor.h" />
-    <ClInclude Include="BehaviourTree\BehaviorTreeTypes.h" />
-    <ClInclude Include="BehaviourTree\Blackboard.h" />
-    <ClInclude Include="BehaviourTree\BTVariable.h" />
-    <ClInclude Include="BehaviourTree\CompositeNode.h" />
-    <ClInclude Include="BehaviourTree\CompositeNodes.h" />
-    <ClInclude Include="BehaviourTree\CustomTask.h" />
-    <ClInclude Include="BehaviourTree\DecoratorNodes.h" />
-    <ClInclude Include="BehaviourTree\HoldTask.h" />
-    <ClInclude Include="BehaviourTree\NodeFactory.h" />
-    <ClInclude Include="BehaviourTree\TaskNodes.h" />
-    <ClInclude Include="BehaviourTree\TreeNode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

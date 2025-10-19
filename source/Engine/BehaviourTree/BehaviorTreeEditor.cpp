@@ -8,10 +8,9 @@
 #include "CompositeNode.h"
 #include "DecoratorNodes.h"
 #include <cstdint>
-#include <imgui.h>
-#include <imgui_stdlib.h>
-#include <FileSystem/FileSystem.h>
-#include <json.hpp>
+#include "../json.hpp"
+#include "../imgui/imgui_stdlib.h"
+#include "../FileSystem/FileSystem.h"
 #include <iostream>
 
 // --- Utilities ---
@@ -24,8 +23,8 @@ static std::string MakeSaveDataPath(const std::string& fileName) {
 
 using nlohmann::json;
 
-BehaviorTreeEditor::BehaviorTreeEditor() {
-	tree_ = std::make_unique<BehaviorTree>();
+BehaviorTreeEditor::BehaviorTreeEditor(BehaviorTree* tree) {
+	tree_ = tree;
 	columnWidth = 420.0f;
 	propertiesHeight = 200.0f;
 }

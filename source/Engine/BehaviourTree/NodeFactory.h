@@ -31,3 +31,6 @@ private:
             NodeFactory::GetInstance().RegisterNode<type>(#type); \
         } \
     } type##_registrar;
+
+#define REGISTER_BT_NODE_FUNC(type) \
+    NodeFactory::GetInstance().RegisterNode<type>(#type);

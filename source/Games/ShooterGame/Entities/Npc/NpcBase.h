@@ -14,6 +14,9 @@
 
 #include "Animators/NpcAnimatorBase.h"
 
+#include <BehaviourTree/BehaviorTree.h>
+#include <BehaviorTreeEditor.h>
+
 class NpcBase : public Entity
 {
 
@@ -21,8 +24,6 @@ protected:
 
 	vec3 desiredDirection = vec3();
 	vec3 movingDirection = vec3();
-
-	PathFollowQuery pathFollow;
 
 	SoundPlayer* DeathSoundPlayer = nullptr;
 	SoundPlayer* HurtSoundPlayer = nullptr;
@@ -44,12 +45,18 @@ protected:
 
 	AnimationState getFromRagdollAnimationSaveState;
 
+	vec3 desiredTargetLocation;
+
+	BehaviorTree behaviorTree;
+	BehaviorTreeEditor editor;
+
+	bool btEditorEnabled = false;
 
 public:
 
 	SkeletalMesh* mesh;
 
-
+	PathFollowQuery pathFollow;
 
 	NpcBase();
 
@@ -87,10 +94,14 @@ public:
 
 	void AsyncUpdate();
 
+	void UpdateBT();
+
 	void Serialize(json& target);
 	void Deserialize(json& source);
 
 	void UpdateDebugUI();
+
+	void MoveTo(const vec3& target, float acceptanceRadius);
 
 protected:
 

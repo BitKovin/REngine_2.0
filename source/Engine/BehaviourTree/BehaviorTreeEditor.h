@@ -4,14 +4,15 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
-#include <imgui.h>
+#include "../imgui/imgui.h"
 #include "BehaviorTreeTypes.h"
 #include "BehaviorTree.h"
 #include "TreeNode.h"
 
 class BehaviorTreeEditor {
 public:
-	BehaviorTreeEditor();
+	BehaviorTreeEditor(){}
+	BehaviorTreeEditor(BehaviorTree* tree);
 	~BehaviorTreeEditor() = default;
 
 	// Lifecycle
@@ -83,7 +84,7 @@ private:
 
 
 private:
-    std::unique_ptr<BehaviorTree> tree_;
+    BehaviorTree* tree_ = nullptr;
 	SimulationState sim_{};
 	FileState file_{};
 	SelectionState selection_{};

@@ -7,7 +7,7 @@
 #include <memory>
 #include <sstream>
 #include <iomanip>
-#include <json.hpp>
+#include "../json.hpp"
 
 using nlohmann::json;
 

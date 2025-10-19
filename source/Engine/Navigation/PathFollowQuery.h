@@ -24,7 +24,13 @@ public:
 
 	bool FoundTarget = false;
 
+	bool reachedTarget = false;
+
 	Delay isPerformingDelay;
+
+	bool Async = true;
+
+	float acceptanceRadius = 0.2f;
 
 private:
 

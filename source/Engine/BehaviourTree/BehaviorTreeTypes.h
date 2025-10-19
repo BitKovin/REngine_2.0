@@ -1,5 +1,5 @@
 #pragma once
-#include <json.hpp>
+#include "../json.hpp"
 
 using nlohmann::json;
 
@@ -20,6 +20,7 @@ struct BehaviorTreeContext {
     BehaviorTree* tree;
     bool reachedTask;
     bool hasToFinishDecorator;
+    void* owner = nullptr;
 };
 
 enum class FlowAbortMode {

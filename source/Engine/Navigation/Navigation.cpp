@@ -16,6 +16,7 @@
 #include "../Time.hpp"
 
 #include "../LoadingScreen/LoadingScreenSystem.h"
+#include "Detour/DetourCommon.h"
 
 // Recast and Detour includes
 
@@ -464,7 +465,7 @@ dtObstacleRef NavigationSystem::CreateObstacleBox(const glm::vec3& min, const gl
 
 bool NavigationSystem::HasLineOfSight(const vec3& pointA, const vec3& pointB)
 {
-    return Physics::SphereTrace(pointA, pointB, 0.1, BodyType::World).hasHit == false;
+    return Physics::SphereTrace(pointA, pointB, 0.5, BodyType::World).hasHit == false;
 }
 
 // Custom filter to check polygon area instead of flags
@@ -502,13 +503,11 @@ static bool IsPointReallyOnPoly(dtNavMeshQuery* navQuery,
     return (dx * dx + dz * dz) <= horizTolSq;
 }
 
-std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::vec3 target)
+std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::vec3 target, float acceptanceRadius, bool* outReached)
 {
+    if (outReached) *outReached = false;
 
-    if (HasLineOfSight(start, target))
-    {
-        return { target };
-    }
+
 
     std::vector<glm::vec3> outPath;
     if (!navMesh) return outPath;
@@ -551,7 +550,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
         for (auto& e : EXTENTS)
         {
             float ext[3] = { e.x, e.y, e.z };
-            if (dtStatusSucceed(navQuery->findNearestPoly(pos, ext, &filter, &outRef, outNearest)) && outRef>0)
+            if (dtStatusSucceed(navQuery->findNearestPoly(pos, ext, &filter, &outRef, outNearest)) && outRef > 0)
             {
                 if (IsPointReallyOnPoly(navQuery, outRef, pos))
                     return true;
@@ -561,11 +560,27 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
         };
 
     // attempt to pick start & goal polys
-    if (!findOnPoly(sPos, sRef, sNearest) || 
+    if (!findOnPoly(sPos, sRef, sNearest) ||
         !findOnPoly(gPos, gRef, gNearest))
     {
         dtFreeNavMeshQuery(navQuery);
         return outPath; // failed to localize start or goal
+    }
+
+    // Check if projected positions are close enough
+    float dist = dtVdist(sNearest, gNearest);
+    if (dist <= acceptanceRadius)
+    {
+        if (outReached) *outReached = true;
+        dtFreeNavMeshQuery(navQuery);
+        return {  };
+    }
+
+    if (HasLineOfSight(start, target))
+    {
+        if (outReached) *outReached = false;
+        dtFreeNavMeshQuery(navQuery);
+        return { target };
     }
 
     // --- 2) FindPath (A*) across linked polys ---
@@ -621,13 +636,13 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
 
     dtFreeNavMeshQuery(navQuery);
 
- //   // --- 6) Collision sanity check ---
-	//if (!CollisionCheckPath(start, outPath))
-	//{
-	//	outPath.clear();
+    //   // --- 6) Collision sanity check ---
+       //if (!CollisionCheckPath(start, outPath))
+       //{
+       //	outPath.clear();
 
-	//}
- //       
+       //}
+    //       
 
     return outPath;
 }

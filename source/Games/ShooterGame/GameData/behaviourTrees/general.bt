@@ -1,0 +1,62 @@
+{
+    "blackboard": {
+        "target": "info_player_start_0"
+    },
+    "isRunning": true,
+    "root": {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "name": "Wait",
+                                        "type": "WaitNode",
+                                        "waitTime": {
+                                            "sourceType": 0,
+                                            "value": 3.0
+                                        }
+                                    },
+                                    {
+                                        "children": [],
+                                        "name": "Move To Entity",
+                                        "pretty path": {
+                                            "sourceType": 0,
+                                            "value": false
+                                        },
+                                        "target": {
+                                            "blackboardKey": "target",
+                                            "sourceType": 1
+                                        },
+                                        "type": "MoveToEntity"
+                                    }
+                                ],
+                                "name": "Sequence",
+                                "type": "SequenceNode"
+                            }
+                        ],
+                        "condition": {
+                            "sourceType": 0,
+                            "value": true
+                        },
+                        "finish before stop": false,
+                        "inverse": false,
+                        "name": "Conditional",
+                        "type": "ConditionalDecorator"
+                    }
+                ],
+                "name": "Sequence",
+                "type": "SequenceNode"
+            }
+        ],
+        "name": "Repeat",
+        "repeatCount": {
+            "sourceType": 0,
+            "value": -1
+        },
+        "type": "RepeatDecorator"
+    }
+}

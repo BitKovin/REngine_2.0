@@ -2,7 +2,7 @@
 #include "TreeNode.h"
 #include "BTVariable.h"
 #include <string>
-#include <json.hpp>
+#include "../json.hpp"
 
 using nlohmann::json;
 

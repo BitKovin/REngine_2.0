@@ -1,6 +1,6 @@
 #include <Entity.h>
 
-#include "BehaviourTree/BehaviorTreeEditor.h"
+#include <BehaviourTree/BehaviorTreeEditor.h>
 #include <memory>
 
 BehaviorTreeEditor editor;
@@ -15,6 +15,7 @@ public:
 
     void Start()
     {
+        editor = BehaviorTreeEditor(new BehaviorTree());
         editor.Init();
     }
 

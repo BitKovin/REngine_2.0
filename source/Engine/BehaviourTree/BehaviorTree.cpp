@@ -3,6 +3,7 @@
 #include "DecoratorNodes.h"
 #include <fstream>
 #include <algorithm>
+#include "../FileSystem/FileSystem.h"
 
 BehaviorTree::BehaviorTree() {
     context_.blackboard = &blackboard_;
@@ -45,6 +46,7 @@ void BehaviorTree::Update(float deltaTime) {
     context_.deltaTime = deltaTime;
     context_.reachedTask = false;
     context_.hasToFinishDecorator = false;
+    context_.owner = Owner;
 
     // Process any pending aborts first
     ProcessAborts();
@@ -240,12 +242,16 @@ bool BehaviorTree::SaveToFile(const std::string& filename) const {
     return true;
 }
 
-bool BehaviorTree::LoadFromFile(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) return false;
+bool BehaviorTree::LoadFromFile(const std::string& filename) 
+{
+    
+    std::string s = FileSystemEngine::ReadFile(filename);
 
-    json j;
-    file >> j;
+    if (s.empty())
+        return false;
+
+    json j = json::parse(s);
+
     return FromJson(j);
 }
 
@@ -284,4 +290,24 @@ void BehaviorTree::BuildTreeFromJson(std::shared_ptr<TreeNode> parent, const jso
             BuildTreeFromJson(child, childJson);
         }
     }
+}
+
+#include "CompositeNodes.h"
+#include "TaskNodes.h"
+
+void BehaviorTree::RegisterTypes()
+{
+
+    // Register nodes
+    REGISTER_BT_NODE_FUNC(SequenceNode);
+    REGISTER_BT_NODE_FUNC(SelectorNode);
+    REGISTER_BT_NODE_FUNC(WaitNode);
+    REGISTER_BT_NODE_FUNC(PrintMessageNode);
+    //REGISTER_BT_NODE_FUNC(ConditionalWaitNode);
+    //REGISTER_BT_NODE_FUNC(InverterDecorator);
+    REGISTER_BT_NODE_FUNC(RepeatDecorator);
+    //REGISTER_BT_NODE_FUNC(SucceederDecorator);
+    //REGISTER_BT_NODE_FUNC(FailerDecorator);
+    REGISTER_BT_NODE_FUNC(ConditionalDecorator);
+
 }

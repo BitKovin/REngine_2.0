@@ -3,7 +3,7 @@
 #include "BTVariable.h"
 #include <string>
 #include <vector>
-#include <json.hpp>
+#include "../json.hpp"
 
 using nlohmann::json;
 

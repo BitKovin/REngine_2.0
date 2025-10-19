@@ -73,6 +73,14 @@ void NpcBase::Start()
 	AttackSoundPlayer->Volume *= 0.7f;
 	SetupSoundPlayer(AttackHitSoundPlayer);
 	AttackHitSoundPlayer->Volume *= 1.2;
+
+	editor = BehaviorTreeEditor(&behaviorTree);
+	editor.Init();
+	
+	behaviorTree.LoadFromFile("GameData/behaviourTrees/general.bt");
+	behaviorTree.Owner = this;
+	behaviorTree.Start();
+
 }
 
 
@@ -240,6 +248,7 @@ void NpcBase::UpdateReturnFromRagdoll()
 void NpcBase::AsyncUpdate()
 {
 
+	UpdateBT();
 
 	auto animEvents = mesh->PullAnimationEvents();
 
@@ -248,21 +257,6 @@ void NpcBase::AsyncUpdate()
 		ProcessAnimationEvent(event);
 	}
 
-	if (Input::GetAction("attack2")->Pressed())
-	{
-
-		//Health = 100;
-		//dead = false;
-
-		//StartReturnFromRagdoll();
-
-		auto fleePath = NavigationSystem::FindFleePath(Position, Player::Instance->Position, 15, 50);
-
-
-		DebugDraw::Path(fleePath,20);
-		DebugDraw::Line(fleePath[0], Position, 20);
-
-	}
 
 	if (dead) 
 	{
@@ -285,8 +279,24 @@ void NpcBase::AsyncUpdate()
 
 
 
-	pathFollow.UpdateStartAndTarget(Position, Position + MathHelper::GetForwardVector(mesh->Rotation) + MathHelper::GetRightVector(mesh->Rotation));
+	pathFollow.UpdateStartAndTarget(Position, desiredTargetLocation);
 	pathFollow.TryPerform();
+
+	vec3 moveDir = vec3(0);
+	
+	if (pathFollow.reachedTarget == false)
+	{
+		moveDir = normalize(MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position)) * speed;
+	}
+
+
+	movingDirection = moveDir;
+
+	float gravity = LeadBody->GetLinearVelocity().GetY();
+
+	moveDir.y = gravity;
+
+	Physics::SetLinearVelocity(LeadBody, moveDir);
 
 	UpdateAnimations();
 	UpdateReturnFromRagdoll();
@@ -295,6 +305,23 @@ void NpcBase::AsyncUpdate()
 
 	mesh->Position = Position - vec3(0, 1, 0);
 	mesh->Rotation = vec3(0, MathHelper::FindLookAtRotation(vec3(), movingDirection).y, 0);
+
+}
+
+void NpcBase::UpdateBT()
+{
+
+	behaviorTree.GetBlackboard().SetValue("target", Player::Instance->Id);
+
+	if (btEditorEnabled)
+	{
+		editor.Update(Time::DeltaTimeF);
+	}
+	else
+	{
+		behaviorTree.Update(Time::DeltaTimeF);
+	}
+
 
 }
 
@@ -400,13 +427,29 @@ void NpcBase::Deserialize(json& source)
 
 }
 
+void NpcBase::MoveTo(const vec3& target, float acceptanceRadius)
+{
+
+	desiredTargetLocation = target;
+	pathFollow.acceptanceRadius = acceptanceRadius;
+	pathFollow.reachedTarget = false;
+	pathFollow.FoundTarget = true;
+}
+
 void NpcBase::UpdateDebugUI()
 {
+
+	if (btEditorEnabled)
+	{
+		editor.Draw();
+	}
 
 	ImGui::Begin(Id.c_str());
 
 	ImGui::DragFloat("activeragdoll strength", &mesh->RagdollPoseFollowStrength,0.1f);
 	ImGui::Checkbox("update ragdoll pose", &mesh->UpdateRagdollPose);
+
+	ImGui::Checkbox("bt editor", &btEditorEnabled);
 
 	ImGui::End();
 

@@ -9,12 +9,11 @@ class CustomTask : public TreeNode
 {
 public:
 	CustomTask(const std::string& name, const std::string& type);
-	~CustomTask();
 
 	void OnStart(BehaviorTreeContext& context) override;
 	NodeStatus Execute(BehaviorTreeContext& context) override;
 
-	void FinishExecution(bool failed = false);
+	void FinishExecution(bool success = false);
 
 	virtual void Tick(BehaviorTreeContext& context){}
 	virtual void Start(BehaviorTreeContext& context) {}

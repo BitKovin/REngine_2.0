@@ -5,9 +5,6 @@ CustomTask::CustomTask(const std::string& name, const std::string& type) : TreeN
 {
 }
 
-CustomTask::~CustomTask()
-{
-}
 
 inline void CustomTask::OnStart(BehaviorTreeContext& context)
 {
@@ -26,9 +23,9 @@ inline NodeStatus CustomTask::Execute(BehaviorTreeContext& context)
 	return GetStatus();
 }
 
-void CustomTask::FinishExecution(bool failed)
+void CustomTask::FinishExecution(bool success)
 {
-	SetStatus(failed ? NodeStatus::Failure : NodeStatus::Success);
+	SetStatus(success ? NodeStatus::Success : NodeStatus::Failure);
 }
 
 json CustomTask::ToJson() const
