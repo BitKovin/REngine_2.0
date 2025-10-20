@@ -311,13 +311,17 @@ void Level::AsyncUpdate(bool paused)
 
 	entityArrayLock.unlock();
 
-	for (auto var : objects)
-	{
+	std::vector<std::function<void()>> updateJobs;
+	updateJobs.reserve(objects.size()); // Pre-allocate for efficiency
 
-		if (var->UpdateWhenPaused || paused == false)
-		{
-			asyncUpdateThreadPool->QueueJob([var]() {var->AsyncUpdate(); });
+	for (auto var : objects) {
+		if (var->UpdateWhenPaused || paused == false) {
+			updateJobs.emplace_back([var]() { var->AsyncUpdate(); });
 		}
+	}
+
+	if (!updateJobs.empty()) {
+		asyncUpdateThreadPool->QueueJobs(std::move(updateJobs));
 	}
 
 	asyncUpdateThreadPool->WaitForFinish();

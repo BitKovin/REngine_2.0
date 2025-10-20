@@ -617,6 +617,9 @@ void SkeletalMesh::UpdateHitboxes()
 		if (hitboxConstraints.size() > 0)
 		{
 
+
+
+
 			std::unordered_map<std::string, mat4> animationPose;
 
 			std::unordered_map<std::string, quat> hitboxRelativePose;
@@ -629,6 +632,9 @@ void SkeletalMesh::UpdateHitboxes()
 				if (data.parentBone == "") continue;
 
 				const auto& boneName = data.boneName;
+
+				if (hitboxConstraints.contains(boneName))
+					hitboxConstraints[boneName]->SetEnabled(true);
 
 				mat4 relativeTransform = mat4();
 
@@ -657,6 +663,7 @@ void SkeletalMesh::UpdateHitboxes()
 			{
 				for (auto relHitboxPos : hitboxRelativePose)
 				{
+
 					Physics::UpdateSwingTwistMotor(hitboxConstraints[relHitboxPos.first], relHitboxPos.second, RagdollPoseFollowStrength);
 				}
 			}
@@ -711,6 +718,9 @@ void SkeletalMesh::UpdateHitboxes()
 	for (Body* body : hitboxBodies)
 	{
 		string boneName = Physics::GetBodyData(body)->hitboxName;
+
+		if(hitboxConstraints.contains(boneName))
+			hitboxConstraints[boneName]->SetEnabled(false);
 
 		MathHelper::Transform boneTrans = MathHelper::DecomposeMatrix(world * GetBoneMatrix(boneName));
 

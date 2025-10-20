@@ -31,20 +31,23 @@ public:
     ~ThreadPool() { Stop(); }
 
     void Start(uint32_t num_threads);
+
+    // Single job submission
     void QueueJob(const std::function<void()>& job);
     void QueueJob(std::function<void()>&& job);
+
+    // Batch job submission (optimized for multiple jobs)
+    void QueueJobs(const std::vector<std::function<void()>>& jobs);
+    void QueueJobs(std::vector<std::function<void()>>&& jobs);
+
     void Stop();                 // drains remaining jobs then joins
-    bool IsBusy() const noexcept 
+    bool IsBusy() const noexcept
     {
-
 #ifdef DISABLE_THREADPOOL
-
         return false;
-
 #else
-        return work_count_.load(std::memory_order_acquire) != 0; 
+        return work_count_.load(std::memory_order_acquire) != 0;
 #endif
-
     }
     void WaitForFinish();
 
@@ -70,11 +73,9 @@ public:
     std::atomic<int> performingJobs{ 0 };
 
 private:
-
     void Worker();
 
 #ifndef DISABLE_THREADPOOL
-
     mutable std::mutex mtx_;
     std::condition_variable cv_job_;
     std::condition_variable cv_done_;
