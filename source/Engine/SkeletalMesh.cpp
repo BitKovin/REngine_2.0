@@ -706,11 +706,13 @@ void SkeletalMesh::UpdateHitboxes()
 
 	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
 
+	mat4 world = GetWorldMatrix();
+
 	for (Body* body : hitboxBodies)
 	{
 		string boneName = Physics::GetBodyData(body)->hitboxName;
 
-		MathHelper::Transform boneTrans = MathHelper::DecomposeMatrix(GetBoneMatrixWorld(boneName));
+		MathHelper::Transform boneTrans = MathHelper::DecomposeMatrix(world * GetBoneMatrix(boneName));
 
 		vec3 oldPos = FromPhysics(body->GetPosition());
 		vec3 newPos = boneTrans.Position;

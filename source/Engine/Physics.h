@@ -620,6 +620,11 @@ public:
 		bodyInterface->SetPositionAndRotation(body->GetID(), ToPhysics(pos),ToPhysics(rot), JPH::EActivation::Activate);
 	}
 
+	static void SetBodyPositionAndRotationNoActivation(Body* body, vec3 pos, quat rot)
+	{
+		bodyInterface->SetPositionAndRotation(body->GetID(), ToPhysics(pos), ToPhysics(rot), JPH::EActivation::DontActivate);
+	}
+
 	static void SetBodyPositionAndRotation(Body* body, vec3 pos, vec3 rot)
 	{
 		bodyInterface->SetPositionAndRotation(body->GetID(), ToPhysics(pos), ToPhysics(MathHelper::GetRotationQuaternion(rot)), JPH::EActivation::Activate);

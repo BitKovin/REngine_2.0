@@ -261,7 +261,14 @@ void NpcBase::AsyncUpdate()
 	if (dead) 
 	{
 		UpdateAnimations();
-		mesh->UpdateHitboxes();
+		if (mesh->WasRended)
+		{
+			mesh->UpdateHitboxes();
+		}
+		else if (tickIntervalDelay.Wait() == false)
+		{
+			mesh->UpdateHitboxes();
+		}
 		return;
 	}
 
@@ -301,10 +308,24 @@ void NpcBase::AsyncUpdate()
 	UpdateAnimations();
 	UpdateReturnFromRagdoll();
 
-	mesh->UpdateHitboxes();
+	if (mesh->WasRended)
+	{
+		mesh->UpdateHitboxes();
+	}
+	else if (tickIntervalDelay.Wait() == false)
+	{
+		mesh->UpdateHitboxes();
+	}
+
 
 	mesh->Position = Position - vec3(0, 1, 0);
 	mesh->Rotation = vec3(0, MathHelper::FindLookAtRotation(vec3(), movingDirection).y, 0);
+
+	if (tickIntervalDelay.Wait() == false)
+	{
+		tickIntervalDelay.AddDelay(0.15f + distance(Position, Camera::position) / 200.0f);
+	}
+	
 
 }
 
@@ -328,12 +349,21 @@ void NpcBase::UpdateBT()
 void NpcBase::UpdateAnimations()
 {
 
-	animator.movementSpeed = speed;
-	animator.Update();
-	
-	auto pose = animator.GetResultPose();
+	if (mesh->WasRended)
+	{
+		animator.UpdatePose = mesh->WasRended;
 
-	mesh->PasteAnimationPose(pose);
+		if (LeadBody != nullptr)
+		{
+			animator.movementSpeed = LeadBody->GetLinearVelocity().Length();
+		}
+
+		animator.Update();
+
+		auto pose = animator.GetResultPose();
+
+		mesh->PasteAnimationPose(pose);
+	}
 
 }
 

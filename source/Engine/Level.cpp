@@ -245,7 +245,7 @@ void Level::AddEntity(LevelObject* obj)
 
 	std::lock_guard<std::recursive_mutex> lock(pendingEntityArrayLock);
 
-	Entity* entity = (Entity*)obj;
+	Entity* entity = dynamic_cast<Entity*>(obj);
 
 	if (entity)
 	{
@@ -266,6 +266,8 @@ void Level::AddEntity(LevelObject* obj)
 
 		entity->Id = entId;
 
+		entityIdMap[entId] = entity;
+
 	}
 
 	pendingAddLevelObjects.push_back(obj);
@@ -281,6 +283,8 @@ void Level::RemoveEntity(LevelObject* obj)
 
 	if (entity)
 	{
+
+		entityIdMap.erase(entity->Id);
 
 		if (entity->Unique && entity->Name != "")
 		{
@@ -473,6 +477,21 @@ Entity* Level::FindEntityWithId(const std::string& id)
 
 	entityArrayLock.lock();
 	pendingEntityArrayLock.lock();
+
+	auto res = entityIdMap.find(id);
+
+	if (res != entityIdMap.end())
+	{
+		entityArrayLock.unlock();
+		pendingEntityArrayLock.unlock();
+		return res->second;
+	}
+	else
+	{
+		entityArrayLock.unlock();
+		pendingEntityArrayLock.unlock();
+		return nullptr;
+	}
 
 	auto curLevelObjects = LevelObjects;
 	auto pendingLevelObjects = pendingAddLevelObjects;

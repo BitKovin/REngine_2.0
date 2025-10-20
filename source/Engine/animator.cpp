@@ -41,7 +41,14 @@ AnimationPose Animator::GetResultPose()
 {
 	if (loaded == false) return AnimationPose();
 
-	return ProcessResultPose();
+	if (UpdatePose == false)
+	{
+		return lastPose;
+	}
+
+	lastPose = ProcessResultPose();
+
+	return lastPose;
 }
 
 void Animator::LoadAssetsIfNeeded()

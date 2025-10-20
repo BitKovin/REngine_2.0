@@ -18,6 +18,8 @@ public:
 
 protected:
 
+	AnimationPose lastPose;
+
 	vector<Animation*> animationsToUpdate;
 
 	vector<AnimationEvent> pendingAnimationEvents;

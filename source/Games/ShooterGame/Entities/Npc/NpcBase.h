@@ -52,6 +52,8 @@ protected:
 
 	bool btEditorEnabled = false;
 
+	Delay tickIntervalDelay;
+
 public:
 
 	SkeletalMesh* mesh;
