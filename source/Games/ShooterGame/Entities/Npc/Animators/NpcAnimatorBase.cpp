@@ -14,7 +14,16 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 
 	auto painPose = inPain->GetAnimationPose();
 
-	auto locomotion = AnimationPose::Lerp(idlePose, runFPose, movementSpeed / 4.5f);
+	AnimationPose locomotion;
+	
+	if (movementSpeed > 0.2)
+	{
+		locomotion = AnimationPose::Lerp(idlePose, runFPose, movementSpeed / 4.5f);
+	}
+	else
+	{
+		locomotion = idlePose;
+	}
 
 	return AnimationPose::Lerp(locomotion, painPose, PainProgress);
 }

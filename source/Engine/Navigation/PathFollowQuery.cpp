@@ -50,7 +50,7 @@ void PathFollowQuery::TryPerform()
 	}
 	else
 	{
-		isPerformingDelay.AddDelay(distance(desiredStart, desiredTarget) / 500.0f + 0.02);
+		//isPerformingDelay.AddDelay(distance(desiredStart, desiredTarget) / 500.0f + 0.02);
 	}
 
 }

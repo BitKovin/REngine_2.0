@@ -269,6 +269,7 @@ void Physics::Init()
 
 	JPH::PhysicsSettings settings = physics_system->GetPhysicsSettings(); 
 	settings.mNumVelocitySteps = 3u;
+	settings.mNumPositionSteps = 2u;
 	settings.mPenetrationSlop = 0.05f;
 	settings.mDeterministicSimulation = false;
 	physics_system->SetPhysicsSettings(settings);

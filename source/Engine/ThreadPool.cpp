@@ -27,38 +27,32 @@ void ThreadPool::Worker() {
 #ifndef DISABLE_THREADPOOL
     // Thread-local queue to reduce contention
     std::queue<std::function<void()>> localQueue;
-    uint32_t idle_count = 0;
 
     for (;;) {
         // First, process any jobs in local queue
         if (!localQueue.empty()) {
             auto job = std::move(localQueue.front());
             localQueue.pop();
-
             performingJobs.fetch_add(1, std::memory_order_relaxed);
             job();
             performingJobs.fetch_sub(1, std::memory_order_relaxed);
-
             // Batch update work_count_ to reduce atomic operations
             if (work_count_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
                 std::lock_guard<std::mutex> lk(mtx_);
                 cv_done_.notify_all();
             }
-            idle_count = 0;
             continue;
         }
 
         // Try to grab multiple jobs from global queue to reduce lock contention
         std::function<void()> job;
         bool has_job = false;
-
         {
             std::unique_lock<std::mutex> lk(mtx_);
 
             // Batch job extraction - grab multiple jobs if available
             constexpr uint32_t BATCH_SIZE = 8;
             uint32_t jobs_grabbed = 0;
-
             while (!jobs_.empty() && jobs_grabbed < BATCH_SIZE) {
                 localQueue.push(std::move(jobs_.front()));
                 jobs_.pop();
@@ -67,30 +61,22 @@ void ThreadPool::Worker() {
             }
 
             if (has_job) {
-                idle_count = 0;
                 continue; // Go process local queue
             }
 
-            // No jobs available, wait efficiently
+            // No jobs available, wait for notification
             if (stopping_) {
                 return;
             }
 
-            // Increase wait time based on idle count to reduce spurious wakeups
-            if (idle_count < 10) {
-                cv_job_.wait(lk);
-            }
-            else if (idle_count < 50) {
-                cv_job_.wait_for(lk, 1ms);
-            }
-            else {
-                cv_job_.wait_for(lk, 10ms);
-            }
-            idle_count++;
-        }
+            // Use predicate wait to avoid spurious wakeups and ensure immediate response
+            cv_job_.wait(lk, [this]() {
+                return stopping_ || !jobs_.empty();
+                });
 
-        if (stopping_ && jobs_.empty()) {
-            return;
+            if (stopping_) {
+                return;
+            }
         }
     }
 #endif
@@ -139,11 +125,7 @@ void ThreadPool::QueueJobs(const std::vector<std::function<void()>>& jobs) {
         work_count_.fetch_add(jobs.size(), std::memory_order_acq_rel);
     }
 
-    // Notify multiple threads based on job count
-    const size_t threads_to_notify = std::min<size_t>(jobs.size(), threads_.size());
-    for (size_t i = 0; i < threads_to_notify; ++i) {
-        cv_job_.notify_one();
-    }
+    cv_job_.notify_all();
 #endif
 }
 

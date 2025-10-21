@@ -614,13 +614,6 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
         return {  };
     }
 
-    if (HasLineOfSight(start, target))
-    {
-        if (outReached) *outReached = false;
-        dtFreeNavMeshQuery(navQuery);
-        return { target };
-    }
-
     // --- 2) FindPath (A*) across linked polys ---
     const int MAX_POLYS = 512;
     dtPolyRef polyPath[MAX_POLYS];
@@ -673,6 +666,16 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
     );
 
     dtFreeNavMeshQuery(navQuery);
+
+    if (outPath.size() < 3)
+    {
+        if (HasLineOfSight(start, target))
+        {
+            if (outReached) *outReached = false;
+            return { target };
+        }
+    }
+
 
     //   // --- 6) Collision sanity check ---
        //if (!CollisionCheckPath(start, outPath))
