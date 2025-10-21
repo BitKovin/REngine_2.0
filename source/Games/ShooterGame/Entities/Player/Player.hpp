@@ -154,7 +154,7 @@ private:
 	void Jump()
 	{
 		vec3 velocity = controller.GetVelocity();
-		velocity.y = 9;
+		velocity.y = 7.5;
 		controller.SetVelocity(velocity);
 
 		jumpDelay.AddDelay(0.3);

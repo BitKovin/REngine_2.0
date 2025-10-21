@@ -28,9 +28,9 @@ public:
 
 	const Body* standingOnBody = nullptr;
 
-	float gravity = 27;
+	float gravity = 24;
 
-	float stepHeight = 0.4;
+	float stepHeight = 0.3;
 
 	float height = 1.8;
 	float radius = 0.5;
