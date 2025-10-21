@@ -560,7 +560,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
         return outPath;
     }
 
-    auto hit = Physics::LineTrace(start, start - vec3(0, 300, 0), BodyType::World);
+    auto hit = Physics::LineTrace(start, start - vec3(0, 100, 0), BodyType::World);
     if (hit.hasHit)
         start = hit.position + vec3(0, 1, 0);
 
@@ -666,15 +666,6 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
     );
 
     dtFreeNavMeshQuery(navQuery);
-
-    if (outPath.size() < 3)
-    {
-        if (HasLineOfSight(start, target))
-        {
-            if (outReached) *outReached = false;
-            return { target };
-        }
-    }
 
 
     //   // --- 6) Collision sanity check ---

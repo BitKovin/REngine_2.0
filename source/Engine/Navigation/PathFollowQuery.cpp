@@ -6,6 +6,7 @@
 #include "../DebugDraw.hpp"
 
 #include "../Physics.h"
+#include "../RandomHelper.h"
 
 PathFollowQuery::PathFollowQuery()
 {
@@ -46,11 +47,11 @@ void PathFollowQuery::TryPerform()
 
 	if (ThreadPool::Supported() == false)
 	{
-		isPerformingDelay.AddDelay(distance(desiredStart, desiredTarget) / 300.0f + 0.03);
+		isPerformingDelay.AddDelay(distance(desiredStart, desiredTarget) / 300.0f + 0.03 + RandomHelper::RandomFloat() / 20.0f);
 	}
 	else
 	{
-		//isPerformingDelay.AddDelay(distance(desiredStart, desiredTarget) / 500.0f + 0.02);
+		isPerformingDelay.AddDelay(distance(desiredStart, desiredTarget) / 500.0f + 0.02 + RandomHelper::RandomFloat() / 20.0f);
 	}
 
 }
@@ -77,37 +78,70 @@ void PathFollowQuery::CalculatePathOnThread()
 		return;
 	}
 
-	auto path = NavigationSystem::FindSimplePath(s, t, acceptanceRadius, &reachedTarget);
+    auto path = NavigationSystem::FindSimplePath(s, t, acceptanceRadius, &reachedTarget);
 
-	if (path.size())
-	{
+    if (path.empty())
+    {
+        FoundTarget = false;
+        Performing = false;
+        targetLocationsMutex.unlock();
+        return;
+    }
 
-		if (path.size() > 1)
-		{
+    const float removeWithinDist = 3.0f;
+    const float removeWithinDist2 = removeWithinDist * removeWithinDist;
+    const float traceRadius = 0.3f;
+    const vec3 traceUpOffset = vec3(0.0f, 1.0f, 0.0f);
+    const float minDirLen2 = 1e-6f;
+    const int maxSimplifyIterations = 3;  // safety cap
 
-			const vec3 firstElem = path[0];
+    int iterationCount = 0;
 
-			if (distance2(s, firstElem) < 9) //if distance is less then 3m
-			{
-				if (Physics::SphereTrace(s, firstElem + vec3(0, 1, 0), 0.3f, BodyType::World).hasHit == false)
-				{
-					path.erase(path.begin());
-				}
-			}
+    // Simplify leading points if close and visible
+    while (path.size() > 1 && iterationCount < maxSimplifyIterations)
+    {
+        ++iterationCount;
+
+        // Remove redundant first point if it's basically the start
+        if (distance2(s, path[0]) < 1e-4f)
+        {
+            path.erase(path.begin());
+            continue;
+        }
+
+        float d2 = distance2(s, path[0]);
+        if (d2 <= removeWithinDist2)
+        {
+            vec3 traceStart = s + traceUpOffset;
+            vec3 traceEnd = path[1] + traceUpOffset;
+
+            auto res = Physics::SphereTrace(traceStart, traceEnd, traceRadius, BodyType::World);
+            if (!res.hasHit)
+            {
+                // Point visible — remove it and continue simplifying
+                path.erase(path.begin());
+                continue;
+            }
+        }
+
+        // No removal — path seems fine
+        break;
+    }
 
 
-		}
+    // Compute direction safely
+    if (!path.empty())
+    {
+        CalculatedTargetLocation = path[0];
+        FoundTarget = true;
+    }
+    else
+    {
+        FoundTarget = false;
+    }
 
-		CalculatedTargetLocation = path[0];
-		FoundTarget = true;
-
-		//DebugDraw::Path(path, 0.01f);
-
-	}
-	
-	Performing = false;
-
-	targetLocationsMutex.unlock();
+    Performing = false;
+    targetLocationsMutex.unlock();
 	
 }
 

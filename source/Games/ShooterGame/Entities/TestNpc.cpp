@@ -318,7 +318,7 @@ void TestNpc::AsyncUpdate()
 	}
 	if (pathFollow.FoundTarget)
 	{
-		desiredDirection = MathHelper::FastNormalize(MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position));
+		desiredDirection = normalize(MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position));
 	}
 	
 	speed += Time::DeltaTimeF * 6.5;
@@ -347,6 +347,7 @@ void TestNpc::AsyncUpdate()
 
 	// Only apply horizontal forces to avoid interfering with the vertical (gravity, jump, etc.)
 	vec3 horizontalForce(forceToApply.x, 0.0f, forceToApply.z);
+
 
 	// Apply the calculated force to the body
 	LeadBody->AddForce(ToPhysics(horizontalForce));

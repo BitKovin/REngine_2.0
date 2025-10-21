@@ -20,7 +20,7 @@ public:
 
 	void UpdateStartAndTarget(vec3 start, vec3 target);
 
-	vec3 CalculatedTargetLocation = vec3(0);
+	vec3 CalculatedTargetLocation = vec3();
 
 	bool FoundTarget = false;
 
