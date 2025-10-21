@@ -88,6 +88,11 @@ void CharacterController::Update(float deltaTime)
 	vec3 notWalkableNormal = vec3();
 	UpdateGroundCheck(standsOnGround, verticalPosition, onGround, notWalkableNormal);
 
+	if (onGround == false)
+	{
+		standingOnBody = nullptr;
+	}
+
 	const Body* currentBase = standingOnBody;
 
 	// -------------------------------
@@ -475,7 +480,7 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 	hitsGround = hitsGround && (numOfHits>0);
 
-	canStand = hitsGround && (GroundAngleDeg(avgNormal) <= groundMaxAngle);
+	canStand = hitsGround && (GroundAngleDeg(avgNormal) <= groundMaxAngle) && canStand;
 
 	calculatedGroundHeight = accumulatedHeight / numOfHits;
 
