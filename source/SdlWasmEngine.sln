@@ -21,8 +21,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShooterGame", "Games\Shoote
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HorrorGame", "Games\HorrorGame\HorrorGame.vcxproj", "{00B429CD-9A0D-46D6-AAFA-1CD1482945E4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BehaviourTreeEditor", "BehaviourTreeEditor\BehaviourTreeEditor.vcxproj", "{EBD85683-3A59-4E27-BA91-77E6DA014C5E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM

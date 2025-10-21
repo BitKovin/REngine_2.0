@@ -413,13 +413,14 @@ void EngineMain::MainLoop()
 
 }
 
+
 void EngineMain::GameUpdate()
 {
 
     NavigationSystem::Update();
 	if (Paused == false)
 		Physics::Simulate();
-    Physics::Update();
+    Physics::UpdateDebugDraw();
 
     Level::Current->UpdatePhysics();
 

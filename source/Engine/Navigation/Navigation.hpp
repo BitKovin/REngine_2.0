@@ -7,6 +7,9 @@
 #include "Detour/DetourNavMeshBuilder.h"
 #include "Detour/DetourTileCache.h"
 #include "Detour/DetourTileCacheBuilder.h"
+#include "Detour/DetourCrowd.h"
+
+#include "CrowdAgent.h"
 
 #include <mutex>
 
@@ -17,17 +20,24 @@
 
 using namespace std;
 
+class CustomFilter : public dtQueryFilter
+{
+    bool passFilter(const dtPolyRef /*ref*/, const dtMeshTile* /*tile*/, const dtPoly* poly) const override
+    {
+        return true;// poly->getArea() == DT_TILECACHE_WALKABLE_AREA; // Match area set during navmesh build
+    }
+};
+
 class NavigationSystem
 {
 
 private:
 
-    static inline dtNavMesh* navMesh = nullptr;
+
     static inline dtTileCache* tileCache = nullptr;
     static inline dtTileCacheAlloc* talloc = nullptr;
     static inline dtTileCacheCompressor* tcomp = nullptr;
     static inline dtTileCacheMeshProcess* tmproc = nullptr;
-
 
     static std::recursive_mutex mainLock;
 
@@ -36,6 +46,9 @@ private:
     static bool HasLineOfSight(const vec3& pointA, const vec3& pointB);
 
 public:
+
+    static inline dtNavMesh* navMesh = nullptr;
+    static inline dtCrowd* g_crowd = nullptr;
 
     static void DestroyNavData();
 
@@ -53,6 +66,9 @@ public:
 
     static void GenerateNavData();
 
+    static void InitCrowd(int maxAgents = 128, float maxAgentRadius = 0.6f);
+
+  
     // DrawNavmesh renders every edge in the navigation mesh using DebugDraw::Line.
 // It uses the dtNavMesh's internal tile storage to iterate over all polygons.
     static void DrawNavmesh();

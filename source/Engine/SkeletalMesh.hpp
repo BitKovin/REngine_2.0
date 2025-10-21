@@ -214,6 +214,10 @@ public:
 
 	bool UpdateRagdollPose = false;
 
+	bool InterpolatePosition = true;
+	bool InterpolateRotation = true;
+	bool InterpolateScale = true;
+
 	static inline int skelMeshes = 0;
 
 	SkeletalMesh(Entity* owner) : StaticMesh(owner)

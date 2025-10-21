@@ -71,6 +71,9 @@ void NavigationSystem::DestroyNavData()
     if (tmproc)
         delete tmproc;
 
+    if (g_crowd)
+        dtFreeCrowd(g_crowd);
+    
     
 }
 
@@ -93,6 +96,9 @@ void NavigationSystem::Update()
     {
         //std::printf("Tile cache still processing updates.\n");
     }
+
+    g_crowd->update(Time::DeltaTimeF, nullptr);
+
 }
 
 // Set areas -> flags when the cache creates Detour data
@@ -100,7 +106,7 @@ struct MeshProcess : public dtTileCacheMeshProcess {
     unsigned short walkFlag = 1; // SAMPLE_POLYFLAGS_WALK
     void process(dtNavMeshCreateParams* params, unsigned char* polyAreas, unsigned short* polyFlags) override {
         for (int i = 0; i < params->polyCount; ++i) {
-            if (polyAreas[i] == RC_WALKABLE_AREA) polyAreas[i] = 0; // SAMPLE_POLYAREA_GROUND
+            if (polyAreas[i] == RC_WALKABLE_AREA) polyAreas[i] = 1; // SAMPLE_POLYAREA_GROUND
             polyFlags[i] = walkFlag;
         }
     }
@@ -339,6 +345,44 @@ void NavigationSystem::GenerateNavData()
     }
 
     delete ctx;
+
+    InitCrowd(512);
+
+}
+
+void NavigationSystem::InitCrowd(int maxAgents, float maxAgentRadius)
+{
+    g_crowd = dtAllocCrowd();
+    if (!g_crowd) { std::cerr << "Failed allocate crowd\n"; return; }
+    if (!g_crowd->init(maxAgents, maxAgentRadius, navMesh))
+    {
+        std::cerr << "Failed to initialize crowd\n";
+        dtFreeCrowd(g_crowd);
+        g_crowd = nullptr;
+        return;
+    }
+    // Set up default filter for queryFilterType 0
+    dtQueryFilter* filter = g_crowd->getEditableFilter(0);
+    if (filter)
+    {
+        filter->setIncludeFlags(0xFFFF); // Include all poly flags
+        filter->setExcludeFlags(0);      // Exclude none
+        filter->setAreaCost(0, 1.0f);    // Default cost for default area
+        // Add costs for other area types if your navmesh uses them
+    }
+    // Existing obstacle avoidance params
+    dtObstacleAvoidanceParams p;
+    p.velBias = 0.4f;
+    p.adaptiveDivs = 7;
+    p.adaptiveRings = 2;
+    p.adaptiveDepth = 5;
+    p.weightDesVel = 2.0f;
+    p.weightCurVel = 0.75f;
+    p.weightSide = 0.75f;
+    p.weightToi = 2.5f;
+    p.horizTime = 2.2f;
+    p.gridSize = 33;
+    g_crowd->setObstacleAvoidanceParams(0, &p);
 }
 
 
@@ -469,13 +513,7 @@ bool NavigationSystem::HasLineOfSight(const vec3& pointA, const vec3& pointB)
 }
 
 // Custom filter to check polygon area instead of flags
-class CustomFilter : public dtQueryFilter
-{
-    bool passFilter(const dtPolyRef /*ref*/, const dtMeshTile* /*tile*/, const dtPoly* poly) const override
-    {
-        return true;// poly->getArea() == DT_TILECACHE_WALKABLE_AREA; // Match area set during navmesh build
-    }
-};
+
 
 // =====================================================================
     // FindSimplePath

@@ -37,13 +37,25 @@ float roj::Animator::getScaleFactor(float lastTimeStamp, float nextTimeStamp, fl
 
 glm::mat4 roj::Animator::interpolatePosition(roj::FrameBoneTransform& boneTransform)
 {
-    int posIdx = getKeyTransformIdx(boneTransform.positionTimestamps);
-    if (posIdx == -1)
-        return glm::translate(glm::mat4(1.0f), boneTransform.positions[0]);
+    // if there are no position keys, return identity
+    if (boneTransform.positionTimestamps.empty() || boneTransform.positions.empty())
+        return glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 
-    if (Loop && posIdx == boneTransform.positionTimestamps.size() - 1)
+    int posIdx = getKeyTransformIdx(boneTransform.positionTimestamps);
+    if (posIdx == -1) {
+        // no earlier key — use first key (discrete)
+        return glm::translate(glm::mat4(1.0f), boneTransform.positions[0]);
+    }
+
+    // If interpolation is disabled, return the discrete key value at posIdx
+    if (!InterpolatePosition) {
+        // posIdx will be valid index into positions
+        return glm::translate(glm::mat4(1.0f), boneTransform.positions[posIdx]);
+    }
+
+    // Loop wrap interpolation (blend last -> first across animation boundary)
+    if (Loop && posIdx == static_cast<int>(boneTransform.positionTimestamps.size()) - 1)
     {
-        // Wrap-around case: interpolate between last and first keyframe
         float lastTime = boneTransform.positionTimestamps.back();
         float nextTime = boneTransform.positionTimestamps[0] + m_currAnim->duration;
         float scaleFactor = (m_currTime - lastTime) / (nextTime - lastTime);
@@ -55,6 +67,7 @@ glm::mat4 roj::Animator::interpolatePosition(roj::FrameBoneTransform& boneTransf
         return glm::translate(glm::mat4(1.0f), finalPosition);
     }
 
+    // Normal interpolation between posIdx and posIdx + 1
     float scaleFactor = getScaleFactor(
         boneTransform.positionTimestamps[posIdx],
         boneTransform.positionTimestamps[posIdx + 1],
@@ -70,11 +83,19 @@ glm::mat4 roj::Animator::interpolatePosition(roj::FrameBoneTransform& boneTransf
 
 glm::mat4 roj::Animator::interpolateRotation(roj::FrameBoneTransform& boneTransform)
 {
+    if (boneTransform.rotationTimestamps.empty() || boneTransform.rotations.empty())
+        return glm::toMat4(glm::quat(1.0f, 0.0f, 0.0f, 0.0f)); // identity rotation
+
     int posIdx = getKeyTransformIdx(boneTransform.rotationTimestamps);
     if (posIdx == -1)
         return glm::toMat4(glm::normalize(boneTransform.rotations[0]));
 
-    if (Loop && posIdx == boneTransform.rotationTimestamps.size() - 1)
+    // If interpolation disabled, use the discrete rotation at posIdx
+    if (!InterpolateRotation) {
+        return glm::toMat4(glm::normalize(boneTransform.rotations[posIdx]));
+    }
+
+    if (Loop && posIdx == static_cast<int>(boneTransform.rotationTimestamps.size()) - 1)
     {
         float lastTime = boneTransform.rotationTimestamps.back();
         float nextTime = boneTransform.rotationTimestamps[0] + m_currAnim->duration;
@@ -102,11 +123,19 @@ glm::mat4 roj::Animator::interpolateRotation(roj::FrameBoneTransform& boneTransf
 
 glm::mat4 roj::Animator::interpolateScaling(roj::FrameBoneTransform& boneTransform)
 {
+    if (boneTransform.scaleTimestamps.empty() || boneTransform.scales.empty())
+        return glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)); // identity scale
+
     int posIdx = getKeyTransformIdx(boneTransform.scaleTimestamps);
     if (posIdx == -1)
-        return glm::scale(boneTransform.scales[0]);
+        return glm::scale(glm::mat4(1.0f), boneTransform.scales[0]);
 
-    if (Loop && posIdx == boneTransform.scaleTimestamps.size() - 1)
+    // If interpolation disabled, use discrete scale at posIdx
+    if (!InterpolateScale) {
+        return glm::scale(glm::mat4(1.0f), boneTransform.scales[posIdx]);
+    }
+
+    if (Loop && posIdx == static_cast<int>(boneTransform.scaleTimestamps.size()) - 1)
     {
         float lastTime = boneTransform.scaleTimestamps.back();
         float nextTime = boneTransform.scaleTimestamps[0] + m_currAnim->duration;
@@ -116,7 +145,7 @@ glm::mat4 roj::Animator::interpolateScaling(roj::FrameBoneTransform& boneTransfo
             boneTransform.scales[0],
             scaleFactor
         );
-        return glm::scale(finalScale);
+        return glm::scale(glm::mat4(1.0f), finalScale);
     }
 
     float scaleFactor = getScaleFactor(
@@ -130,10 +159,9 @@ glm::mat4 roj::Animator::interpolateScaling(roj::FrameBoneTransform& boneTransfo
         scaleFactor
     );
 
-    //return glm::scale(glm::mat4(1.0f), finalScale);
-
-    return glm::scale(finalScale);
+    return glm::scale(glm::mat4(1.0f), finalScale);
 }
+
 
 void roj::Animator::calcBoneTransform(BoneNode& node, glm::mat4 offset, bool stopAfterRoot) {
     // Check if we have cached FrameBoneTransform data for this bone

@@ -673,7 +673,7 @@ public:
 
 	}
 
-	static void Update()
+	static void UpdateDebugDraw()
 	{
 #ifdef JPH_DEBUG_RENDERER
 		if (DebugDraw)

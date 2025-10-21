@@ -24,6 +24,10 @@ public :
     vec3 totalRootMotionPosition = vec3();
     vec3 totalRootMotionRotation = vec3();
 
+    bool InterpolatePosition = true;
+    bool InterpolateRotation = true;
+    bool InterpolateScale = true;
+
 private:
 
     std::vector<glm::mat4> m_boneMatrices;
