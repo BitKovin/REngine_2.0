@@ -33,15 +33,15 @@ bool CrowdAgent::Init(glm::vec3 position, float height, float radius, float spee
     params.height = height;
     params.maxAcceleration = 8.0f;
     params.maxSpeed = speed;
-    params.collisionQueryRange = params.radius * 12.0f;
-    params.pathOptimizationRange = params.radius * 30.0f;
+    params.collisionQueryRange = params.radius * 8.0f;
+    params.pathOptimizationRange = params.radius * 15.0f;
     params.separationWeight = 2.0f;
     params.updateFlags =
-        //DT_CROWD_ANTICIPATE_TURNS |
-        //DT_CROWD_OPTIMIZE_VIS |
-        //DT_CROWD_OPTIMIZE_TOPO |
-        //DT_CROWD_OBSTACLE_AVOIDANCE |
-        //DT_CROWD_SEPARATION;
+        DT_CROWD_ANTICIPATE_TURNS |
+        DT_CROWD_OPTIMIZE_VIS |
+        DT_CROWD_OPTIMIZE_TOPO |
+        DT_CROWD_OBSTACLE_AVOIDANCE |
+        DT_CROWD_SEPARATION;
     params.obstacleAvoidanceType = 0;
     params.queryFilterType = 0;
     params.userData = nullptr;
