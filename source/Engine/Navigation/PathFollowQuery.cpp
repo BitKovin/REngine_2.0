@@ -47,11 +47,11 @@ void PathFollowQuery::TryPerform()
 
 	if (ThreadPool::Supported() == false)
 	{
-		isPerformingDelay.AddDelay(distance(desiredStart, desiredTarget) / 300.0f + 0.03 + RandomHelper::RandomFloat() / 20.0f);
+		isPerformingDelay.AddDelay(distance(desiredStart, desiredTarget) / 300.0f + 0.04 + RandomHelper::RandomFloat() / 20.0f);
 	}
 	else
 	{
-        isPerformingDelay.AddDelay(std::min(distance(desiredStart, desiredTarget) / 300.0f,0.4f) + 0.02 + RandomHelper::RandomFloat() / 10.0f);
+        isPerformingDelay.AddDelay(std::min(distance(desiredStart, desiredTarget) / 300.0f,0.4f) + 0.03 + RandomHelper::RandomFloat() / 15.0f);
 	}
 
 }

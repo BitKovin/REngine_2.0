@@ -12,6 +12,14 @@ class MathHelper
 {
 public:
 
+
+	template<typename T>
+	static T Interp(const T& current, const T& target, float deltaTime, float speed)
+	{
+		float t = 1.0f - expf(-speed * deltaTime); // smooth exponential approach
+		return mix(current, target, t);
+	}
+
 	// Converts degrees to radians.
 	inline static float ToRadians(float degrees) {
 		return glm::radians(degrees);

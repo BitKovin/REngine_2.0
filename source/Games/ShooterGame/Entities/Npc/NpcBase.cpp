@@ -286,7 +286,7 @@ void NpcBase::AsyncUpdate()
 
 
 
-	vec3 moveDir = vec3(0);
+	vec3 desiredDirection = vec3(0);
 	
 	if (pathFollow.reachedTarget == false)
 	{
@@ -294,17 +294,31 @@ void NpcBase::AsyncUpdate()
 		pathFollow.UpdateStartAndTarget(Position, desiredTargetLocation);
 		pathFollow.TryPerform();
 
-		moveDir = normalize(MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position)) * speed;
+		vec3 newMove = normalize(MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position)) * speed;
+
+		vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
+
+		desiredDirection = MathHelper::Interp(curMove, newMove, Time::DeltaTimeF, 10.0f);
+
 	}
 
+	
 
-	movingDirection = moveDir;
+	movingDirection += desiredDirection*Time::DeltaTimeF * 3.0f;
+
+	if (length(movingDirection)>1.0f)
+	{
+		movingDirection = normalize(movingDirection);
+	}
 
 	float gravity = LeadBody->GetLinearVelocity().GetY();
 
-	moveDir.y = gravity;
 
-	Physics::SetLinearVelocity(LeadBody, moveDir);
+
+	vec3 move = desiredDirection;
+	move.y = gravity;
+
+	Physics::SetLinearVelocity(LeadBody, move);
 
 	UpdateAnimations();
 	UpdateReturnFromRagdoll();

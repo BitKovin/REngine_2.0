@@ -513,6 +513,16 @@ bool CharacterController::CheckGroundAt(vec3 location,float checkRadius, float& 
 
 	canStand = result.hasHit && (GroundAngleDeg(result.normal) <= groundMaxAngle) && Physics::GetBodyData(result.hitbody)->group != BodyType::CharacterCapsule;
 
+	if (Physics::GetBodyData(result.hitbody)->group == BodyType::CharacterCapsule)
+	{
+
+		if (body->GetLinearVelocity().GetY() < 1)
+		{
+			Physics::AddImpulse(body, result.normal);
+		}
+
+	}
+
 	//DebugDraw::Line(result.position, result.position + result.normal, 0.01f);
 
 
