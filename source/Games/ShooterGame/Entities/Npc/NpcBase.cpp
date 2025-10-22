@@ -411,7 +411,7 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, ragdollPose);
 
 	SERIALIZE_FIELD(target, pathFollow.acceptanceRadius);
-	//SERIALIZE_FIELD(target, pathFollow.CalculatedTargetLocation);
+	SERIALIZE_FIELD(target, pathFollow.CalculatedTargetLocation);
 	SERIALIZE_FIELD(target, pathFollow.FoundTarget);
 	SERIALIZE_FIELD(target, pathFollow.reachedTarget);
 
