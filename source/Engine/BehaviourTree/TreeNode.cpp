@@ -73,12 +73,36 @@ void TreeNode::FromJson(const json& j) {
 json TreeNode::SaveState() const {
     json j;
     j["status"] = static_cast<int>(status_);
+
+    // Only save children states if we have children
+    // Don't save the actual children structure, just their runtime state
+    if (!children_.empty()) {
+        json childrenStates = json::array();
+        for (const auto& child : children_) {
+            // Save each child's state
+            childrenStates.push_back(child->SaveState());
+        }
+        j["children"] = childrenStates;
+    }
+
     return j;
 }
 
 void TreeNode::LoadState(const json& j) {
     if (j.contains("status")) {
         status_ = static_cast<NodeStatus>(j["status"].get<int>());
+    }
+
+    // Load children states - only if we have matching children
+    if (j.contains("children") && !children_.empty()) {
+        const auto& childrenStates = j["children"];
+        if (childrenStates.is_array()) {
+            // Only load states for existing children (safe if tree structure changed)
+            size_t minSize = std::min(childrenStates.size(), children_.size());
+            for (size_t i = 0; i < minSize; ++i) {
+                children_[i]->LoadState(childrenStates[i]);
+            }
+        }
     }
 }
 

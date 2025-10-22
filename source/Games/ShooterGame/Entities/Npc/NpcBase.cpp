@@ -409,6 +409,14 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, animationStateSaveData);
 	SERIALIZE_FIELD(target, getFromRagdollAnimationSaveState);
 	SERIALIZE_FIELD(target, ragdollPose);
+
+	SERIALIZE_FIELD(target, pathFollow.acceptanceRadius);
+	SERIALIZE_FIELD(target, pathFollow.CalculatedTargetLocation);
+	SERIALIZE_FIELD(target, pathFollow.FoundTarget);
+	SERIALIZE_FIELD(target, pathFollow.reachedTarget);
+
+	btSaveState = behaviorTree.SaveState().dump(4);
+	SERIALIZE_FIELD(target, btSaveState);
 }
 
 void NpcBase::Deserialize(json& source)
@@ -425,8 +433,18 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, getFromRagdollAnimationSaveState);
 	DESERIALIZE_FIELD(source, ragdollPose);
 
+	DESERIALIZE_FIELD(source, pathFollow.acceptanceRadius);
+	DESERIALIZE_FIELD(source, pathFollow.CalculatedTargetLocation);
+	DESERIALIZE_FIELD(source, pathFollow.FoundTarget);
+	DESERIALIZE_FIELD(source, pathFollow.reachedTarget);
 
-		Physics::SetBodyPosition(LeadBody, Position);
+	DESERIALIZE_FIELD(source, btSaveState);
+	if (btSaveState.empty() == false)
+	{
+		behaviorTree.LoadState(json::parse(btSaveState));
+	}
+
+	Physics::SetBodyPosition(LeadBody, Position);
 
 
 	if (dead)

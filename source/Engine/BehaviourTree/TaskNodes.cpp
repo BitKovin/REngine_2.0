@@ -40,7 +40,9 @@ void WaitNode::FromJson(const json& j) {
     }
 }
 
-json WaitNode::SaveState() const {
+json WaitNode::SaveState() const 
+{
+
     auto j = TreeNode::SaveState();
     j["elapsedTime"] = elapsedTime_;
     return j;

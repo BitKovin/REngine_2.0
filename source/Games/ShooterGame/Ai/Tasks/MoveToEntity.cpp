@@ -40,10 +40,7 @@ public:
 		{
 			FinishExecution(true);
 		}
-		if (npcRef->pathFollow.FoundTarget == false)
-		{
-			FinishExecution(false);
-		}
+
 
 		npcRef->MoveTo(targetEntity->Position, GetVariable<float>("acceptance radius"));
 

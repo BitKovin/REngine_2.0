@@ -560,13 +560,13 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
         return outPath;
     }
 
-    auto hit = Physics::LineTrace(start, start - vec3(0, 100, 0), BodyType::World);
+    auto hit = Physics::LineTrace(start, start - vec3(0, 5, 0), BodyType::World);
     if (hit.hasHit)
-        start = hit.position + vec3(0, 1, 0);
+        start = hit.position + vec3(0, 0.3f, 0);
 
-    hit = Physics::LineTrace(target, target - vec3(0, 30, 0), BodyType::World);
+    hit = Physics::LineTrace(target, target - vec3(0, 5, 0), BodyType::World);
     if (hit.hasHit)
-        target = hit.position + vec3(0, 1, 0);
+        target = hit.position + vec3(0, 0.3f, 0);
 
     CustomFilter filter;
     filter.setIncludeFlags(0xffff);

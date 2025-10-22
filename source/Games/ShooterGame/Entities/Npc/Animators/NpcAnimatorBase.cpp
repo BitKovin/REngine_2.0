@@ -2,9 +2,9 @@
 
 void NpcAnimatorBase::LoadAssets()
 {
-	idle = AddAnimation("GameData/animations/npc/idle.glb");
-	run_f = AddAnimation("GameData/animations/npc/walk.glb");
-	inPain = AddAnimation("GameData/animations/npc/inPain.glb");
+	idle = AddAnimation("GameData/models/npc/base.glb","idle",true);
+	run_f = AddAnimation("GameData/models/npc/base.glb", "walk");
+	//inPain = AddAnimation("GameData/animations/npc/inPain.glb");
 }
 
 AnimationPose NpcAnimatorBase::ProcessResultPose()
@@ -12,7 +12,7 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 	auto idlePose = idle->GetAnimationPose();
 	auto runFPose = run_f->GetAnimationPose();
 
-	auto painPose = inPain->GetAnimationPose();
+	//auto painPose = inPain->GetAnimationPose();
 
 	AnimationPose locomotion;
 	
@@ -25,5 +25,5 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 		locomotion = idlePose;
 	}
 
-	return AnimationPose::Lerp(locomotion, painPose, PainProgress);
+	return locomotion;// AnimationPose::Lerp(locomotion, painPose, PainProgress);
 }

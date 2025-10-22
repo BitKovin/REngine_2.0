@@ -432,10 +432,10 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 	if (CheckGroundAt(FromPhysics(body->GetPosition()) - heightOffset, radius - 0.01f, outheight, outCanStand, outNormal, &hitBody))
 	{
 
-		if (Physics::GetBodyData(hitBody)->group == BodyType::CharacterCapsule)
+		/*if (Physics::GetBodyData(hitBody)->group == BodyType::CharacterCapsule)
 		{
 			Physics::AddImpulse(body, vec3(0, 1.1f, 0));
-		}
+		}*/
 
 		if (outCanStand)
 		{

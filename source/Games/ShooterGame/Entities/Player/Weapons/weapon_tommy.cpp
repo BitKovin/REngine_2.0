@@ -124,7 +124,7 @@ public:
 		bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
 		bullet->Start();
 		bullet->LoadAssetsIfNeeded();
-		bullet->Damage = 7;
+		bullet->Damage = 700;
 
 		WeaponFireFlash::CreateAt(bullet->Position);
 

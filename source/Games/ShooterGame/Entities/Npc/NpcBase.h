@@ -50,6 +50,8 @@ protected:
 	BehaviorTree behaviorTree;
 	BehaviorTreeEditor editor;
 
+	std::string btSaveState;
+
 	bool btEditorEnabled = false;
 
 	Delay tickIntervalDelay;
