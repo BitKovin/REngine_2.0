@@ -41,7 +41,7 @@ public:
     void SetStatus(NodeStatus status) { status_ = status; }
 
     // Tree structure
-    void SetParent(TreeNode* parent) { parent_ = parent; }
+    void SetParent(TreeNode* parent);
     TreeNode* GetParent() const { return parent_; }
 
     // JSON Serialization
@@ -58,6 +58,13 @@ public:
     std::string name_;
 
 protected:
+
+    std::string id_;
+
+    const std::string& GetId() const { return id_; }
+    void SetId(const std::string& id) { id_ = id; }
+    std::string GenerateId(); // Helper to generate unique IDs
+
     std::string type_;
     NodeStatus status_ = NodeStatus::Idle;
     std::vector<std::shared_ptr<TreeNode>> children_;
