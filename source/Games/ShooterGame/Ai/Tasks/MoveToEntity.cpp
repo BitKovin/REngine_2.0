@@ -5,17 +5,13 @@
 
 class MoveToEntity : public CustomTask
 {
-public:
-	MoveToEntity() : CustomTask ("Move To Entity", "MoveToEntity")
-	{
-		Variables["target"] = "";
-		Variables["acceptance radius"] = 1.0f;
-		Variables["pretty path"] = false;
-	}
 
-	void Tick(BehaviorTreeContext& context)
-	{
+private:
 
+	NpcBase* npcRef = nullptr;
+
+	void CheckNpcRef(BehaviorTreeContext& context)
+	{
 		if (npcRef == nullptr)
 		{
 			npcRef = dynamic_cast<NpcBase*>((Entity*)(context.owner));
@@ -26,6 +22,47 @@ public:
 			}
 
 		}
+	}
+
+public:
+	MoveToEntity() : CustomTask ("Move To Entity", "MoveToEntity")
+	{
+		Variables["target"] = "";
+		Variables["acceptance radius"] = 1.0f;
+		Variables["pretty path"] = false;
+	}
+
+	void OnStop(BehaviorTreeContext& context) override
+	{
+
+		CustomTask::OnStop(context);
+
+		CheckNpcRef(context);
+
+		npcRef->pathFollow.reachedTarget = true;
+
+	}
+
+	void OnStart(BehaviorTreeContext& context) override
+	{
+
+		CustomTask::OnStart(context);
+
+		CheckNpcRef(context);
+
+		if (npcRef)
+		{
+
+			npcRef->pathFollow.reachedTarget = false;
+
+		}
+
+	}
+
+	void Tick(BehaviorTreeContext& context)
+	{
+
+		CheckNpcRef(context);
 
 		std::string target = GetVariable<std::string>("target");
 		auto targetEntity = Level::Current->FindEntityWithId(target);
@@ -45,10 +82,6 @@ public:
 		npcRef->MoveTo(targetEntity->Position, GetVariable<float>("acceptance radius"));
 
 	}
-
-private:
-
-	NpcBase* npcRef = nullptr;
 
 };
 

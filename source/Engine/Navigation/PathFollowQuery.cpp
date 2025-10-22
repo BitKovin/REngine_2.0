@@ -91,7 +91,7 @@ void PathFollowQuery::CalculatePathOnThread()
     const float removeWithinDist = 3.0f;
     const float removeWithinDist2 = removeWithinDist * removeWithinDist;
     const float traceRadius = 0.3f;
-    const vec3 traceUpOffset = vec3(0.0f, 1.0f, 0.0f);
+    const vec3 traceUpOffset = vec3(0.0f, 0.5f, 0.0f);
     const float minDirLen2 = 1e-6f;
     const int maxSimplifyIterations = 4;  // safety cap
 

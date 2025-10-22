@@ -55,7 +55,6 @@ void NpcBase::Start()
 	desiredDirection = MathHelper::XZ(MathHelper::GetForwardVector(Rotation));
 	movingDirection = desiredDirection;
 
-	pathFollow.CalculatePathOnThread();
 
 	DeathSoundPlayer = SoundPlayer::Create();
 	HurtSoundPlayer = SoundPlayer::Create();
@@ -286,13 +285,15 @@ void NpcBase::AsyncUpdate()
 
 
 
-	pathFollow.UpdateStartAndTarget(Position, desiredTargetLocation);
-	pathFollow.TryPerform();
 
 	vec3 moveDir = vec3(0);
 	
 	if (pathFollow.reachedTarget == false)
 	{
+
+		pathFollow.UpdateStartAndTarget(Position, desiredTargetLocation);
+		pathFollow.TryPerform();
+
 		moveDir = normalize(MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position)) * speed;
 	}
 

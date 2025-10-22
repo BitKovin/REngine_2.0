@@ -24,7 +24,7 @@ public:
 
 	bool FoundTarget = false;
 
-	bool reachedTarget = false;
+	bool reachedTarget = true;
 
 	Delay isPerformingDelay;
 
