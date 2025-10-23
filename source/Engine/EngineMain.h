@@ -23,7 +23,6 @@
 #include "MapParser.h"
 
 #include "Renderer/Renderer.h"
-
 #include "SaveSystem/LevelSaveSystem.h"
 
 class EngineMain

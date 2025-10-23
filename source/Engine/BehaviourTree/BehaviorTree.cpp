@@ -300,6 +300,7 @@ void BehaviorTree::RegisterTypes()
 
     // Register nodes
     REGISTER_BT_NODE_FUNC(SequenceNode);
+    REGISTER_BT_NODE_FUNC(MultiExecSequenceNode);
     REGISTER_BT_NODE_FUNC(SelectorNode);
     REGISTER_BT_NODE_FUNC(WaitNode);
     REGISTER_BT_NODE_FUNC(PrintMessageNode);

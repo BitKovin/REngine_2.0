@@ -9,6 +9,7 @@
 #include "UI/UiRenderer.h"
 #include "LoadingScreen/LoadingScreenSystem.h"
 #include "FileSystem/FileSystem.h"
+#include "BehaviourTree/BehaviorTree.h"
 
 EngineMain* EngineMain::MainInstance = nullptr;
 
@@ -143,6 +144,7 @@ void EngineMain::Init(std::vector<std::string> args)
     Arguments = ParseCommands(args);
 
     LevelObjectFactory::instance().registerDefaults();
+    BehaviorTree::RegisterTypes();
 
     UpdateScreenSize();
 

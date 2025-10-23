@@ -98,6 +98,58 @@ void SequenceNode::LoadState(const json& j) {
     }
 }
 
+MultiExecSequenceNode::MultiExecSequenceNode() : CompositeNode("Multi Execution Sequence", "MultiExecSequenceNode") {}
+void MultiExecSequenceNode::OnStart(BehaviorTreeContext& context)
+{
+
+    //currentChildIndex_ = 0;
+}
+
+void MultiExecSequenceNode::OnStop(BehaviorTreeContext& context)
+{
+    currentChildIndex_ = 0;
+    TreeNode::OnStop(context);
+}
+
+NodeStatus MultiExecSequenceNode::Execute(BehaviorTreeContext& context) {
+
+    for (size_t i = 0; i < children_.size(); ++i) {
+        auto& child = children_[i];
+
+        bool startingNode = child->GetStatus() != NodeStatus::Running;
+
+        NodeStatus childStatus = child->TickNode(context);
+    }
+
+    return NodeStatus::Success;
+
+}
+
+void MultiExecSequenceNode::OnReset() {
+    TreeNode::OnReset();
+    currentChildIndex_ = 0;
+    for (auto& child : children_) {
+        child->OnReset();
+    }
+}
+
+void MultiExecSequenceNode::Abort(BehaviorTreeContext& context) {
+    // Abort current running child
+    if (currentChildIndex_ < children_.size()) {
+        children_[currentChildIndex_]->Abort(context);
+    }
+    TreeNode::Abort(context);
+}
+
+json MultiExecSequenceNode::SaveState() const {
+    auto j = TreeNode::SaveState();
+    return j;
+}
+
+void MultiExecSequenceNode::LoadState(const json& j) {
+    TreeNode::LoadState(j);
+}
+
 SelectorNode::SelectorNode() : CompositeNode("Selector", "SelectorNode") {}
 
 void SelectorNode::OnStart(BehaviorTreeContext& context) {
