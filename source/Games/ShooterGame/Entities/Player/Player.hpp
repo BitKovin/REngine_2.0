@@ -229,35 +229,7 @@ public:
 		cameraRotation.y = data.GetPropertyFloat("angle") + 90;
 	}
 
-	void Start()
-	{
-
-		Instance = this;
-
-		controller.Init(this, Position,0.4f);
-		oldPos = controller.GetPosition();
-
-		ParticleSystem::PreloadSystemAssets("decal_blood");
-		ParticleSystem::PreloadSystemAssets("hit_flesh");
-
-
-		soundPlayer = new SoundPlayer();
-		Level::Current->AddEntity(soundPlayer);
-		soundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/sounds/mew.wav");
-
-		Hud.Init(this);
-
-		PreloadEntityType("weapon_pistol");
-		PreloadEntityType("weapon_shotgun");
-		PreloadEntityType("weapon_tommy");
-
-		AddWeaponByName("weapon_pistol");
-		AddWeaponByName("weapon_shotgun");
-		AddWeaponByName("weapon_tommy");
-
-		SwitchWeaponOffhand("weapon_cane");
-
-	}
+	void Start();
 
 	void UpdateWalkMovement(vec2 input);
 	void UpdateBikeMovement(vec2 input);

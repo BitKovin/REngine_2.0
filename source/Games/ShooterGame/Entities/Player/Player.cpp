@@ -10,6 +10,38 @@ Player* Player::Instance = nullptr;
 
 string serializedPlayer = "";
 
+void Player::Start()
+{
+
+    Entity::Start();
+
+    Instance = this;
+
+    controller.Init(this, Position, 0.4f);
+    oldPos = controller.GetPosition();
+
+    ParticleSystem::PreloadSystemAssets("decal_blood");
+    ParticleSystem::PreloadSystemAssets("hit_flesh");
+
+
+    soundPlayer = new SoundPlayer();
+    Level::Current->AddEntity(soundPlayer);
+    soundPlayer->Sound = SoundManager::GetSoundFromPath("GameData/sounds/mew.wav");
+
+    Hud.Init(this);
+
+    PreloadEntityType("weapon_pistol");
+    PreloadEntityType("weapon_shotgun");
+    PreloadEntityType("weapon_mpsd");
+
+    AddWeaponByName("weapon_pistol");
+    AddWeaponByName("weapon_shotgun");
+    AddWeaponByName("weapon_mpsd");
+
+    //SwitchWeaponOffhand("weapon_cane");
+
+}
+
 void Player::UpdateWalkMovement(vec2 input)
 {
 
@@ -316,7 +348,7 @@ void Player::UpdateWeapon()
 
         currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
         currentWeapon->Position = Camera::position + MathHelper::TransformVector(bob, Camera::GetRotationMatrix());
-        currentWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.5f);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
+        currentWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.75f);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 
     }
 

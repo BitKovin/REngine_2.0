@@ -243,6 +243,7 @@
     <ClCompile Include="Entities\Player\Weapons\Projectiles\Bullet.cpp" />
     <ClCompile Include="Entities\Player\Weapons\Projectiles\CaneProjectile.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_cane.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\weapon_mpsd.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_pistol.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_shotgun.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_tommy.cpp" />
