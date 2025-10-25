@@ -29,6 +29,8 @@
 #include <Character/CharacterController.h>
 #include <Particle/GlobalParticleSystem.hpp>
 
+#include <AiPerception/ObservationTarget.h>
+
 #include "../../UI/Player/PlayerHud.hpp"
 
 #include "Weapons/WeaponBase.h"
@@ -99,6 +101,8 @@ private:
 	Delay dashProgress;
 	vec3 dashVector = vec3(0);
 	bool wasDashing = false;
+
+	std::shared_ptr<ObservationTarget> observationTarget;
 
 	glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
 		vel = MathHelper::XZ(vel);

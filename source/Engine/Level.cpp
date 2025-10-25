@@ -17,6 +17,8 @@
 
 #include "SoundSystem/SoundManager.hpp"
 
+#include "AiPerception/AiPerceptionSystem.h"
+
 
 
 Level* Level::Current = nullptr;
@@ -46,6 +48,8 @@ void Level::CloseLevel()
 	Current->MemoryCleanPendingEntities();
 
 	NavigationSystem::DestroyAllObstacles();
+
+	AiPerceptionSystem::RemoveAll();
 
 	//cleaning all history of contacts because we delete all objects outside of game loop. Done to avoid crash
 	MyContactListener::beforeSimulation();

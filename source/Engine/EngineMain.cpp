@@ -10,6 +10,7 @@
 #include "LoadingScreen/LoadingScreenSystem.h"
 #include "FileSystem/FileSystem.h"
 #include "BehaviourTree/BehaviorTree.h"
+#include "AiPerception/AiPerceptionSystem.h"
 
 EngineMain* EngineMain::MainInstance = nullptr;
 
@@ -425,6 +426,8 @@ void EngineMain::GameUpdate()
     Physics::UpdateDebugDraw();
 
     Level::Current->UpdatePhysics();
+
+    AiPerceptionSystem::Update();
 
     Level::Current->Update(Paused);
 

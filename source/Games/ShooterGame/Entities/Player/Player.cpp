@@ -4,6 +4,8 @@
 
 #include <EngineMain.h>
 
+#include <AiPerception/AiPerceptionSystem.h>
+
 REGISTER_ENTITY(Player, "info_player_start")
 
 Player* Player::Instance = nullptr;
@@ -16,6 +18,8 @@ void Player::Start()
     Entity::Start();
 
     Instance = this;
+
+    observationTarget = AiPerceptionSystem::CreateTarget(Position, Id, {});
 
     controller.Init(this, Position, 0.4f);
     oldPos = controller.GetPosition();
@@ -834,6 +838,9 @@ void Player::UpdateBody()
 
     Camera::position = MathHelper::DecomposeMatrix(bodyMesh->GetBoneMatrixWorld("head")).Position + playerForward * 0.3f;
     Camera::ApplyCameraShake(Time::DeltaTimeF);
+
+    observationTarget->position = Camera::position;
+
 }
 
 void Player::Serialize(json& target)

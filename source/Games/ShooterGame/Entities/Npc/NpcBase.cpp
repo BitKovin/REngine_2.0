@@ -12,6 +12,8 @@
 
 #include "Ai/nav_point.h"
 
+#include <AiPerception/ObservationTarget.h>
+
 NpcBase::NpcBase()
 {
 
@@ -82,6 +84,8 @@ void NpcBase::Start()
 	behaviorTree.Owner = this;
 	behaviorTree.Start();
 
+	observer = AiPerceptionSystem::CreateObserver(Position + vec3(0, 0.7, 0), movingDirection, 90);
+
 }
 
 
@@ -109,6 +113,9 @@ void NpcBase::Death()
 	dead = true;
 
 	//Tags.clear();
+
+	AiPerceptionSystem::RemoveObserver(observer);
+	observer = nullptr;
 
 	return;
 	if (DeathSoundPlayer)
@@ -249,6 +256,8 @@ void NpcBase::UpdateReturnFromRagdoll()
 void NpcBase::AsyncUpdate()
 {
 
+	UpdateObserver();
+
 	UpdateBT();
 
 	auto animEvents = mesh->PullAnimationEvents();
@@ -381,6 +390,29 @@ void NpcBase::UpdateBT()
 	else
 	{
 		behaviorTree.Update(Time::DeltaTimeF);
+	}
+
+
+}
+
+void NpcBase::UpdateObserver()
+{
+
+	auto headTrans = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("head"));
+
+	observer->forward = MathHelper::TransformVector(vec3(0, -1, 0), headTrans.RotationQuaternion);
+
+	observer->position = headTrans.Position - observer->forward * 0.2f;
+
+	Logger::Log(Id);
+
+	for (std::weak_ptr<ObservationTarget> weakTarget : observer->visibleTargets)
+	{
+
+		auto target = weakTarget.lock();
+
+		Logger::Log(target->ownerId);
+
 	}
 
 

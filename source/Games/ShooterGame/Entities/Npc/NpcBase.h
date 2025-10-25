@@ -17,6 +17,9 @@
 #include <BehaviourTree/BehaviorTree.h>
 #include <BehaviorTreeEditor.h>
 
+#include <AiPerception/AiPerceptionSystem.h>
+#include <AiPerception/Observer.h>
+
 class NpcBase : public Entity
 {
 
@@ -56,6 +59,7 @@ protected:
 
 	Delay tickIntervalDelay;
 
+	std::shared_ptr<Observer> observer;
 
 public:
 
@@ -104,6 +108,7 @@ public:
 	void AsyncUpdate();
 
 	void UpdateBT();
+	void UpdateObserver();
 
 	void Serialize(json& target);
 	void Deserialize(json& source);

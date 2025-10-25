@@ -1,0 +1,22 @@
+#pragma once
+#include "../glm.h"
+#include <vector>
+#include <memory>
+
+class ObservationTarget;
+
+class Observer
+{
+public:
+    glm::vec3 position;
+    glm::vec3 forward;
+    float fovDeg;
+
+    std::vector<std::weak_ptr<ObservationTarget>> visibleTargets;
+
+    Observer(const glm::vec3& pos, const glm::vec3& fwd, float fov)
+        : position(pos), forward(glm::normalize(fwd)), fovDeg(fov) {
+    }
+
+    void UpdateVisibility(const std::vector<std::shared_ptr<ObservationTarget>>& allTargets);
+};
