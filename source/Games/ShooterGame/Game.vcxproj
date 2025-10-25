@@ -237,6 +237,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ai\Tasks\MoveToEntity.cpp" />
+    <ClCompile Include="Ai\Tasks\SwitchToNextNavPoint.cpp" />
+    <ClCompile Include="Entities\Npc\Ai\nav_point.cpp" />
     <ClCompile Include="Entities\Npc\Animators\NpcAnimatorBase.cpp" />
     <ClCompile Include="Entities\Npc\NpcBase.cpp" />
     <ClCompile Include="Entities\Player\Player.cpp" />
@@ -262,6 +264,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\IEnemy.h" />
+    <ClInclude Include="Entities\Npc\Ai\nav_point.h" />
     <ClInclude Include="Entities\Npc\Animators\NpcAnimatorBase.h" />
     <ClInclude Include="Entities\Npc\NpcBase.h" />
     <ClInclude Include="Entities\Player\Player.hpp" />

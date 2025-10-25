@@ -6,7 +6,7 @@
 "_keeplights" "1"
 "_lightmapscale" "0.1"
 "_ambient" "0"
-"gridsize" "4 4 8"
+"gridsize" "16 16 32"
 "_tb_mod" "textures"
 // brush 0
 {
@@ -417,12 +417,12 @@
 }
 // brush 45
 {
-( -128 112 16 ) ( -128 176 16 ) ( -128 112 32 ) common/clip 0 0 0 0.5 0.5 0 0 0
-( -128 112 96 ) ( -32 112 96 ) ( -32 112 16 ) common/clip 0 0 0 0.5 0.5 0 0 0
-( -128 112 16 ) ( -96 112 16 ) ( -128 176 16 ) common/clip 0 0 0 0.5 0.5 0 0 0
-( -32 112 96 ) ( -128 112 96 ) ( -128 176 32 ) common/clip 0 0 0 0.5 0.5 0 0 0
-( -96 176 32 ) ( -128 176 32 ) ( -96 176 16 ) common/clip 0 0 0 0.5 0.5 0 0 0
-( -32 176 32 ) ( -32 176 16 ) ( -32 112 32 ) common/clip 0 0 0 0.5 0.5 0 0 0
+( -128 112 16 ) ( -128 176 16 ) ( -128 112 32 ) generic/bricks 0 0 0 0.5 0.5 0 0 0
+( -128 112 96 ) ( -32 112 96 ) ( -32 112 16 ) generic/bricks 0 0 0 0.5 0.5 0 0 0
+( -128 112 16 ) ( -96 112 16 ) ( -128 176 16 ) generic/bricks 0 0 0 0.5 0.5 0 0 0
+( -32 112 96 ) ( -128 112 96 ) ( -128 176 32 ) generic/bricks 0 0 0 0.5 0.5 0 0 0
+( -96 176 32 ) ( -128 176 32 ) ( -96 176 16 ) generic/bricks 0 0 0 0.5 0.5 0 0 0
+( -32 176 32 ) ( -32 176 16 ) ( -32 112 32 ) generic/bricks 0 0 0 0.5 0.5 0 0 0
 }
 // brush 46
 {
@@ -1181,26 +1181,6 @@
 }
 // entity 2
 {
-"classname" "info.navpoint"
-"origin" "-1000 328 24"
-}
-// entity 3
-{
-"classname" "info.navpoint"
-"origin" "-1224 392 72"
-}
-// entity 4
-{
-"classname" "info.navpoint"
-"origin" "-1704 456 72"
-}
-// entity 5
-{
-"classname" "info.navpoint"
-"origin" "-1688 8 72"
-}
-// entity 6
-{
 "classname" "static_mesh"
 "origin" "-111.497 -56.1932 34.7592"
 "texture" "models/test.png"
@@ -1209,7 +1189,7 @@
 "modelscale" "32"
 "modelscale_vec" "32 16 32"
 }
-// entity 7
+// entity 3
 {
 "classname" "spawner"
 "origin" "80 -640 48"
@@ -1221,90 +1201,20 @@
 "target" "c1"
 "onDespawned" "sub"
 }
-// entity 8
-{
-"classname" "info.navpoint"
-"origin" "216 -584 24"
-}
-// entity 9
-{
-"classname" "info.navpoint"
-"origin" "-600 -840 24"
-}
-// entity 10
-{
-"classname" "info.navpoint"
-"origin" "840 -168 24"
-}
-// entity 11
-{
-"classname" "info.navpoint"
-"origin" "280 216 24"
-}
-// entity 12
-{
-"classname" "info.navpoint"
-"origin" "-184 456 24"
-}
-// entity 13
-{
-"classname" "info.navpoint"
-"origin" "648 744 24"
-}
-// entity 14
-{
-"classname" "info.navpoint"
-"origin" "856 -824 24"
-}
-// entity 15
-{
-"classname" "info.navpoint"
-"origin" "-184 -584 24"
-}
-// entity 16
-{
-"classname" "info.navpoint"
-"origin" "776 -520 24"
-}
-// entity 17
-{
-"classname" "info.navpoint"
-"origin" "-488 536 24"
-}
-// entity 18
-{
-"classname" "info.navpoint"
-"origin" "-632 -184 24"
-}
-// entity 19
-{
-"classname" "info.navpoint"
-"origin" "-808 -504 24"
-}
-// entity 20
-{
-"classname" "info.navpoint"
-"origin" "-88 72 24"
-}
-// entity 21
-{
-"classname" "info.navpoint"
-"origin" "-264 72 24"
-}
-// entity 22
+// entity 4
 {
 "classname" "light"
 "origin" "-832 208 -2688"
 "light" "200"
 "_color" "1 0 0"
 }
-// entity 23
+// entity 5
 {
 "classname" "info_player_start"
 "origin" "128 432 40"
 "angle" "270"
 }
-// entity 24
+// entity 6
 {
 "classname" "light"
 "origin" "-720 576 96"
@@ -1313,14 +1223,14 @@
 "scale" "1"
 "radius" "128"
 }
-// entity 25
+// entity 7
 {
 "classname" "light"
 "origin" "-832 496 -2688"
 "light" "200"
 "_color" "1 0 0"
 }
-// entity 26
+// entity 8
 {
 "classname" "triggerOnce"
 "target" "sp1"
@@ -1334,7 +1244,7 @@
 ( 248 -176 216 ) ( 248 -384 16 ) ( 248 -384 216 ) common/trigger 0 0 0 1 1 0 0 0
 }
 }
-// entity 27
+// entity 9
 {
 "classname" "light"
 "origin" "80 256 80"
@@ -1343,41 +1253,41 @@
 "target" "lp1"
 "_color" "1 0.95 0.73"
 }
-// entity 28
+// entity 10
 {
 "classname" "counter"
 "origin" "55 288 1"
 "targetname" "lp1"
 }
-// entity 29
+// entity 11
 {
 "classname" "light"
 "origin" "-616 -1168 64"
 "light" "800"
 "_color" "1 0 0"
 }
-// entity 30
+// entity 12
 {
 "classname" "light"
 "origin" "-952 -1160 64"
 "light" "800"
 "_color" "1 0 0"
 }
-// entity 31
+// entity 13
 {
 "classname" "light"
 "origin" "-1160 -1160 64"
 "light" "300"
 "_color" "1 0 0"
 }
-// entity 32
+// entity 14
 {
 "classname" "light"
 "origin" "-1512 -1160 64"
 "light" "800"
 "_color" "1 0 0"
 }
-// entity 33
+// entity 15
 {
 "classname" "triggerOnce"
 "target" "sp_c_1"
@@ -1391,91 +1301,91 @@
 ( -1136 -1120 24 ) ( -1136 -1120 16 ) ( -1136 -1216 24 ) common/trigger 0 0 0 0.5 0.5 0 0 0
 }
 }
-// entity 34
+// entity 16
 {
 "classname" "spawner"
 "origin" "-1752 -1144 48"
 "className" "testnpc"
 "targetname" "sp_c_1"
 }
-// entity 35
+// entity 17
 {
 "classname" "spawner"
 "origin" "-1752 -1192 48"
 "className" "testnpc"
 "targetname" "sp_c_1"
 }
-// entity 36
+// entity 18
 {
 "classname" "spawner"
 "origin" "-1712 -1144 48"
 "className" "testnpc"
 "targetname" "sp_c_1"
 }
-// entity 37
+// entity 19
 {
 "classname" "spawner"
 "origin" "-1712 -1192 48"
 "className" "testnpc"
 "targetname" "sp_c_1"
 }
-// entity 38
+// entity 20
 {
 "classname" "spawner"
 "origin" "-1672 -1144 48"
 "className" "testnpc"
 "targetname" "sp_c_1"
 }
-// entity 39
+// entity 21
 {
 "classname" "spawner"
 "origin" "-1672 -1192 48"
 "className" "testnpc"
 "targetname" "sp_c_1"
 }
-// entity 40
+// entity 22
 {
 "classname" "spawner"
 "origin" "-1616 -1144 48"
 "className" "testnpc"
 "targetname" "sp_c_1"
 }
-// entity 41
+// entity 23
 {
 "classname" "spawner"
 "origin" "-1616 -1192 48"
 "className" "testnpc"
 "targetname" "sp_c_1"
 }
-// entity 42
+// entity 24
 {
 "classname" "light"
 "origin" "-1776 -1160 64"
 "light" "800"
 "_color" "1 0 0"
 }
-// entity 43
+// entity 25
 {
 "classname" "light"
 "origin" "-616 -400 -4960"
 "light" "800"
 "_color" "1 0 0"
 }
-// entity 44
+// entity 26
 {
 "classname" "light"
 "origin" "-416 -400 -4960"
 "light" "800"
 "_color" "1 0 0"
 }
-// entity 45
+// entity 27
 {
 "classname" "light"
 "origin" "-264 -400 -4960"
 "light" "1000"
 "_color" "1 0 0"
 }
-// entity 46
+// entity 28
 {
 "classname" "misc_model"
 "origin" "-115.807 -103.272 24.4573"
@@ -1483,7 +1393,7 @@
 "modelscale" "32"
 "angles" "35.7764 -34.5749 16.2309"
 }
-// entity 47
+// entity 29
 {
 "classname" "misc_model"
 "origin" "-859.651 659.776 123.72"
@@ -1491,7 +1401,7 @@
 "modelscale" "32"
 "angles" "-0.771688 -33.6657 -1.86305"
 }
-// entity 48
+// entity 30
 {
 "classname" "vis_through"
 // brush 0
@@ -1504,7 +1414,7 @@
 ( 496 -240 32 ) ( 496 -240 16 ) ( 496 -416 32 ) generic/trigger_t 0 0 0 0.5 0.5 0 0 0
 }
 }
-// entity 49
+// entity 31
 {
 "classname" "trigger"
 "target" "door1"
@@ -1520,21 +1430,21 @@
 ( -96 432 32 ) ( -96 432 16 ) ( -96 304 32 ) common/trigger 0 0 0 0.5 0.5 0 0 0
 }
 }
-// entity 50
+// entity 32
 {
 "classname" "transformPoint"
 "origin" "-152 304 128"
 "angles" "0 90 0"
 "targetname" "tp_1"
 }
-// entity 51
+// entity 33
 {
 "classname" "transformPoint"
 "origin" "-152 432 128"
 "angles" "0 270 0"
 "targetname" "tp_2"
 }
-// entity 52
+// entity 34
 {
 "classname" "func_door"
 "targetLocation" "0 0 0"
@@ -1550,7 +1460,7 @@
 ( -144 352 32 ) ( -144 352 16 ) ( -144 240 32 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
 }
 }
-// entity 53
+// entity 35
 {
 "classname" "func_door"
 "targetLocation" "0 0 0"
@@ -1566,7 +1476,7 @@
 ( -144 416 32 ) ( -144 416 16 ) ( -144 304 32 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
 }
 }
-// entity 54
+// entity 36
 {
 "classname" "spawner"
 "origin" "-32 -592 48"
@@ -1578,7 +1488,7 @@
 "target" "c1"
 "onDespawned" "sub"
 }
-// entity 55
+// entity 37
 {
 "classname" "spawner"
 "origin" "176 -576 48"
@@ -1590,7 +1500,7 @@
 "target" "c1"
 "onDespawned" "sub"
 }
-// entity 56
+// entity 38
 {
 "classname" "counter"
 "origin" "128 -736 96"
@@ -1598,7 +1508,7 @@
 "target" "fd_1"
 "onReached" "open"
 }
-// entity 57
+// entity 39
 {
 "classname" "func_door"
 "targetLocation" "0 0 -53"
@@ -1613,7 +1523,7 @@
 ( 112 -865 32 ) ( 112 -865 16 ) ( 112 -881 32 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
 }
 }
-// entity 58
+// entity 40
 {
 "classname" "func_door"
 "targetLocation" "0 0 53"
@@ -1628,7 +1538,7 @@
 ( 112 -865 32 ) ( 112 -865 16 ) ( 112 -881 32 ) lq_flesh/may_flesh1_sp2 0 -56 0 0.5 0.5 0 0 0
 }
 }
-// entity 59
+// entity 41
 {
 "classname" "destructible"
 "health" "500"
@@ -1642,14 +1552,14 @@
 ( -1776 -1120 24 ) ( -1776 -1120 16 ) ( -1776 -1216 24 ) generic/cat 280 64.6153869629 0 0.2285714149 0.2476190627 0 0 0
 }
 }
-// entity 60
+// entity 42
 {
 "classname" "light"
 "origin" "-1300 -1300 -472"
 "light" "60000"
 "_color" "1 0.3 0.3"
 }
-// entity 61
+// entity 43
 {
 "classname" "light"
 "origin" "-720 576 -2208"
@@ -1658,7 +1568,7 @@
 "scale" "1"
 "radius" "128"
 }
-// entity 62
+// entity 44
 {
 "classname" "misc_model"
 "origin" "-859.651 659.776 -2180.28"
@@ -1666,20 +1576,20 @@
 "modelscale" "32"
 "angles" "-0.771688 -33.6657 -1.86305"
 }
-// entity 63
+// entity 45
 {
 "classname" "transformPoint"
 "origin" "-507 813 -2035"
 "targetname" "tpr_1_t"
 }
-// entity 64
+// entity 46
 {
 "classname" "transformPoint"
 "origin" "-507 813 269"
 "targetname" "tpr_1_s"
 "angles" "0 0 0"
 }
-// entity 65
+// entity 47
 {
 "classname" "trigger"
 "target" "tpr_1"
@@ -1694,7 +1604,7 @@
 ( -672 640 32 ) ( -672 640 33 ) ( -672 641 32 ) common/trigger 0 0 0 1 1 0 0 0
 }
 }
-// entity 66
+// entity 48
 {
 "classname" "relativeTeleporter"
 "origin" "-651 501 139"
@@ -1702,7 +1612,7 @@
 "targetname" "tpr_1"
 "end" "tpr_1_t"
 }
-// entity 67
+// entity 49
 {
 "classname" "light"
 "origin" "-256 -112 128"
@@ -1710,7 +1620,7 @@
 "_color" "1 0 0"
 "radius" "256"
 }
-// entity 68
+// entity 50
 {
 "classname" "light"
 "origin" "-256 176 128"
@@ -1718,7 +1628,7 @@
 "_color" "0 0.0156863 1"
 "radius" "256"
 }
-// entity 69
+// entity 51
 {
 "classname" "trigger"
 "onEnterAction" "teleport"
@@ -1733,7 +1643,7 @@
 ( -784 256 -2624 ) ( -784 256 -2623 ) ( -784 257 -2624 ) common/trigger -64 0 0 1 1 0 0 0
 }
 }
-// entity 70
+// entity 52
 {
 "classname" "relativeTeleporter"
 "origin" "-763 181 -2645"
@@ -1741,46 +1651,46 @@
 "start" "tpr_2_s"
 "end" "tpr_2_e"
 }
-// entity 71
+// entity 53
 {
 "classname" "transformPoint"
 "origin" "-723 323 -2659"
 "targetname" "tpr_2_s"
 }
-// entity 72
+// entity 54
 {
 "classname" "transformPoint"
 "origin" "-147 3 157"
 "targetname" "tpr_2_e"
 }
-// entity 73
+// entity 55
 {
 "classname" "transformPoint"
 "origin" "-211 -115 -4907"
 "targetname" "tpr_3_s"
 }
-// entity 74
+// entity 56
 {
 "classname" "light"
 "origin" "56 -1168 64"
 "light" "1000"
 "_color" "1 0 0"
 }
-// entity 75
+// entity 57
 {
 "classname" "light"
 "origin" "-96 -1168 64"
 "light" "800"
 "_color" "1 0 0"
 }
-// entity 76
+// entity 58
 {
 "classname" "light"
 "origin" "-296 -1168 64"
 "light" "800"
 "_color" "1 0 0"
 }
-// entity 77
+// entity 59
 {
 "classname" "trigger"
 "target" "tpr_3"
@@ -1795,7 +1705,7 @@
 ( -208 -448 -4960 ) ( -208 -384 -4960 ) ( -208 -384 -5008 ) common/trigger 16 0 0 1 1 0 0 0
 }
 }
-// entity 78
+// entity 60
 {
 "classname" "relativeTeleporter"
 "origin" "-299 -171 -4949"
@@ -1803,13 +1713,13 @@
 "end" "tpr_3_e"
 "start" "tpr_3_s"
 }
-// entity 79
+// entity 61
 {
 "classname" "transformPoint"
 "origin" "109 -883 117"
 "targetname" "tpr_3_e"
 }
-// entity 80
+// entity 62
 {
 "classname" "func_door"
 "targetname" "mp_1"
@@ -1826,7 +1736,7 @@
 ( 272 272 16 ) ( 272 368 16 ) ( 272 272 32 ) generic/bricks 0 0 0 0.5 0.5 0 0 0
 }
 }
-// entity 81
+// entity 63
 {
 "classname" "trigger"
 "target" "mp_1"
@@ -1841,7 +1751,7 @@
 ( 144 256 16 ) ( 144 416 16 ) ( 144 256 32 ) common/trigger 0 0 0 0.5 0.5 0 0 0
 }
 }
-// entity 82
+// entity 64
 {
 "classname" "trigger"
 "target" "mp_1"
@@ -1856,10 +1766,46 @@
 ( 336 256 16 ) ( 336 416 16 ) ( 336 256 32 ) common/trigger 0 0 0 0.5 0.5 0 0 0
 }
 }
-// entity 83
+// entity 65
 {
 "classname" "transformPoint"
 "origin" "240 208 32"
 "angles" "0 180 0"
 "targetname" "rpmp_1"
+}
+// entity 66
+{
+"classname" "nav_point"
+"origin" "-176 64 32"
+"targetname" "np_0_e"
+"wait time" "3"
+"target" "np_0_0"
+}
+// entity 67
+{
+"classname" "nav_point"
+"origin" "-48 -128 32"
+"targetname" "np_0_3"
+"target" "np_0_e"
+}
+// entity 68
+{
+"classname" "nav_point"
+"origin" "272 -128 32"
+"targetname" "np_0_2"
+"target" "np_0_3"
+}
+// entity 69
+{
+"classname" "nav_point"
+"origin" "272 224 32"
+"targetname" "np_0_1"
+"target" "np_0_2"
+}
+// entity 70
+{
+"classname" "nav_point"
+"origin" "-80 224 32"
+"targetname" "np_0_0"
+"target" "np_0_1"
 }

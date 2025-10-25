@@ -586,6 +586,10 @@ static bool EditJsonObject(json& j) {
 	bool edited = false;
 	for (auto it = j.begin(); it != j.end(); ++it) {
 		std::string label = it.key();
+
+		if (label == "id") 
+			continue;
+
 		edited = EditJsonValue(label.c_str(), it.value()) || edited;
 	}
 	return edited;
@@ -593,6 +597,8 @@ static bool EditJsonObject(json& j) {
 
 static bool EditBTVariable(const char* label, json& jVar) {
 	bool changed = false;
+
+
 	// Expected shape from BTVariable::ToJson(): { sourceType:int, value:any | blackboardKey:string }
 	int sourceType = (int)jVar.value("sourceType", 0);
 	if (ImGui::BeginTable(label, 2, ImGuiTableFlags_SizingStretchSame)) {
@@ -643,6 +649,8 @@ static bool EditBTVariable(const char* label, json& jVar) {
 
 static bool EditJsonValue(const char* label, json& v) {
 	bool changed = false;
+
+
 	if (v.is_object()) {
 		// Heuristic: If object looks like BTVariable (has sourceType)
 		if (v.contains("sourceType")) {

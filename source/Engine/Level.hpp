@@ -44,6 +44,8 @@ private:
 	std::unordered_set<std::string> loadedEntityTypes;
 	
 	std::unordered_map<std::string, Entity*> entityIdMap;
+	std::unordered_map<std::string, Entity*> entityNameMap;
+
 
 public:
 

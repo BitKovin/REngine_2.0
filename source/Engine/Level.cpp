@@ -262,11 +262,12 @@ void Level::AddEntity(LevelObject* obj)
 
 		nextId[classname]++;
 
-		string entId = classname + "_" + to_string(id);
+		string entId = "$" + classname + "_" + to_string(id);
 
 		entity->Id = entId;
 
 		entityIdMap[entId] = entity;
+		entityNameMap[entity->Name] = entity;
 
 	}
 
@@ -285,6 +286,7 @@ void Level::RemoveEntity(LevelObject* obj)
 	{
 
 		entityIdMap.erase(entity->Id);
+		entityNameMap.erase(entity->Id);
 
 		if (entity->Unique && entity->Name != "")
 		{
@@ -464,6 +466,25 @@ vector<Entity*> Level::FindAllEntitiesWithName(const std::string& name)
 
 Entity* Level::FindEntityWithName(const std::string& name)
 {
+
+	entityArrayLock.lock();
+	pendingEntityArrayLock.lock();
+
+	auto res = entityNameMap.find(name);
+
+	if (res != entityNameMap.end())
+	{
+		entityArrayLock.unlock();
+		pendingEntityArrayLock.unlock();
+		return res->second;
+	}
+	else
+	{
+		entityArrayLock.unlock();
+		pendingEntityArrayLock.unlock();
+		return nullptr;
+	}
+
 	auto result = FindAllEntitiesWithName(name);
 
 	if (result.size() == 1)

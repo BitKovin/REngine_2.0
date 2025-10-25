@@ -65,7 +65,17 @@ public:
 		CheckNpcRef(context);
 
 		std::string target = GetVariable<std::string>("target");
-		auto targetEntity = Level::Current->FindEntityWithId(target);
+
+		Entity* targetEntity = nullptr;
+
+		if (target.starts_with("&"))
+		{
+			targetEntity = Level::Current->FindEntityWithId(target);
+		}
+		else
+		{
+			targetEntity = Level::Current->FindEntityWithName(target);
+		}
 
 		if (targetEntity == nullptr)
 		{

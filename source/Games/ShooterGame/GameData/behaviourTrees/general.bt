@@ -1,5 +1,9 @@
 {
     "blackboard": {
+        "has_navpoint": true,
+        "navpoint_has_wait_time": false,
+        "navpoint_name": "np_0_0",
+        "navpoint_wait_time": 0.0,
         "target": "info_player_start_0"
     },
     "isRunning": true,
@@ -12,46 +16,62 @@
                             {
                                 "children": [
                                     {
-                                        "children": [],
-                                        "name": "Wait",
-                                        "type": "WaitNode",
-                                        "waitTime": {
+                                        "acceptance radius": {
                                             "sourceType": 0,
-                                            "value": 3.0
-                                        }
-                                    },
-                                    {
+                                            "value": 0.5
+                                        },
                                         "children": [],
+                                        "id": "node_2ba6f65d224c1ed8",
                                         "name": "Move To Entity",
                                         "pretty path": {
                                             "sourceType": 0,
                                             "value": false
                                         },
                                         "target": {
-                                            "blackboardKey": "target",
+                                            "blackboardKey": "navpoint_name",
                                             "sourceType": 1
                                         },
                                         "type": "MoveToEntity"
+                                    },
+                                    {
+                                        "children": [],
+                                        "id": "node_9951bb6b5de33c5a",
+                                        "name": "Wait",
+                                        "type": "WaitNode",
+                                        "waitTime": {
+                                            "blackboardKey": "navpoint_wait_time",
+                                            "sourceType": 1
+                                        }
+                                    },
+                                    {
+                                        "children": [],
+                                        "id": "node_df5f4cad86747f26",
+                                        "name": "Switch To Next Nav Point",
+                                        "type": "SwitchToNextNavPoint"
                                     }
                                 ],
+                                "id": "node_243d6502388b3e8f",
                                 "name": "Sequence",
                                 "type": "SequenceNode"
                             }
                         ],
                         "condition": {
-                            "sourceType": 0,
-                            "value": true
+                            "blackboardKey": "has_navpoint",
+                            "sourceType": 1
                         },
                         "finish before stop": false,
+                        "id": "node_95d28f2f28064310",
                         "inverse": false,
                         "name": "Conditional",
                         "type": "ConditionalDecorator"
                     }
                 ],
+                "id": "node_24a4ece1183f296",
                 "name": "Sequence",
                 "type": "SequenceNode"
             }
         ],
+        "id": "",
         "name": "Repeat",
         "repeatCount": {
             "sourceType": 0,

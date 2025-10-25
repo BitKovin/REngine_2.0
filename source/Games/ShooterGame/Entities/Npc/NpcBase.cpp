@@ -10,6 +10,8 @@
 
 #include "../Player/Player.hpp"
 
+#include "Ai/nav_point.h"
+
 NpcBase::NpcBase()
 {
 
@@ -348,6 +350,23 @@ void NpcBase::UpdateBT()
 {
 
 	behaviorTree.GetBlackboard().SetValue("target", Player::Instance->Id);
+
+	auto navPointRef = dynamic_cast<nav_point*>(Level::Current->FindEntityWithName(CurrentTargetNavPoint));
+
+	if (navPointRef != nullptr)
+	{
+		behaviorTree.GetBlackboard().SetValue("has_navpoint", true);
+		behaviorTree.GetBlackboard().SetValue("navpoint_name", CurrentTargetNavPoint);
+		behaviorTree.GetBlackboard().SetValue("navpoint_wait_time", navPointRef->WaitTimeAfterReach);
+		behaviorTree.GetBlackboard().SetValue("navpoint_has_wait_time", navPointRef->WaitTimeAfterReach > 0);
+	}
+	else
+	{
+		behaviorTree.GetBlackboard().SetValue("has_navpoint", false);
+		behaviorTree.GetBlackboard().SetValue("navpoint_name", "");
+		behaviorTree.GetBlackboard().SetValue("navpoint_wait_time", 0.0f);
+		behaviorTree.GetBlackboard().SetValue("navpoint_has_wait_time", false);
+	}
 
 	if (btEditorEnabled)
 	{

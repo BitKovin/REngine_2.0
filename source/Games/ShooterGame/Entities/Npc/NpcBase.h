@@ -56,9 +56,12 @@ protected:
 
 	Delay tickIntervalDelay;
 
+
 public:
 
 	SkeletalMesh* mesh;
+
+	std::string CurrentTargetNavPoint = "np_0_0";
 
 	PathFollowQuery pathFollow;
 

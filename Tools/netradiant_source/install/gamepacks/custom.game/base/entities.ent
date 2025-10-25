@@ -28,6 +28,13 @@ This is not an entity as such. It is strictly an editor utility to group world b
 To make a func_group into a terrain entity, refer to the Terrain Construction documentation.
 </group>
 
+    <point name="nav_point" color="0 0.5 0" box="-8 -8 -16 8 8 32">
+        <angle key="angle" name="Yaw Angle" value="0"></angle>
+        <string key="targetname" name="Name" value=""></string>
+        <target key="target" name="Next nav point"/>
+        <real key="waitTime" name="Wait Time before moving to next point" value = "0"/>
+    </point>
+
     <!-- Trigger -->
     <group name="trigger" color="0 0.5 1">
         <target key="target" name="Target"/>

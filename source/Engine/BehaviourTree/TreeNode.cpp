@@ -148,9 +148,11 @@ NodeStatus TreeNode::TickNode(BehaviorTreeContext& context) {
         context.reachedTask = true;
     }
 
-    if (status_ != NodeStatus::Running) {
-        OnStart(context);
+    if (status_ != NodeStatus::Running) 
+    {
         status_ = NodeStatus::Running;
+        OnStart(context);
+
     }
 
     NodeStatus result = Execute(context);
