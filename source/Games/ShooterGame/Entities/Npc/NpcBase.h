@@ -31,8 +31,8 @@ protected:
 	SoundPlayer* AttackSoundPlayer = nullptr;
 	SoundPlayer* AttackHitSoundPlayer = nullptr;
 
-	float maxSpeed = 5;
-	float speed = 4;
+	float maxSpeed = 4;
+	float speed = 2.0;
 
 	bool dead = false;
 

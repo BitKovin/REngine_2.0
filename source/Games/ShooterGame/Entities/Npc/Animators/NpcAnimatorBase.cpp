@@ -18,7 +18,7 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 	
 	if (movementSpeed > 0.2)
 	{
-		locomotion = AnimationPose::Lerp(idlePose, runFPose, movementSpeed / 4.5f);
+		locomotion = AnimationPose::Lerp(idlePose, runFPose, movementSpeed / 2.0f);
 	}
 	else
 	{

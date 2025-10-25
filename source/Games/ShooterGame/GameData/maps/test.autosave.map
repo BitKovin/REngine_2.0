@@ -1778,8 +1778,8 @@
 "classname" "nav_point"
 "origin" "-176 64 32"
 "targetname" "np_0_e"
-"wait time" "3"
 "target" "np_0_0"
+"waitTime" "3"
 }
 // entity 67
 {
