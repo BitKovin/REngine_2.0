@@ -11,6 +11,7 @@ public:
     glm::vec3 position;
     glm::vec3 forward;
     float fovDeg;
+    float maxDistance = 50;
 
     std::vector<std::weak_ptr<ObservationTarget>> visibleTargets;
 
