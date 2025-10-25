@@ -1331,7 +1331,7 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
 
     RefConst<Shape> finalShape = Physics::CreateStaticCompoundShapeFromConvexShapes(shapes);
 
-    Body* body = Physics::CreateBodyFromShape(entity, vec3(0), finalShape,10, JPH::EMotionType::Kinematic,entity->DefaultBrushGroup, entity->DefaultBrushCollisionMask);
+    Body* body = Physics::CreateBodyFromShape(entity, vec3(0), finalShape,10, entity->Static ? JPH::EMotionType::Static : JPH::EMotionType::Kinematic,entity->DefaultBrushGroup, entity->DefaultBrushCollisionMask);
 
     Physics::SetBodyPosition(body, bodyPos);
 
