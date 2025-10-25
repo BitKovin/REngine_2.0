@@ -1181,97 +1181,153 @@ void AddPhysicsBodyForEntityAndModel(Entity* entity, BSPModelRef& model)
 {
 
     vec3 bodyPos = vec3(0);
-    
-    vector<RefConst<Shape>> shapes;
 
+    vector<RefConst<Shape>> shapes;
     vector<RefConst<Shape>> shapesSky;
 
-    // Iterate over all faces of the model
-    for (int i = model.model.face; i < model.model.face + model.model.n_faces; i++)
+    // Box / AABB special-case (keep as original intent)
+    if (model.model.face > 0 && model.model.n_faces == 0)
     {
+        vec3 min = vec3(
+            model.model.mins[0],
+            model.model.mins[1],
+            model.model.mins[2]) / MAP_SCALE;
 
-        bool sky = false;
+        vec3 max = vec3(
+            model.model.maxs[0],
+            model.model.maxs[1],
+            model.model.maxs[2]) / MAP_SCALE;
 
-        RefConst<Shape> shape;
+        bodyPos = (min + max) / 2.0f;
 
-        tBSPFace face = model.bsp->m_pFaces[i];
+        auto boxShape = Physics::CreateBoxShape(abs(max - min));
+        shapes.push_back(boxShape);
+    }
+    else
+    {
+        // Grouped meshes per texture (normal and sky)
+        unordered_map<string, MeshUtils::PositionVerticesIndices> meshesByTexture;
+        unordered_map<string, MeshUtils::PositionVerticesIndices> meshesSkyByTexture;
 
-        string textureName = string(model.bsp->pTextures[face.textureID].strName);
-        if (true)
+        // For convex collisions: points per texture
+        unordered_map<string, vector<vec3>> convexPointsByTexture;
+        unordered_map<string, vector<vec3>> convexPointsSkyByTexture;
+
+        // Iterate faces and distribute into buckets
+        for (int i = model.model.face; i < model.model.face + model.model.n_faces; ++i)
         {
+            tBSPFace face = model.bsp->m_pFaces[i];
+            string textureName = string(model.bsp->pTextures[face.textureID].strName);
+
+            bool sky = false;
             if (StringHelper::Contains(textureName, "_cube"))
             {
                 sky = true;
-
                 if (model.id != 0)
+                    continue; // same behavior as before
+            }
+
+            // Get the vertex array & indices for face i
+            auto& vertices = model.bsp->Rbuffers.v_faceVBOs[i];
+            auto& indices = model.bsp->Rbuffers.v_faceIDXs[i];
+
+            // Convert vertex positions
+            vector<vec3> facePositions;
+            facePositions.reserve(vertices.size());
+            for (auto& v : vertices)
+                facePositions.push_back(v.Position / MAP_SCALE);
+
+            if (entity->ConvexCollision)
+            {
+                // Collect points per texture (sky/normal)
+                if (sky)
+                    convexPointsSkyByTexture[textureName].insert(convexPointsSkyByTexture[textureName].end(),
+                        facePositions.begin(), facePositions.end());
+                else
+                    convexPointsByTexture[textureName].insert(convexPointsByTexture[textureName].end(),
+                        facePositions.begin(), facePositions.end());
+                continue; // no indices needed for convex hull
+            }
+
+            // Append to the proper mesh bucket (with index offset)
+            if (sky)
+            {
+                auto& bucket = meshesSkyByTexture[textureName];
+                size_t offset = bucket.vertices.size();
+                bucket.vertices.insert(bucket.vertices.end(), facePositions.begin(), facePositions.end());
+                for (int idx : indices)
+                    bucket.indices.push_back(static_cast<int>(idx) + static_cast<int>(offset));
+            }
+            else
+            {
+                auto& bucket = meshesByTexture[textureName];
+                size_t offset = bucket.vertices.size();
+                bucket.vertices.insert(bucket.vertices.end(), facePositions.begin(), facePositions.end());
+                for (int idx : indices)
+                    bucket.indices.push_back(static_cast<int>(idx) + static_cast<int>(offset));
+            }
+        } // end faces loop
+
+        // Create convex hull shapes per texture (if convex mode)
+        if (entity->ConvexCollision)
+        {
+            for (auto& p : convexPointsByTexture)
+            {
+                auto& points = p.second;
+                if (!points.empty())
+                {
+                    auto shape = Physics::CreateConvexHullFromPoints(points);
+                    shapes.push_back(shape);
+                }
+            }
+            for (auto& p : convexPointsSkyByTexture)
+            {
+                auto& points = p.second;
+                if (!points.empty())
+                {
+                    auto shape = Physics::CreateConvexHullFromPoints(points);
+                    shapesSky.push_back(shape);
+                }
+            }
+        }
+        else
+        {
+            // Create mesh shapes per texture (normal)
+            for (auto& kv : meshesByTexture)
+            {
+                auto textureName = kv.first;
+                auto mesh = kv.second;
+
+                if (mesh.vertices.empty() || mesh.indices.empty())
                     continue;
 
+                mesh = MeshUtils::RemoveDegenerates(mesh, 0.01f, 0.00f);
+                if (mesh.vertices.empty() || mesh.indices.empty())
+                    continue;
+
+                auto shape = Physics::CreateMeshShape(mesh.vertices, mesh.indices, textureName);
+                shapes.push_back(shape);
             }
-                
+
+            // Create mesh shapes per texture (sky)
+            for (auto& kv : meshesSkyByTexture)
+            {
+                auto textureName = kv.first;
+                auto mesh = kv.second;
+
+                if (mesh.vertices.empty() || mesh.indices.empty())
+                    continue;
+
+                mesh = MeshUtils::RemoveDegenerates(mesh, 0.01f, 0.00f);
+                if (mesh.vertices.empty() || mesh.indices.empty())
+                    continue;
+
+                auto shape = Physics::CreateMeshShape(mesh.vertices, mesh.indices, textureName);
+                shapesSky.push_back(shape);
+            }
         }
-        // Get the vertex array for face i
-        auto& vertices = model.bsp->Rbuffers.v_faceVBOs[i];
-        auto& indices = model.bsp->Rbuffers.v_faceIDXs[i];
-        // Append all vertices from this face to the result
-        
-
-        vector<vec3> vertexPositions;
-        vector<int> vertexIndices;
-
-        for (auto& vertex : vertices)
-        {
-            vertexPositions.push_back(vertex.Position / MAP_SCALE);
-        }
-
-
-
-        if (model.model.face > 0 && model.model.n_faces == 0)
-        {
-
-            vec3 min = vec3(
-                model.model.mins[0],
-                model.model.mins[1],
-                model.model.mins[2]) / MAP_SCALE;
-
-            vec3 max = vec3(
-                model.model.maxs[0],
-                model.model.maxs[1],
-                model.model.maxs[2]) / MAP_SCALE;
-
-            bodyPos = (min + max) / 2.0f;
-
-            shape = Physics::CreateBoxShape(abs(max - min));
-
-
-        }
-        else if (entity->ConvexCollision)
-        {
-            shape = Physics::CreateConvexHullFromPoints(vertexPositions);
-        }
-        else
-        {
-           
-
-            MeshUtils::PositionVerticesIndices mesh;
-
-            mesh.vertices = vertexPositions;
-            mesh.indices = indices;
-            mesh = MeshUtils::RemoveDegenerates(mesh, 0.01f, 0.00f);
-
-            shape = Physics::CreateMeshShape(mesh.vertices, mesh.indices, textureName);
-        }
-
-        if (sky)
-        {
-            shapesSky.push_back(shape);
-        }
-        else
-        {
-            shapes.push_back(shape);
-        }
-        
-
     }
+
 
     RefConst<Shape> finalShape = Physics::CreateStaticCompoundShapeFromConvexShapes(shapes);
 
