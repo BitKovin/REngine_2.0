@@ -90,6 +90,9 @@
     <ClCompile Include="Ai\Tasks\SwitchToNextNavPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Ai\Tasks\SetLookTargetFromCurrentNavPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp">

@@ -52,7 +52,7 @@ public:
 
 		Drawables.push_back(viewmodel);
 
-		arms->LoadFromFile("GameData/arms.glb");
+		arms->LoadFromFile(ArmsModelPath);
 		arms->IsViewmodel = true;
 		Drawables.push_back(arms);
 

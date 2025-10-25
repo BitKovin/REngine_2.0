@@ -63,6 +63,8 @@ public:
 
 	std::string CurrentTargetNavPoint = "np_0_0";
 
+	vec3 desiredLookVector = vec3(1);
+
 	PathFollowQuery pathFollow;
 
 	NpcBase();

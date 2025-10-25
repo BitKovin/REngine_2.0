@@ -302,11 +302,17 @@ void NpcBase::AsyncUpdate()
 
 		desiredDirection = MathHelper::Interp(curMove, newMove, Time::DeltaTimeF, 10.0f);
 
+
+		movingDirection += desiredDirection * Time::DeltaTimeF * 3.0f;
+		desiredLookVector = movingDirection;
+
+	}
+	else
+	{
+		movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 2);
 	}
 
 	
-
-	movingDirection += desiredDirection*Time::DeltaTimeF * 3.0f;
 
 	if (length(movingDirection)>1.0f)
 	{
@@ -449,6 +455,9 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, pathFollow.FoundTarget);
 	SERIALIZE_FIELD(target, pathFollow.reachedTarget);
 
+	
+	SERIALIZE_FIELD(target, CurrentTargetNavPoint);
+
 	btSaveState = behaviorTree.SaveState().dump(4);
 	SERIALIZE_FIELD(target, btSaveState);
 }
@@ -471,6 +480,8 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, pathFollow.CalculatedTargetLocation);
 	DESERIALIZE_FIELD(source, pathFollow.FoundTarget);
 	DESERIALIZE_FIELD(source, pathFollow.reachedTarget);
+
+	DESERIALIZE_FIELD(source, CurrentTargetNavPoint);
 
 	DESERIALIZE_FIELD(source, btSaveState);
 	if (btSaveState.empty() == false)

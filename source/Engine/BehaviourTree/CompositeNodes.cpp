@@ -33,22 +33,24 @@ NodeStatus SequenceNode::Execute(BehaviorTreeContext& context) {
 
                 currentChildIndex_ = i + 1;
                 if (currentChildIndex_ == children_.size())
-                    currentChildIndex_ = 0;
+                {
+                    break;
+                }
+                    
 
-                return childStatus;
+                return NodeStatus::Running;
             }
-            else if ((childStatus == NodeStatus::Running)) {
+            else if ((childStatus == NodeStatus::Running)) 
+            
+            {
                 currentChildIndex_ = i;
-
-                if (currentChildIndex_ == children_.size())
-                    currentChildIndex_ = 0;
 
                 return NodeStatus::Running;
             }
         }
         else
         {
-			if (childStatus == NodeStatus::Failure)
+			if (childStatus == NodeStatus::Failure && false)
 			{
 				// UE: on failure, sequence fails immediately; next tick should start from first child again
 				currentChildIndex_ = 0;

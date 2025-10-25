@@ -86,6 +86,7 @@ public:
 		if (npcRef->pathFollow.reachedTarget)
 		{
 			FinishExecution(true);
+			return;
 		}
 
 

@@ -2,9 +2,9 @@
     "blackboard": {
         "has_navpoint": true,
         "navpoint_has_wait_time": false,
-        "navpoint_name": "np_0_0",
+        "navpoint_name": "np_0_3",
         "navpoint_wait_time": 0.0,
-        "target": "info_player_start_0"
+        "target": "$info_player_start_0"
     },
     "isRunning": true,
     "root": {
@@ -34,14 +34,40 @@
                                         "type": "MoveToEntity"
                                     },
                                     {
-                                        "children": [],
-                                        "id": "node_9951bb6b5de33c5a",
-                                        "name": "Wait",
-                                        "type": "WaitNode",
-                                        "waitTime": {
-                                            "blackboardKey": "navpoint_wait_time",
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [],
+                                                        "id": "node_b7e911093d27045c",
+                                                        "name": "Set Look Target From Current NavPoint",
+                                                        "type": "SetLookTargetFromCurrentNavPoint"
+                                                    },
+                                                    {
+                                                        "children": [],
+                                                        "id": "node_82b26a1b30c2eaba",
+                                                        "name": "Wait",
+                                                        "type": "WaitNode",
+                                                        "waitTime": {
+                                                            "blackboardKey": "navpoint_wait_time",
+                                                            "sourceType": 1
+                                                        }
+                                                    }
+                                                ],
+                                                "id": "node_74c0b70aec18e77f",
+                                                "name": "Sequence",
+                                                "type": "SequenceNode"
+                                            }
+                                        ],
+                                        "condition": {
+                                            "blackboardKey": "navpoint_has_wait_time",
                                             "sourceType": 1
-                                        }
+                                        },
+                                        "finish before stop": false,
+                                        "id": "node_f1cb5a6393ddedb3",
+                                        "inverse": false,
+                                        "name": "if we have to wait",
+                                        "type": "ConditionalDecorator"
                                     },
                                     {
                                         "children": [],

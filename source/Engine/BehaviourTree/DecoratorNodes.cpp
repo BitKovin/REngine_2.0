@@ -154,7 +154,7 @@ NodeStatus ConditionalDecorator::Execute(BehaviorTreeContext& context) {
 		if (finishBeforeStop == false)
 		{
 
-			if (previousCondition && childStatus == NodeStatus::Running)
+			if (previousCondition)
 			{
 				children_[0]->OnStop(context);
 
