@@ -136,7 +136,7 @@ void NavigationSystem::GenerateNavData()
     cfg.walkableSlopeAngle = 40.0f;
     cfg.walkableHeight = static_cast<int>(ceilf(2.0f / cfg.ch));
     cfg.walkableClimb = static_cast<int>(ceilf(0.6f / cfg.ch));
-    cfg.walkableRadius = static_cast<int>(ceilf(0.2f / cfg.cs));
+    cfg.walkableRadius = static_cast<int>(ceilf(0.5f / cfg.cs));
     cfg.maxEdgeLen = static_cast<int>(12 / cfg.cs);
     cfg.maxSimplificationError = 0.05f;
     cfg.minRegionArea = 0;
@@ -545,8 +545,6 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
 {
     if (outReached) *outReached = false;
 
-
-
     std::vector<glm::vec3> outPath;
     if (!navMesh) return outPath;
     std::lock_guard<std::recursive_mutex> _lock(mainLock);
@@ -574,7 +572,7 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
 
     // --- 1) FindNearestPoly  (increment extents up to limit) ---
     const std::vector<glm::vec3> EXTENTS = {
-        {0.50f, 1.5f, 0.50f},  // tight
+        {0.70f, 1.5f, 0.70f},  // tight
         {0.60f, 1.5f, 0.60f},  // med
         {1.00f, 1.5f, 1.00f},  // wide
         {1.50f, 1.5f, 1.50f},  // wide
@@ -590,7 +588,8 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
             float ext[3] = { e.x, e.y, e.z };
             if (dtStatusSucceed(navQuery->findNearestPoly(pos, ext, &filter, &outRef, outNearest)) && outRef > 0)
             {
-                if (IsPointReallyOnPoly(navQuery, outRef, pos))
+                // Optional: Add a distance check for safety
+                if (dtVdist(pos, outNearest) <= e.x)
                     return true;
             }
         }
@@ -604,6 +603,10 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
         dtFreeNavMeshQuery(navQuery);
         return outPath; // failed to localize start or goal
     }
+
+    // Snap positions to nearest on-mesh points
+    dtVcopy(sPos, sNearest);
+    dtVcopy(gPos, gNearest);
 
     // Check if projected positions are close enough
     float dist = dtVdist(sNearest, gNearest);
@@ -667,18 +670,15 @@ std::vector<glm::vec3> NavigationSystem::FindSimplePath(glm::vec3 start, glm::ve
 
     dtFreeNavMeshQuery(navQuery);
 
-
     //   // --- 6) Collision sanity check ---
-       //if (!CollisionCheckPath(start, outPath))
-       //{
-       //	outPath.clear();
-
-       //}
+    //   if (!CollisionCheckPath(start, outPath))
+    //   {
+    //   	outPath.clear();
+    //   }
     //       
 
     return outPath;
 }
-
 // Returns a path (list of waypoints) that attempts to make the NPC run AWAY from player.
 // npcPos: NPC world position. playerPos: Player world position.
 // maxSearchRadius: how far we search for flee points (tuneable).
