@@ -349,6 +349,11 @@ void Player::UpdateWeapon()
 
     observationTarget->tags.clear();
 
+    if (violanceCrimeActiveDelay.Wait())
+    {
+        observationTarget->tags.insert("violentCrime");
+    }
+
     if (currentWeapon != nullptr)
     {
 

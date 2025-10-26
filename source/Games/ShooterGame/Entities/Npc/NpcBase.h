@@ -66,7 +66,10 @@ protected:
 	vec3 target_lastSeenPosition;
 	Delay target_stopUpdateLastSeenPositionDelay;
 	bool target_sees;
-
+	bool target_underArrest;
+	bool target_attack;
+	float target_underArrestExpire = 5.0f;
+	bool target_attackInRange;
 
 
 public:

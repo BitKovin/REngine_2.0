@@ -295,30 +295,55 @@ void NpcBase::AsyncUpdate()
 	AttackHitSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
 
 
-
+	bool lockAtTarget = target_sees && target_attack && target_attackInRange;
 
 	vec3 desiredDirection = vec3(0);
 	
 	if (pathFollow.reachedTarget == false)
 	{
-
 		pathFollow.UpdateStartAndTarget(Position, desiredTargetLocation);
 		pathFollow.TryPerform();
+	}
 
-		vec3 newMove = normalize(MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position)) * speed;
+	if (pathFollow.reachedTarget == false)
+	{
 
-		vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
+		vec3 dir = MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position);
 
-		desiredDirection = MathHelper::Interp(curMove, newMove, Time::DeltaTimeF, 10.0f);
+		if (length(dir) > 0.001)
+		{
+			vec3 newMove = normalize(dir) * speed;
 
+			vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
 
-		movingDirection += desiredDirection * Time::DeltaTimeF * 3.0f;
-		desiredLookVector = movingDirection;
+			desiredDirection = MathHelper::Interp(curMove, newMove, Time::DeltaTimeF, 10.0f);
+
+			if (lockAtTarget == false)
+			{
+				movingDirection += desiredDirection * Time::DeltaTimeF * 3.0f;
+			}
+
+			desiredLookVector = movingDirection;
+		}
 
 	}
 	else
 	{
-		movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 2);
+		if (lockAtTarget == false)
+		{
+			movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 2);
+		}
+
+	}
+
+	if (lockAtTarget)
+	{
+		auto targetRef = Level::Current->FindEntityWithId(target_id);
+
+		desiredLookVector = targetRef->Position - Position;
+
+		movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 3.5f);
+
 	}
 
 	
@@ -390,6 +415,11 @@ void NpcBase::UpdateBT()
 	behaviorTree.GetBlackboard().SetValue("target_sees", target_sees);
 	behaviorTree.GetBlackboard().SetValue("target_lastSeenPosition", target_lastSeenPosition);
 
+	behaviorTree.GetBlackboard().SetValue("target_underArrest", target_underArrest);
+	behaviorTree.GetBlackboard().SetValue("target_attack", target_attack);
+
+	behaviorTree.GetBlackboard().SetValue("target_attackInRange", target_attackInRange);
+
 	if (btEditorEnabled)
 	{
 		editor.Update(Time::DeltaTimeF);
@@ -421,11 +451,27 @@ void NpcBase::UpdateObserver()
 	{
 
 		auto target = weakTarget.lock();
-
-		if (target->HasTag("illegal_weapon"))
+		if (target->HasTag("violentCrime"))
 		{
 			target_id = target->ownerId;
 			target_follow = true;
+			target_underArrest = true;
+			target_attack = true;
+			target_underArrestExpire = -1;
+		}
+		else if (target->ownerId == target_id && target_underArrest)
+		{
+			target_follow = true;
+		}
+		else if (target->HasTag("illegal_weapon"))
+		{
+			target_id = target->ownerId;
+			target_follow = true;
+			target_underArrest = true;
+		}
+		else if(target->ownerId == target_id && target_underArrest == false)
+		{
+			StopTargetFollow();
 		}
 
 		if (target->ownerId == target_id)
@@ -455,6 +501,24 @@ void NpcBase::UpdateTargetFollow()
 
 
 	if (target_follow == false) return;
+
+	auto targetRef = Level::Current->FindEntityWithId(target_id);
+
+	target_attackInRange = distance(targetRef->Position, Position) < 13;
+
+	if (target_underArrest && target_follow && target_sees)
+	{
+		if (distance2(targetRef->Position, Position) < 15)
+		{
+			target_underArrestExpire -= Time::DeltaTimeF;
+		}
+
+		if (target_underArrestExpire < 0)
+		{
+			target_attack = true;
+		}
+	}
+
 
 	if (target_stopUpdateLastSeenPositionDelay.Wait())
 	{
@@ -621,12 +685,12 @@ void NpcBase::MoveTo(const vec3& target, float acceptanceRadius)
 	pathFollow.acceptanceRadius = acceptanceRadius;
 	pathFollow.reachedTarget = false;
 	pathFollow.FoundTarget = true;
+
 }
 
 void NpcBase::StopTargetFollow()
 {
 	target_follow = false;
-	target_id = "";
 	target_sees = false;
 	target_lastSeenPosition = vec3();
 }

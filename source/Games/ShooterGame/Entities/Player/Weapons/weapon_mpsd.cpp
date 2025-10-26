@@ -94,6 +94,8 @@ public:
 
 		//fireSoundPlayer->Play();
 
+		Player::Instance->violanceCrimeActiveDelay.AddDelay(0.3);
+
 		SoundPlayer::PlayOneshot("event:/Weapons/pistol/pistol_fire", 1.2f, 0.4f);
 
 		SwitchDelay.AddDelay(0.09f);

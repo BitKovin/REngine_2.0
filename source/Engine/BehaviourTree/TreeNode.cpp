@@ -123,10 +123,7 @@ void TreeNode::LoadState(const json& j) {
 
 void TreeNode::OnStart(BehaviorTreeContext& context)
 {
-    if (context.tree) {
-        context.tree->SetLastExecutedNode(this);
-        context.tree->AddActiveNode(this);
-    }
+
 }
 
 void TreeNode::OnStop(BehaviorTreeContext& context)
@@ -142,6 +139,11 @@ void TreeNode::OnStop(BehaviorTreeContext& context)
 
 NodeStatus TreeNode::TickNode(BehaviorTreeContext& context) {
 
+
+    if (context.tree) {
+        context.tree->SetLastExecutedNode(this);
+        context.tree->AddActiveNode(this);
+    }
 
     if (isTask)
     {

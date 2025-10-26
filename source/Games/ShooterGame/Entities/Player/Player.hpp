@@ -193,6 +193,8 @@ public:
 	int currentSlot = 0;
 	std::vector<WeaponSlotData> weaponSlots;
 
+	Delay violanceCrimeActiveDelay;
+
 	Player()
 	{
 

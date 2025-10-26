@@ -82,33 +82,60 @@ void BehaviorTreeEditor::Draw() {
 		DrawSimulationControls();
 		ImGui::Separator();
 
-		// Layout: left tree, right properties and blackboard
-		ImGui::Columns(2, nullptr, false);
-		ImGui::SetColumnWidth(0, columnWidth);
-		DrawTreeView();
-		columnWidth = ImGui::GetColumnWidth(0);
-		ImGui::NextColumn();
-		DrawPropertiesPanel();
+		// Layout: left tree (resizable width), vertical splitter, right properties and blackboard
+		float splitter_width = 5.0f;
+		float min_width = 200.0f;
+		float max_width = ImGui::GetContentRegionAvail().x - 200.0f; // Leave room for right pane
 
-		// Vertical splitter between properties and blackboard
+		// Left pane: Tree view
+		if (ImGui::BeginChild("##left_pane", ImVec2(columnWidth, 0), true)) {
+			DrawTreeView();
+		}
+		ImGui::EndChild();
+
+		ImGui::SameLine();
+
+		// Vertical splitter for horizontal resizing
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.6f, 0.6f, 0.4f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.5f, 0.5f, 0.5f));
-		ImGui::Button("##vsplitter", ImVec2(-1.0f, 3.0f));
+		ImGui::Button("##hsplitter", ImVec2(splitter_width, -1.0f));
 		ImGui::PopStyleColor(3);
+
 		if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
-			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+			ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 		}
 		if (ImGui::IsItemActive()) {
-			float old_height = propertiesHeight;
-			propertiesHeight += ImGui::GetIO().MouseDelta.y;
-			float min_h = 50.0f;
-			float max_h = old_height + ImGui::GetContentRegionAvail().y - min_h;
-			propertiesHeight = std::clamp(propertiesHeight, min_h, max_h);
+			columnWidth += ImGui::GetIO().MouseDelta.x;
+			columnWidth = std::clamp(columnWidth, min_width, max_width);
 		}
 
-		DrawBlackboardPanel();
-		ImGui::Columns(1);
+		ImGui::SameLine();
+
+		// Right pane: Properties and blackboard with their vertical splitter
+		if (ImGui::BeginChild("##right_pane", ImVec2(0, 0), false)) {
+			DrawPropertiesPanel();
+
+			// Vertical splitter between properties and blackboard (unchanged)
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.6f, 0.6f, 0.4f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.5f, 0.5f, 0.5f));
+			ImGui::Button("##vsplitter", ImVec2(-1.0f, 3.0f));
+			ImGui::PopStyleColor(3);
+			if (ImGui::IsItemHovered() || ImGui::IsItemActive()) {
+				ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+			}
+			if (ImGui::IsItemActive()) {
+				float old_height = propertiesHeight;
+				propertiesHeight += ImGui::GetIO().MouseDelta.y;
+				float min_h = 50.0f;
+				float max_h = old_height + ImGui::GetContentRegionAvail().y - min_h;
+				propertiesHeight = std::clamp(propertiesHeight, min_h, max_h);
+			}
+
+			DrawBlackboardPanel();
+		}
+		ImGui::EndChild();
 	}
 	ImGui::End();
 }
@@ -230,7 +257,7 @@ void BehaviorTreeEditor::DrawNodeRecursive(TreeNode* node, int depth) {
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth;
 	if (selection_.selected == node) flags |= ImGuiTreeNodeFlags_Selected;
 	if (leafAtStart) flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-	if (isRoot) flags |= ImGuiTreeNodeFlags_DefaultOpen;
+	else flags |= ImGuiTreeNodeFlags_DefaultOpen;  // Add this for all non-leaf nodes
 
 	// Get execution state
 	TreeNode* lastExecuted = tree_->GetLastExecutedNode();
@@ -304,12 +331,6 @@ void BehaviorTreeEditor::DrawNodeRecursive(TreeNode* node, int depth) {
 	// Handle drag source (skip for root)
 	if (!isRoot) {
 		HandleDragSource(node);
-	}
-
-	// Add execution indicator
-	if (isLastExecuted) {
-		//ImGui::SameLine();
-		//ImGui::TextColored(ImVec4(1, 1, 0, 1), " <--");
 	}
 
 	if (ImGui::IsItemClicked()) {
