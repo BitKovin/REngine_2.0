@@ -164,3 +164,13 @@ void PathFollowQuery::UpdateStartAndTarget(vec3 start, vec3 target)
 	desiredTarget = target;
 	targetLocationsMutex.unlock();
 }
+
+void PathFollowQuery::WaitToFinish()
+{
+
+    while (Performing)
+    {
+
+    }
+
+}

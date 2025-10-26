@@ -88,6 +88,8 @@ protected:
 	InvestigationReason currentInvestigation = InvestigationReason::None;
 	vec3 investigation_target;
 
+	bool investigation_changed;
+
 
 public:
 

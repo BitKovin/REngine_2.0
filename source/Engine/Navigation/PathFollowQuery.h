@@ -32,6 +32,8 @@ public:
 
 	float acceptanceRadius = 0.2f;
 
+	void WaitToFinish();
+
 private:
 
 	bool Canceled = false;

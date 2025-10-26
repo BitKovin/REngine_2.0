@@ -257,6 +257,8 @@ void NpcBase::UpdateReturnFromRagdoll()
 void NpcBase::AsyncUpdate()
 {
 
+	pathFollow.WaitToFinish();
+
 	UpdateObserver();
 	UpdateTargetFollow();
 	UpdateBT();
@@ -422,6 +424,11 @@ void NpcBase::UpdateBT()
 	behaviorTree.GetBlackboard().SetValue("investigation", currentInvestigation != InvestigationReason::None);
 	behaviorTree.GetBlackboard().SetValue("investigation_target", investigation_target);
 
+	if (investigation_changed)
+	{
+		behaviorTree.GetBlackboard().SetValue("investigation", false); //stopping investigation for one frame to reset logic
+		investigation_changed = false;
+	}
 
 	if (btEditorEnabled)
 	{
@@ -461,6 +468,15 @@ void NpcBase::UpdateObserver()
 			target_underArrest = true;
 			target_attack = true;
 			target_underArrestExpire = -1;
+		}
+		else if (currentInvestigation == InvestigationReason::WeaponFire
+			&& distance(target->position, investigation_target) < 4)
+		{
+
+			target_id = target->ownerId;
+			target_follow = true;
+			target_underArrest = true;
+
 		}
 		else if (target->ownerId == target_id && target_underArrest)
 		{
@@ -508,6 +524,11 @@ void NpcBase::UpdateTargetFollow()
 	auto targetRef = Level::Current->FindEntityWithId(target_id);
 
 	target_attackInRange = distance(targetRef->Position, Position) < 13;
+
+	if (target_attack && target_sees)
+	{
+		currentInvestigation = InvestigationReason::None;
+	}
 
 	if (target_underArrest && target_follow && target_sees)
 	{
@@ -755,6 +776,8 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 	{
 		return;
 	}
+
+	investigation_changed = true;
 
 	currentInvestigation = reason;
 	investigation_target = target;
