@@ -19,7 +19,7 @@ void Player::Start()
 
     Instance = this;
 
-    observationTarget = AiPerceptionSystem::CreateTarget(Position, Id, {});
+    observationTarget = AiPerceptionSystem::CreateTarget(Position, Id, {"player"});
 
     controller.Init(this, Position, 0.4f);
     oldPos = controller.GetPosition();
@@ -347,12 +347,19 @@ void Player::UpdateWeapon()
 
     vec3 forwardOffset = Camera::Forward() * Camera::rotation.x * 0.01f;
 
+    observationTarget->tags.clear();
+
     if (currentWeapon != nullptr)
     {
 
         currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
         currentWeapon->Position = Camera::position + MathHelper::TransformVector(bob, Camera::GetRotationMatrix());
         currentWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.75f);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
+
+        if (currentWeapon->Illegal)
+        {
+            observationTarget->tags.insert("illegal_weapon");
+        }
 
     }
 

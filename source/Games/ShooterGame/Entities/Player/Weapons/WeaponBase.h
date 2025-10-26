@@ -30,6 +30,8 @@ public:
 
 	std::string ArmsModelPath = "GameData/models/player/arms.glb";
 
+	bool Illegal = false;
+
 	virtual bool IsMelee()
 	{
 		return false;

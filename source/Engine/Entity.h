@@ -60,7 +60,7 @@ public:
 
 	Delay destroyDelay = Delay(1000000000);
 
-	BodyType DefaultBrushGroup = BodyType::World;
+	BodyType DefaultBrushGroup = BodyType::WorldOpaque;
 	BodyType DefaultBrushCollisionMask = BodyType::GroupCollisionTest;
 
 	double SpawnTime = 0;

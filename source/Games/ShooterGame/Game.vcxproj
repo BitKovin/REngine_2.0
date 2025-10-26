@@ -237,7 +237,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ai\Tasks\MoveToEntity.cpp" />
+    <ClCompile Include="Ai\Tasks\MoveToPosition.cpp" />
     <ClCompile Include="Ai\Tasks\SetLookTargetFromCurrentNavPoint.cpp" />
+    <ClCompile Include="Ai\Tasks\StopTargetFollow.cpp" />
     <ClCompile Include="Ai\Tasks\SwitchToNextNavPoint.cpp" />
     <ClCompile Include="Entities\Npc\Ai\nav_point.cpp" />
     <ClCompile Include="Entities\Npc\Animators\NpcAnimatorBase.cpp" />

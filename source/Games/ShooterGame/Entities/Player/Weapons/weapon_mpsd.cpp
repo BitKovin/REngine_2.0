@@ -25,6 +25,7 @@ public:
 	{
 
 		LateUpdateWhenPaused = true;
+		Illegal = true;
 	}
 
 	SoundPlayer* fireSoundPlayer = nullptr;

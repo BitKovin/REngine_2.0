@@ -163,12 +163,16 @@ void ThreadPool::QueueJobs(std::vector<std::function<void()>>&& jobs) {
     for (size_t i = 0; i < threads_to_notify; ++i) {
         cv_job_.notify_one();
     }
-#endif
+
+#else
 
     for (auto job : jobs)
     {
         job();
     }
+
+#endif
+
 
 }
 

@@ -76,6 +76,7 @@ template bool Blackboard::ResolveBTVariable<float>(const BTVariable&, float&) co
 template bool Blackboard::ResolveBTVariable<double>(const BTVariable&, double&) const;
 template bool Blackboard::ResolveBTVariable<bool>(const BTVariable&, bool&) const;
 template bool Blackboard::ResolveBTVariable<std::string>(const BTVariable&, std::string&) const;
+template bool Blackboard::ResolveBTVariable<vec3>(const BTVariable&, vec3&) const;
 
 // Explicit template instantiation for the value-returning version (with const reference parameter)
 template int Blackboard::ResolveBTVariable<int>(const BTVariable&, const int&) const;
@@ -83,6 +84,7 @@ template float Blackboard::ResolveBTVariable<float>(const BTVariable&, const flo
 template double Blackboard::ResolveBTVariable<double>(const BTVariable&, const double&) const;
 template bool Blackboard::ResolveBTVariable<bool>(const BTVariable&, const bool&) const;
 template std::string Blackboard::ResolveBTVariable<std::string>(const BTVariable&, const std::string&) const;
+template vec3 Blackboard::ResolveBTVariable<vec3>(const BTVariable&, const vec3&) const;
 
 // Also instantiate the GetValue templates
 template bool Blackboard::GetValue<int>(const std::string&, int&) const;
@@ -90,12 +92,14 @@ template bool Blackboard::GetValue<float>(const std::string&, float&) const;
 template bool Blackboard::GetValue<double>(const std::string&, double&) const;
 template bool Blackboard::GetValue<bool>(const std::string&, bool&) const;
 template bool Blackboard::GetValue<std::string>(const std::string&, std::string&) const;
+template bool Blackboard::GetValue<vec3>(const std::string&, vec3&) const;
 
 template int Blackboard::GetValue<int>(const std::string&, const int&) const;
 template float Blackboard::GetValue<float>(const std::string&, const float&) const;
 template double Blackboard::GetValue<double>(const std::string&, const double&) const;
 template bool Blackboard::GetValue<bool>(const std::string&, const bool&) const;
 template std::string Blackboard::GetValue<std::string>(const std::string&, const std::string&) const;
+template vec3 Blackboard::GetValue<vec3>(const std::string&, const vec3&) const;
 
 // And SetValue templates
 template void Blackboard::SetValue<int>(const std::string&, const int&);
@@ -103,3 +107,4 @@ template void Blackboard::SetValue<float>(const std::string&, const float&);
 template void Blackboard::SetValue<double>(const std::string&, const double&);
 template void Blackboard::SetValue<bool>(const std::string&, const bool&);
 template void Blackboard::SetValue<std::string>(const std::string&, const std::string&);
+template void Blackboard::SetValue<vec3>(const std::string&, const vec3&);

@@ -9,6 +9,7 @@
 #include "DecoratorNodes.h"
 #include <cstdint>
 #include "../json.hpp"
+#include "../Helpers/JsonHelper.hpp"
 #include "../imgui/imgui_stdlib.h"
 #include "../FileSystem/FileSystem.h"
 #include <iostream>
@@ -634,6 +635,11 @@ static bool EditBTVariable(const char* label, json& jVar) {
 				bool val = v.get<bool>();
 				if (ImGui::Checkbox("##bval", &val)) { v = val; changed = true; }
 			}
+			else if (v.contains("x") && v.contains("y") && v.contains("z"))
+			{
+				vec3 val = v.get<vec3>();
+				if (ImGui::InputFloat3("##bval", &val.x)) { v = val; changed = true; }
+			}
 			else {
 				std::string val = v.is_string() ? v.get<std::string>() : std::string("");
 				if (ImGui::InputText("##sval", &val)) { v = val; changed = true; }
@@ -687,6 +693,11 @@ static bool EditJsonValue(const char* label, json& v) {
 	else if (v.is_number_float()) {
 		float f = v.get<float>();
 		if (ImGui::DragFloat(label, &f, 0.01f)) { v = f; changed = true; }
+	}
+	else if (v.contains("x") && v.contains("y") && v.contains("z"))
+	{
+		vec3 val = v.get<vec3>();
+		if (ImGui::InputFloat3("##bval", &val.x)) { v = val; changed = true; }
 	}
 	else {
 		std::string s = v.is_string() ? v.get<std::string>() : std::string("");

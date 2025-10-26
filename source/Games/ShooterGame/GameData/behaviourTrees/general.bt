@@ -3,9 +3,17 @@
         "has_navpoint": true,
         "navpoint_acceptance_radius": 0.30000001192092896,
         "navpoint_has_wait_time": false,
-        "navpoint_name": "np_0_0",
+        "navpoint_name": "np_0_2",
         "navpoint_wait_time": 0.0,
-        "target": "$info_player_start_0"
+        "target": "$info_player_start_0",
+        "target_follow": true,
+        "target_id": "$info_player_start_0",
+        "target_lastSeenPosition": {
+            "x": -7.986542224884033,
+            "y": 1.4300040006637573,
+            "z": -22.856840133666992
+        },
+        "target_sees": true
     },
     "isRunning": true,
     "root": {
@@ -17,80 +25,178 @@
                             {
                                 "children": [
                                     {
-                                        "acceptance radius": {
-                                            "blackboardKey": "navpoint_acceptance_radius",
-                                            "sourceType": 1
-                                        },
-                                        "children": [],
-                                        "id": "node_2ba6f65d224c1ed8",
-                                        "name": "Move To Entity",
-                                        "pretty path": {
-                                            "sourceType": 0,
-                                            "value": false
-                                        },
-                                        "target": {
-                                            "blackboardKey": "navpoint_name",
-                                            "sourceType": 1
-                                        },
-                                        "type": "MoveToEntity"
-                                    },
-                                    {
                                         "children": [
+                                            {
+                                                "acceptance radius": {
+                                                    "sourceType": 0,
+                                                    "value": 1.0
+                                                },
+                                                "children": [],
+                                                "id": "node_fe7155403fb41fc9",
+                                                "name": "Move To Position",
+                                                "pretty path": {
+                                                    "sourceType": 0,
+                                                    "value": false
+                                                },
+                                                "target": {
+                                                    "blackboardKey": "target_lastSeenPosition",
+                                                    "sourceType": 1
+                                                },
+                                                "type": "MoveToPosition"
+                                            },
                                             {
                                                 "children": [
                                                     {
-                                                        "children": [],
-                                                        "id": "node_b2fdea0f962d19e9",
-                                                        "name": "Set Look Target From Current NavPoint",
-                                                        "type": "SetLookTargetFromCurrentNavPoint"
+                                                        "children": [
+                                                            {
+                                                                "children": [
+                                                                    {
+                                                                        "children": [],
+                                                                        "id": "node_1df52d54092cf9d0",
+                                                                        "name": "Wait",
+                                                                        "type": "WaitNode",
+                                                                        "waitTime": {
+                                                                            "sourceType": 0,
+                                                                            "value": 1.0
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "children": [],
+                                                                        "id": "node_5ac5bb694e5ab659",
+                                                                        "name": "Stop Target Follow",
+                                                                        "type": "StopTargetFollow"
+                                                                    }
+                                                                ],
+                                                                "id": "node_4e9ff8244e769c4a",
+                                                                "name": "Sequence",
+                                                                "type": "SequenceNode"
+                                                            }
+                                                        ],
+                                                        "condition": {
+                                                            "blackboardKey": "target_sees",
+                                                            "sourceType": 1
+                                                        },
+                                                        "finish before stop": false,
+                                                        "id": "node_a0de70a6741ee2b4",
+                                                        "inverse": true,
+                                                        "name": "Conditional",
+                                                        "type": "ConditionalDecorator"
                                                     },
                                                     {
                                                         "children": [],
-                                                        "id": "node_bbea34a26939e30d",
-                                                        "name": "Wait",
-                                                        "type": "WaitNode",
-                                                        "waitTime": {
-                                                            "blackboardKey": "navpoint_wait_time",
-                                                            "sourceType": 1
-                                                        }
+                                                        "id": "node_3b2a0a14d995bf91",
+                                                        "message": {
+                                                            "sourceType": 0,
+                                                            "value": "STOP IT"
+                                                        },
+                                                        "name": "PrintMessage",
+                                                        "type": "PrintMessageNode"
                                                     }
                                                 ],
-                                                "id": "node_d27efee8b64ce10",
-                                                "name": "Sequence",
-                                                "type": "SequenceNode"
+                                                "id": "node_9e2f6892b58b085f",
+                                                "name": "Selector",
+                                                "type": "SelectorNode"
                                             }
                                         ],
-                                        "condition": {
-                                            "blackboardKey": "navpoint_has_wait_time",
-                                            "sourceType": 1
-                                        },
-                                        "finish before stop": false,
-                                        "id": "node_191eed5b430c4558",
-                                        "inverse": false,
-                                        "name": "if we have to wait",
-                                        "type": "ConditionalDecorator"
-                                    },
-                                    {
-                                        "children": [],
-                                        "id": "node_df5f4cad86747f26",
-                                        "name": "Switch To Next Nav Point",
-                                        "type": "SwitchToNextNavPoint"
+                                        "id": "node_dd218c142ae59dc6",
+                                        "name": "Sequence",
+                                        "type": "SequenceNode"
                                     }
                                 ],
-                                "id": "node_243d6502388b3e8f",
-                                "name": "Sequence",
-                                "type": "SequenceNode"
+                                "condition": {
+                                    "blackboardKey": "target_follow",
+                                    "sourceType": 1
+                                },
+                                "finish before stop": false,
+                                "id": "node_db70930e56e5bd2d",
+                                "inverse": false,
+                                "name": "follow target",
+                                "type": "ConditionalDecorator"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "acceptance radius": {
+                                                    "blackboardKey": "navpoint_acceptance_radius",
+                                                    "sourceType": 1
+                                                },
+                                                "children": [],
+                                                "id": "node_40cdfdc4a5073e7e",
+                                                "name": "Move To Entity",
+                                                "pretty path": {
+                                                    "sourceType": 0,
+                                                    "value": false
+                                                },
+                                                "target": {
+                                                    "blackboardKey": "navpoint_name",
+                                                    "sourceType": 1
+                                                },
+                                                "type": "MoveToEntity"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [
+                                                            {
+                                                                "children": [],
+                                                                "id": "node_532ce0f20e465c5f",
+                                                                "name": "Set Look Target From Current NavPoint",
+                                                                "type": "SetLookTargetFromCurrentNavPoint"
+                                                            },
+                                                            {
+                                                                "children": [],
+                                                                "id": "node_769f4fdcc8b10a7",
+                                                                "name": "Wait",
+                                                                "type": "WaitNode",
+                                                                "waitTime": {
+                                                                    "blackboardKey": "navpoint_wait_time",
+                                                                    "sourceType": 1
+                                                                }
+                                                            }
+                                                        ],
+                                                        "id": "node_723330044813d676",
+                                                        "name": "Sequence",
+                                                        "type": "SequenceNode"
+                                                    }
+                                                ],
+                                                "condition": {
+                                                    "blackboardKey": "navpoint_has_wait_time",
+                                                    "sourceType": 1
+                                                },
+                                                "finish before stop": false,
+                                                "id": "node_96836b9f647f26ea",
+                                                "inverse": false,
+                                                "name": "if we have to wait",
+                                                "type": "ConditionalDecorator"
+                                            },
+                                            {
+                                                "children": [],
+                                                "id": "node_b6f0e49338a45a9c",
+                                                "name": "Switch To Next Nav Point",
+                                                "type": "SwitchToNextNavPoint"
+                                            }
+                                        ],
+                                        "id": "node_baa5050516008189",
+                                        "name": "Sequence",
+                                        "type": "SequenceNode"
+                                    }
+                                ],
+                                "condition": {
+                                    "blackboardKey": "has_navpoint",
+                                    "sourceType": 1
+                                },
+                                "finish before stop": false,
+                                "id": "node_d7ce56e9b2d90da5",
+                                "inverse": false,
+                                "name": "patrol",
+                                "type": "ConditionalDecorator"
                             }
                         ],
-                        "condition": {
-                            "blackboardKey": "has_navpoint",
-                            "sourceType": 1
-                        },
-                        "finish before stop": false,
-                        "id": "node_95d28f2f28064310",
-                        "inverse": false,
-                        "name": "Conditional",
-                        "type": "ConditionalDecorator"
+                        "id": "node_d28e3d00a79cbacf",
+                        "name": "Selector",
+                        "type": "SelectorNode"
                     }
                 ],
                 "id": "node_24a4ece1183f296",

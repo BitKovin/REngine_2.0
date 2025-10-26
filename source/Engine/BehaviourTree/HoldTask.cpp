@@ -25,4 +25,4 @@ void HoldTask::Tick(BehaviorTreeContext& context)
 	}
 }
 
-REGISTER_BT_NODE(HoldTask)
+//REGISTER_BT_NODE(HoldTask)

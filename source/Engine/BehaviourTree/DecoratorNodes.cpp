@@ -191,7 +191,14 @@ NodeStatus ConditionalDecorator::Execute(BehaviorTreeContext& context) {
     return children_[0]->TickNode(context);
 }
 
-bool ConditionalDecorator::CheckCondition(BehaviorTreeContext& context) const {
+bool ConditionalDecorator::CheckCondition(BehaviorTreeContext& context) const 
+{
+
+    if (inverse)
+    {
+        return context.blackboard->ResolveBTVariable(condition_, true) == false;
+    }
+
     return context.blackboard->ResolveBTVariable(condition_, true);
 }
 

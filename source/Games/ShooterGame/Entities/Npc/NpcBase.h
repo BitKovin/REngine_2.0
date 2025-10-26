@@ -61,6 +61,14 @@ protected:
 
 	std::shared_ptr<Observer> observer;
 
+	bool target_follow;
+	std::string target_id;
+	vec3 target_lastSeenPosition;
+	Delay target_stopUpdateLastSeenPositionDelay;
+	bool target_sees;
+
+
+
 public:
 
 	SkeletalMesh* mesh;
@@ -110,12 +118,15 @@ public:
 	void UpdateBT();
 	void UpdateObserver();
 
+	void UpdateTargetFollow();
+
 	void Serialize(json& target);
 	void Deserialize(json& source);
 
 	void UpdateDebugUI();
 
 	void MoveTo(const vec3& target, float acceptanceRadius);
+	void StopTargetFollow();
 
 protected:
 

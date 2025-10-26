@@ -2,6 +2,7 @@
 #include <string>
 #include <variant>
 #include "../json.hpp"
+#include "../glm.h"
 
 using nlohmann::json;
 
@@ -14,7 +15,7 @@ public:
         Blackboard
     };
 
-    using Value = std::variant<int, float, double, bool, std::string>;
+    using Value = std::variant<int, float, double, bool, std::string, vec3>;
 
     // Constructors for constant values
     BTVariable() : sourceType_(SourceType::Constant), value_() {}
@@ -22,6 +23,7 @@ public:
     BTVariable(float value) : sourceType_(SourceType::Constant), value_(value) {}
     BTVariable(double value) : sourceType_(SourceType::Constant), value_(value) {}
     BTVariable(bool value) : sourceType_(SourceType::Constant), value_(value) {}
+    BTVariable(vec3 value) : sourceType_(SourceType::Constant), value_(value) {}
     BTVariable(const char* value) : sourceType_(SourceType::Constant), value_(std::string(value)) {}
     BTVariable(const std::string& value) : sourceType_(SourceType::Constant), value_(value) {}
 

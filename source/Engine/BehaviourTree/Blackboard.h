@@ -8,6 +8,8 @@
 #include <sstream>
 #include <iomanip>
 #include "../json.hpp"
+#include "../glm.h"
+#include "../Helpers/JsonHelper.hpp"
 
 using nlohmann::json;
 
@@ -16,7 +18,7 @@ class BTVariable;
 
 class Blackboard {
 public:
-    using Value = std::variant<int, float, double, bool, std::string>;
+    using Value = std::variant<int, float, double, bool, std::string, vec3>;
     using ObserverCallback = std::function<void(const std::string&, const Value&)>;
     using ObserverID = size_t;
 

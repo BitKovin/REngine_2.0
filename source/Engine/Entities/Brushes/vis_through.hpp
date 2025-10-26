@@ -10,6 +10,7 @@ public:
 	vis_through()
 	{
 		Static = true;
+		DefaultBrushGroup = BodyType::WorldTransparent;
 	}
 
 	~vis_through() = default;

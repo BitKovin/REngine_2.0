@@ -1,0 +1,84 @@
+#include <BehaviourTree/CustomTask.h>
+#include <BehaviourTree/NodeFactory.h>
+
+#include "../../Entities/Npc/NpcBase.h"
+
+class MoveToPosition : public CustomTask
+{
+
+private:
+
+	NpcBase* npcRef = nullptr;
+
+	void CheckNpcRef(BehaviorTreeContext& context)
+	{
+		if (npcRef == nullptr)
+		{
+			npcRef = dynamic_cast<NpcBase*>((Entity*)(context.owner));
+
+			if (npcRef == nullptr)
+			{
+				Logger::Log("task node used with wrong Entity type");
+			}
+
+		}
+	}
+
+public:
+	MoveToPosition() : CustomTask("Move To Position", "MoveToPosition")
+	{
+		Variables["target"] = vec3(0);
+		Variables["acceptance radius"] = 1.0f;
+		Variables["pretty path"] = false;
+	}
+
+	void OnStop(BehaviorTreeContext& context) override
+	{
+
+		CustomTask::OnStop(context);
+
+		CheckNpcRef(context);
+
+		npcRef->pathFollow.reachedTarget = true;
+
+	}
+
+	void OnStart(BehaviorTreeContext& context) override
+	{
+
+		CustomTask::OnStart(context);
+
+		CheckNpcRef(context);
+
+		if (npcRef)
+		{
+
+			npcRef->pathFollow.reachedTarget = false;
+
+		}
+
+	}
+
+	void Tick(BehaviorTreeContext& context)
+	{
+
+		CheckNpcRef(context);
+
+		vec3 target = GetVariable<vec3>("target");
+
+		
+
+		if (npcRef->pathFollow.reachedTarget)
+		{
+			FinishExecution(true);
+			return;
+		}
+
+
+		npcRef->MoveTo(target, GetVariable<float>("acceptance radius"));
+
+	}
+
+};
+
+REGISTER_BT_NODE(MoveToPosition);

@@ -257,7 +257,7 @@ void NpcBase::AsyncUpdate()
 {
 
 	UpdateObserver();
-
+	UpdateTargetFollow();
 	UpdateBT();
 
 	auto animEvents = mesh->PullAnimationEvents();
@@ -385,6 +385,11 @@ void NpcBase::UpdateBT()
 		behaviorTree.GetBlackboard().SetValue("navpoint_acceptance_radius", 0.0f);
 	}
 
+	behaviorTree.GetBlackboard().SetValue("target_follow", target_follow);
+	behaviorTree.GetBlackboard().SetValue("target_id", target_id);
+	behaviorTree.GetBlackboard().SetValue("target_sees", target_sees);
+	behaviorTree.GetBlackboard().SetValue("target_lastSeenPosition", target_lastSeenPosition);
+
 	if (btEditorEnabled)
 	{
 		editor.Update(Time::DeltaTimeF);
@@ -410,16 +415,55 @@ void NpcBase::UpdateObserver()
 
 	//Logger::Log(Id);
 
+	target_sees = false;
+
 	for (std::weak_ptr<ObservationTarget> weakTarget : observer->visibleTargets)
 	{
 
 		auto target = weakTarget.lock();
 
-		//Logger::Log(target->ownerId);
+		if (target->HasTag("illegal_weapon"))
+		{
+			target_id = target->ownerId;
+			target_follow = true;
+		}
+
+		if (target->ownerId == target_id)
+		{
+			target_stopUpdateLastSeenPositionDelay.AddDelay(1.0f);
+			
+			target_sees = true;
+
+		}
+
 
 	}
 
 
+}
+
+void NpcBase::UpdateTargetFollow()
+{
+
+
+	if (observer)
+	{
+		observer->fovDeg = target_follow ? 300 : 100;
+	}
+
+	speed = target_follow ? 5 : 2;
+
+
+	if (target_follow == false) return;
+
+	if (target_stopUpdateLastSeenPositionDelay.Wait())
+	{
+		auto targetRef = Level::Current->FindEntityWithId(target_id);
+
+		target_lastSeenPosition = targetRef->Position;
+
+	}
+	
 }
 
 void NpcBase::UpdateAnimations()
@@ -496,7 +540,13 @@ void NpcBase::Serialize(json& target)
 	
 	SERIALIZE_FIELD(target, CurrentTargetNavPoint);
 
-	btSaveState = behaviorTree.SaveState().dump(4);
+	SERIALIZE_FIELD(target, target_follow);
+	SERIALIZE_FIELD(target, target_id);
+	SERIALIZE_FIELD(target, target_lastSeenPosition);
+	SERIALIZE_FIELD(target, target_stopUpdateLastSeenPositionDelay);
+	SERIALIZE_FIELD(target, target_sees);
+
+	btSaveState = behaviorTree.SaveState().dump(0);
 	SERIALIZE_FIELD(target, btSaveState);
 }
 
@@ -520,6 +570,12 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, pathFollow.reachedTarget);
 
 	DESERIALIZE_FIELD(source, CurrentTargetNavPoint);
+
+	DESERIALIZE_FIELD(source, target_follow);
+	DESERIALIZE_FIELD(source, target_id);
+	DESERIALIZE_FIELD(source, target_lastSeenPosition);
+	DESERIALIZE_FIELD(source, target_stopUpdateLastSeenPositionDelay);
+	DESERIALIZE_FIELD(source, target_sees);
 
 	DESERIALIZE_FIELD(source, btSaveState);
 	if (btSaveState.empty() == false)
@@ -565,6 +621,14 @@ void NpcBase::MoveTo(const vec3& target, float acceptanceRadius)
 	pathFollow.acceptanceRadius = acceptanceRadius;
 	pathFollow.reachedTarget = false;
 	pathFollow.FoundTarget = true;
+}
+
+void NpcBase::StopTargetFollow()
+{
+	target_follow = false;
+	target_id = "";
+	target_sees = false;
+	target_lastSeenPosition = vec3();
 }
 
 void NpcBase::UpdateDebugUI()

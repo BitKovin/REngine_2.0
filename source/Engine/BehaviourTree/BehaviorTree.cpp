@@ -304,11 +304,8 @@ void BehaviorTree::RegisterTypes()
     REGISTER_BT_NODE_FUNC(SelectorNode);
     REGISTER_BT_NODE_FUNC(WaitNode);
     REGISTER_BT_NODE_FUNC(PrintMessageNode);
-    //REGISTER_BT_NODE_FUNC(ConditionalWaitNode);
-    //REGISTER_BT_NODE_FUNC(InverterDecorator);
+
     REGISTER_BT_NODE_FUNC(RepeatDecorator);
-    //REGISTER_BT_NODE_FUNC(SucceederDecorator);
-    //REGISTER_BT_NODE_FUNC(FailerDecorator);
     REGISTER_BT_NODE_FUNC(ConditionalDecorator);
 
 }

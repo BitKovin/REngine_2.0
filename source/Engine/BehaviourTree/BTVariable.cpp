@@ -1,6 +1,6 @@
 #include "BTVariable.h"
 #include "Blackboard.h"
-
+#include "../Helpers/JsonHelper.hpp"
 
 json BTVariable::ToJson() const {
     json j;
