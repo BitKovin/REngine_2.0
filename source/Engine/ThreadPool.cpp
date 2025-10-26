@@ -218,6 +218,14 @@ int ThreadPool::GetMaxThreads() {
     return 0;
 #else
     unsigned hc = std::thread::hardware_concurrency();
+
+#ifdef USE_EMSCRIPTEN_PTHREADS
+
+    hc = 8;
+
+#endif // USE_EMSCRIPTEN_PTHREADS
+
+
     int reserve = 3;
     int hint = hc ? static_cast<int>(hc) : 0;
     int usable = hint > reserve ? (hint - reserve) : 1;
