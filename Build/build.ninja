@@ -44,6 +44,20 @@ cmake_ninja_workdir = F$:/Git/SdlWasmEngine/Build/
 
 build cmake_object_order_depends_target_engine: phony || .
 
+build CMakeFiles/engine.dir/source/Engine/AiPerception/AiPerceptionSystem.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/AiPerception/AiPerceptionSystem.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\AiPerception\AiPerceptionSystem.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\AiPerception
+
+build CMakeFiles/engine.dir/source/Engine/AiPerception/Observer.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/AiPerception/Observer.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\AiPerception\Observer.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\AiPerception
+
 build CMakeFiles/engine.dir/source/Engine/Animation.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Animation.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Animation.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
@@ -71,6 +85,83 @@ build CMakeFiles/engine.dir/source/Engine/BSP/Quake3Bsp.cpp.o: CXX_COMPILER__eng
   INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BSP
+
+build CMakeFiles/engine.dir/source/Engine/BehaviourTree/BTVariable.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BehaviourTree/BTVariable.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\BehaviourTree\BTVariable.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BehaviourTree
+
+build CMakeFiles/engine.dir/source/Engine/BehaviourTree/BehaviorTree.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BehaviourTree/BehaviorTree.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\BehaviourTree\BehaviorTree.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BehaviourTree
+
+build CMakeFiles/engine.dir/source/Engine/BehaviourTree/BehaviorTreeEditor.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BehaviourTree/BehaviorTreeEditor.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\BehaviourTree\BehaviorTreeEditor.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BehaviourTree
+
+build CMakeFiles/engine.dir/source/Engine/BehaviourTree/Blackboard.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BehaviourTree/Blackboard.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\BehaviourTree\Blackboard.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BehaviourTree
+
+build CMakeFiles/engine.dir/source/Engine/BehaviourTree/CompositeNodes.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BehaviourTree/CompositeNodes.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\BehaviourTree\CompositeNodes.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BehaviourTree
+
+build CMakeFiles/engine.dir/source/Engine/BehaviourTree/CustomTask.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BehaviourTree/CustomTask.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\BehaviourTree\CustomTask.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BehaviourTree
+
+build CMakeFiles/engine.dir/source/Engine/BehaviourTree/DecoratorNodes.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BehaviourTree/DecoratorNodes.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\BehaviourTree\DecoratorNodes.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BehaviourTree
+
+build CMakeFiles/engine.dir/source/Engine/BehaviourTree/HoldTask.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BehaviourTree/HoldTask.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\BehaviourTree\HoldTask.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BehaviourTree
+
+build CMakeFiles/engine.dir/source/Engine/BehaviourTree/NodeFactory.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BehaviourTree/NodeFactory.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\BehaviourTree\NodeFactory.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BehaviourTree
+
+build CMakeFiles/engine.dir/source/Engine/BehaviourTree/TaskNodes.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BehaviourTree/TaskNodes.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\BehaviourTree\TaskNodes.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BehaviourTree
+
+build CMakeFiles/engine.dir/source/Engine/BehaviourTree/TreeNode.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/BehaviourTree/TreeNode.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\BehaviourTree\TreeNode.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\BehaviourTree
 
 build CMakeFiles/engine.dir/source/Engine/Camera.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Camera.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Camera.cpp.o.d
@@ -198,6 +289,13 @@ build CMakeFiles/engine.dir/source/Engine/MeshUtils.cpp.o: CXX_COMPILER__engine_
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine
 
+build CMakeFiles/engine.dir/source/Engine/Navigation/CrowdAgent.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/CrowdAgent.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\CrowdAgent.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation
+
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourAlloc.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourAlloc.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourAlloc.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
@@ -214,6 +312,20 @@ build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourAssert.cpp.o: 
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourCommon.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourCommon.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourCommon.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
+
+build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourCrowd.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourCrowd.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourCrowd.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
+
+build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourLocalBoundary.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourLocalBoundary.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourLocalBoundary.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
   INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
@@ -242,6 +354,34 @@ build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNavMeshQuery.c
 
 build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNode.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourNode.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourNode.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
+
+build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourObstacleAvoidance.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourObstacleAvoidance.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourObstacleAvoidance.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
+
+build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourPathCorridor.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourPathCorridor.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourPathCorridor.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
+
+build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourPathQueue.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourPathQueue.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourPathQueue.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\Navigation\Detour
+
+build CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourProximityGrid.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/Navigation/Detour/DetourProximityGrid.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\Navigation\Detour\DetourProximityGrid.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
   INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
   OBJECT_DIR = CMakeFiles\engine.dir
@@ -555,6 +695,13 @@ build CMakeFiles/engine.dir/source/Engine/imgui/imgui_impl_sdl2.cpp.o: CXX_COMPI
   OBJECT_DIR = CMakeFiles\engine.dir
   OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\imgui
 
+build CMakeFiles/engine.dir/source/Engine/imgui/imgui_stdlib.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/imgui/imgui_stdlib.cpp || cmake_object_order_depends_target_engine
+  DEP_FILE = CMakeFiles\engine.dir\source\Engine\imgui\imgui_stdlib.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine
+  OBJECT_DIR = CMakeFiles\engine.dir
+  OBJECT_FILE_DIR = CMakeFiles\engine.dir\source\Engine\imgui
+
 build CMakeFiles/engine.dir/source/Engine/imgui/imgui_tables.cpp.o: CXX_COMPILER__engine_unscanned_ F$:/Git/SdlWasmEngine/source/Engine/imgui/imgui_tables.cpp || cmake_object_order_depends_target_engine
   DEP_FILE = CMakeFiles\engine.dir\source\Engine\imgui\imgui_tables.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
@@ -610,186 +757,221 @@ build CMakeFiles/engine.dir/source/Engine/utils.cpp.o: CXX_COMPILER__engine_unsc
 
 
 #############################################
-# Link the static library HorrorGame\emscripten\lib\libengine.a
+# Link the static library ShooterGame\emscripten\lib\libengine.a
 
-build HorrorGame/emscripten/lib/libengine.a: CXX_STATIC_LIBRARY_LINKER__engine_ CMakeFiles/engine.dir/source/Engine/Animation.cpp.o CMakeFiles/engine.dir/source/Engine/Animator.cpp.o CMakeFiles/engine.dir/source/Engine/AssetRegistry.cpp.o CMakeFiles/engine.dir/source/Engine/BSP/Quake3Bsp.cpp.o CMakeFiles/engine.dir/source/Engine/Camera.cpp.o CMakeFiles/engine.dir/source/Engine/Character/CharacterController.cpp.o CMakeFiles/engine.dir/source/Engine/DebugDraw.cpp.o CMakeFiles/engine.dir/source/Engine/EngineMain.cpp.o CMakeFiles/engine.dir/source/Engine/Entities/Brushes/TriggerBase.cpp.o CMakeFiles/engine.dir/source/Engine/Entities/PointLight.cpp.o CMakeFiles/engine.dir/source/Engine/Entities/SoundPlayer.cpp.o CMakeFiles/engine.dir/source/Engine/Entities/transformPoint.cpp.o CMakeFiles/engine.dir/source/Engine/Entity.cpp.o CMakeFiles/engine.dir/source/Engine/FileSystem/FileSystem.cpp.o CMakeFiles/engine.dir/source/Engine/Input.cpp.o CMakeFiles/engine.dir/source/Engine/Level.cpp.o CMakeFiles/engine.dir/source/Engine/LevelObjectFactory.cpp.o CMakeFiles/engine.dir/source/Engine/LightSystem/LightManager.cpp.o CMakeFiles/engine.dir/source/Engine/LoadingScreen/LoadingScreenSystem.cpp.o CMakeFiles/engine.dir/source/Engine/MapData.cpp.o CMakeFiles/engine.dir/source/Engine/MapParser.cpp.o CMakeFiles/engine.dir/source/Engine/MeshUtils.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourAlloc.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourAssert.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourCommon.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNavMesh.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNavMeshBuilder.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNavMeshQuery.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNode.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourTileCache.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourTileCacheBuilder.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Navigation.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/PathFollowQuery.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/Recast.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastAlloc.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastArea.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastAssert.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastContour.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastFilter.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastLayers.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastMesh.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastMeshDetail.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastRasterization.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastRegion.cpp.o CMakeFiles/engine.dir/source/Engine/Particle/GlobalParticleSystem.cpp.o CMakeFiles/engine.dir/source/Engine/Particle/ParticleEmitter.cpp.o CMakeFiles/engine.dir/source/Engine/Particle/RibbonEmitter.cpp.o CMakeFiles/engine.dir/source/Engine/Physics.cpp.o CMakeFiles/engine.dir/source/Engine/RandomHelper.cpp.o CMakeFiles/engine.dir/source/Engine/Renderer/Abstractions/FrameBuffer.cpp.o CMakeFiles/engine.dir/source/Engine/Renderer/Abstractions/RenderTexture.cpp.o CMakeFiles/engine.dir/source/Engine/Renderer/Renderer.cpp.o CMakeFiles/engine.dir/source/Engine/SaveSystem/LevelSaveSystem.cpp.o CMakeFiles/engine.dir/source/Engine/Shader.cpp.o CMakeFiles/engine.dir/source/Engine/ShaderManager.cpp.o CMakeFiles/engine.dir/source/Engine/SkeletalMesh.cpp.o CMakeFiles/engine.dir/source/Engine/SoundSystem/FmodEventInstance.cpp.o CMakeFiles/engine.dir/source/Engine/SoundSystem/SoundInstance.cpp.o CMakeFiles/engine.dir/source/Engine/SoundSystem/SoundManager.cpp.o CMakeFiles/engine.dir/source/Engine/StaticMesh.cpp.o CMakeFiles/engine.dir/source/Engine/ThreadPool.cpp.o CMakeFiles/engine.dir/source/Engine/Time.cpp.o CMakeFiles/engine.dir/source/Engine/UI/UiElement.cpp.o CMakeFiles/engine.dir/source/Engine/UI/UiRenderer.cpp.o CMakeFiles/engine.dir/source/Engine/Video/Video.cpp.o CMakeFiles/engine.dir/source/Engine/Video/VideoInstance.cpp.o CMakeFiles/engine.dir/source/Engine/http/http_client_emscripten.cpp.o CMakeFiles/engine.dir/source/Engine/http/http_client_httplib.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_demo.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_draw.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_impl_opengl3.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_impl_sdl2.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_tables.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_widgets.cpp.o CMakeFiles/engine.dir/source/Engine/main.cpp.o CMakeFiles/engine.dir/source/Engine/model.cpp.o CMakeFiles/engine.dir/source/Engine/model_animator.cpp.o CMakeFiles/engine.dir/source/Engine/skinned_model.cpp.o CMakeFiles/engine.dir/source/Engine/utils.cpp.o
+build ShooterGame/emscripten/lib/libengine.a: CXX_STATIC_LIBRARY_LINKER__engine_ CMakeFiles/engine.dir/source/Engine/AiPerception/AiPerceptionSystem.cpp.o CMakeFiles/engine.dir/source/Engine/AiPerception/Observer.cpp.o CMakeFiles/engine.dir/source/Engine/Animation.cpp.o CMakeFiles/engine.dir/source/Engine/Animator.cpp.o CMakeFiles/engine.dir/source/Engine/AssetRegistry.cpp.o CMakeFiles/engine.dir/source/Engine/BSP/Quake3Bsp.cpp.o CMakeFiles/engine.dir/source/Engine/BehaviourTree/BTVariable.cpp.o CMakeFiles/engine.dir/source/Engine/BehaviourTree/BehaviorTree.cpp.o CMakeFiles/engine.dir/source/Engine/BehaviourTree/BehaviorTreeEditor.cpp.o CMakeFiles/engine.dir/source/Engine/BehaviourTree/Blackboard.cpp.o CMakeFiles/engine.dir/source/Engine/BehaviourTree/CompositeNodes.cpp.o CMakeFiles/engine.dir/source/Engine/BehaviourTree/CustomTask.cpp.o CMakeFiles/engine.dir/source/Engine/BehaviourTree/DecoratorNodes.cpp.o CMakeFiles/engine.dir/source/Engine/BehaviourTree/HoldTask.cpp.o CMakeFiles/engine.dir/source/Engine/BehaviourTree/NodeFactory.cpp.o CMakeFiles/engine.dir/source/Engine/BehaviourTree/TaskNodes.cpp.o CMakeFiles/engine.dir/source/Engine/BehaviourTree/TreeNode.cpp.o CMakeFiles/engine.dir/source/Engine/Camera.cpp.o CMakeFiles/engine.dir/source/Engine/Character/CharacterController.cpp.o CMakeFiles/engine.dir/source/Engine/DebugDraw.cpp.o CMakeFiles/engine.dir/source/Engine/EngineMain.cpp.o CMakeFiles/engine.dir/source/Engine/Entities/Brushes/TriggerBase.cpp.o CMakeFiles/engine.dir/source/Engine/Entities/PointLight.cpp.o CMakeFiles/engine.dir/source/Engine/Entities/SoundPlayer.cpp.o CMakeFiles/engine.dir/source/Engine/Entities/transformPoint.cpp.o CMakeFiles/engine.dir/source/Engine/Entity.cpp.o CMakeFiles/engine.dir/source/Engine/FileSystem/FileSystem.cpp.o CMakeFiles/engine.dir/source/Engine/Input.cpp.o CMakeFiles/engine.dir/source/Engine/Level.cpp.o CMakeFiles/engine.dir/source/Engine/LevelObjectFactory.cpp.o CMakeFiles/engine.dir/source/Engine/LightSystem/LightManager.cpp.o CMakeFiles/engine.dir/source/Engine/LoadingScreen/LoadingScreenSystem.cpp.o CMakeFiles/engine.dir/source/Engine/MapData.cpp.o CMakeFiles/engine.dir/source/Engine/MapParser.cpp.o CMakeFiles/engine.dir/source/Engine/MeshUtils.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/CrowdAgent.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourAlloc.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourAssert.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourCommon.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourCrowd.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourLocalBoundary.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNavMesh.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNavMeshBuilder.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNavMeshQuery.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourNode.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourObstacleAvoidance.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourPathCorridor.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourPathQueue.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourProximityGrid.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourTileCache.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Detour/DetourTileCacheBuilder.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Navigation.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/PathFollowQuery.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/Recast.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastAlloc.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastArea.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastAssert.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastContour.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastFilter.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastLayers.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastMesh.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastMeshDetail.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastRasterization.cpp.o CMakeFiles/engine.dir/source/Engine/Navigation/Recast/RecastRegion.cpp.o CMakeFiles/engine.dir/source/Engine/Particle/GlobalParticleSystem.cpp.o CMakeFiles/engine.dir/source/Engine/Particle/ParticleEmitter.cpp.o CMakeFiles/engine.dir/source/Engine/Particle/RibbonEmitter.cpp.o CMakeFiles/engine.dir/source/Engine/Physics.cpp.o CMakeFiles/engine.dir/source/Engine/RandomHelper.cpp.o CMakeFiles/engine.dir/source/Engine/Renderer/Abstractions/FrameBuffer.cpp.o CMakeFiles/engine.dir/source/Engine/Renderer/Abstractions/RenderTexture.cpp.o CMakeFiles/engine.dir/source/Engine/Renderer/Renderer.cpp.o CMakeFiles/engine.dir/source/Engine/SaveSystem/LevelSaveSystem.cpp.o CMakeFiles/engine.dir/source/Engine/Shader.cpp.o CMakeFiles/engine.dir/source/Engine/ShaderManager.cpp.o CMakeFiles/engine.dir/source/Engine/SkeletalMesh.cpp.o CMakeFiles/engine.dir/source/Engine/SoundSystem/FmodEventInstance.cpp.o CMakeFiles/engine.dir/source/Engine/SoundSystem/SoundInstance.cpp.o CMakeFiles/engine.dir/source/Engine/SoundSystem/SoundManager.cpp.o CMakeFiles/engine.dir/source/Engine/StaticMesh.cpp.o CMakeFiles/engine.dir/source/Engine/ThreadPool.cpp.o CMakeFiles/engine.dir/source/Engine/Time.cpp.o CMakeFiles/engine.dir/source/Engine/UI/UiElement.cpp.o CMakeFiles/engine.dir/source/Engine/UI/UiRenderer.cpp.o CMakeFiles/engine.dir/source/Engine/Video/Video.cpp.o CMakeFiles/engine.dir/source/Engine/Video/VideoInstance.cpp.o CMakeFiles/engine.dir/source/Engine/http/http_client_emscripten.cpp.o CMakeFiles/engine.dir/source/Engine/http/http_client_httplib.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_demo.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_draw.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_impl_opengl3.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_impl_sdl2.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_stdlib.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_tables.cpp.o CMakeFiles/engine.dir/source/Engine/imgui/imgui_widgets.cpp.o CMakeFiles/engine.dir/source/Engine/main.cpp.o CMakeFiles/engine.dir/source/Engine/model.cpp.o CMakeFiles/engine.dir/source/Engine/model_animator.cpp.o CMakeFiles/engine.dir/source/Engine/skinned_model.cpp.o CMakeFiles/engine.dir/source/Engine/utils.cpp.o
   OBJECT_DIR = CMakeFiles\engine.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_FILE = HorrorGame\emscripten\lib\libengine.a
+  TARGET_FILE = ShooterGame\emscripten\lib\libengine.a
   TARGET_PDB = engine.a.dbg
 
 # =============================================================================
-# Object build statements for EXECUTABLE target HorrorGame
+# Object build statements for EXECUTABLE target ShooterGame
 
 
 #############################################
-# Order-only phony target for HorrorGame
+# Order-only phony target for ShooterGame
 
-build cmake_object_order_depends_target_HorrorGame: phony || cmake_object_order_depends_target_engine
+build cmake_object_order_depends_target_ShooterGame: phony || cmake_object_order_depends_target_engine
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Npc/Animators/NpcAnimatorBase.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/Npc/Animators/NpcAnimatorBase.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Npc\Animators\NpcAnimatorBase.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Ai/Tasks/MoveToEntity.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Ai/Tasks/MoveToEntity.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Ai\Tasks\MoveToEntity.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Npc\Animators
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Ai\Tasks
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Npc/NpcBase.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/Npc/NpcBase.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Npc\NpcBase.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Ai/Tasks/SetLookTargetFromCurrentNavPoint.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Ai/Tasks/SetLookTargetFromCurrentNavPoint.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Ai\Tasks\SetLookTargetFromCurrentNavPoint.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Npc
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Ai\Tasks
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Player.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/Player/Player.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Player.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Ai/Tasks/SwitchToNextNavPoint.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Ai/Tasks/SwitchToNextNavPoint.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Ai\Tasks\SwitchToNextNavPoint.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Ai\Tasks
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/Projectiles/Bullet.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/Player/Weapons/Projectiles/Bullet.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons\Projectiles\Bullet.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Npc/Ai/nav_point.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/Npc/Ai/nav_point.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Npc\Ai\nav_point.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons\Projectiles
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Npc\Ai
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/Projectiles/CaneProjectile.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/Player/Weapons/Projectiles/CaneProjectile.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons\Projectiles\CaneProjectile.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Npc/Animators/NpcAnimatorBase.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/Npc/Animators/NpcAnimatorBase.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Npc\Animators\NpcAnimatorBase.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons\Projectiles
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Npc\Animators
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/weapon_cane.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/Player/Weapons/weapon_cane.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons\weapon_cane.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Npc/NpcBase.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/Npc/NpcBase.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Npc\NpcBase.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Npc
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/weapon_pistol.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/Player/Weapons/weapon_pistol.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons\weapon_pistol.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Player.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/Player/Player.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Player.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/weapon_shotgun.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/Player/Weapons/weapon_shotgun.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons\weapon_shotgun.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/Projectiles/Bullet.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/Player/Weapons/Projectiles/Bullet.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons\Projectiles\Bullet.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons\Projectiles
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/weapon_tommy.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/Player/Weapons/weapon_tommy.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons\weapon_tommy.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/Projectiles/CaneProjectile.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/Player/Weapons/Projectiles/CaneProjectile.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons\Projectiles\CaneProjectile.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\Player\Weapons
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons\Projectiles
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/RelativeTeleporter.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/RelativeTeleporter.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\RelativeTeleporter.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/weapon_cane.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/Player/Weapons/weapon_cane.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons\weapon_cane.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/TestNpc.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/TestNpc.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\TestNpc.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/weapon_mpsd.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/Player/Weapons/weapon_mpsd.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons\weapon_mpsd.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/TestParticleSystem.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/Entities/TestParticleSystem.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities\TestParticleSystem.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/weapon_pistol.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/Player/Weapons/weapon_pistol.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons\weapon_pistol.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\Entities
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/GameStart.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/GameStart.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\GameStart.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/weapon_shotgun.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/Player/Weapons/weapon_shotgun.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons\weapon_shotgun.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/ParticleSystems/BulletTrail.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/ParticleSystems/BulletTrail.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\ParticleSystems\BulletTrail.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/weapon_tommy.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/Player/Weapons/weapon_tommy.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons\weapon_tommy.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\ParticleSystems
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\Player\Weapons
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/ParticleSystems/CaneTrail.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/ParticleSystems/CaneTrail.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\ParticleSystems\CaneTrail.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/RelativeTeleporter.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/RelativeTeleporter.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\RelativeTeleporter.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\ParticleSystems
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/ParticleSystems/Fog.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/ParticleSystems/Fog.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\ParticleSystems\Fog.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/TestNpc.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/TestNpc.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\TestNpc.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\ParticleSystems
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/ParticleSystems/HitBlood.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/ParticleSystems/HitBlood.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\ParticleSystems\HitBlood.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/TestParticleSystem.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/Entities/TestParticleSystem.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities\TestParticleSystem.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\ParticleSystems
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\Entities
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/UI/LoadingScreen/UiDefaultLoadingScreen.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/UI/LoadingScreen/UiDefaultLoadingScreen.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\UI\LoadingScreen\UiDefaultLoadingScreen.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/GameStart.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/GameStart.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\GameStart.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\UI\LoadingScreen
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/UI/MobileControls/UiJoystick.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/UI/MobileControls/UiJoystick.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\UI\MobileControls\UiJoystick.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/ParticleSystems/BulletTrail.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/ParticleSystems/BulletTrail.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\ParticleSystems\BulletTrail.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\UI\MobileControls
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\ParticleSystems
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/UI/MobileControls/UiTouchMoveArea.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/UI/MobileControls/UiTouchMoveArea.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\UI\MobileControls\UiTouchMoveArea.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/ParticleSystems/CaneTrail.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/ParticleSystems/CaneTrail.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\ParticleSystems\CaneTrail.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\UI\MobileControls
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\ParticleSystems
 
-build CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/UI/Player/PlayerHud.cpp.o: CXX_COMPILER__HorrorGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/HorrorGame/UI/Player/PlayerHud.cpp || cmake_object_order_depends_target_HorrorGame
-  DEP_FILE = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\UI\Player\PlayerHud.cpp.o.d
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/ParticleSystems/Fog.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/ParticleSystems/Fog.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\ParticleSystems\Fog.cpp.o.d
   FLAGS = -std=gnu++20 -O2 -DNDEBUG
-  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/HorrorGame
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
-  OBJECT_FILE_DIR = CMakeFiles\HorrorGame.dir\source\Games\HorrorGame\UI\Player
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\ParticleSystems
+
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/ParticleSystems/HitBlood.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/ParticleSystems/HitBlood.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\ParticleSystems\HitBlood.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\ParticleSystems
+
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/UI/LoadingScreen/UiDefaultLoadingScreen.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/UI/LoadingScreen/UiDefaultLoadingScreen.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\UI\LoadingScreen\UiDefaultLoadingScreen.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\UI\LoadingScreen
+
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/UI/MobileControls/UiJoystick.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/UI/MobileControls/UiJoystick.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\UI\MobileControls\UiJoystick.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\UI\MobileControls
+
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/UI/MobileControls/UiTouchMoveArea.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/UI/MobileControls/UiTouchMoveArea.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\UI\MobileControls\UiTouchMoveArea.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\UI\MobileControls
+
+build CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/UI/Player/PlayerHud.cpp.o: CXX_COMPILER__ShooterGame_unscanned_ F$:/Git/SdlWasmEngine/source/Games/ShooterGame/UI/Player/PlayerHud.cpp || cmake_object_order_depends_target_ShooterGame
+  DEP_FILE = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\UI\Player\PlayerHud.cpp.o.d
+  FLAGS = -std=gnu++20 -O2 -DNDEBUG
+  INCLUDES = -IF:/Git/SdlWasmEngine/libraries -IF:/Git/SdlWasmEngine/source/Engine -IF:/Git/SdlWasmEngine/source/Games/ShooterGame
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
+  OBJECT_FILE_DIR = CMakeFiles\ShooterGame.dir\source\Games\ShooterGame\UI\Player
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target HorrorGame
+# Link build statements for EXECUTABLE target ShooterGame
 
 
 #############################################
-# Link the executable HorrorGame\emscripten\bin\main.html
+# Link the executable ShooterGame\emscripten\bin\main.html
 
-build HorrorGame/emscripten/bin/main.html: CXX_EXECUTABLE_LINKER__HorrorGame_ CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Npc/Animators/NpcAnimatorBase.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Npc/NpcBase.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Player.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/Projectiles/Bullet.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/Projectiles/CaneProjectile.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/weapon_cane.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/weapon_pistol.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/weapon_shotgun.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/Player/Weapons/weapon_tommy.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/RelativeTeleporter.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/TestNpc.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/Entities/TestParticleSystem.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/GameStart.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/ParticleSystems/BulletTrail.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/ParticleSystems/CaneTrail.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/ParticleSystems/Fog.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/ParticleSystems/HitBlood.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/UI/LoadingScreen/UiDefaultLoadingScreen.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/UI/MobileControls/UiJoystick.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/UI/MobileControls/UiTouchMoveArea.cpp.o CMakeFiles/HorrorGame.dir/source/Games/HorrorGame/UI/Player/PlayerHud.cpp.o | HorrorGame/emscripten/lib/libengine.a F$:/Git/SdlWasmEngine/libsEms/libassimp.a F$:/Git/SdlWasmEngine/libsEms/libIrrXML.a F$:/Git/SdlWasmEngine/libsEms/libJolt.a F$:/Git/SdlWasmEngine/libsEms/fmod_wasm.a F$:/Git/SdlWasmEngine/libsEms/fmodstudio_wasm.a || HorrorGame/emscripten/lib/libengine.a
-  LINK_FLAGS = -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 -s SDL2_IMAGE_FORMATS=[png,jpg,tga] -s USE_WEBGL2=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s STACK_SIZE=500000 -sFETCH -sASYNCIFY -s NO_DISABLE_EXCEPTION_CATCHING -s WASM=1 -s ASSERTIONS=1 --preload-file F:/Git/SdlWasmEngine/source/Games/HorrorGame/GameData@/GameData -s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1 -lidbfs.js -msimd128 -s EXPORTED_RUNTIME_METHODS=[cwrap,setValue,getValue] -s AGGRESSIVE_VARIABLE_ELIMINATION=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 --profiling-funcs -s ALLOW_MEMORY_GROWTH=1 -s INITIAL_HEAP=83886080
-  LINK_LIBRARIES = HorrorGame/emscripten/lib/libengine.a  F:/Git/SdlWasmEngine/libsEms/libassimp.a  F:/Git/SdlWasmEngine/libsEms/libIrrXML.a  F:/Git/SdlWasmEngine/libsEms/libJolt.a  F:/Git/SdlWasmEngine/libsEms/fmod_wasm.a  F:/Git/SdlWasmEngine/libsEms/fmodstudio_wasm.a
-  OBJECT_DIR = CMakeFiles\HorrorGame.dir
+build ShooterGame/emscripten/bin/main.html: CXX_EXECUTABLE_LINKER__ShooterGame_ CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Ai/Tasks/MoveToEntity.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Ai/Tasks/SetLookTargetFromCurrentNavPoint.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Ai/Tasks/SwitchToNextNavPoint.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Npc/Ai/nav_point.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Npc/Animators/NpcAnimatorBase.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Npc/NpcBase.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Player.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/Projectiles/Bullet.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/Projectiles/CaneProjectile.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/weapon_cane.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/weapon_mpsd.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/weapon_pistol.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/weapon_shotgun.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/Player/Weapons/weapon_tommy.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/RelativeTeleporter.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/TestNpc.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/Entities/TestParticleSystem.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/GameStart.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/ParticleSystems/BulletTrail.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/ParticleSystems/CaneTrail.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/ParticleSystems/Fog.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/ParticleSystems/HitBlood.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/UI/LoadingScreen/UiDefaultLoadingScreen.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/UI/MobileControls/UiJoystick.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/UI/MobileControls/UiTouchMoveArea.cpp.o CMakeFiles/ShooterGame.dir/source/Games/ShooterGame/UI/Player/PlayerHud.cpp.o | ShooterGame/emscripten/lib/libengine.a F$:/Git/SdlWasmEngine/libsEms/libassimp.a F$:/Git/SdlWasmEngine/libsEms/libIrrXML.a F$:/Git/SdlWasmEngine/libsEms/libJolt.a F$:/Git/SdlWasmEngine/libsEms/fmod_wasm.a F$:/Git/SdlWasmEngine/libsEms/fmodstudio_wasm.a || ShooterGame/emscripten/lib/libengine.a
+  LINK_FLAGS = -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 -s SDL2_IMAGE_FORMATS=[png,jpg,tga] -s USE_WEBGL2=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s STACK_SIZE=500000 -sFETCH -sASYNCIFY -s NO_DISABLE_EXCEPTION_CATCHING -s WASM=1 -s ASSERTIONS=1 --preload-file F:/Git/SdlWasmEngine/source/Games/ShooterGame/GameData@/GameData -s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1 -lidbfs.js -msimd128 -s EXPORTED_RUNTIME_METHODS=[cwrap,setValue,getValue] -s AGGRESSIVE_VARIABLE_ELIMINATION=1 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 --profiling-funcs -s ALLOW_MEMORY_GROWTH=1 -s INITIAL_HEAP=83886080
+  LINK_LIBRARIES = ShooterGame/emscripten/lib/libengine.a  F:/Git/SdlWasmEngine/libsEms/libassimp.a  F:/Git/SdlWasmEngine/libsEms/libIrrXML.a  F:/Git/SdlWasmEngine/libsEms/libJolt.a  F:/Git/SdlWasmEngine/libsEms/fmod_wasm.a  F:/Git/SdlWasmEngine/libsEms/fmodstudio_wasm.a
+  OBJECT_DIR = CMakeFiles\ShooterGame.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_FILE = HorrorGame\emscripten\bin\main.html
+  TARGET_FILE = ShooterGame\emscripten\bin\main.html
   TARGET_PDB = main.html.dbg
 
 
@@ -819,13 +1001,13 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
-build HorrorGame: phony HorrorGame/emscripten/bin/main.html
+build ShooterGame: phony ShooterGame/emscripten/bin/main.html
 
-build engine: phony HorrorGame/emscripten/lib/libengine.a
+build engine: phony ShooterGame/emscripten/lib/libengine.a
 
-build libengine.a: phony HorrorGame/emscripten/lib/libengine.a
+build libengine.a: phony ShooterGame/emscripten/lib/libengine.a
 
-build main.html: phony HorrorGame/emscripten/bin/main.html
+build main.html: phony ShooterGame/emscripten/bin/main.html
 
 # =============================================================================
 # Folder targets.
@@ -835,7 +1017,7 @@ build main.html: phony HorrorGame/emscripten/bin/main.html
 #############################################
 # Folder: F:/Git/SdlWasmEngine/Build
 
-build all: phony HorrorGame/emscripten/lib/libengine.a HorrorGame/emscripten/bin/main.html
+build all: phony ShooterGame/emscripten/lib/libengine.a ShooterGame/emscripten/bin/main.html
 
 # =============================================================================
 # Built-in targets

@@ -185,8 +185,8 @@ private:
 	AnimationPose blendStartPose;
 
 	std::vector<Body*> hitboxBodies;
-	std::unordered_map<string, TwoBodyConstraint*> hitboxConstraints;
-	std::unordered_map<string, vec3> defaultBoneScale;
+	std::unordered_map<hashed_string, TwoBodyConstraint*> hitboxConstraints;
+	std::unordered_map<hashed_string, vec3> defaultBoneScale;
 
 	std::recursive_mutex hitboxMutex;
 

@@ -624,9 +624,9 @@ void SkeletalMesh::UpdateHitboxes()
 
 
 
-			std::unordered_map<std::string, mat4> animationPose;
+			std::unordered_map<hashed_string, mat4> animationPose;
 
-			std::unordered_map<std::string, quat> hitboxRelativePose;
+			std::unordered_map<hashed_string, quat> hitboxRelativePose;
 
 			bool hasInvalidTransform = false;
 

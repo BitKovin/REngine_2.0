@@ -19,7 +19,7 @@ private:
 
 			if (npcRef == nullptr)
 			{
-				throw exception("task node used with wrong Entity type");
+				Logger::Log("task node used with wrong Entity type");
 			}
 
 		}

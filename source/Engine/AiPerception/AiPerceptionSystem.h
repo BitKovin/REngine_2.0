@@ -26,4 +26,7 @@ public:
 private:
     static std::vector<std::shared_ptr<Observer>> observers;
     static std::vector<std::shared_ptr<ObservationTarget>> targets;
+
+    static inline int nextId = 0;
+
 };

@@ -270,6 +270,8 @@ void Level::AddEntity(LevelObject* obj)
 
 		entity->Id = entId;
 
+		std::unique_lock<std::shared_mutex> lock(entityNameMapMutex);
+
 		entityIdMap[entId] = entity;
 		entityNameMap[entity->Name] = entity;
 
@@ -289,9 +291,6 @@ void Level::RemoveEntity(LevelObject* obj)
 	if (entity)
 	{
 
-		entityIdMap.erase(entity->Id);
-		entityNameMap.erase(entity->Id);
-
 		if (entity->Unique && entity->Name != "")
 		{
 			deletedNames.push_back(entity->Name);
@@ -300,6 +299,11 @@ void Level::RemoveEntity(LevelObject* obj)
 		{
 			deletedIDs.push_back(entity->Id);
 		}
+
+		std::unique_lock<std::shared_mutex> lock(entityNameMapMutex);
+
+		entityIdMap.erase(entity->Id);
+		entityNameMap.erase(entity->Id);
 
 	}
 
@@ -471,86 +475,33 @@ vector<Entity*> Level::FindAllEntitiesWithName(const std::string& name)
 Entity* Level::FindEntityWithName(const std::string& name)
 {
 
-	entityArrayLock.lock();
-	pendingEntityArrayLock.lock();
+	std::shared_lock<std::shared_mutex> lock(entityNameMapMutex); 
 
 	auto res = entityNameMap.find(name);
 
 	if (res != entityNameMap.end())
 	{
-		entityArrayLock.unlock();
-		pendingEntityArrayLock.unlock();
 		return res->second;
 	}
-	else
-	{
-		entityArrayLock.unlock();
-		pendingEntityArrayLock.unlock();
-		return nullptr;
-	}
-
-	auto result = FindAllEntitiesWithName(name);
-
-	if (result.size() == 1)
-	{
-		return result[0];
-	}
-
+	
 	return nullptr;
 
 }
 
 Entity* Level::FindEntityWithId(const std::string& id)
 {
-	//std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
 
-	entityArrayLock.lock();
-	pendingEntityArrayLock.lock();
+	std::shared_lock<std::shared_mutex> lock(entityNameMapMutex);  // shared/read lock
 
 	auto res = entityIdMap.find(id);
 
 	if (res != entityIdMap.end())
 	{
-		entityArrayLock.unlock();
-		pendingEntityArrayLock.unlock();
 		return res->second;
-	}
-	else
-	{
-		entityArrayLock.unlock();
-		pendingEntityArrayLock.unlock();
-		return nullptr;
-	}
-
-	auto curLevelObjects = LevelObjects;
-	auto pendingLevelObjects = pendingAddLevelObjects;
-
-	entityArrayLock.unlock();
-	pendingEntityArrayLock.unlock();
-
-	for (auto var : curLevelObjects)
-	{
-		Entity* entity = (Entity*)var;
-
-		if (entity && entity->Id == id && entity->Destroyed == false)
-		{
-			return entity;
-		}
-
-	}
-
-	for (auto var : pendingLevelObjects)
-	{
-		Entity* entity = (Entity*)var;
-
-		if (entity && entity->Id == id && entity->Destroyed == false)
-		{
-			return entity;
-		}
-
-	}
+	}	
 
 	return nullptr;
+
 }
 
 void Level::FinalizeFrame()

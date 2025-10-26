@@ -7,6 +7,7 @@
 #include "IDrawMesh.h"
 
 #include "mutex"
+#include <shared_mutex>
 
 #include "Navigation/Navigation.hpp"
 
@@ -45,6 +46,8 @@ private:
 	
 	std::unordered_map<std::string, Entity*> entityIdMap;
 	std::unordered_map<std::string, Entity*> entityNameMap;
+
+	std::shared_mutex entityNameMapMutex;
 
 
 public:

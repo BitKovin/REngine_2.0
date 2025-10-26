@@ -1,8 +1,9 @@
 {
     "blackboard": {
         "has_navpoint": true,
+        "navpoint_acceptance_radius": 0.30000001192092896,
         "navpoint_has_wait_time": false,
-        "navpoint_name": "np_0_3",
+        "navpoint_name": "np_0_0",
         "navpoint_wait_time": 0.0,
         "target": "$info_player_start_0"
     },
@@ -17,8 +18,8 @@
                                 "children": [
                                     {
                                         "acceptance radius": {
-                                            "sourceType": 0,
-                                            "value": 0.5
+                                            "blackboardKey": "navpoint_acceptance_radius",
+                                            "sourceType": 1
                                         },
                                         "children": [],
                                         "id": "node_2ba6f65d224c1ed8",
@@ -39,13 +40,13 @@
                                                 "children": [
                                                     {
                                                         "children": [],
-                                                        "id": "node_b7e911093d27045c",
+                                                        "id": "node_b2fdea0f962d19e9",
                                                         "name": "Set Look Target From Current NavPoint",
                                                         "type": "SetLookTargetFromCurrentNavPoint"
                                                     },
                                                     {
                                                         "children": [],
-                                                        "id": "node_82b26a1b30c2eaba",
+                                                        "id": "node_bbea34a26939e30d",
                                                         "name": "Wait",
                                                         "type": "WaitNode",
                                                         "waitTime": {
@@ -54,7 +55,7 @@
                                                         }
                                                     }
                                                 ],
-                                                "id": "node_74c0b70aec18e77f",
+                                                "id": "node_d27efee8b64ce10",
                                                 "name": "Sequence",
                                                 "type": "SequenceNode"
                                             }
@@ -64,7 +65,7 @@
                                             "sourceType": 1
                                         },
                                         "finish before stop": false,
-                                        "id": "node_f1cb5a6393ddedb3",
+                                        "id": "node_191eed5b430c4558",
                                         "inverse": false,
                                         "name": "if we have to wait",
                                         "type": "ConditionalDecorator"

@@ -15,7 +15,7 @@
 #include "Animators/NpcAnimatorBase.h"
 
 #include <BehaviourTree/BehaviorTree.h>
-#include <BehaviorTreeEditor.h>
+#include <BehaviourTree/BehaviorTreeEditor.h>
 
 #include <AiPerception/AiPerceptionSystem.h>
 #include <AiPerception/Observer.h>

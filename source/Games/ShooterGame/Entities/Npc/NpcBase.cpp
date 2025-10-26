@@ -374,6 +374,7 @@ void NpcBase::UpdateBT()
 		behaviorTree.GetBlackboard().SetValue("navpoint_name", CurrentTargetNavPoint);
 		behaviorTree.GetBlackboard().SetValue("navpoint_wait_time", navPointRef->WaitTimeAfterReach);
 		behaviorTree.GetBlackboard().SetValue("navpoint_has_wait_time", navPointRef->WaitTimeAfterReach > 0);
+		behaviorTree.GetBlackboard().SetValue("navpoint_acceptance_radius", navPointRef->acceptanceRadius);
 	}
 	else
 	{
@@ -381,6 +382,7 @@ void NpcBase::UpdateBT()
 		behaviorTree.GetBlackboard().SetValue("navpoint_name", "");
 		behaviorTree.GetBlackboard().SetValue("navpoint_wait_time", 0.0f);
 		behaviorTree.GetBlackboard().SetValue("navpoint_has_wait_time", false);
+		behaviorTree.GetBlackboard().SetValue("navpoint_acceptance_radius", 0.0f);
 	}
 
 	if (btEditorEnabled)
@@ -398,20 +400,22 @@ void NpcBase::UpdateBT()
 void NpcBase::UpdateObserver()
 {
 
+	if (!observer) return;
+
 	auto headTrans = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("head"));
 
 	observer->forward = MathHelper::TransformVector(vec3(0, -1, 0), headTrans.RotationQuaternion);
 
 	observer->position = headTrans.Position - observer->forward * 0.2f;
 
-	Logger::Log(Id);
+	//Logger::Log(Id);
 
 	for (std::weak_ptr<ObservationTarget> weakTarget : observer->visibleTargets)
 	{
 
 		auto target = weakTarget.lock();
 
-		Logger::Log(target->ownerId);
+		//Logger::Log(target->ownerId);
 
 	}
 
@@ -420,6 +424,8 @@ void NpcBase::UpdateObserver()
 
 void NpcBase::UpdateAnimations()
 {
+
+	if (dead) return;
 
 	if (mesh->WasRended)
 	{

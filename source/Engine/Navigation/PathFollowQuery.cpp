@@ -51,7 +51,7 @@ void PathFollowQuery::TryPerform()
 	}
 	else
 	{
-        isPerformingDelay.AddDelay(std::min(distance(desiredStart, desiredTarget) / 300.0f,0.4f) + 0.03 + RandomHelper::RandomFloat() / 15.0f);
+        isPerformingDelay.AddDelay(std::min(distance(desiredStart, desiredTarget) / 300.0f,0.4f) + 0.05 + RandomHelper::RandomFloat() / 15.0f);
 	}
 
 }
@@ -93,7 +93,19 @@ void PathFollowQuery::CalculatePathOnThread()
     const float traceRadius = 0.3f;
     const vec3 traceUpOffset = vec3(0.0f, 0.5f, 0.0f);
     const float minDirLen2 = 1e-6f;
+
+#ifdef DISABLE_TREADPOOL
+
+    const int maxSimplifyIterations = 1;  // safety cap
+
+#else
+
     const int maxSimplifyIterations = 4;  // safety cap
+
+#endif // DISABLE_TREADPOOL
+
+
+
 
     int iterationCount = 0;
 

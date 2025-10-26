@@ -2,6 +2,7 @@
 #include "Observer.h"
 #include "ObservationTarget.h"
 #include <algorithm>
+#include "../EngineMain.h"
 
 std::vector<std::shared_ptr<Observer>> AiPerceptionSystem::observers;
 std::vector<std::shared_ptr<ObservationTarget>> AiPerceptionSystem::targets;
@@ -9,6 +10,8 @@ std::vector<std::shared_ptr<ObservationTarget>> AiPerceptionSystem::targets;
 std::shared_ptr<Observer> AiPerceptionSystem::CreateObserver(const glm::vec3& position, const glm::vec3& forward, float fovDeg)
 {
     auto observer = std::make_shared<Observer>(position, forward, fovDeg);
+    observer->id = nextId;
+    nextId++;
     observers.push_back(observer);
     return observer;
 }
@@ -39,6 +42,17 @@ void AiPerceptionSystem::RemoveAll()
 
 void AiPerceptionSystem::Update()
 {
+
+    const int frameDistrib = 4;
+
     for (auto& observer : observers)
-        observer->UpdateVisibility(targets);
+    {
+
+        if (observer->id % frameDistrib == EngineMain::MainInstance->frame % frameDistrib)
+        {
+            observer->UpdateVisibility(targets);
+        }
+
+    }
+
 }

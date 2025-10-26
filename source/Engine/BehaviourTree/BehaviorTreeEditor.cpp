@@ -29,8 +29,9 @@ BehaviorTreeEditor::BehaviorTreeEditor(BehaviorTree* tree) {
 	propertiesHeight = 200.0f;
 }
 
-void BehaviorTreeEditor::Init() {
-	FileSystemEngine::Init();
+void BehaviorTreeEditor::Init()
+{
+
 	// Ensure there is a root to work with if empty
 	if (!tree_->GetRoot()) {
 		// Default root: Infinite Repeat -> Sequence

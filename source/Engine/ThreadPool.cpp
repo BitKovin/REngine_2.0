@@ -164,6 +164,12 @@ void ThreadPool::QueueJobs(std::vector<std::function<void()>>&& jobs) {
         cv_job_.notify_one();
     }
 #endif
+
+    for (auto job : jobs)
+    {
+        job();
+    }
+
 }
 
 template <class F, class... Args>

@@ -13,6 +13,8 @@ public:
     float fovDeg;
     float maxDistance = 50;
 
+    int id = 0;
+
     std::vector<std::weak_ptr<ObservationTarget>> visibleTargets;
 
     Observer(const glm::vec3& pos, const glm::vec3& fwd, float fov)
