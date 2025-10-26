@@ -6,7 +6,10 @@
 #include "Projectiles/Bullet.h"
 #include <SoundSystem/FmodEventInstance.h>
 #include <RandomHelper.h>
+#include <AiPerception/AiPerceptionSystem.h>
+#include <AiPerception/Observer.h>
 #include "WeaponFireFlash.h"
+#include "../../Npc/NpcBase.h"
 
 class weapon_mpsd : public Weapon
 {
@@ -89,10 +92,27 @@ public:
 		}
 	}
 
+	void NotifyNpcs()
+	{
+		auto observers = AiPerceptionSystem::GetObserversInRadius(Position, 20);
+
+		for (auto observer : observers)
+		{
+
+			auto ownerNpc = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(observer->owner));
+
+			ownerNpc->TryStartInvestigation(InvestigationReason::WeaponFire, Position, Player::Instance->Id);
+
+		}
+
+	}
+
 	void PerformAttack()
 	{
 
 		//fireSoundPlayer->Play();
+
+		NotifyNpcs();
 
 		Player::Instance->violanceCrimeActiveDelay.AddDelay(0.3);
 

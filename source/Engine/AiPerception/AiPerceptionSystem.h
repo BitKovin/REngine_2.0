@@ -23,6 +23,8 @@ public:
     static const std::vector<std::shared_ptr<Observer>>& GetObservers() { return observers; }
     static const std::vector<std::shared_ptr<ObservationTarget>>& GetTargets() { return targets; }
 
+    static std::vector<std::shared_ptr<Observer>> GetObserversInRadius(const glm::vec3& position, float radius);
+
 private:
     static std::vector<std::shared_ptr<Observer>> observers;
     static std::vector<std::shared_ptr<ObservationTarget>> targets;

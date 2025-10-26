@@ -12,7 +12,7 @@ void Observer::UpdateVisibility(const std::vector<std::shared_ptr<ObservationTar
     {
         glm::vec3 toTarget = target->position - position;
 
-        float dist = glm::length(toTarget);
+        float dist = glm::length(toTarget) / target->noticeMaxDistanceMultiplier;
 
         if (dist < 0.001f || dist > maxDistance)
             continue; // Skip if same position or too far

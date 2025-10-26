@@ -20,6 +20,20 @@
 #include <AiPerception/AiPerceptionSystem.h>
 #include <AiPerception/Observer.h>
 
+enum class InvestigationReason
+{
+
+	NpcInTrouble,
+	WeaponFire,
+	Explosion,
+	Body,
+	LoudNoise,
+	Noise,
+	None
+};
+
+
+
 class NpcBase : public Entity
 {
 
@@ -70,6 +84,9 @@ protected:
 	bool target_attack;
 	float target_underArrestExpire = 5.0f;
 	bool target_attackInRange;
+
+	InvestigationReason currentInvestigation = InvestigationReason::None;
+	vec3 investigation_target;
 
 
 public:
@@ -127,6 +144,10 @@ public:
 	void Deserialize(json& source);
 
 	void UpdateDebugUI();
+
+	void TryStartInvestigation(InvestigationReason reason, vec3 target, string causer);
+
+	void FinishInvestigation();
 
 	void MoveTo(const vec3& target, float acceptanceRadius);
 	void StopTargetFollow();

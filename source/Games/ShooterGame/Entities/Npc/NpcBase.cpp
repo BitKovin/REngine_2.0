@@ -59,6 +59,7 @@ void NpcBase::Start()
 	desiredDirection = MathHelper::XZ(MathHelper::GetForwardVector(Rotation));
 	movingDirection = desiredDirection;
 
+	pathFollow.Async = false;
 
 	DeathSoundPlayer = SoundPlayer::Create();
 	HurtSoundPlayer = SoundPlayer::Create();
@@ -85,7 +86,7 @@ void NpcBase::Start()
 	behaviorTree.Start();
 
 	observer = AiPerceptionSystem::CreateObserver(Position + vec3(0, 0.7, 0), movingDirection, 90);
-
+	observer->owner = Id;
 }
 
 
@@ -414,11 +415,13 @@ void NpcBase::UpdateBT()
 	behaviorTree.GetBlackboard().SetValue("target_id", target_id);
 	behaviorTree.GetBlackboard().SetValue("target_sees", target_sees);
 	behaviorTree.GetBlackboard().SetValue("target_lastSeenPosition", target_lastSeenPosition);
-
 	behaviorTree.GetBlackboard().SetValue("target_underArrest", target_underArrest);
 	behaviorTree.GetBlackboard().SetValue("target_attack", target_attack);
-
 	behaviorTree.GetBlackboard().SetValue("target_attackInRange", target_attackInRange);
+
+	behaviorTree.GetBlackboard().SetValue("investigation", currentInvestigation != InvestigationReason::None);
+	behaviorTree.GetBlackboard().SetValue("investigation_target", investigation_target);
+
 
 	if (btEditorEnabled)
 	{
@@ -497,7 +500,7 @@ void NpcBase::UpdateTargetFollow()
 		observer->fovDeg = target_follow ? 300 : 100;
 	}
 
-	speed = target_follow ? 5 : 2;
+	speed = (target_follow || currentInvestigation <= InvestigationReason::Body) ? 5 : 2;
 
 
 	if (target_follow == false) return;
@@ -609,6 +612,13 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, target_lastSeenPosition);
 	SERIALIZE_FIELD(target, target_stopUpdateLastSeenPositionDelay);
 	SERIALIZE_FIELD(target, target_sees);
+	SERIALIZE_FIELD(target, target_underArrest);
+	SERIALIZE_FIELD(target, target_attack);
+	SERIALIZE_FIELD(target, target_underArrestExpire);
+	SERIALIZE_FIELD(target, target_attackInRange);
+
+	SERIALIZE_FIELD(target, currentInvestigation);
+	SERIALIZE_FIELD(target, investigation_target);
 
 	btSaveState = behaviorTree.SaveState().dump(0);
 	SERIALIZE_FIELD(target, btSaveState);
@@ -640,6 +650,13 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, target_lastSeenPosition);
 	DESERIALIZE_FIELD(source, target_stopUpdateLastSeenPositionDelay);
 	DESERIALIZE_FIELD(source, target_sees);
+	DESERIALIZE_FIELD(source, target_underArrest);
+	DESERIALIZE_FIELD(source, target_attack);
+	DESERIALIZE_FIELD(source, target_underArrestExpire);
+	DESERIALIZE_FIELD(source, target_attackInRange);
+
+	DESERIALIZE_FIELD(source, currentInvestigation);
+	DESERIALIZE_FIELD(source, investigation_target);
 
 	DESERIALIZE_FIELD(source, btSaveState);
 	if (btSaveState.empty() == false)
@@ -712,6 +729,42 @@ void NpcBase::UpdateDebugUI()
 
 	ImGui::End();
 
+}
+
+void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, string causer)
+{
+
+	if (target_follow && reason == InvestigationReason::WeaponFire && causer == target_id)
+	{
+		target_stopUpdateLastSeenPositionDelay.AddDelay(0.1f);
+	}
+
+	if (target_follow && target_underArrest == false && reason > InvestigationReason::Body)
+	{
+		return;
+	}
+
+	if (target_follow && target_underArrest)
+	{
+		return;
+	}
+
+
+
+	if (reason >= currentInvestigation)
+	{
+		return;
+	}
+
+	currentInvestigation = reason;
+	investigation_target = target;
+
+}
+
+void NpcBase::FinishInvestigation()
+{
+	currentInvestigation = InvestigationReason::None;
+	investigation_target = vec3();
 }
 
 REGISTER_ENTITY(NpcBase, "npc_base")

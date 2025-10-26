@@ -1,17 +1,28 @@
 {
     "blackboard": {
         "has_navpoint": true,
+        "investigation": true,
+        "investigation_target": {
+            "x": -6.158979892730713,
+            "y": 2.174994707107544,
+            "z": -7.603879451751709
+        },
         "navpoint_acceptance_radius": 0.30000001192092896,
         "navpoint_has_wait_time": false,
-        "navpoint_name": "np_0_3",
+        "navpoint_name": "np_0_1",
         "navpoint_wait_time": 0.0,
         "target": "$info_player_start_0",
-        "target_attack": true,
+        "target_attack": false,
         "target_attackInRange": false,
-        "target_follow": true,
-        "target_id": "$info_player_start_0",
+        "target_follow": false,
+        "target_id": "",
+        "target_lastSeenPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
         "target_sees": false,
-        "target_underArrest": true
+        "target_underArrest": false
     },
     "isRunning": true,
     "root": {
@@ -117,12 +128,12 @@
                                                                                         "children": [
                                                                                             {
                                                                                                 "children": [],
-                                                                                                "id": "node_cf6b0164adfdffa2",
+                                                                                                "id": "node_a34e00173bffd7b4",
                                                                                                 "name": "Stop Target Follow",
                                                                                                 "type": "StopTargetFollow"
                                                                                             }
                                                                                         ],
-                                                                                        "id": "node_1581ab92fd7098eb",
+                                                                                        "id": "node_2430f5cdd7c64f19",
                                                                                         "name": "Sequence",
                                                                                         "type": "SequenceNode"
                                                                                     }
@@ -132,7 +143,7 @@
                                                                                     "sourceType": 1
                                                                                 },
                                                                                 "finish before stop": false,
-                                                                                "id": "node_2d903399a9369472",
+                                                                                "id": "node_5f688543aa20b592",
                                                                                 "inverse": true,
                                                                                 "name": "if don't see",
                                                                                 "type": "ConditionalDecorator"
@@ -263,11 +274,55 @@
                                         "children": [
                                             {
                                                 "acceptance radius": {
+                                                    "sourceType": 0,
+                                                    "value": 2.0
+                                                },
+                                                "children": [],
+                                                "id": "node_9f912af2afc709a6",
+                                                "name": "Move To Position",
+                                                "pretty path": {
+                                                    "sourceType": 0,
+                                                    "value": false
+                                                },
+                                                "target": {
+                                                    "blackboardKey": "investigation_target",
+                                                    "sourceType": 1
+                                                },
+                                                "type": "MoveToPosition"
+                                            },
+                                            {
+                                                "children": [],
+                                                "id": "node_c839e09befbf42c2",
+                                                "name": "Finish Investigation",
+                                                "type": "FinishInvestigation"
+                                            }
+                                        ],
+                                        "id": "node_78b1104589d79e59",
+                                        "name": "Sequence",
+                                        "type": "SequenceNode"
+                                    }
+                                ],
+                                "condition": {
+                                    "blackboardKey": "investigation",
+                                    "sourceType": 1
+                                },
+                                "finish before stop": false,
+                                "id": "node_911fb048029cb0c5",
+                                "inverse": false,
+                                "name": "investigation",
+                                "type": "ConditionalDecorator"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "acceptance radius": {
                                                     "blackboardKey": "navpoint_acceptance_radius",
                                                     "sourceType": 1
                                                 },
                                                 "children": [],
-                                                "id": "node_40cdfdc4a5073e7e",
+                                                "id": "node_9001713e1f6df7ad",
                                                 "name": "Move To Entity",
                                                 "pretty path": {
                                                     "sourceType": 0,
@@ -285,13 +340,13 @@
                                                         "children": [
                                                             {
                                                                 "children": [],
-                                                                "id": "node_532ce0f20e465c5f",
+                                                                "id": "node_9d4ad242dd22f402",
                                                                 "name": "Set Look Target From Current NavPoint",
                                                                 "type": "SetLookTargetFromCurrentNavPoint"
                                                             },
                                                             {
                                                                 "children": [],
-                                                                "id": "node_769f4fdcc8b10a7",
+                                                                "id": "node_67a79c39d319be1c",
                                                                 "name": "Wait",
                                                                 "type": "WaitNode",
                                                                 "waitTime": {
@@ -300,7 +355,7 @@
                                                                 }
                                                             }
                                                         ],
-                                                        "id": "node_723330044813d676",
+                                                        "id": "node_8eb5893317a7fc1d",
                                                         "name": "Sequence",
                                                         "type": "SequenceNode"
                                                     }
@@ -310,19 +365,19 @@
                                                     "sourceType": 1
                                                 },
                                                 "finish before stop": false,
-                                                "id": "node_96836b9f647f26ea",
+                                                "id": "node_fd96a5a5b9d1ce59",
                                                 "inverse": false,
                                                 "name": "if we have to wait",
                                                 "type": "ConditionalDecorator"
                                             },
                                             {
                                                 "children": [],
-                                                "id": "node_b6f0e49338a45a9c",
+                                                "id": "node_4c2da1f83da9be3",
                                                 "name": "Switch To Next Nav Point",
                                                 "type": "SwitchToNextNavPoint"
                                             }
                                         ],
-                                        "id": "node_baa5050516008189",
+                                        "id": "node_c4b83225f03bf65e",
                                         "name": "Sequence",
                                         "type": "SequenceNode"
                                     }

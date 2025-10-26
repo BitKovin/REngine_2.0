@@ -2,6 +2,7 @@
 #include "../glm.h"
 #include <vector>
 #include <memory>
+#include <string>
 
 class ObservationTarget;
 
@@ -12,6 +13,8 @@ public:
     glm::vec3 forward;
     float fovDeg;
     float maxDistance = 50;
+
+    std::string owner;
 
     int id = 0;
 

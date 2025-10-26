@@ -56,3 +56,23 @@ void AiPerceptionSystem::Update()
     }
 
 }
+
+std::vector<std::shared_ptr<Observer>> AiPerceptionSystem::GetObserversInRadius(const glm::vec3& position, float radius)
+{
+    std::vector<std::shared_ptr<Observer>> result;
+    if (observers.empty() || radius <= 0.0f)
+        return result;
+
+    float radiusSq = radius * radius;
+
+    for (auto& obs : observers)
+    {
+        float distSq = glm::length2(obs->position - position);
+        if (distSq <= radiusSq)
+        {
+            result.push_back(obs);
+        }
+    }
+
+    return result;
+}

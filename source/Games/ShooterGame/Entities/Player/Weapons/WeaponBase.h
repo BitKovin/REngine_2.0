@@ -52,6 +52,8 @@ public:
 		return WeaponSlotData();
 	}
 
+
+
 private:
 
 };
