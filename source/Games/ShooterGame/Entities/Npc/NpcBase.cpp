@@ -455,20 +455,36 @@ void NpcBase::UpdateObserver()
 
 	if (!observer) return;
 
-	auto headTrans = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("head"));
 
-	observer->forward = MathHelper::TransformVector(vec3(0, -1, 0), headTrans.RotationQuaternion);
+	
+	if (distance(Camera::finalizedPosition, Position) < 40)
+	{
 
-	observer->position = headTrans.Position - observer->forward * 0.2f;
+		MathHelper::Transform headTrans;
+
+		headTrans = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("head"));
+
+		observer->forward = MathHelper::TransformVector(vec3(0, -1, 0), headTrans.RotationQuaternion);
+
+		observer->position = headTrans.Position - observer->forward * 0.2f;
+	}
+	else
+	{
+		observer->forward = movingDirection;
+
+		observer->position = Position + vec3(0, 0.65, 0);
+	}
+	
+
+
 
 	//Logger::Log(Id);
 
 	target_sees = false;
 
-	for (std::weak_ptr<ObservationTarget> weakTarget : observer->visibleTargets)
+	for (std::shared_ptr<ObservationTarget> target : observer->visibleTargets)
 	{
 
-		auto target = weakTarget.lock();
 
 		bool foundCrime = false;
 
@@ -486,10 +502,9 @@ void NpcBase::UpdateObserver()
 		}
 		else if (target->HasTag("body"))
 		{
-			for (std::weak_ptr<ObservationTarget> weakTarget2 : observer->visibleTargets)
+			for (std::shared_ptr<ObservationTarget> target2 : observer->visibleTargets)
 			{
 
-				auto target2 = weakTarget2.lock();
 
 				if (target2->HasTag("player"))
 				{

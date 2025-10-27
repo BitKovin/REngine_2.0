@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include "../utility/hashed_string.hpp"
 
 class ObservationTarget
 {
@@ -11,15 +12,19 @@ public:
 
     std::string ownerId;
 
-    std::unordered_set<std::string> tags;
+    std::unordered_set<hashed_string> tags;
 
     bool active = true;
 
     float noticeMaxDistanceMultiplier = 1.0f;
 
-    ObservationTarget(const glm::vec3& pos, const std::vector<std::string>& tagList)
-        : position(pos), tags(tagList.begin(), tagList.end()) {
+    ObservationTarget(const glm::vec3& pos,
+        const std::vector<std::string>& tagList)
+        : position(pos) {
+        tags.reserve(tagList.size());
+        for (const auto& s : tagList)
+            tags.emplace(s);
     }
 
-    bool HasTag(const std::string& tag) const { return tags.count(tag) > 0; }
+    bool HasTag(const hashed_string& tag) const { return tags.count(tag) > 0; }
 };

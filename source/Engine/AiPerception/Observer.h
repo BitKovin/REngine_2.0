@@ -18,7 +18,7 @@ public:
 
     int id = 0;
 
-    std::vector<std::weak_ptr<ObservationTarget>> visibleTargets;
+    std::vector<std::shared_ptr<ObservationTarget>> visibleTargets;
 
     Observer(const glm::vec3& pos, const glm::vec3& fwd, float fov)
         : position(pos), forward(glm::normalize(fwd)), fovDeg(fov) {
