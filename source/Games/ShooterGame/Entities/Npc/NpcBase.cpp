@@ -84,9 +84,12 @@ void NpcBase::Start()
 	behaviorTree.Start();
 
 	observationTarget = AiPerceptionSystem::CreateTarget(Position, Id, {});
+	observationTarget->noticeMaxDistanceMultiplier = 0.3;
 
 	observer = AiPerceptionSystem::CreateObserver(Position + vec3(0, 0.7, 0), movingDirection, 90);
 	observer->owner = Id;
+	observer->ownerPtr = this;
+	
 }
 
 
@@ -261,9 +264,12 @@ void NpcBase::AsyncUpdate()
 
 	pathFollow.WaitToFinish();
 
-	UpdateObserver();
-	UpdateTargetFollow();
-	UpdateBT();
+	if (dead == false)
+	{
+		UpdateObserver();
+		UpdateTargetFollow();
+		UpdateBT();
+	}
 
 	auto animEvents = mesh->PullAnimationEvents();
 
@@ -455,7 +461,7 @@ void NpcBase::UpdateObserver()
 
 	if (!observer) return;
 
-
+	observer->searchForTriggeredNpc = !target_attack;
 	
 	if (distance(Camera::finalizedPosition, Position) < 40)
 	{
@@ -576,6 +582,7 @@ void NpcBase::UpdateObservationTarget()
 	observationTarget->tags.clear();
 
 	observationTarget->active = false; // needToInvestigateBody || (target_attack && target_follow);
+	observationTarget->isTriggeredNpc = false;
 
 	if (dead)
 	{
@@ -597,7 +604,9 @@ void NpcBase::UpdateObservationTarget()
 	{
 		observationTarget->tags.insert("in_trouble");
 		observationTarget->active = true;
+		observationTarget->isTriggeredNpc = true;
 	}
+
 
 }
 
@@ -627,6 +636,26 @@ void NpcBase::UpdateTargetFollow()
 
 
 	if (target_follow == false) return;
+
+	if (target_underArrest && observer)
+	{
+		auto observers = AiPerceptionSystem::GetObserversInRadius(observer->position, 15);
+
+		for (auto ob : observers)
+		{
+			NpcBase* npcRef = dynamic_cast<NpcBase*>(ob->ownerPtr);
+
+			if(npcRef == nullptr)
+				npcRef = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(ob->owner));
+
+			if (npcRef)
+			{
+				ShareTargetKnowlageWith(npcRef);
+			}
+
+		}
+
+	}
 
 	auto targetRef = Level::Current->FindEntityWithId(target_id);
 
@@ -707,6 +736,59 @@ void NpcBase::LoadAssets()
 
 }
 
+void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
+{
+
+	bool hasChanges = false;
+
+	if (target_underArrest && anotherNpc->target_underArrest == false)
+	{
+		hasChanges = true;
+	}
+
+	if (target_underArrestExpire < anotherNpc->target_underArrestExpire + 0.2f && anotherNpc->target_underArrest == false)
+	{
+		hasChanges = true;
+	}
+
+	if (target_attack && anotherNpc->target_attack == false)
+	{
+		hasChanges = true;
+	}
+
+	if (target_lastSeenTime > anotherNpc->target_lastSeenTime + 0.5f)
+	{
+		hasChanges = true;
+	}
+
+	if (hasChanges == false) return;
+
+	if (Physics::LineTrace(Position, anotherNpc->Position, BodyType::WorldOpaque).hasHit) return;
+
+	if (target_underArrest)
+	{
+		anotherNpc->target_underArrest = true;
+		anotherNpc->target_id = target_id;
+	}
+
+	if (target_underArrestExpire < anotherNpc->target_underArrestExpire)
+	{
+		anotherNpc->target_underArrestExpire = target_underArrestExpire;
+	}
+
+	if (target_attack)
+	{
+		anotherNpc->target_attack = true;
+	}
+
+	if (target_lastSeenTime > anotherNpc->target_lastSeenTime)
+	{
+		anotherNpc->target_lastSeenPosition = target_lastSeenPosition;
+		anotherNpc->target_lastSeenTime = target_lastSeenTime;
+	}
+
+}
+
 void NpcBase::Serialize(json& target)
 {
 
@@ -738,6 +820,7 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, target_follow);
 	SERIALIZE_FIELD(target, target_id);
 	SERIALIZE_FIELD(target, target_lastSeenPosition);
+	SERIALIZE_FIELD(target, target_lastSeenTime);
 	SERIALIZE_FIELD(target, target_stopUpdateLastSeenPositionDelay);
 	SERIALIZE_FIELD(target, target_sees);
 	SERIALIZE_FIELD(target, target_underArrest);
@@ -747,6 +830,9 @@ void NpcBase::Serialize(json& target)
 
 	SERIALIZE_FIELD(target, currentInvestigation);
 	SERIALIZE_FIELD(target, investigation_target);
+	SERIALIZE_FIELD(target, investigation_targetId);
+	SERIALIZE_FIELD(target, investigation_changed);
+	SERIALIZE_FIELD(target, needToInvestigateBody);
 
 	btSaveState = behaviorTree.SaveState().dump(0);
 	SERIALIZE_FIELD(target, btSaveState);
@@ -776,6 +862,7 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, target_follow);
 	DESERIALIZE_FIELD(source, target_id);
 	DESERIALIZE_FIELD(source, target_lastSeenPosition);
+	DESERIALIZE_FIELD(source, target_lastSeenTime);
 	DESERIALIZE_FIELD(source, target_stopUpdateLastSeenPositionDelay);
 	DESERIALIZE_FIELD(source, target_sees);
 	DESERIALIZE_FIELD(source, target_underArrest);
@@ -785,6 +872,9 @@ void NpcBase::Deserialize(json& source)
 
 	DESERIALIZE_FIELD(source, currentInvestigation);
 	DESERIALIZE_FIELD(source, investigation_target);
+	DESERIALIZE_FIELD(source, investigation_targetId);
+	DESERIALIZE_FIELD(source, investigation_changed);
+	DESERIALIZE_FIELD(source, needToInvestigateBody);
 
 	DESERIALIZE_FIELD(source, btSaveState);
 	if (btSaveState.empty() == false)

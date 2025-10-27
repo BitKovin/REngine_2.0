@@ -80,6 +80,7 @@ protected:
 	std::string target_id;
 	vec3 target_lastSeenPosition;
 	Delay target_stopUpdateLastSeenPositionDelay;
+	float target_lastSeenTime;
 	bool target_sees;
 	bool target_underArrest;
 	bool target_attack;
@@ -92,9 +93,11 @@ protected:
 
 	bool investigation_changed;
 
+	bool needToInvestigateBody = false;
+
 	std::shared_ptr<ObservationTarget> observationTarget;
 
-	bool needToInvestigateBody = false;
+
 
 public:
 
@@ -169,6 +172,8 @@ protected:
 	void UpdateAnimations();
 
 	void LoadAssets();
+
+	void ShareTargetKnowlageWith(NpcBase* anotherNpc);
 
 
 private:

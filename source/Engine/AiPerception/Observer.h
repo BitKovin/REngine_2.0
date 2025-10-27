@@ -3,6 +3,9 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include "../utility/hashed_string.hpp"
+
+class Entity;
 
 class ObservationTarget;
 
@@ -12,9 +15,13 @@ public:
     glm::vec3 position;
     glm::vec3 forward;
     float fovDeg;
-    float maxDistance = 50;
+    float maxDistance = 60;
 
-    std::string owner;
+    hashed_string owner;
+
+    Entity* ownerPtr = nullptr;
+
+    bool searchForTriggeredNpc = true;
 
     int id = 0;
 

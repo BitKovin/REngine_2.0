@@ -27,6 +27,8 @@ LevelSaveData LevelSaveSystem::SaveLevelToData()
 
     Level* level = Level::Current;
 
+    levelData.GameTime = Time::GameTime;
+
     vector<EntitySaveData> entities;
 
     for (auto levelObject : level->LevelObjects)
@@ -70,6 +72,8 @@ void LevelSaveSystem::LoadLevelFromData(LevelSaveData data)
 
     Time::DeltaTime = 0.0001;
     Time::DeltaTimeF = 0.0001f;
+
+    Time::GameTimeNoPause = Time::GameTime = data.GameTime;
 
     for (auto id : data.deletedIDs)
     {

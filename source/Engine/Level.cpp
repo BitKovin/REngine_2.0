@@ -433,7 +433,7 @@ void Level::LateUpdate(bool paused)
 	RemovePendingEntities();
 }
 
-vector<Entity*> Level::FindAllEntitiesWithName(const std::string& name)
+vector<Entity*> Level::FindAllEntitiesWithName(const hashed_string& name)
 {
 
 	vector<Entity*> result;
@@ -451,7 +451,7 @@ vector<Entity*> Level::FindAllEntitiesWithName(const std::string& name)
 	{
 		Entity* entity = (Entity*)var;
 
-		if (entity && entity->Name == name && entity->Destroyed == false)
+		if (entity && entity->Name == name.str() && entity->Destroyed == false)
 		{
 			result.push_back(entity);
 		}
@@ -462,7 +462,7 @@ vector<Entity*> Level::FindAllEntitiesWithName(const std::string& name)
 	{
 		Entity* entity = (Entity*)var;
 
-		if (entity && entity->Name == name && entity->Destroyed == false)
+		if (entity && entity->Name == name.str() && entity->Destroyed == false)
 		{
 			result.push_back(entity);
 		}
@@ -472,7 +472,7 @@ vector<Entity*> Level::FindAllEntitiesWithName(const std::string& name)
 	return result;
 }
 
-Entity* Level::FindEntityWithName(const std::string& name)
+Entity* Level::FindEntityWithName(const hashed_string& name)
 {
 
 	std::shared_lock<std::shared_mutex> lock(entityNameMapMutex); 
@@ -488,7 +488,7 @@ Entity* Level::FindEntityWithName(const std::string& name)
 
 }
 
-Entity* Level::FindEntityWithId(const std::string& id)
+Entity* Level::FindEntityWithId(const hashed_string& id)
 {
 
 	std::shared_lock<std::shared_mutex> lock(entityNameMapMutex);  // shared/read lock

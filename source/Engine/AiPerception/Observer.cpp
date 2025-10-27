@@ -14,6 +14,14 @@ void Observer::UpdateVisibility(const std::vector<std::shared_ptr<ObservationTar
 
         if (target->active == false) continue;
 
+        if (searchForTriggeredNpc == false)
+        {
+            if (target->isTriggeredNpc)
+            {
+                continue;
+            }
+        }
+
         glm::vec3 toTarget = target->position - position;
 
         float dist = glm::length(toTarget) / target->noticeMaxDistanceMultiplier;

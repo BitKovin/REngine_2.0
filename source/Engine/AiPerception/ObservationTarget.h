@@ -16,6 +16,8 @@ public:
 
     bool active = true;
 
+    bool isTriggeredNpc = false;
+
     float noticeMaxDistanceMultiplier = 1.0f;
 
     ObservationTarget(const glm::vec3& pos,

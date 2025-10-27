@@ -17,6 +17,8 @@
 
 #include "BSP/Quake3Bsp.h"
 
+#include "utility/hashed_string.hpp"
+
 #include "malloc_override.h"
 
 
@@ -44,8 +46,8 @@ private:
 
 	std::unordered_set<std::string> loadedEntityTypes;
 	
-	std::unordered_map<std::string, Entity*> entityIdMap;
-	std::unordered_map<std::string, Entity*> entityNameMap;
+	std::unordered_map<hashed_string, Entity*> entityIdMap;
+	std::unordered_map<hashed_string, Entity*> entityNameMap;
 
 	std::shared_mutex entityNameMapMutex;
 
@@ -200,9 +202,9 @@ public:
 
 	}
 
-	vector<Entity*> FindAllEntitiesWithName(const std::string& name);
-	Entity* FindEntityWithName(const std::string& name);
-	Entity* FindEntityWithId(const std::string& id);
+	vector<Entity*> FindAllEntitiesWithName(const hashed_string& name);
+	Entity* FindEntityWithName(const hashed_string& name);
+	Entity* FindEntityWithId(const hashed_string& id);
 
 	void FinalizeFrame();
 

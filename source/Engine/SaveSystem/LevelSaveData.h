@@ -17,6 +17,8 @@ struct LevelSaveData
 	std::vector<std::string> deletedNames;
 	std::vector<std::string> deletedIDs;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(LevelSaveData, name, entities, nextId, deletedNames, deletedIDs)
+	double GameTime;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(LevelSaveData, name, entities, nextId, deletedNames, deletedIDs, GameTime)
 
 };
