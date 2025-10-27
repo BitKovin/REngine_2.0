@@ -72,7 +72,7 @@ void PathFollowQuery::CalculatePathOnThread()
 	{
 		Performing = false;
 
-		Logger::Log("I have HUGE doubt that it will ever trigger, so I print text to see if it ever happens. \n");
+		//Logger::Log("I have HUGE doubt that it will ever trigger, so I print text to see if it ever happens. \n");
 
 		targetLocationsMutex.unlock();
 		return;
@@ -85,6 +85,7 @@ void PathFollowQuery::CalculatePathOnThread()
         FoundTarget = false;
         Performing = false;
         targetLocationsMutex.unlock();
+        CalculatedPath = true;
         return;
     }
 
@@ -153,6 +154,7 @@ void PathFollowQuery::CalculatePathOnThread()
     }
 
     Performing = false;
+    CalculatedPath = true;
     targetLocationsMutex.unlock();
 	
 }

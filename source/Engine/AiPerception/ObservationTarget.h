@@ -13,6 +13,8 @@ public:
 
     std::unordered_set<std::string> tags;
 
+    bool active = true;
+
     float noticeMaxDistanceMultiplier = 1.0f;
 
     ObservationTarget(const glm::vec3& pos, const std::vector<std::string>& tagList)

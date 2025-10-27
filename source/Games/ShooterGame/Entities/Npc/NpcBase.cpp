@@ -12,8 +12,6 @@
 
 #include "Ai/nav_point.h"
 
-#include <AiPerception/ObservationTarget.h>
-
 NpcBase::NpcBase()
 {
 
@@ -85,6 +83,8 @@ void NpcBase::Start()
 	behaviorTree.Owner = this;
 	behaviorTree.Start();
 
+	observationTarget = AiPerceptionSystem::CreateTarget(Position, Id, {});
+
 	observer = AiPerceptionSystem::CreateObserver(Position + vec3(0, 0.7, 0), movingDirection, 90);
 	observer->owner = Id;
 }
@@ -94,6 +94,8 @@ void NpcBase::Death()
 {
 
 	if (dead) return;
+
+	needToInvestigateBody = true;
 
 	//mesh->ClearHitboxes();
 	mesh->StartRagdoll();
@@ -302,13 +304,13 @@ void NpcBase::AsyncUpdate()
 
 	vec3 desiredDirection = vec3(0);
 	
-	if (pathFollow.reachedTarget == false)
+	if (pathFollow.reachedTarget == false || pathFollow.CalculatedPath == false)
 	{
 		pathFollow.UpdateStartAndTarget(Position, desiredTargetLocation);
 		pathFollow.TryPerform();
 	}
 
-	if (pathFollow.reachedTarget == false)
+	if (pathFollow.reachedTarget == false && pathFollow.CalculatedPath)
 	{
 
 		vec3 dir = MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position);
@@ -365,6 +367,8 @@ void NpcBase::AsyncUpdate()
 
 	Physics::SetLinearVelocity(LeadBody, move);
 
+
+
 	UpdateAnimations();
 	UpdateReturnFromRagdoll();
 
@@ -387,6 +391,10 @@ void NpcBase::AsyncUpdate()
 	}
 	
 
+}
+void NpcBase::LateUpdate()
+{
+	UpdateObservationTarget();
 }
 
 void NpcBase::UpdateBT()
@@ -461,6 +469,11 @@ void NpcBase::UpdateObserver()
 	{
 
 		auto target = weakTarget.lock();
+
+		bool foundCrime = false;
+
+		
+
 		if (target->HasTag("violentCrime"))
 		{
 			target_id = target->ownerId;
@@ -468,8 +481,39 @@ void NpcBase::UpdateObserver()
 			target_underArrest = true;
 			target_attack = true;
 			target_underArrestExpire = -1;
+			
+			foundCrime = true;
 		}
-		else if (currentInvestigation == InvestigationReason::WeaponFire
+		else if (target->HasTag("body"))
+		{
+			for (std::weak_ptr<ObservationTarget> weakTarget2 : observer->visibleTargets)
+			{
+
+				auto target2 = weakTarget2.lock();
+
+				if (target2->HasTag("player"))
+				{
+
+					if (distance(target->position, target2->position) < 5)
+					{
+						target_id = target2->ownerId;
+						target_follow = true;
+						target_underArrest = true;
+						foundCrime = true;
+					}
+
+				}
+
+			}
+
+			if (foundCrime == false)
+			{
+				TryStartInvestigation(InvestigationReason::Body, target->position, target->ownerId);
+			}
+
+		}
+
+		if (foundCrime == false && currentInvestigation == InvestigationReason::WeaponFire
 			&& distance(target->position, investigation_target) < 4)
 		{
 
@@ -487,6 +531,10 @@ void NpcBase::UpdateObserver()
 			target_id = target->ownerId;
 			target_follow = true;
 			target_underArrest = true;
+		}
+		else if (target->HasTag("in_trouble"))
+		{
+			TryStartInvestigation(InvestigationReason::NpcInTrouble, target->position, target->ownerId);
 		}
 		else if(target->ownerId == target_id && target_underArrest == false)
 		{
@@ -507,13 +555,57 @@ void NpcBase::UpdateObserver()
 
 }
 
+void NpcBase::UpdateObservationTarget()
+{
+
+	observationTarget->tags.clear();
+
+	observationTarget->active = false; // needToInvestigateBody || (target_attack && target_follow);
+
+	if (dead)
+	{
+		observationTarget->position = FromPhysics(mesh->FindHitboxByName("pelvis")->GetPosition()) + vec3(0, 0.5, 0);
+	}
+	else
+	{
+		observationTarget->position = Position + vec3(0,0.5,0);
+	}
+
+	if (needToInvestigateBody)
+	{
+		observationTarget->tags.insert("body");
+
+		observationTarget->active = true;
+
+	}
+	else if(target_attack && target_follow)
+	{
+		observationTarget->tags.insert("in_trouble");
+		observationTarget->active = true;
+	}
+
+}
+
 void NpcBase::UpdateTargetFollow()
 {
 
 
 	if (observer)
 	{
-		observer->fovDeg = target_follow ? 300 : 100;
+
+		if (target_follow)
+		{
+			observer->fovDeg = 300;
+		}
+		else if (currentInvestigation <= InvestigationReason::Body)
+		{
+			observer->fovDeg = 200;
+		}
+		else
+		{
+			observer->fovDeg = 120;
+		}
+
 	}
 
 	speed = (target_follow || currentInvestigation <= InvestigationReason::Body) ? 5 : 2;
@@ -716,13 +808,18 @@ void NpcBase::Deserialize(json& source)
 
 }
 
-void NpcBase::MoveTo(const vec3& target, float acceptanceRadius)
+void NpcBase::StopMovement()
 {
 
+	pathFollow.WaitToFinish();
+	pathFollow.CalculatedPath = false;
+
+}
+
+void NpcBase::MoveTo(const vec3& target, float acceptanceRadius)
+{
 	desiredTargetLocation = target;
 	pathFollow.acceptanceRadius = acceptanceRadius;
-	pathFollow.reachedTarget = false;
-	pathFollow.FoundTarget = true;
 
 }
 
@@ -731,6 +828,13 @@ void NpcBase::StopTargetFollow()
 	target_follow = false;
 	target_sees = false;
 	target_lastSeenPosition = vec3();
+	pathFollow.reachedTarget = false;
+	pathFollow.FoundTarget = true;
+}
+
+void NpcBase::BodyInvestigated()
+{
+	needToInvestigateBody = false;
 }
 
 void NpcBase::UpdateDebugUI()
@@ -781,13 +885,30 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 
 	currentInvestigation = reason;
 	investigation_target = target;
-
+	investigation_targetId = causer;
 }
 
 void NpcBase::FinishInvestigation()
 {
+
+
+	if (currentInvestigation == InvestigationReason::Body)
+	{
+		if (investigation_targetId.empty() == false)
+		{
+			NpcBase* npcRef = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(investigation_targetId));
+
+			if (npcRef)
+			{
+				npcRef->BodyInvestigated();
+			}
+
+		}
+	}
+
 	currentInvestigation = InvestigationReason::None;
 	investigation_target = vec3();
+
 }
 
 REGISTER_ENTITY(NpcBase, "npc_base")

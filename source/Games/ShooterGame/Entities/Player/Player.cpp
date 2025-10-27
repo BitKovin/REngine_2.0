@@ -347,7 +347,7 @@ void Player::UpdateWeapon()
 
     vec3 forwardOffset = Camera::Forward() * Camera::rotation.x * 0.01f;
 
-    observationTarget->tags.clear();
+    observationTarget->tags = { "player" };
 
     if (violanceCrimeActiveDelay.Wait())
     {

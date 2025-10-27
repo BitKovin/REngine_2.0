@@ -40,6 +40,7 @@ public:
 		CheckNpcRef(context);
 
 		npcRef->pathFollow.reachedTarget = true;
+		npcRef->StopMovement();
 
 	}
 
@@ -54,6 +55,7 @@ public:
 		{
 
 			npcRef->pathFollow.reachedTarget = false;
+			npcRef->StopMovement();
 
 		}
 
@@ -77,13 +79,13 @@ public:
 			targetEntity = Level::Current->FindEntityWithName(target);
 		}
 
-		if (targetEntity == nullptr)
+		if (targetEntity == nullptr && npcRef->pathFollow.CalculatedPath)
 		{
 			FinishExecution(false);
 			return;
 		}
 
-		if (npcRef->pathFollow.reachedTarget)
+		if (npcRef->pathFollow.reachedTarget && npcRef->pathFollow.CalculatedPath)
 		{
 			FinishExecution(true);
 			return;

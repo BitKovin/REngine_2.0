@@ -19,14 +19,15 @@
 
 #include <AiPerception/AiPerceptionSystem.h>
 #include <AiPerception/Observer.h>
+#include <AiPerception/ObservationTarget.h>
 
 enum class InvestigationReason
 {
 
 	NpcInTrouble,
 	WeaponFire,
-	Explosion,
 	Body,
+	Explosion,
 	LoudNoise,
 	Noise,
 	None
@@ -87,9 +88,13 @@ protected:
 
 	InvestigationReason currentInvestigation = InvestigationReason::None;
 	vec3 investigation_target;
+	std::string investigation_targetId;
 
 	bool investigation_changed;
 
+	std::shared_ptr<ObservationTarget> observationTarget;
+
+	bool needToInvestigateBody = false;
 
 public:
 
@@ -136,9 +141,11 @@ public:
 	}
 
 	void AsyncUpdate();
+	void LateUpdate();
 
 	void UpdateBT();
 	void UpdateObserver();
+	void UpdateObservationTarget();
 
 	void UpdateTargetFollow();
 
@@ -151,8 +158,11 @@ public:
 
 	void FinishInvestigation();
 
+	void StopMovement();
 	void MoveTo(const vec3& target, float acceptanceRadius);
 	void StopTargetFollow();
+
+	void BodyInvestigated();
 
 protected:
 

@@ -40,6 +40,7 @@ public:
 		CheckNpcRef(context);
 
 		npcRef->pathFollow.reachedTarget = true;
+		npcRef->StopMovement();
 
 	}
 
@@ -52,7 +53,7 @@ public:
 
 		if (npcRef)
 		{
-
+			npcRef->StopMovement();
 			npcRef->pathFollow.reachedTarget = false;
 
 		}
@@ -66,9 +67,8 @@ public:
 
 		vec3 target = GetVariable<vec3>("target");
 
-		
 
-		if (npcRef->pathFollow.reachedTarget)
+		if (npcRef->pathFollow.reachedTarget && npcRef->pathFollow.CalculatedPath)
 		{
 			FinishExecution(true);
 			return;

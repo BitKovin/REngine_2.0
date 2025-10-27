@@ -3,6 +3,7 @@
 #include <glm/gtx/vector_angle.hpp>
 #include <cmath>
 #include "../Physics.h"
+#include "../DebugDraw.hpp"
 
 void Observer::UpdateVisibility(const std::vector<std::shared_ptr<ObservationTarget>>& allTargets)
 {
@@ -10,6 +11,9 @@ void Observer::UpdateVisibility(const std::vector<std::shared_ptr<ObservationTar
 
     for (auto& target : allTargets)
     {
+
+        if (target->active == false) continue;
+
         glm::vec3 toTarget = target->position - position;
 
         float dist = glm::length(toTarget) / target->noticeMaxDistanceMultiplier;

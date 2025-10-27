@@ -30,6 +30,8 @@ public:
 
 	bool Async = true;
 
+	bool CalculatedPath = false;
+
 	float acceptanceRadius = 0.2f;
 
 	void WaitToFinish();
