@@ -948,7 +948,7 @@ void NpcBase::StopMovement()
 	pathFollow.WaitToFinish();
 	pathFollow.CalculatedPath = true;
 	pathFollow.reachedTarget = true;
-	movingDirection = vec3();
+	desiredDirection = vec3(0);
 
 }
 
