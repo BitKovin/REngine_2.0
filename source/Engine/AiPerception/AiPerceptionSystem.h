@@ -25,6 +25,9 @@ public:
 
     static std::vector<std::shared_ptr<Observer>> GetObserversInRadius(const glm::vec3& position, float radius);
 
+    static std::vector<std::shared_ptr<ObservationTarget>>
+        GetTargetsInRadiusWithTagOrdered(const glm::vec3& position, float radius, const std::string& tag);
+
 private:
     static std::vector<std::shared_ptr<Observer>> observers;
     static std::vector<std::shared_ptr<ObservationTarget>> targets;

@@ -457,9 +457,16 @@ void Player::UpdateDebugUI()
 
     ImGui::Checkbox("draw physics", &Physics::DebugDraw);
 
-    if (ImGui::Button("spawn base npc"))
+    if (ImGui::Button("spawn guard npc"))
     {
         Entity* entity = Spawn("npc_base");
+        entity->Position = Camera::position + Camera::Forward() * 2.0f;
+        entity->Start();
+    }
+
+    if (ImGui::Button("spawn civilian npc"))
+    {
+        Entity* entity = Spawn("npc_civilian");
         entity->Position = Camera::position + Camera::Forward() * 2.0f;
         entity->Start();
     }

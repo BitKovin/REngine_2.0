@@ -23,7 +23,7 @@
 
 enum class InvestigationReason
 {
-
+	TargetSeen,
 	NpcInTrouble,
 	WeaponFire,
 	Body,
@@ -98,6 +98,11 @@ protected:
 	float target_underArrestExpire = 5.0f;
 	bool target_attackInRange;
 
+	bool report_to_guard;
+	bool found_guard;
+	std::string closestGuard;
+
+	Delay findGuardCooldown;
 
 	InvestigationReason currentInvestigation = InvestigationReason::None;
 	vec3 investigation_target;
@@ -116,6 +121,8 @@ protected:
 
 
 public:
+
+	bool isGuard = true;
 
 	static inline Delay globalPhraceDelay;
 
@@ -177,7 +184,9 @@ public:
 
 	void UpdateDebugUI();
 
-	void TryStartInvestigation(InvestigationReason reason, vec3 target, string causer);
+	void FindClosestGuard();
+
+	void TryStartInvestigation(InvestigationReason reason, vec3 target, string causer, bool sharedByNpc = false);
 
 	bool TryCommitCrime(Crime crime, std::string offender, vec3 pos);
 

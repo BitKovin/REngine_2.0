@@ -294,7 +294,7 @@ void NpcBase::AsyncUpdate()
 	VoiceSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
 
 
-	bool lockAtTarget = target_sees && target_attack && target_attackInRange;
+	bool lockAtTarget = target_attack && target_sees && target_attackInRange && isGuard;
 
 	vec3 desiredDirection = vec3(0);
 
@@ -420,6 +420,8 @@ void NpcBase::UpdateBT()
 		behaviorTree.GetBlackboard().SetValue("navpoint_acceptance_radius", 0.0f);
 	}
 
+	behaviorTree.GetBlackboard().SetValue("isGuard", isGuard);
+
 	behaviorTree.GetBlackboard().SetValue("target_follow", target_follow);
 	behaviorTree.GetBlackboard().SetValue("target_id", target_id);
 	behaviorTree.GetBlackboard().SetValue("target_sees", target_sees);
@@ -430,6 +432,10 @@ void NpcBase::UpdateBT()
 
 	behaviorTree.GetBlackboard().SetValue("investigation", currentInvestigation != InvestigationReason::None);
 	behaviorTree.GetBlackboard().SetValue("investigation_target", investigation_target);
+
+	behaviorTree.GetBlackboard().SetValue("report_to_guard", report_to_guard);
+	behaviorTree.GetBlackboard().SetValue("closestGuard", closestGuard);
+	behaviorTree.GetBlackboard().SetValue("found_guard", found_guard);
 
 	if (investigation_changed)
 	{
@@ -537,6 +543,9 @@ void NpcBase::UpdateObserver()
 			if (target_follow == false)
 			{
 				PlayPhrace("target_found");
+
+				report_to_guard = true;
+
 			}
 
 			target_follow = true;
@@ -602,12 +611,36 @@ void NpcBase::UpdateObservationTarget()
 
 		}
 	}
-	else if (target_attack && target_follow)
+
+	else
 	{
-		observationTarget->tags.insert("in_trouble");
-		observationTarget->active = true;
-		observationTarget->isTriggeredNpc = true;
+		if (isGuard)
+		{
+			observationTarget->tags = { "guard" };
+		}
+		else
+		{
+			observationTarget->tags = { "civilian" };
+		}
+
+		if (target_underArrest && target_follow)
+		{
+
+			observationTarget->tags.insert("in_trouble");
+			observationTarget->active = true;
+			observationTarget->isTriggeredNpc = true;
+		}
+		else
+		{
+			if (isGuard && (target_attack == false || target_follow == false))
+			{
+				observationTarget->tags.emplace("guard_safe");
+			}
+		}
+
 	}
+
+
 
 
 }
@@ -637,11 +670,16 @@ void NpcBase::UpdateTargetFollow()
 	speed = (target_follow || currentInvestigation <= InvestigationReason::Body) ? 5 : 2;
 
 
+	if (target_follow || report_to_guard)
+	{
+		FindClosestGuard();
+	}
+
 	if (target_follow == false) return;
 
 	if (target_underArrest && observer)
 	{
-		auto observers = AiPerceptionSystem::GetObserversInRadius(observer->position, 15);
+		auto observers = AiPerceptionSystem::GetObserversInRadius(observer->position, isGuard ? 13 : 7);
 
 		for (auto ob : observers)
 		{
@@ -792,17 +830,27 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 
 bool NpcBase::TryCommitCrime(Crime crime, std::string offender, vec3 pos)
 {
+
+	if (isGuard == false)
+	{
+		if (crime < Crime::Group_Arrest)
+		{
+			target_follow = true;
+			report_to_guard = true;
+		}
+	}
+
+
 	if (crime >= currentCrime) return true; // Note: Returns false if no change, but since we need to know if committed (changed), adjust to return bool
 
 	bool wasUnderArrest = target_underArrest;
 	bool wasAttack = target_attack;
 
+
 	currentCrime = crime;
 
-	bool isGroup = (crime == Crime::Group_Attack || crime == Crime::Group_Arrest || crime == Crime::Group_Follow);
-
 	target_id = offender;
-	target_follow = true;
+
 	target_stopUpdateLastSeenPositionDelay.AddDelay(0.5f);
 
 	if (crime < Crime::Group_Attack)
@@ -815,14 +863,25 @@ bool NpcBase::TryCommitCrime(Crime crime, std::string offender, vec3 pos)
 	if (crime < Crime::Group_Arrest)
 	{
 		target_underArrest = true;
+		target_follow = true;
+
+		if (isGuard == false)
+		{
+			report_to_guard = true;
+		}
+
 	}
 
+	if (crime < Crime::Group_Follow && isGuard)
+	{
+		target_follow = true;
+	}
 
-	if (target_attack && !wasAttack && !isGroup)
+	if (target_attack && !wasAttack)
 	{
 		PlayPhrace("arrest_final");
 	}
-	else if (target_underArrest && !wasUnderArrest && !isGroup)
+	else if (target_underArrest && !wasUnderArrest)
 	{
 		if (crime == Crime::WeaponHolding || crime == Crime::WeaponFireSound)
 		{
@@ -876,6 +935,10 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, target_underArrestExpire);
 	SERIALIZE_FIELD(target, target_attackInRange);
 
+	SERIALIZE_FIELD(target, report_to_guard);
+	SERIALIZE_FIELD(target, found_guard);
+	SERIALIZE_FIELD(target, closestGuard);
+
 	SERIALIZE_FIELD(target, currentInvestigation);
 	SERIALIZE_FIELD(target, investigation_target);
 	SERIALIZE_FIELD(target, investigation_targetId);
@@ -919,6 +982,10 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, target_attack);
 	DESERIALIZE_FIELD(source, target_underArrestExpire);
 	DESERIALIZE_FIELD(source, target_attackInRange);
+
+	DESERIALIZE_FIELD(source, report_to_guard);
+	DESERIALIZE_FIELD(source, found_guard);
+	DESERIALIZE_FIELD(source, closestGuard);
 
 	DESERIALIZE_FIELD(source, currentInvestigation);
 	DESERIALIZE_FIELD(source, investigation_target);
@@ -981,7 +1048,7 @@ void NpcBase::StopMovement()
 	pathFollow.WaitToFinish();
 	pathFollow.CalculatedPath = true;
 	pathFollow.reachedTarget = true;
-	desiredDirection = vec3(0);
+	//desiredDirection = vec3(0);
 
 }
 
@@ -1033,7 +1100,29 @@ void NpcBase::UpdateDebugUI()
 
 }
 
-void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, string causer)
+void NpcBase::FindClosestGuard()
+{
+
+	if (findGuardCooldown.Wait()) return;
+
+	auto npcsInRadius = AiPerceptionSystem::GetTargetsInRadiusWithTagOrdered(Position, 150, "guard_safe");
+
+	if (npcsInRadius.size() > 0)
+	{
+		closestGuard = npcsInRadius[0]->ownerId;
+		found_guard = true;
+	}
+	else
+	{
+		closestGuard = "";
+		found_guard = false;
+	}
+
+	findGuardCooldown.AddDelay(1);
+
+}
+
+void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, string causer, bool sharedByNpc)
 {
 
 	if (target_follow && reason == InvestigationReason::WeaponFire && causer == target_id)
@@ -1051,7 +1140,7 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 		return;
 	}
 
-
+	if (isGuard == false && reason == InvestigationReason::NpcInTrouble) return;
 
 	if (reason >= currentInvestigation)
 	{
@@ -1060,12 +1149,19 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 
 	if (reason == InvestigationReason::LoudNoise || reason == InvestigationReason::Noise)
 	{
-		PlayPhrace("heard_sound");
+
+		if(sharedByNpc == false)
+			PlayPhrace("heard_sound");
 	}
 
 	if (reason == InvestigationReason::WeaponFire)
 	{
 		PlayPhrace("shots_fired");
+	}
+
+	if (reason < InvestigationReason::LoudNoise && isGuard == false)
+	{
+		report_to_guard = true;
 	}
 
 	investigation_changed = true;
@@ -1079,20 +1175,56 @@ void NpcBase::FinishInvestigation()
 {
 
 
-	if (currentInvestigation == InvestigationReason::Body)
+	if (isGuard)
 	{
-		if (investigation_targetId.empty() == false)
+		if (currentInvestigation == InvestigationReason::Body)
 		{
-			NpcBase* npcRef = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(investigation_targetId));
-
-			if (npcRef)
+			if (investigation_targetId.empty() == false)
 			{
-				npcRef->BodyInvestigated();
-				PlayPhrace("dead_body");
+				NpcBase* npcRef = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(investigation_targetId));
+
+				if (npcRef)
+				{
+					npcRef->BodyInvestigated();
+					PlayPhrace("dead_body");
+				}
+
+			}
+		}
+	}
+	else
+	{
+
+		if (found_guard)
+		{
+			auto guardRef = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(closestGuard));
+
+			if (currentInvestigation != InvestigationReason::None)
+			{
+
+				if (guardRef)
+				{
+					guardRef->TryStartInvestigation(currentInvestigation, investigation_target, Id, true);
+					report_to_guard = false;
+				}
+
+			}
+			else
+			{
+				if (guardRef->target_lastSeenTime < target_lastSeenTime + 0.5f)
+				{
+					guardRef->target_lastSeenTime = target_lastSeenTime;
+					guardRef->target_lastSeenPosition = target_lastSeenPosition;
+					guardRef->TryStartInvestigation(InvestigationReason::TargetSeen, target_lastSeenPosition, Id, true);
+
+				}
 			}
 
 		}
+
 	}
+
+
 
 	currentInvestigation = InvestigationReason::None;
 	investigation_target = vec3();

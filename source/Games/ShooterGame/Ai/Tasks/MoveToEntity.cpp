@@ -24,6 +24,8 @@ private:
 		}
 	}
 
+	bool firstTick = true;
+
 public:
 	MoveToEntity() : CustomTask ("Move To Entity", "MoveToEntity")
 	{
@@ -39,8 +41,8 @@ public:
 
 		CheckNpcRef(context);
 
-		//npcRef->pathFollow.reachedTarget = true;
-		//npcRef->StopMovement();
+		npcRef->pathFollow.reachedTarget = true;
+		npcRef->StopMovement();
 
 	}
 
@@ -58,7 +60,7 @@ public:
 
 			Entity* targetEntity = nullptr;
 
-			if (target.starts_with("&"))
+			if (target.starts_with("$"))
 			{
 				targetEntity = Level::Current->FindEntityWithId(target);
 			}
@@ -73,12 +75,9 @@ public:
 				return;
 			}
 
-			npcRef->MoveTo(targetEntity->Position, GetVariable<float>("acceptance radius"));
-
-			npcRef->pathFollow.reachedTarget = false;
-			npcRef->PrepareToStartMovement();
-
 		}
+
+		firstTick = true;
 
 	}
 
@@ -87,11 +86,12 @@ public:
 
 		CheckNpcRef(context);
 
+
 		std::string target = GetVariable<std::string>("target");
 
 		Entity* targetEntity = nullptr;
 
-		if (target.starts_with("&"))
+		if (target.starts_with("$"))
 		{
 			targetEntity = Level::Current->FindEntityWithId(target);
 		}
@@ -103,6 +103,17 @@ public:
 		if (targetEntity == nullptr)
 		{
 			FinishExecution(false);
+			return;
+		}
+
+		if (firstTick)
+		{
+			npcRef->MoveTo(targetEntity->Position, GetVariable<float>("acceptance radius"));
+
+			npcRef->pathFollow.reachedTarget = false;
+			npcRef->PrepareToStartMovement();
+
+			firstTick = false;
 			return;
 		}
 
