@@ -49,7 +49,7 @@ void NpcBase::Start()
 
 	//Drawables.push_back(mesh);
 
-	LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 2, 50);
+	LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 2, 100);
 
 
 	Physics::SetGravityFactor(LeadBody, 4);
@@ -340,7 +340,7 @@ void NpcBase::AsyncUpdate()
 
 		desiredLookVector = targetRef->Position - Position;
 
-		movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 3.5f);
+		movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 2.0f);
 
 	}
 
@@ -486,9 +486,9 @@ void NpcBase::UpdateObserver()
 		if (target->HasTag("violentCrime"))
 		{
 
-			if (target_underArrest == false)
+			if (target_attack == false)
 			{
-				PlayPhrace("arrest");
+				PlayPhrace("arrest_final");
 			}
 
 			target_id = target->ownerId;
@@ -547,6 +547,12 @@ void NpcBase::UpdateObserver()
 		}
 		else if (target->ownerId == target_id && target_underArrest)
 		{
+
+			if (target_follow == false)
+			{
+				PlayPhrace("target_found");
+			}
+
 			target_follow = true;
 		}
 		else if (target->HasTag("illegal_weapon"))
@@ -574,11 +580,6 @@ void NpcBase::UpdateObserver()
 
 		if (target->ownerId == target_id)
 		{
-
-			if (target_follow == false && target_underArrest == true)
-			{
-				PlayPhrace("target_found");
-			}
 
 
 			target_stopUpdateLastSeenPositionDelay.AddDelay(1.0f);
@@ -610,12 +611,15 @@ void NpcBase::UpdateObservationTarget()
 		observationTarget->position = Position + vec3(0,0.5,0);
 	}
 
-	if (needToInvestigateBody)
+	if (dead)
 	{
-		observationTarget->tags.insert("body");
+		if (needToInvestigateBody)
+		{
+			observationTarget->tags.insert("body");
 
-		observationTarget->active = true;
+			observationTarget->active = true;
 
+		}
 	}
 	else if(target_attack && target_follow)
 	{
@@ -693,6 +697,7 @@ void NpcBase::UpdateTargetFollow()
 		if (target_underArrestExpire < 0)
 		{
 			target_attack = true;
+			PlayPhrace("arrest_final");
 		}
 	}
 
@@ -943,6 +948,7 @@ void NpcBase::StopMovement()
 	pathFollow.WaitToFinish();
 	pathFollow.CalculatedPath = true;
 	pathFollow.reachedTarget = true;
+	movingDirection = vec3();
 
 }
 
@@ -956,7 +962,7 @@ void NpcBase::MoveTo(const vec3& target, float acceptanceRadius)
 void NpcBase::StopTargetFollow()
 {
 
-	if (target_attack && target_underArrest)
+	if (target_underArrest)
 	{
 		PlayPhrace("target_lost");
 	}

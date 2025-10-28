@@ -8,6 +8,9 @@ CustomTask::CustomTask(const std::string& name, const std::string& type) : TreeN
 
 inline void CustomTask::OnStart(BehaviorTreeContext& context)
 {
+
+	lastContext = context;
+
 	TreeNode::OnStart(context);
 
 	Start(context);
@@ -15,8 +18,6 @@ inline void CustomTask::OnStart(BehaviorTreeContext& context)
 
 inline NodeStatus CustomTask::Execute(BehaviorTreeContext& context)
 {
-
-	lastContext = context;
 
 	Tick(context);
 

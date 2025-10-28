@@ -43,6 +43,7 @@ public:
 
 			auto navPointRef = dynamic_cast<nav_point*>(Level::Current->FindEntityWithName(npcRef->CurrentTargetNavPoint));
 
+			npcRef->StopMovement();
 			npcRef->desiredLookVector = MathHelper::GetForwardVector(navPointRef->Rotation);
 
 		}
