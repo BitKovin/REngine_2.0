@@ -139,7 +139,7 @@ void TreeNode::OnStop(BehaviorTreeContext& context)
 
 NodeStatus TreeNode::TickNode(BehaviorTreeContext& context) {
 
-
+    if(isTask)
     if (context.tree) {
         context.tree->SetLastExecutedNode(this);
         //context.tree->AddActiveNode(this);
@@ -155,17 +155,13 @@ NodeStatus TreeNode::TickNode(BehaviorTreeContext& context) {
         status_ = NodeStatus::Running;
         OnStart(context);
 
-        if (status_ == NodeStatus::Running)
+        if (status_ == NodeStatus::Running && isTask)
             return NodeStatus::Running;
 
     }
 
     NodeStatus result = Execute(context);
 
-    // Remove from active nodes if completed
-    if (context.tree && result != NodeStatus::Running) {
-        context.tree->RemoveActiveNode(this);
-    }
 
     if (result != NodeStatus::Running) {
         status_ = result;

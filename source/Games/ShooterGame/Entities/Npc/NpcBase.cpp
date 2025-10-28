@@ -309,7 +309,7 @@ void NpcBase::AsyncUpdate()
 
 			vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
 
-			desiredDirection = MathHelper::Interp(curMove, newMove, Time::DeltaTimeF, 10.0f);
+			desiredDirection = MathHelper::Interp(curMove, newMove, Time::DeltaTimeF, 5.0f);
 
 			if (lockAtTarget == false)
 			{
@@ -322,6 +322,11 @@ void NpcBase::AsyncUpdate()
 	}
 	else
 	{
+
+		vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
+
+		desiredDirection = MathHelper::Interp(curMove, vec3(0), Time::DeltaTimeF, 5.0f);
+
 		if (lockAtTarget == false)
 		{
 			movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 2);
@@ -428,7 +433,7 @@ void NpcBase::UpdateBT()
 
 	if (btEditorEnabled)
 	{
-		editor.Update(Time::DeltaTimeF);
+		editor.Update(Time::DeltaTimeF / 1.0f);
 	}
 	else
 	{
@@ -928,6 +933,7 @@ void NpcBase::PrepareToStartMovement()
 	pathFollow.WaitToFinish();
 	pathFollow.CalculatedPath = false;
 	pathFollow.reachedTarget = false;
+	pathFollow.isPerformingDelay.AddDelay(-1);
 
 }
 
