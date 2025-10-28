@@ -142,7 +142,7 @@ NodeStatus TreeNode::TickNode(BehaviorTreeContext& context) {
 
     if (context.tree) {
         context.tree->SetLastExecutedNode(this);
-        context.tree->AddActiveNode(this);
+        //context.tree->AddActiveNode(this);
     }
 
     if (isTask)
@@ -154,6 +154,9 @@ NodeStatus TreeNode::TickNode(BehaviorTreeContext& context) {
     {
         status_ = NodeStatus::Running;
         OnStart(context);
+
+        if (status_ == NodeStatus::Running)
+            return NodeStatus::Running;
 
     }
 

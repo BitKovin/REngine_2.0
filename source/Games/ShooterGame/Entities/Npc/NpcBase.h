@@ -43,11 +43,8 @@ protected:
 	vec3 desiredDirection = vec3();
 	vec3 movingDirection = vec3();
 
-	SoundPlayer* DeathSoundPlayer = nullptr;
-	SoundPlayer* HurtSoundPlayer = nullptr;
-	SoundPlayer* StunSoundPlayer = nullptr;
-	SoundPlayer* AttackSoundPlayer = nullptr;
-	SoundPlayer* AttackHitSoundPlayer = nullptr;
+	SoundPlayer* VoiceSoundPlayer = nullptr;
+
 
 	float maxSpeed = 4;
 	float speed = 2.0;
@@ -87,6 +84,7 @@ protected:
 	float target_underArrestExpire = 5.0f;
 	bool target_attackInRange;
 
+
 	InvestigationReason currentInvestigation = InvestigationReason::None;
 	vec3 investigation_target;
 	std::string investigation_targetId;
@@ -97,7 +95,7 @@ protected:
 
 	std::shared_ptr<ObservationTarget> observationTarget;
 
-
+	const std::string vo_base_event_path = "event:/Character/Guards/Guard1/";
 
 public:
 
@@ -116,7 +114,7 @@ public:
 
 	void SetupSoundPlayer(SoundPlayer* soundPlayer)
 	{
-		soundPlayer->MaxDistance = 100;
+		soundPlayer->MaxDistance = 40;
 		soundPlayer->Volume = 1.0;
 		soundPlayer->MinDistance = 0.5;
 	}
@@ -143,6 +141,8 @@ public:
 
 	}
 
+	void PlayPhrace(std::string name);
+
 	void AsyncUpdate();
 	void LateUpdate();
 
@@ -161,6 +161,7 @@ public:
 
 	void FinishInvestigation();
 
+	void PrepareToStartMovement();
 	void StopMovement();
 	void MoveTo(const vec3& target, float acceptanceRadius);
 	void StopTargetFollow();

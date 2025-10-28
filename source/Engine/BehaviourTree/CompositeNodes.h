@@ -59,4 +59,5 @@ public:
 
 private:
     size_t currentChildIndex_ = 0;
+    int previousExecutedChild = -1;
 };

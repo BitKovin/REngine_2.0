@@ -39,8 +39,8 @@ public:
 
 		CheckNpcRef(context);
 
-		npcRef->pathFollow.reachedTarget = true;
-		npcRef->StopMovement();
+		//npcRef->pathFollow.reachedTarget = true;
+		//npcRef->StopMovement();
 
 	}
 
@@ -53,7 +53,9 @@ public:
 
 		if (npcRef)
 		{
-			npcRef->StopMovement();
+			vec3 target = GetVariable<vec3>("target");
+			npcRef->MoveTo(target, GetVariable<float>("acceptance radius"));
+			npcRef->PrepareToStartMovement();
 			npcRef->pathFollow.reachedTarget = false;
 
 		}

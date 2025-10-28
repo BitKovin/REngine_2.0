@@ -39,8 +39,8 @@ public:
 
 		CheckNpcRef(context);
 
-		npcRef->pathFollow.reachedTarget = true;
-		npcRef->StopMovement();
+		//npcRef->pathFollow.reachedTarget = true;
+		//npcRef->StopMovement();
 
 	}
 
@@ -54,8 +54,29 @@ public:
 		if (npcRef)
 		{
 
+			std::string target = GetVariable<std::string>("target");
+
+			Entity* targetEntity = nullptr;
+
+			if (target.starts_with("&"))
+			{
+				targetEntity = Level::Current->FindEntityWithId(target);
+			}
+			else
+			{
+				targetEntity = Level::Current->FindEntityWithName(target);
+			}
+
+			if (targetEntity == nullptr)
+			{
+				FinishExecution(false);
+				return;
+			}
+
+			npcRef->MoveTo(targetEntity->Position, GetVariable<float>("acceptance radius"));
+
 			npcRef->pathFollow.reachedTarget = false;
-			npcRef->StopMovement();
+			npcRef->PrepareToStartMovement();
 
 		}
 
@@ -79,7 +100,7 @@ public:
 			targetEntity = Level::Current->FindEntityWithName(target);
 		}
 
-		if (targetEntity == nullptr && npcRef->pathFollow.CalculatedPath)
+		if (targetEntity == nullptr)
 		{
 			FinishExecution(false);
 			return;

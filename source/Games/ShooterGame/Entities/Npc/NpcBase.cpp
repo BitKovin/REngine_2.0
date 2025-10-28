@@ -59,22 +59,10 @@ void NpcBase::Start()
 
 	pathFollow.Async = false;
 
-	DeathSoundPlayer = SoundPlayer::Create();
-	HurtSoundPlayer = SoundPlayer::Create();
-	StunSoundPlayer = SoundPlayer::Create();
-	AttackSoundPlayer = SoundPlayer::Create();
-	AttackHitSoundPlayer = SoundPlayer::Create();
+	VoiceSoundPlayer = SoundPlayer::Create();
+	VoiceSoundPlayer->SetSound(FmodEventInstance::Create("event:/Character/Dialogue"));
+	SetupSoundPlayer(VoiceSoundPlayer);
 
-	SetupSoundPlayer(DeathSoundPlayer);
-	DeathSoundPlayer->MaxDistance *= 1.5f;
-	DeathSoundPlayer->Volume *= 2.0f;
-	SetupSoundPlayer(HurtSoundPlayer);
-	HurtSoundPlayer->Volume *= 1.5f;
-	SetupSoundPlayer(StunSoundPlayer);
-	SetupSoundPlayer(AttackSoundPlayer);
-	AttackSoundPlayer->Volume *= 0.7f;
-	SetupSoundPlayer(AttackHitSoundPlayer);
-	AttackHitSoundPlayer->Volume *= 1.2;
 
 	editor = BehaviorTreeEditor(&behaviorTree);
 	editor.Init();
@@ -108,7 +96,6 @@ void NpcBase::Death()
 	mesh->SetAnimationPaused(true);
 	Physics::SetLinearVelocity(LeadBody, vec3(0));
 
-	DeathSoundPlayer->Play();
 
 	//Physics::SetBodyType(LeadBody, BodyType::None);
 	//Physics::SetCollisionMask(LeadBody, BodyType::World);
@@ -123,19 +110,7 @@ void NpcBase::Death()
 	AiPerceptionSystem::RemoveObserver(observer);
 	observer = nullptr;
 
-	return;
-	if (DeathSoundPlayer)
-	{
-		DeathSoundPlayer->DestroyWithDelay(3);
-		HurtSoundPlayer->DestroyWithDelay(3);
-		StunSoundPlayer->DestroyWithDelay(3);
-		AttackSoundPlayer->DestroyWithDelay(3);
-		AttackHitSoundPlayer->DestroyWithDelay(3);
-		DeathSoundPlayer = nullptr;
-		HurtSoundPlayer = nullptr;
-		StunSoundPlayer = nullptr;
-		AttackSoundPlayer = nullptr;
-	}
+
 
 }
 
@@ -168,7 +143,6 @@ void NpcBase::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
 	{
 		LeadBody->SetLinearVelocity(LeadBody->GetLinearVelocity() / 2.0f);
 		speed /= 2.0f;
-		HurtSoundPlayer->Play();
 	}
 
 
@@ -259,6 +233,19 @@ void NpcBase::UpdateReturnFromRagdoll()
 }
 
 
+void NpcBase::PlayPhrace(std::string name)
+{
+
+	if (VoiceSoundPlayer == nullptr) return;
+
+	const string eventPath = vo_base_event_path + name;
+
+	VoiceSoundPlayer->Stop();
+	VoiceSoundPlayer->SetSound(FmodEventInstance::Create(eventPath));
+	VoiceSoundPlayer->Play();
+
+}
+
 void NpcBase::AsyncUpdate()
 {
 
@@ -293,17 +280,12 @@ void NpcBase::AsyncUpdate()
 		return;
 	}
 
-	DeathSoundPlayer->Position = Position;
-	HurtSoundPlayer->Position = Position;
-	StunSoundPlayer->Position = Position;
-	AttackSoundPlayer->Position = Position;
-	AttackHitSoundPlayer->Position = Position;
+	auto headHitbox = mesh->FindHitboxByName("neck_01");
 
-	DeathSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
-	HurtSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
-	StunSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
-	AttackSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
-	AttackHitSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
+	if(headHitbox)
+		VoiceSoundPlayer->Position = FromPhysics(headHitbox->GetPosition());
+
+	VoiceSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
 
 
 	bool lockAtTarget = target_sees && target_attack && target_attackInRange;
@@ -498,12 +480,21 @@ void NpcBase::UpdateObserver()
 
 		if (target->HasTag("violentCrime"))
 		{
+
+			if (target_underArrest == false)
+			{
+				PlayPhrace("arrest");
+			}
+
 			target_id = target->ownerId;
 			target_follow = true;
 			target_underArrest = true;
 			target_attack = true;
 			target_underArrestExpire = -1;
 			
+
+
+
 			foundCrime = true;
 		}
 		else if (target->HasTag("body"))
@@ -517,6 +508,12 @@ void NpcBase::UpdateObserver()
 
 					if (distance(target->position, target2->position) < 5)
 					{
+
+						if (target_underArrest == false)
+						{
+							PlayPhrace("arrest");
+						}
+
 						target_id = target2->ownerId;
 						target_follow = true;
 						target_underArrest = true;
@@ -549,9 +546,17 @@ void NpcBase::UpdateObserver()
 		}
 		else if (target->HasTag("illegal_weapon"))
 		{
+
+			if (target_underArrest == false)
+			{
+				PlayPhrace("weapon_surrender");
+			}
+
 			target_id = target->ownerId;
 			target_follow = true;
 			target_underArrest = true;
+
+
 		}
 		else if (target->HasTag("in_trouble"))
 		{
@@ -564,6 +569,13 @@ void NpcBase::UpdateObserver()
 
 		if (target->ownerId == target_id)
 		{
+
+			if (target_follow == false && target_underArrest == true)
+			{
+				PlayPhrace("target_found");
+			}
+
+
 			target_stopUpdateLastSeenPositionDelay.AddDelay(1.0f);
 			
 			target_sees = true;
@@ -666,7 +678,7 @@ void NpcBase::UpdateTargetFollow()
 		currentInvestigation = InvestigationReason::None;
 	}
 
-	if (target_underArrest && target_follow && target_sees)
+	if (target_underArrest && target_follow && target_sees && target_attack == false)
 	{
 		if (distance2(targetRef->Position, Position) < 15)
 		{
@@ -717,6 +729,7 @@ void NpcBase::LoadAssets()
 {
 
 	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/SFX.bank");
+	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/VO.bank");
 
 	mesh->LoadFromFile("GameData/models/npc/base.glb");
 	mesh->CreateHitboxes(this);
@@ -728,11 +741,7 @@ void NpcBase::LoadAssets()
 
 	mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
-	SET_SOUND_SAFE(DeathSoundPlayer, FmodEventInstance::Create("event:/NPC/Dog/DogDeath"));
-	SET_SOUND_SAFE(HurtSoundPlayer, SoundManager::GetSoundFromPath("GameData/sounds/dog/dog_hit.wav"));
-	SET_SOUND_SAFE(StunSoundPlayer, FmodEventInstance::Create("event:/NPC/Dog/DogStun"));
-	SET_SOUND_SAFE(AttackSoundPlayer, FmodEventInstance::Create("event:/NPC/Dog/DogAttackStart"));
-	SET_SOUND_SAFE(AttackHitSoundPlayer, FmodEventInstance::Create("event:/NPC/Dog/DogAttack"));
+
 
 }
 
@@ -913,11 +922,21 @@ void NpcBase::Deserialize(json& source)
 
 }
 
-void NpcBase::StopMovement()
+void NpcBase::PrepareToStartMovement()
 {
 
 	pathFollow.WaitToFinish();
 	pathFollow.CalculatedPath = false;
+	pathFollow.reachedTarget = false;
+
+}
+
+void NpcBase::StopMovement()
+{
+
+	pathFollow.WaitToFinish();
+	pathFollow.CalculatedPath = true;
+	pathFollow.reachedTarget = true;
 
 }
 
@@ -930,6 +949,12 @@ void NpcBase::MoveTo(const vec3& target, float acceptanceRadius)
 
 void NpcBase::StopTargetFollow()
 {
+
+	if (target_attack && target_underArrest)
+	{
+		PlayPhrace("target_lost");
+	}
+
 	target_follow = false;
 	target_sees = false;
 	target_lastSeenPosition = vec3();
@@ -986,6 +1011,16 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 		return;
 	}
 
+	if (reason == InvestigationReason::LoudNoise || reason == InvestigationReason::Noise)
+	{
+		PlayPhrace("heard_sound");
+	}
+
+	if (reason == InvestigationReason::WeaponFire)
+	{
+		PlayPhrace("shots_fired");
+	}
+
 	investigation_changed = true;
 
 	currentInvestigation = reason;
@@ -1006,6 +1041,7 @@ void NpcBase::FinishInvestigation()
 			if (npcRef)
 			{
 				npcRef->BodyInvestigated();
+				PlayPhrace("dead_body");
 			}
 
 		}

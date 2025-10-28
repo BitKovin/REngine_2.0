@@ -161,6 +161,8 @@ void SelectorNode::OnStart(BehaviorTreeContext& context) {
 NodeStatus SelectorNode::Execute(BehaviorTreeContext& context) 
 {
 
+    size_t currentExecutedChild = -1;
+
     for (size_t i = currentChildIndex_; i < children_.size(); ++i) {
         auto& child = children_[i];
         NodeStatus childStatus = child->TickNode(context);
@@ -182,10 +184,19 @@ NodeStatus SelectorNode::Execute(BehaviorTreeContext& context)
         else if (childStatus == NodeStatus::Success) {
             // UE: on success, selector succeeds immediately; next tick should start from first child again
             currentChildIndex_ = 0;
-            
+
+            if (previousExecutedChild != i)
+            {
+                if(previousExecutedChild>=0)
+                    children_[previousExecutedChild]->OnStop(context);
+            }
+
+            previousExecutedChild = i;
             return NodeStatus::Success;
         }
     }
+
+    previousExecutedChild = -1;
 
     // All children failed
     currentChildIndex_ = 0;
