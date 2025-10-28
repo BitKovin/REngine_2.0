@@ -66,7 +66,7 @@ void NpcBase::Start()
 
 	editor = BehaviorTreeEditor(&behaviorTree);
 	editor.Init();
-	
+
 	behaviorTree.LoadFromFile("GameData/behaviourTrees/general.bt");
 	behaviorTree.Owner = this;
 	behaviorTree.Start();
@@ -77,7 +77,7 @@ void NpcBase::Start()
 	observer = AiPerceptionSystem::CreateObserver(Position + vec3(0, 0.7, 0), movingDirection, 90);
 	observer->owner = Id;
 	observer->ownerPtr = this;
-	
+
 }
 
 
@@ -96,6 +96,8 @@ void NpcBase::Death()
 	mesh->SetAnimationPaused(true);
 	Physics::SetLinearVelocity(LeadBody, vec3(0));
 
+	VoiceSoundPlayer->Stop();
+	VoiceSoundPlayer->Volume = 0;
 
 	//Physics::SetBodyType(LeadBody, BodyType::None);
 	//Physics::SetCollisionMask(LeadBody, BodyType::World);
@@ -167,11 +169,11 @@ void NpcBase::StartReturnFromRagdoll()
 
 	bool onFront = MathHelper::GetUpVector(MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("pelvis")).Rotation).y > 0;
 
-	getFromRagdollAnimation->PlayAnimation(onFront? "front" : "back", false, 0);
+	getFromRagdollAnimation->PlayAnimation(onFront ? "front" : "back", false, 0);
 
 	auto pelvisTransformWorld = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("pelvis"));
 
-	Position = pelvisTransformWorld.Position + vec3(0,1,0);
+	Position = pelvisTransformWorld.Position + vec3(0, 1, 0);
 	Physics::SetBodyPosition(LeadBody, Position);
 
 	float oldRot = mesh->Rotation.y;
@@ -185,12 +187,12 @@ void NpcBase::StartReturnFromRagdoll()
 		mesh->Rotation = vec3(0, MathHelper::FindLookAtRotation(spinePos, pelvisPos).y, 0);
 	}
 
-	
+
 
 	auto pelvisTransform = MathHelper::DecomposeMatrix(ragdollPose.boneTransforms["pelvis"]);
 
-	pelvisTransform.Position = vec3(0,0.5,0);
-	pelvisTransform.RotationQuaternion = MathHelper::GetRotationQuaternion(vec3(0, oldRot - mesh->Rotation.y ,0)) * pelvisTransform.RotationQuaternion;
+	pelvisTransform.Position = vec3(0, 0.5, 0);
+	pelvisTransform.RotationQuaternion = MathHelper::GetRotationQuaternion(vec3(0, oldRot - mesh->Rotation.y, 0)) * pelvisTransform.RotationQuaternion;
 
 	ragdollPose.boneTransforms["pelvis"] = pelvisTransform.ToMatrix();
 
@@ -238,11 +240,15 @@ void NpcBase::PlayPhrace(std::string name)
 
 	if (VoiceSoundPlayer == nullptr) return;
 
+	if (globalPhraceDelay.Wait()) return;
+
 	const string eventPath = vo_base_event_path + name;
 
 	VoiceSoundPlayer->Stop();
 	VoiceSoundPlayer->SetSound(FmodEventInstance::Create(eventPath));
 	VoiceSoundPlayer->Play();
+
+	globalPhraceDelay.AddDelay(1.0f);
 
 }
 
@@ -266,7 +272,7 @@ void NpcBase::AsyncUpdate()
 	}
 
 
-	if (dead) 
+	if (dead)
 	{
 		UpdateAnimations();
 		if (mesh->WasRended)
@@ -282,7 +288,7 @@ void NpcBase::AsyncUpdate()
 
 	auto headHitbox = mesh->FindHitboxByName("neck_01");
 
-	if(headHitbox)
+	if (headHitbox)
 		VoiceSoundPlayer->Position = FromPhysics(headHitbox->GetPosition());
 
 	VoiceSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
@@ -291,7 +297,7 @@ void NpcBase::AsyncUpdate()
 	bool lockAtTarget = target_sees && target_attack && target_attackInRange;
 
 	vec3 desiredDirection = vec3(0);
-	
+
 	if (pathFollow.reachedTarget == false || pathFollow.CalculatedPath == false)
 	{
 		pathFollow.UpdateStartAndTarget(Position, desiredTargetLocation);
@@ -344,9 +350,9 @@ void NpcBase::AsyncUpdate()
 
 	}
 
-	
 
-	if (length(movingDirection)>1.0f)
+
+	if (length(movingDirection) > 1.0f)
 	{
 		movingDirection = normalize(movingDirection);
 	}
@@ -382,7 +388,7 @@ void NpcBase::AsyncUpdate()
 	{
 		tickIntervalDelay.AddDelay(0.15f + distance(Position, Camera::position) / 200.0f);
 	}
-	
+
 
 }
 void NpcBase::LateUpdate()
@@ -449,7 +455,7 @@ void NpcBase::UpdateObserver()
 	if (!observer) return;
 
 	observer->searchForTriggeredNpc = !target_attack;
-	
+
 	if (distance(Camera::finalizedPosition, Position) < 40)
 	{
 
@@ -467,7 +473,7 @@ void NpcBase::UpdateObserver()
 
 		observer->position = Position + vec3(0, 0.65, 0);
 	}
-	
+
 
 
 
@@ -481,24 +487,12 @@ void NpcBase::UpdateObserver()
 
 		bool foundCrime = false;
 
-		
+
 
 		if (target->HasTag("violentCrime"))
 		{
 
-			if (target_attack == false)
-			{
-				PlayPhrace("arrest_final");
-			}
-
-			target_id = target->ownerId;
-			target_follow = true;
-			target_underArrest = true;
-			target_attack = true;
-			target_underArrestExpire = -1;
-			
-
-
+			TryCommitCrime(Crime::WeaponFire, target->ownerId, target->position);
 
 			foundCrime = true;
 		}
@@ -514,14 +508,8 @@ void NpcBase::UpdateObserver()
 					if (distance(target->position, target2->position) < 5)
 					{
 
-						if (target_underArrest == false)
-						{
-							PlayPhrace("arrest");
-						}
+						TryCommitCrime(Crime::NearBody, target2->ownerId, target2->position);
 
-						target_id = target2->ownerId;
-						target_follow = true;
-						target_underArrest = true;
 						foundCrime = true;
 					}
 
@@ -540,9 +528,7 @@ void NpcBase::UpdateObserver()
 			&& distance(target->position, investigation_target) < 4)
 		{
 
-			target_id = target->ownerId;
-			target_follow = true;
-			target_underArrest = true;
+			TryCommitCrime(Crime::WeaponFireSound, target->ownerId, target->position);
 
 		}
 		else if (target->ownerId == target_id && target_underArrest)
@@ -554,18 +540,12 @@ void NpcBase::UpdateObserver()
 			}
 
 			target_follow = true;
+
 		}
 		else if (target->HasTag("illegal_weapon"))
 		{
 
-			if (target_underArrest == false)
-			{
-				PlayPhrace("weapon_surrender");
-			}
-
-			target_id = target->ownerId;
-			target_follow = true;
-			target_underArrest = true;
+			TryCommitCrime(Crime::Trespassing, target->ownerId, target->position);
 
 
 		}
@@ -573,7 +553,7 @@ void NpcBase::UpdateObserver()
 		{
 			TryStartInvestigation(InvestigationReason::NpcInTrouble, target->position, target->ownerId);
 		}
-		else if(target->ownerId == target_id && target_underArrest == false)
+		else if (target->ownerId == target_id && target_underArrest == false)
 		{
 			StopTargetFollow();
 		}
@@ -583,8 +563,9 @@ void NpcBase::UpdateObserver()
 
 
 			target_stopUpdateLastSeenPositionDelay.AddDelay(1.0f);
-			
+
 			target_sees = true;
+
 
 		}
 
@@ -608,7 +589,7 @@ void NpcBase::UpdateObservationTarget()
 	}
 	else
 	{
-		observationTarget->position = Position + vec3(0,0.5,0);
+		observationTarget->position = Position + vec3(0, 0.5, 0);
 	}
 
 	if (dead)
@@ -621,7 +602,7 @@ void NpcBase::UpdateObservationTarget()
 
 		}
 	}
-	else if(target_attack && target_follow)
+	else if (target_attack && target_follow)
 	{
 		observationTarget->tags.insert("in_trouble");
 		observationTarget->active = true;
@@ -666,7 +647,7 @@ void NpcBase::UpdateTargetFollow()
 		{
 			NpcBase* npcRef = dynamic_cast<NpcBase*>(ob->ownerPtr);
 
-			if(npcRef == nullptr)
+			if (npcRef == nullptr)
 				npcRef = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(ob->owner));
 
 			if (npcRef)
@@ -707,9 +688,10 @@ void NpcBase::UpdateTargetFollow()
 		auto targetRef = Level::Current->FindEntityWithId(target_id);
 
 		target_lastSeenPosition = targetRef->Position;
+		target_lastSeenTime = Time::GameTime;
 
 	}
-	
+
 }
 
 void NpcBase::UpdateAnimations()
@@ -808,6 +790,53 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 
 }
 
+bool NpcBase::TryCommitCrime(Crime crime, std::string offender, vec3 pos)
+{
+	if (crime >= currentCrime) return true; // Note: Returns false if no change, but since we need to know if committed (changed), adjust to return bool
+
+	bool wasUnderArrest = target_underArrest;
+	bool wasAttack = target_attack;
+
+	currentCrime = crime;
+
+	bool isGroup = (crime == Crime::Group_Attack || crime == Crime::Group_Arrest || crime == Crime::Group_Follow);
+
+	target_id = offender;
+	target_follow = true;
+	target_stopUpdateLastSeenPositionDelay.AddDelay(0.5f);
+
+	if (crime < Crime::Group_Attack)
+	{
+		target_underArrest = true;
+		target_attack = true;
+		target_underArrestExpire = -1.0f;
+	}
+
+	if (crime < Crime::Group_Arrest)
+	{
+		target_underArrest = true;
+	}
+
+
+	if (target_attack && !wasAttack && !isGroup)
+	{
+		PlayPhrace("arrest_final");
+	}
+	else if (target_underArrest && !wasUnderArrest && !isGroup)
+	{
+		if (crime == Crime::WeaponHolding || crime == Crime::WeaponFireSound)
+		{
+			PlayPhrace("weapon_surrender");
+		}
+		else if (crime == Crime::NearBody)
+		{
+			PlayPhrace("arrest");
+		}
+	}
+
+	return true;
+}
+
 void NpcBase::Serialize(json& target)
 {
 
@@ -833,7 +862,7 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, pathFollow.FoundTarget);
 	SERIALIZE_FIELD(target, pathFollow.reachedTarget);
 
-	
+
 	SERIALIZE_FIELD(target, CurrentTargetNavPoint);
 
 	SERIALIZE_FIELD(target, target_follow);
@@ -852,6 +881,8 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, investigation_targetId);
 	SERIALIZE_FIELD(target, investigation_changed);
 	SERIALIZE_FIELD(target, needToInvestigateBody);
+
+	SERIALIZE_FIELD(target, currentCrime);
 
 	btSaveState = behaviorTree.SaveState().dump(0);
 	SERIALIZE_FIELD(target, btSaveState);
@@ -894,6 +925,8 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, investigation_targetId);
 	DESERIALIZE_FIELD(source, investigation_changed);
 	DESERIALIZE_FIELD(source, needToInvestigateBody);
+
+	DESERIALIZE_FIELD(source, currentCrime);
 
 	DESERIALIZE_FIELD(source, btSaveState);
 	if (btSaveState.empty() == false)
@@ -972,6 +1005,8 @@ void NpcBase::StopTargetFollow()
 	target_lastSeenPosition = vec3();
 	pathFollow.reachedTarget = false;
 	pathFollow.FoundTarget = true;
+	currentCrime = Crime::None;
+
 }
 
 void NpcBase::BodyInvestigated()
@@ -989,7 +1024,7 @@ void NpcBase::UpdateDebugUI()
 
 	ImGui::Begin(Id.c_str());
 
-	ImGui::DragFloat("activeragdoll strength", &mesh->RagdollPoseFollowStrength,0.1f);
+	ImGui::DragFloat("activeragdoll strength", &mesh->RagdollPoseFollowStrength, 0.1f);
 	ImGui::Checkbox("update ragdoll pose", &mesh->UpdateRagdollPose);
 
 	ImGui::Checkbox("bt editor", &btEditorEnabled);
@@ -1003,7 +1038,7 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 
 	if (target_follow && reason == InvestigationReason::WeaponFire && causer == target_id)
 	{
-		target_stopUpdateLastSeenPositionDelay.AddDelay(0.1f);
+		target_stopUpdateLastSeenPositionDelay.AddDelay(0.2f);
 	}
 
 	if (target_follow && target_underArrest == false && reason > InvestigationReason::Body)

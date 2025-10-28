@@ -33,6 +33,20 @@ enum class InvestigationReason
 	None
 };
 
+enum class Crime
+{
+
+	WeaponFire, //aka violentCrime tag
+	Group_Attack,
+	WeaponFireSound,
+	NearBody,
+	WeaponHolding,
+	Group_Arrest,
+	Trespassing,
+	Group_Follow,
+	None
+};
+
 
 
 class NpcBase : public Entity
@@ -97,7 +111,13 @@ protected:
 
 	const std::string vo_base_event_path = "event:/Character/Guards/Guard1/";
 
+	Crime currentCrime = Crime::None;
+
+
+
 public:
+
+	static inline Delay globalPhraceDelay;
 
 	SkeletalMesh* mesh;
 
@@ -159,6 +179,8 @@ public:
 
 	void TryStartInvestigation(InvestigationReason reason, vec3 target, string causer);
 
+	bool TryCommitCrime(Crime crime, std::string offender, vec3 pos);
+
 	void FinishInvestigation();
 
 	void PrepareToStartMovement();
@@ -180,4 +202,3 @@ protected:
 private:
 
 };
-

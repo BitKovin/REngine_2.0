@@ -106,8 +106,12 @@ private:
 
 };
 
+#include "Entities/Npc/NpcBase.h"
+
 GameStart::GameStart()
 {
+
+    NpcBase::globalPhraceDelay = Delay();
 
     if (startedGame) return;
 

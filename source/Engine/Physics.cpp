@@ -269,15 +269,18 @@ void Physics::Init()
 
 	JPH::PhysicsSettings settings = physics_system->GetPhysicsSettings(); 
 
+	settings.mNumVelocitySteps = 5u;
+	settings.mNumPositionSteps = 2u;
+
 	if (ThreadPool::Supported() == false)
 	{
 		settings.mNumVelocitySteps = 3u;
 		settings.mNumPositionSteps = 1u;
 		settings.mPenetrationSlop = 0.05f;
 		settings.mDeterministicSimulation = false;
-		physics_system->SetPhysicsSettings(settings);
-	}
 
+	}
+	physics_system->SetPhysicsSettings(settings);
 
 	physics_system->Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, *broad_phase_layer_interface, *object_vs_broadphase_layer_filter, *object_vs_object_layer_filter);
 
