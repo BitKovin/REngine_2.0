@@ -80,6 +80,129 @@ AnimationPose AnimationPose::Lerp(AnimationPose a, AnimationPose b, float progre
 
 }
 
+AnimationPose AnimationPose::LayeredLerp(AnimationPose a, AnimationPose b, roj::BoneNode* startNode, float progress, bool keepStartNodeModelRotation /* = false */)
+{
+	if (progress < 0.005f)
+	{
+		if (a.boneTransforms.find("root") != a.boneTransforms.end() &&
+			b.boneTransforms.find("root") != b.boneTransforms.end())
+		{
+			a.boneTransforms["root"] = b.boneTransforms["root"];
+			return a;
+		}
+	}
+
+	// name of the start bone for quick checks
+	hashed_string startName = startNode ? startNode->name : hashed_string{};
+
+	// Collect all bone names in the subtree starting from startNode
+	std::unordered_set<hashed_string> layerBones;
+	if (startNode)
+	{
+		std::function<void(const roj::BoneNode*)> collect = [&](const roj::BoneNode* node)
+			{
+				layerBones.insert(node->name);
+				for (const auto& c : node->children)
+					collect(&c);
+			};
+		collect(startNode);
+	}
+
+	// Start from the base pose A and overwrite blended bones from subtree with blended result
+	std::unordered_map<hashed_string, mat4> resultPose = a.boneTransforms;
+
+	// Ensure root uses B if present (same special-case as before)
+	auto rootItB = b.boneTransforms.find("root");
+	if (rootItB != b.boneTransforms.end())
+		resultPose["root"] = rootItB->second;
+
+	// For each bone in the layer, blend between A and B (if either exists)
+	for (const auto& boneName : layerBones)
+	{
+		auto itA = a.boneTransforms.find(boneName);
+		auto itB = b.boneTransforms.find(boneName);
+
+		// If neither has it, skip
+		if (itA == a.boneTransforms.end() && itB == b.boneTransforms.end())
+			continue;
+
+		// If only B has it, copy B
+		if (itA == a.boneTransforms.end() && itB != b.boneTransforms.end())
+		{
+			resultPose[boneName] = itB->second;
+			continue;
+		}
+
+		// If only A has it, keep A (already in resultPose)
+		if (itB == b.boneTransforms.end())
+			continue;
+
+		// Both exist -> blend
+		mat4 aMat = itA->second;
+		mat4 bMat = itB->second;
+
+		// root always from B (just in case it was also included in layer)
+		if (boneName == "root")
+		{
+			resultPose[boneName] = bMat;
+			continue;
+		}
+
+		// Translation
+		glm::vec3 aTrans = glm::vec3(aMat[3]);
+		glm::vec3 bTrans = glm::vec3(bMat[3]);
+
+		// Extract scale (column lengths)
+		glm::vec3 aScale, bScale;
+		for (int i = 0; i < 3; ++i)
+		{
+			aScale[i] = glm::length(aMat[i]);
+			bScale[i] = glm::length(bMat[i]);
+		}
+
+		// Extract rotation (normalize columns)
+		glm::mat3 aRotMat, bRotMat;
+		for (int i = 0; i < 3; ++i)
+		{
+			// guard against zero scale (avoid div by zero) — if zero, use the column as-is
+			aRotMat[i] = (aScale[i] != 0.0f) ? glm::vec3(aMat[i]) / aScale[i] : glm::vec3(aMat[i]);
+			bRotMat[i] = (bScale[i] != 0.0f) ? glm::vec3(bMat[i]) / bScale[i] : glm::vec3(bMat[i]);
+		}
+
+		// Convert to quaternions
+		glm::quat aQuat = glm::quat_cast(aRotMat);
+		glm::quat bQuat = glm::quat_cast(bRotMat);
+
+		// Interpolate
+		glm::vec3 trans = glm::mix(aTrans, bTrans, progress);
+		glm::vec3 scale = glm::mix(aScale, bScale, progress);
+		glm::quat quat = glm::slerp(aQuat, bQuat, progress);
+
+		// If requested, keep the start node's rotation from A (preserve its orientation)
+		if (keepStartNodeModelRotation && boneName == startName)
+		{
+			quat = aQuat;
+		}
+
+		// Build result matrix: rotation * scale, then translation
+		glm::mat3 rotMat = glm::mat3_cast(quat);
+		glm::mat3 scaleMat(scale.x, 0.0f, 0.0f,
+			0.0f, scale.y, 0.0f,
+			0.0f, 0.0f, scale.z);
+		glm::mat3 rsMat = rotMat * scaleMat;
+		mat4 resultMat = glm::mat4(rsMat);
+		resultMat[3] = glm::vec4(trans, 1.0f);
+
+		resultPose[boneName] = resultMat;
+	}
+
+	AnimationPose result;
+	result.boneTransforms = std::move(resultPose);
+	return result;
+}
+
+
+
 void SkeletalMesh::ApplyWorldSpaceBoneTransforms(std::unordered_map<hashed_string, mat4>& pose)
 {
 
@@ -317,10 +440,17 @@ void SkeletalMesh::Update(float timeScale)
 	animator.update(Time::DeltaTimeF * timeScale);
 	UpdateAnimationEvents();
 
+	if (animator.m_currTime != oldAnimTime)
+	{
+		if (animator.UpdatePose)
+		{
+			dirtyPose = true;
+		}
+	}
 
 	oldAnimTime = animator.m_currTime;
 
-	if (UpdatePose == false) return;
+	//if (UpdatePose == false) return;
 
 	float blendProgress = GetBlendInProgress();
 
@@ -367,6 +497,21 @@ void SkeletalMesh::SetAnimationTime(float time)
 
 	animator.m_currTime = time * animator.m_currAnim->ticksPerSec;
 
+}
+
+roj::BoneNode* SkeletalMesh::GetNodeFromName(const hashed_string& name)
+{
+
+	if (model == nullptr) return nullptr;
+
+	auto nodeResult = model->boneNodesMap.find(name);
+
+	if (nodeResult != model->boneNodesMap.end())
+	{
+		return &nodeResult->second;
+	}
+
+	return nullptr;
 }
 
 void SkeletalMesh::StartedRendering()

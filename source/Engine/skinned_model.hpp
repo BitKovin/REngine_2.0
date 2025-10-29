@@ -109,6 +109,7 @@ namespace roj
 		std::unordered_map<hashed_string, Animation> animations;
 
 		BoneNode defaultRoot;
+		std::unordered_map<hashed_string, BoneNode> boneNodesMap;
 
 		BoundingSphere boundingSphere;
 		BoundingBox boundingBox;

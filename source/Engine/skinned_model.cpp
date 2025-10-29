@@ -71,6 +71,24 @@ static void extractBoneNode(roj::BoneNode& bone, aiNode* src)
     }
 }
 
+static void extractBoneNodeAndBuildMap(roj::SkinnedModel& model, roj::BoneNode& bone, aiNode* src)
+{
+    bone.name = src->mName.data;
+
+    bone.transform = toGlmMat4(src->mTransformation);
+
+
+    for (unsigned int i = 0; i < src->mNumChildren; i++)
+    {
+        roj::BoneNode node;
+		extractBoneNodeAndBuildMap(model, node, src->mChildren[i]);
+        bone.children.push_back(node);
+    }
+
+    model.boneNodesMap[bone.name] = bone;
+
+}
+
 static void extractAnimations(const aiScene* scene, roj::SkinnedModel& model)
 {
     std::unordered_set<hashed_string> additionalBones;
@@ -409,7 +427,7 @@ namespace roj
             m_model.boundingSphere.Radius *= 2.5;
             m_model.boundingSphere.offset *= 1.5f;
 
-            extractBoneNode(m_model.defaultRoot, m_scene->mRootNode);
+			extractBoneNodeAndBuildMap(m_model, m_model.defaultRoot, m_scene->mRootNode);
 
         }
 

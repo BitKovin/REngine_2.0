@@ -459,7 +459,7 @@ void Player::UpdateDebugUI()
 
     if (ImGui::Button("spawn guard npc"))
     {
-        Entity* entity = Spawn("npc_base");
+        Entity* entity = Spawn("npc_guard");
         entity->Position = Camera::position + Camera::Forward() * 2.0f;
         entity->Start();
     }

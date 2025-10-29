@@ -2,15 +2,57 @@
 
 void NpcAnimatorBase::LoadAssets()
 {
-	idle = AddAnimation("GameData/models/npc/base.glb","idle",true);
+	idle = AddAnimation("GameData/models/npc/base.glb","idle",false);
 	run_f = AddAnimation("GameData/models/npc/base.glb", "walk");
+	pistol = AddAnimation("GameData/models/npc/base.glb", "idle", false);
 	//inPain = AddAnimation("GameData/animations/npc/inPain.glb");
+}
+
+void NpcAnimatorBase::Update()
+{
+
+	if (loaded == false) return;
+
+	std::string desiredAnimation = "idle";
+
+	if (weapon_holds)
+	{
+
+		desiredAnimation = "pistol_hold";
+
+		if (weapon_ready)
+		{
+			desiredAnimation = "pistol_idle";
+		}
+
+		if (weapon_aims)
+		{
+			desiredAnimation = "pistol_aim";
+		}
+
+	}
+
+	if (pistol->currentAnimationData->animationName != desiredAnimation)
+	{
+
+		if (pistol->currentAnimationData->animationName == "idle")
+		{
+			pistol->PasteAnimationPose(lastPose);
+		}
+
+		pistol->PlayAnimation(desiredAnimation, false, 0.3);
+	}
+
+	Animator::Update();
+
 }
 
 AnimationPose NpcAnimatorBase::ProcessResultPose()
 {
 	auto idlePose = idle->GetAnimationPose();
 	auto runFPose = run_f->GetAnimationPose();
+
+	auto pistolPos = pistol->GetAnimationPose();
 
 	//auto painPose = inPain->GetAnimationPose();
 
@@ -25,5 +67,22 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 		locomotion = idlePose;
 	}
 
-	return locomotion;// AnimationPose::Lerp(locomotion, painPose, PainProgress);
+	if (weapon_holds)
+	{
+
+		hashed_string startBone = "clavicle_r";
+
+		if (weapon_ready || weapon_aims)
+		{
+			startBone = "spine_01";
+		}
+
+		return AnimationPose::LayeredLerp(locomotion, pistolPos, pistol->GetNodeFromName(startBone), 1, weapon_ready || weapon_aims);// AnimationPose::Lerp(locomotion, painPose, PainProgress);
+	}
+	else
+	{
+		return locomotion;
+	}
+
+
 }

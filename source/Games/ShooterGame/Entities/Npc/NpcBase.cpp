@@ -333,7 +333,7 @@ void NpcBase::AsyncUpdate()
 
 		vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
 
-		desiredDirection = MathHelper::Interp(curMove, vec3(0), Time::DeltaTimeF, 5.0f);
+		desiredDirection = MathHelper::Interp(curMove, vec3(0), Time::DeltaTimeF, 8.0f);
 
 		if (lockAtTarget == false)
 		{
@@ -348,7 +348,7 @@ void NpcBase::AsyncUpdate()
 
 		desiredLookVector = targetRef->Position - Position;
 
-		movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 2.0f);
+		movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 4.0f);
 
 	}
 
@@ -558,7 +558,7 @@ void NpcBase::UpdateObserver()
 		else if (target->HasTag("illegal_weapon"))
 		{
 
-			TryCommitCrime(Crime::Trespassing, target->ownerId, target->position);
+			TryCommitCrime(Crime::WeaponHolding, target->ownerId, target->position);
 
 
 		}
@@ -656,7 +656,7 @@ void NpcBase::UpdateTargetFollow()
 	if (observer)
 	{
 
-		if (target_follow)
+		if (target_follow || currentInvestigation == InvestigationReason::WeaponFire)
 		{
 			observer->fovDeg = 400;
 		}
@@ -740,6 +740,15 @@ void NpcBase::UpdateAnimations()
 {
 
 	if (dead) return;
+
+	if (isGuard)
+	{
+		animator.weapon_holds = target_underArrest;
+		animator.weapon_ready = target_follow && target_underArrest;
+		animator.weapon_aims = target_attack && animator.weapon_ready && target_attackInRange;
+	}
+
+
 
 	if (mesh->WasRended)
 	{

@@ -38,7 +38,7 @@ public:
 	{
 
 		CustomTask::OnStop(context);
-
+		return;
 		CheckNpcRef(context);
 
 		npcRef->pathFollow.reachedTarget = true;

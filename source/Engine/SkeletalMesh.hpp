@@ -35,7 +35,11 @@ struct AnimationPose
 {
 	std::unordered_map<hashed_string, mat4> boneTransforms;
 
+	roj::BoneNode boneTreeRoot;
+
 	static AnimationPose Lerp(AnimationPose a, AnimationPose b, float progress);
+
+	static AnimationPose LayeredLerp(AnimationPose a, AnimationPose b, roj::BoneNode* startNode, float progress, bool modelSpaceRotation = true);
 
 	void SetBoneTransform(hashed_string bone, mat4 transform)
 	{
@@ -201,6 +205,10 @@ protected:
 
 	static inline unordered_map<string, SkeletalMeshMetaData> loaded_metas;
 
+	bool dirtyPose = true;
+
+	AnimationPose lastPose;
+
 public:
 
 	SkeletalMeshMetaData metaData;
@@ -236,14 +244,24 @@ public:
 	AnimationPose GetAnimationPose()
 	{
 		if (model == nullptr) return AnimationPose();
+
+		if(dirtyPose == false)
+			return lastPose;
+
 		AnimationPose pose;
+		pose.boneTreeRoot = model->defaultRoot;
 		pose.boneTransforms = animator.GetBonePoseArray();
 
+		lastPose = pose;
+		dirtyPose = false;
 		return pose;
 	}
 
 	void PasteAnimationPose(AnimationPose pose)
 	{
+
+		dirtyPose = true;
+
 		animator.ApplyBonePoseArray(pose.boneTransforms);
 		boneTransforms = animator.getBoneMatrices();
 	}
@@ -324,6 +342,8 @@ public:
 	float GetAnimationDuration();
 	float GetAnimationTime();
 	void SetAnimationTime(float time);
+
+	roj::BoneNode* GetNodeFromName(const hashed_string& name);
 
 	void StartedRendering();
 

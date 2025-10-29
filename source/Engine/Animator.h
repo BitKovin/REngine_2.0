@@ -15,7 +15,7 @@ public:
 	Animator(Entity* ownerEntity);
 	virtual ~Animator();
 
-	void Update();
+	virtual void Update();
 	AnimationPose GetResultPose();
 
 	void LoadAssetsIfNeeded();
