@@ -12,6 +12,8 @@
 
 #include "Ai/nav_point.h"
 
+#include <RandomHelper.h>
+
 NpcBase::NpcBase()
 {
 
@@ -437,6 +439,8 @@ void NpcBase::UpdateBT()
 	behaviorTree.GetBlackboard().SetValue("closestGuard", closestGuard);
 	behaviorTree.GetBlackboard().SetValue("found_guard", found_guard);
 
+	behaviorTree.GetBlackboard().SetValue("flee_target", flee_target);
+
 	if (investigation_changed)
 	{
 		behaviorTree.GetBlackboard().SetValue("investigation", false); //stopping investigation for one frame to reset logic
@@ -654,7 +658,7 @@ void NpcBase::UpdateTargetFollow()
 
 		if (target_follow)
 		{
-			observer->fovDeg = 300;
+			observer->fovDeg = 400;
 		}
 		else if (currentInvestigation <= InvestigationReason::Body)
 		{
@@ -947,6 +951,8 @@ void NpcBase::Serialize(json& target)
 
 	SERIALIZE_FIELD(target, currentCrime);
 
+	SERIALIZE_FIELD(target, flee_target);
+
 	btSaveState = behaviorTree.SaveState().dump(0);
 	SERIALIZE_FIELD(target, btSaveState);
 }
@@ -994,6 +1000,8 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, needToInvestigateBody);
 
 	DESERIALIZE_FIELD(source, currentCrime);
+
+	DESERIALIZE_FIELD(source, flee_target);
 
 	DESERIALIZE_FIELD(source, btSaveState);
 	if (btSaveState.empty() == false)
@@ -1105,7 +1113,10 @@ void NpcBase::FindClosestGuard()
 
 	if (findGuardCooldown.Wait()) return;
 
-	auto npcsInRadius = AiPerceptionSystem::GetTargetsInRadiusWithTagOrdered(Position, 150, "guard_safe");
+	std::vector<std::shared_ptr<ObservationTarget>> npcsInRadius;
+	
+	if(report_to_guard)
+		npcsInRadius = AiPerceptionSystem::GetTargetsInRadiusWithTagOrdered(Position, 150, "guard_safe");
 
 	if (npcsInRadius.size() > 0)
 	{
@@ -1116,9 +1127,21 @@ void NpcBase::FindClosestGuard()
 	{
 		closestGuard = "";
 		found_guard = false;
+
+		auto fleePath = NavigationSystem::FindFleePathSimple(Position, target_lastSeenPosition, 50, 4, speed);
+
+		if (fleePath.size() > 0)
+		{
+			flee_target = fleePath[fleePath.size() - 1];
+		}
+		else
+		{
+			flee_target = normalize(Position - target_lastSeenPosition) * 10.0f;
+		}
+
 	}
 
-	findGuardCooldown.AddDelay(1);
+	findGuardCooldown.AddDelay(0.3 + RandomHelper::RandomFloat()/3.0f);
 
 }
 

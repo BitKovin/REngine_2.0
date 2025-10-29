@@ -118,7 +118,7 @@ protected:
 
 	Crime currentCrime = Crime::None;
 
-
+	vec3 flee_target;
 
 public:
 

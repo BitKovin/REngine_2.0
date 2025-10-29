@@ -1,21 +1,36 @@
 {
     "blackboard": {
         "closestGuard": "",
+        "flee_target": {
+            "x": 9.987578392028809,
+            "y": 0.01630518026649952,
+            "z": 0.4980166554450989
+        },
         "found_guard": false,
         "has_navpoint": true,
         "investigation": false,
+        "investigation_target": {
+            "x": 20.2966365814209,
+            "y": 2.153813362121582,
+            "z": 25.754526138305664
+        },
         "isGuard": false,
         "navpoint_acceptance_radius": 0.30000001192092896,
         "navpoint_has_wait_time": false,
-        "navpoint_name": "np_0_2",
+        "navpoint_name": "np_0_1",
         "navpoint_wait_time": 0.0,
-        "report_to_guard": false,
+        "report_to_guard": true,
         "target": "$info_player_start_0",
         "target_attack": true,
-        "target_attackInRange": true,
-        "target_follow": true,
+        "target_attackInRange": false,
+        "target_follow": false,
         "target_id": "$info_player_start_0",
-        "target_sees": true,
+        "target_lastSeenPosition": {
+            "x": -20.39715576171875,
+            "y": 1.4300038814544678,
+            "z": 11.878649711608887
+        },
+        "target_sees": false,
         "target_underArrest": true
     },
     "isRunning": true,
@@ -109,19 +124,19 @@
                                                                                                 "children": [
                                                                                                     {
                                                                                                         "children": [],
-                                                                                                        "id": "node_501ccbd75017487c",
+                                                                                                        "id": "node_5b7a90a0e4a7210",
                                                                                                         "name": "Wait",
                                                                                                         "type": "WaitNode",
                                                                                                         "waitTime": {
                                                                                                             "sourceType": 0,
-                                                                                                            "value": 2.0
+                                                                                                            "value": 5.0
                                                                                                         }
                                                                                                     },
                                                                                                     {
                                                                                                         "children": [
                                                                                                             {
                                                                                                                 "children": [],
-                                                                                                                "id": "node_abdc06885a370169",
+                                                                                                                "id": "node_20da09a586ae0db5",
                                                                                                                 "name": "Stop Target Follow",
                                                                                                                 "type": "StopTargetFollow"
                                                                                                             }
@@ -131,13 +146,13 @@
                                                                                                             "sourceType": 1
                                                                                                         },
                                                                                                         "finish before stop": false,
-                                                                                                        "id": "node_870e0f6a886dd275",
+                                                                                                        "id": "node_540fdbdf91675239",
                                                                                                         "inverse": true,
                                                                                                         "name": "Conditional",
                                                                                                         "type": "ConditionalDecorator"
                                                                                                     }
                                                                                                 ],
-                                                                                                "id": "node_58bad119f0210dbd",
+                                                                                                "id": "node_6c9171fbd7fdef59",
                                                                                                 "name": "Sequence",
                                                                                                 "type": "SequenceNode"
                                                                                             }
@@ -147,7 +162,7 @@
                                                                                             "sourceType": 1
                                                                                         },
                                                                                         "finish before stop": false,
-                                                                                        "id": "node_8076b579ef10ea7d",
+                                                                                        "id": "node_51dfe7a4121b7f18",
                                                                                         "inverse": true,
                                                                                         "name": "if don't see",
                                                                                         "type": "ConditionalDecorator"
@@ -165,12 +180,8 @@
                                                                                             "value": false
                                                                                         },
                                                                                         "target": {
-                                                                                            "sourceType": 0,
-                                                                                            "value": {
-                                                                                                "x": 0.0,
-                                                                                                "y": 0.0,
-                                                                                                "z": 0.0
-                                                                                            }
+                                                                                            "blackboardKey": "flee_target",
+                                                                                            "sourceType": 1
                                                                                         },
                                                                                         "type": "MoveToPosition"
                                                                                     }
