@@ -2,29 +2,30 @@
     "blackboard": {
         "closestGuard": "",
         "flee_target": {
-            "x": -36.35963439941406,
-            "y": 0.70001220703125,
-            "z": -20.648101806640625
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
         },
         "found_guard": false,
         "has_navpoint": true,
-        "investigation": true,
+        "investigation": false,
         "investigation_target": {
-            "x": 3.9992685317993164,
-            "y": 2.172421932220459,
-            "z": -13.5031156539917
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
         },
-        "isGuard": false,
+        "isGuard": true,
         "navpoint_acceptance_radius": 0.30000001192092896,
         "navpoint_has_wait_time": false,
         "navpoint_name": "np_0_0",
         "navpoint_wait_time": 0.0,
-        "report_to_guard": true,
+        "report_to_guard": false,
         "target": "$info_player_start_0",
         "target_attack": false,
         "target_attackInRange": false,
         "target_follow": false,
         "target_id": "",
+        "target_knowsLocation": false,
         "target_lastSeenPosition": {
             "x": 0.0,
             "y": 0.0,
@@ -33,7 +34,7 @@
         "target_sees": false,
         "target_underArrest": false
     },
-    "isRunning": false,
+    "isRunning": true,
     "root": {
         "children": [
             {
@@ -62,7 +63,7 @@
                                                                                                     "value": 2.0
                                                                                                 },
                                                                                                 "children": [],
-                                                                                                "id": "node_72c1b93ffd3cb267",
+                                                                                                "id": "node_171471d36e416754",
                                                                                                 "name": "Move To Entity",
                                                                                                 "pretty path": {
                                                                                                     "sourceType": 0,
@@ -76,17 +77,17 @@
                                                                                             },
                                                                                             {
                                                                                                 "children": [],
-                                                                                                "id": "node_5da4c99a94c530e9",
+                                                                                                "id": "node_db060fcb1e9350bc",
                                                                                                 "name": "Finish Investigation",
                                                                                                 "type": "FinishInvestigation"
                                                                                             }
                                                                                         ],
-                                                                                        "id": "node_b9843c078e205fac",
+                                                                                        "id": "node_2a73062b31a00983",
                                                                                         "name": "Sequence",
                                                                                         "type": "SequenceNode"
                                                                                     }
                                                                                 ],
-                                                                                "id": "node_765fd2c6c59f8619",
+                                                                                "id": "node_343486388b30f6ee",
                                                                                 "name": "Selector",
                                                                                 "type": "SelectorNode"
                                                                             }
@@ -96,7 +97,7 @@
                                                                             "sourceType": 1
                                                                         },
                                                                         "finish before stop": false,
-                                                                        "id": "node_9b1d078b4a9f709f",
+                                                                        "id": "node_2cba831cf6916205",
                                                                         "inverse": false,
                                                                         "name": "found_guard",
                                                                         "type": "ConditionalDecorator"
@@ -123,7 +124,7 @@
                                                                             },
                                                                             {
                                                                                 "children": [],
-                                                                                "id": "node_4c34957abab1b364",
+                                                                                "id": "node_eb6d813decc89950",
                                                                                 "name": "Wait",
                                                                                 "type": "WaitNode",
                                                                                 "waitTime": {
@@ -138,7 +139,7 @@
                                                                                 "type": "FinishInvestigation"
                                                                             }
                                                                         ],
-                                                                        "id": "node_8cea1ddf0f300c8e",
+                                                                        "id": "node_70c1c50a438140f8",
                                                                         "name": "panic",
                                                                         "type": "SequenceNode"
                                                                     }
@@ -153,7 +154,7 @@
                                                             "sourceType": 1
                                                         },
                                                         "finish before stop": false,
-                                                        "id": "node_b11bf4a97437cf0c",
+                                                        "id": "node_1e30017e92142086",
                                                         "inverse": false,
                                                         "name": "report_to_guard",
                                                         "type": "ConditionalDecorator"
@@ -206,7 +207,7 @@
                                                                                             }
                                                                                         ],
                                                                                         "condition": {
-                                                                                            "blackboardKey": "target_sees",
+                                                                                            "blackboardKey": "target_knowsLocation",
                                                                                             "sourceType": 1
                                                                                         },
                                                                                         "finish before stop": false,
@@ -393,7 +394,7 @@
                                                                                                             }
                                                                                                         ],
                                                                                                         "condition": {
-                                                                                                            "blackboardKey": "target_sees",
+                                                                                                            "blackboardKey": "target_knowsLocation",
                                                                                                             "sourceType": 1
                                                                                                         },
                                                                                                         "finish before stop": false,
@@ -477,7 +478,7 @@
                                                                                             }
                                                                                         ],
                                                                                         "condition": {
-                                                                                            "blackboardKey": "target_sees",
+                                                                                            "blackboardKey": "target_knowsLocation",
                                                                                             "sourceType": 1
                                                                                         },
                                                                                         "finish before stop": false,

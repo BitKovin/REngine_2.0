@@ -1,6 +1,8 @@
 ﻿#include "SkeletalMesh.hpp"
+#include <shared_mutex>
 #include <algorithm>
 #include "Level.hpp"
+
 
 AnimationPose AnimationPose::Lerp(AnimationPose a, AnimationPose b, float progress)
 {
@@ -115,6 +117,15 @@ static glm::mat4 ComputeGlobalTransform(
     return global;
 }
 
+// Static caches keyed by root node pointer. Simple maps + shared mutex.
+static std::unordered_map<roj::BoneNode*, std::vector<hashed_string>> s_traversalMap;
+static std::unordered_map<roj::BoneNode*, std::unordered_map<hashed_string, int>> s_indexMap;
+static std::unordered_map<roj::BoneNode*, std::vector<int>> s_parentIndexMap;
+static std::unordered_map<roj::BoneNode*, std::vector<std::vector<int>>> s_childrenMap;
+static std::shared_mutex s_cacheMutex; // readers/writers (shared for readers, unique for writers)
+
+
+// The layered blend function using cached skeleton metadata if available.
 AnimationPose AnimationPose::LayeredLerp(
 	const hashed_string& startBoneName,
 	roj::BoneNode* rootNode,
@@ -129,16 +140,14 @@ AnimationPose AnimationPose::LayeredLerp(
 
 	// Fast paths
 	if (!rootNode) return poseA;
-	if (progress <= 0.0f) {
-		// keep A but copy root from B if present (keeps previous behavior)
+	if (progress <= 0.005f) {
 		AnimationPose out = poseA;
 		auto rb = poseB.boneTransforms.find(hashed_string("root"));
 		if (rb != poseB.boneTransforms.end()) out.boneTransforms[hashed_string("root")] = rb->second;
 		return out;
 	}
-	if (progress >= 1.0f) return poseB;
 
-	// --- helpers ---
+	// Helper (decompose/compose)
 	auto DecomposeLocal = [](const mat4& m, vec3& outT, vec3& outS, quat& outQ) {
 		outT = vec3(m[3]);
 		for (int i = 0; i < 3; ++i) outS[i] = glm::length(vec3(m[i]));
@@ -160,53 +169,105 @@ AnimationPose AnimationPose::LayeredLerp(
 		return out;
 		};
 
-	// --- 1) Build traversal order and bone->node lookup ---
-	std::vector<hashed_string> traversal; traversal.reserve(256);
-	std::unordered_map<hashed_string, roj::BoneNode*> nodeLookup; nodeLookup.reserve(256);
-	traversal.clear();
+	// --- Get (or build) cached skeleton arrays for this rootNode ---
+	std::vector<hashed_string> traversal;
+	std::unordered_map<hashed_string, int> indexMap;
+	std::vector<int> parentIndex;
+	std::vector<std::vector<int>> children;
 
-	std::function<void(roj::BoneNode*)> walk = [&](roj::BoneNode* n) {
-		if (!n) return;
-		traversal.push_back(n->name);
-		nodeLookup[n->name] = n;
-		for (auto& c : n->children) walk(const_cast<roj::BoneNode*>(&c));
-		};
-	walk(rootNode);
-	size_t N = traversal.size();
+	// First try read (shared) lock
+	{
+		std::shared_lock<std::shared_mutex> rlock(s_cacheMutex);
+		auto it = s_indexMap.find(rootNode);
+		if (it != s_indexMap.end()) {
+			traversal = s_traversalMap[rootNode];           // copy small vectors (they're cached)
+			indexMap = it->second;
+			parentIndex = s_parentIndexMap[rootNode];
+			children = s_childrenMap[rootNode];
+		}
+	}
+
+	// If not found, build under unique lock (double-check after acquiring)
+	if (indexMap.empty()) {
+		std::unique_lock<std::shared_mutex> wlock(s_cacheMutex);
+		// double-check
+		auto it2 = s_indexMap.find(rootNode);
+		if (it2 == s_indexMap.end()) {
+			// build traversal (parent-child names) and a temp parent map
+			std::vector<hashed_string> tmpTraversal;
+			tmpTraversal.reserve(256);
+			std::unordered_map<hashed_string, hashed_string> tempParent;
+
+			std::function<void(roj::BoneNode*, const hashed_string*)> build = [&](roj::BoneNode* n, const hashed_string* parent) {
+				if (!n) return;
+				tmpTraversal.push_back(n->name);
+				if (parent) tempParent[n->name] = *parent;
+				for (auto& c : n->children) build(const_cast<roj::BoneNode*>(&c), &n->name);
+				};
+			build(rootNode, nullptr);
+
+			int N = (int)tmpTraversal.size();
+			std::unordered_map<hashed_string, int> tmpIndex; tmpIndex.reserve(N * 2);
+			for (int i = 0; i < N; ++i) tmpIndex[tmpTraversal[i]] = i;
+
+			std::vector<int> tmpParentIndex(N, -1);
+			for (int i = 0; i < N; ++i) {
+				auto pit = tempParent.find(tmpTraversal[i]);
+				if (pit != tempParent.end()) {
+					tmpParentIndex[i] = tmpIndex[pit->second];
+				}
+			}
+
+			std::vector<std::vector<int>> tmpChildren(N);
+			for (int i = 0; i < N; ++i) {
+				int p = tmpParentIndex[i];
+				if (p >= 0) tmpChildren[p].push_back(i);
+			}
+
+			// store into static caches (move)
+			s_traversalMap[rootNode] = std::move(tmpTraversal);
+			s_indexMap[rootNode] = std::move(tmpIndex);
+			s_parentIndexMap[rootNode] = std::move(tmpParentIndex);
+			s_childrenMap[rootNode] = std::move(tmpChildren);
+
+			// now read them into local variables (copy)
+			traversal = s_traversalMap[rootNode];
+			indexMap = s_indexMap[rootNode];
+			parentIndex = s_parentIndexMap[rootNode];
+			children = s_childrenMap[rootNode];
+		}
+		else {
+			// someone built while we waited; copy
+			traversal = s_traversalMap[rootNode];
+			indexMap = it2->second;
+			parentIndex = s_parentIndexMap[rootNode];
+			children = s_childrenMap[rootNode];
+		}
+	}
+
+	int N = (int)traversal.size();
 	if (N == 0) return poseA;
 
-	// --- 2) Build bone->index map and parent index array ---
-	std::unordered_map<hashed_string, int> indexMap; indexMap.reserve(N * 2);
-	for (int i = 0; i < (int)N; ++i) indexMap[traversal[i]] = i;
-
-	std::vector<int> parentIndex(N, -1);
-	// fill parent index by visiting nodes again (less overhead than building parentMap earlier)
-	std::function<void(roj::BoneNode*, int)> fillParent = [&](roj::BoneNode* n, int parentIdx) {
-		int idx = indexMap[n->name];
-		parentIndex[idx] = parentIdx;
-		for (auto& c : n->children) fillParent(const_cast<roj::BoneNode*>(&c), idx);
-		};
-	fillParent(rootNode, -1);
-
-	// --- 3) Preallocate arrays for local transforms and decomposed components ---
+	// --- Preallocate arrays and pre-decompose poseA/poseB locals ---
 	std::vector<mat4> localA(N), localB(N);
 	std::vector<vec3> tA(N), sA(N), tB(N), sB(N);
 	std::vector<quat> qA(N), qB(N);
+	localA.assign(N, mat4(1.0f));
+	localB.assign(N, mat4(1.0f));
 
-	for (int i = 0; i < (int)N; ++i) {
+	for (int i = 0; i < N; ++i) {
 		const hashed_string& name = traversal[i];
-		auto itA = poseA.boneTransforms.find(name);
-		auto itB = poseB.boneTransforms.find(name);
-		localA[i] = (itA != poseA.boneTransforms.end()) ? itA->second : mat4(1.0f);
-		localB[i] = (itB != poseB.boneTransforms.end()) ? itB->second : mat4(1.0f);
-
+		auto ita = poseA.boneTransforms.find(name);
+		auto itb = poseB.boneTransforms.find(name);
+		if (ita != poseA.boneTransforms.end()) localA[i] = ita->second;
+		if (itb != poseB.boneTransforms.end()) localB[i] = itb->second;
 		DecomposeLocal(localA[i], tA[i], sA[i], qA[i]);
 		DecomposeLocal(localB[i], tB[i], sB[i], qB[i]);
 	}
 
-	// --- 4) Compute global (model) transforms for poseA and poseB in one pass parent-before-child ---
+	// --- Compute global transforms for A and B (parent-before-child in traversal order) ---
 	std::vector<mat4> globalA(N), globalB(N);
-	for (int i = 0; i < (int)N; ++i) {
+	for (int i = 0; i < N; ++i) {
 		int p = parentIndex[i];
 		if (p == -1) {
 			globalA[i] = localA[i];
@@ -218,10 +279,10 @@ AnimationPose AnimationPose::LayeredLerp(
 		}
 	}
 
-	// --- 5) Identify subtree indices starting at startBoneName efficiently ---
+	// --- Find start index ---
 	auto itStart = indexMap.find(startBoneName);
 	if (itStart == indexMap.end()) {
-		// start not found -> nothing to do, return poseA (copy root from poseB like prior behavior)
+		// start bone not found, keep A but copy root from B (previous behavior)
 		AnimationPose out = poseA;
 		auto rb = poseB.boneTransforms.find(hashed_string("root"));
 		if (rb != poseB.boneTransforms.end()) out.boneTransforms[hashed_string("root")] = rb->second;
@@ -229,30 +290,10 @@ AnimationPose AnimationPose::LayeredLerp(
 	}
 	int startIdx = itStart->second;
 
+	// --- Collect subtree indices (iterative using children adjacency) ---
 	std::vector<char> inSubtree(N, 0);
 	std::vector<int> subtreeList; subtreeList.reserve(64);
-	// iterative stack to avoid recursion
 	std::vector<int> stack; stack.push_back(startIdx);
-	while (!stack.empty()) {
-		int cur = stack.back(); stack.pop_back();
-		if (inSubtree[cur]) continue;
-		inSubtree[cur] = 1;
-		subtreeList.push_back(cur);
-		// push children indices
-		// to find children, we can iterate traversal and pick parentIndex == cur (but expensive O(N^2)); instead build adjacency once:
-	}
-
-	// Build adjacency list to push children only once (O(N))
-	std::vector<std::vector<int>> children(N);
-	for (int i = 0; i < (int)N; ++i) {
-		int p = parentIndex[i];
-		if (p >= 0) children[p].push_back(i);
-	}
-	// rebuild subtreeList using adjacency (faster)
-	std::fill(inSubtree.begin(), inSubtree.end(), 0);
-	subtreeList.clear();
-	stack.clear();
-	stack.push_back(startIdx);
 	while (!stack.empty()) {
 		int cur = stack.back(); stack.pop_back();
 		if (inSubtree[cur]) continue;
@@ -261,36 +302,30 @@ AnimationPose AnimationPose::LayeredLerp(
 		for (int ci : children[cur]) stack.push_back(ci);
 	}
 
-	// --- 6) Prepare result containers (local/result global) ---
+	// Ensure subtreeList is in traversal (parent-before-child) order:
+	std::sort(subtreeList.begin(), subtreeList.end(), [](int a, int b) { return a < b; });
+
+	// --- Prepare result arrays ---
 	std::vector<mat4> resultLocal(N);
 	std::vector<mat4> resultGlobal(N);
 
-	// Set resultLocal to poseA local initially (bones outside subtree will remain A)
-	for (int i = 0; i < (int)N; ++i) resultLocal[i] = localA[i];
-
-	// Also fill resultGlobal for bones that are before the subtree or parents of subtree.
-	// But simplest: compute result globals top-down; when processing subtree we will overwrite.
-	// We'll iterate bones in traversal order and compute resultGlobal accordingly:
-	for (int i = 0; i < (int)N; ++i) {
-		// if bone is not in subtree, keep A's local; else skip (will be computed after)
+	// initialize resultLocal to A; compute resultGlobal for non-subtree nodes
+	for (int i = 0; i < N; ++i) resultLocal[i] = localA[i];
+	for (int i = 0; i < N; ++i) {
 		if (!inSubtree[i]) {
 			int p = parentIndex[i];
 			if (p == -1) resultGlobal[i] = resultLocal[i];
 			else resultGlobal[i] = resultGlobal[p] * resultLocal[i];
 		}
 		else {
-			// mark as unset; will compute during subtree pass
+			// mark as unset (zero matrix)
 			resultGlobal[i] = mat4(0.0f);
 		}
 	}
 
-	// --- 7) Process subtree top-down (parents before children) using subtreeList in topological order
-	// Ensure subtreeList is in parent-before-child order: the adjacency push above preserves that if started from startIdx.
-	// But to be safe, sort subtreeList by index of traversal (because traversal is parent-before-child)
-	std::sort(subtreeList.begin(), subtreeList.end(), [&](int a, int b) { return a < b; });
-
+	// --- Process subtree top-down ---
 	for (int idx : subtreeList) {
-		// blended translation and scale
+		// blended T & S
 		vec3 blendedT = glm::mix(tA[idx], tB[idx], progress);
 		vec3 blendedS = glm::mix(sA[idx], sB[idx], progress);
 
@@ -299,54 +334,49 @@ AnimationPose AnimationPose::LayeredLerp(
 			finalLocalQ = glm::slerp(qA[idx], qB[idx], progress);
 		}
 		else {
-			// compute desired global rotation from globalB
+			// desired global rotation from globalB
 			mat4 gB = globalB[idx];
-			// extract rotation
-			vec3 gS; for (int k = 0; k < 3; ++k) gS[k] = glm::length(vec3(gB[k]));
+			vec3 gS;
+			for (int k = 0; k < 3; ++k) gS[k] = glm::length(vec3(gB[k]));
 			glm::mat3 gRot;
 			for (int k = 0; k < 3; ++k) gRot[k] = (gS[k] != 0.0f) ? vec3(gB[k]) / gS[k] : vec3(gB[k]);
 			quat desiredGlobalQ = glm::quat_cast(gRot);
 
-			// find parent result rotation
+			// parent result rotation (if any)
 			int p = parentIndex[idx];
 			quat parentResultQ = quat(1.0f, 0.0f, 0.0f, 0.0f);
 			if (p != -1) {
-				// ensure parent's resultGlobal is computed (it should be because traversal order puts parents first)
 				mat4 pglob = resultGlobal[p];
-				vec3 pS; for (int k = 0; k < 3; ++k) pS[k] = glm::length(vec3(pglob[k]));
+				vec3 pS;
+				for (int k = 0; k < 3; ++k) pS[k] = glm::length(vec3(pglob[k]));
 				glm::mat3 pRot;
 				for (int k = 0; k < 3; ++k) pRot[k] = (pS[k] != 0.0f) ? vec3(pglob[k]) / pS[k] : vec3(pglob[k]);
 				parentResultQ = glm::quat_cast(pRot);
 			}
-
-			// local = inverse(parent) * desiredGlobal
 			finalLocalQ = glm::inverse(parentResultQ) * desiredGlobalQ;
 		}
 
 		mat4 newLocal = ComposeLocal(blendedT, blendedS, finalLocalQ);
 		resultLocal[idx] = newLocal;
 
-		// compute resultGlobal for this bone
 		int p = parentIndex[idx];
 		if (p == -1) resultGlobal[idx] = newLocal;
 		else resultGlobal[idx] = resultGlobal[p] * newLocal;
 	}
 
-	// --- 8) Compose result AnimationPose map from resultLocal (only fill bones we have in traversal) ---
+	// --- Build output pose map ---
 	AnimationPose out;
-	out.boneTransforms.reserve(resultLocal.size());
-	for (int i = 0; i < (int)N; ++i) {
+	out.boneTransforms.reserve(N);
+	for (int i = 0; i < N; ++i) {
 		out.boneTransforms[traversal[i]] = resultLocal[i];
 	}
 
-	// maintain previous behavior copying root from B if present
+	// keep previous behavior: copy root from B if present
 	auto rootItB = poseB.boneTransforms.find(hashed_string("root"));
 	if (rootItB != poseB.boneTransforms.end()) out.boneTransforms[hashed_string("root")] = rootItB->second;
 
 	return out;
 }
-
-
 
 
 void SkeletalMesh::ApplyWorldSpaceBoneTransforms(std::unordered_map<hashed_string, mat4>& pose)

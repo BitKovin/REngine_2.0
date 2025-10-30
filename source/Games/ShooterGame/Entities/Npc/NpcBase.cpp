@@ -453,6 +453,7 @@ void NpcBase::UpdateBT()
 	behaviorTree.GetBlackboard().SetValue("target_follow", target_follow);
 	behaviorTree.GetBlackboard().SetValue("target_id", target_id);
 	behaviorTree.GetBlackboard().SetValue("target_sees", target_sees);
+	behaviorTree.GetBlackboard().SetValue("target_knowsLocation", target_sees || target_stopUpdateLastSeenPositionDelay.Wait());
 	behaviorTree.GetBlackboard().SetValue("target_lastSeenPosition", target_lastSeenPosition);
 	behaviorTree.GetBlackboard().SetValue("target_underArrest", target_underArrest);
 	behaviorTree.GetBlackboard().SetValue("target_attack", target_attack);
@@ -570,7 +571,7 @@ void NpcBase::UpdateObserver()
 		else if (target->ownerId == target_id && target_underArrest)
 		{
 
-			if (target_follow == false)
+			if (target_follow == false && target_stopUpdateLastSeenPositionDelay.Wait() == false)
 			{
 				PlayPhrace("target_found");
 
@@ -699,6 +700,11 @@ void NpcBase::UpdateTargetFollow()
 
 	speed = (target_follow || currentInvestigation <= InvestigationReason::Body) ? 5 : 2;
 
+	if (isGuard && target_sees && target_attackInRange)
+	{
+		speed = 2;
+	}
+
 
 	if (target_follow || report_to_guard)
 	{
@@ -709,7 +715,7 @@ void NpcBase::UpdateTargetFollow()
 
 	if (target_underArrest && observer)
 	{
-		auto observers = AiPerceptionSystem::GetObserversInRadius(observer->position, isGuard ? 13 : 7);
+		auto observers = AiPerceptionSystem::GetObserversInRadius(observer->position, isGuard ? 8 : 4);
 
 		for (auto ob : observers)
 		{
@@ -828,6 +834,11 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 		hasChanges = true;
 	}
 
+	if (currentCrime < anotherNpc->currentCrime)
+	{
+		hasChanges = true;
+	}
+
 	if (target_underArrestExpire < anotherNpc->target_underArrestExpire + 0.2f && anotherNpc->target_underArrest == false)
 	{
 		hasChanges = true;
@@ -843,9 +854,17 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 		hasChanges = true;
 	}
 
+	if (target_sees && anotherNpc->target_sees == false)
+	{
+		anotherNpc->target_stopUpdateLastSeenPositionDelay.AddDelay(0.5);
+		anotherNpc->target_lastSeenPosition = target_lastSeenPosition;
+		anotherNpc->target_lastSeenTime = target_lastSeenTime;
+	}
+
 	if (hasChanges == false) return;
 
-	if (Physics::LineTrace(Position, anotherNpc->Position, BodyType::WorldOpaque).hasHit) return;
+	if(distance(Position, anotherNpc->Position) > 2)
+		if (Physics::LineTrace(Position, anotherNpc->Position, BodyType::WorldOpaque).hasHit) return;
 
 	if (target_underArrest)
 	{
@@ -867,6 +886,11 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 	{
 		anotherNpc->target_lastSeenPosition = target_lastSeenPosition;
 		anotherNpc->target_lastSeenTime = target_lastSeenTime;
+	}
+
+	if (currentCrime < anotherNpc->currentCrime)
+	{
+		anotherNpc->currentCrime = currentCrime;
 	}
 
 }

@@ -590,15 +590,20 @@ void BehaviorTreeEditor::DrawPropertiesPanel() {
 			ImGui::Text("%s (%s)", selection_.selected->GetName().c_str(), selection_.selected->GetType().c_str());
 			ImGui::InputText("display name", &selection_.selected->name_);
 			ImGui::Separator();
-
-			json params = json::parse(selection_.cachedParamsSerialized, nullptr, false);
-			if (params.is_discarded()) { params = json::object(); }
+			json nodeJson = selection_.selected->ToJson();
+			json params = json::object();
+			for (auto it = nodeJson.begin(); it != nodeJson.end(); ++it) {
+				const std::string key = it.key();
+				if (key == "name" || key == "type" || key == "children") continue;
+				params[key] = it.value();
+			}
 			bool changed = EditJsonObject(params);
 			if (changed) {
-				// Auto-apply changes immediately to avoid UI reverting on focus change
-				selection_.cachedParamsSerialized = params.dump(2);
-				ApplyParamsSerializedToNode(selection_.cachedParamsSerialized, selection_.selected);
-				selection_.dirty = false;
+				nodeJson = selection_.selected->ToJson();
+				for (auto it = params.begin(); it != params.end(); ++it) {
+					nodeJson[it.key()] = it.value();
+				}
+				selection_.selected->FromJson(nodeJson);
 			}
 		}
 	}

@@ -18,7 +18,7 @@ inline void CustomTask::OnStart(BehaviorTreeContext& context)
 
 inline NodeStatus CustomTask::Execute(BehaviorTreeContext& context)
 {
-
+	lastContext = context;
 	Tick(context);
 
 	return GetStatus();
