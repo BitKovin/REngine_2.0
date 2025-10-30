@@ -410,7 +410,7 @@ void NpcBase::UpdateWeaponMesh()
 
 	weaponMesh->Visible = true;
 
-	const mat4 rotationFixMatrix = MathHelper::GetRotationMatrix(vec3(90,0,0));
+	const mat4 rotationFixMatrix = MathHelper::GetRotationMatrix(vec3(90, 0, 0));
 
 	auto weaponTrans = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("weapon") * rotationFixMatrix);
 
@@ -512,29 +512,38 @@ void NpcBase::UpdateObserver()
 	}
 
 
-
+	DebugDraw::Line(pathFollow.desiredTarget, pathFollow.desiredTarget + vec3(0,1,0));
 
 	//Logger::Log(Id);
 
 	target_sees = false;
 
+	Crime min_crime = Crime::None;
+	std::string observed_offender;
+	vec3 observed_pos;
+
+	bool seeing_target = false;
+
 	for (std::shared_ptr<ObservationTarget> target : observer->visibleTargets)
 	{
-
-
-		bool foundCrime = false;
-
 
 
 		if (target->HasTag("violentCrime"))
 		{
 
-			TryCommitCrime(Crime::WeaponFire, target->ownerId, target->position);
+			if (min_crime > Crime::WeaponFire)
+			{
+				min_crime = Crime::WeaponFire;
+				observed_offender = target->ownerId;
+				observed_pos = target->position;
+			}
 
-			foundCrime = true;
 		}
-		else if (target->HasTag("body"))
+
+		if (target->HasTag("body"))
 		{
+			bool near_player = false;
+
 			for (std::shared_ptr<ObservationTarget> target2 : observer->visibleTargets)
 			{
 
@@ -545,73 +554,140 @@ void NpcBase::UpdateObserver()
 					if (distance(target->position, target2->position) < 5)
 					{
 
-						TryCommitCrime(Crime::NearBody, target2->ownerId, target2->position);
+						if (min_crime > Crime::NearBody)
+						{
+							min_crime = Crime::NearBody;
+							observed_offender = target2->ownerId;
+							observed_pos = target2->position;
+						}
 
-						foundCrime = true;
+						near_player = true;
+
 					}
 
 				}
 
 			}
 
-			if (foundCrime == false)
+			if (near_player == false)
 			{
 				TryStartInvestigation(InvestigationReason::Body, target->position, target->ownerId);
 			}
 
 		}
 
-		if (foundCrime == false && currentInvestigation == InvestigationReason::WeaponFire
-			&& distance(target->position, investigation_target) < 4)
+		if (target->HasTag("illegal_weapon"))
 		{
 
-			TryCommitCrime(Crime::WeaponFireSound, target->ownerId, target->position);
-
-		}
-		else if (target->ownerId == target_id && target_underArrest)
-		{
-
-			if (target_follow == false && target_stopUpdateLastSeenPositionDelay.Wait() == false)
+			if (min_crime > Crime::WeaponHolding)
 			{
-				PlayPhrace("target_found");
-
-				report_to_guard = true;
-
+				min_crime = Crime::WeaponHolding;
+				observed_offender = target->ownerId;
+				observed_pos = target->position;
 			}
 
-			target_follow = true;
 
 		}
-		else if (target->HasTag("illegal_weapon"))
+
+		if (target->HasTag("trespassing") && target->HasTag("player"))
 		{
 
-			TryCommitCrime(Crime::WeaponHolding, target->ownerId, target->position);
-
+			if (min_crime > Crime::Trespassing)
+			{
+				min_crime = Crime::Trespassing;
+				observed_offender = target->ownerId;
+				observed_pos = target->position;
+			}
 
 		}
-		else if (target->HasTag("in_trouble"))
+
+		if (target->HasTag("in_trouble"))
 		{
 			TryStartInvestigation(InvestigationReason::NpcInTrouble, target->position, target->ownerId);
 		}
-		else if (target->ownerId == target_id && target_underArrest == false)
+
+		if (currentInvestigation == InvestigationReason::WeaponFire && target->HasTag("player") && distance(target->position, investigation_target) < 4)
 		{
-			StopTargetFollow();
+
+			if (min_crime > Crime::WeaponFireSound)
+			{
+				min_crime = Crime::WeaponFireSound;
+				observed_offender = target->ownerId;
+				observed_pos = target->position;
+			}
+
 		}
 
 		if (target->ownerId == target_id)
 		{
-
-
-			target_stopUpdateLastSeenPositionDelay.AddDelay(1.0f);
-
-			target_sees = true;
-
-
+			seeing_target = true;
 		}
 
 
 	}
 
+	if (seeing_target)
+	{
+		target_stopUpdateLastSeenPositionDelay.AddDelay(1.0f);
+	}
+
+	if (min_crime != Crime::None)
+	{
+		float speed = GetDetectionSpeed(min_crime);
+		detection_progress = std::min(1.0f, detection_progress + speed * Time::DeltaTimeF);
+		if (detection_progress >= 1.0f)
+		{
+			if (TryCommitCrime(min_crime, observed_offender, observed_pos))
+			{
+				detection_progress = 1.0f;
+			}
+			else
+			{
+				if (target_underArrest && !target_follow)
+				{
+					target_follow = true;
+					if (!target_stopUpdateLastSeenPositionDelay.Wait())
+					{
+						PlayPhrace("target_found");
+						report_to_guard = true;
+					}
+				}
+			}
+		}
+		has_observed_crime = true;
+	}
+	else
+	{
+		if (!target_follow && (seeing_target && target_underArrest && !target_follow) == false)
+		{
+			detection_progress -= 0.5f * Time::DeltaTimeF;
+			detection_progress = std::max(0.0f, detection_progress);
+		}
+		has_observed_crime = false;
+	}
+
+	if (seeing_target && target_underArrest && !target_follow)
+	{
+		float passive_speed = 0.33f;
+		detection_progress = std::min(1.0f, detection_progress + passive_speed * Time::DeltaTimeF);
+		if (detection_progress >= 1.0f)
+		{
+			target_follow = true;
+			if (!target_stopUpdateLastSeenPositionDelay.Wait())
+			{
+				PlayPhrace("target_found");
+				report_to_guard = true;
+			}
+		}
+	}
+
+	if (seeing_target && target_underArrest)
+	{
+		if (target_follow)
+		{
+			target_sees = true;
+		}
+	}
 
 }
 
@@ -746,7 +822,8 @@ void NpcBase::UpdateTargetFollow()
 	{
 		if (distance2(targetRef->Position, Position) < 15)
 		{
-			target_underArrestExpire -= Time::DeltaTimeF;
+			float decrease_rate = has_observed_crime ? 1.5f : 0.5f;
+			target_underArrestExpire -= decrease_rate * Time::DeltaTimeF;
 		}
 
 		if (target_underArrestExpire < 0)
@@ -863,7 +940,7 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 
 	if (hasChanges == false) return;
 
-	if(distance(Position, anotherNpc->Position) > 2)
+	if (distance(Position, anotherNpc->Position) > 2)
 		if (Physics::LineTrace(Position, anotherNpc->Position, BodyType::WorldOpaque).hasHit) return;
 
 	if (target_underArrest)
@@ -898,6 +975,8 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 bool NpcBase::TryCommitCrime(Crime crime, std::string offender, vec3 pos)
 {
 
+	if (crime >= currentCrime) return false;
+
 	if (isGuard == false)
 	{
 		if (crime < Crime::Group_Arrest)
@@ -907,8 +986,6 @@ bool NpcBase::TryCommitCrime(Crime crime, std::string offender, vec3 pos)
 		}
 	}
 
-
-	if (crime >= currentCrime) return true; // Note: Returns false if no change, but since we need to know if committed (changed), adjust to return bool
 
 	bool wasUnderArrest = target_underArrest;
 	bool wasAttack = target_attack;
@@ -1018,6 +1095,8 @@ void NpcBase::Serialize(json& target)
 
 	btSaveState = behaviorTree.SaveState().dump(0);
 	SERIALIZE_FIELD(target, btSaveState);
+
+	SERIALIZE_FIELD(target, detection_progress);
 }
 
 void NpcBase::Deserialize(json& source)
@@ -1101,6 +1180,8 @@ void NpcBase::Deserialize(json& source)
 	//mesh->Update(0);
 	//mesh->PullRootMotion();
 
+	DESERIALIZE_FIELD(source, detection_progress);
+
 }
 
 void NpcBase::PrepareToStartMovement()
@@ -1162,6 +1243,10 @@ void NpcBase::UpdateDebugUI()
 
 	ImGui::Begin(Id.c_str());
 
+	ImGui::Text("detection:");
+	ImGui::SameLine();
+	ImGui::ProgressBar(detection_progress);
+
 	ImGui::DragFloat("activeragdoll strength", &mesh->RagdollPoseFollowStrength, 0.1f);
 	ImGui::Checkbox("update ragdoll pose", &mesh->UpdateRagdollPose);
 
@@ -1177,8 +1262,8 @@ void NpcBase::FindClosestGuard()
 	if (findGuardCooldown.Wait()) return;
 
 	std::vector<std::shared_ptr<ObservationTarget>> npcsInRadius;
-	
-	if(report_to_guard)
+
+	if (report_to_guard)
 		npcsInRadius = AiPerceptionSystem::GetTargetsInRadiusWithTagOrdered(Position, 150, "guard_safe");
 
 	if (npcsInRadius.size() > 0)
@@ -1204,7 +1289,7 @@ void NpcBase::FindClosestGuard()
 
 	}
 
-	findGuardCooldown.AddDelay(0.3 + RandomHelper::RandomFloat()/3.0f);
+	findGuardCooldown.AddDelay(0.3 + RandomHelper::RandomFloat() / 3.0f);
 
 }
 
@@ -1236,7 +1321,7 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 	if (reason == InvestigationReason::LoudNoise || reason == InvestigationReason::Noise)
 	{
 
-		if(sharedByNpc == false)
+		if (sharedByNpc == false)
 			PlayPhrace("heard_sound");
 	}
 

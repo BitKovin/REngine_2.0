@@ -122,6 +122,27 @@ protected:
 
 	StaticMesh* weaponMesh = nullptr;
 
+private:
+
+	float detection_progress = 0.0f;
+	bool has_observed_crime = false;
+
+	float GetDetectionSpeed(Crime crime) const {
+		switch (crime) {
+		case Crime::WeaponFire:
+		case Crime::WeaponFireSound:
+		case Crime::Group_Attack:
+		case Crime::NearBody:
+			return 10000.0f; // immediate
+		case Crime::WeaponHolding:
+			return 1.0f;
+		case Crime::Trespassing:
+			return 0.63f; // ~1.5 seconds to full detection
+		default:
+			return 0.0f; // no detection buildup
+		}
+	}
+
 public:
 
 	bool isGuard = true;

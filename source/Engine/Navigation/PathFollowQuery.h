@@ -36,14 +36,16 @@ public:
 
 	void WaitToFinish();
 
+	vec3 desiredStart;
+	vec3 desiredTarget;
+
 private:
 
 	bool Canceled = false;
 
 	std::recursive_mutex targetLocationsMutex;
 
-	vec3 desiredStart;
-	vec3 desiredTarget;
+
 
 };
 
