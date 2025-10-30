@@ -120,6 +120,8 @@ protected:
 
 	vec3 flee_target;
 
+	StaticMesh* weaponMesh = nullptr;
+
 public:
 
 	bool isGuard = true;
@@ -171,6 +173,8 @@ public:
 	void PlayPhrace(std::string name);
 
 	void AsyncUpdate();
+	void UpdateWeaponMesh();
+
 	void LateUpdate();
 
 	void UpdateBT();

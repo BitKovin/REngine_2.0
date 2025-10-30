@@ -110,6 +110,7 @@ namespace roj
 
 		BoneNode defaultRoot;
 		std::unordered_map<hashed_string, BoneNode> boneNodesMap;
+		std::unordered_map<hashed_string, hashed_string> parentMap;
 
 		BoundingSphere boundingSphere;
 		BoundingBox boundingBox;

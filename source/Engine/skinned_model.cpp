@@ -83,6 +83,7 @@ static void extractBoneNodeAndBuildMap(roj::SkinnedModel& model, roj::BoneNode& 
         roj::BoneNode node;
 		extractBoneNodeAndBuildMap(model, node, src->mChildren[i]);
         bone.children.push_back(node);
+        model.parentMap[node.name] = bone.name;
     }
 
     model.boneNodesMap[bone.name] = bone;

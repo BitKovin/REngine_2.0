@@ -24,7 +24,7 @@ private:
 		}
 	}
 
-	bool firstTick = true;
+	int numTicks = 2;
 
 public:
 	MoveToEntity() : CustomTask ("Move To Entity", "MoveToEntity")
@@ -38,7 +38,7 @@ public:
 	{
 
 		CustomTask::OnStop(context);
-		return;
+
 		CheckNpcRef(context);
 
 		npcRef->pathFollow.reachedTarget = true;
@@ -77,7 +77,7 @@ public:
 
 		}
 
-		firstTick = true;
+		numTicks = 2;
 
 	}
 
@@ -106,14 +106,14 @@ public:
 			return;
 		}
 
-		if (firstTick)
+		if (numTicks)
 		{
 			npcRef->MoveTo(targetEntity->Position, GetVariable<float>("acceptance radius"));
 
 			npcRef->pathFollow.reachedTarget = false;
 			npcRef->PrepareToStartMovement();
 
-			firstTick = false;
+			numTicks--;
 			return;
 		}
 

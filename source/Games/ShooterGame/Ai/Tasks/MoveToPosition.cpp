@@ -10,7 +10,7 @@ private:
 
 	NpcBase* npcRef = nullptr;
 
-	bool firstTick = true;
+	int numTicks = 2;
 
 	void CheckNpcRef(BehaviorTreeContext& context)
 	{
@@ -38,7 +38,7 @@ public:
 	{
 
 		CustomTask::OnStop(context);
-		return;
+
 		CheckNpcRef(context);
 
 		npcRef->pathFollow.reachedTarget = true;
@@ -60,7 +60,7 @@ public:
 			npcRef->PrepareToStartMovement();
 			npcRef->pathFollow.reachedTarget = false;
 
-			firstTick = true;
+			numTicks = 2;
 
 		}
 
@@ -73,14 +73,14 @@ public:
 
 		vec3 target = GetVariable<vec3>("target");
 
-		if (firstTick)
+		if (numTicks)
 		{
 			npcRef->MoveTo(target, GetVariable<float>("acceptance radius"));
 
 			npcRef->pathFollow.reachedTarget = false;
 			npcRef->PrepareToStartMovement();
 
-			firstTick = false;
+			numTicks--;
 			return;
 		}
 

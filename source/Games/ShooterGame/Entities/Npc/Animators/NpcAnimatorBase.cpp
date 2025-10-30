@@ -77,7 +77,7 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 			startBone = "spine_01";
 		}
 
-		return AnimationPose::LayeredLerp(locomotion, pistolPos, pistol->GetNodeFromName(startBone), 1, weapon_ready || weapon_aims);// AnimationPose::Lerp(locomotion, painPose, PainProgress);
+		return AnimationPose::LayeredLerp(startBone, pistol->GetRootNode(), locomotion, pistolPos, true, 1);// AnimationPose::Lerp(locomotion, painPose, PainProgress);
 	}
 	else
 	{

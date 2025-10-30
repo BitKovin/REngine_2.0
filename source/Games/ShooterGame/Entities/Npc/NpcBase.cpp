@@ -19,11 +19,13 @@ NpcBase::NpcBase()
 
 	mesh = new SkeletalMesh(this);
 	Drawables.push_back(mesh);
+	weaponMesh = new StaticMesh(this);
+	Drawables.push_back(weaponMesh);
 
 	ClassName = "npc_base";
 	SaveGame = true;
 
-	Health = 50;
+	Health = 70;
 
 	mesh->UpdatePoseOnlyWhenRendered = true;
 
@@ -285,6 +287,9 @@ void NpcBase::AsyncUpdate()
 		{
 			mesh->UpdateHitboxes();
 		}
+
+		weaponMesh->Visible = false;
+
 		return;
 	}
 
@@ -385,11 +390,32 @@ void NpcBase::AsyncUpdate()
 
 	mesh->Position = Position - vec3(0, 1, 0);
 	mesh->Rotation = vec3(0, MathHelper::FindLookAtRotation(vec3(), movingDirection).y, 0);
+	UpdateWeaponMesh();
 
 	if (tickIntervalDelay.Wait() == false)
 	{
 		tickIntervalDelay.AddDelay(0.15f + distance(Position, Camera::position) / 200.0f);
 	}
+
+
+
+
+}
+void NpcBase::UpdateWeaponMesh()
+{
+
+	weaponMesh->Visible = false;
+
+	if (animator.weapon_holds == false && animator.weapon_ready == false && animator.weapon_aims == false) return;
+
+	weaponMesh->Visible = true;
+
+	const mat4 rotationFixMatrix = MathHelper::GetRotationMatrix(vec3(90,0,0));
+
+	auto weaponTrans = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("weapon") * rotationFixMatrix);
+
+	weaponMesh->Position = weaponTrans.Position;
+	weaponMesh->Rotation = weaponTrans.Rotation;
 
 
 }
@@ -776,6 +802,10 @@ void NpcBase::LoadAssets()
 
 	mesh->LoadFromFile("GameData/models/npc/base.glb");
 	mesh->CreateHitboxes(this);
+
+	weaponMesh->LoadFromFile("GameData/models/weapons/glock.glb");
+	weaponMesh->TexturesLocation = "GameData/models/weapons/glock.glb/";
+	weaponMesh->PreloadAssets();
 
 	getFromRagdollAnimation = new Animation(this);
 	getFromRagdollAnimation->LoadFromFile("GameData/animations/npc/standUp.glb");

@@ -39,7 +39,12 @@ struct AnimationPose
 
 	static AnimationPose Lerp(AnimationPose a, AnimationPose b, float progress);
 
-	static AnimationPose LayeredLerp(AnimationPose a, AnimationPose b, roj::BoneNode* startNode, float progress, bool modelSpaceRotation = true);
+	static AnimationPose LayeredLerp(const hashed_string& startBoneName,
+		roj::BoneNode* rootNode,
+		const AnimationPose& poseA,
+		const AnimationPose& poseB,
+		bool UseWorldSpaceRotation,
+		float progress);
 
 	void SetBoneTransform(hashed_string bone, mat4 transform)
 	{
@@ -344,6 +349,8 @@ public:
 	void SetAnimationTime(float time);
 
 	roj::BoneNode* GetNodeFromName(const hashed_string& name);
+	roj::BoneNode* GetRootNode();
+	std::unordered_map<hashed_string, hashed_string>* GetNodeParentMap();
 
 	void StartedRendering();
 
