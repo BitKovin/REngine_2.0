@@ -2,37 +2,37 @@
     "blackboard": {
         "closestGuard": "",
         "flee_target": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": -31.290119171142578,
+            "y": 0.70001220703125,
+            "z": 37.20000076293945
         },
         "found_guard": false,
         "has_navpoint": true,
         "investigation": false,
         "investigation_target": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": 7.662266731262207,
+            "y": 2.1580021381378174,
+            "z": -18.690641403198242
         },
         "isGuard": true,
         "navpoint_acceptance_radius": 0.30000001192092896,
         "navpoint_has_wait_time": false,
-        "navpoint_name": "np_0_0",
+        "navpoint_name": "np_0_2",
         "navpoint_wait_time": 0.0,
         "report_to_guard": false,
         "target": "$info_player_start_0",
-        "target_attack": false,
+        "target_attack": true,
         "target_attackInRange": false,
-        "target_follow": false,
-        "target_id": "",
-        "target_knowsLocation": false,
+        "target_follow": true,
+        "target_id": "$info_player_start_0",
+        "target_knowsLocation": true,
         "target_lastSeenPosition": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": 2.2932379245758057,
+            "y": 1.4300040006637573,
+            "z": -8.614070892333984
         },
-        "target_sees": false,
-        "target_underArrest": false
+        "target_sees": true,
+        "target_underArrest": true
     },
     "isRunning": true,
     "root": {
@@ -368,19 +368,19 @@
                                                                                                         "type": "MoveToPosition"
                                                                                                     },
                                                                                                     {
-                                                                                                        "children": [],
-                                                                                                        "id": "node_fd00d88537722e51",
-                                                                                                        "name": "Wait",
-                                                                                                        "type": "WaitNode",
-                                                                                                        "waitTime": {
-                                                                                                            "sourceType": 0,
-                                                                                                            "value": 1.0
-                                                                                                        }
-                                                                                                    },
-                                                                                                    {
                                                                                                         "children": [
                                                                                                             {
                                                                                                                 "children": [
+                                                                                                                    {
+                                                                                                                        "children": [],
+                                                                                                                        "id": "node_fd372610d1c4974a",
+                                                                                                                        "name": "Wait",
+                                                                                                                        "type": "WaitNode",
+                                                                                                                        "waitTime": {
+                                                                                                                            "sourceType": 0,
+                                                                                                                            "value": 1.0
+                                                                                                                        }
+                                                                                                                    },
                                                                                                                     {
                                                                                                                         "children": [],
                                                                                                                         "id": "node_399a7d9edb141ba4",

@@ -14,6 +14,23 @@
 
 #include <RandomHelper.h>
 
+float NpcBase::GetDetectionSpeed(Crime crime) const
+{
+	switch (crime) {
+	case Crime::WeaponFire:
+	case Crime::WeaponFireSound:
+	case Crime::Group_Attack:
+	case Crime::NearBody:
+		return 10000.0f; // immediate
+	case Crime::WeaponHolding:
+		return 1.0f;
+	case Crime::Trespassing:
+		return 0.63f; // ~1.5 seconds to full detection
+	default:
+		return 0.0f; // no detection buildup
+	}
+}
+
 NpcBase::NpcBase()
 {
 
@@ -512,7 +529,6 @@ void NpcBase::UpdateObserver()
 	}
 
 
-	DebugDraw::Line(pathFollow.desiredTarget, pathFollow.desiredTarget + vec3(0,1,0));
 
 	//Logger::Log(Id);
 
@@ -626,7 +642,7 @@ void NpcBase::UpdateObserver()
 
 	}
 
-	if (seeing_target)
+	if (seeing_target && detection_progress>=1)
 	{
 		target_stopUpdateLastSeenPositionDelay.AddDelay(1.0f);
 	}
@@ -673,11 +689,10 @@ void NpcBase::UpdateObserver()
 		if (detection_progress >= 1.0f)
 		{
 			target_follow = true;
-			if (!target_stopUpdateLastSeenPositionDelay.Wait())
-			{
-				PlayPhrace("target_found");
-				report_to_guard = true;
-			}
+
+			PlayPhrace("target_found");
+			report_to_guard = true;
+
 		}
 	}
 
@@ -822,7 +837,7 @@ void NpcBase::UpdateTargetFollow()
 	{
 		if (distance2(targetRef->Position, Position) < 15)
 		{
-			float decrease_rate = has_observed_crime ? 1.5f : 0.5f;
+			float decrease_rate = 0.5f;
 			target_underArrestExpire -= decrease_rate * Time::DeltaTimeF;
 		}
 
@@ -938,6 +953,11 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 		anotherNpc->target_lastSeenTime = target_lastSeenTime;
 	}
 
+	if (detection_progress >= 1 && anotherNpc->detection_progress < 1)
+	{
+		hasChanges = true;
+	}
+
 	if (hasChanges == false) return;
 
 	if (distance(Position, anotherNpc->Position) > 2)
@@ -968,6 +988,11 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 	if (currentCrime < anotherNpc->currentCrime)
 	{
 		anotherNpc->currentCrime = currentCrime;
+	}
+
+	if (detection_progress >= 1 && anotherNpc->detection_progress < 1)
+	{
+		anotherNpc->detection_progress = 1;
 	}
 
 }
