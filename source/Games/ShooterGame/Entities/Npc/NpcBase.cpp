@@ -439,6 +439,12 @@ void NpcBase::UpdateWeaponMesh()
 void NpcBase::LateUpdate()
 {
 	UpdateObservationTarget();
+
+	for (auto npc : shareKnowlageWith)
+	{
+		ShareTargetKnowlageWithFinal(npc);
+	}
+	shareKnowlageWith.clear();
 }
 
 void NpcBase::UpdateBT()
@@ -946,6 +952,11 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 		hasChanges = true;
 	}
 
+	if (target_follow && target_underArrest && anotherNpc->target_follow == false)
+	{
+		hasChanges = true;
+	}
+
 	if (target_sees && anotherNpc->target_sees == false)
 	{
 		anotherNpc->target_stopUpdateLastSeenPositionDelay.AddDelay(0.5);
@@ -962,6 +973,18 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 
 	if (distance(Position, anotherNpc->Position) > 2)
 		if (Physics::LineTrace(Position, anotherNpc->Position, BodyType::WorldOpaque).hasHit) return;
+
+	shareKnowlageWith.push_back(anotherNpc);
+
+}
+
+void NpcBase::ShareTargetKnowlageWithFinal(NpcBase* anotherNpc)
+{
+
+	if (target_follow && target_underArrest && anotherNpc->target_follow == false)
+	{
+		anotherNpc->target_follow = true;
+	}
 
 	if (target_underArrest)
 	{

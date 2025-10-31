@@ -626,11 +626,11 @@ void SkeletalMesh::Update(float timeScale)
 
 	oldAnimTime = animator.m_currTime;
 
-	//if (UpdatePose == false) return;
+	if (UpdatePose == false) return;
 
 	float blendProgress = GetBlendInProgress();
 
-	if (blendProgress < 0.995)
+	if (blendProgress < 0.99)
 	{
 		AnimationPose currentPose = GetAnimationPose();
 

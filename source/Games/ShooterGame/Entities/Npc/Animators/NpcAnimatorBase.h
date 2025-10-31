@@ -20,8 +20,7 @@ public:
 
 protected:
 
-	Animation* idle = nullptr;
-	Animation* run_f = nullptr;
+	Animation* locomotion = nullptr;
 	Animation* pistol = nullptr;
 
 	Animation* inPain = nullptr;

@@ -2,8 +2,7 @@
 
 void NpcAnimatorBase::LoadAssets()
 {
-	idle = AddAnimation("GameData/models/npc/base.glb","idle",false);
-	run_f = AddAnimation("GameData/models/npc/base.glb", "walk");
+	locomotion = AddAnimation("GameData/models/npc/base.glb","idle");
 	pistol = AddAnimation("GameData/models/npc/base.glb", "idle", false);
 	//inPain = AddAnimation("GameData/animations/npc/inPain.glb");
 }
@@ -40,7 +39,24 @@ void NpcAnimatorBase::Update()
 			pistol->PasteAnimationPose(lastPose);
 		}
 
-		pistol->PlayAnimation(desiredAnimation, false, 0.3);
+		pistol->PlayAnimation(desiredAnimation, true, 0.3);
+	}
+
+
+	std::string desiredLocomotionAnimation = "idle";
+
+	if (movementSpeed > 1)
+	{
+		desiredLocomotionAnimation = "walk";
+	}
+	if (movementSpeed > 3)
+	{
+		desiredLocomotionAnimation = "run";
+	}
+
+	if (locomotion->currentAnimationData->animationName != desiredLocomotionAnimation)
+	{
+		locomotion->PlayAnimation(desiredLocomotionAnimation, true, 0.2);
 	}
 
 	Animator::Update();
@@ -49,23 +65,14 @@ void NpcAnimatorBase::Update()
 
 AnimationPose NpcAnimatorBase::ProcessResultPose()
 {
-	auto idlePose = idle->GetAnimationPose();
-	auto runFPose = run_f->GetAnimationPose();
 
 	auto pistolPos = pistol->GetAnimationPose();
 
 	//auto painPose = inPain->GetAnimationPose();
 
-	AnimationPose locomotion;
+	AnimationPose locomotionPose = locomotion->GetAnimationPose();
 	
-	if (movementSpeed > 0.2)
-	{
-		locomotion = AnimationPose::Lerp(idlePose, runFPose, movementSpeed / 2.0f);
-	}
-	else
-	{
-		locomotion = idlePose;
-	}
+	
 
 	if (weapon_holds)
 	{
@@ -77,11 +84,11 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 			startBone = "spine_01";
 		}
 
-		return AnimationPose::LayeredLerp(startBone, pistol->GetRootNode(), locomotion, pistolPos, true, 1);// AnimationPose::Lerp(locomotion, painPose, PainProgress);
+		return AnimationPose::LayeredLerp(startBone, pistol->GetRootNode(), locomotionPose, pistolPos, true, 1);// AnimationPose::Lerp(locomotion, painPose, PainProgress);
 	}
 	else
 	{
-		return locomotion;
+		return locomotionPose;
 	}
 
 

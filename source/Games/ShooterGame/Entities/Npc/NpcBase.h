@@ -129,6 +129,8 @@ private:
 
 	float GetDetectionSpeed(Crime crime) const;
 
+	std::vector<NpcBase*> shareKnowlageWith;
+
 public:
 
 	bool isGuard = true;
@@ -217,6 +219,8 @@ protected:
 	void LoadAssets();
 
 	void ShareTargetKnowlageWith(NpcBase* anotherNpc);
+
+	void ShareTargetKnowlageWithFinal(NpcBase* anotherNpc);
 
 
 private:
