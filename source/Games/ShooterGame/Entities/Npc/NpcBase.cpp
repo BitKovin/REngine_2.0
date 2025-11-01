@@ -112,9 +112,7 @@ void NpcBase::Death()
 
 	//mesh->ClearHitboxes();
 	mesh->StartRagdoll();
-
-	mesh->RagdollPoseFollowStrength = 0.3f;
-
+	mesh->RagdollPoseFollowStrength = 0.0f;
 	mesh->SetAnimationPaused(true);
 	Physics::SetLinearVelocity(LeadBody, vec3(0));
 
@@ -157,6 +155,8 @@ void NpcBase::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
 
 	Health -= Damage;
 
+	StartStunnedRagdoll();
+
 	if (Health <= 0)
 	{
 		Death();
@@ -172,20 +172,69 @@ void NpcBase::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
 
 }
 
+bool NpcBase::isStunned()
+{
+	return returningFromRagdoll || stunnedRagdoll;
+}
+
+void NpcBase::StartStunnedRagdoll()
+{
+
+	if (stunnedRagdoll == false)
+	{
+		mesh->RagdollPoseFollowStrength = 0.3f;
+		mesh->StartRagdoll();
+		stunnedRagdoll = true;
+	}
+
+	stunnedRagdollDelay.AddDelay(2);
+
+
+}
+
+void NpcBase::UpdateStunnedReturn()
+{
+
+	if (stunnedRagdoll == false) return;
+
+
+
+	Body* pelvisBody = mesh->FindHitboxByName("pelvis");
+
+	vec3 pelvisPos = FromPhysics(pelvisBody->GetPosition());
+
+	Physics::SetBodyPosition(LeadBody, pelvisPos + vec3(0,0.3f,0));
+
+	if (stunnedRagdollDelay.Wait()) return;
+
+	bool hitsGround = Physics::LineTrace(pelvisPos, pelvisPos - vec3(0, 0.5f, 0), BodyType::World).hasHit;
+
+	if (hitsGround || pelvisBody->GetLinearVelocity().Length() < 0.1f)
+	{
+
+		StartReturnFromRagdoll();
+		stunnedRagdoll = false;
+
+	}
+	else
+	{
+		stunnedRagdollDelay.AddDelay(0.3f + RandomHelper::RandomFloat() * 0.2f);
+	}
+
+}
+
 void NpcBase::StartReturnFromRagdoll()
 {
 
 	if (mesh->InRagdoll == false) return;
 
-	if (LeadBody == nullptr)
-	{
-		LeadBody = Physics::CreateCharacterBody(this, Position, 0.5, 2, 50);
-	}
 
 
 	vec3 pelvisPos = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("pelvis")).Position;
 	vec3 pelvisRot = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("pelvis")).Rotation;
 	vec3 spinePos = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("spine_03")).Position;
+
+	mesh->UpdateHitboxes();
 
 	ragdollPose = mesh->GetAnimationPose();
 
@@ -220,7 +269,7 @@ void NpcBase::StartReturnFromRagdoll()
 
 	mesh->StopRagdoll();
 
-
+	returningFromRagdoll = true;
 
 	movingDirection = MathHelper::GetForwardVector(mesh->Rotation);
 	desiredDirection = movingDirection;
@@ -231,14 +280,22 @@ void NpcBase::StartReturnFromRagdoll()
 void NpcBase::UpdateReturnFromRagdoll()
 {
 
-	if (getFromRagdollAnimation->IsAnimationPlaying() == false) return;
+	if (getFromRagdollAnimation->IsAnimationPlaying() == false)
+	{
+		if (returningFromRagdoll)
+		{
+			returningFromRagdoll = false;
+			stunnedRagdoll = false;
+		}
+		return;
+	}
 
 	auto meshPose = mesh->GetAnimationPose();
 
 	getFromRagdollAnimation->Update(1.0f);
 
-	float blendInTime = 0.5;
-	float blendOutTime = 1;
+	float blendInTime = 0.2;
+	float blendOutTime = 0.7f;
 
 	float lerpProgressFromStart = 1.0f - ((blendInTime - getFromRagdollAnimation->GetAnimationTime()) / blendInTime);
 
@@ -318,83 +375,104 @@ void NpcBase::AsyncUpdate()
 
 	VoiceSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
 
-
-	bool lockAtTarget = target_attack && target_sees && target_attackInRange && isGuard;
-
-	vec3 desiredDirection = vec3(0);
-
-	if (pathFollow.reachedTarget == false || pathFollow.CalculatedPath == false)
-	{
-		pathFollow.UpdateStartAndTarget(Position, desiredTargetLocation);
-		pathFollow.TryPerform();
-	}
-
-	if (pathFollow.reachedTarget == false && pathFollow.CalculatedPath)
+	if (isStunned())
 	{
 
-		vec3 dir = MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position);
+		UpdateStunnedReturn();
 
-		if (length(dir) > 0.001)
-		{
-			vec3 newMove = normalize(dir) * speed;
-
-			vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
-
-			desiredDirection = MathHelper::Interp(curMove, newMove, Time::DeltaTimeF, 5.0f);
-
-			if (lockAtTarget == false)
-			{
-				movingDirection += desiredDirection * Time::DeltaTimeF * 3.0f;
-			}
-
-			desiredLookVector = movingDirection;
-		}
+		Physics::SetLinearVelocity(LeadBody, vec3(0));
 
 	}
 	else
 	{
 
-		vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
+		bool lockAtTarget = target_attack && target_sees && target_attackInRange && isGuard;
 
-		desiredDirection = MathHelper::Interp(curMove, vec3(0), Time::DeltaTimeF, 8.0f);
+		vec3 desiredDirection = vec3(0);
 
-		if (lockAtTarget == false)
+		if (pathFollow.reachedTarget == false || pathFollow.CalculatedPath == false)
 		{
-			movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 2);
+			pathFollow.UpdateStartAndTarget(Position, desiredTargetLocation);
+			pathFollow.TryPerform();
 		}
 
+
+
+		if (pathFollow.reachedTarget == false && pathFollow.CalculatedPath)
+		{
+
+			vec3 dir = MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position);
+
+			if (length(dir) > 0.001)
+			{
+				vec3 newMove = normalize(dir) * speed;
+
+				vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
+
+				desiredDirection = MathHelper::Interp(curMove, newMove, Time::DeltaTimeF, 5.0f);
+
+				if (lockAtTarget == false)
+				{
+					movingDirection += desiredDirection * Time::DeltaTimeF * 3.0f;
+				}
+
+				desiredLookVector = movingDirection;
+			}
+
+		}
+		else
+		{
+
+			vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
+
+			desiredDirection = MathHelper::Interp(curMove, vec3(0), Time::DeltaTimeF, 8.0f);
+
+			if (lockAtTarget == false)
+			{
+				movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 2);
+			}
+
+		}
+
+		if (lockAtTarget)
+		{
+			auto targetRef = Level::Current->FindEntityWithId(target_id);
+
+			desiredLookVector = targetRef->Position - Position;
+
+			movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 4.0f);
+
+		}
+
+
+
+		if (length(movingDirection) > 1.0f)
+		{
+			movingDirection = normalize(movingDirection);
+		}
+
+		float gravity = LeadBody->GetLinearVelocity().GetY();
+
+
+
+		vec3 move = desiredDirection;
+		move.y = gravity;
+
+		Physics::SetLinearVelocity(LeadBody, move);
+
+
 	}
 
-	if (lockAtTarget)
-	{
-		auto targetRef = Level::Current->FindEntityWithId(target_id);
-
-		desiredLookVector = targetRef->Position - Position;
-
-		movingDirection = MathHelper::Interp(movingDirection, desiredLookVector, Time::DeltaTimeF, 4.0f);
-
-	}
-
-
-
-	if (length(movingDirection) > 1.0f)
-	{
-		movingDirection = normalize(movingDirection);
-	}
-
-	float gravity = LeadBody->GetLinearVelocity().GetY();
-
-
-
-	vec3 move = desiredDirection;
-	move.y = gravity;
-
-	Physics::SetLinearVelocity(LeadBody, move);
-
-
+	
 
 	UpdateAnimations();
 	UpdateReturnFromRagdoll();
+
+
+
+
+	mesh->Position = Position - vec3(0, 1, 0);
+	mesh->Rotation = vec3(0, MathHelper::FindLookAtRotation(vec3(), movingDirection).y, 0);
 
 	if (mesh->WasRended)
 	{
@@ -405,9 +483,6 @@ void NpcBase::AsyncUpdate()
 		mesh->UpdateHitboxes();
 	}
 
-
-	mesh->Position = Position - vec3(0, 1, 0);
-	mesh->Rotation = vec3(0, MathHelper::FindLookAtRotation(vec3(), movingDirection).y, 0);
 	UpdateWeaponMesh();
 
 	if (tickIntervalDelay.Wait() == false)
@@ -875,16 +950,17 @@ void NpcBase::UpdateAnimations()
 
 	if (isGuard)
 	{
-		animator.weapon_holds = target_underArrest;
-		animator.weapon_ready = target_follow && target_underArrest;
-		animator.weapon_aims = target_attack && animator.weapon_ready && target_attackInRange;
+		animator.weapon_holds = target_underArrest  && !isStunned();
+		animator.weapon_ready = target_follow && target_underArrest  && !isStunned();
+		animator.weapon_aims = target_attack && animator.weapon_ready && target_attackInRange  && !isStunned();
+
 	}
 
 
 
 	if (mesh->WasRended)
 	{
-		animator.UpdatePose = mesh->WasRended && dead == false;
+		animator.UpdatePose = mesh->WasRended && mesh->InRagdoll == false;
 
 		if (LeadBody != nullptr)
 		{
@@ -1149,6 +1225,9 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, btSaveState);
 
 	SERIALIZE_FIELD(target, detection_progress);
+
+	SERIALIZE_FIELD(target, stunnedRagdoll);
+
 }
 
 void NpcBase::Deserialize(json& source)
@@ -1233,6 +1312,7 @@ void NpcBase::Deserialize(json& source)
 	//mesh->PullRootMotion();
 
 	DESERIALIZE_FIELD(source, detection_progress);
+	DESERIALIZE_FIELD(source, stunnedRagdoll);
 
 }
 

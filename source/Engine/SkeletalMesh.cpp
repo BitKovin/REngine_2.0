@@ -392,6 +392,8 @@ void SkeletalMesh::ApplyWorldSpaceBoneTransforms(std::unordered_map<hashed_strin
 	animator.ApplyLocalSpacePoseArray(GetAnimationPose().boneTransforms, pose);
 	boneTransforms = animator.getBoneMatrices();
 
+	dirtyPose = true;
+
 }
 
 void SkeletalMesh::PlayAnimation(std::string name, bool Loop, float interpIn)

@@ -122,9 +122,15 @@ protected:
 
 	StaticMesh* weaponMesh = nullptr;
 
+	float detection_progress = 0.0f;
+
+	bool stunnedRagdoll;
+	Delay stunnedRagdollDelay;
+	bool returningFromRagdoll;
+
 private:
 
-	float detection_progress = 0.0f;
+
 	bool has_observed_crime = false;
 
 	float GetDetectionSpeed(Crime crime) const;
@@ -168,6 +174,11 @@ public:
 	void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone = "", Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
 
 	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
+
+	bool isStunned();
+
+	void StartStunnedRagdoll();
+	void UpdateStunnedReturn();
 
 	void StartReturnFromRagdoll();
 	void UpdateReturnFromRagdoll();
