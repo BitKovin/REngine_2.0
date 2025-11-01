@@ -40,9 +40,9 @@
         {
             "boneName": "spine_02",
             "constraintRotation": {
-                "x": 90.0,
+                "x": 0.0,
                 "y": 0.0,
-                "z": 0.0
+                "z": -95.0
             },
             "damageMultiplier": 1.0,
             "mass": 5.0,
@@ -65,15 +65,15 @@
             "twistParameters": {
                 "x": -20.0,
                 "y": 15.0,
-                "z": 20.0
+                "z": 10.0
             }
         },
         {
             "boneName": "spine_01",
             "constraintRotation": {
-                "x": 90.0,
+                "x": 0.0,
                 "y": 0.0,
-                "z": 0.0
+                "z": -85.0
             },
             "damageMultiplier": 1.0,
             "mass": 5.0,
@@ -96,15 +96,15 @@
             "twistParameters": {
                 "x": -20.0,
                 "y": 6.0,
-                "z": 20.0
+                "z": 10.0
             }
         },
         {
             "boneName": "spine_03",
             "constraintRotation": {
-                "x": 90.0,
+                "x": 0.0,
                 "y": 0.0,
-                "z": 0.0
+                "z": -100.0
             },
             "damageMultiplier": 1.0,
             "mass": 5.0,
@@ -127,15 +127,15 @@
             "twistParameters": {
                 "x": -10.0,
                 "y": 10.0,
-                "z": 20.0
+                "z": 10.0
             }
         },
         {
             "boneName": "upperarm_r",
             "constraintRotation": {
-                "x": 90.0,
+                "x": 180.0,
                 "y": 0.0,
-                "z": 0.0
+                "z": 140.0
             },
             "damageMultiplier": 1.0,
             "mass": 15.0,
@@ -156,17 +156,17 @@
                 "z": 0.15000000596046448
             },
             "twistParameters": {
-                "x": -20.0,
-                "y": 10.0,
-                "z": 50.0
+                "x": -60.0,
+                "y": 60.0,
+                "z": 70.0
             }
         },
         {
             "boneName": "upperarm_l",
             "constraintRotation": {
-                "x": -90.0,
+                "x": 0.0,
                 "y": 0.0,
-                "z": 0.0
+                "z": -140.0
             },
             "damageMultiplier": 1.0,
             "mass": 15.0,
@@ -187,9 +187,9 @@
                 "z": 0.15000000596046448
             },
             "twistParameters": {
-                "x": -20.0,
-                "y": 10.0,
-                "z": 50.0
+                "x": -60.0,
+                "y": 60.0,
+                "z": 70.0
             }
         },
         {
@@ -220,7 +220,7 @@
             "twistParameters": {
                 "x": -70.0,
                 "y": 0.0,
-                "z": 20.0
+                "z": 30.0
             }
         },
         {
@@ -251,7 +251,7 @@
             "twistParameters": {
                 "x": -70.0,
                 "y": 0.0,
-                "z": 20.0
+                "z": 30.0
             }
         },
         {
@@ -282,7 +282,7 @@
             "twistParameters": {
                 "x": 0.0,
                 "y": 90.0,
-                "z": 50.0
+                "z": 30.0
             }
         },
         {
@@ -313,7 +313,7 @@
             "twistParameters": {
                 "x": 0.0,
                 "y": 90.0,
-                "z": 50.0
+                "z": 30.0
             }
         },
         {
@@ -382,8 +382,8 @@
             "boneName": "neck_01",
             "constraintRotation": {
                 "x": 0.0,
-                "y": 90.0,
-                "z": -90.0
+                "y": 0.0,
+                "z": -85.0
             },
             "damageMultiplier": 5.0,
             "mass": 5.0,
@@ -404,8 +404,8 @@
                 "z": 0.20000000298023224
             },
             "twistParameters": {
-                "x": -55.0,
-                "y": 0.0,
+                "x": -70.0,
+                "y": 70.0,
                 "z": 25.0
             }
         }

@@ -136,7 +136,7 @@ public:
 		animations.reserve(mesh->model->animations.size());
 		for (const auto& animation : mesh->model->animations) 
 		{ 
-			animations.push_back(animation.first.c_str());
+			animations.push_back(animation.first.str().c_str());
 		}
 		return animations;
 	}
@@ -215,6 +215,7 @@ public:
 		}
 
 		ImGui::Checkbox("rest pose", &restPose);
+		ImGui::DragFloat("pose follow", &mesh->RagdollPoseFollowStrength,0.1f,0,10);
 
 		HitboxData* selectedHitboxRef = nullptr;
 

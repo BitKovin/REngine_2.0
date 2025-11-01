@@ -113,6 +113,7 @@ void NpcBase::Death()
 	//mesh->ClearHitboxes();
 	mesh->StartRagdoll();
 
+	mesh->RagdollPoseFollowStrength = 0.3f;
 
 	mesh->SetAnimationPaused(true);
 	Physics::SetLinearVelocity(LeadBody, vec3(0));
@@ -515,7 +516,7 @@ void NpcBase::UpdateObserver()
 
 	if (!observer) return;
 
-	observer->searchForTriggeredNpc = !target_follow && !target_attack;
+	observer->searchForTriggeredNpc = !target_follow && !target_attack && isGuard;
 
 	if (distance(Camera::finalizedPosition, Position) < 40)
 	{
@@ -870,7 +871,7 @@ void NpcBase::UpdateTargetFollow()
 void NpcBase::UpdateAnimations()
 {
 
-	if (dead) return;
+	//if (dead) return;
 
 	if (isGuard)
 	{
@@ -883,7 +884,7 @@ void NpcBase::UpdateAnimations()
 
 	if (mesh->WasRended)
 	{
-		animator.UpdatePose = mesh->WasRended;
+		animator.UpdatePose = mesh->WasRended && dead == false;
 
 		if (LeadBody != nullptr)
 		{
