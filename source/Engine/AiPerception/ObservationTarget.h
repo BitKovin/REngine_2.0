@@ -15,7 +15,7 @@ public:
     std::unordered_set<hashed_string> tags;
 
     bool active = true;
-
+    bool npc = false;
     bool isTriggeredNpc = false;
 
     float noticeMaxDistanceMultiplier = 1.0f;

@@ -94,6 +94,7 @@ void NpcBase::Start()
 
 	observationTarget = AiPerceptionSystem::CreateTarget(Position, Id, {});
 	observationTarget->noticeMaxDistanceMultiplier = 0.3;
+	observationTarget->npc = true;
 
 	observer = AiPerceptionSystem::CreateObserver(Position + vec3(0, 0.7, 0), movingDirection, 90);
 	observer->owner = Id;
@@ -112,7 +113,6 @@ void NpcBase::Death()
 	//mesh->ClearHitboxes();
 	mesh->StartRagdoll();
 
-	animator.PainProgress = 1;
 
 	mesh->SetAnimationPaused(true);
 	Physics::SetLinearVelocity(LeadBody, vec3(0));
@@ -445,6 +445,7 @@ void NpcBase::LateUpdate()
 		ShareTargetKnowlageWithFinal(npc);
 	}
 	shareKnowlageWith.clear();
+	knowlageSharedThisFrame = 0;
 }
 
 void NpcBase::UpdateBT()
@@ -514,7 +515,7 @@ void NpcBase::UpdateObserver()
 
 	if (!observer) return;
 
-	observer->searchForTriggeredNpc = !target_attack;
+	observer->searchForTriggeredNpc = !target_follow && !target_attack;
 
 	if (distance(Camera::finalizedPosition, Position) < 40)
 	{
@@ -925,6 +926,8 @@ void NpcBase::LoadAssets()
 void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 {
 
+	if (knowlageSharedThisFrame > 5) return;
+
 	bool hasChanges = false;
 
 	if (target_underArrest && anotherNpc->target_underArrest == false)
@@ -975,7 +978,7 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 		if (Physics::LineTrace(Position, anotherNpc->Position, BodyType::WorldOpaque).hasHit) return;
 
 	shareKnowlageWith.push_back(anotherNpc);
-
+	knowlageSharedThisFrame++;
 }
 
 void NpcBase::ShareTargetKnowlageWithFinal(NpcBase* anotherNpc)

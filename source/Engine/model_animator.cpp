@@ -398,7 +398,7 @@ void roj::Animator::update(float dt)
 
             if (m_currTime > m_currAnim->duration)
             {
-                m_currTime -= m_currAnim->duration - m_currAnim->frameTime;
+                m_currTime -= m_currAnim->duration;// -m_currAnim->frameTime;
             }
 
         }
@@ -431,7 +431,7 @@ void roj::Animator::play()
 {
     m_playing = true;
 
-    if (m_currAnim && Loop)
+    if (m_currAnim && Loop && false)
     {
         m_currTime = m_currAnim->frameTime;
     }

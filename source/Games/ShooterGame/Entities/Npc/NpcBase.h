@@ -131,6 +131,8 @@ private:
 
 	std::vector<NpcBase*> shareKnowlageWith;
 
+	short knowlageSharedThisFrame = 0;
+
 public:
 
 	bool isGuard = true;
