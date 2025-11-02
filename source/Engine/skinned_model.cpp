@@ -7,7 +7,7 @@
 #include "Logger.hpp"
 
 #include <unordered_set>
-
+#include "Helpers/StringHelper.h"
 
 using namespace utils::assimp;
 
@@ -432,6 +432,33 @@ namespace roj
 
         }
 
+        for (auto& mesh : m_model.meshes)
+        {
+            mesh.ProcessDefaultTextures();
+        }
+
+        std::sort(m_model.meshes.begin(), m_model.meshes.end(),
+            [](SkinnedMesh& a, SkinnedMesh& b) {
+                return b.transparentTexture;
+            });
+
         return true;
+    }
+    void SkinnedMesh::ProcessDefaultTextures()
+    {
+
+        for (auto texture : textures)
+        {
+            if (texture.type == aiTextureType_BASE_COLOR)
+            {
+                std::string baseTextureName = texture.src;
+
+                if (StringHelper::Contains(baseTextureName, "_t.") || StringHelper::Contains(baseTextureName, "_m."))
+                {
+                    transparentTexture = true;
+                }
+                break;
+            }
+        }
     }
 }

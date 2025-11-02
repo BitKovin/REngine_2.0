@@ -34,8 +34,6 @@ void main() {
     vec3 color = texColor.rgb;
     float alpha = texColor.a;
 
-    if(alpha <0.01)
-        discard;
 
     vec3 ligthColor = CalculateLight() + texture(u_textureEmissive, v_texcoord).rgb;
 
@@ -48,6 +46,8 @@ vec3 CalculateLight()
 {
 
     vec3 normal = normalize(v_normal);
+    if (!gl_FrontFacing)
+        normal = -normal;
 
     vec3 light = light_color + clamp(dot(normal, normalize(direct_light_dir))*0.8 + 0.2,0.0,1.0) * direct_light_color;
 

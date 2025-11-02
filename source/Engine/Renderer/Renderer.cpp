@@ -226,9 +226,7 @@ void Renderer::RenderCameraForward(vector<IDrawMesh*>& VissibleRenderList)
             : Camera::finalizedProjection;
         mesh->DrawForward(Camera::finalizedView, P);
     }
-    glUseProgram(0);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
     // draw transparent with normal depth test
     glDepthFunc(GL_LEQUAL);

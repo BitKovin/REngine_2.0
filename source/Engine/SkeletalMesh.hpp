@@ -407,6 +407,7 @@ public:
 
 	void SaveMetaToFile();
 	void LoadMetaFromFile();
+	void LoadMetaFromFile(const std::string& path);
 
 	static void ClearMetaDataCache();
 

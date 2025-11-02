@@ -12,7 +12,11 @@ private:
 
 NpcGuardBase::NpcGuardBase()
 {
+
 	isGuard = true;
+
+	modelPath = "GameData/models/npc/guard.glb";
+
 }
 
 NpcGuardBase::~NpcGuardBase()

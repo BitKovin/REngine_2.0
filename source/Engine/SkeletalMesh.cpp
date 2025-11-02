@@ -1171,7 +1171,14 @@ void SkeletalMesh::LoadMetaFromFile()
 
 	string metaFilePath = filePath + ".skmm";
 
-	auto foundData = loaded_metas.find(metaFilePath);
+	
+	LoadMetaFromFile(metaFilePath);
+
+}
+
+void SkeletalMesh::LoadMetaFromFile(const std::string& path)
+{
+	auto foundData = loaded_metas.find(path);
 
 	SkeletalMeshMetaData data;
 
@@ -1181,25 +1188,23 @@ void SkeletalMesh::LoadMetaFromFile()
 	}
 	else
 	{
-		string file = AssetRegistry::ReadFileToString(metaFilePath);
+		string file = AssetRegistry::ReadFileToString(path);
 
 		if (file.size() < 3)
 		{
 			return;
 		}
-			
+
 
 		json jsonData = json::parse(file);
 
 		data = jsonData.get<SkeletalMeshMetaData>();
 
-		loaded_metas[metaFilePath] = data;
+		loaded_metas[path] = data;
 
 	}
-	
+
 	metaData = data;
-
-
 }
 
 AnimationData* SkeletalMesh::GetAnimationDataFromName(std::string name)

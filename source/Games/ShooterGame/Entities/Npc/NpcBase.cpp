@@ -375,7 +375,7 @@ void NpcBase::AsyncUpdate()
 
 	VoiceSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
 
-	if (isStunned())
+	if (isStunned() || mesh->InRagdoll)
 	{
 
 		UpdateStunnedReturn();
@@ -982,7 +982,10 @@ void NpcBase::LoadAssets()
 	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/SFX.bank");
 	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/VO.bank");
 
-	mesh->LoadFromFile("GameData/models/npc/base.glb");
+	mesh->LoadFromFile(modelPath);
+	mesh->Transparent = true;
+
+	mesh->LoadMetaFromFile("GameData/models/npc/base.glb.skmm");
 	mesh->CreateHitboxes(this);
 
 	weaponMesh->LoadFromFile("GameData/models/weapons/glock.glb");
@@ -994,7 +997,7 @@ void NpcBase::LoadAssets()
 
 	animator.LoadAssetsIfNeeded();
 
-	mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
+	//mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/cat.png");
 
 
 

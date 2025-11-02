@@ -11,9 +11,10 @@ uniform sampler2D u_texture;  // Changed from "texture" to avoid keyword conflic
 vec3 CalculateDirectionalLight();
 
 void main() {
+
     vec4 texColor = texture(u_texture, v_texcoord) * v_color;
 
-    if(texColor.a<0.999)
+    if(texColor.a<0.99)
     {
         discard;
         return;

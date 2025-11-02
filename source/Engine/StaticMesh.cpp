@@ -68,14 +68,18 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 
 	if (model == nullptr) return;
 
-	if (DepthWrite)
+	if (Transparent == false)
 	{
-		glDepthMask(GL_TRUE);
+		if (DepthWrite)
+		{
+			glDepthMask(GL_TRUE);
+		}
+		else
+		{
+			glDepthMask(GL_FALSE);
+		}
 	}
-	else
-	{
-		glDepthMask(GL_FALSE);
-	}
+
 
 	if (TwoSided)
 	{
@@ -171,6 +175,19 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 			Texture* texture = mesh.cachedBaseColor;
 			Texture* textureEm = mesh.cachedEmissiveColor;
 
+			if (Transparent)
+			{
+				if (mesh.transparentTexture)
+				{
+					glDepthMask(GL_FALSE);
+				}
+				else
+				{
+					glDepthMask(GL_TRUE);
+				}
+			}
+
+
 			forward_shader_program->SetTexture("u_texture", texture);
 			forward_shader_program->SetTexture("u_textureEmissive", textureEm);
 		}
@@ -201,6 +218,15 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 
 void StaticMesh::DrawDepth(mat4x4 view, mat4x4 projection)
 {
+
+	if (TwoSided)
+	{
+		glDisable(GL_CULL_FACE);
+	}
+	else
+	{
+		glEnable(GL_CULL_FACE);
+	}
 
 	bool mask = Transparent;
 
@@ -257,6 +283,7 @@ void StaticMesh::DrawDepth(mat4x4 view, mat4x4 projection)
 				shader_program->SetTexture("u_texture", ColorTexture);
 			}
 		}
+
 		mesh.VAO->Bind();
 
 		if (mesh.VAO->IsInstanced())

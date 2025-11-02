@@ -128,6 +128,8 @@ protected:
 	Delay stunnedRagdollDelay;
 	bool returningFromRagdoll;
 
+	std::string modelPath = "GameData/models/npc/base.glb";
+
 private:
 
 
