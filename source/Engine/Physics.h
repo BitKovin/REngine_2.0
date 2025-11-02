@@ -780,9 +780,9 @@ public:
 
 	// Enable & configure swing/twist position motors (call once when creating the ragdoll joint)
 	static void ConfigureSwingTwistMotor(TwoBodyConstraint* constraint,
-		float frequencyHz = 40.0f,
-		float damping = 1.0f,
-		float max_torque = 10000);
+		float frequencyHz = 10.0f,
+		float damping = 2.0f,
+		float max_torque = 100);
 
 	// Update the motor target every frame (childTransformRelParent = child transform in parent space)
 	static void UpdateSwingTwistMotor(TwoBodyConstraint* constraint, const quat& childTransformRelParent, const float& strength);

@@ -565,11 +565,11 @@ void Physics::UpdateSwingTwistMotor(TwoBodyConstraint* constraint,
 	st->SetTargetOrientationBS(targetRel);
 
 	// Scale torque limits by strength
-	float maxTorque = 1000 * strength; // or a tuned value instead of FLT_MAX
+	float maxTorque = 60 * strength; // or a tuned value instead of FLT_MAX
 	st->GetSwingMotorSettings().SetTorqueLimits(-maxTorque, maxTorque);
 	st->GetTwistMotorSettings().SetTorqueLimits(-maxTorque, maxTorque);
 
-	st->GetTwistMotorSettings().mSpringSettings.mStiffness = 10 * strength;
+	st->GetTwistMotorSettings().mSpringSettings.mStiffness = 1000 * strength;
 
 	// Optional: completely disable motors if strength == 0
 	if (strength <= 0.0f) {

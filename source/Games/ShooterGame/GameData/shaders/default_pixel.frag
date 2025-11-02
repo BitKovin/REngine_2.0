@@ -31,6 +31,8 @@ vec4 ApplyFog(vec4 fragColor);
 void main() {
     vec4 texColor = texture(u_texture, v_texcoord)*v_color;
 
+ 
+
     vec3 color = texColor.rgb;
     float alpha = texColor.a;
 

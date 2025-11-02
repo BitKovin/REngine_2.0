@@ -182,7 +182,7 @@ void NpcBase::StartStunnedRagdoll()
 
 	if (stunnedRagdoll == false)
 	{
-		mesh->RagdollPoseFollowStrength = 0.3f;
+		mesh->RagdollPoseFollowStrength = 0.5f;
 		mesh->StartRagdoll();
 		stunnedRagdoll = true;
 	}
