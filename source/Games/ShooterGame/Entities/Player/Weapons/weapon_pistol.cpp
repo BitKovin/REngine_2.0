@@ -49,11 +49,11 @@ public:
 		viewmodel = new SkeletalMesh(this);
 		arms = new SkeletalMesh(this);
 
-		viewmodel->LoadFromFile("GameData/models/player/weapons/pistol/pistol.glb");
-		viewmodel->TexturesLocation = "GameData/models/player/weapons/pistol/";
+		viewmodel->LoadFromFile("GameData/models/player/weapons/pistol/glock.glb");
+		viewmodel->TexturesLocation = "GameData/models/player/weapons/pistol/glock.glb/";
 
-		viewmodel->LoadFromFile("GameData/models/player/weapons/revolver/revolver.glb");
-		viewmodel->TexturesLocation = "GameData/models/player/weapons/revolver/revolver.glb/";
+		//viewmodel->LoadFromFile("GameData/models/player/weapons/revolver/revolver.glb");
+		//viewmodel->TexturesLocation = "GameData/models/player/weapons/revolver/revolver.glb/";
 		viewmodel->PlayAnimation("draw");
 		viewmodel->PreloadAssets();
 
