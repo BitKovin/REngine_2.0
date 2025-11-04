@@ -40,41 +40,56 @@ BodyType Physics::DebugDrawMask = BodyType::GroupAll & ~BodyType::CharacterCapsu
 std::vector<Physics::PendingBodyEnterPair> Physics::gRemovals;
 std::vector<Physics::PendingBodyEnterPair> Physics::gAdds;
 
+void MyContactListener::addIgnorePair(const BodyID& body1, const BodyID& body2)
+{
+	uint32_t n1 = body1.GetIndexAndSequenceNumber();
+	uint32_t n2 = body2.GetIndexAndSequenceNumber();
+	if (n1 > n2) std::swap(n1, n2);
+	ignoredPairs.insert({ n1, n2 });
+}
+
+void MyContactListener::removeIgnorePair(const BodyID& body1, const BodyID& body2)
+{
+	uint32_t n1 = body1.GetIndexAndSequenceNumber();
+	uint32_t n2 = body2.GetIndexAndSequenceNumber();
+	if (n1 > n2) std::swap(n1, n2);
+	ignoredPairs.erase({ n1, n2 });
+}
+
+void MyContactListener::CleanIgnorePairs()
+{
+	ignoredPairs.clear();
+}
+
 ValidateResult MyContactListener::OnContactValidate(const Body& inBody1, const Body& inBody2, RVec3Arg inBaseOffset, const CollideShapeResult& inCollisionResult)
 {
-	
+	uint32_t n1 = inBody1.GetID().GetIndexAndSequenceNumber();
+	uint32_t n2 = inBody2.GetID().GetIndexAndSequenceNumber();
+	if (n1 > n2) std::swap(n1, n2);
+	if (ignoredPairs.contains({ n1, n2 }))
+		return ValidateResult::RejectContact;
+
 	auto* props1 = reinterpret_cast<BodyData*>(inBody1.GetUserData());
 	auto* props2 = reinterpret_cast<BodyData*>(inBody2.GetUserData());
-
 	if (props1 && props2)
 	{
-
 		if (props1->mask == BodyType::None)
 			return ValidateResult::RejectContact;
-
 		if (props2->mask == BodyType::None)
 			return ValidateResult::RejectContact;
-
 		// Only allow collision if both:
 		// 1. The first body's group is contained in the second body's mask.
 		// 2. The second body's group is contained in the first body's mask.
 		bool collide1 = (static_cast<uint32_t>(props1->group) & static_cast<uint32_t>(props2->mask)) != 0;
 		bool collide2 = (static_cast<uint32_t>(props2->group) & static_cast<uint32_t>(props1->mask)) != 0;
-
 		if (!collide1 && !collide2)
 			return ValidateResult::RejectContact;
-
 		if (props1->dynamicCollisionGroupOrMask || props2->dynamicCollisionGroupOrMask)
 		{
 			return ValidateResult::AcceptContact;
 		}
-
 	}
-
-
-
 	return ValidateResult::AcceptAllContactsForThisBodyPair;
-
 }
 
 void MyContactListener::beforeSimulation()
@@ -234,6 +249,16 @@ void Physics::DestroyConstraint(Constraint* constraint)
 void Physics::SetMotionType(Body* body, JPH::EMotionType type)
 {
 	bodyInterface->SetMotionType(body->GetID(), type, JPH::EActivation::Activate);
+}
+
+void Physics::AddIgnorePair(const BodyID& bodyA, const BodyID& bodyB)
+{
+	contact_listener->addIgnorePair(bodyA, bodyB);
+}
+
+void Physics::RemoveIgnorePair(const BodyID& bodyA, const BodyID& bodyB)
+{
+	contact_listener->removeIgnorePair(bodyA, bodyB);
 }
 
 void Physics::Init()
@@ -499,6 +524,7 @@ TwoBodyConstraint* Physics::CreateRagdollConstraint(Body* parent,
 	Ref<TwoBodyConstraint> c = settings.Create(*parent, *child);
 	physics_system->AddConstraint(c);
 
+	AddIgnorePair(parent->GetID(), child->GetID());
 
 	return c;
 

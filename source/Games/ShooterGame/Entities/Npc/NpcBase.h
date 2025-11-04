@@ -74,12 +74,12 @@ protected:
 
 	AnimationState getFromRagdollAnimationSaveState;
 
-	vec3 desiredTargetLocation;
+	vec3 desiredTargetLocation = vec3();
 
 	BehaviorTree behaviorTree;
 	BehaviorTreeEditor editor;
 
-	std::string btSaveState;
+	std::string btSaveState = "";
 
 	bool btEditorEnabled = false;
 
@@ -87,26 +87,26 @@ protected:
 
 	std::shared_ptr<Observer> observer;
 
-	bool target_follow;
-	std::string target_id;
-	vec3 target_lastSeenPosition;
-	Delay target_stopUpdateLastSeenPositionDelay;
-	float target_lastSeenTime;
-	bool target_sees;
-	bool target_underArrest;
-	bool target_attack;
+	bool target_follow = false;
+	std::string target_id = "";
+	vec3 target_lastSeenPosition = vec3();
+	Delay target_stopUpdateLastSeenPositionDelay = Delay();
+	float target_lastSeenTime = -1;
+	bool target_sees = false;
+	bool target_underArrest = false;
+	bool target_attack = false;
 	float target_underArrestExpire = 5.0f;
-	bool target_attackInRange;
+	bool target_attackInRange = false;
 
-	bool report_to_guard;
-	bool found_guard;
-	std::string closestGuard;
+	bool report_to_guard = false;
+	bool found_guard = false;
+	std::string closestGuard = "";
 
-	Delay findGuardCooldown;
+	Delay findGuardCooldown = Delay();
 
 	InvestigationReason currentInvestigation = InvestigationReason::None;
-	vec3 investigation_target;
-	std::string investigation_targetId;
+	vec3 investigation_target = vec3();
+	std::string investigation_targetId = "";
 
 	bool investigation_changed;
 

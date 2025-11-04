@@ -3,7 +3,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_sdl2.h"
 #include "imgui/imgui_impl_opengl3.h"
-
+#include "Input.h"
 #include "gl.h"
 
 inline void ImStartFrame()
@@ -11,7 +11,16 @@ inline void ImStartFrame()
 
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-
+    if (Input::LockCursor)
+    {
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoKeyboard;
+    }
+    else
+    {
+        ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+        ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoKeyboard;
+    }
 
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();

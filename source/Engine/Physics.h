@@ -247,26 +247,33 @@ public:
 // An example contact listener
 class MyContactListener : public ContactListener
 {
+public:
 
-private:
+	struct PairHash {
+		size_t operator()(const std::pair<uint32_t, uint32_t>& p) const {
+			return std::hash<uint64_t>{}((uint64_t)p.first << 32 | p.second);
+		}
+	};
 
-	static inline std::set<std::pair<Entity*, Entity*>> previousContacts;
-	static inline std::set<std::pair<Entity*, Entity*>> currentContacts;
-
-public:   
 	// See: ContactListener
 	virtual ValidateResult OnContactValidate(const Body& inBody1, const Body& inBody2,
 		RVec3Arg inBaseOffset,
 		const CollideShapeResult& inCollisionResult) override;
-
 	static void beforeSimulation();
 	static void afterSimulation();
+	void OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override;
+	void OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override;
+	void OnContactRemoved(const SubShapeIDPair& inSubShapePair) override;
 
-	void			OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override;
+	static void addIgnorePair(const BodyID& body1, const BodyID& body2);
+	static void removeIgnorePair(const BodyID& body1, const BodyID& body2);
 
-	void			OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override;
+	static void CleanIgnorePairs();
 
-	void			OnContactRemoved(const SubShapeIDPair& inSubShapePair) override;
+private:
+	static inline std::set<std::pair<Entity*, Entity*>> previousContacts;
+	static inline std::set<std::pair<Entity*, Entity*>> currentContacts;
+	static inline std::unordered_set<std::pair<uint32_t, uint32_t>, PairHash> ignoredPairs;
 };
 
 class TraceBodyFilter : public BodyFilter
@@ -572,6 +579,10 @@ public:
 		}
 
 	}
+
+	static void AddIgnorePair(const BodyID& bodyA, const BodyID& bodyB);
+
+	static void RemoveIgnorePair(const BodyID& bodyA, const BodyID& bodyB);
 
 	static BodyType GetCollisionMask(Body* body)
 	{

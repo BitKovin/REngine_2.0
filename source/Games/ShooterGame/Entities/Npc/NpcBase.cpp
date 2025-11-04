@@ -244,7 +244,8 @@ void NpcBase::StartReturnFromRagdoll()
 
 	auto pelvisTransformWorld = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("pelvis"));
 
-	Position = pelvisTransformWorld.Position + vec3(0, 1, 0);
+
+	Position = pelvisTransformWorld.Position + vec3(0, 0.5f, 0);
 	Physics::SetBodyPosition(LeadBody, Position);
 
 	float oldRot = mesh->Rotation.y;
@@ -262,7 +263,7 @@ void NpcBase::StartReturnFromRagdoll()
 
 	auto pelvisTransform = MathHelper::DecomposeMatrix(ragdollPose.boneTransforms["pelvis"]);
 
-	pelvisTransform.Position = vec3(0, 0.5, 0);
+	pelvisTransform.Position = vec3(0, 0.8, 0);
 	pelvisTransform.RotationQuaternion = MathHelper::GetRotationQuaternion(vec3(0, oldRot - mesh->Rotation.y, 0)) * pelvisTransform.RotationQuaternion;
 
 	ragdollPose.boneTransforms["pelvis"] = pelvisTransform.ToMatrix();
@@ -294,7 +295,7 @@ void NpcBase::UpdateReturnFromRagdoll()
 
 	getFromRagdollAnimation->Update(1.0f);
 
-	float blendInTime = 0.2;
+	float blendInTime = 0.5;
 	float blendOutTime = 0.7f;
 
 	float lerpProgressFromStart = 1.0f - ((blendInTime - getFromRagdollAnimation->GetAnimationTime()) / blendInTime);
@@ -307,7 +308,7 @@ void NpcBase::UpdateReturnFromRagdoll()
 
 	float lerpProgressFromEnd = ((blendOutTime - (getFromRagdollAnimation->GetAnimationDuration() - getFromRagdollAnimation->GetAnimationTime())) / blendOutTime);
 
-	newPose = AnimationPose::Lerp(newPose, meshPose, lerpProgressFromEnd);
+	newPose = AnimationPose::Lerp(meshPose, newPose , 1.0f - lerpProgressFromEnd);
 
 	mesh->PasteAnimationPose(newPose);
 
@@ -380,7 +381,7 @@ void NpcBase::AsyncUpdate()
 
 		UpdateStunnedReturn();
 
-		Physics::SetLinearVelocity(LeadBody, vec3(0));
+		Physics::SetLinearVelocity(LeadBody, vec3(0, LeadBody->GetLinearVelocity().GetY(), 0));
 
 	}
 	else
@@ -467,8 +468,6 @@ void NpcBase::AsyncUpdate()
 
 	UpdateAnimations();
 	UpdateReturnFromRagdoll();
-
-
 
 
 	mesh->Position = Position - vec3(0, 1, 0);
@@ -837,7 +836,7 @@ void NpcBase::UpdateObservationTarget()
 		}
 		else
 		{
-			if (isGuard && (target_attack == false || target_follow == false))
+			if (isGuard)
 			{
 				observationTarget->tags.emplace("guard_safe");
 			}
@@ -1230,6 +1229,8 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, detection_progress);
 
 	SERIALIZE_FIELD(target, stunnedRagdoll);
+	SERIALIZE_FIELD(target, stunnedRagdollDelay);
+	SERIALIZE_FIELD(target, returningFromRagdoll);
 
 }
 
@@ -1316,6 +1317,8 @@ void NpcBase::Deserialize(json& source)
 
 	DESERIALIZE_FIELD(source, detection_progress);
 	DESERIALIZE_FIELD(source, stunnedRagdoll);
+	DESERIALIZE_FIELD(source, stunnedRagdollDelay);
+	DESERIALIZE_FIELD(source, returningFromRagdoll);
 
 }
 
