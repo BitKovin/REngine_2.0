@@ -1,35 +1,40 @@
 {
     "blackboard": {
+        "attackPosition": {
+            "x": 11.13577651977539,
+            "y": 1.4300038814544678,
+            "z": -1.2666950225830078
+        },
         "closestGuard": "",
         "flee_target": {
-            "x": -31.290119171142578,
-            "y": 0.70001220703125,
-            "z": 37.20000076293945
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
         },
         "found_guard": false,
         "has_navpoint": true,
         "investigation": false,
         "investigation_target": {
-            "x": 7.662266731262207,
-            "y": 2.1580021381378174,
-            "z": -18.690641403198242
+            "x": 3.9979259967803955,
+            "y": 2.172421455383301,
+            "z": -13.502413749694824
         },
         "isGuard": true,
         "navpoint_acceptance_radius": 0.30000001192092896,
         "navpoint_has_wait_time": false,
-        "navpoint_name": "np_0_2",
+        "navpoint_name": "np_0_0",
         "navpoint_wait_time": 0.0,
         "report_to_guard": false,
         "target": "$info_player_start_0",
         "target_attack": true,
-        "target_attackInRange": false,
+        "target_attackInRange": true,
         "target_follow": true,
         "target_id": "$info_player_start_0",
         "target_knowsLocation": true,
         "target_lastSeenPosition": {
-            "x": 2.2932379245758057,
+            "x": 3.904869318008423,
             "y": 1.4300040006637573,
-            "z": -8.614070892333984
+            "z": -8.307442665100098
         },
         "target_sees": true,
         "target_underArrest": true
@@ -330,6 +335,24 @@
                                                                                                                 "inverse": true,
                                                                                                                 "name": "Conditional",
                                                                                                                 "type": "ConditionalDecorator"
+                                                                                                            },
+                                                                                                            {
+                                                                                                                "acceptance radius": {
+                                                                                                                    "sourceType": 0,
+                                                                                                                    "value": 1.0
+                                                                                                                },
+                                                                                                                "children": [],
+                                                                                                                "id": "node_65f6a3829f57ce0c",
+                                                                                                                "name": "Move To Position",
+                                                                                                                "pretty path": {
+                                                                                                                    "sourceType": 0,
+                                                                                                                    "value": false
+                                                                                                                },
+                                                                                                                "target": {
+                                                                                                                    "blackboardKey": "attackPosition",
+                                                                                                                    "sourceType": 1
+                                                                                                                },
+                                                                                                                "type": "MoveToPosition"
                                                                                                             }
                                                                                                         ],
                                                                                                         "id": "node_71e995df9b24471b",
@@ -373,7 +396,7 @@
                                                                                                                 "children": [
                                                                                                                     {
                                                                                                                         "children": [],
-                                                                                                                        "id": "node_fd372610d1c4974a",
+                                                                                                                        "id": "node_5326d0585c28e167",
                                                                                                                         "name": "Wait",
                                                                                                                         "type": "WaitNode",
                                                                                                                         "waitTime": {
@@ -383,12 +406,12 @@
                                                                                                                     },
                                                                                                                     {
                                                                                                                         "children": [],
-                                                                                                                        "id": "node_399a7d9edb141ba4",
+                                                                                                                        "id": "node_109447ad595ef6f3",
                                                                                                                         "name": "Stop Target Follow",
                                                                                                                         "type": "StopTargetFollow"
                                                                                                                     }
                                                                                                                 ],
-                                                                                                                "id": "node_3ec6eaea4a9873e9",
+                                                                                                                "id": "node_9cdde8590d382736",
                                                                                                                 "name": "Sequence",
                                                                                                                 "type": "SequenceNode"
                                                                                                             }

@@ -193,7 +193,7 @@ private:
 	}
 	AnimationPose blendStartPose;
 
-	std::vector<Body*> hitboxBodies;
+
 	std::unordered_map<hashed_string, TwoBodyConstraint*> hitboxConstraints;
 	std::unordered_map<hashed_string, vec3> defaultBoneScale;
 
@@ -233,6 +233,7 @@ public:
 
 	static inline int skelMeshes = 0;
 
+	std::vector<Body*> hitboxBodies;
 
 	SkeletalMesh(Entity* owner) : StaticMesh(owner)
 	{

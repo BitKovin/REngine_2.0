@@ -85,6 +85,9 @@ protected:
 
 	Delay tickIntervalDelay;
 
+	float attackRange = 20;
+	float attackDesiredRange = 10;
+
 	std::shared_ptr<Observer> observer;
 
 	bool target_follow = false;
@@ -127,6 +130,11 @@ protected:
 	bool stunnedRagdoll;
 	Delay stunnedRagdollDelay;
 	bool returningFromRagdoll;
+
+	Delay attackDelay;
+	Delay attackPositionUpdateDelay;
+
+	vec3 attackPosition;
 
 	std::string modelPath = "GameData/models/npc/base.glb";
 
@@ -206,6 +214,15 @@ public:
 	void UpdateObservationTarget();
 
 	void UpdateTargetFollow();
+
+	void UpdateTargetAttack();
+
+	bool CheckAttackLOS(vec3 location, vec3 targetLocation);
+
+	//input are positions of attacker and target without vertical offset for fire point
+	bool CheckAttackLocation(vec3 location, vec3 targetLocation);
+
+	vec3 FindAttackLocation();
 
 	void Serialize(json& target);
 	void Deserialize(json& source);

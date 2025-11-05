@@ -16,6 +16,8 @@ public:
 	bool weapon_ready = false;
 	bool weapon_aims = false;
 
+	bool weapon_pendingAttack = false;
+
 	void Update();
 
 protected:

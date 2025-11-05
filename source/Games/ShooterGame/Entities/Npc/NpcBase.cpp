@@ -347,6 +347,7 @@ void NpcBase::AsyncUpdate()
 		UpdateObserver();
 		UpdateTargetFollow();
 		UpdateBT();
+		UpdateTargetAttack();
 	}
 
 	auto animEvents = mesh->PullAnimationEvents();
@@ -562,6 +563,8 @@ void NpcBase::UpdateBT()
 	behaviorTree.GetBlackboard().SetValue("target_underArrest", target_underArrest);
 	behaviorTree.GetBlackboard().SetValue("target_attack", target_attack);
 	behaviorTree.GetBlackboard().SetValue("target_attackInRange", target_attackInRange);
+
+	behaviorTree.GetBlackboard().SetValue("attackPosition", attackPosition);
 
 	behaviorTree.GetBlackboard().SetValue("investigation", currentInvestigation != InvestigationReason::None);
 	behaviorTree.GetBlackboard().SetValue("investigation_target", investigation_target);
@@ -919,7 +922,7 @@ void NpcBase::UpdateTargetFollow()
 
 	auto targetRef = Level::Current->FindEntityWithId(target_id);
 
-	target_attackInRange = distance(targetRef->Position, Position) < 13;
+	target_attackInRange = distance(targetRef->Position, Position) < attackRange;
 
 	if (target_attack && target_sees)
 	{
@@ -951,6 +954,234 @@ void NpcBase::UpdateTargetFollow()
 
 	}
 
+}
+
+void NpcBase::UpdateTargetAttack()
+{
+
+	if (target_attack && target_follow && target_sees)
+	{
+		if (attackPositionUpdateDelay.Wait() == false)
+		{
+
+			attackPosition = FindAttackLocation();
+
+			attackPositionUpdateDelay.AddDelay(1.5f + RandomHelper::RandomFloat() * 2);
+		}
+	}
+
+
+	if (target_follow == false || target_sees == false || target_attack == false || target_attackInRange == false)
+	{
+		attackDelay.AddDelay(0.8f);
+		return;
+	}
+
+	if (attackDelay.Wait()) return;
+
+	vec3 targetLocation = Level::Current->FindEntityWithId(target_id)->Position;
+
+	if (CheckAttackLOS(Position, targetLocation) == false)
+	{
+		attackDelay.AddDelay(0.15f + RandomHelper::RandomFloat() * 0.1f);
+		return;
+	}
+
+	animator.weapon_pendingAttack = true;
+
+	attackDelay.AddDelay(0.5f + RandomHelper::RandomFloat()*0.1f);
+}
+
+bool NpcBase::CheckAttackLOS(vec3 location, vec3 targetLocation)
+{
+
+
+	if (distance(location, targetLocation) < 1.5f) return true;
+
+	vec3 attackDir = normalize(targetLocation - location) * 0.5f;
+
+	vec3 attackPos = location + vec3(0, 0.6f, 0) + attackDir;
+
+	auto hit = Physics::SphereTrace(attackPos, targetLocation + vec3(0, 0.65, 0), 0.2f, BodyType::GroupHitTest, mesh->hitboxBodies);
+
+	if (hit.hasHit)
+	{
+
+		Logger::Log(hit.entity->ClassName);
+
+		DebugDraw::Line(attackPos, targetLocation + vec3(0, 0.3, 0));
+
+		return false;
+
+	}
+
+	return true;
+}
+
+bool NpcBase::CheckAttackLocation(vec3 location, vec3 targetLocation)
+{
+
+	if (distance(location, targetLocation) > attackDesiredRange)
+	{
+		return false;
+	}
+
+	if (CheckAttackLOS(location, targetLocation))
+		return true;
+
+
+
+	return true;
+}
+
+vec3 NpcBase::FindAttackLocation()
+{
+	const vec3& currentPos = Position;
+	auto targetEntity = Level::Current->FindEntityWithId(target_id);
+	const vec3& targetPos = targetEntity->Position;
+	const vec3& targetRot = targetEntity->Rotation;
+	vec3 targetForward = MathHelper::GetForwardVector(targetRot);
+	targetForward.y = 0.0f;
+	targetForward = MathHelper::Normalized(targetForward);
+	vec3 targetRight = MathHelper::Normalized(glm::cross(targetForward, vec3(0.0f, 1.0f, 0.0f)));
+
+	std::vector<vec3> candidates;
+
+	const int maxIterations = 200;
+	int iter = 0;
+	const float desired = attackDesiredRange;
+	const int targetCandidates = 20;
+	const float preferredMaxMove = 5;
+	const float absoluteMaxMove = 8;
+
+	struct Ring {
+		float minMult;
+		float maxMult;
+	};
+	std::vector<Ring> rings = {
+		{0.85f, 1.15f},  // Primary: optimal range
+		{0.65f, 0.85f},  // Secondary: closer
+		{0.40f, 0.65f}   // Tertiary: evasive close
+	};
+
+	bool relaxedMoveConstraint = false;
+	for (const auto& ring : rings) {
+		while (candidates.size() < static_cast<size_t>(targetCandidates) && iter < maxIterations) {
+			++iter;
+
+			// Biased relative angle generation (target-relative flanking)
+			float r = RandomHelper::RandomFloat();
+			float relAngleDeg;
+			if (r < 0.35f) {  // 35% left flank
+				relAngleDeg = -90.0f + (RandomHelper::RandomFloat() - 0.5f) * 60.0f;
+			}
+			else if (r < 0.70f) {  // 35% right flank
+				relAngleDeg = 90.0f + (RandomHelper::RandomFloat() - 0.5f) * 60.0f;
+			}
+			else if (r < 0.90f) {  // 20% back
+				relAngleDeg = 180.0f + (RandomHelper::RandomFloat() - 0.5f) * 90.0f;
+			}
+			else {  // 10% front (occasional direct pressure)
+				relAngleDeg = 0.0f + (RandomHelper::RandomFloat() - 0.5f) * 40.0f;
+			}
+
+			float relAngleRad = MathHelper::ToRadians(relAngleDeg);
+			vec3 dirToPos = MathHelper::Normalized(
+				std::cos(relAngleRad) * targetForward +
+				std::sin(relAngleRad) * targetRight
+			);
+
+			float dist = desired * (ring.minMult + RandomHelper::RandomFloat() * (ring.maxMult - ring.minMult));
+			vec3 newPos = targetPos + dirToPos * dist;
+
+			// Check movement distance constraint (prefer close, relax if needed)
+			float moveDist = glm::distance(newPos, currentPos);
+			float maxMove = relaxedMoveConstraint ? absoluteMaxMove : preferredMaxMove;
+			if (moveDist > maxMove) continue;
+
+			// Direct path check
+			auto pathHit = Physics::CylinderTrace(currentPos, newPos, 0.5f, 0.8f, BodyType::World | BodyType::MainBody);
+			if (pathHit.hasHit) continue;
+
+			// Intermediate LOS checks on subdivided path
+			bool pathLOSClear = true;
+			vec3 diff = newPos - currentPos;
+			float pathLen = glm::length(diff);
+			int segments = 1 + static_cast<int>(pathLen / 2.5f);
+			segments = std::min(10, segments);
+			for (int s = 1; s < segments; ++s) {
+				float t = static_cast<float>(s) / static_cast<float>(segments);
+				vec3 midPos = currentPos + diff * t;
+				if (!CheckAttackLocation(midPos, targetPos)) {
+					pathLOSClear = false;
+					break;
+				}
+			}
+			if (!pathLOSClear) continue;
+
+			// Final LOS check
+			if (!CheckAttackLocation(newPos, targetPos)) continue;
+
+			candidates.push_back(newPos);
+		}
+
+		// If not enough candidates after a ring, relax move constraint for subsequent rings
+		if (candidates.size() < static_cast<size_t>(targetCandidates / 2)) {
+			relaxedMoveConstraint = true;
+		}
+
+		if (candidates.size() >= static_cast<size_t>(targetCandidates / 2)) break;
+	}
+
+	// Ultimate fallback: move directly to target if no valid positions found
+	if (candidates.empty()) {
+		return targetPos;
+	}
+
+	// Advanced scoring system
+	vec3 bestPos = candidates[0];
+	float bestScore = -std::numeric_limits<float>::max();
+
+	vec3 currRelDir = MathHelper::Normalized(MathHelper::XZ(currentPos - targetPos));
+
+	for (const vec3& cand : candidates) {
+		vec3 toTarget = MathHelper::XZ(cand - targetPos);
+		float cDist = glm::length(toTarget);
+		vec3 attackDir = (cDist > 0.001f) ? toTarget / cDist : vec3(0.0f, 0.0f, 1.0f);
+
+		// Flanking score: prioritize back/sides over front (-dot: 1=perfect back, 0=side, -1=front)
+		float flankScore = -glm::dot(attackDir, targetForward);
+
+		// Distance score: Gaussian peak at desired range (sigma=15% of desired)
+		float distDiff = (cDist - desired) / desired;
+		float distScore = std::exp(-distDiff * distDiff / (2.0f * 0.15f * 0.15f));
+
+		// Movement score: Gaussian favoring small to moderate movement (peak at 30% of desired, narrower sigma)
+		float moveDist = glm::distance(cand, currentPos);
+		float moveNorm = moveDist / desired;
+		float moveScore = std::exp(-(moveNorm - 0.3f) * (moveNorm - 0.3f) / (2.0f * 0.25f * 0.25f));
+
+		// Circling score: prefer tangential movement (perpendicular to current radial dir)
+		vec3 moveDir = MathHelper::Normalized(MathHelper::XZ(cand - currentPos));
+		float circleScore = 1.0f - std::abs(glm::dot(moveDir, currRelDir));
+
+		// Randomness for unpredictability
+		float randScore = RandomHelper::RandomFloat() * 0.25f;
+
+		// Weighted total score
+		float score = flankScore * 3.2f +
+			distScore * 2.1f +
+			moveScore * 1.8f +  // Increased weight to prefer smaller moves more
+			circleScore * 1.1f +
+			randScore;
+
+		if (score > bestScore) {
+			bestScore = score;
+			bestPos = cand;
+		}
+	}
+
+	return bestPos;
 }
 
 void NpcBase::UpdateAnimations()

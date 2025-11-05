@@ -29,18 +29,31 @@ void NpcAnimatorBase::Update()
 			desiredAnimation = "pistol_aim";
 		}
 
+		if (weapon_pendingAttack)
+		{
+			desiredAnimation = "pistol_fire";
+			pistol->PlayAnimation("pistol_fire",false,0.1f);
+			weapon_pendingAttack = false;
+		}
 	}
 
-	if (pistol->currentAnimationData->animationName != desiredAnimation)
+	if ((pistol->currentAnimationData->animationName == "pistol_fire" && pistol->IsAnimationPlaying()) == false)
 	{
 
-		if (pistol->currentAnimationData->animationName == "idle")
+		if (pistol->currentAnimationData->animationName != desiredAnimation)
 		{
-			pistol->PasteAnimationPose(lastPose);
+
+			if (pistol->currentAnimationData->animationName == "idle")
+			{
+				pistol->PasteAnimationPose(lastPose);
+			}
+
+			pistol->PlayAnimation(desiredAnimation, false, 0.3);
 		}
 
-		pistol->PlayAnimation(desiredAnimation, true, 0.3);
 	}
+
+	
 
 
 	std::string desiredLocomotionAnimation = "idle";
