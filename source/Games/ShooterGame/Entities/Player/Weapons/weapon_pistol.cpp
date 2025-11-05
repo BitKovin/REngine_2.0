@@ -18,6 +18,7 @@ public:
 
 	Delay attackDelay;
 
+	bool Silencer = true;
 
 	weapon_pistol()
 	{
@@ -148,6 +149,18 @@ public:
 
 		arms->Position = viewmodel->Position;
 		arms->Rotation = viewmodel->Rotation;
+
+		viewmodel->MeshHideList.clear();
+
+		if (Silencer)
+		{
+			viewmodel->MeshHideList.insert("muzzle");
+		}
+		else
+		{
+			viewmodel->MeshHideList.insert("silencer");
+		}
+
 	}
 
 

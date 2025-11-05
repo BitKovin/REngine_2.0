@@ -233,6 +233,7 @@ public:
 
 	static inline int skelMeshes = 0;
 
+
 	SkeletalMesh(Entity* owner) : StaticMesh(owner)
 	{
 		CastDetailShadows = true;
@@ -246,21 +247,7 @@ public:
 		
 	}
 
-	AnimationPose GetAnimationPose()
-	{
-		if (model == nullptr) return AnimationPose();
-
-		if(dirtyPose == false)
-			return lastPose;
-
-		AnimationPose pose;
-		pose.boneTreeRoot = model->defaultRoot;
-		pose.boneTransforms = animator.GetBonePoseArray();
-
-		lastPose = pose;
-		dirtyPose = false;
-		return pose;
-	}
+	AnimationPose GetAnimationPose();
 
 	void PasteAnimationPose(AnimationPose pose)
 	{

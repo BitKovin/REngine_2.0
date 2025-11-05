@@ -42,7 +42,7 @@ class Player : public Entity
 
 private:
 
-	float maxSpeed = 5;
+	float maxSpeed = 6;
 	float maxSpeedAir = 2;
 	float acceleration = 90;
 	float airAcceleration = 30;
@@ -62,7 +62,7 @@ private:
 	PlayerHud Hud;
 
 	float bobProgress = 0;
-	float bobSpeed = 0.9;
+	float bobSpeed = 1;
 
 	SoundPlayer* soundPlayer;
 

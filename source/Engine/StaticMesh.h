@@ -15,20 +15,15 @@
 #include "glm.h"
 
 #include "BSP/Quake3Bsp.h"
+#include <string>
+#include <unordered_set>
 
-using namespace std;
 
 class Entity;
 
 class StaticMesh : public IDrawMesh
 {
 private:
-
-	mat4 finalizedWorld;
-
-	vec3 finalizedPosition = vec3(0);
-	vec3 finalizedRotation = vec3(0);
-	vec3 finalizedScale = vec3(1);
 
 
 
@@ -54,6 +49,14 @@ protected:
 	vec3 rotationOffset = vec3();
 
 	bool skipMeshLoad = false;
+
+
+	mat4 finalizedWorld;
+
+	vec3 finalizedPosition = vec3(0);
+	vec3 finalizedRotation = vec3(0);
+	vec3 finalizedScale = vec3(1);
+	std::unordered_set<std::string> finalMeshHideList{};
 
 public:
 
@@ -83,6 +86,10 @@ public:
 	bool TwoSided = false;
 
 	int CustomId = 0;
+
+	bool DepthPrePath = true;
+
+	std::unordered_set<std::string> MeshHideList{};
 
 	StaticMesh(Entity* owner)
 	{
@@ -143,13 +150,7 @@ public:
 		return distance(Camera::position, Position) * (IsViewmodel ? 0.1 : 1);
 	}
 
-	void FinalizeFrameData()
-	{
-		finalizedWorld = GetWorldMatrix();
-		finalizedPosition = Position;
-		finalizedRotation = Rotation;
-		finalizedScale = Scale;
-	}
+	void FinalizeFrameData();
 
 
 

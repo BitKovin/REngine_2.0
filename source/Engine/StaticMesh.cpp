@@ -24,6 +24,17 @@ LightVolPointData StaticMesh::GetLightVolData()
 
 }
 
+void StaticMesh::FinalizeFrameData()
+{
+
+	finalizedWorld = GetWorldMatrix();
+	finalizedPosition = Position;
+	finalizedRotation = Rotation;
+	finalizedScale = Scale;
+	finalMeshHideList = std::unordered_set<std::string>(MeshHideList);
+
+}
+
 bool StaticMesh::IsInFrustrum(Frustum frustrum)
 {
 	if (model == nullptr) return false;
@@ -128,6 +139,8 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 	for (roj::SkinnedMesh& mesh : model->meshes)
 	{
 
+		if (finalMeshHideList.contains(mesh.name)) continue;
+
 		if (ColorTexture == nullptr)
 		{
 
@@ -219,6 +232,8 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 void StaticMesh::DrawDepth(mat4x4 view, mat4x4 projection)
 {
 
+	if (DepthPrePath == false) return;
+
 	if (TwoSided)
 	{
 		glDisable(GL_CULL_FACE);
@@ -249,8 +264,12 @@ void StaticMesh::DrawDepth(mat4x4 view, mat4x4 projection)
 
 	for (roj::SkinnedMesh& mesh : model->meshes)
 	{
+
+		if (finalMeshHideList.contains(mesh.name)) continue;
+
 		if (mask)
 		{
+
 			if (ColorTexture == nullptr)
 			{
 
@@ -303,6 +322,8 @@ void StaticMesh::DrawDepth(mat4x4 view, mat4x4 projection)
 void StaticMesh::DrawCustomId(mat4x4 view, mat4x4 projection)
 {
 
+	if (CustomId == 0) return;
+
 	bool mask = Transparent;
 
 	ShaderProgram* shader_program = ShaderManager::GetShaderProgram("default_vertex", "customId");
@@ -326,6 +347,9 @@ void StaticMesh::DrawCustomId(mat4x4 view, mat4x4 projection)
 
 	for (roj::SkinnedMesh& mesh : model->meshes)
 	{
+
+		if (finalMeshHideList.contains(mesh.name)) continue;
+
 		if (mask)
 		{
 			if (ColorTexture == nullptr)
@@ -399,6 +423,8 @@ void StaticMesh::DrawShadow(mat4x4 view, mat4x4 projection)
 
 	for (roj::SkinnedMesh& mesh : model->meshes)
 	{
+
+		if (finalMeshHideList.contains(mesh.name)) continue;
 
 		if (mask)
 		{

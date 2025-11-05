@@ -125,16 +125,38 @@ namespace FileSystemEngine {
             free(c);
             return s;
 #else
-            auto real = path;
-            std::ifstream ifs(std::wstring(real.begin(), real.end()));
 
-            if (!ifs)
-            {
+            std::filesystem::path real(path);
+
+            // Open file (MSVC-safe version)
+            std::FILE* file = nullptr;
+#if defined(_MSC_VER)
+            if (fopen_s(&file, real.string().c_str(), "rb") != 0 || !file)
+                return "";
+#else
+            file = std::fopen(real.string().c_str(), "rb");
+            if (!file)
+                return "";
+#endif
+
+            std::fseek(file, 0, SEEK_END);
+            long size = std::ftell(file);
+            std::rewind(file);
+
+            if (size <= 0) {
+                std::fclose(file);
                 return "";
             }
-            std::ostringstream ss;
-            ss << ifs.rdbuf();
-            return ss.str();
+
+            std::string content;
+            content.resize(static_cast<size_t>(size));
+
+            size_t read = std::fread(content.data(), 1, content.size(), file);
+            std::fclose(file);
+
+            content.resize(read);
+            return content;
+
 #endif
         }
         else {

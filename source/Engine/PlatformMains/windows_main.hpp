@@ -1,4 +1,5 @@
 ﻿#define _HAS_STD_BYTE 0
+#include "../malloc_override.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>

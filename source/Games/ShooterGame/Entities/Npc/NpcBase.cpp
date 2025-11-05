@@ -641,30 +641,36 @@ void NpcBase::UpdateObserver()
 		if (target->HasTag("body"))
 		{
 			bool near_player = false;
-
-			for (std::shared_ptr<ObservationTarget> target2 : observer->visibleTargets)
+			if (target_underArrest == false)
 			{
 
-
-				if (target2->HasTag("player"))
+			
+				for (std::shared_ptr<ObservationTarget> target2 : observer->visibleTargets)
 				{
 
-					if (distance(target->position, target2->position) < 5)
+					if (target2->npc == false)
 					{
-
-						if (min_crime > Crime::NearBody)
+						if (target2->HasTag("player"))
 						{
-							min_crime = Crime::NearBody;
-							observed_offender = target2->ownerId;
-							observed_pos = target2->position;
+
+							if (distance(target->position, target2->position) < 5)
+							{
+
+								if (min_crime > Crime::NearBody)
+								{
+									min_crime = Crime::NearBody;
+									observed_offender = target2->ownerId;
+									observed_pos = target2->position;
+								}
+
+								near_player = true;
+
+							}
+
 						}
-
-						near_player = true;
-
 					}
 
 				}
-
 			}
 
 			if (near_player == false)
@@ -827,7 +833,7 @@ void NpcBase::UpdateObservationTarget()
 			observationTarget->tags = { "civilian" };
 		}
 
-		if (target_underArrest && target_follow)
+		if (target_underArrest && target_follow || isStunned())
 		{
 
 			observationTarget->tags.insert("in_trouble");
@@ -982,6 +988,7 @@ void NpcBase::LoadAssets()
 	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/VO.bank");
 
 	mesh->LoadFromFile(modelPath);
+
 	mesh->Transparent = true;
 
 	mesh->LoadMetaFromFile("GameData/models/npc/base.glb.skmm");
@@ -990,6 +997,7 @@ void NpcBase::LoadAssets()
 	weaponMesh->LoadFromFile("GameData/models/weapons/glock.glb");
 	weaponMesh->TexturesLocation = "GameData/models/weapons/glock.glb/";
 	weaponMesh->PreloadAssets();
+	weaponMesh->DepthPrePath = false; //reduce driver overhead
 
 	getFromRagdollAnimation = new Animation(this);
 	getFromRagdollAnimation->LoadFromFile("GameData/animations/npc/standUp.glb");

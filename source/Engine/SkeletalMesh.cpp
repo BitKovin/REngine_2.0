@@ -378,6 +378,21 @@ AnimationPose AnimationPose::LayeredLerp(
 	return out;
 }
 
+AnimationPose SkeletalMesh::GetAnimationPose()
+{
+	if (model == nullptr) return AnimationPose();
+
+	if (dirtyPose == false)
+		return lastPose;
+
+	AnimationPose pose;
+	pose.boneTreeRoot = model->defaultRoot;
+	pose.boneTransforms = animator.GetBonePoseArray();
+
+	lastPose = pose;
+	dirtyPose = false;
+	return pose;
+}
 
 void SkeletalMesh::ApplyWorldSpaceBoneTransforms(std::unordered_map<hashed_string, mat4>& pose)
 {
