@@ -33,6 +33,7 @@ public:
 
     // Accessors
     const std::string& str() const noexcept { return str_; }
+    const const char* c_str() const noexcept { return str_.c_str(); }
     std::size_t hash() const noexcept { return hash_; }
 
     // Comparison for equality (required for unordered containers)

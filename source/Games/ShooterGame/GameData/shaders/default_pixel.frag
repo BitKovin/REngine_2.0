@@ -31,9 +31,16 @@ vec3 CalculateLight();
 vec4 ApplyFog(vec4 fragColor);
 
 void main() {
-    vec4 texColor = textureLod(u_texture, v_texcoord,0.0)*v_color;
-
- 
+    vec4 texColor;
+    
+    if(masked)
+    {
+        texColor = textureLod(u_texture, v_texcoord, 0.0f) * v_color;
+    }
+    else
+    {
+        texColor = texture(u_texture, v_texcoord)*v_color;
+    } 
 
     vec3 color = texColor.rgb;
     float alpha = texColor.a;
@@ -48,7 +55,7 @@ void main() {
 
     color *= ligthColor;
 
-    FragColor = ApplyFog(vec4(color, alpha));
+    FragColor = vec4(color, alpha);
 }
 
 vec3 CalculateLight()

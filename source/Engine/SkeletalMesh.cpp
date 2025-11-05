@@ -386,7 +386,7 @@ AnimationPose SkeletalMesh::GetAnimationPose()
 		return lastPose;
 
 	AnimationPose pose;
-	pose.boneTreeRoot = model->defaultRoot;
+	pose.boneTreeRoot = &model->defaultRoot;
 	pose.boneTransforms = animator.GetBonePoseArray();
 
 	lastPose = pose;

@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "..\\Intermediage\\Engine\\Distribution\\Physics.h.obj",
+            "outputs": [
+                "F:\\Git\\SdlWasmEngine\\source\\Distribution\\Engine.pdb",
+                "..\\Intermediage\\Engine\\Distribution\\",
+                "F:\\Git\\SdlWasmEngine\\source\\Intermediage\\Engine\\Distribution\\Physics.h.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "Physics.h",
+                    "source-path": "f:\\git\\sdlwasmengine\\source\\engine\\physics.h",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

@@ -141,9 +141,14 @@ void NpcBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bon
 	Damage *= mesh->GetHitboxDamageMultiplier(bone);
 	Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
 
-	if (mesh->GetHitboxDamageMultiplier(bone) > 1.1f && dead)
+	if (mesh->GetHitboxDamageMultiplier(bone) > 1.1f && false)
 	{
 		Time::AddTimeScaleEffect(0.3f, 0.15f, true, "hit_slow");
+	}
+
+	if (bone == "calf_l" || bone == "calf_r")
+	{
+		StartStunnedRagdoll();
 	}
 
 	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point, MathHelper::FindLookAtRotation(vec3(0), Direction), vec3(Damage / 20.0f));
@@ -155,7 +160,7 @@ void NpcBase::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
 
 	Health -= Damage;
 
-	StartStunnedRagdoll();
+
 
 	if (Health <= 0)
 	{
@@ -245,7 +250,7 @@ void NpcBase::StartReturnFromRagdoll()
 	auto pelvisTransformWorld = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("pelvis"));
 
 
-	Position = pelvisTransformWorld.Position + vec3(0, 0.5f, 0);
+	Position = pelvisTransformWorld.Position + vec3(0, 1.0f, 0);
 	Physics::SetBodyPosition(LeadBody, Position);
 
 	float oldRot = mesh->Rotation.y;
@@ -263,7 +268,7 @@ void NpcBase::StartReturnFromRagdoll()
 
 	auto pelvisTransform = MathHelper::DecomposeMatrix(ragdollPose.boneTransforms["pelvis"]);
 
-	pelvisTransform.Position = vec3(0, 0.8, 0);
+	pelvisTransform.Position = vec3(0, 0.5f, 0);
 	pelvisTransform.RotationQuaternion = MathHelper::GetRotationQuaternion(vec3(0, oldRot - mesh->Rotation.y, 0)) * pelvisTransform.RotationQuaternion;
 
 	ragdollPose.boneTransforms["pelvis"] = pelvisTransform.ToMatrix();
@@ -304,7 +309,7 @@ void NpcBase::UpdateReturnFromRagdoll()
 
 	auto animationPose = getFromRagdollAnimation->GetAnimationPose();
 
-	auto newPose = AnimationPose::Lerp(ragdollPose, animationPose, lerpProgressFromStart);
+	auto newPose = AnimationPose::Lerp(animationPose, ragdollPose, 1.0 - lerpProgressFromStart);
 
 	float lerpProgressFromEnd = ((blendOutTime - (getFromRagdollAnimation->GetAnimationDuration() - getFromRagdollAnimation->GetAnimationTime())) / blendOutTime);
 
@@ -1405,6 +1410,8 @@ void NpcBase::UpdateDebugUI()
 
 void NpcBase::FindClosestGuard()
 {
+
+	if (isGuard) return;
 
 	if (findGuardCooldown.Wait()) return;
 

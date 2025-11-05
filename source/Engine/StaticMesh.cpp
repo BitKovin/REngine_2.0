@@ -246,7 +246,7 @@ void StaticMesh::DrawDepth(mat4x4 view, mat4x4 projection)
 		glEnable(GL_CULL_FACE);
 	}
 
-	bool mask = Transparent;
+	bool mask = Transparent || Masked;
 
 	ShaderProgram* shader_program = ShaderManager::GetShaderProgram("default_vertex", mask ? "mask_pixel" : "empty_pixel");
 

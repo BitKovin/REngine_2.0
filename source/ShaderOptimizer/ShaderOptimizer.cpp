@@ -61,35 +61,43 @@ int main() {
         }
         std::string source((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
 
-        // Optimize the shader
-        glslopt_shader* shader = glslopt_optimize(ctx, shader_type, source.c_str(), 0);
-        if (!glslopt_get_status(shader)) {
-            std::cerr << "Error optimizing " << relative_path << ": " << glslopt_get_log(shader) << std::endl;
-            glslopt_shader_delete(shader);
-            continue;
-        }
-
-        // Get optimized output
-        std::string optimized_source = glslopt_get_output(shader);
-
-        // Clean up shader
-        glslopt_shader_delete(shader);
-
         // Compute output path
         fs::path output_path = optimized_dir / relative_path;
 
         // Create subdirectories if needed
         fs::create_directories(output_path.parent_path());
 
-        // Write optimized shader
+        std::string optimized_source;
+        if (source.find("//disable_optimization") != std::string::npos) {
+            // Skip optimization
+            optimized_source = source;
+            std::cout << "Skipped optimization for " << relative_path << std::endl;
+        }
+        else {
+            // Optimize the shader
+            glslopt_shader* shader = glslopt_optimize(ctx, shader_type, source.c_str(), 0);
+            if (!glslopt_get_status(shader)) {
+                std::cerr << "Error optimizing " << relative_path << ": " << glslopt_get_log(shader) << std::endl;
+                glslopt_shader_delete(shader);
+                continue;
+            }
+
+            // Get optimized output
+            optimized_source = glslopt_get_output(shader);
+
+            // Clean up shader
+            glslopt_shader_delete(shader);
+
+            std::cout << "Optimized " << relative_path << std::endl;
+        }
+
+        // Write optimized or original shader
         std::ofstream out(output_path);
         if (!out) {
             std::cerr << "Failed to write to: " << output_path << std::endl;
             continue;
         }
         out << optimized_source;
-
-        std::cout << "Optimized " << relative_path << std::endl;
     }
 
     // Clean up context

@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "..\\Intermediage\\Engine\\Distribution\\Input.h.obj",
+            "outputs": [
+                "F:\\Git\\SdlWasmEngine\\source\\Distribution\\Engine.pdb",
+                "..\\Intermediage\\Engine\\Distribution\\",
+                "F:\\Git\\SdlWasmEngine\\source\\Intermediage\\Engine\\Distribution\\Input.h.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "Input.h",
+                    "source-path": "f:\\git\\sdlwasmengine\\source\\engine\\input.h",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

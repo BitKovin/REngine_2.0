@@ -142,6 +142,11 @@ void EngineMain::InitInputs()
 void EngineMain::Init(std::vector<std::string> args)
 {
 
+#ifdef DISTRIBUTION
+    DebugUiEnabled = false;
+#endif // DISTRIBUTION
+
+
     Arguments = ParseCommands(args);
 
     LevelObjectFactory::instance().registerDefaults();

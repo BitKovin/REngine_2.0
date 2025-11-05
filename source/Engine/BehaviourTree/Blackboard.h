@@ -10,6 +10,7 @@
 #include "../json.hpp"
 #include "../glm.h"
 #include "../Helpers/JsonHelper.hpp"
+#include "../utility/hashed_string.hpp"
 
 using nlohmann::json;
 
@@ -23,13 +24,13 @@ public:
     using ObserverID = size_t;
 
     template<typename T>
-    void SetValue(const std::string& key, const T& value) {
+    void SetValue(const hashed_string& key, const T& value) {
         data_[key] = value;
-        NotifyObservers(key, data_[key]);
+        //NotifyObservers(key, data_[key]);
     }
 
     template<typename T>
-    bool GetValue(const std::string& key, T& outValue) const {
+    bool GetValue(const hashed_string& key, T& outValue) const {
         auto it = data_.find(key);
         if (it != data_.end()) {
             try {
@@ -44,16 +45,16 @@ public:
     }
 
     template<typename T>
-    T GetValue(const std::string& key, const T& defaultValue = T{}) const {
+    T GetValue(const hashed_string& key, const T& defaultValue = T{}) const {
         T value;
         return GetValue(key, value) ? value : defaultValue;
     }
 
-    bool HasValue(const std::string& key) const {
+    bool HasValue(const hashed_string& key) const {
         return data_.count(key) > 0;
     }
 
-    void RemoveValue(const std::string& key) {
+    void RemoveValue(const hashed_string& key) {
         data_.erase(key);
     }
 
@@ -75,8 +76,8 @@ public:
     void RemoveObserver(const std::string& key, ObserverID id);
 
     // Editor support methods
-    std::vector<std::string> GetKeys() const {
-        std::vector<std::string> keys;
+    std::vector<hashed_string> GetKeys() const {
+        std::vector<hashed_string> keys;
         for (const auto& pair : data_) {
             keys.push_back(pair.first);
         }
@@ -201,7 +202,7 @@ public:
 private:
     void NotifyObservers(const std::string& key, const Value& value);
 
-    std::unordered_map<std::string, Value> data_;
+    std::unordered_map<hashed_string, Value> data_;
     std::unordered_map<std::string, std::unordered_map<ObserverID, ObserverCallback>> observers_;
     ObserverID nextObserverId_ = 1;
 };

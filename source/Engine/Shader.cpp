@@ -137,9 +137,9 @@ bool Shader::Reload()
     return true;
 }
 
-std::unordered_map<std::string, std::string> ShaderProgram::ParseTextureBindings(const std::string& shaderCode)
+std::unordered_map<hashed_string, std::string> ShaderProgram::ParseTextureBindings(const std::string& shaderCode)
 {
-    std::unordered_map<std::string, std::string> result;
+    std::unordered_map<hashed_string, std::string> result;
 
     // Regex: match `uniform sampler2D <name>; // @texture <path>`
     std::regex re(R"(uniform\s+sampler2D\s+(\w+)\s*;.*@texture\s+([^\s]+))");
@@ -159,9 +159,9 @@ std::unordered_map<std::string, std::string> ShaderProgram::ParseTextureBindings
     return result;
 }
 
-std::unordered_map<std::string, std::string> ShaderProgram::ParseAllTextureBindings() const
+std::unordered_map<hashed_string, std::string> ShaderProgram::ParseAllTextureBindings() const
 {
-    std::unordered_map<std::string, std::string> result;
+    std::unordered_map<hashed_string, std::string> result;
 
     // Regex matches: uniform sampler2D myTex; // @texture path/to/file.png
     std::regex re(R"(uniform\s+(?:sampler2D|samplerCube)\s+(\w+)\s*;.*@texture\s+([^\s]+))");
@@ -210,7 +210,7 @@ void ShaderProgram::ApplyTextureBindings()
 
     for (const auto& pair : textureBindings)
     {
-        const std::string& uniformName = pair.first;
+        const hashed_string& uniformName = pair.first;
         const std::string& path = pair.second;
 
         Texture* tex = AssetRegistry::GetTextureFromFile(path); 

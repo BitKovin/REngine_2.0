@@ -7,11 +7,12 @@
 #include "Logger.hpp"
 #include "gl.h"
 #include "glm.h"
+#include "utility/hashed_string.hpp"
 
 #include "Texture.hpp"
 #include "FileSystem/FileSystem.h"
 #include "malloc_override.h"
-
+#include "Helpers/StringHelper.h"
 using namespace std;
 
 enum ShaderType
@@ -68,7 +69,10 @@ public:
 
     static Shader* FromFile(const char* filePath, ShaderType shaderType, bool autoCompile = true)
     {
-        Shader* output = FromCode(FileSystemEngine::ReadFile(filePath).c_str(), shaderType, autoCompile);
+
+        auto optimizedDir = StringHelper::Replace(std::string(filePath), "GameData/shaders/", "GameData/shaders/.optimized/").c_str();
+
+        Shader* output = FromCode(FileSystemEngine::ReadFile(optimizedDir).c_str(), shaderType, autoCompile);
         output->filePath = filePath;
 
         return output;
@@ -116,7 +120,7 @@ class ShaderProgram
 {
 
 private:
-    std::unordered_map<std::string, GLuint> m_textureUnits;
+    std::unordered_map<hashed_string, GLuint> m_textureUnits;
     GLuint m_currentUnit = 0;
     GLuint m_maxTextureUnits = 16; // Will be initialized from GL
 
@@ -125,9 +129,9 @@ private:
 public:
     GLuint program;
     std::vector<GLAttribute> attributes;  // Stores shader attributes.
-    std::unordered_map<std::string, GLint> uniformLocations; // Cache for uniform locations.
+    std::unordered_map<hashed_string, GLint> uniformLocations; // Cache for uniform locations.
 
-    std::unordered_map<std::string, std::string> textureBindings; 
+    std::unordered_map<hashed_string, std::string> textureBindings;
 
     // Keep track of Shader* that are attached to this program (so we can unregister on destruction).
     std::vector<Shader*> attachedShaders;
@@ -261,7 +265,7 @@ public:
     }
 
     // Retrieves a cached uniform location.
-    GLint GetUniformLocation(const std::string& name)
+    GLint GetUniformLocation(const hashed_string& name)
     {
         auto it = uniformLocations.find(name);
         if (it != uniformLocations.end())
@@ -277,7 +281,7 @@ public:
 
 
         if (AllowMissingUniforms == false)
-            Logger::Log("Warning: Uniform \"" + name + "\" not found in program " + std::to_string(program) + ".");
+            Logger::Log("Warning: Uniform \"" + name.str() + "\" not found in program " + std::to_string(program) + ".");
 
         return -1;
     }
@@ -328,7 +332,7 @@ public:
         glUniform1i(location, unit);
     }
 
-    void SetTexture(const std::string& name, Texture* texture) {
+    void SetTexture(const hashed_string& name, Texture* texture) {
         GLint location = GetUniformLocation(name);
         if (location == -1) return;
 
@@ -485,9 +489,9 @@ public:
 
     
 
-    static std::unordered_map<std::string, std::string> ParseTextureBindings(const std::string& shaderCode);
+    static std::unordered_map<hashed_string, std::string> ParseTextureBindings(const std::string& shaderCode);
 
-    std::unordered_map<std::string, std::string> ParseAllTextureBindings() const;
+    std::unordered_map<hashed_string, std::string> ParseAllTextureBindings() const;
 
     void ParseShaders();
 

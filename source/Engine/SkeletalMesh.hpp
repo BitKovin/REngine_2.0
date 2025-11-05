@@ -35,7 +35,7 @@ struct AnimationPose
 {
 	std::unordered_map<hashed_string, mat4> boneTransforms;
 
-	roj::BoneNode boneTreeRoot;
+	roj::BoneNode* boneTreeRoot = nullptr;
 
 	static AnimationPose Lerp(AnimationPose a, AnimationPose b, float progress);
 
