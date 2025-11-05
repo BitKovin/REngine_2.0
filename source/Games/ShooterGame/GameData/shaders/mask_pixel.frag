@@ -12,7 +12,7 @@ vec3 CalculateDirectionalLight();
 
 void main() {
 
-    vec4 texColor = texture(u_texture, v_texcoord) * v_color;
+    vec4 texColor = textureLod(u_texture, v_texcoord,0.0) * v_color;
 
     if(texColor.a<0.99)
     {

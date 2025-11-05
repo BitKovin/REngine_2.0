@@ -12,6 +12,8 @@ uniform sampler2D u_textureEmissive;
 
 uniform vec3 cameraPosition;
 
+uniform bool masked;
+
 uniform bool is_particle;
 uniform bool is_decal;
 
@@ -29,13 +31,18 @@ vec3 CalculateLight();
 vec4 ApplyFog(vec4 fragColor);
 
 void main() {
-    vec4 texColor = texture(u_texture, v_texcoord)*v_color;
+    vec4 texColor = textureLod(u_texture, v_texcoord,0.0)*v_color;
 
  
 
     vec3 color = texColor.rgb;
     float alpha = texColor.a;
 
+    if(masked && alpha<0.999)
+    {
+        discard;
+        return;
+    }
 
     vec3 ligthColor = CalculateLight() + texture(u_textureEmissive, v_texcoord).rgb;
 

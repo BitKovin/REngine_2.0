@@ -988,8 +988,9 @@ void NpcBase::LoadAssets()
 	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/VO.bank");
 
 	mesh->LoadFromFile(modelPath);
-
-	mesh->Transparent = true;
+	mesh->DepthPrePath = false;
+	mesh->Masked = true;
+	//mesh->Transparent = true;
 
 	mesh->LoadMetaFromFile("GameData/models/npc/base.glb.skmm");
 	mesh->CreateHitboxes(this);

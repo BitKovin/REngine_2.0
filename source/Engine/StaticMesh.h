@@ -76,6 +76,8 @@ public:
 
 	bool DepthWrite = true;
 
+	bool Masked = false;
+
 	bool CastShadows = true;
 	bool Visible = true;
 	bool CastHiddenShadows = false;
