@@ -268,7 +268,7 @@ void NpcBase::StartReturnFromRagdoll()
 
 	auto pelvisTransform = MathHelper::DecomposeMatrix(ragdollPose.boneTransforms["pelvis"]);
 
-	pelvisTransform.Position = vec3(0, 0.5f, 0);
+	pelvisTransform.Position = vec3(0, 3.0f, 0);
 	pelvisTransform.RotationQuaternion = MathHelper::GetRotationQuaternion(vec3(0, oldRot - mesh->Rotation.y, 0)) * pelvisTransform.RotationQuaternion;
 
 	ragdollPose.boneTransforms["pelvis"] = pelvisTransform.ToMatrix();
@@ -902,20 +902,24 @@ void NpcBase::UpdateTargetFollow()
 
 	if (target_underArrest && observer)
 	{
-		auto observers = AiPerceptionSystem::GetObserversInRadius(observer->position, isGuard ? 8 : 4);
 
-		for (auto ob : observers)
+		if (observer->id % 3 == EngineMain::MainInstance->frame % 3)
 		{
-			NpcBase* npcRef = dynamic_cast<NpcBase*>(ob->ownerPtr);
+			auto observers = AiPerceptionSystem::GetObserversInRadius(observer->position, isGuard ? 8 : 4);
 
-			if (npcRef == nullptr)
-				npcRef = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(ob->owner));
-
-			if (npcRef)
+			for (auto ob : observers)
 			{
-				ShareTargetKnowlageWith(npcRef);
-			}
+				NpcBase* npcRef = dynamic_cast<NpcBase*>(ob->ownerPtr);
 
+				if (npcRef == nullptr)
+					npcRef = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(ob->owner));
+
+				if (npcRef)
+				{
+					ShareTargetKnowlageWith(npcRef);
+				}
+
+			}
 		}
 
 	}
@@ -959,6 +963,21 @@ void NpcBase::UpdateTargetFollow()
 void NpcBase::UpdateTargetAttack()
 {
 
+	if (target_follow)
+	{
+		auto targetRef = Level::Current->FindEntityWithId(target_id);
+
+		vec3 lookAtTargetVector = normalize(targetRef->Position - Position);
+
+		vec3 localVector = MathHelper::RotateVector(lookAtTargetVector, mesh->Rotation * -1.0f);
+
+		spineRotation = MathHelper::FindLookAtRotation(vec3(), localVector);
+
+	}
+
+
+
+
 	if (target_attack && target_follow && target_sees)
 	{
 		if (attackPositionUpdateDelay.Wait() == false)
@@ -979,6 +998,14 @@ void NpcBase::UpdateTargetAttack()
 
 	if (attackDelay.Wait()) return;
 
+	if (LeadBody->GetLinearVelocity().Length() > 2.2f)
+	{
+
+		attackDelay.AddDelay(0.25f + RandomHelper::RandomFloat() * 0.1f);
+
+		return;
+	}
+
 	vec3 targetLocation = Level::Current->FindEntityWithId(target_id)->Position;
 
 	if (CheckAttackLOS(Position, targetLocation) == false)
@@ -998,18 +1025,14 @@ bool NpcBase::CheckAttackLOS(vec3 location, vec3 targetLocation)
 
 	if (distance(location, targetLocation) < 1.5f) return true;
 
-	vec3 attackDir = normalize(targetLocation - location) * 0.5f;
+	vec3 attackDir = normalize(targetLocation - location) * 1.0f;
 
 	vec3 attackPos = location + vec3(0, 0.6f, 0) + attackDir;
 
-	auto hit = Physics::SphereTrace(attackPos, targetLocation + vec3(0, 0.65, 0), 0.2f, BodyType::GroupHitTest, mesh->hitboxBodies);
+	auto hit = Physics::SphereTrace(attackPos, targetLocation + vec3(0, 0.65, 0), 0.1f, BodyType::GroupHitTest, mesh->hitboxBodies);
 
 	if (hit.hasHit)
 	{
-
-		Logger::Log(hit.entity->ClassName);
-
-		DebugDraw::Line(attackPos, targetLocation + vec3(0, 0.3, 0));
 
 		return false;
 
@@ -1036,6 +1059,85 @@ bool NpcBase::CheckAttackLocation(vec3 location, vec3 targetLocation)
 
 vec3 NpcBase::FindAttackLocation()
 {
+	// Detection parameters
+	const float tooCloseThreshold = 2.0f;
+
+	// Candidate generation parameters
+	const int maxIterations = 100;
+	const int normalTargetCandidates = 20;
+	const int tooCloseTargetCandidates = 30;
+	const float preferredMaxMove = 5.0f;
+	const float absoluteMaxMove = 8.0f;
+
+	// Ring multipliers
+	struct Ring {
+		float minMult;
+		float maxMult;
+	};
+	const std::vector<Ring> rings = {
+		{0.85f, 1.15f}, // Primary: optimal range
+		{0.65f, 0.85f}, // Secondary: closer
+		{0.40f, 0.65f}  // Tertiary: evasive close
+	};
+
+	// Normal mode angle biases (probabilities cumulative)
+	const float normalLeftFlankProb = 0.35f;
+	const float normalRightFlankProb = 0.35f;
+	const float normalBackProb = 0.20f;
+	const float normalFrontProb = 0.10f; // Remaining
+	const float normalLeftFlankAngleBase = -90.0f;
+	const float normalLeftFlankAngleVar = 80.0f;
+	const float normalRightFlankAngleBase = 90.0f;
+	const float normalRightFlankAngleVar = 80.0f;
+	const float normalBackAngleBase = 180.0f;
+	const float normalBackAngleVar = 120.0f;
+	const float normalFrontAngleBase = 0.0f;
+	const float normalFrontAngleVar = 40.0f;
+
+	// Too close mode angle biases (probabilities cumulative)
+	const float tooCloseDirectAwayProb = 0.60f;
+	const float tooCloseLeftFlankProb = 0.20f;
+	const float tooCloseRightFlankProb = 0.20f; // Remaining
+	const float tooCloseDirectAwayAngleBase = 0.0f;
+	const float tooCloseDirectAwayAngleVar = 20.0f;
+	const float tooCloseLeftFlankAngleBase = 60.0f;
+	const float tooCloseLeftFlankAngleVar = 60.0f;
+	const float tooCloseRightFlankAngleBase = -60.0f;
+	const float tooCloseRightFlankAngleVar = 60.0f;
+
+	// Path checking parameters
+	const float segmentDivisor = 2.5f;
+	const int maxSegments = 10;
+
+	// Fallback parameters
+	const float fallbackDist = 4.0f;
+	const float fallbackDistMult = 0.8f;
+
+	// Scoring parameters - common
+	const float distSigma = 0.15f;
+	const float randomScoreMult = 0.25f;
+	const float moveScoreWeight = 1.8f;
+	const float circleScoreWeight = 1.1f;
+
+	// Scoring parameters - normal
+	const float normalMovePeak = 0.3f;
+	const float normalMoveSigma = 0.25f;
+	const float normalFlankWeight = 3.2f;
+	const float normalDistWeight = 2.1f;
+
+	// Scoring parameters - too close
+	const float tooCloseMovePeak = 0.7f;
+	const float tooCloseMoveSigma = 0.35f;
+	const float tooCloseFlankWeight = 1.8f;
+	const float tooCloseDistWeight = 3.2f;
+
+	// Clustering penalty parameters
+	const float clusterSigma = 2.0f;
+	const float clusterWeight = 2.5f;
+
+	// Scatter parameters to break perfect circle
+	const float scatterRadiusMult = 0.15f;
+
 	const vec3& currentPos = Position;
 	auto targetEntity = Level::Current->FindEntityWithId(target_id);
 	const vec3& targetPos = targetEntity->Position;
@@ -1045,54 +1147,85 @@ vec3 NpcBase::FindAttackLocation()
 	targetForward = MathHelper::Normalized(targetForward);
 	vec3 targetRight = MathHelper::Normalized(glm::cross(targetForward, vec3(0.0f, 1.0f, 0.0f)));
 
+	float currentDistXZ = glm::length(MathHelper::XZ(currentPos - targetPos));
+	bool isTooClose = currentDistXZ < tooCloseThreshold;
+
+	vec3 referenceForward = targetForward;
+	vec3 referenceRight = targetRight;
+
+	int targetCandidatesLocal = normalTargetCandidates;
+	if (isTooClose) {
+		referenceForward = MathHelper::Normalized(MathHelper::XZ(currentPos - targetPos));
+		referenceRight = MathHelper::Normalized(glm::cross(referenceForward, vec3(0.0f, 1.0f, 0.0f)));
+		targetCandidatesLocal = tooCloseTargetCandidates;
+	}
+
+	// Collect positions of other NPCs targeting the same target
+	std::vector<vec3> otherNpcPositions;
+
+	for (auto ob : AiPerceptionSystem::GetObserversInRadius(Position, 30))
+	{
+		otherNpcPositions.push_back(ob->position - vec3(0, 1.3f, 0));
+
+	}
+
 	std::vector<vec3> candidates;
 
-	const int maxIterations = 200;
 	int iter = 0;
 	const float desired = attackDesiredRange;
-	const int targetCandidates = 20;
-	const float preferredMaxMove = 5;
-	const float absoluteMaxMove = 8;
-
-	struct Ring {
-		float minMult;
-		float maxMult;
-	};
-	std::vector<Ring> rings = {
-		{0.85f, 1.15f},  // Primary: optimal range
-		{0.65f, 0.85f},  // Secondary: closer
-		{0.40f, 0.65f}   // Tertiary: evasive close
-	};
 
 	bool relaxedMoveConstraint = false;
 	for (const auto& ring : rings) {
-		while (candidates.size() < static_cast<size_t>(targetCandidates) && iter < maxIterations) {
+		while (candidates.size() < static_cast<size_t>(targetCandidatesLocal) && iter < maxIterations) {
 			++iter;
 
-			// Biased relative angle generation (target-relative flanking)
+			// Biased relative angle generation (target-relative flanking or evade)
 			float r = RandomHelper::RandomFloat();
 			float relAngleDeg;
-			if (r < 0.35f) {  // 35% left flank
-				relAngleDeg = -90.0f + (RandomHelper::RandomFloat() - 0.5f) * 60.0f;
+			if (isTooClose) {
+				// Evade: 60% direct away, 20% left flank away, 20% right flank away
+				if (r < tooCloseDirectAwayProb) {
+					relAngleDeg = tooCloseDirectAwayAngleBase + (RandomHelper::RandomFloat() - 0.5f) * tooCloseDirectAwayAngleVar;
+				}
+				else if (r < tooCloseDirectAwayProb + tooCloseLeftFlankProb) {
+					relAngleDeg = tooCloseLeftFlankAngleBase + (RandomHelper::RandomFloat() - 0.5f) * tooCloseLeftFlankAngleVar;
+				}
+				else {
+					relAngleDeg = tooCloseRightFlankAngleBase + (RandomHelper::RandomFloat() - 0.5f) * tooCloseRightFlankAngleVar;
+				}
 			}
-			else if (r < 0.70f) {  // 35% right flank
-				relAngleDeg = 90.0f + (RandomHelper::RandomFloat() - 0.5f) * 60.0f;
-			}
-			else if (r < 0.90f) {  // 20% back
-				relAngleDeg = 180.0f + (RandomHelper::RandomFloat() - 0.5f) * 90.0f;
-			}
-			else {  // 10% front (occasional direct pressure)
-				relAngleDeg = 0.0f + (RandomHelper::RandomFloat() - 0.5f) * 40.0f;
+			else {
+				if (r < normalLeftFlankProb) { // 35% left flank
+					relAngleDeg = normalLeftFlankAngleBase + (RandomHelper::RandomFloat() - 0.5f) * normalLeftFlankAngleVar;
+				}
+				else if (r < normalLeftFlankProb + normalRightFlankProb) { // 35% right flank
+					relAngleDeg = normalRightFlankAngleBase + (RandomHelper::RandomFloat() - 0.5f) * normalRightFlankAngleVar;
+				}
+				else if (r < normalLeftFlankProb + normalRightFlankProb + normalBackProb) { // 20% back
+					relAngleDeg = normalBackAngleBase + (RandomHelper::RandomFloat() - 0.5f) * normalBackAngleVar;
+				}
+				else { // 10% front
+					relAngleDeg = normalFrontAngleBase + (RandomHelper::RandomFloat() - 0.5f) * normalFrontAngleVar;
+				}
 			}
 
 			float relAngleRad = MathHelper::ToRadians(relAngleDeg);
 			vec3 dirToPos = MathHelper::Normalized(
-				std::cos(relAngleRad) * targetForward +
-				std::sin(relAngleRad) * targetRight
+				std::cos(relAngleRad) * referenceForward +
+				std::sin(relAngleRad) * referenceRight
 			);
 
-			float dist = desired * (ring.minMult + RandomHelper::RandomFloat() * (ring.maxMult - ring.minMult));
+			float distMult = ring.minMult + RandomHelper::RandomFloat() * (ring.maxMult - ring.minMult);
+			float dist = desired * distMult;
+			dist = std::min(dist, desired); // Ensure <= desiredRange for CheckAttackLocation
 			vec3 newPos = targetPos + dirToPos * dist;
+
+			// Add scatter to break perfect circle
+			float scatterRadius = desired * scatterRadiusMult;
+			vec3 scatter = RandomHelper::RandomPosition(scatterRadius);
+			scatter.y = 0.0f;
+			newPos += scatter;
+			if (glm::length(MathHelper::XZ(newPos - targetPos)) > desired) continue;
 
 			// Check movement distance constraint (prefer close, relax if needed)
 			float moveDist = glm::distance(newPos, currentPos);
@@ -1107,8 +1240,8 @@ vec3 NpcBase::FindAttackLocation()
 			bool pathLOSClear = true;
 			vec3 diff = newPos - currentPos;
 			float pathLen = glm::length(diff);
-			int segments = 1 + static_cast<int>(pathLen / 2.5f);
-			segments = std::min(10, segments);
+			int segments = 1 + static_cast<int>(pathLen / segmentDivisor);
+			segments = std::min(maxSegments, segments);
 			for (int s = 1; s < segments; ++s) {
 				float t = static_cast<float>(s) / static_cast<float>(segments);
 				vec3 midPos = currentPos + diff * t;
@@ -1126,16 +1259,32 @@ vec3 NpcBase::FindAttackLocation()
 		}
 
 		// If not enough candidates after a ring, relax move constraint for subsequent rings
-		if (candidates.size() < static_cast<size_t>(targetCandidates / 2)) {
+		if (candidates.size() < static_cast<size_t>(targetCandidatesLocal / 2)) {
 			relaxedMoveConstraint = true;
 		}
-
-		if (candidates.size() >= static_cast<size_t>(targetCandidates / 2)) break;
+		if (candidates.size() >= static_cast<size_t>(targetCandidatesLocal / 2)) break;
 	}
 
-	// Ultimate fallback: move directly to target if no valid positions found
+	// Ultimate fallback
 	if (candidates.empty()) {
-		return targetPos;
+		if (isTooClose) {
+			// Perpendicular escape when too close
+			vec3 radialDir = MathHelper::Normalized(MathHelper::XZ(currentPos - targetPos));
+			vec3 perpRight = MathHelper::Normalized(glm::cross(radialDir, vec3(0.0f, 1.0f, 0.0f)));
+			vec3 fallbackDirs[2] = { perpRight, -perpRight };
+			float fallbackDistLocal = std::min(fallbackDist, desired * fallbackDistMult);
+			for (int i = 0; i < 2; ++i) {
+				vec3 fallbackPos = currentPos + fallbackDirs[i] * fallbackDistLocal;
+				auto h = Physics::CylinderTrace(currentPos, fallbackPos, 0.5f, 0.8f, BodyType::World | BodyType::MainBody);
+				if (!h.hasHit && CheckAttackLocation(fallbackPos, targetPos)) {
+					return fallbackPos;
+				}
+			}
+			return currentPos; // Stay if no escape
+		}
+		else {
+			return targetPos;
+		}
 	}
 
 	// Advanced scoring system
@@ -1144,36 +1293,50 @@ vec3 NpcBase::FindAttackLocation()
 
 	vec3 currRelDir = MathHelper::Normalized(MathHelper::XZ(currentPos - targetPos));
 
+	float movePeak = isTooClose ? tooCloseMovePeak : normalMovePeak;
+	float moveSigma = isTooClose ? tooCloseMoveSigma : normalMoveSigma;
+	float flankWeight = isTooClose ? tooCloseFlankWeight : normalFlankWeight;
+	float distWeight = isTooClose ? tooCloseDistWeight : normalDistWeight;
+
 	for (const vec3& cand : candidates) {
 		vec3 toTarget = MathHelper::XZ(cand - targetPos);
 		float cDist = glm::length(toTarget);
 		vec3 attackDir = (cDist > 0.001f) ? toTarget / cDist : vec3(0.0f, 0.0f, 1.0f);
 
-		// Flanking score: prioritize back/sides over front (-dot: 1=perfect back, 0=side, -1=front)
-		float flankScore = -glm::dot(attackDir, targetForward);
+		// Tactical alignment score: flank vs target or away alignment (higher when aligned/opposite)
+		float tacticalScore = -glm::dot(attackDir, referenceForward);
 
-		// Distance score: Gaussian peak at desired range (sigma=15% of desired)
+		// Distance score: Gaussian peak at desired range
 		float distDiff = (cDist - desired) / desired;
-		float distScore = std::exp(-distDiff * distDiff / (2.0f * 0.15f * 0.15f));
+		float distScore = std::exp(-distDiff * distDiff / (2.0f * distSigma * distSigma));
 
-		// Movement score: Gaussian favoring small to moderate movement (peak at 30% of desired, narrower sigma)
-		float moveDist = glm::distance(cand, currentPos);
-		float moveNorm = moveDist / desired;
-		float moveScore = std::exp(-(moveNorm - 0.3f) * (moveNorm - 0.3f) / (2.0f * 0.25f * 0.25f));
+		// Movement score: Gaussian favoring appropriate movement distance
+		float moveDistScore = glm::distance(cand, currentPos);
+		float moveNorm = moveDistScore / desired;
+		float moveScore = std::exp(-(moveNorm - movePeak) * (moveNorm - movePeak) / (2.0f * moveSigma * moveSigma));
 
-		// Circling score: prefer tangential movement (perpendicular to current radial dir)
+		// Circling score: prefer tangential movement
 		vec3 moveDir = MathHelper::Normalized(MathHelper::XZ(cand - currentPos));
 		float circleScore = 1.0f - std::abs(glm::dot(moveDir, currRelDir));
 
 		// Randomness for unpredictability
-		float randScore = RandomHelper::RandomFloat() * 0.25f;
+		float randScore = RandomHelper::RandomFloat() * randomScoreMult;
+
+		// Clustering penalty: penalize proximity to other NPCs' current positions
+		float clusterPenalty = 0.0f;
+		for (const vec3& otherPos : otherNpcPositions) {
+			float d = glm::distance(cand, otherPos);
+			if (d < 0.001f) continue;
+			clusterPenalty += std::exp(-(d * d) / (2.0f * clusterSigma * clusterSigma));
+		}
 
 		// Weighted total score
-		float score = flankScore * 3.2f +
-			distScore * 2.1f +
-			moveScore * 1.8f +  // Increased weight to prefer smaller moves more
-			circleScore * 1.1f +
-			randScore;
+		float score = tacticalScore * flankWeight +
+			distScore * distWeight +
+			moveScore * moveScoreWeight +
+			circleScore * circleScoreWeight +
+			randScore -
+			clusterPenalty * clusterWeight;
 
 		if (score > bestScore) {
 			bestScore = score;
@@ -1194,6 +1357,8 @@ void NpcBase::UpdateAnimations()
 		animator.weapon_holds = target_underArrest  && !isStunned();
 		animator.weapon_ready = target_follow && target_underArrest  && !isStunned();
 		animator.weapon_aims = target_attack && animator.weapon_ready && target_attackInRange  && !isStunned();
+
+		animator.spineRotation = spineRotation;
 
 	}
 
@@ -1477,6 +1642,10 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, stunnedRagdollDelay);
 	SERIALIZE_FIELD(target, returningFromRagdoll);
 
+	SERIALIZE_FIELD(target, attackDelay);
+	SERIALIZE_FIELD(target, attackPositionUpdateDelay);
+	SERIALIZE_FIELD(target, attackPosition);
+
 }
 
 void NpcBase::Deserialize(json& source)
@@ -1564,6 +1733,10 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, stunnedRagdoll);
 	DESERIALIZE_FIELD(source, stunnedRagdollDelay);
 	DESERIALIZE_FIELD(source, returningFromRagdoll);
+
+	DESERIALIZE_FIELD(source, attackDelay);
+	DESERIALIZE_FIELD(source, attackPositionUpdateDelay);
+	DESERIALIZE_FIELD(source, attackPosition);
 
 }
 

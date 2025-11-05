@@ -136,6 +136,8 @@ protected:
 
 	vec3 attackPosition;
 
+	vec3 spineRotation = vec3();
+
 	std::string modelPath = "GameData/models/npc/base.glb";
 
 private:

@@ -18,6 +18,8 @@ public:
 
 	bool weapon_pendingAttack = false;
 
+	vec3 spineRotation;
+
 	void Update();
 
 protected:
