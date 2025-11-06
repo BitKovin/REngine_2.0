@@ -12,6 +12,8 @@
 
 #include "Ai/nav_point.h"
 
+#include "../Player/Weapons/Projectiles/Bullet.h"
+
 #include <RandomHelper.h>
 
 float NpcBase::GetDetectionSpeed(Crime crime) const
@@ -990,7 +992,7 @@ void NpcBase::UpdateTargetAttack()
 	}
 
 
-	if (target_follow == false || target_sees == false || target_attack == false || target_attackInRange == false)
+	if (target_follow == false || target_sees == false || target_attack == false || target_attackInRange == false || isStunned())
 	{
 		attackDelay.AddDelay(0.8f);
 		return;
@@ -1015,8 +1017,34 @@ void NpcBase::UpdateTargetAttack()
 	}
 
 	animator.weapon_pendingAttack = true;
-
 	attackDelay.AddDelay(0.5f + RandomHelper::RandomFloat()*0.1f);
+
+	auto targetRef = Level::Current->FindEntityWithId(target_id);
+
+	vec3 predictedTargetPosition = targetRef->Position;
+
+	const float bulletSpeed = 50;
+
+	if (targetRef)
+	{
+
+		Player* playerRef = dynamic_cast<Player*>(targetRef);
+
+		predictedTargetPosition += playerRef->controller.GetVelocity() * distance(Position, targetRef->Position) / bulletSpeed;
+	}
+
+	vec3 bulletRotation = MathHelper::FindLookAtRotation(vec3(), predictedTargetPosition - Position);
+
+	Bullet* bullet = (Bullet*)Spawn("bullet");
+	bullet->LoadAssets();
+	bullet->Position = weaponMesh->Position;
+	bullet->Rotation = bulletRotation;
+	bullet->Speed = bulletSpeed;
+	bullet->EnemyOwner = true;
+	bullet->Damage = 10;
+	bullet->owner = this;
+	bullet->Start();
+
 }
 
 bool NpcBase::CheckAttackLOS(vec3 location, vec3 targetLocation)
@@ -1031,7 +1059,7 @@ bool NpcBase::CheckAttackLOS(vec3 location, vec3 targetLocation)
 
 	auto hit = Physics::SphereTrace(attackPos, targetLocation + vec3(0, 0.65, 0), 0.1f, BodyType::GroupHitTest, mesh->hitboxBodies);
 
-	if (hit.hasHit)
+	if (hit.hasHit && hit.entity->HasTag("player") == false)
 	{
 
 		return false;

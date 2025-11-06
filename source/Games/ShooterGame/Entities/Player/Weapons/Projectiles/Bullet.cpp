@@ -6,6 +6,8 @@
 
 #include <Entities/PointLight.h>
 
+#include "../../Player.hpp"
+
 REGISTER_ENTITY(Bullet, "bullet")
 
 Bullet::Bullet()
@@ -15,6 +17,22 @@ Bullet::Bullet()
 
 Bullet::~Bullet()
 {
+}
+
+void Bullet::Start()
+{
+
+	oldPos = Position;
+
+	trail = (ParticleSystem*)Spawn("bullet_trail");
+	trail->Position = Position;
+	trail->Rotation = Rotation;
+	trail->Start();
+
+	if (EnemyOwner == false && owner == nullptr)
+	{
+		owner = Player::Instance;
+	}
 }
 
 void Bullet::Update()
@@ -32,11 +50,26 @@ void Bullet::Update()
 
 	auto hit = Physics::LineTrace(oldPos, Position, BodyType::GroupHitTest);
 
+
 	if (hit.hasHit)
 	{
-		hit.entity->OnPointDamage(Damage, hit.position, MathHelper::FastNormalize(Position - oldPos), hit.hitboxName, this, this);
 
-		Physics::AddImpulseAtLocation(hit.hitbody, forward * (Damage+2) * 2.5f, hit.position);
+		if (hit.entity == owner)
+		{
+			oldPos = Position;
+			return;
+		}
+
+		if (hit.entity->HasTag("enemy") && EnemyOwner == false
+			|| hit.entity->HasTag("player") && EnemyOwner)
+		{
+
+			hit.entity->OnPointDamage(Damage, hit.position, MathHelper::FastNormalize(Position - oldPos), hit.hitboxName, this, this);
+			Physics::AddImpulseAtLocation(hit.hitbody, forward * (Damage + 2) * 2.5f, hit.position);
+
+		}
+
+
 
 		//Logger::Log(hit.surfaceName);
 

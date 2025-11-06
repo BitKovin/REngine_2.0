@@ -84,6 +84,7 @@ public:
 	void PerformAttack()
 	{
 
+		fireSoundPlayer->Pitch = Silencer ? 2.8f : 1.0f;
 		fireSoundPlayer->Play();
 
 		SwitchDelay.AddDelay(0.2f);

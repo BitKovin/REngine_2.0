@@ -15,11 +15,13 @@ private:
 public:
 
 
-
+	bool EnemyOwner = false;
 
 	float Damage = 15;
 	float Speed = 100;
 	float MaxDistance = 100;
+
+	Entity* owner = nullptr;
 
 	ParticleSystem* trail;
 
@@ -32,16 +34,7 @@ public:
 		PreloadEntityType("bullet_trail");
 	}
 
-	void Start()
-	{
-		oldPos = Position;
-
-		trail = (ParticleSystem*)Spawn("bullet_trail");
-		trail->Position = Position;
-		trail->Rotation = Rotation;
-		trail->Start();
-
-	}
+	void Start();
 
 	void Update();
 

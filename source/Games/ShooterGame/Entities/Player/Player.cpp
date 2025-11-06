@@ -42,6 +42,9 @@ void Player::Start()
     AddWeaponByName("weapon_shotgun");
     AddWeaponByName("weapon_mpsd");
 
+    hitbox = Physics::CreateCharacterBody(this, Position, 0.3f, 1.2f, 0.1f, BodyType::HitBox, BodyType::None);
+    hitbox->SetMotionType(JPH::EMotionType::Kinematic);
+
     //SwitchWeaponOffhand("weapon_cane");
 
 }
@@ -860,6 +863,8 @@ void Player::UpdateBody()
 
     observationTarget->position = Camera::position;
 
+    Physics::SetBodyPosition(hitbox, Camera::position - vec3(0,0.5f,0));
+
 }
 
 void Player::Serialize(json& target)
@@ -881,7 +886,7 @@ void Player::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone
 {
     Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
 
-    GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point, MathHelper::FindLookAtRotation(vec3(0), Direction), vec3(10));
+    GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point - vec3(0,0.5f,0), MathHelper::FindLookAtRotation(vec3(0), -Direction - vec3(0, 1, 0)), vec3(0.2f));
 
 }
 

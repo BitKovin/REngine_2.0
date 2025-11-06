@@ -356,6 +356,39 @@ public:
 		return glm::vec4(matrix[0][row], matrix[1][row], matrix[2][row], matrix[3][row]);
 	}
 
+	inline static vec3 CalculateBulletRotation(
+		const vec3& shooterPos,
+		const vec3& shooterVel,
+		const vec3& targetPos,
+		const vec3& targetVel,
+		float bulletSpeed)
+	{
+		// Relative motion
+		vec3 relativePos = targetPos - shooterPos;
+		vec3 relativeVel = targetVel - shooterVel;
+
+		float a = bulletSpeed * bulletSpeed - dot(relativeVel, relativeVel);
+		float b = dot(relativePos, relativeVel);
+		float c = dot(relativePos, relativePos);
+
+		float discriminant = b * b + a * c;
+
+		vec3 predictedTargetPosition = targetPos;
+
+		// Check if intercept is possible
+		if (discriminant >= 0.0f && std::abs(a) > 1e-6f)
+		{
+			float t = (b + std::sqrt(discriminant)) / a;
+			if (t > 0.0f)
+			{
+				predictedTargetPosition = targetPos + targetVel * t;
+			}
+		}
+
+		// Compute direction and convert to rotation
+		vec3 direction = normalize(predictedTargetPosition - shooterPos);
+		return MathHelper::FindLookAtRotation(vec3(), direction);
+	}
 
 	// Generates a world matrix for a spherical billboard with optional rotation (in radians)
 	inline static glm::mat4 CreateBillboardMatrix(

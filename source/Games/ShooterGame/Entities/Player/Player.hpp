@@ -92,8 +92,6 @@ private:
 
 	Delay coyoteTime;
 
-	CharacterController controller;
-
 	PlayerBodyAnimator bodyAnimator = PlayerBodyAnimator(this);
 
 	bool teleported = false;
@@ -103,6 +101,8 @@ private:
 	bool wasDashing = false;
 
 	std::shared_ptr<ObservationTarget> observationTarget;
+
+	Body* hitbox = nullptr;
 
 	glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
 		vel = MathHelper::XZ(vel);
@@ -189,6 +189,8 @@ private:
 
 
 public:
+
+	CharacterController controller;
 
 	int currentSlot = 0;
 	std::vector<WeaponSlotData> weaponSlots;
