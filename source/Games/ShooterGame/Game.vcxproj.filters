@@ -78,7 +78,7 @@
     <ClCompile Include="Entities\RelativeTeleporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Ai\Tasks\MoveToEntity.cpp">
+    <ClCompile Include="Ai\BehaviorTreeTasks\MoveToEntity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Entities\Player\Weapons\weapon_mpsd.cpp">
@@ -87,25 +87,28 @@
     <ClCompile Include="Entities\Npc\Ai\nav_point.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Ai\Tasks\SwitchToNextNavPoint.cpp">
+    <ClCompile Include="Ai\BehaviorTreeTasks\SwitchToNextNavPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Ai\Tasks\SetLookTargetFromCurrentNavPoint.cpp">
+    <ClCompile Include="Ai\BehaviorTreeTasks\SetLookTargetFromCurrentNavPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Ai\Tasks\MoveToPosition.cpp">
+    <ClCompile Include="Ai\BehaviorTreeTasks\MoveToPosition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Ai\Tasks\StopTargetFollow.cpp">
+    <ClCompile Include="Ai\BehaviorTreeTasks\StopTargetFollow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Ai\Tasks\FinishInvestigation.cpp">
+    <ClCompile Include="Ai\BehaviorTreeTasks\FinishInvestigation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Entities\Npc\NpcGuardBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Entities\Npc\NpcCivilianBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ai\NpcTasks\TaskManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -162,6 +165,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Npc\Ai\nav_point.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ai\NpcTasks\TaskState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ai\NpcTasks\TaskManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ai\NpcTasks\Task.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

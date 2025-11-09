@@ -707,7 +707,7 @@ RefConst<Shape> Physics::CreateMeshShape(const std::vector<vec3>& vertices, cons
 	return result.Get();
 }
 
-Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const BodyType mask, const vector<Body*> ignoreList)
+Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList)
 {
 	HitResult hit;
 	hit.fraction = 1.0f;
@@ -736,6 +736,7 @@ Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const Bo
 	TraceBodyFilter filter;
 	filter.mask = mask;
 	filter.ignoreList = ignoreList;
+	filter.entityIgnoreList = entityIgnoreList;
 
 	//physicsMainLock.lock();
 
@@ -1208,6 +1209,13 @@ bool TraceBodyFilter::ShouldCollideLocked(const Body& inBody) const
 	auto* properties = reinterpret_cast<BodyData*>(inBody.GetUserData());
 	if (properties)
 	{
+
+		for (auto ignored : entityIgnoreList)
+		{
+			if (ignored == properties->OwnerEntity)
+				return false;
+		}
+
 		if (properties->OwnerEntity)
 		{
 			if (properties->OwnerEntity->Destroyed)

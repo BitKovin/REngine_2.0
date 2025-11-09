@@ -281,6 +281,7 @@ class TraceBodyFilter : public BodyFilter
 public:
 	// List of bodies to ignore during the ray cast.
 	std::vector<Body*> ignoreList = {};
+	std::vector<Entity*> entityIgnoreList = {};
 	// Collision mask to filter out bodies that don't belong to the desired groups.
 	BodyType mask = BodyType::GroupHitTest;
 
@@ -954,7 +955,7 @@ public:
 		string surfaceName;
 	};
 
-	static HitResult LineTrace(const vec3 start, const vec3 end, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {});
+	static HitResult LineTrace(const vec3 start, const vec3 end, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {}, const vector<Entity*> entityIgnoreList = {});
 
 	class ClosestHitShapeCastCollector : public JPH::CollisionCollector<JPH::ShapeCastResult, JPH::CollisionCollectorTraitsCastShape>
 	{

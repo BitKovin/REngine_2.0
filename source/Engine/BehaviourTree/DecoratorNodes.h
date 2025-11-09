@@ -95,11 +95,14 @@ public:
     void FromJson(const json& j) override;
 
     bool inverse = false;
+    bool inverseFinishBeforeStop = false;
 
-    bool finishBeforeStop = false;
 
     bool previousCondition = false;
 
 private:
     BTVariable condition_;
+
+    BTVariable finishBeforeStop;
+
 };

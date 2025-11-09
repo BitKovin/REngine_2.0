@@ -134,6 +134,7 @@ ConditionalDecorator::ConditionalDecorator()
     : DecoratorNode("Conditional", "ConditionalDecorator") {
     condition_.SetConstantValue(true);
     SetAbortMode(FlowAbortMode::Self);
+    finishBeforeStop.SetConstantValue(false);
 }
 
 NodeStatus ConditionalDecorator::Execute(BehaviorTreeContext& context) {
@@ -148,10 +149,14 @@ NodeStatus ConditionalDecorator::Execute(BehaviorTreeContext& context) {
 
     bool needsToFinish = false;
 
+    bool evalNeedToFinishBeforeStop = finishBeforeStop.Resolve<bool>(context.blackboard, false);
+    if (inverseFinishBeforeStop)
+        evalNeedToFinishBeforeStop = !evalNeedToFinishBeforeStop;
+
 	if (!condition)
 	{
 
-		if (finishBeforeStop == false)
+		if (evalNeedToFinishBeforeStop == false)
 		{
 
 			if (previousCondition)
@@ -177,7 +182,7 @@ NodeStatus ConditionalDecorator::Execute(BehaviorTreeContext& context) {
         }
 	}
 
-    if (finishBeforeStop && previousCondition && childStatus == NodeStatus::Running)
+    if (evalNeedToFinishBeforeStop && previousCondition && childStatus == NodeStatus::Running)
     {
         context.hasToFinishDecorator = true;
     }
@@ -205,8 +210,9 @@ bool ConditionalDecorator::CheckCondition(BehaviorTreeContext& context) const
 json ConditionalDecorator::ToJson() const {
     auto j = DecoratorNode::ToJson();
     j["condition"] = condition_.ToJson();
-    j["finish before stop"] = finishBeforeStop;
     j["inverse"] = inverse;
+    j["finish before stop"] = finishBeforeStop.ToJson();
+    j["inverse finish before stop"] = inverseFinishBeforeStop;
 
     return j;
 }
@@ -220,7 +226,10 @@ void ConditionalDecorator::FromJson(const json& j) {
         inverse = j["inverse"].get<bool>();
     }
     if (j.contains("finish before stop")) {
-        finishBeforeStop = j["finish before stop"].get<bool>();
+        finishBeforeStop.FromJson(j["finish before stop"]);
+    }
+    if (j.contains("inverse finish before stop")) {
+        inverseFinishBeforeStop = j["inverse finish before stop"].get<bool>();
     }
 
 }
