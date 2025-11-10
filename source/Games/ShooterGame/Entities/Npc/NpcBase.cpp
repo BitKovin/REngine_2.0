@@ -10,7 +10,7 @@
 
 #include "../Player/Player.hpp"
 
-#include "Ai/nav_point.h"
+#include "Ai/TaskPoint.h"
 
 #include "../Player/Weapons/Projectiles/Bullet.h"
 
@@ -101,6 +101,8 @@ void NpcBase::Start()
 	observer = AiPerceptionSystem::CreateObserver(Position + vec3(0, 0.7, 0), movingDirection, 90);
 	observer->owner = Id;
 	observer->ownerPtr = this;
+
+	StartTask(defaultTask);
 
 }
 
@@ -339,6 +341,14 @@ void NpcBase::PlayPhrace(std::string name)
 
 }
 
+void NpcBase::Update()
+{
+	Entity::Update();
+
+	UpdateTask();
+
+}
+
 void NpcBase::AsyncUpdate()
 {
 
@@ -536,24 +546,25 @@ void NpcBase::UpdateBT()
 
 	behaviorTree.GetBlackboard().SetValue("target", Player::Instance->Id);
 
-	auto navPointRef = dynamic_cast<nav_point*>(Level::Current->FindEntityWithName(CurrentTargetNavPoint));
 
-	if (navPointRef != nullptr)
+	if (taskState.HasToMoveToTarget)
 	{
-		behaviorTree.GetBlackboard().SetValue("has_navpoint", true);
-		behaviorTree.GetBlackboard().SetValue("navpoint_name", CurrentTargetNavPoint);
-		behaviorTree.GetBlackboard().SetValue("navpoint_wait_time", navPointRef->WaitTimeAfterReach);
-		behaviorTree.GetBlackboard().SetValue("navpoint_has_wait_time", navPointRef->WaitTimeAfterReach > 0);
-		behaviorTree.GetBlackboard().SetValue("navpoint_acceptance_radius", navPointRef->acceptanceRadius);
+		behaviorTree.GetBlackboard().SetValue("task_move", true);
+		behaviorTree.GetBlackboard().SetValue("task_moveLocation", taskState.TargetLocation);
+		behaviorTree.GetBlackboard().SetValue("task_acceptanceRadius", taskState.AcceptanceRadius);
+		behaviorTree.GetBlackboard().SetValue("task_setOrientation", taskState.HasToLookAtTarget);
+		behaviorTree.GetBlackboard().SetValue("task_canBeCanceled", taskState.CanBeCanceled);
 	}
 	else
 	{
-		behaviorTree.GetBlackboard().SetValue("has_navpoint", false);
-		behaviorTree.GetBlackboard().SetValue("navpoint_name", "");
-		behaviorTree.GetBlackboard().SetValue("navpoint_wait_time", 0.0f);
-		behaviorTree.GetBlackboard().SetValue("navpoint_has_wait_time", false);
-		behaviorTree.GetBlackboard().SetValue("navpoint_acceptance_radius", 0.0f);
+		behaviorTree.GetBlackboard().SetValue("task_move", false);
+		behaviorTree.GetBlackboard().SetValue("task_moveLocation", vec3(0.0f));
+		behaviorTree.GetBlackboard().SetValue("task_acceptanceRadius", 0.0f);
+		behaviorTree.GetBlackboard().SetValue("task_setOrientation", false);
 	}
+	behaviorTree.GetBlackboard().SetValue("task_canBeCanceled", taskState.CanBeCanceled);
+	behaviorTree.GetBlackboard().SetValue("task_doingJob", taskState.DoingJob);
+
 
 	behaviorTree.GetBlackboard().SetValue("isGuard", isGuard);
 
@@ -1634,7 +1645,7 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, pathFollow.reachedTarget);
 
 
-	SERIALIZE_FIELD(target, CurrentTargetNavPoint);
+	SERIALIZE_FIELD(target, taskState);
 
 	SERIALIZE_FIELD(target, target_follow);
 	SERIALIZE_FIELD(target, target_id);
@@ -1695,7 +1706,7 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, pathFollow.FoundTarget);
 	DESERIALIZE_FIELD(source, pathFollow.reachedTarget);
 
-	DESERIALIZE_FIELD(source, CurrentTargetNavPoint);
+	DESERIALIZE_FIELD(source, taskState);
 
 	DESERIALIZE_FIELD(source, target_follow);
 	DESERIALIZE_FIELD(source, target_id);
@@ -1815,6 +1826,65 @@ void NpcBase::StopTargetFollow()
 void NpcBase::BodyInvestigated()
 {
 	needToInvestigateBody = false;
+}
+
+void NpcBase::Task_TargetReached()
+{
+	TaskPoint* taskPoint = dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(taskState.TaskName));
+
+	if (taskPoint == nullptr)
+		return;
+
+	taskPoint->OnNpcTargetReached(this);
+}
+
+void NpcBase::Task_DoStationaryJob()
+{
+}
+
+TaskState& NpcBase::GetTaskStateRef()
+{
+	return taskState;
+}
+
+void NpcBase::StartTask(const std::string& taskName)
+{
+
+	StopTask();
+
+	TaskPoint* taskPoint = dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(taskName));
+
+	if (taskPoint == nullptr) 
+		return;
+
+	taskPoint->NpcEntered(this);
+
+}
+
+void NpcBase::StopTask()
+{
+
+	if (taskState.TaskName.empty()) return;
+
+	TaskPoint* taskPoint = dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(taskState.TaskName));
+
+	if (taskPoint == nullptr) return;
+
+	taskPoint->NpcExited(this);
+
+	taskState = TaskState();
+
+}
+
+void NpcBase::UpdateTask()
+{
+
+	TaskPoint* taskPoint = dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(taskState.TaskName));
+
+	if (taskPoint == nullptr) return;
+
+	taskPoint->NpcUpdate(this);
+
 }
 
 void NpcBase::UpdateDebugUI()

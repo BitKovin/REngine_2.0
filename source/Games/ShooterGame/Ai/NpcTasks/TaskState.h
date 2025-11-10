@@ -2,26 +2,44 @@
 
 #include <string>
 #include <glm.h>
+#include <Helpers/JsonHelper.hpp>
 
 struct TaskState
 {
+    std::string TaskName = "";
 
-	std::string TaskId;
+    bool HasToMoveToTarget = false;
+    vec3 TargetLocation = vec3();
+    float AcceptanceRadius = 0.05f;
 
-	bool HasToMoveToTarget;
-	vec3 TargetLocation;
-	float AcceptanceRadius = 0.05f;
+    bool CanBeCanceled = true;
 
-	bool HasToLookAtTarget;
-	vec3 TargetOrientation;
+    bool DoingJob = false;
 
+    bool HasToLookAtTarget = false;
+    vec3 TargetOrientation = vec3();
 
-	std::string TaskStage;
+    std::string TaskStage = "";
 
-	float Timer1;//user data
-	float Timer2;//user data
-	float Timer3;//user data
+    float Timer1 = 0; // user data
+    float Timer2 = 0; // user data
+    float Timer3 = 0; // user data
 
-	std::string UserData;//user data
+    std::string UserData = ""; // user data
 
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(
+        TaskState,
+        TaskName,
+        HasToMoveToTarget,
+        TargetLocation,
+        AcceptanceRadius,
+        CanBeCanceled,
+        HasToLookAtTarget,
+        TargetOrientation,
+        TaskStage,
+        Timer1,
+        Timer2,
+        Timer3,
+        UserData
+    )
 };

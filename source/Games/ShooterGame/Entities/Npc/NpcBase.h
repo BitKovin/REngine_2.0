@@ -21,6 +21,8 @@
 #include <AiPerception/Observer.h>
 #include <AiPerception/ObservationTarget.h>
 
+#include "../../Ai/NpcTasks/TaskState.h"
+
 enum class InvestigationReason
 {
 	TargetSeen,
@@ -140,6 +142,8 @@ protected:
 
 	std::string modelPath = "GameData/models/npc/base.glb";
 
+	std::string defaultTask = "np_0_0";
+
 private:
 
 
@@ -159,7 +163,7 @@ public:
 
 	SkeletalMesh* mesh;
 
-	std::string CurrentTargetNavPoint = "np_0_0";
+	TaskState taskState;
 
 	vec3 desiredLookVector = vec3(1);
 
@@ -206,6 +210,8 @@ public:
 
 	void PlayPhrace(std::string name);
 
+	void Update();
+
 	void AsyncUpdate();
 	void UpdateWeaponMesh();
 
@@ -245,6 +251,15 @@ public:
 	void StopTargetFollow();
 
 	void BodyInvestigated();
+
+	void Task_TargetReached();
+	void Task_DoStationaryJob();
+
+	TaskState& GetTaskStateRef();
+
+	void StartTask(const std::string& taskName);
+	void StopTask();
+	void UpdateTask();
 
 protected:
 

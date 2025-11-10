@@ -2,7 +2,6 @@
 #include <BehaviourTree/NodeFactory.h>
 
 #include "../../Entities/Npc/NpcBase.h"
-#include "../../Entities/Npc/Ai/nav_point.h"
 
 class FinishInvestigation : public CustomTask
 {
@@ -41,7 +40,6 @@ public:
 		if (npcRef)
 		{
 
-			auto navPointRef = dynamic_cast<nav_point*>(Level::Current->FindEntityWithName(npcRef->CurrentTargetNavPoint));
 
 			npcRef->FinishInvestigation();
 

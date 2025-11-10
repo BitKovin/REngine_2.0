@@ -84,10 +84,7 @@
     <ClCompile Include="Entities\Player\Weapons\weapon_mpsd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Entities\Npc\Ai\nav_point.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Ai\BehaviorTreeTasks\SwitchToNextNavPoint.cpp">
+    <ClCompile Include="Entities\Npc\Ai\TaskPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Ai\BehaviorTreeTasks\SetLookTargetFromCurrentNavPoint.cpp">
@@ -109,6 +106,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Ai\NpcTasks\TaskManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ai\BehaviorTreeTasks\NpcTaskDoJob.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ai\BehaviorTreeTasks\Task_DestinationReached.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ai\BehaviorTreeTasks\Lock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Ai\Task_PatrolPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -164,7 +173,7 @@
     <ClInclude Include="Entities\Player\Weapons\WeaponFireFlash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Entities\Npc\Ai\nav_point.h">
+    <ClInclude Include="Entities\Npc\Ai\TaskPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Ai\NpcTasks\TaskState.h">

@@ -319,13 +319,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ai\BehaviorTreeTasks\FinishInvestigation.cpp" />
+    <ClCompile Include="Ai\BehaviorTreeTasks\Lock.cpp" />
     <ClCompile Include="Ai\BehaviorTreeTasks\MoveToEntity.cpp" />
     <ClCompile Include="Ai\BehaviorTreeTasks\MoveToPosition.cpp" />
+    <ClCompile Include="Ai\BehaviorTreeTasks\NpcTaskDoJob.cpp" />
     <ClCompile Include="Ai\BehaviorTreeTasks\SetLookTargetFromCurrentNavPoint.cpp" />
     <ClCompile Include="Ai\BehaviorTreeTasks\StopTargetFollow.cpp" />
-    <ClCompile Include="Ai\BehaviorTreeTasks\SwitchToNextNavPoint.cpp" />
+    <ClCompile Include="Ai\BehaviorTreeTasks\Task_DestinationReached.cpp" />
     <ClCompile Include="Ai\NpcTasks\TaskManager.cpp" />
-    <ClCompile Include="Entities\Npc\Ai\nav_point.cpp" />
+    <ClCompile Include="Entities\Npc\Ai\TaskPoint.cpp" />
+    <ClCompile Include="Entities\Npc\Ai\Task_PatrolPoint.cpp" />
     <ClCompile Include="Entities\Npc\Animators\NpcAnimatorBase.cpp" />
     <ClCompile Include="Entities\Npc\NpcBase.cpp" />
     <ClCompile Include="Entities\Npc\NpcCivilianBase.cpp" />
@@ -356,7 +359,7 @@
     <ClInclude Include="Ai\NpcTasks\TaskManager.h" />
     <ClInclude Include="Ai\NpcTasks\TaskState.h" />
     <ClInclude Include="Entities\IEnemy.h" />
-    <ClInclude Include="Entities\Npc\Ai\nav_point.h" />
+    <ClInclude Include="Entities\Npc\Ai\TaskPoint.h" />
     <ClInclude Include="Entities\Npc\Animators\NpcAnimatorBase.h" />
     <ClInclude Include="Entities\Npc\NpcBase.h" />
     <ClInclude Include="Entities\Player\Player.hpp" />

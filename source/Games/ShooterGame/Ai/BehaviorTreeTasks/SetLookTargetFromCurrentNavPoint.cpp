@@ -2,7 +2,7 @@
 #include <BehaviourTree/NodeFactory.h>
 
 #include "../../Entities/Npc/NpcBase.h"
-#include "../../Entities/Npc/Ai/nav_point.h"
+#include "../../Entities/Npc/Ai/TaskPoint.h"
 
 class SetLookTargetFromCurrentNavPoint : public CustomTask
 {
@@ -38,13 +38,11 @@ public:
 
 		CheckNpcRef(context);
 
-		if (npcRef)
+		if (npcRef && npcRef->GetTaskStateRef().HasToLookAtTarget)
 		{
 
-			auto navPointRef = dynamic_cast<nav_point*>(Level::Current->FindEntityWithName(npcRef->CurrentTargetNavPoint));
-
 			npcRef->StopMovement();
-			npcRef->desiredLookVector = MathHelper::GetForwardVector(navPointRef->Rotation);
+			npcRef->desiredLookVector = MathHelper::GetForwardVector(npcRef->GetTaskStateRef().TargetOrientation);
 
 		}
 

@@ -2,9 +2,9 @@
 #include <BehaviourTree/NodeFactory.h>
 
 #include "../../Entities/Npc/NpcBase.h"
-#include "../../Entities/Npc/Ai/nav_point.h"
+#include "../../Entities/Npc/Ai/TaskPoint.h"
 
-class SwitchToNextNavPoint : public CustomTask
+class TaskDestinationReached : public CustomTask
 {
 
 private:
@@ -26,7 +26,7 @@ private:
 	}
 
 public:
-	SwitchToNextNavPoint() : CustomTask("Switch To Next Nav Point", "SwitchToNextNavPoint")
+	TaskDestinationReached() : CustomTask("Task Destination Reached", "TaskDestinationReached")
 	{
 
 	}
@@ -41,9 +41,7 @@ public:
 		if (npcRef)
 		{
 
-			auto navPointRef = dynamic_cast<nav_point*>(Level::Current->FindEntityWithName(npcRef->CurrentTargetNavPoint));
-
-			npcRef->CurrentTargetNavPoint = navPointRef->NextPoint;
+			npcRef->Task_TargetReached();
 
 		}
 
@@ -51,8 +49,8 @@ public:
 
 	}
 
-	
+
 
 };
 
-REGISTER_BT_NODE(SwitchToNextNavPoint);
+REGISTER_BT_NODE(TaskDestinationReached);
