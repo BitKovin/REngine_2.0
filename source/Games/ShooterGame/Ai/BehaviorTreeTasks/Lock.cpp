@@ -20,6 +20,8 @@ public:
 	void OnStart(BehaviorTreeContext& context) override
 	{
 
+		CustomTask::OnStart(context);
+
 		bool condition = GetVariable<bool>("lock", false);
 		if (GetVariable<bool>("inverse", false))
 			condition = !condition;

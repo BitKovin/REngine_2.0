@@ -4,6 +4,8 @@ void NpcAnimatorBase::LoadAssets()
 {
 	locomotion = AddAnimation("GameData/models/npc/base.glb","idle");
 	pistol = AddAnimation("GameData/models/npc/base.glb", "idle", false);
+	taskAnimation = AddAnimation("GameData/models/npc/base.glb", "idle", false);
+	taskAnimation->StopAnimation();
 	//inPain = AddAnimation("GameData/animations/npc/inPain.glb");
 }
 
@@ -76,6 +78,31 @@ void NpcAnimatorBase::Update()
 
 }
 
+void NpcAnimatorBase::PlayTaskAnimation(std::string animationName, bool loop)
+{
+
+	taskAnimation->PlayAnimation(animationName, loop, 0.3f);
+
+}
+
+void NpcAnimatorBase::StopTaskAnimation()
+{
+
+	std::string currAnimationName = locomotion->currentAnimationData->animationName;
+	std::string currWeaponAnimationName = pistol->currentAnimationData->animationName;
+
+	auto taskPose = taskAnimation->GetAnimationPose();
+
+	locomotion->PasteAnimationPose(taskPose);
+	locomotion->PlayAnimation(currAnimationName, true, 0.3f);
+
+	pistol->PasteAnimationPose(taskPose);
+	pistol->PlayAnimation(currWeaponAnimationName, true, 0.3f);
+
+	taskAnimation->StopAnimation();
+
+}
+
 AnimationPose NpcAnimatorBase::ProcessResultPose()
 {
 
@@ -84,6 +111,8 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 	//auto painPose = inPain->GetAnimationPose();
 
 	AnimationPose locomotionPose = locomotion->GetAnimationPose();
+
+	AnimationPose weaponResultPose;
 
 	if (weapon_holds)
 	{
@@ -102,12 +131,27 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 			startBone = "spine_01";
 		}
 
-		return AnimationPose::LayeredLerp(startBone, pistol->GetRootNode(), locomotionPose, pistolPos, true, 1);// AnimationPose::Lerp(locomotion, painPose, PainProgress);
+		weaponResultPose = AnimationPose::LayeredLerp(startBone, pistol->GetRootNode(), locomotionPose, pistolPos, true, 1);// AnimationPose::Lerp(locomotion, painPose, PainProgress);
 	}
 	else
 	{
-		return locomotionPose;
+		weaponResultPose = locomotionPose;
 	}
 
+	AnimationPose taskResult;
+
+	if (taskAnimation->IsAnimationPlaying())
+	{
+
+		auto taskPose = taskAnimation->GetAnimationPose();
+
+		taskResult = AnimationPose::Lerp(weaponResultPose, taskPose, taskAnimation->GetBlendInProgress());
+	}
+	else
+	{
+		taskResult = weaponResultPose;
+	}
+
+	return taskResult;
 
 }

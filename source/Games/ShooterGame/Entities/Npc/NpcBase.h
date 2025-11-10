@@ -69,8 +69,6 @@ protected:
 
 	AnimationState animationStateSaveData;
 
-	NpcAnimatorBase animator = 0;
-
 	Animation* getFromRagdollAnimation = nullptr;
 	AnimationPose ragdollPose;
 
@@ -146,7 +144,6 @@ protected:
 
 private:
 
-
 	bool has_observed_crime = false;
 
 	float GetDetectionSpeed(Crime crime) const;
@@ -156,6 +153,11 @@ private:
 	short knowlageSharedThisFrame = 0;
 
 public:
+
+	bool DoingTask = true;
+	bool DoingTaskOld = true;
+
+	NpcAnimatorBase animator = 0;
 
 	bool isGuard = true;
 
@@ -254,6 +256,9 @@ public:
 
 	void Task_TargetReached();
 	void Task_DoStationaryJob();
+
+	void Task_Doint();
+	void Task_NotDoing();
 
 	TaskState& GetTaskStateRef();
 

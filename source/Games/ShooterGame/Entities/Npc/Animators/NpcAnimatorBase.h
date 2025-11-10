@@ -22,6 +22,12 @@ public:
 
 	void Update();
 
+	void PlayTaskAnimation(std::string animationName, bool loop);
+
+	void StopTaskAnimation();
+
+	Animation* taskAnimation = nullptr;
+
 protected:
 
 	Animation* locomotion = nullptr;

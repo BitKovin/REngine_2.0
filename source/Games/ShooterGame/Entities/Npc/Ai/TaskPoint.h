@@ -17,9 +17,15 @@ public:
 	virtual void NpcExited(NpcBase* npc);
 	virtual void NpcUpdate(NpcBase* npc);
 
+	virtual void NpcInterrupred(NpcBase* npc);
+	virtual void NpcReturned(NpcBase* npc);
+
 	virtual void OnNpcTargetReached(NpcBase* npc);
 
 	void MoveNpcTo(NpcBase* npc,vec3 target, float acceptanceRadius);
+
+	void PlayTaskAnimation(NpcBase* npc, std::string animationName, bool loop);
+	void StopTaskAnimation(NpcBase* npc);
 
 private:
 

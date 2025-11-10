@@ -430,6 +430,23 @@ void SkeletalMesh::PlayAnimation(std::string name, bool Loop, float interpIn)
 	boneTransforms = animator.getBoneMatrices();
 }
 
+void SkeletalMesh::StopAnimation()
+{
+	SetLooped(false);
+	animator.set("");
+	animator.m_playing = false;
+	currentAnimationData = nullptr;
+}
+
+std::string SkeletalMesh::GetAnimationName()
+{
+
+	if (currentAnimationData == nullptr) return "";
+
+	return currentAnimationData->animationName;
+
+}
+
 void SkeletalMesh::SetAnimationPaused(bool value)
 {
 
@@ -611,6 +628,9 @@ MathHelper::Transform SkeletalMesh::PullRootMotion()
 
 bool SkeletalMesh::IsAnimationPlaying()
 {
+
+	if (model == nullptr) return false;
+
 	return animator.m_playing;
 }
 

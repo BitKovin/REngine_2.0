@@ -36,6 +36,23 @@ void TaskPoint::NpcUpdate(NpcBase* npc)
 {
 }
 
+void TaskPoint::NpcInterrupred(NpcBase* npc)
+{
+
+
+	Logger::Log("npc interrupted task");
+
+	npc->animator.StopTaskAnimation();
+
+}
+
+void TaskPoint::NpcReturned(NpcBase* npc)
+{
+
+	Logger::Log("npc returned to task");
+
+}
+
 void TaskPoint::OnNpcTargetReached(NpcBase* npc)
 {
 
@@ -52,5 +69,19 @@ void TaskPoint::MoveNpcTo(NpcBase* npc, vec3 target, float acceptanceRadius)
 	taskState.TargetLocation = target;
 	taskState.HasToMoveToTarget = true;
 	taskState.AcceptanceRadius = acceptanceRadius;
+
+}
+
+void TaskPoint::PlayTaskAnimation(NpcBase* npc, std::string animationName, bool loop)
+{
+
+	npc->animator.PlayTaskAnimation(animationName, loop);
+
+}
+
+void TaskPoint::StopTaskAnimation(NpcBase* npc)
+{
+
+	npc->animator.StopTaskAnimation();
 
 }

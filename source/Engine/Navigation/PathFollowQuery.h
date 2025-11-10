@@ -30,7 +30,7 @@ public:
 
 	bool Async = true;
 
-	bool CalculatedPath = false;
+	bool CalculatedPath = true;
 
 	float acceptanceRadius = 0.2f;
 

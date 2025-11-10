@@ -175,22 +175,7 @@ private:
 
 	float oldAnimationEventTime = 0;
 
-	float GetBlendInProgress()
-	{
-		double currentTime = Time::GameTime;
-
-		if (blendEndTime <= blendStartTime)
-			return 1.0f; // Avoid division by zero or invalid range
-
-		if (currentTime <= blendStartTime)
-			return 0.0f;
-
-		if (currentTime >= blendEndTime)
-			return 1.0f;
-
-		double progress = (currentTime - blendStartTime) / (blendEndTime - blendStartTime);
-		return static_cast<float>(progress);
-	}
+	
 	AnimationPose blendStartPose;
 
 
@@ -262,6 +247,9 @@ public:
 	void ApplyWorldSpaceBoneTransforms(std::unordered_map<hashed_string, mat4>& pose);
 
 	void PlayAnimation(std::string name, bool Loop = false, float interpIn = 0.12);
+	void StopAnimation();
+
+	std::string GetAnimationName();
 
 	void SetAnimationPaused(bool value);
 
@@ -282,6 +270,23 @@ public:
 	}
 
 	MathHelper::Transform PullRootMotion();
+
+	float GetBlendInProgress()
+	{
+		double currentTime = Time::GameTime;
+
+		if (blendEndTime <= blendStartTime)
+			return 1.0f; // Avoid division by zero or invalid range
+
+		if (currentTime <= blendStartTime)
+			return 0.0f;
+
+		if (currentTime >= blendEndTime)
+			return 1.0f;
+
+		double progress = (currentTime - blendStartTime) / (blendEndTime - blendStartTime);
+		return static_cast<float>(progress);
+	}
 
 	void PlayAnimation(float interpIn = 0.12)
 	{

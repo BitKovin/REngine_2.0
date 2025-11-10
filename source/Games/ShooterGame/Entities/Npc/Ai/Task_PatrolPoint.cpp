@@ -20,6 +20,12 @@ public:
 		acceptanceRadius = data.GetPropertyFloat("acceptanceRadius", acceptanceRadius);
 	}
 
+	void NpcInterrupred(NpcBase* npc)
+	{
+		npc->GetTaskStateRef().TaskStage = "moving";
+		npc->GetTaskStateRef().Timer1 = 0;
+	}
+
 	void NpcGoToNextTarget(NpcBase* npc)
 	{
 		npc->StartTask(NextPoint);

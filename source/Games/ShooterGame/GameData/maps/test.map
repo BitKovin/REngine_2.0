@@ -1776,36 +1776,36 @@
 // entity 66
 {
 "classname" "nav_point"
-"origin" "-176 64 32"
-"targetname" "np_0_e"
-"target" "np_0_0"
-"waitTime" "3"
-}
-// entity 67
-{
-"classname" "nav_point"
 "origin" "-48 -128 32"
 "targetname" "np_0_3"
 "target" "np_0_e"
 }
-// entity 68
+// entity 67
 {
 "classname" "nav_point"
 "origin" "272 -128 32"
 "targetname" "np_0_2"
 "target" "np_0_3"
 }
-// entity 69
+// entity 68
 {
 "classname" "nav_point"
 "origin" "272 224 32"
 "targetname" "np_0_1"
 "target" "np_0_2"
 }
-// entity 70
+// entity 69
 {
 "classname" "nav_point"
 "origin" "-80 224 32"
 "targetname" "np_0_0"
 "target" "np_0_1"
+}
+// entity 70
+{
+"classname" "task_smoke"
+"origin" "-176 64 32"
+"targetname" "np_0_e"
+"target" "np_0_0"
+"waitTime" "3"
 }

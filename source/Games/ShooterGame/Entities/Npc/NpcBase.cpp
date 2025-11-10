@@ -102,6 +102,8 @@ void NpcBase::Start()
 	observer->owner = Id;
 	observer->ownerPtr = this;
 
+	pathFollow.reachedTarget = true;
+
 	StartTask(defaultTask);
 
 }
@@ -1633,6 +1635,7 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, Rotation);
 	SERIALIZE_FIELD(target, desiredDirection);
 	SERIALIZE_FIELD(target, movingDirection);
+	SERIALIZE_FIELD(target, desiredLookVector);
 	SERIALIZE_FIELD(target, speed);
 	SERIALIZE_FIELD(target, dead);
 	SERIALIZE_FIELD(target, animationStateSaveData);
@@ -1685,6 +1688,17 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, attackPositionUpdateDelay);
 	SERIALIZE_FIELD(target, attackPosition);
 
+
+
+	bool taskAnimationValid = animator.taskAnimation != nullptr;
+	AnimationState taskAnimationState;
+	if (taskAnimationValid)
+	{
+		taskAnimationState = animator.taskAnimation->GetAnimationState();
+	}
+	SERIALIZE_FIELD(target, taskAnimationValid);
+	SERIALIZE_FIELD(target, taskAnimationState);
+
 }
 
 void NpcBase::Deserialize(json& source)
@@ -1695,6 +1709,7 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, Rotation);
 	DESERIALIZE_FIELD(source, desiredDirection);
 	DESERIALIZE_FIELD(source, movingDirection);
+	DESERIALIZE_FIELD(source, desiredLookVector);
 	DESERIALIZE_FIELD(source, speed);
 	DESERIALIZE_FIELD(source, dead);
 	DESERIALIZE_FIELD(source, animationStateSaveData);
@@ -1777,6 +1792,20 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, attackPositionUpdateDelay);
 	DESERIALIZE_FIELD(source, attackPosition);
 
+	bool taskAnimationValid;
+	AnimationState taskAnimationState;
+	DESERIALIZE_FIELD(source, taskAnimationValid);
+	DESERIALIZE_FIELD(source, taskAnimationState);
+
+	if (taskAnimationValid)
+	{
+		animator.taskAnimation->SetAnimationState(taskAnimationState);
+	}
+	else
+	{
+
+	}
+
 }
 
 void NpcBase::PrepareToStartMovement()
@@ -1830,12 +1859,31 @@ void NpcBase::BodyInvestigated()
 
 void NpcBase::Task_TargetReached()
 {
+
+	if (taskState.HasToMoveToTarget == false) return;
+
 	TaskPoint* taskPoint = dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(taskState.TaskName));
 
 	if (taskPoint == nullptr)
 		return;
 
+	taskState.HasToMoveToTarget = false;
+
 	taskPoint->OnNpcTargetReached(this);
+
+
+}
+
+void NpcBase::Task_Doint()
+{
+
+	DoingTask = true;
+
+}
+
+void NpcBase::Task_NotDoing()
+{
+	DoingTask = false;
 }
 
 void NpcBase::Task_DoStationaryJob()
@@ -1881,9 +1929,31 @@ void NpcBase::UpdateTask()
 
 	TaskPoint* taskPoint = dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(taskState.TaskName));
 
-	if (taskPoint == nullptr) return;
+	if (taskPoint == nullptr) 
+	{ 
+
+		DoingTaskOld = DoingTask;
+
+		return; 
+	}
+
+	if (DoingTask != DoingTaskOld)
+	{
+
+		if (DoingTask)
+		{
+			taskPoint->NpcReturned(this);
+		}
+		else
+		{
+			taskPoint->NpcInterrupred(this);
+		}
+
+	}
 
 	taskPoint->NpcUpdate(this);
+
+	DoingTaskOld = DoingTask;
 
 }
 
