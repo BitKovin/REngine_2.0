@@ -72,7 +72,11 @@ void NavigationSystem::DestroyNavData()
         delete tmproc;
 
     if (g_crowd)
+    {
         dtFreeCrowd(g_crowd);
+        g_crowd = nullptr;
+    }
+
     
     
 }

@@ -22,6 +22,8 @@ uniform float fog_end;
 uniform float fog_opacity;
 uniform vec3  fog_color;
 
+uniform bool useVertexLight;
+
 //final color
 out vec4 FragColor;
 
@@ -88,8 +90,14 @@ void main()
 
     float vertexLightComp = 4.04;
 
+    vec3 vertexLightFactor = vec3(1,1,1);
 
-    vec3 o_lightmap = texture(s_bspLightmap, g_LmapCoord).rgb * light_color * vertexLightComp * g_color.rgb;
+    if(useVertexLight )
+    {
+        vertexLightFactor = vertexLightComp * g_color.rgb;
+    }
+
+    vec3 o_lightmap = texture(s_bspLightmap, g_LmapCoord).rgb * light_color * vertexLightFactor;
 
     vec3 normal = normalize(g_normal);
 

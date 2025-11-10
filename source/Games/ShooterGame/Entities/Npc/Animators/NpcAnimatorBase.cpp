@@ -125,7 +125,10 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 			spineRotation.x = glm::clamp(spineRotation.x, -70.0f, 70.0f);
 			spineRotation.y = glm::clamp(spineRotation.y, -30.0f, 30.0f);
 
-			pistolPos.boneTransforms["spine_02"] = pistolPos.boneTransforms["spine_02"] * MathHelper::GetRotationMatrix(vec3(spineRotation.y, spineRotation.y * 0.3f, -spineRotation.x * 0.75f));
+			if (weapon_aims)
+			{
+				pistolPos.boneTransforms["spine_02"] = pistolPos.boneTransforms["spine_02"] * MathHelper::GetRotationMatrix(vec3(spineRotation.y, spineRotation.y * 0.3f, -spineRotation.x * 0.75f));
+			}
 
 
 			startBone = "spine_01";
