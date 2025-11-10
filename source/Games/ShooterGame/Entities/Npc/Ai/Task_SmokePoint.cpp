@@ -5,7 +5,7 @@ class Task_SmokePoint : public TaskPoint
 {
 public:
 
-	float WaitTimeAfterReach = 25;
+	float WaitTimeAfterReach = 23;
 	std::string NextPoint;
 
 	float acceptanceRadius = 0.3f;
@@ -28,6 +28,8 @@ public:
 	{
 		npc->GetTaskStateRef().TaskStage = "moving";
 		npc->GetTaskStateRef().Timer1 = 0;
+		npc->GetTaskStateRef().AllowWeapon = true;
+
 		StopTaskAnimation(npc);
 	}
 
@@ -36,6 +38,7 @@ public:
 		MoveNpcTo(npc, Position, acceptanceRadius);
 		npc->GetTaskStateRef().TaskStage = "moving";
 		npc->GetTaskStateRef().Timer1 = 0;
+		npc->GetTaskStateRef().AllowWeapon = true;
 
 		npc->GetTaskStateRef().HasToLookAtTarget = true;
 		npc->GetTaskStateRef().TargetOrientation = Rotation;
@@ -53,6 +56,9 @@ public:
 		else
 		{
 			npc->GetTaskStateRef().TaskStage = "reached";
+			npc->GetTaskStateRef().AllowWeapon = false;
+			npc->GetTaskStateRef().CanBeCanceled = false;
+			npc->GetTaskStateRef().DoingJob = true;
 
 			PlayTaskAnimation(npc, "smoking", false);
 
@@ -67,6 +73,7 @@ public:
 		MoveNpcTo(npc, Position, acceptanceRadius);
 		npc->GetTaskStateRef().TaskStage = "moving";
 		npc->GetTaskStateRef().Timer1 = 0;
+		npc->GetTaskStateRef().AllowWeapon = true;
 
 		npc->GetTaskStateRef().HasToLookAtTarget = true;
 		npc->GetTaskStateRef().TargetOrientation = Rotation;

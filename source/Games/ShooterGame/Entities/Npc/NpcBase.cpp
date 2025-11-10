@@ -407,7 +407,7 @@ void NpcBase::AsyncUpdate()
 	else
 	{
 
-		bool lockAtTarget = target_attack && target_sees && target_attackInRange && isGuard;
+		bool lockAtTarget = target_attack && target_sees && target_attackInRange && isGuard && DoingTask == false;
 
 		vec3 desiredDirection = vec3(0);
 
@@ -520,6 +520,11 @@ void NpcBase::UpdateWeaponMesh()
 
 	if (animator.weapon_holds == false && animator.weapon_ready == false && animator.weapon_aims == false) return;
 
+	if (taskState.AllowWeapon == false && DoingTask)
+	{
+		return;
+	}
+
 	weaponMesh->Visible = true;
 
 	const mat4 rotationFixMatrix = MathHelper::GetRotationMatrix(vec3(90, 0, 0));
@@ -555,7 +560,6 @@ void NpcBase::UpdateBT()
 		behaviorTree.GetBlackboard().SetValue("task_moveLocation", taskState.TargetLocation);
 		behaviorTree.GetBlackboard().SetValue("task_acceptanceRadius", taskState.AcceptanceRadius);
 		behaviorTree.GetBlackboard().SetValue("task_setOrientation", taskState.HasToLookAtTarget);
-		behaviorTree.GetBlackboard().SetValue("task_canBeCanceled", taskState.CanBeCanceled);
 	}
 	else
 	{
@@ -1005,7 +1009,7 @@ void NpcBase::UpdateTargetAttack()
 	}
 
 
-	if (target_follow == false || target_sees == false || target_attack == false || target_attackInRange == false || isStunned())
+	if (target_follow == false || target_sees == false || target_attack == false || target_attackInRange == false || isStunned() || DoingTask)
 	{
 		attackDelay.AddDelay(0.8f);
 		return;

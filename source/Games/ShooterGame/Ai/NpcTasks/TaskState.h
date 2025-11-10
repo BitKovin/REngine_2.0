@@ -8,6 +8,8 @@ struct TaskState
 {
     std::string TaskName = "";
 
+    bool AllowWeapon = true;
+
     bool HasToMoveToTarget = false;
     vec3 TargetLocation = vec3();
     float AcceptanceRadius = 0.05f;
@@ -29,6 +31,7 @@ struct TaskState
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(
         TaskState,
+        AllowWeapon,
         TaskName,
         HasToMoveToTarget,
         TargetLocation,

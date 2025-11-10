@@ -1,9 +1,24 @@
 {
     "blackboard": {
+        "attackPosition": {
+            "x": -6.351968288421631,
+            "y": 1.4300111532211304,
+            "z": -6.445544719696045
+        },
         "closestGuard": "",
+        "flee_target": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
         "found_guard": false,
         "has_navpoint": true,
         "investigation": false,
+        "investigation_target": {
+            "x": -1.3495702743530273,
+            "y": 2.173574924468994,
+            "z": 0.848426878452301
+        },
         "isGuard": true,
         "navpoint_acceptance_radius": 0.0,
         "navpoint_has_wait_time": false,
@@ -11,17 +26,28 @@
         "navpoint_wait_time": 0.0,
         "report_to_guard": false,
         "target": "$info_player_start_0",
-        "target_attack": false,
-        "target_attackInRange": false,
-        "target_follow": false,
-        "target_id": "",
-        "target_knowsLocation": false,
-        "target_sees": false,
-        "target_underArrest": false,
+        "target_attack": true,
+        "target_attackInRange": true,
+        "target_follow": true,
+        "target_id": "$info_player_start_0",
+        "target_knowsLocation": true,
+        "target_lastSeenPosition": {
+            "x": -0.705175518989563,
+            "y": 1.4300040006637573,
+            "z": -0.5949380397796631
+        },
+        "target_sees": true,
+        "target_underArrest": true,
+        "task_acceptanceRadius": 0.0,
         "task_acceptance_radius": 0.30000001192092896,
-        "task_canBeCanceled": true,
-        "task_doingJob": false,
-        "task_move": true,
+        "task_canBeCanceled": false,
+        "task_doingJob": true,
+        "task_move": false,
+        "task_moveLocation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
         "task_setOrientation": false
     },
     "isRunning": true,
@@ -49,7 +75,7 @@
                                                                                         "children": [
                                                                                             {
                                                                                                 "children": [],
-                                                                                                "id": "node_64be6133aac55c22",
+                                                                                                "id": "node_58a31d44c33dec35",
                                                                                                 "name": "Task Not Doing",
                                                                                                 "type": "Task_NotDoing"
                                                                                             },
@@ -106,7 +132,7 @@
                                                                         "children": [
                                                                             {
                                                                                 "children": [],
-                                                                                "id": "node_4586f703f8f0a120",
+                                                                                "id": "node_2877a126d7013ba7",
                                                                                 "name": "Task Not Doing",
                                                                                 "type": "Task_NotDoing"
                                                                             },
@@ -177,7 +203,7 @@
                                                                         "children": [
                                                                             {
                                                                                 "children": [],
-                                                                                "id": "node_accf312aa2e9851e",
+                                                                                "id": "node_6bc26f40c41e3419",
                                                                                 "name": "Task Not Doing",
                                                                                 "type": "Task_NotDoing"
                                                                             },
@@ -189,7 +215,7 @@
                                                                                                 "children": [
                                                                                                     {
                                                                                                         "children": [],
-                                                                                                        "id": "node_5b7a90a0e4a7210",
+                                                                                                        "id": "node_d8bed9830c601b15",
                                                                                                         "name": "Wait",
                                                                                                         "type": "WaitNode",
                                                                                                         "waitTime": {
@@ -201,7 +227,7 @@
                                                                                                         "children": [
                                                                                                             {
                                                                                                                 "children": [],
-                                                                                                                "id": "node_20da09a586ae0db5",
+                                                                                                                "id": "node_1ba936e85e61185e",
                                                                                                                 "name": "Stop Target Follow",
                                                                                                                 "type": "StopTargetFollow"
                                                                                                             }
@@ -214,14 +240,14 @@
                                                                                                             "sourceType": 0,
                                                                                                             "value": false
                                                                                                         },
-                                                                                                        "id": "node_540fdbdf91675239",
+                                                                                                        "id": "node_4547d9880f2e1886",
                                                                                                         "inverse": true,
                                                                                                         "inverse finish before stop": false,
                                                                                                         "name": "Conditional",
                                                                                                         "type": "ConditionalDecorator"
                                                                                                     }
                                                                                                 ],
-                                                                                                "id": "node_6c9171fbd7fdef59",
+                                                                                                "id": "node_97a46a1af6fc24a8",
                                                                                                 "name": "Sequence",
                                                                                                 "type": "SequenceNode"
                                                                                             }
@@ -234,7 +260,7 @@
                                                                                             "sourceType": 0,
                                                                                             "value": false
                                                                                         },
-                                                                                        "id": "node_51dfe7a4121b7f18",
+                                                                                        "id": "node_336be8edb753ef7d",
                                                                                         "inverse": true,
                                                                                         "inverse finish before stop": false,
                                                                                         "name": "if don't see",
@@ -246,7 +272,7 @@
                                                                                             "value": 1.0
                                                                                         },
                                                                                         "children": [],
-                                                                                        "id": "node_ec9c0cc7c7a2d71d",
+                                                                                        "id": "node_6dee6f0c4a3d2534",
                                                                                         "name": "Move To Position",
                                                                                         "pretty path": {
                                                                                             "sourceType": 0,
@@ -338,7 +364,7 @@
                                                                                                         "children": [
                                                                                                             {
                                                                                                                 "children": [],
-                                                                                                                "id": "node_bb0916f063bc555a",
+                                                                                                                "id": "node_4fa93ca0a54023dd",
                                                                                                                 "name": "Task Not Doing",
                                                                                                                 "type": "Task_NotDoing"
                                                                                                             },
@@ -350,7 +376,7 @@
                                                                                                                             "value": 10.0
                                                                                                                         },
                                                                                                                         "children": [],
-                                                                                                                        "id": "node_b25c164a904f375a",
+                                                                                                                        "id": "node_a7ed1a08d5a764f5",
                                                                                                                         "name": "Move To Position",
                                                                                                                         "pretty path": {
                                                                                                                             "sourceType": 0,
@@ -419,7 +445,7 @@
                                                                                                 "children": [
                                                                                                     {
                                                                                                         "children": [],
-                                                                                                        "id": "node_48fd632cc2e2e827",
+                                                                                                        "id": "node_46307bf447fb94b8",
                                                                                                         "name": "Task Not Doing",
                                                                                                         "type": "Task_NotDoing"
                                                                                                     },
@@ -447,7 +473,7 @@
                                                                                                                 "children": [
                                                                                                                     {
                                                                                                                         "children": [],
-                                                                                                                        "id": "node_5326d0585c28e167",
+                                                                                                                        "id": "node_5530fcca30c09480",
                                                                                                                         "name": "Wait",
                                                                                                                         "type": "WaitNode",
                                                                                                                         "waitTime": {
@@ -457,12 +483,12 @@
                                                                                                                     },
                                                                                                                     {
                                                                                                                         "children": [],
-                                                                                                                        "id": "node_109447ad595ef6f3",
+                                                                                                                        "id": "node_399a7d9edb141ba4",
                                                                                                                         "name": "Stop Target Follow",
                                                                                                                         "type": "StopTargetFollow"
                                                                                                                     }
                                                                                                                 ],
-                                                                                                                "id": "node_9cdde8590d382736",
+                                                                                                                "id": "node_3ec6eaea4a9873e9",
                                                                                                                 "name": "Sequence",
                                                                                                                 "type": "SequenceNode"
                                                                                                             }
@@ -515,7 +541,7 @@
                                                                         "children": [
                                                                             {
                                                                                 "children": [],
-                                                                                "id": "node_968d5a0a52c7df03",
+                                                                                "id": "node_5f0c40a61fe258c",
                                                                                 "name": "Task Not Doing",
                                                                                 "type": "Task_NotDoing"
                                                                             },
@@ -545,7 +571,7 @@
                                                                                                 "children": [
                                                                                                     {
                                                                                                         "children": [],
-                                                                                                        "id": "node_bbfc84230ba63140",
+                                                                                                        "id": "node_e544ad63105b8151",
                                                                                                         "name": "Wait",
                                                                                                         "type": "WaitNode",
                                                                                                         "waitTime": {
@@ -555,12 +581,12 @@
                                                                                                     },
                                                                                                     {
                                                                                                         "children": [],
-                                                                                                        "id": "node_c7de1ef511062964",
+                                                                                                        "id": "node_d31f266ca25b7cbd",
                                                                                                         "name": "Stop Target Follow",
                                                                                                         "type": "StopTargetFollow"
                                                                                                     }
                                                                                                 ],
-                                                                                                "id": "node_6646338c2bb826a9",
+                                                                                                "id": "node_6b9dc7fbe9929a9c",
                                                                                                 "name": "Sequence",
                                                                                                 "type": "SequenceNode"
                                                                                             }
@@ -573,7 +599,7 @@
                                                                                             "sourceType": 0,
                                                                                             "value": false
                                                                                         },
-                                                                                        "id": "node_de4efdb08929357e",
+                                                                                        "id": "node_bacd21b1be551477",
                                                                                         "inverse": true,
                                                                                         "inverse finish before stop": false,
                                                                                         "name": "Conditional",
@@ -581,7 +607,7 @@
                                                                                     },
                                                                                     {
                                                                                         "children": [],
-                                                                                        "id": "node_345499af84e1b03",
+                                                                                        "id": "node_54b9cb3853a303f0",
                                                                                         "message": {
                                                                                             "sourceType": 0,
                                                                                             "value": "STOP IT"
@@ -625,7 +651,7 @@
                                                                 "children": [
                                                                     {
                                                                         "children": [],
-                                                                        "id": "node_f8de81e80723d1f0",
+                                                                        "id": "node_76e24e4c7d54ec97",
                                                                         "name": "Task Not Doing",
                                                                         "type": "Task_NotDoing"
                                                                     },
@@ -704,7 +730,7 @@
                                         "children": [
                                             {
                                                 "children": [],
-                                                "id": "node_11be0065699613ea",
+                                                "id": "node_b0d785f26677b6bb",
                                                 "name": "Task Doing",
                                                 "type": "Task_Doing"
                                             },
@@ -722,7 +748,7 @@
                                                                                     "sourceType": 1
                                                                                 },
                                                                                 "children": [],
-                                                                                "id": "node_f96821f8556a8e9",
+                                                                                "id": "node_3a58e1cfb9c0d0a2",
                                                                                 "name": "Move To Position",
                                                                                 "pretty path": {
                                                                                     "sourceType": 0,
@@ -736,18 +762,18 @@
                                                                             },
                                                                             {
                                                                                 "children": [],
-                                                                                "id": "node_31ca427f41f4850f",
+                                                                                "id": "node_e7bac9866e69d3f2",
                                                                                 "name": "Set Look Target From Current NavPoint",
                                                                                 "type": "SetLookTargetFromCurrentNavPoint"
                                                                             },
                                                                             {
                                                                                 "children": [],
-                                                                                "id": "node_d3e3b5f33112f857",
+                                                                                "id": "node_408c6b270a1f3b4c",
                                                                                 "name": "Task Destination Reached",
                                                                                 "type": "TaskDestinationReached"
                                                                             }
                                                                         ],
-                                                                        "id": "node_22824b2c6f7c8866",
+                                                                        "id": "node_8bd48b13130024cd",
                                                                         "name": "Sequence",
                                                                         "type": "SequenceNode"
                                                                     }
@@ -760,30 +786,24 @@
                                                                     "sourceType": 0,
                                                                     "value": false
                                                                 },
-                                                                "id": "node_1f1cf5fa53269df3",
+                                                                "id": "node_bf7d8d39126e6060",
                                                                 "inverse": false,
                                                                 "inverse finish before stop": false,
                                                                 "name": "should move?",
                                                                 "type": "ConditionalDecorator"
-                                                            },
-                                                            {
-                                                                "children": [],
-                                                                "id": "node_47646e09da10eb80",
-                                                                "inverse": {
-                                                                    "sourceType": 0,
-                                                                    "value": true
-                                                                },
-                                                                "lock": {
-                                                                    "blackboardKey": "task_doingJob",
-                                                                    "sourceType": 1
-                                                                },
-                                                                "name": "Lock",
-                                                                "type": "LockTask"
                                                             }
                                                         ],
-                                                        "id": "node_4b1be03b054eb8d6",
-                                                        "name": "Selector",
-                                                        "type": "SelectorNode"
+                                                        "id": "node_97aee87e33aeea36",
+                                                        "inverse": {
+                                                            "sourceType": 0,
+                                                            "value": false
+                                                        },
+                                                        "lock": {
+                                                            "blackboardKey": "task_doingJob",
+                                                            "sourceType": 1
+                                                        },
+                                                        "name": "Lock",
+                                                        "type": "LockTask"
                                                     }
                                                 ],
                                                 "condition": {
