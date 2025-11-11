@@ -49,6 +49,7 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
         <string key="targetname" name="Name" value=""/>
         <target key="target" name="Next task after standing up"/>
         <real key="acceptanceRadius" name="Acceptance Radius" value="0.3"/>
+        <real key="duration" name="Duration" value="8.0"/>
         <model key="model" name="Model Path" value="models/tools/sittingPos.obj"></model>
         <!-- Animations are hardcoded in C++: sit_down, sitting_idle, stand_up -->
     </point>

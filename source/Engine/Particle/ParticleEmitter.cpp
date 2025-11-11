@@ -295,7 +295,7 @@ vec3 ParticleEmitter::GetLightForParticle(const Particle& particle)
     if (particle.UseWorldRotation == false)
     {
         auto light = Level::Current->BspData.GetLightvolColorPoint(particle.position * MAP_SCALE);
-        return (light.ambientColor + light.directColor) * 2.0f;
+        return (light.ambientColor + light.directColor) * 1.5f;
     }
 
     vec3 normal = MathHelper::GetForwardVector(particle.globalRotation);
@@ -304,7 +304,7 @@ vec3 ParticleEmitter::GetLightForParticle(const Particle& particle)
 
     float dirFactor = 1.0;// glm::clamp(dot(normal, light.direction), 0.0f, 1.0f);
 
-    return light.ambientColor + light.directColor * dirFactor * 2.0f;
+    return light.ambientColor + light.directColor * dirFactor * 1.5f;
 }
 
 void ParticleEmitter::SetInstanceData(std::vector<InstanceData>& instanceData)

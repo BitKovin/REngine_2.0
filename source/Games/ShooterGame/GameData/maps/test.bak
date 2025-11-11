@@ -5,7 +5,7 @@
 "_tb_textures" "textures;textures\Ground;textures/brushes;textures\common;textures\delvenPack;textures\generic;textures\lq_conc;textures\lq_dev;textures\lq_flesh;textures\lq_greek;textures\lq_health_ammo;textures\lq_legacy;textures\lq_liquidsky;textures\lq_mayan;textures\lq_medieval;textures\lq_metal;textures\lq_palette;textures\lq_props;textures\lq_tech;textures\lq_terra;textures\lq_utility;textures\lq_wood;textures\metal;textures\noise;textures\particles;textures\skies;textures\tormentPack;textures\ui;textures\wall;textures\water;textures\wood"
 "_keeplights" "1"
 "_lightmapscale" "0.1"
-"_ambient" "0"
+"_ambient" "20"
 "gridsize" "32 32 48"
 "_tb_mod" "textures"
 // brush 0
@@ -1173,6 +1173,24 @@
 ( -288 160 -2784 ) ( -287 160 -2784 ) ( -288 160 -2783 ) skies/skybox1_cube 0 0 0 1 1 0 0 0
 ( -288 160 -2784 ) ( -288 160 -2783 ) ( -288 161 -2784 ) skies/skybox1_cube 0 0 0 1 1 0 0 0
 }
+// brush 129
+{
+( -184 88 30 ) ( -184 24 30 ) ( -208 88 30 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -184 74 24 ) ( -208 74 24 ) ( -184 74 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -183 88 24 ) ( -183 88 16 ) ( -183 24 24 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -208 24 16 ) ( -184 24 16 ) ( -208 88 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -208 52 16 ) ( -208 52 24 ) ( -184 52 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -196 24 16 ) ( -196 88 16 ) ( -196 24 24 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+}
+// brush 130
+{
+( -196 76 46 ) ( -196 52 46 ) ( -200 76 46 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -196 74 20 ) ( -200 74 20 ) ( -196 74 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -196 76 20 ) ( -196 76 16 ) ( -196 52 20 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -200 52 16 ) ( -196 52 16 ) ( -200 76 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -200 52 16 ) ( -200 52 20 ) ( -196 52 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -200 52 16 ) ( -200 76 16 ) ( -200 52 20 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+}
 }
 // entity 1
 {
@@ -1248,7 +1266,7 @@
 {
 "classname" "light"
 "origin" "80 256 80"
-"light" "400"
+"light" "600"
 "_sun" "1"
 "target" "lp1"
 "_color" "1 0.95 0.73"
@@ -1806,10 +1824,11 @@
 // entity 70
 {
 "classname" "task_chair"
-"origin" "-176 64 32"
+"origin" "-176 63 16"
 "targetname" "np_0_e"
 "target" "np_0_0"
 "waitTime" "3"
 "acceptanceRadius" "0.1"
 "model" "models/tools/sittingPos.obj"
+"duration" "32"
 }
