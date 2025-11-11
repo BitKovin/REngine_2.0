@@ -36,7 +36,44 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
         <real key="acceptanceRadius" name="Acceptance Radius" value = "0.3"/>
     </point>
 
-    <!-- Trigger -->
+    <point name="task_smoke" color="0.7 0.3 0.1" box="-8 -8 -16 8 8 32">
+        <angle key="angle" name="Yaw Angle" value="0"/>
+        <string key="targetname" name="Name" value=""/>
+        <target key="target" name="Next task after smoking"/>
+        <real key="duration" name="Smoking Duration (seconds)" value="23.0"/>
+        <real key="acceptanceRadius" name="Acceptance Radius" value="0.3"/>
+    </point>
+
+    <point name="task_chair" color="0.6 0.4 0.8" box="-12 -12 0 12 12 32">
+        <angle key="angle" name="Yaw Angle" value="0"/>
+        <string key="targetname" name="Name" value=""/>
+        <target key="target" name="Next task after standing up"/>
+        <real key="acceptanceRadius" name="Acceptance Radius" value="0.3"/>
+        <model key="model" name="Model Path" value="models/tools/sittingPos.obj"></model>
+        <!-- Animations are hardcoded in C++: sit_down, sitting_idle, stand_up -->
+    </point>
+
+    <point name="task_chat" color="0.2 0.7 0.8" box="-10 -10 -16 10 10 32">
+        <angle key="angle" name="Yaw Angle" value="0"/>
+        <string key="targetname" name="Name" value=""/>
+        <target key="target" name="Next task after chat ends"/>
+        <string key="partner" name="Partner chat point (must be another task_chat)" value=""/>
+        <real key="duration" name="Chat Duration (seconds)" value="30.0"/>
+        <real key="waitTimeout" name="Max wait for partner (seconds)" value="10.0"/>
+        <real key="acceptanceRadius" name="Acceptance Radius" value="0.3"/>
+    </point>
+
+    <point name="task_chat" color="0.2 0.7 0.8" box="-10 -10 -16 10 10 32">
+        <angle key="angle" name="Yaw Angle" value="0"/>
+        <string key="targetname" name="Name" value=""/>
+        <target key="target" name="Next task after chat ends"/>
+        <string key="partner" name="Partner chat point (must be another task_chat)" value=""/>
+        <real key="duration" name="Chat Duration (seconds)" value="30.0"/>
+        <real key="waitTimeout" name="Max wait for partner (seconds)" value="10.0"/>
+        <real key="acceptanceRadius" name="Acceptance Radius" value="0.3"/>
+    </point>
+
+<!-- Trigger -->
     <group name="trigger" color="0 0.5 1">
         <target key="target" name="Target"/>
         <boolean key="_cs" name="Cast Shadows" value="0"/>
@@ -53,15 +90,15 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
     </group>
 
 
-    <!-- Weapon Pickup -->
+<!-- Weapon Pickup -->
     <point name="weaponPickup" color="1 0 0" box="-20 -20 -20 20 20 20">
         <string key="type" name="Weapon Type" value="weapon_pistol_double"></string>
         <string key="targetname" name="Name"></string>
     </point>
 
-    <!-- Custom Entities -->
+<!-- Custom Entities -->
     <point name="ent_cat_point" color="1 0.2 0.8" box="-16 -16 -16 16 16 16">
-        <!-- Custom cat point entity -->
+<!-- Custom cat point entity -->
     </point>
 
     <point name="spawner" color="1 0.2 0.8" box="-16 -16 -32 16 16 16">
@@ -82,7 +119,7 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
         <string key="targetname" name="Name"></string>
     </point>
 
-    <!-- Destructible Brush -->
+<!-- Destructible Brush -->
     <group name="destructible" color="0.8 0.2 0.2">
         <real key="health" name="Health" value="30"></real>
         <string key="particleSystem" name="Particle System" value="destructionWood"></string>
@@ -92,7 +129,7 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
     
     <group name="vis_through" color="0.8 0.2 0.2"> </group>
 
-    <!-- Static Mesh -->
+<!-- Static Mesh -->
     <point name="misc_model" color="1 .5 .25" box="-16 -16 -16 16 16 16">
         Generic placeholder for inserting models to map. Model triangles are baked to BSP.
         MD3, ASE, 3DS, OBJ, FM, LWO, MD2, MDC, MS3D model formats are supported.
@@ -152,19 +189,19 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
         <string key="targetname" name="Name"></string>
     </point>
 
-    <!-- Moveable Brush -->
+<!-- Moveable Brush -->
     <group name="func_door" color="0.8 0.8 0.2">
 
         <string key="targetname" name="Name"></string>
 
         <real3 key="targetLocation" name="Target Location" value="0 0 0">
-            <!-- World‐space XYZ target position -->
+<!-- World‐space XYZ target position -->
         </real3>
         <string key="rotationPointName" name="rotationPointName" value="">
-            <!-- Name of the point/origin to rotate around -->
+<!-- Name of the point/origin to rotate around -->
         </string>
         <real key="time" name="Time" value="1">
-            <!-- Duration (in seconds) for the move -->
+<!-- Duration (in seconds) for the move -->
         </real>
     </group>
 
@@ -183,7 +220,7 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
         <string key="targetname" name="Name"></string>
     </point>
 
-    <!-- Audio -->
+<!-- Audio -->
     <point name="music_player" color="0.6 0.12 0.6" box="-15 -15 -15 15 15 15">
         <string key="bankName" name="Sound Bank" value="Music.bank"></string>
         <string key="eventName" name="Event Name"></string>
@@ -192,9 +229,9 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
         <string key="targetname" name="Name"></string>
     </point>
 
-    <!-- Navigation -->
+<!-- Navigation -->
     <group name="navBlock" color="0.2 0.2 0.2">
-        <!-- Blocks AI navigation -->
+<!-- Blocks AI navigation -->
     </group>
 
 	<point name="light" color=".65 .65 1" box="-8 -8 -8 8 8 8">

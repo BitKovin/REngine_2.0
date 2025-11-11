@@ -1,87 +1,81 @@
+// TaskPoint.cpp
 #include "TaskPoint.h"
-
 #include "../NpcBase.h"
 
 void TaskPoint::FromData(EntityData data)
 {
-
-	Entity::FromData(data);
-
-	Rotation.y = data.GetPropertyFloat("angle") + 90;
-
+    Entity::FromData(data);
+    Rotation.y = data.GetPropertyFloat("angle") + 90;
+    nextTask = data.GetPropertyString("target");
 }
 
 TaskState TaskPoint::GetDefaultTaskState()
 {
-
-	TaskState state;
-
-	state.TaskName = Name;
-
-	return state;
+    TaskState state;
+    state.TaskName = Name;
+    return state;
 }
 
 void TaskPoint::NpcEntered(NpcBase* npc)
 {
-
-	npc->taskState = GetDefaultTaskState();
-
+    if (currentNpc != nullptr) {
+        Logger::Log("Task already occupied: " + Name);
+        return;
+    }
+    npc->taskState = GetDefaultTaskState();
+    currentNpc = npc;
 }
 
 void TaskPoint::NpcExited(NpcBase* npc)
 {
+    if (currentNpc == npc) currentNpc = nullptr;
 }
 
-void TaskPoint::NpcUpdate(NpcBase* npc)
+void TaskPoint::NpcUpdate(NpcBase* npc) {}
+void TaskPoint::NpcInterrupted(NpcBase* npc)
 {
+    Logger::Log("npc interrupted task");
+    npc->animator.StopTaskAnimation();
 }
+void TaskPoint::NpcReturned(NpcBase* npc) { Logger::Log("npc returned to task"); }
 
-void TaskPoint::NpcInterrupred(NpcBase* npc)
+TaskPoint* TaskPoint::FindTaskByName(const std::string name)
 {
-
-
-	Logger::Log("npc interrupted task");
-
-	npc->animator.StopTaskAnimation();
-
-}
-
-void TaskPoint::NpcReturned(NpcBase* npc)
-{
-
-	Logger::Log("npc returned to task");
-
+    return dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(name));
 }
 
 void TaskPoint::OnNpcTargetReached(NpcBase* npc)
 {
-
-	auto taskState = npc->GetTaskStateRef();
-	
-	taskState.HasToMoveToTarget = false;
-
+    npc->GetTaskStateRef().HasToMoveToTarget = false;
 }
 
-void TaskPoint::MoveNpcTo(NpcBase* npc, vec3 target, float acceptanceRadius)
+void TaskPoint::MoveNpcTo(NpcBase* npc, vec3 target, float radius)
 {
-	TaskState& taskState = npc->GetTaskStateRef();
-
-	taskState.TargetLocation = target;
-	taskState.HasToMoveToTarget = true;
-	taskState.AcceptanceRadius = acceptanceRadius;
-
+    auto& s = npc->GetTaskStateRef();
+    s.TargetLocation = target;
+    s.HasToMoveToTarget = true;
+    s.AcceptanceRadius = radius;
 }
 
-void TaskPoint::PlayTaskAnimation(NpcBase* npc, std::string animationName, bool loop)
+void TaskPoint::PlayTaskAnimation(NpcBase* npc, std::string anim, bool loop)
 {
-
-	npc->animator.PlayTaskAnimation(animationName, loop);
-
+    npc->animator.PlayTaskAnimation(anim, loop);
 }
 
 void TaskPoint::StopTaskAnimation(NpcBase* npc)
 {
+    npc->animator.StopTaskAnimation();
+}
 
-	npc->animator.StopTaskAnimation();
-
+void TaskPoint::FinishTask(NpcBase* npc)
+{
+    if (!nextTask.empty()) {
+        npc->StartTask(nextTask);
+    }
+    else {
+        auto& s = npc->GetTaskStateRef();
+        s.DoingJob = false;
+        s.TaskStage = "done";
+        NpcExited(npc);
+    }
 }

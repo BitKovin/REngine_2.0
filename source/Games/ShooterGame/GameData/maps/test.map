@@ -1173,6 +1173,24 @@
 ( -288 160 -2784 ) ( -287 160 -2784 ) ( -288 160 -2783 ) skies/skybox1_cube 0 0 0 1 1 0 0 0
 ( -288 160 -2784 ) ( -288 160 -2783 ) ( -288 161 -2784 ) skies/skybox1_cube 0 0 0 1 1 0 0 0
 }
+// brush 129
+{
+( -184 88 30 ) ( -184 24 30 ) ( -208 88 30 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -184 74 24 ) ( -208 74 24 ) ( -184 74 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -183 88 24 ) ( -183 88 16 ) ( -183 24 24 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -208 24 16 ) ( -184 24 16 ) ( -208 88 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -208 52 16 ) ( -208 52 24 ) ( -184 52 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -196 24 16 ) ( -196 88 16 ) ( -196 24 24 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+}
+// brush 130
+{
+( -196 76 46 ) ( -196 52 46 ) ( -200 76 46 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -196 74 20 ) ( -200 74 20 ) ( -196 74 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -196 76 20 ) ( -196 76 16 ) ( -196 52 20 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -200 52 16 ) ( -196 52 16 ) ( -200 76 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -200 52 16 ) ( -200 52 20 ) ( -196 52 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -200 52 16 ) ( -200 76 16 ) ( -200 52 20 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+}
 }
 // entity 1
 {
@@ -1248,7 +1266,7 @@
 {
 "classname" "light"
 "origin" "80 256 80"
-"light" "200"
+"light" "400"
 "_sun" "1"
 "target" "lp1"
 "_color" "1 0.95 0.73"
@@ -1799,15 +1817,17 @@
 // entity 69
 {
 "classname" "nav_point"
-"origin" "-80 224 32"
+"origin" "48 224 32"
 "targetname" "np_0_0"
 "target" "np_0_1"
 }
 // entity 70
 {
-"classname" "task_smoke"
-"origin" "-176 64 32"
+"classname" "task_chair"
+"origin" "-176 64 16"
 "targetname" "np_0_e"
 "target" "np_0_0"
 "waitTime" "3"
+"acceptanceRadius" "0.1"
+"model" "models/tools/sittingPos.obj"
 }

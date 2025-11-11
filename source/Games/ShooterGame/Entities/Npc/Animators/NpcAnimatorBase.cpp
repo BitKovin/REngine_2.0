@@ -148,7 +148,7 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 
 		auto taskPose = taskAnimation->GetAnimationPose();
 
-		taskResult = AnimationPose::Lerp(weaponResultPose, taskPose, taskAnimation->GetBlendInProgress());
+		taskResult = AnimationPose::Lerp(weaponResultPose, taskPose, 1);
 	}
 	else
 	{

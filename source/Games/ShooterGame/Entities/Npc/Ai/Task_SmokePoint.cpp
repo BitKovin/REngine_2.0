@@ -1,107 +1,16 @@
-#include "TaskPoint.h"
+// Task_SmokePoint.cpp
+#include "TaskSimpleAction.h"
 #include "../NpcBase.h"
 
-class Task_SmokePoint : public TaskPoint
+class Task_SmokePoint : public TaskSimpleAction
 {
 public:
-
-	float WaitTimeAfterReach = 23;
-	std::string NextPoint;
-
-	float acceptanceRadius = 0.3f;
-
-	void FromData(EntityData data) override
-	{
-
-		TaskPoint::FromData(data);
-
-		NextPoint = data.GetPropertyString("target");
-		acceptanceRadius = data.GetPropertyFloat("acceptanceRadius", acceptanceRadius);
-	}
-
-	void NpcGoToNextTarget(NpcBase* npc)
-	{
-		npc->StartTask(NextPoint);
-	}
-
-	void NpcInterrupred(NpcBase* npc)
-	{
-		npc->GetTaskStateRef().TaskStage = "moving";
-		npc->GetTaskStateRef().Timer1 = 0;
-		npc->GetTaskStateRef().AllowWeapon = true;
-
-		StopTaskAnimation(npc);
-	}
-
-	void NpcReturned(NpcBase* npc)
-	{
-		MoveNpcTo(npc, Position, acceptanceRadius);
-		npc->GetTaskStateRef().TaskStage = "moving";
-		npc->GetTaskStateRef().Timer1 = 0;
-		npc->GetTaskStateRef().AllowWeapon = true;
-
-		npc->GetTaskStateRef().HasToLookAtTarget = true;
-		npc->GetTaskStateRef().TargetOrientation = Rotation;
-	}
-
-	void OnNpcTargetReached(NpcBase* npc) override
-	{
-
-		TaskPoint::OnNpcTargetReached(npc);
-
-		if (WaitTimeAfterReach < 0.01f)
-		{
-			NpcGoToNextTarget(npc);
-		}
-		else
-		{
-			npc->GetTaskStateRef().TaskStage = "reached";
-			npc->GetTaskStateRef().AllowWeapon = false;
-			npc->GetTaskStateRef().CanBeCanceled = false;
-			npc->GetTaskStateRef().DoingJob = true;
-
-			PlayTaskAnimation(npc, "smoking", false);
-
-		}
-	}
-
-	void NpcEntered(NpcBase* npc) override
-	{
-
-		TaskPoint::NpcEntered(npc);
-
-		MoveNpcTo(npc, Position, acceptanceRadius);
-		npc->GetTaskStateRef().TaskStage = "moving";
-		npc->GetTaskStateRef().Timer1 = 0;
-		npc->GetTaskStateRef().AllowWeapon = true;
-
-		npc->GetTaskStateRef().HasToLookAtTarget = true;
-		npc->GetTaskStateRef().TargetOrientation = Rotation;
-	}
-
-	void NpcUpdate(NpcBase* npc) override
-	{
-		TaskPoint::NpcUpdate(npc);
-
-		if (npc->GetTaskStateRef().TaskStage == "reached")
-		{
-
-			if (npc->GetTaskStateRef().Timer1 >= WaitTimeAfterReach)
-			{
-				StopTaskAnimation(npc);
-				NpcGoToNextTarget(npc);
-				return;
-			}
-
-			npc->GetTaskStateRef().Timer1 += Time::DeltaTimeF;
-		}
-
-
-	}
-
-private:
-
+    Task_SmokePoint()
+    {
+        animName = "smoking";
+        animLoop = false;
+        duration = 23.0f;
+    }
 };
-
 
 REGISTER_ENTITY(Task_SmokePoint, "task_smoke")

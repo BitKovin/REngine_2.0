@@ -6,7 +6,7 @@
 "_keeplights" "1"
 "_lightmapscale" "0.1"
 "_ambient" "0"
-"gridsize" "16 16 32"
+"gridsize" "32 32 48"
 "_tb_mod" "textures"
 // brush 0
 {
@@ -1248,7 +1248,7 @@
 {
 "classname" "light"
 "origin" "80 256 80"
-"light" "200"
+"light" "400"
 "_sun" "1"
 "target" "lp1"
 "_color" "1 0.95 0.73"
@@ -1799,15 +1799,17 @@
 // entity 69
 {
 "classname" "nav_point"
-"origin" "-80 224 32"
+"origin" "48 224 32"
 "targetname" "np_0_0"
 "target" "np_0_1"
 }
 // entity 70
 {
-"classname" "task_smoke"
+"classname" "task_chair"
 "origin" "-176 64 32"
 "targetname" "np_0_e"
 "target" "np_0_0"
 "waitTime" "3"
+"acceptanceRadius" "0.1"
+"model" "models/tools/sittingPos.obj"
 }

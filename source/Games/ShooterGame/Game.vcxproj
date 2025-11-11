@@ -328,8 +328,13 @@
     <ClCompile Include="Ai\BehaviorTreeTasks\SetLookTargetFromCurrentNavPoint.cpp" />
     <ClCompile Include="Ai\BehaviorTreeTasks\StopTargetFollow.cpp" />
     <ClCompile Include="Ai\BehaviorTreeTasks\Task_DestinationReached.cpp" />
-    <ClCompile Include="Ai\NpcTasks\TaskManager.cpp" />
+    <ClCompile Include="Entities\Npc\Ai\TaskPairedAction.cpp" />
+    <ClCompile Include="Entities\Npc\Ai\TaskPhasedAction.cpp" />
     <ClCompile Include="Entities\Npc\Ai\TaskPoint.cpp" />
+    <ClCompile Include="Entities\Npc\Ai\TaskSimpleAction.cpp" />
+    <ClCompile Include="Entities\Npc\Ai\TaskWaypoint.cpp" />
+    <ClCompile Include="Entities\Npc\Ai\Task_ChairPoint.cpp" />
+    <ClCompile Include="Entities\Npc\Ai\Task_ChatPoint.cpp" />
     <ClCompile Include="Entities\Npc\Ai\Task_PatrolPoint.cpp" />
     <ClCompile Include="Entities\Npc\Ai\Task_SmokePoint.cpp" />
     <ClCompile Include="Entities\Npc\Animators\NpcAnimatorBase.cpp" />
@@ -358,11 +363,13 @@
     <ClCompile Include="UI\Player\PlayerHud.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Ai\NpcTasks\Task.h" />
-    <ClInclude Include="Ai\NpcTasks\TaskManager.h" />
     <ClInclude Include="Ai\NpcTasks\TaskState.h" />
     <ClInclude Include="Entities\IEnemy.h" />
+    <ClInclude Include="Entities\Npc\Ai\TaskPairedAction.h" />
+    <ClInclude Include="Entities\Npc\Ai\TaskPhasedAction.h" />
     <ClInclude Include="Entities\Npc\Ai\TaskPoint.h" />
+    <ClInclude Include="Entities\Npc\Ai\TaskSimpleAction.h" />
+    <ClInclude Include="Entities\Npc\Ai\TaskWaypoint.h" />
     <ClInclude Include="Entities\Npc\Animators\NpcAnimatorBase.h" />
     <ClInclude Include="Entities\Npc\NpcBase.h" />
     <ClInclude Include="Entities\Player\Player.hpp" />

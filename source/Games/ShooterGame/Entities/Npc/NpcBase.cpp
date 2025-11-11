@@ -1931,6 +1931,20 @@ void NpcBase::StopTask()
 void NpcBase::UpdateTask()
 {
 
+	if (LeadBody != nullptr)
+	{
+		if (taskState.HasToLockPosition)
+		{
+			Physics::SetMotionType(LeadBody, JPH::EMotionType::Kinematic);
+			Physics::SetBodyPosition(LeadBody, taskState.LockPosition);
+			Position = taskState.LockPosition;
+		}
+		else
+		{
+			Physics::SetMotionType(LeadBody, JPH::EMotionType::Dynamic);
+		}
+	}
+
 	TaskPoint* taskPoint = dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(taskState.TaskName));
 
 	if (taskPoint == nullptr) 
@@ -1950,7 +1964,21 @@ void NpcBase::UpdateTask()
 		}
 		else
 		{
-			taskPoint->NpcInterrupred(this);
+			taskPoint->NpcInterrupted(this);
+		}
+
+	}
+	else
+	{
+
+		if (DoingTask)
+		{
+
+			if (target_follow || report_to_guard || currentInvestigation != InvestigationReason::None)
+			{
+				taskPoint->NpcTryInterrupt(this);
+			}
+
 		}
 
 	}

@@ -1,3 +1,4 @@
+// TaskPoint.h
 #pragma once
 
 #include <Entity.h>
@@ -8,28 +9,34 @@ class NpcBase;
 class TaskPoint : public Entity
 {
 public:
-	
-	void FromData(EntityData data) override;
+    void FromData(EntityData data) override;
 
-	virtual TaskState GetDefaultTaskState();
+    virtual TaskState GetDefaultTaskState();
 
-	virtual void NpcEntered(NpcBase* npc);
-	virtual void NpcExited(NpcBase* npc);
-	virtual void NpcUpdate(NpcBase* npc);
+    virtual void NpcEntered(NpcBase* npc);
+    virtual void NpcExited(NpcBase* npc);
+    virtual void NpcUpdate(NpcBase* npc);
 
-	virtual void NpcInterrupred(NpcBase* npc);
-	virtual void NpcReturned(NpcBase* npc);
+    virtual void NpcInterrupted(NpcBase* npc);
+    virtual void NpcReturned(NpcBase* npc);
 
-	virtual void OnNpcTargetReached(NpcBase* npc);
+    TaskPoint* FindTaskByName(const std::string name);
 
-	void MoveNpcTo(NpcBase* npc,vec3 target, float acceptanceRadius);
+    virtual void OnNpcTargetReached(NpcBase* npc);
 
-	void PlayTaskAnimation(NpcBase* npc, std::string animationName, bool loop);
-	void StopTaskAnimation(NpcBase* npc);
+    void MoveNpcTo(NpcBase* npc, vec3 target, float acceptanceRadius);
+    void PlayTaskAnimation(NpcBase* npc, std::string animationName, bool loop);
+    void StopTaskAnimation(NpcBase* npc);
+
+    virtual void NpcTryInterrupt(NpcBase* npc) {}
+
+    NpcBase* GetCurrentNpc() const { return currentNpc; }
+
+    virtual void FinishTask(NpcBase* npc);
+
+protected:
+    NpcBase* currentNpc = nullptr;
+    std::string nextTask;
 
 private:
-
-
-
 };
-
