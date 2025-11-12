@@ -28,7 +28,7 @@ public:
     void PlayTaskAnimation(NpcBase* npc, std::string animationName, bool loop);
     void StopTaskAnimation(NpcBase* npc);
 
-    virtual void NpcTryInterrupt(NpcBase* npc) {}
+    virtual void NpcTryInterrupt(NpcBase* npc);
 
     NpcBase* GetCurrentNpc() const { return currentNpc; }
 

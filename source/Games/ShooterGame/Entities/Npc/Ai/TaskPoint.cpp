@@ -85,6 +85,11 @@ void TaskPoint::StopTaskAnimation(NpcBase* npc)
     npc->animator.StopTaskAnimation();
 }
 
+void TaskPoint::NpcTryInterrupt(NpcBase* npc)
+{
+    NpcInterrupted(npc);
+}
+
 void TaskPoint::FinishTask(NpcBase* npc)
 {
     if (!nextTask.empty()) {

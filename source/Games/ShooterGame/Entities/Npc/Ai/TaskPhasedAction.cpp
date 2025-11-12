@@ -84,7 +84,16 @@ void TaskPhasedAction::NpcTryInterrupt(NpcBase* npc)
 void TaskPhasedAction::NpcInterrupted(NpcBase* npc)
 {
     TaskPoint::NpcInterrupted(npc);
-    npc->GetTaskStateRef().AllowWeapon = true;
+   
+    auto& s = npc->GetTaskStateRef();
+    
+    s.AllowWeapon = true;
+    
+    StopTaskAnimation(npc);
+
+    s.TaskStage = "";
+    
+
 }
 
 void TaskPhasedAction::NpcReturned(NpcBase* npc)

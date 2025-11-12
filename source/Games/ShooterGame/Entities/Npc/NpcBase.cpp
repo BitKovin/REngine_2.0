@@ -497,6 +497,11 @@ void NpcBase::AsyncUpdate()
 			movingDirection = normalize(movingDirection);
 		}
 
+		if (length(movingDirection) < 0.5f && length(movingDirection) > 0.01f)
+		{
+			movingDirection = normalize(movingDirection) * 0.3f;
+		}
+
 		float gravity = LeadBody->GetLinearVelocity().GetY();
 
 		vec3 move = desiredDirection;
@@ -1430,7 +1435,7 @@ void NpcBase::UpdateAnimations()
 
 	}
 
-
+	if (isStunned()) return;
 
 	if (mesh->WasRended)
 	{
@@ -1948,19 +1953,6 @@ void NpcBase::StopTask()
 void NpcBase::UpdateTask()
 {
 
-	if (LeadBody != nullptr)
-	{
-		if (taskState.HasToLockPosition)
-		{
-			Physics::SetMotionType(LeadBody, JPH::EMotionType::Kinematic);
-			Physics::SetBodyPosition(LeadBody, taskState.LockPosition);
-			Position = taskState.LockPosition;
-		}
-		else
-		{
-			Physics::SetMotionType(LeadBody, JPH::EMotionType::Dynamic);
-		}
-	}
 
 	TaskPoint* taskPoint = dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(taskState.TaskName));
 
@@ -1969,6 +1961,23 @@ void NpcBase::UpdateTask()
 	if (isStunned())
 		actualDoingTask = false;
 	
+	if (actualDoingTask)
+	{
+		if (LeadBody != nullptr)
+		{
+			if (taskState.HasToLockPosition)
+			{
+				Physics::SetMotionType(LeadBody, JPH::EMotionType::Kinematic);
+				Physics::SetBodyPosition(LeadBody, taskState.LockPosition);
+				Position = taskState.LockPosition;
+			}
+			else
+			{
+				Physics::SetMotionType(LeadBody, JPH::EMotionType::Dynamic);
+			}
+		}
+	}
+
 	if (taskPoint == nullptr) 
 	{ 
 
@@ -1976,6 +1985,7 @@ void NpcBase::UpdateTask()
 
 		return; 
 	}
+
 
 	if (actualDoingTask != DoingTaskOld)
 	{
@@ -2053,6 +2063,13 @@ void NpcBase::FindClosestGuard()
 	}
 	else
 	{
+
+		if (target_follow == false && currentInvestigation!=InvestigationReason::None)
+		{
+			FinishInvestigation();
+			return;
+		}
+
 		closestGuard = "";
 		found_guard = false;
 
@@ -2098,6 +2115,12 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 		return;
 	}
 
+	investigation_changed = true;
+
+	currentInvestigation = reason;
+	investigation_target = target;
+	investigation_targetId = causer;
+
 	if (reason == InvestigationReason::LoudNoise || reason == InvestigationReason::Noise)
 	{
 
@@ -2113,13 +2136,13 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 	if (reason < InvestigationReason::LoudNoise && isGuard == false)
 	{
 		report_to_guard = true;
+
+		FindClosestGuard();
+
+		if (found_guard == false)
+			FinishInvestigation();
+
 	}
-
-	investigation_changed = true;
-
-	currentInvestigation = reason;
-	investigation_target = target;
-	investigation_targetId = causer;
 }
 
 void NpcBase::FinishInvestigation()
@@ -2159,6 +2182,21 @@ void NpcBase::FinishInvestigation()
 	else
 	{
 
+		if (currentInvestigation == InvestigationReason::Body && found_guard == false)
+		{
+			if (investigation_targetId.empty() == false)
+			{
+				NpcBase* npcRef = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(investigation_targetId));
+
+				if (npcRef)
+				{
+					npcRef->BodyInvestigated();
+					PlayPhrace("dead_body");
+				}
+
+			}
+		}
+
 		if (found_guard)
 		{
 			auto guardRef = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(closestGuard));
@@ -2192,7 +2230,7 @@ void NpcBase::FinishInvestigation()
 
 	currentInvestigation = InvestigationReason::None;
 	investigation_target = vec3();
-
+	report_to_guard = false;
 }
 
 REGISTER_ENTITY(NpcBase, "npc_base")
