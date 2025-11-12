@@ -350,7 +350,7 @@ void TestNpc::AsyncUpdate()
 
 
 	// Apply the calculated force to the body
-	LeadBody->AddForce(ToPhysics(horizontalForce));
+	LeadBody->AddForce(ToPhysicsSingle(horizontalForce));
 
 	Physics::Activate(LeadBody);
 

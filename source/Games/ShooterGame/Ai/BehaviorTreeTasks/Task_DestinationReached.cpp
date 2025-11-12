@@ -41,11 +41,19 @@ public:
 		if (npcRef)
 		{
 
+			if (npcRef->GetTaskStateRef().TargetLocation != npcRef->pathFollow.desiredTarget)
+			{
+				FinishExecution(false);
+				return;
+			}
+
 			npcRef->Task_TargetReached();
+
+			FinishExecution(true);
 
 		}
 
-		FinishExecution(true);
+
 
 	}
 

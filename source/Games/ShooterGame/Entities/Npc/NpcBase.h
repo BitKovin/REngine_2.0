@@ -127,6 +127,8 @@ protected:
 
 	float detection_progress = 0.0f;
 
+	bool needHelpStunned = false;
+
 	bool stunnedRagdoll;
 	Delay stunnedRagdollDelay;
 	bool returningFromRagdoll;
@@ -135,6 +137,8 @@ protected:
 	Delay attackPositionUpdateDelay;
 
 	vec3 attackPosition;
+
+	Delay movementLockDelay = Delay();
 
 	vec3 spineRotation = vec3();
 

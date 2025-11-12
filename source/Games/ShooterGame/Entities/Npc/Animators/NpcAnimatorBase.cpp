@@ -81,6 +81,11 @@ void NpcAnimatorBase::Update()
 void NpcAnimatorBase::PlayTaskAnimation(std::string animationName, bool loop)
 {
 
+	if (taskAnimation->IsAnimationPlaying() == false)
+	{
+		taskAnimation->PasteAnimationPose(lastPose);
+	}
+
 	taskAnimation->PlayAnimation(animationName, loop, 0.3f);
 
 }

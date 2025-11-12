@@ -1,9 +1,9 @@
 {
     "blackboard": {
         "attackPosition": {
-            "x": -6.351968288421631,
-            "y": 1.4300111532211304,
-            "z": -6.445544719696045
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
         },
         "closestGuard": "",
         "flee_target": {
@@ -15,9 +15,9 @@
         "has_navpoint": true,
         "investigation": false,
         "investigation_target": {
-            "x": -1.3495702743530273,
-            "y": 2.173574924468994,
-            "z": 0.848426878452301
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
         },
         "isGuard": true,
         "navpoint_acceptance_radius": 0.0,
@@ -26,21 +26,21 @@
         "navpoint_wait_time": 0.0,
         "report_to_guard": false,
         "target": "$info_player_start_0",
-        "target_attack": true,
-        "target_attackInRange": true,
-        "target_follow": true,
-        "target_id": "$info_player_start_0",
-        "target_knowsLocation": true,
+        "target_attack": false,
+        "target_attackInRange": false,
+        "target_follow": false,
+        "target_id": "",
+        "target_knowsLocation": false,
         "target_lastSeenPosition": {
-            "x": -0.705175518989563,
-            "y": 1.4300040006637573,
-            "z": -0.5949380397796631
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
         },
-        "target_sees": true,
-        "target_underArrest": true,
+        "target_sees": false,
+        "target_underArrest": false,
         "task_acceptanceRadius": 0.0,
         "task_acceptance_radius": 0.30000001192092896,
-        "task_canBeCanceled": false,
+        "task_canBeCanceled": true,
         "task_doingJob": true,
         "task_move": false,
         "task_moveLocation": {
@@ -748,7 +748,7 @@
                                                                                     "sourceType": 1
                                                                                 },
                                                                                 "children": [],
-                                                                                "id": "node_3a58e1cfb9c0d0a2",
+                                                                                "id": "node_9d2550f49b7b1745",
                                                                                 "name": "Move To Position",
                                                                                 "pretty path": {
                                                                                     "sourceType": 0,
@@ -762,18 +762,18 @@
                                                                             },
                                                                             {
                                                                                 "children": [],
-                                                                                "id": "node_e7bac9866e69d3f2",
+                                                                                "id": "node_b6093a06f5772ad3",
                                                                                 "name": "Set Look Target From Current NavPoint",
                                                                                 "type": "SetLookTargetFromCurrentNavPoint"
                                                                             },
                                                                             {
                                                                                 "children": [],
-                                                                                "id": "node_408c6b270a1f3b4c",
+                                                                                "id": "node_3af419ca0476a6a3",
                                                                                 "name": "Task Destination Reached",
                                                                                 "type": "TaskDestinationReached"
                                                                             }
                                                                         ],
-                                                                        "id": "node_8bd48b13130024cd",
+                                                                        "id": "node_7276298fea942f8a",
                                                                         "name": "Sequence",
                                                                         "type": "SequenceNode"
                                                                     }
@@ -786,7 +786,7 @@
                                                                     "sourceType": 0,
                                                                     "value": false
                                                                 },
-                                                                "id": "node_bf7d8d39126e6060",
+                                                                "id": "node_4c5c7b0cbec2203f",
                                                                 "inverse": false,
                                                                 "inverse finish before stop": false,
                                                                 "name": "should move?",

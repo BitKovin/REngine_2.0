@@ -3,14 +3,29 @@
 #include <Jolt/Jolt.h>
 #include "glm.h"
 
-inline glm::vec3 FromPhysics(JPH::Vec3 v)
+inline glm::vec3 FromPhysics(const JPH::Vec3 v)
 {
 	return vec3(v.GetX(), v.GetY(), v.GetZ());
 }
 
-inline JPH::Vec3 ToPhysics(glm::vec3 v)
+inline glm::vec3 FromPhysics(const JPH::RVec3 v)
 {
-	return JPH::Vec3(v.x, v.y, v.z);
+    return vec3(v.GetX(), v.GetY(), v.GetZ());
+}
+
+inline JPH::RVec3 ToPhysics(glm::vec3 v)
+{
+	return JPH::RVec3(v.x, v.y, v.z);
+}
+
+inline JPH::Vec3 ToPhysicsSingle(glm::vec3 v)
+{
+    return JPH::Vec3(v.x, v.y, v.z);
+}
+
+inline JPH::DVec3 ToPhysicsDouble(glm::vec3 v)
+{
+    return JPH::DVec3(v.x, v.y, v.z);
 }
 
 inline glm::quat FromPhysics(JPH::Quat q)

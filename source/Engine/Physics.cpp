@@ -1,4 +1,5 @@
 ﻿#include "Physics.h"
+#include <Jolt/Math/Real.h>
 
 #include "Entity.h"
 
@@ -414,11 +415,11 @@ Body* Physics::CreateHitBoxBody(Entity* owner, SkeletalMesh* mesh, string hitbox
 	// 1) Base box, centered at its own origin
 	auto box_settings = JPH::BoxShapeSettings();
 	box_settings.SetEmbedded();
-	box_settings.mHalfExtent = ToPhysics(Size) * 0.5f;
+	box_settings.mHalfExtent = ToPhysicsSingle(Size) * 0.5f;
 
 	// 2) Rotate and translate the box in shape-local space
 	auto geo_settings = JPH::RotatedTranslatedShapeSettings(
-		ToPhysics(PositionOffset),   // translate
+		ToPhysicsSingle(PositionOffset),   // translate
 		ToPhysics(RotationOffset),   // rotate
 		&box_settings                // child shape
 	);
@@ -431,7 +432,7 @@ Body* Physics::CreateHitBoxBody(Entity* owner, SkeletalMesh* mesh, string hitbox
 	JPH::Ref<JPH::Shape> final_shape = sr.Get();
 
 	// 4) Use the entity’s (bone’s) world-space position as the body’s position
-	JPH::RVec3 world_com = Vec3(0, 0, 0);
+	JPH::RVec3 world_com = RVec3(0, 0, 0);
 
 	// 5) Build the body
 	JPH::BodyCreationSettings bcs(
@@ -479,23 +480,20 @@ TwoBodyConstraint* Physics::CreateRagdollConstraint(Body* parent,
 	// --- 1) grab the child's entity/world position (not its COM)
 	//     (assuming GetWorldTransform() returns a JPH::RMat44)
 	RMat44  childEntityX = child->GetWorldTransform();
-	Vec3    worldPivot = childEntityX.GetTranslation();
+	RVec3    worldPivot = childEntityX.GetTranslation();
 
-	// --- 2) compute child‐space pivot (in child‐COM local coords)
-	RMat44  childCOMX = child->GetCenterOfMassTransform();
-	RMat44  invChildCOM = childCOMX.Inversed();
-	Vec4    local2_v4 = invChildCOM * Vec4(worldPivot, 1.0f);
-	settings.mPosition2 = Vec3(
-		local2_v4.GetX(), local2_v4.GetY(), local2_v4.GetZ()
-	);
+	// --- 2) compute child-space pivot (in child-COM local coords)
+	RMat44 childCOMX = child->GetCenterOfMassTransform();
+	RMat44 invChildCOM = childCOMX.Inversed();
 
-	// --- 3) compute parent‐space pivot (in parent‐COM local coords)
-	RMat44  parentCOMX = parent->GetCenterOfMassTransform();
-	RMat44  invParentCOM = parentCOMX.Inversed();
-	Vec4    local1_v4 = invParentCOM * Vec4(worldPivot, 1.0f);
-	settings.mPosition1 = Vec3(
-		local1_v4.GetX(), local1_v4.GetY(), local1_v4.GetZ()
-	);
+	settings.mPosition2 = child->GetCenterOfMassTransform().Inversed() * worldPivot;
+
+	// --- 3) compute parent-space pivot (in parent-COM local coords)
+	RMat44 parentCOMX = parent->GetCenterOfMassTransform();
+	RMat44 invParentCOM = parentCOMX.Inversed();
+
+	settings.mPosition1 = parent->GetCenterOfMassTransform().Inversed() * worldPivot;
+
 
 	// --- 4) build twist & plane axes from childSpaceConstraintRotation
 	Vec3 csTwistAxis = childSpaceConstraintRotation * Vec3(0, 1, 0);
@@ -647,7 +645,7 @@ void Physics::AddImpulse(const Body* body, vec3 impulse)
 
 	if (body == nullptr) return;
 
-	bodyInterface->AddImpulse(body->GetID(), ToPhysics(impulse));
+	bodyInterface->AddImpulse(body->GetID(), ToPhysicsSingle(impulse));
 
 }
 
@@ -656,7 +654,7 @@ void Physics::AddImpulseAtLocation(const Body* body, vec3 impulse, vec3 point)
 
 	if (body == nullptr) return;
 
-	bodyInterface->AddImpulse(body->GetID(), ToPhysics(impulse), ToPhysics(point));
+	bodyInterface->AddImpulse(body->GetID(), ToPhysicsSingle(impulse), ToPhysics(point));
 
 }
 
@@ -721,12 +719,12 @@ Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const Bo
 	hit.surfaceName = "";
 
 	// Convert start and end from your own vector type to Jolt's coordinate system.
-	JPH::Vec3 startLoc = ToPhysics(start);
-	JPH::Vec3 endLoc = ToPhysics(end);
+	JPH::Vec3 startLoc = ToPhysicsSingle(start);
+	JPH::Vec3 endLoc = ToPhysicsSingle(end);
 
 	// Set up the ray from startLoc to endLoc.
 	JPH::RRayCast ray;
-	ray.mOrigin = startLoc;
+	ray.mOrigin = ToPhysics(start);
 	JPH::Vec3 ray_dir = endLoc - startLoc;
 	ray.mDirection = ray_dir;
 
@@ -822,8 +820,8 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 	hit.entity = nullptr;
 
 	// Convert start and end from your own vector type to Jolt's coordinate system.
-	JPH::Vec3 startLoc = ToPhysics(start);
-	JPH::Vec3 endLoc = ToPhysics(end);
+	JPH::RVec3 startLoc = ToPhysics(start);
+	JPH::RVec3 endLoc = ToPhysics(end);
 
 	// Create a sphere shape for the trace.
 	auto sphere_shape_settings = JPH::SphereShapeSettings();
@@ -846,7 +844,7 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 	}
 
 	// Set up the shape cast from startLoc to endLoc.
-	JPH::Vec3 direction = endLoc - startLoc;
+	JPH::Vec3 direction = Vec3(endLoc - startLoc);
 	JPH::RMat44 start_transform = JPH::RMat44::sTranslation(startLoc);
 	JPH::RShapeCast shape_cast(sphere_shape, JPH::Vec3::sReplicate(1.0f), start_transform, direction);
 
@@ -860,7 +858,7 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 
 	// Cast the shape using the narrow phase query.
 	ClosestHitShapeCastCollector collector;
-	physics_system->GetNarrowPhaseQuery().CastShape(shape_cast, JPH::ShapeCastSettings(), JPH::Vec3::sZero(), collector, {}, {}, filter);
+	physics_system->GetNarrowPhaseQuery().CastShape(shape_cast, JPH::ShapeCastSettings(), JPH::RVec3::sZero(), collector, {}, {}, filter);
 	if (collector.HadHit())
 	{
 
@@ -888,7 +886,7 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 
 			}
 
-			hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(collector.GetHit().mSubShapeID2, collector.GetHit().mContactPointOn2));
+			hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(collector.GetHit().mSubShapeID2, RVec3(collector.GetHit().mContactPointOn2)));
 
 			// Calculate fraction of the hit along the path.
 			hit.fraction = collector.GetHit().mFraction;
@@ -936,8 +934,8 @@ Physics::HitResult Physics::SphereTraceForEntity(vector<Entity*> entityties, con
 	hit.entity = nullptr;
 
 	// Convert start and end from your own vector type to Jolt's coordinate system.
-	JPH::Vec3 startLoc = ToPhysics(start);
-	JPH::Vec3 endLoc = ToPhysics(end);
+	JPH::Vec3 startLoc = ToPhysicsSingle(start);
+	JPH::Vec3 endLoc = ToPhysicsSingle(end);
 
 	// Create a sphere shape for the trace.
 	auto sphere_shape_settings = JPH::SphereShapeSettings();
@@ -961,7 +959,7 @@ Physics::HitResult Physics::SphereTraceForEntity(vector<Entity*> entityties, con
 
 	// Set up the shape cast from startLoc to endLoc.
 	JPH::Vec3 direction = endLoc - startLoc;
-	JPH::RMat44 start_transform = JPH::RMat44::sTranslation(startLoc);
+	JPH::RMat44 start_transform = JPH::RMat44::sTranslation(ToPhysics(start));
 	JPH::RShapeCast shape_cast(sphere_shape, JPH::Vec3::sReplicate(1.0f), start_transform, direction);
 
 
@@ -975,7 +973,7 @@ Physics::HitResult Physics::SphereTraceForEntity(vector<Entity*> entityties, con
 
 	// Cast the shape using the narrow phase query.
 	ClosestHitShapeCastCollector collector;
-	physics_system->GetNarrowPhaseQuery().CastShape(shape_cast, JPH::ShapeCastSettings(), JPH::Vec3::sZero(), collector, {}, {}, filter);
+	physics_system->GetNarrowPhaseQuery().CastShape(shape_cast, JPH::ShapeCastSettings(), JPH::RVec3::sZero(), collector, {}, {}, filter);
 	if (collector.HadHit())
 	{
 
@@ -1003,7 +1001,7 @@ Physics::HitResult Physics::SphereTraceForEntity(vector<Entity*> entityties, con
 
 			}
 
-			hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(collector.GetHit().mSubShapeID2, collector.GetHit().mContactPointOn2));
+			hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(collector.GetHit().mSubShapeID2, RVec3(collector.GetHit().mContactPointOn2)));
 
 			// Calculate fraction of the hit along the path.
 			hit.fraction = collector.GetHit().mFraction;
@@ -1050,8 +1048,8 @@ Physics::HitResult Physics::CylinderTrace(const vec3 start, const vec3 end, floa
 	hit.entity = nullptr;
 
 	// Convert to Jolt coordinates
-	JPH::Vec3 startLoc = ToPhysics(start);
-	JPH::Vec3 endLoc = ToPhysics(end);
+	JPH::Vec3 startLoc = ToPhysicsSingle(start);
+	JPH::Vec3 endLoc = ToPhysicsSingle(end);
 	JPH::Vec3 direction = endLoc - startLoc;
 
 	// Handle zero-length trace
@@ -1073,7 +1071,7 @@ Physics::HitResult Physics::CylinderTrace(const vec3 start, const vec3 end, floa
 	// Align cylinder axis with trace direction
 	JPH::Vec3 normalizedDirection = direction.Normalized();
 	JPH::Quat rotation = JPH::Quat::sFromTo(JPH::Vec3::sAxisY(), normalizedDirection);
-	JPH::RMat44 start_transform = JPH::RMat44::sRotationTranslation(rotation, startLoc);
+	JPH::RMat44 start_transform = JPH::RMat44::sRotationTranslation(rotation, ToPhysics(start));
 
 	// Set up shape cast
 	JPH::RShapeCast shape_cast(cylinder_shape, JPH::Vec3::sReplicate(1.0f), start_transform, direction);
@@ -1086,7 +1084,7 @@ Physics::HitResult Physics::CylinderTrace(const vec3 start, const vec3 end, floa
 	// Perform shape cast
 	// physicsMainLock.lock(); // Uncomment if thread safety required
 	ClosestHitShapeCastCollector collector;
-	physics_system->GetNarrowPhaseQuery().CastShape(shape_cast, JPH::ShapeCastSettings(), JPH::Vec3::sZero(), collector, {}, {}, filter);
+	physics_system->GetNarrowPhaseQuery().CastShape(shape_cast, JPH::ShapeCastSettings(), JPH::RVec3::sZero(), collector, {}, {}, filter);
 
 	if (collector.HadHit()) {
 		JPH::BodyLockRead body_lock(physics_system->GetBodyLockInterface(), collector.GetHit().mBodyID2);
@@ -1104,7 +1102,7 @@ Physics::HitResult Physics::CylinderTrace(const vec3 start, const vec3 end, floa
 			}
 
 			// Extract hit information
-			hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(collector.GetHit().mSubShapeID2, collector.GetHit().mContactPointOn2));
+			hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(collector.GetHit().mSubShapeID2,RVec3(collector.GetHit().mContactPointOn2)));
 			hit.fraction = collector.GetHit().mFraction;
 			hit.shapePosition = mix(start, end, hit.fraction);
 			hit.position = FromPhysics(collector.GetHit().mContactPointOn2);
@@ -1139,8 +1137,8 @@ Physics::HitResult Physics::ShapeTrace(const Shape* shape, vec3 start, vec3 end,
 	hit.shapePosition = end;
 	hit.entity = nullptr;
 
-	JPH::Vec3 startLoc = ToPhysics(start);
-	JPH::Vec3 endLoc = ToPhysics(end);
+	JPH::Vec3 startLoc = ToPhysicsSingle(start);
+	JPH::Vec3 endLoc = ToPhysicsSingle(end);
 	JPH::Vec3 direction = endLoc - startLoc;
 
 	if (direction.IsNearZero()) {
@@ -1151,7 +1149,7 @@ Physics::HitResult Physics::ShapeTrace(const Shape* shape, vec3 start, vec3 end,
 
 	JPH::Vec3 normalizedDirection = direction.Normalized();
 	JPH::Quat rotation = JPH::Quat::sFromTo(JPH::Vec3::sAxisY(), normalizedDirection);
-	JPH::RMat44 start_transform = JPH::RMat44::sRotationTranslation(rotation, startLoc);
+	JPH::RMat44 start_transform = JPH::RMat44::sRotationTranslation(rotation, ToPhysics(start));
 
 	JPH::Vec3 joltScale(scale.x, scale.y, scale.z); // Apply custom scaling
 	JPH::RShapeCast shape_cast(cylinder_shape, joltScale, start_transform, direction);
@@ -1161,7 +1159,7 @@ Physics::HitResult Physics::ShapeTrace(const Shape* shape, vec3 start, vec3 end,
 	filter.ignoreList = ignoreList;
 
 	ClosestHitShapeCastCollector collector;
-	physics_system->GetNarrowPhaseQuery().CastShape(shape_cast, JPH::ShapeCastSettings(), JPH::Vec3::sZero(), collector, {}, {}, filter);
+	physics_system->GetNarrowPhaseQuery().CastShape(shape_cast, JPH::ShapeCastSettings(), JPH::RVec3::sZero(), collector, {}, {}, filter);
 
 	if (collector.HadHit()) {
 		JPH::BodyLockRead body_lock(physics_system->GetBodyLockInterface(), collector.GetHit().mBodyID2);
@@ -1177,7 +1175,7 @@ Physics::HitResult Physics::ShapeTrace(const Shape* shape, vec3 start, vec3 end,
 				}
 			}
 
-			hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(collector.GetHit().mSubShapeID2, collector.GetHit().mContactPointOn2));
+			hit.normal = FromPhysics(body->GetWorldSpaceSurfaceNormal(collector.GetHit().mSubShapeID2,RVec3(collector.GetHit().mContactPointOn2)));
 			hit.fraction = collector.GetHit().mFraction;
 			hit.shapePosition = mix(start, end, hit.fraction);
 			hit.position = FromPhysics(collector.GetHit().mContactPointOn2);

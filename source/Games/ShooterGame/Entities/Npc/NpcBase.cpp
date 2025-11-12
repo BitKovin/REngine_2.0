@@ -208,7 +208,7 @@ void NpcBase::StartStunnedRagdoll()
 	}
 
 	stunnedRagdollDelay.AddDelay(2);
-
+	needHelpStunned = true;
 
 }
 
@@ -234,6 +234,7 @@ void NpcBase::UpdateStunnedReturn()
 
 		StartReturnFromRagdoll();
 		stunnedRagdoll = false;
+		needHelpStunned = false;
 
 	}
 	else
@@ -413,12 +414,27 @@ void NpcBase::AsyncUpdate()
 		Physics::SetLinearVelocity(LeadBody, vec3(0, LeadBody->GetLinearVelocity().GetY(), 0));
 
 	}
+
+	else if (movementLockDelay.Wait())
+	{
+		vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
+
+		desiredDirection = MathHelper::Interp(curMove, vec3(), Time::DeltaTimeF, 5.0f);
+
+		float gravity = LeadBody->GetLinearVelocity().GetY();
+
+		vec3 move = desiredDirection;
+		move.y = gravity;
+
+		Physics::SetLinearVelocity(LeadBody, move);
+
+	}
 	else
 	{
 
 		bool lockAtTarget = target_attack && target_sees && target_attackInRange && isGuard && DoingTask == false;
 
-		vec3 desiredDirection = vec3(0);
+		desiredDirection = vec3(0);
 
 		if (pathFollow.reachedTarget == false || pathFollow.CalculatedPath == false)
 		{
@@ -482,8 +498,6 @@ void NpcBase::AsyncUpdate()
 		}
 
 		float gravity = LeadBody->GetLinearVelocity().GetY();
-
-
 
 		vec3 move = desiredDirection;
 		move.y = gravity;
@@ -869,7 +883,7 @@ void NpcBase::UpdateObservationTarget()
 			observationTarget->tags = { "civilian" };
 		}
 
-		if (target_underArrest && target_follow || isStunned())
+		if (target_underArrest && target_follow || needHelpStunned)
 		{
 
 			observationTarget->tags.insert("in_trouble");
@@ -1431,7 +1445,8 @@ void NpcBase::UpdateAnimations()
 
 		auto pose = animator.GetResultPose();
 
-		mesh->PasteAnimationPose(pose);
+		if(returningFromRagdoll == false && mesh->InRagdoll == false)
+			mesh->PasteAnimationPose(pose);
 	}
 
 }
@@ -1693,6 +1708,7 @@ void NpcBase::Serialize(json& target)
 
 	SERIALIZE_FIELD(target, detection_progress);
 
+	SERIALIZE_FIELD(target, needHelpStunned);
 	SERIALIZE_FIELD(target, stunnedRagdoll);
 	SERIALIZE_FIELD(target, stunnedRagdollDelay);
 	SERIALIZE_FIELD(target, returningFromRagdoll);
@@ -1701,15 +1717,13 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, attackPositionUpdateDelay);
 	SERIALIZE_FIELD(target, attackPosition);
 
+	SERIALIZE_FIELD(target, movementLockDelay);
 
 
-	bool taskAnimationValid = animator.taskAnimation != nullptr;
 	AnimationState taskAnimationState;
-	if (taskAnimationValid)
-	{
-		taskAnimationState = animator.taskAnimation->GetAnimationState();
-	}
-	SERIALIZE_FIELD(target, taskAnimationValid);
+
+	taskAnimationState = animator.taskAnimation->GetAnimationState();
+	
 	SERIALIZE_FIELD(target, taskAnimationState);
 
 }
@@ -1757,6 +1771,8 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, investigation_changed);
 	DESERIALIZE_FIELD(source, needToInvestigateBody);
 
+	DESERIALIZE_FIELD(source, movementLockDelay);
+
 	DESERIALIZE_FIELD(source, currentCrime);
 
 	DESERIALIZE_FIELD(source, flee_target);
@@ -1797,6 +1813,8 @@ void NpcBase::Deserialize(json& source)
 	//mesh->PullRootMotion();
 
 	DESERIALIZE_FIELD(source, detection_progress);
+
+	DESERIALIZE_FIELD(source, needHelpStunned);
 	DESERIALIZE_FIELD(source, stunnedRagdoll);
 	DESERIALIZE_FIELD(source, stunnedRagdollDelay);
 	DESERIALIZE_FIELD(source, returningFromRagdoll);
@@ -1805,19 +1823,9 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, attackPositionUpdateDelay);
 	DESERIALIZE_FIELD(source, attackPosition);
 
-	bool taskAnimationValid;
 	AnimationState taskAnimationState;
-	DESERIALIZE_FIELD(source, taskAnimationValid);
 	DESERIALIZE_FIELD(source, taskAnimationState);
-
-	if (taskAnimationValid)
-	{
-		animator.taskAnimation->SetAnimationState(taskAnimationState);
-	}
-	else
-	{
-
-	}
+	animator.taskAnimation->SetAnimationState(taskAnimationState);
 
 }
 
@@ -1956,18 +1964,23 @@ void NpcBase::UpdateTask()
 
 	TaskPoint* taskPoint = dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(taskState.TaskName));
 
+	bool actualDoingTask = DoingTask;
+
+	if (isStunned())
+		actualDoingTask = false;
+	
 	if (taskPoint == nullptr) 
 	{ 
 
-		DoingTaskOld = DoingTask;
+		DoingTaskOld = actualDoingTask;
 
 		return; 
 	}
 
-	if (DoingTask != DoingTaskOld)
+	if (actualDoingTask != DoingTaskOld)
 	{
 
-		if (DoingTask)
+		if (actualDoingTask)
 		{
 			taskPoint->NpcReturned(this);
 		}
@@ -1980,7 +1993,7 @@ void NpcBase::UpdateTask()
 	else
 	{
 
-		if (DoingTask)
+		if (actualDoingTask)
 		{
 
 			if (target_follow || report_to_guard || currentInvestigation != InvestigationReason::None)
@@ -1994,7 +2007,7 @@ void NpcBase::UpdateTask()
 
 	taskPoint->NpcUpdate(this);
 
-	DoingTaskOld = DoingTask;
+	DoingTaskOld = actualDoingTask;
 
 }
 
@@ -2112,6 +2125,19 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 void NpcBase::FinishInvestigation()
 {
 
+	if (currentInvestigation == InvestigationReason::NpcInTrouble)
+	{
+		if (investigation_targetId.empty() == false)
+		{
+			NpcBase* npcRef = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(investigation_targetId));
+
+			if (npcRef)
+			{
+				npcRef->needHelpStunned = false;
+			}
+
+		}
+	}
 
 	if (isGuard)
 	{
@@ -2162,7 +2188,7 @@ void NpcBase::FinishInvestigation()
 
 	}
 
-
+	movementLockDelay.AddDelay(3);
 
 	currentInvestigation = InvestigationReason::None;
 	investigation_target = vec3();

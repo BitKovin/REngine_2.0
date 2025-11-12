@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#define JPH_DOUBLE_PRECISION
+
 #ifndef _MSC_VER
 
 #define NDEBUG 1
@@ -9,7 +11,6 @@
 
 #else
 
-#define JPH_DEBUG_RENDERER	
 
 #endif
 
@@ -718,7 +719,7 @@ public:
 		// Create a box shape (existing code)
 		BoxShapeSettings box_shape_settings = BoxShapeSettings();
 		box_shape_settings.SetEmbedded();
-		box_shape_settings.mHalfExtent = ToPhysics(Size) / 2.0f;
+		box_shape_settings.mHalfExtent = ToPhysicsSingle(Size) / 2.0f;
 		JPH::Shape::ShapeResult shape_result = box_shape_settings.Create();
 		JPH::Shape* box_shape = shape_result.Get();
 
@@ -750,7 +751,7 @@ public:
 	static RefConst<Shape> CreateBoxShape(vec3 Size)
 	{
 		// Convert & halve once, up-front:
-		Vec3 halfExtent = ToPhysics(Size) * 0.5f;
+		Vec3 halfExtent = ToPhysicsSingle(Size) * 0.5f;
 
 		// Sanity check:
 		if (halfExtent.GetX() <= 0 || halfExtent.GetY() <= 0 || halfExtent.GetZ() <= 0)
@@ -816,13 +817,13 @@ public:
 	static void SetLinearVelocity(Body* body, vec3 velocity)
 	{
 		bodyInterface->SetLinearVelocity(body->GetID(), Vec3(velocity.x, velocity.y, velocity.z));
-		body->SetLinearVelocity(ToPhysics(velocity));
+		body->SetLinearVelocity(ToPhysicsSingle(velocity));
 	}
 
 	static void SetAngularVelocity(Body* body, vec3 velocity)
 	{
-		bodyInterface->SetAngularVelocity(body->GetID(), ToPhysics(velocity));
-		body->SetAngularVelocity(ToPhysics(velocity));
+		bodyInterface->SetAngularVelocity(body->GetID(), ToPhysicsSingle(velocity));
+		body->SetAngularVelocity(ToPhysicsSingle(velocity));
 	}
 
 	static void SetBodyCCDEnabled(const Body* body, bool enabled)
