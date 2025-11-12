@@ -599,6 +599,7 @@ void NpcBase::UpdateBT()
 	behaviorTree.GetBlackboard().SetValue("task_canBeCanceled", taskState.CanBeCanceled);
 	behaviorTree.GetBlackboard().SetValue("task_doingJob", taskState.DoingJob);
 
+	behaviorTree.GetBlackboard().SetValue("stunned", isStunned());
 
 	behaviorTree.GetBlackboard().SetValue("isGuard", isGuard);
 
@@ -1435,7 +1436,7 @@ void NpcBase::UpdateAnimations()
 
 	}
 
-	if (isStunned()) return;
+
 
 	if (mesh->WasRended)
 	{
@@ -1450,7 +1451,6 @@ void NpcBase::UpdateAnimations()
 
 		auto pose = animator.GetResultPose();
 
-		if(returningFromRagdoll == false && mesh->InRagdoll == false)
 			mesh->PasteAnimationPose(pose);
 	}
 
@@ -1954,7 +1954,14 @@ void NpcBase::UpdateTask()
 {
 
 
-	TaskPoint* taskPoint = dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(taskState.TaskName));
+
+
+	TaskPoint* taskPoint = nullptr;
+	
+	if (taskState.TaskName.empty() == false)
+	{
+		taskPoint = dynamic_cast<TaskPoint*>(Level::Current->FindEntityWithName(taskState.TaskName));
+	}
 
 	bool actualDoingTask = DoingTask;
 

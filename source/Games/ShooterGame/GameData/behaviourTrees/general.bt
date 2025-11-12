@@ -25,6 +25,7 @@
         "navpoint_name": "np_0_0",
         "navpoint_wait_time": 0.0,
         "report_to_guard": false,
+        "stunned": false,
         "target": "$info_player_start_0",
         "target_attack": false,
         "target_attackInRange": false,
@@ -38,17 +39,17 @@
         },
         "target_sees": false,
         "target_underArrest": false,
-        "task_acceptanceRadius": 0.0,
+        "task_acceptanceRadius": 0.30000001192092896,
         "task_acceptance_radius": 0.30000001192092896,
         "task_canBeCanceled": true,
-        "task_doingJob": true,
-        "task_move": false,
+        "task_doingJob": false,
+        "task_move": true,
         "task_moveLocation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": -3.875,
+            "y": 1.0,
+            "z": 1.0
         },
-        "task_setOrientation": false
+        "task_setOrientation": true
     },
     "isRunning": true,
     "root": {
@@ -226,10 +227,27 @@
                                                                                                     {
                                                                                                         "children": [
                                                                                                             {
-                                                                                                                "children": [],
-                                                                                                                "id": "node_1ba936e85e61185e",
-                                                                                                                "name": "Stop Target Follow",
-                                                                                                                "type": "StopTargetFollow"
+                                                                                                                "children": [
+                                                                                                                    {
+                                                                                                                        "children": [],
+                                                                                                                        "id": "node_c868b2f49666fc8b",
+                                                                                                                        "name": "Stop Target Follow",
+                                                                                                                        "type": "StopTargetFollow"
+                                                                                                                    }
+                                                                                                                ],
+                                                                                                                "condition": {
+                                                                                                                    "blackboardKey": "stunned",
+                                                                                                                    "sourceType": 1
+                                                                                                                },
+                                                                                                                "finish before stop": {
+                                                                                                                    "sourceType": 0,
+                                                                                                                    "value": false
+                                                                                                                },
+                                                                                                                "id": "node_6ef4d87b24be5703",
+                                                                                                                "inverse": true,
+                                                                                                                "inverse finish before stop": false,
+                                                                                                                "name": "if not stunned",
+                                                                                                                "type": "ConditionalDecorator"
                                                                                                             }
                                                                                                         ],
                                                                                                         "condition": {
@@ -243,7 +261,7 @@
                                                                                                         "id": "node_4547d9880f2e1886",
                                                                                                         "inverse": true,
                                                                                                         "inverse finish before stop": false,
-                                                                                                        "name": "Conditional",
+                                                                                                        "name": "if doen't see target",
                                                                                                         "type": "ConditionalDecorator"
                                                                                                     }
                                                                                                 ],
@@ -472,25 +490,42 @@
                                                                                                             {
                                                                                                                 "children": [
                                                                                                                     {
-                                                                                                                        "children": [],
-                                                                                                                        "id": "node_5530fcca30c09480",
-                                                                                                                        "name": "Wait",
-                                                                                                                        "type": "WaitNode",
-                                                                                                                        "waitTime": {
-                                                                                                                            "sourceType": 0,
-                                                                                                                            "value": 1.0
-                                                                                                                        }
-                                                                                                                    },
-                                                                                                                    {
-                                                                                                                        "children": [],
-                                                                                                                        "id": "node_399a7d9edb141ba4",
-                                                                                                                        "name": "Stop Target Follow",
-                                                                                                                        "type": "StopTargetFollow"
+                                                                                                                        "children": [
+                                                                                                                            {
+                                                                                                                                "children": [],
+                                                                                                                                "id": "node_5530fcca30c09480",
+                                                                                                                                "name": "Wait",
+                                                                                                                                "type": "WaitNode",
+                                                                                                                                "waitTime": {
+                                                                                                                                    "sourceType": 0,
+                                                                                                                                    "value": 1.0
+                                                                                                                                }
+                                                                                                                            },
+                                                                                                                            {
+                                                                                                                                "children": [],
+                                                                                                                                "id": "node_399a7d9edb141ba4",
+                                                                                                                                "name": "Stop Target Follow",
+                                                                                                                                "type": "StopTargetFollow"
+                                                                                                                            }
+                                                                                                                        ],
+                                                                                                                        "id": "node_1a2fd855c0ede013",
+                                                                                                                        "name": "Sequence",
+                                                                                                                        "type": "SequenceNode"
                                                                                                                     }
                                                                                                                 ],
-                                                                                                                "id": "node_3ec6eaea4a9873e9",
-                                                                                                                "name": "Sequence",
-                                                                                                                "type": "SequenceNode"
+                                                                                                                "condition": {
+                                                                                                                    "blackboardKey": "stunned",
+                                                                                                                    "sourceType": 1
+                                                                                                                },
+                                                                                                                "finish before stop": {
+                                                                                                                    "sourceType": 0,
+                                                                                                                    "value": false
+                                                                                                                },
+                                                                                                                "id": "node_1edc03786a009fdd",
+                                                                                                                "inverse": true,
+                                                                                                                "inverse finish before stop": false,
+                                                                                                                "name": "if not stunned",
+                                                                                                                "type": "ConditionalDecorator"
                                                                                                             }
                                                                                                         ],
                                                                                                         "condition": {
