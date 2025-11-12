@@ -185,6 +185,8 @@ public:
 
 	void ProcessAnimationEvent(AnimationEvent& event);
 
+	void FromData(EntityData data);
+
 	void Start();
 
 	void Death();
@@ -200,6 +202,7 @@ public:
 
 	void StartReturnFromRagdoll();
 	void UpdateReturnFromRagdoll();
+
 
 	void Destroy()
 	{

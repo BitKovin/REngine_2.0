@@ -64,6 +64,15 @@ void NpcBase::ProcessAnimationEvent(AnimationEvent& event)
 
 }
 
+void NpcBase::FromData(EntityData data)
+{
+
+	Entity::FromData(data);
+
+	defaultTask = data.GetPropertyString("target");
+
+}
+
 void NpcBase::Start()
 {
 

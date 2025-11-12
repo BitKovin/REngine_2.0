@@ -3443,53 +3443,54 @@ default
 	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
-494 // ESurfaceType::Meta V: 4 I: 6 planar
-{
-	shader textures/lq_flesh/may_flesh1_sp2
-	sampleSize 1
-	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
-}
-
-495 // ESurfaceType::Meta V: 7 I: 15 planar
+494 // ESurfaceType::Meta V: 7 I: 15 planar
 {
 	shader textures/lq_flesh/may_flesh1_sp2
 	sampleSize 1
 	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
-496 // ESurfaceType::Meta V: 6 I: 12 planar
+495 // ESurfaceType::Meta V: 6 I: 12 planar
 {
 	shader textures/lq_flesh/may_flesh1_sp2
 	sampleSize 1
 	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
-497 // ESurfaceType::Meta V: 7 I: 15 planar
+496 // ESurfaceType::Meta V: 7 I: 15 planar
 {
 	shader textures/lq_flesh/may_flesh1_sp2
 	sampleSize 1
 	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
-498 // ESurfaceType::Meta V: 4 I: 6 planar
+497 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/lq_flesh/may_flesh1_sp2
 	sampleSize 1
 	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
-499 // ESurfaceType::Meta V: 4 I: 6 planar
+498 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/lq_flesh/may_flesh1_sp2
 	sampleSize 1
 	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
-500 // ESurfaceType::Meta V: 4 I: 6 planar
+499 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/lq_flesh/may_flesh1_sp2
 	sampleSize 1
 	lightmapAxis ( 0.000000 0.000000 1.000000 )
+}
+
+500 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/common/trigger
+	entity 8
+	castShadows 0
+	sampleSize 0
 }
 
 501 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3535,7 +3536,7 @@ default
 506 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/common/trigger
-	entity 8
+	entity 15
 	castShadows 0
 	sampleSize 0
 }
@@ -3582,10 +3583,10 @@ default
 
 512 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 15
+	shader textures/generic/trigger_t
+	entity 30
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 513 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3593,7 +3594,7 @@ default
 	shader textures/generic/trigger_t
 	entity 30
 	castShadows 0
-	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 514 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3601,7 +3602,7 @@ default
 	shader textures/generic/trigger_t
 	entity 30
 	castShadows 0
-	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
 515 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3609,7 +3610,7 @@ default
 	shader textures/generic/trigger_t
 	entity 30
 	castShadows 0
-	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 516 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3617,7 +3618,7 @@ default
 	shader textures/generic/trigger_t
 	entity 30
 	castShadows 0
-	lightmapAxis ( 0.000000 0.000000 1.000000 )
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 517 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3625,15 +3626,15 @@ default
 	shader textures/generic/trigger_t
 	entity 30
 	castShadows 0
-	lightmapAxis ( 0.000000 1.000000 0.000000 )
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
 518 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/generic/trigger_t
-	entity 30
+	shader textures/common/trigger
+	entity 31
 	castShadows 0
-	lightmapAxis ( 1.000000 0.000000 0.000000 )
+	sampleSize 0
 }
 
 519 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3678,10 +3679,10 @@ default
 
 524 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 31
+	shader textures/delvenPack/dlv_door1a
+	entity 34
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 525 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3689,7 +3690,7 @@ default
 	shader textures/delvenPack/dlv_door1a
 	entity 34
 	castShadows 0
-	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 526 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3697,7 +3698,7 @@ default
 	shader textures/delvenPack/dlv_door1a
 	entity 34
 	castShadows 0
-	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
 527 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3705,7 +3706,7 @@ default
 	shader textures/delvenPack/dlv_door1a
 	entity 34
 	castShadows 0
-	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
 528 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3713,7 +3714,7 @@ default
 	shader textures/delvenPack/dlv_door1a
 	entity 34
 	castShadows 0
-	lightmapAxis ( 1.000000 0.000000 0.000000 )
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 529 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3721,15 +3722,15 @@ default
 	shader textures/delvenPack/dlv_door1a
 	entity 34
 	castShadows 0
-	lightmapAxis ( 0.000000 1.000000 0.000000 )
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 530 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/delvenPack/dlv_door1a
-	entity 34
+	entity 35
 	castShadows 0
-	lightmapAxis ( 0.000000 0.000000 1.000000 )
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 531 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3737,7 +3738,7 @@ default
 	shader textures/delvenPack/dlv_door1a
 	entity 35
 	castShadows 0
-	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 532 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3745,7 +3746,7 @@ default
 	shader textures/delvenPack/dlv_door1a
 	entity 35
 	castShadows 0
-	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
 533 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3753,7 +3754,7 @@ default
 	shader textures/delvenPack/dlv_door1a
 	entity 35
 	castShadows 0
-	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
 534 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3761,7 +3762,7 @@ default
 	shader textures/delvenPack/dlv_door1a
 	entity 35
 	castShadows 0
-	lightmapAxis ( 1.000000 0.000000 0.000000 )
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 535 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3769,15 +3770,15 @@ default
 	shader textures/delvenPack/dlv_door1a
 	entity 35
 	castShadows 0
-	lightmapAxis ( 0.000000 1.000000 0.000000 )
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 536 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/delvenPack/dlv_door1a
-	entity 35
+	shader textures/lq_flesh/may_flesh1_sp2
+	entity 39
 	castShadows 0
-	lightmapAxis ( 0.000000 0.000000 1.000000 )
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 537 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3785,7 +3786,7 @@ default
 	shader textures/lq_flesh/may_flesh1_sp2
 	entity 39
 	castShadows 0
-	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 538 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3793,7 +3794,7 @@ default
 	shader textures/lq_flesh/may_flesh1_sp2
 	entity 39
 	castShadows 0
-	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
 539 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3801,7 +3802,7 @@ default
 	shader textures/lq_flesh/may_flesh1_sp2
 	entity 39
 	castShadows 0
-	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 540 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3809,7 +3810,7 @@ default
 	shader textures/lq_flesh/may_flesh1_sp2
 	entity 39
 	castShadows 0
-	lightmapAxis ( 0.000000 1.000000 0.000000 )
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 541 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3817,15 +3818,15 @@ default
 	shader textures/lq_flesh/may_flesh1_sp2
 	entity 39
 	castShadows 0
-	lightmapAxis ( 0.000000 0.000000 1.000000 )
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
 542 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/lq_flesh/may_flesh1_sp2
-	entity 39
+	entity 40
 	castShadows 0
-	lightmapAxis ( 1.000000 0.000000 0.000000 )
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 543 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3833,7 +3834,7 @@ default
 	shader textures/lq_flesh/may_flesh1_sp2
 	entity 40
 	castShadows 0
-	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 544 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3841,7 +3842,7 @@ default
 	shader textures/lq_flesh/may_flesh1_sp2
 	entity 40
 	castShadows 0
-	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
 545 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3849,7 +3850,7 @@ default
 	shader textures/lq_flesh/may_flesh1_sp2
 	entity 40
 	castShadows 0
-	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 546 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3857,7 +3858,7 @@ default
 	shader textures/lq_flesh/may_flesh1_sp2
 	entity 40
 	castShadows 0
-	lightmapAxis ( 0.000000 1.000000 0.000000 )
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 547 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3865,18 +3866,10 @@ default
 	shader textures/lq_flesh/may_flesh1_sp2
 	entity 40
 	castShadows 0
-	lightmapAxis ( 0.000000 0.000000 1.000000 )
-}
-
-548 // ESurfaceType::Meta V: 4 I: 6 planar
-{
-	shader textures/lq_flesh/may_flesh1_sp2
-	entity 40
-	castShadows 0
 	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
-549 // ESurfaceType::Meta V: 4 I: 6 planar
+548 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/cat
 	entity 41
@@ -3884,7 +3877,7 @@ default
 	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
-550 // ESurfaceType::Meta V: 4 I: 6 planar
+549 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/cat
 	entity 41
@@ -3892,7 +3885,7 @@ default
 	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
-551 // ESurfaceType::Meta V: 4 I: 6 planar
+550 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/cat
 	entity 41
@@ -3900,7 +3893,7 @@ default
 	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
-552 // ESurfaceType::Meta V: 4 I: 6 planar
+551 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/cat
 	entity 41
@@ -3908,7 +3901,7 @@ default
 	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
-553 // ESurfaceType::Meta V: 4 I: 6 planar
+552 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/cat
 	entity 41
@@ -3916,12 +3909,20 @@ default
 	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
-554 // ESurfaceType::Meta V: 4 I: 6 planar
+553 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/generic/cat
 	entity 41
 	castShadows 0
 	lightmapAxis ( 0.000000 0.000000 1.000000 )
+}
+
+554 // ESurfaceType::Meta V: 4 I: 6 planar
+{
+	shader textures/common/trigger
+	entity 47
+	castShadows 0
+	sampleSize 0
 }
 
 555 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -3967,7 +3968,7 @@ default
 560 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/common/trigger
-	entity 47
+	entity 51
 	castShadows 0
 	sampleSize 0
 }
@@ -4015,7 +4016,7 @@ default
 566 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/common/trigger
-	entity 51
+	entity 59
 	castShadows 0
 	sampleSize 0
 }
@@ -4062,10 +4063,10 @@ default
 
 572 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/common/trigger
-	entity 59
+	shader textures/generic/bricks
+	entity 62
 	castShadows 0
-	sampleSize 0
+	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
 }
 
 573 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -4073,7 +4074,7 @@ default
 	shader textures/generic/bricks
 	entity 62
 	castShadows 0
-	lightmapAxis ( -1.000000 -0.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
 }
 
 574 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -4081,7 +4082,7 @@ default
 	shader textures/generic/bricks
 	entity 62
 	castShadows 0
-	lightmapAxis ( -0.000000 -1.000000 -0.000000 )
+	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
 }
 
 575 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -4089,7 +4090,7 @@ default
 	shader textures/generic/bricks
 	entity 62
 	castShadows 0
-	lightmapAxis ( -0.000000 -0.000000 -1.000000 )
+	lightmapAxis ( 0.000000 0.000000 1.000000 )
 }
 
 576 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -4097,7 +4098,7 @@ default
 	shader textures/generic/bricks
 	entity 62
 	castShadows 0
-	lightmapAxis ( 0.000000 0.000000 1.000000 )
+	lightmapAxis ( 0.000000 1.000000 0.000000 )
 }
 
 577 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -4105,15 +4106,15 @@ default
 	shader textures/generic/bricks
 	entity 62
 	castShadows 0
-	lightmapAxis ( 0.000000 1.000000 0.000000 )
+	lightmapAxis ( 1.000000 0.000000 0.000000 )
 }
 
 578 // ESurfaceType::Meta V: 4 I: 6 planar
 {
-	shader textures/generic/bricks
-	entity 62
+	shader textures/common/trigger
+	entity 63
 	castShadows 0
-	lightmapAxis ( 1.000000 0.000000 0.000000 )
+	sampleSize 0
 }
 
 579 // ESurfaceType::Meta V: 4 I: 6 planar
@@ -4159,7 +4160,7 @@ default
 584 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/common/trigger
-	entity 63
+	entity 64
 	castShadows 0
 	sampleSize 0
 }
@@ -4197,14 +4198,6 @@ default
 }
 
 589 // ESurfaceType::Meta V: 4 I: 6 planar
-{
-	shader textures/common/trigger
-	entity 64
-	castShadows 0
-	sampleSize 0
-}
-
-590 // ESurfaceType::Meta V: 4 I: 6 planar
 {
 	shader textures/common/trigger
 	entity 64

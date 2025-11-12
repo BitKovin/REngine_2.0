@@ -1175,21 +1175,21 @@
 }
 // brush 129
 {
-( -184 88 30 ) ( -184 24 30 ) ( -208 88 30 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
-( -184 74 24 ) ( -208 74 24 ) ( -184 74 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
-( -183 88 24 ) ( -183 88 16 ) ( -183 24 24 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
-( -208 24 16 ) ( -184 24 16 ) ( -208 88 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
-( -208 52 16 ) ( -208 52 24 ) ( -184 52 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
-( -196 24 16 ) ( -196 88 16 ) ( -196 24 24 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -16 164 30 ) ( -16 100 30 ) ( -40 164 30 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -16 150 24 ) ( -40 150 24 ) ( -16 150 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -15 164 24 ) ( -15 164 16 ) ( -15 100 24 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -40 100 16 ) ( -16 100 16 ) ( -40 164 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -40 128 16 ) ( -40 128 24 ) ( -16 128 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -28 100 16 ) ( -28 164 16 ) ( -28 100 24 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
 }
 // brush 130
 {
-( -196 76 46 ) ( -196 52 46 ) ( -200 76 46 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
-( -196 74 20 ) ( -200 74 20 ) ( -196 74 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
-( -196 76 20 ) ( -196 76 16 ) ( -196 52 20 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
-( -200 52 16 ) ( -196 52 16 ) ( -200 76 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
-( -200 52 16 ) ( -200 52 20 ) ( -196 52 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
-( -200 52 16 ) ( -200 76 16 ) ( -200 52 20 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -28 152 46 ) ( -28 128 46 ) ( -32 152 46 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -28 150 20 ) ( -32 150 20 ) ( -28 150 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -28 152 20 ) ( -28 152 16 ) ( -28 128 20 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -32 128 16 ) ( -28 128 16 ) ( -32 152 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -32 128 16 ) ( -32 128 20 ) ( -28 128 16 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
+( -32 128 16 ) ( -32 152 16 ) ( -32 128 20 ) lq_flesh/may_flesh1_sp2 0 0 0 0.5 0.5 0 0 0
 }
 }
 // entity 1
@@ -1824,11 +1824,31 @@
 // entity 70
 {
 "classname" "task_chair"
-"origin" "-176 63 16"
+"origin" "-8 139 16"
 "targetname" "np_0_e"
 "target" "np_0_0"
 "waitTime" "3"
-"acceptanceRadius" "0.1"
+"acceptanceRadius" "0.3"
 "model" "models/tools/sittingPos.obj"
 "duration" "32"
+}
+// entity 71
+{
+"classname" "task_smoke"
+"origin" "-124 -32 32"
+"targetname" "np_guard_wait_1"
+"target" "np_guard_wait_1"
+}
+// entity 72
+{
+"classname" "npc_guard"
+"origin" "-80 -48 48"
+"target" "np_guard_wait_1"
+"angle" "170.504"
+}
+// entity 73
+{
+"classname" "npc_civilian"
+"origin" "-24 196 44"
+"target" "np_0_0"
 }
