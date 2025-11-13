@@ -2022,7 +2022,11 @@ void NpcBase::UpdateTask()
 
 	}
 
-	taskPoint->NpcUpdate(this);
+	if (actualDoingTask)
+	{
+		taskPoint->NpcUpdate(this);
+	}
+
 
 	DoingTaskOld = actualDoingTask;
 

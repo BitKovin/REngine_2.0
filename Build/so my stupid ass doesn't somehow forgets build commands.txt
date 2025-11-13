@@ -1,0 +1,7 @@
+# Emscripten
+emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
+ninja
+
+# Linux
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make
