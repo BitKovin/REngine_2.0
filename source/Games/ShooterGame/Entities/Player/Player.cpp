@@ -6,6 +6,8 @@
 
 #include <AiPerception/AiPerceptionSystem.h>
 
+#include "RestrictedArea.h"
+
 REGISTER_ENTITY(Player, "info_player_start")
 
 Player* Player::Instance = nullptr;
@@ -813,6 +815,9 @@ void Player::Update()
 void Player::AsyncUpdate()
 {
     bodyAnimator.Update();
+
+    UpdateCurrentRestrictedArea();
+
 }
 
 void Player::LateUpdate()
@@ -829,6 +834,11 @@ void Player::LateUpdate()
     Input::LockCursor = !EngineMain::MainInstance->Paused;
 
     UpdateWeapon();
+
+    if (CurrentMaxRestrictionLevel > CurrentClearance)
+    {
+        observationTarget->tags.insert("trespassing");
+    }
 
     Hud.Update();
 
@@ -887,6 +897,29 @@ void Player::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone
     Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
 
     GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point - vec3(0,0.5f,0), MathHelper::FindLookAtRotation(vec3(0), -Direction - vec3(0, 1, 0)), vec3(0.2f));
+
+}
+
+void Player::UpdateCurrentRestrictedArea()
+{
+
+    int currentAreaLevel = 0;
+
+    auto results = Physics::PointTrace(Position, BodyType::Area1);
+
+    for (auto result : results)
+    {
+
+        RestrictedArea* area = dynamic_cast<RestrictedArea*>(result.entity);
+
+        if (area == nullptr) continue;
+
+        if (area->RestrictionLevel > currentAreaLevel)
+            currentAreaLevel = area->RestrictionLevel;
+
+    }
+
+    CurrentMaxRestrictionLevel = currentAreaLevel;
 
 }
 

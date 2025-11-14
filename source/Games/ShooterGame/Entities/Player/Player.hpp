@@ -104,6 +104,9 @@ private:
 
 	Body* hitbox = nullptr;
 
+	int CurrentMaxRestrictionLevel = 0;
+	int CurrentClearance = 0;
+
 	glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
 		vel = MathHelper::XZ(vel);
 		float length = glm::length(vel);
@@ -281,6 +284,8 @@ public:
 	void Serialize(json& target);
 	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
 	void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon);
+
+	void UpdateCurrentRestrictedArea();
 
 	void Deserialize(json& source);
 

@@ -3,6 +3,8 @@
 #include "Entity.h"
 
 #include <unordered_set>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/CollidePointResult.h>
 
 
 TempAllocatorImpl* Physics::tempMemAllocator = nullptr;
@@ -707,6 +709,94 @@ RefConst<Shape> Physics::CreateMeshShape(const std::vector<vec3>& vertices, cons
 	return result.Get();
 }
 
+vector<Physics::HitResult> Physics::PointTrace(
+	const vec3 point,
+	const BodyType mask,
+	const vector<Body*> ignoreList,
+	const vector<Entity*> entityIgnoreList)
+{
+	vector<HitResult> hits;
+
+	// Convert point to physics space
+	JPH::RVec3 physPoint = ToPhysics(point);
+
+	// Collector for ALL hits
+	using Collector = JPH::AllHitCollisionCollector<JPH::CollidePointCollector>;
+
+	Collector collector;
+
+	// Prepare filters
+	TraceBodyFilter filter;
+	filter.mask = mask;
+	filter.ignoreList = ignoreList;
+	filter.entityIgnoreList = entityIgnoreList;
+
+	// Run the query
+	physics_system->GetNarrowPhaseQuery().CollidePoint(
+		physPoint,
+		collector,
+		{},        // BroadPhaseLayerFilter
+		{},        // ObjectLayerFilter
+		filter     // BodyFilter
+	);
+
+	// If nothing hit
+	if (!collector.HadHit())
+		return hits;
+
+	// For each hit
+	for (const JPH::CollidePointResult& r : collector.mHits)
+	{
+		HitResult hr;
+		hr.hasHit = false; // will set below
+		hr.fraction = 0.0f;
+		hr.position = point;          // per your instruction
+		hr.shapePosition = point;     // contact = input point
+		hr.normal = vec3(0, 0, 0);    // no normal for point test
+		hr.hitbody = nullptr;
+		hr.entity = nullptr;
+		hr.hitboxName = "";
+		hr.surfaceName = "";
+
+		// Lock body
+		JPH::BodyLockRead lock(physics_system->GetBodyLockInterface(), r.mBodyID);
+		if (!lock.Succeeded())
+			continue;
+
+		const JPH::Body& body = lock.GetBody();
+
+		// Retrieve subshape user data (same as in LineTrace)
+		const JPH::Shape* shape = body.GetShape();
+		JPH::SubShapeID remainder;
+		const JPH::Shape* leaf = shape->GetLeafShape(r.mSubShapeID2, remainder);
+
+		if (leaf)
+		{
+			int surfId = leaf->GetUserData();
+			if (surfId)
+				hr.surfaceName = FindSurfacyById(surfId);
+		}
+
+		// Set body + entity info
+		hr.hitbody = &body;
+
+		auto* props = reinterpret_cast<BodyData*>(body.GetUserData());
+		if (props)
+		{
+			hr.entity = props->OwnerEntity;
+			hr.hitboxName = props->hitboxName;
+		}
+
+		// Final validity
+		hr.hasHit = (hr.entity != nullptr && !hr.entity->Destroyed);
+
+		if (hr.hasHit)
+			hits.push_back(hr);
+	}
+
+	return hits;
+}
+
 Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList)
 {
 	HitResult hit;
@@ -1224,8 +1314,17 @@ bool TraceBodyFilter::ShouldCollideLocked(const Body& inBody) const
 			}
 		}
 
-		if (inBody.IsSensor() && properties->group != BodyType::Liquid)
+		const BodyType AllowedSensorMask =
+			BodyType::Liquid |
+			BodyType::Area1 |
+			BodyType::Area2 |
+			BodyType::Area3 |
+			BodyType::Area4 |
+			BodyType::Area5;
+
+		if (inBody.IsSensor() && !(properties->group & AllowedSensorMask))
 			return false;
+
 
 		// Check if the body's group is included in our filter's mask.
 		// If the bitwise AND of mask and the body's group is zero, they don't match.
@@ -1237,10 +1336,6 @@ bool TraceBodyFilter::ShouldCollideLocked(const Body& inBody) const
 	return true;
 }
 
-uint64_t Physics::GetShapeDataIdFromName(string name)
-{
-	return 0;
-}
 
 Body* Physics::CreateCharacterBody(Entity* owner, vec3 Position, float Radius, float Height, float Mass,
 	BodyType group,

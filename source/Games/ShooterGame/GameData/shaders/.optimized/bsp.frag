@@ -30,10 +30,11 @@ void main ()
   vec3 vertexLightFactor_4;
   lowp vec4 o_texture_5;
   o_texture_5 = texture (s_bspTexture, g_TexCoord);
-  vertexLightFactor_4 = vec3(1.0, 1.0, 1.0);
+  vertexLightFactor_4 = vec3(1.5, 1.5, 1.5);
   if (useVertexLight) {
     vertexLightFactor_4 = (4.04 * g_color.xyz);
   };
+  vertexLightFactor_4 = (vertexLightFactor_4 * 1.5);
   vec3 tmpvar_6;
   tmpvar_6 = normalize(g_normal);
   normal_2 = tmpvar_6;

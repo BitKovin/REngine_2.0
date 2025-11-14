@@ -144,6 +144,9 @@
     <ClCompile Include="Entities\Npc\Ai\Task_ChatPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Entities\Player\RestrictedArea.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp">
@@ -213,6 +216,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Npc\Ai\TaskPairedAction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Player\RestrictedArea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

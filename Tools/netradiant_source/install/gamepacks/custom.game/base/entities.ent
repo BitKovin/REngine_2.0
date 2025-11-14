@@ -87,13 +87,16 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
         <target key="target" name="Start Task"/>
     </point>
 
-<!-- Trigger -->
-    <group name="trigger" color="0 0.5 1">
+    <group name="area_restricted" color="0 0.5 1">
         <target key="target" name="Target"/>
-        <boolean key="_cs" name="Cast Shadows" value="0"/>
         <string key="onEnterAction" name="On Enter" value="trigger_enter"/>
         <string key="onExitAction" name="On Exit" value="trigger_exit"/>
         <string key="targetname" name="Name"></string>
+    </group>
+
+<!-- Trigger -->
+    <group name="trigger" color="0 0.5 1">
+        <integer key="RestrictionLevel" name="Restriction Level" value="1"></integer>
     </group>
 
     <group name="triggerOnce" color="0 0.5 1">

@@ -67,15 +67,27 @@ using namespace JPH;
 using namespace std;
 
 enum BodyType : uint32_t {
-	None = 1,       
-	MainBody = 2,       
-	HitBox = 4,       
-	WorldOpaque = 8,       
-	CharacterCapsule = 16,      
-	NoRayTest = 32,      
-	Liquid = 64,      
-	WorldTransparent = 128,    
-	WorldSkybox = 256,     
+	None = 1u << 0,
+	MainBody = 1u << 1,
+	HitBox = 1u << 2,
+	WorldOpaque = 1u << 3,
+	CharacterCapsule = 1u << 4,
+	NoRayTest = 1u << 5,
+	Liquid = 1u << 6,
+	WorldTransparent = 1u << 7,
+	WorldSkybox = 1u << 8 ,
+
+	Area1 = 1u << 15, //per game logic for areas
+	Area2 = 1u << 16, //per game logic for areas
+	Area3 = 1u << 17, //per game logic for areas
+	Area4 = 1u << 18, //per game logic for areas
+	Area5 = 1u << 19, //per game logic for areas
+
+	CustomType1 = 1u << 21, //per custom type
+	CustomType2 = 1u << 22, //per custom type
+	CustomType3 = 1u << 23, //per custom type
+	CustomType4 = 1u << 24, //per custom type
+	CustomType5 = 1u << 25, //per custom type
 
 	// Combined groups:
 	World = WorldOpaque | WorldTransparent,
@@ -893,7 +905,6 @@ public:
 		return result.Get();
 	}
 
-	uint64_t GetShapeDataIdFromName(string name);
 
 	// Create a body from the provided shape
 	static JPH::Body* CreateBodyFromShape(Entity* owner, vec3 Position, RefConst<Shape> shape, float Mass = 10, JPH::EMotionType motionType = JPH::EMotionType::Dynamic,
@@ -954,6 +965,12 @@ public:
 		string hitboxName;
 		string surfaceName;
 	};
+
+	static vector<Physics::HitResult> PointTrace(
+		const vec3 point,
+		const BodyType mask,
+		const vector<Body*> ignoreList = {},
+		const vector<Entity*> entityIgnoreList = {});
 
 	static HitResult LineTrace(const vec3 start, const vec3 end, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {}, const vector<Entity*> entityIgnoreList = {});
 

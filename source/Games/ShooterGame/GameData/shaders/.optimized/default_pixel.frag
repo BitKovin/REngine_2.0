@@ -39,7 +39,7 @@ void main ()
     clamp (((dot (normal_5, 
       normalize(direct_light_dir)
     ) * 0.8) + 0.2), 0.0, 1.0)
-   * direct_light_color)) * 1.5);
+   * direct_light_color)) * 2.5);
   light_4 = (light_4 + v_light);
   color_1 = (texColor_2.xyz * (light_4 + texture (u_textureEmissive, v_texcoord).xyz));
   lowp vec4 tmpvar_7;

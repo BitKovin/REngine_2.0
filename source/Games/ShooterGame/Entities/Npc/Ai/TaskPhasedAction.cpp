@@ -131,7 +131,6 @@ void TaskPhasedAction::UpdatePositionBlend(NpcBase* npc)
 
     s.HasToLockPosition = blend > 0.01f;
 
-    Logger::Log(to_string(blend));
 
     s.LockPosition = glm::mix(s.StartPosition, Position + vec3(0, 1, 0), blend);
 

@@ -90,12 +90,14 @@ void main()
 
     float vertexLightComp = 4.04;
 
-    vec3 vertexLightFactor = vec3(1,1,1);
+    vec3 vertexLightFactor = vec3(1.5);
 
     if(useVertexLight )
     {
         vertexLightFactor = vertexLightComp * g_color.rgb;
     }
+
+    vertexLightFactor*=1.5;
 
     vec3 o_lightmap = texture(s_bspLightmap, g_LmapCoord).rgb * light_color * vertexLightFactor;
 

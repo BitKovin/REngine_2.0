@@ -818,12 +818,21 @@ void NpcBase::UpdateObserver()
 	}
 	else
 	{
-		if (!target_follow && (seeing_target && target_underArrest && !target_follow) == false)
+		if ((!target_follow && (seeing_target && target_underArrest && !target_follow) == false)
+			|| (seeing_target && target_follow && !target_underArrest))
 		{
 			detection_progress -= 0.5f * Time::DeltaTimeF;
 			detection_progress = std::max(0.0f, detection_progress);
+
+			if (target_follow && detection_progress < 0.1)
+			{
+				StopTargetFollow();
+			}
+
 		}
 		has_observed_crime = false;
+
+
 	}
 
 	if (seeing_target && target_underArrest && !target_follow)
@@ -839,6 +848,7 @@ void NpcBase::UpdateObserver()
 
 		}
 	}
+
 
 	if (seeing_target && target_underArrest)
 	{
@@ -1632,6 +1642,12 @@ bool NpcBase::TryCommitCrime(Crime crime, std::string offender, vec3 pos)
 
 	if (crime < Crime::Group_Follow && isGuard)
 	{
+
+		if (crime == Crime::Trespassing)
+		{
+			PlayPhrace("shots_fired");
+		}
+
 		target_follow = true;
 	}
 
@@ -1867,6 +1883,12 @@ void NpcBase::StopTargetFollow()
 	if (target_underArrest)
 	{
 		PlayPhrace("target_lost");
+	}
+	else
+	{
+
+		//PlayPhrace("shots_fired");
+
 	}
 
 	target_follow = false;

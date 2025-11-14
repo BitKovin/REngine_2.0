@@ -28,28 +28,28 @@
         "stunned": false,
         "target": "$info_player_start_0",
         "target_attack": false,
-        "target_attackInRange": false,
-        "target_follow": false,
-        "target_id": "",
-        "target_knowsLocation": false,
+        "target_attackInRange": true,
+        "target_follow": true,
+        "target_id": "$info_player_start_0",
+        "target_knowsLocation": true,
         "target_lastSeenPosition": {
+            "x": 5.734170913696289,
+            "y": 1.4300037622451782,
+            "z": 1.3311258554458618
+        },
+        "target_sees": false,
+        "target_underArrest": false,
+        "task_acceptanceRadius": 0.0,
+        "task_acceptance_radius": 0.30000001192092896,
+        "task_canBeCanceled": true,
+        "task_doingJob": false,
+        "task_move": false,
+        "task_moveLocation": {
             "x": 0.0,
             "y": 0.0,
             "z": 0.0
         },
-        "target_sees": false,
-        "target_underArrest": false,
-        "task_acceptanceRadius": 0.30000001192092896,
-        "task_acceptance_radius": 0.30000001192092896,
-        "task_canBeCanceled": true,
-        "task_doingJob": false,
-        "task_move": true,
-        "task_moveLocation": {
-            "x": -3.875,
-            "y": 1.0,
-            "z": 1.0
-        },
-        "task_setOrientation": true
+        "task_setOrientation": false
     },
     "isRunning": true,
     "root": {
@@ -230,7 +230,7 @@
                                                                                                                 "children": [
                                                                                                                     {
                                                                                                                         "children": [],
-                                                                                                                        "id": "node_c868b2f49666fc8b",
+                                                                                                                        "id": "node_7fded2c51e2c2b79",
                                                                                                                         "name": "Stop Target Follow",
                                                                                                                         "type": "StopTargetFollow"
                                                                                                                     }
@@ -243,7 +243,7 @@
                                                                                                                     "sourceType": 0,
                                                                                                                     "value": false
                                                                                                                 },
-                                                                                                                "id": "node_6ef4d87b24be5703",
+                                                                                                                "id": "node_d1830f110f1a80c4",
                                                                                                                 "inverse": true,
                                                                                                                 "inverse finish before stop": false,
                                                                                                                 "name": "if not stunned",
@@ -258,7 +258,7 @@
                                                                                                             "sourceType": 0,
                                                                                                             "value": false
                                                                                                         },
-                                                                                                        "id": "node_4547d9880f2e1886",
+                                                                                                        "id": "node_8f579e5fa9367108",
                                                                                                         "inverse": true,
                                                                                                         "inverse finish before stop": false,
                                                                                                         "name": "if doen't see target",
@@ -493,7 +493,7 @@
                                                                                                                         "children": [
                                                                                                                             {
                                                                                                                                 "children": [],
-                                                                                                                                "id": "node_5530fcca30c09480",
+                                                                                                                                "id": "node_e99c90f3b34a8af5",
                                                                                                                                 "name": "Wait",
                                                                                                                                 "type": "WaitNode",
                                                                                                                                 "waitTime": {
@@ -503,12 +503,12 @@
                                                                                                                             },
                                                                                                                             {
                                                                                                                                 "children": [],
-                                                                                                                                "id": "node_399a7d9edb141ba4",
+                                                                                                                                "id": "node_1e9d90de7dfd99a1",
                                                                                                                                 "name": "Stop Target Follow",
                                                                                                                                 "type": "StopTargetFollow"
                                                                                                                             }
                                                                                                                         ],
-                                                                                                                        "id": "node_1a2fd855c0ede013",
+                                                                                                                        "id": "node_c870c7d9b794a3c8",
                                                                                                                         "name": "Sequence",
                                                                                                                         "type": "SequenceNode"
                                                                                                                     }
@@ -583,7 +583,7 @@
                                                                             {
                                                                                 "acceptance radius": {
                                                                                     "sourceType": 0,
-                                                                                    "value": 1.0
+                                                                                    "value": 2.5
                                                                                 },
                                                                                 "children": [],
                                                                                 "id": "node_638fa10683fa37af",
@@ -639,16 +639,6 @@
                                                                                         "inverse finish before stop": false,
                                                                                         "name": "Conditional",
                                                                                         "type": "ConditionalDecorator"
-                                                                                    },
-                                                                                    {
-                                                                                        "children": [],
-                                                                                        "id": "node_54b9cb3853a303f0",
-                                                                                        "message": {
-                                                                                            "sourceType": 0,
-                                                                                            "value": "STOP IT"
-                                                                                        },
-                                                                                        "name": "PrintMessage",
-                                                                                        "type": "PrintMessageNode"
                                                                                     }
                                                                                 ],
                                                                                 "id": "node_3f64db8c7d309745",
