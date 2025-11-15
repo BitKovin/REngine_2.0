@@ -1879,3 +1879,65 @@
 "origin" "-24 196 44"
 "target" "np_0_0"
 }
+// entity 72
+{
+"classname" "trigger"
+"target" "door2"
+"onEnterAction" "open"
+"onExitAction" "close"
+// brush 0
+{
+( -224 304 16 ) ( -224 432 16 ) ( -224 304 32 ) common/trigger 0 0 0 0.5 0.5 0 0 0
+( -224 304 16 ) ( -224 304 32 ) ( -96 304 16 ) common/trigger 0 0 0 0.5 0.5 0 0 0
+( -224 304 16 ) ( -96 304 16 ) ( -224 432 16 ) common/trigger 0 0 0 0.5 0.5 0 0 0
+( -96 432 80 ) ( -96 304 80 ) ( -224 432 80 ) common/trigger 0 0 0 0.5 0.5 0 0 0
+( -96 432 32 ) ( -224 432 32 ) ( -96 432 16 ) common/trigger 0 0 0 0.5 0.5 0 0 0
+( -96 432 32 ) ( -96 432 16 ) ( -96 304 32 ) common/trigger 0 0 0 0.5 0.5 0 0 0
+}
+}
+// entity 73
+{
+"classname" "transformPoint"
+"origin" "-152 304 128"
+"angles" "0 90 0"
+"targetname" "tp_3"
+}
+// entity 74
+{
+"classname" "transformPoint"
+"origin" "-152 432 128"
+"angles" "0 270 0"
+"targetname" "tp_4"
+}
+// entity 75
+{
+"classname" "func_door"
+"targetLocation" "0 0 0"
+"targetname" "door2"
+"rotationPointName" "tp_1"
+// brush 0
+{
+( -160 240 16 ) ( -160 352 16 ) ( -160 240 32 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
+( -144 304 96 ) ( -144 304 112 ) ( -128 304 96 ) delvenPack/dlv_door1a 0 0 0 0.5 0.5 0 0 0
+( -160 240 16 ) ( -144 240 16 ) ( -160 352 16 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
+( -144 352 128 ) ( -144 240 128 ) ( -160 352 128 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
+( -144 368 32 ) ( -160 368 32 ) ( -144 368 16 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
+( -144 352 32 ) ( -144 352 16 ) ( -144 240 32 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
+}
+}
+// entity 76
+{
+"classname" "func_door"
+"targetLocation" "0 0 0"
+"targetname" "door2"
+"rotationPointName" "tp_2"
+// brush 0
+{
+( -160 304 16 ) ( -160 416 16 ) ( -160 304 32 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
+( -192 368 16 ) ( -208 368 16 ) ( -160 368 128 ) delvenPack/dlv_door1a 0 0 0 0.5 0.5 0 0 0
+( -208 368 16 ) ( -192 368 16 ) ( -144 432 16 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
+( -144 416 128 ) ( -144 304 128 ) ( -160 416 128 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
+( -144 432 32 ) ( -160 432 32 ) ( -144 432 16 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
+( -144 416 32 ) ( -144 416 16 ) ( -144 304 32 ) delvenPack/dlv_door1a -176 0 0 1 1 0 0 0
+}
+}

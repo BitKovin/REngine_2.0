@@ -2128,7 +2128,7 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 
 	if (target_follow && reason == InvestigationReason::WeaponFire && causer == target_id)
 	{
-		target_stopUpdateLastSeenPositionDelay.AddDelay(0.2f);
+		target_stopUpdateLastSeenPositionDelay.AddDelay(0.5f);
 	}
 
 	if (target_follow && target_underArrest == false && reason > InvestigationReason::Body)

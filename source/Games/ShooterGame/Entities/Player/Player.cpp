@@ -896,7 +896,7 @@ void Player::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone
 {
     Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
 
-    GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point - vec3(0,0.5f,0), MathHelper::FindLookAtRotation(vec3(0), -Direction - vec3(0, 1, 0)), vec3(0.2f));
+    //GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point - vec3(0,0.5f,0), MathHelper::FindLookAtRotation(vec3(0), -Direction - vec3(0, 1, 0)), vec3(0.2f));
 
 }
 
