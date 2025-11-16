@@ -18,10 +18,15 @@ TaskState TaskPoint::GetDefaultTaskState()
 
 void TaskPoint::NpcEntered(NpcBase* npc)
 {
-    if (currentNpc != nullptr) {
-        Logger::Log("Task already occupied: " + Name);
-        return;
+
+    if (AllowMultipleNpcs == false)
+    {
+        if (currentNpc != nullptr && currentNpc != npc) {
+            Logger::Log("Task already occupied: " + Name);
+            return;
+		}
     }
+
     npc->taskState = GetDefaultTaskState();
     currentNpc = npc;
 }

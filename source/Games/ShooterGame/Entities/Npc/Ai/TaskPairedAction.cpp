@@ -10,6 +10,9 @@ void TaskPairedAction::FromData(EntityData data)
     partner = dynamic_cast<TaskPairedAction*>(FindTaskByName(partnerName));
     if (!partner && !partnerName.empty())
         Logger::Log("Partner not found: " + partnerName);
+
+	AllowMultipleNpcs = false;
+
 }
 
 void TaskPairedAction::OnNpcTargetReached(NpcBase* npc)

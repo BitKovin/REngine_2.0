@@ -33,23 +33,28 @@ vec4 ApplyFog(vec4 fragColor);
 void main() {
     vec4 texColor;
     
-    if(masked)
-    {
-        texColor = textureLod(u_texture, v_texcoord, 0.0f) * v_color;
-    }
-    else
-    {
-        texColor = texture(u_texture, v_texcoord)*v_color;
-    } 
+
+    texColor = texture(u_texture, v_texcoord) * v_color;
+    
 
     vec3 color = texColor.rgb;
     float alpha = texColor.a;
 
-    if(masked && alpha<0.999)
+
+    if(masked)
     {
-        discard;
-        return;
+
+        if(alpha < 0.5f) 
+        {
+            discard;
+            return;
+        }
+
+        alpha = 1.0;
+
     }
+
+
 
     vec3 ligthColor = CalculateLight() + texture(u_textureEmissive, v_texcoord).rgb;
 

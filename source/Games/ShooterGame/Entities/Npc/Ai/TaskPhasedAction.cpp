@@ -5,6 +5,9 @@ void TaskPhasedAction::FromData(EntityData data)
 {
     TaskPoint::FromData(data); // Loads "target" as nextTask
     acceptanceRadius = data.GetPropertyFloat("acceptanceRadius", acceptanceRadius);
+
+    AllowMultipleNpcs = false;
+
 }
 
 void TaskPhasedAction::OnNpcTargetReached(NpcBase* npc)

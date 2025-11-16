@@ -1499,7 +1499,7 @@ void NpcBase::LoadAssets()
 void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 {
 
-	if (knowlageSharedThisFrame > 5) return;
+	//if (knowlageSharedThisFrame > 20) return;
 
 	bool hasChanges = false;
 
@@ -1523,7 +1523,7 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 		hasChanges = true;
 	}
 
-	if (target_lastSeenTime > anotherNpc->target_lastSeenTime + 0.5f)
+	if (target_lastSeenTime > anotherNpc->target_lastSeenTime + 0.2f)
 	{
 		hasChanges = true;
 	}
@@ -1543,6 +1543,13 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 	if (detection_progress >= 1 && anotherNpc->detection_progress < 1)
 	{
 		hasChanges = true;
+	}
+
+	if (target_lastSeenTime > anotherNpc->target_lastSeenTime)
+	{
+		anotherNpc->target_stopUpdateLastSeenPositionDelay.AddDelay(0.5);
+		anotherNpc->target_lastSeenPosition = target_lastSeenPosition;
+		anotherNpc->target_lastSeenTime = target_lastSeenTime;
 	}
 
 	if (hasChanges == false) return;
@@ -1882,6 +1889,7 @@ void NpcBase::StopTargetFollow()
 
 	if (target_underArrest)
 	{
+
 		PlayPhrace("target_lost");
 	}
 	else

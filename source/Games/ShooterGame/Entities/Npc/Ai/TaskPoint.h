@@ -35,6 +35,9 @@ public:
     virtual void FinishTask(NpcBase* npc);
 
 protected:
+
+	bool AllowMultipleNpcs = true;
+
     NpcBase* currentNpc = nullptr;
     std::string nextTask;
 

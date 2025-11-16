@@ -1,5 +1,5 @@
 #pragma once
-#include <glm/vec3.hpp>
+#include "../glm.h"
 #include "Detour/DetourCrowd.h"
 #include "Detour/DetourNavMeshQuery.h"
 

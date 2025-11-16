@@ -1,6 +1,6 @@
 #include "Observer.h"
 #include "ObservationTarget.h"
-#include <glm/gtx/vector_angle.hpp>
+#include "../glm.h"
 #include <cmath>
 #include "../Physics.h"
 #include "../DebugDraw.hpp"

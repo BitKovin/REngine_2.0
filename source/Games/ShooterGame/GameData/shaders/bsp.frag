@@ -92,12 +92,12 @@ void main()
 
     vec3 vertexLightFactor = vec3(1.5);
 
-    if(useVertexLight )
+    if(useVertexLight)
     {
         vertexLightFactor = vertexLightComp * g_color.rgb;
     }
 
-    vertexLightFactor*=1.5;
+    vertexLightFactor *= 1.5f;
 
     vec3 o_lightmap = texture(s_bspLightmap, g_LmapCoord).rgb * light_color * vertexLightFactor;
 

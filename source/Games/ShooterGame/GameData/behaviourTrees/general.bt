@@ -13,11 +13,11 @@
         },
         "found_guard": false,
         "has_navpoint": true,
-        "investigation": false,
+        "investigation": true,
         "investigation_target": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": 5.334712982177734,
+            "y": 1.9804165363311768,
+            "z": -13.471794128417969
         },
         "isGuard": true,
         "navpoint_acceptance_radius": 0.0,
@@ -27,18 +27,18 @@
         "report_to_guard": false,
         "stunned": false,
         "target": "$info_player_start_0",
-        "target_attack": false,
+        "target_attack": true,
         "target_attackInRange": true,
         "target_follow": true,
         "target_id": "$info_player_start_0",
         "target_knowsLocation": true,
         "target_lastSeenPosition": {
-            "x": 5.734170913696289,
-            "y": 1.4300037622451782,
-            "z": 1.3311258554458618
+            "x": -9.172154426574707,
+            "y": 1.4300038814544678,
+            "z": -10.455656051635742
         },
         "target_sees": false,
-        "target_underArrest": false,
+        "target_underArrest": true,
         "task_acceptanceRadius": 0.0,
         "task_acceptance_radius": 0.30000001192092896,
         "task_canBeCanceled": true,
@@ -498,7 +498,7 @@
                                                                                                                                 "type": "WaitNode",
                                                                                                                                 "waitTime": {
                                                                                                                                     "sourceType": 0,
-                                                                                                                                    "value": 1.0
+                                                                                                                                    "value": 5.0
                                                                                                                                 }
                                                                                                                             },
                                                                                                                             {
@@ -611,7 +611,7 @@
                                                                                                         "type": "WaitNode",
                                                                                                         "waitTime": {
                                                                                                             "sourceType": 0,
-                                                                                                            "value": 1.0
+                                                                                                            "value": 5.0
                                                                                                         }
                                                                                                     },
                                                                                                     {

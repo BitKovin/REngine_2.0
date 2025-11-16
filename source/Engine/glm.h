@@ -1,8 +1,9 @@
 #pragma once
-#define GLM_FORCE_PURE
 #define GLM_ENABLE_EXPERIMENTAL
-
+#define GLM_FORCE_CXX17
 #define GLM_FORCE_INTRINSICS
+
+#define GLM_FORCE_SSE2
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -20,6 +21,7 @@
 #include <glm/geometric.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/common.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 
 using namespace glm;

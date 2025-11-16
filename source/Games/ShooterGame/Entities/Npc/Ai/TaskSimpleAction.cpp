@@ -8,6 +8,9 @@ void TaskSimpleAction::FromData(EntityData data)
     acceptanceRadius = data.GetPropertyFloat("acceptanceRadius", acceptanceRadius);
     duration = data.GetPropertyFloat("duration", duration);
     if (duration < 0) duration = 0;
+
+    AllowMultipleNpcs = false;
+
 }
 
 void TaskSimpleAction::OnNpcTargetReached(NpcBase* npc)
