@@ -144,6 +144,7 @@ GameStart::GameStart()
     Input::AddAction("slot2")->AddKeyboardKey(SDL_KeyCode::SDLK_2);
     Input::AddAction("slot3")->AddKeyboardKey(SDL_KeyCode::SDLK_3);
     Input::AddAction("slot4")->AddKeyboardKey(SDL_KeyCode::SDLK_4);
+    Input::AddAction("slot5")->AddKeyboardKey(SDL_KeyCode::SDLK_5);
     Input::AddAction("lastSlot")->AddKeyboardKey(SDL_KeyCode::SDLK_q);
 
     Input::AddAction("reload_shaders")->AddKeyboardKey(SDL_KeyCode::SDLK_F3);

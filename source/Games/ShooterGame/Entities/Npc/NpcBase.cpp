@@ -44,7 +44,7 @@ NpcBase::NpcBase()
 	ClassName = "npc_base";
 	SaveGame = true;
 
-	Health = 70;
+	Health = 100;
 
 	mesh->UpdatePoseOnlyWhenRendered = true;
 
@@ -58,9 +58,15 @@ NpcBase::~NpcBase()
 {
 }
 
+void NpcBase::DoInterpolatedAnimationUpdate()
+{
+}
+
 void NpcBase::ProcessAnimationEvent(AnimationEvent& event)
 {
 
+	animator.UsePrecomputedFrames = false;
+	UpdateAnimations();
 
 }
 
@@ -126,6 +132,7 @@ void NpcBase::Death()
 	needToInvestigateBody = true;
 
 	//mesh->ClearHitboxes();
+	DoInterpolatedAnimationUpdate();
 	mesh->StartRagdoll();
 	mesh->RagdollPoseFollowStrength = 0.0f;
 	mesh->SetAnimationPaused(true);
@@ -161,7 +168,7 @@ void NpcBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bon
 		Time::AddTimeScaleEffect(0.3f, 0.15f, true, "hit_slow");
 	}
 
-	if (bone == "calf_l" || bone == "calf_r")
+	if (bone == "calf_l" || bone == "calf_r" || Damage>50)
 	{
 		StartStunnedRagdoll();
 	}
@@ -174,8 +181,6 @@ void NpcBase::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
 {
 
 	Health -= Damage;
-
-
 
 	if (Health <= 0)
 	{
@@ -200,9 +205,12 @@ bool NpcBase::isStunned()
 void NpcBase::StartStunnedRagdoll()
 {
 
+	if (dead)return;
+
 	if (stunnedRagdoll == false)
 	{
 		mesh->RagdollPoseFollowStrength = 0.5f;
+		DoInterpolatedAnimationUpdate();
 		mesh->StartRagdoll();
 		stunnedRagdoll = true;
 	}
@@ -406,6 +414,8 @@ void NpcBase::AsyncUpdate()
 
 	VoiceSoundPlayer->Velocity = FromPhysics(LeadBody->GetLinearVelocity());
 
+	vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
+
 	if (isStunned() || mesh->InRagdoll)
 	{
 
@@ -414,11 +424,9 @@ void NpcBase::AsyncUpdate()
 		Physics::SetLinearVelocity(LeadBody, vec3(0, LeadBody->GetLinearVelocity().GetY(), 0));
 
 	}
-
 	else if (movementLockDelay.Wait())
 	{
-		vec3 curMove = MathHelper::XZ(FromPhysics(LeadBody->GetLinearVelocity()));
-
+	
 		desiredDirection = MathHelper::Interp(curMove, vec3(), Time::DeltaTimeF, 5.0f);
 
 		float gravity = LeadBody->GetLinearVelocity().GetY();
@@ -432,7 +440,7 @@ void NpcBase::AsyncUpdate()
 	else
 	{
 
-		bool lockAtTarget = target_attack && target_sees && target_attackInRange && isGuard && DoingTask == false;
+		bool lockAtTarget = ((target_attack && target_sees && target_attackInRange && isGuard) || (target_follow && target_sees && length(curMove) < 1)) && DoingTask == false;
 
 		desiredDirection = vec3(0);
 
@@ -943,9 +951,11 @@ void NpcBase::UpdateTargetFollow()
 
 	}
 
-	speed = (target_follow || currentInvestigation <= InvestigationReason::Body) ? 5 : 2;
 
-	if (isGuard && target_sees && target_attackInRange)
+
+	speed = ((target_follow) || currentInvestigation <= InvestigationReason::Body) ? 5 : 2;
+
+	if (isGuard && target_sees && target_attackInRange && target_attack)
 	{
 		speed = 2;
 	}
@@ -1463,6 +1473,8 @@ void NpcBase::UpdateAnimations()
 
 			mesh->PasteAnimationPose(pose);
 	}
+
+	animator.UsePrecomputedFrames = true;
 
 }
 

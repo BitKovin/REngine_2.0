@@ -1,5 +1,4 @@
-#ifndef ANIMATOR_HPP
-#define ANIMATOR_HPP
+#pragma once
 #include "skinned_model.hpp"
 #include "MathHelper.hpp"
 #include <unordered_map>
@@ -18,15 +17,17 @@ public :
 
     bool m_playing = false;
 
+    bool InterpolateRotation = true;
+	bool InterpolatePosition = true;
+	bool InterpolateScale = false;
+
     MathHelper::Transform oldRootBoneTransform;
     MathHelper::Transform rootBoneTransform;
 
     vec3 totalRootMotionPosition = vec3();
     vec3 totalRootMotionRotation = vec3();
 
-    bool InterpolatePosition = true;
-    bool InterpolateRotation = true;
-    bool InterpolateScale = true;
+	bool UsePrecomputedFrames = false;
 
 private:
 
@@ -47,6 +48,7 @@ private:
     glm::mat4 interpolateRotation(FrameBoneTransform& boneTransform);
     glm::mat4 interpolateScaling(FrameBoneTransform& boneTransform);
     void calcBoneTransform(BoneNode& node, glm::mat4 offset, bool stopAfterRoot);
+	void useBakedFrame(float time);
 
     void ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unordered_map<hashed_string, mat4>& pose);
 
@@ -89,4 +91,3 @@ public:
     
 };
 }
-#endif //-ANIMATOR_HPP

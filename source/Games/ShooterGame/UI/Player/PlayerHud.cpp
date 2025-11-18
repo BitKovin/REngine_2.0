@@ -40,7 +40,7 @@ void PlayerHud::Init(Player* playerRef)
 
 
     hudCanvas->AddChild(text);
-    hudCanvas->AddChild(crosshair);
+    //hudCanvas->AddChild(crosshair);
 
 
 

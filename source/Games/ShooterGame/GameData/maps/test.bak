@@ -1860,9 +1860,9 @@
 // entity 70
 {
 "classname" "npc_guard"
-"origin" "-80 -48 48"
+"origin" "-112 -32 48"
 "target" "np_guard_wait_1"
-"angle" "170.504"
+"angle" "-0.422169"
 }
 // entity 71
 {
@@ -1882,4 +1882,21 @@
 ( 128 -80 16 ) ( 128 -80 32 ) ( 208 -80 16 ) generic/cat 0 0 0 0.5 0.5 0 0 0
 ( 128 -80 16 ) ( 128 0 16 ) ( 128 -80 32 ) generic/cat 0 0 0 0.5 0.5 0 0 0
 }
+}
+// entity 73
+{
+"classname" "misc_model"
+"origin" "-127.611 -247.272 28.5949"
+"model" "models/npc_base.obj"
+"modelscale" "32"
+"angles" "0 270 40"
+}
+// entity 74
+{
+"classname" "static_mesh"
+"origin" "-127.497 -295.193 28.7592"
+"texture" "models/test.png"
+"angles" "0 270 40"
+"model" "models/npc_base.obj"
+"modelscale" "32"
 }

@@ -7,7 +7,7 @@ class DestructibleBrush : public Entity
 {
 public:
 
-	virtual void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr)
+	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr) override
 	{
 		Destroy();
 	}

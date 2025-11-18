@@ -212,9 +212,7 @@ public:
 
 	bool UpdateRagdollPose = false;
 
-	bool InterpolatePosition = true;
-	bool InterpolateRotation = true;
-	bool InterpolateScale = true;
+	bool UsePrecomputedFrames = false;
 
 	static inline int skelMeshes = 0;
 

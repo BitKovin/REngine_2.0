@@ -187,6 +187,8 @@ public:
 		soundPlayer->MinDistance = 0.5;
 	}
 
+	void DoInterpolatedAnimationUpdate();
+
 	void ProcessAnimationEvent(AnimationEvent& event);
 
 	void FromData(EntityData data);

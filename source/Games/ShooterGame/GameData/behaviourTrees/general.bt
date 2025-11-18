@@ -13,11 +13,11 @@
         },
         "found_guard": false,
         "has_navpoint": true,
-        "investigation": true,
+        "investigation": false,
         "investigation_target": {
-            "x": 5.334712982177734,
-            "y": 1.9804165363311768,
-            "z": -13.471794128417969
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
         },
         "isGuard": true,
         "navpoint_acceptance_radius": 0.0,
@@ -27,17 +27,17 @@
         "report_to_guard": false,
         "stunned": false,
         "target": "$info_player_start_0",
-        "target_attack": true,
+        "target_attack": false,
         "target_attackInRange": true,
         "target_follow": true,
         "target_id": "$info_player_start_0",
         "target_knowsLocation": true,
         "target_lastSeenPosition": {
-            "x": -9.172154426574707,
-            "y": 1.4300038814544678,
-            "z": -10.455656051635742
+            "x": 0.10540872812271118,
+            "y": 1.4291126728057861,
+            "z": 3.651519536972046
         },
-        "target_sees": false,
+        "target_sees": true,
         "target_underArrest": true,
         "task_acceptanceRadius": 0.0,
         "task_acceptance_radius": 0.30000001192092896,
@@ -581,22 +581,64 @@
                                                                                 "type": "Task_NotDoing"
                                                                             },
                                                                             {
-                                                                                "acceptance radius": {
-                                                                                    "sourceType": 0,
-                                                                                    "value": 2.5
-                                                                                },
-                                                                                "children": [],
-                                                                                "id": "node_638fa10683fa37af",
-                                                                                "name": "Move To Position",
-                                                                                "pretty path": {
-                                                                                    "sourceType": 0,
-                                                                                    "value": false
-                                                                                },
-                                                                                "target": {
-                                                                                    "blackboardKey": "target_lastSeenPosition",
-                                                                                    "sourceType": 1
-                                                                                },
-                                                                                "type": "MoveToPosition"
+                                                                                "children": [
+                                                                                    {
+                                                                                        "children": [
+                                                                                            {
+                                                                                                "acceptance radius": {
+                                                                                                    "sourceType": 0,
+                                                                                                    "value": 0.5
+                                                                                                },
+                                                                                                "children": [],
+                                                                                                "id": "node_fe379289ec8212c3",
+                                                                                                "name": "Move To Position",
+                                                                                                "pretty path": {
+                                                                                                    "sourceType": 0,
+                                                                                                    "value": false
+                                                                                                },
+                                                                                                "target": {
+                                                                                                    "blackboardKey": "target_lastSeenPosition",
+                                                                                                    "sourceType": 1
+                                                                                                },
+                                                                                                "type": "MoveToPosition"
+                                                                                            }
+                                                                                        ],
+                                                                                        "condition": {
+                                                                                            "blackboardKey": "target_sees",
+                                                                                            "sourceType": 1
+                                                                                        },
+                                                                                        "finish before stop": {
+                                                                                            "sourceType": 0,
+                                                                                            "value": false
+                                                                                        },
+                                                                                        "id": "node_de4efdb08929357e",
+                                                                                        "inverse": true,
+                                                                                        "inverse finish before stop": false,
+                                                                                        "name": "Conditional",
+                                                                                        "type": "ConditionalDecorator"
+                                                                                    },
+                                                                                    {
+                                                                                        "acceptance radius": {
+                                                                                            "sourceType": 0,
+                                                                                            "value": 2.5
+                                                                                        },
+                                                                                        "children": [],
+                                                                                        "id": "node_2bb45f24562df117",
+                                                                                        "name": "Move To Position",
+                                                                                        "pretty path": {
+                                                                                            "sourceType": 0,
+                                                                                            "value": false
+                                                                                        },
+                                                                                        "target": {
+                                                                                            "blackboardKey": "target_lastSeenPosition",
+                                                                                            "sourceType": 1
+                                                                                        },
+                                                                                        "type": "MoveToPosition"
+                                                                                    }
+                                                                                ],
+                                                                                "id": "node_ad024152d50bbf1",
+                                                                                "name": "Selector",
+                                                                                "type": "SelectorNode"
                                                                             },
                                                                             {
                                                                                 "children": [

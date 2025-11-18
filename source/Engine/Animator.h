@@ -8,9 +8,7 @@ public:
 	float Speed = 1;
 	bool UpdatePose = true; 
 
-	bool InterpolatePosition = true;
-	bool InterpolateRotation = true;
-	bool InterpolateScale = true;
+	bool UsePrecomputedFrames = false;
 
 	Animator(Entity* ownerEntity);
 	virtual ~Animator();

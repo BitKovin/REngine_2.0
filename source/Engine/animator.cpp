@@ -26,9 +26,7 @@ void Animator::Update()
 	{
 
 		anim->UpdatePose = UpdatePose;
-		anim->InterpolatePosition = InterpolatePosition;
-		anim->InterpolateRotation = InterpolateRotation;
-		anim->InterpolateScale = InterpolateScale;
+		anim->UsePrecomputedFrames = UsePrecomputedFrames;
 
 		anim->Update(Speed);
 

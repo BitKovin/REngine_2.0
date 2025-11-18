@@ -199,6 +199,25 @@ void roj::Animator::calcBoneTransform(BoneNode& node, glm::mat4 offset, bool sto
     }
 }
 
+void roj::Animator::useBakedFrame(float time)
+{
+
+	int currentFrame = static_cast<int>(time / m_currAnim->ticksPerSec / m_currAnim->bakedFrameInterval);
+
+    if (currentFrame >= m_currAnim->bakedFrames.size())
+    {
+        currentFrame = m_currAnim->bakedFrames.size() - 1;
+	}
+
+	auto& BakedFrameData = m_currAnim->bakedFrames[currentFrame];
+
+    currentPose = BakedFrameData.boneTransforms;
+    m_boneMatrices = BakedFrameData.modelTransform;
+    totalRootMotionPosition = BakedFrameData.totalRootMotionPosition;
+	totalRootMotionRotation = BakedFrameData.totalRootMotionRotation;
+
+}
+
 void roj::Animator::ApplyNodePose(BoneNode& node, glm::mat4 offset, std::unordered_map<hashed_string, mat4>& pose)
 {
 
@@ -337,9 +356,10 @@ std::vector<glm::mat4>& roj::Animator::getBoneMatrices()
 
 std::unordered_map<hashed_string, mat4> roj::Animator::GetBonePoseArray()
 {
-    std::unordered_map<hashed_string, mat4> outVector = std::unordered_map<hashed_string, mat4>();
 
     return currentPose;
+    /*
+    std::unordered_map<hashed_string, mat4> outVector = std::unordered_map<hashed_string, mat4>();
 
     if (m_currAnim) 
     {
@@ -347,6 +367,7 @@ std::unordered_map<hashed_string, mat4> roj::Animator::GetBonePoseArray()
     }
 
     return outVector;
+    */
 }
 
 void roj::Animator::ApplyBonePoseArray(std::unordered_map<hashed_string, mat4> pose)
@@ -407,8 +428,18 @@ void roj::Animator::update(float dt)
         }
 
         m_playing = Loop || (m_currTime < m_currAnim->duration);
-        calcBoneTransform(m_currAnim->rootBone, glm::identity<mat4>(), UpdatePose == false);
-        updateRootMotion();
+
+        if (UsePrecomputedFrames)
+        {
+			useBakedFrame(m_currTime);
+        }
+        else
+        {
+            calcBoneTransform(m_currAnim->rootBone, glm::identity<mat4>(), UpdatePose == false);
+            updateRootMotion();
+        }
+
+
     }
 }
 
@@ -447,6 +478,10 @@ void roj::Animator::play()
 void roj::Animator::reset()
 {
     m_currTime = 0.0f;
+    currentPose.clear();
+	totalRootMotionPosition = vec3();
+	totalRootMotionRotation = vec3();
+	m_playing = false;
 }
 
 void roj::Animator::precacheAnimation() {

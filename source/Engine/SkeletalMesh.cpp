@@ -641,9 +641,7 @@ void SkeletalMesh::Update(float timeScale)
 
 	animator.UpdatePose = UpdatePose;
 
-	animator.InterpolatePosition = InterpolatePosition;
-	animator.InterpolateRotation = InterpolateRotation;
-	animator.InterpolateScale = InterpolateScale;
+	animator.UsePrecomputedFrames = UsePrecomputedFrames;
 
 	if (UpdatePoseOnlyWhenRendered)
 	{

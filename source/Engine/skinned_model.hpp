@@ -89,12 +89,22 @@ namespace roj
 		std::vector<glm::vec3> scales = {};
 	};
 
+	struct BakedFrameData
+	{
+		std::unordered_map<hashed_string, glm::mat4> boneTransforms = {};
+		vec3 totalRootMotionPosition = vec3();
+		vec3 totalRootMotionRotation = vec3();
+		std::vector<mat4> modelTransform = {};
+	};
+
 	struct Animation {
 		float duration = 0.0f;
 		float ticksPerSec = 1.0f;
 		float frameTime = 0.0;
 		BoneNode rootBone;
 		std::unordered_map<hashed_string, FrameBoneTransform> animationFrames = {};
+		std::vector<BakedFrameData> bakedFrames = {};
+		float bakedFrameInterval = 0.0f;
 	};
 
 

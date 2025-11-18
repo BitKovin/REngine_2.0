@@ -39,10 +39,12 @@ void Player::Start()
     PreloadEntityType("weapon_pistol");
     PreloadEntityType("weapon_shotgun");
     PreloadEntityType("weapon_mpsd");
+    PreloadEntityType("weapon_sniper");
 
     AddWeaponByName("weapon_pistol");
     AddWeaponByName("weapon_shotgun");
     AddWeaponByName("weapon_mpsd");
+    AddWeaponByName("weapon_sniper");
 
     hitbox = Physics::CreateCharacterBody(this, Position, 0.3f, 1.2f, 0.1f, BodyType::HitBox, BodyType::None);
     hitbox->SetMotionType(JPH::EMotionType::Kinematic);
@@ -218,8 +220,11 @@ void Player::SwitchWeapon(const WeaponSlotData& data)
     {
         currentWeapon = (Weapon*)Spawn(data.className);
         currentWeapon->Start();
-        currentWeapon->LoadAssetsIfNeeded();
-        currentWeapon->SetData(data); // Implement this in Weapon class
+        if (Level::Current->IsEntityTypeLoaded(data.className))
+        {
+            currentWeapon->LoadAssetsIfNeeded();
+        }
+        currentWeapon->SetData(data);
     }
 }
 
@@ -363,7 +368,7 @@ void Player::UpdateWeapon()
     {
 
         currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
-        currentWeapon->Position = Camera::position + MathHelper::TransformVector(bob, Camera::GetRotationMatrix());
+        currentWeapon->Position = Camera::position + MathHelper::TransformVector(bob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;
         currentWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.75f);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 
         if (currentWeapon->Illegal)
@@ -597,7 +602,6 @@ void Player::Update()
     //printf("%i \n",SkeletalMesh::skelMeshes);
 
 
-    controller.Update(Time::DeltaTimeF);
 
 	if (teleported == false && freeFly == false)
 	{
@@ -638,15 +642,19 @@ void Player::Update()
     if (Input::LockCursor)
     {
 
-        cameraRotation.y += Input::MouseDelta.x;
-        cameraRotation.x -= Input::MouseDelta.y;
+		float fovScale = Camera::FOV / 75.0f;
+
+		//fovScale = mix(fovScale, 1.0f, 0.5f);
+
+        cameraRotation.y += Input::MouseDelta.x * fovScale;
+        cameraRotation.x -= Input::MouseDelta.y * fovScale;
 
         vec2 touchMovement = Hud.ScreenControls->TouchArea->GetTouchMovement();
 
         touchMovement /= -5.0;
 
-        cameraRotation.y += touchMovement.x;
-        cameraRotation.x -= touchMovement.y;
+        cameraRotation.y += touchMovement.x * fovScale;
+        cameraRotation.x -= touchMovement.y * fovScale;
 
         cameraRotation.x = glm::clamp(cameraRotation.x, -89.0f,89.0f);
 
@@ -807,6 +815,12 @@ void Player::Update()
     if (Input::GetAction("slot3")->Pressed())
         SwitchToSlot(2);
 
+    if (Input::GetAction("slot4")->Pressed())
+        SwitchToSlot(3);
+
+    if (Input::GetAction("slot5")->Pressed())
+        SwitchToSlot(4);
+
     if (Input::GetAction("lastSlot")->Pressed())
         SwitchToSlot(lastSlot);
 
@@ -814,6 +828,8 @@ void Player::Update()
 
 void Player::AsyncUpdate()
 {
+
+    controller.Update(Time::DeltaTimeF);
     bodyAnimator.Update();
 
     UpdateCurrentRestrictedArea();

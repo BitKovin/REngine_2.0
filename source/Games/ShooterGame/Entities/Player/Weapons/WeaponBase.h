@@ -32,6 +32,8 @@ public:
 
 	bool Illegal = false;
 
+	float bobScale = 1.0f;
+
 	virtual bool IsMelee()
 	{
 		return false;

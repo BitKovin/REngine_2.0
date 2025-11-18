@@ -382,11 +382,11 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 	const Body* hitBody = nullptr;
 
-	if (ThreadPool::Supported() == false)
+	if (ThreadPool::Supported() == false || true)
 	{
-		startRadius = 0.4;
+		startRadius = 0.405;
 
-		numOfIterations = 8;
+		numOfIterations = 4;
 
 	}
 

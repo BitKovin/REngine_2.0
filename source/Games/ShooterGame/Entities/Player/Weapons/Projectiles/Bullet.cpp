@@ -61,7 +61,7 @@ void Bullet::Update()
 		}
 
 		if (hit.entity->HasTag("enemy") && EnemyOwner == false
-			|| hit.entity->HasTag("player") && EnemyOwner)
+			|| hit.entity->HasTag("player") && EnemyOwner || hit.entity->HasTag("player") == false)
 		{
 
 			hit.entity->OnPointDamage(Damage, hit.position, MathHelper::FastNormalize(Position - oldPos), hit.hitboxName, this, this);
