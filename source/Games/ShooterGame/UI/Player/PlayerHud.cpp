@@ -48,6 +48,11 @@ void PlayerHud::Init(Player* playerRef)
     EngineMain::Viewport.AddChild(ScreenControls);
     EngineMain::Viewport.AddChild(hudCanvas);
 
+	frameRate = make_shared<UiText>();
+    frameRate->origin = vec2(0,0);
+	frameRate->position = vec2(10, 10);
+	hudCanvas->AddChild(frameRate);
+
     slots = make_shared<WeaponSlots>();
     slots->player = player;
     slots->origin = vec2(0.5,1);
@@ -60,7 +65,7 @@ void PlayerHud::Init(Player* playerRef)
 void PlayerHud::Update()
 {
     text->text = std::to_string((int)player->Health);
-
+	frameRate->text = "FPS: " + to_string((int)(1.0f / Time::DeltaTimeF));
 
 }
 

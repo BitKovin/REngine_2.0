@@ -21,6 +21,8 @@ public:
             return &(it->second); // Return cached program
         }
 
+		Logger::Log("Creating new ShaderProgram: " + key);
+
         // Load shaders
         Shader* vertexShader = AssetRegistry::GetShaderByName(vertexShaderName, ShaderType::VertexShader);
         Shader* pixelShader = AssetRegistry::GetShaderByName(pixelShaderName, ShaderType::PixelShader);

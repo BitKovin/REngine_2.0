@@ -70,7 +70,13 @@ public:
     static Shader* FromFile(const char* filePath, ShaderType shaderType, bool autoCompile = true)
     {
 
-        auto optimizedDir = StringHelper::Replace(std::string(filePath), "GameData/shaders/", "GameData/shaders/.optimized/").c_str();
+        std::string pathStd = std::string(filePath);
+
+		Logger::Log("Loading shader from file: " + pathStd);
+
+        auto optimizedDir = pathStd;// StringHelper::Replace(pathStd, "GameData/shaders/", "GameData/shaders/.optimized/");
+
+		Logger::Log("Loading optimized shader from file: " + std::string(optimizedDir));
 
         Shader* output = FromCode(FileSystemEngine::ReadFile(optimizedDir).c_str(), shaderType, autoCompile);
         output->filePath = filePath;
@@ -91,6 +97,7 @@ public:
             glGetShaderiv(shaderPointer, GL_INFO_LOG_LENGTH, &logLength);
             std::string infoLog(logLength, ' ');
             glGetShaderInfoLog(shaderPointer, logLength, &logLength, &infoLog[0]);
+            Logger::Log(filePath);
             Logger::Log("Shader compilation failed:\n" + infoLog);
             Logger::Log(shaderCode);
         }

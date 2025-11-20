@@ -233,7 +233,6 @@ namespace roj
 			std::fill(vertex.BlendIndices, vertex.BlendIndices + MAX_BONE_INFLUENCE, 0);
 
 
-
 			vertices.push_back(vertex);
 		}
 

@@ -37,6 +37,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     set(EMSCRIPTEN TRUE)
     message(STATUS "Building for Emscripten")
     include_directories(SYSTEM ${EMSCRIPTEN_SYSROOT}/include)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse -msse2 -msimd128 -msse4.2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2 -msimd128 -msse4.2")
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(LINUX TRUE)

@@ -231,7 +231,7 @@ void NpcBase::UpdateStunnedReturn()
 
 	vec3 pelvisPos = FromPhysics(pelvisBody->GetPosition());
 
-	Physics::SetBodyPosition(LeadBody, pelvisPos + vec3(0,0.3f,0));
+	Physics::SetBodyPosition(LeadBody, pelvisPos + vec3(0,0.4f,0));
 
 	if (stunnedRagdollDelay.Wait()) return;
 
@@ -1441,7 +1441,7 @@ vec3 NpcBase::FindAttackLocation()
 	return bestPos;
 }
 
-void NpcBase::UpdateAnimations()
+void NpcBase::UpdateAnimations(bool forceFullUpdate)
 {
 
 	//if (dead) return;
@@ -1458,7 +1458,7 @@ void NpcBase::UpdateAnimations()
 
 
 
-	if (mesh->WasRended)
+	if (mesh->WasRended || forceFullUpdate)
 	{
 		animator.UpdatePose = mesh->WasRended && mesh->InRagdoll == false;
 
@@ -1471,10 +1471,10 @@ void NpcBase::UpdateAnimations()
 
 		auto pose = animator.GetResultPose();
 
-			mesh->PasteAnimationPose(pose);
+		mesh->PasteAnimationPose(pose);
 	}
-
-	animator.UsePrecomputedFrames = true;
+	if(forceFullUpdate == false)
+		animator.UsePrecomputedFrames = true;
 
 }
 
@@ -1692,7 +1692,10 @@ bool NpcBase::TryCommitCrime(Crime crime, std::string offender, vec3 pos)
 void NpcBase::Serialize(json& target)
 {
 
+	pathFollow.WaitToFinish();
+
 	Entity::Serialize(target);
+
 
 	animationStateSaveData = mesh->GetAnimationState();
 
@@ -1714,6 +1717,7 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, pathFollow.CalculatedTargetLocation);
 	SERIALIZE_FIELD(target, pathFollow.FoundTarget);
 	SERIALIZE_FIELD(target, pathFollow.reachedTarget);
+	SERIALIZE_FIELD(target, pathFollow.CalculatedPath);
 
 
 	SERIALIZE_FIELD(target, taskState);
@@ -1787,6 +1791,7 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, pathFollow.CalculatedTargetLocation);
 	DESERIALIZE_FIELD(source, pathFollow.FoundTarget);
 	DESERIALIZE_FIELD(source, pathFollow.reachedTarget);
+	DESERIALIZE_FIELD(source, pathFollow.CalculatedPath);
 
 	DESERIALIZE_FIELD(source, taskState);
 

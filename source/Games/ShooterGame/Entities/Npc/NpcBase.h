@@ -277,7 +277,7 @@ public:
 
 protected:
 
-	void UpdateAnimations();
+	void UpdateAnimations(bool forceFullUpdate = false);
 
 	void LoadAssets();
 

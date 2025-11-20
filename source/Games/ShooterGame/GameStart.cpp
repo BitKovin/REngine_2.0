@@ -183,7 +183,7 @@ void GameStart::testHttp()
         std::cout.flush();
 #ifdef __EMSCRIPTEN__
         // In browser we can't sleep; just break after some spins
-        emscripten_sleep(100);
+        //emscripten_sleep(100);
 #else
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 #endif
@@ -224,7 +224,7 @@ void GameStart::testHttp()
     while (!http_client::is_done(postId)) {
 #ifdef __EMSCRIPTEN__
         // In browser we can't sleep; just break after some spins
-        emscripten_sleep(100);
+        //emscripten_sleep(100);
 #else
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 #endif

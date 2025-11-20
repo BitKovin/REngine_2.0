@@ -177,6 +177,8 @@ namespace UiRenderer {
             // Calculate memory size (4 bytes per pixel for RGBA)
             size_t textureMemory = surface->w * surface->h * 4;
 
+            std::vector<std::string> deleteList;
+
             // Evict least recently used textures if memory limit is exceeded
             while (totalCacheMemory + textureMemory > MAX_CACHE_MEMORY && !textTextureCache.empty()) {
                 auto lruIt = std::min_element(textTextureCache.begin(), textTextureCache.end(),
@@ -185,7 +187,12 @@ namespace UiRenderer {
                     });
                 glDeleteTextures(1, &lruIt->second.textureID);
                 totalCacheMemory -= lruIt->second.memorySize;
-                textTextureCache.erase(lruIt);
+				deleteList.push_back(lruIt->first);
+            }
+
+            for (const std::string& name : deleteList)
+            {
+                textTextureCache.erase(name);
             }
 
             // Create OpenGL texture
