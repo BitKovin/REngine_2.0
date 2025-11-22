@@ -82,7 +82,7 @@ public:
 	void Update()
 	{
 
-		if (Input::GetAction("attack2")->Holding())
+		if (Input::GetAction("attack2")->Holding() && CanAttack())
 		{
 			aimProgress += Time::DeltaTimeF * 3.0f;
 		}
@@ -99,7 +99,7 @@ public:
 		weaponOffset = mix(vec3(0.0, 0.00, 0.0), weaponAimOffset, aimProgress);
 		Camera::FOV = mix(75.0f, 10.0f, aimProgress);
 
-		if (Input::GetAction("attack")->Holding())
+		if (Input::GetAction("attack")->Holding() && CanAttack())
 		{
 			if (attackDelay.Wait() == false)
 				PerformAttack();

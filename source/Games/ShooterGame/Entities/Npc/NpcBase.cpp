@@ -380,6 +380,9 @@ void NpcBase::AsyncUpdate()
 		UpdateTargetFollow();
 		UpdateBT();
 		UpdateTargetAttack();
+
+		UpdateDoorUpdate();
+
 	}
 
 	auto animEvents = mesh->PullAnimationEvents();
@@ -582,6 +585,15 @@ void NpcBase::LateUpdate()
 	}
 	shareKnowlageWith.clear();
 	knowlageSharedThisFrame = 0;
+}
+
+void NpcBase::UpdateDoorUpdate()
+{
+
+	auto trimmedPath = MathHelper::GetPathWithLength(Position, pathFollow.CurrentPath, 3.0f);
+
+	DebugDraw::Path(trimmedPath, 0.01f, 0.1f);
+
 }
 
 void NpcBase::UpdateBT()
@@ -1718,6 +1730,7 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, pathFollow.FoundTarget);
 	SERIALIZE_FIELD(target, pathFollow.reachedTarget);
 	SERIALIZE_FIELD(target, pathFollow.CalculatedPath);
+	SERIALIZE_FIELD(target, pathFollow.CurrentPath);
 
 
 	SERIALIZE_FIELD(target, taskState);
@@ -1792,6 +1805,7 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, pathFollow.FoundTarget);
 	DESERIALIZE_FIELD(source, pathFollow.reachedTarget);
 	DESERIALIZE_FIELD(source, pathFollow.CalculatedPath);
+	DESERIALIZE_FIELD(source, pathFollow.CurrentPath);
 
 	DESERIALIZE_FIELD(source, taskState);
 

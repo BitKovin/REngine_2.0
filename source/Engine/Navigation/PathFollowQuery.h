@@ -39,6 +39,8 @@ public:
 	vec3 desiredStart;
 	vec3 desiredTarget;
 
+	std::vector<vec3> CurrentPath;
+
 private:
 
 	bool Canceled = false;

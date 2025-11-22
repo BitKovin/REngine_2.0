@@ -101,7 +101,7 @@ void PathFollowQuery::CalculatePathOnThread()
 
 #else
 
-    const int maxSimplifyIterations = 4;  // safety cap
+    const int maxSimplifyIterations = 3;  // safety cap
 
 #endif // DISABLE_TREADPOOL
 
@@ -152,6 +152,8 @@ void PathFollowQuery::CalculatePathOnThread()
     {
         FoundTarget = false;
     }
+
+    CurrentPath = std::vector<vec3>(path);
 
     Performing = false;
     CalculatedPath = true;

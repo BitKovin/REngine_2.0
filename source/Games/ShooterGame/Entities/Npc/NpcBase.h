@@ -228,6 +228,8 @@ public:
 
 	void LateUpdate();
 
+	void UpdateDoorUpdate();
+
 	void UpdateBT();
 	void UpdateObserver();
 	void UpdateObservationTarget();

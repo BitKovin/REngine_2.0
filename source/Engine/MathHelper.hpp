@@ -64,6 +64,10 @@ public:
 		return q * v;
 	}
 
+	inline static glm::vec3 TransformVector(const glm::vec3& v, const glm::mat4& m) {
+		return m * vec4(v,1);
+	}
+
 	// Returns the forward vector given the Euler rotation.
 	inline static glm::vec3 GetForwardVector(const glm::vec3& rotation) {
 		return TransformVector(glm::vec3(0.f, 0.f, 1.f), GetRotationQuaternion(rotation));
@@ -163,6 +167,86 @@ public:
 				return true;
 		}
 		return false;
+	}
+
+	inline static glm::vec3 RotateAroundPoint(
+		const glm::vec3& point,
+		const glm::vec3& pivot,
+		const glm::vec3& euler)
+	{
+		glm::mat4 rot = MathHelper::GetRotationMatrix(euler);
+
+		// pure rotation → w = 0
+		glm::vec4 local = glm::vec4(point - pivot, 1.0f);
+
+		glm::vec3 rotated = glm::vec3(rot * local);
+
+		return pivot + rotated;
+	}
+
+
+	// startPosition: where we start measuring from
+	// path: sequence of points we follow (absolute positions)
+	// pathLength: desired total travel distance from startPosition along path
+	inline static std::vector<glm::vec3> GetPathWithLength(const glm::vec3& startPosition,
+		const std::vector<glm::vec3>& path,
+		float pathLength)
+	{
+
+		constexpr float EPSILON = 1e-6f;
+
+		std::vector<glm::vec3> result;
+		result.reserve(path.size() + 1);
+
+		// sanity
+		if (pathLength <= 0.0f) {
+			result.push_back(startPosition);
+			return result;
+		}
+
+		glm::vec3 curr = startPosition;
+		result.push_back(curr);
+
+		float remaining = pathLength;
+
+		for (size_t i = 0; i < path.size(); ++i) {
+			const glm::vec3& next = path[i];
+			glm::vec3 seg = next - curr;
+			float segLen = glm::length(seg);
+
+			// skip degenerate (zero-length) segments
+			if (segLen <= EPSILON) {
+				// still push the point so returned path follows original vertices
+				// (you can omit this if you don't want duplicates)
+				curr = next;
+				result.push_back(curr);
+				continue;
+			}
+
+			if (segLen <= remaining + EPSILON) {
+				// we can take whole segment and continue
+				result.push_back(next);
+				remaining -= segLen;
+				curr = next;
+
+				if (remaining <= EPSILON) {
+					// we've reached requested length exactly (or nearly)
+					break;
+				}
+			}
+			else {
+				// we must stop inside this segment — interpolate the final point
+				float t = remaining / segLen; // in (0,1)
+				glm::vec3 finalPoint = curr + seg * t;
+				result.push_back(finalPoint);
+				remaining = 0.0f;
+				break;
+			}
+		}
+
+		// If remaining > 0 here, the provided path is shorter than pathLength;
+		// we return the whole available path (total length < requested length).
+		return result;
 	}
 
 	// Rotates a vector around an axis by a given angle (in degrees).

@@ -219,6 +219,7 @@ void Player::SwitchWeapon(const WeaponSlotData& data)
     if (!data.className.empty())
     {
         currentWeapon = (Weapon*)Spawn(data.className);
+		currentWeapon->owner = this;
         currentWeapon->Start();
         if (Level::Current->IsEntityTypeLoaded(data.className))
         {
@@ -367,9 +368,24 @@ void Player::UpdateWeapon()
     if (currentWeapon != nullptr)
     {
 
+        vec3 relativeWeaponPos = vec3();
+            
+        vec3 currentWeaponRunRotation = lerp(vec3(), weaponRunRotation, RunProgress);
+
+        vec3 rotatedWeaponPos = MathHelper::RotateAroundPoint(relativeWeaponPos, runRotatePoint, currentWeaponRunRotation);
+
+        glm::quat qCurrent = MathHelper::GetRotationQuaternion(lerp(cameraRotation, Camera::rotation, 0.75f));
+        glm::quat qAdd = MathHelper::GetRotationQuaternion(currentWeaponRunRotation);
+
+        glm::quat qResult = qCurrent * qAdd;
+
+		rotatedWeaponPos -= mix(vec3(), vec3(0, 0.02, 0), RunProgress);
+
+        vec3 scaledBob = bob * mix(vec3(1),vec3(1.5,1.2f,1.2f), RunProgress);
+
         currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
-        currentWeapon->Position = Camera::position + MathHelper::TransformVector(bob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;
-        currentWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.75f);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
+        currentWeapon->Position = MathHelper::TransformVector(rotatedWeaponPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;
+        currentWeapon->Rotation = MathHelper::ToYawPitchRoll(qResult);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 
         if (currentWeapon->Illegal)
         {
@@ -432,7 +448,8 @@ void Player::UpdateDebugUI()
     ImGui::End();
 
     ImGui::Begin("weapon");
-    ImGui::DragFloat3("offset", &weaponOffset.x, 0.01);
+    ImGui::DragFloat3("weaponRotationPoint", &runRotatePoint.x, 0.01);
+    ImGui::DragFloat3("weaponRotation", &weaponRunRotation.x, 0.01);
     ImGui::End();
 
     ImGui::Begin("graphic");
@@ -666,7 +683,6 @@ void Player::Update()
     }
 
 
-
     vec2 input = Input::GetLeftStickPosition();
 
     input += Hud.ScreenControls->Joystick->InputPosition;
@@ -685,6 +701,20 @@ void Player::Update()
 
     if (length(input) > 1)
         input = normalize(input);
+
+
+    if (Input::GetAction("dash")->Holding()&&input.y>0.4f && OnGround())
+    {
+        RunProgress += Time::DeltaTimeF * 4.0f;
+    }
+    else
+    {
+        RunProgress -= Time::DeltaTimeF * 4.0f;
+    }
+
+    RunProgress = std::clamp(RunProgress, 0.0f, 1.0f);
+
+    maxSpeed = mix(WalkSpeed, RunSpeed, RunProgress);
 
     if (on_bike == false)
     {
@@ -759,7 +789,7 @@ void Player::Update()
             controller.SetVelocity(normalize(dashVector) * Speed);
         }
 
-        if (Input::GetAction("dash")->Pressed())
+        if (Input::GetAction("dash")->Pressed() && false)
         {
 
             vec3 dashDir = right * input.x + playerForward * input.y;

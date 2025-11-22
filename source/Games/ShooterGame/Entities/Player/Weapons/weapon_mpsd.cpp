@@ -85,7 +85,7 @@ public:
 		}
 
 
-		if (Input::GetAction("attack")->Holding())
+		if (Input::GetAction("attack")->Holding() && CanAttack())
 		{
 			if (attackDelay.Wait() == false)
 				PerformAttack();

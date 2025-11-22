@@ -68,7 +68,7 @@
 
     mat4 Camera::GetMatrix() {
         StupidCameraFix();
-        return MathHelper::GetRotationMatrix(rotation) * translate(mat4(1.0f), position);
+        return translate(position) * MathHelper::GetRotationMatrix(rotation);
     }
 
     void Camera::Update(float deltaTime) {

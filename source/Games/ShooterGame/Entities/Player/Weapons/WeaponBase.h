@@ -15,6 +15,8 @@ struct WeaponSlotData
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponSlotData, className,slot,priority)
 };
 
+class Player;
+
 class Weapon : public Entity
 {
 
@@ -33,6 +35,10 @@ public:
 	bool Illegal = false;
 
 	float bobScale = 1.0f;
+
+	Player* owner = nullptr;
+
+	virtual bool CanAttack();
 
 	virtual bool IsMelee()
 	{

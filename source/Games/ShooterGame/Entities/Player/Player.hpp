@@ -51,7 +51,6 @@ private:
 
 	vec3 cameraRotation = vec3(0);
 
-	vec3 weaponOffset = vec3(0.023, 0.013, -0.13);
 
 	vec3 oldPos = vec3();
 
@@ -106,6 +105,14 @@ private:
 
 	int CurrentMaxRestrictionLevel = 0;
 	int CurrentClearance = 0;
+
+
+
+	vec3 weaponRunRotation = vec3(-8.9f, 14.17f, -9.21f);
+	vec3 runRotatePoint = vec3(-0.1f,-0.290f,0.45f);
+
+	float WalkSpeed = 4.5f;
+	float RunSpeed = 7.5f;
 
 	glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
 		vel = MathHelper::XZ(vel);
@@ -199,6 +206,8 @@ public:
 	std::vector<WeaponSlotData> weaponSlots;
 
 	Delay violanceCrimeActiveDelay;
+
+	float RunProgress = 0;
 
 	Player()
 	{
