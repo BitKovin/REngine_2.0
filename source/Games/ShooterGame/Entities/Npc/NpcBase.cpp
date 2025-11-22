@@ -381,8 +381,6 @@ void NpcBase::AsyncUpdate()
 		UpdateBT();
 		UpdateTargetAttack();
 
-		UpdateDoorUpdate();
-
 	}
 
 	auto animEvents = mesh->PullAnimationEvents();
@@ -457,6 +455,8 @@ void NpcBase::AsyncUpdate()
 
 		if (pathFollow.reachedTarget == false && pathFollow.CalculatedPath)
 		{
+
+			UpdateDoorUpdate();
 
 			vec3 dir = MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position);
 
