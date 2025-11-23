@@ -15,7 +15,7 @@ public:
     DebugDrawCommand() {}
     virtual ~DebugDrawCommand() {}
 
-    Delay DrawTime = Delay(0.2);
+	Delay DrawTime = Delay(0.2, true);
 
     virtual void Draw() {}
 };

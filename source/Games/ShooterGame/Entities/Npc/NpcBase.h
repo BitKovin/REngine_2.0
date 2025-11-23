@@ -111,7 +111,7 @@ protected:
 	vec3 investigation_target = vec3();
 	std::string investigation_targetId = "";
 
-	bool investigation_changed;
+	bool investigation_changed = false;
 
 	bool needToInvestigateBody = false;
 
@@ -121,7 +121,7 @@ protected:
 
 	Crime currentCrime = Crime::None;
 
-	vec3 flee_target;
+	vec3 flee_target = vec3();
 
 	StaticMesh* weaponMesh = nullptr;
 
@@ -129,14 +129,14 @@ protected:
 
 	bool needHelpStunned = false;
 
-	bool stunnedRagdoll;
+	bool stunnedRagdoll = false;
 	Delay stunnedRagdollDelay;
-	bool returningFromRagdoll;
+	bool returningFromRagdoll = false;
 
 	Delay attackDelay;
 	Delay attackPositionUpdateDelay;
 
-	vec3 attackPosition;
+	vec3 attackPosition = vec3();
 
 	Delay movementLockDelay = Delay();
 
@@ -167,7 +167,7 @@ public:
 
 	static inline Delay globalPhraceDelay;
 
-	SkeletalMesh* mesh;
+	SkeletalMesh* mesh = nullptr;
 
 	TaskState taskState;
 

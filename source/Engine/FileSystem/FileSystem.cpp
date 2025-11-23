@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <SDL2/SDL.h>
 
+#include "../Logger.hpp"
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/emscripten.h>
@@ -123,6 +125,9 @@ namespace FileSystemEngine {
             //if (!c) throw std::runtime_error("Failed to read save: " + rel);
             std::string s(c);
             free(c);
+
+			Logger::Log("ReadFile (SaveData): " + s);
+
             return s;
 #else
 

@@ -5,6 +5,13 @@
 class Delay
 {
 public:
+
+	double waitUntilTime = -1000;
+
+	double totalDuration = 0;
+
+	bool ignorePause = false;
+
 	Delay()
 	{
 
@@ -15,16 +22,18 @@ public:
 		AddDelay(delay);
 	}
 
+	Delay(double delay, bool ignorePause)
+	{
+		AddDelay(delay);
+		ignorePause = ignorePause;
+	}
+
 	~Delay() 
 	{
 
 	}
 
-	double waitUntilTime = -1000;
 
-	double totalDuration = 0;
-
-	bool ignorePause = false;
 
 	bool Active = false;
 

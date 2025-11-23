@@ -4882,7 +4882,7 @@ void get_arithmetic_value(const BasicJsonType& j, ArithmeticType& val)
         case value_t::binary:
         case value_t::discarded:
         default:
-            JSON_THROW(type_error::create(302, concat("type must be number, but is ", j.type_name()), &j));
+            JSON_THROW(type_error::create(302, concat("type must be number, but is ", j.type_name(), " (value: ", j.dump(), ")"), &j));
     }
 }
 
@@ -5223,7 +5223,7 @@ inline void from_json(const BasicJsonType& j, ArithmeticType& val)
         case value_t::binary:
         case value_t::discarded:
         default:
-            JSON_THROW(type_error::create(302, concat("type must be number, but is ", j.type_name()), &j));
+            JSON_THROW(type_error::create(302, concat("type must be number, but is ", j.type_name(), " (value: ", j.dump(), ")"), &j));
     }
 }
 

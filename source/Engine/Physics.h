@@ -42,6 +42,7 @@
 #include <Jolt/Physics/Body/BodyLockMulti.h>
 #include <Jolt/Physics/Constraints/SwingTwistConstraint.h>
 
+#include <unordered_set>
 
 #include "DebugDraw.hpp"
 
@@ -334,29 +335,7 @@ public:
 	BodyType mask = BodyType::GroupAll & ~ BodyType::CharacterCapsule;
 
 	/// Filter function. Returns true if inBody should be rendered
-	bool ShouldDraw([[maybe_unused]] const Body& inBody) const override
-	{
-		// Check if the body is in the ignore list.
-		for (Body* ignored : ignoreList)
-		{
-			if (ignored == &inBody)
-				return false;
-		}
-
-		// Retrieve collision properties from the body's user data.
-		// It is assumed that user data points to a CollisionProperties struct.
-		auto* properties = reinterpret_cast<BodyData*>(inBody.GetUserData());
-		if (properties)
-		{
-			// Check if the body's group is included in our filter's mask.
-			// If the bitwise AND of mask and the body's group is zero, they don't match.
-			if ((static_cast<uint32_t>(mask) & static_cast<uint32_t>(properties->group)) == 0)
-				return false;
-		}
-
-		// Accept the collision if no condition rejects it.
-		return true;
-	}
+	bool ShouldDraw([[maybe_unused]] const Body& inBody) const override;
 };
 
 
@@ -444,6 +423,9 @@ private:
 	static BodyType DebugDrawMask;
 
 public:
+
+	static inline std::unordered_set<Body*> ExcludedDrawBodies;
+
 
 	struct PendingBodyEnterPair
 	{
@@ -624,6 +606,8 @@ public:
 		existingBodies.clear();
 
 		physicsMainLock.unlock();
+
+		ExcludedDrawBodies.clear();
 	}
 
 	static void Init();
@@ -711,6 +695,7 @@ public:
 
 			DrawFilter filter;
 			filter.mask = DebugDrawMask;
+			filter.ignoreList = std::vector<Body*>(ExcludedDrawBodies.begin(), ExcludedDrawBodies.end());
 
 			physics_system->DrawBodies(draw_settings, debugRenderer, &filter);      // draws all bodies
 			//physics_system->DrawConstraints(debugRenderer);

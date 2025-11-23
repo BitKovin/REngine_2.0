@@ -135,7 +135,7 @@ void NavigationSystem::GenerateNavData()
 
     // ---- Recast config (similar to yours)
     rcConfig cfg{};
-    cfg.cs = 0.2f;
+    cfg.cs = 0.1f;
     cfg.ch = 0.3f;
     cfg.walkableSlopeAngle = 40.0f;
     cfg.walkableHeight = static_cast<int>(ceilf(2.0f / cfg.ch));

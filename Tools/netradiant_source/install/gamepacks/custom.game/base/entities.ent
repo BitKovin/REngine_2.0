@@ -28,7 +28,14 @@ This is not an entity as such. It is strictly an editor utility to group world b
 To make a func_group into a terrain entity, refer to the Terrain Construction documentation.
 </group>
 
-    <point name="nav_point" color="0 0.5 0" box="-8 -8 -16 8 8 32">
+    <point name="env_door" color="0.6 0.4 0.4" box="-12 -12 0 12 12 32">
+        <angle key="angle" name="Yaw Angle" value="0"/>
+        <string key="targetname" name="Name" value=""/>
+        <model key="model" name="Model Path" value="models/tools/door.obj"></model>
+        <!-- Animations are hardcoded in C++: sit_down, sitting_idle, stand_up -->
+    </point>
+
+    <point name="nav_point" color="0 0.5 0" box="-16 -8 0 16 8 32">
         <angle key="angle" name="Yaw Angle" value="0"></angle>
         <string key="targetname" name="Name" value=""></string>
         <target key="target" name="Next nav point"/>
@@ -52,16 +59,6 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
         <real key="duration" name="Duration" value="8.0"/>
         <model key="model" name="Model Path" value="models/tools/sittingPos.obj"></model>
         <!-- Animations are hardcoded in C++: sit_down, sitting_idle, stand_up -->
-    </point>
-
-    <point name="task_chat" color="0.2 0.7 0.8" box="-10 -10 -16 10 10 32">
-        <angle key="angle" name="Yaw Angle" value="0"/>
-        <string key="targetname" name="Name" value=""/>
-        <target key="target" name="Next task after chat ends"/>
-        <string key="partner" name="Partner chat point (must be another task_chat)" value=""/>
-        <real key="duration" name="Chat Duration (seconds)" value="30.0"/>
-        <real key="waitTimeout" name="Max wait for partner (seconds)" value="10.0"/>
-        <real key="acceptanceRadius" name="Acceptance Radius" value="0.3"/>
     </point>
 
     <point name="task_chat" color="0.2 0.7 0.8" box="-10 -10 -16 10 10 32">

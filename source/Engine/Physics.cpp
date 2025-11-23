@@ -1490,3 +1490,37 @@ bool TraceBodyFilterIncludeOnly::ShouldCollideLocked(const Body& inBody) const
 	// Accept the collision if no condition rejects it.
 	return true;
 }
+
+#ifdef JPH_DEBUG_RENDERER
+
+
+bool DrawFilter::ShouldDraw(const Body& inBody) const
+{
+
+
+	// Check if the body is in the ignore list.
+	for (Body* ignored : ignoreList)
+	{
+		if (ignored == &inBody)
+			return false;
+	}
+
+	// Retrieve collision properties from the body's user data.
+	// It is assumed that user data points to a CollisionProperties struct.
+	auto* properties = reinterpret_cast<BodyData*>(inBody.GetUserData());
+	if (properties)
+	{
+		// Check if the body's group is included in our filter's mask.
+		// If the bitwise AND of mask and the body's group is zero, they don't match.
+		if ((static_cast<uint32_t>(mask) & static_cast<uint32_t>(properties->group)) == 0)
+			return false;
+	}
+	else
+	{
+		return false;
+	}
+
+	// Accept the collision if no condition rejects it.
+	return true;
+}
+#endif // DEBUG

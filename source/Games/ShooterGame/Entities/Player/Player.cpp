@@ -48,6 +48,7 @@ void Player::Start()
 
     hitbox = Physics::CreateCharacterBody(this, Position, 0.3f, 1.2f, 0.1f, BodyType::HitBox, BodyType::None);
     hitbox->SetMotionType(JPH::EMotionType::Kinematic);
+	Physics::ExcludedDrawBodies.insert(hitbox);
 
     //SwitchWeaponOffhand("weapon_cane");
 
