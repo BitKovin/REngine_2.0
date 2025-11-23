@@ -29,7 +29,7 @@ float NpcBase::GetDetectionSpeed(Crime crime) const
 	case Crime::Trespassing:
 		return 0.63f; // ~1.5 seconds to full detection
 	default:
-		return 0.0f; // no detection buildup
+		return 0.0f; // no detection buifldup
 	}
 }
 
@@ -592,7 +592,7 @@ void NpcBase::UpdateDoorUpdate()
 
 	auto trimmedPath = MathHelper::GetPathWithLength(Position, pathFollow.CurrentPath, 3.0f);
 
-	DebugDraw::Path(trimmedPath, 0.01f, 0.1f);
+	//DebugDraw::Path(trimmedPath, 0.01f, 0.1f);
 
 }
 

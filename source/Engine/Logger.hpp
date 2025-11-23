@@ -11,7 +11,12 @@ public:
 
 	static void Log(std::string message)
 	{
+
+#ifndef DISTRIBUTION
+
 		printf("%s \n", message.c_str());
+
+#endif // !DISTRIBUTION
 	}
 
 private:

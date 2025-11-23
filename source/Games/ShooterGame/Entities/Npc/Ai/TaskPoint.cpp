@@ -39,7 +39,7 @@ void TaskPoint::NpcExited(NpcBase* npc)
 void TaskPoint::NpcUpdate(NpcBase* npc) {}
 void TaskPoint::NpcInterrupted(NpcBase* npc)
 {
-    Logger::Log("npc interrupted task");
+    //Logger::Log("npc interrupted task");
     npc->animator.StopTaskAnimation();
     
     TaskState& s = npc->GetTaskStateRef();
@@ -52,7 +52,7 @@ void TaskPoint::NpcReturned(NpcBase* npc)
 
     npc->PrepareToStartMovement();
 
-    Logger::Log("npc returned to task"); 
+    //Logger::Log("npc returned to task"); 
 }
 
 TaskPoint* TaskPoint::FindTaskByName(const std::string name)

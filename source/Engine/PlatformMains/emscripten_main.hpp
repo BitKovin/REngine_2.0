@@ -1,5 +1,7 @@
 #if __EMSCRIPTEN__ //so it doesn't results in errors on other platforms
 
+#define DISTRIBUTION
+
 #define _HAS_STD_BYTE 0
 #include <stdio.h>
 #include <stdlib.h>
