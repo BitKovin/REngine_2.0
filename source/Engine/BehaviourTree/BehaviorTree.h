@@ -80,8 +80,6 @@ public:
 private:
     std::shared_ptr<TreeNode> CreateNodeFromJson(const json& j);
     void BuildTreeFromJson(std::shared_ptr<TreeNode> parent, const json& j);
-    void RegisterDecoratorObservers(std::shared_ptr<TreeNode> node);
-    void UnregisterDecoratorObservers(std::shared_ptr<TreeNode> node);
 
     std::shared_ptr<TreeNode> root_;
     Blackboard blackboard_;
@@ -93,6 +91,4 @@ private:
     std::vector<TreeNode*> activeNodes_;
     std::vector<TreeNode*> pendingAborts_;
 
-    // Observer management - now using ID-based tracking
-    std::unordered_map<TreeNode*, std::vector<std::pair<std::string, Blackboard::ObserverID>>> decoratorObservers_;
 };

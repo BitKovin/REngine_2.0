@@ -11,8 +11,6 @@ BehaviorTree::BehaviorTree() {
 }
 
 BehaviorTree::~BehaviorTree() {
-    // Unregister all observers
-    UnregisterDecoratorObservers(root_);
 }
 
 void BehaviorTree::Start() {
@@ -23,8 +21,6 @@ void BehaviorTree::Start() {
         pendingAborts_.clear();
         lastExecutedNode_ = nullptr; // Reset last executed
 
-        // Register decorator observers
-        RegisterDecoratorObservers(root_);
     }
 }
 
@@ -32,8 +28,6 @@ void BehaviorTree::Stop() {
     isRunning_ = false;
     if (root_) {
         root_->OnStop(context_);
-        // Unregister decorator observers
-        UnregisterDecoratorObservers(root_);
     }
     activeNodes_.clear();
     pendingAborts_.clear();
@@ -69,15 +63,9 @@ void BehaviorTree::Reset() {
 }
 
 void BehaviorTree::SetRoot(std::shared_ptr<TreeNode> root) {
-    // Unregister old observers
-    UnregisterDecoratorObservers(root_);
 
     root_ = root;
 
-    // Register new observers
-    if (root_) {
-        RegisterDecoratorObservers(root_);
-    }
 }
 
 void BehaviorTree::RequestAbort(TreeNode* node) {
@@ -112,57 +100,6 @@ void BehaviorTree::RemoveActiveNode(TreeNode* node) {
     }
 }
 
-void BehaviorTree::RegisterDecoratorObservers(std::shared_ptr<TreeNode> node) {
-    if (!node) return;
-
-    // Check if this is a decorator with observer keys
-    DecoratorNode* decorator = dynamic_cast<DecoratorNode*>(node.get());
-    if (decorator && decorator->GetAbortMode() != FlowAbortMode::None) {
-        std::vector<std::pair<std::string, Blackboard::ObserverID>> observerIds;
-
-        for (const auto& key : decorator->GetObserverKeys()) {
-            auto callback = [this, decorator](const std::string& changedKey, const Blackboard::Value& value) {
-                // Check if the decorator condition has changed
-                bool currentCondition = decorator->CheckCondition(this->context_);
-
-                // For now, we'll always abort if the observed key changes
-                // In a more sophisticated system, we'd check the specific condition
-                if (decorator->GetAbortMode() == FlowAbortMode::Self ||
-                    decorator->GetAbortMode() == FlowAbortMode::Both) {
-                    RequestAbort(decorator);
-                }
-                };
-
-            Blackboard::ObserverID id = blackboard_.AddObserver(key, callback);
-            observerIds.emplace_back(key, id);
-        }
-
-        decoratorObservers_[node.get()] = std::move(observerIds);
-    }
-
-    // Recursively register for children
-    for (const auto& child : node->GetChildren()) {
-        RegisterDecoratorObservers(child);
-    }
-}
-
-void BehaviorTree::UnregisterDecoratorObservers(std::shared_ptr<TreeNode> node) {
-    if (!node) return;
-
-    // Unregister observers for this specific node
-    auto it = decoratorObservers_.find(node.get());
-    if (it != decoratorObservers_.end()) {
-        for (const auto& [key, observerId] : it->second) {
-            blackboard_.RemoveObserver(key, observerId);
-        }
-        decoratorObservers_.erase(it);
-    }
-
-    // Recursively unregister for children
-    for (const auto& child : node->GetChildren()) {
-        UnregisterDecoratorObservers(child);
-    }
-}
 
 json BehaviorTree::ToJson() const {
     json j;
@@ -199,10 +136,6 @@ bool BehaviorTree::FromJson(const json& j) {
 
     isRunning_ = j.value("isRunning", false);
 
-    // Register observers for the new tree
-    if (root_) {
-        RegisterDecoratorObservers(root_);
-    }
 
     return root_ != nullptr;
 }

@@ -131,7 +131,7 @@ void NavigationSystem::GenerateNavData()
 
     glm::vec3 bmin = vertices[0], bmax = vertices[0];
     for (const auto& v : vertices) { bmin = glm::min(bmin, v); bmax = glm::max(bmax, v); }
-    bmin -= glm::vec3(5); bmax += glm::vec3(5);
+    bmin -= glm::vec3(1); bmax += glm::vec3(1);
 
     // ---- Recast config (similar to yours)
     rcConfig cfg{};
