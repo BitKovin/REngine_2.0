@@ -380,9 +380,9 @@ void Player::UpdateWeapon()
 
         glm::quat qResult = qCurrent * qAdd;
 
-		rotatedWeaponPos -= mix(vec3(), vec3(0, 0.02, 0), RunProgress);
+		rotatedWeaponPos -= mix(vec3(), vec3(-0.05f, 0.02, 0.05), RunProgress);
 
-        vec3 scaledBob = bob * mix(vec3(1),vec3(1.5,1.2f,1.2f), RunProgress);
+        vec3 scaledBob = bob * mix(vec3(1),vec3(2.5,2.2f,2.2f), RunProgress);
 
         currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
         currentWeapon->Position = MathHelper::TransformVector(rotatedWeaponPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;

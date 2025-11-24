@@ -61,7 +61,7 @@ private:
 	PlayerHud Hud;
 
 	float bobProgress = 0;
-	float bobSpeed = 1;
+	float bobSpeed = 1.1f;
 
 	SoundPlayer* soundPlayer;
 
@@ -108,7 +108,7 @@ private:
 
 
 
-	vec3 weaponRunRotation = vec3(-8.9f, 14.17f, -9.21f);
+	vec3 weaponRunRotation = vec3(-8.9f, 30.0f, -9.21f);
 	vec3 runRotatePoint = vec3(-0.1f,-0.290f,0.45f);
 
 	float WalkSpeed = 4.5f;

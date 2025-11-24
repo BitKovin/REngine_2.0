@@ -14,6 +14,8 @@
 
 #include "../Player/Weapons/Projectiles/Bullet.h"
 
+#include "../Enviroment/Door.h"
+
 #include <RandomHelper.h>
 
 float NpcBase::GetDetectionSpeed(Crime crime) const
@@ -50,7 +52,7 @@ NpcBase::NpcBase()
 
 	animator = NpcAnimatorBase(this);
 
-	Tags.push_back("enemy");
+	Tags.push_back("npc");
 
 }
 
@@ -590,9 +592,45 @@ void NpcBase::LateUpdate()
 void NpcBase::UpdateDoorUpdate()
 {
 
+	if (observer->id % 3 != (EngineMain::MainInstance->frame + 1) % 3) return;
+	
+
 	auto trimmedPath = MathHelper::GetPathWithLength(Position, pathFollow.CurrentPath, 3.0f);
 
-	//DebugDraw::Path(trimmedPath, 0.01f, 0.1f);
+
+	bool first = true;
+
+	vec3 prevPoint = vec3();
+
+	for (auto& point : trimmedPath)
+	{
+		if(first)
+		{
+			prevPoint = point;
+			first = false;
+			continue;
+		}
+
+		auto hitResult = Physics::LineTrace(prevPoint + vec3(0, 0.2f, 0), point + vec3(0, 0.5f, 0), BodyType::MainBody);
+
+		if (hitResult.hasHit)
+		{
+			auto door = dynamic_cast<Door*>(hitResult.entity);
+			if(door)
+			{
+
+				if (door->IsOpen == false)
+				{
+					door->OpenFromPosition(Position);
+				}
+
+			}
+		}
+
+		prevPoint = point;
+
+	}
+
 
 }
 
@@ -2212,7 +2250,20 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 		FindClosestGuard();
 
 		if (found_guard == false)
-			FinishInvestigation();
+		{
+
+			if (currentInvestigation == InvestigationReason::Body)
+			{
+				FinishInvestigation();
+			}
+			else if(currentInvestigation == InvestigationReason::WeaponFire)
+			{
+				target_lastSeenPosition = investigation_target;
+			}
+
+
+		}
+
 
 	}
 }
