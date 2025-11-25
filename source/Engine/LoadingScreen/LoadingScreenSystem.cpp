@@ -33,9 +33,15 @@ void LoadingScreenSystem::Draw()
 
 	if (uiCanvas == nullptr) return;
 
+
+	Framebuffer::unbind();
+
 	uiCanvas->LoadingProgress = Progress;
 
+	glViewport(0, 0, EngineMain::MainInstance->ScreenSize.x, EngineMain::MainInstance->ScreenSize.y);
+
 	glClearColor(0, 0, 0, 1);
+	glDisable(GL_DEPTH_TEST);
 
 	viewport.Update();
 	viewport.FinalizeChildren();

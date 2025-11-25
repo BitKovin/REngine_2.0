@@ -3,8 +3,8 @@
 UiCrosshair::UiCrosshair()
 {
 
-	float crosshairLineHeight = 5;
-	float crosshairLineWidth = 25;
+	float crosshairLineHeight = 4;
+	float crosshairLineWidth = 20;
 
 	vec4 crosshairColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
