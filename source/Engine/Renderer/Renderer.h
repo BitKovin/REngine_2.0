@@ -29,6 +29,8 @@ public:
 
 	float ResolutionScale = 1.0f;
 
+	ShaderProgram* fullscreenShader = nullptr;
+
 private:
 
 	inline ivec2 GetScreenResolution() const;
@@ -63,7 +65,7 @@ private:
 	RenderTexture* DetailDirectionalShadowMap = nullptr;
 	Framebuffer* DetailDirectionalShadowMapFBO = nullptr;
 
-	ShaderProgram* fullscreenShader = nullptr;
+
 	ShaderProgram* blurShader = nullptr;
 	ShaderProgram* blurApplyShader = nullptr;
 

@@ -74,7 +74,8 @@ void Door::Update()
 
 			box = box.Transform(fullOpenDoorPos, fullopenDoorRotation);
 
-			DebugDraw::Bounds(box.Min + vec3(0, 1, 0), box.Max + vec3(0, 1, 0), 5.0f);
+            box.Min -= vec3(0.3);
+			box.Max += vec3(0.3);
 
 			obstacleRef = NavigationSystem::CreateObstacleBox(box.Min + vec3(0, 1, 0), box.Max + vec3(0, 1, 0));
 		}

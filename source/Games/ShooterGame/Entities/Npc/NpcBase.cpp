@@ -2174,7 +2174,7 @@ void NpcBase::FindClosestGuard()
 	else
 	{
 
-		if (target_follow == false && currentInvestigation!=InvestigationReason::None)
+		if (target_follow == false && currentInvestigation==InvestigationReason::Body)
 		{
 			FinishInvestigation();
 			return;
@@ -2183,7 +2183,7 @@ void NpcBase::FindClosestGuard()
 		closestGuard = "";
 		found_guard = false;
 
-		auto fleePath = NavigationSystem::FindFleePathSimple(Position, target_lastSeenPosition, 50, 4, speed);
+		auto fleePath = NavigationSystem::FindFleePathSimple(Position, target_lastSeenPosition, target_follow ? 20 : 60 , 4, speed);
 
 		if (fleePath.size() > 0)
 		{

@@ -51,6 +51,8 @@ public:
 
     unsigned long frame = 0;
 
+	RenderTexture* UiRenderTexture = nullptr;
+
 	EngineMain(SDL_Window* window)
 	{
 		Window = window;

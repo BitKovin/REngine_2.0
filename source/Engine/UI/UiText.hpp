@@ -48,7 +48,7 @@ public:
         glm::vec2 scale(fontSize / 72.f);
 
         // Draw the text.
-        UiRenderer::DrawText(text, font, pos, textColor * GetFinalColor(), scale);
+        UiRenderer::DrawText(text, font, pos, rotation, pivot, textColor * GetFinalColor(), scale);
 
         // Optionally, draw child elements and borders.
         UiElement::Draw();

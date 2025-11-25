@@ -6,6 +6,7 @@
 #include <UI/UiHorizontalBox.hpp>
 #include <UI/UiButton.hpp>
 #include <UI/UiImage.hpp>
+#include "Crosshair.h"
 #include <UI/UiVideo.hpp>
 #include <UI/UiHorizontalBox.hpp>
 #include <Entity.h>
@@ -55,7 +56,7 @@ private:
 
 	std::shared_ptr<UiButton> img;
 	std::shared_ptr<UiText> text;
-	std::shared_ptr<UiImage> crosshair;
+	std::shared_ptr<UiCrosshair> crosshair;
 
 	std::shared_ptr<UiText> frameRate;
 

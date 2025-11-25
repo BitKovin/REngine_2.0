@@ -15,7 +15,7 @@ LightVolPointData StaticMesh::GetLightVolData()
 		model == nullptr||
 		Level::Current->BspData.lightVols.size() == 0) return LightVolPointData{ vec3(0),vec3(1),vec3(0) };
 
-	vec3 samplePos = OwnerEntity->Position + vec3(0,0.75,0);
+	vec3 samplePos = OwnerEntity->Position + vec3(0,0.0,0);
 
 	auto light = Level::Current->BspData.GetLightvolColorPoint(samplePos * MAP_SCALE, IsViewmodel);
 

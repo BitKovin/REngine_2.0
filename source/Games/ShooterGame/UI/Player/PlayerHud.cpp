@@ -19,15 +19,10 @@ void PlayerHud::Init(Player* playerRef)
 	player = playerRef;
 
     hudCanvas = make_shared<UiCanvas>();
-    crosshair = make_shared<UiImage>();
+    crosshair = make_shared<UiCrosshair>();
 
-
-
-    crosshair->pivot = vec2(0.5);
-    crosshair->origin = vec2(0.5);
-    crosshair->size = vec2(12);
-    crosshair->ImagePath = "GameData/textures/ui/crosshair.png";
-
+    crosshair->origin = vec2(0.5f, 0.5f);
+	hudCanvas->AddChild(crosshair);
 
     text = make_shared<UiText>();
 

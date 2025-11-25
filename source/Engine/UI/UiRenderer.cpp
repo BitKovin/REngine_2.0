@@ -1,4 +1,4 @@
-#include "UiRenderer.h"
+﻿#include "UiRenderer.h"
 #include "../gl.h"
 #include "../ShaderManager.h"
 #include "../Camera.h"
@@ -75,28 +75,52 @@ namespace UiRenderer {
     }
 
     void SetShaderProjection(ShaderProgram* shader) {
-        int screenWidth = UiManager::GetScaledUiHeight() * Camera::AspectRatio;
-        int screenHeight = UiManager::GetScaledUiHeight();
+        // use floats — avoid integer truncation
+        float screenHeight = static_cast<float>(UiManager::GetScaledUiHeight()); // pixels
+        float screenWidth = screenHeight * Camera::AspectRatio; // pixels (float!)
 
+        // orthographic projection with top-left origin (y down)
         glm::mat4 uiProjection = glm::ortho(
             0.0f,
-            static_cast<float>(screenWidth),
-            static_cast<float>(screenHeight),
+            screenWidth,
+            screenHeight,
             0.0f,
             -1.0f,
             1.0f
         );
+
         shader->SetUniform("u_Projection", uiProjection);
+
+        // expose device scale for snapping (optional: store in shader or global)
+        // but here we'll compute it in DrawTexturedRect as needed
     }
 
-    void DrawTexturedRect(const glm::vec2& pos, const glm::vec2& size, GLuint texture, const glm::vec4& color) {
+    void DrawTexturedRect(const glm::vec2& pos, const glm::vec2& size, float rotation, vec2 pivot, GLuint texture, const glm::vec4& color) {
         texturedShader->UseProgram();
 
         SetShaderProjection(texturedShader);
 
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
+        glm::vec2 pivotLocal = pivot * size;
+
+        glm::mat4 model(1.0f);
+
+        // place top-left of image
+        model = glm::translate(model, glm::vec3(pos, 0.0f));
+
+        // move pivot to origin
+        model = glm::translate(model, glm::vec3(pivotLocal, 0.0f));
+
+        // rotate around pivot
+        model = glm::rotate(model, glm::radians(rotation), glm::vec3(0, 0, 1));
+
+        // move pivot back
+        model = glm::translate(model, glm::vec3(-pivotLocal, 0.0f));
+
+        // scale quad to size
         model = glm::scale(model, glm::vec3(size, 1.0f));
+
         texturedShader->SetUniform("u_Model", model);
+
         texturedShader->SetUniform("u_Color", color);
 
         texturedShader->SetTexture("u_Texture", texture);
@@ -105,15 +129,33 @@ namespace UiRenderer {
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
-    void DrawTexturedRectShader(const glm::vec2& pos, const glm::vec2& size, GLuint texture, const glm::vec4& color, const string& shader) 
+    void DrawTexturedRectShader(const glm::vec2& pos, const glm::vec2& size, float rotation, vec2 pivot, GLuint texture, const glm::vec4& color, const string& shader)
     {
         auto shaderProgram = ShaderManager::GetShaderProgram("ui", shader); 
         shaderProgram->UseProgram();
 
         SetShaderProjection(shaderProgram);
 
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f));
+        glm::mat4 model(1.0f);
+
+        // 1. Final already-pivoted element position
+        model = glm::translate(model, glm::vec3(pos, 0.0f));
+
+        // 2. Pivot offset inside local space (needed for rotation)
+        glm::vec2 pivotOffset = pivot * size;
+
+        // 3. Move pivot → origin
+        model = glm::translate(model, glm::vec3(pivotOffset, 0.0f));
+
+        // 4. Apply rotation
+        model = glm::rotate(model, MathHelper::ToRadians(rotation), glm::vec3(0, 0, 1));
+
+        // 5. Move back after rotation
+        model = glm::translate(model, glm::vec3(-pivotOffset, 0.0f));
+
+        // 6. Apply scale
         model = glm::scale(model, glm::vec3(size, 1.0f));
+        
         shaderProgram->SetUniform("u_Model", model);
         shaderProgram->SetUniform("u_Color", color);
 
@@ -139,7 +181,7 @@ namespace UiRenderer {
 #endif // !GL_ES_PROFILE
     }
 
-    void DrawText(const std::string& text, TTF_Font* font, const glm::vec2& pos,
+    void DrawText(const std::string& text, TTF_Font* font, const glm::vec2& pos, float rotation, vec2 pivot,
         const glm::vec4& color, const glm::vec2& scale, const string& shader) {
         if (!font) {
             std::cerr << "No font provided for DrawText." << std::endl;
@@ -235,11 +277,11 @@ namespace UiRenderer {
         if (shader.empty())
         {
             // Draw the cached texture
-            DrawTexturedRect(pos, drawSize, textureID, color);
+            DrawTexturedRect(pos, drawSize, rotation, pivot, textureID, color);
         }
         else
         {
-            DrawTexturedRectShader(pos, drawSize, textureID, color,shader);
+            DrawTexturedRectShader(pos, drawSize, rotation, pivot, textureID, color,shader);
         }
 
 

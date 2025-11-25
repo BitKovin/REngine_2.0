@@ -447,21 +447,44 @@ void EngineMain::GameUpdate()
 void EngineMain::Render()
 {
 
-
-
-    glViewport(0, 0, ScreenSize.x, ScreenSize.y);
-
     glEnable(GL_DEPTH_TEST);
 
-    //glDisable(GL_POLYGON_OFFSET_FILL);
-    //glPolygonOffset(1.0, 1.0);
+    vec2 uiResolution = vec2(UiManager::GetScaledUiHeight() * Camera::AspectRatio , UiManager::GetScaledUiHeight());
 
-    MainRenderer->RenderLevel(Level::Current);
+	if (UiRenderTexture == nullptr || UiRenderTexture->width() != uiResolution.x || UiRenderTexture->height() != uiResolution.y)
+    {
+        delete(UiRenderTexture);
+        UiRenderTexture = new RenderTexture(uiResolution.x, uiResolution.y, TextureFormat::RGBA8);
+    }
+
+    UiRenderTexture->bindFramebuffer();
+
+    glViewport(0, 0, uiResolution.x, uiResolution.y);
+
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     glDisable(GL_DEPTH_TEST);
 
     Viewport.Draw();
     UiRenderer::EndFrame();
+
+    //glDisable(GL_POLYGON_OFFSET_FILL);
+    //glPolygonOffset(1.0, 1.0);
+
+    glEnable(GL_DEPTH_TEST);
+
+    MainRenderer->RenderLevel(Level::Current);
+
+    glDisable(GL_DEPTH_TEST);
+
+    glViewport(0, 0, ScreenSize.x, ScreenSize.y);
+
+    auto fullscreenShader = ShaderManager::GetShaderProgram("fullscreen_vertex", "texture_pixel");
+
+    fullscreenShader->UseProgram();
+    fullscreenShader->SetTexture("screenTexture", UiRenderTexture->id());
+    MainRenderer->RenderFullscreenQuad();
 
     if (DebugUiEnabled)
     {

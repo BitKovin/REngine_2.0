@@ -101,7 +101,7 @@ void PathFollowQuery::CalculatePathOnThread()
 
 #else
 
-    const int maxSimplifyIterations = 3;  // safety cap
+    const int maxSimplifyIterations = 2;  // safety cap
 
 #endif // DISABLE_TREADPOOL
 
@@ -128,7 +128,7 @@ void PathFollowQuery::CalculatePathOnThread()
             vec3 traceStart = s + traceUpOffset;
             vec3 traceEnd = path[1] + traceUpOffset;
 
-            auto res = Physics::SphereTrace(traceStart, traceEnd, traceRadius, BodyType::World);
+            auto res = Physics::SphereTrace(traceStart, traceEnd, traceRadius, BodyType::World | BodyType::MainBody);
             if (!res.hasHit)
             {
                 // Point visible — remove it and continue simplifying
