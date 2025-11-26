@@ -1,25 +1,25 @@
 {
     "blackboard": {
-        "attackPosition": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
+        "attackPosition": [
+            0.0,
+            0.0,
+            0.0
+        ],
         "closestGuard": "",
-        "flee_target": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
+        "flee_target": [
+            0.0,
+            0.0,
+            0.0
+        ],
         "found_guard": false,
         "has_navpoint": true,
         "investigation": false,
-        "investigation_target": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
-        "isGuard": true,
+        "investigation_target": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "isGuard": false,
         "navpoint_acceptance_radius": 0.0,
         "navpoint_has_wait_time": false,
         "navpoint_name": "np_0_0",
@@ -28,27 +28,27 @@
         "stunned": false,
         "target": "$info_player_start_0",
         "target_attack": false,
-        "target_attackInRange": true,
-        "target_follow": true,
-        "target_id": "$info_player_start_0",
-        "target_knowsLocation": true,
-        "target_lastSeenPosition": {
-            "x": 0.10540872812271118,
-            "y": 1.4291126728057861,
-            "z": 3.651519536972046
-        },
-        "target_sees": true,
-        "target_underArrest": true,
-        "task_acceptanceRadius": 0.0,
+        "target_attackInRange": false,
+        "target_follow": false,
+        "target_id": "",
+        "target_knowsLocation": false,
+        "target_lastSeenPosition": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "target_sees": false,
+        "target_underArrest": false,
+        "task_acceptanceRadius": 0.30000001192092896,
         "task_acceptance_radius": 0.30000001192092896,
         "task_canBeCanceled": true,
         "task_doingJob": false,
-        "task_move": false,
-        "task_moveLocation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-        },
+        "task_move": true,
+        "task_moveLocation": [
+            -1.5,
+            1.0,
+            4.0
+        ],
         "task_setOrientation": false
     },
     "isRunning": true,
@@ -636,7 +636,7 @@
                                                                                         "type": "MoveToPosition"
                                                                                     }
                                                                                 ],
-                                                                                "id": "node_ad024152d50bbf1",
+                                                                                "id": "node_3f64db8c7d309745",
                                                                                 "name": "Selector",
                                                                                 "type": "SelectorNode"
                                                                             },
@@ -711,60 +711,6 @@
                                                         "inverse finish before stop": false,
                                                         "name": "follow target",
                                                         "type": "ConditionalDecorator"
-                                                    },
-                                                    {
-                                                        "children": [
-                                                            {
-                                                                "children": [
-                                                                    {
-                                                                        "children": [],
-                                                                        "id": "node_76e24e4c7d54ec97",
-                                                                        "name": "Task Not Doing",
-                                                                        "type": "Task_NotDoing"
-                                                                    },
-                                                                    {
-                                                                        "acceptance radius": {
-                                                                            "sourceType": 0,
-                                                                            "value": 2.0
-                                                                        },
-                                                                        "children": [],
-                                                                        "id": "node_4033b312e4098716",
-                                                                        "name": "Move To Position",
-                                                                        "pretty path": {
-                                                                            "sourceType": 0,
-                                                                            "value": false
-                                                                        },
-                                                                        "target": {
-                                                                            "blackboardKey": "investigation_target",
-                                                                            "sourceType": 1
-                                                                        },
-                                                                        "type": "MoveToPosition"
-                                                                    },
-                                                                    {
-                                                                        "children": [],
-                                                                        "id": "node_7c982ceebf9cf512",
-                                                                        "name": "Finish Investigation",
-                                                                        "type": "FinishInvestigation"
-                                                                    }
-                                                                ],
-                                                                "id": "node_9627a82bb2f93729",
-                                                                "name": "Sequence",
-                                                                "type": "SequenceNode"
-                                                            }
-                                                        ],
-                                                        "condition": {
-                                                            "blackboardKey": "investigation",
-                                                            "sourceType": 1
-                                                        },
-                                                        "finish before stop": {
-                                                            "sourceType": 0,
-                                                            "value": false
-                                                        },
-                                                        "id": "node_d71f0761293e8bb5",
-                                                        "inverse": false,
-                                                        "inverse finish before stop": false,
-                                                        "name": "investigation",
-                                                        "type": "ConditionalDecorator"
                                                     }
                                                 ],
                                                 "id": "node_31ca0cba93d258ff",
@@ -790,6 +736,60 @@
                                 "id": "node_23f5b9f5edb4e7cc",
                                 "name": "civilian/guard",
                                 "type": "SelectorNode"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [],
+                                                "id": "node_76e24e4c7d54ec97",
+                                                "name": "Task Not Doing",
+                                                "type": "Task_NotDoing"
+                                            },
+                                            {
+                                                "acceptance radius": {
+                                                    "sourceType": 0,
+                                                    "value": 2.0
+                                                },
+                                                "children": [],
+                                                "id": "node_4033b312e4098716",
+                                                "name": "Move To Position",
+                                                "pretty path": {
+                                                    "sourceType": 0,
+                                                    "value": false
+                                                },
+                                                "target": {
+                                                    "blackboardKey": "investigation_target",
+                                                    "sourceType": 1
+                                                },
+                                                "type": "MoveToPosition"
+                                            },
+                                            {
+                                                "children": [],
+                                                "id": "node_7c982ceebf9cf512",
+                                                "name": "Finish Investigation",
+                                                "type": "FinishInvestigation"
+                                            }
+                                        ],
+                                        "id": "node_9627a82bb2f93729",
+                                        "name": "Sequence",
+                                        "type": "SequenceNode"
+                                    }
+                                ],
+                                "condition": {
+                                    "blackboardKey": "investigation",
+                                    "sourceType": 1
+                                },
+                                "finish before stop": {
+                                    "sourceType": 0,
+                                    "value": false
+                                },
+                                "id": "node_1c4947c2fcee517d",
+                                "inverse": false,
+                                "inverse finish before stop": false,
+                                "name": "investigation",
+                                "type": "ConditionalDecorator"
                             },
                             {
                                 "children": [

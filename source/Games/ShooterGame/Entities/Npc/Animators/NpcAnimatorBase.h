@@ -18,6 +18,8 @@ public:
 
 	bool weapon_pendingAttack = false;
 
+	bool scared = false;
+
 	vec3 spineRotation;
 
 	void Update();

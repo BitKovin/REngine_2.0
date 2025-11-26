@@ -1505,12 +1505,16 @@ void NpcBase::UpdateAnimations(bool forceFullUpdate)
 		animator.spineRotation = spineRotation;
 
 	}
+	else
+	{
+		animator.scared = (target_follow && target_attack) || (report_to_guard && currentInvestigation <= InvestigationReason::WeaponFire) || (report_to_guard && found_guard == false);
+	}
 
 
 
 	if (mesh->WasRended || forceFullUpdate)
 	{
-		animator.UpdatePose = mesh->WasRended && mesh->InRagdoll == false;
+		animator.UpdatePose = mesh->WasRended && mesh->InRagdoll == false || forceFullUpdate;
 
 		if (LeadBody != nullptr)
 		{

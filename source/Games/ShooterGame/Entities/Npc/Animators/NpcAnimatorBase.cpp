@@ -14,7 +14,7 @@ void NpcAnimatorBase::Update()
 
 	if (loaded == false) return;
 
-	std::string desiredAnimation = "idle";
+	std::string desiredAnimation = scared ? "scared" : "idle";
 
 	if (weapon_holds)
 	{
@@ -58,7 +58,7 @@ void NpcAnimatorBase::Update()
 	
 
 
-	std::string desiredLocomotionAnimation = "idle";
+	std::string desiredLocomotionAnimation = scared ? "scared" : "idle";
 
 	if (movementSpeed > 1)
 	{

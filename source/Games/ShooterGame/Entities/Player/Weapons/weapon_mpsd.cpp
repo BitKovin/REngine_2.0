@@ -101,7 +101,7 @@ public:
 
 			auto ownerNpc = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(observer->owner));
 
-			ownerNpc->TryStartInvestigation(InvestigationReason::WeaponFire, Position, Player::Instance->Id);
+			ownerNpc->TryStartInvestigation(InvestigationReason::LoudNoise, Position, Player::Instance->Id);
 
 		}
 
