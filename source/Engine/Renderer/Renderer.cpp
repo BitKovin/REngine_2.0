@@ -337,13 +337,13 @@ void Renderer::RenderFullscreenQuad()
 
 }
 
-void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader)
+void Renderer::SetSurfaceShaderUniforms(ShaderProgram* shader, float brightnessScale)
 {
     if (shader == nullptr) return;
 
     shader->SetUniform("lightDirection", LightManager::LightDirection);
 
-    shader->SetUniform("brightness", 1.0f);
+    shader->SetUniform("brightness", 1.0f * brightnessScale);
 
 
     if (LightManager::DirectionalShadowsEnabled)

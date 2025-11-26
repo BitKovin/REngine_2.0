@@ -1271,12 +1271,11 @@
 // entity 2
 {
 "classname" "static_mesh"
-"origin" "-111.497 -56.1932 34.7592"
+"origin" "-111.497 -68.1932 26.7592"
 "texture" "models/test.png"
-"angles" "32 20 29"
+"angles" "0 270 340"
 "model" "models/npc_base.obj"
 "modelscale" "32"
-"modelscale_vec" "32 16 32"
 }
 // entity 3
 {
@@ -1465,7 +1464,7 @@
 "origin" "-115.807 -103.272 24.4573"
 "model" "models/npc_base.obj"
 "modelscale" "32"
-"angles" "35.7764 -34.5749 16.2309"
+"angles" "0 270 340"
 }
 // entity 27
 {
@@ -1924,4 +1923,11 @@
 "classname" "env_door"
 "origin" "256 126 16"
 "angle" "90"
+}
+// entity 74
+{
+"classname" "misc_model"
+"origin" "239.84 64.189 16"
+"model" "models/tools/door.obj"
+"angle" "-90"
 }

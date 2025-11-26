@@ -3,10 +3,10 @@
 UiCrosshair::UiCrosshair()
 {
 
-	float crosshairLineHeight = 3;
-	float crosshairLineWidth = 15;
+	float crosshairLineHeight = 3.0f;
+	float crosshairLineWidth = 20;
 
-	vec4 crosshairColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	vec4 crosshairColor = vec4(1.0f, 1.0f, 1.0f, 0.9f);
 
 
 
@@ -14,7 +14,7 @@ UiCrosshair::UiCrosshair()
 	dotImage = std::make_shared<UiImage>();
 	dotImage->ImagePath = "GameData/textures//ui/crosshair_dot.png";
 	dotImage->pivot = vec2(0.5f, 0.5f);
-	dotImage->size = vec2(5, 5);
+	dotImage->size = vec2(4, 4);
 	dotImage->color = crosshairColor;
 	AddChild(dotImage);
 

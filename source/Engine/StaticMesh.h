@@ -91,6 +91,8 @@ public:
 
 	bool DepthPrePath = true;
 
+	float Brightness = 1.0f;
+
 	std::unordered_set<std::string> MeshHideList{};
 
 	StaticMesh(Entity* owner)

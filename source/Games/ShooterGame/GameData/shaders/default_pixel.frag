@@ -72,7 +72,7 @@ vec3 CalculateLight()
 
     vec3 light = light_color + clamp(dot(normal, normalize(direct_light_dir))*0.8 + 0.2,0.0,1.0) * direct_light_color;
 
-    light *= 2.5f;
+    light *= 6.0f;
 
     light += v_light;
 

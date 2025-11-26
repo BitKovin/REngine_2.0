@@ -110,7 +110,7 @@ void StaticMesh::DrawForward(mat4x4 view, mat4x4 projection)
 
 	forward_shader_program->SetUniform("masked", Masked);
 
-	Renderer::SetSurfaceShaderUniforms(forward_shader_program);
+	Renderer::SetSurfaceShaderUniforms(forward_shader_program, Brightness);
 
 	mat4x4 world = finalizedWorld;
 

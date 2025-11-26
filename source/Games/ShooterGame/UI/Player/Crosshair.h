@@ -9,7 +9,7 @@ public:
 	UiCrosshair();
 	~UiCrosshair();
 
-	float Spread = 20.0f; //in pixels
+	float Spread = 5.0f; //in pixels
 
 	std::shared_ptr<UiImage> dotImage;
 	std::shared_ptr<UiImage> leftImage;

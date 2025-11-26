@@ -451,6 +451,7 @@ void EngineMain::Render()
 
     vec2 uiResolution = vec2(UiManager::GetScaledUiHeight() * Camera::AspectRatio , UiManager::GetScaledUiHeight());
 
+
 	if (UiRenderTexture == nullptr || UiRenderTexture->width() != uiResolution.x || UiRenderTexture->height() != uiResolution.y)
     {
         delete(UiRenderTexture);
@@ -480,10 +481,11 @@ void EngineMain::Render()
 
     glViewport(0, 0, ScreenSize.x, ScreenSize.y);
 
-    auto fullscreenShader = ShaderManager::GetShaderProgram("fullscreen_vertex", "texture_pixel");
+    auto fullscreenShader = ShaderManager::GetShaderProgram("fullscreen_vertex", "fxaa_simple");
 
     fullscreenShader->UseProgram();
     fullscreenShader->SetTexture("screenTexture", UiRenderTexture->id());
+	fullscreenShader->SetUniform("screenSize", vec2((float)ScreenSize.x, (float)ScreenSize.y));
     MainRenderer->RenderFullscreenQuad();
 
     if (DebugUiEnabled)

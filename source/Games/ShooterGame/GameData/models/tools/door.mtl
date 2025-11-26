@@ -1,10 +1,10 @@
 # Blender 4.5.5 LTS MTL File: 'None'
 # www.blender.org
 
-newmtl MI_Saloon_Wooden_Interior_Kit_wbpveaydw_1K.001
+newmtl door_texture
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
-Ks 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000

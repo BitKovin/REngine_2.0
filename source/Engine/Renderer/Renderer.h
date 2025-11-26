@@ -23,7 +23,7 @@ public:
 
 	void RenderFullscreenQuad();
 
-	static void SetSurfaceShaderUniforms(ShaderProgram* shader);
+	static void SetSurfaceShaderUniforms(ShaderProgram* shader, float brightnessScale = 1);
 
 	int MultiSampleCount = 1;
 

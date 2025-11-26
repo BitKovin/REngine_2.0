@@ -221,21 +221,6 @@ namespace UiRenderer {
 
             std::vector<std::string> deleteList;
 
-            // Evict least recently used textures if memory limit is exceeded
-            while (totalCacheMemory + textureMemory > MAX_CACHE_MEMORY && !textTextureCache.empty()) {
-                auto lruIt = std::min_element(textTextureCache.begin(), textTextureCache.end(),
-                    [](const auto& a, const auto& b) {
-                        return a.second.lastUsedTime < b.second.lastUsedTime;
-                    });
-                glDeleteTextures(1, &lruIt->second.textureID);
-                totalCacheMemory -= lruIt->second.memorySize;
-				deleteList.push_back(lruIt->first);
-            }
-
-            for (const std::string& name : deleteList)
-            {
-                textTextureCache.erase(name);
-            }
 
             // Create OpenGL texture
             glGenTextures(1, &textureID);
@@ -293,7 +278,7 @@ namespace UiRenderer {
                 glDeleteTextures(1, &it->second.textureID);
                 totalCacheMemory -= it->second.memorySize;
                 it = textTextureCache.erase(it);
-                //printf("deleted texture %i from UiRenderer\n", it->second.textureID);
+                printf("deleted texture %i from UiRenderer\n", it->second.textureID);
             }
             else {
                 ++it;
