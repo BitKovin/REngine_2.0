@@ -376,6 +376,440 @@ AnimationPose AnimationPose::LayeredLerp(
 	return out;
 }
 
+
+
+AnimationPose AnimationPose::ApplyFABRIK(
+	const hashed_string& chainRootName,
+	const hashed_string& endEffectorName,
+	roj::BoneNode* rootNode,
+	const AnimationPose& inputPose,
+	const glm::vec3& targetPosition, // model space position
+	const glm::quat& targetRotation, // model space rotation
+	int maxIterations,
+	float tolerance)
+{
+	using glm::mat4;
+	using glm::vec3;
+	using glm::quat;
+
+	// Fast guard
+	if (!rootNode) return inputPose;
+
+	// Helpers (same as LayeredLerp)
+	auto DecomposeLocal = [](const mat4& m, vec3& outT, vec3& outS, quat& outQ) {
+		outT = vec3(m[3]);
+		for (int i = 0; i < 3; ++i) outS[i] = glm::length(vec3(m[i]));
+		glm::mat3 r;
+		for (int i = 0; i < 3; ++i) {
+			if (outS[i] != 0.0f) r[i] = vec3(m[i]) / outS[i];
+			else r[i] = vec3(m[i]);
+		}
+		outQ = glm::quat_cast(r);
+		};
+
+	auto ComposeLocal = [](const vec3& t, const vec3& s, const quat& q) -> mat4 {
+		glm::mat3 r = glm::mat3_cast(q);
+		glm::mat3 sm(s.x, 0.0f, 0.0f,
+			0.0f, s.y, 0.0f,
+			0.0f, 0.0f, s.z);
+		glm::mat3 rs = r * sm;
+		mat4 out = mat4(rs);
+		out[3] = glm::vec4(t, 1.0f);
+		return out;
+		};
+
+	auto ExtractQuatAndScale = [](const mat4& m, quat& outQ, vec3& outS) {
+		for (int i = 0; i < 3; ++i) outS[i] = glm::length(vec3(m[i]));
+		glm::mat3 r;
+		for (int i = 0; i < 3; ++i) {
+			if (outS[i] != 0.0f) r[i] = vec3(m[i]) / outS[i];
+			else r[i] = vec3(m[i]);
+		}
+		outQ = glm::quat_cast(r);
+		};
+
+	auto rotationBetweenVectors = [](const vec3& a, const vec3& b) -> quat {
+		vec3 v1 = glm::normalize(a);
+		vec3 v2 = glm::normalize(b);
+		float d = glm::dot(v1, v2);
+		if (d >= 1.0f - 1e-6f) {
+			return quat(1.0f, 0.0f, 0.0f, 0.0f); // identity
+		}
+		if (d <= -1.0f + 1e-6f) {
+			// 180 degree rotation: pick an orthogonal axis
+			vec3 orth = glm::cross(vec3(1, 0, 0), v1);
+			if (glm::length2(orth) < 1e-6f) orth = glm::cross(vec3(0, 1, 0), v1);
+			orth = glm::normalize(orth);
+			return glm::angleAxis(glm::pi<float>(), orth);
+		}
+		vec3 c = glm::cross(v1, v2);
+		quat q;
+		q.w = 1.0f + d;
+		q.x = c.x;
+		q.y = c.y;
+		q.z = c.z;
+		q = glm::normalize(q);
+		return q;
+		};
+
+	// --- Get or build cached skeleton arrays as in LayeredLerp ---
+	std::vector<hashed_string> traversal;
+	std::unordered_map<hashed_string, int> indexMap;
+	std::vector<int> parentIndex;
+	std::vector<std::vector<int>> children;
+
+	{
+		std::shared_lock<std::shared_mutex> rlock(s_cacheMutex);
+		auto it = s_indexMap.find(rootNode);
+		if (it != s_indexMap.end()) {
+			traversal = s_traversalMap[rootNode];
+			indexMap = it->second;
+			parentIndex = s_parentIndexMap[rootNode];
+			children = s_childrenMap[rootNode];
+		}
+	}
+
+	if (indexMap.empty()) {
+		std::unique_lock<std::shared_mutex> wlock(s_cacheMutex);
+		auto it2 = s_indexMap.find(rootNode);
+		if (it2 == s_indexMap.end()) {
+			std::vector<hashed_string> tmpTraversal; tmpTraversal.reserve(256);
+			std::unordered_map<hashed_string, hashed_string> tempParent;
+			std::function<void(roj::BoneNode*, const hashed_string*)> build = [&](roj::BoneNode* n, const hashed_string* parent) {
+				if (!n) return;
+				tmpTraversal.push_back(n->name);
+				if (parent) tempParent[n->name] = *parent;
+				for (auto& c : n->children) build(const_cast<roj::BoneNode*>(&c), &n->name);
+				};
+			build(rootNode, nullptr);
+			int N = (int)tmpTraversal.size();
+			std::unordered_map<hashed_string, int> tmpIndex; tmpIndex.reserve(N * 2);
+			for (int i = 0; i < N; ++i) tmpIndex[tmpTraversal[i]] = i;
+			std::vector<int> tmpParentIndex(N, -1);
+			for (int i = 0; i < N; ++i) {
+				auto pit = tempParent.find(tmpTraversal[i]);
+				if (pit != tempParent.end()) tmpParentIndex[i] = tmpIndex[pit->second];
+			}
+			std::vector<std::vector<int>> tmpChildren(N);
+			for (int i = 0; i < N; ++i) {
+				int p = tmpParentIndex[i];
+				if (p >= 0) tmpChildren[p].push_back(i);
+			}
+			s_traversalMap[rootNode] = std::move(tmpTraversal);
+			s_indexMap[rootNode] = std::move(tmpIndex);
+			s_parentIndexMap[rootNode] = std::move(tmpParentIndex);
+			s_childrenMap[rootNode] = std::move(tmpChildren);
+			traversal = s_traversalMap[rootNode];
+			indexMap = s_indexMap[rootNode];
+			parentIndex = s_parentIndexMap[rootNode];
+			children = s_childrenMap[rootNode];
+		}
+		else {
+			traversal = s_traversalMap[rootNode];
+			indexMap = it2->second;
+
+			parentIndex = s_parentIndexMap[rootNode];
+			children = s_childrenMap[rootNode];
+		}
+	}
+
+	int N = (int)traversal.size();
+	if (N == 0) return inputPose;
+
+	// --- Build local matrices from inputPose and global transforms ---
+	std::vector<mat4> localInput(N, mat4(1.0f));
+	for (int i = 0; i < N; ++i) {
+		const hashed_string& name = traversal[i];
+		auto it = inputPose.boneTransforms.find(name);
+		if (it != inputPose.boneTransforms.end()) localInput[i] = it->second;
+	}
+
+	// compute globalInput (parent-before-child)
+	std::vector<mat4> globalInput(N, mat4(1.0f));
+	for (int i = 0; i < N; ++i) {
+		int p = parentIndex[i];
+		if (p == -1) globalInput[i] = localInput[i];
+		else globalInput[i] = globalInput[p] * localInput[i];
+	}
+
+	// find chain indices
+	auto itRoot = indexMap.find(chainRootName);
+	auto itEnd = indexMap.find(endEffectorName);
+	if (itRoot == indexMap.end() || itEnd == indexMap.end()) {
+		// can't build chain, return inputPose
+		return inputPose;
+	}
+
+	int rootIdx = itRoot->second;
+	int endIdx = itEnd->second;
+
+	// walk from end up to rootIdx, collecting indices
+	std::vector<int> chainRev; // from end to root
+	int cur = endIdx;
+	bool found = false;
+	while (cur != -1) {
+		chainRev.push_back(cur);
+		if (cur == rootIdx) { found = true; break; }
+		cur = parentIndex[cur];
+	}
+	if (!found) {
+		// end is not descendant of chainRoot
+		return inputPose;
+	}
+
+	// reverse to have root -> end
+	std::vector<int> chain;
+	chain.reserve(chainRev.size());
+	for (auto it = chainRev.rbegin(); it != chainRev.rend(); ++it) chain.push_back(*it);
+
+	int M = (int)chain.size();
+	if (M < 2) {
+		// nothing to move
+		return inputPose;
+	}
+
+	// prepare positions (global space), original global quats and scales
+	std::vector<vec3> positions(M);
+	std::vector<quat> originalGlobalQ(M);
+	std::vector<vec3> originalGlobalS(M);
+	for (int i = 0; i < M; ++i) {
+		int idx = chain[i];
+		positions[i] = vec3(globalInput[idx][3]);
+		ExtractQuatAndScale(globalInput[idx], originalGlobalQ[i], originalGlobalS[i]);
+	}
+
+	// lengths between joints
+	std::vector<float> lengths(M - 1);
+	float totalLength = 0.0f;
+	for (int i = 0; i < M - 1; ++i) {
+		float d = glm::length(positions[i + 1] - positions[i]);
+		lengths[i] = d;
+		totalLength += d;
+	}
+
+	// distance root->target
+	float distRootToTarget = glm::length(targetPosition - positions[0]);
+
+	// FABRIK
+	if (distRootToTarget > totalLength) {
+		// unreachable: stretch towards target from root
+		for (int i = 0; i < M - 1; ++i) {
+			vec3 dir = glm::normalize(targetPosition - positions[i]);
+			if (!glm::isnan(dir.x) && !glm::isnan(dir.y) && !glm::isnan(dir.z))
+				positions[i + 1] = positions[i] + dir * lengths[i];
+			else
+				positions[i + 1] = positions[i]; // fallback
+		}
+	}
+	else {
+		// reachable: iterate
+		vec3 rootPos = positions[0];
+		for (int iter = 0; iter < maxIterations; ++iter) {
+			// forward: set end to target
+			positions[M - 1] = targetPosition;
+			for (int i = M - 2; i >= 0; --i) {
+				float r = glm::length(positions[i + 1] - positions[i]);
+				if (r <= 1e-6f) continue;
+				float lambda = lengths[i] / r;
+				positions[i] = (1.0f - lambda) * positions[i + 1] + lambda * positions[i];
+			}
+			// backward: set root back
+			positions[0] = rootPos;
+			for (int i = 0; i < M - 1; ++i) {
+				float r = glm::length(positions[i + 1] - positions[i]);
+				if (r <= 1e-6f) continue;
+				float lambda = lengths[i] / r;
+				positions[i + 1] = (1.0f - lambda) * positions[i] + lambda * positions[i + 1];
+			}
+			// check tolerance on end effector
+			float err = glm::length(positions[M - 1] - targetPosition);
+			if (err <= tolerance) break;
+		}
+	}
+
+	// Prepare result arrays: resultLocal (local transforms), resultGlobal (global transforms)
+	std::vector<mat4> resultLocal(N);
+	std::vector<mat4> resultGlobal(N);
+
+	// initialize resultLocal to input local; resultGlobal to input global for non-chain bones
+	for (int i = 0; i < N; ++i) resultLocal[i] = localInput[i];
+	for (int i = 0; i < N; ++i) resultGlobal[i] = globalInput[i];
+
+	// We'll update chain joints' global transforms and then compute corresponding local transforms.
+	// For computing rotations, use originalGlobalQ and align child direction -> new direction, end effector uses targetRotation.
+	// Build a mapping from chain index i -> traversal index idx
+	for (int i = 0; i < M; ++i) {
+		int traversalIdx = chain[i];
+		// compute desired global quaternion
+		quat desiredGlobalQ;
+		vec3 desiredScale = originalGlobalS[i]; // preserve original global scale
+		if (i < M - 1) {
+			// has child in chain
+			vec3 origChildDir = positions[i + 1] - positions[i];
+			vec3 origChildDirFromInput = vec3(globalInput[chain[i + 1]][3]) - vec3(globalInput[chain[i]][3]);
+			if (glm::length2(origChildDirFromInput) < 1e-8f) {
+				// if original child dir is degenerate, fall back to original global quaternion
+				desiredGlobalQ = originalGlobalQ[i];
+			}
+			else {
+				vec3 a = origChildDirFromInput;
+				vec3 b = origChildDir;
+				if (glm::length2(b) < 1e-8f) {
+					// no meaningful new direction; keep original orientation
+					desiredGlobalQ = originalGlobalQ[i];
+				}
+				else {
+					quat delta = rotationBetweenVectors(a, b);
+					desiredGlobalQ = glm::normalize(delta * originalGlobalQ[i]);
+				}
+			}
+		}
+		else {
+			// end effector: set to targetRotation (explicit)
+			desiredGlobalQ = targetRotation;
+		}
+
+		// compose new global matrix for this joint
+		mat4 newGlobal = ComposeLocal(positions[i], desiredScale, desiredGlobalQ);
+		resultGlobal[traversalIdx] = newGlobal;
+	}
+
+	// Now convert globals back to locals for chain nodes (local = inverse(parentGlobal) * newGlobal)
+	for (int i = 0; i < M; ++i) {
+		int idx = chain[i];
+		int p = parentIndex[idx];
+		mat4 parentGlobal = (p == -1) ? mat4(1.0f) : resultGlobal[p];
+		// compute local = inverse(parentGlobal) * resultGlobal[idx]
+		mat4 invParent = glm::inverse(parentGlobal);
+		mat4 newLocal = invParent * resultGlobal[idx];
+		resultLocal[idx] = newLocal;
+	}
+
+	// Build output pose
+	AnimationPose out;
+	out.boneTransforms.reserve(N);
+
+	for (int i = 0; i < N; ++i) {
+		out.boneTransforms[traversal[i]] = resultLocal[i];
+	}
+
+	// Copy any bones in inputPose that are not part of traversal (unlikely) to preserve extras
+	for (const auto& kv : inputPose.boneTransforms) {
+		// if traversal doesn't have it, keep as-is
+		// but traversal covers all bones from rootNode build, so this is defensive
+		if (indexMap.find(kv.first) == indexMap.end()) {
+			out.boneTransforms[kv.first] = kv.second;
+		}
+	}
+
+	return out;
+}
+
+glm::mat4 AnimationPose::GetModelSpaceTransform(
+	const hashed_string& boneName,
+	roj::BoneNode* rootNode,
+	const AnimationPose& pose)
+{
+	using glm::mat4;
+
+	if (!rootNode) return mat4(1.0f);
+
+	// --- read or build cached skeleton arrays (same pattern as LayeredLerp) ---
+	std::vector<hashed_string> traversal;
+	std::unordered_map<hashed_string, int> indexMap;
+	std::vector<int> parentIndex;
+	std::vector<std::vector<int>> children;
+
+	{
+		std::shared_lock<std::shared_mutex> rlock(s_cacheMutex);
+		auto it = s_indexMap.find(rootNode);
+		if (it != s_indexMap.end()) {
+			traversal = s_traversalMap[rootNode];
+			indexMap = it->second;
+			parentIndex = s_parentIndexMap[rootNode];
+			children = s_childrenMap[rootNode];
+		}
+	}
+
+	if (indexMap.empty()) {
+		std::unique_lock<std::shared_mutex> wlock(s_cacheMutex);
+		auto it2 = s_indexMap.find(rootNode);
+		if (it2 == s_indexMap.end()) {
+			// build traversal and parent map
+			std::vector<hashed_string> tmpTraversal;
+			tmpTraversal.reserve(256);
+			std::unordered_map<hashed_string, hashed_string> tempParent;
+			std::function<void(roj::BoneNode*, const hashed_string*)> build = [&](roj::BoneNode* n, const hashed_string* parent) {
+				if (!n) return;
+				tmpTraversal.push_back(n->name);
+				if (parent) tempParent[n->name] = *parent;
+				for (auto& c : n->children) build(const_cast<roj::BoneNode*>(&c), &n->name);
+				};
+			build(rootNode, nullptr);
+
+			int N = (int)tmpTraversal.size();
+			std::unordered_map<hashed_string, int> tmpIndex; tmpIndex.reserve(N * 2);
+			for (int i = 0; i < N; ++i) tmpIndex[tmpTraversal[i]] = i;
+
+			std::vector<int> tmpParentIndex(N, -1);
+			for (int i = 0; i < N; ++i) {
+				auto pit = tempParent.find(tmpTraversal[i]);
+				if (pit != tempParent.end()) tmpParentIndex[i] = tmpIndex[pit->second];
+			}
+
+			std::vector<std::vector<int>> tmpChildren(N);
+			for (int i = 0; i < N; ++i) {
+				int p = tmpParentIndex[i];
+				if (p >= 0) tmpChildren[p].push_back(i);
+			}
+
+			s_traversalMap[rootNode] = std::move(tmpTraversal);
+			s_indexMap[rootNode] = std::move(tmpIndex);
+			s_parentIndexMap[rootNode] = std::move(tmpParentIndex);
+			s_childrenMap[rootNode] = std::move(tmpChildren);
+
+			traversal = s_traversalMap[rootNode];
+			indexMap = s_indexMap[rootNode];
+			parentIndex = s_parentIndexMap[rootNode];
+			children = s_childrenMap[rootNode];
+		}
+		else {
+			traversal = s_traversalMap[rootNode];
+			indexMap = it2->second;
+			parentIndex = s_parentIndexMap[rootNode];
+			children = s_childrenMap[rootNode];
+		}
+	}
+
+	// --- find bone index ---
+	auto itBone = indexMap.find(boneName);
+	if (itBone == indexMap.end()) {
+		return mat4(1.0f); // bone not found
+	}
+	int targetIdx = itBone->second;
+
+	// --- collect chain root->target indices (by following parents) ---
+	std::vector<int> chain;
+	int cur = targetIdx;
+	while (cur != -1) {
+		chain.push_back(cur);
+		cur = parentIndex[cur];
+	}
+	// chain currently target->...->root, reverse to root->...->target
+	std::reverse(chain.begin(), chain.end());
+
+	// --- multiply local matrices along chain to produce global transform ---
+	mat4 global = mat4(1.0f);
+	for (int idx : chain) {
+		const hashed_string& name = traversal[idx];
+		auto itLocal = pose.boneTransforms.find(name);
+		mat4 local = (itLocal != pose.boneTransforms.end()) ? itLocal->second : mat4(1.0f);
+		global = global * local; // parentGlobal * local -> childGlobal
+	}
+
+	return global;
+}
+
 AnimationPose SkeletalMesh::GetAnimationPose()
 {
 	if (model == nullptr) return AnimationPose();

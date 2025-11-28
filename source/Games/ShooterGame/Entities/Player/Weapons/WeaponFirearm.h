@@ -18,6 +18,8 @@
 struct FirearmParams {
 	std::string modelPath = "";
 	std::string texturesLocation = "";
+	std::string modelPathTp = "";
+	std::string texturesLocationTp = "";
 	std::string fireSoundEvent = "event:/Weapons/pistol/pistol_fire";
 	std::string fireAnimation = "fire";
 	std::string drawAnimation = "draw";
@@ -80,6 +82,10 @@ public:
 	float activeSpread = 0.0f;
 	float recoilModelOffset = 0.0f;
 
+	SkeletalMesh* thirdPersonModel = nullptr;
+	float weaponAim = 0.0f;
+	float oldWeaponAim = 0.0f;
+	AnimationPose lastAppliedPose;
 
 	WeaponFirearm(const FirearmParams& initialParams = FirearmParams());
 

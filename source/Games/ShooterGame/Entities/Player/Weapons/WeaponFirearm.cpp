@@ -16,7 +16,8 @@ void WeaponFirearm::Start() {
     SwitchDelay.AddDelay(params.switchDelayTime);
 }
 
-void WeaponFirearm::LoadAssets() {
+void WeaponFirearm::LoadAssets() 
+{
     SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Weapons.bank");
     SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/SFX.bank");
 
@@ -38,11 +39,34 @@ void WeaponFirearm::LoadAssets() {
     arms->IsViewmodel = true;
     Drawables.push_back(arms);
 
+
+    Drawables.push_back(thirdPersonModel = new SkeletalMesh(this));
+
+    thirdPersonModel->LoadFromFile(params.modelPathTp);
+    thirdPersonModel->TexturesLocation = params.texturesLocationTp;
+    thirdPersonModel->PlayAnimation("idle", true, 0.0f);
+
     PreloadEntityType("bullet");
 }
 
-void WeaponFirearm::Update() {
+void WeaponFirearm::Update() 
+{
     Weapon::Update();
+
+
+    weaponAim -= Time::DeltaTimeF;
+    if (oldWeaponAim > 1.0f && weaponAim <= 1.0f)
+    {
+        thirdPersonModel->PlayAnimation("idle", true, 0.5f);
+    }
+    else if (oldWeaponAim <= 1.0f && weaponAim > 1.0f)
+    {
+        thirdPersonModel->PlayAnimation("aim", true, 0.1f);
+    }
+    oldWeaponAim = weaponAim;
+    thirdPersonModel->Update();
+
+
 
     if (params.hasRecoilModelOffset) {
         if (attackDelay.Wait()) {
@@ -131,7 +155,11 @@ void WeaponFirearm::PerformAttack() {
     attackDelay.AddDelay(params.attackDelayTime);
 }
 
-void WeaponFirearm::FireSingleBullet(const vec3& startLoc, const vec4& gridOffset) {
+void WeaponFirearm::FireSingleBullet(const vec3& startLoc, const vec4& gridOffset) 
+{
+
+    weaponAim = 2;
+
     Bullet* bullet = new Bullet();
     Level::Current->AddEntity(bullet);
 
@@ -187,6 +215,10 @@ void WeaponFirearm::LateUpdate()
 
     arms->Position = viewmodel->Position;
     arms->Rotation = viewmodel->Rotation;
+
+    thirdPersonModel->Visible = !viewmodel->Visible;
+    thirdPersonModel->Position = owner->bodyMesh->Position;
+    thirdPersonModel->Rotation = owner->bodyMesh->Rotation;
 }
 
 WeaponSlotData WeaponFirearm::GetDefaultData() {

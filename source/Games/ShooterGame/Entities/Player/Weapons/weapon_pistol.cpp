@@ -4,17 +4,14 @@ class weapon_pistol : public WeaponFirearm {
 public:
     bool Silencer = true;
 
-	SkeletalMesh* thirdPersonModel = nullptr;
 
-	float weaponAim = 0.0f;
-	float oldWeaponAim = 0.0f;
-
-	AnimationPose lastAppliedPose;
 
     weapon_pistol() : WeaponFirearm() 
     {
         params.modelPath = "GameData/models/player/weapons/pistol/pistol.glb";
         params.texturesLocation = "GameData/models/player/weapons/pistol/pistol.glb/";
+        params.modelPathTp = "GameData/models/player/weapons/pistol/pistol_tp.glb";
+        params.texturesLocationTp = "GameData/models/player/weapons/pistol/pistol_tp.glb/";
         params.fireSoundEvent = "event:/Weapons/pistol/pistol_fire";
         params.useOneshotSound = false;
         params.pitchModifier = 1.0f; // Modified in Update based on Silencer
@@ -52,20 +49,6 @@ public:
         params.pitchModifier = Silencer ? 2.8f : 1.0f;
         WeaponFirearm::Update();
 
-		weaponAim -= Time::DeltaTimeF;
-
-		if (oldWeaponAim > 1.0f && weaponAim <= 1.0f)
-        {
-            thirdPersonModel->PlayAnimation("idle", true, 0.5f);
-        }
-		else if (oldWeaponAim <= 1.0f && weaponAim > 1.0f)
-        {
-            thirdPersonModel->PlayAnimation("aim", true, 0.1f);
-        }
-
-        oldWeaponAim = weaponAim;
-
-        thirdPersonModel->Update();
     }
 
     void AsyncUpdate() override 
@@ -85,24 +68,8 @@ public:
             viewmodel->MeshHideList.insert("silencer");
         }
 
-        thirdPersonModel->Visible = !viewmodel->Visible;
-        thirdPersonModel->Position = owner->bodyMesh->Position;
-		thirdPersonModel->Rotation = owner->bodyMesh->Rotation;
-
     }
 
-    void LoadAssets() override 
-    {
-        WeaponFirearm::LoadAssets();
-
-		Drawables.push_back(thirdPersonModel = new SkeletalMesh(this));
-
-		thirdPersonModel->LoadFromFile("GameData/models/player/weapons/pistol/pistol_tp.glb");
-		thirdPersonModel->TexturesLocation = "GameData/models/player/weapons/pistol/pistol_tp.glb/";
-		thirdPersonModel->PlayAnimation("idle", true, 0.0f);
-
-
-	}
 
     WeaponSlotData GetDefaultData() override 
     {
@@ -110,12 +77,6 @@ public:
         data.className = "weapon_pistol";
         return data;
     }
-
-    void FireSingleBullet(const vec3& startLoc, const vec4& gridOffset = vec4(0)) override 
-    {
-        weaponAim = 2;
-        WeaponFirearm::FireSingleBullet(startLoc, gridOffset);
-	}
 
     virtual AnimationPose ApplyWeaponAnimation(AnimationPose thirdPersonPose)
     {
@@ -143,7 +104,7 @@ public:
             appliedWeaponPose,
             weaponPose,
             std::clamp(weaponAim, 0.0f, 1.0f),
-            0.3f
+            1.0f
         );
 
         appliedWeaponPose = AnimationPose::LayeredLerp(
@@ -162,6 +123,18 @@ public:
 			weaponPose,
 			std::clamp(weaponAim, 0.0f, 1.0f),
             1.0f
+        );
+
+		MathHelper::Transform rightHandTransform = MathHelper::DecomposeMatrix(AnimationPose::GetModelSpaceTransform("hand_r", thirdPersonModel->GetRootNode(), appliedWeaponPose));
+        MathHelper::Transform leftHandTransform = MathHelper::DecomposeMatrix(AnimationPose::GetModelSpaceTransform("hand_l", thirdPersonModel->GetRootNode(), appliedWeaponPose));
+
+        appliedWeaponPose = AnimationPose::ApplyFABRIK(
+            "upperarm_l",
+            "hand_l",
+            thirdPersonModel->GetRootNode(),
+            appliedWeaponPose,
+            rightHandTransform.Position,
+            leftHandTransform.RotationQuaternion
         );
 
 		lastAppliedPose = appliedWeaponPose;

@@ -46,6 +46,21 @@ struct AnimationPose
 		float UseWorldSpaceRotation,
 		float progress);
 
+	static AnimationPose ApplyFABRIK(
+		const hashed_string& chainRootName,
+		const hashed_string& endEffectorName,
+		roj::BoneNode* rootNode,
+		const AnimationPose& inputPose,
+		const glm::vec3& targetPosition, // model space position
+		const glm::quat& targetRotation, // model space rotation
+		int maxIterations = 10,
+		float tolerance = 0.01f);
+
+	static glm::mat4 GetModelSpaceTransform(
+		const hashed_string& boneName,
+		roj::BoneNode* rootNode,
+		const AnimationPose& pose);
+
 	void SetBoneTransform(hashed_string bone, mat4 transform)
 	{
 		boneTransforms[bone] = transform;
@@ -71,6 +86,7 @@ struct AnimationPose
 
 		return MathHelper::Transform();
 	}
+
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(AnimationPose, boneTransforms)
 
