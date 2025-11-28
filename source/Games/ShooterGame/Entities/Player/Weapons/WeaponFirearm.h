@@ -1,8 +1,8 @@
-// Firearm.h
 #pragma once
 
 #include "WeaponBase.h"
 #include "../Player.hpp"
+#include "../../Npc/NpcBase.h"
 
 #include <Animation.h>
 #include <RandomHelper.h>
@@ -11,261 +11,86 @@
 #include "WeaponFireFlash.h"
 #include <AiPerception/AiPerceptionSystem.h>
 #include <AiPerception/Observer.h>
-#include "../../Npc/NpcBase.h"
+
+#include <string>
+
 
 struct FirearmParams {
-    std::string modelPath = "";
-    std::string texturesLocation = "";
-    std::string fireSoundEvent = "event:/Weapons/pistol/pistol_fire";
-    std::string fireAnimation = "fire";
-    std::string drawAnimation = "draw";
-    std::string boneMuzzle = "muzzle";
-    float fireVolume = 0.5f;
-    bool fireSoundIs2D = true;
-    bool useOneshotSound = false; // For MPSD-style oneshot play
-    float pitchModifier = 1.0f; // For silencer or other pitch changes
-    float baseSpread = 0.1f;
-    float spreadIncreasePerShot = 0.1f;
-    float spreadDecreaseSpeed = 2.0f;
-    float maxActiveSpread = 1.2f;
-    float velocitySpreadDivisor = 7.0f;
-    float attackDelayTime = 0.3f;
-    float switchDelayTime = 0.35f;
-    float switchDelayOnAttack = 0.2f;
-    vec3 weaponOffset = vec3(0.0f, 0.0f, 0.0f);
-    float bulletSpeed = 200.0f;
-    float bulletDamage = 20.0f;
-    int bulletsPerShot = 1;
-    float range = 80.0f;
-    float muzzleMix = 0.6f;
-    float muzzleForwardOffset = 0.1f;
-    float fireAnimInterpInTime = 0.08f;
-    bool hasActiveSpread = true;
-    bool notifyNpcs = false;
-    float npcNotifyRadius = 20.0f;
-    bool activateViolenceCrime = false;
-    float violenceCrimeDelay = 0.3f;
-    bool hasRecoilModelOffset = false;
-    float recoilModelTarget = 0.0f;
-    float recoilModelInterpIn = 2.0f;
-    float recoilModelInterpOut = 7.0f;
-    bool hasRandomRecoilStrength = false;
-    CameraShake recoilShake = CameraShake(
-        0.13f,                            // interpIn
-        0.5f,                             // duration
-        vec3(0.0f, 0.0f, -0.1f),          // positionAmplitude
-        vec3(0.0f, 0.0f, 3.4f),           // positionFrequency
-        vec3(-3.0f, 0.15f, 0.0f),         // rotationAmplitude
-        vec3(-1.5f, 18.8f, 0.0f),         // rotationFrequency
-        0.5f,                             // falloff
-        CameraShake::ShakeType::SingleWave// shakeType
-    );
-    bool lateUpdateWhenPaused = true;
-    bool illegal = false;
-    std::string spreadType = "random"; // "random" or "grid" for shotgun-like
-    float gridSpreadSize = 4.0f; // For grid spread
-    float gridStep = 2.0f;
-    float gridMaxLength = 4.7f;
+	std::string modelPath = "";
+	std::string texturesLocation = "";
+	std::string fireSoundEvent = "event:/Weapons/pistol/pistol_fire";
+	std::string fireAnimation = "fire";
+	std::string drawAnimation = "draw";
+	std::string boneMuzzle = "muzzle";
+	float fireVolume = 0.5f;
+	bool fireSoundIs2D = true;
+	bool useOneshotSound = false; // For MPSD-style oneshot play
+	float pitchModifier = 1.0f; // For silencer or other pitch changes
+	float baseSpread = 0.1f;
+	float spreadIncreasePerShot = 0.1f;
+	float spreadDecreaseSpeed = 2.0f;
+	float maxActiveSpread = 1.2f;
+	float velocitySpreadDivisor = 7.0f;
+	float attackDelayTime = 0.3f;
+	float switchDelayTime = 0.35f;
+	float switchDelayOnAttack = 0.2f;
+	vec3 weaponOffset = vec3(0.0f, 0.0f, 0.0f);
+	float bulletSpeed = 200.0f;
+	float bulletDamage = 20.0f;
+	int bulletsPerShot = 1;
+	float range = 80.0f;
+	float muzzleMix = 0.6f;
+	float muzzleForwardOffset = 0.1f;
+	float fireAnimInterpInTime = 0.08f;
+	bool hasActiveSpread = true;
+	bool notifyNpcs = false;
+	float npcNotifyRadius = 20.0f;
+	bool activateViolenceCrime = false;
+	float violenceCrimeDelay = 0.3f;
+	bool hasRecoilModelOffset = false;
+	float recoilModelTarget = 0.0f;
+	float recoilModelInterpIn = 2.0f;
+	float recoilModelInterpOut = 7.0f;
+	bool hasRandomRecoilStrength = false;
+	CameraShake recoilShake = CameraShake(
+		0.13f, // interpIn
+		0.5f, // duration
+		vec3(0.0f, 0.0f, -0.1f), // positionAmplitude
+		vec3(0.0f, 0.0f, 3.4f), // positionFrequency
+		vec3(-3.0f, 0.15f, 0.0f), // rotationAmplitude
+		vec3(-1.5f, 18.8f, 0.0f), // rotationFrequency
+		0.5f, // falloff
+		CameraShake::ShakeType::SingleWave// shakeType
+	);
+	bool lateUpdateWhenPaused = true;
+	std::string spreadType = "random"; // "random" or "grid" for shotgun-like
+	float gridSpreadSize = 4.0f; // For grid spread
+	float gridStep = 2.0f;
+	float gridMaxLength = 4.7f;
 };
+
 
 class WeaponFirearm : public Weapon {
 public:
-    FirearmParams params;
-    SkeletalMesh* viewmodel = nullptr;
-    SkeletalMesh* arms = nullptr;
-    Delay attackDelay;
-    SoundPlayer* fireSoundPlayer = nullptr;
-    float activeSpread = 0.0f;
-    float recoilModelOffset = 0.0f;
+	FirearmParams params;
+	SkeletalMesh* viewmodel = nullptr;
+	SkeletalMesh* arms = nullptr;
+	Delay attackDelay;
+	SoundPlayer* fireSoundPlayer = nullptr;
+	float activeSpread = 0.0f;
+	float recoilModelOffset = 0.0f;
 
 
-    WeaponFirearm(const FirearmParams& initialParams = FirearmParams()) : params(initialParams) {
-        LateUpdateWhenPaused = params.lateUpdateWhenPaused;
-        Illegal = params.illegal;
-    }
+	WeaponFirearm(const FirearmParams& initialParams = FirearmParams());
 
-    void Start() override {
-        fireSoundPlayer = SoundPlayer::Create(params.fireSoundEvent);
-        fireSoundPlayer->Volume = params.fireVolume;
-        fireSoundPlayer->Is2D = params.fireSoundIs2D;
 
-        attackDelay.AddDelay(params.switchDelayTime - 0.1);
-        SwitchDelay.AddDelay(params.switchDelayTime);
-    }
-
-    void LoadAssets() override {
-        SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Weapons.bank");
-        SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/SFX.bank");
-
-        viewmodel = new SkeletalMesh(this);
-        arms = new SkeletalMesh(this);
-
-        viewmodel->LoadFromFile(params.modelPath);
-        if (!params.texturesLocation.empty()) {
-            viewmodel->TexturesLocation = params.texturesLocation;
-        }
-        viewmodel->PlayAnimation(params.drawAnimation);
-        viewmodel->PreloadAssets();
-
-        viewmodel->Transparent = true;
-        viewmodel->IsViewmodel = true;
-        Drawables.push_back(viewmodel);
-
-        arms->LoadFromFile(ArmsModelPath);
-        arms->IsViewmodel = true;
-        Drawables.push_back(arms);
-
-        PreloadEntityType("bullet");
-    }
-
-    void Update() override 
-    {
-
-		Weapon::Update();
-
-        if (params.hasRecoilModelOffset) {
-            if (attackDelay.Wait()) {
-                recoilModelOffset = MathHelper::Interp(recoilModelOffset, params.recoilModelTarget - 2.5f, Time::DeltaTimeF, params.recoilModelInterpIn);
-            }
-            else {
-                recoilModelOffset = MathHelper::Interp(recoilModelOffset, params.recoilModelTarget, Time::DeltaTimeF, params.recoilModelInterpOut);
-            }
-        }
-
-        if (params.hasActiveSpread) {
-            if (attackDelay.Wait() == false) {
-                activeSpread -= Time::DeltaTimeF * params.spreadDecreaseSpeed;
-            }
-            activeSpread = std::clamp(activeSpread, 0.0f, params.maxActiveSpread);
-            Spread = params.baseSpread + activeSpread;
-            Spread += length(Player::Instance->controller.GetVelocity()) / params.velocitySpreadDivisor;
-        }
-        else {
-            Spread = params.baseSpread;
-        }
-
-        if (Input::GetAction("attack")->Holding() && CanAttack()) {
-            if (attackDelay.Wait() == false) {
-                PerformAttack();
-            }
-        }
-    }
-
-    virtual void PerformAttack() {
-        if (params.hasActiveSpread) {
-            activeSpread += params.spreadIncreasePerShot;
-        }
-
-        if (params.notifyNpcs) {
-            NotifyNpcs();
-        }
-
-        if (params.activateViolenceCrime) {
-            Player::Instance->violanceCrimeActiveDelay.AddDelay(params.violenceCrimeDelay);
-        }
-
-        if (params.useOneshotSound) {
-            SoundPlayer::PlayOneshot(params.fireSoundEvent, params.pitchModifier, params.fireVolume);
-        }
-        else {
-            fireSoundPlayer->Pitch = params.pitchModifier;
-            fireSoundPlayer->Play();
-        }
-
-        SwitchDelay.AddDelay(params.switchDelayOnAttack);
-
-        viewmodel->PlayAnimation(params.fireAnimation, false, params.fireAnimInterpInTime);
-
-        if (params.hasRandomRecoilStrength) {
-            float horizontalRecoilStrength = RandomHelper::RandomFloat() * 2 - 1;
-            float verticalRecoilStrength = RandomHelper::RandomFloat() * 0.5f + 0.5f;
-            CameraShake modifiedShake = params.recoilShake;
-            modifiedShake.rotationAmplitude *= vec3(verticalRecoilStrength, horizontalRecoilStrength, 1);
-            Camera::AddCameraShake(modifiedShake);
-        }
-        else {
-            Camera::AddCameraShake(params.recoilShake);
-        }
-
-        mat4 boneMat = viewmodel->GetBoneMatrixWorld(params.boneMuzzle);
-        vec3 startLoc = MathHelper::DecomposeMatrix(boneMat).Position;
-        startLoc = mix(startLoc, Camera::position, params.muzzleMix) - Camera::Forward() * params.muzzleForwardOffset;
-
-        if (params.spreadType == "grid") {
-            // Shotgun-style grid
-            for (float y = -params.gridSpreadSize; y <= params.gridSpreadSize; y += params.gridStep) {
-                for (float x = -params.gridSpreadSize; x <= params.gridSpreadSize; x += params.gridStep) {
-                    if (length(vec2(x, y)) > params.gridMaxLength) continue;
-                    FireSingleBullet(startLoc, vec4(x, y, 0, 1));
-                }
-            }
-        }
-        else {
-            // Random spread
-            for (int i = 0; i < params.bulletsPerShot; ++i) {
-                FireSingleBullet(startLoc, vec4(0));
-            }
-        }
-
-        attackDelay.AddDelay(params.attackDelayTime);
-    }
-
-    virtual void FireSingleBullet(const vec3& startLoc, const vec4& gridOffset = vec4(0)) {
-        Bullet* bullet = new Bullet();
-        Level::Current->AddEntity(bullet);
-
-        vec3 offset;
-        if (params.spreadType == "grid") {
-            offset = MathHelper::GetRotationMatrix(Rotation) * gridOffset;
-        }
-        else {
-            offset = RandomHelper::RandomPosition(1) * Spread;
-        }
-
-        vec3 endLoc = Position + MathHelper::GetForwardVector(Camera::rotation) * params.range + offset;
-        bullet->Speed = params.bulletSpeed;
-        bullet->Position = startLoc + offset * 0.002f;
-        bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
-        bullet->Start();
-        bullet->LoadAssetsIfNeeded();
-        bullet->Damage = params.bulletDamage;
-
-        WeaponFireFlash::CreateAt(bullet->Position);
-    }
-
-    void NotifyNpcs() {
-        auto observers = AiPerceptionSystem::GetObserversInRadius(Position, params.npcNotifyRadius);
-        for (auto observer : observers) {
-            auto ownerNpc = dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(observer->owner));
-            ownerNpc->TryStartInvestigation(InvestigationReason::LoudNoise, Position, Player::Instance->Id);
-        }
-    }
-
-    void AsyncUpdate() override {
-        viewmodel->Update();
-        auto pose = viewmodel->GetAnimationPose();
-        auto leftHandPose = pose.GetBoneTransform("clavicle_l");
-        leftHandPose.Rotation += vec3(50, 0, 0) * HideWeapon;
-        pose.SetBoneTransformEuler("clavicle_l", leftHandPose);
-        arms->PasteAnimationPose(pose);
-    }
-
-    void LateUpdate() override {
-        if (params.hasRecoilModelOffset) {
-            Rotation.x += recoilModelOffset;
-        }
-
-        viewmodel->Position = Position + (mat3)Camera::GetRotationMatrix() * params.weaponOffset;
-        viewmodel->Rotation = Rotation;
-
-        arms->Position = viewmodel->Position;
-        arms->Rotation = viewmodel->Rotation;
-    }
-
-    WeaponSlotData GetDefaultData() override {
-        WeaponSlotData data;
-        data.className = "firearm"; // Override in subclasses
-        data.slot = 0; // Override in subclasses
-        return data;
-    }
+	void Start() override;
+	void LoadAssets() override;
+	void Update() override;
+	virtual void PerformAttack();
+	virtual void FireSingleBullet(const vec3& startLoc, const vec4& gridOffset = vec4(0));
+	void NotifyNpcs();
+	void AsyncUpdate() override;
+	void LateUpdate() override;
+	WeaponSlotData GetDefaultData() override;
 };

@@ -898,7 +898,7 @@ Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const Bo
 	return hit;
 }
 
-Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask, const vector<Body*> ignoreList)
+Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList)
 {
 	HitResult hit;
 
@@ -945,6 +945,7 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 	TraceBodyFilter filter;
 	filter.mask = mask;
 	filter.ignoreList = ignoreList;
+	filter.entityIgnoreList = entityIgnoreList;
 
 	//physicsMainLock.lock();
 

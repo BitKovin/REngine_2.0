@@ -131,7 +131,7 @@ AnimationPose AnimationPose::LayeredLerp(
 	roj::BoneNode* rootNode,
 	const AnimationPose& poseA,
 	const AnimationPose& poseB,
-	bool UseWorldSpaceRotation,
+	float UseWorldSpaceRotation,
 	float progress)
 {
 	using glm::mat4;
@@ -169,24 +169,34 @@ AnimationPose AnimationPose::LayeredLerp(
 		return out;
 		};
 
+	// Helper to extract quat from a mat4 (rotation part)
+	auto ExtractQuat = [](const mat4& m) -> quat {
+		vec3 s;
+		for (int i = 0; i < 3; ++i) s[i] = glm::length(vec3(m[i]));
+		glm::mat3 r;
+		for (int i = 0; i < 3; ++i) {
+			if (s[i] != 0.0f) r[i] = vec3(m[i]) / s[i];
+			else r[i] = vec3(m[i]);
+		}
+		return glm::quat_cast(r);
+		};
+
 	// --- Get (or build) cached skeleton arrays for this rootNode ---
 	std::vector<hashed_string> traversal;
 	std::unordered_map<hashed_string, int> indexMap;
 	std::vector<int> parentIndex;
 	std::vector<std::vector<int>> children;
-
 	// First try read (shared) lock
 	{
 		std::shared_lock<std::shared_mutex> rlock(s_cacheMutex);
 		auto it = s_indexMap.find(rootNode);
 		if (it != s_indexMap.end()) {
-			traversal = s_traversalMap[rootNode];           // copy small vectors (they're cached)
+			traversal = s_traversalMap[rootNode]; // copy small vectors (they're cached)
 			indexMap = it->second;
 			parentIndex = s_parentIndexMap[rootNode];
 			children = s_childrenMap[rootNode];
 		}
 	}
-
 	// If not found, build under unique lock (double-check after acquiring)
 	if (indexMap.empty()) {
 		std::unique_lock<std::shared_mutex> wlock(s_cacheMutex);
@@ -197,7 +207,6 @@ AnimationPose AnimationPose::LayeredLerp(
 			std::vector<hashed_string> tmpTraversal;
 			tmpTraversal.reserve(256);
 			std::unordered_map<hashed_string, hashed_string> tempParent;
-
 			std::function<void(roj::BoneNode*, const hashed_string*)> build = [&](roj::BoneNode* n, const hashed_string* parent) {
 				if (!n) return;
 				tmpTraversal.push_back(n->name);
@@ -205,11 +214,9 @@ AnimationPose AnimationPose::LayeredLerp(
 				for (auto& c : n->children) build(const_cast<roj::BoneNode*>(&c), &n->name);
 				};
 			build(rootNode, nullptr);
-
 			int N = (int)tmpTraversal.size();
 			std::unordered_map<hashed_string, int> tmpIndex; tmpIndex.reserve(N * 2);
 			for (int i = 0; i < N; ++i) tmpIndex[tmpTraversal[i]] = i;
-
 			std::vector<int> tmpParentIndex(N, -1);
 			for (int i = 0; i < N; ++i) {
 				auto pit = tempParent.find(tmpTraversal[i]);
@@ -217,19 +224,16 @@ AnimationPose AnimationPose::LayeredLerp(
 					tmpParentIndex[i] = tmpIndex[pit->second];
 				}
 			}
-
 			std::vector<std::vector<int>> tmpChildren(N);
 			for (int i = 0; i < N; ++i) {
 				int p = tmpParentIndex[i];
 				if (p >= 0) tmpChildren[p].push_back(i);
 			}
-
 			// store into static caches (move)
 			s_traversalMap[rootNode] = std::move(tmpTraversal);
 			s_indexMap[rootNode] = std::move(tmpIndex);
 			s_parentIndexMap[rootNode] = std::move(tmpParentIndex);
 			s_childrenMap[rootNode] = std::move(tmpChildren);
-
 			// now read them into local variables (copy)
 			traversal = s_traversalMap[rootNode];
 			indexMap = s_indexMap[rootNode];
@@ -244,7 +248,6 @@ AnimationPose AnimationPose::LayeredLerp(
 			children = s_childrenMap[rootNode];
 		}
 	}
-
 	int N = (int)traversal.size();
 	if (N == 0) return poseA;
 
@@ -254,7 +257,6 @@ AnimationPose AnimationPose::LayeredLerp(
 	std::vector<quat> qA(N), qB(N);
 	localA.assign(N, mat4(1.0f));
 	localB.assign(N, mat4(1.0f));
-
 	for (int i = 0; i < N; ++i) {
 		const hashed_string& name = traversal[i];
 		auto ita = poseA.boneTransforms.find(name);
@@ -301,14 +303,12 @@ AnimationPose AnimationPose::LayeredLerp(
 		subtreeList.push_back(cur);
 		for (int ci : children[cur]) stack.push_back(ci);
 	}
-
 	// Ensure subtreeList is in traversal (parent-before-child) order:
 	std::sort(subtreeList.begin(), subtreeList.end(), [](int a, int b) { return a < b; });
 
 	// --- Prepare result arrays ---
 	std::vector<mat4> resultLocal(N);
 	std::vector<mat4> resultGlobal(N);
-
 	// initialize resultLocal to A; compute resultGlobal for non-subtree nodes
 	for (int i = 0; i < N; ++i) resultLocal[i] = localA[i];
 	for (int i = 0; i < N; ++i) {
@@ -330,35 +330,35 @@ AnimationPose AnimationPose::LayeredLerp(
 		vec3 blendedS = glm::mix(sA[idx], sB[idx], progress);
 
 		quat finalLocalQ;
-		if (!UseWorldSpaceRotation) {
-			finalLocalQ = glm::slerp(qA[idx], qB[idx], progress);
+		quat localModeQ = glm::slerp(qA[idx], qB[idx], progress);
+		if (UseWorldSpaceRotation <= 0.005f) {
+			finalLocalQ = localModeQ;
 		}
 		else {
-			// desired global rotation from globalB
-			mat4 gB = globalB[idx];
-			vec3 gS;
-			for (int k = 0; k < 3; ++k) gS[k] = glm::length(vec3(gB[k]));
-			glm::mat3 gRot;
-			for (int k = 0; k < 3; ++k) gRot[k] = (gS[k] != 0.0f) ? vec3(gB[k]) / gS[k] : vec3(gB[k]);
-			quat desiredGlobalQ = glm::quat_cast(gRot);
+			// Extract global quats
+			quat globalAQ = ExtractQuat(globalA[idx]);
+			quat globalBQ = ExtractQuat(globalB[idx]);
+			quat blendedGlobalQ = glm::slerp(globalAQ, globalBQ, progress);
 
 			// parent result rotation (if any)
 			int p = parentIndex[idx];
-			quat parentResultQ = quat(1.0f, 0.0f, 0.0f, 0.0f);
+			quat parentResultQ(1.0f, 0.0f, 0.0f, 0.0f);
 			if (p != -1) {
-				mat4 pglob = resultGlobal[p];
-				vec3 pS;
-				for (int k = 0; k < 3; ++k) pS[k] = glm::length(vec3(pglob[k]));
-				glm::mat3 pRot;
-				for (int k = 0; k < 3; ++k) pRot[k] = (pS[k] != 0.0f) ? vec3(pglob[k]) / pS[k] : vec3(pglob[k]);
-				parentResultQ = glm::quat_cast(pRot);
+				parentResultQ = ExtractQuat(resultGlobal[p]);
 			}
-			finalLocalQ = glm::inverse(parentResultQ) * desiredGlobalQ;
+
+			quat worldModeQ = glm::inverse(parentResultQ) * blendedGlobalQ;
+
+			if (UseWorldSpaceRotation >= 0.995f) {
+				finalLocalQ = worldModeQ;
+			}
+			else {
+				finalLocalQ = glm::slerp(localModeQ, worldModeQ, UseWorldSpaceRotation);
+			}
 		}
 
 		mat4 newLocal = ComposeLocal(blendedT, blendedS, finalLocalQ);
 		resultLocal[idx] = newLocal;
-
 		int p = parentIndex[idx];
 		if (p == -1) resultGlobal[idx] = newLocal;
 		else resultGlobal[idx] = resultGlobal[p] * newLocal;
@@ -370,11 +370,9 @@ AnimationPose AnimationPose::LayeredLerp(
 	for (int i = 0; i < N; ++i) {
 		out.boneTransforms[traversal[i]] = resultLocal[i];
 	}
-
 	// keep previous behavior: copy root from B if present
 	auto rootItB = poseB.boneTransforms.find(hashed_string("root"));
 	if (rootItB != poseB.boneTransforms.end()) out.boneTransforms[hashed_string("root")] = rootItB->second;
-
 	return out;
 }
 

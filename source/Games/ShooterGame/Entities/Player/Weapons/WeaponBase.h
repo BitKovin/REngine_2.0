@@ -3,6 +3,7 @@
 #include <Entity.h>
 #include <json.hpp>
 #include <Helpers/JsonHelper.hpp>
+#include <Animation.h>
 
 struct WeaponSlotData
 {
@@ -60,6 +61,11 @@ public:
 	virtual WeaponSlotData GetDefaultData()
 	{
 		return WeaponSlotData();
+	}
+
+	virtual AnimationPose ApplyWeaponAnimation(AnimationPose thirdPersonPose)
+	{
+		return thirdPersonPose;
 	}
 
 

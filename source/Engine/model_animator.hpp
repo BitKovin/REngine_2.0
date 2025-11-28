@@ -19,7 +19,7 @@ public :
 
     bool InterpolateRotation = true;
 	bool InterpolatePosition = true;
-	bool InterpolateScale = false;
+	bool InterpolateScale = true;
 
     MathHelper::Transform oldRootBoneTransform;
     MathHelper::Transform rootBoneTransform;

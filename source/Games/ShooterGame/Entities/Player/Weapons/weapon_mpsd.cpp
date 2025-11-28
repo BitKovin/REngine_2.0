@@ -39,7 +39,7 @@ public:
             0.5f,                            // falloff
             CameraShake::ShakeType::SingleWave // shakeType
         );
-        params.illegal = true;
+		Illegal = true;
     }
 
     WeaponSlotData GetDefaultData() override {

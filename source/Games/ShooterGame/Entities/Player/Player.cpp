@@ -619,6 +619,10 @@ void Player::Update()
 
     //printf("%i \n",SkeletalMesh::skelMeshes);
 
+    if(Input::GetAction("cameraView")->Pressed())
+    {
+		ThirdPersonView = !ThirdPersonView;
+	}
 
 
 	if (teleported == false && freeFly == false)
@@ -757,7 +761,11 @@ void Player::Update()
 
     Camera::rotation.z = -dot(velocity, right) * mix(-0.2f, 0.3f, bike_progress);
 
-    UpdateBody();
+    if (ThirdPersonView == false)
+    {
+        UpdateBody();
+    }
+
 
 
     if (Input::GetAction("bike")->Holding() && OnGround())
@@ -860,6 +868,11 @@ void Player::Update()
 void Player::AsyncUpdate()
 {
 
+    if (ThirdPersonView)
+    {
+        UpdateBody();
+    }
+
     controller.Update(Time::DeltaTimeF);
     bodyAnimator.Update();
 
@@ -891,6 +904,34 @@ void Player::LateUpdate()
 
 }
 
+void Player::UpdateThirdPersonCamera()
+{
+
+	vec3 forward = normalize(MathHelper::XZ(Camera::Forward()));
+
+    Camera::position = Position;
+	Camera::position -= forward * 0.4f;
+
+    vec3 startPos = Position + vec3(0,1,0);
+
+    vec3 targetCameraPos = Camera::position + vec3(0,0.4f,0);
+
+    targetCameraPos += Camera::Forward() * -2.0f;
+    targetCameraPos += Camera::Up() * 0.5f;
+	targetCameraPos += Camera::Right() * 0.1f;
+
+    auto hit = Physics::SphereTrace(startPos, targetCameraPos, 0.3f, BodyType::GroupCollisionTest, {}, {this});
+    if (hit.hasHit)
+    {
+        Camera::position = hit.shapePosition;
+    }
+    else
+    {
+        Camera::position = targetCameraPos;
+	}
+
+}
+
 void Player::UpdateBody()
 {
 
@@ -901,10 +942,23 @@ void Player::UpdateBody()
     auto pose = bodyAnimator.GetResultPose();
     //pose.SetBoneTransform();
 
-    mat4 scale0 = scale(vec3(0));
-    //pose.SetBoneTransform("neck_01", scale0);
-    pose.SetBoneTransform("upperarm_r", scale0);
-    pose.SetBoneTransform("upperarm_l", scale0);
+    if(ThirdPersonView)
+    {
+        if (currentWeapon)
+        {
+
+            pose = currentWeapon->ApplyWeaponAnimation(pose);
+
+        }
+    }
+    else
+    {
+        mat4 scale0 = scale(vec3(0));
+        //pose.SetBoneTransform("neck_01", scale0);
+        pose.SetBoneTransform("upperarm_r", scale0);
+        pose.SetBoneTransform("upperarm_l", scale0);
+    }
+
 
     bodyMesh->PasteAnimationPose(pose);
     bodyMesh->Position = Position - vec3(0, controller.height / 2.0f,0) - playerForward*0.3f;
@@ -915,10 +969,20 @@ void Player::UpdateBody()
     //poseT["thigh_r"] = translate(Camera::position + Camera::Forward()) * scale(vec3(0.01f));
     //bodyMesh->ApplyWorldSpaceBoneTransforms(poseT);
 
-    Camera::position = MathHelper::DecomposeMatrix(bodyMesh->GetBoneMatrixWorld("head")).Position + playerForward * 0.3f;
+    if (ThirdPersonView)
+    {
+		UpdateThirdPersonCamera();
+    }
+    else
+    {
+        Camera::position = MathHelper::DecomposeMatrix(bodyMesh->GetBoneMatrixWorld("head")).Position + playerForward * 0.3f;
+
+    }
+
     Camera::ApplyCameraShake(Time::DeltaTimeF);
 
-    observationTarget->position = Camera::position;
+    observationTarget->position = Position + vec3(0,0.65f,0);
+
 
     Physics::SetBodyPosition(hitbox, Camera::position - vec3(0,0.5f,0));
 

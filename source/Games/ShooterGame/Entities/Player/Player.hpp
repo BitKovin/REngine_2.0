@@ -75,7 +75,6 @@ private:
 
 	SkeletalMesh* bikeMesh = nullptr;
 	SkeletalMesh* bikeArmsMesh = nullptr;
-	SkeletalMesh* bodyMesh = nullptr;
 
 	bool on_bike = false;
 
@@ -200,9 +199,12 @@ private:
 
 public:
 
+
 	Weapon* currentWeapon = nullptr;
 
 	CharacterController controller;
+
+	SkeletalMesh* bodyMesh = nullptr;
 
 	int currentSlot = 0;
 	std::vector<WeaponSlotData> weaponSlots;
@@ -210,6 +212,8 @@ public:
 	Delay violanceCrimeActiveDelay;
 
 	float RunProgress = 0;
+
+	bool ThirdPersonView = false;
 
 	Player()
 	{
@@ -289,6 +293,8 @@ public:
 	void Update();
 	void AsyncUpdate();
 	void LateUpdate();
+
+	void UpdateThirdPersonCamera();
 
 	void UpdateBody();
 

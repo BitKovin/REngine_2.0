@@ -43,7 +43,7 @@ struct AnimationPose
 		roj::BoneNode* rootNode,
 		const AnimationPose& poseA,
 		const AnimationPose& poseB,
-		bool UseWorldSpaceRotation,
+		float UseWorldSpaceRotation,
 		float progress);
 
 	void SetBoneTransform(hashed_string bone, mat4 transform)
