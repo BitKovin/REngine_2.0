@@ -65,7 +65,7 @@ private:
 
 	SoundPlayer* soundPlayer;
 
-	Weapon* currentWeapon = nullptr;
+
 
 	Weapon* currentOffhandWeapon = nullptr;
 
@@ -199,6 +199,8 @@ private:
 
 
 public:
+
+	Weapon* currentWeapon = nullptr;
 
 	CharacterController controller;
 

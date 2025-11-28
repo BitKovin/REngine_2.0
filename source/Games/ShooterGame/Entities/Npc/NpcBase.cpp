@@ -2056,7 +2056,10 @@ void NpcBase::StopTask()
 void NpcBase::UpdateTask()
 {
 
-
+	if (LeadBody)
+	{
+		Physics::SetMotionType(LeadBody, JPH::EMotionType::Dynamic);
+	}
 
 
 	TaskPoint* taskPoint = nullptr;
@@ -2071,6 +2074,7 @@ void NpcBase::UpdateTask()
 	if (isStunned())
 		actualDoingTask = false;
 	
+
 	if (actualDoingTask)
 	{
 		if (LeadBody != nullptr)
@@ -2083,7 +2087,7 @@ void NpcBase::UpdateTask()
 			}
 			else
 			{
-				Physics::SetMotionType(LeadBody, JPH::EMotionType::Dynamic);
+				
 			}
 		}
 	}

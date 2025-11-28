@@ -24,7 +24,13 @@ void TaskSimpleAction::OnNpcTargetReached(NpcBase* npc)
     s.Timer1 = 0.0f;
 
     if (!animName.empty())
+    {
         PlayTaskAnimation(npc, animName, animLoop);
+		s.StartPosition = npc->Position;
+		s.LockPosition = s.StartPosition;
+		s.HasToLockPosition = true;
+    }
+
 }
 
 void TaskSimpleAction::NpcEntered(NpcBase* npc)
@@ -37,6 +43,7 @@ void TaskSimpleAction::NpcEntered(NpcBase* npc)
     s.AllowWeapon = true;
     s.TargetOrientation = Rotation;
     s.HasToLookAtTarget = true;
+    s.HasToLockPosition = false;
 }
 
 void TaskSimpleAction::NpcUpdate(NpcBase* npc)
@@ -47,8 +54,10 @@ void TaskSimpleAction::NpcUpdate(NpcBase* npc)
     {
         if (duration == 0.0f) return;
         s.Timer1 += Time::DeltaTimeF;
+		s.LockPosition = s.StartPosition;
         if (s.Timer1 >= duration)
         {
+			s.HasToLockPosition = false;
             StopTaskAnimation(npc);
             FinishTask(npc);
         }

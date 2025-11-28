@@ -1,5 +1,7 @@
 #include "Crosshair.h"
 
+#include "../../Entities/Player/Player.hpp"
+
 UiCrosshair::UiCrosshair()
 {
 
@@ -59,4 +61,31 @@ UiCrosshair::UiCrosshair()
 
 UiCrosshair::~UiCrosshair()
 {
+}
+
+void UiCrosshair::Update()
+{
+
+
+	Player* player = Player::Instance;
+
+	if (player->currentWeapon)
+	{
+
+		visible = true;
+
+		Spread = player->currentWeapon->Spread * 20.0f * 75.0f / Camera::FOV + 3;
+
+	}
+	else
+	{
+		visible = false;
+	}
+
+	leftImage->position = vec2(-Spread, 0.0f);
+	rightImage->position = vec2(Spread, 0.0f);
+	topImage->position = vec2(0.0f, Spread);
+	bottomImage->position = vec2(0.0f, Spread);
+
+	UiCanvas::Update();
 }

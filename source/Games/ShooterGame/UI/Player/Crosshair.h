@@ -17,6 +17,8 @@ public:
 	std::shared_ptr<UiImage> topImage;
 	std::shared_ptr<UiImage> bottomImage;
 
+	void Update() override;
+
 private:
 
 };
