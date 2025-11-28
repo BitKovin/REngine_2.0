@@ -38,6 +38,8 @@ public:
 
 	Player* owner = nullptr;
 
+	float Spread = 0.0f;
+
 	virtual bool CanAttack();
 
 	virtual bool IsMelee()

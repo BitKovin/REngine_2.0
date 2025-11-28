@@ -352,7 +352,6 @@
     <ClCompile Include="Entities\Npc\NpcGuardBase.cpp" />
     <ClCompile Include="Entities\Player\Player.cpp" />
     <ClCompile Include="Entities\Player\RestrictedArea.cpp" />
-    <ClCompile Include="Entities\Player\Weapons\FirearmBase.cpp" />
     <ClCompile Include="Entities\Player\Weapons\Projectiles\Bullet.cpp" />
     <ClCompile Include="Entities\Player\Weapons\Projectiles\CaneProjectile.cpp" />
     <ClCompile Include="Entities\Player\Weapons\WeaponBase.cpp" />
@@ -390,10 +389,10 @@
     <ClInclude Include="Entities\Player\Player.hpp" />
     <ClInclude Include="Entities\Player\PlayerBodyAnimator.h" />
     <ClInclude Include="Entities\Player\RestrictedArea.h" />
-    <ClInclude Include="Entities\Player\Weapons\FirearmBase.h" />
     <ClInclude Include="Entities\Player\Weapons\Projectiles\Bullet.h" />
     <ClInclude Include="Entities\Player\Weapons\Projectiles\CaneProjectile.h" />
     <ClInclude Include="Entities\Player\Weapons\WeaponBase.h" />
+    <ClInclude Include="Entities\Player\Weapons\WeaponFirearm.h" />
     <ClInclude Include="Entities\Player\Weapons\WeaponFireFlash.h" />
     <ClInclude Include="Entities\TestBsp.h" />
     <ClInclude Include="Entities\TestNpc.hpp" />
