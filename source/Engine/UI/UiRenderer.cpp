@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include "../Time.hpp"
+#include <mutex>
 #include "UiManager.h"
 
 // Cache entry structure
@@ -27,6 +28,8 @@ static size_t totalCacheMemory = 0;                      // Total memory used by
 static const size_t MAX_CACHE_MEMORY = 50 * 1024 * 1024; // 50 MB limit
 static const float MAX_UNUSED_SECONDS = 10.0f;           // Evict textures unused for 10 seconds
 static float currentTime = 0.0f;                         // Current time in seconds
+
+static std::mutex textTextureCacheMutex;
 
 namespace UiRenderer {
 
@@ -181,74 +184,77 @@ namespace UiRenderer {
 #endif // !GL_ES_PROFILE
     }
 
-    void DrawText(const std::string& text, TTF_Font* font, const glm::vec2& pos, float rotation, vec2 pivot,
-        const glm::vec4& color, const glm::vec2& scale, const string& shader) {
+    void DrawText(std::string text, TTF_Font* font, const glm::vec2& pos, float rotation, glm::vec2 pivot,
+        const glm::vec4& color, const glm::vec2& scale, const std::string& shader) {
         if (!font) {
             std::cerr << "No font provided for DrawText." << std::endl;
             return;
         }
 
-        GLuint textureID;
+        GLuint textureID = 0;
         int textureWidth = 0;
         int textureHeight = 0;
 
-        // Check if texture is already cached
-        auto it = textTextureCache.find(text);
-        if (it != textTextureCache.end()) {
-            textureID = it->second.textureID;
-            textureWidth = it->second.width;
-            textureHeight = it->second.height;
-            it->second.lastUsedTime = currentTime; // Update last used time
+        // Lock cache for read/update
+        {
+            std::lock_guard<std::mutex> lock(textTextureCacheMutex);
+            auto it = textTextureCache.find(text);
+            if (it != textTextureCache.end()) {
+                textureID = it->second.textureID;
+                textureWidth = it->second.width;
+                textureHeight = it->second.height;
+                it->second.lastUsedTime = currentTime; // update usage
+            }
         }
-        else {
-            // Convert color from [0.0, 1.0] to [0, 255] for SDL
+
+        if (textureID == 0) {
+            // Convert color from [0.0,1.0] to [0,255]
             SDL_Color sdlColor = {
-                static_cast<Uint8>(255),
-                static_cast<Uint8>(255),
-                static_cast<Uint8>(255),
-                static_cast<Uint8>(255)
+                static_cast<Uint8>(glm::clamp(color.r, 0.0f, 1.0f) * 255.0f),
+                static_cast<Uint8>(glm::clamp(color.g, 0.0f, 1.0f) * 255.0f),
+                static_cast<Uint8>(glm::clamp(color.b, 0.0f, 1.0f) * 255.0f),
+                static_cast<Uint8>(glm::clamp(color.a, 0.0f, 1.0f) * 255.0f)
             };
 
-            // Render text to an SDL_Surface
             SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text.c_str(), sdlColor);
             if (!surface) {
                 std::cerr << "TTF_RenderUTF8_Blended Error: " << TTF_GetError() << std::endl;
                 return;
             }
 
-            // Calculate memory size (4 bytes per pixel for RGBA)
-            size_t textureMemory = surface->w * surface->h * 4;
+            // (Optional) Convert surface to a well-known pixel format to avoid format surprises.
+            // SDL_PIXELFORMAT_RGBA32 is usually safe for uploading as GL_RGBA + GL_UNSIGNED_BYTE.
+            SDL_Surface* formatted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
+            if (!formatted) {
+                // fallback to original surface
+                formatted = surface;
+            }
 
-            std::vector<std::string> deleteList;
+            size_t textureMemory = static_cast<size_t>(formatted->w) * static_cast<size_t>(formatted->h) * 4;
 
-
-            // Create OpenGL texture
             glGenTextures(1, &textureID);
             glBindTexture(GL_TEXTURE_2D, textureID);
-
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glPixelStorei(GL_UNPACK_ROW_LENGTH, surface->pitch / surface->format->BytesPerPixel);
-
+            // no need to set UNPACK_ROW_LENGTH here if using contiguous formatted->pixels
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-            GLenum format = (surface->format->BytesPerPixel == 3) ? GL_RGB : GL_RGBA;
-            glTexImage2D(GL_TEXTURE_2D, 0, format, surface->w, surface->h, 0, format,
-                GL_UNSIGNED_BYTE, surface->pixels);
+            // We converted to RGBA32 -> use GL_RGBA
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, formatted->w, formatted->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, formatted->pixels);
 
-            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+            // cache the texture metadata
+            {
+                std::lock_guard<std::mutex> lock(textTextureCacheMutex);
+                textTextureCache[text] = { textureID, currentTime, textureMemory, formatted->w, formatted->h };
+                totalCacheMemory += textureMemory;
+            }
 
-            // Cache the texture with metadata
-            textTextureCache[text] = { textureID, currentTime, textureMemory, surface->w, surface->h };
-            totalCacheMemory += textureMemory;
+            textureWidth = formatted->w;
+            textureHeight = formatted->h;
 
-            //printf("created texture %i from UiRenderer\n", textureID);
-
-            textureWidth = surface->w;
-            textureHeight = surface->h;
-
+            if (formatted != surface) SDL_FreeSurface(formatted);
             SDL_FreeSurface(surface);
         }
 
@@ -256,35 +262,37 @@ namespace UiRenderer {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // Calculate draw size
         glm::vec2 drawSize(scale.x * textureWidth, scale.y * textureHeight);
 
-        if (shader.empty())
-        {
-            // Draw the cached texture
+        if (shader.empty()) {
             DrawTexturedRect(pos, drawSize, rotation, pivot, textureID, color);
         }
-        else
-        {
-            DrawTexturedRectShader(pos, drawSize, rotation, pivot, textureID, color,shader);
+        else {
+            DrawTexturedRectShader(pos, drawSize, rotation, pivot, textureID, color, shader);
         }
-
-
     }
 
+
     void MaintainCache() {
+        std::lock_guard<std::mutex> lock(textTextureCacheMutex);
+
         for (auto it = textTextureCache.begin(); it != textTextureCache.end(); ) {
             if (currentTime - it->second.lastUsedTime > MAX_UNUSED_SECONDS) {
-                glDeleteTextures(1, &it->second.textureID);
-                totalCacheMemory -= it->second.memorySize;
+
+                GLuint texToDelete = it->second.textureID;
+                size_t mem = it->second.memorySize;
                 it = textTextureCache.erase(it);
-                printf("deleted texture %i from UiRenderer\n", it->second.textureID);
+                glDeleteTextures(1, &texToDelete);
+                totalCacheMemory -= mem;
+
+                printf("deleted texture %u from UiRenderer\n", texToDelete);
             }
             else {
                 ++it;
             }
         }
     }
+
 
     void EndFrame() {
         // Update current time (SDL_GetTicks returns milliseconds, convert to seconds)

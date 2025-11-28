@@ -227,3 +227,106 @@ WeaponSlotData WeaponFirearm::GetDefaultData() {
     data.slot = 0; // Override in subclasses
     return data;
 }
+
+AnimationPose WeaponFirearm::ApplyWeaponAnimation(AnimationPose thirdPersonPose)
+{
+
+    auto weaponPose = thirdPersonModel->GetAnimationPose();
+
+    mat4 rightHandMat = AnimationPose::GetModelSpaceTransform("hand_r", thirdPersonModel->GetRootNode(), weaponPose);
+    mat4 leftHandMat = AnimationPose::GetModelSpaceTransform("hand_l", thirdPersonModel->GetRootNode(), weaponPose);
+
+    mat4 relativeLeftHandMat = inverse(rightHandMat) * leftHandMat;
+
+    if (oldWeaponAim > 1)
+    {
+        weaponPose.boneTransforms["pelvis"] = MathHelper::GetRotationMatrix(vec3(Camera::rotation.x, 0, 0)) * weaponPose.boneTransforms["pelvis"]; //rotating pelvis. Causes whole model to rotate
+    }
+
+
+    auto appliedWeaponPose = AnimationPose::LayeredLerp(
+        "spine_01",
+        thirdPersonModel->GetRootNode(),
+        thirdPersonPose,
+        weaponPose,
+        std::clamp(weaponAim, 0.0f, 1.0f),
+        0.1f
+    );
+
+    appliedWeaponPose = AnimationPose::LayeredLerp(
+        "spine_02",
+        thirdPersonModel->GetRootNode(),
+        thirdPersonPose,
+        weaponPose,
+        std::clamp(weaponAim, 0.0f, 1.0f),
+        0.2f
+    );
+
+    appliedWeaponPose = AnimationPose::LayeredLerp(
+        "spine_03",
+        thirdPersonModel->GetRootNode(),
+        appliedWeaponPose,
+        weaponPose,
+        std::clamp(weaponAim, 0.0f, 1.0f),
+        0.3f
+    );
+
+    appliedWeaponPose = AnimationPose::LayeredLerp(
+        "clavicle_l",
+        thirdPersonModel->GetRootNode(),
+        appliedWeaponPose,
+        weaponPose,
+        std::clamp(weaponAim, 0.0f, 1.0f),
+        0.3f
+    );
+
+    appliedWeaponPose = AnimationPose::LayeredLerp(
+        "clavicle_r",
+        thirdPersonModel->GetRootNode(),
+        appliedWeaponPose,
+        weaponPose,
+        std::clamp(weaponAim, 0.0f, 1.0f),
+        0.3f
+    );
+
+    appliedWeaponPose = AnimationPose::LayeredLerp(
+        "upperarm_l",
+        thirdPersonModel->GetRootNode(),
+        appliedWeaponPose,
+        weaponPose,
+        std::clamp(weaponAim, 0.0f, 1.0f),
+        1.0f
+    );
+
+    appliedWeaponPose = AnimationPose::LayeredLerp(
+        "upperarm_r",
+        thirdPersonModel->GetRootNode(),
+        appliedWeaponPose,
+        weaponPose,
+        std::clamp(weaponAim, 0.0f, 1.0f),
+        1.0f
+    );
+
+
+    rightHandMat = AnimationPose::GetModelSpaceTransform("hand_r", thirdPersonModel->GetRootNode(), appliedWeaponPose);
+    leftHandMat = rightHandMat * relativeLeftHandMat;
+
+    MathHelper::Transform leftHandTransform = MathHelper::DecomposeMatrix(leftHandMat);
+
+    appliedWeaponPose = AnimationPose::ApplyFABRIK(
+        "upperarm_l",
+        "hand_l",
+        thirdPersonModel->GetRootNode(),
+        appliedWeaponPose,
+        leftHandTransform.Position,
+        leftHandTransform.RotationQuaternion
+    );
+
+    lastAppliedPose = appliedWeaponPose;
+
+    thirdPersonModel->PasteAnimationPose(appliedWeaponPose);
+
+
+
+    return appliedWeaponPose;
+}

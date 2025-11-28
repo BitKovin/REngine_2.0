@@ -99,4 +99,8 @@ public:
 	void AsyncUpdate() override;
 	void LateUpdate() override;
 	WeaponSlotData GetDefaultData() override;
+
+
+	virtual AnimationPose ApplyWeaponAnimation(AnimationPose thirdPersonPose);
+
 };
