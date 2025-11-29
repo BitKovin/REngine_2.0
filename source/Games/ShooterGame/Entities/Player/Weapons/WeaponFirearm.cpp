@@ -14,6 +14,11 @@ void WeaponFirearm::Start() {
 
     attackDelay.AddDelay(params.switchDelayTime - 0.1f);
     SwitchDelay.AddDelay(params.switchDelayTime);
+
+	Update();
+    AsyncUpdate();
+	LateUpdate();
+
 }
 
 void WeaponFirearm::LoadAssets() 
@@ -67,7 +72,6 @@ void WeaponFirearm::Update()
     thirdPersonModel->Update();
 
 
-
     if (params.hasRecoilModelOffset) {
         if (attackDelay.Wait()) {
             recoilModelOffset = MathHelper::Interp(recoilModelOffset, params.recoilModelTarget, Time::DeltaTimeF, params.recoilModelInterpIn);
@@ -96,7 +100,8 @@ void WeaponFirearm::Update()
     }
 }
 
-void WeaponFirearm::PerformAttack() {
+void WeaponFirearm::PerformAttack() 
+{
     if (params.hasActiveSpread) {
         activeSpread += params.spreadIncreasePerShot;
     }
@@ -136,6 +141,27 @@ void WeaponFirearm::PerformAttack() {
     vec3 startLoc = MathHelper::DecomposeMatrix(boneMat).Position;
     startLoc = mix(startLoc, Camera::position, params.muzzleMix) - Camera::Forward() * params.muzzleForwardOffset;
 
+
+    bool firstPerson = owner != nullptr && owner->ThirdPersonView == false;
+
+
+    weaponAim = 2;
+
+    if (firstPerson == false)
+    {
+        if (thirdPersonModel->GetAnimationName() == "idle")
+        {
+            thirdPersonModel->PlayAnimation("aim", true, 0.00f);
+            ApplyWeaponAnimation(lastAppliedPose);
+        }
+
+
+        mat4 muzzle_r = thirdPersonModel->GetWorldMatrix() * AnimationPose::GetModelSpaceTransform("muzzle_r", thirdPersonModel->GetRootNode(), lastAppliedPose);
+
+
+		startLoc = muzzle_r[3];
+    }
+
     if (params.spreadType == "grid") {
         // Shotgun-style grid
         for (float y = -params.gridSpreadSize; y <= params.gridSpreadSize; y += params.gridStep) {
@@ -158,7 +184,6 @@ void WeaponFirearm::PerformAttack() {
 void WeaponFirearm::FireSingleBullet(const vec3& startLoc, const vec4& gridOffset) 
 {
 
-    weaponAim = 2;
 
     Bullet* bullet = new Bullet();
     Level::Current->AddEntity(bullet);
@@ -171,7 +196,31 @@ void WeaponFirearm::FireSingleBullet(const vec3& startLoc, const vec4& gridOffse
         offset = RandomHelper::RandomPosition(1) * Spread;
     }
 
-    vec3 endLoc = Position + MathHelper::GetForwardVector(Rotation) * params.range + offset;
+    vec3 endLoc;
+    
+	bool firstperson = owner != nullptr && owner->ThirdPersonView == false;
+
+    if (firstperson)
+    {
+        endLoc = Position + MathHelper::GetForwardVector(Rotation) * params.range + offset;
+    }
+    else
+    {
+        endLoc = Camera::position + MathHelper::GetForwardVector(Rotation) * (params.range + 3);
+
+        auto hit = Physics::LineTrace(Camera::finalizedPosition, endLoc, BodyType::GroupHitTest, {}, {owner});
+
+        if(hit.hasHit)
+        {
+            endLoc = hit.shapePosition;
+
+
+		}
+
+		endLoc += offset * hit.fraction;
+
+    }
+    
     bullet->Speed = params.bulletSpeed;
     bullet->Position = startLoc + offset * 0.002f;
     bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
@@ -306,6 +355,7 @@ AnimationPose WeaponFirearm::ApplyWeaponAnimation(AnimationPose thirdPersonPose)
         std::clamp(weaponAim, 0.0f, 1.0f),
         1.0f
     );
+
 
 
     rightHandMat = AnimationPose::GetModelSpaceTransform("hand_r", thirdPersonModel->GetRootNode(), appliedWeaponPose);

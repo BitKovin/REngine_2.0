@@ -36,6 +36,12 @@ void Player::Start()
 
     Hud.Init(this);
 
+
+
+    hitbox = Physics::CreateCharacterBody(this, Position, 0.3f, 1.2f, 0.1f, BodyType::HitBox, BodyType::None);
+    hitbox->SetMotionType(JPH::EMotionType::Kinematic);
+	Physics::ExcludedDrawBodies.insert(hitbox);
+
     PreloadEntityType("weapon_pistol");
     PreloadEntityType("weapon_shotgun");
     PreloadEntityType("weapon_mpsd");
@@ -45,10 +51,6 @@ void Player::Start()
     AddWeaponByName("weapon_shotgun");
     AddWeaponByName("weapon_mpsd");
     AddWeaponByName("weapon_sniper");
-
-    hitbox = Physics::CreateCharacterBody(this, Position, 0.3f, 1.2f, 0.1f, BodyType::HitBox, BodyType::None);
-    hitbox->SetMotionType(JPH::EMotionType::Kinematic);
-	Physics::ExcludedDrawBodies.insert(hitbox);
 
     //SwitchWeaponOffhand("weapon_cane");
 
@@ -221,12 +223,13 @@ void Player::SwitchWeapon(const WeaponSlotData& data)
     {
         currentWeapon = (Weapon*)Spawn(data.className);
 		currentWeapon->owner = this;
-        currentWeapon->Start();
         if (Level::Current->IsEntityTypeLoaded(data.className))
         {
             currentWeapon->LoadAssetsIfNeeded();
         }
+        currentWeapon->Start();
         currentWeapon->SetData(data);
+        //UpdateBody();
     }
 }
 
