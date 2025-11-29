@@ -764,7 +764,7 @@ void Player::Update()
 
     Camera::rotation.z = -dot(velocity, right) * mix(-0.2f, 0.3f, bike_progress);
 
-    if (ThirdPersonView == false)
+    if (InThirdPerson() == false)
     {
         UpdateBody();
     }
@@ -871,7 +871,7 @@ void Player::Update()
 void Player::AsyncUpdate()
 {
 
-    if (ThirdPersonView)
+    if (InThirdPerson())
     {
         UpdateBody();
     }
@@ -945,7 +945,7 @@ void Player::UpdateBody()
     auto pose = bodyAnimator.GetResultPose();
     //pose.SetBoneTransform();
 
-    if(ThirdPersonView)
+    if(InThirdPerson())
     {
         if (currentWeapon)
         {
@@ -974,7 +974,7 @@ void Player::UpdateBody()
 
     Camera::ApplyCameraShake(Time::DeltaTimeF);
 
-    if (ThirdPersonView)
+    if (InThirdPerson())
     {
 		UpdateThirdPersonCamera();
     }
@@ -991,6 +991,17 @@ void Player::UpdateBody()
 
     Physics::SetBodyPosition(hitbox, Camera::position - vec3(0,0.5f,0));
 
+}
+
+bool Player::InThirdPerson()
+{
+
+    if (currentWeapon)
+    {
+        return ThirdPersonView && !currentWeapon->ForceFirstPerson;
+    }
+
+    return ThirdPersonView;
 }
 
 void Player::Serialize(json& target)

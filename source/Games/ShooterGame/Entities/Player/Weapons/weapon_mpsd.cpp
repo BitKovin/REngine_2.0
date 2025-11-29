@@ -27,7 +27,7 @@ public:
         params.activateViolenceCrime = true;
         params.violenceCrimeDelay = 0.3f;
         params.hasRecoilModelOffset = true;
-        params.recoilModelTarget = 0.0f;
+        params.recoilModelTarget = -2;
         params.recoilModelInterpIn = 2.0f;
         params.recoilModelInterpOut = 7.0f;
         params.hasRandomRecoilStrength = true;

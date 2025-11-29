@@ -105,7 +105,7 @@ void WeaponFirearm::Update()
     }
 
 
-	bool firstPerson = owner != nullptr && owner->ThirdPersonView == false;
+	bool firstPerson = owner != nullptr && owner->InThirdPerson() == false;
 
     if (firstPerson == false)
     {
@@ -145,7 +145,7 @@ void WeaponFirearm::PerformAttack()
 
     viewmodel->PlayAnimation(params.fireAnimation, false, params.fireAnimInterpInTime);
 
-	bool firstperson = owner != nullptr && owner->ThirdPersonView == false;
+	bool firstperson = owner != nullptr && owner->InThirdPerson() == false;
 
 	float shakeMultiplier = 1.0f;
 
@@ -180,7 +180,7 @@ void WeaponFirearm::PerformAttack()
     startLoc = mix(startLoc, Camera::position, params.muzzleMix) - Camera::Forward() * params.muzzleForwardOffset;
 
 
-    bool firstPerson = owner != nullptr && owner->ThirdPersonView == false;
+    bool firstPerson = owner != nullptr && owner->InThirdPerson() == false;
 
 
     weaponAim = 2;
@@ -238,7 +238,7 @@ void WeaponFirearm::FireSingleBullet(const vec3& startLoc, const vec4& gridOffse
 
     vec3 endLoc;
     
-	bool firstperson = owner != nullptr && owner->ThirdPersonView == false;
+	bool firstperson = owner != nullptr && owner->InThirdPerson() == false;
 
     if (firstperson)
     {
@@ -299,7 +299,7 @@ void WeaponFirearm::LateUpdate()
         viewmodel->Rotation.x += recoilModelOffset;
     }
 
-    viewmodel->Visible = owner != nullptr && owner->ThirdPersonView == false;
+    viewmodel->Visible = owner != nullptr && owner->InThirdPerson() == false;
     arms->Visible = viewmodel->Visible;
 
     arms->Position = viewmodel->Position;

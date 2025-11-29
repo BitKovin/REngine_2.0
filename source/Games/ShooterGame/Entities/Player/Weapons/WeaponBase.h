@@ -43,6 +43,8 @@ public:
 
 	virtual bool CanAttack();
 
+	bool ForceFirstPerson = false;
+
 	virtual bool IsMelee()
 	{
 		return false;

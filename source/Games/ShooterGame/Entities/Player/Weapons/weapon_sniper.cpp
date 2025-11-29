@@ -10,6 +10,8 @@ public:
     weapon_sniper() : WeaponFirearm() {
         params.modelPath = "GameData/models/player/weapons/sniper/sniper.glb";
         params.texturesLocation = "GameData/models/player/weapons/sniper/sniper.glb/";
+        params.modelPathTp = "GameData/models/player/weapons/mpsd/mpsd_tp.glb";
+        params.texturesLocationTp = "GameData/models/player/weapons/mpsd/mpsd_tp.glb/";
         params.fireSoundEvent = "event:/Weapons/pistol/pistol_fire";
         params.useOneshotSound = false;
         params.pitchModifier = 1.0f; // Modified in Update based on Silencer
@@ -49,11 +51,20 @@ public:
             aimProgress -= Time::DeltaTimeF * 3.0f;
         }
 
+        if (aimProgress > weaponAim)
+        {
+            weaponAim = aimProgress;
+        }
+
         aimProgress = glm::clamp(aimProgress, 0.0f, 1.0f);
         bobScale = 1.0f - aimProgress;
 
         params.weaponOffset = mix(vec3(0.0, 0.00, 0.0), weaponAimOffset, aimProgress);
         Camera::FOV = mix(75.0f, 10.0f, aimProgress);
+
+
+        ForceFirstPerson = aimProgress > 0.7;
+
 
         if (aimProgress > 0.01f) SwitchDelay.AddDelay(0.1f);
 
