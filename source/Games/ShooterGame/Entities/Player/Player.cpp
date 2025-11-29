@@ -972,6 +972,8 @@ void Player::UpdateBody()
     //poseT["thigh_r"] = translate(Camera::position + Camera::Forward()) * scale(vec3(0.01f));
     //bodyMesh->ApplyWorldSpaceBoneTransforms(poseT);
 
+    Camera::ApplyCameraShake(Time::DeltaTimeF);
+
     if (ThirdPersonView)
     {
 		UpdateThirdPersonCamera();
@@ -982,7 +984,7 @@ void Player::UpdateBody()
 
     }
 
-    Camera::ApplyCameraShake(Time::DeltaTimeF);
+
 
     observationTarget->position = Position + vec3(0,0.65f,0);
 

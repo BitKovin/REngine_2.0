@@ -60,6 +60,12 @@ void WeaponFirearm::Update()
 
 
     weaponAim -= Time::DeltaTimeF;
+
+	if (CanAttack() == false && weaponAim>1)
+    {
+        weaponAim = 1.0f;
+    }
+
     if (oldWeaponAim > 1.0f && weaponAim <= 1.0f)
     {
         thirdPersonModel->PlayAnimation("idle", true, 0.5f);
@@ -149,7 +155,7 @@ void WeaponFirearm::PerformAttack()
     }
     else
     {
-        shakeMultiplier = 0.3f;
+        shakeMultiplier = 0.6f;
     }
 
     if (params.hasRandomRecoilStrength) {
@@ -409,13 +415,16 @@ AnimationPose WeaponFirearm::ApplyWeaponAnimation(AnimationPose thirdPersonPose)
     }
     else
     {
+
+        float modelSpanceBlendMultiplier = lerp(0.3,1, weaponAim);
+
         appliedWeaponPose = AnimationPose::LayeredLerp(
             "spine_01",
             thirdPersonModel->GetRootNode(),
             thirdPersonPose,
             weaponPose,
             1.0f,
-            0.3f
+            0.3f * modelSpanceBlendMultiplier
         );
 
         appliedWeaponPose = AnimationPose::LayeredLerp(
@@ -424,7 +433,7 @@ AnimationPose WeaponFirearm::ApplyWeaponAnimation(AnimationPose thirdPersonPose)
             appliedWeaponPose,
             weaponPose,
             1.0f,
-            0.3f
+            0.3f * modelSpanceBlendMultiplier
         );
 
         appliedWeaponPose = AnimationPose::LayeredLerp(
