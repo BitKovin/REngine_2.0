@@ -61,7 +61,7 @@ void WeaponFirearm::Update()
     }
     else if (oldWeaponAim <= 1.0f && weaponAim > 1.0f)
     {
-        thirdPersonModel->PlayAnimation("aim", true, 0.1f);
+        thirdPersonModel->PlayAnimation("aim", true, 0.00f);
     }
     oldWeaponAim = weaponAim;
     thirdPersonModel->Update();
@@ -238,7 +238,7 @@ AnimationPose WeaponFirearm::ApplyWeaponAnimation(AnimationPose thirdPersonPose)
 
     mat4 relativeLeftHandMat = inverse(rightHandMat) * leftHandMat;
 
-    if (oldWeaponAim > 1)
+    if (weaponAim > 1)
     {
         weaponPose.boneTransforms["pelvis"] = MathHelper::GetRotationMatrix(vec3(Camera::rotation.x, 0, 0)) * weaponPose.boneTransforms["pelvis"]; //rotating pelvis. Causes whole model to rotate
     }

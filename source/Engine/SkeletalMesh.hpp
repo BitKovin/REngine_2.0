@@ -321,6 +321,12 @@ public:
 			blendStartTime = Time::GameTime;
 			blendEndTime = Time::GameTime + interpIn;
 		}
+		else
+		{
+			blendStartPose = GetAnimationPose();
+			blendStartTime = Time::GameTime;
+			blendEndTime = Time::GameTime - 1;
+		}
 
 		if (animator.m_currAnim == nullptr)
 		{
