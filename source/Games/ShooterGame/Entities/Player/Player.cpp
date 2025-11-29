@@ -919,9 +919,9 @@ void Player::UpdateThirdPersonCamera()
 
     vec3 targetCameraPos = Camera::position + vec3(0,0.4f,0);
 
-    targetCameraPos += Camera::Forward() * -2.0f;
-    targetCameraPos += Camera::Up() * 0.5f;
-	targetCameraPos += Camera::Right() * 0.1f;
+    targetCameraPos += Camera::Forward() * -2.4f;
+    targetCameraPos += Camera::Up() * 0.7f;
+	targetCameraPos += Camera::Right() * 0.15f;
 
     auto hit = Physics::SphereTrace(startPos, targetCameraPos, 0.3f, BodyType::GroupCollisionTest, {}, {this});
     if (hit.hasHit)
@@ -1123,7 +1123,10 @@ void Player::LoadAssets()
     bikeArmsMesh->PreloadAssets();
 
     bodyMesh->LoadFromFile("GameData/models/player/body/player_body.glb");
-    bodyMesh->TexturesLocation = "GameData/models/player/body/textures/";
+    //bodyMesh->LoadFromFile("GameData/models/npc/guard.glb/");
+    bodyMesh->DepthPrePath = false;
+    bodyMesh->Masked = true;
+    //bodyMesh->TexturesLocation = "GameData/models/npc/guard.glb/";
     bodyMesh->PreloadAssets();
 
     bodyAnimator.LoadAssetsIfNeeded();

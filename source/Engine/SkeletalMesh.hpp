@@ -53,8 +53,8 @@ struct AnimationPose
 		const AnimationPose& inputPose,
 		const glm::vec3& targetPosition, // model space position
 		const glm::quat& targetRotation, // model space rotation
-		int maxIterations = 10,
-		float tolerance = 0.01f);
+		int maxIterations = 15,
+		float tolerance = 0.001f);
 
 	static glm::mat4 GetModelSpaceTransform(
 		const hashed_string& boneName,

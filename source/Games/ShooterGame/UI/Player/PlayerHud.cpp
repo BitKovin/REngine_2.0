@@ -50,9 +50,9 @@ void PlayerHud::Init(Player* playerRef)
 
     slots = make_shared<WeaponSlots>();
     slots->player = player;
-    slots->origin = vec2(0.5,1);
-    slots->pivot = vec2(0.5, 1);
-    slots->position = vec2(0,-20);
+    slots->origin = vec2(0.5,0);
+    slots->pivot = vec2(0.5, 0);
+    slots->position = vec2(0,20);
     hudCanvas->AddChild(slots);
 
 }

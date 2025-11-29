@@ -145,6 +145,8 @@ AnimationPose AnimationPose::LayeredLerp(
 		return out;
 	}
 
+	UseWorldSpaceRotation *= progress;
+
 	const float EPS_SCALE = 1e-6f;
 
 	// --- Helpers ---
@@ -384,6 +386,7 @@ AnimationPose AnimationPose::LayeredLerp(
 			quat qb = glm::normalize(qB[idx]);
 			if (glm::dot(qa, qb) < 0.0f) qb = -qb;
 			quat localModeQ = glm::normalize(glm::slerp(qa, qb, progress));
+
 
 			if (UseWorldSpaceRotation <= 0.005f) {
 				finalLocalQ = localModeQ;
@@ -932,7 +935,7 @@ void SkeletalMesh::PlayAnimation(std::string name, bool Loop, float interpIn)
 	animator.oldRootBoneTransform = MathHelper::Transform();
 	rootMotionBasisQuat = quat();
 	currentAnimationData = GetAnimationDataFromName(name);	
-	Update(0);
+	Update(0.0001f);
 	boneTransforms = animator.getBoneMatrices();
 }
 

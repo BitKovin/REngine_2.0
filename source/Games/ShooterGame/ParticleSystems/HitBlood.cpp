@@ -1,6 +1,6 @@
 #include <Particle/GlobalParticleSystem.hpp>
 
-
+static vec3 bloodColor = vec3(0.6,0,0);
 
 class BloodDecal : public ParticleEmitter
 {
@@ -67,7 +67,7 @@ public:
         particle.deathTime = 30.0f * randomVal * 3.0f;
 
         // Set the color to a semi-transparent red.
-        particle.Color = glm::vec4(0.7f, 0.0f, 0.0f, 0.7f);
+        particle.Color = glm::vec4(bloodColor, 0.7f);
 
         return particle;
     }
@@ -112,7 +112,7 @@ public:
         particle.Transparency = 1;
         particle.deathTime = 1.0f;
         particle.rotation = RandomFloat() * 500.0f;
-        particle.Color = glm::vec4(0.55f, 0.55f, 0.55f, 1.0f);
+        particle.Color = glm::vec4(bloodColor, 1.0f);
         return particle;
     }
 
@@ -230,7 +230,7 @@ public:
         particle.Transparency = 1.7f;
         particle.deathTime = 3.0f;
         particle.rotation = RandomFloat() * 500.0f;
-        particle.Color = glm::vec4(0.65f, 0.65f, 0.65f, 1.0f);
+        particle.Color = glm::vec4(bloodColor, 1.0f);
 
         particle.UserValue3 = RandomFloat() / 3;
 
