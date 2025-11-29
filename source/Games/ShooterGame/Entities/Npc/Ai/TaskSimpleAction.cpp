@@ -64,11 +64,12 @@ void TaskSimpleAction::NpcUpdate(NpcBase* npc)
     }
 }
 
-void TaskSimpleAction::NpcTryInterrupt(NpcBase* npc) {}
+void TaskSimpleAction::NpcTryInterrupt(NpcBase* npc) { NpcInterrupted(npc); }
 void TaskSimpleAction::NpcInterrupted(NpcBase* npc)
 {
     TaskPoint::NpcInterrupted(npc);
     npc->GetTaskStateRef().AllowWeapon = true;
+    npc->GetTaskStateRef().HasToLockPosition = false;
 }
 
 void TaskSimpleAction::NpcReturned(NpcBase* npc)
