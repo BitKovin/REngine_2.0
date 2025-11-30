@@ -681,7 +681,7 @@ void Player::Update()
         cameraRotation.y += touchMovement.x * fovScale;
         cameraRotation.x -= touchMovement.y * fovScale;
 
-        cameraRotation.x = glm::clamp(cameraRotation.x, -89.0f,89.0f);
+        cameraRotation.x = glm::clamp(cameraRotation.x, -80.0f,80.0f);
 
         if (on_bike)
         {
@@ -921,7 +921,7 @@ void Player::UpdateThirdPersonCamera()
 
     targetCameraPos += Camera::Forward() * -2.4f;
     targetCameraPos += Camera::Up() * 0.7f;
-	targetCameraPos += Camera::Right() * 0.15f;
+	//targetCameraPos += Camera::Right() * 0.15f;
 
     auto hit = Physics::SphereTrace(startPos, targetCameraPos, 0.3f, BodyType::GroupCollisionTest, {}, {this});
     if (hit.hasHit)
