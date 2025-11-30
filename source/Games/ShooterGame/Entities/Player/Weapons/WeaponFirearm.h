@@ -2,15 +2,11 @@
 
 #include "WeaponBase.h"
 #include "../Player.hpp"
-#include "../../Npc/NpcBase.h"
+
 
 #include <Animation.h>
-#include <RandomHelper.h>
-#include "Projectiles/Bullet.h"
-#include <SoundSystem/FmodEventInstance.h>
-#include "WeaponFireFlash.h"
-#include <AiPerception/AiPerceptionSystem.h>
-#include <AiPerception/Observer.h>
+#include "Animators/WeaponAnimator.h"
+
 
 #include <string>
 
@@ -86,6 +82,8 @@ public:
 	float weaponAim = 0.0f;
 	float oldWeaponAim = 0.0f;
 	AnimationPose lastAppliedPose;
+
+	std::unique_ptr<WeaponAnimator> thirdPersonAnimator;
 
 	WeaponFirearm(const FirearmParams& initialParams = FirearmParams());
 

@@ -352,6 +352,8 @@
     <ClCompile Include="Entities\Npc\NpcGuardBase.cpp" />
     <ClCompile Include="Entities\Player\Player.cpp" />
     <ClCompile Include="Entities\Player\RestrictedArea.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\Animators\Animator_Akimbo.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\Animators\Animator_Rifle.cpp" />
     <ClCompile Include="Entities\Player\Weapons\Projectiles\Bullet.cpp" />
     <ClCompile Include="Entities\Player\Weapons\Projectiles\CaneProjectile.cpp" />
     <ClCompile Include="Entities\Player\Weapons\WeaponBase.cpp" />
@@ -390,6 +392,9 @@
     <ClInclude Include="Entities\Player\Player.hpp" />
     <ClInclude Include="Entities\Player\PlayerBodyAnimator.h" />
     <ClInclude Include="Entities\Player\RestrictedArea.h" />
+    <ClInclude Include="Entities\Player\Weapons\Animators\Animator_Akimbo.h" />
+    <ClInclude Include="Entities\Player\Weapons\Animators\Animator_Rifle.h" />
+    <ClInclude Include="Entities\Player\Weapons\Animators\WeaponAnimator.h" />
     <ClInclude Include="Entities\Player\Weapons\Projectiles\Bullet.h" />
     <ClInclude Include="Entities\Player\Weapons\Projectiles\CaneProjectile.h" />
     <ClInclude Include="Entities\Player\Weapons\WeaponBase.h" />

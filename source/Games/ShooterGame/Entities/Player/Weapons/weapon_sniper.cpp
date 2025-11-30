@@ -1,5 +1,6 @@
 // weapon_sniper.cpp (modified)
 #include "WeaponFirearm.h"
+#include "Animators/Animator_Rifle.h"
 
 class weapon_sniper : public WeaponFirearm {
 public:
@@ -41,6 +42,9 @@ public:
             CameraShake::ShakeType::SingleWave // shakeType
         );
         bobScale = 0.0f;
+
+        thirdPersonAnimator = make_unique<Animator_Rifle>(this);
+
     }
 
     void Update() override {

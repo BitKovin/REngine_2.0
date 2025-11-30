@@ -1,5 +1,13 @@
 #include "WeaponFirearm.h"
 #include <algorithm> // for std::clamp
+#include "Animators/WeaponAnimator.h"
+#include <RandomHelper.h>
+#include "Projectiles/Bullet.h"
+#include <SoundSystem/FmodEventInstance.h>
+#include "WeaponFireFlash.h"
+#include <AiPerception/AiPerceptionSystem.h>
+#include <AiPerception/Observer.h>
+#include "../../Npc/NpcBase.h"
 
 WeaponFirearm::WeaponFirearm(const FirearmParams& initialParams)
     : params(initialParams)
@@ -26,6 +34,13 @@ void WeaponFirearm::LoadAssets()
     SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Weapons.bank");
     SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/SFX.bank");
 
+    if (thirdPersonAnimator == nullptr)
+    {
+        thirdPersonAnimator = make_unique<WeaponAnimator>();
+    }
+
+    thirdPersonAnimator->LoadAssetsIfNeeded();
+
     viewmodel = new SkeletalMesh(this);
     arms = new SkeletalMesh(this);
 
@@ -49,7 +64,6 @@ void WeaponFirearm::LoadAssets()
 
     thirdPersonModel->LoadFromFile(params.modelPathTp);
     thirdPersonModel->TexturesLocation = params.texturesLocationTp;
-    thirdPersonModel->PlayAnimation("idle", true, 0.0f);
 
     PreloadEntityType("bullet");
 }
@@ -59,24 +73,11 @@ void WeaponFirearm::Update()
     Weapon::Update();
 
 
-    weaponAim -= Time::DeltaTimeF;
+    weaponAim -= Time::DeltaTimeF*1.5f;
 
 	if (CanAttack() == false && weaponAim>1)
     {
         weaponAim = 1.0f;
-    }
-
-    if (oldWeaponAim > 1.0f && weaponAim <= 1.0f)
-    {
-        thirdPersonModel->PlayAnimation("idle", true, 0.5f);
-    }
-    else if (oldWeaponAim <= 1.0f && weaponAim > 1.0f)
-    {
-        thirdPersonModel->PlayAnimation("aim", true, 0.00f);
-    }
-    else
-    {
-        thirdPersonModel->Update();
     }
 
     oldWeaponAim = weaponAim;
@@ -189,10 +190,7 @@ void WeaponFirearm::PerformAttack()
     {
         if (thirdPersonModel->GetAnimationName() == "idle")
         {
-            thirdPersonModel->PlayAnimation("aim", true, 0.00f);
-            thirdPersonModel->Update(0);
             ApplyWeaponAnimation(lastAppliedPose);
-			thirdPersonModel->Update(0);
         }
 
 
@@ -320,205 +318,10 @@ WeaponSlotData WeaponFirearm::GetDefaultData() {
 AnimationPose WeaponFirearm::ApplyWeaponAnimation(AnimationPose thirdPersonPose)
 {
 
-    auto weaponPose = thirdPersonModel->GetAnimationPose();
-
-    auto weaponPoseBase = weaponPose;
-
-    mat4 rightHandMat = AnimationPose::GetModelSpaceTransform("hand_r", thirdPersonModel->GetRootNode(), weaponPose);
-    mat4 leftHandMat = AnimationPose::GetModelSpaceTransform("hand_l", thirdPersonModel->GetRootNode(), weaponPose);
-    mat4 chestMat = AnimationPose::GetModelSpaceTransform("spine_03", thirdPersonModel->GetRootNode(), weaponPose);
-
-    mat4 relativeLeftHandMat = inverse(rightHandMat) * leftHandMat;
-    mat4 relativeRightHandMat = inverse(chestMat) * rightHandMat;
-
-    if (weaponAim > 1.0f)
-    {
-        weaponPose.boneTransforms["pelvis"] = MathHelper::GetRotationMatrix(vec3(Camera::rotation.x - 10, 0, 0)) * weaponPose.boneTransforms["pelvis"]; //rotating pelvis. Causes whole model to rotate
-    }
-
-    float modelSpaceBlending = weaponAim > 1.0f ? 1 : 0;
-
-	AnimationPose appliedWeaponPose;
-
-    if (modelSpaceBlending > 0.5f)
-    {
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "spine_02",
-            thirdPersonModel->GetRootNode(),
-            thirdPersonPose,
-            weaponPose,
-            modelSpaceBlending,
-            0.3f
-        );
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "spine_03",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            modelSpaceBlending,
-            0.7f
-        );
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "clavicle_l",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPoseBase,
-            modelSpaceBlending,
-            1.0f
-        );
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "clavicle_r",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPoseBase,
-            modelSpaceBlending,
-            1.0f
-        );
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "clavicle_l",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            modelSpaceBlending,
-            0.3f
-        );
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "clavicle_r",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            modelSpaceBlending,
-            0.3f
-        );
-
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "upperarm_l",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            modelSpaceBlending,
-            0.75f
-        );
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "upperarm_r",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            modelSpaceBlending,
-            0.75f
-        );
-
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "hand_r",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            modelSpaceBlending,
-            1.0f
-        );
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "hand_l",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            modelSpaceBlending,
-            1.0f
-        );
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "head",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            modelSpaceBlending,
-            0.5f
-        );
-
-    }
-    else
-    {
-
-        float modelSpanceBlendMultiplier = lerp(0.0,1, weaponAim);
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "spine_01",
-            thirdPersonModel->GetRootNode(),
-            thirdPersonPose,
-            weaponPose,
-            1.0f * modelSpanceBlendMultiplier,
-            0.3f
-        );
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "spine_02",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            1.0f * modelSpanceBlendMultiplier,
-            0.3f
-        );
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "neck_01",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            1.0f,
-            1.0f
-        );
-
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "clavicle_r",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            1.0f * modelSpanceBlendMultiplier,
-            1.0f
-        );
-
-        appliedWeaponPose = AnimationPose::LayeredLerp(
-            "clavicle_l",
-            thirdPersonModel->GetRootNode(),
-            appliedWeaponPose,
-            weaponPose,
-            1.0f * modelSpanceBlendMultiplier,
-            1.0f
-        );
-    }
-
-    
-    chestMat = AnimationPose::GetModelSpaceTransform("spine_03", thirdPersonModel->GetRootNode(), weaponPose);
-    rightHandMat = chestMat * relativeRightHandMat;
-    MathHelper::Transform rightHandTransform = MathHelper::DecomposeMatrix(rightHandMat);
-
-
-    rightHandMat = AnimationPose::GetModelSpaceTransform("hand_r", thirdPersonModel->GetRootNode(), appliedWeaponPose);
-    leftHandMat = rightHandMat * relativeLeftHandMat;
-    MathHelper::Transform leftHandTransform = MathHelper::DecomposeMatrix(leftHandMat);
-
-    appliedWeaponPose = AnimationPose::ApplyFABRIK(
-        "upperarm_l",
-        "hand_l",
-        thirdPersonModel->GetRootNode(),
-        appliedWeaponPose,
-        leftHandTransform.Position,
-        leftHandTransform.RotationQuaternion
-    );
-
-    lastAppliedPose = appliedWeaponPose;
-
-    thirdPersonModel->PasteAnimationPose(appliedWeaponPose);
-
-    return appliedWeaponPose;
+    thirdPersonAnimator->weaponAim = weaponAim;
+    thirdPersonAnimator->inPose = thirdPersonPose;
+    thirdPersonAnimator->Update();
+    lastAppliedPose = thirdPersonAnimator->GetResultPose();
+    thirdPersonModel->PasteAnimationPose(lastAppliedPose);
+    return lastAppliedPose;
 }

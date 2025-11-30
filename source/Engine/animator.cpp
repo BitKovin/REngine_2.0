@@ -1,5 +1,10 @@
 #include "Animator.h"
 
+Animator::Animator()
+{
+	owner = nullptr;
+}
+
 Animator::Animator(Entity* ownerEntity)
 {
 	owner = ownerEntity;

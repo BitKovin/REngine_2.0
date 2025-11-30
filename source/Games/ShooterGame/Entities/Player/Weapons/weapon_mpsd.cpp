@@ -1,4 +1,5 @@
 #include "WeaponFirearm.h"
+#include "Animators/Animator_Rifle.h"
 
 class weapon_mpsd : public WeaponFirearm {
 public:
@@ -42,6 +43,9 @@ public:
             CameraShake::ShakeType::SingleWave // shakeType
         );
 		Illegal = true;
+
+        thirdPersonAnimator = make_unique<Animator_Rifle>(this);
+
     }
 
     WeaponSlotData GetDefaultData() override {
@@ -50,6 +54,7 @@ public:
         data.slot = 2;
         return data;
     }
+
 };
 
 REGISTER_ENTITY(weapon_mpsd, "weapon_mpsd")

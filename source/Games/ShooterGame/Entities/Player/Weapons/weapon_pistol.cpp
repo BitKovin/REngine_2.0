@@ -1,4 +1,5 @@
 #include "WeaponFirearm.h"
+#include "Animators/Animator_Akimbo.h"
 
 class weapon_pistol : public WeaponFirearm {
 public:
@@ -42,6 +43,9 @@ public:
             0.5f,                              // falloff
             CameraShake::ShakeType::SingleWave // shakeType
         );
+
+        thirdPersonAnimator = make_unique<Animator_Akimbo>(this);
+
     }
 
     void Update() override 

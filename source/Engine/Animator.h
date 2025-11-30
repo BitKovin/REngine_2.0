@@ -10,6 +10,7 @@ public:
 
 	bool UsePrecomputedFrames = false;
 
+	Animator();
 	Animator(Entity* ownerEntity);
 	virtual ~Animator();
 
