@@ -353,6 +353,7 @@
     <ClCompile Include="Entities\Player\Player.cpp" />
     <ClCompile Include="Entities\Player\RestrictedArea.cpp" />
     <ClCompile Include="Entities\Player\Weapons\Animators\Animator_Akimbo.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\Animators\Animator_OneHand.cpp" />
     <ClCompile Include="Entities\Player\Weapons\Animators\Animator_Rifle.cpp" />
     <ClCompile Include="Entities\Player\Weapons\Projectiles\Bullet.cpp" />
     <ClCompile Include="Entities\Player\Weapons\Projectiles\CaneProjectile.cpp" />
@@ -393,6 +394,7 @@
     <ClInclude Include="Entities\Player\PlayerBodyAnimator.h" />
     <ClInclude Include="Entities\Player\RestrictedArea.h" />
     <ClInclude Include="Entities\Player\Weapons\Animators\Animator_Akimbo.h" />
+    <ClInclude Include="Entities\Player\Weapons\Animators\Animator_OneHand.h" />
     <ClInclude Include="Entities\Player\Weapons\Animators\Animator_Rifle.h" />
     <ClInclude Include="Entities\Player\Weapons\Animators\WeaponAnimator.h" />
     <ClInclude Include="Entities\Player\Weapons\Projectiles\Bullet.h" />

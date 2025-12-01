@@ -18,13 +18,14 @@ AnimationPose Animator_Rifle::CalculateWeaponPose()
 
     auto aimPose = aimAnimation->GetAnimationPose();
 
-    mat4 rightHandMat = AnimationPose::GetModelSpaceTransform("hand_r", aimAnimation->GetRootNode(), aimPose);
+    mat4 rightHandMat = AnimationPose::GetModelSpaceTransform("weapon_r", aimAnimation->GetRootNode(), aimPose);
     mat4 leftHandMat = AnimationPose::GetModelSpaceTransform("hand_l", aimAnimation->GetRootNode(), aimPose);
+    //leftHandMat = translate(vec3(0,0,0.1f)) * leftHandMat;
     mat4 relativeLeftHandMat = inverse(rightHandMat) * leftHandMat;
 
     auto resultPose = AnimationPose::Lerp(CalculateIdlePose(), CalculateAimPose(), weaponAim);
 
-    rightHandMat = AnimationPose::GetModelSpaceTransform("hand_r", aimAnimation->GetRootNode(), resultPose);
+    rightHandMat = AnimationPose::GetModelSpaceTransform("weapon_r", aimAnimation->GetRootNode(), resultPose);
     leftHandMat = rightHandMat * relativeLeftHandMat;
     MathHelper::Transform leftHandTransform = MathHelper::DecomposeMatrix(leftHandMat);
 
@@ -50,27 +51,11 @@ AnimationPose Animator_Rifle::CalculateIdlePose()
         aimAnimation->GetRootNode(),
         inPose,
         weaponPose,
-        0.5,
-        0.3f
+        1.0,
+        1.0f
     );
 
-    appliedWeaponPose = AnimationPose::LayeredLerp(
-        "spine_02",
-        aimAnimation->GetRootNode(),
-        appliedWeaponPose,
-        weaponPose,
-        0.5,
-        0.3f
-    );
-
-    appliedWeaponPose = AnimationPose::LayeredLerp(
-        "spine_03",
-        aimAnimation->GetRootNode(),
-        appliedWeaponPose,
-        weaponPose,
-        0.5,
-        0.5f
-    );
+    
 
     appliedWeaponPose = AnimationPose::LayeredLerp(
         "clavicle_l",

@@ -921,7 +921,7 @@ void Player::UpdateThirdPersonCamera()
 
     targetCameraPos += Camera::Forward() * -2.4f;
     targetCameraPos += Camera::Up() * 0.7f;
-	targetCameraPos += Camera::Right() * 0.15f;
+	targetCameraPos += Camera::Right() * 0.05f;
 
     auto hit = Physics::SphereTrace(startPos, targetCameraPos, 0.3f, BodyType::GroupCollisionTest, {}, {this});
     if (hit.hasHit)

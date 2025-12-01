@@ -3,8 +3,8 @@
 void Animator_Akimbo::LoadAssets()
 {
 
-	idleAnimation = AddAnimation("GameData/models/player/weapons/pistol/pistol_tp.glb", "idle");
-	aimAnimation = AddAnimation("GameData/models/player/weapons/pistol/pistol_tp.glb", "aim");
+	idleAnimation = AddAnimation("GameData/models/player/weapons/pistol/pistol_double_tp.glb", "idle");
+	aimAnimation = AddAnimation("GameData/models/player/weapons/pistol/pistol_double_tp.glb", "aim");
 
 }
 
@@ -29,7 +29,7 @@ AnimationPose Animator_Akimbo::CalculateIdlePose()
         inPose,
         weaponPose,
         1,
-        0.1f
+        0.3f
     );
 
     appliedWeaponPose = AnimationPose::LayeredLerp(
@@ -38,7 +38,7 @@ AnimationPose Animator_Akimbo::CalculateIdlePose()
         appliedWeaponPose,
         weaponPose,
         1,
-        0.1f
+        1.0f
     );
 
     appliedWeaponPose = AnimationPose::LayeredLerp(
@@ -56,6 +56,26 @@ AnimationPose Animator_Akimbo::CalculateIdlePose()
         appliedWeaponPose,
         weaponPose,
         0.3,
+        0.9f
+    );
+
+    appliedWeaponPose = AnimationPose::Lerp(inPose, appliedWeaponPose, 0.5f);
+
+    appliedWeaponPose = AnimationPose::LayeredLerp(
+        "upperarm_l",
+        aimAnimation->GetRootNode(),
+        appliedWeaponPose,
+        weaponPose,
+        0.1,
+        0.9f
+    );
+
+    appliedWeaponPose = AnimationPose::LayeredLerp(
+        "upperarm_r",
+        aimAnimation->GetRootNode(),
+        appliedWeaponPose,
+        weaponPose,
+        0.1,
         0.9f
     );
 
@@ -77,14 +97,7 @@ AnimationPose Animator_Akimbo::CalculateIdlePose()
         1.0f
     );
 
-    appliedWeaponPose = AnimationPose::LayeredLerp(
-        "head",
-        aimAnimation->GetRootNode(),
-        appliedWeaponPose,
-        weaponPose,
-        1.0,
-        1.0f
-    );
+
 
 	return appliedWeaponPose;
 }
@@ -114,7 +127,7 @@ AnimationPose Animator_Akimbo::CalculateAimPose()
         appliedWeaponPose,
         weaponPose,
         modelSpaceBlending,
-        0.7f
+        0.5f
     );
 
     appliedWeaponPose = AnimationPose::LayeredLerp(
@@ -141,7 +154,7 @@ AnimationPose Animator_Akimbo::CalculateAimPose()
         appliedWeaponPose,
         weaponPose,
         modelSpaceBlending,
-        0.3f
+        0.5f
     );
 
     appliedWeaponPose = AnimationPose::LayeredLerp(
@@ -150,7 +163,7 @@ AnimationPose Animator_Akimbo::CalculateAimPose()
         appliedWeaponPose,
         weaponPose,
         modelSpaceBlending,
-        0.3f
+        0.5f
     );
 
 
@@ -172,7 +185,6 @@ AnimationPose Animator_Akimbo::CalculateAimPose()
         0.85f
     );
 
-
     appliedWeaponPose = AnimationPose::LayeredLerp(
         "hand_r",
         aimAnimation->GetRootNode(),
@@ -187,6 +199,15 @@ AnimationPose Animator_Akimbo::CalculateAimPose()
         aimAnimation->GetRootNode(),
         appliedWeaponPose,
         weaponPose,
+        modelSpaceBlending,
+        1.0f
+    );
+
+    appliedWeaponPose = AnimationPose::LayeredLerp(
+        "head",
+        aimAnimation->GetRootNode(),
+        appliedWeaponPose,
+        weaponPoseBase,
         modelSpaceBlending,
         1.0f
     );
