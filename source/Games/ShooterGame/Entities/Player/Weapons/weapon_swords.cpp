@@ -143,16 +143,22 @@ public:
 		
 
 		resultPose = AnimationPose::LayeredLerp("thigh_l", thirdPersonMesh->GetRootNode(),
-			resultPose, thirdPersonPose, 1, 0.9);
+			resultPose, thirdPersonPose, 1, 0.5);
 
 		resultPose = AnimationPose::LayeredLerp("thigh_r", thirdPersonMesh->GetRootNode(),
-			resultPose, thirdPersonPose, 1, 0.9);
+			resultPose, thirdPersonPose, 1, 0.5);
 
 		resultPose = AnimationPose::ApplyFABRIK("thigh_l", "foot_l", thirdPersonMesh->GetRootNode(),
 			resultPose, leftFootT.Position, leftFootT.RotationQuaternion);
 
 		resultPose = AnimationPose::ApplyFABRIK("thigh_r", "foot_r", thirdPersonMesh->GetRootNode(),
 			resultPose, rightFootT.Position, rightFootT.RotationQuaternion);
+
+		resultPose = AnimationPose::LayeredLerp("thigh_l", thirdPersonMesh->GetRootNode(),
+			resultPose, thirdPersonPose, 1, 0.7);
+
+		resultPose = AnimationPose::LayeredLerp("thigh_r", thirdPersonMesh->GetRootNode(),
+			resultPose, thirdPersonPose, 1, 0.7);
 
 		resultPose = AnimationPose::LayeredLerp("spine_01", thirdPersonMesh->GetRootNode(),
 			resultPose, weaponPose, 1, 1.0);

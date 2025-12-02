@@ -914,7 +914,7 @@ void Player::UpdateThirdPersonCamera()
 	vec3 forward = normalize(MathHelper::XZ(Camera::Forward()));
 
     Camera::position = Position;
-	Camera::position -= forward * 0.4f;
+	Camera::position -= forward * 0.1f;
 
     vec3 startPos = Position + vec3(0,1,0);
 
