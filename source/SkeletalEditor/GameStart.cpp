@@ -24,7 +24,7 @@ public:
 		Spawn("freecamera");
 		Spawn("skeletal_editor");
 
-		EngineMain::MainInstance->asyncGameUpdate = false;
+		//EngineMain::MainInstance->asyncGameUpdate = false;
 
 	}
 

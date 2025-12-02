@@ -53,6 +53,7 @@ struct AnimationPose
 		const AnimationPose& inputPose,
 		const glm::vec3& targetPosition, // model space position
 		const glm::quat& targetRotation, // model space rotation
+		bool snapRotation = true,
 		int maxIterations = 15,
 		float tolerance = 0.001f);
 

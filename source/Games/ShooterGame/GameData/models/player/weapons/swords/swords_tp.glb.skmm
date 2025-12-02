@@ -1,0 +1,75 @@
+{
+    "animations": [
+        {
+            "animationEvents": [],
+            "animationName": "run"
+        },
+        {
+            "animationEvents": [
+                {
+                    "eventName": "nextAttack_start",
+                    "time": 0.44999998807907104,
+                    "userData1": "combo_1_24",
+                    "userData2": "",
+                    "userData3": ""
+                },
+                {
+                    "eventName": "nextAttack_end",
+                    "time": 0.7639999985694885,
+                    "userData1": "combo_1_24",
+                    "userData2": "",
+                    "userData3": ""
+                }
+            ],
+            "animationName": "combo_1_1"
+        },
+        {
+            "animationEvents": [
+                {
+                    "eventName": "nextAttack_start",
+                    "time": 0.46399998664855957,
+                    "userData1": "",
+                    "userData2": "",
+                    "userData3": ""
+                },
+                {
+                    "eventName": "nextAttack_end",
+                    "time": 0.6959999799728394,
+                    "userData1": "",
+                    "userData2": "",
+                    "userData3": ""
+                },
+                {
+                    "eventName": "nextAttack_end",
+                    "time": 2.0899999141693115,
+                    "userData1": "",
+                    "userData2": "",
+                    "userData3": ""
+                },
+                {
+                    "eventName": "nextAttack_start",
+                    "time": 1.7029999494552612,
+                    "userData1": "",
+                    "userData2": "",
+                    "userData3": ""
+                },
+                {
+                    "eventName": "nextAttack_end",
+                    "time": 3.088000011444092,
+                    "userData1": "combo_1_1",
+                    "userData2": "",
+                    "userData3": ""
+                },
+                {
+                    "eventName": "nextAttack_start",
+                    "time": 2.3669999599456787,
+                    "userData1": "",
+                    "userData2": "",
+                    "userData3": ""
+                }
+            ],
+            "animationName": "combo_1_24"
+        }
+    ],
+    "hitboxes": []
+}

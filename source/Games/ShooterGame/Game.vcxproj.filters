@@ -171,6 +171,9 @@
     <ClCompile Include="Entities\Player\Weapons\Animators\Animator_OneHand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\weapon_swords.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp">

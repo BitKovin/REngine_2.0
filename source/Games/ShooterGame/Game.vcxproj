@@ -364,6 +364,7 @@
     <ClCompile Include="Entities\Player\Weapons\weapon_pistol.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_shotgun.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_sniper.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\weapon_swords.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_tommy.cpp" />
     <ClCompile Include="Entities\RelativeTeleporter.cpp" />
     <ClCompile Include="Entities\TestNpc.cpp" />

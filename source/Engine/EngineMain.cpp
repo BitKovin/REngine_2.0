@@ -465,6 +465,7 @@ void EngineMain::Render()
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+
     glDisable(GL_DEPTH_TEST);
 
     Viewport.Draw();
@@ -478,6 +479,8 @@ void EngineMain::Render()
     MainRenderer->RenderLevel(Level::Current);
 
     glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glViewport(0, 0, ScreenSize.x, ScreenSize.y);
 

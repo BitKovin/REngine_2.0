@@ -462,6 +462,7 @@ AnimationPose AnimationPose::ApplyFABRIK(
 	const AnimationPose& inputPose,
 	const glm::vec3& targetPosition, // model space position
 	const glm::quat& targetRotation, // model space rotation
+	bool snapRotation,
 	int maxIterations,
 	float tolerance)
 {
@@ -742,8 +743,13 @@ AnimationPose AnimationPose::ApplyFABRIK(
 			}
 		}
 		else {
-			// end effector: set to targetRotation (explicit)
-			desiredGlobalQ = targetRotation;
+
+			if (snapRotation)
+			{
+				// end effector: set to targetRotation (explicit)
+				desiredGlobalQ = targetRotation;
+			}
+
 		}
 
 		// compose new global matrix for this joint

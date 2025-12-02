@@ -46,8 +46,9 @@ void Player::Start()
     PreloadEntityType("weapon_shotgun");
     PreloadEntityType("weapon_mpsd");
     PreloadEntityType("weapon_sniper");
+    PreloadEntityType("weapon_swords");
 
-    AddWeaponByName("weapon_pistol");
+    AddWeaponByName("weapon_swords");
     AddWeaponByName("weapon_shotgun");
     AddWeaponByName("weapon_mpsd");
     AddWeaponByName("weapon_sniper");
@@ -921,7 +922,7 @@ void Player::UpdateThirdPersonCamera()
 
     targetCameraPos += Camera::Forward() * -2.4f;
     targetCameraPos += Camera::Up() * 0.7f;
-	targetCameraPos += Camera::Right() * 0.05f;
+	//targetCameraPos += Camera::Right() * 0.05f;
 
     auto hit = Physics::SphereTrace(startPos, targetCameraPos, 0.3f, BodyType::GroupCollisionTest, {}, {this});
     if (hit.hasHit)
