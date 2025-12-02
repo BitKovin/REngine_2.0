@@ -968,6 +968,11 @@ void Player::UpdateBody()
     bodyMesh->Position = Position - vec3(0, controller.height / 2.0f,0) - playerForward*0.3f;
     bodyMesh->Rotation.y = cameraRotation.y;
 
+    if (InThirdPerson())
+    {
+        bodyMesh->Position = Position - vec3(0, controller.height / 2.0f, 0);
+    }
+
 
     //std::unordered_map<std::string, mat4> poseT;
     //poseT["thigh_r"] = translate(Camera::position + Camera::Forward()) * scale(vec3(0.01f));
