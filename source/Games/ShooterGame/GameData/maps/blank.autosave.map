@@ -90,4 +90,14 @@ brushDef
 // entity 1
 {
 "classname" "transformPoint"
+"origin" "32 32 0"
+"targetname" "test2"
+"another" "a"
+}
+// entity 2
+{
+"classname" "example"
+"targetname" "a"
+"boxsize" "32 32 16"
+"box_size" "6.0 6.0 6.0"
 }

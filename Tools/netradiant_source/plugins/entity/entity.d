@@ -19,8 +19,8 @@ plugins/entity/entity.o: plugins/entity/entity.cpp \
  libs/container/container.h libs/eclasslib.h include/ieclass.h \
  libs/pivot.h include/renderable.h include/cullable.h libs/render.h \
  plugins/entity/targetable.h libs/math/line.h \
- plugins/entity/customgizmos.h libs/selectionlib.h libs/stringio.h \
- include/iscriplib.h libs/uniquenames.h plugins/entity/namekeys.h \
+ plugins/entity/customgizmos.h libs/stringio.h include/iscriplib.h \
+ libs/selectionlib.h libs/uniquenames.h plugins/entity/namekeys.h \
  libs/stream/stringstream.h plugins/entity/filters.h \
  plugins/entity/miscmodel.h plugins/entity/light.h plugins/entity/group.h \
  plugins/entity/eclassmodel.h plugins/entity/generic.h \
