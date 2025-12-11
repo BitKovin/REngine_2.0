@@ -14,6 +14,7 @@ private:
 
 public:
 
+	Entity* owner = nullptr;
 
 	float Damage = 15;
 	float Speed = 100;

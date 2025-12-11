@@ -57,7 +57,7 @@ public:
 			thirdPersonMesh->PlayAnimation("idle", true);
 		}
 
-		thirdPersonMesh->Update(comboContinueWait ? 0.5f : 1);
+		thirdPersonMesh->Update(comboContinueWait ? 0.5f : 1.2f);
 
 		auto events = thirdPersonMesh->PullAnimationEvents();
 

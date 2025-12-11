@@ -72,7 +72,7 @@ public:
 
 		viewmodel->LoadFromFile("GameData/models/player/weapons/cane/cane.glb");
 		//viewmodel->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/textures/cat.png");
-		viewmodel->TexturesLocation = "GameData/models/player/weapons/cane/"; // to search in file:   cane.glb/
+		viewmodel->TexturesLocation = "GameData/models/player/weapons/cane/cane.glb/"; // to search in file:   
 		viewmodel->PlayAnimation("idle",true);
 		viewmodel->PreloadAssets();
 
@@ -101,6 +101,8 @@ public:
 		viewmodel->PlayAnimation("idle", true, 0.3f);
 
 		thrown = false;
+
+		attackDelay.AddDelay(0.3);
 
 	}
 
@@ -413,6 +415,7 @@ public:
 		}
 
 		CaneProjectile* bullet = new CaneProjectile();
+		bullet->owner = Player::Instance;
 		Level::Current->AddEntity(bullet);
 
 		vec4 offset = vec4(0);

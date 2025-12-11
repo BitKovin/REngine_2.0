@@ -20,7 +20,7 @@ void CaneProjectile::DamageEntity()
 
 	hitedEntity->OnPointDamage(200, Position, forward * -1.0f, "", Player::Instance, this);
 
-	auto hit = Physics::SphereTraceForEntity({ hitedEntity },Position - forward * 0.5f, Position + forward, 0.05f, BodyType::HitBox);
+	auto hit = Physics::SphereTraceForEntity({ hitedEntity }, Position - forward * 0.5f, Position + forward, 0.05f, BodyType::HitBox);
 
 	if (hit.hasHit == false)
 	{
@@ -112,7 +112,7 @@ void CaneProjectile::Update()
 
 	Position += MathHelper::GetForwardVector(Rotation) * travelDistance;
 
-	auto hit = Physics::SphereTrace(oldPos, Position,0.1f, BodyType::GroupHitTest | BodyType::WorldSkybox);
+	auto hit = Physics::SphereTrace(oldPos, Position, 0.1f, BodyType::GroupHitTest | BodyType::WorldSkybox, {},{owner});
 
 	if (hit.hasHit)
 	{

@@ -44,16 +44,18 @@ void Player::Start()
 
     PreloadEntityType("weapon_pistol");
     PreloadEntityType("weapon_shotgun");
-    PreloadEntityType("weapon_mpsd");
+    PreloadEntityType("weapon_tommy");
     PreloadEntityType("weapon_sniper");
     PreloadEntityType("weapon_swords");
 
+    PreloadEntityType("weapon_cane");
+
     AddWeaponByName("weapon_swords");
     AddWeaponByName("weapon_shotgun");
-    AddWeaponByName("weapon_mpsd");
+    AddWeaponByName("weapon_tommy");
     AddWeaponByName("weapon_sniper");
 
-    //SwitchWeaponOffhand("weapon_cane");
+    SwitchWeaponOffhand("weapon_cane");
 
 }
 

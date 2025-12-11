@@ -303,7 +303,7 @@ void Level::RemoveEntity(LevelObject* obj)
 		std::unique_lock<std::shared_mutex> lock(entityNameMapMutex);
 
 		entityIdMap.erase(entity->Id);
-		entityNameMap.erase(entity->Id);
+		entityNameMap.erase(entity->Name);
 
 	}
 
