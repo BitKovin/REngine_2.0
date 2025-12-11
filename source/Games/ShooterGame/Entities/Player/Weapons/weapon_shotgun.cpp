@@ -16,7 +16,7 @@ public:
         params.bulletSpeed = 200.0f; // Assumed same
         params.bulletDamage = 50.0f / 21.0f;
         params.range = 80.0f;
-        params.fireAnimation = "attack_alt";
+        params.fireAnimation = "attack";
         params.fireAnimInterpInTime = 0.15f; // No speed specified, assume default
         params.notifyNpcs = false;
         params.activateViolenceCrime = false;

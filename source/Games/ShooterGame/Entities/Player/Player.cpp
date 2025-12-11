@@ -6,6 +6,8 @@
 
 #include <AiPerception/AiPerceptionSystem.h>
 
+#include "Weapons/WeaponFirearm.h"
+
 #include "RestrictedArea.h"
 
 REGISTER_ENTITY(Player, "info_player_start")
@@ -50,7 +52,7 @@ void Player::Start()
 
     PreloadEntityType("weapon_cane");
 
-    AddWeaponByName("weapon_swords");
+    AddWeaponByName("weapon_pistol");
     AddWeaponByName("weapon_shotgun");
     AddWeaponByName("weapon_tommy");
     AddWeaponByName("weapon_sniper");
@@ -374,6 +376,17 @@ void Player::UpdateWeapon()
 
     if (currentWeapon != nullptr)
     {
+
+        if (Input::GetAction("test")->Pressed())
+        {
+			auto firearm = dynamic_cast<WeaponFirearm*>(currentWeapon);
+
+            if (firearm)
+            {
+                firearm->SetAkimbo(!firearm->akimbo);
+            }
+
+        }
 
         vec3 relativeWeaponPos = vec3();
             

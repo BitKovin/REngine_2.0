@@ -132,8 +132,16 @@ void main()
 
 	gl_Position = v_clipPosition;
 	v_worldPosition = (vertWorldTrans * vec4(Position, 1.0)).xyz;
-	mat3 normalMatrix = transpose(inverse(mat3(vertWorldTrans)));
-	v_normal = normalize(normalMatrix * Normal);
+
+    mat3 normalMatrix = transpose(inverse(mat3(vertWorldTrans)));
+
+    // Flip normal if scaling flips handedness
+    float det = determinant(mat3(vertWorldTrans));
+    if(det < 0.0)
+        normalMatrix = -normalMatrix;
+
+    v_normal = normalize(normalMatrix * Normal);
+
 
 
 	v_color = vec4(brightness,brightness,brightness, 1) * color;

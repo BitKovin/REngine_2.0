@@ -67,10 +67,12 @@ vec3 CalculateLight()
 {
 
     vec3 normal = normalize(v_normal);
+    
     if (!gl_FrontFacing)
         normal = -normal;
 
-    vec3 light = light_color + clamp(dot(normal, normalize(direct_light_dir))*0.8 + 0.2,0.0,1.0) * direct_light_color;
+    float factor = clamp(dot(normal, normalize(direct_light_dir)) * 0.8 + 0.2, 0.0, 1.0);
+    vec3 light = mix(light_color, direct_light_color, factor);
 
     light *= 6.0f;
 

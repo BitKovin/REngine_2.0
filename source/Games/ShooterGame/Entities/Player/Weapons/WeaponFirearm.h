@@ -3,13 +3,10 @@
 #include "WeaponBase.h"
 #include "../Player.hpp"
 
-
 #include <Animation.h>
 #include "Animators/WeaponAnimator.h"
 
-
 #include <string>
-
 
 struct FirearmParams {
 	std::string modelPath = "";
@@ -22,8 +19,8 @@ struct FirearmParams {
 	std::string boneMuzzle = "muzzle";
 	float fireVolume = 0.5f;
 	bool fireSoundIs2D = true;
-	bool useOneshotSound = false; // For MPSD-style oneshot play
-	float pitchModifier = 1.0f; // For silencer or other pitch changes
+	bool useOneshotSound = false;
+	float pitchModifier = 1.0f;
 	float baseSpread = 0.1f;
 	float spreadIncreasePerShot = 0.1f;
 	float spreadDecreaseSpeed = 2.0f;
@@ -51,28 +48,33 @@ struct FirearmParams {
 	float recoilModelInterpOut = 7.0f;
 	bool hasRandomRecoilStrength = false;
 	CameraShake recoilShake = CameraShake(
-		0.13f, // interpIn
-		0.5f, // duration
-		vec3(0.0f, 0.0f, -0.1f), // positionAmplitude
-		vec3(0.0f, 0.0f, 3.4f), // positionFrequency
-		vec3(-3.0f, 0.15f, 0.0f), // rotationAmplitude
-		vec3(-1.5f, 18.8f, 0.0f), // rotationFrequency
-		0.5f, // falloff
-		CameraShake::ShakeType::SingleWave// shakeType
+		0.13f, 0.5f,
+		vec3(0.0f, 0.0f, -0.1f),
+		vec3(0.0f, 0.0f, 3.4f),
+		vec3(-3.0f, 0.15f, 0.0f),
+		vec3(-1.5f, 18.8f, 0.0f),
+		0.5f,
+		CameraShake::ShakeType::SingleWave
 	);
 	bool lateUpdateWhenPaused = true;
-	std::string spreadType = "random"; // "random" or "grid" for shotgun-like
-	float gridSpreadSize = 4.0f; // For grid spread
+	std::string spreadType = "random";
+	float gridSpreadSize = 4.0f;
 	float gridStep = 2.0f;
 	float gridMaxLength = 4.7f;
 };
 
-
 class WeaponFirearm : public Weapon {
 public:
 	FirearmParams params;
+
+	// Right-hand
 	SkeletalMesh* viewmodel = nullptr;
 	SkeletalMesh* arms = nullptr;
+
+	// Left-hand (always loaded)
+	SkeletalMesh* viewmodelLeft = nullptr;
+	SkeletalMesh* armsLeft = nullptr;
+
 	Delay attackDelay;
 	SoundPlayer* fireSoundPlayer = nullptr;
 	float activeSpread = 0.0f;
@@ -85,8 +87,14 @@ public:
 
 	std::unique_ptr<WeaponAnimator> thirdPersonAnimator;
 
-	WeaponFirearm(const FirearmParams& initialParams = FirearmParams());
+	bool fireLeftNext = false;
 
+	// Runtime akimbo state
+	bool akimbo = false;
+	bool akimboPrev = false;
+	bool alternateFire = true;
+
+	WeaponFirearm(const FirearmParams& initialParams = FirearmParams());
 
 	void Start() override;
 	void LoadAssets() override;
@@ -98,7 +106,8 @@ public:
 	void LateUpdate() override;
 	WeaponSlotData GetDefaultData() override;
 
-
 	virtual AnimationPose ApplyWeaponAnimation(AnimationPose thirdPersonPose);
 
+	// Runtime akimbo functions
+	void SetAkimbo(bool enabled);
 };
