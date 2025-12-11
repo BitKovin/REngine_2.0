@@ -11,18 +11,18 @@ plugins/entity/entity.o: plugins/entity/entity.cpp \
  libs/generic/object.h libs/typesystem.h libs/generic/referencecounted.h \
  include/namespace.h libs/entitylib.h include/ireference.h \
  include/ientity.h libs/string/string.h include/irender.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h libs/undolib.h include/iundo.h include/mapfile.h \
  libs/string/pooledstring.h libs/container/hashtable.h \
  libs/container/hashfunc.h libs/container/array.h \
  libs/container/container.h libs/eclasslib.h include/ieclass.h \
  libs/pivot.h include/renderable.h include/cullable.h libs/render.h \
- plugins/entity/targetable.h libs/math/line.h libs/selectionlib.h \
- libs/stringio.h include/iscriplib.h libs/uniquenames.h \
- plugins/entity/namekeys.h libs/stream/stringstream.h \
- plugins/entity/filters.h plugins/entity/miscmodel.h \
- plugins/entity/light.h plugins/entity/group.h \
+ plugins/entity/targetable.h libs/math/line.h \
+ plugins/entity/customgizmos.h libs/selectionlib.h libs/stringio.h \
+ include/iscriplib.h libs/uniquenames.h plugins/entity/namekeys.h \
+ libs/stream/stringstream.h plugins/entity/filters.h \
+ plugins/entity/miscmodel.h plugins/entity/light.h plugins/entity/group.h \
  plugins/entity/eclassmodel.h plugins/entity/generic.h \
  plugins/entity/doom3group.h plugins/entity/namedentity.h \
  include/nameable.h include/qerplugin.h include/windowobserver.h \

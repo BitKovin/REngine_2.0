@@ -29,6 +29,7 @@
 
 #include "math/line.h"
 #include "render.h"
+#include "customgizmos.h"
 #include "generic/callback.h"
 #include "selectionlib.h"
 #include "entitylib.h"
@@ -365,8 +366,11 @@ public:
 		m_renderable( m_targeting.get() ){
 		m_entity.attach( *this );
 		m_entity.attach( m_targeting );
+		// attach to custom gizmo renderer (no-op by default, but provides hook for custom gizmos)
+		StaticRenderableCustomGizmos::instance().attach( *this );
 	}
 	~TargetableInstance(){
+		StaticRenderableCustomGizmos::instance().detach( *this );
 		m_entity.detach( m_targeting );
 		m_entity.detach( *this );
 	}
@@ -413,6 +417,10 @@ public:
 	const TargetingEntities& getTargeting() const {
 		return m_targeting.get();
 	}
+
+	// Expose the entity key-values to custom gizmo handlers
+	EntityKeyValues& getEntity(){ return m_entity; }
+	const EntityKeyValues& getEntity() const { return m_entity; }
 };
 
 #include "entity.h"

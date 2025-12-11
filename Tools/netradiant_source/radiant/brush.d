@@ -6,8 +6,8 @@ radiant/brush.o: radiant/brush.cpp radiant/brush.h \
  include/iselection.h libs/signal/signalfwd.h libs/math/vectorfwd.h \
  include/irender.h libs/generic/vector.h include/imap.h \
  include/iscenegraph.h include/ibrush.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h include/ifilter.h include/nameable.h \
  include/moduleobserver.h include/cullable.h include/renderable.h \
  include/selectable.h libs/scenelib.h libs/math/aabb.h libs/math/matrix.h \

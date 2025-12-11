@@ -10,19 +10,19 @@ contrib/prtview/LoadPortalFileDialog.o: \
  libs/stream/textstream.h contrib/prtview/prtview.h \
  contrib/prtview/portals.h include/irender.h libs/generic/callback.h \
  libs/generic/functional.h include/renderable.h libs/math/vector.h \
- D:/msys64/mingw64/include/QtWidgets/QDialog \
- D:/msys64/mingw64/include/QtWidgets/qdialog.h \
- D:/msys64/mingw64/include/QtWidgets/QLineEdit \
- D:/msys64/mingw64/include/QtWidgets/qlineedit.h \
- D:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
- D:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
- D:/msys64/mingw64/include/QtWidgets/QVBoxLayout \
- D:/msys64/mingw64/include/QtWidgets/qboxlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QApplication \
- D:/msys64/mingw64/include/QtWidgets/qapplication.h \
- D:/msys64/mingw64/include/QtWidgets/QStyle \
- D:/msys64/mingw64/include/QtWidgets/qstyle.h \
- D:/msys64/mingw64/include/QtWidgets/QAction \
- D:/msys64/mingw64/include/QtWidgets/qaction.h \
- D:/msys64/mingw64/include/QtWidgets/QCheckBox \
- D:/msys64/mingw64/include/QtWidgets/qcheckbox.h
+ C:/msys64/mingw64/include/QtWidgets/QDialog \
+ C:/msys64/mingw64/include/QtWidgets/qdialog.h \
+ C:/msys64/mingw64/include/QtWidgets/QLineEdit \
+ C:/msys64/mingw64/include/QtWidgets/qlineedit.h \
+ C:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
+ C:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QVBoxLayout \
+ C:/msys64/mingw64/include/QtWidgets/qboxlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QApplication \
+ C:/msys64/mingw64/include/QtWidgets/qapplication.h \
+ C:/msys64/mingw64/include/QtWidgets/QStyle \
+ C:/msys64/mingw64/include/QtWidgets/qstyle.h \
+ C:/msys64/mingw64/include/QtWidgets/QAction \
+ C:/msys64/mingw64/include/QtWidgets/qaction.h \
+ C:/msys64/mingw64/include/QtWidgets/QCheckBox \
+ C:/msys64/mingw64/include/QtWidgets/qcheckbox.h

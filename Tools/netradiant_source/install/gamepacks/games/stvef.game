@@ -25,7 +25,7 @@
   entities="quake3"
   shaders="quake3"
   texturetypes="tga jpg"
-  modeltypes="md3 ase lwo obj 3ds picoterrain"
+  modeltypes="*"
   maptypes="mapq3"
   brushtypes="quake3"
   patchtypes="quake3"

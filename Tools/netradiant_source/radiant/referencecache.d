@@ -21,12 +21,12 @@ radiant/referencecache.o: radiant/referencecache.cpp \
  libs/instancelib.h libs/selectionlib.h libs/stream/stringstream.h \
  libs/os/file.h include/moduleobserver.h libs/moduleobservers.h \
  radiant/mainframe.h libs/gtkutil/idledraw.h \
- D:/msys64/mingw64/include/QtCore/QTimer \
- D:/msys64/mingw64/include/QtCore/qtimer.h libs/gtkutil/widget.h \
- D:/msys64/mingw64/include/QtWidgets/QWidget \
- D:/msys64/mingw64/include/QtWidgets/qwidget.h \
- D:/msys64/mingw64/include/QtCore/QEvent \
- D:/msys64/mingw64/include/QtCore/qcoreevent.h radiant/map.h \
+ C:/msys64/mingw64/include/QtCore/QTimer \
+ C:/msys64/mingw64/include/QtCore/qtimer.h libs/gtkutil/widget.h \
+ C:/msys64/mingw64/include/QtWidgets/QWidget \
+ C:/msys64/mingw64/include/QtWidgets/qwidget.h \
+ C:/msys64/mingw64/include/QtCore/QEvent \
+ C:/msys64/mingw64/include/QtCore/qcoreevent.h radiant/map.h \
  libs/string/stringfwd.h radiant/filetypes.h \
  libs/modulesystem/modulesmap.h libs/modulesystem/singletonmodule.h \
  libs/modulesystem/moduleregistry.h

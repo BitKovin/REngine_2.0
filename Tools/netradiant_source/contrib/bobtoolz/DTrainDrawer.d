@@ -12,8 +12,8 @@ contrib/bobtoolz/DTrainDrawer.o: contrib/bobtoolz/DTrainDrawer.cpp \
  contrib/bobtoolz/DEntity.h contrib/bobtoolz/DMap.h \
  contrib/bobtoolz/misc.h include/iscenegraph.h libs/signal/signalfwd.h \
  contrib/bobtoolz/funchandlers.h include/iglrender.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h include/ientity.h libs/scenelib.h \
  include/iselection.h libs/math/vectorfwd.h libs/math/aabb.h \
  libs/math/matrix.h libs/math/vector.h libs/math/pi.h libs/math/plane.h \

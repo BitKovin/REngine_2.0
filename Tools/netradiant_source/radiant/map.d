@@ -20,51 +20,51 @@ radiant/map.o: radiant/map.cpp radiant/map.h include/iscenegraph.h \
  libs/os/path.h libs/uniquenames.h libs/modulesystem/singletonmodule.h \
  libs/modulesystem/moduleregistry.h libs/stream/stringstream.h \
  libs/signal/signal.h libs/signal/isignal.h libs/gtkutil/filechooser.h \
- D:/msys64/mingw64/include/QtCore/QString \
- D:/msys64/mingw64/include/QtCore/qstring.h libs/timer.h radiant/select.h \
+ C:/msys64/mingw64/include/QtCore/QString \
+ C:/msys64/mingw64/include/QtCore/qstring.h libs/timer.h radiant/select.h \
  radiant/plugin.h radiant/filetypes.h radiant/gtkdlgs.h \
  radiant/entityinspector.h radiant/points.h radiant/qe3.h \
  radiant/camwindow.h radiant/xywindow.h libs/gtkutil/cursor.h \
- D:/msys64/mingw64/include/QtGui/QMouseEvent \
- D:/msys64/mingw64/include/QtGui/qevent.h \
- D:/msys64/mingw64/include/QtCore/QTimer \
- D:/msys64/mingw64/include/QtCore/qtimer.h \
- D:/msys64/mingw64/include/QtGui/QCursor \
- D:/msys64/mingw64/include/QtGui/qcursor.h \
- D:/msys64/mingw64/include/QtWidgets/QWidget \
- D:/msys64/mingw64/include/QtWidgets/qwidget.h \
+ C:/msys64/mingw64/include/QtGui/QMouseEvent \
+ C:/msys64/mingw64/include/QtGui/qevent.h \
+ C:/msys64/mingw64/include/QtCore/QTimer \
+ C:/msys64/mingw64/include/QtCore/qtimer.h \
+ C:/msys64/mingw64/include/QtGui/QCursor \
+ C:/msys64/mingw64/include/QtGui/qcursor.h \
+ C:/msys64/mingw64/include/QtWidgets/QWidget \
+ C:/msys64/mingw64/include/QtWidgets/qwidget.h \
  libs/gtkutil/xorrectangle.h libs/rect_t.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h radiant/view.h include/cullable.h \
  libs/math/frustum.h libs/generic/enumeration.h libs/math/line.h \
  include/qerplugin.h include/windowobserver.h libs/generic/bitfield.h \
  radiant/mainframe.h libs/gtkutil/idledraw.h libs/gtkutil/widget.h \
- D:/msys64/mingw64/include/QtCore/QEvent \
- D:/msys64/mingw64/include/QtCore/qcoreevent.h radiant/preferences.h \
- D:/msys64/mingw64/include/libxml2/libxml/parser.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlversion.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlexports.h \
- D:/msys64/mingw64/include/libxml2/libxml/tree.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlstring.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlmemory.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlregexp.h \
- D:/msys64/mingw64/include/libxml2/libxml/dict.h \
- D:/msys64/mingw64/include/libxml2/libxml/hash.h \
- D:/msys64/mingw64/include/libxml2/libxml/valid.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlerror.h \
- D:/msys64/mingw64/include/libxml2/libxml/list.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlautomata.h \
- D:/msys64/mingw64/include/libxml2/libxml/entities.h \
- D:/msys64/mingw64/include/libxml2/libxml/encoding.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlIO.h \
- D:/msys64/mingw64/include/libxml2/libxml/SAX2.h \
- D:/msys64/mingw64/include/libxml2/libxml/threads.h radiant/dialog.h \
- libs/gtkutil/dialog.h D:/msys64/mingw64/include/QtWidgets/QDialog \
- D:/msys64/mingw64/include/QtWidgets/qdialog.h radiant/referencecache.h \
+ C:/msys64/mingw64/include/QtCore/QEvent \
+ C:/msys64/mingw64/include/QtCore/qcoreevent.h radiant/preferences.h \
+ C:/msys64/mingw64/include/libxml2/libxml/parser.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlversion.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlexports.h \
+ C:/msys64/mingw64/include/libxml2/libxml/tree.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlstring.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlmemory.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlregexp.h \
+ C:/msys64/mingw64/include/libxml2/libxml/dict.h \
+ C:/msys64/mingw64/include/libxml2/libxml/hash.h \
+ C:/msys64/mingw64/include/libxml2/libxml/valid.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlerror.h \
+ C:/msys64/mingw64/include/libxml2/libxml/list.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlautomata.h \
+ C:/msys64/mingw64/include/libxml2/libxml/entities.h \
+ C:/msys64/mingw64/include/libxml2/libxml/encoding.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlIO.h \
+ C:/msys64/mingw64/include/libxml2/libxml/SAX2.h \
+ C:/msys64/mingw64/include/libxml2/libxml/threads.h radiant/dialog.h \
+ libs/gtkutil/dialog.h C:/msys64/mingw64/include/QtWidgets/QDialog \
+ C:/msys64/mingw64/include/QtWidgets/qdialog.h radiant/referencecache.h \
  radiant/mru.h radiant/commands.h libs/gtkutil/accelerator.h \
- D:/msys64/mingw64/include/QtGui/QKeySequence \
- D:/msys64/mingw64/include/QtGui/qkeysequence.h radiant/autosave.h \
+ C:/msys64/mingw64/include/QtGui/QKeySequence \
+ C:/msys64/mingw64/include/QtGui/qkeysequence.h radiant/autosave.h \
  radiant/brushmodule.h radiant/brush.h include/renderable.h \
  include/selectable.h libs/render.h libs/container/array.h \
  libs/texturelib.h radiant/winding.h radiant/brush_primit.h \
@@ -72,21 +72,21 @@ radiant/map.o: radiant/map.cpp radiant/map.h include/iscenegraph.h \
  include/ipatch.h libs/xml/xmlelement.h libs/xml/ixml.h libs/stringio.h \
  include/iscriplib.h libs/dragplanes.h radiant/grid.h \
  radiant/modelwindow.h radiant/brushnode.h radiant/brushtokens.h \
- radiant/brushxml.h D:/msys64/mingw64/include/QtWidgets/QGridLayout \
- D:/msys64/mingw64/include/QtWidgets/qgridlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QLabel \
- D:/msys64/mingw64/include/QtWidgets/qlabel.h \
- D:/msys64/mingw64/include/QtWidgets/QTreeWidget \
- D:/msys64/mingw64/include/QtWidgets/qtreewidget.h \
- D:/msys64/mingw64/include/QtWidgets/QHeaderView \
- D:/msys64/mingw64/include/QtWidgets/qheaderview.h \
- D:/msys64/mingw64/include/QtWidgets/QFormLayout \
- D:/msys64/mingw64/include/QtWidgets/qformlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
- D:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
- D:/msys64/mingw64/include/QtWidgets/QPushButton \
- D:/msys64/mingw64/include/QtWidgets/qpushbutton.h libs/gtkutil/spinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
- D:/msys64/mingw64/include/QtWidgets/qspinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QSpinBox radiant/filterbar.h \
+ radiant/brushxml.h C:/msys64/mingw64/include/QtWidgets/QGridLayout \
+ C:/msys64/mingw64/include/QtWidgets/qgridlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QLabel \
+ C:/msys64/mingw64/include/QtWidgets/qlabel.h \
+ C:/msys64/mingw64/include/QtWidgets/QTreeWidget \
+ C:/msys64/mingw64/include/QtWidgets/qtreewidget.h \
+ C:/msys64/mingw64/include/QtWidgets/QHeaderView \
+ C:/msys64/mingw64/include/QtWidgets/qheaderview.h \
+ C:/msys64/mingw64/include/QtWidgets/QFormLayout \
+ C:/msys64/mingw64/include/QtWidgets/qformlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
+ C:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QPushButton \
+ C:/msys64/mingw64/include/QtWidgets/qpushbutton.h libs/gtkutil/spinbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
+ C:/msys64/mingw64/include/QtWidgets/qspinbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QSpinBox radiant/filterbar.h \
  include/preferencesystem.h

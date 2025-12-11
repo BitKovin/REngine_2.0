@@ -9,46 +9,46 @@ contrib/bobtoolz/dialogs/dialogs-gtk.o: \
  libs/stream/stringstream.h libs/string/string.h libs/memory/allocator.h \
  libs/generic/object.h contrib/bobtoolz/dialogs/../funchandlers.h \
  contrib/bobtoolz/dialogs/../lists.h \
- D:/msys64/mingw64/include/QtCore/QStringList \
- D:/msys64/mingw64/include/QtCore/qstringlist.h \
+ C:/msys64/mingw64/include/QtCore/QStringList \
+ C:/msys64/mingw64/include/QtCore/qstringlist.h \
  contrib/bobtoolz/dialogs/../misc.h libs/mathlib.h libs/bytebool.h \
  include/iscenegraph.h contrib/bobtoolz/dialogs/../bobToolz-GTK.h \
- D:/msys64/mingw64/include/QtWidgets/QDialog \
- D:/msys64/mingw64/include/QtWidgets/qdialog.h \
- D:/msys64/mingw64/include/QtWidgets/QGroupBox \
- D:/msys64/mingw64/include/QtWidgets/qgroupbox.h \
- D:/msys64/mingw64/include/QtWidgets/QFormLayout \
- D:/msys64/mingw64/include/QtWidgets/qformlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QVBoxLayout \
- D:/msys64/mingw64/include/QtWidgets/qboxlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QHBoxLayout \
- D:/msys64/mingw64/include/QtWidgets/QLabel \
- D:/msys64/mingw64/include/QtWidgets/qlabel.h \
- D:/msys64/mingw64/include/QtWidgets/QLineEdit \
- D:/msys64/mingw64/include/QtWidgets/qlineedit.h \
- D:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
- D:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
- D:/msys64/mingw64/include/QtWidgets/QPushButton \
- D:/msys64/mingw64/include/QtWidgets/qpushbutton.h \
- D:/msys64/mingw64/include/QtWidgets/QCheckBox \
- D:/msys64/mingw64/include/QtWidgets/qcheckbox.h \
- D:/msys64/mingw64/include/QtWidgets/QButtonGroup \
- D:/msys64/mingw64/include/QtWidgets/qbuttongroup.h \
- D:/msys64/mingw64/include/QtWidgets/QRadioButton \
- D:/msys64/mingw64/include/QtWidgets/qradiobutton.h \
- D:/msys64/mingw64/include/QtWidgets/QFrame \
- D:/msys64/mingw64/include/QtWidgets/qframe.h \
- D:/msys64/mingw64/include/QtWidgets/QTabWidget \
- D:/msys64/mingw64/include/QtWidgets/qtabwidget.h libs/gtkutil/spinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
- D:/msys64/mingw64/include/QtWidgets/qspinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QSpinBox \
- D:/msys64/mingw64/include/QtCore/QTimer \
- D:/msys64/mingw64/include/QtCore/qtimer.h \
- D:/msys64/mingw64/include/QtGui/QMouseEvent \
- D:/msys64/mingw64/include/QtGui/qevent.h libs/gtkutil/combobox.h \
- D:/msys64/mingw64/include/QtWidgets/QComboBox \
- D:/msys64/mingw64/include/QtWidgets/qcombobox.h \
- D:/msys64/mingw64/include/QtGui/QKeyEvent \
- D:/msys64/mingw64/include/QtWidgets/QAbstractItemView \
- D:/msys64/mingw64/include/QtWidgets/qabstractitemview.h
+ C:/msys64/mingw64/include/QtWidgets/QDialog \
+ C:/msys64/mingw64/include/QtWidgets/qdialog.h \
+ C:/msys64/mingw64/include/QtWidgets/QGroupBox \
+ C:/msys64/mingw64/include/QtWidgets/qgroupbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QFormLayout \
+ C:/msys64/mingw64/include/QtWidgets/qformlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QVBoxLayout \
+ C:/msys64/mingw64/include/QtWidgets/qboxlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QHBoxLayout \
+ C:/msys64/mingw64/include/QtWidgets/QLabel \
+ C:/msys64/mingw64/include/QtWidgets/qlabel.h \
+ C:/msys64/mingw64/include/QtWidgets/QLineEdit \
+ C:/msys64/mingw64/include/QtWidgets/qlineedit.h \
+ C:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
+ C:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QPushButton \
+ C:/msys64/mingw64/include/QtWidgets/qpushbutton.h \
+ C:/msys64/mingw64/include/QtWidgets/QCheckBox \
+ C:/msys64/mingw64/include/QtWidgets/qcheckbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QButtonGroup \
+ C:/msys64/mingw64/include/QtWidgets/qbuttongroup.h \
+ C:/msys64/mingw64/include/QtWidgets/QRadioButton \
+ C:/msys64/mingw64/include/QtWidgets/qradiobutton.h \
+ C:/msys64/mingw64/include/QtWidgets/QFrame \
+ C:/msys64/mingw64/include/QtWidgets/qframe.h \
+ C:/msys64/mingw64/include/QtWidgets/QTabWidget \
+ C:/msys64/mingw64/include/QtWidgets/qtabwidget.h libs/gtkutil/spinbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
+ C:/msys64/mingw64/include/QtWidgets/qspinbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QSpinBox \
+ C:/msys64/mingw64/include/QtCore/QTimer \
+ C:/msys64/mingw64/include/QtCore/qtimer.h \
+ C:/msys64/mingw64/include/QtGui/QMouseEvent \
+ C:/msys64/mingw64/include/QtGui/qevent.h libs/gtkutil/combobox.h \
+ C:/msys64/mingw64/include/QtWidgets/QComboBox \
+ C:/msys64/mingw64/include/QtWidgets/qcombobox.h \
+ C:/msys64/mingw64/include/QtGui/QKeyEvent \
+ C:/msys64/mingw64/include/QtWidgets/QAbstractItemView \
+ C:/msys64/mingw64/include/QtWidgets/qabstractitemview.h

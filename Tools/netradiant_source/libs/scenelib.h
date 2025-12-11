@@ -40,6 +40,9 @@ class Selector;
 class SelectionTest;
 class SelectionIntersection;
 
+// forward declare Layer to avoid circular includes
+class Layer;
+
 class ComponentSelectionTestable
 {
 public:
@@ -177,8 +180,10 @@ private:
 
 public:
 	bool m_isRoot;
+	// per-node layer pointer: nullptr when not assigned
+	Layer* m_layer = nullptr;
 
-	bool isRoot(){
+	bool isRoot() const {
 		return m_isRoot;
 	}
 
@@ -188,7 +193,8 @@ public:
 		m_symbiot( symbiot ),
 		m_node( node ),
 		m_casts( casts ),
-		m_isRoot( false ){
+		m_isRoot( false ),
+		m_layer( nullptr ){
 	}
 	~Node(){
 	}

@@ -6,38 +6,38 @@ contrib/meshtex/GetInfoDialog.o: contrib/meshtex/GetInfoDialog.cpp \
  libs/generic/enumeration.h libs/math/vectorfwd.h include/modulesystem.h \
  libs/generic/static.h libs/debugging/debugging.h \
  libs/stream/textstream.h include/itextstream.h libs/generic/arrayrange.h \
- D:/msys64/mingw64/include/QtWidgets/QDialog \
- D:/msys64/mingw64/include/QtWidgets/qdialog.h \
- D:/msys64/mingw64/include/QtWidgets/QWidget \
- D:/msys64/mingw64/include/QtWidgets/qwidget.h \
- D:/msys64/mingw64/include/QtWidgets/QFormLayout \
- D:/msys64/mingw64/include/QtWidgets/qformlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QCheckBox \
- D:/msys64/mingw64/include/QtWidgets/qcheckbox.h \
- D:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
- D:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
- D:/msys64/mingw64/include/QtWidgets/QPushButton \
- D:/msys64/mingw64/include/QtWidgets/qpushbutton.h \
- D:/msys64/mingw64/include/QtWidgets/QGroupBox \
- D:/msys64/mingw64/include/QtWidgets/qgroupbox.h \
- D:/msys64/mingw64/include/QtWidgets/QRadioButton \
- D:/msys64/mingw64/include/QtWidgets/qradiobutton.h \
- D:/msys64/mingw64/include/QtWidgets/QGridLayout \
- D:/msys64/mingw64/include/QtWidgets/qgridlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QVBoxLayout \
- D:/msys64/mingw64/include/QtWidgets/qboxlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QHBoxLayout \
- D:/msys64/mingw64/include/QtWidgets/QFrame \
- D:/msys64/mingw64/include/QtWidgets/qframe.h \
- D:/msys64/mingw64/include/QtWidgets/QLabel \
- D:/msys64/mingw64/include/QtWidgets/qlabel.h libs/gtkutil/spinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
- D:/msys64/mingw64/include/QtWidgets/qspinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QSpinBox \
- D:/msys64/mingw64/include/QtCore/QTimer \
- D:/msys64/mingw64/include/QtCore/qtimer.h \
- D:/msys64/mingw64/include/QtGui/QMouseEvent \
- D:/msys64/mingw64/include/QtGui/qevent.h libs/generic/callback.h \
+ C:/msys64/mingw64/include/QtWidgets/QDialog \
+ C:/msys64/mingw64/include/QtWidgets/qdialog.h \
+ C:/msys64/mingw64/include/QtWidgets/QWidget \
+ C:/msys64/mingw64/include/QtWidgets/qwidget.h \
+ C:/msys64/mingw64/include/QtWidgets/QFormLayout \
+ C:/msys64/mingw64/include/QtWidgets/qformlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QCheckBox \
+ C:/msys64/mingw64/include/QtWidgets/qcheckbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
+ C:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QPushButton \
+ C:/msys64/mingw64/include/QtWidgets/qpushbutton.h \
+ C:/msys64/mingw64/include/QtWidgets/QGroupBox \
+ C:/msys64/mingw64/include/QtWidgets/qgroupbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QRadioButton \
+ C:/msys64/mingw64/include/QtWidgets/qradiobutton.h \
+ C:/msys64/mingw64/include/QtWidgets/QGridLayout \
+ C:/msys64/mingw64/include/QtWidgets/qgridlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QVBoxLayout \
+ C:/msys64/mingw64/include/QtWidgets/qboxlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QHBoxLayout \
+ C:/msys64/mingw64/include/QtWidgets/QFrame \
+ C:/msys64/mingw64/include/QtWidgets/qframe.h \
+ C:/msys64/mingw64/include/QtWidgets/QLabel \
+ C:/msys64/mingw64/include/QtWidgets/qlabel.h libs/gtkutil/spinbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
+ C:/msys64/mingw64/include/QtWidgets/qspinbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QSpinBox \
+ C:/msys64/mingw64/include/QtCore/QTimer \
+ C:/msys64/mingw64/include/QtCore/qtimer.h \
+ C:/msys64/mingw64/include/QtGui/QMouseEvent \
+ C:/msys64/mingw64/include/QtGui/qevent.h libs/generic/callback.h \
  libs/generic/functional.h libs/generic/referencecounted.h \
  contrib/meshtex/GetInfoDialog.h contrib/meshtex/SetScaleDialog.h \
  contrib/meshtex/MeshVisitor.h contrib/meshtex/MeshEntity.h \

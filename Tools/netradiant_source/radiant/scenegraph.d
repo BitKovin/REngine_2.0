@@ -10,5 +10,5 @@ radiant/scenegraph.o: radiant/scenegraph.cpp radiant/scenegraph.h \
  libs/math/pi.h libs/math/plane.h libs/transformlib.h \
  libs/math/quaternion.h libs/generic/reference.h libs/container/stack.h \
  libs/typesystem.h libs/generic/referencecounted.h libs/instancelib.h \
- radiant/treemodel.h D:/msys64/mingw64/include/QtCore/qnamespace.h \
+ radiant/treemodel.h C:/msys64/mingw64/include/QtCore/qnamespace.h \
  libs/modulesystem/singletonmodule.h libs/modulesystem/moduleregistry.h

@@ -12,8 +12,8 @@ contrib/bobtoolz/DBobView.o: contrib/bobtoolz/DBobView.cpp \
  libs/typesystem.h libs/generic/referencecounted.h include/irender.h \
  include/renderable.h libs/mathlib.h libs/bytebool.h \
  contrib/bobtoolz/funchandlers.h include/iglrender.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h include/qerplugin.h include/windowobserver.h \
  libs/generic/bitfield.h libs/generic/enumeration.h \
  contrib/bobtoolz/DEntity.h contrib/bobtoolz/DMap.h \

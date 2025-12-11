@@ -12,8 +12,8 @@ contrib/ufoaiplug/ufoai_filters.o: contrib/ufoaiplug/ufoai_filters.cpp \
  libs/generic/reference.h libs/container/stack.h libs/typesystem.h \
  libs/generic/referencecounted.h contrib/ufoaiplug/../../radiant/brush.h \
  include/iundo.h include/irender.h include/imap.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h include/ifilter.h include/nameable.h \
  include/moduleobserver.h include/cullable.h include/renderable.h \
  include/selectable.h include/editable.h include/mapfile.h \

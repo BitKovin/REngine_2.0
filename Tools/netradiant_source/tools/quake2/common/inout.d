@@ -2,22 +2,22 @@ tools/quake2/common/inout.o: tools/quake2/common/inout.c \
  tools/quake2/common/cmdlib.h libs/bytebool.h \
  tools/quake2/common/mathlib.h tools/quake2/common/polylib.h \
  tools/quake2/common/inout.h \
- D:/msys64/mingw64/include/libxml2/libxml/tree.h \
- D:/msys64/mingw64/include/libxml2/libxml/parser.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlversion.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlexports.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlstring.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlmemory.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlregexp.h \
- D:/msys64/mingw64/include/libxml2/libxml/dict.h \
- D:/msys64/mingw64/include/libxml2/libxml/hash.h \
- D:/msys64/mingw64/include/libxml2/libxml/valid.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlerror.h \
- D:/msys64/mingw64/include/libxml2/libxml/list.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlautomata.h \
- D:/msys64/mingw64/include/libxml2/libxml/entities.h \
- D:/msys64/mingw64/include/libxml2/libxml/encoding.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlIO.h \
- D:/msys64/mingw64/include/libxml2/libxml/SAX2.h \
- D:/msys64/mingw64/include/libxml2/libxml/threads.h libs/l_net/l_net.h \
+ C:/msys64/mingw64/include/libxml2/libxml/tree.h \
+ C:/msys64/mingw64/include/libxml2/libxml/parser.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlversion.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlexports.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlstring.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlmemory.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlregexp.h \
+ C:/msys64/mingw64/include/libxml2/libxml/dict.h \
+ C:/msys64/mingw64/include/libxml2/libxml/hash.h \
+ C:/msys64/mingw64/include/libxml2/libxml/valid.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlerror.h \
+ C:/msys64/mingw64/include/libxml2/libxml/list.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlautomata.h \
+ C:/msys64/mingw64/include/libxml2/libxml/entities.h \
+ C:/msys64/mingw64/include/libxml2/libxml/encoding.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlIO.h \
+ C:/msys64/mingw64/include/libxml2/libxml/SAX2.h \
+ C:/msys64/mingw64/include/libxml2/libxml/threads.h libs/l_net/l_net.h \
  include/stream_version.h

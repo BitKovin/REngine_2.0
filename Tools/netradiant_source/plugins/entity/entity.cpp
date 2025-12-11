@@ -31,6 +31,7 @@
 #include "pivot.h"
 
 #include "targetable.h"
+#include "customgizmos.h"
 #include "uniquenames.h"
 #include "namekeys.h"
 #include "stream/stringstream.h"
@@ -436,10 +437,13 @@ void Entity_Construct( EGameType gameType ){
 	RenderableNamedEntity::StaticShader::instance() = GlobalShaderCache().capture( "$TEXT" );
 
 	GlobalShaderCache().attachRenderable( StaticRenderableConnectionLines::instance() );
+	// Attach the custom gizmo renderer as well (no-op by default; CustomGizmos_DrawIfMatch is what you should modify)
+	GlobalShaderCache().attachRenderable( StaticRenderableCustomGizmos::instance() );
 }
 
 void Entity_Destroy(){
 	GlobalShaderCache().detachRenderable( StaticRenderableConnectionLines::instance() );
+	GlobalShaderCache().detachRenderable( StaticRenderableCustomGizmos::instance() );
 
 	GlobalShaderCache().release( "$PIVOT" );
 	GlobalShaderCache().release( "$TEXT" );

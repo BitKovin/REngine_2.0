@@ -11,8 +11,8 @@ plugins/entity/plugin.o: plugins/entity/plugin.cpp \
  libs/math/quaternion.h libs/generic/reference.h libs/container/stack.h \
  libs/typesystem.h libs/generic/referencecounted.h include/iundo.h \
  include/ieclass.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h include/ireference.h include/ifilter.h \
  include/preferencesystem.h include/qerplugin.h include/windowobserver.h \
  libs/generic/bitfield.h libs/generic/enumeration.h include/namespace.h \

@@ -110,6 +110,46 @@ inline void nodeset_diff( const UnsortedNodeSet& self, const UnsortedNodeSet& ot
 	std::set_difference( other_sorted.begin(), other_sorted.end(), sorted.begin(), sorted.end(), TraversableObserverInsertOutputIterator( observer ) );
 }
 
+template<class Check>
+bool Traversable_all_of_children( scene::Traversable* traversable, const Check&& check ){
+	class Check_all : public scene::Traversable::Walker
+	{
+		const Check m_check;
+	public:
+		mutable bool m_all = true; // true for empty container
+		Check_all( Check check ) : m_check( check ){
+		}
+		bool pre( scene::Node& node ) const override {
+			if( !m_check( node ) )
+				m_all = false;
+			return m_all;
+		}
+	} check_all( check );
+
+	traversable->traverse( check_all );
+	return check_all.m_all;
+}
+
+template<class Check>
+bool Traversable_any_of_children( scene::Traversable* traversable, const Check&& check ){
+	class Check_any : public scene::Traversable::Walker
+	{
+		const Check m_check;
+	public:
+		mutable bool m_any = false; // false for empty container
+		Check_any( Check check ) : m_check( check ){
+		}
+		bool pre( scene::Node& node ) const override {
+			if( m_check( node ) )
+				m_any = true;
+			return !m_any;
+		}
+	} check_any( check );
+
+	traversable->traverse( check_any );
+	return check_any.m_any;
+}
+
 /// \brief A sequence of node references which notifies an observer of inserts and deletions, and uses the global undo system to provide undo for modifications.
 class TraversableNodeSet : public scene::Traversable
 {

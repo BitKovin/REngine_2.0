@@ -653,6 +653,30 @@ Use pos_player_intermission instead.
 <targetname key="targetname" name="targetname">Can possibly be fired. (string (targetname))</targetname>
 </point>
 
+<point name="pos_navcon_next" color="1 0.8 0.267" box="-8 -8 -8 8 8 8">
+------ DESCRIPTION ------
+Navmesh connection point (start point).
+Link it from a pos_navcon_start and the navmesh generator will generate a navmesh connection.
+------ PROPERTIES ------
+<targetname key="targetname" name="targetname">[required] Name to use as target in a pos_navcon_start entity (or another pos_navcon_next in a chain). (string (targetname))</targetname>
+<real3 key="origin" name="origin">Position. (vec3_float)</real3>
+<target key="target" name="target">Set the name of another pos_navcon_next entity to connect them together in a chain. (string (target))</target>
+</point>
+
+<point name="pos_navcon_start" color="1 0.8 0.267" box="-8 -8 -8 8 8 8">
+------ DESCRIPTION ------
+Navmesh connection point (next point).
+Link it to a pos_navcon_next and the navmesh generator will generate a navmesh connection.
+------ SPAWNFLAGS ------
+<flag key="BIDIR" name="BIDIR" bit="0">Bidirectional.</flag>
+------ PROPERTIES ------
+<target key="target" name="target">[required] Set the name of a pos_navcon_next entity to connect them together. (string (target))</target>
+<real3 key="origin" name="origin">Position. (vec3_float)</real3>
+<string key="playerclasses" name="playerclasses">Space-separated list of player classes that can go this route.</string>
+<string key="playerteams" name="playerteams">Space-separated list of player teams that can go this route.</string>
+<real key="size" name="size" value="50">Radius. (float, def: 50)</real>
+</point>
+
 <point name="pos_target" color="0 0.498 0" box="-8 -8 -8 8 8 8">
 ------ DESCRIPTION ------
 Aiming target for entities like light, gfx_portal_camera and env_afx_push.
@@ -724,6 +748,7 @@ By default, all the clients will see the message.
 <flag key="HUMAN_TEAM" name="HUMAN_TEAM" bit="0">Only the human team players will see the message.</flag>
 <flag key="ALIEN_TEAM" name="ALIEN_TEAM" bit="1">Only the alien team players will see the message.</flag>
 <flag key="PRIVATE" name="PRIVATE" bit="2">Only the player that activates the target will see the message.</flag>
+<flag key="CHAT" name="CHAT" bit="3">Also print this message in the chat.</flag>
 ------ PROPERTIES ------
 <targetname key="targetname" name="targetname">[required] Must be someone&apos;s target for firing. (string (targetname))</targetname>
 <string key="message" name="message">text string to print on screen. (string)</string>
@@ -1315,12 +1340,15 @@ Particle system entity.
 ------ DESCRIPTION ------
 Portal camera.
 This camera is used to project its view onto a portal surface in the level through the intermediary of a gfx_portal_surface entity. Use the &quot;angles&quot; key or target a pos_target entity to set the camera&apos;s pointing direction.
-Both the setting &quot;angles&quot; key or targeting a pos_target methods can be used to aim the camera. However, the pos_target method is simpler. In both cases, the &quot;roll&quot; key must be used to set the roll angle.
+Both the setting &quot;angles&quot; key or targeting a pos_target methods can be used to aim the camera. However, the pos_target method is simpler. In both cases, the &quot;roll&quot; key may be used to set the roll angle.
+Legacy behaviour with &quot;angles&quot; causes portal views to have incorrect rotation for most angles. Use &quot;CORRECT_ROTATION&quot; to use new behaviour which allows specifying all 3 angles with the &quot;angles&quot; keyword and will produce the correct portal views.
+For cameras with valid targets that either use &quot;CORRECT_ROTATION&quot; or are bobbing cameras, default roll is set to 0, unless specified with the &quot;roll&quot; key. For cameras without valid targets that don&apos;t use &quot;CORRECT_ROTATION&quot; and either &quot;NO_ROTATION&quot;, &quot;FRAME25&quot; or &quot;FRAME75&quot; are set, roll is set to 0.
 By default camera is wiggling. Use spawnflags to make it rotate or stand still.
 ------ SPAWNFLAGS ------
 <flag key="FRAME25" name="FRAME25" bit="0">Slow rotation.</flag>
 <flag key="FRAME75" name="FRAME75" bit="1">Fast rotation.</flag>
 <flag key="NO_ROTATION" name="NO_ROTATION" bit="2">Disable camera wiggling.</flag>
+<flag key="CORRECT_ROTATION" name="CORRECT_ROTATION" bit="3">Use all 3 angles correctly.</flag>
 ------ PROPERTIES ------
 <targetname key="targetname" name="targetname">[required] A gfx_portal_surface portal surface indicator must point to this. (string (targetname))</targetname>
 <angle key="angle" name="angle">Short version of &quot;angles&quot;. (float (yaw))</angle>
@@ -1336,12 +1364,15 @@ RECOMMENDED TO USE: gfx_portal_camera
 ------ DESCRIPTION ------
 Portal camera.
 This camera is used to project its view onto a portal surface in the level through the intermediary of a gfx_portal_surface entity. Use the &quot;angles&quot; key or target a pos_target entity to set the camera&apos;s pointing direction.
-Both the setting &quot;angles&quot; key or targeting a pos_target methods can be used to aim the camera. However, the pos_target method is simpler. In both cases, the &quot;roll&quot; key must be used to set the roll angle.
+Both the setting &quot;angles&quot; key or targeting a pos_target methods can be used to aim the camera. However, the pos_target method is simpler. In both cases, the &quot;roll&quot; key may be used to set the roll angle.
+Legacy behaviour with &quot;angles&quot; causes portal views to have incorrect rotation for most angles. Use &quot;CORRECT_ROTATION&quot; to use new behaviour which allows specifying all 3 angles with the &quot;angles&quot; keyword and will produce the correct portal views.
+For cameras with valid targets that either use &quot;CORRECT_ROTATION&quot; or are bobbing cameras, default roll is set to 0, unless specified with the &quot;roll&quot; key. For cameras without valid targets that don&apos;t use &quot;CORRECT_ROTATION&quot; and either &quot;NO_ROTATION&quot;, &quot;FRAME25&quot; or &quot;FRAME75&quot; are set, roll is set to 0.
 By default camera is wiggling. Use spawnflags to make it rotate or stand still.
 ------ SPAWNFLAGS ------
 <flag key="FRAME25" name="FRAME25" bit="0">Slow rotation.</flag>
 <flag key="FRAME75" name="FRAME75" bit="1">Fast rotation.</flag>
 <flag key="NO_ROTATION" name="NO_ROTATION" bit="2">Disable camera wiggling.</flag>
+<flag key="CORRECT_ROTATION" name="CORRECT_ROTATION" bit="3">Use all 3 angles correctly.</flag>
 ------ PROPERTIES ------
 <targetname key="targetname" name="targetname">[required] A gfx_portal_surface portal surface indicator must point to this. (string (targetname))</targetname>
 <angle key="angle" name="angle">Short version of &quot;angles&quot;. (float (yaw))</angle>
@@ -1353,8 +1384,8 @@ By default camera is wiggling. Use spawnflags to make it rotate or stand still.
 
 <point name="gfx_portal_surface" color="1 0.498 0.247" box="-8 -8 -8 8 8 8">
 ------ DESCRIPTION ------
-Portal surface indicator. This will &quot;lock on&quot; the brush face closest to it and identify as a portal. The view displayed on the portal surface is the view of the gfx_portal_camera that this entity targets. Also used for mirrors (see Notes).
-The entity must be no farther than 64 units away from the portal surface to lock onto it. To make a mirror, apply the common/mirror shader to the surface, place this entity near it but don&apos;t target a gfx_portal_camera.
+Portal surface indicator. This will &quot;lock on&quot; the brush face closest to its center (defined as the geometric center of all vertices that make up the surface) and identify as a portal. The view displayed on the portal surface is the view of the gfx_portal_camera that this entity targets. Also used for mirrors (see Notes).
+To make a mirror, apply the common/mirror shader to the surface, place this entity near it but don&apos;t target a gfx_portal_camera.
 ------ PROPERTIES ------
 <real3 key="origin" name="origin">Position. (vec3_float)</real3>
 <target key="target" name="target">Point this to a gfx_portal_camera that &quot;sees&quot; the view you want to display on the portal. (string (target))</target>
@@ -1365,8 +1396,8 @@ The entity must be no farther than 64 units away from the portal surface to lock
 DEPRECATED! DEPRECATED! DEPRECATED!
 RECOMMENDED TO USE: gfx_portal_surface
 ------ DESCRIPTION ------
-Portal surface indicator. This will &quot;lock on&quot; the brush face closest to it and identify as a portal. The view displayed on the portal surface is the view of the gfx_portal_camera that this entity targets. Also used for mirrors (see Notes).
-The entity must be no farther than 64 units away from the portal surface to lock onto it. To make a mirror, apply the common/mirror shader to the surface, place this entity near it but don&apos;t target a gfx_portal_camera.
+Portal surface indicator. This will &quot;lock on&quot; the brush face closest to its center (defined as the geometric center of all vertices that make up the surface) and identify as a portal. The view displayed on the portal surface is the view of the gfx_portal_camera that this entity targets. Also used for mirrors (see Notes).
+To make a mirror, apply the common/mirror shader to the surface, place this entity near it but don&apos;t target a gfx_portal_camera.
 ------ PROPERTIES ------
 <real3 key="origin" name="origin">Position. (vec3_float)</real3>
 <target key="target" name="target">Point this to a gfx_portal_camera that &quot;sees&quot; the view you want to display on the portal. (string (target))</target>

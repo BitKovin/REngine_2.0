@@ -87,3 +87,15 @@ brushDef
 }
 }
 }
+// entity 1
+{
+"classname" "transformPoint"
+"targetname" "a"
+}
+// entity 2
+{
+"classname" "transformPoint"
+"origin" "32 32 0"
+"targetname" "test"
+"another" "a"
+}

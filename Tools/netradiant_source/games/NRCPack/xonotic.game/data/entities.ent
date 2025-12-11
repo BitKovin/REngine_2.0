@@ -1898,7 +1898,7 @@ Triggers once when the game starts, then no longer does anything.
 <real key="wait" name="wait">wait so many seconds before triggering</real>
 </point>
 
-<group name="trigger_viewlocation" color=".5 .5 .5" box="-8 -8 -8 8 8 8">
+<group name="trigger_viewlocation" color=".5 .5 .5">
 A brush that when entered changes the player's view to a position between target and target2, useful for side-scrolling stages
 -------- KEYS --------
 <target key="target" name="target">should point to a target_viewlocation_start entity</target>
@@ -2000,6 +2000,8 @@ You may want to target this by a race checkpoint, a teleporter, or a trigger_mul
 <flag key="AND" name="AND" bit="0">any items not listed will get removed, and none will get added</flag>
 <flag key="OR" name="OR" bit="1">the player may keep items not listed</flag>
 <flag key="ANDNOT" name="ANDNOT" bit="2">the items listed will get removed from the player</flag>
+-------- NOTES --------
+See also: target_give
 </point>
 
 <point name="target_kill" color="1 0 0" box="-8 -8 -8 8 8 8">
@@ -2991,7 +2993,7 @@ Secondary matches primary, but the vehicle can hold 2 extra players who act as g
 <integer key="team" name="team">5=red, 14=blue, 13=yellow, 10=pink</integer>
 </point>
 
-<group name="trigger_push_velocity" color=".5 .5 .5" box="-8 -8 -8 8 8 8">
+<group name="trigger_push_velocity" color=".5 .5 .5">
 This is used to create jump pads and launch ramps. It MUST point to a target_position or info_notnull entity to work.  This is similar to a jumppad, however, it may be configured to add to the player's velocity, as opposed to just setting it.
 -------- KEYS --------
 <target key="target" name="target">this points to the target_position to which the player will jump.</target>
@@ -3038,4 +3040,18 @@ example if +X and -X is active the x-direction will be ignored. The same is the 
 if whether +X nor -X is active. So if you want to accelerate the player up with 900u
 you have to set the speed value to 900 and activate the spawnflags +Z and LAUNCHER.
 </point>
+
+<point name="target_give" color="0 .5 0" box="-8 -8 -8 8 8 8">
+This is used to give ammo, weapons, health or items to the player who activates it.
+-------- KEYS --------
+<target key="target" name="Target">This points to the item(s) to give when activated.</target>
+<targetname key="targetname" name="Target Name">Activating trigger or spawn entity points to this.</targetname>
+-------- NOTES --------
+There are 2 ways to use this entity.
+a) Automatically give items to players when they spawn in the game: Make a spawn location entity like info_player_deathmatch or CTF respawn points target this entity, then make it target the item(s) to give to the player upon respawn.
+b) Give items to players during the game: Make a trigger_multiple target this entity, then make it target the item(s) to give to the player when the trigger is touched.
+
+See also: target_items
+</point>
+
 </classes>

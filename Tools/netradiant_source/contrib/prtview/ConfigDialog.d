@@ -8,26 +8,26 @@ contrib/prtview/ConfigDialog.o: contrib/prtview/ConfigDialog.cpp \
  contrib/prtview/prtview.h contrib/prtview/portals.h include/irender.h \
  libs/generic/callback.h libs/generic/functional.h include/renderable.h \
  libs/math/vector.h libs/string/string.h libs/memory/allocator.h \
- libs/generic/object.h D:/msys64/mingw64/include/QtWidgets/QDialog \
- D:/msys64/mingw64/include/QtWidgets/qdialog.h \
- D:/msys64/mingw64/include/QtWidgets/QVBoxLayout \
- D:/msys64/mingw64/include/QtWidgets/qboxlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QHBoxLayout \
- D:/msys64/mingw64/include/QtWidgets/QFormLayout \
- D:/msys64/mingw64/include/QtWidgets/qformlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QGroupBox \
- D:/msys64/mingw64/include/QtWidgets/qgroupbox.h \
- D:/msys64/mingw64/include/QtWidgets/QSlider \
- D:/msys64/mingw64/include/QtWidgets/qslider.h \
- D:/msys64/mingw64/include/QtWidgets/QLabel \
- D:/msys64/mingw64/include/QtWidgets/qlabel.h \
- D:/msys64/mingw64/include/QtWidgets/QPushButton \
- D:/msys64/mingw64/include/QtWidgets/qpushbutton.h \
- D:/msys64/mingw64/include/QtWidgets/QCheckBox \
- D:/msys64/mingw64/include/QtWidgets/qcheckbox.h libs/gtkutil/combobox.h \
- D:/msys64/mingw64/include/QtWidgets/QComboBox \
- D:/msys64/mingw64/include/QtWidgets/qcombobox.h \
- D:/msys64/mingw64/include/QtGui/QKeyEvent \
- D:/msys64/mingw64/include/QtGui/qevent.h \
- D:/msys64/mingw64/include/QtWidgets/QAbstractItemView \
- D:/msys64/mingw64/include/QtWidgets/qabstractitemview.h
+ libs/generic/object.h C:/msys64/mingw64/include/QtWidgets/QDialog \
+ C:/msys64/mingw64/include/QtWidgets/qdialog.h \
+ C:/msys64/mingw64/include/QtWidgets/QVBoxLayout \
+ C:/msys64/mingw64/include/QtWidgets/qboxlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QHBoxLayout \
+ C:/msys64/mingw64/include/QtWidgets/QFormLayout \
+ C:/msys64/mingw64/include/QtWidgets/qformlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QGroupBox \
+ C:/msys64/mingw64/include/QtWidgets/qgroupbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QSlider \
+ C:/msys64/mingw64/include/QtWidgets/qslider.h \
+ C:/msys64/mingw64/include/QtWidgets/QLabel \
+ C:/msys64/mingw64/include/QtWidgets/qlabel.h \
+ C:/msys64/mingw64/include/QtWidgets/QPushButton \
+ C:/msys64/mingw64/include/QtWidgets/qpushbutton.h \
+ C:/msys64/mingw64/include/QtWidgets/QCheckBox \
+ C:/msys64/mingw64/include/QtWidgets/qcheckbox.h libs/gtkutil/combobox.h \
+ C:/msys64/mingw64/include/QtWidgets/QComboBox \
+ C:/msys64/mingw64/include/QtWidgets/qcombobox.h \
+ C:/msys64/mingw64/include/QtGui/QKeyEvent \
+ C:/msys64/mingw64/include/QtGui/qevent.h \
+ C:/msys64/mingw64/include/QtWidgets/QAbstractItemView \
+ C:/msys64/mingw64/include/QtWidgets/qabstractitemview.h

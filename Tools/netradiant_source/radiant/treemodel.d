@@ -1,15 +1,15 @@
 radiant/treemodel.o: radiant/treemodel.cpp radiant/treemodel.h \
- D:/msys64/mingw64/include/QtCore/qnamespace.h libs/debugging/debugging.h \
+ C:/msys64/mingw64/include/QtCore/qnamespace.h libs/debugging/debugging.h \
  libs/stream/textstream.h include/itextstream.h libs/generic/static.h \
  libs/generic/arrayrange.h \
- D:/msys64/mingw64/include/QtCore/QAbstractItemModel \
- D:/msys64/mingw64/include/QtCore/qabstractitemmodel.h \
- D:/msys64/mingw64/include/QtGui/QBrush \
- D:/msys64/mingw64/include/QtGui/qbrush.h \
- D:/msys64/mingw64/include/QtWidgets/QApplication \
- D:/msys64/mingw64/include/QtWidgets/qapplication.h \
- D:/msys64/mingw64/include/QtGui/QPalette \
- D:/msys64/mingw64/include/QtGui/qpalette.h include/iscenegraph.h \
+ C:/msys64/mingw64/include/QtCore/QAbstractItemModel \
+ C:/msys64/mingw64/include/QtCore/qabstractitemmodel.h \
+ C:/msys64/mingw64/include/QtGui/QBrush \
+ C:/msys64/mingw64/include/QtGui/qbrush.h \
+ C:/msys64/mingw64/include/QtWidgets/QApplication \
+ C:/msys64/mingw64/include/QtWidgets/qapplication.h \
+ C:/msys64/mingw64/include/QtGui/QPalette \
+ C:/msys64/mingw64/include/QtGui/qpalette.h include/iscenegraph.h \
  libs/generic/constant.h libs/signal/signalfwd.h include/modulesystem.h \
  include/nameable.h libs/generic/callback.h libs/generic/functional.h \
  libs/scenelib.h include/iselection.h libs/math/vectorfwd.h \

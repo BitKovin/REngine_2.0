@@ -11,16 +11,16 @@ radiant/select.o: radiant/select.cpp radiant/select.h libs/math/vector.h \
  libs/typesystem.h libs/generic/referencecounted.h include/iundo.h \
  libs/stream/stringstream.h libs/signal/isignal.h libs/shaderlib.h \
  libs/character.h include/ishaders.h libs/gtkutil/idledraw.h \
- D:/msys64/mingw64/include/QtCore/QTimer \
- D:/msys64/mingw64/include/QtCore/qtimer.h libs/gtkutil/dialog.h \
- libs/gtkutil/widget.h D:/msys64/mingw64/include/QtWidgets/QWidget \
- D:/msys64/mingw64/include/QtWidgets/qwidget.h \
- D:/msys64/mingw64/include/QtCore/QEvent \
- D:/msys64/mingw64/include/QtCore/qcoreevent.h libs/gtkutil/clipboard.h \
+ C:/msys64/mingw64/include/QtCore/QTimer \
+ C:/msys64/mingw64/include/QtCore/qtimer.h libs/gtkutil/dialog.h \
+ libs/gtkutil/widget.h C:/msys64/mingw64/include/QtWidgets/QWidget \
+ C:/msys64/mingw64/include/QtWidgets/qwidget.h \
+ C:/msys64/mingw64/include/QtCore/QEvent \
+ C:/msys64/mingw64/include/QtCore/qcoreevent.h libs/gtkutil/clipboard.h \
  radiant/brushmanip.h libs/string/stringfwd.h radiant/brush.h \
  include/itexdef.h include/irender.h include/imap.h include/ibrush.h \
- include/igl.h D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ include/igl.h C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h include/ifilter.h include/nameable.h \
  include/moduleobserver.h include/cullable.h include/renderable.h \
  include/selectable.h include/editable.h include/mapfile.h \
@@ -35,43 +35,43 @@ radiant/select.o: radiant/select.cpp radiant/select.h libs/math/vector.h \
  radiant/mainframe.h include/qerplugin.h include/windowobserver.h \
  radiant/camwindow.h radiant/tools.h radiant/grid.h radiant/map.h \
  radiant/entityinspector.h radiant/csg.h radiant/commands.h \
- libs/gtkutil/accelerator.h D:/msys64/mingw64/include/QtGui/QKeySequence \
- D:/msys64/mingw64/include/QtGui/qkeysequence.h radiant/dialog.h \
- D:/msys64/mingw64/include/QtWidgets/QDialog \
- D:/msys64/mingw64/include/QtWidgets/qdialog.h radiant/xywindow.h \
+ libs/gtkutil/accelerator.h C:/msys64/mingw64/include/QtGui/QKeySequence \
+ C:/msys64/mingw64/include/QtGui/qkeysequence.h radiant/dialog.h \
+ C:/msys64/mingw64/include/QtWidgets/QDialog \
+ C:/msys64/mingw64/include/QtWidgets/qdialog.h radiant/xywindow.h \
  libs/signal/signal.h libs/gtkutil/cursor.h \
- D:/msys64/mingw64/include/QtGui/QMouseEvent \
- D:/msys64/mingw64/include/QtGui/qevent.h \
- D:/msys64/mingw64/include/QtGui/QCursor \
- D:/msys64/mingw64/include/QtGui/qcursor.h libs/gtkutil/xorrectangle.h \
+ C:/msys64/mingw64/include/QtGui/QMouseEvent \
+ C:/msys64/mingw64/include/QtGui/qevent.h \
+ C:/msys64/mingw64/include/QtGui/QCursor \
+ C:/msys64/mingw64/include/QtGui/qcursor.h libs/gtkutil/xorrectangle.h \
  libs/rect_t.h radiant/view.h libs/timer.h \
- D:/msys64/mingw64/include/QtWidgets/QGridLayout \
- D:/msys64/mingw64/include/QtWidgets/qgridlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
- D:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
- D:/msys64/mingw64/include/QtWidgets/QPushButton \
- D:/msys64/mingw64/include/QtWidgets/qpushbutton.h libs/gtkutil/spinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
- D:/msys64/mingw64/include/QtWidgets/qspinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QSpinBox \
- D:/msys64/mingw64/include/QtWidgets/QLabel \
- D:/msys64/mingw64/include/QtWidgets/qlabel.h radiant/preferences.h \
- D:/msys64/mingw64/include/libxml2/libxml/parser.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlversion.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlexports.h \
- D:/msys64/mingw64/include/libxml2/libxml/tree.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlstring.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlmemory.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlregexp.h \
- D:/msys64/mingw64/include/libxml2/libxml/dict.h \
- D:/msys64/mingw64/include/libxml2/libxml/hash.h \
- D:/msys64/mingw64/include/libxml2/libxml/valid.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlerror.h \
- D:/msys64/mingw64/include/libxml2/libxml/list.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlautomata.h \
- D:/msys64/mingw64/include/libxml2/libxml/entities.h \
- D:/msys64/mingw64/include/libxml2/libxml/encoding.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlIO.h \
- D:/msys64/mingw64/include/libxml2/libxml/SAX2.h \
- D:/msys64/mingw64/include/libxml2/libxml/threads.h \
+ C:/msys64/mingw64/include/QtWidgets/QGridLayout \
+ C:/msys64/mingw64/include/QtWidgets/qgridlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
+ C:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QPushButton \
+ C:/msys64/mingw64/include/QtWidgets/qpushbutton.h libs/gtkutil/spinbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
+ C:/msys64/mingw64/include/QtWidgets/qspinbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QSpinBox \
+ C:/msys64/mingw64/include/QtWidgets/QLabel \
+ C:/msys64/mingw64/include/QtWidgets/qlabel.h radiant/preferences.h \
+ C:/msys64/mingw64/include/libxml2/libxml/parser.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlversion.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlexports.h \
+ C:/msys64/mingw64/include/libxml2/libxml/tree.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlstring.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlmemory.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlregexp.h \
+ C:/msys64/mingw64/include/libxml2/libxml/dict.h \
+ C:/msys64/mingw64/include/libxml2/libxml/hash.h \
+ C:/msys64/mingw64/include/libxml2/libxml/valid.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlerror.h \
+ C:/msys64/mingw64/include/libxml2/libxml/list.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlautomata.h \
+ C:/msys64/mingw64/include/libxml2/libxml/entities.h \
+ C:/msys64/mingw64/include/libxml2/libxml/encoding.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlIO.h \
+ C:/msys64/mingw64/include/libxml2/libxml/SAX2.h \
+ C:/msys64/mingw64/include/libxml2/libxml/threads.h \
  include/preferencesystem.h

@@ -1733,22 +1733,37 @@ MD3, ASE, 3DS, OBJ, FM, LWO, MD2, MDC, MS3D model formats are supported.
 <targetname key="targetname" name="Target Name">The entity that requires an aiming direction points to this.</targetname>
 <string key="script_targetname" name="Script Target Name">Referred to by script as the recipient of set of instructions. Must be set if you want your script to reference this entity.</string>
 <real key="_lightmapscale" name="Lightmap Scale" value="1">Floating point value, scaling the resolution of lightmaps on this model (default 1.0) and Force Meta flag is enabled (or if model is using lightmapped shaders).</real>
+<real key="_ambient" name="Ambient Intensity" value="0">Adds a constant value to overall lighting (default 0, range 0 - 255). Only recommended use is small values for cosmetic purposes, as high values will have a tendency to flatten out variations in light and shade.</real>
+<color key="_color" name="Ambient Color" value="1 1 1">RGB color value for ambient and other global light parameters (default is 1 1 1).</color>
 <integer key="_castshadows" name="Shadow Caster Level" value="1">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
 <integer key="_receiveshadows" name="Shadow Receiver Level" value="1">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
 <texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: Omit the "textures/" prefix.</texture>
 <real key="_clipdepth" name="Autoclip thickness" value="2">Autoclip brushes thickness (default 2.0).</real>
 		-------- SPAWNFLAGS --------
-<flag key="CLIPMODEL" name="Clip Model" bit="1">Clips the model for player/weapon collisions; extruding every face along most perpendicular axial direction. For use on large architectural or terrain models, not for small decorative models.</flag>
 <flag key="FORCEMETA" name="Force Meta" bit="2">Toggles on q3map_forceMeta for lightmapped models. Converts model triangles to bsp metasurfaces.</flag>
-<flag key="EXTRUDE_FACE" name="Clip Face Normals" bit="3">extrude along the model face normals for clipping</flag>
-<flag key="EXTRUDE_TERRAIN" name="Clip Terrain" bit="4">extrude each surface of the model along its average axial direction ( up/down/west/east/north/south ); faces with not matching direction (or too steep) are clipped in default mode</flag>
-<flag key="COLOR_TO_ALPHA" name="Color-to-Alpha" bit="5">use the color value as alpha (for terrain blending)</flag>
-<flag key="EXTRUDE_VERTEX" name="Clip Vertex Normals" bit="7">extrude along the model vertex normals for clipping; accurate collisions, if normals are fine; bad ones are replaced with 45 degrees to face</flag>
-<flag key="PYRAMIDAL_CLIP" name="Pyramidal Clip" bit="8">pyramidal clipping brushes (4-sided); accurate collisions</flag>
-<flag key="EXTRUDE_DOWN" name="Extrude Down" bit="9">for horizontal terrain; when not possible, extrude in default mode</flag>
-<flag key="EXTRUDE_UP" name="Extrude Up" bit="10"/>
-<flag key="MAX_EXTRUDE" name="Max Extrude" bit="11">Extrude to the max/min point of every model surface to reduce bsp size (uses axial back plane)</flag>
-<flag key="AXIAL_BACKPLANE" name="AXIAL_BACKPLANE" bit="12">Use axial back plane for clipping brushes to effectively reduce bsp size; might cause unwanted collisions, make sure to -debugclip; negative _clipdepth / -clipdepth limits max thickness of resulting brushes (making non-axial backplane, if hit the limit)</flag>
+<flag key="COLOR_TO_ALPHA" name="COLOR_TO_ALPHA" bit="5">use the color value as alpha (for terrain blending)</flag>
+<flag key="CLIPMODEL" name="Clip Model" bit="1">Clips the model for player/weapon collisions; extruding every face along most perpendicular axial direction. For use on large architectural or terrain models, not for small decorative models.</flag>
+<flag key="PYRAMIDAL_CLIP" name="PYRAMIDAL_CLIP" bit="8">pyramidal clipping brushes (4-sided); accurate collisions</flag>
+<flag key="EXTRUDE_FACE" name="EXTRUDE_FACE_NORMALS" bit="3">extrude along the model face normals for clipping</flag>
+<flag key="EXTRUDE_TERRAIN" name="EXTRUDE_TERRAIN" bit="4">extrude each surface of the model along its average axial direction ( up/down/west/east/north/south ); faces with not matching direction (or too steep) are clipped in default mode</flag>
+<flag key="EXTRUDE_DOWN" name="EXTRUDE_DOWNWARDS" bit="9">for horizontal terrain; when not possible, extrude in default mode</flag>
+<flag key="EXTRUDE_UP" name="EXTRUDE_UPWARDS" bit="10">-//-</flag>
+<flag key="AXIAL_BACKPLANE" name="AXIAL_BACKPLANE" bit="12">use axial back plane for clipping brushes to effectively reduce bsp size; might cause unwanted collisions, make sure to -debugclip; negative _clipdepth / -clipdepth limits max thickness of resulting brushes (making non-axial backplane, if hit the limit)</flag>
+<flag key="MAX_EXTRUDE" name="MAX_EXTRUDE" bit="11">Option for TERRAIN/DOWN/UP: extrude to the max/min point of every model surface to reduce bsp size (uses axial back plane)</flag>
+<flag key="EXTRUDE_VERTEX" name="EXTRUDE_VERTEX_NORMALS" bit="7">extrude along the model vertex normals for clipping; accurate collisions, if normals are fine; bad ones are replaced with 45 degrees to face</flag>
+--- other clipping modes ---
+PYRAMIDAL_CLIP + AXIAL_BACKPLANE - pyramid with 3 of 4 sides axial (->small bsp)
+EXTRUDE_FACE_NORMALS + PYRAMIDAL_CLIP - truncated pyramid with 45 degrees sides
+EXTRUDE_DOWNWARDS + EXTRUDE_UPWARDS
+AXIAL_BACKPLANE + EXTRUDE_TERRAIN
+AXIAL_BACKPLANE + EXTRUDE_DOWNWARDS
+AXIAL_BACKPLANE + EXTRUDE_UPWARDS
+AXIAL_BACKPLANE + EXTRUDE_DOWNWARDS + EXTRUDE_UPWARDS
+MAX_EXTRUDE + EXTRUDE_TERRAIN
+MAX_EXTRUDE + EXTRUDE_DOWNWARDS
+MAX_EXTRUDE + EXTRUDE_UPWARDS
+MAX_EXTRUDE + EXTRUDE_DOWNWARDS + EXTRUDE_UPWARDS
+EXTRUDE_VERTEX_NORMALS + PYRAMIDAL_CLIP - vertex normals mode: don't check for sides, sticking outwards
 
 	</point>
 	<point name="misc_G2model" color="1.000000 0.000000 0.000000" box="-16 -16 -16 16 16 16">

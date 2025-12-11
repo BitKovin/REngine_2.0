@@ -17,7 +17,7 @@
   shaderpath="scripts"
   archivetypes="pk3"
   texturetypes="tga jpg png"
-  modeltypes="md3 mdc picoterrain ase lwo obj 3ds"
+  modeltypes="*"
   maptypes="mapq3"
   shaders="quake3"
   entityclass="quake3"

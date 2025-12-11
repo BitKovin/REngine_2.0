@@ -9,41 +9,41 @@ radiant/main.o: radiant/main.cpp radiant/main.h include/version.h \
  include/qerplugin.h libs/generic/vector.h libs/signal/signalfwd.h \
  include/windowobserver.h libs/generic/bitfield.h \
  libs/generic/enumeration.h libs/math/vectorfwd.h libs/gtkutil/image.h \
- D:/msys64/mingw64/include/QtGui/QPixmap \
- D:/msys64/mingw64/include/QtGui/qpixmap.h \
- D:/msys64/mingw64/include/QtGui/QIcon \
- D:/msys64/mingw64/include/QtGui/qicon.h radiant/console.h \
+ C:/msys64/mingw64/include/QtGui/QPixmap \
+ C:/msys64/mingw64/include/QtGui/qpixmap.h \
+ C:/msys64/mingw64/include/QtGui/QIcon \
+ C:/msys64/mingw64/include/QtGui/qicon.h radiant/console.h \
  radiant/texwindow.h radiant/map.h include/iscenegraph.h \
  libs/string/stringfwd.h radiant/mainframe.h libs/gtkutil/idledraw.h \
- D:/msys64/mingw64/include/QtCore/QTimer \
- D:/msys64/mingw64/include/QtCore/qtimer.h libs/gtkutil/widget.h \
- D:/msys64/mingw64/include/QtWidgets/QWidget \
- D:/msys64/mingw64/include/QtWidgets/qwidget.h \
- D:/msys64/mingw64/include/QtCore/QEvent \
- D:/msys64/mingw64/include/QtCore/qcoreevent.h radiant/commands.h \
- libs/gtkutil/accelerator.h D:/msys64/mingw64/include/QtGui/QKeySequence \
- D:/msys64/mingw64/include/QtGui/qkeysequence.h radiant/preferences.h \
- D:/msys64/mingw64/include/libxml2/libxml/parser.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlversion.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlexports.h \
- D:/msys64/mingw64/include/libxml2/libxml/tree.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlstring.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlmemory.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlregexp.h \
- D:/msys64/mingw64/include/libxml2/libxml/dict.h \
- D:/msys64/mingw64/include/libxml2/libxml/hash.h \
- D:/msys64/mingw64/include/libxml2/libxml/valid.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlerror.h \
- D:/msys64/mingw64/include/libxml2/libxml/list.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlautomata.h \
- D:/msys64/mingw64/include/libxml2/libxml/entities.h \
- D:/msys64/mingw64/include/libxml2/libxml/encoding.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlIO.h \
- D:/msys64/mingw64/include/libxml2/libxml/SAX2.h \
- D:/msys64/mingw64/include/libxml2/libxml/threads.h radiant/dialog.h \
- libs/gtkutil/dialog.h D:/msys64/mingw64/include/QtWidgets/QDialog \
- D:/msys64/mingw64/include/QtWidgets/qdialog.h radiant/environment.h \
+ C:/msys64/mingw64/include/QtCore/QTimer \
+ C:/msys64/mingw64/include/QtCore/qtimer.h libs/gtkutil/widget.h \
+ C:/msys64/mingw64/include/QtWidgets/QWidget \
+ C:/msys64/mingw64/include/QtWidgets/qwidget.h \
+ C:/msys64/mingw64/include/QtCore/QEvent \
+ C:/msys64/mingw64/include/QtCore/qcoreevent.h radiant/commands.h \
+ libs/gtkutil/accelerator.h C:/msys64/mingw64/include/QtGui/QKeySequence \
+ C:/msys64/mingw64/include/QtGui/qkeysequence.h radiant/preferences.h \
+ C:/msys64/mingw64/include/libxml2/libxml/parser.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlversion.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlexports.h \
+ C:/msys64/mingw64/include/libxml2/libxml/tree.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlstring.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlmemory.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlregexp.h \
+ C:/msys64/mingw64/include/libxml2/libxml/dict.h \
+ C:/msys64/mingw64/include/libxml2/libxml/hash.h \
+ C:/msys64/mingw64/include/libxml2/libxml/valid.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlerror.h \
+ C:/msys64/mingw64/include/libxml2/libxml/list.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlautomata.h \
+ C:/msys64/mingw64/include/libxml2/libxml/entities.h \
+ C:/msys64/mingw64/include/libxml2/libxml/encoding.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlIO.h \
+ C:/msys64/mingw64/include/libxml2/libxml/SAX2.h \
+ C:/msys64/mingw64/include/libxml2/libxml/threads.h radiant/dialog.h \
+ libs/gtkutil/dialog.h C:/msys64/mingw64/include/QtWidgets/QDialog \
+ C:/msys64/mingw64/include/QtWidgets/qdialog.h radiant/environment.h \
  radiant/referencecache.h radiant/stacktrace.h radiant/error.h \
- D:/msys64/mingw64/include/QtWidgets/QApplication \
- D:/msys64/mingw64/include/QtWidgets/qapplication.h \
+ C:/msys64/mingw64/include/QtWidgets/QApplication \
+ C:/msys64/mingw64/include/QtWidgets/qapplication.h \
  libs/gtkutil/glwidget.h

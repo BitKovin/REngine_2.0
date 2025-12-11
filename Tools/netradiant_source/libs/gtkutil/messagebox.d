@@ -4,5 +4,5 @@ libs/gtkutil/messagebox.o: libs/gtkutil/messagebox.cpp \
  libs/generic/bitfield.h libs/generic/enumeration.h libs/math/vectorfwd.h \
  include/modulesystem.h libs/generic/static.h libs/debugging/debugging.h \
  libs/stream/textstream.h include/itextstream.h libs/generic/arrayrange.h \
- D:/msys64/mingw64/include/QtWidgets/QMessageBox \
- D:/msys64/mingw64/include/QtWidgets/qmessagebox.h
+ C:/msys64/mingw64/include/QtWidgets/QMessageBox \
+ C:/msys64/mingw64/include/QtWidgets/qmessagebox.h

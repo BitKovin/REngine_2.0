@@ -14,12 +14,4 @@ tools/quake3/q3map2/model.o: tools/quake3/q3map2/model.cpp \
  libs/stream/textstream.h include/itextstream.h libs/generic/static.h \
  libs/stream/stringstream.h tools/quake3/common/bitflags.h \
  tools/quake3/common/maxworld.h tools/quake3/q3map2/games.h \
- tools/quake3/q3map2/model.h libs/assimp/include/assimp/Importer.hpp \
- libs/assimp/include/assimp/importerdesc.h \
- libs/assimp/include/assimp/Logger.hpp \
- libs/assimp/include/assimp/TinyFormatter.h \
- libs/assimp/include/assimp/DefaultLogger.hpp \
- libs/assimp/include/assimp/IOSystem.hpp \
- libs/assimp/include/assimp/MemoryIOWrapper.h \
- libs/assimp/include/assimp/postprocess.h \
- libs/assimp/include/assimp/scene.h
+ tools/quake3/q3map2/model.h

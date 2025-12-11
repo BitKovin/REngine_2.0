@@ -23,6 +23,6 @@ contrib/bobtoolz/funchandlers-GTK.o: \
  contrib/bobtoolz/misc.h contrib/bobtoolz/ScriptParser.h \
  contrib/bobtoolz/DTreePlanter.h libs/signal/isignal.h \
  contrib/bobtoolz/shapes.h contrib/bobtoolz/lists.h \
- D:/msys64/mingw64/include/QtCore/QStringList \
- D:/msys64/mingw64/include/QtCore/qstringlist.h \
+ C:/msys64/mingw64/include/QtCore/QStringList \
+ C:/msys64/mingw64/include/QtCore/qstringlist.h \
  contrib/bobtoolz/visfind.h contrib/bobtoolz/bsploader.h include/iundo.h

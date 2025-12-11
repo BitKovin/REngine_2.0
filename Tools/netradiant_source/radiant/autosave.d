@@ -13,30 +13,30 @@ radiant/autosave.o: radiant/autosave.cpp radiant/autosave.h \
  libs/generic/reference.h libs/container/stack.h libs/typesystem.h \
  libs/generic/referencecounted.h include/mapfile.h radiant/map.h \
  libs/string/stringfwd.h radiant/mainframe.h libs/gtkutil/idledraw.h \
- D:/msys64/mingw64/include/QtCore/QTimer \
- D:/msys64/mingw64/include/QtCore/qtimer.h libs/gtkutil/widget.h \
- D:/msys64/mingw64/include/QtWidgets/QWidget \
- D:/msys64/mingw64/include/QtWidgets/qwidget.h \
- D:/msys64/mingw64/include/QtCore/QEvent \
- D:/msys64/mingw64/include/QtCore/qcoreevent.h radiant/qe3.h \
- radiant/preferences.h D:/msys64/mingw64/include/libxml2/libxml/parser.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlversion.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlexports.h \
- D:/msys64/mingw64/include/libxml2/libxml/tree.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlstring.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlmemory.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlregexp.h \
- D:/msys64/mingw64/include/libxml2/libxml/dict.h \
- D:/msys64/mingw64/include/libxml2/libxml/hash.h \
- D:/msys64/mingw64/include/libxml2/libxml/valid.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlerror.h \
- D:/msys64/mingw64/include/libxml2/libxml/list.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlautomata.h \
- D:/msys64/mingw64/include/libxml2/libxml/entities.h \
- D:/msys64/mingw64/include/libxml2/libxml/encoding.h \
- D:/msys64/mingw64/include/libxml2/libxml/xmlIO.h \
- D:/msys64/mingw64/include/libxml2/libxml/SAX2.h \
- D:/msys64/mingw64/include/libxml2/libxml/threads.h radiant/dialog.h \
- libs/gtkutil/dialog.h D:/msys64/mingw64/include/QtWidgets/QDialog \
- D:/msys64/mingw64/include/QtWidgets/qdialog.h include/preferencesystem.h \
+ C:/msys64/mingw64/include/QtCore/QTimer \
+ C:/msys64/mingw64/include/QtCore/qtimer.h libs/gtkutil/widget.h \
+ C:/msys64/mingw64/include/QtWidgets/QWidget \
+ C:/msys64/mingw64/include/QtWidgets/qwidget.h \
+ C:/msys64/mingw64/include/QtCore/QEvent \
+ C:/msys64/mingw64/include/QtCore/qcoreevent.h radiant/qe3.h \
+ radiant/preferences.h C:/msys64/mingw64/include/libxml2/libxml/parser.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlversion.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlexports.h \
+ C:/msys64/mingw64/include/libxml2/libxml/tree.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlstring.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlmemory.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlregexp.h \
+ C:/msys64/mingw64/include/libxml2/libxml/dict.h \
+ C:/msys64/mingw64/include/libxml2/libxml/hash.h \
+ C:/msys64/mingw64/include/libxml2/libxml/valid.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlerror.h \
+ C:/msys64/mingw64/include/libxml2/libxml/list.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlautomata.h \
+ C:/msys64/mingw64/include/libxml2/libxml/entities.h \
+ C:/msys64/mingw64/include/libxml2/libxml/encoding.h \
+ C:/msys64/mingw64/include/libxml2/libxml/xmlIO.h \
+ C:/msys64/mingw64/include/libxml2/libxml/SAX2.h \
+ C:/msys64/mingw64/include/libxml2/libxml/threads.h radiant/dialog.h \
+ libs/gtkutil/dialog.h C:/msys64/mingw64/include/QtWidgets/QDialog \
+ C:/msys64/mingw64/include/QtWidgets/qdialog.h include/preferencesystem.h \
  libs/stringio.h include/iscriplib.h

@@ -14,17 +14,17 @@ plugins/entity/doom3group.o: plugins/entity/doom3group.cpp \
  include/iundo.h include/mapfile.h libs/container/container.h \
  libs/entitylib.h include/ireference.h include/ientity.h \
  libs/string/string.h include/irender.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h include/selectable.h libs/string/pooledstring.h \
  libs/container/hashtable.h libs/container/hashfunc.h \
  libs/container/array.h libs/eclasslib.h include/ieclass.h libs/render.h \
  libs/stream/stringstream.h libs/pivot.h plugins/entity/targetable.h \
- libs/math/line.h libs/stringio.h include/iscriplib.h \
- plugins/entity/entity.h plugins/entity/origin.h plugins/entity/angle.h \
- plugins/entity/rotation.h plugins/entity/model.h libs/os/path.h \
- include/moduleobserver.h plugins/entity/filters.h include/ifilter.h \
- plugins/entity/namedentity.h include/nameable.h \
+ libs/math/line.h plugins/entity/customgizmos.h libs/stringio.h \
+ include/iscriplib.h plugins/entity/entity.h plugins/entity/origin.h \
+ plugins/entity/angle.h plugins/entity/rotation.h plugins/entity/model.h \
+ libs/os/path.h include/moduleobserver.h plugins/entity/filters.h \
+ include/ifilter.h plugins/entity/namedentity.h include/nameable.h \
  plugins/entity/keyobservers.h plugins/entity/namekeys.h \
  include/namespace.h plugins/entity/curve.h libs/math/curve.h \
  libs/signal/signal.h libs/signal/isignal.h plugins/entity/modelskinkey.h

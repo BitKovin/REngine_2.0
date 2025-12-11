@@ -8,8 +8,8 @@ contrib/prtview/prtview.o: contrib/prtview/prtview.cpp \
  libs/generic/bitfield.h libs/generic/enumeration.h libs/math/vectorfwd.h \
  include/modulesystem.h libs/debugging/debugging.h include/iscenegraph.h \
  include/iglrender.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h include/iplugin.h contrib/prtview/portals.h \
  include/irender.h libs/generic/callback.h libs/generic/functional.h \
  include/renderable.h libs/math/vector.h contrib/prtview/AboutDialog.h \

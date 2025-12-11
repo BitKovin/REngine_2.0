@@ -18,8 +18,8 @@ radiant/patchmodule.o: radiant/patchmodule.cpp radiant/patchmodule.h \
  libs/selectionlib.h libs/traverselib.h libs/undolib.h include/iundo.h \
  include/mapfile.h libs/container/container.h libs/render.h \
  include/irender.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h libs/container/array.h libs/stringio.h \
  include/iscriplib.h libs/shaderlib.h libs/character.h include/ishaders.h \
  libs/texturelib.h libs/dragplanes.h radiant/brush_primit.h \

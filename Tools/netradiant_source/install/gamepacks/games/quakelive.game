@@ -19,7 +19,7 @@
   shaderpath="scripts"
   archivetypes="pk3"
   texturetypes="tga jpg png"
-  modeltypes="md3 ase lwo obj 3ds picoterrain"
+  modeltypes="*"
   soundtypes="wav ogg"
   maptypes="mapq3"
   shaders="quake3"

@@ -16,10 +16,7 @@ plugins/assmodel/model.o: plugins/assmodel/model.cpp \
  include/ishaders.h libs/instancelib.h libs/traverselib.h libs/undolib.h \
  include/iundo.h include/mapfile.h libs/container/container.h \
  libs/render.h include/irender.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
- libs/gtkutil/glfont.h libs/container/array.h \
- libs/assimp/include/assimp/Importer.hpp \
- libs/assimp/include/assimp/postprocess.h \
- libs/assimp/include/assimp/scene.h libs/os/path.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ libs/gtkutil/glfont.h libs/container/array.h libs/os/path.h \
  libs/stream/stringstream.h

@@ -1,35 +1,35 @@
 radiant/patchdialog.o: radiant/patchdialog.cpp radiant/patchdialog.h \
  include/itexdef.h libs/debugging/debugging.h libs/stream/textstream.h \
  include/itextstream.h libs/generic/static.h libs/generic/arrayrange.h \
- D:/msys64/mingw64/include/QtWidgets/QGroupBox \
- D:/msys64/mingw64/include/QtWidgets/qgroupbox.h \
- D:/msys64/mingw64/include/QtWidgets/QHBoxLayout \
- D:/msys64/mingw64/include/QtWidgets/qboxlayout.h libs/gtkutil/spinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
- D:/msys64/mingw64/include/QtWidgets/qspinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QSpinBox \
- D:/msys64/mingw64/include/QtCore/QTimer \
- D:/msys64/mingw64/include/QtCore/qtimer.h \
- D:/msys64/mingw64/include/QtWidgets/QLabel \
- D:/msys64/mingw64/include/QtWidgets/qlabel.h \
- D:/msys64/mingw64/include/QtGui/QMouseEvent \
- D:/msys64/mingw64/include/QtGui/qevent.h libs/gtkutil/nonmodal.h \
- libs/gtkutil/lineedit.h D:/msys64/mingw64/include/QtWidgets/QLineEdit \
- D:/msys64/mingw64/include/QtWidgets/qlineedit.h \
- D:/msys64/mingw64/include/QtGui/QKeyEvent \
- D:/msys64/mingw64/include/QtWidgets/QCompleter \
- D:/msys64/mingw64/include/QtWidgets/qcompleter.h \
- D:/msys64/mingw64/include/QtWidgets/QAbstractItemView \
- D:/msys64/mingw64/include/QtWidgets/qabstractitemview.h \
+ C:/msys64/mingw64/include/QtWidgets/QGroupBox \
+ C:/msys64/mingw64/include/QtWidgets/qgroupbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QHBoxLayout \
+ C:/msys64/mingw64/include/QtWidgets/qboxlayout.h libs/gtkutil/spinbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
+ C:/msys64/mingw64/include/QtWidgets/qspinbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QSpinBox \
+ C:/msys64/mingw64/include/QtCore/QTimer \
+ C:/msys64/mingw64/include/QtCore/qtimer.h \
+ C:/msys64/mingw64/include/QtWidgets/QLabel \
+ C:/msys64/mingw64/include/QtWidgets/qlabel.h \
+ C:/msys64/mingw64/include/QtGui/QMouseEvent \
+ C:/msys64/mingw64/include/QtGui/qevent.h libs/gtkutil/nonmodal.h \
+ libs/gtkutil/lineedit.h C:/msys64/mingw64/include/QtWidgets/QLineEdit \
+ C:/msys64/mingw64/include/QtWidgets/qlineedit.h \
+ C:/msys64/mingw64/include/QtGui/QKeyEvent \
+ C:/msys64/mingw64/include/QtWidgets/QCompleter \
+ C:/msys64/mingw64/include/QtWidgets/qcompleter.h \
+ C:/msys64/mingw64/include/QtWidgets/QAbstractItemView \
+ C:/msys64/mingw64/include/QtWidgets/qabstractitemview.h \
  libs/generic/callback.h libs/generic/functional.h radiant/dialog.h \
  libs/gtkutil/dialog.h libs/string/string.h libs/memory/allocator.h \
- libs/generic/object.h D:/msys64/mingw64/include/QtWidgets/QDialog \
- D:/msys64/mingw64/include/QtWidgets/qdialog.h radiant/gtkdlgs.h \
+ libs/generic/object.h C:/msys64/mingw64/include/QtWidgets/QDialog \
+ C:/msys64/mingw64/include/QtWidgets/qdialog.h radiant/gtkdlgs.h \
  libs/string/stringfwd.h radiant/mainframe.h libs/gtkutil/idledraw.h \
- libs/gtkutil/widget.h D:/msys64/mingw64/include/QtWidgets/QWidget \
- D:/msys64/mingw64/include/QtWidgets/qwidget.h \
- D:/msys64/mingw64/include/QtCore/QEvent \
- D:/msys64/mingw64/include/QtCore/qcoreevent.h include/qerplugin.h \
+ libs/gtkutil/widget.h C:/msys64/mingw64/include/QtWidgets/QWidget \
+ C:/msys64/mingw64/include/QtWidgets/qwidget.h \
+ C:/msys64/mingw64/include/QtCore/QEvent \
+ C:/msys64/mingw64/include/QtCore/qcoreevent.h include/qerplugin.h \
  libs/generic/constant.h libs/generic/vector.h libs/signal/signalfwd.h \
  include/windowobserver.h libs/generic/bitfield.h \
  libs/generic/enumeration.h libs/math/vectorfwd.h include/modulesystem.h \
@@ -45,8 +45,8 @@ radiant/patchdialog.o: radiant/patchdialog.cpp radiant/patchdialog.h \
  libs/selectionlib.h libs/traverselib.h libs/undolib.h include/iundo.h \
  include/mapfile.h libs/container/container.h libs/render.h \
  include/irender.h include/igl.h \
- D:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
- D:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
+ C:/msys64/mingw64/include/QtGui/QOpenGLFunctions_2_0 \
+ C:/msys64/mingw64/include/QtGui/qopenglfunctions_2_0.h \
  libs/gtkutil/glfont.h libs/container/array.h libs/stringio.h \
  include/iscriplib.h libs/shaderlib.h libs/character.h include/ishaders.h \
  libs/texturelib.h libs/dragplanes.h radiant/brush_primit.h

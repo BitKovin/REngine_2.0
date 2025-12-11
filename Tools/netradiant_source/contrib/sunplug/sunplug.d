@@ -14,24 +14,24 @@ contrib/sunplug/sunplug.o: contrib/sunplug/sunplug.cpp \
  libs/container/stack.h libs/typesystem.h libs/generic/referencecounted.h \
  include/qerplugin.h include/windowobserver.h libs/generic/bitfield.h \
  libs/generic/enumeration.h libs/gtkutil/spinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
- D:/msys64/mingw64/include/QtWidgets/qspinbox.h \
- D:/msys64/mingw64/include/QtWidgets/QSpinBox \
- D:/msys64/mingw64/include/QtCore/QTimer \
- D:/msys64/mingw64/include/QtCore/qtimer.h \
- D:/msys64/mingw64/include/QtWidgets/QLabel \
- D:/msys64/mingw64/include/QtWidgets/qlabel.h \
- D:/msys64/mingw64/include/QtGui/QMouseEvent \
- D:/msys64/mingw64/include/QtGui/qevent.h \
- D:/msys64/mingw64/include/QtWidgets/QDialog \
- D:/msys64/mingw64/include/QtWidgets/qdialog.h \
- D:/msys64/mingw64/include/QtWidgets/QPushButton \
- D:/msys64/mingw64/include/QtWidgets/qpushbutton.h \
- D:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
- D:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
- D:/msys64/mingw64/include/QtWidgets/QFrame \
- D:/msys64/mingw64/include/QtWidgets/qframe.h \
- D:/msys64/mingw64/include/QtWidgets/QFormLayout \
- D:/msys64/mingw64/include/QtWidgets/qformlayout.h \
- D:/msys64/mingw64/include/QtWidgets/QHBoxLayout \
- D:/msys64/mingw64/include/QtWidgets/qboxlayout.h
+ C:/msys64/mingw64/include/QtWidgets/QDoubleSpinBox \
+ C:/msys64/mingw64/include/QtWidgets/qspinbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QSpinBox \
+ C:/msys64/mingw64/include/QtCore/QTimer \
+ C:/msys64/mingw64/include/QtCore/qtimer.h \
+ C:/msys64/mingw64/include/QtWidgets/QLabel \
+ C:/msys64/mingw64/include/QtWidgets/qlabel.h \
+ C:/msys64/mingw64/include/QtGui/QMouseEvent \
+ C:/msys64/mingw64/include/QtGui/qevent.h \
+ C:/msys64/mingw64/include/QtWidgets/QDialog \
+ C:/msys64/mingw64/include/QtWidgets/qdialog.h \
+ C:/msys64/mingw64/include/QtWidgets/QPushButton \
+ C:/msys64/mingw64/include/QtWidgets/qpushbutton.h \
+ C:/msys64/mingw64/include/QtWidgets/QDialogButtonBox \
+ C:/msys64/mingw64/include/QtWidgets/qdialogbuttonbox.h \
+ C:/msys64/mingw64/include/QtWidgets/QFrame \
+ C:/msys64/mingw64/include/QtWidgets/qframe.h \
+ C:/msys64/mingw64/include/QtWidgets/QFormLayout \
+ C:/msys64/mingw64/include/QtWidgets/qformlayout.h \
+ C:/msys64/mingw64/include/QtWidgets/QHBoxLayout \
+ C:/msys64/mingw64/include/QtWidgets/qboxlayout.h

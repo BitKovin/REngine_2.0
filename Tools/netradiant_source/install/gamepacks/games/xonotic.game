@@ -17,7 +17,7 @@
   shaderpath="scripts"
   archivetypes="pk3"
   texturetypes="tga jpg png dds"
-  modeltypes="md3 mdl md2 ase obj"
+  modeltypes="*"
   maptypes="mapq3"
   soundtypes="ogg wav"
   shaders="quake3"
