@@ -9,7 +9,6 @@
 #include "../imgui/imgui_impl_bgfx.h"
 #include "../imgui/imgui_impl_sdl2.h"
 #include <bgfx/bgfx.h>
-#include <bgfx/platform.h>
 #include <BgfxResetManager.h>
 #include <deque>
 #include <algorithm>
@@ -167,15 +166,15 @@ int main(int argc, char* args[]) {
     bool handleSet = false;
 #if defined(SDL_VIDEO_DRIVER_X11)
     if (wmInfo.subsystem == SDL_SYSWM_X11) {
-        init.platformData.nwh = (void*)wmInfo.info.x11.window;
-        init.platformData.ndt = wmInfo.info.x11.display;   // also needed on X11
+        init.swapChain.nwh = (void*)wmInfo.info.x11.window;
+        init.swapChain.ndt = wmInfo.info.x11.display;   // also needed on X11
         handleSet = true;
     }
 #endif
 #if defined(SDL_VIDEO_DRIVER_WAYLAND)
     if (wmInfo.subsystem == SDL_SYSWM_WAYLAND) {
-        init.platformData.nwh = wmInfo.info.wl.surface;
-        init.platformData.ndt = wmInfo.info.wl.display;
+        init.swapChain.nwh = wmInfo.info.wl.surface;
+        init.swapChain.ndt = wmInfo.info.wl.display;
         handleSet = true;
     }
 #endif
@@ -185,14 +184,16 @@ int main(int argc, char* args[]) {
         return 1;
     }
 
-    init.resolution.width = 800;
-    init.resolution.height = 600;
-    init.resolution.reset = BGFX_RESET_NONE;   // no vsync
+    init.swapChain.width = 800;
+    init.swapChain.height = 600;
+    init.swapChain.flags = BGFX_RESET_NONE;   // no vsync
 
     if (!bgfx::init(init)) {
         fprintf(stderr, "bgfx::init failed!\n");
         return 1;
     }
+
+    BgfxResetManager::swapChainPtr = &init.swapChain;
 
     // Default clear + views
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x000000ff, 1.0f, 0);

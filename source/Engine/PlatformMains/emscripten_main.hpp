@@ -14,7 +14,6 @@
 #include "../imgui/imgui_impl_sdl2.h"
 
 #include <bgfx/bgfx.h>
-#include <bgfx/platform.h>          // ← REQUIRED for PlatformData on Emscripten
 
 #include <BgfxResetManager.h>
 
@@ -158,27 +157,27 @@ int main(int argc, char* args[])
     SDL_GetWindowSize(window, &w, &h);
 
     // === EMSCRIPTEN PLATFORM DATA (this is what was missing) ===
-    bgfx::PlatformData platformData{};
+    bgfx::SwapChain platformData{};
     platformData.nwh = (void*)"#canvas";   // Emscripten's default canvas ID when using SDL2 + USE_SDL=2
-    platformData.context = nullptr;
-    platformData.backBuffer = nullptr;
-    platformData.backBufferDS = nullptr;
+
 
     // === INIT ===
     bgfx::Init init;
     init.type = bgfx::RendererType::OpenGL;   // WebGL2 (matches your existing -s USE_WEBGL2=1)
     // init.type            = bgfx::RendererType::Count;   // you can also use this for auto-select
     init.debug = true;
-    init.resolution.width = w;
-    init.resolution.height = h;
-    init.resolution.reset = BGFX_RESET_NONE;
-    init.platformData = platformData;                 // ← THIS MAKES IT WORK ON WEB
+    init.swapChain.width = w;
+    init.swapChain.height = h;
+    init.swapChain.flags = BGFX_RESET_NONE;
+    init.swapChain.nwh = (void*)"#canvas";
 
     if (!bgfx::init(init))
     {
         printf("bgfx init failed\n");
         return 1;
     }
+
+    BgfxResetManager::swapChainPtr = &init.swapChain;
 
     printf("bgfx initialized successfully! Renderer type: %d\n", (int)bgfx::getRendererType());
 

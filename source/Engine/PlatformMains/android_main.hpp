@@ -8,7 +8,6 @@
 #include "../imgui/imgui_impl_bgfx.h"
 #include "../imgui/imgui_impl_sdl2.h"
 #include <bgfx/bgfx.h>
-#include <bgfx/platform.h>
 #include <BgfxResetManager.h>
 #include <deque>
 #include <algorithm>
@@ -93,15 +92,17 @@ bool InitBgfx(void* nwh, int width, int height) {
     init.type = s_renderApi;
     init.debug = false;
     init.profile = false;
-    init.platformData.nwh = nwh;
-    init.resolution.width = width;
-    init.resolution.height = height;
-    init.resolution.reset = BGFX_RESET_NONE;   // no vsync
+    init.swapChain.nwh = nwh;
+    init.swapChain.width = width;
+    init.swapChain.height = height;
+    init.swapChain.flags = BGFX_RESET_NONE;   // no vsync
 
     if (!bgfx::init(init)) {
         fprintf(stderr, "bgfx::init failed!\n");
         return false;
     }
+
+    BgfxResetManager::swapChainPtr = &init.swapChain;
 
     bgfx::setDebug(BGFX_DEBUG_STATS);
 

@@ -22,7 +22,6 @@
 #include "../EngineMain.h"
 #include "PlatformWindowData.h"
 #include <bgfx/bgfx.h>
-#include <bgfx/platform.h>
 using namespace PlatformWindowData;
 
 #pragma message "using windows_main.hpp"
@@ -387,17 +386,19 @@ int main(int argc, char* args[])
         fprintf(stderr, "SDL_GetWindowWMInfo failed: %s\n", SDL_GetError());
         return 1;
     }
-    init.platformData.nwh = wmInfo.info.win.window;   // Windows native handle  
+    init.swapChain.nwh = wmInfo.info.win.window;   // Windows native handle  
 
-    init.resolution.width = 800;
-    init.resolution.height = 600;
-    init.resolution.reset = BGFX_RESET_NONE;   // no vsync (matches your old SDL_GL_SetSwapInterval(0))
-
+    init.swapChain.width = 800;
+    init.swapChain.height = 600;
+    init.swapChain.flags = BGFX_RESET_NONE;   // no vsync (matches your old SDL_GL_SetSwapInterval(0))
+    
 
     if (!bgfx::init(init)) {
         fprintf(stderr, "bgfx::init failed!\n");
         return 1;
     }
+
+	BgfxResetManager::swapChainPtr = &init.swapChain;
 
     //bgfx::setDebug(BGFX_DEBUG_TEXT | BGFX_DEBUG_STATS);
 

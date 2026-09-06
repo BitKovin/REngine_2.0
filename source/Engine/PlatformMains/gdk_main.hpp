@@ -15,7 +15,6 @@
 #include "../imgui/imgui_impl_bgfx.h"
 #include "../imgui/imgui_impl_sdl2.h"
 #include <bgfx/bgfx.h>
-#include <bgfx/platform.h>
 #include <deque>
 #include <algorithm>
 #include <array>
@@ -138,7 +137,7 @@ int main(int argc, char* args[])
     // GDK targets map to standard Windows handles internally inside SDL
 #if defined(SDL_VIDEO_DRIVER_WINDOWS) || defined(__GDK__)
     if (wmInfo.subsystem == SDL_SYSWM_WINDOWS || wmInfo.subsystem == SDL_SYSWM_WINRT) {
-        init.platformData.nwh = (void*)wmInfo.info.win.window; // Native HWND
+        init.swapChain.nwh = (void*)wmInfo.info.win.window; // Native HWND
         handleSet = true;
     }
 #endif
@@ -149,14 +148,16 @@ int main(int argc, char* args[])
         return 1;
     }
 
-    init.resolution.width = 1920;
-    init.resolution.height = 1080;
-    init.resolution.reset = BGFX_RESET_NONE; // No vsync by default
+    init.swapChain.width = 1920;
+    init.swapChain.height = 1080;
+    init.swapChain.flags = BGFX_RESET_NONE; // No vsync by default
 
     if (!bgfx::init(init)) {
         fprintf(stderr, "bgfx::init failed!\n");
         return 1;
     }
+
+    BgfxResetManager::swapChainPtr = &init.swapChain;
 
     // Default clear + views
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x000000ff, 1.0f, 0);

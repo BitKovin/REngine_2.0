@@ -9,6 +9,28 @@
 #include <BgfxStateManager.h>
 
 // -----------------------------------------------------------------------
+// bgfx::blit() now takes bgfx::TextureRegion pairs instead of a flat
+// (handle, mip, x, y, z, ...) argument list, and BGFX_CAPS_TEXTURE_BLIT
+// has been removed since blit is unconditionally supported now. This
+// helper centralizes TextureRegion construction — if your vendored
+// bgfx.h names these fields differently, this is the only place to fix.
+// -----------------------------------------------------------------------
+static bgfx::TextureRegion MakeTextureRegion(bgfx::TextureHandle handle,
+    uint16_t width, uint16_t height, uint8_t mip = 0)
+{
+    bgfx::TextureRegion region{};
+    region.handle = handle;
+    region.mip = mip;
+    region.x = 0;
+    region.y = 0;
+    region.z = 0;
+    region.width = width;
+    region.height = height;
+    region.depth = 1;
+    return region;
+}
+
+// -----------------------------------------------------------------------
 // Constructor / destructor
 // -----------------------------------------------------------------------
 Framebuffer::Framebuffer() {
@@ -65,7 +87,7 @@ void Framebuffer::rebuild() {
             0 /*layer*/,
             1 /*numMips*/,
             0 /*mip*/,
-            BGFX_RESOLVE_AUTO_GEN_MIPS);
+            BGFX_RESOLVE_NONE);
         attachments.push_back(att);
     }
 
@@ -74,7 +96,7 @@ void Framebuffer::rebuild() {
         att.init(m_depthAttachment->textureHandle(),
             bgfx::Access::Write,
             0, 1, 0,
-            BGFX_RESOLVE_AUTO_GEN_MIPS);
+            BGFX_RESOLVE_NONE);
         attachments.push_back(att);
     }
 
@@ -173,45 +195,35 @@ void Framebuffer::attachCubemapFace(RenderTexture* cubemap,
 // which is still the raw MSAA surface.  Blitting companion(1x)→target(1x)
 // is a same-sample copy and glCopyImageSubData accepts it.
 // -----------------------------------------------------------------------
-void Framebuffer::resolve(Framebuffer& target) 
+void Framebuffer::resolve(Framebuffer& target)
 {
     for (size_t i = 0; i < m_colorAttachments.size(); ++i) {
         if (!m_colorAttachments[i]) continue;
 
-        if (bgfx::getCaps()->supported & BGFX_CAPS_TEXTURE_BLIT)
-        {
-            RenderTexture* dst = target.colorAttachment(static_cast<uint32_t>(i));
+        // Texture blit is unconditionally supported now (BGFX_CAPS_TEXTURE_BLIT
+        // was removed), so there's no longer a non-blit fallback path here.
+        RenderTexture* dst = target.colorAttachment(static_cast<uint32_t>(i));
 
-            // Companion single-sample texture produced by bgfx's internal
-            // glBlitFramebuffer resolve — NOT the raw MSAA texture handle.
-            bgfx::TextureHandle resolvedSrc =
-                bgfx::getTexture(m_frameBuffer, static_cast<uint8_t>(i));
-            if (!bgfx::isValid(resolvedSrc))
-                continue;
+        // Companion single-sample texture produced by bgfx's internal
+        // glBlitFramebuffer resolve — NOT the raw MSAA texture handle.
+        bgfx::TextureHandle resolvedSrc =
+            bgfx::getTexture(m_frameBuffer, static_cast<uint8_t>(i));
+        if (!bgfx::isValid(resolvedSrc))
+            continue;
 
-            bgfx::ViewId blitView = ViewIdManager::GiveNextId();
-            bgfx::blit(blitView,
-                dst->textureHandle(), 0, 0, 0, 0,
-                resolvedSrc, 0, 0, 0, 0,
-                static_cast<uint16_t>(dst->width()),
-                static_cast<uint16_t>(dst->height()),
-                1);
-        }
-        else //doesn't support msaa anyway
-        {
-            RenderTexture* dst = target.colorAttachment(static_cast<uint32_t>(i));
+        bgfx::ViewId blitView = ViewIdManager::GiveNextId();
 
-            // Companion single-sample texture produced by bgfx's internal
-            // glBlitFramebuffer resolve — NOT the raw MSAA texture handle.
-            bgfx::TextureHandle resolvedSrc =
-                bgfx::getTexture(m_frameBuffer, static_cast<uint8_t>(i));
-            if (!bgfx::isValid(resolvedSrc))
-                continue;
+        bgfx::TextureRegion dstRegion = MakeTextureRegion(
+            dst->textureHandle(),
+            static_cast<uint16_t>(dst->width()),
+            static_cast<uint16_t>(dst->height()));
 
-            dst->copyFrom(colorAttachment(i));
-        }
+        bgfx::TextureRegion srcRegion = MakeTextureRegion(
+            resolvedSrc,
+            static_cast<uint16_t>(dst->width()),
+            static_cast<uint16_t>(dst->height()));
 
-
+        bgfx::blit(blitView, dstRegion, srcRegion);
     }
 
     resolveDepthOnly(target);
@@ -278,7 +290,7 @@ void Framebuffer::resolveDepthOnly(Framebuffer& target)
 
     if (isMsaa)
     {
-        if (bgfx::getCaps()->supported & BGFX_CAPS_TEXTURE_BLIT && false)
+        if (false)
         {
             // GL/Vulkan — bgfx auto-resolves MSAA depth into a companion
             // single-sample texture at pass-end (requires no WRITE_ONLY flag).
@@ -289,12 +301,15 @@ void Framebuffer::resolveDepthOnly(Framebuffer& target)
             {
                 // GL/Vulkan: blit the resolved companion into the target.
                 bgfx::ViewId blitView = ViewIdManager::GiveNextId();
-                bgfx::blit(blitView,
-                    dst->textureHandle(), 0, 0, 0, 0,
-                    companion, 0, 0, 0, 0,
+                bgfx::TextureRegion dstRegion = MakeTextureRegion(
+                    dst->textureHandle(),
                     static_cast<uint16_t>(dst->width()),
-                    static_cast<uint16_t>(dst->height()),
-                    1);
+                    static_cast<uint16_t>(dst->height()));
+                bgfx::TextureRegion srcRegion = MakeTextureRegion(
+                    companion,
+                    static_cast<uint16_t>(dst->width()),
+                    static_cast<uint16_t>(dst->height()));
+                bgfx::blit(blitView, dstRegion, srcRegion);
                 return;
             }
         }
@@ -321,31 +336,19 @@ void Framebuffer::resolveDepthOnly(Framebuffer& target)
     }
     else
     {
-        // Single-sample path — blit if available, shader copy otherwise (WebGL).
-        if (bgfx::getCaps()->supported & BGFX_CAPS_TEXTURE_BLIT)
-        {
-            bgfx::ViewId blitView = ViewIdManager::GiveNextId();
-            bgfx::blit(blitView,
-                dst->textureHandle(), 0, 0, 0, 0,
-                m_depthAttachment->textureHandle(), 0, 0, 0, 0,
-                static_cast<uint16_t>(dst->width()),
-                static_cast<uint16_t>(dst->height()),
-                1);
-        }
-        else
-        {
-            Renderer* r = EngineMain::MainInstance->MainRenderer;
-            target.bindDepthOnly();
-            r->depthCopyShader->UseProgram();
-            r->depthCopyShader->SetTexture("depthTexture", m_depthAttachment->textureHandle());
-            BgfxStateManager::Reset();
-            BgfxStateManager::SetDepthTest(BgfxStateManager::DepthTest::Always);
-            BgfxStateManager::SetWriteDepth(true);
-            BgfxStateManager::SetWriteRGB(false);
-            BgfxStateManager::SetWriteAlpha(false);
-            BgfxStateManager::Apply();
-            r->RenderFullscreenQuad(r->depthCopyShader);
-        }
+        // Single-sample path — texture blit is unconditionally supported now
+        // (BGFX_CAPS_TEXTURE_BLIT was removed), so the shader-copy fallback
+        // that used to cover blit-less backends (e.g. WebGL) is no longer needed.
+        bgfx::ViewId blitView = ViewIdManager::GiveNextId();
+        bgfx::TextureRegion dstRegion = MakeTextureRegion(
+            dst->textureHandle(),
+            static_cast<uint16_t>(dst->width()),
+            static_cast<uint16_t>(dst->height()));
+        bgfx::TextureRegion srcRegion = MakeTextureRegion(
+            m_depthAttachment->textureHandle(),
+            static_cast<uint16_t>(dst->width()),
+            static_cast<uint16_t>(dst->height()));
+        bgfx::blit(blitView, dstRegion, srcRegion);
     }
 }
 

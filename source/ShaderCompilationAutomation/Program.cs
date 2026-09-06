@@ -52,10 +52,10 @@ class ShaderCompiler
             // Windows — dx12 shares the dx11 binary
             ("windows/dx11",  "windows", "dx11",  "s_5_0",  "s_5_0"),
             ("windows/dx12",  "windows", "dx11",  "s_5_0",  "s_5_0"),  // ← same type key as above
-            ("windows/gl",    "windows", "gl",    "140",    "140"),
+            ("windows/gl",    "windows", "gl",    "440",    "440"),
             ("windows/spirv", "windows", "spirv", "spirv",  "spirv"),
             // Linux
-            ("linux/gl",      "linux",   "gl",    "140",    "140"),
+            ("linux/gl",      "linux",   "gl",    "440",    "440"),
             ("linux/spirv",   "linux",   "spirv", "spirv",  "spirv"),
 
             // Android

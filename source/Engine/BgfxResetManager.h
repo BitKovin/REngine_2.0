@@ -10,6 +10,8 @@ class BgfxResetManager
 public:
     BgfxResetManager() = delete;
 
+	static inline bgfx::SwapChain* swapChainPtr = nullptr;
+
     // ---------------------------------------------------------------------
     // Reset to defaults
     // ---------------------------------------------------------------------
@@ -266,11 +268,13 @@ public:
 
     static void Apply()
     {
-        bgfx::reset(
-            s_resolution.x,
-            s_resolution.y,
-            s_flags,
-            s_format);
+
+		swapChainPtr->flags = s_flags;
+		swapChainPtr->width = s_resolution.x;
+		swapChainPtr->height = s_resolution.y;
+		swapChainPtr->formatColor = s_format;
+
+        bgfx::reset(s_flags, swapChainPtr);
 
         s_dirty = false;
 

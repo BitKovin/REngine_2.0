@@ -14,6 +14,27 @@
 #include <BgfxStateManager.h>
 
 // -----------------------------------------------------------------------
+// bgfx::blit() now takes bgfx::TextureRegion pairs instead of a flat
+// (handle, mip, x, y, z, ...) argument list. This helper centralizes
+// TextureRegion construction — if your vendored bgfx.h names these
+// fields differently, this is the only place to fix.
+// -----------------------------------------------------------------------
+static bgfx::TextureRegion MakeTextureRegion(bgfx::TextureHandle handle,
+    uint16_t width, uint16_t height, uint8_t mip = 0)
+{
+    bgfx::TextureRegion region{};
+    region.handle = handle;
+    region.mip = mip;
+    region.x = 0;
+    region.y = 0;
+    region.z = 0;
+    region.width = width;
+    region.height = height;
+    region.depth = 1;
+    return region;
+}
+
+// -----------------------------------------------------------------------
 // Format mapping
 // -----------------------------------------------------------------------
 bgfx::TextureFormat::Enum RenderTexture::toBgfxFormat(TextureFormat fmt) {
@@ -282,16 +303,19 @@ void RenderTexture::copyFrom(const RenderTexture* src) {
             "RenderTexture::copyFrom: source/destination dimension or format mismatch");
     }
 
-    if (bgfx::getCaps()->supported & BGFX_CAPS_TEXTURE_BLIT && false) //causes problems on d3d. I'll just use alternative aproach
+    if (false) //causes problems on d3d. I'll just use alternative aproach
     {
         // Fast path — native blit (desktop GL / Vulkan / Metal / D3D).
+        // (BGFX_CAPS_TEXTURE_BLIT was removed — blit is unconditionally
+        // supported now — but this path stays disabled per the note above.)
         bgfx::ViewId blitView = ViewIdManager::GiveNextId();
 
+        bgfx::TextureRegion dstRegion = MakeTextureRegion(
+            m_texture, (uint16_t)m_width, (uint16_t)m_height);
+        bgfx::TextureRegion srcRegion = MakeTextureRegion(
+            src->m_texture, (uint16_t)m_width, (uint16_t)m_height);
 
-        bgfx::blit(blitView,
-            m_texture, 0, 0, 0, 0,
-            src->m_texture, 0, 0, 0, 0,
-            (uint16_t)m_width, (uint16_t)m_height, 1);
+        bgfx::blit(blitView, dstRegion, srcRegion);
     }
     else
     {

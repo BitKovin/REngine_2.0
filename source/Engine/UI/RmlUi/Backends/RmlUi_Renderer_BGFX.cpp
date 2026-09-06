@@ -1863,21 +1863,20 @@ BgfxFramebuffer RenderInterface_BGFX::CreateFramebuffer(int w, int h, bool with_
 
         if (bgfx::isValid(fb.depth_stencil))
         {
-            // D24S8 is 4 bytes/pixel, same as the color attachment.
             ResourceStatistics::Instance().registerResource(
                 ResourceType::RenderTexture, fb.depth_stencil.idx,
                 static_cast<size_t>(w) * h * 4, "RmlUi Framebuffer Depth/Stencil");
         }
 
         bgfx::Attachment attachments[2];
-        attachments[0].init(fb.color);
-        attachments[1].init(fb.depth_stencil);
+        attachments[0].init(fb.color, bgfx::Access::Write, 0, 1, 0, BGFX_RESOLVE_NONE);
+        attachments[1].init(fb.depth_stencil, bgfx::Access::Write, 0, 1, 0, BGFX_RESOLVE_NONE);
         fb.fb = bgfx::createFrameBuffer(2, attachments, false); // don't destroy textures on fb destroy
     }
     else
     {
         bgfx::Attachment att;
-        att.init(fb.color);
+        att.init(fb.color, bgfx::Access::Write, 0, 1, 0, BGFX_RESOLVE_NONE);
         fb.fb = bgfx::createFrameBuffer(1, &att, false);
     }
 

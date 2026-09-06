@@ -295,7 +295,7 @@ void Renderer::DrawDetailShadows(const std::vector<IDrawCommand*>& allVisibleCom
         DetailShadowUtils::ClearShadowStencil();
 
         BgfxStateManager::SetState(savedState);
-        bgfx::setStencil(BGFX_STENCIL_DEFAULT);
+        bgfx::setStencil(BGFX_STENCIL_NONE);
     }
 }
 
@@ -786,7 +786,7 @@ void Renderer::InitResolveFrameBuffers()
 
     depthResolveBuffer = new RenderTexture(
         screenResolution.x, screenResolution.y,
-        TextureFormat::Depth24, TextureType::Texture2D,
+        TextureFormat::Depth24Stencil8, TextureType::Texture2D,
         false, kDepthSamplerFlags);
     depthResolveBuffer->SetName("DepthResolveBuffer");
 

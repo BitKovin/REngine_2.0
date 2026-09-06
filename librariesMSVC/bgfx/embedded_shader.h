@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2025 Branimir Karadzic. All rights reserved.
+ * Copyright 2011-2026 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bgfx/blob/master/LICENSE
  */
 
@@ -10,6 +10,7 @@
 #include <bx/platform.h>
 
 #define BGFX_EMBEDDED_SHADER_DXBC(...)
+#define BGFX_EMBEDDED_SHADER_DXIL(...)
 #define BGFX_EMBEDDED_SHADER_ESSL(...)
 #define BGFX_EMBEDDED_SHADER_GLSL(...)
 #define BGFX_EMBEDDED_SHADER_METAL(...)
@@ -26,6 +27,13 @@
 		|| BX_PLATFORM_XBOXONE            \
 		)
 #endif // BGFX_PLATFORM_SUPPORTS_DXBC
+
+#ifndef BGFX_PLATFORM_SUPPORTS_DXIL
+#	define BGFX_PLATFORM_SUPPORTS_DXIL (0 \
+		|| BX_PLATFORM_WINDOWS            \
+		|| BX_PLATFORM_XBOXONE            \
+		)
+#endif // BGFX_PLATFORM_SUPPORTS_DXIL
 
 #ifndef BGFX_PLATFORM_SUPPORTS_ESSL
 #	define BGFX_PLATFORM_SUPPORTS_ESSL (0 \
@@ -82,6 +90,7 @@
 
 #ifndef BGFX_PLATFORM_SUPPORTS_WGSL
 #	define BGFX_PLATFORM_SUPPORTS_WGSL (0 \
+		|| BX_PLATFORM_EMSCRIPTEN          \
 		|| BX_PLATFORM_LINUX              \
 		|| BX_PLATFORM_WINDOWS            \
 		|| BX_PLATFORM_OSX                \
@@ -98,8 +107,14 @@
 #if BGFX_PLATFORM_SUPPORTS_DXBC
 #	undef  BGFX_EMBEDDED_SHADER_DXBC
 #	define BGFX_EMBEDDED_SHADER_DXBC(_renderer, _name) \
-	{ _renderer, BGFX_EMBEDDED_SHADER_CONCATENATE(_name, _dx11), BGFX_EMBEDDED_SHADER_COUNTOF(BGFX_EMBEDDED_SHADER_CONCATENATE(_name, _dx11) ) },
+	{ _renderer, BGFX_EMBEDDED_SHADER_CONCATENATE(_name, _dxbc), BGFX_EMBEDDED_SHADER_COUNTOF(BGFX_EMBEDDED_SHADER_CONCATENATE(_name, _dxbc) ) },
 #endif // BGFX_PLATFORM_SUPPORTS_DXBC
+
+#if BGFX_PLATFORM_SUPPORTS_DXIL
+#	undef  BGFX_EMBEDDED_SHADER_DXIL
+#	define BGFX_EMBEDDED_SHADER_DXIL(_renderer, _name) \
+	{ _renderer, BGFX_EMBEDDED_SHADER_CONCATENATE(_name, _dxil), BGFX_EMBEDDED_SHADER_COUNTOF(BGFX_EMBEDDED_SHADER_CONCATENATE(_name, _dxil) ) },
+#endif // BGFX_PLATFORM_SUPPORTS_DXIL
 
 #if BGFX_PLATFORM_SUPPORTS_PSSL
 #	undef  BGFX_EMBEDDED_SHADER_PSSL
@@ -143,7 +158,7 @@
 		{                                                                                   \
 			BGFX_EMBEDDED_SHADER_PSSL (bgfx::RendererType::Agc,        _name)               \
 			BGFX_EMBEDDED_SHADER_DXBC (bgfx::RendererType::Direct3D11, _name)               \
-			BGFX_EMBEDDED_SHADER_DXBC (bgfx::RendererType::Direct3D12, _name)               \
+			BGFX_EMBEDDED_SHADER_DXIL (bgfx::RendererType::Direct3D12, _name)               \
 			BGFX_EMBEDDED_SHADER_PSSL (bgfx::RendererType::Gnm,        _name)               \
 			BGFX_EMBEDDED_SHADER_METAL(bgfx::RendererType::Metal,      _name)               \
 			BGFX_EMBEDDED_SHADER_NVN  (bgfx::RendererType::Nvn,        _name)               \
