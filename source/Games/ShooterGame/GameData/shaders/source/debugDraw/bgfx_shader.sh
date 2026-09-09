@@ -12,6 +12,9 @@
 
 #ifndef __cplusplus
 
+#define __CONCAT(_x, _y)    __CONCAT_XX(_x, _y)
+#define __CONCAT_XX(_x, _y) _x ## _y
+
 #if BGFX_SHADER_LANGUAGE_GLSL
 #	define BRANCH
 #	define LOOP
@@ -24,7 +27,6 @@
 
 #define BGFX_SHADER_MATRIX_COLUMN_MAJOR (0 \
 	|| BGFX_SHADER_LANGUAGE_GLSL           \
-	|| BGFX_SHADER_LANGUAGE_WGSL           \
 	)
 
 #if BGFX_SHADER_TYPE_FRAGMENT
@@ -56,6 +58,7 @@
 #	define dFdy(_y) ddy(-(_y))
 #	define inversesqrt(_x) rsqrt(_x)
 #	define fract(_x) frac(_x)
+#	define not(_x) (!_x)
 
 #	define bvec2 bool2
 #	define bvec3 bool3
@@ -643,19 +646,22 @@ vec4  mod(vec4  _a, vec4  _b) { return _a - _b * floor(_a / _b); }
 #	define ISAMPLER3D(_name, _reg) uniform isampler3D _name
 #	define USAMPLER3D(_name, _reg) uniform usampler3D _name
 
-#	if BGFX_SHADER_LANGUAGE_GLSL >= 130
-#		define texture2D(_sampler, _coord)      texture(_sampler, _coord)
-#		define texture2DArray(_sampler, _coord) texture(_sampler, _coord)
-#		define texture3D(_sampler, _coord)      texture(_sampler, _coord)
-#		define textureCube(_sampler, _coord)    texture(_sampler, _coord)
-#		define texture2DLod(_sampler, _coord, _lod)                textureLod(_sampler, _coord, _lod)
-#		define texture2DLodOffset(_sampler, _coord, _lod, _offset) textureLodOffset(_sampler, _coord, _lod, _offset)
-#		define texture2DBias(_sampler, _coord, _bias)      texture(_sampler, _coord, _bias)
-#		define textureCubeBias(_sampler, _coord, _bias)    texture(_sampler, _coord, _bias)
-#	else
-#		define texture2DBias(_sampler, _coord, _bias)      texture2D(_sampler, _coord, _bias)
-#		define textureCubeBias(_sampler, _coord, _bias)    textureCube(_sampler, _coord, _bias)
-#	endif // BGFX_SHADER_LANGUAGE_GLSL >= 130
+#	define texture2D(_sampler, _coord)      texture(_sampler, _coord)
+#	define texture2DArray(_sampler, _coord) texture(_sampler, _coord)
+#	define texture3D(_sampler, _coord)      texture(_sampler, _coord)
+#	define textureCube(_sampler, _coord)    texture(_sampler, _coord)
+#	define texture2DLod(_sampler, _coord, _lod)                     textureLod(_sampler, _coord, _lod)
+#	define texture2DLodOffset(_sampler, _coord, _lod, _offset)      textureLodOffset(_sampler, _coord, _lod, _offset)
+#	define texture2DArrayLod(_sampler, _coord, _lod)                textureLod(_sampler, _coord, _lod)
+#	define texture2DArrayLodOffset(_sampler, _coord, _lod, _offset) textureLodOffset(_sampler, _coord, _lod, _offset)
+#	define texture3DLod(_sampler, _coord, _lod)                     textureLod(_sampler, _coord, _lod)
+#	define texture3DLodOffset(_sampler, _coord, _lod, _offset)      textureLodOffset(_sampler, _coord, _lod, _offset)
+#	define textureCubeLod(_sampler, _coord, _lod)                   textureLod(_sampler, _coord, _lod)
+#	define texture2DGrad(_sampler, _coord, _dPdx, _dPdy)            textureGrad(_sampler, _coord, _dPdx, _dPdy)
+#	define texture3DGrad(_sampler, _coord, _dPdx, _dPdy)            textureGrad(_sampler, _coord, _dPdx, _dPdy)
+#	define textureCubeGrad(_sampler, _coord, _dPdx, _dPdy)          textureGrad(_sampler, _coord, _dPdx, _dPdy)
+#	define texture2DBias(_sampler, _coord, _bias)      texture(_sampler, _coord, _bias)
+#	define textureCubeBias(_sampler, _coord, _bias)    texture(_sampler, _coord, _bias)
 
 float rcp(float _a) { return 1.0/_a; }
 vec2  rcp(vec2  _a) { return vec2(1.0)/_a; }
@@ -667,20 +673,13 @@ vec2 vec2_splat(float _x) { return vec2(_x, _x); }
 vec3 vec3_splat(float _x) { return vec3(_x, _x, _x); }
 vec4 vec4_splat(float _x) { return vec4(_x, _x, _x, _x); }
 
-#if BGFX_SHADER_LANGUAGE_GLSL >= 130 \
- || BGFX_SHADER_LANGUAGE_HLSL        \
- || BGFX_SHADER_LANGUAGE_PSSL        \
- || BGFX_SHADER_LANGUAGE_SPIRV       \
- || BGFX_SHADER_LANGUAGE_METAL       \
- || BGFX_SHADER_LANGUAGE_WGSL
 uvec2 uvec2_splat(uint _x) { return uvec2(_x, _x); }
 uvec3 uvec3_splat(uint _x) { return uvec3(_x, _x, _x); }
 uvec4 uvec4_splat(uint _x) { return uvec4(_x, _x, _x, _x); }
-#endif // BGFX_SHADER_LANGUAGE_*
 
 #if BGFX_SHADER_LANGUAGE_GLSL
 #	define mul(_a, _b) ( (_a) * (_b) )
-#elif BGFX_SHADER_LANGUAGE_WGSL
+#elif BGFX_SHADER_LANGUAGE_WGSL && BGFX_SHADER_MATRIX_COLUMN_MAJOR
 #	define mul(_a, _b) mul(_b, _a)
 #	define mat3x4 float3x4
 #	define mat4x3 float4x3
@@ -726,7 +725,6 @@ mat3 mtxFromCols(vec3 _0, vec3 _1, vec3 _2)
 #endif // BGFX_SHADER_LANGUAGE_GLSL
 }
 
-#if !BGFX_SHADER_LANGUAGE_ESSL
 mat4x3 mtxFromRows(vec4 _0, vec4 _1, vec4 _2)
 {
 #if BGFX_SHADER_MATRIX_COLUMN_MAJOR
@@ -735,7 +733,6 @@ mat4x3 mtxFromRows(vec4 _0, vec4 _1, vec4 _2)
 	return mat4x3(_0, _1, _2);
 #endif // BGFX_SHADER_LANGUAGE_GLSL
 }
-#endif // !BGFX_SHADER_LANGUAGE_ESSL
 
 vec3 mtxGetRow(mat3 _mtx, int _row)
 {
@@ -755,7 +752,6 @@ vec3 mtxGetColumn(mat3 _mtx, int _column)
 #endif // BGFX_SHADER_LANGUAGE_GLSL
 }
 
-#if !BGFX_SHADER_LANGUAGE_ESSL
 vec4 mtxGetRow(mat4x3 _mtx, int _row)
 {
 #if BGFX_SHADER_MATRIX_COLUMN_MAJOR
@@ -773,7 +769,6 @@ vec3 mtxGetColumn(mat4x3 _mtx, int _column)
     return vec3(_mtx[0][_column], _mtx[1][_column], _mtx[2][_column]);
 #endif // BGFX_SHADER_LANGUAGE_GLSL
 }
-#endif // !BGFX_SHADER_LANGUAGE_ESSL
 
 vec4 mtxGetRow(mat4 _mtx, int _row)
 {
@@ -811,6 +806,30 @@ float mtxGetElement(mat4 _mtx, int _column, int _row)
 #endif // BGFX_SHADER_LANGUAGE_GLSL
 }
 
+#if !BGFX_SHADER_LANGUAGE_DXIL
+float select(bool  _cond, float _true, float _false) { return _cond ? _true : _false; }
+vec2  select(bool  _cond, vec2  _true, vec2  _false) { return _cond ? _true : _false; }
+vec3  select(bool  _cond, vec3  _true, vec3  _false) { return _cond ? _true : _false; }
+vec4  select(bool  _cond, vec4  _true, vec4  _false) { return _cond ? _true : _false; }
+vec2  select(bvec2 _cond, vec2  _true, vec2  _false) { return (vec2(_cond) * _true) + (vec2(not(_cond) ) * _false); }
+vec3  select(bvec3 _cond, vec3  _true, vec3  _false) { return (vec3(_cond) * _true) + (vec3(not(_cond) ) * _false); }
+vec4  select(bvec4 _cond, vec4  _true, vec4  _false) { return (vec4(_cond) * _true) + (vec4(not(_cond) ) * _false); }
+int   select(bool  _cond, int   _true, int   _false) { return _cond ? _true : _false; }
+ivec2 select(bool  _cond, ivec2 _true, ivec2 _false) { return _cond ? _true : _false; }
+ivec3 select(bool  _cond, ivec3 _true, ivec3 _false) { return _cond ? _true : _false; }
+ivec4 select(bool  _cond, ivec4 _true, ivec4 _false) { return _cond ? _true : _false; }
+ivec2 select(bvec2 _cond, ivec2 _true, ivec2 _false) { return (ivec2(_cond) * _true) + (ivec2(not(_cond) ) * _false); }
+ivec3 select(bvec3 _cond, ivec3 _true, ivec3 _false) { return (ivec3(_cond) * _true) + (ivec3(not(_cond) ) * _false); }
+ivec4 select(bvec4 _cond, ivec4 _true, ivec4 _false) { return (ivec4(_cond) * _true) + (ivec4(not(_cond) ) * _false); }
+uint  select(bool  _cond, uint  _true, uint  _false) { return _cond ? _true : _false; }
+uvec2 select(bool  _cond, uvec2 _true, uvec2 _false) { return _cond ? _true : _false; }
+uvec3 select(bool  _cond, uvec3 _true, uvec3 _false) { return _cond ? _true : _false; }
+uvec4 select(bool  _cond, uvec4 _true, uvec4 _false) { return _cond ? _true : _false; }
+uvec2 select(bvec2 _cond, uvec2 _true, uvec2 _false) { return (uvec2(_cond) * _true) + (uvec2(not(_cond) ) * _false); }
+uvec3 select(bvec3 _cond, uvec3 _true, uvec3 _false) { return (uvec3(_cond) * _true) + (uvec3(not(_cond) ) * _false); }
+uvec4 select(bvec4 _cond, uvec4 _true, uvec4 _false) { return (uvec4(_cond) * _true) + (uvec4(not(_cond) ) * _false); }
+#endif // !BGFX_SHADER_LANGUAGE_DXIL
+
 uniform vec4 u_viewRect;
 uniform vec4 u_viewTexel;
 uniform mat4 u_view;
@@ -825,6 +844,10 @@ uniform mat4 u_modelViewProj;
 uniform vec4 u_alphaRef4;
 #define u_alphaRef u_alphaRef4.x
 uniform mat4 u_model[BGFX_CONFIG_MAX_BONES];
+
+#if BGFX_SHADER_LANGUAGE_GLSL
+uniform vec4 bgfx_ndc;
+#endif // BGFX_SHADER_LANGUAGE_GLSL
 
 #endif // __cplusplus
 

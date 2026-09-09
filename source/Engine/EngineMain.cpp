@@ -947,7 +947,7 @@ void EngineMain::Render()
 
         ZoneScopedN("RML UI Pass");
 
-        RmlContext->Render();
+        //RmlContext->Render();
     }
 
 
@@ -978,7 +978,7 @@ void EngineMain::Render()
         }
     }
 
-    if (LoadingFrames > 0)
+    if (LoadingFrames > 0 || true)
     {
         if (AssetRegistry::HasPendingWork() == false)
         {
@@ -989,7 +989,7 @@ void EngineMain::Render()
             Logger::Log("");
         }
 
-
+		ViewIdManager::GiveNextId();
         LoadingScreenSystem::Draw();
         return;
     }

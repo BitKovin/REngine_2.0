@@ -28,6 +28,8 @@ public:
         // Call the base update first.
         particle = ParticleEmitter::UpdateParticle(particle, deltaTime);
 
+		//particle.UvPositionAndScale.x += deltaTime;
+
         // Increase the scale based on lifetime.
         float incScale = particle.lifeTime / 9.0f;
         // Use glm::mix to linearly interpolate between 1 and 0.1.

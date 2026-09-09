@@ -25659,7 +25659,7 @@ build sourceLibraries\bgfx\bgfx.cmake\cmake\bgfx\all: phony sourceLibraries\bgfx
 #############################################
 # Folder: F:/Git/SdlWasmEngine/Build/windows/sourceLibraries/bgfx/bgfx.cmake/cmake/bimg
 
-build sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\all: phony sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\bimg.lib sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\bimg_decode.lib sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\bimg_encode.lib sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\texturec.exe
+build sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\all: phony sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\bimg.lib sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\bimg_decode.lib sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\texturec.exe
 
 # =============================================================================
 

@@ -74,12 +74,7 @@ endfunction()
 # Hook 3: post-library fixups (run after all add_subdirectory calls)
 # ——————————————————————————————————————————————————————————
 function(platform_post_libraries engine_target)
-    # bimg_encode pulls in <x86intrin.h> which does not exist on Emscripten.
-    # Undefine the SSE4 macros only for that target; Jolt et al. still get them.
-    if(TARGET bimg_encode)
-        target_compile_options(bimg_encode PRIVATE -U__SSE4_1__ -U__SSE4_2__)
-        message(STATUS "bimg_encode: disabled SSE4.1/4.2 to avoid x86intrin.h on Emscripten")
-    endif()
+
 endfunction()
 
 

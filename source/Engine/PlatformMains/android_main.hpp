@@ -83,12 +83,16 @@ void ShutdownImGuiPlatform() {
 // only takes effect *before* bgfx::init. So "survive backgrounding" means
 // a real shutdown+reinit cycle, not a resize.
 // ============================================================================
+
+bgfx::Init init;
+
 static bool s_bgfxValid = false;
 static bgfx::RendererType::Enum s_renderApi = bgfx::RendererType::OpenGLES;
 
 bool InitBgfx(void* nwh, int width, int height) {
 
-    bgfx::Init init;
+    init = bgfx::Init();
+
     init.type = s_renderApi;
     init.debug = false;
     init.profile = false;
@@ -96,6 +100,8 @@ bool InitBgfx(void* nwh, int width, int height) {
     init.swapChain.width = width;
     init.swapChain.height = height;
     init.swapChain.flags = BGFX_RESET_NONE;   // no vsync
+	init.swapChain.depth = BGFX_INVALID_HANDLE; // let bgfx create its own depth buffer
+
 
     if (!bgfx::init(init)) {
         fprintf(stderr, "bgfx::init failed!\n");
@@ -381,10 +387,6 @@ int main(int argc, char* args[]) {
 #endif
     }
 
-    // OpenGLES is the safe default on Android (bgfx's desktop "OpenGL"
-    // renderer is not valid here). Vulkan is a solid option on newer
-    // devices/drivers if you want to opt into it.
-    s_renderApi = bgfx::RendererType::OpenGLES;
 
     auto renderApiOverride = args_m.find("renderapi");
     if (renderApiOverride != args_m.end())

@@ -9,7 +9,11 @@
 
 void EcsScheduler::Finalize()
 {
+
     auto& data = Storage();
+
+    if(data.Finalized) return;
+
     assert(!data.Finalized && "Finalize() called twice");
 
     for (auto& sys : data.Pending)

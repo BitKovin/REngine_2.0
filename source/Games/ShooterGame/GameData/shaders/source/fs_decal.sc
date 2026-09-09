@@ -48,8 +48,15 @@ void main()
     vec4 clipPos = mul(projection, mul(view, vec4(v_world.xyz, 1.0)));
     vec2 ndc     = clipPos.xy / clipPos.w;
 
-    // NDC keeps +Y up, textures are sampled with +V down -> flip Y.
+#if BGFX_SHADER_LANGUAGE_GLSL
+    // OpenGL render targets are stored bottom-up, so NDC's +Y-up already
+    // matches the texture's +V direction -- sampling needs no flip here.
+    vec2 screenUv = ndc * vec2(0.5, 0.5) + 0.5;
+#else
+    // D3D/Metal/Vulkan render targets are stored top-down, so NDC's +Y-up is
+    // inverted relative to +V -> flip Y.
     vec2 screenUv = ndc * vec2(0.5, -0.5) + 0.5;
+#endif
 
     // Defensive: reject if the reprojection lands outside the screen (near-plane
     // clipping, degenerate w, etc.) instead of silently sampling a clamped edge texel.

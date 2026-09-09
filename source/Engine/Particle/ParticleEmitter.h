@@ -44,6 +44,8 @@ struct Particle {
 	float UserValue3 = 0;
 	float UserValue4 = 0;
 
+	vec4 UvPositionAndScale = vec4(0, 0, 1, 1);
+
 	vec4 Color = vec4(1);
 };
 

@@ -53,6 +53,7 @@ bgfx::TextureFormat::Enum RenderTexture::toBgfxFormat(TextureFormat fmt) {
     case TextureFormat::Depth24:         return bgfx::TextureFormat::D24;
     case TextureFormat::Depth32F:        return bgfx::TextureFormat::D32F;
     case TextureFormat::Depth24Stencil8: return bgfx::TextureFormat::D24S8;
+    case TextureFormat::Depth32FStencil8: return bgfx::TextureFormat::D32FS8;
     }
     throw std::runtime_error("RenderTexture: unknown TextureFormat");
 }
@@ -107,19 +108,34 @@ bool RenderTexture::isDepthFormat(TextureFormat fmt) {
 // Constructor / destructor
 // -----------------------------------------------------------------------
 RenderTexture::RenderTexture(uint32_t width, uint32_t height,
-    TextureFormat format,
-    TextureType   type,
-    bool          sampleDepth,
-    uint64_t      samplerFlags,
-    uint32_t      samples)
-    : m_width(width)
-    , m_height(height)
-    , m_format(format)
-    , m_type(type)
-    , m_samples(samples)
-    , m_samplerFlags(samplerFlags)
-    , m_sampleDepth(sampleDepth)
+                             TextureFormat format,
+                             TextureType   type,
+                             bool          sampleDepth,
+                             uint64_t      samplerFlags,
+                             uint32_t      samples)
+        : m_width(width)
+        , m_height(height)
+        , m_format(format)
+        , m_type(type)
+        , m_samples(samples)
+        , m_samplerFlags(samplerFlags)
+        , m_sampleDepth(sampleDepth)
 {
+    if (m_format == TextureFormat::Depth24Stencil8)
+    {
+        const uint64_t dsFlags = BGFX_TEXTURE_RT
+                                 | (m_sampleDepth ? 0 : BGFX_TEXTURE_RT_WRITE_ONLY);
+
+        if (!bgfx::isTextureValid(0, false, 1, bgfx::TextureFormat::D24S8, dsFlags))
+        {
+            // D24S8 unsupported on this device/driver (common on some
+            // Vulkan mobile GPUs). D32FS8 has near-universal support and
+            // bgfx exposes it natively as a single combined format --
+            // no split attachments needed.
+            m_format = TextureFormat::Depth32FStencil8;
+        }
+    }
+
     createResources();
 }
 

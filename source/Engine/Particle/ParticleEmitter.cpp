@@ -187,6 +187,8 @@ void ParticleEmitter::PreFinalize()
             data.Color = particle.Color * (ParticleLighting ? vec4(GetLightForParticle(particle), 1.0f) : vec4(1.0f));
             data.Color.a *= particle.Transparency;
 
+			data.UvPositionAndScale = particle.UvPositionAndScale;
+
             float depth = glm::dot(cameraForward, particle.position - cameraPosition);
             visible.emplace_back(depth, std::move(data));
         }
@@ -234,6 +236,9 @@ void ParticleEmitter::PreFinalize()
             data.model[3] = world[3];
             data.Color = particle.Color * vec4(GetLightForParticle(particle), 1.0f);
             data.Color.a *= particle.Transparency;
+
+            data.UvPositionAndScale = particle.UvPositionAndScale;
+
             preFinalizedInstances.push_back(std::move(data));
         }
 

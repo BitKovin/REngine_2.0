@@ -38,6 +38,7 @@ struct VertexData {
 struct InstanceData{
     glm::vec4 model[4];     // exactly i_data0..i_data3 (columns, shader expects this order)
     glm::vec4 Color;        // i_data4
+    glm::vec4 UvPositionAndScale;        // i_data5
 
     // Allocates a bgfx instance buffer and returns a typed pointer to fill.
     static InstanceData* Alloc(bgfx::InstanceDataBuffer& idb, uint32_t count) {
@@ -49,5 +50,5 @@ struct InstanceData{
     }
 };
 
-static_assert(sizeof(InstanceData) == 80,
-    "InstanceData must be exactly 80 bytes (4×vec4 + vec4) — no padding allowed on any platform!");
+static_assert(sizeof(InstanceData) == 96,
+    "InstanceData must be exactly 96 bytes (4×vec4 + vec4 + vec4) — no padding allowed on any platform!");

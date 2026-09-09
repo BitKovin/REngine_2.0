@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <unordered_map>
 
 #include <DebugDraw.hpp>
 #include <AssetRegistry.h>
@@ -962,22 +963,17 @@ int CQuake3BSP::GetFaceTextureNativeId(int cachedTextureId) const
 // PreloadFace / PreloadFaces
 // ─────────────────────────────────────────────────────────────────────────────
 
-void CQuake3BSP::PreloadFace(int index)
+// Resolves everything about a face's texture that depends only on the
+// texture's name -- which itself depends only on textureID, never on any
+// per-face lightmap data (lightmap style/atlas assignment is independent of
+// which texture a face uses). Two faces with the same textureID always
+// produce an identical result here, so PreloadFace() memoizes this per
+// textureID instead of calling it once per face. That matters most for
+// animated textures: the loop below can probe the filesystem for up to
+// ~70 files (36 frames x 2 extensions each), which used to happen once for
+// every single face using that texture instead of once per unique texture.
+CachedFaceTextureData CQuake3BSP::ResolveFaceTextureData(const string& textureName) const
 {
-    // Resolve texture name from either face type
-    const char* rawTexName = nullptr;
-    int numOfIndices = 0;
-
-    if (m_isFBSP && m_pFacesRBSP) {
-        rawTexName = pTextures[m_pFacesRBSP[index].textureID].strName;
-        numOfIndices = m_pFacesRBSP[index].numOfIndices;
-    }
-    else {
-        rawTexName = pTextures[m_pFaces[index].textureID].strName;
-        numOfIndices = m_pFaces[index].numOfIndices;
-    }
-
-    string textureName(rawTexName);
     int nameL = (int)textureName.length();
 
     bool isAnimated = false;
@@ -1073,12 +1069,74 @@ void CQuake3BSP::PreloadFace(int index)
         }
     }
 
-
     CachedFaceTextureData data;
     data.isCube = isCube;
     data.textureId = faceTexture;
     data.textureName = textureName;
     data.transparent = textureName.ends_with("_t") || transparentPixels || StringHelper::Contains(textureName, "/common/");
+
+    if (isAnimated && !baseFilename.empty() && !isCube) {
+        std::vector<int> animFrames;
+        const int MAX_FRAMES = 36;  // Single-char frames max out at 36 (0-9 + a-z)
+
+        for (int f = 0; f < MAX_FRAMES; ++f) {
+            // Map frame index to character: 0-9 -> '0'-'9', 10-35 -> 'a'-'z'
+            char frameChar = (f < 10) ? ('0' + f) : ('a' + (f - 10));
+
+            string frameFilename = animPrefix + frameChar + baseFilename;
+            string frameFullTextureName = directory + frameFilename;
+            string framePath = "GameData/" + frameFullTextureName + ".png";
+
+            auto frameTex = AssetRegistry::GetTextureFromFile(framePath);
+            if (frameTex == nullptr || !frameTex->valid) {
+                // Try .jpg if .png failed
+                framePath = "GameData/" + frameFullTextureName + ".jpg";
+                frameTex = AssetRegistry::GetTextureFromFile(framePath);
+            }
+
+            if (!frameTex || frameTex->getID() == 0) {
+                break;  // Stop at first missing frame (standard engine behavior)
+            }
+            animFrames.push_back((int)frameTex->getID());
+        }
+
+        if (!animFrames.empty()) {
+            data.animatedTextureFrames = std::move(animFrames);
+        }
+    }
+
+    return data;
+}
+
+void CQuake3BSP::PreloadFace(int index, std::unordered_map<int, CachedFaceTextureData>& textureCache)
+{
+    // Resolve texture name from either face type
+    const char* rawTexName = nullptr;
+    int numOfIndices = 0;
+    int textureID = 0;
+
+    if (m_isFBSP && m_pFacesRBSP) {
+        textureID = m_pFacesRBSP[index].textureID;
+        rawTexName = pTextures[textureID].strName;
+        numOfIndices = m_pFacesRBSP[index].numOfIndices;
+    }
+    else {
+        textureID = m_pFaces[index].textureID;
+        rawTexName = pTextures[textureID].strName;
+        numOfIndices = m_pFaces[index].numOfIndices;
+    }
+
+    string textureName(rawTexName);
+
+    // Every face sharing this textureID resolves to the same texture data, so
+    // only the first face to touch a given texture actually pays for
+    // AssetRegistry lookups / animation-frame probing; the rest are a cache hit.
+    auto cacheIt = textureCache.find(textureID);
+    if (cacheIt == textureCache.end())
+        cacheIt = textureCache.emplace(textureID, ResolveFaceTextureData(textureName)).first;
+
+    CachedFaceTextureData data = cacheIt->second;
+    bool isCube = data.isCube;
     data.numOfIndices = numOfIndices;
     data.numActiveSlots = 1;
 
@@ -1127,44 +1185,22 @@ void CQuake3BSP::PreloadFace(int index)
         }
     }
 
-    if (isAnimated && !baseFilename.empty() && !isCube) {
-        std::vector<int> animFrames;
-        const int MAX_FRAMES = 36;  // Single-char frames max out at 36 (0-9 + a-z)
-
-        for (int f = 0; f < MAX_FRAMES; ++f) {
-            // Map frame index to character: 0-9 -> '0'-'9', 10-35 -> 'a'-'z'
-            char frameChar = (f < 10) ? ('0' + f) : ('a' + (f - 10));
-
-            string frameFilename = animPrefix + frameChar + baseFilename;
-            string frameFullTextureName = directory + frameFilename;
-            string framePath = "GameData/" + frameFullTextureName + ".png";
-
-            auto frameTex = AssetRegistry::GetTextureFromFile(framePath);
-            if (frameTex == nullptr || !frameTex->valid) {
-                // Try .jpg if .png failed
-                framePath = "GameData/" + frameFullTextureName + ".jpg";
-                frameTex = AssetRegistry::GetTextureFromFile(framePath);
-            }
-
-            if (!frameTex || frameTex->getID() == 0) {
-                break;  // Stop at first missing frame (standard engine behavior)
-            }
-            animFrames.push_back((int)frameTex->getID());
-        }
-
-        if (!animFrames.empty()) {
-            data.animatedTextureFrames = std::move(animFrames);
-        }
-    }
-
     cachedFaces[index] = data;
 }
 
 void CQuake3BSP::PreloadFaces()
 {
     cachedFaces = new CachedFaceTextureData[m_numOfFaces];
+
+    // Keyed by textureID: every face using the same texture shares an
+    // identical resolved result (see ResolveFaceTextureData), so this
+    // collapses what used to be up to m_numOfFaces texture resolutions down
+    // to at most m_numOfTextures of them.
+    std::unordered_map<int, CachedFaceTextureData> textureCache;
+    textureCache.reserve(m_numOfTextures > 0 ? m_numOfTextures : 16);
+
     for (int i = 0; i < m_numOfFaces; i++)
-        PreloadFace(i);
+        PreloadFace(i, textureCache);
 
     PrecomputeFaceAABBs();
 }
@@ -1194,7 +1230,7 @@ void CQuake3BSP::BuildMergedModels()
             string styleKey = "";
             if (m_pFacesRBSP) {
                 const tBSPFaceRBSP& rf = m_pFacesRBSP[i];
-                for (int s = 1; s < BSP_MAX_LIGHTMAP_STYLES; ++s) 
+                for (int s = 1; s < BSP_MAX_LIGHTMAP_STYLES; ++s)
                 {
                     styleKey += "|" + to_string(rf.lightmapStyles[s]);
                     styleKey += ":" + to_string(rf.lightmapNum[s]);
@@ -1240,9 +1276,9 @@ void CQuake3BSP::BuildMergedModels()
         MergedModelFacesData data;
 
         data.vertexOffset = static_cast<uint32_t>(allVertices.size());
-        data.vertexCount  = static_cast<uint32_t>(mergedMesh.vertices.size());
-        data.indexOffset  = static_cast<uint32_t>(allIndices.size());
-        data.IndexCount   = static_cast<uint32_t>(mergedMesh.indices.size());
+        data.vertexCount = static_cast<uint32_t>(mergedMesh.vertices.size());
+        data.indexOffset = static_cast<uint32_t>(allIndices.size());
+        data.IndexCount = static_cast<uint32_t>(mergedMesh.indices.size());
 
         allVertices.insert(allVertices.end(),
             mergedMesh.vertices.begin(), mergedMesh.vertices.end());
@@ -1337,7 +1373,7 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
         LightVolPointData data;
         data.ambientColor = lightmapColor / 2.0f;
         data.directColor = lightmapColor;
-        data.direction = vec3(0,1,0);
+        data.direction = vec3(0, 1, 0);
         return data;
     }
 
@@ -1391,7 +1427,7 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
             glm::vec3 ambient(0.0f);
             glm::vec3 directional(0.0f);
 
-			float styleWeight = 0.6f; // empirically chosen to match in-engine brightness
+            float styleWeight = 0.6f; // empirically chosen to match in-engine brightness
 
             if (m_isRBSP == false)
                 styleWeight = 1.25f;
@@ -1403,14 +1439,14 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
                 const glm::vec3 styleColor = GetStyleColor(vol.styles[s]);
                 if (styleColor == glm::vec3(0.0f)) continue; // style is off – skip
 
-				float ambientFactor = 1.0f;
+                float ambientFactor = 1.0f;
                 float directionalFactor = 1.0f;
 
                 if (s > 0)
                 {
                     auto maxDirectionalLight = std::max(std::max(vol.directional[s][0], vol.directional[s][1]), vol.directional[s][2]);
 
-					ambientFactor = std::min(maxDirectionalLight / 255.0f * 4.0f, 1.0f);
+                    ambientFactor = std::min(maxDirectionalLight / 255.0f * 4.0f, 1.0f);
                     directionalFactor = 0.8f;
                 }
 
@@ -1989,7 +2025,7 @@ glm::vec3 CQuake3BSP::GetStyleColor(uint8_t style) const
     // value = glm::clamp(value, 0.0f, 2.0f);
 
     return glm::vec3(value);
-}   
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Rendering
@@ -2162,7 +2198,7 @@ bool CQuake3BSP::RenderMergedFace(int mergedIndex, bool lightmap,
     shader->SetUniform("light_color", lightData.ambientColor);
     shader->SetUniform("direct_light_color", lightData.directColor);
     shader->SetUniform("direct_light_dir", lightData.direction);
-	shader->SetUniform("isRBSP", m_isRBSP);
+    shader->SetUniform("isRBSP", m_isRBSP);
 
     bgfx::TextureHandle albedoHandle = { static_cast<uint16_t>(faceTexture) };
     if (data.isCube)
@@ -2461,7 +2497,7 @@ void CQuake3BSP::LoadToLevel()
     for (auto& entityData : parsedEntities)
     {
         Entity* ent = LevelObjectFactory::instance().create(entityData.Classname);
-        if (!ent) 
+        if (!ent)
             ent = new Entity();
 
         ent->FromData(entityData);

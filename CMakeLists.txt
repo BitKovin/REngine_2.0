@@ -368,6 +368,10 @@ set(BGFX_INSTALL        OFF CACHE BOOL "" FORCE)
 add_subdirectory(${LIB_DIR}/bgfx/bgfx.cmake)
 target_link_libraries(engine PUBLIC bgfx bx)
 
+if (TARGET bimg_encode)
+    set_target_properties(bimg_encode PROPERTIES EXCLUDE_FROM_ALL ON)
+endif()
+
 # ——————————————————————————————————————————————————————————
 # Hook 3 — post-library platform fixups
 # (e.g. bimg_encode SSE workaround on Emscripten)

@@ -460,8 +460,10 @@ public:
 
     std::string GetLightMapFilePathFromId(int id, const std::string& filePath);
 
-    void PreloadFace(int index);
+    void PreloadFace(int index, std::unordered_map<int, CachedFaceTextureData>& textureCache);
     void PreloadFaces();
+
+    CachedFaceTextureData ResolveFaceTextureData(const std::string& textureName) const;
 
     void BuildMergedModels();
 

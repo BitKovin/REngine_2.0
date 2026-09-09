@@ -19,7 +19,13 @@ public:
     {
         s_flags = BGFX_RESET_NONE;
         s_resolution = { 1280, 720 };
-        s_format = bgfx::TextureFormat::RGBA8;
+        s_format = bgfx::TextureFormat::Count;
+
+        if(bgfx::getRendererType() == bgfx::RendererType::Vulkan)
+        {
+            s_format = bgfx::TextureFormat::RGBA8;
+        }
+
         s_dirty = true;
     }
 
@@ -352,7 +358,7 @@ private:
     }
 
     static inline glm::uvec2 s_resolution = { 1280, 720 };
-    static inline bgfx::TextureFormat::Enum s_format = bgfx::TextureFormat::RGBA8;
+    static inline bgfx::TextureFormat::Enum s_format = bgfx::TextureFormat::Count;
     static inline uint32_t s_flags = BGFX_RESET_NONE;
     static inline bool s_dirty = true;
 };

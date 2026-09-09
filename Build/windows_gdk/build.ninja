@@ -14145,7 +14145,7 @@ build sourceLibraries\bgfx\bgfx.cmake\cmake\bgfx\all: phony sourceLibraries\bgfx
 #############################################
 # Folder: F:/Git/SdlWasmEngine/Build/windows_gdk/sourceLibraries/bgfx/bgfx.cmake/cmake/bimg
 
-build sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\all: phony sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\bimg.lib sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\bimg_decode.lib sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\bimg_encode.lib
+build sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\all: phony sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\bimg.lib sourceLibraries\bgfx\bgfx.cmake\cmake\bimg\bimg_decode.lib
 
 # =============================================================================
 

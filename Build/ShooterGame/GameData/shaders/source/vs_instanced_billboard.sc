@@ -1,4 +1,4 @@
-$input a_position, a_texcoord0, i_data0, i_data1, i_data2, i_data3, i_data4
+$input a_position, a_texcoord0, i_data0, i_data1, i_data2, i_data3, i_data4, i_data5
 $output v_texcoord0, v_color0, v_normal, v_world, v_texcoord1, v_tangent, v_bitangent
 
 #include <bgfx_shader.sh>
@@ -26,8 +26,11 @@ void main()
         clipPos.z *= 0.2 * viewmodelScaleFactor.x;
     gl_Position = clipPos;
 
-    v_texcoord0 = a_texcoord0;
-    v_texcoord1 = a_texcoord0;
+    vec2 positionOffset = i_data5.xy;
+    vec2 texcoordScale = i_data5.zw;
+
+    v_texcoord0 = a_texcoord0 * texcoordScale + positionOffset;
+    v_texcoord1 = a_texcoord0 * texcoordScale + positionOffset;
 
     v_color0 = i_data4 * vec4(brightness.x, brightness.x, brightness.x, 1.0);
 

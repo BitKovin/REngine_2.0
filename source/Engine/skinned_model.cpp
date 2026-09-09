@@ -888,7 +888,7 @@ namespace roj
         std::vector<size_t> indices(jobs.size());
         std::iota(indices.begin(), indices.end(), 0);
 
-        std::for_each(std::execution::par, indices.begin(), indices.end(),
+        std::for_each(indices.begin(), indices.end(), 
             [&](size_t i)
             {
                 BakeClipFramesInto(*jobs[i].clip, model, result.frameInterval, baked[i]);
