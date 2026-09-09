@@ -978,7 +978,7 @@ void EngineMain::Render()
         }
     }
 
-    if (LoadingFrames > 0 || true)
+    if (LoadingFrames > 0)
     {
         if (AssetRegistry::HasPendingWork() == false)
         {
