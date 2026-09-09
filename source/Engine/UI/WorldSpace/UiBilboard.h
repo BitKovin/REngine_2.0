@@ -57,6 +57,8 @@ public:
 	{
 		LoadFromFile("GameData/models/engine/widgetPlane.glb", AssetLoadTier::Visual);
 
+		IncludeInEntityBounds = false;
+
 		DepthPrePath = false;
 		DepthWrite = false;
 

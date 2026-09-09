@@ -411,6 +411,9 @@
     <ClCompile Include="ParticleSystems\FireParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Entities\Enemy\EnemyFire.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp">
@@ -699,6 +702,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Player\EcsPlayerTestSystems.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Enemy\EnemyFire.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

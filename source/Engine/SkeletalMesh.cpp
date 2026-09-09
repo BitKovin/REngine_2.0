@@ -239,8 +239,6 @@ BoundingBox SkeletalMesh::GetBoundingBox()
 	box.Min -= vec3(1);
 	box.Max += vec3(1);
 
-	//DebugDraw::Bounds(box.Min, box.Max, 0.01f);
-
 
 	return box;
 }
@@ -1046,7 +1044,7 @@ void SkeletalMesh::SetAnimationState(const AnimationState& animationState)
 	animator.UpdateAnimationPose();
 	animator.m_playing = animationState.playing;
 	oldAnimationEventTime = animationState.oldAnimationEventTime;
-	Update(0);
+	Update(0.0001);
 	PullAnimationEvents();
 
 	InRagdoll = animationState.inRagdoll;
@@ -1055,7 +1053,6 @@ void SkeletalMesh::SetAnimationState(const AnimationState& animationState)
 	{
 
 		StartRagdoll();
-
 		for (auto hitboxBody : hitboxBodies)
 		{
 
@@ -1083,12 +1080,12 @@ void SkeletalMesh::SetAnimationState(const AnimationState& animationState)
 
 			if (posVelRes != animationState.ragdollHitboxLinearVelocty.end())
 			{
-				Physics::SetLinearVelocity(hitboxBody, posVelRes->second);
+				//Physics::SetLinearVelocity(hitboxBody, posVelRes->second);
 			}
 
 			if (rotVelRes != animationState.ragdollHitboxAngularVelocty.end())
 			{
-				Physics::SetAngularVelocity(hitboxBody, rotVelRes->second);
+				//Physics::SetAngularVelocity(hitboxBody, rotVelRes->second);
 			}
 
 

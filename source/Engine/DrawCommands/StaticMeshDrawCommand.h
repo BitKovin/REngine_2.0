@@ -56,7 +56,14 @@ public:
 	vec3 ShadowColorMultValue = vec3(1.0f);
 	vec3 ShadowLightDirection = vec3(0, -1, 0);
 
-	SurfaceType GetSurfaceType() const override { return Material.EffectiveSurfaceType(); }
+	SurfaceType GetSurfaceType() const override 
+	{ 
+
+		if(BlendMode == BgfxStateManager::Blend::Additive)
+			return SurfaceType::Transparent;
+
+		return Material.EffectiveSurfaceType();
+	}
 
 	// Clusters by pixel-shader variant, the thing that actually changes bgfx program state.
 	uint64_t GetSortKey() const override

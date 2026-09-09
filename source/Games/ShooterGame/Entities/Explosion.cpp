@@ -8,6 +8,8 @@
 
 #include <Physics.h>
 
+#include <Entities/Enemy/EnemyFire.h>
+
 // ---------------------------------------------------------------------------
 // Random helpers
 // ---------------------------------------------------------------------------
@@ -292,6 +294,12 @@ void Explosion::Start()
 
 		}
     
+        if (hit.entity->HasTag("canBurn"))
+        {
+            EnemyFire* enemyFire = new EnemyFire(hit.entity);
+            enemyFire->Start();
+            Level::Current->AddEntity(enemyFire);
+        }
 
 
         hit.entity->OnPointDamage(damage, hit.position,

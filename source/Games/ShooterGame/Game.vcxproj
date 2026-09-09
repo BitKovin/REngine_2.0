@@ -392,6 +392,7 @@
     <ClCompile Include="Entities\Enemy\Enemies\NpcHumanGun.cpp" />
     <ClCompile Include="Entities\Enemy\Enemies\NpcKnight.cpp" />
     <ClCompile Include="Entities\Enemy\Enemies\NpcZombie.cpp" />
+    <ClCompile Include="Entities\Enemy\EnemyFire.cpp" />
     <ClCompile Include="Entities\Enemy\IEnemy.cpp" />
     <ClCompile Include="Entities\Enviroment\Door.cpp" />
     <ClCompile Include="Entities\Explosion.cpp" />
@@ -512,6 +513,7 @@
     <ClInclude Include="Entities\Enemy\DebuffFactory.h" />
     <ClInclude Include="Entities\Enemy\Enemies\NpcHumanBase.h" />
     <ClInclude Include="Entities\Enemy\Enemies\NpcHumanGun.h" />
+    <ClInclude Include="Entities\Enemy\EnemyFire.h" />
     <ClInclude Include="Entities\Enviroment\Door.h" />
     <ClInclude Include="Entities\Enemy\IEnemy.h" />
     <ClInclude Include="Entities\Explosion.h" />

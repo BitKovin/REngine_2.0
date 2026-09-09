@@ -44,6 +44,7 @@ void ParticleDrawCommand::DrawForward(const mat4& view, const mat4& projection)
 	shader->SetUniform("view", view);
 	shader->SetUniform("projection", projection);
 	shader->SetUniform("is_decal", IsDecal);
+	shader->SetUniform("modelColor", glm::vec4(1.0f));
 
 	shader->SetUniform("viewmodelScaleFactor", 1);
 	shader->SetUniform("isViewmodel", IsViewmodel);

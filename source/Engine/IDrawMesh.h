@@ -35,6 +35,8 @@ public:
 	double LastRenderedTime = 0;
 	bool WasRended = true;
 
+	bool IncludeInEntityBounds = true;
+
 	virtual ~IDrawMesh() = default;
 
 	virtual float GetDistanceToCamera()

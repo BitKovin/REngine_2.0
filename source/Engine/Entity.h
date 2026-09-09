@@ -193,6 +193,33 @@ public:
 		return false;
 	}
 
+	BoundingBox GetBoundingBox()
+	{
+
+		vec3 min = vec3(FLT_MAX);
+		vec3 max = vec3(-FLT_MAX);
+
+		for (IDrawMesh* mesh : Drawables)
+		{
+			if (mesh->IncludeInEntityBounds == false) continue;
+
+			vec3 meshMin = mesh->GetBoundingBox().Min;
+			vec3 meshMax = mesh->GetBoundingBox().Max;
+
+			min = glm::min(min, meshMin);
+			max = glm::max(max, meshMax);
+
+		}
+
+		if (min == vec3(FLT_MAX) && max == vec3(-FLT_MAX))
+		{
+			min = Position;
+			max = Position;
+		}
+
+		return BoundingBox(min, max);
+	}
+
 	virtual void OnBodyEntered(Body* body, Entity* entity) {}
 	virtual void OnBodyExited(Body* body, Entity* entity) {}
 
@@ -268,6 +295,7 @@ public:
 	const ComponentList& Components() const { return m_Components; }
 
 	void OnLevelRemoved();
+
 
 protected:
 

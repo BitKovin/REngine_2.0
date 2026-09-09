@@ -12,7 +12,7 @@ public:
         DepthSorting = false;
 
         // Continuous emission - engine spawns particles on its own via SpawnRate.
-        InitialSpawnCount = 0;
+        InitialSpawnCount = 3;
         SpawnRate = 13.0f;
         Emitting = true;
         Duration = 1000000; // effectively infinite / looping emitter
@@ -131,7 +131,7 @@ private:
     }
 };
 
-class FireSystem : public GlobalParticleSystem
+class FireSystem : public ParticleSystem
 {
 public:
     particle_fireFlame* flame;

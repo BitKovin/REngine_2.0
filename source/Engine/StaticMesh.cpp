@@ -262,6 +262,7 @@ void StaticMesh::FinalizeFrameData()
 		}
 		cmd.Hidden = isHiddenMesh;
 
+
 		cmd.WorldMatrix = finalizedWorld;
 		cmd.WorldBounds = finalizedBoundingBox;
 

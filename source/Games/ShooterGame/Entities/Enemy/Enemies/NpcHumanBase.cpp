@@ -40,6 +40,8 @@ NpcHumanBase::NpcHumanBase()
 
     CanMigrateOwner          = true;
     DestroyOnOwnerDisconnect = false;
+
+    Tags.push_back("canBurn");
 }
 
 NpcHumanBase::~NpcHumanBase()
