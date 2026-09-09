@@ -13,7 +13,7 @@ public:
 
         // Continuous emission - engine spawns particles on its own via SpawnRate.
         InitialSpawnCount = 0;
-        SpawnRate = 15.0f;
+        SpawnRate = 13.0f;
         Emitting = true;
         Duration = 1000000; // effectively infinite / looping emitter
         BlendMode = BgfxStateManager::Blend::Additive;
@@ -46,7 +46,7 @@ public:
         {
             particle.Transparency = 1.0f;
         }
-        particle.Transparency *= 0.7;
+        particle.Transparency *= 0.75;
         // Colour cools from bright yellow-white at the base to deep red/orange at the tip.
         glm::vec3 hotColor = glm::vec3(1.0f, 0.9f, 0.5f);
         glm::vec3 coolColor = glm::vec3(0.9f, 0.25f, 0.05f);
@@ -67,7 +67,7 @@ public:
         Particle particle = ParticleEmitter::GetNewParticle();
 
         // Small random spawn offset so flames don't all stack on one point.
-        particle.position += RandomOffset(0.3f) * vec3(1,0.3,1);
+        particle.position += RandomOffset(0.2f) * vec3(1,0.3,1);
 
         // Gentle upward drift with a bit of sideways randomness.
         glm::vec3 velocity = WorldOrientationManager::GetUpVector() * glm::mix(0.3f, 1.4f, RandomFloat());

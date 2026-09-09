@@ -69,14 +69,14 @@ void main()
     vec4 c_m       = texture2D(screenTexture, clamp(screenCoords - totalOffset, 0.0, 1.0));
     vec4 currentBlur = (c_center * 0.5) + (c_p + c_m) * 0.25;
 
-    if (customId != 1)
+    if (customId != 100)
         currentBlur.a = 0.0;
 
     vec4 historyOffset  = texture2D(uAccumulated, clamp(screenCoords - motionOffset * 0.6, 0.0, 1.0));
     vec4 historyCombined = mix(history, historyOffset, 0.5);
 
     float w;
-    if (customId != 1)
+    if (customId != 100)
         w = exp(-dt / max(1e-6, uPersistence.x));
     else
         w = exp(-dt / 0.007);

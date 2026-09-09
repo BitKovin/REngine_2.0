@@ -129,9 +129,7 @@ void Renderer::RenderLevel(Level* level, bgfx::FrameBufferHandle targetFrameBuff
     ivec2 screenResolution = GetScreenResolution();
     BlurAccumulatedBuffer->resize(screenResolution.x, screenResolution.y);
 
-    BlurAccumulatedBuffer->setAsRenderTarget();
-    bgfx::setViewClear(BlurAccumulatedBuffer->viewId(), BGFX_CLEAR_COLOR, 0x00000000, 1.0f, 0);
-    bgfx::touch(BlurAccumulatedBuffer->viewId());
+
 
     BlurResultBuffer->resize(screenResolution.x, screenResolution.y);
 
@@ -152,6 +150,8 @@ void Renderer::RenderLevel(Level* level, bgfx::FrameBufferHandle targetFrameBuff
 
         bgfx::setViewClear(ViewIdManager::GetCurrentId(),
             BGFX_CLEAR_COLOR, kClearBlack, 1.0f, 0);
+
+		bgfx::setViewName(ViewIdManager::GetCurrentId(), "Motion Blur Accumulate Pass");
 
         
         blurShader->UseProgram();
@@ -174,6 +174,9 @@ void Renderer::RenderLevel(Level* level, bgfx::FrameBufferHandle targetFrameBuff
 
         // ---- Motion blur apply pass ----
         BlurResultBuffer->setAsRenderTarget();
+
+        bgfx::setViewName(ViewIdManager::GetCurrentId(), "Motion Blur Apply Pass");
+
         blurApplyShader->UseProgram();
         blurApplyShader->SetTexture("screenTexture", colorTex);
         blurApplyShader->SetTexture("blurTexture", BlurAccumulatedBuffer->textureHandle());
@@ -206,7 +209,7 @@ void Renderer::RenderLevel(Level* level, bgfx::FrameBufferHandle targetFrameBuff
 
 
     fullscreenShader->UseProgram();
-    fullscreenShader->SetTexture("screenTexture", colorTex);
+    fullscreenShader->SetTexture("screenTexture", resultTex);
     fullscreenShader->SetTexture("depthTexture", depthResolveBuffer->textureHandle());
     fullscreenShader->SetUniform("screenResolution", nativeRes);
     fullscreenShader->SetUniform("fxaaEnabled", FXAAEnabled);
