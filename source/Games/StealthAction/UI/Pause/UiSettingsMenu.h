@@ -1,0 +1,164 @@
+#pragma once
+
+#include <UI/UiButton.hpp>
+#include <UI/UiVerticalBox.hpp>
+#include <UI/UiText.hpp>
+#include <UI/UiImage.hpp>
+#include <UI/UiCanvas.hpp>
+
+#include <PauseGameManager.hpp>
+
+#include "UiVideoSettings.h"
+#include "UiInputSettings.h"
+#include "UiGameSettings.h"
+#include "UiSoundSettings.h"
+
+class UiSettingsMenu : public UiCanvas
+{
+public:
+
+	std::shared_ptr<UiElement> parentMenu;
+
+	UiSettingsMenu(std::shared_ptr<UiElement> parentMenu_)
+	{
+
+		FocusTrap = true;
+
+		this->parentMenu = parentMenu_;
+
+		background = make_shared<UiImage>();
+		background->color = vec4(0.2f, 0.0f, 0.0f, 0.5f);
+		AddChild(background);
+
+		optionsBox = std::make_shared<UiVerticalBox>();
+		optionsBox->origin = vec2(0.5f);
+		optionsBox->pivot = vec2(0.5f);
+
+		gameButton = MakeButton("${SETTINGS_MENU_GAMEPLAY}");
+		inputButton = MakeButton("${SETTINGS_MENU_INPUT}");
+		videoButton = MakeButton("${SETTINGS_MENU_VIDEO}");
+		soundButton = MakeButton("${SETTINGS_MENU_SOUND}");
+		backButton = MakeButton("${SETTINGS_BACK}");
+
+		optionsBox->AddChild(gameButton);
+		optionsBox->AddChild(inputButton);
+		optionsBox->AddChild(videoButton);
+		optionsBox->AddChild(soundButton);
+		optionsBox->AddChild(backButton);
+
+		float maxButtonWidth = 0;
+
+		for (auto& child : optionsBox->children)
+		{
+			if (child->GetSize().x > maxButtonWidth)
+			{
+				maxButtonWidth = child->GetSize().x;
+			}
+		}
+
+		for (auto& child : optionsBox->children)
+		{
+			child->size.x = maxButtonWidth;
+		}
+
+		AddChild(optionsBox);
+
+		gameButton->onClick = [&]()
+			{
+				visible = false;
+
+				EngineMain::MainInstance->Viewport.AddChild(std::make_shared<UiGameSettings>(shared_from_this()));
+
+			};
+
+		videoButton->onClick = [&]()
+			{
+				visible = false;
+
+				EngineMain::MainInstance->Viewport.AddChild(std::make_shared<UiVideoSettings>(shared_from_this()));
+
+			};
+
+		inputButton->onClick = [&]()
+			{
+				visible = false;
+
+				EngineMain::MainInstance->Viewport.AddChild(std::make_shared<UiInputSettings>(shared_from_this()));
+
+			};
+
+		soundButton->onClick = [&]()
+			{
+				visible = false;
+
+				EngineMain::MainInstance->Viewport.AddChild(std::make_shared<UiSoundSettings>(shared_from_this()));
+
+			};
+
+		backButton->onClick = [&]()
+			{
+				parentMenu->visible = true;
+				GameSettings::Instance().Video.FromCurrentState();
+				GameSettings::Instance().ApplyAll();
+				GameSettings::Instance().SaveToFile();
+				RemoveFromParent();
+			};
+
+		UpdateChildrenOffsetRecursive();
+
+	}
+
+	void OnNavCancel() override
+	{
+		backButton->onClick();
+	}
+
+	void FinalizeChildren() override
+	{
+
+		background->size = GetSize();
+
+		UiCanvas::FinalizeChildren();
+	}
+
+private:
+
+	std::shared_ptr<UiVerticalBox> optionsBox;
+
+	std::shared_ptr<UiButton> gameButton;
+	std::shared_ptr<UiButton> inputButton;
+	std::shared_ptr<UiButton> videoButton;
+	std::shared_ptr<UiButton> soundButton;
+	std::shared_ptr<UiButton> backButton;
+
+	std::shared_ptr<UiImage> background;
+
+	std::shared_ptr<UiButton> MakeButton(std::string text)
+	{
+
+		std::shared_ptr<UiButton> btn = make_shared<UiButton>();
+		std::shared_ptr<UiText> txt = make_shared<UiText>();
+
+
+
+		txt->text = text;
+
+		txt->pivot = vec2(0.5f);
+		txt->origin = vec2(0.5f);
+
+		float buttonWidth = 400;
+
+		if (buttonWidth < txt->GetSize().x + 20)
+		{
+			buttonWidth = txt->GetSize().x + 20;
+		}
+
+		btn->size = vec2(buttonWidth, 70);
+
+		btn->AddChild(txt);
+
+		return btn;
+	}
+
+};
+

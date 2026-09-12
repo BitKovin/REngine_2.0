@@ -1,0 +1,95 @@
+#include "GameSettings.h"
+
+#include <fstream>
+#include <sstream>
+#include <Logger.hpp>
+
+#include <FileSystem/FileSystem.h>
+
+std::string GameSettings::DefaultSavePath = "SaveData/GameSettings.cfg";
+
+GameSettings& GameSettings::Instance()
+{
+    static GameSettings instance;
+    return instance;
+}
+
+void GameSettings::ApplyAll() const
+{
+    Video.ApplyToEngine();
+    Audio.ApplyToEngine();
+    Input.ApplyToEngine();
+}
+
+void GameSettings::ResetAllToDefaults()
+{
+    Video.ResetToDefaults();
+    Audio.ResetToDefaults();
+    Input.ResetToDefaults();
+}
+
+std::string GameSettings::Serialize() const
+{
+    std::ostringstream ss;
+
+    ss << "[Video]\n" << Video.Serialize() << "\n";
+    ss << "[Audio]\n" << Audio.Serialize() << "\n";
+    ss << "[Input.Sensitivity]\n" << Input.SerializeSensitivity() << "\n";
+    ss << "[Input.Bindings]\n" << Input.SerializeBindings() << "\n";
+
+    return ss.str();
+}
+
+void GameSettings::Deserialize(const std::string& text)
+{
+    std::istringstream stream(text);
+    std::string line;
+    std::string section;
+
+    while (std::getline(stream, line))
+    {
+        // Trim trailing \r (Windows-authored files) and surrounding whitespace.
+        while (!line.empty() && (line.back() == '\r' || line.back() == '\n'))
+            line.pop_back();
+
+        size_t start = line.find_first_not_of(" \t");
+        if (start == std::string::npos) continue; // blank line
+        size_t end = line.find_last_not_of(" \t");
+        line = line.substr(start, end - start + 1);
+
+        if (line.empty() || line[0] == '#') continue;
+
+        if (line.front() == '[' && line.back() == ']')
+        {
+            section = line.substr(1, line.size() - 2);
+            continue;
+        }
+
+        size_t eq = line.find('=');
+        if (eq == std::string::npos) continue;
+
+        std::string key = line.substr(0, eq);
+        std::string value = line.substr(eq + 1);
+
+        if (section == "Video")               Video.ApplyLine(key, value);
+        else if (section == "Audio")          Audio.ApplyLine(key, value);
+        else if (section == "Input.Sensitivity") Input.ApplySensitivityLine(key, value);
+        else if (section == "Input.Bindings")    Input.ApplyBindingsLine(key, value);
+    }
+}
+
+bool GameSettings::SaveToFile(const std::string& path) const
+{
+    auto txt = Serialize();
+    return FileSystemEngine::WriteFile(path, txt);
+}
+
+bool GameSettings::LoadFromFile(const std::string& path)
+{
+    std::string txt = FileSystemEngine::ReadFile(path);
+
+    if (txt.empty()) return false;
+
+    Deserialize(txt);
+    return true;
+}
