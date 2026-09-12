@@ -11,6 +11,10 @@ WeaponMelee::WeaponMelee()
 	// moment it's equipped, and only lowers via the auto-hide timer / hide
 	// button (see Weapon::autoHideTimer).
 	autoHideTimer = AutoHideWaitTime;
+
+	HiddenPosePosition = vec3(0.00f, 0.0f, 0.00f);
+	HiddenPoseRotation = vec3(20.0f, 0.0f, 0.0f);
+	HiddenPoseRotationPoint = vec3(0.0f, 0.f, 0.f);
 }
 
 void WeaponMelee::Start()
@@ -20,6 +24,15 @@ void WeaponMelee::Start()
 	hitSoundPlayer = SoundPlayer::Create(params.hitSoundEvent);
 
 	SwitchDelay.AddDelay(0.35f);
+
+	// Self-init immediately, same as WeaponFirearm::Start() - entities
+	// spawned mid-Update() don't get their own Update() call until next
+	// frame otherwise, which would both show a wrong pose for one frame and
+	// (for the "attack" press that caused this weapon to be equipped in the
+	// first place) miss the swing entirely.
+	Update();
+	AsyncUpdate();
+	LateUpdate();
 }
 
 void WeaponMelee::LoadAssets()
@@ -70,8 +83,7 @@ void WeaponMelee::LoadAssets()
 	if (!params.modelPathTp.empty())
 		thirdPersonModelPath = params.modelPathTp;
 
-		attackDelay.AddDelay(0.7f);
-		SwitchDelay.AddDelay(0.4f);
+	SwitchDelay.AddDelay(0.4f);
 }
 
 void WeaponMelee::PlayBoth(const std::string& anim, bool loop, float blend)

@@ -61,11 +61,11 @@ public:
         // Readying (attack2, inherited DrawProgress) speed - the rifle
         // raises to the hip-ready position at this rate.
         DrawTime = 0.2f;
-        HideTime = 0.4f;
+        HideTime = 0.2f;
 
         // Rifle-styled hidden/carry pose: lowered, barrel forward-down.
-        HiddenPosePosition = vec3(0.03f, -0.28f, 0.10f);
-        HiddenPoseRotation = vec3(-65.0f, 8.0f, -4.0f);
+        HiddenPosePosition = vec3(0.080, -0.470, 0.140);
+        HiddenPoseRotation = vec3(65.0f, 8.0f, -4.0f);
         HiddenPoseRotationPoint = vec3(-0.03f, -0.14f, 0.55f);
 
     }
@@ -81,7 +81,7 @@ public:
 
         // True aim-down-sights: only usable once readied, toggled by its own
         // dedicated key rather than tied to holding attack2.
-        if (Input::GetAction("toggleAim")->Pressed() && IsReady())
+        if (Input::GetAction("interact")->Pressed() && IsReady())
             aimToggled = !aimToggled;
 
         if (!IsReady())
@@ -104,6 +104,7 @@ public:
         ImGui::Begin("Sniper Weapon Debug");
         ImGui::Checkbox("Silencer", &Silencer);
         ImGui::DragFloat3("Weapon Offset", &params.weaponOffset.x, 0.01f);
+		ImGui::DragFloat3("Weapon Hide Pose Position", &HiddenPosePosition.x, 0.01f);
         ImGui::End();
     }
 

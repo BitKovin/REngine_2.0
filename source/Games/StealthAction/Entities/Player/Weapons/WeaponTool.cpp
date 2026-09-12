@@ -15,6 +15,15 @@ WeaponTool::WeaponTool()
 void WeaponTool::Start()
 {
 	SwitchDelay.AddDelay(0.35f);
+
+	// Self-init immediately, same as WeaponFirearm::Start() - entities
+	// spawned mid-Update() don't get their own Update() call until next
+	// frame otherwise, which would both show a wrong pose for one frame and
+	// (for the "useTool" press that caused this weapon to be equipped in
+	// the first place) miss its use entirely.
+	Update();
+	AsyncUpdate();
+	LateUpdate();
 }
 
 void WeaponTool::LoadAssets()

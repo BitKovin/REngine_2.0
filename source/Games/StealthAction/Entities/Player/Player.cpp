@@ -94,8 +94,9 @@ void Player::Start()
 	AddItemToInventory("weapon_pistol");
 	AddItemToInventory("weapon_shotgun");
 	AddItemToInventory("weapon_tommy");
-	//AddItemToInventory("weapon_cane");
+	AddItemToInventory("weapon_cane");
 	AddItemToInventory("weapon_mpsd");
+	AddItemToInventory("weapon_sniper");
 
 	TryEquipRole(WeaponRole::Melee, true);
 
@@ -1570,25 +1571,32 @@ void Player::UpdateWeapon()
 
 		currentWeapon->HideWeapon = bike_progress;
 
-		// "Held" pose (weapon drawn / presented) - as before.
-		vec3 heldWorldPos = MathHelper::TransformVector(rotatedWeaponPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;
-		vec3 heldRotation = MathHelper::ToYawPitchRoll(qResult);
+		// Held pose, in LOCAL (pre-camera) space - as before.
+		glm::quat qHeldLocal = qRunHide * qAdd;
 
-		// "Hidden" pose (holstered / lowered) - same rotate-around-point
-		// trick as the run pose above, but using this weapon's own
-		// HiddenPosePosition/HiddenPoseRotationPoint/HiddenPoseRotation (see
-		// Weapon::SkipDrawAnimation - this is what replaces canned draw
-		// animations, and what "return to hidden position" after the
-		// auto-hide timer / hide button lands on).
+		// Hidden pose, also in LOCAL space: same rotate-around-point trick,
+		// using this weapon's own HiddenPosePosition/HiddenPoseRotationPoint/
+		// HiddenPoseRotation (see Weapon::SkipDrawAnimation - this is what
+		// replaces canned draw animations, and what "return to hidden
+		// position" after the auto-hide timer / hide button lands on).
 		vec3 hiddenLocalPos = MathHelper::RotateAroundPoint(currentWeapon->HiddenPosePosition, currentWeapon->HiddenPoseRotationPoint, currentWeapon->HiddenPoseRotation);
-		glm::quat qHiddenResult = qCurrent * MathHelper::GetRotationQuaternion(currentWeapon->HiddenPoseRotation);
-		vec3 hiddenWorldPos = MathHelper::TransformVector(hiddenLocalPos, Camera::GetMatrix());
-		vec3 hiddenRotation = MathHelper::ToYawPitchRoll(qHiddenResult);
+		glm::quat qHiddenLocal = MathHelper::GetRotationQuaternion(currentWeapon->HiddenPoseRotation);
 
 		float drawT = std::clamp(currentWeapon->DrawProgress, 0.0f, 1.0f);
 
-		currentWeapon->Position = lerp(hiddenWorldPos, heldWorldPos, drawT);
-		currentWeapon->Rotation = lerp(hiddenRotation, heldRotation, drawT);
+		// Blend in LOCAL space, BEFORE the camera transform is applied - this
+		// is the part that was wrong before: blending two already-camera-
+		// relative world rotations makes the result depend on which way the
+		// player happens to be looking (their euler decompositions differ
+		// non-linearly with camera pitch/yaw). Blending pre-camera and then
+		// applying the camera transform once, at the end, avoids that.
+		vec3 blendedLocalPos = lerp(hiddenLocalPos, rotatedWeaponPos, drawT);
+		glm::quat qBlendedLocal = glm::slerp(qHiddenLocal, qHeldLocal, drawT);
+
+		glm::quat qFinal = qCurrent * qBlendedLocal;
+
+		currentWeapon->Position = MathHelper::TransformVector(blendedLocalPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;
+		currentWeapon->Rotation = MathHelper::ToYawPitchRoll(qFinal);
 
 		if(dead)
 			currentWeapon->Rotation.x += std::min(deathAnimDelay.GetProgress(), 1.0f) * 50.0f;

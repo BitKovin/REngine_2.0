@@ -20,14 +20,14 @@ WeaponFirearm::WeaponFirearm(const FirearmParams& initialParams)
 	// (HideTime) this firearm. Tune per weapon - e.g. a heavy weapon could
 	// use slower values. See Weapon::DrawTime / HideTime / DrawProgress.
 	DrawTime = 0.2f;
-	HideTime = 0.4f;
+	HideTime = 0.2f;
 
 	// Default hidden/holstered pose for a one-handed firearm: tucked in
 	// close to the chest, muzzle angled down. Long-guns (shotgun, tommy,
 	// mpsd, sniper, cannon) override this in their own ctors to a lower,
 	// barrel-forward carry pose - see each weapon_*.cpp.
 	HiddenPosePosition = vec3(0.02f, -0.18f, 0.06f);
-	HiddenPoseRotation = vec3(-55.0f, 15.0f, -8.0f);
+	HiddenPoseRotation = vec3(55.0f, 15.0f, -8.0f);
 	HiddenPoseRotationPoint = vec3(-0.04f, -0.10f, 0.35f);
 
 }

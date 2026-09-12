@@ -24,6 +24,8 @@ public:
         params.attackDelayTime = 0.35f;
         params.switchDelayTime = 0.3f;
 
+		params.weaponOffset = vec3(0.02f, -0.00f, 0.0f);
+
         params.switchDelayOnAttack = 0.2f;
         //params.weaponOffset = vec3(0.0, -0.01, -0.0);
         params.bulletSpeed = 200.0f;
@@ -54,6 +56,7 @@ public:
 		//params.debuffStacksOnHit = 55.0f;
 
         thirdPersonAnimator = make_unique<Animator_OneHand>(this);
+
 
     }
 

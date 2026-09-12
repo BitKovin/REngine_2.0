@@ -177,8 +177,8 @@ LightVolPointData InventoryMenu::GetLightVolData(bool wallCheck)
 {
 	LightVolPointData data;
 
-	data.directColor = vec3(0.2f);
-	data.ambientColor = vec3(0.1f);
+	data.directColor = vec3(0.4f);
+	data.ambientColor = vec3(0.2f);
 	data.direction = Camera::Forward() + Camera::Right() * 1.0f + Camera::Up() * 1.0f;
 	data.direction = normalize(data.direction);
 

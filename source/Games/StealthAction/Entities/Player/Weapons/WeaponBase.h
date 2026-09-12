@@ -130,7 +130,7 @@ public:
 	// moment they're equipped (no "hold to ready" input for those types).
 	// WeaponFirearm leaves this at 0: it has no business being presented
 	// until attack2 is actually held or it fires.
-	float AutoHideWaitTime = 3.0f;
+	float AutoHideWaitTime = 0.2f;
 	float autoHideTimer = 0.0f;
 
 	// Call once per Update(). Only decrements while CanChangeSlot() is true.

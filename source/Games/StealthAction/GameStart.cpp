@@ -186,13 +186,15 @@ public:
         Input::AddAction("attack")->AddButton(GamepadButton::RightTrigger)->AddMouseButton(0);
         Input::AddAction("attack2")->AddButton(GamepadButton::LeftTrigger)->AddMouseButton(1);
 
+        Input::AddAction("useTool")->AddButton(GamepadButton::LeftShoulder)->AddKeyboardKey(SDL_KeyCode::SDLK_f);
+
         Input::AddAction("attack3")->AddButton(GamepadButton::Y)->AddKeyboardKey(SDL_KeyCode::SDLK_r);
 
 
         Input::AddAction("qSave")->AddKeyboardKey(SDL_KeyCode::SDLK_F6);
         Input::AddAction("qLoad")->AddKeyboardKey(SDL_KeyCode::SDLK_F7);
 
-        Input::AddAction("interact")->AddKeyboardKey(SDL_KeyCode::SDLK_f);
+        Input::AddAction("interact")->AddKeyboardKey(SDL_KeyCode::SDLK_e);
 
 
 
@@ -260,6 +262,8 @@ public:
         InputActionRegistry::Register("slot6", "${INPUT_ACTION_SLOT6}", "${INPUT_CATEGORY_INVENTORY}");
         InputActionRegistry::Register("lastSlot", "${INPUT_ACTION_LAST_SLOT}", "${INPUT_CATEGORY_INVENTORY}");
 
+        InputActionRegistry::Register("inventory", "${INPUT_ACTION_INVENTORY}", "${INPUT_CATEGORY_INVENTORY}");
+		InputActionRegistry::Register("useTool", "${INPUT_ACTION_USE_TOOL}", "${INPUT_CATEGORY_INVENTORY}");
 
         //Input::AddAction("dbg_simulate")->AddKeyboardKey(SDL_KeyCode::SDLK_j);
 

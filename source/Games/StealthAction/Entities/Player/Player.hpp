@@ -180,7 +180,7 @@ private:
 	// fists model exists), so this is the hardcoded always-available
 	// fallback - spawned directly (currentWeaponUUID stays "") rather than
 	// looked up from inventory.
-	static constexpr const char* FallbackMeleeClassName = "weapon_sword";
+	static constexpr const char* FallbackMeleeClassName = "weapon_twinsword";
 
 	std::array<std::string, WeaponRoleSlotCount> firearmSlotUUID = { "", "", "" };
 	std::array<std::string, WeaponRoleSlotCount> meleeSlotUUID = { "", "", "" };
