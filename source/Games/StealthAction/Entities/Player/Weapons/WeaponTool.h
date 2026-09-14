@@ -45,6 +45,11 @@ public:
 	// Update() with its own multi-state input handling - see weapon_cane.
 	virtual void StartUse() {}
 
+	bool CanAttack() override
+	{
+		return owner->RunProgress < 0.01f && owner->dead == false;
+	}
+
 	WeaponSlotData GetDefaultData() override
 	{
 		WeaponSlotData data;

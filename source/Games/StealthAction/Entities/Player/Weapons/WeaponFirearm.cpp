@@ -19,8 +19,8 @@ WeaponFirearm::WeaponFirearm(const FirearmParams& initialParams)
 	// Ready/lower speed: how fast attack2 raises (DrawTime) and lowers
 	// (HideTime) this firearm. Tune per weapon - e.g. a heavy weapon could
 	// use slower values. See Weapon::DrawTime / HideTime / DrawProgress.
-	DrawTime = 0.2f;
-	HideTime = 0.2f;
+	DrawTime = 0.1f;
+	HideTime = 0.4f;
 
 	// Default hidden/holstered pose for a one-handed firearm: tucked in
 	// close to the chest, muzzle angled down. Long-guns (shotgun, tommy,
@@ -189,18 +189,18 @@ void WeaponFirearm::Update()
 	if (akimbo != akimboPrev)
 		SetAkimbo(akimbo);
 
-	// "attack2" is the universal ready gate for every firearm: hold it to
-	// raise the weapon (DrawProgress -> 1), release to lower it (-> 0),
-	// unless it's still within its post-use auto-hide window (WantsPresented,
-	// see Weapon::autoHideTimer) - e.g. right after firing, it stays up
-	// briefly even after you let go of attack2, then lowers on its own. A
-	// freshly-spawned weapon (e.g. right after Player switched into this
-	// role) always starts at DrawProgress = 0 regardless of how long attack2
-	// has already been held, so switching weapons never auto-fires or
-	// auto-readies the new one.
+	// Aiming (attack2 hold) puts the weapon into BOTH the ready state
+	// (DrawProgress, via NotifyUsed() - same mechanism firing uses) and its
+	// own cosmetic aim sub-state (aimProgress, further down) - holding RMB
+	// raises the gun exactly like firing does. Firing (see the bottom of
+	// this function) only raises the ready state on its own, it never
+	// touches aimProgress - that's what keeps hip-fire from FOV-zooming.
+	bool aiming = Input::GetAction("attack2")->Holding() && CanAttack();
+	if (aiming)
+		NotifyUsed();
+
 	UpdateAutoHideTimer();
-	bool wantDrawn = (Input::GetAction("attack2")->Holding() && CanAttack()) || WantsPresented();
-	UpdateDrawProgress(wantDrawn);
+	UpdateDrawProgress(autoHideTimer > 0.0f);
 
 	weaponAim -= Time::DeltaTimeF * 1.5f;
 	if (DrawProgress > weaponAim)
@@ -209,6 +209,14 @@ void WeaponFirearm::Update()
 		weaponAim = 1.0f;
 
 	oldWeaponAim = weaponAim;
+
+	// Aim-down-sights sub-state itself: purely cosmetic/mechanical (FOV
+	// zoom, spread, movement penalty via Player::UpdateWalkMovement) - the
+	// ready-state side of aiming is handled above, this part never gates
+	// firing on its own.
+	aimProgress += Time::DeltaTimeF * params.aimSpeed * (aiming ? 1.0f : -1.0f);
+	aimProgress = std::clamp(aimProgress, 0.0f, 1.0f);
+	Camera::FOV = mix(params.restFOV, params.aimFOV, aimProgress);
 
 	if (params.hasRecoilModelOffset) {
 		if (attackDelay.Wait())
@@ -226,18 +234,28 @@ void WeaponFirearm::Update()
 	else
 		Spread = params.baseSpread;
 
+	// Aiming tightens spread on top of whatever the above produced (steadier
+	// stance = more accurate), independent of the movement-spread term.
+	Spread *= mix(1.0f, 0.4f, aimProgress);
+
 	bool firstPerson = owner != nullptr && owner->InThirdPerson() == false;
 	if (!firstPerson)
 		Spread *= 0.5f;
 
-	// Firing requires attack2 actually being held right now AND the weapon
-	// having fully raised (IsReady()) - checking attack2 explicitly (not
-	// just IsReady()) closes an edge case where DrawProgress could be up
-	// from a recent shot's auto-hide window without attack2 currently held.
-	if (Input::GetAction("attack2")->Holding() && Input::GetAction("attack")->Holding() && IsReady() && CanAttack() && !attackDelay.Wait())
+	// Hip-fire: holding "attack" alone fires, no aim/ready gate at all.
+	// This only ever raises the ready state (DrawProgress) via NotifyUsed()
+	// below - it never touches aimProgress, so hip-firing alone never
+	// FOV-zooms or engages the aim sub-state (see the top of this function
+	// for the case that does: holding attack2).
+
+	if (Input::GetAction("attack")->PressedBuffered() || Input::GetAction("attack2")->Holding())
+		NotifyUsed();
+
+	if ((Input::GetAction("attack")->Holding() || Input::GetAction("attack")->PressedBuffered()) 
+		&& CanAttack() && !attackDelay.Wait())
 	{
 		PerformAttack();
-		NotifyUsed(); // (re)start the 3s auto-hide countdown from this shot
+		NotifyUsed(); // ready state only - restarts the presented window
 	}
 }
 
@@ -530,6 +548,12 @@ WeaponSlotData WeaponFirearm::GetDefaultData() {
 
 void WeaponFirearm::Destroy()
 {
+
+	// If this weapon was mid-aim when something interrupted it (e.g. a
+	// melee attack), nothing else would ever un-zoom Camera::FOV once this
+	// object is gone - reset it explicitly.
+	if (aimProgress > 0.0f)
+		Camera::FOV = params.restFOV;
 
 	Weapon::Destroy();
 	StopTrail(smokeTrail);

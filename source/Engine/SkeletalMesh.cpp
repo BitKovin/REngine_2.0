@@ -522,7 +522,9 @@ void SkeletalMesh::StartRagdoll()
 		Physics::SetMotionType(hitbox, JPH::EMotionType::Dynamic);
 		hitbox->SetMotionType(JPH::EMotionType::Dynamic);
 
-		Physics::SetCollisionMask(hitbox, BodyType::GroupCollisionTest | BodyType::HitBox & ~BodyType::CharacterCapsule);
+		Physics::SetCollisionMask(hitbox,
+			(BodyType::GroupCollisionTest | BodyType::HitBox) & ~BodyType::CharacterCapsule
+		);
 
 		const string boneName = Physics::GetBodyData(hitbox)->hitboxName;
 

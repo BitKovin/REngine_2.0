@@ -7,9 +7,10 @@ WeaponTool::WeaponTool()
 	DrawTime = 0.2f;
 	HideTime = 0.4f;
 
-	// Tool has no "hold to ready" input either - presented immediately on
-	// equip, same reasoning as WeaponMelee (see Weapon::autoHideTimer).
-	autoHideTimer = AutoHideWaitTime;
+	// No "start presented" override here - see WeaponMelee::WeaponMelee()
+	// for the reasoning. Tool starts at rest (DrawProgress = 0, autoHideTimer
+	// = 0, both base Weapon defaults) on equip, and only rises to ready when
+	// it's actually used (StartUse() calling NotifyUsed(), see Update()).
 }
 
 void WeaponTool::Start()
@@ -70,14 +71,14 @@ void WeaponTool::Update()
 	// Single dedicated key: press once to use the tool. Player handles
 	// switching back to whatever was equipped before once CanChangeSlot()
 	// allows it - the tool just needs to eventually let that return true.
-	if (Input::GetAction("useTool")->Pressed() && CanAttack() && !attackDelay.Wait())
+	if (Input::GetAction("useTool")->PressedBuffered() && CanAttack() && !attackDelay.Wait())
 	{
 		StartUse();
 		NotifyUsed(); // (re)start the 3s auto-hide countdown from this use
 	}
 
 	UpdateAutoHideTimer();
-	UpdateDrawProgress(WantsPresented());
+	UpdateDrawProgress(autoHideTimer > 0.0f);
 }
 
 void WeaponTool::AsyncUpdate()

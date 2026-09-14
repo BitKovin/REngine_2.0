@@ -253,6 +253,7 @@ public:
     std::vector<uint8_t> mouseButtons;
 
     double pressedTime = -10000.0;
+	double releasedTime = -10000.0;
 
     InputAction();
 

@@ -88,9 +88,8 @@ void Player::Start()
 
 	// Starting loadout. AddItemToInventory auto-fills the first empty slot
 	// of each item's role (see AssignItemToRoleSlots), so these just need to
-	// be added - nothing needs to be force-equipped: the player always has
-	// FallbackMeleeClassName (weapon_sword) available as currentWeapon even
-	// with an otherwise-empty inventory.
+	// be added - nothing needs to be force-equipped beyond bringing up the
+	// persistent baseline (Firearm - see persistentWeaponRole in Player.hpp).
 	AddItemToInventory("weapon_pistol");
 	AddItemToInventory("weapon_shotgun");
 	AddItemToInventory("weapon_tommy");
@@ -98,7 +97,7 @@ void Player::Start()
 	AddItemToInventory("weapon_mpsd");
 	AddItemToInventory("weapon_sniper");
 
-	TryEquipRole(WeaponRole::Melee, true);
+	TryEquipRole(WeaponRole::Firearm, true);
 
 	cameraRotation.y = Rotation.y;
 
@@ -500,7 +499,7 @@ void Player::Death()
 
 	ANALYTICS_SEND_EVENT("player_death", std::unordered_map<std::string, std::string>{
 		{"position", to_string(Position)},
-		{"gameTime", to_string(Time::GameTime)}
+		{ "gameTime", to_string(Time::GameTime) }
 	});
 
 }
@@ -596,7 +595,7 @@ void Player::TryWallJump()
 	if (jumpDelay.Wait()) return;
 
 
-	auto hit = Physics::SphereTrace(Position, Position + velocity*0.01f, 0.6f, BodyType::GroupCharacter & ~BodyType::CharacterCapsule, {}, { this }, true);
+	auto hit = Physics::SphereTrace(Position, Position + velocity * 0.01f, 0.6f, BodyType::GroupCharacter & ~BodyType::CharacterCapsule, {}, { this }, true);
 
 	if (hit.hasHit)
 	{
@@ -664,6 +663,18 @@ void Player::UpdatePowerUps()
 
 void Player::SwitchWeapon(const WeaponSlotData& data)
 {
+	// Single choke point for "does the weapon object actually need to be
+	// destroyed and respawned". Callers (TryEquipRole / SwitchToInventoryItem)
+	// only resolve *what* should be equipped and hand the resulting data
+	// here - they never decide recreate-vs-not themselves. If the currently
+	// spawned weapon is already the same class we're being asked for, there's
+	// nothing to recreate: just refresh its live data (ammo, etc.) in place.
+	if (currentWeapon != nullptr && currentWeaponType == data.className)
+	{
+		currentWeapon->SetData(data);
+		return;
+	}
+
 	DestroyWeapon();
 
 	//UiLocationTileDrop::PlayTitleCard(data.className);
@@ -672,9 +683,9 @@ void Player::SwitchWeapon(const WeaponSlotData& data)
 	{
 		currentWeapon = (Weapon*)Spawn(data.className);
 		currentWeapon->owner = this;
-		
+
 		currentWeapon->LoadAssetsIfNeeded();
-		
+
 		currentWeapon->Start();
 		currentWeapon->SetData(data);
 
@@ -1179,7 +1190,15 @@ void Player::SwitchToInventoryItem(std::string uuid, bool forceChange)
 	if (uuid != currentInventoryUUID && !currentInventoryUUID.empty())
 		lastInventoryUUID = currentInventoryUUID;
 
-	TryEquipRole(role, forceChange);
+	// Firearms are only actually raised by firing/aiming (see
+	// UpdateWeaponRoleInput's rangedAction handling) - picking one from the
+	// wheel just decides which firearm that button will bring up next, it
+	// shouldn't force it into the player's hands on its own. Exception: if a
+	// firearm is already up right now, swapping to a different one from the
+	// wheel should still happen immediately. Melee/Tool have no such gating -
+	// the wheel remains the sole driver of what's current for those roles.
+	if (role != WeaponRole::Firearm || currentWeaponRole == WeaponRole::Firearm)
+		TryEquipRole(role, forceChange);
 }
 
 bool Player::HandleReselectSameActiveItem(const std::string& uuid, WeaponRole role, int slotIndex)
@@ -1208,9 +1227,9 @@ bool Player::HandleReselectSameActiveItem(const std::string& uuid, WeaponRole ro
 	}
 	else // Tool
 	{
-		WeaponRole returnRole = (roleBeforeTool != WeaponRole::None) ? roleBeforeTool : WeaponRole::Melee;
-		roleBeforeTool = WeaponRole::None;
-		TryEquipRole(returnRole, false);
+		// Same as the normal Tool auto-return - go back to whatever the
+		// player's persistent/intended weapon is.
+		TryEquipRole(persistentWeaponRole, false);
 	}
 
 	return true;
@@ -1246,55 +1265,85 @@ void Player::UpdateInventoryWeaponSwitch()
 // END INVENTORY SYSTEM
 // ============================================================================
 
-// Reads attack2 (want Firearm), attack/block (want Melee), useTool (want
-// Tool, remembers roleBeforeTool), and hideWeapon (RequestHide() on
-// currentWeapon). Drives currentWeaponRole via TryEquipRole(), which itself
-// handles the "switch only if CanChangeSlot() allows it" gating and the
-// lazy-retry bookkeeping (desiredWeaponRole/pendingWeaponRoleSwitch) - this
-// function just decides *what* role is wanted each frame.
+// Reads the melee buttons (always-hot interrupt), the ranged buttons
+// (fire/aim), useTool, and hideWeapon. Drives currentWeaponRole switches and
+// the melee/tool linger-expiry revert back to persistentWeaponRole, via
+// TryEquipRole(). Call once per Update().
+//
+// Melee never sets persistentWeaponRole - it's always a transient interrupt.
+// Neither does Tool: using one is deliberate, but a tool is momentary by
+// nature (throw/parry/whatever), so once it's done it reverts to the
+// baseline exactly like melee does, rather than "sticking" as the intended
+// weapon. Only an actual ranged action sets persistentWeaponRole - see the
+// big comment on that field in Player.hpp.
 void Player::UpdateWeaponRoleInput()
 {
 	if (weaponSuppressed)
 		return;
 
-	// Retry a switch that couldn't happen yet (e.g. attack/useTool was
-	// pressed mid-swing on the old weapon) now that it might be allowed.
+	// Retry a switch that couldn't happen yet (e.g. a melee/tool press was
+	// blocked mid-action on the old weapon) now that it might be allowed.
 	if (pendingWeaponRoleSwitch && (currentWeapon == nullptr || currentWeapon->CanChangeSlot()))
 		TryEquipRole(desiredWeaponRole);
 
-	if (Input::GetAction("hideWeapon")->Pressed() && currentWeapon != nullptr)
+	// Manual hide: instantly collapses whatever's currently hot, skipping
+	// its own linger window entirely. Must be a deliberate hold (not a tap)
+	// so a stray press doesn't holster the weapon mid-fight.
+	if (Input::GetAction("hideWeapon")->GetHoldTime() >= 0.15f && currentWeapon != nullptr)
 		currentWeapon->RequestHide();
 
-	bool wantFirearm = Input::GetAction("attack2")->Holding();
-	bool wantMelee = (Input::GetAction("attack")->Pressed() && !wantFirearm) || Input::GetAction("block")->Holding();
-	bool wantTool = Input::GetAction("useTool")->Pressed();
+	// Melee: always hot, works from any state. A press raises + swings (or
+	// blocks) in one action regardless of what's currently drawn.
+	bool meleeAction = Input::GetAction("meleeAttack")->Pressed() || Input::GetAction("block")->Holding();
 
-	// attack2 always wins - if the player urgently wants their gun up, that
-	// takes priority over everything else, including a tool mid-use.
-	if (wantFirearm)
-	{
-		roleBeforeTool = WeaponRole::None; // holding attack2 overrides any pending tool-return
-		TryEquipRole(WeaponRole::Firearm);
-	}
-	else if (wantTool)
-	{
-		if (currentWeaponRole != WeaponRole::Tool)
-			roleBeforeTool = currentWeaponRole;
+	// Ranged: LMB fires from the hip immediately, no separate ready step -
+	// this is what sets persistentWeaponRole. RMB (aim) is a pure cosmetic/
+	// mechanical sub-state handled entirely inside WeaponFirearm; it never
+	// appears here and never changes what's equipped.
+	bool rangedAction = Input::GetAction("attack2")->Holding();
 
-		TryEquipRole(WeaponRole::Tool);
-	}
-	// Tool auto-return: once its CanChangeSlot() allows switching again
-	// (it's done throwing/using/whatever), go back to whatever was equipped
-	// before it, melee/tool fallback if nothing was.
-	else if (currentWeaponRole == WeaponRole::Tool && currentWeapon != nullptr && currentWeapon->CanChangeSlot())
-	{
-		WeaponRole returnRole = (roleBeforeTool != WeaponRole::None) ? roleBeforeTool : WeaponRole::Melee;
-		roleBeforeTool = WeaponRole::None;
-		TryEquipRole(returnRole);
-	}
-	else if (wantMelee)
+	bool toolAction = Input::GetAction("useTool")->Pressed();
+
+	if (rangedAction)
+		persistentWeaponRole = WeaponRole::Firearm;
+
+	// Fast-return from a melee interrupt: hold aim (attack2) briefly to jump
+	// straight back to the persistent role instead of waiting out melee's
+	// own linger window. Requires a deliberate hold, not a tap, so habitual
+	// ADS-tapping (muscle memory from other games) doesn't yank the player
+	// out of a live swing.
+	bool fastReturnFromMelee = currentWeaponRole == WeaponRole::Melee &&
+		Input::GetAction("attack2")->GetHoldTime() >= 0.15f;
+
+	if (meleeAction)
 	{
 		TryEquipRole(WeaponRole::Melee);
+	}
+	else if (toolAction)
+	{
+		TryEquipRole(WeaponRole::Tool);
+	}
+
+	else if (fastReturnFromMelee)
+	{
+		// TryEquipRole spawns the firearm fresh and self-inits its Update()
+		// immediately (see WeaponFirearm::Start()), which itself checks
+		// attack2 - since we're only here because attack2 IS currently held,
+		// that self-init call already raises it into ready+aim state on its
+		// own (see WeaponFirearm::Update()); no extra push needed here.
+		TryEquipRole(persistentWeaponRole);
+	}
+	// Melee's own linger expired - revert to the persistent baseline.
+	else if (currentWeaponRole == WeaponRole::Melee && currentWeapon != nullptr &&
+		currentWeapon->CanChangeSlot() && !currentWeapon->WantsPresented())
+	{
+		TryEquipRole(persistentWeaponRole);
+	}
+	// Tool auto-return: once it's done throwing/using/whatever, go back to
+	// the persistent baseline the same way melee does.
+	else if (currentWeaponRole == WeaponRole::Tool && currentWeapon != nullptr && currentWeapon->CanChangeSlot())
+	{
+		TryEquipRole(persistentWeaponRole);
 	}
 }
 
@@ -1559,7 +1608,7 @@ void Player::UpdateWeapon()
 
 	rotatedWeaponPos -= mix(vec3(), vec3(-0.05f, 0.02, 0.05), RunProgress);
 
-	rotatedWeaponPos -= mix(vec3(), vec3(0,0.025,0), slideInterp);
+	rotatedWeaponPos -= mix(vec3(), vec3(0, 0.025, 0), slideInterp);
 
 	float bobBlendIn = length(MathHelper::XZ(velocity)) / WalkSpeed;
 	bobBlendIn = std::clamp(bobBlendIn, 0.0f, 1.0f);
@@ -1598,7 +1647,7 @@ void Player::UpdateWeapon()
 		currentWeapon->Position = MathHelper::TransformVector(blendedLocalPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;
 		currentWeapon->Rotation = MathHelper::ToYawPitchRoll(qFinal);
 
-		if(dead)
+		if (dead)
 			currentWeapon->Rotation.x += std::min(deathAnimDelay.GetProgress(), 1.0f) * 50.0f;
 
 		// Only flag a weapon as an observable crime once it's actually been
@@ -1990,11 +2039,24 @@ void Player::Update()
 
 	RunProgress = std::clamp(RunProgress, 0.0f, 1.0f);
 
-	maxSpeed = controller.isCrouched ? CrouchSpeed : std::lerp(WalkSpeed, RunSpeed, RunProgress);
+	float weaponSpeedScale = 1.0f;
+
+	if (currentWeapon)
+	{
+		weaponSpeedScale = mix(1.0f, currentWeapon->WalkSpeedModifier, currentWeapon->DrawProgress);
+
+		// Firearms slow you down a bit further while actively aiming (RMB
+		// hold) - a purely cosmetic/mechanical sub-state on top of just
+		// having the weapon out, see WeaponFirearm::aimProgress.
+		if (auto* firearm = dynamic_cast<WeaponFirearm*>(currentWeapon))
+			weaponSpeedScale *= mix(1.0f, firearm->AimWalkSpeedModifier, firearm->aimProgress);
+	}
+
+	maxSpeed = controller.isCrouched ? CrouchSpeed : std::lerp(WalkSpeed, RunSpeed, RunProgress) * weaponSpeedScale;
 
 	//if(powerUpManager.IsPowerUpActive(PowerUpManager::IsPowerUpActive(PowerUpManager::PowerUpType::)))
 
-	if(dead)
+	if (dead)
 		maxSpeed = 0;
 
 	if (on_bike == false)
@@ -2049,8 +2111,8 @@ void Player::Update()
 
 	Camera::rotation.z = -dot(velocity, right) * mix(-0.2f, 0.3f, bike_progress);
 
-	if(dead)
-		Camera::rotation.z = lerp(Camera::rotation.z, 30, std::min(deathAnimDelay.GetProgress(),1.0f));
+	if (dead)
+		Camera::rotation.z = lerp(Camera::rotation.z, 30, std::min(deathAnimDelay.GetProgress(), 1.0f));
 
 	if (InThirdPerson() == false)
 	{
@@ -2202,7 +2264,7 @@ void Player::AsyncUpdate()
 		//DebugDraw::Path(portal.vertices, 0.01f, 0.1f);
 	}
 
-	Rotation = vec3(0,cameraRotation.y,0);
+	Rotation = vec3(0, cameraRotation.y, 0);
 
 }
 
@@ -2280,7 +2342,7 @@ void Player::UpdateBody()
 
 	vec3 playerForward = MathHelper::GetForwardVector(vec3(0, cameraRotation.y, 0));
 
-	
+
 	bodyMesh->Position = Position - vec3(0, controller.height / 2.0f, 0) - playerForward * 0.2f;
 	bodyMesh->Rotation.y = cameraRotation.y;
 
@@ -2331,7 +2393,7 @@ void Player::UpdateBody()
 	observationTarget->position = Position + vec3(0, 0.65f, 0);
 
 
-	Physics::SetBodyPosition(hitbox, bodyMesh->Position + WorldOrientationManager::TransformDirectionToWorld(playerForward) * 0.1f + WorldOrientationManager::GetUpVector() * cameraHeight - vec3(0,0.3,0));
+	Physics::SetBodyPosition(hitbox, bodyMesh->Position + WorldOrientationManager::TransformDirectionToWorld(playerForward) * 0.1f + WorldOrientationManager::GetUpVector() * cameraHeight - vec3(0, 0.3, 0));
 
 
 }
@@ -2404,7 +2466,7 @@ void Player::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone
 
 	Camera::AddCameraShake(damageShake);
 
-	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point - vec3(0,0.5f,0), MathHelper::FindLookAtRotation(Direction, vec3(0)), vec3(Damage / 10.0f));
+	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point - vec3(0, 0.5f, 0), MathHelper::FindLookAtRotation(Direction, vec3(0)), vec3(Damage / 10.0f));
 
 }
 
@@ -2459,7 +2521,7 @@ void Player::Serialize(json& target)
 	SERIALIZE_FIELD(target, activeFirearmSlot);
 	SERIALIZE_FIELD(target, activeMeleeSlot);
 	SERIALIZE_FIELD(target, activeToolSlot);
-	target["roleBeforeTool"] = static_cast<int>(roleBeforeTool);
+	target["persistentWeaponRole"] = static_cast<int>(persistentWeaponRole);
 
 	SERIALIZE_FIELD(target, ammoCounts);
 
@@ -2515,13 +2577,13 @@ void Player::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, activeFirearmSlot);
 	DESERIALIZE_FIELD(source, activeMeleeSlot);
 	DESERIALIZE_FIELD(source, activeToolSlot);
-	if (source.contains("roleBeforeTool"))
-		roleBeforeTool = static_cast<WeaponRole>(source["roleBeforeTool"].get<int>());
+	if (source.contains("persistentWeaponRole"))
+		persistentWeaponRole = static_cast<WeaponRole>(source["persistentWeaponRole"].get<int>());
 
 	DESERIALIZE_FIELD(source, ammoCounts);
 
 	if (source.contains("moveState"))
-	    moveState = static_cast<MoveState>(source["moveState"].get<int>());
+		moveState = static_cast<MoveState>(source["moveState"].get<int>());
 	DESERIALIZE_FIELD(source, mantleDelay);
 	DESERIALIZE_FIELD(source, mantleStartPosition);
 	DESERIALIZE_FIELD(source, mantleTargetPosition);
@@ -2893,7 +2955,7 @@ CONSOLE_FUNC("weapon.give", "weapon.give <weapon_name>")
 	std::string levelName = Console::ArgString(args, 0, "");
 	if (levelName != "")
 	{
-		
+
 		Player::Instance->AddItemToInventory(levelName);
 
 		Console::Get().AddLog("Giving weapon: %s", levelName.c_str());

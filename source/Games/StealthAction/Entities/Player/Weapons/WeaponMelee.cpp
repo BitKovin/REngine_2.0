@@ -201,6 +201,8 @@ void WeaponMelee::StartBlock()
 	PlayBoth(params.blockStartAnim, false, 0.1f);
 	blockStartDelay.AddDelay(params.blockStartDelayTime);
 
+	NotifyUsed(); // blocking counts as "using" the weapon - bring it to ready
+
 	// Parry window - anti-spam: disabled right after releasing a block (see EndBlock)
 	if (!parrySpamWindow.Wait())
 		parryWindow.AddDelay(0.5f);
@@ -215,6 +217,8 @@ void WeaponMelee::EndBlock()
 	PlayBoth(params.blockEndAnim, false, 0.1f);
 
 	attackDelay.AddDelay(0.3f);
+
+	NotifyUsed(); // keep the normal grace period after lowering the guard, instead of vanishing instantly
 }
 
 // Called by the engine when an enemy attack lands during the parry window.
@@ -236,12 +240,22 @@ void WeaponMelee::Update()
 		counterAvailable = false;
 	}
 
-	// Primary attack / counter
-	if (Input::GetAction("attack")->PressedBuffered(0.2f) || pendingCounterAttack)
+	if (reAttackDelay.Wait() || Blocking || Parrying)
+	{
+		NotifyUsed();
+	}
+
+	// Primary attack / counter. Uses the dedicated "meleeAttack" action (F) -
+	// "attack" (LMB) is ranged-only now, see WeaponFirearm/Player::UpdateWeaponRoleInput.
+	if (Input::GetAction("meleeAttack")->PressedBuffered(0.2f) || Input::GetAction("attack")->PressedBuffered(0.2f) || pendingCounterAttack)
 		StartAttack();
 
-	// Block: hold to block, release to lower guard.
-	if (Input::GetAction("block")->PressedBuffered(0.1f) && !isBlocking)
+	// Block: triggers on Holding() rather than a fresh press, since block is
+	// a continuous input - if the player was already holding block before
+	// this weapon became current (e.g. switched from firearm while still
+	// holding it), a "PressedBuffered" press-edge check would never fire
+	// because the original press happened too long ago to still be buffered.
+	if (Input::GetAction("block")->Holding() && !isBlocking)
 		StartBlock();
 
 	if (!Input::GetAction("block")->Holding() && isBlocking)
@@ -258,7 +272,7 @@ void WeaponMelee::Update()
 	// the ctor, refreshed by NotifyUsed() below, collapsible by the hide
 	// button via RequestHide()) is the only thing that lowers it.
 	UpdateAutoHideTimer();
-	UpdateDrawProgress(WantsPresented());
+	UpdateDrawProgress(autoHideTimer > 0.0f);
 
 	// Default parry/block windows - a simple Delay-based window. Weapons
 	// with a richer, animation-time-driven window (see weapon_twinsword)

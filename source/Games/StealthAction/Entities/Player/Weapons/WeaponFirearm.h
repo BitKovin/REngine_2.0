@@ -44,6 +44,12 @@ struct FirearmParams
 	float attackDelayTime = 0.3f;
 	float switchDelayTime = 0.35f;
 	float switchDelayOnAttack = 0.2f;
+
+	// Aim-down-sights sub-state (attack2 hold) - purely cosmetic/mechanical,
+	// never gates firing or affects DrawProgress. See WeaponFirearm::aimProgress.
+	float aimSpeed = 6.0f;    // ramp speed for aimProgress, 0->1 over ~1/aimSpeed seconds
+	float restFOV = 65.0f;    // Camera::FOV when not aiming
+	float aimFOV = 55.0f;     // Camera::FOV at full aimProgress - modest zoom by default; snipers/scoped weapons override much lower
 	vec3 weaponOffset = vec3(0.0f, 0.0f, 0.0f);
 	float bulletSpeed = 200.0f;
 	float bulletDamage = 20.0f;
@@ -102,12 +108,23 @@ public:
 	SkeletalMesh* thirdPersonModel = nullptr;
 
 	// Smoothed, slightly-slower-decaying copy of DrawProgress fed to the
-	// third-person body animator only (purely cosmetic pose blending) - the
-	// gameplay-critical "can I fire" check uses DrawProgress directly, see
-	// IsReady().
+	// third-person body animator only (purely cosmetic pose blending).
 	float weaponAim = 0.0f;
 	float oldWeaponAim = 0.0f;
 	AnimationPose lastAppliedPose;
+
+	// Aim-down-sights: 0 = hip-fire, 1 = fully aimed. Driven directly by
+	// holding attack2 (see Update()) - purely a cosmetic/mechanical layer
+	// (FOV zoom, crosshair via HUD, movement penalty) on top of an already-
+	// drawn weapon. Releasing attack2 just drops back to hip-fire; it never
+	// touches DrawProgress or gates PerformAttack() - see WalkSpeedModifier-
+	// style movement penalty below and Player::UpdateWalkMovement.
+	float aimProgress = 0.0f;
+
+	// Extra movement-speed multiplier while aimProgress is at 1 (on top of
+	// the base Weapon::WalkSpeedModifier that already applies just from
+	// being drawn) - 1.0 = no extra penalty.
+	float AimWalkSpeedModifier = 0.8f;
 
 	std::unique_ptr<WeaponAnimator> thirdPersonAnimator;
 
@@ -133,11 +150,6 @@ public:
 	void Destroy() override;
 
 	WeaponRole GetRole() const override { return WeaponRole::Firearm; }
-
-	// True once DrawProgress has ramped all the way up - i.e. the player has
-	// actually raised/readied the weapon (held attack2), not just equipped
-	// it. Firing requires this; see Update().
-	bool IsReady() const { return DrawProgress >= 0.999f; }
 
 	virtual AnimationPose ApplyWeaponAnimation(AnimationPose thirdPersonPose);
 

@@ -300,6 +300,8 @@ public:
 
 		blockStartDelay.AddDelay(0.2f);
 
+		NotifyUsed(); // blocking counts as "using" the weapon - bring it to ready
+
 		// Parry window is animation-time driven (see Update).
 		// Spam check is handled via parrySpamWindow set in EndBlock.
 	}
@@ -319,6 +321,8 @@ public:
 
 			attackDelay.AddDelay(0.3f);
 		}
+
+		NotifyUsed(); // keep the normal grace period after lowering the guard, instead of vanishing instantly
 	}
 
 	// Called by the engine when an enemy attack lands during the parry window

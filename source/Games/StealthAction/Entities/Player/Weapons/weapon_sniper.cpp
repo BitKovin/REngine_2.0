@@ -7,16 +7,6 @@ class weapon_sniper : public WeaponFirearm {
 public:
     bool Silencer = false;
 
-    // True aim-down-sights (scope zoom), separate from the inherited
-    // DrawProgress (which just means "readied/raised to hip", shared by all
-    // firearms and gates firing). Toggled via "toggleAim" - press once to
-    // scope in, again to scope out - and only usable once the rifle is
-    // actually readied (DrawProgress/IsReady()). Releasing attack2 (no
-    // longer readied) always drops out of the scope too.
-    bool aimToggled = false;
-    float aimProgress = 0.0f;
-    float adsSpeed = 3.0f;
-
     vec3 weaponAimOffset = vec3(0.062707, 0.033706, -0.0f);
 
     weapon_sniper() : WeaponFirearm() 
@@ -56,12 +46,19 @@ public:
         );
         bobScale = 0.0f;
 
+        // Sniper's aim (attack2 hold, inherited from WeaponFirearm) is a
+        // real scope zoom rather than the modest ADS every other gun gets -
+        // slower to come up, and a much tighter FOV at full aimProgress.
+        params.aimSpeed = 3.0f;
+        params.restFOV = 65.0f;
+        params.aimFOV = 10.0f;
+
         thirdPersonAnimator = make_unique<Animator_Rifle>(this);
 
-        // Readying (attack2, inherited DrawProgress) speed - the rifle
-        // raises to the hip-ready position at this rate.
+        // Readying (LMB fires from rest, see WeaponFirearm::Update) speed -
+        // the rifle raises to the hip-ready position at this rate.
         DrawTime = 0.2f;
-        HideTime = 0.2f;
+        HideTime = 0.4f;
 
         // Rifle-styled hidden/carry pose: lowered, barrel forward-down.
         HiddenPosePosition = vec3(0.080, -0.470, 0.140);
@@ -74,29 +71,23 @@ public:
 
         params.pitchModifier = Silencer ? 2.8f : 1.0f;
 
-        // Computes DrawProgress (readied, from holding attack2) and handles
-        // firing/spread/etc. Call this first so the ADS logic below reacts
-        // to this frame's readied state, not last frame's.
+        // Computes DrawProgress (presented, from NotifyUsed()/firing),
+        // aimProgress (scope zoom, from holding attack2, using this
+        // weapon's own aimSpeed/restFOV/aimFOV set above), and handles
+        // firing/spread/Camera::FOV - all shared with every other firearm
+        // now. Everything below just layers the sniper's extra scope
+        // flourishes on top of that same inherited aimProgress.
         WeaponFirearm::Update();
-
-        // True aim-down-sights: only usable once readied, toggled by its own
-        // dedicated key rather than tied to holding attack2.
-        if (Input::GetAction("interact")->Pressed() && IsReady())
-            aimToggled = !aimToggled;
-
-        if (!IsReady())
-            aimToggled = false;
-
-        aimProgress += Time::DeltaTimeF * (aimToggled ? adsSpeed : -adsSpeed);
-        aimProgress = std::clamp(aimProgress, 0.0f, 1.0f);
 
         bobScale = 1.0f - aimProgress;
 
         params.weaponOffset = mix(vec3(0.0, 0.00, 0.0), weaponAimOffset, aimProgress);
-        Camera::FOV = mix(65.0f, 10.0f, aimProgress);
 
         ForceFirstPerson = aimProgress > 0.9;
 
+        // Keep the scope from being yanked away mid-zoom by melee/tool
+        // interrupts - same reasoning as before, just riding CanChangeSlot()
+        // instead of a dedicated toggle.
         if (aimProgress > 0.01f) SwitchDelay.AddDelay(0.1f);
     }
 
@@ -104,7 +95,6 @@ public:
         ImGui::Begin("Sniper Weapon Debug");
         ImGui::Checkbox("Silencer", &Silencer);
         ImGui::DragFloat3("Weapon Offset", &params.weaponOffset.x, 0.01f);
-		ImGui::DragFloat3("Weapon Hide Pose Position", &HiddenPosePosition.x, 0.01f);
         ImGui::End();
     }
 
@@ -128,7 +118,7 @@ public:
     WeaponSlotData GetDefaultData() override {
         WeaponSlotData data = WeaponFirearm::GetDefaultData();
         data.className = "weapon_sniper";
-        data.AmmoType = WeaponAmmoType::PistolBullets;
+        data.AmmoType = WeaponAmmoType::CannonBullets; // must match params.ammoType above, or GetAmmo()/ConsumeAmmo() check a pool this weapon never gets stocked into
         return data;
     }
 };

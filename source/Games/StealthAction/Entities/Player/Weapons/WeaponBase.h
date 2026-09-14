@@ -88,10 +88,16 @@ public:
 	// HiddenPoseRotationPoint exactly like the existing run-pose
 	// (weaponRunRotation / runRotatePoint) trick.
 	//
-	// For firearms, DrawProgress doubles as "readied" - reaching 1.0 is what
-	// allows firing (holding attack2 raises it, releasing lowers it). For
-	// melee/tools, DrawProgress just tracks presented-vs-hidden and is
-	// driven by Player's manual-hide / idle-hide state instead.
+	// DrawProgress means the same thing for every weapon type now: "is this
+	// thing currently presented". It's driven uniformly by WantsPresented()
+	// (see the auto-hide block below) - firing/swinging/using calls
+	// NotifyUsed(), which is what raises the weapon; there's no separate
+	// "hold to ready" gate for firearms anymore. Holding attack2 (aim) also
+	// calls NotifyUsed() each frame it's held - so aiming raises the weapon
+	// too, same as firing - on top of driving its own cosmetic/mechanical
+	// sub-state (FOV zoom, crosshair, movement penalty). The distinction is:
+	// firing alone never touches that aim sub-state (aimProgress), so
+	// hip-firing without aiming never FOV-zooms - see WeaponFirearm::Update().
 	//
 	// DrawTime / HideTime are in seconds and freely tunable per weapon.
 	bool SkipDrawAnimation = true;
@@ -99,8 +105,14 @@ public:
 	float HideTime = 0.4f;
 	float DrawProgress = 0.0f;
 
+	// Movement speed multiplier while this weapon is drawn, blended in by
+	// DrawProgress (see Player::UpdateWalkMovement) - 1.0 = no penalty.
+	// Firearms additionally slow further while actively aiming, see
+	// WeaponFirearm::AimWalkSpeedModifier.
+	float WalkSpeedModifier = 1.0f;
+
 	vec3 HiddenPosePosition = vec3(0.0f, -0.02f, 0.04f);       // extra offset applied at DrawProgress = 0
-	vec3 HiddenPoseRotation = vec3(45.0f, 12.0f, -6.0f);      // rotation (deg) applied at DrawProgress = 0
+	vec3 HiddenPoseRotation = vec3(45.0f, 12.0f, -6.0f);       // rotation (deg) applied at DrawProgress = 0 - +X pitches the muzzle DOWN
 	vec3 HiddenPoseRotationPoint = vec3(-0.05f, -0.12f, 0.4f); // pivot for HiddenPoseRotation, weapon-local
 
 	// Ramps DrawProgress toward 1 (wantDrawn) or 0, at 1/DrawTime or
@@ -130,7 +142,7 @@ public:
 	// moment they're equipped (no "hold to ready" input for those types).
 	// WeaponFirearm leaves this at 0: it has no business being presented
 	// until attack2 is actually held or it fires.
-	float AutoHideWaitTime = 0.2f;
+	float AutoHideWaitTime = 3.0f;
 	float autoHideTimer = 0.0f;
 
 	// Call once per Update(). Only decrements while CanChangeSlot() is true.
@@ -149,7 +161,7 @@ public:
 	// naturally waits for CanChangeSlot() before it actually starts hiding.
 	void RequestHide() { autoHideTimer = std::min(autoHideTimer, 0.01f); }
 
-	bool WantsPresented() const { return autoHideTimer > 0.0f; }
+	bool WantsPresented() const { return autoHideTimer > 0.0f || DrawProgress > 0; }
 
 	virtual void OnParried(){}
 	virtual void OnBlocked() {}

@@ -118,9 +118,9 @@ private:
 
 	vec3 velocity = vec3(0);
 
-	bool canRun = false;
-	bool canDash = true;
-	bool canMantle = false;
+	bool canRun = true;
+	bool canDash = false;
+	bool canMantle = true;
 
 	vec3 oldPos = vec3();
 
@@ -167,12 +167,27 @@ private:
 	int CurrentClearance = 0;
 
 	// ── Weapon role system ────────────────────────────────────────────────────
-	// See Weapons/WeaponBase.h for WeaponRole (Firearm/Melee/Tool). Each role
-	// has up to WeaponRoleSlotCount carried items; at most one role is ever
-	// "current" (currentWeapon) at a time. Real-time input (attack2/attack/
-	// block/useTool) drives which role is current via UpdateWeaponRoleInput();
-	// the inventory wheel drives which *item* occupies each role's active
-	// slot via SwitchToInventoryItem().
+	// See Weapons/WeaponBase.h for WeaponRole (Firearm/Melee/Tool).
+	//
+	// Two separate pieces of state, deliberately not collapsed into one:
+	//   - persistentWeaponRole: "what the player intends to be using" - set
+	//     only by a deliberate ranged or tool action (firing/aiming, or
+	//     useTool). Melee NEVER sets this - it's always just a transient
+	//     interrupt on top of whatever the persistent role is.
+	//   - currentWeaponRole: the "hot" role - whichever item is actually
+	//     spawned as currentWeapon right now, including brief melee
+	//     interrupts. Reverts back to persistentWeaponRole (not to empty
+	//     hands) once its own linger window expires - see
+	//     UpdateWeaponRoleInput().
+	//
+	// Example: rifle out (persistent = Firearm, hot = Firearm), player
+	// throws a punch with the melee button (hot -> Melee, persistent
+	// unchanged), does nothing for a few seconds -> hot reverts to Firearm,
+	// not bare hands.
+	//
+	// Each role has up to WeaponRoleSlotCount carried items; the inventory
+	// wheel drives which *item* occupies each role's active slot via
+	// SwitchToInventoryItem(), independent of which role is currently hot.
 public:
 	static constexpr int WeaponRoleSlotCount = 3;
 private:
@@ -205,10 +220,9 @@ private:
 	WeaponRole desiredWeaponRole = WeaponRole::None;
 	bool pendingWeaponRoleSwitch = false;
 
-	// Tool auto-return: which role to switch back to once the tool's
-	// CanChangeSlot() allows it. WeaponRole::None if there was nothing
-	// equipped before the tool (stays empty-handed after use).
-	WeaponRole roleBeforeTool = WeaponRole::None;
+	// "What the player intends to be using" - see the big comment above.
+	// Never set to Melee.
+	WeaponRole persistentWeaponRole = WeaponRole::Firearm;
 
 	// Equips whichever item occupies ActiveSlotForRole(role) as currentWeapon.
 	// Respects currentWeapon->CanChangeSlot() - if the current weapon can't
@@ -219,17 +233,20 @@ private:
 	// when empty (nothing to equip).
 	void TryEquipRole(WeaponRole role, bool forceChange = false);
 
-	// Reads attack2 (hold = want Firearm), attack/block (want Melee),
-	// useTool (want Tool + remembers roleBeforeTool), and hideWeapon
-	// (RequestHide() on currentWeapon). Drives currentWeaponRole switches and
-	// the Tool auto-return via TryEquipRole(). Call once per Update().
+	// Reads the melee buttons (always-hot interrupt, never touches
+	// persistentWeaponRole), the ranged buttons (fire/aim - the only thing
+	// that sets persistentWeaponRole), useTool, and hideWeapon (RequestHide()
+	// on currentWeapon). Drives currentWeaponRole switches, the melee/tool
+	// linger-expiry revert back to persistentWeaponRole, and the
+	// hold-to-fast-return-from-melee shortcut, via TryEquipRole(). Call once
+	// per Update().
 	void UpdateWeaponRoleInput();
 
 	// Double-press-the-same-active-item handling for SwitchToInventoryItem:
-	// Firearm -> hides it in place (RequestHide()); Melee -> clears the slot
-	// and falls back to FallbackMeleeClassName; Tool -> clears the slot and
-	// returns to roleBeforeTool. Returns true if it handled the press (caller
-	// should stop, no further switch needed).
+	// Firearm -> hides it in place (RequestHide()); Melee/Tool -> clears the
+	// slot and falls back to FallbackMeleeClassName / persistentWeaponRole
+	// respectively. Returns true if it handled the press (caller should
+	// stop, no further switch needed).
 	bool HandleReselectSameActiveItem(const std::string& uuid, WeaponRole role, int slotIndex);
 
 	// Inventory system
@@ -263,9 +280,9 @@ private:
 
 	float slideInterp = 0;
 
-	float WalkSpeed = 7.0f;// 4.5f;
+	float WalkSpeed = 6.0f;// 4.5f;
 	float CrouchSpeed = 2.5f;
-	float RunSpeed = 7.5f;
+	float RunSpeed = 8.0f;
 
 	// ── Weapon suppression ────────────────────────────────────────────────────
 	// True while CanHoldWeapon() == false.  The weapon object is destroyed but

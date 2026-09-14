@@ -32,7 +32,7 @@ public:
 	void Update()
 	{
 
-		if (Input::GetAction("attack")->PressedBuffered(0.35f))
+		if (Input::GetAction("meleeAttack")->PressedBuffered(0.35f))
 		{
 
 			if (thirdPersonMesh->GetAnimationName() != "idle")

@@ -6,7 +6,7 @@
 
 bool Weapon::CanAttack()
 {
-	return owner->RunProgress < 0.01f && owner->dead == false;
+	return owner->RunProgress < 0.01f && owner->dead == false && DrawProgress >= 0.99f;
 }
 
 void Weapon::UpdateDrawProgress(bool wantDrawn)

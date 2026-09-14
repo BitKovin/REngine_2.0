@@ -186,7 +186,8 @@ public:
         Input::AddAction("attack")->AddButton(GamepadButton::RightTrigger)->AddMouseButton(0);
         Input::AddAction("attack2")->AddButton(GamepadButton::LeftTrigger)->AddMouseButton(1);
 
-        Input::AddAction("useTool")->AddButton(GamepadButton::LeftShoulder)->AddKeyboardKey(SDL_KeyCode::SDLK_f);
+        Input::AddAction("useTool")->AddButton(GamepadButton::DPadUp)->AddKeyboardKey(SDL_KeyCode::SDLK_x);
+        Input::AddAction("meleeAttack")->AddButton(GamepadButton::LeftShoulder)->AddKeyboardKey(SDL_KeyCode::SDLK_f);
 
         Input::AddAction("attack3")->AddButton(GamepadButton::Y)->AddKeyboardKey(SDL_KeyCode::SDLK_r);
 
