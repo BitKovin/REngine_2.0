@@ -15,6 +15,9 @@
 
 #include <ShaderManager.h>
 
+#include <UI/Editor/UiEditor.h>
+#include <UI/Layout/UiHotReload.h>
+
 void CMD_Help(const std::vector<std::string>& args)
 {
 	Console::Get().PrintCommands(Console::ArgString(args, 0));
@@ -116,6 +119,28 @@ void CMD_EcsSchedulerDump(const std::vector<std::string>& args)
 	Logger::Log(EcsScheduler::DumpAll());
 }
 
+void UICMD_EditorToggle(const std::vector<std::string>& args)
+{
+	UiEditor::Instance().Toggle();
+}
+
+void UICMD_EditorOpen(const std::vector<std::string>& args)
+{
+	if (args.empty())
+	{
+		Logger::Warning("usage: ui_editor_open <path>");
+		return;
+	}
+	UiEditor::Instance().SetOpen(true);
+	UiEditor::Instance().OpenFromCommand(args[0]);
+}
+
+void UICMD_Reload(const std::vector<std::string>& args)
+{
+	const int count = args.empty() ? UiHotReload::ReloadAll() : UiHotReload::ReloadPath(args[0]);
+	Logger::Log("ui_reload: rebuilt " + std::to_string(count) + " layout instance(s)");
+}
+
 void ConsoleDefaultCommands::RegisterAll()
 {
 
@@ -131,5 +156,9 @@ void ConsoleDefaultCommands::RegisterAll()
 	REGISTER_CONSOLE_CMD("callaction", "callaction <target_name> <action> - Calls an action on all entities with a specific name", CMD_CallAction);
 
 	REGISTER_CONSOLE_CMD("ecs.dump", "Dumps ECS scheduler state", CMD_EcsSchedulerDump);
+
+	REGISTER_CONSOLE_CMD("ui_editor_toggle", "Toggles the UI editor", UICMD_EditorToggle);
+	REGISTER_CONSOLE_CMD("ui_editor_open", "Opens the UI editor with a specific layout", UICMD_EditorOpen);
+	REGISTER_CONSOLE_CMD("ui_reload", "Reloads UI layouts. If no path is provided, reloads all.", UICMD_Reload);
 
 }

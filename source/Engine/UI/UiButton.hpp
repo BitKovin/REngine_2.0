@@ -39,6 +39,18 @@ public:
     {
         UiElement::Update();
 
+        // ── ADDED: editor edit-mode guard ───────────────────────────────
+        // The primary guard is upstream, at the touch-dispatch site in
+        // EngineMain::MainLoop (see INTEGRATION.md) -- while the editor is
+        // open, no TouchEvents are ever fed into the real game viewport at
+        // all, so TouchEvents is empty here and nothing below would fire
+        // anyway. This early-out is a cheap, explicit second line of
+        // defense (e.g. against a future caller that populates TouchEvents
+        // some other way), not the mechanism relied on.
+        if (UiElement::EditModeActive || EngineMain::MainInstance->DebugUiEnabled == false)
+            return;
+        // ─────────────────────────────────────────────────────────────────
+
         if (EngineMain::MainInstance->Paused && OnlyNotPaused) return;
 
         for (const auto& touch : TouchEvents)

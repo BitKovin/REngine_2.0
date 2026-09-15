@@ -1,0 +1,136 @@
+{
+  "children": [
+    {
+      "name": "$background",
+      "properties": {
+        "Color": [
+          0.20000000298023224,
+          0.0,
+          0.0,
+          0.5
+        ],
+        "Size": [
+          10000.0,
+          1080.0
+        ]
+      },
+      "type": "UiImage"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "name": "$2bab01d0",
+              "properties": {
+                "Origin": [
+                  0.5,
+                  0.5
+                ],
+                "Pivot": [
+                  0.5,
+                  0.5
+                ],
+                "Size": [
+                  57.37579345703125,
+                  48.0
+                ],
+                "Text": "test"
+              },
+              "type": "UiText"
+            }
+          ],
+          "name": "gameButton",
+          "properties": {
+            "Size": [
+              400.0,
+              70.0
+            ]
+          },
+          "type": "UiButton"
+        },
+        {
+          "name": "inputButton",
+          "properties": {
+            "Position": [
+              0.0,
+              75.0
+            ],
+            "Size": [
+              400.0,
+              70.0
+            ]
+          },
+          "type": "UiButton"
+        },
+        {
+          "name": "videoButton",
+          "properties": {
+            "Position": [
+              0.0,
+              150.0
+            ],
+            "Size": [
+              400.0,
+              70.0
+            ]
+          },
+          "type": "UiButton"
+        },
+        {
+          "name": "soundButton",
+          "properties": {
+            "Position": [
+              0.0,
+              225.0
+            ],
+            "Size": [
+              400.0,
+              70.0
+            ]
+          },
+          "type": "UiButton"
+        },
+        {
+          "name": "backButton",
+          "properties": {
+            "Position": [
+              0.0,
+              300.0
+            ],
+            "Size": [
+              400.0,
+              70.0
+            ]
+          },
+          "type": "UiButton"
+        }
+      ],
+      "name": "optionsBox",
+      "properties": {
+        "Origin": [
+          0.5,
+          0.5
+        ],
+        "Pivot": [
+          0.5,
+          0.5
+        ],
+        "Size": [
+          400.0,
+          370.0
+        ]
+      },
+      "type": "UiVerticalBox"
+    }
+  ],
+  "name": "",
+  "properties": {
+    "FocusTrap": true,
+    "Size": [
+      2055.10400390625,
+      1080.0
+    ]
+  },
+  "type": "UiCanvas"
+}

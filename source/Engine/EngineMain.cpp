@@ -43,6 +43,8 @@
 
 #include <Ecs/Ecs.h>
 
+#include <UI/Reflection/UiElementRegistry.h>
+#include <UI/Editor/UiEditor.h>
 
 EngineMain* EngineMain::MainInstance = nullptr;
 
@@ -197,6 +199,8 @@ void EngineMain::Init(std::vector<std::string> args)
 
     LevelObjectFactory::instance().registerDefaults();
     BehaviorTree::RegisterTypes();
+
+    UiElementRegistry::RegisterBuiltinTypes();
 
 	Localisation::Initialize("GameData/localisation", "en");
 
@@ -435,16 +439,16 @@ void EngineMain::MainLoop()
 
     Viewport.ResetTouchInputs();
 
-    for (auto& event : Input::TouchActions)
+    if (!UiElement::EditModeActive || DebugUiEnabled == false)
     {
-
-        auto hit = Viewport.GetHitElementUnderPosition(event.second.position);
-
-        if (hit == nullptr) continue;
-
-        hit->TouchEvents.push_back(event.second);
-
+        for (auto& event : Input::TouchActions)
+        {
+            auto hit = Viewport.GetHitElementUnderPosition(event.second.position);
+            if (hit == nullptr) continue;
+            hit->TouchEvents.push_back(event.second);
+        }
     }
+
     Viewport.TouchInputPostProcessing();
 
 
@@ -488,7 +492,8 @@ void EngineMain::MainLoop()
 
     Viewport.Update();
 
-    UiNavigation::LateUpdate();
+	if (UiElement::EditModeActive || DebugUiEnabled == false)
+        UiNavigation::LateUpdate();
 
     Viewport.UpdateChildrenOffsetRecursive();
     Viewport.FinalizeChildren();
@@ -971,6 +976,11 @@ void EngineMain::Render()
                 Console::Get().Draw("Console", &open);
                 ResourceStatistics::Instance().renderImGui();
             }
+
+#if UI_EDITOR_ENABLED
+            UiEditor::Instance().UpdatePicking(); // before Draw(), so a pick-click this frame is reflected immediately
+            UiEditor::Instance().Draw();
+#endif
 
             NetworkManager::DrawDebugUi();
 
