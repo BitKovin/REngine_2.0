@@ -66,6 +66,18 @@ public:
     glm::vec2 pivot  = glm::vec2(0.0f);
     glm::vec2 offset = glm::vec2(0.0f);
 
+    // Per-axis blend, [0,1], toward sizing relative to the parent's own
+    // (already-resolved) size. 0 on an axis = size behaves exactly as
+    // before (just the `size` member on that axis). 1 = size on that axis
+    // is `size.axis * parent size.axis` -- e.g. a background with
+    // `size = (1,1)` and `parentRelativeScaling = (1,1)` exactly fills
+    // whatever it's attached to, no matter that parent's size. Values
+    // between 0 and 1 linearly blend between those two. Independent of
+    // UiCanvas::ScaleToParent (which is all-or-nothing and canvas-only);
+    // this works per-axis on any UiElement. See
+    // UiElement::ApplyParentRelativeScaling.
+    glm::vec2 parentRelativeScaling = glm::vec2(0.0f);
+
     // Axis-aligned bounds — still updated every frame for layout (ContentBox,
     // scroll measurement, etc.).  Do NOT use for rendering or hit-testing;
     // use worldMatrix / finalizedMatrix instead.
@@ -358,6 +370,17 @@ public:
 
     virtual glm::vec2 GetOrigin();
     virtual glm::vec2 GetSize();
+
+    // Blends a size (as returned by the possibly-overridden GetSize()) with
+    // the current parent's size according to parentRelativeScaling. A
+    // no-op (returns `sz` unchanged) when parentRelativeScaling is (0,0),
+    // which is the default -- so this costs nothing for every element that
+    // doesn't opt in. Uses parentTopLeft/parentBottomRight (already
+    // populated by the parent before this element's UpdateOffsets runs)
+    // rather than calling parent->GetSize() again, so it reflects the
+    // parent's own already-resolved (possibly itself parent-relative) size
+    // without an extra virtual call.
+    glm::vec2 ApplyParentRelativeScaling(glm::vec2 sz) const;
 
     virtual void Draw();
 

@@ -78,9 +78,10 @@ namespace
     LayoutBlueprintNodePtr ParseNode(const nlohmann::json& j, LayoutBlueprintNode* parent)
     {
         auto node = std::make_shared<LayoutBlueprintNode>();
-        node->type   = j.value("type", std::string());
-        node->name   = j.value("name", std::string());
-        node->parent = parent;
+        node->type       = j.value("type", std::string());
+        node->name       = j.value("name", std::string());
+        node->layoutPath = j.value("layout", std::string());
+        node->parent     = parent;
 
         if (j.contains("properties") && j["properties"].is_object())
             node->properties = j["properties"];
@@ -100,6 +101,9 @@ namespace
         nlohmann::json j;
         j["type"] = node.type;
         j["name"] = node.name;
+
+        if (!node.layoutPath.empty())
+            j["layout"] = node.layoutPath;
 
         if (!node.properties.empty())
             j["properties"] = node.properties;
@@ -193,18 +197,29 @@ void UiLayoutSerializer::BuildChildren(UiElement* parent, const LayoutBlueprintN
         if (!child)
             continue; // already logged by Create()
 
-        // If constructing `child` already made IT the owner of its OWN
-        // nested layout (e.g. a UiStyledButton loading its own .ui file
-        // from its own constructor), its MemberOfLayout is already set to
-        // that -- leave it alone. Picking that button should jump straight
-        // into the button's own file, not this one. It's still correctly
-        // reachable as a node of THIS layout via its parent chain / via
+        // Layout-REFERENCE node (see LayoutBlueprintNode::layoutPath): load
+        // the referenced file's own structure into `child` first, so any
+        // per-placement property overrides on THIS node (applied next,
+        // below) win over that file's own root defaults. This is also what
+        // makes a plain .ui file usable as a placeable node with no C++
+        // class at all -- `child` here is just the referenced file's own
+        // declared root type (e.g. "UiButton"), nothing special.
+        if (!childNode->layoutPath.empty() && !child->OwnedLayout)
+            child->LoadLayoutFromFile(childNode->layoutPath);
+
+        // If constructing/loading `child` already made IT the owner of its
+        // OWN nested layout (either a C++ type like UiStyledButton loading
+        // its own .ui file from its own constructor, or the layout
+        // reference above), its MemberOfLayout is already set to that --
+        // leave it alone. Picking that element should jump straight into
+        // its own file, not this one. It's still correctly reachable as a
+        // node of THIS layout via its parent chain / via
         // `layout->namedElements`; only the single MemberOfLayout pointer
         // prioritizes "what does this element own" over "what placed it".
         if (!child->MemberOfLayout)
             child->MemberOfLayout = layout;
 
-        ApplyProperties(child.get(), *childNode);
+        ApplyProperties(child.get(), *childNode); // per-placement overrides, applied last
 
         // No-op for composite types that already built their own subtree
         // in their own constructor (childNode->children is expected to be

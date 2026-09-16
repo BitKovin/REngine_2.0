@@ -19,8 +19,27 @@
 // file therefore always has exactly one owner/parent, by construction.
 struct LayoutBlueprintNode
 {
-    std::string type; // a name registered in UiElementRegistry
+    std::string type; // a name registered in UiElementRegistry -- the BASE type
+                       // to construct. For a layout-reference node (see
+                       // `layoutPath` below) this is that file's own declared
+                       // root type, e.g. "UiButton", not a special marker --
+                       // there's no separate type-namespace for layout
+                       // references, which is what lets any plain .ui file
+                       // work as a placeable node with zero C++ registration.
     std::string name; // stable id, unique only within THIS node's own layout
+
+    // Non-empty only for a node that is ITSELF a reference to another .ui
+    // file (placed as a component/prefab-style instance rather than a plain
+    // built-in type) -- see UiLayoutSerializer::BuildChildren. `type` above
+    // still names the base C++ class to construct (matching that file's own
+    // root type); `layoutPath` additionally tells BuildChildren to call
+    // LoadLayoutFromFile(layoutPath) on the freshly constructed instance,
+    // giving it that file's internal structure. `properties` on THIS node
+    // are per-placement overrides applied AFTER the referenced file loads
+    // (e.g. resize/reposition one particular placement without touching the
+    // shared file), and `children` (normally empty for a reference node) can
+    // still add further inline children on top if ever needed.
+    std::string layoutPath;
                        // (see UiLayoutSerializer -- nested layouts, e.g. a
                        // styled button's internal "label", get their own
                        // independent LoadedLayoutInstance and namespace)

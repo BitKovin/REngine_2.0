@@ -1,0 +1,40 @@
+{
+  "children": [
+    {
+      "name": "$9811cda0",
+      "properties": {
+        "Color": [
+          0.0,
+          0.0,
+          0.0,
+          0.10588235408067703
+        ],
+        "Origin": [
+          0.5,
+          0.5
+        ],
+        "ParentRelativeScaling": [
+          0.9549999833106995,
+          0.699999988079071
+        ],
+        "Pivot": [
+          0.5,
+          0.5
+        ]
+      },
+      "type": "UiImage"
+    }
+  ],
+  "name": "",
+  "properties": {
+    "GlowIntensity": 4.0,
+    "GlowRadius": 13.5,
+    "OutlineEnabled": true,
+    "OutlineWidth": 3.0,
+    "Size": [
+      400.0,
+      70.0
+    ]
+  },
+  "type": "UiButton"
+}

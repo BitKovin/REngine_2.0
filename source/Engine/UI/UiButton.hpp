@@ -47,7 +47,7 @@ public:
         // anyway. This early-out is a cheap, explicit second line of
         // defense (e.g. against a future caller that populates TouchEvents
         // some other way), not the mechanism relied on.
-        if (UiElement::EditModeActive || EngineMain::MainInstance->DebugUiEnabled == false)
+        if (UiElement::EditModeActive && EngineMain::MainInstance->DebugUiEnabled)
             return;
         // ─────────────────────────────────────────────────────────────────
 

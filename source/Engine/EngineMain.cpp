@@ -492,7 +492,7 @@ void EngineMain::MainLoop()
 
     Viewport.Update();
 
-	if (UiElement::EditModeActive || DebugUiEnabled == false)
+	if (UiElement::EditModeActive == false || DebugUiEnabled == false)
         UiNavigation::LateUpdate();
 
     Viewport.UpdateChildrenOffsetRecursive();

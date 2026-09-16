@@ -8,6 +8,7 @@ LayoutBlueprintNodePtr CloneBlueprintNode(const LayoutBlueprintNodePtr& node)
     auto clone = std::make_shared<LayoutBlueprintNode>();
     clone->type       = node->type;
     clone->name       = node->name; // caller is responsible for re-uniquing this (see UiEditor::DuplicateNode)
+    clone->layoutPath = node->layoutPath;
     clone->properties = node->properties; // nlohmann::json deep-copies on assignment
 
     clone->children.reserve(node->children.size());

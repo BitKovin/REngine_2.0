@@ -785,6 +785,7 @@ void InputAction::CleanInput()
     pressing  = false;
     released  = false;
     pressedTime = -100000;
+    releasedTime = -100000;
 }
 
 TouchEvent Input::GetTouchEventFromId(int id)

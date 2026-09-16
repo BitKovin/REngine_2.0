@@ -76,6 +76,21 @@ public:
 
     std::vector<std::string> GetAllTypeNames() const;
 
+    // Optional, explicit link from a registered C++ type to the .ui file its
+    // own constructor loads (e.g. UiStyledButton -> "GameData/ui/layout/
+    // styledButton.ui"). Purely informational -- nothing parses or enforces
+    // it -- but it's what lets the editor's "Add Child" list avoid offering
+    // BOTH "UiStyledButton" (from the type list) and a generic auto-detected
+    // "styledButton.ui" entry (from scanning the layout folder) for what is,
+    // in practice, the same widget: see UiEditor's layout-folder scan, which
+    // skips any discovered file with an associated type here. Call via
+    // UI_ASSOCIATE_LAYOUT, once, anywhere after the type itself is
+    // registered (order between the two doesn't matter).
+    void AssociateLayoutPath(const std::string& typeName, const std::string& layoutPath);
+
+    // "" if no registered type claimed this path.
+    std::string GetTypeNameForLayoutPath(const std::string& layoutPath) const;
+
     // Registers every engine-provided widget type (UiButton, UiText, UiImage,
     // ...). Implemented in UiBuiltinReflection.cpp. MUST be called explicitly
     // -- once, from EngineMain::Init() -- because these types live in the
@@ -87,6 +102,7 @@ private:
     std::unordered_map<std::string, UiTypeInfo> m_types;
     std::unordered_map<std::string, std::shared_ptr<UiElement>> m_defaultInstances;
     std::unordered_map<std::type_index, std::string> m_typeIndexToName;
+    std::unordered_map<std::string, std::string> m_layoutPathToTypeName;
 };
 
 // Self-registration helper for GAME-CODE widget types only (see the note on
@@ -112,4 +128,15 @@ struct UiAutoRegister
         {                                                                         \
             UiElementRegistry::Instance().Register<TypeName>(                     \
                 #TypeName, BaseTypeName, { __VA_ARGS__ });                        \
+        }))
+
+// Optional companion to UI_REGISTER_ELEMENT -- see AssociateLayoutPath above.
+//
+//   UI_REGISTER_ELEMENT(UiStyledButton, "UiButton", ...);
+//   UI_ASSOCIATE_LAYOUT(UiStyledButton, "GameData/ui/layout/styledButton.ui");
+#define UI_ASSOCIATE_LAYOUT(TypeName, LayoutPath)                                  \
+    static UiAutoRegister _uiAutoAssociate_##TypeName(                            \
+        std::function<void()>([]()                                               \
+        {                                                                         \
+            UiElementRegistry::Instance().AssociateLayoutPath(#TypeName, LayoutPath); \
         }))

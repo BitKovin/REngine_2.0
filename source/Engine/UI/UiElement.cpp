@@ -52,7 +52,7 @@ void UiElement::ClearChildren() {
 // ---------------------------------------------------------------------------
 void UiElement::UpdateOffsets()
 {
-    const glm::vec2 sz = GetSize();
+    const glm::vec2 sz = ApplyParentRelativeScaling(GetSize());
 
     // ── Axis-aligned layout (unchanged from original) ─────────────────────────
     const glm::vec2 originPos = GetOrigin();   // mix(parentTopLeft, parentBottomRight, origin)
@@ -120,7 +120,7 @@ void UiElement::FinalizeChildren()
 {
     finalizedPosition = position;
     finalizedOffset = offset;
-    finalizedSize = GetSize();
+    finalizedSize = ApplyParentRelativeScaling(GetSize());
     finalizedMatrix = worldMatrix;    // ← snapshot for Draw()
 
     finalizedVisible = visible;
@@ -285,7 +285,7 @@ std::shared_ptr<UiElement> UiElement::GetHitElementUnderPosition(vec2 hitPositio
 {
     std::shared_ptr<UiElement> hit = nullptr;
 
-    const glm::vec2 sz = GetSize();
+    const glm::vec2 sz = ApplyParentRelativeScaling(GetSize());
     // Transform hit point into this element's local space.
     const glm::vec2 local = TransformPoint(glm::inverse(worldMatrix), hitPosition);
     const bool hovering = (local.x >= 0.f && local.x <= sz.x &&
@@ -370,6 +370,17 @@ glm::vec2 UiElement::GetOrigin() {
 
 glm::vec2 UiElement::GetSize() {
     return size;
+}
+
+glm::vec2 UiElement::ApplyParentRelativeScaling(glm::vec2 sz) const
+{
+    if (parentRelativeScaling.x == 0.f && parentRelativeScaling.y == 0.f)
+        return sz; // default: zero-cost, unchanged behavior
+
+    const glm::vec2 parentSz = parentBottomRight - parentTopLeft;
+    sz.x *= glm::mix(1.f, parentSz.x, parentRelativeScaling.x);
+    sz.y *= glm::mix(1.f, parentSz.y, parentRelativeScaling.y);
+    return sz;
 }
 
 void UiElement::Draw()

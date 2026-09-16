@@ -31,6 +31,7 @@ void UiElementRegistry::RegisterBuiltinTypes()
     {
         Prop(&UiElement::position, "Position", PropertyKind::Vec2),
         Prop(&UiElement::size,     "Size",     PropertyKind::Vec2),
+        Prop(&UiElement::parentRelativeScaling, "ParentRelativeScaling", PropertyKind::Vec2),
         Prop(&UiElement::origin,   "Origin",   PropertyKind::Vec2),
         Prop(&UiElement::pivot,    "Pivot",    PropertyKind::Vec2),
         Prop(&UiElement::rotation, "Rotation", PropertyKind::Float),

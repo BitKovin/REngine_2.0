@@ -100,6 +100,17 @@ std::string UiElementRegistry::GetTypeNameForInstance(const UiElement* instance)
     return it != m_typeIndexToName.end() ? it->second : std::string();
 }
 
+void UiElementRegistry::AssociateLayoutPath(const std::string& typeName, const std::string& layoutPath)
+{
+    m_layoutPathToTypeName[layoutPath] = typeName;
+}
+
+std::string UiElementRegistry::GetTypeNameForLayoutPath(const std::string& layoutPath) const
+{
+    auto it = m_layoutPathToTypeName.find(layoutPath);
+    return it != m_layoutPathToTypeName.end() ? it->second : std::string();
+}
+
 std::vector<std::string> UiElementRegistry::GetAllTypeNames() const
 {
     std::vector<std::string> names;
