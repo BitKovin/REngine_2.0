@@ -173,7 +173,7 @@ void Bullet::TargetHit(Physics::HitResult hit)
 	}
 
 	vec3 forward = MathHelper::GetForwardVector(Rotation);
-	Physics::AddImpulseAtLocation(hit.hitbody, forward * (Damage + 2) * 14.0f, hit.position);
+	Physics::AddImpulseAtLocation(hit.hitbody, forward * (Damage + 4) * 17.0f, hit.position);
 
 }
 

@@ -661,13 +661,25 @@ void Player::TryWallJump()
 {
 	if (jumpDelay.Wait()) return;
 
+	vec3 verticalOffset = vec3(0.0f, -0.2f, 0.0f);
 
-	auto hit = Physics::SphereTrace(Position, Position + velocity*0.01f, 0.6f, BodyType::GroupCharacter & ~BodyType::CharacterCapsule, {}, { this }, true);
+	auto hit = Physics::SphereTrace(Position + verticalOffset, Position + verticalOffset + velocity*0.01f, 0.6f, BodyType::GroupCharacter & ~BodyType::CharacterCapsule, {}, { this }, true);
+
+	bool weakJump = false;
 
 	if (hit.hasHit)
 	{
 
 		if (abs(hit.normal.y) > 0.35) return;
+
+		if (length(lastWallNormal) > 0.5)
+		{
+			if (dot(hit.normal, lastWallNormal) > 0.99f)
+			{
+				weakJump = true;
+			}
+		}
+
 
 		if (freeWalljumps > 0)
 		{
@@ -675,10 +687,12 @@ void Player::TryWallJump()
 		}
 		else
 		{
-			if (HasStamina() == false) return;
+			if (HasStamina(0.5f) == false) return;
 
-			ConsumeStamina();
+			ConsumeStamina(0.5f);
 		}
+
+		lastWallNormal = hit.normal;
 
 		vec3 vectorToHit = normalize(hit.position - Position);
 
@@ -705,6 +719,11 @@ void Player::TryWallJump()
 		vec3 newVelocity = paraComponent;                        // preserve lateral momentum
 		newVelocity += wallNormal * wallJumpOutSpeed;        // fixed push off wall
 		newVelocity.y = wallJumpUpSpeed;                      // override vertical
+
+		if (weakJump)
+		{
+			newVelocity.y = 4.5f;
+		}
 
 		controller.SetVelocity(newVelocity);
 
@@ -1687,9 +1706,9 @@ void Player::UpdateInteraction()
 
 }
 
-bool Player::HasStamina()
+bool Player::HasStamina(float required)
 {
-	return stamina >= 0.99;
+	return stamina >= required - 0.05f;
 }
 
 void Player::ConsumeStamina(float amount)
@@ -1708,6 +1727,7 @@ void Player::UpdateStamina()
 	{
 		disableStaminaRegenUntilGrounded = false;
 		freeWalljumps = 1;
+		lastWallNormal = vec3(0);
 	}
 
 	if (disableStaminaRegenUntilGrounded) return;

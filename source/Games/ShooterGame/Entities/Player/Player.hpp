@@ -130,7 +130,7 @@ private:
 
 	vec3 oldPos = vec3();
 
-
+	vec3 lastWallNormal = vec3(0, 0, 0);
 
 	bool freeFly = false;
 
@@ -573,7 +573,7 @@ public:
 
 	}
 
-	bool HasStamina();
+	bool HasStamina(float required = 1.0f);
 	void ConsumeStamina(float amount = 1.0f);
 	void UpdateStamina();
 

@@ -58,7 +58,7 @@ public:
     glm::vec4 color = vec4(1);
     bool inheritParentColor = true;
 
-    glm::vec2 size     = glm::vec2(1.0f);
+    glm::vec2 size     = glm::vec2(0.0f);
     glm::vec2 position = glm::vec2(0.0f);
     float     rotation = 0.0f;
 
@@ -348,9 +348,18 @@ public:
     UiElement() = default;
     virtual ~UiElement();
 
+    static bool IsInSubtree(const UiElement* root, const UiElement* node)
+    {
+        for (const UiElement* p = node; p; p = p->parent)
+            if (p == root) return true;
+        return false;
+    }
+
     virtual void AddChild(std::shared_ptr<UiElement> child);
     virtual void RemoveChild(std::shared_ptr<UiElement> child);
     virtual void ClearChildren();
+
+	std::vector<UiElement*> GetChildenRecursive() const;
 
     virtual void Update();
     virtual void UpdateChildren();

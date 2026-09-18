@@ -89,7 +89,6 @@ public:
     void Draw();
 
     // Call once per frame, BEFORE the normal per-frame touch dispatch
-    // (see INTEGRATION.md), so a click meant for the editor's "pick" tool
     // doesn't also fall through to gameplay. No-op unless picking is armed.
     void UpdatePicking();
 

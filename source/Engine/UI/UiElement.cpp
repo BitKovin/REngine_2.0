@@ -14,6 +14,15 @@ UiElement::~UiElement()
 {
     if (UiNavigation::Focused == this)
         UiNavigation::ClearFocus();
+
+	auto allChildren = GetChildenRecursive();
+
+    for (auto c : allChildren)
+    {
+		if (UiNavigation::Focused == c)
+			UiNavigation::ClearFocus();
+    }
+
 }
 
 void UiElement::AddChild(std::shared_ptr<UiElement> child) {
@@ -28,6 +37,21 @@ void UiElement::RemoveChild(std::shared_ptr<UiElement> child) {
 
 void UiElement::ClearChildren() {
     children.clear();
+}
+
+std::vector<UiElement*> UiElement::GetChildenRecursive() const
+{
+    
+	auto result = std::vector<UiElement*>();
+
+	for (const auto& child : children)
+	{
+		result.push_back(child.get());
+		auto subChildren = child->GetChildenRecursive();
+		result.insert(result.end(), subChildren.begin(), subChildren.end());
+	}
+	return result;
+
 }
 
 // ---------------------------------------------------------------------------
@@ -378,8 +402,8 @@ glm::vec2 UiElement::ApplyParentRelativeScaling(glm::vec2 sz) const
         return sz; // default: zero-cost, unchanged behavior
 
     const glm::vec2 parentSz = parentBottomRight - parentTopLeft;
-    sz.x *= glm::mix(1.f, parentSz.x, parentRelativeScaling.x);
-    sz.y *= glm::mix(1.f, parentSz.y, parentRelativeScaling.y);
+    sz.x += glm::mix(1.f, parentSz.x, parentRelativeScaling.x);
+    sz.y += glm::mix(1.f, parentSz.y, parentRelativeScaling.y);
     return sz;
 }
 
