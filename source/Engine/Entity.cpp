@@ -94,7 +94,6 @@ void Entity::PreloadEntityTypeAsync(std::string technicalName)
 
 				entity->SaveGame = false;
 				entity->DestroyOnPlace();
-				delete(entity);
 			}
 			Level::Current->AddLoadedEntityType(technicalName);
 
