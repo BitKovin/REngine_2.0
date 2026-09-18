@@ -173,6 +173,8 @@ public:
 
 	void RemoveEntity(LevelObject* obj);
 
+	void AddPendingMemoryRemoveObject(LevelObject* obj);
+
 	void AddPendingLevelObjects()
 	{
 		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);

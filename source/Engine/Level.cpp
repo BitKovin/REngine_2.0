@@ -468,6 +468,14 @@ void Level::RemoveEntity(LevelObject* obj)
 
 }
 
+void Level::AddPendingMemoryRemoveObject(LevelObject* obj)
+{
+
+	std::lock_guard<std::recursive_mutex> lockP(pendingEntityArrayLock);
+	PendingMemoryCleanObjects.push_back(obj);
+
+}
+
 void Level::AsyncUpdate(bool paused)
 {
 	AddPendingLevelObjects();

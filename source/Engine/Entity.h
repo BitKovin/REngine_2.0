@@ -85,6 +85,8 @@ public:
 	virtual ~Entity() 
 	{
 		DestroyDrawables();
+
+		
 		if (m_Handle.valid())
 			m_Handle.destroy();
 	}

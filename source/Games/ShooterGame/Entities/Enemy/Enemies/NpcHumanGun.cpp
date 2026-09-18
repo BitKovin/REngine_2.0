@@ -219,7 +219,7 @@ void NpcHumanGun::AsyncUpdate()
 
     controller.Update(Time::DeltaTimeF);
     Position = controller.GetPosition();
-    speed = glm::length(MathHelper::XZ(controller.GetVelocity()));
+    //speed = glm::length(MathHelper::XZ(controller.GetVelocity()));
 
     // Rebuild resolved target pointer every frame.
     ResolveTarget();
@@ -495,8 +495,24 @@ void NpcHumanGun::AsyncUpdate()
             desiredDirection = glm::normalize(
                 MathHelper::XZ(pathFollow.CalculatedTargetLocation - Position));
         }
+        else if (repositioning || chasing)
+        {
+            // Path not ready yet (async result still pending) or this
+            // frame's query simply failed — e.g. a navmesh seam on a
+            // slope, which allowPartialPath=false makes more likely to
+            // reject outright. Walk straight toward the destination
+            // instead of leaving desiredDirection stale/zero, same
+            // fallback NpcHumanAxe uses. Gated to repositioning/chasing so
+            // we never do this while holding aim or mid-burst, where
+            // desiredTargetLocation may just be the target's raw position
+            // and speed is forced to 0 anyway.
+            vec3 direct = MathHelper::XZ(desiredTargetLocation - Position);
+            float len = glm::length(direct);
+            if (len > 0.001f)
+                desiredDirection = direct / len;
+        }
 
-        speed += Time::DeltaTimeF * 4.5f;
+        speed += Time::DeltaTimeF * 40.5f;
         speed = glm::clamp(speed, 0.0f, ModifyMovementSpeed(maxSpeed));
 
         // Repositioning and chasing are the only phases meant to move the

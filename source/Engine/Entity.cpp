@@ -58,7 +58,7 @@ void Entity::PreloadEntityType(std::string technicalName)
 		entity->LoadAssets();
 		entity->SaveGame = false;
 		entity->DestroyOnPlace();
-		delete(entity);
+
 	}
 	Level::Current->AddLoadedEntityType(technicalName);
 }
@@ -168,11 +168,7 @@ void Entity::DestroyOnPlace()
 		return;
 	}
 
-	DestroyDrawables();
-	DestroyPhysics();
-
-	if (m_Handle.valid())
-		m_Handle.destroy();
+	Level::Current->AddPendingMemoryRemoveObject(this);
 
 }
 

@@ -120,6 +120,7 @@ public:
             SuppressTouchEventsRecursive(m_content.get());
 
         // ── Auto-scroll to focused child ──────────────────────────────────────
+        if(Input::GetAction("ui_up")->Pressed() || Input::GetAction("ui_down")->Pressed())
         ScrollToFocusedItem();
 
         m_scrollOffset = std::clamp(m_scrollOffset, 0.f, maxScroll);
