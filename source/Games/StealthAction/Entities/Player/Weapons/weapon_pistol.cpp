@@ -58,6 +58,10 @@ public:
         thirdPersonAnimator = make_unique<Animator_OneHand>(this);
 
 
+        HiddenPosePosition = vec3(-0.150, -0.020, -0.100);
+        HiddenPoseRotation = vec3(-55.25, 5.25, 5.5);
+        HiddenPoseRotationPoint = vec3(-0.04, -0.1, 0.35);
+
     }
 
     void Update() override 

@@ -21,6 +21,17 @@ void Weapon::UpdateDrawProgress(bool wantDrawn)
 		DrawProgress = std::max(target, DrawProgress - speed * Time::DeltaTimeF);
 }
 
+void Weapon::UpdateDebugUI()
+{
+
+	ImGui::Begin("weapon parameters");
+
+	ImGui::DragFloat3("HiddenPosePosition", &HiddenPosePosition.x, 0.02);
+	ImGui::DragFloat3("HiddenPoseRotation", &HiddenPoseRotation.x, 0.25);
+	ImGui::DragFloat3("HiddenPoseRotationPoint", &HiddenPoseRotationPoint.x, 0.02);
+	ImGui::End();
+}
+
 void Weapon::LoadAssets()
 {
 

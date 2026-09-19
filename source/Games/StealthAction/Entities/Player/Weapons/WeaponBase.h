@@ -180,6 +180,8 @@ public:
 	bool IsFirearm() { return GetRole() == WeaponRole::Firearm; }
 	bool IsTool()    { return GetRole() == WeaponRole::Tool; }
 
+	void UpdateDebugUI() override;
+
 	virtual void SetData(WeaponSlotData data)
 	{
 		Data = data;

@@ -410,6 +410,8 @@ public:
 		StaticMesh::LoadFromFile(path, requestedTier);
 		filePath = path;
 
+		animator = roj::Animator(model);//double work sometimes, but fixes problem of changing model
+
 		LoadMetaFromFile();
 	}
 
