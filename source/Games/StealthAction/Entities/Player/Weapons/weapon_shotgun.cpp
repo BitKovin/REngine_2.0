@@ -49,6 +49,10 @@ public:
         params.debuffOnHit = "PoiseBreakDebuff";
 		params.debuffStacksOnHit = 100 / 21.0f;
 
+        HiddenPosePosition = vec3(-0.090, -0.100, -0.040);
+        HiddenPoseRotation = vec3(-50.25, 0, 0);
+        HiddenPoseRotationPoint = vec3(-0.04, -0.1, 0.35);
+
     }
 
     void Update() override {

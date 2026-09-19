@@ -109,7 +109,7 @@ public:
 	// DrawProgress (see Player::UpdateWalkMovement) - 1.0 = no penalty.
 	// Firearms additionally slow further while actively aiming, see
 	// WeaponFirearm::AimWalkSpeedModifier.
-	float WalkSpeedModifier = 1.0f;
+	float WalkSpeedModifier = 0.8f;
 
 	vec3 HiddenPosePosition = vec3(0.0f, -0.02f, 0.04f);       // extra offset applied at DrawProgress = 0
 	vec3 HiddenPoseRotation = vec3(45.0f, 12.0f, -6.0f);       // rotation (deg) applied at DrawProgress = 0 - +X pitches the muzzle DOWN

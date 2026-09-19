@@ -29,7 +29,7 @@ void InventoryMenu::Finalize()
 
 	float totalItems = (float)inventory.size();
 	float anglePerItem = (2.0f * glm::pi<float>()) / totalItems;
-	float radius = 1.0f; // Adjust this to change circle size
+	float radius = 0.9f; // Adjust this to change circle size
 
 	if (totalItems > 4)
 	{
@@ -83,7 +83,7 @@ void InventoryMenu::Finalize()
 		// Calculate circular position
 		float angle = offset * anglePerItem;
 
-		vec3 circleCenter = Camera::position + Camera::Forward() * (radius + 0.52f) + Camera::Up() * -0.15f;
+		vec3 circleCenter = Camera::position + Camera::Forward() * (radius + 0.75f) + Camera::Up() * -0.15f;
 		vec3 circleOffset = Camera::Forward() * (cos(angle) * radius) * -1.0f + Camera::Right() * (sin(angle) * radius);
 		vec3 position = circleCenter + circleOffset;
 

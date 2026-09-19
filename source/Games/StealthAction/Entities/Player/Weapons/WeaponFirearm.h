@@ -124,7 +124,7 @@ public:
 	// Extra movement-speed multiplier while aimProgress is at 1 (on top of
 	// the base Weapon::WalkSpeedModifier that already applies just from
 	// being drawn) - 1.0 = no extra penalty.
-	float AimWalkSpeedModifier = 0.8f;
+	float AimWalkSpeedModifier = 0.65f;
 
 	std::unique_ptr<WeaponAnimator> thirdPersonAnimator;
 

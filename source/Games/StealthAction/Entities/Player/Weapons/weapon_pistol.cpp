@@ -18,8 +18,8 @@ public:
         params.fireSoundEvent = "event:/Weapons/pistol/pistol_fire";
         params.useOneshotSound = false;
         params.pitchModifier = 1.0f; // Modified in Update based on Silencer
-        params.baseSpread = 0.1f;
-        params.spreadIncreasePerShot = 0.1f;
+        params.baseSpread = 0.3f;
+        params.spreadIncreasePerShot = 0.15f;
         params.maxActiveSpread = 0.8f;
         params.attackDelayTime = 0.35f;
         params.switchDelayTime = 0.3f;

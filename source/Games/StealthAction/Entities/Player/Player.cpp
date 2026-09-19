@@ -1197,7 +1197,10 @@ void Player::SwitchToInventoryItem(std::string uuid, bool forceChange)
 	// firearm is already up right now, swapping to a different one from the
 	// wheel should still happen immediately. Melee/Tool have no such gating -
 	// the wheel remains the sole driver of what's current for those roles.
-	if (role != WeaponRole::Firearm || currentWeaponRole == WeaponRole::Firearm)
+	// forceChange always bypasses this gate outright - callers only ever
+	// pass it when the switch has to happen right now regardless (e.g.
+	// restoring a save), so silently swallowing it here defeats the point.
+	if (forceChange || role != WeaponRole::Firearm || currentWeaponRole == WeaponRole::Firearm)
 		TryEquipRole(role, forceChange);
 }
 
@@ -2600,16 +2603,21 @@ void Player::Deserialize(json& source)
 	// DestroyWeapon() first so the switch below doesn't think this is a
 	// no-op (currentWeapon itself is still null at this point regardless,
 	// but this also resets currentWeaponRole/currentWeaponUUID cleanly).
+	//
+	// Restore via TryEquipRole directly, the same way RestoreWeapons() does
+	// for the suppression case - the slot arrays (firearmSlotUUID/
+	// activeFirearmSlot/meleeSlotUUID/etc.) are already fully restored above,
+	// so TryEquipRole alone resolves back to the exact saved item. Routing
+	// this through SwitchToInventoryItem instead (as before) also ran its
+	// wheel-selection gating, which deliberately holds firearms back until
+	// fire/aim is pressed and doesn't check forceChange - so a save made
+	// with a firearm equipped would restore all the slot/inventory data
+	// correctly but never actually recreate the weapon.
 	WeaponRole roleToRestore = currentWeaponRole;
-	std::string uuidToRestore = currentWeaponUUID;
 
 	DestroyWeapon();
 
-	if (!uuidToRestore.empty())
-	{
-		SwitchToInventoryItem(uuidToRestore, true);
-	}
-	else if (roleToRestore != WeaponRole::None)
+	if (roleToRestore != WeaponRole::None)
 	{
 		TryEquipRole(roleToRestore, true);
 	}
