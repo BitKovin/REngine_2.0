@@ -91,6 +91,18 @@ public:
     }
 
 
+    void Serialize(json& target) override
+    {
+        WeaponFirearm::Serialize(target);
+        SERIALIZE_FIELD(target, Silencer);
+    }
+
+    void Deserialize(json& source) override
+    {
+        WeaponFirearm::Deserialize(source);
+        DESERIALIZE_FIELD(source, Silencer);
+    }
+
     WeaponSlotData GetDefaultData() override 
     {
         WeaponSlotData data = WeaponFirearm::GetDefaultData();

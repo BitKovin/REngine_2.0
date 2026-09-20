@@ -327,3 +327,60 @@ void WeaponMelee::LateUpdate()
 
 	UpdateTrail();
 }
+
+void WeaponMelee::Serialize(json& target)
+{
+	Weapon::Serialize(target);
+
+
+	SERIALIZE_FIELD(target, attackDelay);
+	SERIALIZE_FIELD(target, pendingAttackStartDelay);
+	SERIALIZE_FIELD(target, pendingAttackEndDelay);
+	SERIALIZE_FIELD(target, reAttackDelay);
+	SERIALIZE_FIELD(target, parryWindow);
+	SERIALIZE_FIELD(target, parrySpamWindow);
+	SERIALIZE_FIELD(target, blockStartDelay);
+	SERIALIZE_FIELD(target, counterWindow);
+	SERIALIZE_FIELD(target, pendingAttack);
+	SERIALIZE_FIELD(target, isBlocking);
+	SERIALIZE_FIELD(target, soundToggle);
+	SERIALIZE_FIELD(target, counterAvailable);
+	SERIALIZE_FIELD(target, pendingCounterAttack);
+
+	auto viewmodelRData = viewmodel_r->GetAnimationState();
+	SERIALIZE_FIELD(target, viewmodelRData);
+
+	if (DualWield)
+	{
+		auto viewmodelLData = viewmodel_l->GetAnimationState();
+		SERIALIZE_FIELD(target, viewmodelLData);
+	}
+}
+
+void WeaponMelee::Deserialize(json& source)
+{
+	DESERIALIZE_FIELD(source, attackDelay);
+	DESERIALIZE_FIELD(source, pendingAttackStartDelay);
+	DESERIALIZE_FIELD(source, pendingAttackEndDelay);
+	DESERIALIZE_FIELD(source, reAttackDelay);
+	DESERIALIZE_FIELD(source, parryWindow);
+	DESERIALIZE_FIELD(source, parrySpamWindow);
+	DESERIALIZE_FIELD(source, blockStartDelay);
+	DESERIALIZE_FIELD(source, counterWindow);
+	DESERIALIZE_FIELD(source, pendingAttack);
+	DESERIALIZE_FIELD(source, isBlocking);
+	DESERIALIZE_FIELD(source, soundToggle);
+	DESERIALIZE_FIELD(source, counterAvailable);
+	DESERIALIZE_FIELD(source, pendingCounterAttack);
+
+	AnimationState viewmodelRData;
+	DESERIALIZE_FIELD(source, viewmodelRData);
+	viewmodel_r->SetAnimationState(viewmodelRData);
+
+	if (DualWield)
+	{
+		AnimationState viewmodelLData;
+		DESERIALIZE_FIELD(source, viewmodelLData);
+		viewmodel_l->SetAnimationState(viewmodelLData);
+	}
+}

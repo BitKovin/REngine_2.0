@@ -201,6 +201,31 @@ public:
 		return WeaponSlotData();
 	}
 
+	// Per-instance runtime state (cooldown timers, combo/aim/spread progress,
+	// viewmodel animation pose, that kind of thing). This has to be declared
+	// virtual here - Player::Serialize() calls currentWeapon->Serialize(...)
+	// through a Weapon* pointer, so without a virtual declaration somewhere
+	// at or above this class, a subclass's own Serialize (e.g.
+	// WeaponFirearm's) would never actually be invoked through that call,
+	// regardless of the weapon's real type. Deserialize doesn't need the
+	// same treatment here - it's already virtual on Entity. Default just
+	// chains to Entity::Serialize(); override in a subclass, call
+	// Weapon::Serialize(target) (or your immediate base's Serialize) first,
+	// then add your own fields on top - see WeaponFirearm::Serialize.
+	void Serialize(json& target) override
+	{
+		Entity::Serialize(target);
+		SERIALIZE_FIELD(target, DrawProgress);
+		SERIALIZE_FIELD(target, autoHideTimer);
+	}
+
+	void Deserialize(json& source) override
+	{
+		Entity::Deserialize(source);
+		DESERIALIZE_FIELD(source, DrawProgress);
+		DESERIALIZE_FIELD(source, autoHideTimer);
+	}
+
 	WeaponAmmoType GetAmmoType()
 	{
 		return Data.AmmoType;

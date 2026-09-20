@@ -101,6 +101,8 @@ public:
 	void Update() override;
 	void AsyncUpdate() override;
 	void LateUpdate() override;
+	void Serialize(json& target) override;
+	void Deserialize(json& source) override;
 
 	WeaponSlotData GetDefaultData() override
 	{

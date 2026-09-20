@@ -1038,15 +1038,16 @@ void SkeletalMesh::SetAnimationState(const AnimationState& animationState)
 	animator.m_currTime = animationState.animationTime;
 
 
-	if (animationState.looping == false && animator.m_currTime >= GetAnimationDuration())
+	if (animationState.looping == false && GetAnimationTime() >= GetAnimationDuration())
 	{
-		animator.m_currTime = GetAnimationDuration() - 0.0001f;
+		SetAnimationTime(GetAnimationDuration() - 0.0001f);
 	}
 
 	animator.UpdateAnimationPose();
-	animator.m_playing = animationState.playing;
 	oldAnimationEventTime = animationState.oldAnimationEventTime;
 	Update(0.0001);
+	animator.m_playing = animationState.playing;
+
 	PullAnimationEvents();
 
 	InRagdoll = animationState.inRagdoll;

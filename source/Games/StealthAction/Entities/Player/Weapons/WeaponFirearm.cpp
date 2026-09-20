@@ -572,15 +572,14 @@ AnimationPose WeaponFirearm::ApplyWeaponAnimation(AnimationPose thirdPersonPose)
 
 void WeaponFirearm::Serialize(json& target)
 {
+	Weapon::Serialize(target);
+
 	SERIALIZE_FIELD(target, attackDelay);
 	SERIALIZE_FIELD(target, SwitchDelay);
 	SERIALIZE_FIELD(target, activeSpread);
 	SERIALIZE_FIELD(target, recoilModelOffset);
 	SERIALIZE_FIELD(target, weaponAim);
-	// DrawProgress is intentionally NOT restored on load (it's transient,
-	// defaults to 0/hidden on spawn) - a loaded save should never resume
-	// already-readied, same as switching weapons never leaves the new one
-	// auto-readied.
+
 	SERIALIZE_FIELD(target, fireLeftNext);
 	
 	auto viewmodelData = viewmodel->GetAnimationState();
@@ -592,6 +591,8 @@ void WeaponFirearm::Serialize(json& target)
 
 void WeaponFirearm::Deserialize(json& source)
 {
+	Weapon::Deserialize(source);
+
 	DESERIALIZE_FIELD(source, attackDelay);
 	DESERIALIZE_FIELD(source, SwitchDelay);
 	DESERIALIZE_FIELD(source, activeSpread);

@@ -96,3 +96,22 @@ void WeaponTool::LateUpdate()
 	arms->Position = viewmodel->Position;
 	arms->Rotation = viewmodel->Rotation;
 }
+
+void WeaponTool::Serialize(json& target)
+{
+	Weapon::Serialize(target);
+
+	SERIALIZE_FIELD(target, attackDelay);
+
+	auto viewmodelData = viewmodel->GetAnimationState();
+	SERIALIZE_FIELD(target, viewmodelData);
+}
+
+void WeaponTool::Deserialize(json& source)
+{
+	DESERIALIZE_FIELD(source, attackDelay);
+
+	AnimationState viewmodelData;
+	DESERIALIZE_FIELD(source, viewmodelData);
+	viewmodel->SetAnimationState(viewmodelData);
+}

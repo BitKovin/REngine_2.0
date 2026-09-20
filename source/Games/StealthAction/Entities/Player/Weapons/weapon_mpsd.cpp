@@ -180,6 +180,26 @@ public:
         }
     }
 
+    void Serialize(json& target) override
+    {
+        WeaponFirearm::Serialize(target);
+
+        SERIALIZE_FIELD(target, overheat);
+        SERIALIZE_FIELD(target, boosted);
+    }
+
+    void Deserialize(json& source) override
+    {
+        WeaponFirearm::Deserialize(source);
+
+        DESERIALIZE_FIELD(source, overheat);
+        DESERIALIZE_FIELD(source, boosted);
+
+        // attackDelayTime tracks boosted state rather than being derived
+        // from it each frame - keep it in sync with whatever we just loaded.
+        params.attackDelayTime = boosted ? BOOSTED_ATTACK_DELAY : BASE_ATTACK_DELAY;
+    }
+
     WeaponSlotData GetDefaultData() override {
         WeaponSlotData data = WeaponFirearm::GetDefaultData();
         data.className = "weapon_mpsd";

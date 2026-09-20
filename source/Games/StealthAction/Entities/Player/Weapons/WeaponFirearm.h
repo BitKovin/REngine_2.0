@@ -156,7 +156,7 @@ public:
 	// Runtime akimbo functions
 	void SetAkimbo(bool enabled);
 
-	void Serialize(json& target);
+	void Serialize(json& target) override;
 	void Deserialize(json& source) override;
 
 	virtual bool IsInUltimateAkimbo();

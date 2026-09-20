@@ -170,6 +170,20 @@ public:
 	// Misc
 	// -----------------------------------------------------------------------
 
+	void Serialize(json& target) override
+	{
+		WeaponMelee::Serialize(target);
+		SERIALIZE_FIELD(target, attack);
+		SERIALIZE_FIELD(target, hadHit);
+	}
+
+	void Deserialize(json& source) override
+	{
+		WeaponMelee::Deserialize(source);
+		DESERIALIZE_FIELD(source, attack);
+		DESERIALIZE_FIELD(source, hadHit);
+	}
+
 	WeaponSlotData GetDefaultData() override
 	{
 		WeaponSlotData data;

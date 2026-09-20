@@ -54,6 +54,18 @@ public:
 		Parrying = parryWindow.Wait();
 	}
 
+	void Serialize(json& target) override
+	{
+		WeaponTool::Serialize(target);
+		SERIALIZE_FIELD(target, parryWindow);
+	}
+
+	void Deserialize(json& source) override
+	{
+		WeaponTool::Deserialize(source);
+		DESERIALIZE_FIELD(source, parryWindow);
+	}
+
 	WeaponSlotData GetDefaultData() override
 	{
 		WeaponSlotData data;
