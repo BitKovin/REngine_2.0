@@ -1,6 +1,6 @@
 {
   "RepoRoot": ".",
-  "GameName": "ShooterGame",
+  "GameName": "StealthAction",
   "LogDirectory": "BuildLogs",
   "Parallel": false,
   "MaxParallelism": 2,

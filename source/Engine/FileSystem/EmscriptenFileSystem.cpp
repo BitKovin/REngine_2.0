@@ -7,20 +7,33 @@
 
 EM_JS(void, SetupPersistentSystemJS, (), {
     try {
-        // Create the root mount point
+        // Prevent double-mounting which causes the "Resource busy" error
+        if (window.__fs_saves_mounted) {
+            return;
+        }
+
+        // Create the root mount point if it doesn't exist
         if (!FS.analyzePath('/saves').exists) {
             FS.mkdir('/saves');
         }
+
         // Mount IndexedDB
-        FS.mount(IDBFS, {}, '/saves');
+        FS.mount(IDBFS,{}, '/saves');
+        window.__fs_saves_mounted = true; // Mark as successfully mounted
 
         // Sync from IDB to Memory at startup
         FS.syncfs(true, function(err) {
-            if (err) console.error("Initial sync error:", err);
-        });
-    }
- catch (e) {
-  console.error("SetupPersistentSystemJS failed:", e);
+            if (err) {
+                console.error("Initial sync error:", err);
+            }
+ else {
+  console.log("IDBFS sync complete.");
+  // NOTE: It is safe to read files from C++ only AFTER this callback fires.
+}
+});
+}
+catch (e) {
+ console.error("SetupPersistentSystemJS failed:", e);
 }
     });
 

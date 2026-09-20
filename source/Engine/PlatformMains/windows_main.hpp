@@ -47,17 +47,34 @@ void update_screen_size(int w, int h) {
 #include "../imgui/FA6FreeSolidFontData.h"
 #include "../imgui/IconsFontAwesome6.h"
 
+// Multi-viewport: lets ImGui windows be dragged out of the game window into their own OS windows.
+// It is OFF by default in the engine (Android, Emscripten, ... can't create extra native windows) and each platform main
+// opts in explicitly. This is the only switch on Windows: it drives the ImGui config flag, the window style and the renderer backend.
+static const bool kImGuiMultiViewport = true;
+
 void InitImGui() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    if (kImGuiMultiViewport) {
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        // io.ConfigViewportsNoTaskBarIcon = true;            // optional: no task bar button per floating window
+    }
     ImGui::StyleColorsDark();
 
-    // bgfx + SDL2 backend (nullptr context because we no longer use OpenGL)
-    ImGui_ImplSDL2_InitForOpenGL(window, nullptr);
-    ImGui_Implbgfx_Init(255);   // 255 = standard ImGui view ID (drawn on top)
+    if (kImGuiMultiViewport) {
+        // Floating windows are real OS windows and can't be see-through: keep window backgrounds opaque so they look
+        // the same inside and outside of the game window.
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
+    // SDL2 platform backend + bgfx renderer backend (no OpenGL context: bgfx owns the graphics API)
+    ImGui_ImplSDL2_InitForOther(window);
+    ImGui_Implbgfx_Init(255, kImGuiMultiViewport);   // 255 = main ImGui view ID (drawn on top); floating windows use the ids right below it
 }
 
 bool InitDirectInput(SDL_Window* sdlWindow) {
@@ -126,9 +143,27 @@ void ShutdownDirectInput() {
 
 bool pendingResize = false;
 
+// True for window-scoped events delivered to a window other than the game window, i.e. a floating ImGui window.
+// Those are for ImGui only and must not reach the game (mouse clicks, typing, resize...).
+static bool IsEventForOtherWindow(const SDL_Event& e, Uint32 mainWindowId) {
+    Uint32 id = 0;
+    switch (e.type) {
+    case SDL_WINDOWEVENT:                             id = e.window.windowID; break;
+    case SDL_KEYDOWN: case SDL_KEYUP:                 id = e.key.windowID;    break;
+    case SDL_TEXTEDITING:                             id = e.edit.windowID;   break;
+    case SDL_TEXTINPUT:                               id = e.text.windowID;   break;
+    case SDL_MOUSEMOTION:                             id = e.motion.windowID; break;
+    case SDL_MOUSEBUTTONDOWN: case SDL_MOUSEBUTTONUP: id = e.button.windowID; break;
+    case SDL_MOUSEWHEEL:                              id = e.wheel.windowID;  break;
+    default: return false;
+    }
+    return id != 0 && id != mainWindowId;
+}
+
 void desktop_render_loop() {
     SDL_Event event;
     int quit = 0;
+    const Uint32 mainWindowId = SDL_GetWindowID(window);
     int currentWidth = 800;
     int currentHeight = 600;
 
@@ -149,6 +184,14 @@ void desktop_render_loop() {
                 ImGui_ImplSDL2_ProcessEvent(&event);
 
             if (event.type == SDL_QUIT) quit = 1;
+
+            // With floating ImGui windows open SDL doesn't send SDL_QUIT when the game window is closed
+            // (it only does that for the last window), so handle the close request of the main window explicitly.
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE &&
+                event.window.windowID == mainWindowId) quit = 1;
+
+            // Events for floating ImGui windows were already given to ImGui above.
+            if (IsEventForOtherWindow(event, mainWindowId)) continue;
 
             // BGFX resize handling (high-DPI aware)
             if (event.type == SDL_WINDOWEVENT &&
@@ -426,6 +469,11 @@ int main(int argc, char* args[])
 
     delete engine;
     ShutdownDirectInput();
+
+    // Renderer backend first (releases the swap chains of floating windows), then the platform backend (closes their OS windows).
+    ImGui_Implbgfx_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 
     bgfx::frame();      // final present before shutdown
     //bgfx::shutdown();   // replaces SDL_GL_DeleteContext

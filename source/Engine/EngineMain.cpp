@@ -406,7 +406,7 @@ void EngineMain::MainLoop()
 
 
 
-
+    ImSetFloatingWindowsVisible(DebugUiEnabled);
     if (DebugUiEnabled)
     {
         ImStartFrame();

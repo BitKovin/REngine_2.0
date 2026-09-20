@@ -8,7 +8,9 @@ if errorlevel 1 (
   exit /b 1
 )
 
-echo === [emscripten] Build directory already configured, matching args — skipping reconfigure ===
+echo === Configuring [emscripten] ===
+emcmake cmake -S "F:\Git\SdlWasmEngine" -B "F:\Git\SdlWasmEngine\build\emscripten" -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGAME_NAME="StealthAction" -DSKIP_GAMEDATA_FINALIZE=1
+if errorlevel 1 exit /b 1
 
 echo === Building [emscripten] ===
 cmake --build "F:\Git\SdlWasmEngine\build\emscripten" --config Release

@@ -464,10 +464,8 @@ source/QtEditor/build/
 
 BuildGDK/*
 #BuildWindows/*
-Build/ShooterGame/xbox_gdk/*
-Build/ShooterGame/windows_gdk/*
-Build/ShooterGame/windows/*
-Build/ShooterGame/android/*
+
+Build/*
 
 *engine.a
 *.libengine.a

@@ -8,7 +8,9 @@ if errorlevel 1 (
   exit /b 1
 )
 
-echo === [windows] Build directory already configured, matching args — skipping reconfigure ===
+echo === Configuring [windows] ===
+cmake -S "F:\Git\SdlWasmEngine" -B "F:\Git\SdlWasmEngine\build\windows" -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="F:\Git\SdlWasmEngine\cmake\toolchains\msvc.cmake" -DGAME_NAME="StealthAction" -DSKIP_GAMEDATA_FINALIZE=1
+if errorlevel 1 exit /b 1
 
 echo === Building [windows] ===
 cmake --build "F:\Git\SdlWasmEngine\build\windows" --config Release

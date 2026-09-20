@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-09T01:02:14Z",
+  "generatedAt": "2026-09-19T23:54:53Z",
   "root": "GameData",
   "entries": [
     {
@@ -20,7 +20,7 @@
       "path": "animations.zip",
       "type": "file",
       "size": 7163982,
-      "mtime": 1788915714
+      "mtime": 1789862076
     },
     {
       "path": "animations/npc",
@@ -37,42 +37,42 @@
       "path": "animations/npc/caution_idle.glb",
       "type": "file",
       "size": 1864548,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "animations.zip"
     },
     {
       "path": "animations/npc/idle.glb",
       "type": "file",
       "size": 1812432,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "animations.zip"
     },
     {
       "path": "animations/npc/inPain.glb",
       "type": "file",
       "size": 1920624,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "animations.zip"
     },
     {
       "path": "animations/npc/run.glb",
       "type": "file",
       "size": 1828316,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "animations.zip"
     },
     {
       "path": "animations/npc/standUp.glb",
       "type": "file",
       "size": 2339232,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "animations.zip"
     },
     {
       "path": "animations/npc/walk.glb",
       "type": "file",
       "size": 740580,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "animations.zip"
     },
     {
@@ -87,28 +87,28 @@
       "path": "animations/player/body/idle.glb",
       "type": "file",
       "size": 1812432,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "animations.zip"
     },
     {
       "path": "animations/player/body/run_f.glb",
       "type": "file",
       "size": 1828316,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "animations.zip"
     },
     {
       "path": "animations/player/tp_weapons.glb",
       "type": "file",
       "size": 800124,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "animations.zip"
     },
     {
       "path": "arms.glb",
       "type": "file",
       "size": 148620,
-      "mtime": 1788915703
+      "mtime": 1789862067
     },
     {
       "path": "base",
@@ -478,7 +478,7 @@
       "path": "fonts.zip",
       "type": "file",
       "size": 20447815,
-      "mtime": 1788915715
+      "mtime": 1789862077
     },
     {
       "path": "fonts/Font Awesome 6 Free-Regular-400.ttf",
@@ -740,8 +740,8 @@
     {
       "path": "maps.zip",
       "type": "file",
-      "size": 12524590,
-      "mtime": 1788915718
+      "size": 12120929,
+      "mtime": 1789862080
     },
     {
       "path": "maps/Level.bsp",
@@ -1330,246 +1330,239 @@
     {
       "path": "maps/lvl2.autosave.map",
       "type": "file",
-      "size": 2834067,
-      "mtime": 1788113476,
+      "size": 2921820,
+      "mtime": 1789761716,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2.bak",
       "type": "file",
-      "size": 2834067,
-      "mtime": 1788109288,
+      "size": 2921820,
+      "mtime": 1789761320,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2.bsp",
       "type": "file",
-      "size": 11484836,
-      "mtime": 1788114158,
+      "size": 11342052,
+      "mtime": 1789761130,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2.bsp.nav",
       "type": "file",
-      "size": 2521703,
-      "mtime": 1788117496,
+      "size": 2532502,
+      "mtime": 1789761184,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2.map",
       "type": "file",
-      "size": 2834067,
-      "mtime": 1788112580,
+      "size": 2921820,
+      "mtime": 1789761334,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2.prt",
       "type": "file",
       "size": 1186753,
-      "mtime": 1788113216,
+      "mtime": 1789761102,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2.srf",
       "type": "file",
-      "size": 1590450,
-      "mtime": 1788113216,
+      "size": 1610142,
+      "mtime": 1789761102,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0000.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0001.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0002.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0003.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0004.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0005.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0006.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0007.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0008.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0009.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0010.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0011.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0012.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0013.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0014.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0015.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0016.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0017.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0018.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0019.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0020.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0021.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0022.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0023.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0024.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0025.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
       "path": "maps/lvl2/lm_0026.tga",
       "type": "file",
       "size": 196626,
-      "mtime": 1788114150,
-      "archive": "maps.zip"
-    },
-    {
-      "path": "maps/lvl2/lm_0027.tga",
-      "type": "file",
-      "size": 196626,
-      "mtime": 1788114150,
+      "mtime": 1789761126,
       "archive": "maps.zip"
     },
     {
@@ -1919,8 +1912,8 @@
     {
       "path": "models.zip",
       "type": "file",
-      "size": 29826376,
-      "mtime": 1788915720
+      "size": 29654276,
+      "mtime": 1789862081
     },
     {
       "path": "models/cube.mtl",
@@ -1944,7 +1937,7 @@
       "path": "models/effects/explosion.glb",
       "type": "file",
       "size": 33232,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "models.zip"
     },
     {
@@ -1966,7 +1959,7 @@
       "path": "models/enemies/dog/dog.glb",
       "type": "file",
       "size": 165792,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "models.zip"
     },
     {
@@ -1984,7 +1977,7 @@
       "path": "models/enemies/humanAxe/humanAxe.glb",
       "type": "file",
       "size": 609400,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "models.zip"
     },
     {
@@ -2002,7 +1995,7 @@
       "path": "models/enemies/humanGun/humanGun.glb",
       "type": "file",
       "size": 363396,
-      "mtime": 1788915704,
+      "mtime": 1789862068,
       "archive": "models.zip"
     },
     {
@@ -2020,7 +2013,7 @@
       "path": "models/enemies/knight/knight.glb",
       "type": "file",
       "size": 901560,
-      "mtime": 1788915706,
+      "mtime": 1789862068,
       "archive": "models.zip"
     },
     {
@@ -2038,7 +2031,7 @@
       "path": "models/enemies/zombie/zombie.glb",
       "type": "file",
       "size": 381920,
-      "mtime": 1788915706,
+      "mtime": 1789862068,
       "archive": "models.zip"
     },
     {
@@ -2070,7 +2063,7 @@
       "path": "models/engine/widgetPlane.glb",
       "type": "file",
       "size": 1260,
-      "mtime": 1788915706,
+      "mtime": 1789862068,
       "archive": "models.zip"
     },
     {
@@ -2081,7 +2074,7 @@
       "path": "models/enviroment/door.glb",
       "type": "file",
       "size": 166588,
-      "mtime": 1788915706,
+      "mtime": 1789862068,
       "archive": "models.zip"
     },
     {
@@ -3909,7 +3902,7 @@
       "path": "models/npc/base.glb",
       "type": "file",
       "size": 1443044,
-      "mtime": 1788915706,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
@@ -3923,7 +3916,7 @@
       "path": "models/npc/guard.glb",
       "type": "file",
       "size": 1803040,
-      "mtime": 1788915706,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
@@ -4008,42 +4001,42 @@
       "path": "models/pickups/weapons/cane.glb",
       "type": "file",
       "size": 24408,
-      "mtime": 1788915706,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
       "path": "models/pickups/weapons/cannon.glb",
       "type": "file",
       "size": 624744,
-      "mtime": 1788915706,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
       "path": "models/pickups/weapons/pistol.glb",
       "type": "file",
       "size": 89688,
-      "mtime": 1788915706,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
       "path": "models/pickups/weapons/shotgun.glb",
       "type": "file",
       "size": 104024,
-      "mtime": 1788915706,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
       "path": "models/pickups/weapons/stg44.glb",
       "type": "file",
       "size": 643968,
-      "mtime": 1788915706,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
       "path": "models/pickups/weapons/twinswords.glb",
       "type": "file",
       "size": 104688,
-      "mtime": 1788915706,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
@@ -4054,35 +4047,35 @@
       "path": "models/player/arms.glb",
       "type": "file",
       "size": 244136,
-      "mtime": 1788915708,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
       "path": "models/player/arms2.glb",
       "type": "file",
       "size": 221392,
-      "mtime": 1788915708,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
       "path": "models/player/arms_a.glb",
       "type": "file",
       "size": 112912,
-      "mtime": 1788915708,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
       "path": "models/player/arms_actions.glb",
       "type": "file",
       "size": 56408,
-      "mtime": 1788915708,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
       "path": "models/player/arms_p.glb",
       "type": "file",
       "size": 197020,
-      "mtime": 1788915708,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
@@ -4093,7 +4086,7 @@
       "path": "models/player/bike/bike.glb",
       "type": "file",
       "size": 3900548,
-      "mtime": 1788915708,
+      "mtime": 1789862070,
       "archive": "models.zip"
     },
     {
@@ -4129,7 +4122,7 @@
       "path": "models/player/body/player_body.glb",
       "type": "file",
       "size": 485768,
-      "mtime": 1788915708,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
@@ -4140,14 +4133,14 @@
       "path": "models/player/weapons/arms.glb",
       "type": "file",
       "size": 244136,
-      "mtime": 1788915708,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
       "path": "models/player/weapons/arms2.glb",
       "type": "file",
       "size": 221392,
-      "mtime": 1788915708,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
@@ -4158,7 +4151,7 @@
       "path": "models/player/weapons/cane/cane.glb",
       "type": "file",
       "size": 299256,
-      "mtime": 1788915708,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
@@ -4193,7 +4186,7 @@
       "path": "models/player/weapons/cane/cane_tp.glb",
       "type": "file",
       "size": 301024,
-      "mtime": 1788915708,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
@@ -4204,14 +4197,14 @@
       "path": "models/player/weapons/cannon/cannon.glb",
       "type": "file",
       "size": 957588,
-      "mtime": 1788915710,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
       "path": "models/player/weapons/cannon/cannon_tp.glb",
       "type": "file",
       "size": 1808000,
-      "mtime": 1788915710,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
@@ -4222,7 +4215,7 @@
       "path": "models/player/weapons/leftHand/empty.glb",
       "type": "file",
       "size": 303956,
-      "mtime": 1788915710,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
@@ -4233,14 +4226,14 @@
       "path": "models/player/weapons/mpsd/mpsd.glb",
       "type": "file",
       "size": 1075732,
-      "mtime": 1788915710,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
       "path": "models/player/weapons/mpsd/mpsd_tp.glb",
       "type": "file",
       "size": 1084380,
-      "mtime": 1788915710,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
@@ -4251,7 +4244,7 @@
       "path": "models/player/weapons/pistol/glock.glb",
       "type": "file",
       "size": 710456,
-      "mtime": 1788915710,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
@@ -4272,7 +4265,7 @@
       "path": "models/player/weapons/pistol/pistol.glb",
       "type": "file",
       "size": 215956,
-      "mtime": 1788915710,
+      "mtime": 1789862072,
       "archive": "models.zip"
     },
     {
@@ -4286,14 +4279,14 @@
       "path": "models/player/weapons/pistol/pistol_tp.glb",
       "type": "file",
       "size": 461672,
-      "mtime": 1788915710,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
       "path": "models/player/weapons/pistol/revolver.glb",
       "type": "file",
       "size": 1714388,
-      "mtime": 1788915710,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
@@ -4304,7 +4297,7 @@
       "path": "models/player/weapons/pistol_silent/pistol_silent.glb",
       "type": "file",
       "size": 1477516,
-      "mtime": 1788915710,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
@@ -4315,7 +4308,7 @@
       "path": "models/player/weapons/revolver/revolver.glb",
       "type": "file",
       "size": 1236396,
-      "mtime": 1788915710,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
@@ -4326,14 +4319,14 @@
       "path": "models/player/weapons/shotgun/shotgun.glb",
       "type": "file",
       "size": 364800,
-      "mtime": 1788915712,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
       "path": "models/player/weapons/shotgun/shotgun_tp.glb",
       "type": "file",
       "size": 525028,
-      "mtime": 1788915712,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
@@ -4344,7 +4337,7 @@
       "path": "models/player/weapons/sniper/sniper.glb",
       "type": "file",
       "size": 1150836,
-      "mtime": 1788915712,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
@@ -4354,15 +4347,15 @@
     {
       "path": "models/player/weapons/stg44/stg44.glb",
       "type": "file",
-      "size": 1027124,
-      "mtime": 1788915712,
+      "size": 423372,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
       "path": "models/player/weapons/stg44/stg44_tp.glb",
       "type": "file",
       "size": 2166492,
-      "mtime": 1788915712,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
@@ -4373,7 +4366,7 @@
       "path": "models/player/weapons/sword/sword.glb",
       "type": "file",
       "size": 439580,
-      "mtime": 1788915712,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
@@ -4384,7 +4377,7 @@
       "path": "models/player/weapons/swords/swords_tp.glb",
       "type": "file",
       "size": 289156,
-      "mtime": 1788915712,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
@@ -4402,7 +4395,7 @@
       "path": "models/player/weapons/tommy/tommy.glb",
       "type": "file",
       "size": 1816424,
-      "mtime": 1788915712,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
@@ -4413,14 +4406,14 @@
       "path": "models/player/weapons/twinsword/twinsword.glb",
       "type": "file",
       "size": 849584,
-      "mtime": 1788915712,
+      "mtime": 1789862074,
       "archive": "models.zip"
     },
     {
       "path": "models/player/weapons/twinsword/twinsword_tp.glb",
       "type": "file",
       "size": 359752,
-      "mtime": 1788915712,
+      "mtime": 1789862076,
       "archive": "models.zip"
     },
     {
@@ -4477,7 +4470,7 @@
       "path": "models/weapons/glock.glb",
       "type": "file",
       "size": 472240,
-      "mtime": 1788915712,
+      "mtime": 1789862076,
       "archive": "models.zip"
     },
     {
@@ -4520,25 +4513,25 @@
       "path": "shaders/compiled/android/gles/bsp/fs_bsp.bin",
       "type": "file",
       "size": 5062,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/bsp/fs_bsp_cube.bin",
       "type": "file",
       "size": 503,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/bsp/fs_bsp_empty.bin",
       "type": "file",
       "size": 176,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/bsp/vs_bsp.bin",
       "type": "file",
       "size": 1658,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/debugDraw",
@@ -4548,151 +4541,151 @@
       "path": "shaders/compiled/android/gles/debugDraw/fs_debugdraw.bin",
       "type": "file",
       "size": 199,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/debugDraw/vs_debugdraw.bin",
       "type": "file",
       "size": 286,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_copy.bin",
       "type": "file",
       "size": 293,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_copy_depth.bin",
       "type": "file",
       "size": 238,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_customId.bin",
       "type": "file",
       "size": 758,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/fs_decal.bin",
       "type": "file",
-      "size": 1996,
-      "mtime": 1788912042
+      "size": 1990,
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_default.bin",
       "type": "file",
       "size": 6100,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/fs_default_nonStylized.bin",
       "type": "file",
       "size": 5639,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_default_simple.bin",
       "type": "file",
       "size": 3437,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/fs_empty.bin",
       "type": "file",
       "size": 176,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_fullscreen_color.bin",
       "type": "file",
       "size": 221,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_fxaa_simple.bin",
       "type": "file",
       "size": 2778,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_mask.bin",
       "type": "file",
       "size": 311,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_meshShadow.bin",
       "type": "file",
       "size": 221,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/fs_meshShadowApply.bin",
       "type": "file",
       "size": 216,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_motionBlur.bin",
       "type": "file",
-      "size": 2321,
-      "mtime": 1788912041
+      "size": 2323,
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/fs_motionBlur_apply.bin",
       "type": "file",
       "size": 486,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_postprocessing.bin",
       "type": "file",
       "size": 7778,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/fs_resolve_depth_msaa.bin",
       "type": "file",
       "size": 115,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_solidRed.bin",
       "type": "file",
       "size": 191,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_ui_flatcolor.bin",
       "type": "file",
       "size": 221,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_ui_textured.bin",
       "type": "file",
       "size": 413,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_ui_textured_point.bin",
       "type": "file",
       "size": 538,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_unlit.bin",
       "type": "file",
       "size": 513,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/fs_unlit_rect.bin",
       "type": "file",
       "size": 604,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/game",
@@ -4702,13 +4695,13 @@
       "path": "shaders/compiled/android/gles/game/fs_debuff.bin",
       "type": "file",
       "size": 1608,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/game/fs_inventory_menu_sphere.bin",
       "type": "file",
       "size": 265,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/imgui",
@@ -4718,13 +4711,13 @@
       "path": "shaders/compiled/android/gles/imgui/fs_ocornut_imgui.bin",
       "type": "file",
       "size": 304,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/imgui/vs_ocornut_imgui.bin",
       "type": "file",
       "size": 395,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/rmlui",
@@ -4734,67 +4727,67 @@
       "path": "shaders/compiled/android/gles/rmlui/fs_rmlui_blendmask.bin",
       "type": "file",
       "size": 378,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/rmlui/fs_rmlui_blur.bin",
       "type": "file",
       "size": 1364,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/rmlui/fs_rmlui_color.bin",
       "type": "file",
       "size": 199,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/rmlui/fs_rmlui_colormatrix.bin",
       "type": "file",
       "size": 970,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/rmlui/fs_rmlui_creation.bin",
       "type": "file",
       "size": 176,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/rmlui/fs_rmlui_dropshadow.bin",
       "type": "file",
       "size": 437,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/rmlui/fs_rmlui_gradient.bin",
       "type": "file",
       "size": 2433,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/rmlui/fs_rmlui_passthrough.bin",
       "type": "file",
       "size": 284,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/rmlui/fs_rmlui_texture.bin",
       "type": "file",
       "size": 319,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/rmlui/vs_rmlui.bin",
       "type": "file",
       "size": 424,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/rmlui/vs_rmlui_passthrough.bin",
       "type": "file",
       "size": 446,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/shadowVolume",
@@ -4804,25 +4797,25 @@
       "path": "shaders/compiled/android/gles/shadowVolume/fs_shadowvol.bin",
       "type": "file",
       "size": 191,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/shadowVolume/fs_shadowvol_color.bin",
       "type": "file",
       "size": 221,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/shadowVolume/vs_shadowvolcap.bin",
       "type": "file",
       "size": 2624,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/shadowVolume/vs_shadowvoledge.bin",
       "type": "file",
       "size": 3195,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/ui",
@@ -4832,37 +4825,37 @@
       "path": "shaders/compiled/android/gles/ui/fs_effects.bin",
       "type": "file",
       "size": 19350,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/ui/fs_progressBar.bin",
       "type": "file",
       "size": 677,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/vs_default.bin",
       "type": "file",
       "size": 3617,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/vs_fullscreen.bin",
       "type": "file",
       "size": 231,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/gles/vs_instanced_billboard.bin",
       "type": "file",
       "size": 1554,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/gles/vs_ui.bin",
       "type": "file",
       "size": 349,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv",
@@ -4876,25 +4869,25 @@
       "path": "shaders/compiled/android/spirv/bsp/fs_bsp.bin",
       "type": "file",
       "size": 8975,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/bsp/fs_bsp_cube.bin",
       "type": "file",
       "size": 1585,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/bsp/fs_bsp_empty.bin",
       "type": "file",
       "size": 370,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/bsp/vs_bsp.bin",
       "type": "file",
       "size": 3722,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/debugDraw",
@@ -4904,151 +4897,151 @@
       "path": "shaders/compiled/android/spirv/debugDraw/fs_debugdraw.bin",
       "type": "file",
       "size": 414,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/debugDraw/vs_debugdraw.bin",
       "type": "file",
       "size": 1068,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_copy.bin",
       "type": "file",
       "size": 854,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/fs_copy_depth.bin",
       "type": "file",
       "size": 877,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_customId.bin",
       "type": "file",
       "size": 1873,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/fs_decal.bin",
       "type": "file",
       "size": 3558,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_default.bin",
       "type": "file",
       "size": 9367,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/fs_default_nonStylized.bin",
       "type": "file",
       "size": 8729,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_default_simple.bin",
       "type": "file",
       "size": 6285,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_empty.bin",
       "type": "file",
       "size": 210,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_fullscreen_color.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_fxaa_simple.bin",
       "type": "file",
       "size": 3691,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/fs_mask.bin",
       "type": "file",
       "size": 894,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_meshShadow.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/fs_meshShadowApply.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_motionBlur.bin",
       "type": "file",
-      "size": 4226,
-      "mtime": 1788912041
+      "size": 4242,
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/fs_motionBlur_apply.bin",
       "type": "file",
       "size": 1368,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_postprocessing.bin",
       "type": "file",
       "size": 10888,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_resolve_depth_msaa.bin",
       "type": "file",
       "size": 1535,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_solidRed.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_ui_flatcolor.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_ui_textured.bin",
       "type": "file",
       "size": 1224,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_ui_textured_point.bin",
       "type": "file",
       "size": 1552,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/fs_unlit.bin",
       "type": "file",
       "size": 1275,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/fs_unlit_rect.bin",
       "type": "file",
       "size": 1485,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/game",
@@ -5058,13 +5051,13 @@
       "path": "shaders/compiled/android/spirv/game/fs_debuff.bin",
       "type": "file",
       "size": 2973,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/game/fs_inventory_menu_sphere.bin",
       "type": "file",
       "size": 402,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/imgui",
@@ -5074,13 +5067,13 @@
       "path": "shaders/compiled/android/spirv/imgui/fs_ocornut_imgui.bin",
       "type": "file",
       "size": 858,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/imgui/vs_ocornut_imgui.bin",
       "type": "file",
       "size": 1333,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/rmlui",
@@ -5090,67 +5083,67 @@
       "path": "shaders/compiled/android/spirv/rmlui/fs_rmlui_blendmask.bin",
       "type": "file",
       "size": 1048,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/rmlui/fs_rmlui_blur.bin",
       "type": "file",
       "size": 2636,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/rmlui/fs_rmlui_color.bin",
       "type": "file",
       "size": 414,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/rmlui/fs_rmlui_colormatrix.bin",
       "type": "file",
       "size": 1978,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/rmlui/fs_rmlui_creation.bin",
       "type": "file",
       "size": 370,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/rmlui/fs_rmlui_dropshadow.bin",
       "type": "file",
       "size": 1259,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/rmlui/fs_rmlui_gradient.bin",
       "type": "file",
       "size": 3236,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/rmlui/fs_rmlui_passthrough.bin",
       "type": "file",
       "size": 763,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/rmlui/fs_rmlui_texture.bin",
       "type": "file",
       "size": 871,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/rmlui/vs_rmlui.bin",
       "type": "file",
       "size": 1322,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/rmlui/vs_rmlui_passthrough.bin",
       "type": "file",
       "size": 1410,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/shadowVolume",
@@ -5160,25 +5153,25 @@
       "path": "shaders/compiled/android/spirv/shadowVolume/fs_shadowvol.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/shadowVolume/fs_shadowvol_color.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/android/spirv/shadowVolume/vs_shadowvolcap.bin",
       "type": "file",
       "size": 5408,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/shadowVolume/vs_shadowvoledge.bin",
       "type": "file",
       "size": 6204,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/ui",
@@ -5188,37 +5181,37 @@
       "path": "shaders/compiled/android/spirv/ui/fs_effects.bin",
       "type": "file",
       "size": 12349,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/ui/fs_progressBar.bin",
       "type": "file",
       "size": 1949,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/vs_default.bin",
       "type": "file",
       "size": 6879,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/vs_fullscreen.bin",
       "type": "file",
       "size": 746,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/vs_instanced_billboard.bin",
       "type": "file",
       "size": 3483,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/android/spirv/vs_ui.bin",
       "type": "file",
       "size": 1334,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux",
@@ -5236,25 +5229,25 @@
       "path": "shaders/compiled/linux/gl/bsp/fs_bsp.bin",
       "type": "file",
       "size": 4716,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/bsp/fs_bsp_cube.bin",
       "type": "file",
       "size": 427,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/bsp/fs_bsp_empty.bin",
       "type": "file",
       "size": 124,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/bsp/vs_bsp.bin",
       "type": "file",
       "size": 1658,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/debugDraw",
@@ -5264,13 +5257,13 @@
       "path": "shaders/compiled/linux/gl/debugDraw/fs_debugdraw.bin",
       "type": "file",
       "size": 141,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/debugDraw/vs_debugdraw.bin",
       "type": "file",
       "size": 286,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_bsp.bin",
@@ -5294,55 +5287,55 @@
       "path": "shaders/compiled/linux/gl/fs_copy.bin",
       "type": "file",
       "size": 229,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/fs_copy_depth.bin",
       "type": "file",
       "size": 180,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_customId.bin",
       "type": "file",
       "size": 658,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/fs_decal.bin",
       "type": "file",
-      "size": 1812,
-      "mtime": 1788912042
+      "size": 1806,
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_default.bin",
       "type": "file",
       "size": 5666,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_default_nonStylized.bin",
       "type": "file",
       "size": 5235,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_default_simple.bin",
       "type": "file",
       "size": 3181,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_empty.bin",
       "type": "file",
       "size": 45,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/fs_fullscreen_color.bin",
       "type": "file",
       "size": 163,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_fullscreen_texture.bin",
@@ -5354,85 +5347,85 @@
       "path": "shaders/compiled/linux/gl/fs_fxaa_simple.bin",
       "type": "file",
       "size": 2582,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/fs_mask.bin",
       "type": "file",
       "size": 247,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_meshShadow.bin",
       "type": "file",
       "size": 163,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/fs_meshShadowApply.bin",
       "type": "file",
       "size": 164,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_motionBlur.bin",
       "type": "file",
-      "size": 2137,
-      "mtime": 1788912042
+      "size": 2139,
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_motionBlur_apply.bin",
       "type": "file",
       "size": 404,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_postprocessing.bin",
       "type": "file",
       "size": 7426,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_resolve_depth_msaa.bin",
       "type": "file",
       "size": 526,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_solidRed.bin",
       "type": "file",
       "size": 139,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_ui_flatcolor.bin",
       "type": "file",
       "size": 163,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/fs_ui_textured.bin",
       "type": "file",
       "size": 331,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_ui_textured_point.bin",
       "type": "file",
       "size": 450,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/fs_unlit.bin",
       "type": "file",
       "size": 425,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/fs_unlit_rect.bin",
       "type": "file",
       "size": 510,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/game",
@@ -5442,13 +5435,13 @@
       "path": "shaders/compiled/linux/gl/game/fs_debuff.bin",
       "type": "file",
       "size": 1448,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/game/fs_inventory_menu_sphere.bin",
       "type": "file",
       "size": 213,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/imgui",
@@ -5458,13 +5451,13 @@
       "path": "shaders/compiled/linux/gl/imgui/fs_ocornut_imgui.bin",
       "type": "file",
       "size": 234,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/imgui/vs_ocornut_imgui.bin",
       "type": "file",
       "size": 395,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/rmlui",
@@ -5474,67 +5467,67 @@
       "path": "shaders/compiled/linux/gl/rmlui/fs_rmlui_blendmask.bin",
       "type": "file",
       "size": 308,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/rmlui/fs_rmlui_blur.bin",
       "type": "file",
       "size": 1240,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/rmlui/fs_rmlui_color.bin",
       "type": "file",
       "size": 141,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/rmlui/fs_rmlui_colormatrix.bin",
       "type": "file",
       "size": 846,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/rmlui/fs_rmlui_creation.bin",
       "type": "file",
       "size": 124,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/rmlui/fs_rmlui_dropshadow.bin",
       "type": "file",
       "size": 361,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/rmlui/fs_rmlui_gradient.bin",
       "type": "file",
       "size": 2255,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/rmlui/fs_rmlui_passthrough.bin",
       "type": "file",
       "size": 220,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/rmlui/fs_rmlui_texture.bin",
       "type": "file",
       "size": 249,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/rmlui/vs_rmlui.bin",
       "type": "file",
       "size": 424,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/rmlui/vs_rmlui_passthrough.bin",
       "type": "file",
       "size": 446,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/gl/shadowVolume",
@@ -5544,13 +5537,13 @@
       "path": "shaders/compiled/linux/gl/shadowVolume/fs_shadowvol.bin",
       "type": "file",
       "size": 139,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/shadowVolume/fs_shadowvol_color.bin",
       "type": "file",
       "size": 163,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/shadowVolume/fs_shadowvolume.bin",
@@ -5562,13 +5555,13 @@
       "path": "shaders/compiled/linux/gl/shadowVolume/vs_shadowvolcap.bin",
       "type": "file",
       "size": 2624,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/shadowVolume/vs_shadowvoledge.bin",
       "type": "file",
       "size": 3195,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/shadowVolume/vs_shadowvolume.bin",
@@ -5584,13 +5577,13 @@
       "path": "shaders/compiled/linux/gl/ui/fs_effects.bin",
       "type": "file",
       "size": 18722,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/ui/fs_progressBar.bin",
       "type": "file",
       "size": 583,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/vs_bsp.bin",
@@ -5602,25 +5595,25 @@
       "path": "shaders/compiled/linux/gl/vs_default.bin",
       "type": "file",
       "size": 3617,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/vs_fullscreen.bin",
       "type": "file",
       "size": 231,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/vs_instanced_billboard.bin",
       "type": "file",
       "size": 1554,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/gl/vs_ui.bin",
       "type": "file",
       "size": 349,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv",
@@ -5634,25 +5627,25 @@
       "path": "shaders/compiled/linux/spirv/bsp/fs_bsp.bin",
       "type": "file",
       "size": 8975,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/bsp/fs_bsp_cube.bin",
       "type": "file",
       "size": 1585,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/bsp/fs_bsp_empty.bin",
       "type": "file",
       "size": 370,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/bsp/vs_bsp.bin",
       "type": "file",
       "size": 3722,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/debugDraw",
@@ -5662,13 +5655,13 @@
       "path": "shaders/compiled/linux/spirv/debugDraw/fs_debugdraw.bin",
       "type": "file",
       "size": 414,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/debugDraw/vs_debugdraw.bin",
       "type": "file",
       "size": 1068,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_bsp.bin",
@@ -5692,55 +5685,55 @@
       "path": "shaders/compiled/linux/spirv/fs_copy.bin",
       "type": "file",
       "size": 854,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_copy_depth.bin",
       "type": "file",
       "size": 877,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_customId.bin",
       "type": "file",
       "size": 1873,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_decal.bin",
       "type": "file",
       "size": 3558,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_default.bin",
       "type": "file",
       "size": 9367,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_default_nonStylized.bin",
       "type": "file",
       "size": 8729,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_default_simple.bin",
       "type": "file",
       "size": 6285,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_empty.bin",
       "type": "file",
       "size": 210,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_fullscreen_color.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_fullscreen_texture.bin",
@@ -5752,85 +5745,85 @@
       "path": "shaders/compiled/linux/spirv/fs_fxaa_simple.bin",
       "type": "file",
       "size": 3691,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_mask.bin",
       "type": "file",
       "size": 894,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_meshShadow.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_meshShadowApply.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_motionBlur.bin",
       "type": "file",
-      "size": 4226,
-      "mtime": 1788912041
+      "size": 4242,
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_motionBlur_apply.bin",
       "type": "file",
       "size": 1368,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_postprocessing.bin",
       "type": "file",
       "size": 10888,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_resolve_depth_msaa.bin",
       "type": "file",
       "size": 1535,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_solidRed.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_ui_flatcolor.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_ui_textured.bin",
       "type": "file",
       "size": 1224,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_ui_textured_point.bin",
       "type": "file",
       "size": 1552,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_unlit.bin",
       "type": "file",
       "size": 1275,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/fs_unlit_rect.bin",
       "type": "file",
       "size": 1485,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/game",
@@ -5840,13 +5833,13 @@
       "path": "shaders/compiled/linux/spirv/game/fs_debuff.bin",
       "type": "file",
       "size": 2973,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/game/fs_inventory_menu_sphere.bin",
       "type": "file",
       "size": 402,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/imgui",
@@ -5856,13 +5849,13 @@
       "path": "shaders/compiled/linux/spirv/imgui/fs_ocornut_imgui.bin",
       "type": "file",
       "size": 858,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/imgui/vs_ocornut_imgui.bin",
       "type": "file",
       "size": 1333,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/rmlui",
@@ -5872,67 +5865,67 @@
       "path": "shaders/compiled/linux/spirv/rmlui/fs_rmlui_blendmask.bin",
       "type": "file",
       "size": 1048,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/rmlui/fs_rmlui_blur.bin",
       "type": "file",
       "size": 2636,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/rmlui/fs_rmlui_color.bin",
       "type": "file",
       "size": 414,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/rmlui/fs_rmlui_colormatrix.bin",
       "type": "file",
       "size": 1978,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/rmlui/fs_rmlui_creation.bin",
       "type": "file",
       "size": 370,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/rmlui/fs_rmlui_dropshadow.bin",
       "type": "file",
       "size": 1259,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/rmlui/fs_rmlui_gradient.bin",
       "type": "file",
       "size": 3236,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/rmlui/fs_rmlui_passthrough.bin",
       "type": "file",
       "size": 763,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/rmlui/fs_rmlui_texture.bin",
       "type": "file",
       "size": 871,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/rmlui/vs_rmlui.bin",
       "type": "file",
       "size": 1322,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/rmlui/vs_rmlui_passthrough.bin",
       "type": "file",
       "size": 1410,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/shadowVolume",
@@ -5942,13 +5935,13 @@
       "path": "shaders/compiled/linux/spirv/shadowVolume/fs_shadowvol.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/shadowVolume/fs_shadowvol_color.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/linux/spirv/shadowVolume/fs_shadowvolume.bin",
@@ -5960,13 +5953,13 @@
       "path": "shaders/compiled/linux/spirv/shadowVolume/vs_shadowvolcap.bin",
       "type": "file",
       "size": 5408,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/shadowVolume/vs_shadowvoledge.bin",
       "type": "file",
       "size": 6204,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/shadowVolume/vs_shadowvolume.bin",
@@ -5982,13 +5975,13 @@
       "path": "shaders/compiled/linux/spirv/ui/fs_effects.bin",
       "type": "file",
       "size": 12349,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/ui/fs_progressBar.bin",
       "type": "file",
       "size": 1949,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/vs_bsp.bin",
@@ -6000,25 +5993,25 @@
       "path": "shaders/compiled/linux/spirv/vs_default.bin",
       "type": "file",
       "size": 6879,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/vs_fullscreen.bin",
       "type": "file",
       "size": 746,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/vs_instanced_billboard.bin",
       "type": "file",
       "size": 3483,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/linux/spirv/vs_ui.bin",
       "type": "file",
       "size": 1334,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web",
@@ -6036,25 +6029,25 @@
       "path": "shaders/compiled/web/gles/bsp/fs_bsp.bin",
       "type": "file",
       "size": 5062,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/bsp/fs_bsp_cube.bin",
       "type": "file",
       "size": 503,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/bsp/fs_bsp_empty.bin",
       "type": "file",
       "size": 176,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/bsp/vs_bsp.bin",
       "type": "file",
       "size": 1658,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/debugDraw",
@@ -6064,13 +6057,13 @@
       "path": "shaders/compiled/web/gles/debugDraw/fs_debugdraw.bin",
       "type": "file",
       "size": 199,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/debugDraw/vs_debugdraw.bin",
       "type": "file",
       "size": 286,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_bsp.bin",
@@ -6094,55 +6087,55 @@
       "path": "shaders/compiled/web/gles/fs_copy.bin",
       "type": "file",
       "size": 293,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_copy_depth.bin",
       "type": "file",
       "size": 238,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_customId.bin",
       "type": "file",
       "size": 758,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/fs_decal.bin",
       "type": "file",
-      "size": 1996,
-      "mtime": 1788912042
+      "size": 1990,
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_default.bin",
       "type": "file",
       "size": 6100,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/fs_default_nonStylized.bin",
       "type": "file",
       "size": 5639,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_default_simple.bin",
       "type": "file",
       "size": 3437,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/fs_empty.bin",
       "type": "file",
       "size": 176,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_fullscreen_color.bin",
       "type": "file",
       "size": 221,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_fullscreen_texture.bin",
@@ -6154,85 +6147,85 @@
       "path": "shaders/compiled/web/gles/fs_fxaa_simple.bin",
       "type": "file",
       "size": 2778,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_mask.bin",
       "type": "file",
       "size": 311,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_meshShadow.bin",
       "type": "file",
       "size": 221,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/fs_meshShadowApply.bin",
       "type": "file",
       "size": 216,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_motionBlur.bin",
       "type": "file",
-      "size": 2321,
-      "mtime": 1788912041
+      "size": 2323,
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/fs_motionBlur_apply.bin",
       "type": "file",
       "size": 486,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_postprocessing.bin",
       "type": "file",
       "size": 7778,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/fs_resolve_depth_msaa.bin",
       "type": "file",
       "size": 115,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_solidRed.bin",
       "type": "file",
       "size": 191,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_ui_flatcolor.bin",
       "type": "file",
       "size": 221,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_ui_textured.bin",
       "type": "file",
       "size": 413,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_ui_textured_point.bin",
       "type": "file",
       "size": 538,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_unlit.bin",
       "type": "file",
       "size": 513,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/fs_unlit_rect.bin",
       "type": "file",
       "size": 604,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/game",
@@ -6242,13 +6235,13 @@
       "path": "shaders/compiled/web/gles/game/fs_debuff.bin",
       "type": "file",
       "size": 1608,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/game/fs_inventory_menu_sphere.bin",
       "type": "file",
       "size": 265,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/imgui",
@@ -6258,13 +6251,13 @@
       "path": "shaders/compiled/web/gles/imgui/fs_ocornut_imgui.bin",
       "type": "file",
       "size": 304,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/imgui/vs_ocornut_imgui.bin",
       "type": "file",
       "size": 395,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/rmlui",
@@ -6274,67 +6267,67 @@
       "path": "shaders/compiled/web/gles/rmlui/fs_rmlui_blendmask.bin",
       "type": "file",
       "size": 378,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/rmlui/fs_rmlui_blur.bin",
       "type": "file",
       "size": 1364,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/rmlui/fs_rmlui_color.bin",
       "type": "file",
       "size": 199,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/rmlui/fs_rmlui_colormatrix.bin",
       "type": "file",
       "size": 970,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/rmlui/fs_rmlui_creation.bin",
       "type": "file",
       "size": 176,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/rmlui/fs_rmlui_dropshadow.bin",
       "type": "file",
       "size": 437,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/rmlui/fs_rmlui_gradient.bin",
       "type": "file",
       "size": 2433,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/rmlui/fs_rmlui_passthrough.bin",
       "type": "file",
       "size": 284,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/rmlui/fs_rmlui_texture.bin",
       "type": "file",
       "size": 319,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/rmlui/vs_rmlui.bin",
       "type": "file",
       "size": 424,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/rmlui/vs_rmlui_passthrough.bin",
       "type": "file",
       "size": 446,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/shadowVolume",
@@ -6344,13 +6337,13 @@
       "path": "shaders/compiled/web/gles/shadowVolume/fs_shadowvol.bin",
       "type": "file",
       "size": 191,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/shadowVolume/fs_shadowvol_color.bin",
       "type": "file",
       "size": 221,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/shadowVolume/fs_shadowvolume.bin",
@@ -6362,13 +6355,13 @@
       "path": "shaders/compiled/web/gles/shadowVolume/vs_shadowvolcap.bin",
       "type": "file",
       "size": 2624,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/shadowVolume/vs_shadowvoledge.bin",
       "type": "file",
       "size": 3195,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/shadowVolume/vs_shadowvolume.bin",
@@ -6384,13 +6377,13 @@
       "path": "shaders/compiled/web/gles/ui/fs_effects.bin",
       "type": "file",
       "size": 19350,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/ui/fs_progressBar.bin",
       "type": "file",
       "size": 677,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/vs_bsp.bin",
@@ -6402,25 +6395,25 @@
       "path": "shaders/compiled/web/gles/vs_default.bin",
       "type": "file",
       "size": 3617,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/vs_fullscreen.bin",
       "type": "file",
       "size": 231,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/gles/vs_instanced_billboard.bin",
       "type": "file",
       "size": 1554,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/gles/vs_ui.bin",
       "type": "file",
       "size": 349,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv",
@@ -6434,25 +6427,25 @@
       "path": "shaders/compiled/web/spirv/bsp/fs_bsp.bin",
       "type": "file",
       "size": 8975,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/bsp/fs_bsp_cube.bin",
       "type": "file",
       "size": 1585,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/bsp/fs_bsp_empty.bin",
       "type": "file",
       "size": 370,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/bsp/vs_bsp.bin",
       "type": "file",
       "size": 3722,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/debugDraw",
@@ -6462,13 +6455,13 @@
       "path": "shaders/compiled/web/spirv/debugDraw/fs_debugdraw.bin",
       "type": "file",
       "size": 414,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/debugDraw/vs_debugdraw.bin",
       "type": "file",
       "size": 1068,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_bsp.bin",
@@ -6492,55 +6485,55 @@
       "path": "shaders/compiled/web/spirv/fs_copy.bin",
       "type": "file",
       "size": 854,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/fs_copy_depth.bin",
       "type": "file",
       "size": 877,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_customId.bin",
       "type": "file",
       "size": 1873,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/fs_decal.bin",
       "type": "file",
       "size": 3558,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_default.bin",
       "type": "file",
       "size": 9367,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/fs_default_nonStylized.bin",
       "type": "file",
       "size": 8729,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_default_simple.bin",
       "type": "file",
       "size": 6285,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_empty.bin",
       "type": "file",
       "size": 210,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_fullscreen_color.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_fullscreen_texture.bin",
@@ -6552,85 +6545,85 @@
       "path": "shaders/compiled/web/spirv/fs_fxaa_simple.bin",
       "type": "file",
       "size": 3691,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/fs_mask.bin",
       "type": "file",
       "size": 894,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_meshShadow.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/fs_meshShadowApply.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_motionBlur.bin",
       "type": "file",
-      "size": 4226,
-      "mtime": 1788912041
+      "size": 4242,
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/fs_motionBlur_apply.bin",
       "type": "file",
       "size": 1368,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_postprocessing.bin",
       "type": "file",
       "size": 10888,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_resolve_depth_msaa.bin",
       "type": "file",
       "size": 1535,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_solidRed.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_ui_flatcolor.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_ui_textured.bin",
       "type": "file",
       "size": 1224,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_ui_textured_point.bin",
       "type": "file",
       "size": 1552,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/fs_unlit.bin",
       "type": "file",
       "size": 1275,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/fs_unlit_rect.bin",
       "type": "file",
       "size": 1485,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/game",
@@ -6640,13 +6633,13 @@
       "path": "shaders/compiled/web/spirv/game/fs_debuff.bin",
       "type": "file",
       "size": 2973,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/game/fs_inventory_menu_sphere.bin",
       "type": "file",
       "size": 402,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/imgui",
@@ -6656,13 +6649,13 @@
       "path": "shaders/compiled/web/spirv/imgui/fs_ocornut_imgui.bin",
       "type": "file",
       "size": 858,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/imgui/vs_ocornut_imgui.bin",
       "type": "file",
       "size": 1333,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/rmlui",
@@ -6672,67 +6665,67 @@
       "path": "shaders/compiled/web/spirv/rmlui/fs_rmlui_blendmask.bin",
       "type": "file",
       "size": 1048,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/rmlui/fs_rmlui_blur.bin",
       "type": "file",
       "size": 2636,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/rmlui/fs_rmlui_color.bin",
       "type": "file",
       "size": 414,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/rmlui/fs_rmlui_colormatrix.bin",
       "type": "file",
       "size": 1978,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/rmlui/fs_rmlui_creation.bin",
       "type": "file",
       "size": 370,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/rmlui/fs_rmlui_dropshadow.bin",
       "type": "file",
       "size": 1259,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/rmlui/fs_rmlui_gradient.bin",
       "type": "file",
       "size": 3236,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/rmlui/fs_rmlui_passthrough.bin",
       "type": "file",
       "size": 763,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/rmlui/fs_rmlui_texture.bin",
       "type": "file",
       "size": 871,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/rmlui/vs_rmlui.bin",
       "type": "file",
       "size": 1322,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/rmlui/vs_rmlui_passthrough.bin",
       "type": "file",
       "size": 1410,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/shadowVolume",
@@ -6742,13 +6735,13 @@
       "path": "shaders/compiled/web/spirv/shadowVolume/fs_shadowvol.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/shadowVolume/fs_shadowvol_color.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/web/spirv/shadowVolume/fs_shadowvolume.bin",
@@ -6760,13 +6753,13 @@
       "path": "shaders/compiled/web/spirv/shadowVolume/vs_shadowvolcap.bin",
       "type": "file",
       "size": 5408,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/shadowVolume/vs_shadowvoledge.bin",
       "type": "file",
       "size": 6204,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/shadowVolume/vs_shadowvolume.bin",
@@ -6782,13 +6775,13 @@
       "path": "shaders/compiled/web/spirv/ui/fs_effects.bin",
       "type": "file",
       "size": 12349,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/ui/fs_progressBar.bin",
       "type": "file",
       "size": 1949,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/vs_bsp.bin",
@@ -6800,25 +6793,25 @@
       "path": "shaders/compiled/web/spirv/vs_default.bin",
       "type": "file",
       "size": 6879,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/vs_fullscreen.bin",
       "type": "file",
       "size": 746,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/vs_instanced_billboard.bin",
       "type": "file",
       "size": 3483,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/web/spirv/vs_ui.bin",
       "type": "file",
       "size": 1334,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows",
@@ -6836,25 +6829,25 @@
       "path": "shaders/compiled/windows/dx11/bsp/fs_bsp.bin",
       "type": "file",
       "size": 6011,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/bsp/fs_bsp_cube.bin",
       "type": "file",
       "size": 1041,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/bsp/fs_bsp_empty.bin",
       "type": "file",
       "size": 454,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/bsp/vs_bsp.bin",
       "type": "file",
       "size": 3970,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/debugDraw",
@@ -6864,13 +6857,13 @@
       "path": "shaders/compiled/windows/dx11/debugDraw/fs_debugdraw.bin",
       "type": "file",
       "size": 278,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/debugDraw/vs_debugdraw.bin",
       "type": "file",
       "size": 652,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_bsp.bin",
@@ -6894,55 +6887,55 @@
       "path": "shaders/compiled/windows/dx11/fs_copy.bin",
       "type": "file",
       "size": 498,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_copy_depth.bin",
       "type": "file",
       "size": 509,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_customId.bin",
       "type": "file",
       "size": 1245,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_decal.bin",
       "type": "file",
       "size": 2930,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_default.bin",
       "type": "file",
       "size": 11035,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_default_nonStylized.bin",
       "type": "file",
       "size": 11853,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_default_simple.bin",
       "type": "file",
       "size": 4441,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_empty.bin",
       "type": "file",
       "size": 350,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_fullscreen_color.bin",
       "type": "file",
       "size": 308,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_fullscreen_texture.bin",
@@ -6954,85 +6947,85 @@
       "path": "shaders/compiled/windows/dx11/fs_fxaa_simple.bin",
       "type": "file",
       "size": 3735,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_mask.bin",
       "type": "file",
       "size": 582,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_meshShadow.bin",
       "type": "file",
       "size": 456,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_meshShadowApply.bin",
       "type": "file",
       "size": 498,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_motionBlur.bin",
       "type": "file",
       "size": 3746,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_motionBlur_apply.bin",
       "type": "file",
       "size": 920,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_postprocessing.bin",
       "type": "file",
       "size": 12592,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_resolve_depth_msaa.bin",
       "type": "file",
       "size": 983,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_solidRed.bin",
       "type": "file",
       "size": 458,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_ui_flatcolor.bin",
       "type": "file",
       "size": 308,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_ui_textured.bin",
       "type": "file",
       "size": 496,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_ui_textured_point.bin",
       "type": "file",
       "size": 692,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_unlit.bin",
       "type": "file",
       "size": 755,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/fs_unlit_rect.bin",
       "type": "file",
       "size": 993,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/game",
@@ -7042,13 +7035,13 @@
       "path": "shaders/compiled/windows/dx11/game/fs_debuff.bin",
       "type": "file",
       "size": 3849,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/game/fs_inventory_menu_sphere.bin",
       "type": "file",
       "size": 498,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/imgui",
@@ -7058,13 +7051,13 @@
       "path": "shaders/compiled/windows/dx11/imgui/fs_ocornut_imgui.bin",
       "type": "file",
       "size": 446,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/imgui/vs_ocornut_imgui.bin",
       "type": "file",
       "size": 841,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/rmlui",
@@ -7074,67 +7067,67 @@
       "path": "shaders/compiled/windows/dx11/rmlui/fs_rmlui_blendmask.bin",
       "type": "file",
       "size": 596,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/rmlui/fs_rmlui_blur.bin",
       "type": "file",
       "size": 1924,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/rmlui/fs_rmlui_color.bin",
       "type": "file",
       "size": 334,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/rmlui/fs_rmlui_colormatrix.bin",
       "type": "file",
       "size": 966,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/rmlui/fs_rmlui_creation.bin",
       "type": "file",
       "size": 334,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/rmlui/fs_rmlui_dropshadow.bin",
       "type": "file",
       "size": 647,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/rmlui/fs_rmlui_gradient.bin",
       "type": "file",
       "size": 4016,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/rmlui/fs_rmlui_passthrough.bin",
       "type": "file",
       "size": 435,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/rmlui/fs_rmlui_texture.bin",
       "type": "file",
       "size": 475,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/rmlui/vs_rmlui.bin",
       "type": "file",
       "size": 886,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/rmlui/vs_rmlui_passthrough.bin",
       "type": "file",
       "size": 798,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/shadowVolume",
@@ -7144,13 +7137,13 @@
       "path": "shaders/compiled/windows/dx11/shadowVolume/fs_shadowvol.bin",
       "type": "file",
       "size": 246,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/shadowVolume/fs_shadowvol_color.bin",
       "type": "file",
       "size": 272,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/shadowVolume/fs_shadowvolume.bin",
@@ -7162,13 +7155,13 @@
       "path": "shaders/compiled/windows/dx11/shadowVolume/vs_shadowvolcap.bin",
       "type": "file",
       "size": 11640,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/shadowVolume/vs_shadowvoledge.bin",
       "type": "file",
       "size": 14024,
-      "mtime": 1788912042
+      "mtime": 1788982983
     },
     {
       "path": "shaders/compiled/windows/dx11/shadowVolume/vs_shadowvolume.bin",
@@ -7184,13 +7177,13 @@
       "path": "shaders/compiled/windows/dx11/ui/fs_effects.bin",
       "type": "file",
       "size": 11489,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/ui/fs_progressBar.bin",
       "type": "file",
       "size": 729,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/vs_bsp.bin",
@@ -7202,25 +7195,25 @@
       "path": "shaders/compiled/windows/dx11/vs_default.bin",
       "type": "file",
       "size": 10319,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/vs_fullscreen.bin",
       "type": "file",
       "size": 446,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx11/vs_instanced_billboard.bin",
       "type": "file",
       "size": 2807,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx11/vs_ui.bin",
       "type": "file",
       "size": 899,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12",
@@ -7234,25 +7227,25 @@
       "path": "shaders/compiled/windows/dx12/bsp/fs_bsp.bin",
       "type": "file",
       "size": 6011,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/bsp/fs_bsp_cube.bin",
       "type": "file",
       "size": 1041,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/bsp/fs_bsp_empty.bin",
       "type": "file",
       "size": 454,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/bsp/vs_bsp.bin",
       "type": "file",
       "size": 3970,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/debugDraw",
@@ -7262,13 +7255,13 @@
       "path": "shaders/compiled/windows/dx12/debugDraw/fs_debugdraw.bin",
       "type": "file",
       "size": 278,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/debugDraw/vs_debugdraw.bin",
       "type": "file",
       "size": 652,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_bsp.bin",
@@ -7292,55 +7285,55 @@
       "path": "shaders/compiled/windows/dx12/fs_copy.bin",
       "type": "file",
       "size": 498,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_copy_depth.bin",
       "type": "file",
       "size": 509,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_customId.bin",
       "type": "file",
       "size": 1245,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_decal.bin",
       "type": "file",
       "size": 2930,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_default.bin",
       "type": "file",
       "size": 11035,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_default_nonStylized.bin",
       "type": "file",
       "size": 11853,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_default_simple.bin",
       "type": "file",
       "size": 4441,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_empty.bin",
       "type": "file",
       "size": 350,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_fullscreen_color.bin",
       "type": "file",
       "size": 308,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_fullscreen_texture.bin",
@@ -7352,85 +7345,85 @@
       "path": "shaders/compiled/windows/dx12/fs_fxaa_simple.bin",
       "type": "file",
       "size": 3735,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_mask.bin",
       "type": "file",
       "size": 582,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_meshShadow.bin",
       "type": "file",
       "size": 456,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_meshShadowApply.bin",
       "type": "file",
       "size": 498,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_motionBlur.bin",
       "type": "file",
       "size": 3746,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_motionBlur_apply.bin",
       "type": "file",
       "size": 920,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_postprocessing.bin",
       "type": "file",
       "size": 12592,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_resolve_depth_msaa.bin",
       "type": "file",
       "size": 983,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_solidRed.bin",
       "type": "file",
       "size": 458,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_ui_flatcolor.bin",
       "type": "file",
       "size": 308,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_ui_textured.bin",
       "type": "file",
       "size": 496,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_ui_textured_point.bin",
       "type": "file",
       "size": 692,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_unlit.bin",
       "type": "file",
       "size": 755,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/fs_unlit_rect.bin",
       "type": "file",
       "size": 993,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/game",
@@ -7440,13 +7433,13 @@
       "path": "shaders/compiled/windows/dx12/game/fs_debuff.bin",
       "type": "file",
       "size": 3849,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/game/fs_inventory_menu_sphere.bin",
       "type": "file",
       "size": 498,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/imgui",
@@ -7456,13 +7449,13 @@
       "path": "shaders/compiled/windows/dx12/imgui/fs_ocornut_imgui.bin",
       "type": "file",
       "size": 446,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/imgui/vs_ocornut_imgui.bin",
       "type": "file",
       "size": 841,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/rmlui",
@@ -7472,67 +7465,67 @@
       "path": "shaders/compiled/windows/dx12/rmlui/fs_rmlui_blendmask.bin",
       "type": "file",
       "size": 596,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/rmlui/fs_rmlui_blur.bin",
       "type": "file",
       "size": 1924,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/rmlui/fs_rmlui_color.bin",
       "type": "file",
       "size": 334,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/rmlui/fs_rmlui_colormatrix.bin",
       "type": "file",
       "size": 966,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/rmlui/fs_rmlui_creation.bin",
       "type": "file",
       "size": 334,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/rmlui/fs_rmlui_dropshadow.bin",
       "type": "file",
       "size": 647,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/rmlui/fs_rmlui_gradient.bin",
       "type": "file",
       "size": 4016,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/rmlui/fs_rmlui_passthrough.bin",
       "type": "file",
       "size": 435,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/rmlui/fs_rmlui_texture.bin",
       "type": "file",
       "size": 475,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/rmlui/vs_rmlui.bin",
       "type": "file",
       "size": 886,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/rmlui/vs_rmlui_passthrough.bin",
       "type": "file",
       "size": 798,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/shadowVolume",
@@ -7542,13 +7535,13 @@
       "path": "shaders/compiled/windows/dx12/shadowVolume/fs_shadowvol.bin",
       "type": "file",
       "size": 246,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/shadowVolume/fs_shadowvol_color.bin",
       "type": "file",
       "size": 272,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/shadowVolume/fs_shadowvolume.bin",
@@ -7560,13 +7553,13 @@
       "path": "shaders/compiled/windows/dx12/shadowVolume/vs_shadowvolcap.bin",
       "type": "file",
       "size": 11640,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/shadowVolume/vs_shadowvoledge.bin",
       "type": "file",
       "size": 14024,
-      "mtime": 1788912042
+      "mtime": 1788982983
     },
     {
       "path": "shaders/compiled/windows/dx12/shadowVolume/vs_shadowvolume.bin",
@@ -7582,13 +7575,13 @@
       "path": "shaders/compiled/windows/dx12/ui/fs_effects.bin",
       "type": "file",
       "size": 11489,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/ui/fs_progressBar.bin",
       "type": "file",
       "size": 729,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/vs_bsp.bin",
@@ -7600,25 +7593,25 @@
       "path": "shaders/compiled/windows/dx12/vs_default.bin",
       "type": "file",
       "size": 10319,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/vs_fullscreen.bin",
       "type": "file",
       "size": 446,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/dx12/vs_instanced_billboard.bin",
       "type": "file",
       "size": 2807,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/dx12/vs_ui.bin",
       "type": "file",
       "size": 899,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl",
@@ -7632,25 +7625,25 @@
       "path": "shaders/compiled/windows/gl/bsp/fs_bsp.bin",
       "type": "file",
       "size": 4716,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/bsp/fs_bsp_cube.bin",
       "type": "file",
       "size": 427,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/bsp/fs_bsp_empty.bin",
       "type": "file",
       "size": 124,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/bsp/vs_bsp.bin",
       "type": "file",
       "size": 1658,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/debugDraw",
@@ -7660,13 +7653,13 @@
       "path": "shaders/compiled/windows/gl/debugDraw/fs_debugdraw.bin",
       "type": "file",
       "size": 141,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/debugDraw/vs_debugdraw.bin",
       "type": "file",
       "size": 286,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_bsp.bin",
@@ -7690,55 +7683,55 @@
       "path": "shaders/compiled/windows/gl/fs_copy.bin",
       "type": "file",
       "size": 229,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/fs_copy_depth.bin",
       "type": "file",
       "size": 180,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_customId.bin",
       "type": "file",
       "size": 658,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/fs_decal.bin",
       "type": "file",
-      "size": 1812,
-      "mtime": 1788912042
+      "size": 1806,
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_default.bin",
       "type": "file",
       "size": 5666,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_default_nonStylized.bin",
       "type": "file",
       "size": 5235,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_default_simple.bin",
       "type": "file",
       "size": 3181,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_empty.bin",
       "type": "file",
       "size": 45,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/fs_fullscreen_color.bin",
       "type": "file",
       "size": 163,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_fullscreen_texture.bin",
@@ -7750,85 +7743,85 @@
       "path": "shaders/compiled/windows/gl/fs_fxaa_simple.bin",
       "type": "file",
       "size": 2582,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/fs_mask.bin",
       "type": "file",
       "size": 247,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_meshShadow.bin",
       "type": "file",
       "size": 163,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/fs_meshShadowApply.bin",
       "type": "file",
       "size": 164,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_motionBlur.bin",
       "type": "file",
-      "size": 2137,
-      "mtime": 1788912042
+      "size": 2139,
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_motionBlur_apply.bin",
       "type": "file",
       "size": 404,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_postprocessing.bin",
       "type": "file",
       "size": 7426,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_resolve_depth_msaa.bin",
       "type": "file",
       "size": 526,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_solidRed.bin",
       "type": "file",
       "size": 139,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_ui_flatcolor.bin",
       "type": "file",
       "size": 163,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/fs_ui_textured.bin",
       "type": "file",
       "size": 331,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_ui_textured_point.bin",
       "type": "file",
       "size": 450,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/fs_unlit.bin",
       "type": "file",
       "size": 425,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/fs_unlit_rect.bin",
       "type": "file",
       "size": 510,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/game",
@@ -7838,13 +7831,13 @@
       "path": "shaders/compiled/windows/gl/game/fs_debuff.bin",
       "type": "file",
       "size": 1448,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/game/fs_inventory_menu_sphere.bin",
       "type": "file",
       "size": 213,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/imgui",
@@ -7854,13 +7847,13 @@
       "path": "shaders/compiled/windows/gl/imgui/fs_ocornut_imgui.bin",
       "type": "file",
       "size": 234,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/imgui/vs_ocornut_imgui.bin",
       "type": "file",
       "size": 395,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/rmlui",
@@ -7870,67 +7863,67 @@
       "path": "shaders/compiled/windows/gl/rmlui/fs_rmlui_blendmask.bin",
       "type": "file",
       "size": 308,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/rmlui/fs_rmlui_blur.bin",
       "type": "file",
       "size": 1240,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/rmlui/fs_rmlui_color.bin",
       "type": "file",
       "size": 141,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/rmlui/fs_rmlui_colormatrix.bin",
       "type": "file",
       "size": 846,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/rmlui/fs_rmlui_creation.bin",
       "type": "file",
       "size": 124,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/rmlui/fs_rmlui_dropshadow.bin",
       "type": "file",
       "size": 361,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/rmlui/fs_rmlui_gradient.bin",
       "type": "file",
       "size": 2255,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/rmlui/fs_rmlui_passthrough.bin",
       "type": "file",
       "size": 220,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/rmlui/fs_rmlui_texture.bin",
       "type": "file",
       "size": 249,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/rmlui/vs_rmlui.bin",
       "type": "file",
       "size": 424,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/rmlui/vs_rmlui_passthrough.bin",
       "type": "file",
       "size": 446,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/gl/shadowVolume",
@@ -7940,13 +7933,13 @@
       "path": "shaders/compiled/windows/gl/shadowVolume/fs_shadowvol.bin",
       "type": "file",
       "size": 139,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/shadowVolume/fs_shadowvol_color.bin",
       "type": "file",
       "size": 163,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/shadowVolume/fs_shadowvolume.bin",
@@ -7958,13 +7951,13 @@
       "path": "shaders/compiled/windows/gl/shadowVolume/vs_shadowvolcap.bin",
       "type": "file",
       "size": 2624,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/shadowVolume/vs_shadowvoledge.bin",
       "type": "file",
       "size": 3195,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/shadowVolume/vs_shadowvolume.bin",
@@ -7980,13 +7973,13 @@
       "path": "shaders/compiled/windows/gl/ui/fs_effects.bin",
       "type": "file",
       "size": 18722,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/ui/fs_progressBar.bin",
       "type": "file",
       "size": 583,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/vs_bsp.bin",
@@ -7998,25 +7991,25 @@
       "path": "shaders/compiled/windows/gl/vs_default.bin",
       "type": "file",
       "size": 3617,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/vs_fullscreen.bin",
       "type": "file",
       "size": 231,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/vs_instanced_billboard.bin",
       "type": "file",
       "size": 1554,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/gl/vs_ui.bin",
       "type": "file",
       "size": 349,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv",
@@ -8030,25 +8023,25 @@
       "path": "shaders/compiled/windows/spirv/bsp/fs_bsp.bin",
       "type": "file",
       "size": 8975,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/bsp/fs_bsp_cube.bin",
       "type": "file",
       "size": 1585,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/bsp/fs_bsp_empty.bin",
       "type": "file",
       "size": 370,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/bsp/vs_bsp.bin",
       "type": "file",
       "size": 3722,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/debugDraw",
@@ -8058,13 +8051,13 @@
       "path": "shaders/compiled/windows/spirv/debugDraw/fs_debugdraw.bin",
       "type": "file",
       "size": 414,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/debugDraw/vs_debugdraw.bin",
       "type": "file",
       "size": 1068,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_bsp.bin",
@@ -8088,55 +8081,55 @@
       "path": "shaders/compiled/windows/spirv/fs_copy.bin",
       "type": "file",
       "size": 854,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_copy_depth.bin",
       "type": "file",
       "size": 877,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_customId.bin",
       "type": "file",
       "size": 1873,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_decal.bin",
       "type": "file",
       "size": 3558,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_default.bin",
       "type": "file",
       "size": 9367,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_default_nonStylized.bin",
       "type": "file",
       "size": 8729,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_default_simple.bin",
       "type": "file",
       "size": 6285,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_empty.bin",
       "type": "file",
       "size": 210,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_fullscreen_color.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_fullscreen_texture.bin",
@@ -8148,85 +8141,85 @@
       "path": "shaders/compiled/windows/spirv/fs_fxaa_simple.bin",
       "type": "file",
       "size": 3691,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_mask.bin",
       "type": "file",
       "size": 894,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_meshShadow.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_meshShadowApply.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_motionBlur.bin",
       "type": "file",
-      "size": 4226,
-      "mtime": 1788912041
+      "size": 4242,
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_motionBlur_apply.bin",
       "type": "file",
       "size": 1368,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_postprocessing.bin",
       "type": "file",
       "size": 10888,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_resolve_depth_msaa.bin",
       "type": "file",
       "size": 1535,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_solidRed.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_ui_flatcolor.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_ui_textured.bin",
       "type": "file",
       "size": 1224,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_ui_textured_point.bin",
       "type": "file",
       "size": 1552,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_unlit.bin",
       "type": "file",
       "size": 1275,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/fs_unlit_rect.bin",
       "type": "file",
       "size": 1485,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/game",
@@ -8236,13 +8229,13 @@
       "path": "shaders/compiled/windows/spirv/game/fs_debuff.bin",
       "type": "file",
       "size": 2973,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/game/fs_inventory_menu_sphere.bin",
       "type": "file",
       "size": 402,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/imgui",
@@ -8252,13 +8245,13 @@
       "path": "shaders/compiled/windows/spirv/imgui/fs_ocornut_imgui.bin",
       "type": "file",
       "size": 858,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/imgui/vs_ocornut_imgui.bin",
       "type": "file",
       "size": 1333,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/rmlui",
@@ -8268,67 +8261,67 @@
       "path": "shaders/compiled/windows/spirv/rmlui/fs_rmlui_blendmask.bin",
       "type": "file",
       "size": 1048,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/rmlui/fs_rmlui_blur.bin",
       "type": "file",
       "size": 2636,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/rmlui/fs_rmlui_color.bin",
       "type": "file",
       "size": 414,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/rmlui/fs_rmlui_colormatrix.bin",
       "type": "file",
       "size": 1978,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/rmlui/fs_rmlui_creation.bin",
       "type": "file",
       "size": 370,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/rmlui/fs_rmlui_dropshadow.bin",
       "type": "file",
       "size": 1259,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/rmlui/fs_rmlui_gradient.bin",
       "type": "file",
       "size": 3236,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/rmlui/fs_rmlui_passthrough.bin",
       "type": "file",
       "size": 763,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/rmlui/fs_rmlui_texture.bin",
       "type": "file",
       "size": 871,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/rmlui/vs_rmlui.bin",
       "type": "file",
       "size": 1322,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/rmlui/vs_rmlui_passthrough.bin",
       "type": "file",
       "size": 1410,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/shadowVolume",
@@ -8338,13 +8331,13 @@
       "path": "shaders/compiled/windows/spirv/shadowVolume/fs_shadowvol.bin",
       "type": "file",
       "size": 386,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/shadowVolume/fs_shadowvol_color.bin",
       "type": "file",
       "size": 592,
-      "mtime": 1788912041
+      "mtime": 1788982981
     },
     {
       "path": "shaders/compiled/windows/spirv/shadowVolume/fs_shadowvolume.bin",
@@ -8356,13 +8349,13 @@
       "path": "shaders/compiled/windows/spirv/shadowVolume/vs_shadowvolcap.bin",
       "type": "file",
       "size": 5408,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/shadowVolume/vs_shadowvoledge.bin",
       "type": "file",
       "size": 6204,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/shadowVolume/vs_shadowvolume.bin",
@@ -8378,13 +8371,13 @@
       "path": "shaders/compiled/windows/spirv/ui/fs_effects.bin",
       "type": "file",
       "size": 12349,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/ui/fs_progressBar.bin",
       "type": "file",
       "size": 1949,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/vs_bsp.bin",
@@ -8396,25 +8389,25 @@
       "path": "shaders/compiled/windows/spirv/vs_default.bin",
       "type": "file",
       "size": 6879,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/vs_fullscreen.bin",
       "type": "file",
       "size": 746,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/vs_instanced_billboard.bin",
       "type": "file",
       "size": 3483,
-      "mtime": 1788912041
+      "mtime": 1788982982
     },
     {
       "path": "shaders/compiled/windows/spirv/vs_ui.bin",
       "type": "file",
       "size": 1334,
-      "mtime": 1788912042
+      "mtime": 1788982982
     },
     {
       "path": "shaders/source",
@@ -8521,8 +8514,8 @@
     {
       "path": "shaders/source/fs_decal.sc",
       "type": "file",
-      "size": 5747,
-      "mtime": 1786209760
+      "size": 6044,
+      "mtime": 1788917726
     },
     {
       "path": "shaders/source/fs_default.sc",
@@ -8581,8 +8574,8 @@
     {
       "path": "shaders/source/fs_motionBlur.sc",
       "type": "file",
-      "size": 2545,
-      "mtime": 1774820793
+      "size": 2549,
+      "mtime": 1788982978
     },
     {
       "path": "shaders/source/fs_motionBlur_apply.sc",
@@ -8998,7 +8991,7 @@
       "path": "testViewmodel.glb",
       "type": "file",
       "size": 512540,
-      "mtime": 1788915704
+      "mtime": 1789862068
     },
     {
       "path": "texture0.jpg",
@@ -26357,10 +26350,22 @@
       "type": "dir"
     },
     {
+      "path": "textures/particles/FireSpritesheet.png",
+      "type": "file",
+      "size": 3812741,
+      "mtime": 1757225023
+    },
+    {
       "path": "textures/particles/blood.png",
       "type": "file",
       "size": 3713,
       "mtime": 1773882034
+    },
+    {
+      "path": "textures/particles/fireSheet5x5.png",
+      "type": "file",
+      "size": 346369,
+      "mtime": 1606435542
     },
     {
       "path": "textures/particles/smoke.png",

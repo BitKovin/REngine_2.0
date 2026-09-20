@@ -1,6 +1,6 @@
 #pragma once
 
-#include <NetworkedEntity.h>
+#include <Network/NetworkedEntity.h>
 #include <EntityHandle.h>
 
 #include <Particle/ParticleSystem.hpp>

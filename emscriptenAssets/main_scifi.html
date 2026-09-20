@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>RETRO GAME PLAYER</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Courier New', monospace;
+            color: #0f0;
+            position: relative;
+        }
+
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.3;
+        }
+
+        .emscripten_border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            background-color: #000;
+        }
+
+        canvas.emscripten {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background-color: #000;
+        }
+
+        #loading {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            background: rgba(0, 20, 0, 0.8);
+            border: 2px solid #0f0;
+            border-radius: 0;
+            padding: 20px 30px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        #loading-title {
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 5px #0f0;
+            color: #0f0;
+        }
+
+        #status {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #0f0;
+            text-shadow: 0 0 3px #0f0;
+        }
+
+        #progress-container {
+            height: 20px;
+            background: rgba(0, 10, 0, 0.8);
+            border: 1px solid #0f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #0a0, #0f0, #0a0);
+            transition: width 0.3s;
+        }
+
+        #progress-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #000;
+            text-shadow: 0 0 2px #0f0;
+        }
+
+        #loading-footer {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #080;
+            letter-spacing: 1px;
+        }
+
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 255, 0, 0.1);
+            animation: scanline 8s linear infinite;
+            z-index: 101;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        .corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            z-index: 10;
+        }
+
+        .corner-tl {
+            top: 15px;
+            left: 15px;
+            border-top: 2px solid #0f0;
+            border-left: 2px solid #0f0;
+        }
+
+        .corner-tr {
+            top: 15px;
+            right: 15px;
+            border-top: 2px solid #0f0;
+            border-right: 2px solid #0f0;
+        }
+
+        .corner-bl {
+            bottom: 15px;
+            left: 15px;
+            border-bottom: 2px solid #0f0;
+            border-left: 2px solid #0f0;
+        }
+
+        .corner-br {
+            bottom: 15px;
+            right: 15px;
+            border-bottom: 2px solid #0f0;
+            border-right: 2px solid #0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="crt-overlay"></div>
+    <div class="scanline"></div>
+    
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <div id="loading">
+        <div id="loading-title">SYSTEM INITIALIZATION</div>
+        <div id="status">LOADING GAME DATA...</div>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+            <div id="progress-text">0%</div>
+        </div>
+        <div id="loading-footer">DO NOT POWER OFF SYSTEM</div>
+    </div>
+
+    <div class="emscripten_border">
+        <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+    </div>
+
+    <textarea id="output" rows="8"></textarea>
+
+    <script type="text/javascript">
+        var statusElement = document.getElementById("status");
+        var progressBar = document.getElementById("progress-bar");
+        var progressText = document.getElementById("progress-text");
+        var canvasElement = document.getElementById("canvas");
+        var outputElement = document.getElementById("output");
+        var containerElement = document.querySelector('.emscripten_border');
+        if (outputElement) outputElement.value = "";
+
+        // Alert on WebGL context loss
+        canvasElement.addEventListener("webglcontextlost", (e) => {
+            alert("CRITICAL ERROR: GRAPHICS CONTEXT LOST\nRELOAD SYSTEM");
+            e.preventDefault();
+        }, false);
+
+        var Module = {
+            print(...args) {
+                console.log(...args);
+                if (outputElement) {
+                    var text = args.join(" ");
+                    outputElement.value += text + "\n";
+                    outputElement.scrollTop = outputElement.scrollHeight;
+                }
+            },
+            canvas: canvasElement,
+            setStatus(text) {
+                if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: "" };
+                if (text === Module.setStatus.last.text) return;
+                var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+                var now = Date.now();
+                if (m && now - Module.setStatus.last.time < 30) return;
+                Module.setStatus.last.time = now;
+                Module.setStatus.last.text = text;
+                if (m) {
+                    text = m[1];
+                    var current = parseInt(m[2]);
+                    var total = parseInt(m[4]);
+                    var percent = Math.round((current / total) * 100);
+                    
+                    progressBar.style.width = percent + '%';
+                    progressText.textContent = percent + '%';
+                    statusElement.innerHTML = text.toUpperCase();
+                }
+            },
+            totalDependencies: 0,
+            monitorRunDependencies(left) {
+                this.totalDependencies = Math.max(this.totalDependencies, left);
+                Module.setStatus(
+                    left
+                        ? "PREPARING ASSETS (" +
+                          (this.totalDependencies - left) +
+                          "/" +
+                          this.totalDependencies +
+                          ")"
+                        : "INITIALIZATION COMPLETE"
+                );
+            },
+        };
+        Module.setStatus("LOADING GAME DATA...");
+
+        window.onerror = (event) => {
+            Module.setStatus("CRITICAL ERROR: CHECK CONSOLE");
+            Module.setStatus = (text) => {
+                if (text) console.error("[SYSTEM ERROR] " + text);
+            };
+        };
+
+        // Enhanced resize handling
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            const containerWidth = containerElement.clientWidth;
+            const containerHeight = containerElement.clientHeight;
+            
+            // Only resize if dimensions changed
+            if (canvasElement.width !== containerWidth * dpr || 
+                canvasElement.height !== containerHeight * dpr) {
+                
+                canvasElement.width = Math.floor(containerWidth * dpr);
+                canvasElement.height = Math.floor(containerHeight * dpr);
+                
+                canvasElement.style.width = containerWidth + "px";
+                canvasElement.style.height = containerHeight + "px";
+                
+                // Notify module about resize
+                if (typeof Module.onCanvasResized === 'function') {
+                    Module.onCanvasResized(canvasElement.width, canvasElement.height);
+                }
+            }
+        }
+
+        // Setup resize observers
+        function setupResizeHandling() {
+            let resizeTimeout;
+            const resizeDebounceTime = 100;
+            
+            function handleResize() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(resizeCanvas, resizeDebounceTime);
+            }
+            
+            // Use ResizeObserver when available
+            if (typeof ResizeObserver === 'function') {
+                const resizeObserver = new ResizeObserver(handleResize);
+                resizeObserver.observe(containerElement);
+                resizeObserver.observe(document.documentElement);
+            } else {
+                window.addEventListener('resize', handleResize);
+            }
+            
+            // Handle mobile viewport changes
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', handleResize);
+            }
+            
+            // Handle orientation changes
+            window.addEventListener('orientationchange', handleResize);
+            
+            // Safety check every second
+            setInterval(resizeCanvas, 1000);
+        }
+
+        // Initialize resizing
+        setupResizeHandling();
+        resizeCanvas(); // Initial resize
+
+        // Hide loading indicators after module loads
+        Module.postRun = () => {
+            document.getElementById("loading").style.display = "none";
+            document.querySelector('.scanline').style.display = "none";
+            resizeCanvas(); // Final resize after load
+        };
+    </script>
+    <script async type="text/javascript" src="main.js"></script>
+</body>
+</html>
