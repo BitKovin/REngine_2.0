@@ -70,6 +70,7 @@ public:
 			{
 				PauseGameManager::SetGamePaused(false);
 				Input::GetAction("pause")->CleanPressed();
+				Input::ReleaseAllActions();
 			};
 
 		settingsButton->onClick = [&]()

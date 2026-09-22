@@ -26,42 +26,13 @@ public:
 
 		this->parentMenu = parentMenu_;
 
-		background = make_shared<UiImage>();
-		background->color = vec4(0.2f, 0.0f, 0.0f, 0.5f);
-		AddChild(background);
+		LoadLayoutFromFile("GameData/ui/layout/settingsMenu.ui");
 
-		optionsBox = std::make_shared<UiVerticalBox>();
-		optionsBox->origin = vec2(0.5f);
-		optionsBox->pivot = vec2(0.5f);
-
-		gameButton = MakeButton("${SETTINGS_MENU_GAMEPLAY}");
-		inputButton = MakeButton("${SETTINGS_MENU_INPUT}");
-		videoButton = MakeButton("${SETTINGS_MENU_VIDEO}");
-		soundButton = MakeButton("${SETTINGS_MENU_SOUND}");
-		backButton = MakeButton("${SETTINGS_BACK}");
-
-		optionsBox->AddChild(gameButton);
-		optionsBox->AddChild(inputButton);
-		optionsBox->AddChild(videoButton);
-		optionsBox->AddChild(soundButton);
-		optionsBox->AddChild(backButton);
-
-		float maxButtonWidth = 0;
-
-		for (auto& child : optionsBox->children)
-		{
-			if (child->GetSize().x > maxButtonWidth)
-			{
-				maxButtonWidth = child->GetSize().x;
-			}
-		}
-
-		for (auto& child : optionsBox->children)
-		{
-			child->size.x = maxButtonWidth;
-		}
-
-		AddChild(optionsBox);
+		gameButton = FindNamed<UiButton>("gameButton");
+		inputButton = FindNamed<UiButton>("inputButton");
+		videoButton = FindNamed<UiButton>("videoButton");
+		soundButton = FindNamed<UiButton>("soundButton");
+		backButton = FindNamed<UiButton>("backButton");
 
 		gameButton->onClick = [&]()
 			{
@@ -116,7 +87,7 @@ public:
 	void FinalizeChildren() override
 	{
 
-		background->size = GetSize();
+		//background->size = GetSize();
 
 		UiCanvas::FinalizeChildren();
 	}
