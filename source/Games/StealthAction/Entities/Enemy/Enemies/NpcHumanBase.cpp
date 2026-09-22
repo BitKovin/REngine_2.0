@@ -911,7 +911,10 @@ void NpcHumanBase::UpdateStatusWidgets()
 
 void NpcHumanBase::UpdateDebugUI()
 {
-
+    ImGui::Begin(("NpcHuman Debug: " + Id).c_str());
+    ImGui::Text(("Health: " + std::to_string(Health)).c_str());
+    ImGui::Text(GetDebuffsDebugInfo().c_str());
+    ImGui::End();
 }
 
 void NpcHumanBase::LoadAssets()

@@ -20,7 +20,8 @@ namespace
 }
 
 PlayerHud::PlayerHud()
-{}
+{
+}
 
 PlayerHud::~PlayerHud()
 {
@@ -38,13 +39,13 @@ void PlayerHud::Init(Player* playerRef)
 {
 
 
-    player = playerRef;
+	player = playerRef;
 
     hudCanvas = make_shared<UiCanvas>();
     crosshair = make_shared<UiCrosshair>();
 
     crosshair->origin = vec2(0.5f, 0.5f);
-    hudCanvas->AddChild(crosshair);
+	hudCanvas->AddChild(crosshair);
 
     // ── Retro text status bar: STAMINA / HEALTH / AMMO ─────────────────────
     // Each column is a fixed size so the three stay evenly spaced no matter
@@ -68,16 +69,16 @@ void PlayerHud::Init(Player* playerRef)
     EngineMain::Viewport.AddChild(ScreenControls);
     EngineMain::Viewport.AddChild(hudCanvas);
 
-    frameRate = make_shared<UiText>();
-    frameRate->origin = vec2(0, 0);
-    frameRate->position = vec2(10, 10);
-    hudCanvas->AddChild(frameRate);
+	frameRate = make_shared<UiText>();
+    frameRate->origin = vec2(0,0);
+	frameRate->position = vec2(10, 10);
+	hudCanvas->AddChild(frameRate);
 
     slots = make_shared<WeaponSlots>();
     slots->player = player;
-    slots->origin = vec2(1.0, 0.5f);
+    slots->origin = vec2(1.0,0.5f);
     slots->pivot = vec2(1.0, 0.5);
-    slots->position = vec2(-20, 50);
+    slots->position = vec2(-20,50);
     hudCanvas->AddChild(slots);
 
     useIndicator = make_shared<UseIndicator>(player);
@@ -86,17 +87,17 @@ void PlayerHud::Init(Player* playerRef)
     hudCanvas->AddChild(useIndicator);
 
     //hudCanvas->AddChild(std::make_shared<UiScoreIndicator>());
-
-    messageText = make_shared<UiText>();
-    messageText->origin = vec2(0.5f, 0.5f);
-    messageText->pivot = vec2(0.5f, 1.0f);
-    messageText->position = vec2(0, -100);
-    messageText->text = "";
-    messageText->visible = false;
-    messageText->fontSize = 60;
-    messageText->shadowEnabled = true;
-    messageText->color = vec4(0.65, 0.6, 0.5, 1);
-    hudCanvas->AddChild(messageText);
+    
+	messageText = make_shared<UiText>();
+	messageText->origin = vec2(0.5f, 0.5f);
+	messageText->pivot = vec2(0.5f, 1.0f);
+	messageText->position = vec2(0, -100);
+	messageText->text = "";
+	messageText->visible = false;
+	messageText->fontSize = 60;
+	messageText->shadowEnabled = true;
+	messageText->color = vec4(0.65, 0.6, 0.5, 1);
+	hudCanvas->AddChild(messageText);
 
 
     minorMessageText = make_shared<UiText>();
@@ -107,7 +108,7 @@ void PlayerHud::Init(Player* playerRef)
     minorMessageText->visible = false;
     minorMessageText->fontSize = 45;
     minorMessageText->shadowEnabled = true;
-    minorMessageText->shadowOffset /= vec2(2);
+	minorMessageText->shadowOffset /= vec2(2);
     minorMessageText->shadowSpread /= 2.0f;
     minorMessageText->color = vec4(0.65, 0.6, 0.5, 1);
     hudCanvas->AddChild(minorMessageText);
@@ -117,9 +118,9 @@ void PlayerHud::Init(Player* playerRef)
 void PlayerHud::Update()
 {
     staminaStat->SetValue(FormatOneDecimal(player->stamina));
-    staminaStat->ProgressBar->Progress = player->stamina / 3.0f;
+	staminaStat->ProgressBar->Progress = player->stamina / 3.0f;
     healthStat->SetValue(std::to_string((int)player->Health));
-    healthStat->ProgressBar->Progress = player->Health / player->MaxHealth;
+	healthStat->ProgressBar->Progress = player->Health / player->MaxHealth;
 
     ammoStat->SetValue("");
     if (player->currentWeapon)
@@ -129,36 +130,59 @@ void PlayerHud::Update()
             int ammoCount = player->GetAmmo(player->currentWeapon->GetAmmoType());
             int ammoLimit = player->GetAmmoLimit(player->currentWeapon->GetAmmoType());
             ammoStat->SetValue(to_string(ammoCount));// +" / " + to_string(ammoLimit));
-            ammoStat->ProgressBar->Progress = ammoLimit > 0 ? (float)ammoCount / (float)ammoLimit : 0.0f;
-        }
+			ammoStat->ProgressBar->Progress = ammoLimit > 0 ? (float)ammoCount / (float)ammoLimit : 0.0f;
+		}
     }
 
     crosshair->visible = !useIndicator->visible;
 
-    messageText->visible = messageDelay.Wait();
+	messageText->visible = messageDelay.Wait();
     minorMessageText->visible = minorMessageDelay.Wait();
 
-    //frameRate->text = "FPS: " + to_string((int)(1.0f / Time::DeltaTimeF));
+	//frameRate->text = "FPS: " + to_string((int)(1.0f / Time::DeltaTimeF));
 
 }
 
 void WeaponSlots::Update()
 {
-    // 1. Gather every item currently sitting in a Firearm/Melee/Tool
-    // quick-slot (up to 9: 3 per role) as one flat list to display.
-    std::vector<WeaponSlotData> targetSlots;
+    // 1. Gather the correct slot data FIRST based on the active mode
+    std::vector<WeaponSlotData> targetSlots = player->weaponSlots;
 
-    for (auto& uuid : player->GetWeaponQuickSlotUUIDs())
+    if (player->GetWeaponSystemMode() == WeaponSystemMode::Inventory)
     {
-        InventoryItem* item = player->FindInventoryItemByUUID(uuid);
-        if (item)
-            targetSlots.push_back(item->weaponData);
+        targetSlots.clear();
+        int index = 0;
+
+        for (auto item : player->GetInventory())
+        {
+            if (item.mainWeaponData.className != "")
+            {
+                item.mainWeaponData.slot = index;
+                targetSlots.push_back(item.mainWeaponData);
+            }
+            else if (item.offhandWeaponData.className != "")
+            {
+                item.offhandWeaponData.slot = index;
+                targetSlots.push_back(item.offhandWeaponData);
+            }
+            index++;
+        }
     }
 
-    // 2. Check if the active equipment changed
-    bool equipmentChanged = (oldCurrentWeaponUUID != player->currentWeaponUUID);
+    // 2. Check if the active equipment changed based on mode
+    bool equipmentChanged = false;
+    if (player->GetWeaponSystemMode() == WeaponSystemMode::Inventory)
+    {
+        equipmentChanged = (oldMainUUID != player->currentMainWeaponUUID ||
+            oldOffhandUUID != player->currentOffhandWeaponUUID);
+    }
+    else
+    {
+        equipmentChanged = (oldSlot != player->currentSlot);
+    }
 
-    // 3. Early exit if neither the items nor the equipped weapon changed
+    // 3. Early exit if neither the items nor the equipped weapons changed
+    // We check targetSlots instead of player->weaponSlots!
     if (oldSlots == targetSlots && !equipmentChanged)
     {
         UiVerticalBox::Update();
@@ -168,8 +192,6 @@ void WeaponSlots::Update()
     // --- Rebuild UI ---
     children.clear();
 
-    int displayIndex = 1;
-
     for (WeaponSlotData& data : targetSlots)
     {
         if (data.className == "") continue;
@@ -177,7 +199,16 @@ void WeaponSlots::Update()
         auto img = make_shared<UiButton>();
         img->size = vec2(120, 120);
 
-        bool equipped = (data.inventoryUUID == player->currentWeaponUUID);
+        bool equipped = false;
+        if (player->GetWeaponSystemMode() == WeaponSystemMode::Inventory)
+        {
+            equipped = (data.inventoryUUID == player->currentMainWeaponUUID ||
+                data.inventoryUUID == player->currentOffhandWeaponUUID);
+        }
+        else
+        {
+            equipped = (data.slot == player->currentSlot);
+        }
 
         if (equipped)
         {
@@ -191,27 +222,26 @@ void WeaponSlots::Update()
         img->OnlyTouch = true;
         img->OnlyNotPaused = true;
 
-        std::string uuid = data.inventoryUUID;
-        img->onClick = [this, uuid]() {
-            player->SwitchToInventoryItem(uuid);
+        img->onClick = [this, data]() {
+            player->SwitchToSlot(data.slot);
             };
 
         auto text = make_shared<UiText>();
         text->origin = vec2(0, 1);
         text->pivot = vec2(0, 1);
-        text->text = to_string(displayIndex);
+        text->text = to_string(data.slot + 1);
         text->fontSize = 50;
         text->position = vec2(5, -5);
 
         img->AddChild(text);
         AddChild(img);
-
-        displayIndex++;
     }
 
     // 4. Update all cached states to match current frame
     oldSlots = targetSlots;
-    oldCurrentWeaponUUID = player->currentWeaponUUID;
+    oldSlot = player->currentSlot;
+    oldMainUUID = player->currentMainWeaponUUID;
+    oldOffhandUUID = player->currentOffhandWeaponUUID;
 
     UiVerticalBox::Update();
 }
@@ -242,14 +272,14 @@ UseIndicator::UseIndicator(Player* player)
 
     progressBar = make_shared<UiProgressBar>();
     progressBar->position = vec2(60, 90);
-    progressBar->size = vec2(200, 15);
-    progressBar->color = vec4(0.5f, 0.2f, 0.5f, 1);
+    progressBar->size = vec2(200,15);
+    progressBar->color = vec4(0.5f,0.2f,0.5f,1);
 
     text = make_shared<UiText>();
     text->text = "Press F to use\nHold F to use alt";
     text->fontSize = 36;
 
-    text->position = vec2(15, 15);
+    text->position = vec2(15,15);
 
     AddChild(useIcon);
     AddChild(progressBar);
@@ -275,29 +305,29 @@ void UseIndicator::Update()
 StaminaBar::StaminaBar()
 {
 
-    ImagePath = "GameData/textures/ui/hud/stamina_bg.png";
+	ImagePath = "GameData/textures/ui/hud/stamina_bg.png";
     size = vec2(81, 77) * 1.05f;
 
-    staminaFill = make_shared<UiProgressBar>();
-    AddChild(staminaFill);
-    staminaFill->BackgroundImage = "GameData/textures/ui/hud/stamina_fill.png";
+	staminaFill = make_shared<UiProgressBar>();
+	AddChild(staminaFill);
+	staminaFill->BackgroundImage = "GameData/textures/ui/hud/stamina_fill.png";
     staminaFill->BackgroundColor = vec4(0);
-    staminaFill->ProgressImage = "GameData/textures/ui/hud/stamina_fill.png";
-    staminaFill->size = vec2(58, 55) * 1.05f;
+	staminaFill->ProgressImage = "GameData/textures/ui/hud/stamina_fill.png";
+	staminaFill->size = vec2(58, 55) * 1.05f;
     staminaFill->rotation = -90;
-    staminaFill->position = vec2(-1, 0);
+    staminaFill->position = vec2(-1,0);
 
-    staminaFill->color = vec4(vec3(0.8f), 1);
+	staminaFill->color = vec4(vec3(0.8f), 1);
 
     staminaFill->pivot = vec2(0.5f);
-    staminaFill->origin = vec2(0.5f);
+	staminaFill->origin = vec2(0.5f);
 
-    shadowImage = make_shared<UiImage>();
+	shadowImage = make_shared<UiImage>();
     AddChild(shadowImage);
     shadowImage->ImagePath = ImagePath;
-    shadowImage->size = size * 1.05f;
-    shadowImage->color = vec4(vec3(0), 0.4f);
-    shadowImage->position = vec2(1, 1);
+	shadowImage->size = size * 1.05f;
+	shadowImage->color = vec4(vec3(0), 0.4f);
+	shadowImage->position = vec2(1, 1);
 
     stamina = 0.5f;
 
@@ -306,7 +336,7 @@ StaminaBar::StaminaBar()
 void StaminaBar::Update()
 {
 
-    staminaFill->Progress = stamina;
+    staminaFill->Progress = stamina; 
 
     UiImage::Update();
 }

@@ -66,13 +66,7 @@ public:
         params.attackDelayTime = BASE_ATTACK_DELAY;
         params.switchDelayTime = 0.35f;
         params.switchDelayOnAttack = 0.09f;
-        params.weaponOffset = vec3(0.01, 0.00, -0.0);
-
-        // Rifle-styled hidden/carry pose: lowered, barrel forward-down.
-        HiddenPosePosition = vec3(0.03f, -0.26f, 0.10f);
-        HiddenPoseRotation = vec3(32.0f, 8.0f, -4.0f);
-        HiddenPoseRotationPoint = vec3(-0.03f, -0.13f, 0.2f);
-
+        params.weaponOffset = vec3(0.0, 0.00, -0.0);
         params.bulletSpeed = 200.0f;
         params.bulletDamage = 15.0f;
         params.range = 50.0f;
@@ -103,6 +97,7 @@ public:
 
         weaponHandlingType = 0;
 
+		SupportsOffhandWeapon = false;
 
     }
 
@@ -180,29 +175,10 @@ public:
         }
     }
 
-    void Serialize(json& target) override
-    {
-        WeaponFirearm::Serialize(target);
-
-        SERIALIZE_FIELD(target, overheat);
-        SERIALIZE_FIELD(target, boosted);
-    }
-
-    void Deserialize(json& source) override
-    {
-        WeaponFirearm::Deserialize(source);
-
-        DESERIALIZE_FIELD(source, overheat);
-        DESERIALIZE_FIELD(source, boosted);
-
-        // attackDelayTime tracks boosted state rather than being derived
-        // from it each frame - keep it in sync with whatever we just loaded.
-        params.attackDelayTime = boosted ? BOOSTED_ATTACK_DELAY : BASE_ATTACK_DELAY;
-    }
-
     WeaponSlotData GetDefaultData() override {
         WeaponSlotData data = WeaponFirearm::GetDefaultData();
         data.className = "weapon_mpsd";
+        data.slot = 3;
         data.AmmoType = WeaponAmmoType::PistolBullets;
         data.startAmmo = 34;
         return data;

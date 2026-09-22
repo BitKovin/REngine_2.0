@@ -21,11 +21,13 @@ class Player;
 class WeaponSlots : public UiVerticalBox
 {
 public:
-
+	
+	int oldSlot = -1;
 	std::vector<WeaponSlotData> oldSlots;
 
-	std::string oldCurrentWeaponUUID;
-
+	std::string oldMainUUID;
+	std::string oldOffhandUUID;
+	 
 	Player* player = nullptr;
 
 	void Update();
@@ -122,7 +124,11 @@ private:
 
 	std::shared_ptr<UseIndicator> useIndicator;
 
-
+	// ── Retro text HUD: STAMINA / HEALTH / AMMO ─────────────────────────────
+	// Fixed-width columns in a centered row -- see UI/HudStatusBar.hpp and
+	// UI/HudStatElement.hpp. To add another readout later, construct one
+	// more HudStatElement, AddChild it to statusBar, and update its value
+	// in PlayerHud::Update().
 	std::shared_ptr<HudStatusBar> statusBar;
 	std::shared_ptr<HudStatElement> staminaStat;
 	std::shared_ptr<HudStatElement> healthStat;

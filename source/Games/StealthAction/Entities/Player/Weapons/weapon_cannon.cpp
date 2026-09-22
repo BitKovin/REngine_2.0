@@ -26,12 +26,6 @@ public:
         params.switchDelayTime = 0.2f;
         params.switchDelayOnAttack = 2.1f;
         params.weaponOffset = vec3(0.0, 0.00, -0.0);
-
-        // Rifle-styled hidden/carry pose: lowered, barrel forward-down.
-        HiddenPosePosition = vec3(0.03f, -0.26f, 0.10f);
-        HiddenPoseRotation = vec3(62.0f, 8.0f, -4.0f);
-        HiddenPoseRotationPoint = vec3(-0.03f, -0.13f, 0.5f);
-
         params.bulletSpeed = 200.0f;
         params.bulletDamage = 200.0f;
         params.range = 80.0f;
@@ -56,6 +50,7 @@ public:
 
         thirdPersonAnimator = make_unique<Animator_OneHand>(this);
 
+        SupportsOffhandWeapon = false;
 
     }
 
@@ -79,6 +74,7 @@ public:
     {
         WeaponSlotData data = WeaponFirearm::GetDefaultData();
         data.className = "weapon_cannon";
+        data.slot = 4;
         data.AmmoType = WeaponAmmoType::CannonBullets;
         return data;
     }

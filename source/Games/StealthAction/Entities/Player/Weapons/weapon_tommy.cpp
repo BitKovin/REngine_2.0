@@ -17,12 +17,6 @@ public:
         params.switchDelayTime = 0.35f;
         params.switchDelayOnAttack = 0.09f;
         params.weaponOffset = vec3(0.0, 0.00, -0.0);
-
-        // Rifle-styled hidden/carry pose: lowered, barrel forward-down.
-        HiddenPosePosition = vec3(0.03f, -0.26f, 0.10f);
-        HiddenPoseRotation = vec3(62.0f, 8.0f, -4.0f);
-        HiddenPoseRotationPoint = vec3(-0.03f, -0.13f, 0.5f);
-
         params.bulletSpeed = 200.0f;
         params.bulletDamage = 8.0f;
         params.range = 80.0f;
@@ -46,6 +40,7 @@ public:
     WeaponSlotData GetDefaultData() override {
         WeaponSlotData data = WeaponFirearm::GetDefaultData();
         data.className = "weapon_tommy";
+        data.slot = 2;
         return data;
     }
 };

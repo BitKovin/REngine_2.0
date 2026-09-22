@@ -21,7 +21,7 @@ public:
 
 	void Update() override;
 
-	bool UseSimpleCross = false;
+	bool UseSimpleCross = true;
 
 private:
 

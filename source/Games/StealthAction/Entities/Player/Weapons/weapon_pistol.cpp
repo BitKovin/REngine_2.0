@@ -18,13 +18,11 @@ public:
         params.fireSoundEvent = "event:/Weapons/pistol/pistol_fire";
         params.useOneshotSound = false;
         params.pitchModifier = 1.0f; // Modified in Update based on Silencer
-        params.baseSpread = 0.3f;
-        params.spreadIncreasePerShot = 0.15f;
+        params.baseSpread = 0.1f;
+        params.spreadIncreasePerShot = 0.1f;
         params.maxActiveSpread = 0.8f;
         params.attackDelayTime = 0.35f;
         params.switchDelayTime = 0.3f;
-
-		params.weaponOffset = vec3(0.02f, -0.00f, 0.0f);
 
         params.switchDelayOnAttack = 0.2f;
         //params.weaponOffset = vec3(0.0, -0.01, -0.0);
@@ -57,11 +55,6 @@ public:
 
         thirdPersonAnimator = make_unique<Animator_OneHand>(this);
 
-
-        HiddenPosePosition = vec3(-0.150, -0.020, -0.100);
-        HiddenPoseRotation = vec3(-55.25, 5.25, 5.5);
-        HiddenPoseRotationPoint = vec3(-0.04, -0.1, 0.35);
-
     }
 
     void Update() override 
@@ -91,23 +84,12 @@ public:
     }
 
 
-    void Serialize(json& target) override
-    {
-        WeaponFirearm::Serialize(target);
-        SERIALIZE_FIELD(target, Silencer);
-    }
-
-    void Deserialize(json& source) override
-    {
-        WeaponFirearm::Deserialize(source);
-        DESERIALIZE_FIELD(source, Silencer);
-    }
-
     WeaponSlotData GetDefaultData() override 
     {
         WeaponSlotData data = WeaponFirearm::GetDefaultData();
         data.className = "weapon_pistol";
         data.AmmoType = WeaponAmmoType::PistolBullets;
+        data.slot = 1;
         data.startAmmo = 16;
         return data;
     }

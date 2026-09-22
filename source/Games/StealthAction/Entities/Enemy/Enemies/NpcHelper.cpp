@@ -13,6 +13,11 @@ bool NpcHelper::CheckParry(vec3 npcForward, Entity* entity)
 
 	bool parrying = false;
 
+	if (player->currentOffhandWeapon)
+	{
+		if(player->currentOffhandWeapon->Parrying)
+			parrying = true;
+	}
 
 	if (player->currentWeapon)
 	{
@@ -33,6 +38,8 @@ bool NpcHelper::CheckParry(vec3 npcForward, Entity* entity)
 
 	if (res)
 	{
+		if(player->currentOffhandWeapon)
+			player->currentOffhandWeapon->OnParried();
 
 		if (player->currentWeapon)
 			player->currentWeapon->OnParried();
@@ -51,6 +58,11 @@ bool NpcHelper::CheckBlock(vec3 npcForward, Entity* entity)
 
 	bool parrying = false;
 
+	if (player->currentOffhandWeapon)
+	{
+		if (player->currentOffhandWeapon->Blocking)
+			parrying = true;
+	}
 
 	if (player->currentWeapon)
 	{
@@ -71,6 +83,8 @@ bool NpcHelper::CheckBlock(vec3 npcForward, Entity* entity)
 
 	if (res)
 	{
+		if (player->currentOffhandWeapon)
+			player->currentOffhandWeapon->OnBlocked();
 
 		if (player->currentWeapon)
 			player->currentWeapon->OnBlocked();

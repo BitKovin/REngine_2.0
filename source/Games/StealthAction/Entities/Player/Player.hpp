@@ -15,7 +15,6 @@
 #include <algorithm>   // for std::clamp
 #include <cmath>       // for std::max
 #include <functional>  // for std::function (inventory callbacks)
-#include <array>       // for weapon role slot arrays
 
 #include <Navigation/Navigation.hpp>
 
@@ -52,6 +51,7 @@
 
 #include <Systems/PowerUpSystem/PowerUpManager.hpp>
 
+#include "EcsPlayerTestSystems.h"
 
 // Forward declaration for custom item logic
 class Player;
@@ -64,9 +64,9 @@ struct InventoryItem
 
 	std::string uid;                 // Unique instance ID (for tracking specific instances of items, if needed)
 
-	// Persisted weapon state (ammo, className, etc.) for Firearm/Melee/Tool
-	// items - unused by CustomLogic items.
-	WeaponSlotData weaponData;
+	// Weapon data (used by MainWeapon, OffhandWeapon, DualWeapon types)
+	WeaponSlotData mainWeaponData;   // Main weapon data (ammo, className, etc.)
+	WeaponSlotData offhandWeaponData; // Offhand weapon data (for dual weapons or offhand items)
 
 	int stackSize = 1;               // Number of items in stack (for stackable items)
 
@@ -76,8 +76,14 @@ struct InventoryItem
 		: itemID(itemID), stackSize(stackSize)
 	{}
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(InventoryItem, itemID, uid, weaponData, stackSize)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(InventoryItem, itemID, uid, mainWeaponData, offhandWeaponData, stackSize)
 
+};
+
+enum class WeaponSystemMode
+{
+	Slots,      // Traditional slot-based system (1-9 keys)
+	Inventory   // Full inventory system with item management
 };
 
 // ── Movement state machine ────────────────────────────────────────────────────
@@ -118,19 +124,23 @@ private:
 
 	vec3 velocity = vec3(0);
 
-	bool canRun = true;
-	bool canDash = false;
-	bool canMantle = true;
+	bool canRun = false;
+	bool canDash = true;
+	bool canMantle = false;
 
 	vec3 oldPos = vec3();
 
-
+	vec3 lastWallNormal = vec3(0, 0, 0);
 
 	bool freeFly = false;
 
 
 	float bobProgress = 0;
 	float bobSpeed = 1.1f;
+
+
+	int lastSlot = -1;
+	WeaponSlotData meleeWeapon;
 
 
 	SkeletalMesh* bikeMesh = nullptr;
@@ -166,90 +176,8 @@ private:
 	int CurrentMaxRestrictionLevel = 0;
 	int CurrentClearance = 0;
 
-	// ── Weapon role system ────────────────────────────────────────────────────
-	// See Weapons/WeaponBase.h for WeaponRole (Firearm/Melee/Tool).
-	//
-	// Two separate pieces of state, deliberately not collapsed into one:
-	//   - persistentWeaponRole: "what the player intends to be using" - set
-	//     only by a deliberate ranged or tool action (firing/aiming, or
-	//     useTool). Melee NEVER sets this - it's always just a transient
-	//     interrupt on top of whatever the persistent role is.
-	//   - currentWeaponRole: the "hot" role - whichever item is actually
-	//     spawned as currentWeapon right now, including brief melee
-	//     interrupts. Reverts back to persistentWeaponRole (not to empty
-	//     hands) once its own linger window expires - see
-	//     UpdateWeaponRoleInput().
-	//
-	// Example: rifle out (persistent = Firearm, hot = Firearm), player
-	// throws a punch with the melee button (hot -> Melee, persistent
-	// unchanged), does nothing for a few seconds -> hot reverts to Firearm,
-	// not bare hands.
-	//
-	// Each role has up to WeaponRoleSlotCount carried items; the inventory
-	// wheel drives which *item* occupies each role's active slot via
-	// SwitchToInventoryItem(), independent of which role is currently hot.
-public:
-	static constexpr int WeaponRoleSlotCount = 3;
-private:
-	// Melee always needs to be equippable even with nothing carried yet (no
-	// fists model exists), so this is the hardcoded always-available
-	// fallback - spawned directly (currentWeaponUUID stays "") rather than
-	// looked up from inventory.
-	static constexpr const char* FallbackMeleeClassName = "weapon_twinsword";
-
-	std::array<std::string, WeaponRoleSlotCount> firearmSlotUUID = { "", "", "" };
-	std::array<std::string, WeaponRoleSlotCount> meleeSlotUUID = { "", "", "" };
-	std::array<std::string, WeaponRoleSlotCount> toolSlotUUID = { "", "", "" };
-
-	int activeFirearmSlot = -1; // which of the 3 above is "the" firearm/melee/tool right now (-1 = none)
-	int activeMeleeSlot = -1;
-	int activeToolSlot = -1;
-
-	std::array<std::string, WeaponRoleSlotCount>& SlotsForRole(WeaponRole role);
-	int& ActiveSlotForRole(WeaponRole role);
-
-	// Finds `uuid` among the 3 slots for `role`; if it's not there yet,
-	// assigns it to the first empty slot. Returns the slot index, or -1 if
-	// every slot was already full of something else (caller decides whether
-	// to overwrite the active slot in that case - see SwitchToInventoryItem).
-	int AssignItemToRoleSlots(const std::string& uuid, WeaponRole role);
-
-	// Lazy role switch: mirrors desiredInventoryUUID/pendingInventorySwitch
-	// below, but for the real-time input-driven role switches handled by
-	// UpdateWeaponRoleInput() (as opposed to explicit wheel selection).
-	WeaponRole desiredWeaponRole = WeaponRole::None;
-	bool pendingWeaponRoleSwitch = false;
-
-	// "What the player intends to be using" - see the big comment above.
-	// Never set to Melee.
-	WeaponRole persistentWeaponRole = WeaponRole::Firearm;
-
-	// Equips whichever item occupies ActiveSlotForRole(role) as currentWeapon.
-	// Respects currentWeapon->CanChangeSlot() - if the current weapon can't
-	// be switched away from yet, this just arms desiredWeaponRole/
-	// pendingWeaponRoleSwitch for UpdateWeaponRoleInput() to retry next frame,
-	// exactly like SwitchToInventoryItem's lazy switch. Melee falls back to
-	// FallbackMeleeClassName when its slot is empty; Firearm/Tool do nothing
-	// when empty (nothing to equip).
-	void TryEquipRole(WeaponRole role, bool forceChange = false);
-
-	// Reads the melee buttons (always-hot interrupt, never touches
-	// persistentWeaponRole), the ranged buttons (fire/aim - the only thing
-	// that sets persistentWeaponRole), useTool, and hideWeapon (RequestHide()
-	// on currentWeapon). Drives currentWeaponRole switches, the melee/tool
-	// linger-expiry revert back to persistentWeaponRole, and the
-	// hold-to-fast-return-from-melee shortcut, via TryEquipRole(). Call once
-	// per Update().
-	void UpdateWeaponRoleInput();
-
-	// Double-press-the-same-active-item handling for SwitchToInventoryItem:
-	// Firearm -> hides it in place (RequestHide()); Melee/Tool -> clears the
-	// slot and falls back to FallbackMeleeClassName / persistentWeaponRole
-	// respectively. Returns true if it handled the press (caller should
-	// stop, no further switch needed).
-	bool HandleReselectSameActiveItem(const std::string& uuid, WeaponRole role, int slotIndex);
-
 	// Inventory system
+	WeaponSystemMode weaponSystemMode = WeaponSystemMode::Slots; // Default to inventory mode
 	std::vector<InventoryItem> inventory;
 
 	std::string lastInventoryUUID = "";      // Previously equipped inventory item UUID (for quick switch)
@@ -280,37 +208,36 @@ private:
 
 	float slideInterp = 0;
 
-	float WalkSpeed = 6.0f;// 4.5f;
+	float WalkSpeed = 7.0f;// 4.5f;
 	float CrouchSpeed = 2.5f;
-	float RunSpeed = 8.0f;
+	float RunSpeed = 7.5f;
 
 	// ── Weapon suppression ────────────────────────────────────────────────────
-	// True while CanHoldWeapon() == false.  The weapon object is destroyed but
-	// all UUID / slot / role state is preserved so RestoreWeapons() can
-	// rebuild it correctly.
+	// True while CanHoldWeapon() == false.  Weapon objects are destroyed but
+	// all UUID / slot state is preserved so RestoreWeapons() can rebuild them
+	// correctly for both weapon-type and entity-type inventory items.
 	bool weaponSuppressed = false;
 
-	// Records whether a live weapon object existed at the moment of
-	// suppression, so RestoreWeapons() doesn't recreate an empty-handed state.
-	bool weaponWasSuppressed = false;
+	// Records which slots had live weapon objects at the moment of suppression.
+	// Prevents RestoreWeapons() from recreating slots that were already empty.
+	bool mainWasSuppressed = false;
+	bool offhandWasSuppressed = false;
 
-	// Which role to restore - snapshotted explicitly rather than relying on
-	// currentWeaponRole surviving DestroyWeapon() (it doesn't - DestroyWeapon
-	// always clears it back to None).
-	WeaponRole suppressedWeaponRole = WeaponRole::None;
-
-	// Returns false if the live weapon's CanChangeSlot() blocks removal this frame.
+	// Returns false if any live weapon's CanChangeSlot() blocks removal this frame.
 	// TrySuppressWeapons() polls this and is retried next frame if it returns false.
 	bool CanSuppressWeapons() const;
 
-	// Destroys the live weapon object, recording whether it was alive.
+	// Destroys live weapon objects in both slots, recording which were alive.
 	// Returns false (and leaves everything untouched) when CanSuppressWeapons()
 	// returns false — the caller should retry next frame.
 	// Pass forceSuppress = true (mantle / death) to skip CanChangeSlot checks
-	// and destroy the weapon immediately regardless of its current state.
+	// and destroy weapons immediately regardless of their current state.
 	bool TrySuppressWeapons(bool forceSuppress = false);
 
-	// Recreates the weapon object from preserved role / slot / UUID state.
+	// Recreates weapon objects from preserved UUID / slot state.
+	// Handles Inventory and Slots modes, weapon-type items, and entity-type items.
+	// Prefers desiredInventoryUUID over currentInventoryUUID for the main slot so
+	// that a switch requested during suppression is not silently discarded.
 	void RestoreWeapons();
 
 	glm::vec3 Friction(glm::vec3 vel, float factor = 60.0f) {
@@ -396,6 +323,7 @@ private:
 
 		jumpDelay.AddDelay(0.3);
 
+		EcsScheduler::Emit(PlayerJumpEvent());
 
 	}
 
@@ -415,7 +343,11 @@ private:
 
 	void UpdatePowerUps();
 
+	bool CanSwitchSlot(int slot);
 	void SwitchWeapon(const WeaponSlotData& data);
+
+	void SwitchWeaponOffhand(const string& classname);
+	void DestroyWeaponOffhand();
 
 	ItemDbEntry GetItemData(const std::string& itemID);
 
@@ -504,13 +436,16 @@ public:
 	bool disableStaminaRegenUntilGrounded = false;
 
 	std::string desiredInventoryUUID = "";   // Item player wants to switch to UUID (for lazy switching)
-	std::string currentInventoryUUID = "";   // Currently equipped item UUID from inventory (mirrors currentWeaponUUID; kept for UI/back-compat)
+	std::string currentInventoryUUID = "";   // Currently equipped item UUID from inventory
 
-	std::string currentWeaponUUID = ""; // inventory uuid behind currentWeapon; "" if none, or if it's the melee fallback (weapon_sword with nothing carried)
+	std::string currentMainWeaponUUID = ""; // UUID of currently equipped main weapon (for inventory tracking)
+	std::string currentOffhandWeaponUUID = ""; // UUID of currently equipped offhand weapon (
 
 	vec3 cameraRotation = vec3(0);
 
 	Weapon* currentWeapon = nullptr;
+
+	Weapon* currentOffhandWeapon = nullptr;
 
 	CharacterController controller;
 
@@ -518,7 +453,12 @@ public:
 
 	std::string currentWeaponType = "";
 
-	WeaponRole currentWeaponRole = WeaponRole::None;
+	int currentSlot = 0;
+	std::vector<WeaponSlotData> weaponSlots;
+
+	std::vector<std::string> offhandWeapons = {""}; // "weapon_lefthand_empty" 
+	int offhandWeapon = 0;
+	int desiredOffhandWeapon = 0;
 
 	Delay violanceCrimeActiveDelay;
 
@@ -527,6 +467,8 @@ public:
 	bool ThirdPersonView = false;
 
 	bool started = false;
+
+	bool disableOffhandWeapon = false;
 
 	Player()
 	{
@@ -551,6 +493,8 @@ public:
 		Health = 100;
 
 		LateUpdateWhenPaused = true;
+
+		weaponSlots.resize(10);
 
 		//AddComponent<PlayerTestComponent>();
 
@@ -580,6 +524,15 @@ public:
 	void UpdateWalkMovement(vec2 input);
 	void UpdateBikeMovement(vec2 input);
 
+	void SwitchToSlot(int slot, bool forceChange = false);
+	void SwitchToMeleeWeapon(bool forceChange = false);
+	void AddWeapon(const WeaponSlotData& weaponData);
+	void AddWeaponByName(const string& className);
+
+	// Inventory system methods
+	void SetWeaponSystemMode(WeaponSystemMode mode);
+	WeaponSystemMode GetWeaponSystemMode() const { return weaponSystemMode; }
+
 	// Inventory management
 	std::string AddItemToInventory(const std::string& itemID, int stackSize = 1);
 
@@ -592,12 +545,7 @@ public:
 
 	int GetInventorySlotIdByUUID(const std::string& uuid);
 
-	std::vector<std::string> GetWeaponQuickSlotUUIDs() const;
-
-	// Inventory weapon switching (with lazy switching support). Handles all
-	// four InventoryItemType values - Firearm/Melee/Tool route through the
-	// weapon role system (see TryEquipRole); CustomLogic runs its
-	// interactionEntityClassname logic and never touches currentWeapon.
+	// Inventory weapon switching (with lazy switching support)
 	void SwitchToInventoryItem(std::string uuid, bool forceChange = false);
 	bool CanSwitchToInventoryItem(const std::string& uuid);
 	void UpdateInventoryWeaponSwitch(); // Call in Update() to handle lazy switching
@@ -625,7 +573,7 @@ public:
 
 	}
 
-	bool HasStamina();
+	bool HasStamina(float required = 1.0f);
 	void ConsumeStamina(float amount = 1.0f);
 	void UpdateStamina();
 

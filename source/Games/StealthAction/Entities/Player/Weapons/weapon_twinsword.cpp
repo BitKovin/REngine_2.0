@@ -1,19 +1,60 @@
 #pragma once
-#include "WeaponMelee.h"
+#include "WeaponBase.h"
+#include "../Player.hpp"
+#include <Animation.h>
+#include <SoundSystem/FmodEventInstance.h>
+#include "../../Enemy/IEnemy.h"
+#include <ParticleSystems/particle_system_meleeTrail.hpp>
 
-// Dual-blade sword with an alternating L/R combo and an "ultimate mode"
-// speed-up. Everything generic (attack/block/parry/counter timers, draw/hide,
-// viewmodel loading) comes from WeaponMelee - this class only overrides the
-// bits that are genuinely twinsword-specific.
-class weapon_twinsword : public WeaponMelee
+#include <Entities/Npc/NpcGuardMelee.h>
+
+class weapon_twinsword : public Weapon
 {
 public:
+
+	// Right-hand sword + corresponding arms
+	SkeletalMesh* viewmodel_r = nullptr;
+	SkeletalMesh* arms_r = nullptr;
+
+	// Left-hand sword + corresponding arms
+	SkeletalMesh* viewmodel_l = nullptr;
+	SkeletalMesh* arms_l = nullptr;
+
+	vec3 weaponOffset = vec3(0.0f);
+
+	Delay attackDelay;
+	Delay pendingAttackStartDelay;
+	Delay pendingAttackEndDelay;
+	Delay reAttackDelay;
+	Delay startTrailDelay;
+
+	Delay blockingWindow;
+
+	Delay forceBlockInput;
+
+	Delay parrySpamWindow;
+	Delay blockStartDelay;
+	Delay counterWindow; // how long the counter-attack opportunity stays open
 
 	particle_system_meleeTrail* trail_r = nullptr;
 	particle_system_meleeTrail* trail_l = nullptr;
 
 	// Attack state
-	int attackSide = 0; // 0 = right next, 1 = left next
+	int  attackSide = 0;     // 0 = right next, 1 = left next
+	bool pendingAttack = false;
+	bool soundToggle = false;
+	bool counterAvailable = false; // set true after a successful parry
+
+	bool pendingCounterAttack = false;
+
+	// Block state
+	bool isBlocking = false;
+
+	const float Damage = 25.0f;
+
+	SoundPlayer* fireSoundPlayer = nullptr;
+	SoundPlayer* fireSoundPlayer2 = nullptr;
+	SoundPlayer* hitSoundPlayer = nullptr;
 
 	// -----------------------------------------------------------------------
 	// Ultimate mode
@@ -24,7 +65,7 @@ public:
 
 	bool IsUltimateMode() const { return ultimateActive; }
 
-	// Single source of truth - multiply anim speed, divide delays by this value
+	// Single source of truth — multiply anim speed, divide delays by this value
 	float GetAttackSpeedScale() const
 	{
 		return IsUltimateMode() ? UltimateSpeedMultiplier : 1.0f;
@@ -34,21 +75,71 @@ public:
 
 	weapon_twinsword()
 	{
-		DualWield = true;
-
-		params.modelPath = "GameData/models/player/weapons/twinsword/twinsword.glb";
-		params.texturesLocation = "GameData/models/player/weapons/twinsword/twinsword.glb/";
-		params.drawAnim = "draw";
-		params.damage = 25.0f;
-		params.attackSoundEvent = "event:/Weapons/knife/knife_attack";
-		params.hitSoundEvent = "";
-		params.attackRange = 1.3f;
-		params.attackRadius = 0.4f;
+		LateUpdateWhenPaused = true;
+		startTrailDelay.AddDelay(100000000.0f); // inert until StartAttack arms it
+		SupportsOffhandWeapon = false;
 
 		thirdPersonModelPath = "GameData/models/player/weapons/twinsword/twinsword_tp.glb";
 		weaponHandlingType = 2;
+	}
 
-		startTrailDelay.AddDelay(100000000.0f); // inert until StartAttack arms it
+	// -----------------------------------------------------------------------
+	// Lifecycle
+	// -----------------------------------------------------------------------
+
+	void Start() override
+	{
+		fireSoundPlayer = SoundPlayer::Create("event:/Weapons/knife/knife_attack");
+		fireSoundPlayer2 = SoundPlayer::Create("event:/Weapons/knife/knife_attack");
+		hitSoundPlayer = SoundPlayer::Create("");// ("event:/Weapons/knife/knife_hit");
+
+		SwitchDelay.AddDelay(0.35f);
+	}
+
+	void LoadAssets() override
+	{
+
+		Weapon::LoadAssets();
+
+		SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Weapons.bank");
+
+		viewmodel_r = new SkeletalMesh(owner);
+		arms_r = new SkeletalMesh(owner);
+		viewmodel_l = new SkeletalMesh(owner);
+		arms_l = new SkeletalMesh(owner);
+
+		for (auto* vm : { viewmodel_r, viewmodel_l })
+		{
+			vm->GravityAlignedRotation = true;
+			vm->LoadFromFile("GameData/models/player/weapons/twinsword/twinsword.glb");
+			vm->TexturesLocation = "GameData/models/player/weapons/twinsword/twinsword.glb/";
+			vm->PlayAnimation("draw", false, 0.0f);
+			//vm->PreloadAssets();
+			vm->IsViewmodel = true;
+			Drawables.push_back(vm);
+		}
+
+		for (auto* a : { arms_r, arms_l })
+		{
+			a->GravityAlignedRotation = true;
+			a->LoadFromFile(ArmsModelPath);
+			a->IsViewmodel = true;
+			Drawables.push_back(a);
+		}
+
+		attackDelay.AddDelay(0.7f);
+		SwitchDelay.AddDelay(0.4f);
+	}
+
+	// -----------------------------------------------------------------------
+	// Helpers
+	// -----------------------------------------------------------------------
+
+	// Play an animation on both viewmodels simultaneously (draw, block, parry, etc.)
+	void PlayBoth(const std::string& anim, bool loop, float blend)
+	{
+		viewmodel_r->PlayAnimation(anim, loop, blend);
+		viewmodel_l->PlayAnimation(anim, loop, blend);
 	}
 
 	// -----------------------------------------------------------------------
@@ -108,9 +199,10 @@ public:
 		}
 	}
 
-	void UpdateTrail() override
+	void UpdateTrail()
 	{
 		// Spawn trails once the start delay has elapsed.
+		// pendingTrailRight/Left were set by StartAttack before arming the delay.
 		if (!startTrailDelay.Wait())
 		{
 			StartNewTrails(pendingTrailRight, pendingTrailLeft);
@@ -130,6 +222,7 @@ public:
 		mat4 weaponMatrix = weaponTransform.ToMatrixEuler();
 		mat4 inverseWeaponMatrix = glm::inverse(weaponMatrix);
 
+		// Feed bone endpoints every frame — null checks mean only active trails update
 		if (trail_r != nullptr)
 		{
 			vec3 trailStart = viewmodel_r->GetBoneMatrixWorld("trailR_start")[3];
@@ -139,7 +232,7 @@ public:
 			trailEnd = vec3(inverseWeaponMatrix * vec4(trailEnd, 1.0f));
 
 			trail_r->SetTrailTransform(trailStart, trailEnd);
-			trail_r->RelativeTransform = weaponMatrix;
+			trail_r->RelativeTransform = weaponMatrix; // anchor to camera space so it follows the viewmodel
 		}
 
 		if (trail_l != nullptr)
@@ -151,7 +244,27 @@ public:
 			trailEnd = vec3(inverseWeaponMatrix * vec4(trailEnd, 1.0f));
 
 			trail_l->SetTrailTransform(trailStart, trailEnd);
-			trail_l->RelativeTransform = weaponMatrix;
+			trail_l->RelativeTransform = weaponMatrix; // anchor to camera space so it follows the viewmodel
+		}
+	}
+
+	void WarnAboutAttack()
+	{
+		auto hit = Physics::SphereTrace(
+			Camera::position,
+			Camera::position + MathHelper::GetForwardVector(Camera::rotation) * 1.5f,
+			0.5f,
+			BodyType::GroupHitTest,
+			{ Player::Instance->LeadBody },
+			{ Player::Instance }
+		);
+
+		if (hit.hasHit && hit.entity != nullptr)
+		{
+			if (auto* enemy = dynamic_cast<NpcGuardMelee*>(hit.entity))
+			{
+				enemy->WarnAboutAttack(owner);
+			}
 		}
 	}
 
@@ -159,7 +272,11 @@ public:
 	// Attack
 	// -----------------------------------------------------------------------
 
-	void StartAttack() override
+	// Remembered between StartAttack and the delayed StartNewTrails call
+	bool pendingTrailRight = false;
+	bool pendingTrailLeft = false;
+
+	void StartAttack()
 	{
 		if (counterAvailable)
 			pendingCounterAttack = true;
@@ -171,11 +288,13 @@ public:
 		if (counterAvailable)
 		{
 			pendingCounterAttack = false;
+
+			// Counter-attack: both swords swing — spawn a trail on each
 			counterAvailable = false;
 
 			Time::AddTimeScaleEffect(0.3, 0.1, true, "weapon", 0.3f, 0.1f);
 
-			PlayBoth(params.counterAnim, false, 0.1f);
+			PlayBoth("attack2_counter", false, 0.1f);
 			viewmodel_l->SetAnimationTime(0.1f);
 			viewmodel_r->SetAnimationTime(0.1f);
 
@@ -194,7 +313,7 @@ public:
 		}
 		else
 		{
-			// Normal attack: only the active sword swings - one trail
+			// Normal attack: only the active sword swings — one trail
 			const bool isRight = (attackSide == 0);
 
 			PlayBoth(isRight ? "attack2_r" : "attack2_l", false, 0.1f);
@@ -226,18 +345,17 @@ public:
 		pendingAttack = true;
 		reAttackDelay.AddDelay(0.55f / s);
 
-		NotifyUsed(); // (re)start the 3s auto-hide countdown from this swing
-
 		WarnAboutAttack();
 	}
 
 	// Called every frame while the hit window is open.
-	void PerformAttack() override
+	// pendingAttack is only cleared on a successful entity hit.
+	void PerformAttack()
 	{
 		auto hit = Physics::SphereTrace(
 			Camera::position,
-			Camera::position + MathHelper::GetForwardVector(Camera::rotation) * params.attackRange,
-			params.attackRadius,
+			Camera::position + MathHelper::GetForwardVector(Camera::rotation) * 1.3f,
+			0.4f,
 			BodyType::GroupHitTest,
 			{ Player::Instance->LeadBody },
 			{ Player::Instance }
@@ -247,23 +365,32 @@ public:
 
 		if (hit.entity != nullptr)
 		{
-			float damageToDeal = params.damage * GetDamageMultiplier();
+			float damangeToDeal = Damage;
+
+			if (viewmodel_r->GetAnimationName() == "attack2_counter")
+			{
+				damangeToDeal *= 3.0f;
+			}
 
 			float ultimateFinalDamageMultiplier = 2.0f / GetAttackSpeedScale();
 
 			if (IsUltimateMode())
-				damageToDeal *= ultimateFinalDamageMultiplier;
+				damangeToDeal *= ultimateFinalDamageMultiplier;
 
 			if (Player::Instance->powerUpManager.IsPowerUpActive(PowerUpManager::PowerUpType::TripleDamage))
-				damageToDeal *= 3;
+			{
+				damangeToDeal *= 3;
+			}
 
 			bool isEnemy = dynamic_cast<IEnemy*>(hit.entity) && hit.entity->Health > 0;
 
 			if (isEnemy)
-				Player::Instance->Heal(damageToDeal * 0.10f);
+			{
+				Player::Instance->Heal(damangeToDeal * 0.10f);
+			}
 
 			hit.entity->OnPointDamage(
-				damageToDeal,
+				damangeToDeal,
 				hit.position,
 				MathHelper::GetForwardVector(Camera::rotation),
 				"spine_03",
@@ -271,7 +398,7 @@ public:
 				this
 			);
 
-			Physics::AddImpulseAtLocation(hit.hitbody, MathHelper::GetForwardVector(Camera::rotation) * (params.damage + 2) * 14.0f, hit.position);
+			Physics::AddImpulseAtLocation(hit.hitbody, MathHelper::GetForwardVector(Camera::rotation) * (Damage + 2) * 14.0f, hit.position);
 
 			pendingAttack = false; // stop re-tracing once an entity is hit
 		}
@@ -280,15 +407,11 @@ public:
 		hitSoundPlayer->Play();
 	}
 
-	// GetDamageMultiplier() (base class) checks for params.counterAnim, which
-	// matches "attack_counter" here too, so the inherited 3x-on-counter still
-	// applies without an override.
-
 	// -----------------------------------------------------------------------
 	// Block / parry
 	// -----------------------------------------------------------------------
 
-	void StartBlock() override
+	void StartBlock()
 	{
 		if (attackDelay.Wait()) return;
 		if (counterWindow.Wait()) return;
@@ -300,13 +423,11 @@ public:
 
 		blockStartDelay.AddDelay(0.2f);
 
-		NotifyUsed(); // blocking counts as "using" the weapon - bring it to ready
-
 		// Parry window is animation-time driven (see Update).
 		// Spam check is handled via parrySpamWindow set in EndBlock.
 	}
 
-	void EndBlock() override
+	void EndBlock()
 	{
 		if (viewmodel_r->GetAnimationName() == "block_start" && viewmodel_r->GetAnimationTime() < 0.2f) return;
 
@@ -321,14 +442,12 @@ public:
 
 			attackDelay.AddDelay(0.3f);
 		}
-
-		NotifyUsed(); // keep the normal grace period after lowering the guard, instead of vanishing instantly
 	}
 
 	// Called by the engine when an enemy attack lands during the parry window
 	void OnParried() override
 	{
-		SoundPlayer::PlayOneshot(params.parrySoundEvent, 1.0f, 1.0f, false);
+		SoundPlayer::PlayOneshot("event:/Weapons/cane/cane_parry", 1.0f, 1.0f, false);
 		Time::AddTimeScaleEffect(0.3, 0.1, true, "parry", 0.24f, 0.1f);
 		EndBlock();
 
@@ -351,12 +470,34 @@ public:
 
 	void Update() override
 	{
-		// Handles attack/block dispatch, hit-window resolution, counter
-		// expiry, and the draw/hide progress ramp. Parrying/Blocking below
-		// are then recomputed with twinsword's animation-time-driven window
-		// instead of the base class's simpler Delay-based one.
-		WeaponMelee::Update();
+		if (counterWindow.Wait() == false)
+			pendingCounterAttack = false;
 
+
+		// Primary attack / counter
+		if ((Input::GetAction("attack")->PressedBuffered(0.3f) || pendingCounterAttack))
+			StartAttack();
+
+		// Block: hold to block, release to lower guard
+		if (Input::GetAction("attack2")->PressedBuffered(0.1f) && !isBlocking)
+			StartBlock();
+
+		if (!Input::GetAction("attack2")->Holding() && isBlocking)
+			EndBlock();
+
+		// Resolve hit each frame while inside the valid window:
+		//   - pendingAttackStartDelay elapsed  → blade has reached the hit zone
+		//   - pendingAttackEndDelay still alive → blade hasn't passed through yet
+		if (pendingAttack && !pendingAttackStartDelay.Wait() && pendingAttackEndDelay.Wait())
+			PerformAttack();
+
+		// Expire the counter opportunity when its timer runs out
+		if (!counterWindow.Wait())
+			counterAvailable = false;
+
+		// Parry window: active while block_start animation is still playing.
+		// Uses animation time so the window is exactly as wide as the startup anim.
+		// Anti-spam: disabled for 0.4s after each block release.
 		bool blockAnimPlaying =
 			isBlocking &&
 			viewmodel_r->GetAnimationTime() < viewmodel_r->GetAnimationDuration();
@@ -364,7 +505,7 @@ public:
 		if (blockAnimPlaying)
 			blockingWindow.AddDelay(0.1f);
 
-		Parrying = (blockAnimPlaying && !parrySpamWindow.Wait()) || blockingWindow.Wait();
+		Parrying = blockAnimPlaying && !parrySpamWindow.Wait() || blockingWindow.Wait();
 		Blocking = (isBlocking && !blockStartDelay.Wait()) || parrySpamWindow.Wait();
 	}
 
@@ -374,45 +515,57 @@ public:
 		viewmodel_r->Update(speed);
 		viewmodel_l->Update(speed);
 
-		// arms_r: driven by viewmodel_r, right arm shown - hide left clavicle
+		const float hide = 1.0f;
+
+		// arms_r: driven by viewmodel_r, right arm shown — hide left clavicle
 		{
 			auto pose = viewmodel_r->GetAnimationPose();
 			auto bone = pose.GetBoneTransform("clavicle_l");
-			bone.Rotation += vec3(120, 0, 0);
-			bone.Scale *= vec3(0.0f);
+			bone.Rotation += vec3(120, 0, 0) * hide;
+			bone.Scale *= mix(vec3(1.0f), vec3(0.0f), hide);
 			pose.SetBoneTransformEuler("clavicle_l", bone);
 			viewmodel_r->PasteAnimationPose(pose);
 			arms_r->PasteAnimationPose(pose);
 		}
 
-		// arms_l: driven by viewmodel_l, left arm shown - hide right clavicle
+		// arms_l: driven by viewmodel_l, left arm shown — hide right clavicle
 		{
 			auto pose = viewmodel_l->GetAnimationPose();
 			auto bone = pose.GetBoneTransform("clavicle_r");
-			bone.Rotation += vec3(120, 0, 0);
-			bone.Scale *= vec3(0.0f);
+			bone.Rotation += vec3(120, 0, 0) * hide;
+			bone.Scale *= mix(vec3(1.0f), vec3(0.0f), hide);
 			pose.SetBoneTransformEuler("clavicle_r", bone);
 			viewmodel_l->PasteAnimationPose(pose);
 			arms_l->PasteAnimationPose(pose);
 		}
 	}
 
+	void LateUpdate() override
+	{
+		const vec3 pos = Position + (mat3)Camera::GetRotationMatrix() * weaponOffset;
+		const vec3 rot = Rotation;
+
+		viewmodel_r->Position = pos;
+		viewmodel_r->Rotation = rot;
+		arms_r->Position = pos;
+		arms_r->Rotation = rot;
+
+		viewmodel_l->Position = pos;
+		viewmodel_l->Rotation = rot;
+		arms_l->Position = pos;
+		arms_l->Rotation = rot;
+
+		UpdateTrail();
+	}
+
 	// -----------------------------------------------------------------------
 	// Misc
 	// -----------------------------------------------------------------------
 
-	void Serialize(json& target) override
+	// Prevent weapon switching mid-combo
+	bool CanChangeSlot() override
 	{
-		WeaponMelee::Serialize(target);
-		SERIALIZE_FIELD(target, attackSide);
-		SERIALIZE_FIELD(target, ultimateActive);
-	}
-
-	void Deserialize(json& source) override
-	{
-		WeaponMelee::Deserialize(source);
-		DESERIALIZE_FIELD(source, attackSide);
-		DESERIALIZE_FIELD(source, ultimateActive);
+		return !reAttackDelay.Wait();
 	}
 
 	WeaponSlotData GetDefaultData() override

@@ -1,32 +1,93 @@
 #pragma once
-#include "WeaponMelee.h"
+#include "WeaponBase.h"
+#include "../Player.hpp"
+#include <Animation.h>
+#include <SoundSystem/FmodEventInstance.h>
+#include "../../Enemy/IEnemy.h"
+#include <ParticleSystems/particle_system_meleeTrail.hpp>
 
-// Simple single-blade sword: a 3-hit combo (attack_start -> attack -> attack2
-// -> attack_finish) is the only thing that doesn't fit WeaponMelee's default
-// single-swing behaviour, so that's all this class overrides. Block/parry/
-// counter-attack and the draw/hide handling all come from the base class.
-class weapon_sword : public WeaponMelee
+class weapon_sword : public Weapon
 {
 public:
+
+	SkeletalMesh* viewmodel = nullptr;
+	SkeletalMesh* arms = nullptr;
+
+	vec3 weaponOffset = vec3(0.0f);
+
+	Delay attackDelay;
+	Delay pendingAttackStartDelay;
+	Delay pendingAttackEndDelay;
+	Delay reAttackDelay;
+	Delay startTrailDelay;
+
+	Delay parryWindow;
+	Delay parrySpamWindow;
 
 	particle_system_meleeTrail* trail = nullptr;
 
 	// Combo state
 	int attack = -1;
 	bool hadHit = false;
+	bool pendingAttack = false;
+	bool soundToggle = false;
+
+	// Block state
+	bool isBlocking = false;
+
+	const float Damage = 30.0f;
+
+	SoundPlayer* fireSoundPlayer = nullptr;
+	SoundPlayer* fireSoundPlayer2 = nullptr;
+	SoundPlayer* hitSoundPlayer = nullptr;
+
+	Delay blockStartDelay;
 
 	weapon_sword()
 	{
-		params.modelPath = "GameData/models/player/weapons/sword/sword.glb";
-		params.texturesLocation = "GameData/models/player/weapons/sword/sword.glb/";
-		params.drawAnim = "draw";
-		params.damage = 30.0f;
-		params.attackSoundEvent = "event:/Weapons/knife/knife_attack";
-		params.hitSoundEvent = "event:/Weapons/knife/knife_hit";
-		params.attackRange = 1.3f;
-		params.attackRadius = 0.3f;
+		LateUpdateWhenPaused = true;
+		startTrailDelay.AddDelay(100000000.0f); // start inert — only arms after StartAttack sets it
 
-		startTrailDelay.AddDelay(100000000.0f); // start inert - only armed after StartAttack
+		SupportsOffhandWeapon = true;
+
+	}
+
+	// -----------------------------------------------------------------------
+	// Lifecycle
+	// -----------------------------------------------------------------------
+
+	void Start() override
+	{
+		fireSoundPlayer = SoundPlayer::Create("event:/Weapons/knife/knife_attack");
+		fireSoundPlayer2 = SoundPlayer::Create("event:/Weapons/knife/knife_attack");
+		hitSoundPlayer = SoundPlayer::Create("event:/Weapons/knife/knife_hit");
+
+		SwitchDelay.AddDelay(0.35f);
+	}
+
+	void LoadAssets() override
+	{
+
+		Weapon::LoadAssets();
+
+		SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Weapons.bank");
+
+		viewmodel = new SkeletalMesh(owner);
+		arms = new SkeletalMesh(owner);
+
+		viewmodel->GravityAlignedRotation = true;
+		arms->GravityAlignedRotation = true;
+
+		viewmodel->LoadFromFile("GameData/models/player/weapons/sword/sword.glb");
+		viewmodel->TexturesLocation = "GameData/models/player/weapons/sword/sword.glb/";
+		viewmodel->PlayAnimation("draw", false, 0.0f);
+		viewmodel->PreloadAssets();
+		viewmodel->IsViewmodel = true;
+		Drawables.push_back(viewmodel);
+
+		arms->LoadFromFile(ArmsModelPath);
+		arms->IsViewmodel = true;
+		Drawables.push_back(arms);
 	}
 
 	// -----------------------------------------------------------------------
@@ -43,8 +104,8 @@ public:
 	void StartNewTrail()
 	{
 		trail = new particle_system_meleeTrail();
-		vec3 trailStart = viewmodel_r->GetBoneMatrixWorld("trail_start")[3];
-		vec3 trailEnd = viewmodel_r->GetBoneMatrixWorld("trail_end")[3];
+		vec3 trailStart = viewmodel->GetBoneMatrixWorld("trail_start")[3];
+		vec3 trailEnd = viewmodel->GetBoneMatrixWorld("trail_end")[3];
 
 		trail->SetTrailTransform(trailStart, trailEnd);
 		trail->Start();
@@ -52,7 +113,7 @@ public:
 		trail->LoadAssetsIfNeeded();
 	}
 
-	void UpdateTrail() override
+	void UpdateTrail()
 	{
 		// Spawn the trail once the start delay has elapsed
 		if (!startTrailDelay.Wait())
@@ -67,9 +128,12 @@ public:
 
 		if (trail == nullptr) return;
 
+		// Anchor the trail to camera space so it follows the viewmodel correctly
+		//trail->RelativeTransform = Camera::GetMatrix();
+
 		// Feed the two blade endpoints from the animated skeleton
-		vec3 trailStart = viewmodel_r->GetBoneMatrixWorld("trail_start")[3];
-		vec3 trailEnd = viewmodel_r->GetBoneMatrixWorld("trail_end")[3];
+		vec3 trailStart = viewmodel->GetBoneMatrixWorld("trail_start")[3];
+		vec3 trailEnd = viewmodel->GetBoneMatrixWorld("trail_end")[3];
 
 		trail->SetTrailTransform(trailStart, trailEnd);
 	}
@@ -78,7 +142,7 @@ public:
 	// Attack combo
 	// -----------------------------------------------------------------------
 
-	void StartAttack() override
+	void StartAttack()
 	{
 		if (attackDelay.Wait() || isBlocking) return;
 
@@ -96,37 +160,37 @@ public:
 		// Play the correct animation for each combo step
 		if (attack == -1)
 		{
-			viewmodel_r->PlayAnimation("attack_start", false, 0.0f);
+			viewmodel->PlayAnimation("attack_start", false, 0.0f);
 			attackDelay.AddDelay(0.4f);
 			pendingAttackStartDelay.AddDelay(0.0f);
 			Camera::AddCameraShake(CameraShake(1.0f, 1.0f, vec3(0), vec3(0), vec3(-5, -5, 0), vec3(7, 7, 0), 1.0f, CameraShake::ShakeType::SingleWave));
 		}
 		else if (attack == 0)
 		{
-			viewmodel_r->PlayAnimation("attack", false, 0.1f);
+			viewmodel->PlayAnimation("attack", false, 0.1f);
 			attackDelay.AddDelay(0.4f);
 			pendingAttackStartDelay.AddDelay(0.15f);
 			Camera::AddCameraShake(CameraShake(1.0f, 1.0f, vec3(0), vec3(0), vec3(-5, -5, 0), vec3(7, 7, 0), 1.0f, CameraShake::ShakeType::SingleWave));
 		}
 		else if (attack == 1)
 		{
-			viewmodel_r->PlayAnimation("attack2", false, 0.1f);
+			viewmodel->PlayAnimation("attack2", false, 0.1f);
 			attackDelay.AddDelay(0.4f);
 			pendingAttackStartDelay.AddDelay(0.15f);
 			Camera::AddCameraShake(CameraShake(1.0f, 1.0f, vec3(0), vec3(0), vec3(-5, 5, 0), vec3(7, 7, 0), 1.0f, CameraShake::ShakeType::SingleWave));
 		}
 		else if (attack == 2)
 		{
-			viewmodel_r->PlayAnimation("attack_finish", false, 0.1f);
+			viewmodel->PlayAnimation("attack_finish", false, 0.1f);
 			attackDelay.AddDelay(0.5f);
 			pendingAttackStartDelay.AddDelay(0.15f);
 		}
 
-		// Hit-window closes after this delay - attack must land before then
+		// Hit-window closes after this delay — attack must land before then
 		pendingAttackEndDelay.AddDelay(0.35f);
 
-		// Kill the previous trail immediately and start a new one after a
-		// short delay so it begins at the moment the blade actually moves
+		// Kill the previous trail immediately and start a new one after a short
+		// delay so it begins at the moment the blade actually starts moving
 		StopTrail();
 		startTrailDelay.AddDelay(0.19f);
 
@@ -135,19 +199,19 @@ public:
 
 		pendingAttack = true;
 		reAttackDelay.AddDelay(0.55f);
-
-		NotifyUsed(); // (re)start the 3s auto-hide countdown from this swing
 	}
 
 	// Called every frame while the hit window is open.
-	void PerformAttack() override
+	// pendingAttack is only cleared on a successful entity hit, matching the
+	// original C# behaviour (keeps re-tracing until something is touched).
+	void PerformAttack()
 	{
 		hadHit = false;
 
 		auto hit = Physics::SphereTrace(
 			Camera::position,
-			Camera::position + MathHelper::GetForwardVector(Camera::rotation) * params.attackRange,
-			params.attackRadius,
+			Camera::position + MathHelper::GetForwardVector(Camera::rotation) * 1.3f,
+			0.3f,
 			BodyType::GroupHitTest,
 			{ Player::Instance->LeadBody },
 			{ Player::Instance }
@@ -157,9 +221,22 @@ public:
 
 		if (hit.entity != nullptr)
 		{
-			hit.entity->OnPointDamage(params.damage, hit.position, MathHelper::GetForwardVector(Camera::rotation), hit.hitboxName, Player::Instance, this);
+			hit.entity->OnPointDamage(Damage, hit.position, MathHelper::GetForwardVector(Camera::rotation), hit.hitboxName, Player::Instance, this);
 			hadHit = true;
 			pendingAttack = false; // stop re-tracing once an entity is hit
+		}
+
+		auto bodyData = Physics::GetBodyData(hit.hitbody);
+		if (bodyData != nullptr)
+		{
+			/*
+			GlobalParticleSystem::EmitAt(
+				"hit_" + bodyData->Surface,
+				hit.position,
+				MathHelper::FindLookAtRotation(vec3(0), hit.normal),
+				vec3(10, 10, 10)
+			);
+			*/
 		}
 
 		hitSoundPlayer->Position = hit.position;
@@ -167,21 +244,110 @@ public:
 	}
 
 	// -----------------------------------------------------------------------
+	// Block / parry
+	// -----------------------------------------------------------------------
+
+	void StartBlock()
+	{
+
+		if (attackDelay.Wait()) return;
+
+		isBlocking = true;
+		pendingAttack = false;  // cancel any in-flight swing
+
+		viewmodel->PlayAnimation("block_start", false, 0.1f);
+
+		blockStartDelay.AddDelay(0.2f);
+
+		if(parrySpamWindow.Wait() == false)
+			parryWindow.AddDelay(0.5);
+
+	}
+
+	void EndBlock()
+	{
+
+		parrySpamWindow.AddDelay(0.4);
+
+		isBlocking = false;
+
+		viewmodel->PlayAnimation("block_end", false, 0.1f);
+
+		attackDelay.AddDelay(0.3f);
+	}
+
+	// Called by the engine when an enemy attack lands during a parry window
+	void OnParried() override
+	{
+		//Time::AddTimeScaleEffect(0.3f, 0.1f, true, "parry", 0.02f, 0.1f);
+		SoundPlayer::PlayOneshot("event:/Weapons/knife/knife_attack", 2.0f, 1.0f, false);
+
+		// Snap to a stable mid-block frame so the animation doesn't pop
+		//viewmodel->SetAnimationTime(0.1f);
+	}
+
+	// -----------------------------------------------------------------------
+	// Update
+	// -----------------------------------------------------------------------
+
+	void Update() override
+	{
+		// Primary attack
+		if (Input::GetAction("attack")->PressedBuffered() && !isBlocking)
+			StartAttack();
+
+		// Block: hold to block, release to lower guard
+		if (Input::GetAction("block")->Holding() && !isBlocking)
+			StartBlock();
+			
+		if (Input::GetAction("block")->Holding() == false && isBlocking)
+			EndBlock();
+
+		// Resolve hit each frame while inside the valid window:
+		//   - start delay elapsed   → swing has reached the hit zone
+		//   - end delay still alive → swing hasn't passed through yet
+		if (pendingAttack && !pendingAttackStartDelay.Wait() && pendingAttackEndDelay.Wait())
+			PerformAttack();
+
+		Parrying = parryWindow.Wait();
+		Blocking = (isBlocking && blockStartDelay.Wait() == false) || parrySpamWindow.Wait();
+	}
+
+	void AsyncUpdate() override
+	{
+		viewmodel->Update();
+
+		float hide = 1;
+
+		auto pose = viewmodel->GetAnimationPose();
+		auto leftHandPose = pose.GetBoneTransform("clavicle_l");
+		leftHandPose.Rotation += vec3(120, 0, 0) * hide;
+
+		leftHandPose.Scale *= mix(vec3(1.0f), vec3(0.0f), hide);
+
+		pose.SetBoneTransformEuler("clavicle_l", leftHandPose);
+		arms->PasteAnimationPose(pose);
+	}
+
+	void LateUpdate() override
+	{
+		viewmodel->Position = Position + (mat3)Camera::GetRotationMatrix() * weaponOffset;
+		viewmodel->Rotation = Rotation;
+
+		arms->Position = viewmodel->Position;
+		arms->Rotation = viewmodel->Rotation;
+
+		UpdateTrail();
+	}
+
+	// -----------------------------------------------------------------------
 	// Misc
 	// -----------------------------------------------------------------------
 
-	void Serialize(json& target) override
+	// Prevent weapon switching mid-combo
+	bool CanChangeSlot() override
 	{
-		WeaponMelee::Serialize(target);
-		SERIALIZE_FIELD(target, attack);
-		SERIALIZE_FIELD(target, hadHit);
-	}
-
-	void Deserialize(json& source) override
-	{
-		WeaponMelee::Deserialize(source);
-		DESERIALIZE_FIELD(source, attack);
-		DESERIALIZE_FIELD(source, hadHit);
+		return !reAttackDelay.Wait();
 	}
 
 	WeaponSlotData GetDefaultData() override

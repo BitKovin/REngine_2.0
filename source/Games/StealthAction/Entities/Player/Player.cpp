@@ -84,20 +84,87 @@ void Player::Start()
 	//PreloadEntityType("weapon_cannon");
 	//PreloadEntityType("weapon_swords");
 	//PreloadEntityType("weapon_mpsd");
+	//PreloadEntityType("weapon_lefthand_empty");
 	//PreloadEntityType("weapon_cane");
 
-	// Starting loadout. AddItemToInventory auto-fills the first empty slot
-	// of each item's role (see AssignItemToRoleSlots), so these just need to
-	// be added - nothing needs to be force-equipped beyond bringing up the
-	// persistent baseline (Firearm - see persistentWeaponRole in Player.hpp).
-	AddItemToInventory("weapon_pistol");
-	AddItemToInventory("weapon_shotgun");
-	AddItemToInventory("weapon_tommy");
-	AddItemToInventory("weapon_cane");
-	AddItemToInventory("weapon_mpsd");
-	AddItemToInventory("weapon_sniper");
+	// Add weapons based on current weapon system mode
+	if (weaponSystemMode == WeaponSystemMode::Inventory)
+	{
+		// Inventory mode - add weapons to inventory
+		Weapon* tempWeapon;
+		WeaponSlotData weaponData;
+		std::string firstWeaponUUID;
 
-	TryEquipRole(WeaponRole::Firearm, true);
+		AddItemToInventory("weapon_pistol"); // Add pistol to inventory first so it's equipped by default
+		AddItemToInventory("weapon_shotgun");
+		AddItemToInventory("weapon_tommy");
+		//AddItemToInventory("weapon_cannon");
+		AddItemToInventory("weapon_cane");
+		AddItemToInventory("weapon_mpsd");
+
+		/*
+		// Add pistol
+		tempWeapon = (Weapon*)LevelObjectFactory::instance().create("weapon_pistol");
+		weaponData = tempWeapon->GetDefaultData();
+		delete tempWeapon;
+		firstWeaponUUID = AddItemToInventory("weapon_pistol", weaponData);
+
+		// Add shotgun
+		tempWeapon = (Weapon*)LevelObjectFactory::instance().create("weapon_shotgun");
+		weaponData = tempWeapon->GetDefaultData();
+		delete tempWeapon;
+		AddItemToInventory("weapon_shotgun", weaponData);
+
+
+		// Add tommy gun
+		tempWeapon = (Weapon*)LevelObjectFactory::instance().create("weapon_tommy");
+		weaponData = tempWeapon->GetDefaultData();
+		delete tempWeapon;
+		AddItemToInventory("weapon_tommy", weaponData);
+
+		// Add sniper
+		tempWeapon = (Weapon*)LevelObjectFactory::instance().create("weapon_sniper");
+		weaponData = tempWeapon->GetDefaultData();
+		delete tempWeapon;
+		AddItemToInventory("weapon_sniper", weaponData);
+
+		// Add offhand weapons to inventory
+		WeaponSlotData caneData;
+		tempWeapon = (Weapon*)LevelObjectFactory::instance().create("weapon_cane");
+		caneData = tempWeapon->GetDefaultData();
+		delete tempWeapon;
+		AddItemToInventory("weapon_cane", InventoryItemType::OffhandWeapon, caneData);
+
+		// Add dual weapon example (pistol + empty offhand for now)
+		WeaponSlotData pistolData, emptyOffhand;
+		tempWeapon = (Weapon*)LevelObjectFactory::instance().create("weapon_pistol");
+		pistolData = tempWeapon->GetDefaultData();
+		delete tempWeapon;
+
+		tempWeapon = (Weapon*)LevelObjectFactory::instance().create("weapon_lefthand_empty");
+		emptyOffhand = tempWeapon->GetDefaultData();
+		delete tempWeapon;
+		AddItemToInventory("pistol_dual", pistolData, emptyOffhand);
+		*/
+
+		// Equip first weapon
+		if (!firstWeaponUUID.empty())
+		{
+			SwitchToInventoryItem(firstWeaponUUID, true);
+		}
+	}
+	else
+	{
+		// Slots mode - use original system
+		//AddWeaponByName("weapon_twinsword");
+		//AddWeaponByName("weapon_shotgun");
+		//AddWeaponByName("weapon_mpsd");
+		//AddWeaponByName("weapon_cannon");
+
+		// Offhand weapons for slots mode
+		//offhandWeapons.push_back("weapon_cane");
+		//desiredOffhandWeapon = 2;
+	}
 
 	cameraRotation.y = Rotation.y;
 
@@ -148,7 +215,7 @@ void Player::UpdateWalkMovement(vec2 input)
 	default:                  UpdateStateGroundAir(input); break;
 	}
 
-	bool runAnimation = RunProgress > 0.9 && currentWeapon == nullptr && IsSliding() == false;
+	bool runAnimation = RunProgress > 0.9 && currentWeapon == nullptr && currentOffhandWeapon == nullptr && IsSliding() == false;
 
 	auto currentAnim = armsMesh->GetAnimationName();
 
@@ -499,7 +566,7 @@ void Player::Death()
 
 	ANALYTICS_SEND_EVENT("player_death", std::unordered_map<std::string, std::string>{
 		{"position", to_string(Position)},
-		{ "gameTime", to_string(Time::GameTime) }
+		{"gameTime", to_string(Time::GameTime)}
 	});
 
 }
@@ -594,13 +661,25 @@ void Player::TryWallJump()
 {
 	if (jumpDelay.Wait()) return;
 
+	vec3 verticalOffset = vec3(0.0f, -0.2f, 0.0f);
 
-	auto hit = Physics::SphereTrace(Position, Position + velocity * 0.01f, 0.6f, BodyType::GroupCharacter & ~BodyType::CharacterCapsule, {}, { this }, true);
+	auto hit = Physics::SphereTrace(Position + verticalOffset, Position + verticalOffset + velocity*0.01f, 0.6f, BodyType::GroupCharacter & ~BodyType::CharacterCapsule, {}, { this }, true);
+
+	bool weakJump = false;
 
 	if (hit.hasHit)
 	{
 
 		if (abs(hit.normal.y) > 0.35) return;
+
+		if (length(lastWallNormal) > 0.5)
+		{
+			if (dot(hit.normal, lastWallNormal) > 0.99f)
+			{
+				weakJump = true;
+			}
+		}
+
 
 		if (freeWalljumps > 0)
 		{
@@ -608,10 +687,12 @@ void Player::TryWallJump()
 		}
 		else
 		{
-			if (HasStamina() == false) return;
+			if (HasStamina(0.5f) == false) return;
 
-			ConsumeStamina();
+			ConsumeStamina(0.5f);
 		}
+
+		lastWallNormal = hit.normal;
 
 		vec3 vectorToHit = normalize(hit.position - Position);
 
@@ -639,6 +720,11 @@ void Player::TryWallJump()
 		newVelocity += wallNormal * wallJumpOutSpeed;        // fixed push off wall
 		newVelocity.y = wallJumpUpSpeed;                      // override vertical
 
+		if (weakJump)
+		{
+			newVelocity.y = 4.5f;
+		}
+
 		controller.SetVelocity(newVelocity);
 
 		jumpDelay.AddDelay(0.3f);
@@ -661,20 +747,15 @@ void Player::UpdatePowerUps()
 
 }
 
+bool Player::CanSwitchSlot(int slot)
+{
+	if (!currentWeapon) return true;
+	if (slot == currentSlot) return false;
+	return currentWeapon->CanChangeSlot();
+}
+
 void Player::SwitchWeapon(const WeaponSlotData& data)
 {
-	// Single choke point for "does the weapon object actually need to be
-	// destroyed and respawned". Callers (TryEquipRole / SwitchToInventoryItem)
-	// only resolve *what* should be equipped and hand the resulting data
-	// here - they never decide recreate-vs-not themselves. If the currently
-	// spawned weapon is already the same class we're being asked for, there's
-	// nothing to recreate: just refresh its live data (ammo, etc.) in place.
-	if (currentWeapon != nullptr && currentWeaponType == data.className)
-	{
-		currentWeapon->SetData(data);
-		return;
-	}
-
 	DestroyWeapon();
 
 	//UiLocationTileDrop::PlayTitleCard(data.className);
@@ -683,16 +764,48 @@ void Player::SwitchWeapon(const WeaponSlotData& data)
 	{
 		currentWeapon = (Weapon*)Spawn(data.className);
 		currentWeapon->owner = this;
-
+		
 		currentWeapon->LoadAssetsIfNeeded();
-
+		
 		currentWeapon->Start();
 		currentWeapon->SetData(data);
-
-		currentWeaponRole = currentWeapon->GetRole();
-		currentWeaponType = data.className;
 		//UpdateBody();
 	}
+}
+
+void Player::SwitchWeaponOffhand(const string& classname)
+{
+
+	if (currentOffhandWeapon)
+		if (classname == currentOffhandWeapon->ClassName) return;
+
+	DestroyWeaponOffhand();
+
+
+	if (!classname.empty())
+	{
+		currentOffhandWeapon = (Weapon*)Spawn(classname);
+		currentOffhandWeapon->owner = this;
+		currentOffhandWeapon->Start();
+		currentOffhandWeapon->LoadAssetsIfNeeded();
+	}
+
+}
+
+void Player::DestroyWeaponOffhand()
+{
+
+	if (currentOffhandWeapon != nullptr)
+	{
+
+		currentOffhandWeapon->Destroy();
+		currentOffhandWeapon = nullptr;
+
+	}
+
+	currentOffhandWeaponUUID = "";
+
+
 }
 
 ItemDbEntry Player::GetItemData(const std::string& itemID)
@@ -700,114 +813,96 @@ ItemDbEntry Player::GetItemData(const std::string& itemID)
 	return ItemsDataBase::GetItemData(itemID);
 }
 
-std::array<std::string, Player::WeaponRoleSlotCount>& Player::SlotsForRole(WeaponRole role)
+void Player::SwitchToSlot(int slot, bool forceChange)
 {
-	switch (role)
+	if ((!forceChange && !CanSwitchSlot(slot)) || weaponSuppressed)
 	{
-	case WeaponRole::Melee: return meleeSlotUUID;
-	case WeaponRole::Tool:  return toolSlotUUID;
-	default:                return firearmSlotUUID; // Firearm (and anything else defaults here)
-	}
-}
-
-int& Player::ActiveSlotForRole(WeaponRole role)
-{
-	switch (role)
-	{
-	case WeaponRole::Melee: return activeMeleeSlot;
-	case WeaponRole::Tool:  return activeToolSlot;
-	default:                return activeFirearmSlot;
-	}
-}
-
-int Player::AssignItemToRoleSlots(const std::string& uuid, WeaponRole role)
-{
-	auto& slots = SlotsForRole(role);
-
-	for (int i = 0; i < WeaponRoleSlotCount; i++)
-		if (slots[i] == uuid)
-			return i;
-
-	for (int i = 0; i < WeaponRoleSlotCount; i++)
-	{
-		if (slots[i].empty())
+		if (slot != currentSlot) // currentWeapon->IsMelee() && 
 		{
-			slots[i] = uuid;
-			return i;
+			lastSlot = currentSlot;
+			currentSlot = slot;
 		}
-	}
-
-	return -1; // all 3 slots already taken by something else
-}
-
-// Equips whatever occupies ActiveSlotForRole(role) as currentWeapon. This is
-// the single place that turns "the player wants Firearm/Melee/Tool" into an
-// actual SwitchWeapon() call, used by both real-time input (see
-// UpdateWeaponRoleInput) and the inventory wheel (see SwitchToInventoryItem).
-void Player::TryEquipRole(WeaponRole role, bool forceChange)
-{
-	auto& slots = SlotsForRole(role);
-	int slot = ActiveSlotForRole(role);
-	std::string uuid = (slot >= 0 && slot < WeaponRoleSlotCount) ? slots[slot] : "";
-
-	// Switch not allowed yet (mid-attack, etc.) - remember what we want and
-	// let UpdateWeaponRoleInput() retry next frame. Even re-equipping the
-	// exact same slot has to go through this gate ("switch only if switch of
-	// current weapon is allowed, even if it's in the same slot").
-	if (!forceChange && currentWeapon != nullptr && !currentWeapon->CanChangeSlot())
-	{
-		desiredWeaponRole = role;
-		pendingWeaponRoleSwitch = true;
 		return;
 	}
 
-	if (!forceChange && currentWeaponRole == role && currentWeaponUUID == uuid)
+	if (slot < 0 || slot >= weaponSlots.size()) return;
+	if (weaponSlots[slot].className.empty()) return;
+
+	lastSlot = currentSlot;
+	currentSlot = slot;
+	SwitchWeapon(weaponSlots[slot]);
+}
+
+void Player::SwitchToMeleeWeapon(bool forceChange)
+{
+	if (!forceChange && currentWeapon && currentWeapon->IsMelee())
+		return;
+
+	if (!forceChange && currentWeapon && !currentWeapon->CanChangeSlot())
+		return;
+
+	if (!meleeWeapon.className.empty())
 	{
-		pendingWeaponRoleSwitch = false;
-		return; // already exactly this weapon
+		currentSlot = -1;
+		SwitchWeapon(meleeWeapon);
+	}
+}
+
+void Player::AddWeapon(const WeaponSlotData& weaponData)
+{
+	int slot = weaponData.slot;
+
+	if (weaponData.AmmoType != WeaponAmmoType::None)
+	{
+		AddAmmo((WeaponAmmoType)weaponData.AmmoType, weaponData.startAmmo);
 	}
 
-	if (uuid.empty())
+	if (weaponData.offhand)
 	{
-		if (role == WeaponRole::Melee)
-		{
-			// No melee item carried (or the active slot was cleared) - fall
-			// back to the hardcoded stand-in rather than leaving the player
-			// with nothing to swing (there's no fists model yet).
-			WeaponSlotData data;
-			data.className = FallbackMeleeClassName;
-			SwitchWeapon(data);
-			currentWeaponUUID = "";
-		}
-		else
-		{
-			// Nothing carried for Firearm/Tool - leave the current weapon
-			// alone (e.g. holding attack2 with no firearm just does nothing).
-			pendingWeaponRoleSwitch = false;
-			return;
-		}
+
+		auto findRes = std::find(offhandWeapons.begin(), offhandWeapons.end(), weaponData.className);
+
+
+		if (findRes != offhandWeapons.end()) return;
+
+		offhandWeapons.push_back(weaponData.className);
+		
+		desiredOffhandWeapon = offhandWeapons.size() - 1;
+
 	}
 	else
 	{
-		InventoryItem* item = FindInventoryItemByUUID(uuid);
-		if (item == nullptr)
+
+		if (slot < 0 || slot >= weaponSlots.size()) return;
+
+		if (weaponSlots[slot].className.empty() ||
+			weaponSlots[slot].priority < weaponData.priority)
 		{
-			pendingWeaponRoleSwitch = false;
-			return;
+			weaponSlots[slot] = weaponData;
+
+			
+			//currentSlot = slot;
+			
 		}
-
-		ItemDbEntry itemData = GetItemData(item->itemID);
-
-		WeaponSlotData data = item->weaponData;
-		data.className = itemData.weaponClassName;
-		data.inventoryUUID = uuid;
-
-		SwitchWeapon(data);
-		currentWeaponUUID = uuid;
 	}
 
-	currentInventoryUUID = currentWeaponUUID;
-	pendingWeaponRoleSwitch = false;
+
+}
+
+void Player::AddWeaponByName(const string& className)
+{
+
+	PreloadEntityTypeAsync(className);
+
+	Weapon* weap = (Weapon*)LevelObjectFactory::instance().create(className);
+
+	if (weap == nullptr) 
+		return;
+
+	AddWeapon(weap->GetDefaultData());
+
+	delete(weap);
+
 }
 
 void Player::CreateWeapon(const string& className)
@@ -815,13 +910,10 @@ void Player::CreateWeapon(const string& className)
 
 	Weapon* weap = (Weapon*)Spawn(className);
 
-	weap->owner = this;
 	weap->Start();
 	weap->LoadAssetsIfNeeded();
 
 	currentWeapon = weap;
-	currentWeaponRole = weap->GetRole();
-	currentWeaponType = className;
 
 }
 
@@ -832,9 +924,7 @@ void Player::DestroyWeapon()
 		currentWeapon->Destroy();
 		currentWeapon = nullptr;
 	}
-	currentWeaponUUID = "";
-	currentInventoryUUID = "";
-	currentWeaponRole = WeaponRole::None;
+	currentMainWeaponUUID = "";
 }
 
 int Player::GetAmmoLimit(WeaponAmmoType type)
@@ -905,6 +995,24 @@ int Player::AddAmmo(WeaponAmmoType type, int amount)
 // INVENTORY SYSTEM IMPLEMENTATION
 // ============================================================================
 
+void Player::SetWeaponSystemMode(WeaponSystemMode mode)
+{
+	weaponSystemMode = mode;
+
+	// When switching modes, clear the current weapon to avoid conflicts
+	if (mode == WeaponSystemMode::Inventory)
+	{
+		currentSlot = -1;
+		// Optionally preserve current weapon in inventory
+	}
+	else // Switching to Slots mode
+	{
+		currentInventoryUUID = "";
+		desiredInventoryUUID = "";
+		pendingInventorySwitch = false;
+	}
+}
+
 // Add main weapon only (backwards compatible)
 std::string Player::AddItemToInventory(const std::string& itemID, int stackSize)
 {
@@ -924,36 +1032,20 @@ std::string Player::AddItemToInventory(const std::string& itemID, int stackSize)
 
 	auto itemData = GetItemData(itemID);
 
-	bool isWeaponType = itemData.itemType == InventoryItemType::Firearm ||
-		itemData.itemType == InventoryItemType::Melee ||
-		itemData.itemType == InventoryItemType::Tool;
-
-	if (isWeaponType && itemData.weaponClassName.empty() == false)
+	if (itemData.weaponClassName.empty() == false)
 	{
 		auto tempWeapon = (Weapon*)LevelObjectFactory::instance().create(itemData.weaponClassName);
+		newItem.mainWeaponData = tempWeapon->GetDefaultData();
+		newItem.mainWeaponData.inventoryUUID = newItem.uid; // Link weapon data to inventory item
+		delete tempWeapon;
+	}
 
-		if (tempWeapon != nullptr)
-		{
-			newItem.weaponData = tempWeapon->GetDefaultData();
-			newItem.weaponData.inventoryUUID = newItem.uid; // Link weapon data to inventory item
-
-			if (newItem.weaponData.AmmoType != WeaponAmmoType::None)
-				AddAmmo(newItem.weaponData.AmmoType, newItem.weaponData.startAmmo);
-
-			delete tempWeapon;
-		}
-
-		WeaponRole role = WeaponRole::Firearm;
-		if (itemData.itemType == InventoryItemType::Melee) role = WeaponRole::Melee;
-		else if (itemData.itemType == InventoryItemType::Tool) role = WeaponRole::Tool;
-
-		// Carry it in the first empty slot of its type. If this is the first
-		// item of its type, it also becomes the active one ("defaults to
-		// first of type in inventory" - explicit selection from the wheel
-		// can still change this later via SwitchToInventoryItem).
-		int slot = AssignItemToRoleSlots(newItem.uid, role);
-		if (slot != -1 && ActiveSlotForRole(role) == -1)
-			ActiveSlotForRole(role) = slot;
+	if (itemData.weaponOffhandClassName.empty() == false)
+	{
+		auto tempWeapon = (Weapon*)LevelObjectFactory::instance().create(itemData.weaponOffhandClassName);
+		newItem.offhandWeaponData = tempWeapon->GetDefaultData();
+		newItem.offhandWeaponData.inventoryUUID = newItem.uid; // Link weapon data to inventory item
+		delete tempWeapon;
 	}
 
 	inventory.push_back(newItem);
@@ -970,42 +1062,31 @@ bool Player::RemoveItemFromInventory(const std::string& uuid)
 	if (it == inventory.end())
 		return false;
 
-	// Clear it out of whichever role slot it occupies (only one of the three
-	// will ever actually match, but checking all three is cheap and simple).
-	for (WeaponRole role : { WeaponRole::Firearm, WeaponRole::Melee, WeaponRole::Tool })
+	// If this is the currently equipped item, destroy the weapon objects directly
+	// without going through DestroyWeapon() — that function clears UUID state and
+	// looks indistinguishable from a manual deselect, which confuses the inventory.
+	if (uuid == currentInventoryUUID || uuid == currentMainWeaponUUID)
 	{
-		auto& slots = SlotsForRole(role);
-		for (int i = 0; i < WeaponRoleSlotCount; i++)
-		{
-			if (slots[i] == uuid)
-			{
-				slots[i] = "";
-				if (ActiveSlotForRole(role) == i)
-					ActiveSlotForRole(role) = -1;
-			}
-		}
-	}
-
-	// If this is the currently equipped item, destroy the weapon object
-	// directly without going through DestroyWeapon() — that function clears
-	// UUID state and looks indistinguishable from a manual deselect, which
-	// confuses the inventory — then resolve the role it was occupying back
-	// to something sensible (fallback melee, or nothing for Firearm/Tool).
-	if (uuid == currentInventoryUUID || uuid == currentWeaponUUID)
-	{
-		WeaponRole role = currentWeaponRole;
-
 		if (currentWeapon)
 		{
 			currentWeapon->Destroy();
 			currentWeapon = nullptr;
 		}
-		currentWeaponUUID = "";
-		currentInventoryUUID = "";
-		currentWeaponRole = WeaponRole::None;
-		weaponSuppressed = false;
+		currentMainWeaponUUID  = "";
+		currentInventoryUUID   = "";
+		weaponSuppressed       = false;
+		mainWasSuppressed      = false;
+	}
 
-		TryEquipRole(role, true);
+	if (uuid == currentOffhandWeaponUUID)
+	{
+		if (currentOffhandWeapon)
+		{
+			currentOffhandWeapon->Destroy();
+			currentOffhandWeapon = nullptr;
+		}
+		currentOffhandWeaponUUID = "";
+		offhandWasSuppressed     = false;
 	}
 
 	// Update pending switch if it was pointing to this item
@@ -1075,18 +1156,6 @@ int Player::GetInventorySlotIdByUUID(const std::string& uuid)
 	return -1;
 }
 
-std::vector<std::string> Player::GetWeaponQuickSlotUUIDs() const
-{
-	std::vector<std::string> result;
-
-	for (const auto* slots : { &firearmSlotUUID, &meleeSlotUUID, &toolSlotUUID })
-		for (const std::string& uuid : *slots)
-			if (!uuid.empty())
-				result.push_back(uuid);
-
-	return result;
-}
-
 bool Player::CanSwitchToInventoryItem(const std::string& uuid)
 {
 	if (uuid.empty())
@@ -1111,6 +1180,7 @@ void Player::SwitchToInventoryItem(std::string uuid, bool forceChange)
 
 	Logger::Log("Attempting to switch to inventory (UUID: " + uuid + ")");
 
+
 	// Validate UUID and check if item exists
 	if (uuid.empty())
 		return;
@@ -1119,127 +1189,213 @@ void Player::SwitchToInventoryItem(std::string uuid, bool forceChange)
 	if (!itemPtr)
 		return;
 
-	auto itemData = GetItemData(itemPtr->itemID);
-
-	// CustomLogic never touches currentWeapon - handle it up front,
-	// independent of weapon-suppression / switch-gating below.
-	if (itemData.itemType == InventoryItemType::CustomLogic)
-	{
-		if (itemData.interactionEntityClassname.empty() == false)
-		{
-			Spawn(itemData.interactionEntityClassname);
-
-			if (itemData.destroyOnUse)
-			{
-				// Decrease stack size and remove if depleted
-				itemPtr->stackSize--;
-				if (itemPtr->stackSize <= 0)
-					RemoveItemFromInventory(uuid);
-			}
-		}
-		return;
-	}
-
-	WeaponRole role = WeaponRole::Firearm;
-	if (itemData.itemType == InventoryItemType::Melee) role = WeaponRole::Melee;
-	else if (itemData.itemType == InventoryItemType::Tool) role = WeaponRole::Tool;
-
-	int existingSlot = AssignItemToRoleSlots(uuid, role);
-
-	// Re-selecting the item that's already equipped-and-active in its role:
-	// Firearm just hides in place, Melee clears the slot (falls back to the
-	// hardcoded sword), Tool clears the slot and returns to whatever was
-	// equipped before it. See HandleReselectSameActiveItem.
-	if (currentWeaponRole == role && currentWeaponUUID == uuid && existingSlot == ActiveSlotForRole(role))
-	{
-		HandleReselectSameActiveItem(uuid, role, existingSlot);
-		return;
-	}
 
 	if (weaponSuppressed && !forceChange)
 	{
-		if (existingSlot != -1) ActiveSlotForRole(role) = existingSlot;
-		desiredWeaponRole = role;
-		pendingWeaponRoleSwitch = true;
+		desiredInventoryUUID = uuid;
+		pendingInventorySwitch = true;
 		return;
 	}
 
-	// Save the outgoing weapon's live state (ammo, etc.) back into its own
-	// inventory entry before switching away from it.
-	if (currentWeapon && !currentWeaponUUID.empty())
+	// Check if we can switch
+	if (!forceChange && !CanSwitchToInventoryItem(uuid))
 	{
-		InventoryItem* currentItem = FindInventoryItemByUUID(currentWeaponUUID);
+		// Set up lazy switching - wait for weapon to allow change
+		desiredInventoryUUID = uuid;
+		pendingInventorySwitch = true;
+		return;
+	}
+
+	// Clear any pending switch
+	pendingInventorySwitch = false;
+	desiredInventoryUUID = "";
+
+	auto newItemData = GetItemData(itemPtr->itemID);
+
+	InventoryItem* currentItem = FindInventoryItemByUUID(currentInventoryUUID);
+	auto itemData = ItemDbEntry();
+
+	if (currentItem)
+	{
+		itemData = GetItemData(currentItem->itemID);
+	}
+
+	if (itemData.offhandCompatible == false && newItemData.itemType == InventoryItemType::OffhandWeapon)
+	{
+		DestroyWeapon();
+	}
+
+	// Save current weapon state back to inventory before switching
+	if (currentWeapon && !currentInventoryUUID.empty())
+	{
+
 		if (currentItem)
-			currentItem->weaponData = currentWeapon->Data;
+		{
+
+			// Save based on item type
+			if (itemData.itemType == InventoryItemType::MainWeapon ||
+				itemData.itemType == InventoryItemType::DualWeapon)
+			{
+				currentItem->mainWeaponData = currentWeapon->Data;
+			}
+
+			if (itemData.itemType == InventoryItemType::DualWeapon && currentOffhandWeapon)
+			{
+				currentItem->offhandWeaponData = currentOffhandWeapon->Data;
+			}
+			else if (itemData.itemType == InventoryItemType::OffhandWeapon && currentOffhandWeapon)
+			{
+				currentItem->offhandWeaponData = currentOffhandWeapon->Data;
+			}
+		}
 	}
 
-	if (existingSlot == -1)
+
+
+	if (currentMainWeaponUUID == uuid || (currentOffhandWeaponUUID == uuid))
 	{
-		// All 3 slots for this role are already carrying something else -
-		// an explicit wheel pick overwrites the active one ("replaced when
-		// another is selected").
-		int slot = ActiveSlotForRole(role);
-		if (slot < 0 || slot >= WeaponRoleSlotCount) slot = 0;
-		SlotsForRole(role)[slot] = uuid;
-		existingSlot = slot;
-	}
 
-	ActiveSlotForRole(role) = existingSlot;
+		auto itemData = newItemData;
+
+		// Handle different item types
+		switch (itemData.itemType)
+		{
+		case InventoryItemType::MainWeapon:
+		{
+			// Equip main weapon only
+			DestroyWeapon();
+			currentInventoryUUID = "";
+			return;
+			break;
+		}
+
+		case InventoryItemType::OffhandWeapon:
+		{
+			DestroyWeaponOffhand();
+			currentInventoryUUID = "";
+			return;
+			break;
+		}
+
+		case InventoryItemType::DualWeapon:
+		{
+			DestroyWeapon();
+			DestroyWeaponOffhand();
+			currentInventoryUUID = "";
+			return;
+		}
+
+		case InventoryItemType::CustomLogic:
+		{
+
+		}
+		}
+	}
 
 	// Track last inventory UUID for quick switching
 	if (uuid != currentInventoryUUID && !currentInventoryUUID.empty())
+	{
 		lastInventoryUUID = currentInventoryUUID;
-
-	// Firearms are only actually raised by firing/aiming (see
-	// UpdateWeaponRoleInput's rangedAction handling) - picking one from the
-	// wheel just decides which firearm that button will bring up next, it
-	// shouldn't force it into the player's hands on its own. Exception: if a
-	// firearm is already up right now, swapping to a different one from the
-	// wheel should still happen immediately. Melee/Tool have no such gating -
-	// the wheel remains the sole driver of what's current for those roles.
-	// forceChange always bypasses this gate outright - callers only ever
-	// pass it when the switch has to happen right now regardless (e.g.
-	// restoring a save), so silently swallowing it here defeats the point.
-	if (forceChange || role != WeaponRole::Firearm || currentWeaponRole == WeaponRole::Firearm)
-		TryEquipRole(role, forceChange);
-}
-
-bool Player::HandleReselectSameActiveItem(const std::string& uuid, WeaponRole role, int slotIndex)
-{
-	if (role == WeaponRole::Firearm)
-	{
-		// Stays assigned/equipped - just lowers, skipping the usual 3s wait.
-		if (currentWeapon)
-			currentWeapon->RequestHide();
-		return true;
 	}
 
-	// Melee and Tool: clear the slot entirely rather than just hiding.
-	auto& slots = SlotsForRole(role);
-	if (slotIndex >= 0 && slotIndex < WeaponRoleSlotCount)
-		slots[slotIndex] = "";
+	// Update current inventory UUID
+	currentInventoryUUID = uuid;
 
-	if (ActiveSlotForRole(role) == slotIndex)
-		ActiveSlotForRole(role) = -1;
+	currentItem = FindInventoryItemByUUID(currentInventoryUUID);
+	itemData = ItemDbEntry();
 
-	if (role == WeaponRole::Melee)
+	if (currentItem != nullptr)
 	{
-		// TryEquipRole falls back to FallbackMeleeClassName automatically
-		// now that the slot is empty - melee is never left with nothing.
-		TryEquipRole(WeaponRole::Melee, false);
-	}
-	else // Tool
-	{
-		// Same as the normal Tool auto-return - go back to whatever the
-		// player's persistent/intended weapon is.
-		TryEquipRole(persistentWeaponRole, false);
-	}
+		itemData = GetItemData(currentItem->itemID);
 
-	return true;
+
+		// Handle different item types
+		switch (itemData.itemType)
+		{
+			case InventoryItemType::MainWeapon:
+			{
+
+				if(itemData.offhandCompatible == false)
+				{
+					// If new main weapon is not compatible with offhand, destroy current offhand weapon
+					DestroyWeaponOffhand();
+				}
+
+				// Equip main weapon only
+				SwitchWeapon(currentItem->mainWeaponData);
+				currentMainWeaponUUID = uuid;
+				break;
+			}
+
+			case InventoryItemType::OffhandWeapon:
+			{
+				// Equip offhand weapon only
+				//DestroyWeapon(); // Clear main weapon
+				if (!currentItem->offhandWeaponData.className.empty())
+				{
+					SwitchWeaponOffhand(currentItem->offhandWeaponData.className);
+					if (currentOffhandWeapon)
+					{
+						currentOffhandWeapon->SetData(currentItem->offhandWeaponData);
+					}
+				}
+
+				currentOffhandWeaponUUID = uuid;
+
+				break;
+			}
+
+			case InventoryItemType::DualWeapon:
+			{
+
+				// Equip both main and offhand weapons
+				SwitchWeapon(currentItem->mainWeaponData);
+				if (!currentItem->offhandWeaponData.className.empty())
+				{
+					SwitchWeaponOffhand(currentItem->offhandWeaponData.className);
+					if (currentOffhandWeapon)
+					{
+						currentOffhandWeapon->SetData(currentItem->offhandWeaponData);
+					}
+				}
+
+				currentMainWeaponUUID = uuid;
+				currentOffhandWeaponUUID = uuid;
+
+				break;
+			}
+
+			case InventoryItemType::CustomLogic:
+			{
+
+				if (itemData.interactionEntityClassname.empty() == false)
+				{
+					Spawn(itemData.interactionEntityClassname);
+
+					if (itemData.destroyOnUse)
+					{
+						// Decrease stack size and remove if depleted
+						currentItem->stackSize--;
+						if (currentItem->stackSize <= 0)
+						{
+							RemoveItemFromInventory(uuid);
+						}
+					}
+
+				}
+
+				break;
+			}
+		}
+	}
 }
 
 void Player::UpdateInventoryWeaponSwitch()
 {
+	// Only process in inventory mode
+	if (weaponSystemMode != WeaponSystemMode::Inventory)
+		return;
+
 	if (weaponSuppressed)
 		return;
 
@@ -1253,14 +1409,29 @@ void Player::UpdateInventoryWeaponSwitch()
 		}
 	}
 
-	// Keep the currently-equipped item's saved state (ammo, etc.) synced to
-	// live data, so it's correct wherever else it gets read (save/load, HUD).
-	if (!currentWeaponUUID.empty())
-	{
-		InventoryItem* currentItem = FindInventoryItemByUUID(currentWeaponUUID);
 
-		if (currentItem && currentWeapon)
-			currentItem->weaponData = currentWeapon->Data;
+	// Update current weapon data in inventory based on item type
+	if (!currentInventoryUUID.empty())
+	{
+		InventoryItem* currentItem = FindInventoryItemByUUID(currentInventoryUUID);
+
+		if (currentItem)
+		{
+			auto itemData = GetItemData(currentItem->itemID);
+			// Update main weapon data
+			if (currentWeapon && (itemData.itemType == InventoryItemType::MainWeapon ||
+				itemData.itemType == InventoryItemType::DualWeapon))
+			{
+				currentItem->mainWeaponData = currentWeapon->Data;
+			}
+
+			// Update offhand weapon data
+			if (currentOffhandWeapon && (itemData.itemType == InventoryItemType::OffhandWeapon ||
+				itemData.itemType == InventoryItemType::DualWeapon))
+			{
+				currentItem->offhandWeaponData = currentOffhandWeapon->Data;
+			}
+		}
 	}
 }
 
@@ -1268,93 +1439,11 @@ void Player::UpdateInventoryWeaponSwitch()
 // END INVENTORY SYSTEM
 // ============================================================================
 
-// Reads the melee buttons (always-hot interrupt), the ranged buttons
-// (fire/aim), useTool, and hideWeapon. Drives currentWeaponRole switches and
-// the melee/tool linger-expiry revert back to persistentWeaponRole, via
-// TryEquipRole(). Call once per Update().
-//
-// Melee never sets persistentWeaponRole - it's always a transient interrupt.
-// Neither does Tool: using one is deliberate, but a tool is momentary by
-// nature (throw/parry/whatever), so once it's done it reverts to the
-// baseline exactly like melee does, rather than "sticking" as the intended
-// weapon. Only an actual ranged action sets persistentWeaponRole - see the
-// big comment on that field in Player.hpp.
-void Player::UpdateWeaponRoleInput()
-{
-	if (weaponSuppressed)
-		return;
-
-	// Retry a switch that couldn't happen yet (e.g. a melee/tool press was
-	// blocked mid-action on the old weapon) now that it might be allowed.
-	if (pendingWeaponRoleSwitch && (currentWeapon == nullptr || currentWeapon->CanChangeSlot()))
-		TryEquipRole(desiredWeaponRole);
-
-	// Manual hide: instantly collapses whatever's currently hot, skipping
-	// its own linger window entirely. Must be a deliberate hold (not a tap)
-	// so a stray press doesn't holster the weapon mid-fight.
-	if (Input::GetAction("hideWeapon")->GetHoldTime() >= 0.15f && currentWeapon != nullptr)
-		currentWeapon->RequestHide();
-
-	// Melee: always hot, works from any state. A press raises + swings (or
-	// blocks) in one action regardless of what's currently drawn.
-	bool meleeAction = Input::GetAction("meleeAttack")->Pressed() || Input::GetAction("block")->Holding();
-
-	// Ranged: LMB fires from the hip immediately, no separate ready step -
-	// this is what sets persistentWeaponRole. RMB (aim) is a pure cosmetic/
-	// mechanical sub-state handled entirely inside WeaponFirearm; it never
-	// appears here and never changes what's equipped.
-	bool rangedAction = Input::GetAction("attack2")->Holding();
-
-	bool toolAction = Input::GetAction("useTool")->Pressed();
-
-	if (rangedAction)
-		persistentWeaponRole = WeaponRole::Firearm;
-
-	// Fast-return from a melee interrupt: hold aim (attack2) briefly to jump
-	// straight back to the persistent role instead of waiting out melee's
-	// own linger window. Requires a deliberate hold, not a tap, so habitual
-	// ADS-tapping (muscle memory from other games) doesn't yank the player
-	// out of a live swing.
-	bool fastReturnFromMelee = currentWeaponRole == WeaponRole::Melee &&
-		Input::GetAction("attack2")->GetHoldTime() >= 0.15f;
-
-	if (meleeAction)
-	{
-		TryEquipRole(WeaponRole::Melee);
-	}
-	else if (toolAction)
-	{
-		TryEquipRole(WeaponRole::Tool);
-	}
-
-	else if (fastReturnFromMelee)
-	{
-		// TryEquipRole spawns the firearm fresh and self-inits its Update()
-		// immediately (see WeaponFirearm::Start()), which itself checks
-		// attack2 - since we're only here because attack2 IS currently held,
-		// that self-init call already raises it into ready+aim state on its
-		// own (see WeaponFirearm::Update()); no extra push needed here.
-		TryEquipRole(persistentWeaponRole);
-	}
-	// Melee's own linger expired - revert to the persistent baseline.
-	else if (currentWeaponRole == WeaponRole::Melee && currentWeapon != nullptr &&
-		currentWeapon->CanChangeSlot() && !currentWeapon->WantsPresented())
-	{
-		TryEquipRole(persistentWeaponRole);
-	}
-	// Tool auto-return: once it's done throwing/using/whatever, go back to
-	// the persistent baseline the same way melee does.
-	else if (currentWeaponRole == WeaponRole::Tool && currentWeapon != nullptr && currentWeapon->CanChangeSlot())
-	{
-		TryEquipRole(persistentWeaponRole);
-	}
-}
-
 bool Player::CanHoldWeapon() const
 {
 	if (dead)         return false;
 	if (IsMantling()) return false;
-	if (IsOnLadder()) return false;   // ← hide weapon while climbing
+	if (IsOnLadder()) return false;   // ← new: hide weapon while climbing
 	if (on_bike)      return false;
 	if (RunProgress >= 0.65f) return false;
 	return true;
@@ -1362,9 +1451,11 @@ bool Player::CanHoldWeapon() const
 
 bool Player::CanSuppressWeapons() const
 {
-	if (currentWeapon && !currentWeapon->CanChangeSlot()) return false;
+	if (currentWeapon && !currentWeapon->CanChangeSlot())        return false;
+	if (currentOffhandWeapon && !currentOffhandWeapon->CanChangeSlot()) return false;
 	return true;
 }
+
 
 bool Player::TrySuppressWeapons(bool forceSuppress)
 {
@@ -1375,11 +1466,21 @@ bool Player::TrySuppressWeapons(bool forceSuppress)
 
 	weaponSuppressed = true;
 
-	weaponWasSuppressed = (currentWeapon != nullptr);
-	suppressedWeaponRole = currentWeaponRole; // snapshot before DestroyWeapon clears it
+	// Snapshot before Destroy — DestroyWeapon/DestroyWeaponOffhand clear these fields.
+	const std::string savedMainUUID = currentMainWeaponUUID;
+	const std::string savedOffhandUUID = currentOffhandWeaponUUID;
 
-	if (weaponWasSuppressed)
+	mainWasSuppressed = (currentWeapon != nullptr) || !currentMainWeaponUUID.empty();
+	if (mainWasSuppressed)
 		DestroyWeapon();
+
+	offhandWasSuppressed = (currentOffhandWeapon != nullptr) || !currentOffhandWeaponUUID.empty();
+	if (offhandWasSuppressed)
+		DestroyWeaponOffhand();
+
+	// Restore the UUIDs so RestoreWeapons() can read them.
+	currentMainWeaponUUID = savedMainUUID;
+	currentOffhandWeaponUUID = savedOffhandUUID;
 
 	return true;
 }
@@ -1388,19 +1489,85 @@ void Player::RestoreWeapons()
 {
 	weaponSuppressed = false;
 
-	if (!weaponWasSuppressed)
-		return;
+	// Snapshot everything before any Switch call mutates these fields.
+	const std::string mainTarget = !desiredInventoryUUID.empty()
+		? desiredInventoryUUID
+		: currentMainWeaponUUID;
+	const std::string offhandTarget = currentOffhandWeaponUUID;
+	const int         slotTarget = currentSlot;
 
-	// If the player picked a different weapon while suppressed (lazy switch,
-	// see SwitchToInventoryItem/TryEquipRole), that request takes priority
-	// over just restoring whatever was out before.
-	WeaponRole roleTarget = pendingWeaponRoleSwitch ? desiredWeaponRole : suppressedWeaponRole;
+	// ── Main slot ─────────────────────────────────────────────────────────────
+	if (mainWasSuppressed)
+	{
+		if (weaponSystemMode == WeaponSystemMode::Inventory)
+		{
+			if (!mainTarget.empty())
+			{
+				currentMainWeaponUUID = "";
+				currentInventoryUUID  = "";
+				// Clear offhand UUID too: for DualWeapon items the UUID is shared
+				// between both slots, so leaving it set triggers the toggle-off
+				// branch inside SwitchToInventoryItem instead of recreating the weapon.
+				currentOffhandWeaponUUID = "";
+				SwitchToInventoryItem(mainTarget, /*forceChange=*/true);
+			}
+		}
+		else
+		{
+			SwitchToSlot(slotTarget, /*forceChange=*/true);
+		}
+	}
 
-	if (roleTarget != WeaponRole::None)
-		TryEquipRole(roleTarget, /*forceChange=*/true);
+	// ── Offhand slot ──────────────────────────────────────────────────────────
+	if (offhandWasSuppressed)
+	{
+		if (weaponSystemMode == WeaponSystemMode::Inventory)
+		{
+			if (!offhandTarget.empty())
+			{
+				// If the main-slot restore already recreated the offhand (DualWeapon
+				// items equip both slots together), skip to avoid a double-restore
+				// that would trigger the toggle-off path and destroy the weapon again.
+				if (currentOffhandWeapon != nullptr)
+				{
+					// Already alive — main restore handled it (e.g. DualWeapon).
+				}
+				else
+				{
+					currentOffhandWeaponUUID = "";
+					DestroyWeaponOffhand();
 
-	weaponWasSuppressed = false;
-	suppressedWeaponRole = WeaponRole::None;
+					// offhandTarget is an inventory UUID, not an itemID —
+					// look up the item first, then re-equip via the normal path
+					// so ammo / state data is also restored correctly.
+					InventoryItem* offhandItem = FindInventoryItemByUUID(offhandTarget);
+					if (offhandItem)
+					{
+						SwitchToInventoryItem(offhandTarget, /*forceChange=*/true);
+					}
+				}
+			}
+		}
+		else
+		{
+			if (offhandWeapon >= 0
+				&& offhandWeapon < static_cast<int>(offhandWeapons.size())
+				&& !offhandWeapons[offhandWeapon].empty())
+			{
+
+				if (currentWeapon && currentWeapon->SupportsOffhandWeapon)
+				{
+					currentOffhandWeaponUUID = "";
+					DestroyWeaponOffhand();
+					SwitchWeaponOffhand(offhandWeapons[offhandWeapon]);
+				}
+
+			}
+		}
+	}
+
+	mainWasSuppressed = false;
+	offhandWasSuppressed = false;
 }
 
 void Player::UpdateWeaponSuppression()
@@ -1435,7 +1602,7 @@ vec3 Player::GetBobForMainWeapon()
 IInteractive* Player::UpdateInteractionRaycast()
 {
 
-	auto hit = Physics::LineTrace(Camera::position, Camera::position + Camera::Forward() * 2.0f, BodyType::GroupHitTest, {}, { this, currentWeapon });
+	auto hit = Physics::LineTrace(Camera::position, Camera::position + Camera::Forward() * 2.0f, BodyType::GroupHitTest, {}, { this, currentWeapon, currentOffhandWeapon });
 
 	if (hit.hasHit == false) return nullptr;
 
@@ -1539,9 +1706,9 @@ void Player::UpdateInteraction()
 
 }
 
-bool Player::HasStamina()
+bool Player::HasStamina(float required)
 {
-	return stamina >= 0.99;
+	return stamina >= required - 0.05f;
 }
 
 void Player::ConsumeStamina(float amount)
@@ -1560,6 +1727,7 @@ void Player::UpdateStamina()
 	{
 		disableStaminaRegenUntilGrounded = false;
 		freeWalljumps = 1;
+		lastWallNormal = vec3(0);
 	}
 
 	if (disableStaminaRegenUntilGrounded) return;
@@ -1586,10 +1754,22 @@ void Player::UpdateWeapon()
 
 	if (firearm != nullptr)
 	{
+
 		if (Input::GetAction("slotTest")->Pressed())
 		{
-			firearm->SetAkimbo(!firearm->akimbo);
+			if (firearm)
+			{
+				firearm->SetAkimbo(!firearm->akimbo);
+			}
+
 		}
+
+		disableOffhandWeapon = firearm->akimbo
+			|| (currentWeapon && currentWeapon->SupportsOffhandWeapon == false);
+	}
+	else
+	{
+		disableOffhandWeapon = currentWeapon && currentWeapon->SupportsOffhandWeapon == false;
 	}
 
 	vec3 relativeWeaponPos = vec3();
@@ -1611,7 +1791,7 @@ void Player::UpdateWeapon()
 
 	rotatedWeaponPos -= mix(vec3(), vec3(-0.05f, 0.02, 0.05), RunProgress);
 
-	rotatedWeaponPos -= mix(vec3(), vec3(0, 0.025, 0), slideInterp);
+	rotatedWeaponPos -= mix(vec3(), vec3(0,0.025,0), slideInterp);
 
 	float bobBlendIn = length(MathHelper::XZ(velocity)) / WalkSpeed;
 	bobBlendIn = std::clamp(bobBlendIn, 0.0f, 1.0f);
@@ -1621,46 +1801,28 @@ void Player::UpdateWeapon()
 	if (currentWeapon)
 	{
 
-		currentWeapon->HideWeapon = bike_progress;
+		currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
+		currentWeapon->Position = MathHelper::TransformVector(rotatedWeaponPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;
+		currentWeapon->Rotation = MathHelper::ToYawPitchRoll(qResult);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 
-		// Held pose, in LOCAL (pre-camera) space - as before.
-		glm::quat qHeldLocal = qRunHide * qAdd;
-
-		// Hidden pose, also in LOCAL space: same rotate-around-point trick,
-		// using this weapon's own HiddenPosePosition/HiddenPoseRotationPoint/
-		// HiddenPoseRotation (see Weapon::SkipDrawAnimation - this is what
-		// replaces canned draw animations, and what "return to hidden
-		// position" after the auto-hide timer / hide button lands on).
-		vec3 hiddenLocalPos = MathHelper::RotateAroundPoint(currentWeapon->HiddenPosePosition, currentWeapon->HiddenPoseRotationPoint, currentWeapon->HiddenPoseRotation);
-		glm::quat qHiddenLocal = MathHelper::GetRotationQuaternion(currentWeapon->HiddenPoseRotation);
-
-		float drawT = std::clamp(currentWeapon->DrawProgress, 0.0f, 1.0f);
-
-		// Blend in LOCAL space, BEFORE the camera transform is applied - this
-		// is the part that was wrong before: blending two already-camera-
-		// relative world rotations makes the result depend on which way the
-		// player happens to be looking (their euler decompositions differ
-		// non-linearly with camera pitch/yaw). Blending pre-camera and then
-		// applying the camera transform once, at the end, avoids that.
-		vec3 blendedLocalPos = lerp(hiddenLocalPos, rotatedWeaponPos, drawT);
-		glm::quat qBlendedLocal = glm::slerp(qHiddenLocal, qHeldLocal, drawT);
-
-		glm::quat qFinal = qCurrent * qBlendedLocal;
-
-		currentWeapon->Position = MathHelper::TransformVector(blendedLocalPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;
-		currentWeapon->Rotation = MathHelper::ToYawPitchRoll(qFinal);
-
-		if (dead)
+		if(dead)
 			currentWeapon->Rotation.x += std::min(deathAnimDelay.GetProgress(), 1.0f) * 50.0f;
 
-		// Only flag a weapon as an observable crime once it's actually been
-		// raised/presented, not while it's still sitting in its hidden pose
-		// - this is what makes RequestHide()/the auto-hide timer useful for
-		// sneaking a weapon past guards.
-		if (currentWeapon->Illegal && drawT > 0.1f)
+		if (currentWeapon->Illegal)
 		{
 			observationTarget->tags.insert("illegal_weapon");
 		}
+	}
+
+
+	if (currentOffhandWeapon != nullptr)
+	{
+
+		currentOffhandWeapon->Position = Camera::position + MathHelper::TransformVector(vec3(0, -bob.y + 0.001, bob.x) * 1.0f, Camera::GetRotationMatrix());
+		currentOffhandWeapon->Rotation = lerp(cameraRotation, Camera::rotation , 0.3f) + runHideRotation;
+		if (dead)
+			currentOffhandWeapon->Rotation.x += std::min(deathAnimDelay.GetProgress(), 1.0f) * 30.0f;
+
 	}
 
 }
@@ -1716,18 +1878,6 @@ void Player::UpdateDebugUI()
 	ImGui::Begin("weapon");
 	ImGui::DragFloat3("weaponRotationPoint", &runRotatePoint.x, 0.01);
 	ImGui::DragFloat3("weaponRotation", &weaponRunRotation.x, 0.01);
-	if (currentWeapon != nullptr)
-	{
-		ImGui::Separator();
-		ImGui::Text("currentWeapon hidden pose (%s)", currentWeaponType.c_str());
-		ImGui::DragFloat3("hiddenPosePosition", &currentWeapon->HiddenPosePosition.x, 0.01f);
-		ImGui::DragFloat3("hiddenPoseRotation", &currentWeapon->HiddenPoseRotation.x, 0.5f);
-		ImGui::DragFloat3("hiddenPoseRotationPoint", &currentWeapon->HiddenPoseRotationPoint.x, 0.01f);
-		ImGui::DragFloat("drawTime", &currentWeapon->DrawTime, 0.01f, 0.01f, 3.0f);
-		ImGui::DragFloat("hideTime", &currentWeapon->HideTime, 0.01f, 0.01f, 3.0f);
-		ImGui::DragFloat("autoHideWaitTime", &currentWeapon->AutoHideWaitTime, 0.1f, 0.0f, 30.0f);
-		ImGui::Text("drawProgress: %.2f  autoHideTimer: %.2f", currentWeapon->DrawProgress, currentWeapon->autoHideTimer);
-	}
 	ImGui::End();
 
 	ImGui::Begin("graphic");
@@ -1894,6 +2044,17 @@ void Player::TryStep(vec3 dir)
 void Player::Update()
 {
 
+
+	if (Input::GetAction("block")->Pressed())
+	{
+
+		Entity* test = Spawn("networkTestCube");
+
+		test->Position = Camera::position + Camera::Forward() * 2.0f;
+		test->Start();
+
+	}
+
 	/*
 	vec3 lightmapColor = Level::Current->BspData.LinetraceLightmapColor(Camera::position * MAP_SCALE, (Camera::position + Camera::Forward() * 10.0f) * MAP_SCALE);
 
@@ -2042,24 +2203,11 @@ void Player::Update()
 
 	RunProgress = std::clamp(RunProgress, 0.0f, 1.0f);
 
-	float weaponSpeedScale = 1.0f;
-
-	if (currentWeapon)
-	{
-		weaponSpeedScale = mix(1.0f, currentWeapon->WalkSpeedModifier, currentWeapon->DrawProgress);
-
-		// Firearms slow you down a bit further while actively aiming (RMB
-		// hold) - a purely cosmetic/mechanical sub-state on top of just
-		// having the weapon out, see WeaponFirearm::aimProgress.
-		if (auto* firearm = dynamic_cast<WeaponFirearm*>(currentWeapon))
-			weaponSpeedScale *= mix(1.0f, firearm->AimWalkSpeedModifier, firearm->aimProgress);
-	}
-
-	maxSpeed = controller.isCrouched ? CrouchSpeed : std::lerp(WalkSpeed, RunSpeed, RunProgress) * weaponSpeedScale;
+	maxSpeed = controller.isCrouched ? CrouchSpeed : std::lerp(WalkSpeed, RunSpeed, RunProgress);
 
 	//if(powerUpManager.IsPowerUpActive(PowerUpManager::IsPowerUpActive(PowerUpManager::PowerUpType::)))
 
-	if (dead)
+	if(dead)
 		maxSpeed = 0;
 
 	if (on_bike == false)
@@ -2114,8 +2262,8 @@ void Player::Update()
 
 	Camera::rotation.z = -dot(velocity, right) * mix(-0.2f, 0.3f, bike_progress);
 
-	if (dead)
-		Camera::rotation.z = lerp(Camera::rotation.z, 30, std::min(deathAnimDelay.GetProgress(), 1.0f));
+	if(dead)
+		Camera::rotation.z = lerp(Camera::rotation.z, 30, std::min(deathAnimDelay.GetProgress(),1.0f));
 
 	if (InThirdPerson() == false)
 	{
@@ -2191,23 +2339,162 @@ void Player::Update()
 	if (dead == false)
 	{
 
-		UpdateInventoryWeaponSwitch();
-
-		UpdateWeaponRoleInput();
-
-		// Manual override: force-switch to melee right now (still gated by
-		// currentWeapon->CanChangeSlot() inside TryEquipRole, same as
-		// everything else).
-		if (Input::GetAction("slotMelee")->Pressed())
-			TryEquipRole(WeaponRole::Melee);
-
-		// Quick-switch back to whatever was equipped before the current item.
-		if (Input::GetAction("lastSlot")->Pressed() && !lastInventoryUUID.empty())
-			SwitchToInventoryItem(lastInventoryUUID, false);
-
-		if (Input::GetAction("inventory")->Pressed())
+		// Weapon switching logic based on current mode
+		if (weaponSystemMode == WeaponSystemMode::Slots && !weaponSuppressed)
 		{
-			Spawn("inventory_menu")->Start();
+			// Original slot-based weapon switching with lazy loading
+			if (currentWeapon != nullptr)
+			{
+				if (currentWeapon->Data.slot != currentSlot)
+				{
+					if (currentWeapon->CanChangeSlot())
+					{
+						SwitchWeapon(weaponSlots[currentSlot]);
+					}
+				}
+			}
+			else
+			{
+				SwitchToSlot(currentSlot);
+			}
+		}
+		else if (weaponSystemMode == WeaponSystemMode::Inventory)
+		{
+			// Inventory-based weapon switching with lazy loading
+			UpdateInventoryWeaponSwitch();
+		}
+
+		if (currentWeapon && currentWeapon->SupportsOffhandWeapon == false)
+			disableOffhandWeapon = true;
+
+		// Offhand weapon management (Slots mode only)
+		// In Inventory mode, offhand is managed through OffhandWeapon or DualWeapon items
+		if (weaponSystemMode == WeaponSystemMode::Slots && !weaponSuppressed)
+		{
+			if (disableOffhandWeapon)
+			{
+				offhandWeapon = 0;
+			}
+			else
+			{
+				offhandWeapon = desiredOffhandWeapon;
+			}
+
+			if (offhandWeapons.empty() == false)
+			{
+
+				if (currentOffhandWeapon != nullptr)
+				{
+					if (currentOffhandWeapon->ClassName != offhandWeapons[offhandWeapon])
+					{
+						if (currentOffhandWeapon->CanChangeSlot())
+						{
+							SwitchWeaponOffhand(offhandWeapons[offhandWeapon]);
+						}
+
+					}
+				}
+				else
+				{
+					SwitchWeaponOffhand(offhandWeapons[offhandWeapon]);
+				}
+			}
+		}
+
+		if (Input::GetAction("slotMelee")->Pressed())
+			SwitchToMeleeWeapon();
+
+		// Adaptive input handling - works with both Slots and Inventory modes
+		if (weaponSystemMode == WeaponSystemMode::Slots)
+		{
+			// Slot-based system (original behavior)
+			if (Input::GetAction("slot1")->Pressed())
+				SwitchToSlot(0);
+
+			if (Input::GetAction("slot2")->Pressed())
+				SwitchToSlot(1);
+
+			if (Input::GetAction("slot3")->Pressed())
+				SwitchToSlot(2);
+
+			if (Input::GetAction("slot4")->Pressed())
+				SwitchToSlot(3);
+
+			if (Input::GetAction("slot5")->Pressed())
+				SwitchToSlot(4);
+
+			if (Input::GetAction("slot6")->Pressed())
+				SwitchToSlot(5);
+
+			if (Input::GetAction("lastSlot")->Pressed())
+				SwitchToSlot(lastSlot);
+		}
+		else if (weaponSystemMode == WeaponSystemMode::Inventory)
+		{
+			// Inventory-based system (uses inventory indices)
+			// Pressing the same weapon key twice will hide/unequip the weapon
+
+			if (Input::GetAction("slot1")->Pressed())
+			{
+				if (inventory.size() > 0)
+				{
+					SwitchToInventoryItem(inventory[0].uid, false);
+				}
+			}
+
+			if (Input::GetAction("slot2")->Pressed())
+			{
+				if (inventory.size() > 1)
+				{
+					SwitchToInventoryItem(inventory[1].uid, false);
+				}
+			}
+
+			if (Input::GetAction("slot3")->Pressed())
+			{
+				if (inventory.size() > 2)
+				{
+					SwitchToInventoryItem(inventory[2].uid, false);
+				}
+			}
+
+			if (Input::GetAction("slot4")->Pressed())
+			{
+				if (inventory.size() > 3)
+				{
+					SwitchToInventoryItem(inventory[3].uid, false);
+				}
+			}
+
+			if (Input::GetAction("slot5")->Pressed())
+			{
+				if (inventory.size() > 4)
+				{
+					SwitchToInventoryItem(inventory[4].uid, false);
+				}
+			}
+
+			if (Input::GetAction("slot6")->Pressed())
+			{
+
+				Logger::Log("Inventory size: " + to_string(inventory.size()));
+
+				if (inventory.size() > 5)
+				{
+					SwitchToInventoryItem(inventory[5].uid, false);
+				}
+			}
+
+			if (Input::GetAction("lastSlot")->Pressed())
+			{
+				SwitchToInventoryItem(lastInventoryUUID, false);
+			}
+
+			if (Input::GetAction("inventory")->Pressed())
+			{
+				Spawn("inventory_menu")->Start();
+			}
+
 		}
 
 		UpdateInteraction();
@@ -2267,7 +2554,7 @@ void Player::AsyncUpdate()
 		//DebugDraw::Path(portal.vertices, 0.01f, 0.1f);
 	}
 
-	Rotation = vec3(0, cameraRotation.y, 0);
+	Rotation = vec3(0,cameraRotation.y,0);
 
 }
 
@@ -2345,7 +2632,7 @@ void Player::UpdateBody()
 
 	vec3 playerForward = MathHelper::GetForwardVector(vec3(0, cameraRotation.y, 0));
 
-
+	
 	bodyMesh->Position = Position - vec3(0, controller.height / 2.0f, 0) - playerForward * 0.2f;
 	bodyMesh->Rotation.y = cameraRotation.y;
 
@@ -2396,7 +2683,7 @@ void Player::UpdateBody()
 	observationTarget->position = Position + vec3(0, 0.65f, 0);
 
 
-	Physics::SetBodyPosition(hitbox, bodyMesh->Position + WorldOrientationManager::TransformDirectionToWorld(playerForward) * 0.1f + WorldOrientationManager::GetUpVector() * cameraHeight - vec3(0, 0.3, 0));
+	Physics::SetBodyPosition(hitbox, bodyMesh->Position + WorldOrientationManager::TransformDirectionToWorld(playerForward) * 0.1f + WorldOrientationManager::GetUpVector() * cameraHeight - vec3(0,0.3,0));
 
 
 }
@@ -2469,7 +2756,7 @@ void Player::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone
 
 	Camera::AddCameraShake(damageShake);
 
-	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point - vec3(0, 0.5f, 0), MathHelper::FindLookAtRotation(Direction, vec3(0)), vec3(Damage / 10.0f));
+	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point - vec3(0,0.5f,0), MathHelper::FindLookAtRotation(Direction, vec3(0)), vec3(Damage / 10.0f));
 
 }
 
@@ -2503,29 +2790,28 @@ void Player::Serialize(json& target)
 
 	SERIALIZE_FIELD(target, cameraRotation);
 	SERIALIZE_FIELD(target, velocity);
+	SERIALIZE_FIELD(target, currentSlot);
+	SERIALIZE_FIELD(target, weaponSlots);
 
 	SERIALIZE_FIELD(target, RunProgress);
 	SERIALIZE_FIELD(target, weaponSuppressed);
-	SERIALIZE_FIELD(target, weaponWasSuppressed);
-	target["suppressedWeaponRole"] = static_cast<int>(suppressedWeaponRole);
+	SERIALIZE_FIELD(target, mainWasSuppressed);
+	SERIALIZE_FIELD(target, offhandWasSuppressed);
 
 	SERIALIZE_FIELD(target, NpcSimulationManager::worldSimulationState);
 
-	// Inventory + weapon role system
+	SERIALIZE_FIELD(target, offhandWeapons);
+	SERIALIZE_FIELD(target, offhandWeapon);
+	SERIALIZE_FIELD(target, desiredOffhandWeapon);
+
+	// Serialize inventory system
+	target["weaponSystemMode"] = static_cast<int>(weaponSystemMode);
 	SERIALIZE_FIELD(target, inventory);
 	SERIALIZE_FIELD(target, currentInventoryUUID);
 	SERIALIZE_FIELD(target, lastInventoryUUID);
-	SERIALIZE_FIELD(target, currentWeaponUUID);
-	target["currentWeaponRole"] = static_cast<int>(currentWeaponRole);
 
-	SERIALIZE_FIELD(target, firearmSlotUUID);
-	SERIALIZE_FIELD(target, meleeSlotUUID);
-	SERIALIZE_FIELD(target, toolSlotUUID);
-	SERIALIZE_FIELD(target, activeFirearmSlot);
-	SERIALIZE_FIELD(target, activeMeleeSlot);
-	SERIALIZE_FIELD(target, activeToolSlot);
-	target["persistentWeaponRole"] = static_cast<int>(persistentWeaponRole);
-
+	SERIALIZE_FIELD(target, currentMainWeaponUUID);
+	SERIALIZE_FIELD(target, currentOffhandWeaponUUID);
 	SERIALIZE_FIELD(target, ammoCounts);
 
 	target["moveState"] = static_cast<int>(moveState);
@@ -2539,12 +2825,19 @@ void Player::Serialize(json& target)
 
 	SERIALIZE_FIELD(target, keysInventory);
 
-	json currentWeaponData;
+	json mainWeaponData;
 	if (currentWeapon)
 	{
-		currentWeapon->Serialize(currentWeaponData);
+		currentWeapon->Serialize(mainWeaponData);
 	}
-	SERIALIZE_FIELD(target, currentWeaponData);
+	SERIALIZE_FIELD(target, mainWeaponData);
+
+	json offhandWeaponData;
+	if (currentOffhandWeapon)
+	{
+		currentOffhandWeapon->Serialize(offhandWeaponData);
+	}
+	SERIALIZE_FIELD(target, offhandWeaponData);
 
 
 	SERIALIZE_FIELD(target, powerUpManager);
@@ -2558,35 +2851,35 @@ void Player::Deserialize(json& source)
 
 	DESERIALIZE_FIELD(source, cameraRotation);
 	DESERIALIZE_FIELD(source, velocity);
+	DESERIALIZE_FIELD(source, currentSlot);
+	DESERIALIZE_FIELD(source, weaponSlots);
 
 	DESERIALIZE_FIELD(source, RunProgress);
 	DESERIALIZE_FIELD(source, weaponSuppressed);
-	DESERIALIZE_FIELD(source, weaponWasSuppressed);
-	if (source.contains("suppressedWeaponRole"))
-		suppressedWeaponRole = static_cast<WeaponRole>(source["suppressedWeaponRole"].get<int>());
+	DESERIALIZE_FIELD(source, mainWasSuppressed);
+	DESERIALIZE_FIELD(source, offhandWasSuppressed);
 
 	DESERIALIZE_FIELD(source, NpcSimulationManager::worldSimulationState);
 
+	DESERIALIZE_FIELD(source, offhandWeapons);
+	DESERIALIZE_FIELD(source, offhandWeapon);
+	DESERIALIZE_FIELD(source, desiredOffhandWeapon);
+
+	DESERIALIZE_FIELD(source, currentMainWeaponUUID);
+	DESERIALIZE_FIELD(source, currentOffhandWeaponUUID);
+	DESERIALIZE_FIELD(source, ammoCounts);
+
+	// Deserialize inventory system
+	if (source.contains("weaponSystemMode"))
+	{
+		weaponSystemMode = static_cast<WeaponSystemMode>(source["weaponSystemMode"].get<int>());
+	}
 	DESERIALIZE_FIELD(source, inventory);
 	DESERIALIZE_FIELD(source, currentInventoryUUID);
 	DESERIALIZE_FIELD(source, lastInventoryUUID);
-	DESERIALIZE_FIELD(source, currentWeaponUUID);
-	if (source.contains("currentWeaponRole"))
-		currentWeaponRole = static_cast<WeaponRole>(source["currentWeaponRole"].get<int>());
-
-	DESERIALIZE_FIELD(source, firearmSlotUUID);
-	DESERIALIZE_FIELD(source, meleeSlotUUID);
-	DESERIALIZE_FIELD(source, toolSlotUUID);
-	DESERIALIZE_FIELD(source, activeFirearmSlot);
-	DESERIALIZE_FIELD(source, activeMeleeSlot);
-	DESERIALIZE_FIELD(source, activeToolSlot);
-	if (source.contains("persistentWeaponRole"))
-		persistentWeaponRole = static_cast<WeaponRole>(source["persistentWeaponRole"].get<int>());
-
-	DESERIALIZE_FIELD(source, ammoCounts);
 
 	if (source.contains("moveState"))
-		moveState = static_cast<MoveState>(source["moveState"].get<int>());
+	    moveState = static_cast<MoveState>(source["moveState"].get<int>());
 	DESERIALIZE_FIELD(source, mantleDelay);
 	DESERIALIZE_FIELD(source, mantleStartPosition);
 	DESERIALIZE_FIELD(source, mantleTargetPosition);
@@ -2595,41 +2888,61 @@ void Player::Deserialize(json& source)
 
 	DESERIALIZE_FIELD(source, keysInventory);
 
-	// Re-link saved weapon data to inventory items (uid is authoritative).
-	for (auto& item : inventory)
-		item.weaponData.inventoryUUID = item.uid;
-
-	// currentWeaponUUID/currentWeaponRole were just restored above -
-	// DestroyWeapon() first so the switch below doesn't think this is a
-	// no-op (currentWeapon itself is still null at this point regardless,
-	// but this also resets currentWeaponRole/currentWeaponUUID cleanly).
-	//
-	// Restore via TryEquipRole directly, the same way RestoreWeapons() does
-	// for the suppression case - the slot arrays (firearmSlotUUID/
-	// activeFirearmSlot/meleeSlotUUID/etc.) are already fully restored above,
-	// so TryEquipRole alone resolves back to the exact saved item. Routing
-	// this through SwitchToInventoryItem instead (as before) also ran its
-	// wheel-selection gating, which deliberately holds firearms back until
-	// fire/aim is pressed and doesn't check forceChange - so a save made
-	// with a firearm equipped would restore all the slot/inventory data
-	// correctly but never actually recreate the weapon.
-	WeaponRole roleToRestore = currentWeaponRole;
-
-	DestroyWeapon();
-
-	if (roleToRestore != WeaponRole::None)
+	// Restore weapon based on mode
+	if (weaponSystemMode == WeaponSystemMode::Slots)
 	{
-		TryEquipRole(roleToRestore, true);
+		SwitchToSlot(currentSlot, true);
+		SwitchWeaponOffhand(offhandWeapons[offhandWeapon]);
 	}
+	else if (weaponSystemMode == WeaponSystemMode::Inventory)
+	{
+
+		for (auto& item : inventory)
+		{
+			item.mainWeaponData.inventoryUUID = item.uid;
+			item.offhandWeaponData.inventoryUUID = item.uid;
+		}
+
+		currentInventoryUUID = "";
+
+		if (currentMainWeaponUUID.empty() == false)
+		{
+
+			std::string mainWeaponUUIDToSwitch = currentMainWeaponUUID;
+			DestroyWeapon();
+			currentMainWeaponUUID = "";
+
+			SwitchToInventoryItem(mainWeaponUUIDToSwitch, true);
+		}
+
+		if (currentOffhandWeaponUUID.empty() == false)
+		{
+
+			std::string offhandWeaponUUIDToSwitch = currentOffhandWeaponUUID;
+			DestroyWeaponOffhand();
+			currentOffhandWeaponUUID = "";
+
+			SwitchToInventoryItem(offhandWeaponUUIDToSwitch, true);
+		}
+
+	}
+
 
 	controller.SetVelocity(velocity);
 	Teleport(Position);
 
 	if (currentWeapon)
 	{
-		json currentWeaponData;
-		DESERIALIZE_FIELD(source, currentWeaponData);
-		currentWeapon->Deserialize(currentWeaponData);
+		json mainWeaponData;
+		DESERIALIZE_FIELD(source, mainWeaponData);
+		currentWeapon->Deserialize(mainWeaponData);
+	}
+
+	if (currentOffhandWeapon)
+	{
+		json offhandWeaponData;
+		DESERIALIZE_FIELD(source, offhandWeaponData);
+		currentOffhandWeapon->Deserialize(offhandWeaponData);
 	}
 
 	if (weaponSuppressed)
@@ -2736,6 +3049,14 @@ void Player::OnLevelEnd()
 		currentWeapon->Destroy();
 		currentWeapon = nullptr;
 	}
+
+
+	if (currentOffhandWeapon)
+	{
+		currentOffhandWeapon->Destroy();
+		currentOffhandWeapon = nullptr;
+	}
+
 
 }
 
@@ -2935,27 +3256,27 @@ void Player::StoppedTouchLadder()
 CONSOLE_FUNC("kit.weapons", "kit.weapons gives all weapons")
 {
 
-	Player::Instance->AddItemToInventory("weapon_cane");
+	Player::Instance->AddWeaponByName("weapon_cane");
 
-	Player::Instance->AddItemToInventory("weapon_twinsword");
+	Player::Instance->AddWeaponByName("weapon_twinsword");
 
 
-	Player::Instance->AddItemToInventory("weapon_pistol");
-	Player::Instance->AddItemToInventory("weapon_pistol");
-	Player::Instance->AddItemToInventory("weapon_pistol");
+	Player::Instance->AddWeaponByName("weapon_pistol");
+	Player::Instance->AddWeaponByName("weapon_pistol");
+	Player::Instance->AddWeaponByName("weapon_pistol");
 
-	Player::Instance->AddItemToInventory("weapon_shotgun");
-	Player::Instance->AddItemToInventory("weapon_shotgun");
-	Player::Instance->AddItemToInventory("weapon_shotgun");
+	Player::Instance->AddWeaponByName("weapon_shotgun");
+	Player::Instance->AddWeaponByName("weapon_shotgun");
+	Player::Instance->AddWeaponByName("weapon_shotgun");
 
-	Player::Instance->AddItemToInventory("weapon_mpsd");
-	Player::Instance->AddItemToInventory("weapon_mpsd");
-	Player::Instance->AddItemToInventory("weapon_mpsd");
+	Player::Instance->AddWeaponByName("weapon_mpsd");
+	Player::Instance->AddWeaponByName("weapon_mpsd");
+	Player::Instance->AddWeaponByName("weapon_mpsd");
 
-	Player::Instance->AddItemToInventory("weapon_cannon");
-	Player::Instance->AddItemToInventory("weapon_cannon");
-	Player::Instance->AddItemToInventory("weapon_cannon");
-	Player::Instance->AddItemToInventory("weapon_cannon");
+	Player::Instance->AddWeaponByName("weapon_cannon");
+	Player::Instance->AddWeaponByName("weapon_cannon");
+	Player::Instance->AddWeaponByName("weapon_cannon");
+	Player::Instance->AddWeaponByName("weapon_cannon");
 }
 
 CONSOLE_FUNC("weapon.give", "weapon.give <weapon_name>")
@@ -2963,8 +3284,8 @@ CONSOLE_FUNC("weapon.give", "weapon.give <weapon_name>")
 	std::string levelName = Console::ArgString(args, 0, "");
 	if (levelName != "")
 	{
-
-		Player::Instance->AddItemToInventory(levelName);
+		
+		Player::Instance->AddWeaponByName(levelName);
 
 		Console::Get().AddLog("Giving weapon: %s", levelName.c_str());
 	}

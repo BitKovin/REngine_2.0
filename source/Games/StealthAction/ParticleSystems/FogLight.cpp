@@ -51,6 +51,7 @@ public:
             return particle;
         }
 
+        particle.position += particle.velocity * deltaTime;
 
 
         float fadeIn = MathHelper::MapRange(particle.lifeTime, 0, 2, 0, 1);
@@ -77,6 +78,8 @@ public:
 
         particle.Size = 3;
         particle.Transparency = 0.0f;
+
+        //particle.velocity = vec3(RandomFloat() * 4 + 1, RandomFloat() * 2 -1, (RandomFloat() * 2 - 1) * 0.5f);
 
         particle.position = Camera::position + MathHelper::XZ(RandomPosition(70)) + vec3(0, RandomFloat() * 2 - 1.4f, 0) * 20.0f;
 

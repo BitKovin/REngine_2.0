@@ -131,13 +131,7 @@ void RemotePlayer::LateUpdate()
             // stays decoupled from the weapon registry -- so they still have
             // to be resolved separately, only for the network payload.
             weaponRIndex = GetWeaponIndexFromRef(referencePlayer->currentWeapon);
-
-            // weaponL only ever mirrors weaponR now, for akimbo (two copies
-            // of the same firearm) - the standalone offhand-item system
-            // (cane, etc.) doesn't exist anymore; currentWeapon is the only
-            // weapon a player can hold.
-            auto* firearm = dynamic_cast<WeaponFirearm*>(referencePlayer->currentWeapon);
-            weaponLIndex = (firearm && firearm->akimbo) ? weaponRIndex : UINT16_MAX;
+            weaponLIndex = GetWeaponIndexFromRef(referencePlayer->currentOffhandWeapon);
 
             
 

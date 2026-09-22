@@ -20,7 +20,7 @@ public:
 	void OnPickup(Player* player) override
 	{
 
-		player->AddItemToInventory(weaponName);
+		player->AddWeaponByName(weaponName);
 
 		PickupBase::OnPickup(player);
 	}

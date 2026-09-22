@@ -32,7 +32,7 @@ public:
 	void Update()
 	{
 
-		if (Input::GetAction("meleeAttack")->PressedBuffered(0.35f))
+		if (Input::GetAction("attack")->PressedBuffered(0.35f))
 		{
 
 			if (thirdPersonMesh->GetAnimationName() != "idle")
@@ -176,6 +176,7 @@ public:
 	{
 		WeaponSlotData data;
 		data.className = "weapon_swords"; // Override in subclasses
+		data.slot = 0; // Override in subclasses
 		return data;
 	}
 

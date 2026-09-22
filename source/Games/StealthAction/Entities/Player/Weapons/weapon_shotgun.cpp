@@ -16,12 +16,6 @@ public:
         params.switchDelayTime = 0.35f;
         params.switchDelayOnAttack = 0.2f;
         params.weaponOffset = vec3(0.013, 0.013, -0.096);
-
-        // Rifle-styled hidden/carry pose: lowered, barrel forward-down.
-        HiddenPosePosition = vec3(0.03f, -0.26f, 0.10f);
-        HiddenPoseRotation = vec3(30.0f, 8.0f, -4.0f);
-        HiddenPoseRotationPoint = vec3(-0.03f, -0.13f, 0.5f);
-
         params.bulletSpeed = 200.0f; // Assumed same
         params.bulletDamage = 65.0f / 21.0f;
         params.range = 70.0f;
@@ -48,10 +42,6 @@ public:
 
         params.debuffOnHit = "PoiseBreakDebuff";
 		params.debuffStacksOnHit = 100 / 21.0f;
-
-        HiddenPosePosition = vec3(-0.090, -0.100, -0.040);
-        HiddenPoseRotation = vec3(-50.25, 0, 0);
-        HiddenPoseRotationPoint = vec3(-0.04, -0.1, 0.35);
 
     }
 
@@ -80,6 +70,7 @@ public:
     WeaponSlotData GetDefaultData() override {
         WeaponSlotData data = WeaponFirearm::GetDefaultData();
         data.className = "weapon_shotgun";
+        data.slot = 2;
         data.AmmoType = WeaponAmmoType::ShotgunShells;
         data.startAmmo = 12;
         return data;

@@ -88,6 +88,7 @@ public:
         WeaponSlotData data = WeaponFirearm::GetDefaultData();
         data.className = "weapon_revolver";
         data.AmmoType = WeaponAmmoType::PistolBullets;
+        data.slot = 1;
         return data;
     }
 

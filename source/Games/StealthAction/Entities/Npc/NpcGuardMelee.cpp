@@ -531,6 +531,7 @@ bool NpcGuardMelee::IsTargetBlocking() const
 	if (t == Player::Instance)
 	{
 		if (Player::Instance->currentWeapon && Player::Instance->currentWeapon->Blocking)      return true;
+		if (Player::Instance->currentOffhandWeapon && Player::Instance->currentOffhandWeapon->Blocking) return true;
 	}
 
 	return false;

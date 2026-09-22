@@ -50,6 +50,7 @@ public:
         //params.debuffOnHit = "QuicksilverDebuff";
         //params.debuffStacksOnHit = 55.0f;
 
+        SupportsOffhandWeapon = false;
 
         thirdPersonAnimator = make_unique<Animator_OneHand>(this);
 
@@ -75,6 +76,7 @@ public:
         WeaponSlotData data = WeaponFirearm::GetDefaultData();
         data.className = "weapon_pistol_silent";
         data.AmmoType = WeaponAmmoType::PistolBullets;
+        data.slot = 1;
         return data;
     }
 

@@ -3,26 +3,14 @@
 #include <map>
 #include <string>
 
-// Item type defines what happens when the item is selected.
-//
-// Firearm / Melee / Tool items equip into Player's 3-slot loadout for that
-// type (see Player::firearmSlotUUID / meleeSlotUUID / toolSlotUUID) and
-// become candidates for the currentWeapon role-switching system.
-// CustomLogic items run their interactionEntityClassname logic and never
-// touch currentWeapon at all (consumables, keys, quest items, etc.).
+// Item type defines what happens when the item is selected
 enum class InventoryItemType
 {
-	Firearm,
-	Melee,
-	Tool,
-	CustomLogic
+	MainWeapon,      // Equips to main weapon slot only
+	OffhandWeapon,   // Equips to offhand slot only
+	DualWeapon,      // Equips to both main and offhand slots
+	CustomLogic      // Runs custom logic when selected (for future items like consumables, tools, etc.)
 };
-
-// Parses the itemType CSV cell. Case-insensitive. Unknown/blank values fall
-// back to CustomLogic (the safe no-op type) and log a warning rather than
-// silently guessing Firearm/Melee/Tool, since guessing wrong would put an
-// item in the wrong 3-slot loadout array.
-InventoryItemType ParseInventoryItemType(const std::string& raw, const std::string& itemIDForLogging);
 
 struct ItemDbEntry
 {
@@ -31,14 +19,17 @@ struct ItemDbEntry
 	std::string description;
 	std::string iconPath;
 	std::string modelPath;
-
+	
 	bool destroyOnUse = false; // Whether the item should be removed from inventory when used (for consumables, etc.)
-	int maxStackSize = 1;      // Maximum stack size for this item (for stackable items)
+	int maxStackSize = 1; // Maximum stack size for this item (for stackable items)
 
-	std::string weaponClassName;            // Entity className to spawn for Firearm / Melee / Tool items
-	std::string interactionEntityClassname; // For CustomLogic items that spawn an entity when used
+	std::string weaponClassName;
+	std::string weaponOffhandClassName; // For dual weapons or offhand items
+	std::string interactionEntityClassname; // For items that spawn an entity when used (like consumables, etc.)
+	
+	bool offhandCompatible = true; // whether this item can be equipped with offhand weapons (for main weapons)
 
-	InventoryItemType itemType = InventoryItemType::CustomLogic;
+	InventoryItemType itemType = InventoryItemType::MainWeapon;
 };
 
 class ItemsDataBase
@@ -56,3 +47,4 @@ private:
 	static inline std::map<std::string, ItemDbEntry> itemsMap;
 
 };
+

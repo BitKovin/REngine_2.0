@@ -16,20 +16,6 @@ WeaponFirearm::WeaponFirearm(const FirearmParams& initialParams)
 
 	thirdPersonModelPath = params.modelPathTp;
 
-	// Ready/lower speed: how fast attack2 raises (DrawTime) and lowers
-	// (HideTime) this firearm. Tune per weapon - e.g. a heavy weapon could
-	// use slower values. See Weapon::DrawTime / HideTime / DrawProgress.
-	DrawTime = 0.1f;
-	HideTime = 0.4f;
-
-	// Default hidden/holstered pose for a one-handed firearm: tucked in
-	// close to the chest, muzzle angled down. Long-guns (shotgun, tommy,
-	// mpsd, sniper, cannon) override this in their own ctors to a lower,
-	// barrel-forward carry pose - see each weapon_*.cpp.
-	HiddenPosePosition = vec3(0.02f, -0.18f, 0.06f);
-	HiddenPoseRotation = vec3(55.0f, 15.0f, -8.0f);
-	HiddenPoseRotationPoint = vec3(-0.04f, -0.10f, 0.35f);
-
 }
 
 void WeaponFirearm::Start() {
@@ -67,12 +53,6 @@ void WeaponFirearm::LoadAssets()
 	if (!params.texturesLocation.empty())
 		viewmodel->TexturesLocation = params.texturesLocation;
 	viewmodel->PlayAnimation(params.drawAnimation);
-	// SkipDrawAnimation (default true): jump straight to the last frame of
-	// the draw clip instead of playing it, so the viewmodel's bone pose is
-	// immediately "drawn" - Player::UpdateWeapon procedurally rotates the
-	// whole weapon in from its hidden pose instead (see DrawProgress).
-	if (SkipDrawAnimation)
-		viewmodel->SetAnimationTime(viewmodel->GetAnimationDuration());
 	//viewmodel->PreloadAssets();
 	viewmodel->Transparent = true;
 	viewmodel->IsViewmodel = true;
@@ -92,8 +72,6 @@ void WeaponFirearm::LoadAssets()
 	if (!params.texturesLocation.empty())
 		viewmodelLeft->TexturesLocation = params.texturesLocation;
 	viewmodelLeft->PlayAnimation(params.drawAnimation);
-	if (SkipDrawAnimation)
-		viewmodelLeft->SetAnimationTime(viewmodelLeft->GetAnimationDuration());
 	viewmodelLeft->PreloadAssets();
 	viewmodelLeft->Transparent = true;
 	viewmodelLeft->IsViewmodel = true;
@@ -144,8 +122,6 @@ void WeaponFirearm::SetAkimbo(bool enabled)
 		viewmodelLeft->Visible = true;
 		armsLeft->Visible = true;
 		viewmodelLeft->PlayAnimation(params.drawAnimation, false, 0);
-		if (SkipDrawAnimation)
-			viewmodelLeft->SetAnimationTime(viewmodelLeft->GetAnimationDuration());
 	}
 	if (!akimbo && akimboPrev)
 	{
@@ -189,34 +165,11 @@ void WeaponFirearm::Update()
 	if (akimbo != akimboPrev)
 		SetAkimbo(akimbo);
 
-	// Aiming (attack2 hold) puts the weapon into BOTH the ready state
-	// (DrawProgress, via NotifyUsed() - same mechanism firing uses) and its
-	// own cosmetic aim sub-state (aimProgress, further down) - holding RMB
-	// raises the gun exactly like firing does. Firing (see the bottom of
-	// this function) only raises the ready state on its own, it never
-	// touches aimProgress - that's what keeps hip-fire from FOV-zooming.
-	bool aiming = Input::GetAction("attack2")->Holding() && CanAttack();
-	if (aiming)
-		NotifyUsed();
-
-	UpdateAutoHideTimer();
-	UpdateDrawProgress(autoHideTimer > 0.0f);
-
 	weaponAim -= Time::DeltaTimeF * 1.5f;
-	if (DrawProgress > weaponAim)
-		weaponAim = DrawProgress;
 	if (!CanAttack() && weaponAim > 1)
 		weaponAim = 1.0f;
 
 	oldWeaponAim = weaponAim;
-
-	// Aim-down-sights sub-state itself: purely cosmetic/mechanical (FOV
-	// zoom, spread, movement penalty via Player::UpdateWalkMovement) - the
-	// ready-state side of aiming is handled above, this part never gates
-	// firing on its own.
-	aimProgress += Time::DeltaTimeF * params.aimSpeed * (aiming ? 1.0f : -1.0f);
-	aimProgress = std::clamp(aimProgress, 0.0f, 1.0f);
-	Camera::FOV = mix(params.restFOV, params.aimFOV, aimProgress);
 
 	if (params.hasRecoilModelOffset) {
 		if (attackDelay.Wait())
@@ -234,29 +187,12 @@ void WeaponFirearm::Update()
 	else
 		Spread = params.baseSpread;
 
-	// Aiming tightens spread on top of whatever the above produced (steadier
-	// stance = more accurate), independent of the movement-spread term.
-	Spread *= mix(1.0f, 0.4f, aimProgress);
-
 	bool firstPerson = owner != nullptr && owner->InThirdPerson() == false;
 	if (!firstPerson)
 		Spread *= 0.5f;
 
-	// Hip-fire: holding "attack" alone fires, no aim/ready gate at all.
-	// This only ever raises the ready state (DrawProgress) via NotifyUsed()
-	// below - it never touches aimProgress, so hip-firing alone never
-	// FOV-zooms or engages the aim sub-state (see the top of this function
-	// for the case that does: holding attack2).
-
-	if (Input::GetAction("attack")->PressedBuffered() || Input::GetAction("attack2")->Holding())
-		NotifyUsed();
-
-	if ((Input::GetAction("attack")->Holding() || Input::GetAction("attack")->PressedBuffered()) 
-		&& CanAttack() && !attackDelay.Wait())
-	{
+	if (Input::GetAction("attack")->Holding() && CanAttack() && !attackDelay.Wait())
 		PerformAttack();
-		NotifyUsed(); // ready state only - restarts the presented window
-	}
 }
 
 void WeaponFirearm::PerformAttack()
@@ -543,17 +479,12 @@ void WeaponFirearm::LateUpdate()
 WeaponSlotData WeaponFirearm::GetDefaultData() {
 	WeaponSlotData data;
 	data.className = "firearm";
+	data.slot = 0;
 	return data;
 }
 
 void WeaponFirearm::Destroy()
 {
-
-	// If this weapon was mid-aim when something interrupted it (e.g. a
-	// melee attack), nothing else would ever un-zoom Camera::FOV once this
-	// object is gone - reset it explicitly.
-	if (aimProgress > 0.0f)
-		Camera::FOV = params.restFOV;
 
 	Weapon::Destroy();
 	StopTrail(smokeTrail);
@@ -572,14 +503,11 @@ AnimationPose WeaponFirearm::ApplyWeaponAnimation(AnimationPose thirdPersonPose)
 
 void WeaponFirearm::Serialize(json& target)
 {
-	Weapon::Serialize(target);
-
 	SERIALIZE_FIELD(target, attackDelay);
 	SERIALIZE_FIELD(target, SwitchDelay);
 	SERIALIZE_FIELD(target, activeSpread);
 	SERIALIZE_FIELD(target, recoilModelOffset);
 	SERIALIZE_FIELD(target, weaponAim);
-
 	SERIALIZE_FIELD(target, fireLeftNext);
 	
 	auto viewmodelData = viewmodel->GetAnimationState();
@@ -591,8 +519,6 @@ void WeaponFirearm::Serialize(json& target)
 
 void WeaponFirearm::Deserialize(json& source)
 {
-	Weapon::Deserialize(source);
-
 	DESERIALIZE_FIELD(source, attackDelay);
 	DESERIALIZE_FIELD(source, SwitchDelay);
 	DESERIALIZE_FIELD(source, activeSpread);

@@ -45,10 +45,10 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{DC913037-B48C-4A48-B4FF-8517ACC919A7}</ProjectGuid>
+    <ProjectGuid>{20812A9D-5CE8-485F-8814-7499BCB5FB04}</ProjectGuid>
     <RootNamespace>Game</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>StealthAction</ProjectName>
+    <ProjectName>ShooterGame</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -439,6 +439,7 @@
     <ClCompile Include="Entities\Pickup\Weapons\WeaponPickupShotgun.cpp" />
     <ClCompile Include="Entities\Pickup\Weapons\WeaponPickupSMG.cpp" />
     <ClCompile Include="Entities\Pickup\Weapons\WeaponPickupTwinswords.cpp" />
+    <ClCompile Include="Entities\Player\EcsPlayerTestSystems.cpp" />
     <ClCompile Include="Entities\Player\InventoryMenu.cpp" />
     <ClCompile Include="Entities\Player\LevelEndLogic.cpp" />
     <ClCompile Include="Entities\Player\Player.cpp" />
@@ -459,10 +460,9 @@
     <ClCompile Include="Entities\Player\Weapons\Projectiles\CannonBullet.cpp" />
     <ClCompile Include="Entities\Player\Weapons\WeaponBase.cpp" />
     <ClCompile Include="Entities\Player\Weapons\WeaponFirearm.cpp" />
-    <ClCompile Include="Entities\Player\Weapons\WeaponMelee.cpp" />
-    <ClCompile Include="Entities\Player\Weapons\WeaponTool.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_cane.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_cannon.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\weapon_lefthand_empty.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_mpsd.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_pistol.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_pistol_silent.cpp" />
@@ -547,6 +547,7 @@
     <ClInclude Include="Entities\Pickup\Keys\PickupKeyBase.h" />
     <ClInclude Include="Entities\Pickup\PickupBase.h" />
     <ClInclude Include="Entities\Pickup\Weapons\WeaponPickupBase.hpp" />
+    <ClInclude Include="Entities\Player\EcsPlayerTestSystems.h" />
     <ClInclude Include="Entities\Player\InventoryMenu.h" />
     <ClInclude Include="Entities\Player\Player.hpp" />
     <ClInclude Include="Entities\Player\PlayerBodyAnimator.h" />
@@ -564,8 +565,6 @@
     <ClInclude Include="Entities\Player\Weapons\WeaponBase.h" />
     <ClInclude Include="Entities\Player\Weapons\WeaponFirearm.h" />
     <ClInclude Include="Entities\Player\Weapons\WeaponFireFlash.h" />
-    <ClInclude Include="Entities\Player\Weapons\WeaponMelee.h" />
-    <ClInclude Include="Entities\Player\Weapons\WeaponTool.h" />
     <ClInclude Include="Entities\TestBsp.h" />
     <ClInclude Include="Entities\Enemy\Enemies\TestNpc.hpp" />
     <ClInclude Include="Entities\TestParticleSystem.hpp" />

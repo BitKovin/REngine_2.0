@@ -29,7 +29,7 @@ void InventoryMenu::Finalize()
 
 	float totalItems = (float)inventory.size();
 	float anglePerItem = (2.0f * glm::pi<float>()) / totalItems;
-	float radius = 0.9f; // Adjust this to change circle size
+	float radius = 1.0f; // Adjust this to change circle size
 
 	if (totalItems > 4)
 	{
@@ -37,8 +37,6 @@ void InventoryMenu::Finalize()
 	}
 
 	background->Scale = vec3(radius * 2 + 1);
-
-	background->PreFinalize();
 
 	// Calculate target position using shortest circular path
 	float targetPosition = (float)currentSlotIndex;
@@ -83,7 +81,7 @@ void InventoryMenu::Finalize()
 		// Calculate circular position
 		float angle = offset * anglePerItem;
 
-		vec3 circleCenter = Camera::position + Camera::Forward() * (radius + 0.75f) + Camera::Up() * -0.15f;
+		vec3 circleCenter = Camera::position + Camera::Forward() * (radius + 0.52f) + Camera::Up() * -0.15f;
 		vec3 circleOffset = Camera::Forward() * (cos(angle) * radius) * -1.0f + Camera::Right() * (sin(angle) * radius);
 		vec3 position = circleCenter + circleOffset;
 
@@ -107,8 +105,6 @@ void InventoryMenu::Finalize()
 		
 
 		mesh->Rotation = MathHelper::ToYawPitchRoll(finalRotation);
-
-		mesh->PreFinalize();
 	}
 
 	itemRotationTime += Time::DeltaTimeF;
@@ -181,8 +177,8 @@ LightVolPointData InventoryMenu::GetLightVolData(bool wallCheck)
 {
 	LightVolPointData data;
 
-	data.directColor = vec3(0.2f);
-	data.ambientColor = vec3(0.1f);
+	data.directColor = vec3(0.4f);
+	data.ambientColor = vec3(0.2f);
 	data.direction = Camera::Forward() + Camera::Right() * 1.0f + Camera::Up() * 1.0f;
 	data.direction = normalize(data.direction);
 
@@ -195,7 +191,11 @@ int InventoryMenu::GetCurrentVisualSlotIndex()
 	int index = Player::Instance->GetInventorySlotIdByUUID(Player::Instance->currentInventoryUUID);
 	if (index == -1)
 	{
-		index = Player::Instance->GetInventorySlotIdByUUID(Player::Instance->currentWeaponUUID);
+		index = Player::Instance->GetInventorySlotIdByUUID(Player::Instance->currentMainWeaponUUID);
+	}
+	if (index == -1)
+	{
+		index = Player::Instance->GetInventorySlotIdByUUID(Player::Instance->currentOffhandWeaponUUID);
 	}
 	if (index == -1)
 	{

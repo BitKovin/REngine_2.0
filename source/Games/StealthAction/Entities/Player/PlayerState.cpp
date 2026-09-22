@@ -24,15 +24,16 @@ PlayerState PlayerState::FromPlayerPtr(Player* player)
                                     : player->currentWeapon->thirdPersonModelPath;
         state.weaponRHandlingType = player->currentWeapon->weaponHandlingType;
 
-        // weaponL only ever mirrors weaponR now, for akimbo (two copies of
-        // the same firearm) - there's no standalone offhand weapon anymore,
-        // currentWeapon is the only weapon a player can hold.
         if (fw && fw->akimbo)
-        {
             state.weaponRHandlingType = 2;
-            state.weaponLModelPath = state.weaponRModelPath;
-        }
 
+    }
+
+    if (player->currentOffhandWeapon)
+    {
+        WeaponFirearm* fw = dynamic_cast<WeaponFirearm*>(player->currentOffhandWeapon);
+        state.weaponLModelPath = fw ? fw->params.modelPathTp
+                                    : player->currentOffhandWeapon->thirdPersonModelPath;
     }
 
     return state;
