@@ -87,7 +87,7 @@ void Framebuffer::rebuild() {
             0 /*layer*/,
             1 /*numMips*/,
             0 /*mip*/,
-            BGFX_RESOLVE_NONE);
+            BGFX_ATTACHMENT_NONE);
         attachments.push_back(att);
     }
 
@@ -96,7 +96,7 @@ void Framebuffer::rebuild() {
         att.init(m_depthAttachment->textureHandle(),
             bgfx::Access::Write,
             0, 1, 0,
-            BGFX_RESOLVE_NONE);
+            BGFX_ATTACHMENT_NONE);
         attachments.push_back(att);
     }
 

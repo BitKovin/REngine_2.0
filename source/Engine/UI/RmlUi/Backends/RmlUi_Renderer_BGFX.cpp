@@ -1869,14 +1869,14 @@ BgfxFramebuffer RenderInterface_BGFX::CreateFramebuffer(int w, int h, bool with_
         }
 
         bgfx::Attachment attachments[2];
-        attachments[0].init(fb.color, bgfx::Access::Write, 0, 1, 0, BGFX_RESOLVE_NONE);
-        attachments[1].init(fb.depth_stencil, bgfx::Access::Write, 0, 1, 0, BGFX_RESOLVE_NONE);
+        attachments[0].init(fb.color, bgfx::Access::Write, 0, 1, 0, BGFX_ATTACHMENT_NONE);
+        attachments[1].init(fb.depth_stencil, bgfx::Access::Write, 0, 1, 0, BGFX_ATTACHMENT_NONE);
         fb.fb = bgfx::createFrameBuffer(2, attachments, false); // don't destroy textures on fb destroy
     }
     else
     {
         bgfx::Attachment att;
-        att.init(fb.color, bgfx::Access::Write, 0, 1, 0, BGFX_RESOLVE_NONE);
+        att.init(fb.color, bgfx::Access::Write, 0, 1, 0, BGFX_ATTACHMENT_NONE);
         fb.fb = bgfx::createFrameBuffer(1, &att, false);
     }
 

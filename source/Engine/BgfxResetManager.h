@@ -228,16 +228,6 @@ public:
         return GetFlag(BGFX_RESET_HIDPI);
     }
 
-    static void SetDepthClamp(bool enable)
-    {
-        SetFlag(BGFX_RESET_DEPTH_CLAMP, enable);
-    }
-
-    static bool GetDepthClamp()
-    {
-        return GetFlag(BGFX_RESET_DEPTH_CLAMP);
-    }
-
     static void SetSuspend(bool enable)
     {
         SetFlag(BGFX_RESET_SUSPEND, enable);

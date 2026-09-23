@@ -156,6 +156,9 @@ void UiBilboard::FinalizeFrameData()
 
     Canvas.FinalizeChildren();
 
+    if(drawCommands.size() > 0)
+        GetMaterial(0).SurfaceTypeOverride = SurfaceType::Transparent;
+
     StaticMesh::FinalizeFrameData();
 }
 

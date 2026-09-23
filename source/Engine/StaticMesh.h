@@ -32,7 +32,6 @@ private:
 	// Renderer never dynamic_cast<StaticMesh*>s anymore - "friend class Renderer;" is gone.
 
 	// One persistent IDrawCommand per entry in model->meshes, owned here.
-	std::vector<std::shared_ptr<StaticMeshDrawCommand>> drawCommands;
 	std::vector<std::shared_ptr<StaticMeshDrawCommand>> finalDrawCommands;
 
 	void RebuildDrawCommands();
@@ -50,6 +49,8 @@ private:
 	void RewireForCurrentModel();
 
 protected:
+
+	std::vector<std::shared_ptr<StaticMeshDrawCommand>> drawCommands;
 
 	// Called once, from RewireForCurrentModel(), whenever the model's asset
 	// tier has actually changed since we last looked. Override to react to
