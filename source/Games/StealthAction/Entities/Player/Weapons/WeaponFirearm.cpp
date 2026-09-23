@@ -239,9 +239,24 @@ void WeaponFirearm::PerformAttack()
 		return;
 	}
 
-	if (Data.magazineAmmo <= 0)
+	// Computed here (rather than later, where it used to be) because the ammo
+	// gate below needs to know which hand is about to fire before deciding
+	// what to check.
+	bool fireLeft = akimbo && alternateFire && fireLeftNext;
+
+	// Akimbo's left-hand gun doesn't have its own tracked magazine - it draws
+	// straight from the shared ammo pool and never needs reloading. Only the
+	// primary gun (right hand when akimbo, either hand otherwise) is gated on,
+	// and consumes from, Data.magazineAmmo.
+	if (fireLeft)
 	{
-		return;
+		if (owner->GetAmmo(params.ammoType) <= 0)
+			return;
+	}
+	else
+	{
+		if (Data.magazineAmmo <= 0)
+			return;
 	}
 
 	if (params.hasActiveSpread)
@@ -294,9 +309,6 @@ void WeaponFirearm::PerformAttack()
 	SwitchDelay.AddDelay(params.switchDelayOnAttack * (akimbo ? 0.5f : 1));
 	attackDelay.AddDelay(params.attackDelayTime * (akimbo ? 0.5f : 1.0f));
 
-
-	bool fireLeft = akimbo && alternateFire && fireLeftNext;
-
 	if (akimbo)
 	{
 		if (fireLeft)
@@ -335,7 +347,11 @@ void WeaponFirearm::PerformAttack()
 	}
 
 	owner->ConsumeAmmo(GetAmmoType(), 1);
-	Data.magazineAmmo = std::max(0, Data.magazineAmmo - 1);
+
+	// See the gate check at the top: the left-hand akimbo shot only ever draws
+	// from the shared pool above, never from this weapon's own magazine.
+	if (!fireLeft)
+		Data.magazineAmmo = std::max(0, Data.magazineAmmo - 1);
 
 	if (fireLeft)
 	{

@@ -48,7 +48,7 @@
     <ProjectGuid>{20812A9D-5CE8-485F-8814-7499BCB5FB04}</ProjectGuid>
     <RootNamespace>Game</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>ShooterGame</ProjectName>
+    <ProjectName>StealthAction</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

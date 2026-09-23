@@ -186,7 +186,7 @@ public:
         Input::AddAction("attack")->AddButton(GamepadButton::RightTrigger)->AddMouseButton(0);
         Input::AddAction("attack2")->AddButton(GamepadButton::LeftTrigger)->AddMouseButton(1);
 
-        Input::AddAction("attack3")->AddButton(GamepadButton::Y)->AddKeyboardKey(SDL_KeyCode::SDLK_r);
+        Input::AddAction("reload")->AddButton(GamepadButton::Y)->AddKeyboardKey(SDL_KeyCode::SDLK_r);
 
 
         Input::AddAction("qSave")->AddKeyboardKey(SDL_KeyCode::SDLK_F6);
@@ -246,7 +246,7 @@ public:
 
         InputActionRegistry::Register("attack", "${INPUT_ACTION_ATTACK}", "${INPUT_CATEGORY_COMBAT}");
         InputActionRegistry::Register("attack2", "${INPUT_ACTION_ATTACK2}", "${INPUT_CATEGORY_COMBAT}");
-        InputActionRegistry::Register("attack3", "${INPUT_ACTION_ATTACK3}", "${INPUT_CATEGORY_COMBAT}");
+        InputActionRegistry::Register("reload", "${INPUT_ACTION_RELOAD}", "${INPUT_CATEGORY_COMBAT}");
 
         InputActionRegistry::Register("interact", "${INPUT_ACTION_INTERACT}", "${INPUT_CATEGORY_GENERAL}");
         InputActionRegistry::Register("qSave", "${INPUT_ACTION_QUICK_SAVE}", "${INPUT_CATEGORY_GENERAL}");
