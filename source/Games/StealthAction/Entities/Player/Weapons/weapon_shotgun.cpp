@@ -5,6 +5,7 @@ public:
     weapon_shotgun() : WeaponFirearm() 
     {
         params.ammoType = WeaponAmmoType::ShotgunShells;
+        params.magazineSize = 12; // matches GetDefaultData().startAmmo below
         params.modelPath = "GameData/models/player/weapons/shotgun/shotgun.glb";
         params.modelPathTp = "GameData/models/player/weapons/shotgun/shotgun_tp.glb";
         params.texturesLocation = "GameData/models/player/weapons/shotgun/shotgun.glb/";

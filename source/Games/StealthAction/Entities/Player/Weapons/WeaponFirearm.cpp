@@ -26,10 +26,30 @@ void WeaponFirearm::Start() {
 	attackDelay.AddDelay(params.switchDelayTime - 0.1f);
 	SwitchDelay.AddDelay(params.switchDelayTime);
 
-
 	Update();
 	AsyncUpdate();
 	LateUpdate();
+}
+
+void WeaponFirearm::SetData(WeaponSlotData data)
+{
+	// magazineAmmo < 0 is the "never persisted a magazine count for this
+	// instance" sentinel (see WeaponSlotData) - a genuinely fresh pickup, so
+	// start full. Otherwise this is a previously-owned instance being
+	// re-equipped (switched back to, or restored from a save) - restore
+	// exactly what it had. Either way, clamp to the current shared pool: it
+	// may have dropped since this instance was last equipped, since other
+	// weapons of the same ammo type draw from the same pool.
+	int pool = owner != nullptr ? owner->GetAmmo(params.ammoType) : 0;
+
+	if (data.magazineAmmo < 0)
+		data.magazineAmmo = std::min(params.magazineSize, pool);
+	else
+		data.magazineAmmo = std::min({ data.magazineAmmo, params.magazineSize, pool });
+
+	reloading = false;
+
+	Weapon::SetData(data);
 }
 
 void WeaponFirearm::LoadAssets()
@@ -193,12 +213,33 @@ void WeaponFirearm::Update()
 
 	if (Input::GetAction("attack")->Holding() && CanAttack() && !attackDelay.Wait())
 		PerformAttack();
+
+	if (Input::GetAction("reload")->Pressed() && CanReload())
+		StartReload();
+
+	if (reloading)
+	{
+		// Detect completion by animation time remaining rather than a fixed
+		// duration, so reload speed always matches whatever clip is playing.
+		float remaining = viewmodel->GetAnimationDuration() - viewmodel->GetAnimationTime();
+
+		if (remaining <= 0.2f)
+		{
+			Data.magazineAmmo = owner != nullptr ? std::min(params.magazineSize, owner->GetAmmo(params.ammoType)) : Data.magazineAmmo;
+			reloading = false;
+		}
+	}
 }
 
 void WeaponFirearm::PerformAttack()
 {
 
-	if (owner->GetAmmo(params.ammoType) <= 0)
+	if (reloading)
+	{
+		return;
+	}
+
+	if (Data.magazineAmmo <= 0)
 	{
 		return;
 	}
@@ -294,6 +335,7 @@ void WeaponFirearm::PerformAttack()
 	}
 
 	owner->ConsumeAmmo(GetAmmoType(), 1);
+	Data.magazineAmmo = std::max(0, Data.magazineAmmo - 1);
 
 	if (fireLeft)
 	{
@@ -327,6 +369,41 @@ void WeaponFirearm::PerformAttack()
 	}
 
 
+}
+
+bool WeaponFirearm::CanReload()
+{
+	if (reloading)
+		return false;
+
+	if (owner == nullptr)
+		return false;
+
+	if (!CanAttack())
+		return false;
+
+	// Already as full as the magazine (or the shared pool) allows - nothing to gain.
+	if (Data.magazineAmmo >= std::min(params.magazineSize, owner->GetAmmo(params.ammoType)))
+		return false;
+
+	if (owner->GetAmmo(params.ammoType) <= 0)
+		return false;
+
+	// Can't reload while the offhand weapon is mid-action (e.g. the cane swinging).
+	if (owner->currentOffhandWeapon != nullptr && owner->currentOffhandWeapon->UsesLeftHand())
+		return false;
+
+	return true;
+}
+
+void WeaponFirearm::StartReload()
+{
+	reloading = true;
+
+	viewmodel->PlayAnimation(params.reloadAnimation, false, params.fireAnimInterpInTime);
+
+	if (viewmodelLeft != nullptr)
+		viewmodelLeft->PlayAnimation(params.reloadAnimation, false, params.fireAnimInterpInTime);
 }
 
 void WeaponFirearm::FireSingleBullet(const vec3& startLoc, const vec4& gridOffset)
@@ -388,7 +465,12 @@ void WeaponFirearm::NotifyNpcs()
 void WeaponFirearm::AsyncUpdate()
 {
 	 
-	float hide = HideWeapon || lastFrameHide;
+	// max (not ||): HideWeapon is now a continuous 0..1 blend for two-handed
+	// weapons handing off to an offhand weapon, and this needs to preserve the
+	// fractional value rather than collapsing it to a bool. Keeps the existing
+	// "stay hidden one extra frame" anti-flicker behaviour for everything else,
+	// since it's just max(current, previous) instead of OR(current, previous).
+	float hide = std::max(HideWeapon, lastFrameHide);
 
 	lastFrameHide = HideWeapon;
 
@@ -401,7 +483,7 @@ void WeaponFirearm::AsyncUpdate()
 	viewmodel->Update();
 	auto pose = viewmodel->GetAnimationPose();
 	auto leftHandPose = pose.GetBoneTransform("clavicle_l");
-	leftHandPose.Rotation += vec3(50, 0, 0) * hide;
+	leftHandPose.Rotation += vec3(30, 0, 0) * hide;
 	pose.SetBoneTransformEuler("clavicle_l", leftHandPose);
 	arms->PasteAnimationPose(pose);
 
@@ -411,7 +493,7 @@ void WeaponFirearm::AsyncUpdate()
 		viewmodelLeft->Update();
 		auto poseL = viewmodelLeft->GetAnimationPose();
 		auto leftHandPose = poseL.GetBoneTransform("clavicle_l");
-		leftHandPose.Rotation += vec3(50, 0, 0) * hide;
+		leftHandPose.Rotation += vec3(35, 0, 0) * hide;
 		poseL.SetBoneTransformEuler("clavicle_l", leftHandPose);
 		armsLeft->PasteAnimationPose(poseL);
 	}
@@ -509,6 +591,11 @@ void WeaponFirearm::Serialize(json& target)
 	SERIALIZE_FIELD(target, recoilModelOffset);
 	SERIALIZE_FIELD(target, weaponAim);
 	SERIALIZE_FIELD(target, fireLeftNext);
+	// Not SERIALIZE_FIELD: magazineAmmo now lives on Data (Data.magazineAmmo),
+	// not a same-named member, so the macro's implicit field-name lookup can't
+	// reach it.
+	target["magazineAmmo"] = Data.magazineAmmo;
+	SERIALIZE_FIELD(target, reloading);
 	
 	auto viewmodelData = viewmodel->GetAnimationState();
 	SERIALIZE_FIELD(target, viewmodelData);
@@ -525,6 +612,9 @@ void WeaponFirearm::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, recoilModelOffset);
 	DESERIALIZE_FIELD(source, weaponAim);
 	DESERIALIZE_FIELD(source, fireLeftNext);
+	if (source.contains("magazineAmmo"))
+		Data.magazineAmmo = source["magazineAmmo"].get<int>();
+	DESERIALIZE_FIELD(source, reloading);
 
 	AnimationState viewmodelData;
 	DESERIALIZE_FIELD(source, viewmodelData);

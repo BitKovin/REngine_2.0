@@ -456,6 +456,24 @@ public:
 	int currentSlot = 0;
 	std::vector<WeaponSlotData> weaponSlots;
 
+	// Every distinct weapon instance the player currently owns/carries - main-hand
+	// or offhand, equipped or not, regardless of whether weaponSystemMode is Slots
+	// or Inventory. This is the single source of truth for per-instance state
+	// (currently: magazine ammo) so it survives switching weapons, and gives a
+	// future drop/pickup system one place to read and write regardless of UI mode.
+	// Multiple entries may share the same className (the player can own more than
+	// one of the same weapon, each tracked independently) - entries are uniquely
+	// identified by (inventoryUUID, offhand) together, not inventoryUUID alone,
+	// because a DualWeapon inventory item's main and offhand halves deliberately
+	// share one inventoryUUID (see AddItemToInventory).
+	//
+	// NOTE: this does not yet reflect the currently-equipped weapon(s) in
+	// real time - it's refreshed whenever a weapon is unequipped/destroyed (see
+	// DestroyWeapon/DestroyWeaponOffhand) and right before saving (see Serialize).
+	// While a weapon is actively equipped, currentWeapon->Data / currentOffhandWeapon->Data
+	// is the live, accurate source for that specific instance.
+	std::vector<WeaponSlotData> ownedWeapons;
+
 	std::vector<std::string> offhandWeapons = {""}; // "weapon_lefthand_empty" 
 	int offhandWeapon = 0;
 	int desiredOffhandWeapon = 0;
@@ -528,6 +546,35 @@ public:
 	void SwitchToMeleeWeapon(bool forceChange = false);
 	void AddWeapon(const WeaponSlotData& weaponData);
 	void AddWeaponByName(const string& className);
+
+	// ── Owned-weapon registry (Player::ownedWeapons) ────────────────────────
+	// Registers a new owned weapon instance: generates data.inventoryUUID if it's
+	// empty, stores a copy in ownedWeapons, and returns the (possibly newly
+	// generated) uuid. Used whenever a distinct physical weapon is picked up -
+	// every call creates a new tracked instance, even if the player already owns
+	// one of the same class.
+	std::string RegisterOwnedWeapon(WeaponSlotData& data);
+
+	// Finds an owned weapon instance by (uuid, offhand), or nullptr if there's no
+	// match (including when uuid is empty). offhand disambiguates a DualWeapon
+	// inventory item's main and offhand halves, which share one uuid.
+	WeaponSlotData* FindOwnedWeapon(const std::string& uuid, bool offhand);
+
+	// Convenience wrapper: looks up data.inventoryUUID/data.offhand in
+	// ownedWeapons and returns that entry if found, otherwise returns data
+	// unchanged. Used when equipping a weapon, so per-instance state (magazine
+	// ammo) carries over even if the caller only has a stale copy on hand (e.g.
+	// from weaponSlots).
+	WeaponSlotData ResolveOwnedWeaponData(const WeaponSlotData& data);
+
+	// Writes data back into its matching ownedWeapons entry, if one exists (does
+	// nothing otherwise). Called right before a weapon is unequipped/destroyed so
+	// its final state isn't lost, and again right before saving.
+	void SyncOwnedWeaponData(const WeaponSlotData& data);
+
+	// Removes an owned weapon instance (e.g. once dropping is implemented, or when
+	// the owning inventory item is removed entirely). Returns true if found.
+	bool RemoveOwnedWeapon(const std::string& uuid, bool offhand);
 
 	// Inventory system methods
 	void SetWeaponSystemMode(WeaponSystemMode mode);

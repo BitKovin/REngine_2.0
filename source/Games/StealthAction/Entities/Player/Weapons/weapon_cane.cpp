@@ -9,7 +9,7 @@
 #include <Logger.hpp>
 
 
-class weapon_cane : public Weapon
+class weapon_cane : public WeaponOffhand
 {
 public:
 
@@ -69,6 +69,16 @@ public:
 
 		thirdPersonModelPath = "GameData/models/player/weapons/cane/cane_tp.glb";
 
+	}
+
+	// Reports "in use" for basically the whole time the cane is doing something
+	// with the hand: windup/recovery of an attack or parry, the grab pull, the
+	// pre-throw beat - anything covered by attackDelay. While it's out in the
+	// world as a thrown projectile the hand is empty (not holding anything), so
+	// that doesn't count even though attackDelay may still be running down.
+	bool UsesLeftHand() override
+	{
+		return !thrown && attackDelay.Wait();
 	}
 
 	bool CanChangeSlot() override
@@ -366,7 +376,7 @@ public:
 			PerformMeleeAttack();
 		}
 
-		if (Input::GetAction("attack3")->Pressed() && CanAttack())
+		if (Input::GetAction("attack3")->Pressed() && CanAttack() && !IsSuppressedByMainWeapon())
 		{
 
 			if (attackDelay.Wait() == false)
@@ -393,7 +403,7 @@ public:
 			}
 		}
 
-		if (Input::GetAction("attack2")->Pressed() && CanAttack())
+		if (Input::GetAction("attack2")->Pressed() && CanAttack() && !IsSuppressedByMainWeapon())
 		{
 			if (attackDelay.Wait() == false)
 			{
@@ -585,10 +595,13 @@ public:
 		viewmodel->Position = Position + (mat3)Camera::GetRotationMatrix() * weaponOffset;
 		viewmodel->Rotation = Rotation;
 
+		viewmodel->Rotation.x += (1.0 - LeftHandBlend) * 20;
+
 		arms->Position = viewmodel->Position;
 		arms->Rotation = viewmodel->Rotation;
 
-		viewmodel->Visible = !thrown;
+		viewmodel->Visible = !thrown && LeftHandBlend > 0.001f;
+		arms->Visible = LeftHandBlend > 0.001f;
 	}
 
 	void Serialize(json& target)

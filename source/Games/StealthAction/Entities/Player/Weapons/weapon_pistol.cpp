@@ -11,6 +11,7 @@ public:
     weapon_pistol() : WeaponFirearm() 
     {
 		params.ammoType = WeaponAmmoType::PistolBullets;
+        params.magazineSize = 16; // matches GetDefaultData().startAmmo below
         params.modelPath = "GameData/models/player/weapons/pistol/pistol.glb";
         params.texturesLocation = "GameData/models/player/weapons/pistol/pistol.glb/";
         params.modelPathTp = "GameData/models/player/weapons/pistol/pistol_tp.glb";

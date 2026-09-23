@@ -80,6 +80,13 @@ struct FirearmParams
 	std::string debuffOnHit = "";
 	float debuffStacksOnHit = 0.0f;
 
+	// ── Reloading ────────────────────────────────────────────────────────────
+	// How many rounds this weapon's magazine holds. Reloading tops
+	// Data.magazineAmmo up to this value, clamped to however much ammo the
+	// player actually has in their shared pool.
+	int magazineSize = 8;
+	std::string reloadAnimation = "reload";
+
 };
 
 class WeaponFirearm : public Weapon {
@@ -113,6 +120,15 @@ public:
 	bool akimboPrev = false;
 	bool alternateFire = true;
 
+	// ── Reloading ────────────────────────────────────────────────────────────
+	// Rounds currently chambered/loaded in THIS weapon instance, independent of
+	// (but drawn from) the player's shared ammo pool for params.ammoType. This
+	// lives directly on Data (Data.magazineAmmo) rather than a separate field,
+	// because Data is exactly the record Player persists per weapon instance
+	// (Player::ownedWeapons) - a separate field would need manual syncing and
+	// could drift out of sync with what actually gets saved. See SetData().
+	bool reloading = false;
+
 	WeaponFirearm(const FirearmParams& initialParams = FirearmParams());
 
 	void Start() override;
@@ -124,6 +140,28 @@ public:
 	void AsyncUpdate() override;
 	void LateUpdate() override;
 	WeaponSlotData GetDefaultData() override;
+
+	// Called whenever this weapon is (re)equipped, with either fresh pickup data
+	// or a previously-owned instance's persisted data (see Player::ownedWeapons).
+	// Resolves Data.magazineAmmo: tops it up fresh if this is a never-before-seen
+	// instance (magazineAmmo < 0), otherwise restores the persisted count,
+	// re-clamped in case the shared pool has dropped since it was last equipped.
+	void SetData(WeaponSlotData data) override;
+
+	// Whether StartReload() may currently succeed (not already reloading, magazine
+	// not already as full as the pool allows, pool has ammo, offhand weapon isn't
+	// currently mid-action, player is free to act).
+	virtual bool CanReload();
+
+	// Begins the reload: plays the reload animation and marks the weapon as
+	// reloading. Firing is blocked until the reload animation reports ~0.2s
+	// remaining, at which point Data.magazineAmmo is topped up and reloading clears.
+	virtual void StartReload();
+
+	bool SupressOffhandWeapon() override
+	{
+		return reloading;
+	}
 
 	void Destroy() override;
 
@@ -141,7 +179,10 @@ protected:
 
 	void SnapTrailPositions();
 
-	bool lastFrameHide = false;
+	// float (not bool): HideWeapon can now be a continuous 0..1 blend for
+	// two-handed weapons mid-handoff with an offhand weapon, and this needs to
+	// preserve that, not collapse it to true/false (see AsyncUpdate()).
+	float lastFrameHide = 0.0f;
 
 	void StopTrail(ParticleSystem* trail);
 

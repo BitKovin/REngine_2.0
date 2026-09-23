@@ -762,13 +762,21 @@ void Player::SwitchWeapon(const WeaponSlotData& data)
 
 	if (!data.className.empty())
 	{
-		currentWeapon = (Weapon*)Spawn(data.className);
+		// data may be a stale copy (e.g. from weaponSlots) - resolve to the
+		// tracked owned-weapon instance, if any, so per-instance state
+		// (magazine ammo) carries over correctly.
+		WeaponSlotData resolved = ResolveOwnedWeaponData(data);
+
+		currentWeapon = (Weapon*)Spawn(resolved.className);
 		currentWeapon->owner = this;
-		
+
+		// SetData before Start: Start() (via its own initial Update() call) may
+		// immediately act on this weapon's state (e.g. offer to reload), so Data
+		// needs to be the real thing by then, not a still-default placeholder.
+		currentWeapon->SetData(resolved);
+
 		currentWeapon->LoadAssetsIfNeeded();
-		
 		currentWeapon->Start();
-		currentWeapon->SetData(data);
 		//UpdateBody();
 	}
 }
@@ -786,8 +794,19 @@ void Player::SwitchWeaponOffhand(const string& classname)
 	{
 		currentOffhandWeapon = (Weapon*)Spawn(classname);
 		currentOffhandWeapon->owner = this;
-		currentOffhandWeapon->Start();
+
+		// Slots mode only tracks offhand weapons by class name (see
+		// offhandWeapons), so there's no uuid to resolve by here - fall back to
+		// the first owned instance of this class, if any (mirrors AddWeapon,
+		// which registers every offhand pickup into ownedWeapons).
+		auto ownedIt = std::find_if(ownedWeapons.begin(), ownedWeapons.end(),
+			[&classname](const WeaponSlotData& weapon) { return weapon.className == classname; });
+
+		if (ownedIt != ownedWeapons.end())
+			currentOffhandWeapon->SetData(*ownedIt);
+
 		currentOffhandWeapon->LoadAssetsIfNeeded();
+		currentOffhandWeapon->Start();
 	}
 
 }
@@ -797,6 +816,7 @@ void Player::DestroyWeaponOffhand()
 
 	if (currentOffhandWeapon != nullptr)
 	{
+		SyncOwnedWeaponData(currentOffhandWeapon->Data);
 
 		currentOffhandWeapon->Destroy();
 		currentOffhandWeapon = nullptr;
@@ -857,6 +877,13 @@ void Player::AddWeapon(const WeaponSlotData& weaponData)
 		AddAmmo((WeaponAmmoType)weaponData.AmmoType, weaponData.startAmmo);
 	}
 
+	// Every pickup is a distinct physical weapon instance, even if the player
+	// already owns one of the same class - track it independently so its state
+	// (magazine ammo) doesn't collide with any other copy, and so it's findable
+	// later regardless of whether it ends up reachable via a slot/offhand key.
+	WeaponSlotData owned = weaponData;
+	RegisterOwnedWeapon(owned);
+
 	if (weaponData.offhand)
 	{
 
@@ -878,7 +905,7 @@ void Player::AddWeapon(const WeaponSlotData& weaponData)
 		if (weaponSlots[slot].className.empty() ||
 			weaponSlots[slot].priority < weaponData.priority)
 		{
-			weaponSlots[slot] = weaponData;
+			weaponSlots[slot] = owned;
 
 			
 			//currentSlot = slot;
@@ -921,10 +948,61 @@ void Player::DestroyWeapon()
 {
 	if (currentWeapon)
 	{
+		SyncOwnedWeaponData(currentWeapon->Data);
+
 		currentWeapon->Destroy();
 		currentWeapon = nullptr;
 	}
 	currentMainWeaponUUID = "";
+}
+
+std::string Player::RegisterOwnedWeapon(WeaponSlotData& data)
+{
+	if (data.inventoryUUID.empty())
+		data.inventoryUUID = UUID::generate_uuid();
+
+	ownedWeapons.push_back(data);
+	return data.inventoryUUID;
+}
+
+WeaponSlotData* Player::FindOwnedWeapon(const std::string& uuid, bool offhand)
+{
+	if (uuid.empty())
+		return nullptr;
+
+	for (auto& weapon : ownedWeapons)
+	{
+		if (weapon.inventoryUUID == uuid && weapon.offhand == offhand)
+			return &weapon;
+	}
+
+	return nullptr;
+}
+
+WeaponSlotData Player::ResolveOwnedWeaponData(const WeaponSlotData& data)
+{
+	WeaponSlotData* owned = FindOwnedWeapon(data.inventoryUUID, data.offhand);
+	return owned != nullptr ? *owned : data;
+}
+
+void Player::SyncOwnedWeaponData(const WeaponSlotData& data)
+{
+	WeaponSlotData* owned = FindOwnedWeapon(data.inventoryUUID, data.offhand);
+
+	if (owned != nullptr)
+		*owned = data;
+}
+
+bool Player::RemoveOwnedWeapon(const std::string& uuid, bool offhand)
+{
+	auto it = std::find_if(ownedWeapons.begin(), ownedWeapons.end(),
+		[&uuid, offhand](const WeaponSlotData& weapon) { return weapon.inventoryUUID == uuid && weapon.offhand == offhand; });
+
+	if (it == ownedWeapons.end())
+		return false;
+
+	ownedWeapons.erase(it);
+	return true;
 }
 
 int Player::GetAmmoLimit(WeaponAmmoType type)
@@ -1038,6 +1116,8 @@ std::string Player::AddItemToInventory(const std::string& itemID, int stackSize)
 		newItem.mainWeaponData = tempWeapon->GetDefaultData();
 		newItem.mainWeaponData.inventoryUUID = newItem.uid; // Link weapon data to inventory item
 		delete tempWeapon;
+
+		RegisterOwnedWeapon(newItem.mainWeaponData); // uuid already set above, so this just tracks it
 	}
 
 	if (itemData.weaponOffhandClassName.empty() == false)
@@ -1046,6 +1126,8 @@ std::string Player::AddItemToInventory(const std::string& itemID, int stackSize)
 		newItem.offhandWeaponData = tempWeapon->GetDefaultData();
 		newItem.offhandWeaponData.inventoryUUID = newItem.uid; // Link weapon data to inventory item
 		delete tempWeapon;
+
+		RegisterOwnedWeapon(newItem.offhandWeaponData); // same uuid as mainWeaponData above, but offhand=true disambiguates
 	}
 
 	inventory.push_back(newItem);
@@ -1095,6 +1177,12 @@ bool Player::RemoveItemFromInventory(const std::string& uuid)
 		desiredInventoryUUID = "";
 		pendingInventorySwitch = false;
 	}
+
+	// The item (and whatever weapon(s) it represents) is gone entirely - drop the
+	// matching entries from the owned-weapon registry too, so it doesn't keep
+	// listing weapons the player no longer has.
+	RemoveOwnedWeapon(it->mainWeaponData.inventoryUUID, false);
+	RemoveOwnedWeapon(it->offhandWeaponData.inventoryUUID, true);
 
 	// Remove the item
 	inventory.erase(it);
@@ -1336,7 +1424,7 @@ void Player::SwitchToInventoryItem(std::string uuid, bool forceChange)
 					SwitchWeaponOffhand(currentItem->offhandWeaponData.className);
 					if (currentOffhandWeapon)
 					{
-						currentOffhandWeapon->SetData(currentItem->offhandWeaponData);
+						currentOffhandWeapon->SetData(ResolveOwnedWeaponData(currentItem->offhandWeaponData));
 					}
 				}
 
@@ -1355,7 +1443,7 @@ void Player::SwitchToInventoryItem(std::string uuid, bool forceChange)
 					SwitchWeaponOffhand(currentItem->offhandWeaponData.className);
 					if (currentOffhandWeapon)
 					{
-						currentOffhandWeapon->SetData(currentItem->offhandWeaponData);
+						currentOffhandWeapon->SetData(ResolveOwnedWeaponData(currentItem->offhandWeaponData));
 					}
 				}
 
@@ -1798,10 +1886,31 @@ void Player::UpdateWeapon()
 
 	vec3 scaledBob = bob * mix(vec3(bobBlendIn), vec3(2.5, 2.2f, 2.2f), RunProgress);
 
+	// ── Left-hand ownership between the main weapon and an offhand weapon ──────
+	// See Weapon::UsesLeftHand() for the full explanation. Short version: a
+	// one-handed main weapon (or no main weapon at all) still means the offhand
+	// weapon is always shown (nothing to fight over), and a two-handed one
+	// only gives up its left hand while the offhand weapon is itself mid-action
+	// (its own UsesLeftHand() == true) - but either way, the offhand weapon's
+	// own draw/hide is always smoothed (see the UpdateLeftHandBlend call below),
+	// so switching to a one-handed weapon doesn't snap it in instantly.
+	bool mainNeedsLeftHand = currentWeapon != nullptr && currentWeapon->UsesLeftHand();
+	bool offhandInUse = currentOffhandWeapon != nullptr && currentOffhandWeapon->UsesLeftHand();
+	bool handoffToOffhand = mainNeedsLeftHand && offhandInUse;
+
 	if (currentWeapon)
 	{
 
-		currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
+		if (mainNeedsLeftHand)
+		{
+			currentWeapon->UpdateLeftHandBlend(handoffToOffhand, Time::DeltaTimeF);
+			currentWeapon->HideWeapon = currentWeapon->LeftHandBlend;
+		}
+		else
+		{
+			currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
+		}
+
 		currentWeapon->Position = MathHelper::TransformVector(rotatedWeaponPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;
 		currentWeapon->Rotation = MathHelper::ToYawPitchRoll(qResult);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 
@@ -1817,6 +1926,13 @@ void Player::UpdateWeapon()
 
 	if (currentOffhandWeapon != nullptr)
 	{
+
+		// Always smooth (never snap the offhand weapon's blend directly) so both
+		// directions - equipping alongside a one-handed weapon, and handing off
+		// to/from a two-handed one - use the same draw/hide timing. Target is
+		// simply "always shown" when the main weapon doesn't need the left hand,
+		// otherwise the same handoff condition used for the main weapon above.
+		currentOffhandWeapon->UpdateLeftHandBlend(mainNeedsLeftHand ? handoffToOffhand : true, Time::DeltaTimeF);
 
 		currentOffhandWeapon->Position = Camera::position + MathHelper::TransformVector(vec3(0, -bob.y + 0.001, bob.x) * 1.0f, Camera::GetRotationMatrix());
 		currentOffhandWeapon->Rotation = lerp(cameraRotation, Camera::rotation , 0.3f) + runHideRotation;
@@ -2793,6 +2909,17 @@ void Player::Serialize(json& target)
 	SERIALIZE_FIELD(target, currentSlot);
 	SERIALIZE_FIELD(target, weaponSlots);
 
+	// The currently-equipped weapon(s) may have fired (or reloaded) since the
+	// last time they were unequipped, which is the only other point their
+	// ownedWeapons entry gets refreshed - bring it up to date now so the save
+	// reflects their real, current magazine count rather than whatever it was
+	// when they were last drawn.
+	if (currentWeapon)
+		SyncOwnedWeaponData(currentWeapon->Data);
+	if (currentOffhandWeapon)
+		SyncOwnedWeaponData(currentOffhandWeapon->Data);
+	SERIALIZE_FIELD(target, ownedWeapons);
+
 	SERIALIZE_FIELD(target, RunProgress);
 	SERIALIZE_FIELD(target, weaponSuppressed);
 	SERIALIZE_FIELD(target, mainWasSuppressed);
@@ -2853,6 +2980,11 @@ void Player::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, velocity);
 	DESERIALIZE_FIELD(source, currentSlot);
 	DESERIALIZE_FIELD(source, weaponSlots);
+
+	// Old saves won't have this field - ownedWeapons just starts empty, and every
+	// weapon in weaponSlots/inventory falls back to its "never persisted, top up
+	// fresh" default the next time it's equipped (see WeaponFirearm::SetData).
+	DESERIALIZE_FIELD(source, ownedWeapons);
 
 	DESERIALIZE_FIELD(source, RunProgress);
 	DESERIALIZE_FIELD(source, weaponSuppressed);
