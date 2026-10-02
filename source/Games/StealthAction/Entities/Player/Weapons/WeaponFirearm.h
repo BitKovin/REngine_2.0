@@ -129,6 +129,17 @@ public:
 	// could drift out of sync with what actually gets saved. See SetData().
 	bool reloading = false;
 
+	// If true, completing a reload actually removes the loaded rounds from the
+	// shared ammo pool (traditional "separate reserve vs magazine" model) - once
+	// loaded, this weapon's magazine is its own and unaffected by other weapons
+	// of the same ammo type firing. If false (the default), reload only tops the
+	// magazine up to whatever's still in the pool without removing anything from
+	// it - the magazine is just a capped *view* into the shared pool, so weapons
+	// genuinely share one ammo count. This is a per-instance flag rather than a
+	// FirearmParams entry because it's a behavioural switch a subclass (or
+	// something else) may want to flip directly, not fixed construction data.
+	bool reloadConsumesAmmo = true;
+
 	WeaponFirearm(const FirearmParams& initialParams = FirearmParams());
 
 	void Start() override;

@@ -1894,7 +1894,12 @@ void Player::UpdateWeapon()
 	// (its own UsesLeftHand() == true) - but either way, the offhand weapon's
 	// own draw/hide is always smoothed (see the UpdateLeftHandBlend call below),
 	// so switching to a one-handed weapon doesn't snap it in instantly.
-	bool mainNeedsLeftHand = currentWeapon != nullptr && currentWeapon->UsesLeftHand();
+	// SupressOffhandWeapon() is also folded in here: a weapon that's currently
+	// reloading needs both hands for that regardless of how many it normally
+	// uses, so a one-handed weapon reloading should hide the offhand weapon
+	// too, not just refuse to let it act (that refusal alone, in weapon_cane's
+	// IsSuppressedByMainWeapon() check, doesn't touch visibility).
+	bool mainNeedsLeftHand = currentWeapon != nullptr && (currentWeapon->UsesLeftHand() || currentWeapon->SupressOffhandWeapon());
 	bool offhandInUse = currentOffhandWeapon != nullptr && currentOffhandWeapon->UsesLeftHand();
 	bool handoffToOffhand = mainNeedsLeftHand && offhandInUse;
 
@@ -1906,9 +1911,27 @@ void Player::UpdateWeapon()
 			currentWeapon->UpdateLeftHandBlend(handoffToOffhand, Time::DeltaTimeF);
 			currentWeapon->HideWeapon = currentWeapon->LeftHandBlend;
 		}
+		else if (currentOffhandWeapon != nullptr)
+		{
+			// One-handed weapon (or not currently needing both hands) with an
+			// offhand item equipped: the hand is always free for it, but still
+			// routed through the same smoothing as the branch above. A weapon
+			// that dynamically starts needing both hands sometimes - e.g.
+			// SupressOffhandWeapon() going true mid-reload for an otherwise
+			// one-handed weapon - needs both directions of that transition
+			// smoothed, not just the one into mainNeedsLeftHand.
+			currentWeapon->UpdateLeftHandBlend(true, Time::DeltaTimeF);
+			currentWeapon->HideWeapon = currentWeapon->LeftHandBlend;
+		}
 		else
 		{
-			currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
+			// No offhand weapon at all - HideWeapon just follows bike_progress,
+			// which does its own smoothing elsewhere. Keep LeftHandBlend
+			// mirroring it so that if an offhand weapon gets equipped next
+			// frame, the branch above picks up from the right starting point
+			// instead of popping from a stale value.
+			currentWeapon->HideWeapon = bike_progress;
+			currentWeapon->LeftHandBlend = currentWeapon->HideWeapon;
 		}
 
 		currentWeapon->Position = MathHelper::TransformVector(rotatedWeaponPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;

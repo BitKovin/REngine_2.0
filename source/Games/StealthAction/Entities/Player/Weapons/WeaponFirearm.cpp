@@ -170,6 +170,15 @@ void WeaponFirearm::Update()
 {
 	Weapon::Update();
 
+	// When the magazine is just a capped view into the shared pool (rather than
+	// reload having actually moved ammo out of it), it can go stale: another
+	// weapon of the same ammo type may have fired and dropped the pool below
+	// what this magazine currently shows. Keep it honest every frame. Not done
+	// when reloadConsumesAmmo is true, since in that mode the magazine's ammo
+	// has genuinely been removed from the pool and is this weapon's own.
+	if (!reloadConsumesAmmo && owner != nullptr)
+		Data.magazineAmmo = std::min(Data.magazineAmmo, owner->GetAmmo(params.ammoType));
+
 	if (akimbo)
 	{
 		akimboDistanceProgress += Time::DeltaTimeF * 4.0f;
@@ -225,7 +234,24 @@ void WeaponFirearm::Update()
 
 		if (remaining <= 0.2f)
 		{
-			Data.magazineAmmo = owner != nullptr ? std::min(params.magazineSize, owner->GetAmmo(params.ammoType)) : Data.magazineAmmo;
+			if (owner != nullptr)
+			{
+				int target = std::min(params.magazineSize, owner->GetAmmo(params.ammoType));
+
+				if (reloadConsumesAmmo)
+				{
+					// Actually move the rounds from the pool into the magazine.
+					int amountToLoad = std::max(0, target - Data.magazineAmmo);
+					owner->ConsumeAmmo(params.ammoType, amountToLoad);
+					Data.magazineAmmo += amountToLoad;
+				}
+				else
+				{
+					// Just cap the shared view - nothing leaves the pool.
+					Data.magazineAmmo = target;
+				}
+			}
+
 			reloading = false;
 		}
 	}
@@ -239,23 +265,40 @@ void WeaponFirearm::PerformAttack()
 		return;
 	}
 
-	// Computed here (rather than later, where it used to be) because the ammo
-	// gate below needs to know which hand is about to fire before deciding
-	// what to check.
+	// Computed - and the hands alternated - before the ammo gate below, so a
+	// shot that gets blocked for lack of ammo still hands the turn to the
+	// other hand next time, instead of getting stuck retrying the same empty
+	// hand forever.
 	bool fireLeft = akimbo && alternateFire && fireLeftNext;
+	fireLeftNext = !fireLeftNext;
+
+	// Whether it's the left or right hand's turn, the weapon overall still has
+	// to actually be loaded to fire at all - otherwise, once the magazine hits
+	// zero, "spare" below collapses to the entire remaining pool and the left
+	// hand alone could keep the weapon firing forever, with the right hand
+	// silently failing every other shot and reload never becoming necessary.
+	if (Data.magazineAmmo <= 0)
+	{
+		return;
+	}
 
 	// Akimbo's left-hand gun doesn't have its own tracked magazine - it draws
 	// straight from the shared ammo pool and never needs reloading. Only the
-	// primary gun (right hand when akimbo, either hand otherwise) is gated on,
-	// and consumes from, Data.magazineAmmo.
+	// primary gun (right hand when akimbo, either hand otherwise) consumes
+	// from Data.magazineAmmo, but both hands are still gated on it being
+	// non-empty (see above) - the left hand is gated further still, below.
 	if (fireLeft)
 	{
-		if (owner->GetAmmo(params.ammoType) <= 0)
-			return;
-	}
-	else
-	{
-		if (Data.magazineAmmo <= 0)
+		// "Spare" ammo: whatever's in the pool beyond what the primary magazine
+		// already shows as loaded, so the left hand can't eat into rounds the
+		// right hand is counting on. When reloadConsumesAmmo is true the pool is
+		// already pure reserve (a reload physically moves rounds out of it into
+		// the magazine), so none of that subtraction is needed; when false the
+		// magazine is just a capped view into the same pool, so whatever it's
+		// currently showing as loaded isn't actually free for the left hand too.
+		int spareAmmo = owner->GetAmmo(params.ammoType) - (reloadConsumesAmmo ? 0 : Data.magazineAmmo);
+
+		if (spareAmmo <= 0)
 			return;
 	}
 
@@ -319,8 +362,6 @@ void WeaponFirearm::PerformAttack()
 	else
 		viewmodel->PlayAnimation(params.fireAnimation, false, params.fireAnimInterpInTime);
 
-	fireLeftNext = !fireLeftNext;
-
 	// muzzle selection
 	mat4 boneMat = (akimbo && fireLeft ? viewmodelLeft : viewmodel)->GetBoneMatrixWorld(params.boneMuzzle);
 	vec3 startLoc = MathHelper::DecomposeMatrix(boneMat).Position;
@@ -346,12 +387,23 @@ void WeaponFirearm::PerformAttack()
 			FireSingleBullet(startLoc, vec4(0));
 	}
 
-	owner->ConsumeAmmo(GetAmmoType(), 1);
-
-	// See the gate check at the top: the left-hand akimbo shot only ever draws
-	// from the shared pool above, never from this weapon's own magazine.
-	if (!fireLeft)
+	if (fireLeft)
+	{
+		// Left hand never has its own magazine - it always draws straight from
+		// the shared pool, regardless of reloadConsumesAmmo.
+		owner->ConsumeAmmo(GetAmmoType(), 1);
+	}
+	else
+	{
 		Data.magazineAmmo = std::max(0, Data.magazineAmmo - 1);
+
+		// Only take it out of the pool too if the magazine isn't already
+		// physically separate from it - i.e. a reload didn't already move
+		// these rounds out of the pool when it was loaded. Consuming from
+		// both here would double-charge the player for the same rounds.
+		if (!reloadConsumesAmmo)
+			owner->ConsumeAmmo(GetAmmoType(), 1);
+	}
 
 	if (fireLeft)
 	{
