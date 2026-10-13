@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(/.claude/**)",
+      "Edit(/.git/**)"
+    ]
+  },
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
+  "includeCoAuthoredBy": false
+}
