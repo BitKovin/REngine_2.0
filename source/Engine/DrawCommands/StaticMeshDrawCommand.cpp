@@ -4,9 +4,12 @@
 #include "../LightSystem/LightManager.h"
 #include "../ShaderManager.h"
 #include "../Shader.hpp"
+#include "../skinned_model.hpp"
 
 #include <BgfxStateManager.h>
 #include <Renderer/Abstractions/ViewIdManager.h>
+
+#include <algorithm>
 
 void StaticMeshDrawCommand::ApplyAdditionalShaderParams(Shader* shader)
 {
@@ -231,6 +234,16 @@ void SkeletalMeshDrawCommand::ApplyAdditionalShaderParams(Shader* shader)
 {
 	StaticMeshDrawCommand::ApplyAdditionalShaderParams(shader);
 
-	if (BoneMatrices)
-		shader->SetUniform("finalBonesMatrices", *BoneMatrices);
+	if (!BoneMatrices || BoneMatrices->empty())
+		return;
+
+	// The palette goes up as two arrays (bgfx stores a uniform array's size in 8 bits) - see SKINNED_BONES_PER_UNIFORM.
+	const mat4* palette = BoneMatrices->data();
+	const size_t lowCount = std::min(BoneMatrices->size(), static_cast<size_t>(SKINNED_BONES_PER_UNIFORM));
+	shader->SetUniform("finalBonesMatrices0", palette, lowCount);
+	if (BoneMatrices->size() > lowCount)
+		shader->SetUniform("finalBonesMatrices1", palette + lowCount, BoneMatrices->size() - lowCount);
+
+	// Shaders that still declare the single 128-slot array (games not moved to the split palette yet).
+	shader->SetUniform("finalBonesMatrices", palette, lowCount);
 }

@@ -1,0 +1,89 @@
+{
+    "entries": [
+        {
+            "key": "INPUT_CATEGORY_MOVEMENT",
+            "value": "Рух",
+            "description": ""
+        },
+        {
+            "key": "INPUT_CATEGORY_COMBAT",
+            "value": "Бій",
+            "description": ""
+        },
+        {
+            "key": "INPUT_CATEGORY_INTERACT",
+            "value": "Взаємодія",
+            "description": ""
+        },
+        {
+            "key": "INPUT_CATEGORY_WEAPONS",
+            "value": "Зброя",
+            "description": ""
+        },
+        {
+            "key": "INPUT_CATEGORY_MISC",
+            "value": "Різне",
+            "description": ""
+        },
+        {
+            "key": "INPUT_CATEGORY_GENERAL",
+            "value": "Загальне",
+            "description": ""
+        },
+        {
+            "key": "INPUT_ACTION_FORWARD",
+            "value": "Рух вперед",
+            "description": ""
+        },
+        {
+            "key": "INPUT_ACTION_BACKWARD",
+            "value": "Рух назад",
+            "description": ""
+        },
+        {
+            "key": "INPUT_ACTION_LEFT",
+            "value": "Рух ліворуч",
+            "description": ""
+        },
+        {
+            "key": "INPUT_ACTION_RIGHT",
+            "value": "Рух праворуч",
+            "description": ""
+        },
+        {
+            "key": "INPUT_ACTION_JUMP",
+            "value": "Стрибок",
+            "description": ""
+        },
+        {
+            "key": "INPUT_ACTION_DASH",
+            "value": "Ривок",
+            "description": ""
+        },
+        {
+            "key": "INPUT_ACTION_ATTACK",
+            "value": "Атака",
+            "description": ""
+        },
+        {
+            "key": "INPUT_ACTION_INTERACT",
+            "value": "Взаємодія",
+            "description": ""
+        },
+        {
+            "key": "INPUT_ACTION_FIRE",
+            "value": "Fire",
+            "description": "Input action to fire the equipped firearm (TODO: translate)"
+        },
+        {
+            "key": "INPUT_ACTION_FINISHER",
+            "value": "Finisher",
+            "description": "Input action to perform a finisher on a staggered (poise-broken) enemy (TODO: translate)"
+        },
+        {
+            "key": "INPUT_ACTION_POSSESS",
+            "value": "Possess / Release",
+            "description": "Input action to possess the enemy under the crosshair, or release the possessed body (TODO: translate)"
+        }
+    ]
+}

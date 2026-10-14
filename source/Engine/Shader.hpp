@@ -133,6 +133,7 @@ public:
     void SetUniform(const std::string& uname, const std::vector<glm::mat2>&  values);
     void SetUniform(const std::string& uname, const std::vector<glm::mat3>&  values);
     void SetUniform(const std::string& uname, const std::vector<glm::mat4>&  values);
+    void SetUniform(const std::string& uname, const glm::mat4* values, size_t count);   // a range of a larger array
 
     // -----------------------------------------------------------------------
     // Texture setters

@@ -1,0 +1,66 @@
+{
+	"version": 1,
+	"name": "brute",
+	"animations": ["GameData/models/enemies/zombie/zombie.glb"],
+	"blendOut": 0.25,
+	"reactions": {
+		"Flinch": "flinch",
+		"Stagger": "stagger",
+		"Knockdown": "stagger",
+		"Launch": "stagger",
+		"PoiseBreak": "broken",
+		"FinisherVictim": "finisher_victim"
+	},
+	"moves": {
+		"slam": {
+			"clip": "attack",
+			"tags": ["Attack", "Melee", "Heavy"],
+			"heavy": true,
+			"entry": { "fresh": { "blendIn": 0.15, "startTime": 0.0 } },
+			"hits": [ { "start": 0.52, "end": 0.82, "bone": "hand_r", "radius": 0.55, "damage": 24, "poiseDamage": 30, "reaction": "Knockdown", "knockback": 5.0, "hitStop": 0.14, "shake": 0.07 } ],
+			"armor": [ { "start": 0.2, "end": 0.85, "poiseResist": 1.0 } ],
+			"tracking": { "until": 0.45, "turnRate": 240, "magnetRange": 1.5, "idealDistance": 1.4 }
+		},
+		"flinch": {
+			"_note": "The stun clip opens with a 0.2 s lead-in: reactions start at its recoil, so the frame after the hit-stop shows the blow.",
+			"behavior": "Reaction",
+			"clip": "stun",
+			"endTime": 0.55,
+			"blendOut": 0.15,
+			"tags": ["Reaction"],
+			"startState": "Any",
+			"entry": { "fresh": { "blendIn": 0.05, "startTime": 0.2 } },
+			"params": { "knockbackScale": 0.3, "knockbackTime": 0.2 }
+		},
+		"stagger": {
+			"behavior": "Reaction",
+			"clip": "stun",
+			"endTime": 1.07,
+			"tags": ["Reaction"],
+			"startState": "Any",
+			"entry": { "fresh": { "blendIn": 0.05, "startTime": 0.17 } },
+			"params": { "knockbackScale": 0.4, "knockbackTime": 0.3 }
+		},
+		"broken": {
+			"behavior": "Reaction",
+			"clip": "stun",
+			"loop": true,
+			"loopStart": 0.5,
+			"endTime": 1.0,
+			"tags": ["Reaction"],
+			"startState": "Any",
+			"entry": { "fresh": { "blendIn": 0.05, "startTime": 0.17 } },
+			"params": { "knockbackScale": 0.4, "knockbackTime": 0.3, "holdWhileBroken": true }
+		},
+		"finisher_victim": {
+			"behavior": "FinisherVictim",
+			"clip": "stun",
+			"loop": true,
+			"loopStart": 0.5,
+			"endTime": 1.0,
+			"tags": ["Reaction"],
+			"startState": "Any",
+			"entry": { "fresh": { "blendIn": 0.1, "startTime": 0.0 } }
+		}
+	}
+}

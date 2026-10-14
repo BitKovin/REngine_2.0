@@ -1,0 +1,38 @@
+{
+	"version": 1,
+	"name": "gunner",
+	"team": "Enemy",
+	"mesh": { "model": "GameData/models/enemies/humanGun/humanGun.glb" },
+	"locomotion": {
+		"idle": "aim",
+		"runForward": "run",
+		"runBackward": "",
+		"runLeft": "",
+		"runRight": "",
+		"runClipSpeed": 4.1
+	},
+	"moveset": "GameData/combat/movesets/gunner.moveset.json",
+	"health": 80,
+	"poise": { "max": 25, "regenDelay": 2.0, "regenRate": 12, "breakDuration": 3.0, "brokenDamageTaken": 1.5, "firearmScale": 0.4 },
+	"movement": { "walkSpeed": 2.0, "runSpeed": 4.2, "acceleration": 25, "deceleration": 35, "turnRate": 480, "radius": 0.4, "height": 1.8, "quality": "NpcGeneric" },
+	"weakPoints": [
+		{ "name": "head", "hitboxes": ["neck_01"], "health": 15, "sources": ["Firearm"], "multiplier": 2.0, "onBreak": ["Kill"], "regrow": 0 }
+	],
+	"weapons": { "Secondary": "GameData/combat/weapons/gunner_rifle.weapon.json" },
+	"ai": {
+		"brain": "Ranged",
+		"sightRadius": 30,
+		"fov": 150,
+		"preferredMinRange": 6,
+		"preferredMaxRange": 14,
+		"aggression": 0.7,
+		"aimError": 3.0,
+		"attacks": [
+			{ "move": "fire", "minRange": 2, "maxRange": 22, "weight": 1, "cooldown": 1.6, "token": "Ranged", "holdTime": 1.0, "holdButton": "Secondary" }
+		]
+	},
+	"possession": { "allowed": true, "idleBrain": "Ally" },
+	"hitEffect": { "particle": "hit_flesh", "scale": 3 },
+	"finisher": { "range": 2.5, "angle": 60, "reward": "finisher_boost" },
+	"corpseLifetime": 15
+}

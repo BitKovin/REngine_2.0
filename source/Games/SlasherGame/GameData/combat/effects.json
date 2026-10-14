@@ -1,0 +1,12 @@
+{
+	"version": 1,
+	"effects": {
+		"finisher_boost": {
+			"duration": 10,
+			"stacking": "Refresh",
+			"maxStacks": 1,
+			"modifiers": { "damageDealt": 1.5, "poiseDamageDealt": 1.5, "attackSpeed": 1.15 },
+			"hudLabel": "FINISHER BOOST"
+		}
+	}
+}

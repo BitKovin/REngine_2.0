@@ -1,0 +1,57 @@
+{
+	"version": 1,
+	"name": "dummy",
+	"animations": ["GameData/models/npc/base.glb"],
+	"blendOut": 0.2,
+	"reactions": {
+		"Flinch": "flinch",
+		"Stagger": "stagger",
+		"Knockdown": "stagger",
+		"Launch": "stagger",
+		"PoiseBreak": "broken",
+		"FinisherVictim": "finisher_victim"
+	},
+	"moves": {
+		"flinch": {
+			"_note": "The stun clip opens with a 0.2 s lead-in: reactions start at its recoil, so the frame after the hit-stop shows the blow.",
+			"behavior": "Reaction",
+			"clip": "stun",
+			"endTime": 0.6,
+			"blendOut": 0.15,
+			"tags": ["Reaction"],
+			"startState": "Any",
+			"entry": { "fresh": { "blendIn": 0.05, "startTime": 0.2 } },
+			"params": { "knockbackTime": 0.2 }
+		},
+		"stagger": {
+			"behavior": "Reaction",
+			"clip": "stun",
+			"endTime": 1.17,
+			"tags": ["Reaction"],
+			"startState": "Any",
+			"entry": { "fresh": { "blendIn": 0.05, "startTime": 0.17 } },
+			"params": { "knockbackTime": 0.3 }
+		},
+		"broken": {
+			"behavior": "Reaction",
+			"clip": "stun",
+			"loop": true,
+			"loopStart": 0.5,
+			"endTime": 1.0,
+			"tags": ["Reaction"],
+			"startState": "Any",
+			"entry": { "fresh": { "blendIn": 0.05, "startTime": 0.17 } },
+			"params": { "knockbackTime": 0.3, "holdWhileBroken": true }
+		},
+		"finisher_victim": {
+			"behavior": "FinisherVictim",
+			"clip": "stun",
+			"loop": true,
+			"loopStart": 0.5,
+			"endTime": 1.0,
+			"tags": ["Reaction"],
+			"startState": "Any",
+			"entry": { "fresh": { "blendIn": 0.1, "startTime": 0.0 } }
+		}
+	}
+}

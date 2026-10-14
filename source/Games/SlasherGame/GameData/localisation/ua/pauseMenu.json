@@ -1,0 +1,24 @@
+{
+    "entries": [
+        {
+            "key": "PAUSE_MENU_RESUME",
+            "value": "Продовжити",
+            "description": "Button that resumes gameplay"
+        },
+        {
+            "key": "PAUSE_MENU_SETTINGS",
+            "value": "Налаштування",
+            "description": "Button that opens the settings menu"
+        },
+        {
+            "key": "PAUSE_MENU_RESTART",
+            "value": "Restart Level",
+            "description": "Button that restarts the current level (TODO: translate)"
+        },
+        {
+            "key": "PAUSE_MENU_QUIT",
+            "value": "Quit Game",
+            "description": "Button that quits the game (TODO: translate)"
+        }
+    ]
+}

@@ -1,0 +1,26 @@
+{
+	"version": 1,
+	"name": "dummy",
+	"team": "Enemy",
+	"mesh": { "model": "GameData/models/npc/base.glb" },
+	"locomotion": {
+		"idle": "idle",
+		"runForward": "run",
+		"runBackward": "run_b",
+		"runLeft": "run_l",
+		"runRight": "run_r",
+		"runClipSpeed": 3.3
+	},
+	"moveset": "GameData/combat/movesets/dummy.moveset.json",
+	"health": 400,
+	"poise": { "max": 40, "regenDelay": 1.5, "regenRate": 25, "breakDuration": 4.0, "brokenDamageTaken": 1.5, "firearmScale": 0.3 },
+	"movement": { "runSpeed": 3.0, "radius": 0.4, "height": 1.8, "quality": "NpcLowQuality" },
+	"weakPoints": [
+		{ "name": "head", "hitboxes": ["neck_01"], "health": 30, "sources": ["Firearm"], "multiplier": 2.0, "onBreak": ["BreakPoise"], "regrow": 5 }
+	],
+	"ai": { "brain": "Idle", "attacks": [] },
+	"possession": { "allowed": false },
+	"hitEffect": { "particle": "hit_flesh", "scale": 3 },
+	"finisher": { "range": 2.5, "angle": 60, "reward": "finisher_boost" },
+	"corpseLifetime": 10
+}

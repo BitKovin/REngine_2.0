@@ -40,6 +40,9 @@ struct AnimationPose
 	static AnimationPose Lerp(const AnimationPose& a,
 		const AnimationPose& b, float progress);
 
+	// Blends startBoneName's subtree from poseA toward poseB by progress. UseWorldSpaceRotation chooses the space the
+	// start bone's rotation blends in, independent of progress: 0 = local (relative to poseA's parent chain),
+	// 1 = world / mesh space (the start bone keeps poseB's model-space orientation at progress 1), between = a mix.
 	static AnimationPose LayeredLerp(const hashed_string& startBoneName,
 		roj::BoneNode* rootNode,
 		const AnimationPose& poseA,

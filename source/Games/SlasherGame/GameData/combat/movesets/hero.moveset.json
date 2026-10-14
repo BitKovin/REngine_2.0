@@ -1,0 +1,344 @@
+{
+	"version": 1,
+	"name": "hero_scythe",
+	"animations": [
+		"GameData/models/player/weapons/scythe/scythe.glb",
+		"GameData/models/player/weapons/pistols/pistols.glb",
+		"GameData/models/player/player_coat.glb"
+	],
+	"inputBuffer": 0.4,
+	"actionBuffer": 0.2,
+	"holdCarriesOver": true,
+	"holdDelay": 0.1,
+	"holdDelayInMove": 0.4,
+	"blendOut": 0.2,
+	"combos": { "Attack": "start" },
+	"holdOpeners": { "Attack": "launch" },
+	"actions": {
+		"Dash": "dash",
+		"AirDash": "air_dash",
+		"Jump": "jump",
+		"AirJump": "double_jump",
+		"Glide": "glide",
+		"Secondary": "fire",
+		"Finisher": "finisher",
+		"Draw": "draw"
+	},
+	"reactions": {
+		"Flinch": "flinch",
+		"Stagger": "stagger",
+		"Knockdown": "knockdown",
+		"Launch": "knockdown",
+		"Death": "death"
+	},
+	"moves": {
+		"start": {
+			"_note": "Opener, on the ground and in the air (one combo for both, COMBAT_DESIGN.md 5.8). light_1 begins exactly in this clip's hold pose (0.42 - 0.93). afterHold: the launcher released during its wind-up hands over here, past this clip's first frames (the player already waited).",
+			"clip": "combo1_start",
+			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
+			"tags": ["Attack", "Melee"],
+			"startState": "Any",
+			"entry": {
+				"fresh": { "blendIn": 0.12, "startTime": 0.0 },
+				"afterHold": { "blendIn": 0.1, "startTime": 0.08 }
+			},
+			"hits": [ { "start": 0.25, "end": 0.4, "damage": 12, "poiseDamage": 6, "reaction": "Flinch", "knockback": 3.5, "hitStop": 0.07, "shake": 0.035 } ],
+			"combo": { "windowStart": 0.515, "alternativeAt": 0.71, "windowEnd": 0.935, "next": "light_1", "alternative": "heavy_1" },
+			"cancels": [ { "start": 0.42, "into": ["Dash", "Jump"] }, { "start": 0.66, "into": ["Locomotion"] } ],
+			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7 },
+			"cues": [ { "time": 0.24, "trail": 1 }, { "time": 0.42, "trail": 0 } ]
+		},
+		"light_1": {
+			"clip": "combo1_light_1",
+			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
+			"tags": ["Attack", "Melee"],
+			"startState": "Any",
+			"entry": {
+				"fresh": { "blendIn": 0.12, "startTime": 0.0 },
+				"afterLight": { "blendIn": 0.08, "startTime": 0.0 },
+				"afterHeavy": { "blendIn": 0.15, "startTime": 0.0 }
+			},
+			"hits": [
+				{ "start": 0.15, "end": 0.32, "damage": 10, "poiseDamage": 5, "reaction": "Flinch", "knockback": 3.0, "hitStop": 0.06, "shake": 0.03 },
+				{ "start": 0.4, "end": 0.54, "damage": 12, "poiseDamage": 6, "reaction": "Flinch", "knockback": 4.0, "hitStop": 0.07, "shake": 0.04 }
+			],
+			"combo": { "windowStart": 0.58, "alternativeAt": 0.66, "windowEnd": 0.98, "next": "light_2", "alternative": "heavy_2" },
+			"cancels": [ { "start": 0.56, "into": ["Dash", "Jump"] }, { "start": 0.78, "into": ["Locomotion"] } ],
+			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7 },
+			"cues": [ { "time": 0.14, "trail": 1 }, { "time": 0.56, "trail": 0 } ]
+		},
+		"heavy_1": {
+			"_note": "In the air the strike is a plunge: it dives from 0.24 and holds the strike from 0.36 until it lands, then finishes on the ground.",
+			"clip": "combo1_heavy_1",
+			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
+			"heavy": true,
+			"tags": ["Attack", "Melee"],
+			"startState": "Any",
+			"entry": {
+				"fresh": { "blendIn": 0.15, "startTime": 0.0 },
+				"afterLight": { "blendIn": 0.15, "startTime": 0.0 },
+				"afterHeavy": { "blendIn": 0.15, "startTime": 0.0 }
+			},
+			"hits": [ { "start": 0.24, "end": 0.45, "damage": 20, "poiseDamage": 14, "reaction": "Stagger", "knockback": 6.0, "hitStop": 0.12, "shake": 0.06, "camera": 0.6, "impactScale": 2, "air": { "stall": 0 } } ],
+			"combo": { "windowStart": 0.47, "alternativeAt": 0.55, "windowEnd": 0.75, "next": "light_2", "alternative": "heavy_2" },
+			"cancels": [ { "start": 0.47, "into": ["Dash", "Jump"] }, { "start": 0.62, "into": ["Locomotion"] } ],
+			"armor": [ { "start": 0.1, "end": 0.45, "poiseResist": 0.6 } ],
+			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
+			"cues": [ { "time": 0.22, "trail": 1 }, { "time": 0.47, "trail": 0 } ],
+			"params": { "plunge": { "start": 0.24, "speed": 18, "hold": 0.36 } },
+			"speed": 0.85
+		},
+		"light_2": {
+			"_note": "Stationary clip (no root motion): the target assist pulls the body in. Begins in the idle stance.",
+			"clip": "combo1_light_2",
+			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
+			"tags": ["Attack", "Melee"],
+			"startState": "Any",
+			"entry": {
+				"fresh": { "blendIn": 0.1, "startTime": 0.0 },
+				"afterLight": { "blendIn": 0.15, "startTime": 0.0 },
+				"afterHeavy": { "blendIn": 0.18, "startTime": 0.0 }
+			},
+			"hits": [
+				{ "start": 0.03, "end": 0.18, "damage": 8, "poiseDamage": 4, "reaction": "Flinch", "knockback": 2.5, "hitStop": 0.05, "shake": 0.03 },
+				{ "start": 0.27, "end": 0.48, "damage": 11, "poiseDamage": 6, "reaction": "Flinch", "knockback": 4.0, "hitStop": 0.07, "shake": 0.04 }
+			],
+			"combo": { "windowStart": 0.52, "alternativeAt": 0.60, "windowEnd": 0.95, "next": "light_3", "alternative": "heavy_3" },
+			"cancels": [ { "start": 0.52, "into": ["Dash", "Jump"] }, { "start": 0.72, "into": ["Locomotion"] } ],
+			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7, "advance": 1.5 },
+			"cues": [ { "time": 0.02, "trail": 1 }, { "time": 0.5, "trail": 0 } ]
+		},
+		"heavy_2": {
+			"_note": "heavy_3 begins exactly in this clip's hold pose (0.78 - 1.3).",
+			"clip": "combo1_heavy_2",
+			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
+			"heavy": true,
+			"tags": ["Attack", "Melee"],
+			"startState": "Any",
+			"entry": {
+				"fresh": { "blendIn": 0.12, "startTime": 0.0 },
+				"afterLight": { "blendIn": 0.15, "startTime": 0.0 },
+				"afterHeavy": { "blendIn": 0.18, "startTime": 0.0 }
+			},
+			"hits": [ { "start": 0.56, "end": 0.77, "damage": 22, "poiseDamage": 16, "reaction": "Stagger", "knockback": 6.5, "hitStop": 0.13, "shake": 0.065, "camera": 0.7, "impactScale": 2 } ],
+			"combo": { "windowStart": 0.75, "alternativeAt": 0.825, "windowEnd": 1.28, "next": "light_3", "alternative": "heavy_3" },
+			"cancels": [ { "start": 0.79, "into": ["Dash", "Jump"] }, { "start": 0.95, "into": ["Locomotion"] } ],
+			"armor": [ { "start": 0.3, "end": 0.77, "poiseResist": 0.6 } ],
+			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
+			"cues": [ { "time": 0.54, "trail": 1 }, { "time": 0.79, "trail": 0 } ]
+		},
+		"light_3": {
+			"_note": "Light ender. Stationary clip: the target assist pulls the body in.",
+			"clip": "combo1_light_3",
+			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
+			"tags": ["Attack", "Melee"],
+			"startState": "Any",
+			"entry": {
+				"fresh": { "blendIn": 0.12, "startTime": 0.0 },
+				"afterLight": { "blendIn": 0.15, "startTime": 0.0 },
+				"afterHeavy": { "blendIn": 0.18, "startTime": 0.0 }
+			},
+			"hits": [ { "start": 0.2, "end": 0.45, "damage": 14, "poiseDamage": 9, "reaction": "Stagger", "knockback": 6.0, "hitStop": 0.1, "shake": 0.055, "camera": 0.5, "impactScale": 1.5, "air": { "lift": 2.0, "stall": 0.5 } } ],
+			"recovery": { "start": 0.7, "lowerBodyBlend": 0.18 },
+			"cancels": [ { "start": 0.5, "into": ["Dash", "Jump", "Locomotion"] } ],
+			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7, "advance": 1.5 },
+			"cues": [ { "time": 0.19, "trail": 1 }, { "time": 0.47, "trail": 0 } ]
+		},
+		"heavy_3": {
+			"_note": "Heavy ender: two strikes and 4.2 m of root motion.",
+			"clip": "combo1_heavy_3",
+			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
+			"heavy": true,
+			"tags": ["Attack", "Melee"],
+			"startState": "Any",
+			"entry": {
+				"fresh": { "blendIn": 0.12, "startTime": 0.0 },
+				"afterLight": { "blendIn": 0.18, "startTime": 0.1 },
+				"afterHeavy": { "blendIn": 0.06, "startTime": 0.0 }
+			},
+			"hits": [
+				{ "start": 0.35, "end": 0.64, "damage": 18, "poiseDamage": 12, "reaction": "Stagger", "knockback": 5.0, "hitStop": 0.11, "shake": 0.05, "camera": 0.5, "impactScale": 1.5 },
+				{ "start": 0.98, "end": 1.38, "damage": 28, "poiseDamage": 20, "reaction": "Knockdown", "knockback": 9.0, "hitStop": 0.16, "shake": 0.08, "camera": 1.0, "impactScale": 2.5 }
+			],
+			"recovery": { "start": 1.45, "lowerBodyBlend": 0.2 },
+			"cancels": [ { "start": 1.4, "into": ["Dash", "Jump", "Locomotion"] } ],
+			"armor": [ { "start": 0.2, "end": 1.38, "poiseResist": 0.8 } ],
+			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
+			"cues": [
+				{ "time": 0.33, "trail": 1 }, { "time": 0.66, "trail": 0 },
+				{ "time": 0.96, "trail": 1 }, { "time": 1.4, "trail": 0 }
+			]
+		},
+		"launch": {
+			"_note": "Launcher: hold Attack from neutral (holdDelay). Wind-up until 0.26 - released earlier, the usual attack takes over (start, afterHold). The rising slash 0.27 - 0.37 sends the target up and the hero with it (launchSelf onHit: 10.5 * sqrt(21 / 25) = 9.6 m/s rises level with a grunt). Recovery at 0.4 hands the legs to the air pose once airborne.",
+			"clip": "launch",
+			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
+			"speed": 0.7,
+			"heavy": true,
+			"tags": ["Attack", "Melee"],
+			"entry": { "fresh": { "blendIn": 0.1, "startTime": 0.0 } },
+			"hold": { "until": 0.26, "release": "start" },
+			"hits": [ { "start": 0.27, "end": 0.37, "damage": 16, "poiseDamage": 12, "reaction": "Launch", "launch": 10.5, "knockback": 1.0, "hitStop": 0.12, "shake": 0.06, "camera": 0.6, "impactScale": 2, "air": { "stall": 1.2 } } ],
+			"recovery": { "start": 0.6, "lowerBodyBlend": 0.2 },
+			"cancels": [ { "start": 0.38, "into": ["Jump", "Dash"] } ],
+			"armor": [ { "start": 0.1, "end": 0.37, "poiseResist": 0.6 } ],
+			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.4, "maxMagnetSpeed": 7 },
+			"cues": [ { "time": 0.25, "trail": 1 }, { "time": 0.4, "trail": 0 } ],
+			"params": { "launchSelf": { "onHit": true, "verticalSpeed": 9.6, "requireHeld": false } }
+		},
+		"finisher": {
+			"_note": "Placeholder until a finisher clip exists: the heavy_2 strike as a paired direct hit.",
+			"behavior": "Finisher",
+			"clip": "combo1_heavy_2",
+			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
+			"heavy": true,
+			"tags": ["Attack", "Melee", "Finisher"],
+			"entry": { "fresh": { "blendIn": 0.1, "startTime": 0.0 } },
+			"endTime": 1.6,
+			"rootMotion": { "enabled": false },
+			"hits": [ { "start": 0.62, "end": 0.7, "source": "Finisher", "direct": true, "damage": 80, "poiseDamage": 0, "reaction": "Knockdown", "knockback": 8.0, "hitStop": 0.16, "shake": 0.08, "camera": 1.2, "impactScale": 3 } ],
+			"recovery": { "start": 1.3, "lowerBodyBlend": 0.2 },
+			"invulnerable": [ { "start": 0.0, "end": 1.3 } ],
+			"cues": [ { "time": 0.54, "trail": 1 }, { "time": 0.79, "trail": 0 } ],
+			"params": { "distance": 1.6, "slowMotionDuration": 0.4, "slowMotionScale": 0.3 }
+		},
+		"dash": {
+			"_note": "Blocks overlays: the body faces the dash, firing and the aim wait. Jump cancels it at once.",
+			"behavior": "Dash",
+			"clip": "dash",
+			"animation": "GameData/models/player/player_coat.glb",
+			"speed": 0.77,
+			"tags": ["Dash", "Movement"],
+			"airLegs": false,
+			"entry": { "fresh": { "blendIn": 0.05, "startTime": 0.0 } },
+			"endTime": 0.75,
+			"blendOut": 0.2,
+			"rootMotion": { "enabled": false },
+			"invulnerable": [ { "start": 0.0, "end": 0.25 } ],
+			"cancels": [ { "start": 0.0, "into": ["Jump"] }, { "start": 0.3, "into": ["Attack", "Dash"] } ],
+			"recovery": { "start": 0.45, "lowerBodyBlend": 0.15 },
+			"params": { "distance": 6.0, "duration": 0.39, "curve": "EaseOut", "airCharges": 1, "exitSpeed": 1.0, "tailLocomotion": 1.0, "faceDirection": true }
+		},
+		"air_dash": {
+			"behavior": "Dash",
+			"clip": "dash",
+			"animation": "GameData/models/player/player_coat.glb",
+			"speed": 0.77,
+			"tags": ["Dash", "Movement"],
+			"airLegs": false,
+			"startState": "Air",
+			"entry": { "fresh": { "blendIn": 0.05, "startTime": 0.0 } },
+			"endTime": 0.45,
+			"blendOut": 0.2,
+			"rootMotion": { "enabled": false },
+			"invulnerable": [ { "start": 0.0, "end": 0.25 } ],
+			"cancels": [ { "start": 0.0, "into": ["Jump"] }, { "start": 0.3, "into": ["Glide", "Attack"] } ],
+			"params": { "distance": 5.0, "duration": 0.39, "curve": "EaseOut", "airCharges": 1, "exitSpeed": 1.0, "tailLocomotion": 1.0, "faceDirection": true }
+		},
+		"jump": {
+			"behavior": "Jump",
+			"clip": "jump",
+			"animation": "GameData/models/player/player_coat.glb",
+			"tags": ["Jump", "Movement"],
+			"airLegs": false,
+			"overlay": "Allow",
+			"entry": { "fresh": { "blendIn": 0.06, "startTime": 0.0 } },
+			"blendOut": 0.25,
+			"rootMotion": { "enabled": false },
+			"cancels": [ { "start": 0.0, "into": ["Jump", "Dash", "Glide"] }, { "start": 0.08, "into": ["Attack"] } ],
+			"params": { "velocity": 9.0, "maxAirJumps": 1, "airControl": 1.0, "carrySpeed": 1.0 }
+		},
+		"double_jump": {
+			"_note": "No flip clip yet: the jump clip again.",
+			"behavior": "Jump",
+			"clip": "jump",
+			"animation": "GameData/models/player/player_coat.glb",
+			"tags": ["Jump", "Movement"],
+			"airLegs": false,
+			"overlay": "Allow",
+			"startState": "Air",
+			"entry": { "fresh": { "blendIn": 0.06, "startTime": 0.0 } },
+			"blendOut": 0.25,
+			"rootMotion": { "enabled": false },
+			"cancels": [ { "start": 0.0, "into": ["Dash", "Glide", "Attack"] } ],
+			"params": { "velocity": 8.0, "maxAirJumps": 1, "airControl": 1.0, "carrySpeed": 1.0 }
+		},
+		"glide": {
+			"_note": "Starts by itself while jump is held and the body falls.",
+			"behavior": "Glide",
+			"clip": "inAir",
+			"animation": "GameData/models/player/player_coat.glb",
+			"loop": true,
+			"tags": ["Glide", "Movement"],
+			"airLegs": false,
+			"overlay": "Allow",
+			"startState": "Air",
+			"entry": { "fresh": { "blendIn": 0.2, "startTime": 0.0 } },
+			"blendOut": 0.2,
+			"rootMotion": { "enabled": false },
+			"cancels": [ { "start": 0.0, "into": ["Dash", "Jump", "Attack"] } ],
+			"params": { "maxDuration": 1.5, "gravityScale": 0.15, "maxFallSpeed": 2.5, "airControl": 0.8, "holdDelay": 0.15 }
+		},
+		"fire": {
+			"_note": "Each shot restarts the clip: fire_r for muzzle_r, fire_l for muzzle_l. Firing slows the body.",
+			"behavior": "Fire",
+			"clip": "fire_r",
+			"variants": ["fire_l"],
+			"animation": "GameData/models/player/weapons/pistols/pistols.glb",
+			"tags": ["Ranged", "Fire"],
+			"channel": "Overlay",
+			"bodyMask": "UpperBody",
+			"startState": "Any",
+			"entry": { "fresh": { "blendIn": 0.06, "startTime": 0.0 } },
+			"blendOut": 0.2,
+			"params": { "weapon": "Secondary", "button": "Secondary", "automatic": true, "aimTurnRate": 1080, "restartOnShot": true, "moveSpeed": 0.55 }
+		},
+		"draw": {
+			"_note": "Plays by itself once the pistols' holsterDelay ran out; the scythe is in the hand from the first frame. Only the right arm, like the scythe's stance hold.",
+			"behavior": "Draw",
+			"clip": "draw",
+			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
+			"tags": ["Special"],
+			"channel": "Overlay",
+			"bodyMask": "Bones",
+			"maskBones": ["clavicle_r"],
+			"startState": "Any",
+			"entry": { "fresh": { "blendIn": 0.1, "startTime": 0.0 } },
+			"blendOut": 0.2,
+			"cancels": [ { "start": 0.0, "into": ["Fire"] } ],
+			"params": { "weapon": "Main" }
+		},
+		"flinch": {
+			"_note": "No hit reaction clips for the hero yet: logic-only reactions (knockback, lockout).",
+			"behavior": "Reaction",
+			"clip": "",
+			"endTime": 0.25,
+			"tags": ["Reaction"],
+			"startState": "Any",
+			"params": { "knockbackTime": 0.15 }
+		},
+		"stagger": {
+			"behavior": "Reaction",
+			"clip": "",
+			"endTime": 0.5,
+			"tags": ["Reaction"],
+			"startState": "Any",
+			"params": { "knockbackTime": 0.25 }
+		},
+		"knockdown": {
+			"behavior": "Reaction",
+			"clip": "",
+			"endTime": 0.9,
+			"tags": ["Reaction"],
+			"startState": "Any",
+			"params": { "knockbackTime": 0.35 }
+		},
+		"death": {
+			"behavior": "Death",
+			"clip": "",
+			"endTime": 0.1,
+			"tags": ["Death"],
+			"startState": "Any"
+		}
+	}
+}

@@ -235,7 +235,10 @@ AnimationPose AnimationPose::LayeredLerp(
 		return out;
 	}
 
-	UseWorldSpaceRotation *= progress;
+	// UseWorldSpaceRotation picks the space the start bone's rotation blends in (0 = local, 1 = world / mesh space);
+	// progress is the blend amount in either space. Scaling it by progress would mix the local-space result into
+	// every partial blend, swinging the start bone toward pose A's parent chain while a layer fades.
+	UseWorldSpaceRotation = glm::clamp(UseWorldSpaceRotation, 0.0f, 1.0f);
 
 	const float EPS_SCALE = 1e-6f;
 

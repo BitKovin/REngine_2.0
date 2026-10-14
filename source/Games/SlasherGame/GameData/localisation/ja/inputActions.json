@@ -1,0 +1,74 @@
+{
+    "entries": [
+        {
+            "key": "INPUT_CATEGORY_MOVEMENT",
+            "value": "移動",
+            "description": "Category for movement related input actions"
+        },
+        {
+            "key": "INPUT_CATEGORY_COMBAT",
+            "value": "戦闘",
+            "description": "Category for combat related input actions"
+        },
+        {
+            "key": "INPUT_CATEGORY_GENERAL",
+            "value": "一般",
+            "description": "Category for general input actions"
+        },
+        {
+            "key": "INPUT_ACTION_FORWARD",
+            "value": "前進",
+            "description": "Input action to move the player forward"
+        },
+        {
+            "key": "INPUT_ACTION_BACKWARD",
+            "value": "後退",
+            "description": "Input action to move the player backward"
+        },
+        {
+            "key": "INPUT_ACTION_LEFT",
+            "value": "左移動",
+            "description": "Input action to move the player left"
+        },
+        {
+            "key": "INPUT_ACTION_RIGHT",
+            "value": "右移動",
+            "description": "Input action to move the player right"
+        },
+        {
+            "key": "INPUT_ACTION_JUMP",
+            "value": "ジャンプ",
+            "description": "Input action to make the player jump"
+        },
+        {
+            "key": "INPUT_ACTION_DASH",
+            "value": "ダッシュ",
+            "description": "Input action to make the player dash"
+        },
+        {
+            "key": "INPUT_ACTION_ATTACK",
+            "value": "攻撃",
+            "description": "Input action to perform an main attack (to shoot right handed weapon)"
+        },
+        {
+            "key": "INPUT_ACTION_INTERACT",
+            "value": "調べる",
+            "description": "Input action to interact with objects or characters"
+        },
+        {
+            "key": "INPUT_ACTION_FIRE",
+            "value": "Fire",
+            "description": "Input action to fire the equipped firearm (TODO: translate)"
+        },
+        {
+            "key": "INPUT_ACTION_FINISHER",
+            "value": "Finisher",
+            "description": "Input action to perform a finisher on a staggered (poise-broken) enemy (TODO: translate)"
+        },
+        {
+            "key": "INPUT_ACTION_POSSESS",
+            "value": "Possess / Release",
+            "description": "Input action to possess the enemy under the crosshair, or release the possessed body (TODO: translate)"
+        }
+    ]
+}

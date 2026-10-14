@@ -1,0 +1,34 @@
+{
+	"version": 1,
+	"name": "grunt",
+	"team": "Enemy",
+	"mesh": { "model": "GameData/models/enemies/humanAxe/humanAxe.glb" },
+	"locomotion": {
+		"idle": "idle",
+		"runForward": "run",
+		"runBackward": "",
+		"runLeft": "",
+		"runRight": "",
+		"runClipSpeed": 4.3
+	},
+	"moveset": "GameData/combat/movesets/grunt.moveset.json",
+	"health": 120,
+	"poise": { "max": 35, "regenDelay": 2.0, "regenRate": 15, "breakDuration": 3.0, "brokenDamageTaken": 1.5, "firearmScale": 0.3 },
+	"movement": { "walkSpeed": 2.0, "runSpeed": 4.8, "acceleration": 30, "deceleration": 40, "turnRate": 540, "radius": 0.4, "height": 1.8, "quality": "NpcGeneric" },
+	"weakPoints": [
+		{ "name": "head", "hitboxes": ["neck_01"], "health": 25, "sources": ["Firearm"], "multiplier": 2.0, "onBreak": ["BreakPoise"], "regrow": 0 }
+	],
+	"ai": {
+		"brain": "Melee",
+		"sightRadius": 25,
+		"fov": 140,
+		"preferredMinRange": 1.4,
+		"preferredMaxRange": 2.6,
+		"aggression": 0.6,
+		"attacks": [ { "move": "attack", "minRange": 0, "maxRange": 2.2, "weight": 1, "cooldown": 1.4, "token": "Melee" } ]
+	},
+	"possession": { "allowed": true, "idleBrain": "Ally" },
+	"hitEffect": { "particle": "hit_flesh", "scale": 3 },
+	"finisher": { "range": 2.5, "angle": 60, "reward": "finisher_boost" },
+	"corpseLifetime": 15
+}

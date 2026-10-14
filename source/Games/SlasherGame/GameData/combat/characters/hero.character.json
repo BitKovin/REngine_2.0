@@ -1,0 +1,60 @@
+{
+	"version": 1,
+	"name": "hero",
+	"team": "Player",
+	"mesh": { "model": "GameData/models/player/player_coat.glb", "hitboxes": false },
+	"locomotion": {
+		"_note": "player_coat has no idle of its own: the scythe model's idle is the character's idle.",
+		"idle": "idle",
+		"sources": { "idle": "GameData/models/player/weapons/scythe/scythe.glb" },
+		"runForward": "run",
+		"runBackward": "",
+		"runLeft": "",
+		"runRight": "",
+		"fall": "inAir",
+		"upperBodyBone": "spine_01",
+		"runClipSpeed": 5.0,
+		"strafe": { "legsBone": "pelvis", "counterBones": ["spine_01", "spine_02", "spine_03"], "maxTwist": 75, "turnRate": 600, "switchTime": 0.2 },
+		"lean": { "bone": "spine_01", "forwardPerAcceleration": 0.4, "sidePerAcceleration": 0.6, "maxForward": 7, "maxSide": 9, "sharpness": 6 }
+	},
+	"moveset": "GameData/combat/movesets/hero.moveset.json",
+	"health": 200,
+	"poise": { "max": 60, "regenDelay": 1.5, "regenRate": 30, "breakDuration": 1.5, "brokenDamageTaken": 1.25, "firearmScale": 0.3 },
+	"movement": {
+		"walkSpeed": 2.5,
+		"runSpeed": 7.0,
+		"acceleration": 50,
+		"deceleration": 70,
+		"airControl": 0.5,
+		"gravity": 21,
+		"turnRate": 1080,
+		"turnSharpness": 30,
+		"radius": 0.45,
+		"height": 1.8,
+		"mass": 70,
+		"quality": "Player"
+	},
+	"weapons": {
+		"Main": "GameData/combat/weapons/scythe.weapon.json",
+		"Secondary": "GameData/combat/weapons/pistols.weapon.json"
+	},
+	"ai": {
+		"brain": "Ally",
+		"preferredMinRange": 1.5,
+		"preferredMaxRange": 2.5,
+		"aggression": 0.7,
+		"comboChance": 0.6,
+		"heavyChance": 0.3,
+		"attacks": [
+			{ "move": "start", "minRange": 0, "maxRange": 2.4, "weight": 3, "cooldown": 1.0, "token": "Melee" },
+			{ "move": "fire", "minRange": 4, "maxRange": 18, "weight": 1, "cooldown": 2.0, "token": "Ranged", "holdTime": 0.8, "holdButton": "Secondary" }
+		]
+	},
+	"possession": { "allowed": true, "idleBrain": "Ally" },
+	"finisher": { "range": 2.5, "angle": 70, "reward": "finisher_boost" },
+	"targeting": { "distanceWeight": 0.5, "keepBonus": 0.2, "inputThreshold": 0.3 },
+	"airCombat": { "riseGravityScale": 1.0, "fallGravityScale": 0.25, "maxFallSpeed": 2.0, "fallEase": 10, "hold": 0.3, "rootMotionScale": 0.5, "knockbackScale": 0.5 },
+	"hitEffect": { "particle": "hit_flesh", "scale": 2 },
+	"attackTokens": { "melee": 2, "ranged": 2, "heavy": 1 },
+	"corpseLifetime": 0
+}

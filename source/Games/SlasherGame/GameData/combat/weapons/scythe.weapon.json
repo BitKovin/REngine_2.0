@@ -1,0 +1,22 @@
+{
+	"version": 1,
+	"name": "scythe",
+	"kind": "Melee",
+	"meshes": [
+		{
+			"model": "GameData/models/player/weapons/scythe/scythe.glb",
+			"attach": "Rig",
+			"hand": { "clip": "idle", "hide": ["holser"] },
+			"holster": { "hide": ["active"] },
+			"visibleWhenHolstered": true
+		}
+	],
+	"stance": { "hold": "idle", "holdBones": ["clavicle_r"], "handBones": ["hand_r"], "blend": 0.2 },
+	"blade": {
+		"base": { "bone": "attack_start" },
+		"tip": { "bone": "attack_end" },
+		"radius": 0.3,
+		"samples": 5
+	},
+	"trailParticle": "meleeTrail"
+}

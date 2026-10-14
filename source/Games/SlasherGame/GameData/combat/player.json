@@ -1,0 +1,44 @@
+{
+	"version": 1,
+	"heroEntity": "slasher_hero",
+	"respawnDelay": 3.0,
+	"camera": {
+		"_note": "Behind and above the body, looking down. The view center sits frameHeight above the body's focus point along the camera's up axis, so the body stays below the crosshair at every pitch; looking up the boom shortens.",
+		"distance": 4.5,
+		"focusHeight": 0.6,
+		"frameHeight": 0.6,
+		"shoulderOffset": 0.0,
+		"collisionRadius": 0.25,
+		"sensitivity": 1.0,
+		"defaultPitch": 25,
+		"minPitch": -70,
+		"maxPitch": 70,
+		"lookUpDistance": 2.2,
+		"followSharpness": 12,
+		"fov": 70,
+		"impact": {
+			"_note": "DMC3-style and comfortable: light hits never move the view; heavy strikes jolt it (mostly a slide, biased down, no roll); rumble only for finishers, poise breaks and heavy hits taken. Waves stay <= 12 Hz and the view turns < 60 deg/s (validated).",
+			"kickAngle": 0.5,
+			"kickOffset": 0.06,
+			"kickFrequency": 6,
+			"kickDamping": 0.6,
+			"kickVerticalBias": 0.4,
+			"maxKick": 1.5,
+			"shakeAngle": 0.5,
+			"shakeOffset": 0.05,
+			"shakeHorizontal": 0.5,
+			"shakeFrequency": 8,
+			"shakeDecay": 2.2
+		}
+	},
+	"feedback": {
+		"dealtShake": 0.6,
+		"takenKick": 0.8,
+		"takenShake": 0.5,
+		"takenFirearmKick": 0.15,
+		"killShake": 0.0,
+		"poiseBreakShake": 0.7,
+		"finisherShake": 0.9
+	},
+	"possession": { "enabled": true, "range": 15, "aimAngle": 12, "releaseMode": "Ally" }
+}

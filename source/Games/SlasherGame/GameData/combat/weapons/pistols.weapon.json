@@ -1,0 +1,44 @@
+{
+	"version": 1,
+	"name": "pistols",
+	"kind": "Firearm",
+	"meshes": [
+		{
+			"model": "GameData/models/player/weapons/pistols/pistols.glb",
+			"attach": "Rig",
+			"hand": { "clip": "idle" },
+			"visibleWhenHolstered": false
+		}
+	],
+	"stance": {
+		"_note": "The pistols' clips have no coat bones: the coat keeps the pose underneath.",
+		"hold": "idle",
+		"holdBones": ["spine_01"],
+		"handBones": ["hand_r", "hand_l"],
+		"aimBones": ["spine_01", "spine_02", "spine_03"],
+		"aimMaxPitch": 70,
+		"aimMaxYaw": 60,
+		"aimTurnRate": 900,
+		"blend": 0.15
+	},
+	"holsterDelay": 1.5,
+	"firearm": {
+		"fireRate": 6,
+		"magazine": 0,
+		"spread": 0.8,
+		"pellets": 1,
+		"muzzles": [ { "bone": "muzzle_r" }, { "bone": "muzzle_l" } ],
+		"noiseRadius": 30,
+		"projectile": {
+			"speed": 140,
+			"radius": 0.03,
+			"maxDistance": 120,
+			"damage": 6,
+			"poiseDamage": 1,
+			"weakPointDamage": 14,
+			"reaction": "None",
+			"tracer": "bullet_trail",
+			"impactParticle": "hit_flesh"
+		}
+	}
+}

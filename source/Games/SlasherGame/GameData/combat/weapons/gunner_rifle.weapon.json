@@ -1,0 +1,25 @@
+{
+	"version": 1,
+	"name": "gunner_rifle",
+	"kind": "Firearm",
+	"_note": "No meshes: the gun is part of the humanGun model, the muzzle is its weapon_muzzle bone.",
+	"meshes": [],
+	"firearm": {
+		"fireRate": 3,
+		"magazine": 6,
+		"reloadTime": 1.6,
+		"spread": 2.0,
+		"muzzles": [ { "bone": "weapon_muzzle" } ],
+		"noiseRadius": 30,
+		"projectile": {
+			"speed": 60,
+			"radius": 0.04,
+			"damage": 8,
+			"poiseDamage": 5,
+			"reaction": "Flinch",
+			"knockback": 0.5,
+			"tracer": "bullet_trail",
+			"impactParticle": "hit_flesh"
+		}
+	}
+}

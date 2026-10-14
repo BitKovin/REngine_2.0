@@ -699,10 +699,15 @@ void Shader::SetUniform(const std::string& uname, const std::vector<glm::mat3>& 
 
 void Shader::SetUniform(const std::string& uname, const std::vector<glm::mat4>& values)
 {
-    const uint16_t idx = FindUniformIndex(uname);
-    if (idx == kInvalidIndex || values.empty()) return;
+    SetUniform(uname, values.data(), values.size());
+}
 
-    const uint16_t num = SafeUniformNum(m_uniformList[idx], values.size(), uname);
+void Shader::SetUniform(const std::string& uname, const glm::mat4* values, size_t count)
+{
+    const uint16_t idx = FindUniformIndex(uname);
+    if (idx == kInvalidIndex || values == nullptr || count == 0) return;
+
+    const uint16_t num = SafeUniformNum(m_uniformList[idx], count, uname);
     if (num == 0) return;
 
     static_assert(sizeof(glm::mat4) == 16 * sizeof(float), "glm::mat4 layout assumption broken");

@@ -1,0 +1,35 @@
+{
+	"version": 1,
+	"name": "brute",
+	"team": "Enemy",
+	"mesh": { "model": "GameData/models/enemies/zombie/zombie.glb" },
+	"locomotion": {
+		"idle": "idle",
+		"runForward": "run",
+		"runBackward": "",
+		"runLeft": "",
+		"runRight": "",
+		"runClipSpeed": 1.0
+	},
+	"moveset": "GameData/combat/movesets/brute.moveset.json",
+	"health": 320,
+	"poise": { "max": 120, "regenDelay": 3.0, "regenRate": 20, "breakDuration": 3.5, "brokenDamageTaken": 1.75, "firearmScale": 0.2 },
+	"movement": { "walkSpeed": 1.0, "runSpeed": 1.6, "acceleration": 15, "deceleration": 25, "turnRate": 300, "radius": 0.5, "height": 1.9, "mass": 140, "quality": "NpcGeneric" },
+	"weakPoints": [
+		{ "name": "head", "hitboxes": ["neck_01"], "health": 60, "sources": ["Firearm"], "multiplier": 1.5, "onBreak": ["BreakPoise"], "regrow": 8 }
+	],
+	"ai": {
+		"brain": "Melee",
+		"sightRadius": 22,
+		"fov": 120,
+		"preferredMinRange": 1.2,
+		"preferredMaxRange": 2.2,
+		"aggression": 0.5,
+		"attacks": [ { "move": "slam", "minRange": 0, "maxRange": 2.3, "weight": 1, "cooldown": 2.5, "token": "Heavy" } ]
+	},
+	"possession": { "allowed": true, "idleBrain": "Ally" },
+	"hitEffect": { "particle": "hit_flesh", "scale": 4 },
+	"finisher": { "range": 2.5, "angle": 60, "reward": "finisher_boost" },
+	"attackTokens": { "melee": 2, "ranged": 2, "heavy": 1 },
+	"corpseLifetime": 15
+}

@@ -21,7 +21,13 @@
 #include "AssetLoadState.h"
 
 #define MAX_BONE_INFLUENCE  4
-#define MAX_SKINNED_BONES   128
+#define MAX_SKINNED_BONES   256
+
+// bgfx shader binaries store a uniform array's size in 8 bits, so the palette reaches shaders as two arrays:
+// finalBonesMatrices0 (slots 0..127) and finalBonesMatrices1 (slots 128..255).
+// See SkeletalMeshDrawCommand::ApplyAdditionalShaderParams.
+#define SKINNED_BONES_PER_UNIFORM   128
+static_assert(MAX_SKINNED_BONES <= 2 * SKINNED_BONES_PER_UNIFORM, "the bone palette is uploaded as two uniform arrays");
 
 constexpr uint16_t INVALID_BONE_IDX = 0xFFFFu;
 

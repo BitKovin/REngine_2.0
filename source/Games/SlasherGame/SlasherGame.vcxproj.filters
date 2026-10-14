@@ -1,0 +1,365 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="AI">
+      <UniqueIdentifier>{4ba297dc-53e2-5ffe-af70-f557cb008aa8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Actions">
+      <UniqueIdentifier>{819b3150-669f-5809-b30f-2448a9027223}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Actions\Behaviors">
+      <UniqueIdentifier>{39be916e-9ea9-5033-a3ff-fe7236c3db84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Characters">
+      <UniqueIdentifier>{d7b76857-e339-552e-9e11-d91030419009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Combat">
+      <UniqueIdentifier>{f6e76ae3-3760-5733-bffc-07b2f64928f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Control">
+      <UniqueIdentifier>{781969b7-6c76-5939-b3b4-6a201aae6e28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{9e4dbf82-13f6-52ec-bb77-c7d74704cf79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Debug">
+      <UniqueIdentifier>{200abae8-30b9-59dd-a57d-d1e0c32c34e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects">
+      <UniqueIdentifier>{665bdb8c-1e70-50a5-b5e5-197c62dff3df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{84db7988-30a6-549a-953e-8b2a02a597de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{42377c12-3f43-5194-a48a-5a34e7dce84c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\LoadingScreen">
+      <UniqueIdentifier>{275d50c5-30bc-54b9-89a2-4a3c4f29bb57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Pause">
+      <UniqueIdentifier>{fc45f6fd-d324-52f8-9b95-77ca4777acbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Pause\UI">
+      <UniqueIdentifier>{64edacc2-efa2-58ac-9b1a-4acf2d68dca2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Weapons">
+      <UniqueIdentifier>{804d2ad2-9b0d-5c12-9e7d-f8741666570f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AI\AIController.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="AI\Brains.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions\Behaviors\AirBehaviors.cpp">
+      <Filter>Actions\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions\Behaviors\AttackBehavior.cpp">
+      <Filter>Actions\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions\Behaviors\ChargeBehavior.cpp">
+      <Filter>Actions\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions\Behaviors\DashBehavior.cpp">
+      <Filter>Actions\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions\Behaviors\DrawBehavior.cpp">
+      <Filter>Actions\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions\Behaviors\FinisherBehaviors.cpp">
+      <Filter>Actions\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions\Behaviors\FireBehavior.cpp">
+      <Filter>Actions\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions\Behaviors\ReactionBehaviors.cpp">
+      <Filter>Actions\Behaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions\MoveBehavior.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="Actions\MoveRunner.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="Characters\CharacterAnimator.cpp">
+      <Filter>Characters</Filter>
+    </ClCompile>
+    <ClCompile Include="Characters\Characters.cpp">
+      <Filter>Characters</Filter>
+    </ClCompile>
+    <ClCompile Include="Characters\CombatBodySystems.cpp">
+      <Filter>Characters</Filter>
+    </ClCompile>
+    <ClCompile Include="Characters\CombatCharacter.cpp">
+      <Filter>Characters</Filter>
+    </ClCompile>
+    <ClCompile Include="Characters\WeaponSet.cpp">
+      <Filter>Characters</Filter>
+    </ClCompile>
+    <ClCompile Include="Combat\CombatComponents.cpp">
+      <Filter>Combat</Filter>
+    </ClCompile>
+    <ClCompile Include="Combat\CombatEvents.cpp">
+      <Filter>Combat</Filter>
+    </ClCompile>
+    <ClCompile Include="Combat\CombatFeedback.cpp">
+      <Filter>Combat</Filter>
+    </ClCompile>
+    <ClCompile Include="Combat\CombatRules.cpp">
+      <Filter>Combat</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\CameraImpact.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\PlayerCamera.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\PlayerController.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\PlayerStart.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\CharacterData.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\CombatData.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\DataLoadReport.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\JsonTextPatch.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\MoveSetData.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\PlayerConfigData.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\StatusEffectData.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Data\WeaponData.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\CombatDebug.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\MoveSetEditor.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\MoveTimeline.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\SelfTests.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Effects\BulletTrail.cpp">
+      <Filter>Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Effects\HitBlood.cpp">
+      <Filter>Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Effects\MeleeTrail.cpp">
+      <Filter>Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="GameStart.cpp" />
+    <ClCompile Include="Settings\GameSettings.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\InputActionRegistry.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\InputSettingsData.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\VideoSettingsData.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\CombatHud.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\LoadingScreen\UiDefaultLoadingScreen.cpp">
+      <Filter>UI\LoadingScreen</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapons\Projectile.cpp">
+      <Filter>Weapons</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AI\AIBrain.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\AIController.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Actions\ComboResolver.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="Actions\MoveBehavior.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="Actions\MoveRunner.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="Characters\CharacterAnimator.h">
+      <Filter>Characters</Filter>
+    </ClInclude>
+    <ClInclude Include="Characters\CharacterInput.h">
+      <Filter>Characters</Filter>
+    </ClInclude>
+    <ClInclude Include="Characters\CombatCharacter.h">
+      <Filter>Characters</Filter>
+    </ClInclude>
+    <ClInclude Include="Characters\WeaponMesh.h">
+      <Filter>Characters</Filter>
+    </ClInclude>
+    <ClInclude Include="Characters\WeaponSet.h">
+      <Filter>Characters</Filter>
+    </ClInclude>
+    <ClInclude Include="Combat\CombatComponents.h">
+      <Filter>Combat</Filter>
+    </ClInclude>
+    <ClInclude Include="Combat\CombatFrame.h">
+      <Filter>Combat</Filter>
+    </ClInclude>
+    <ClInclude Include="Combat\Spring.h">
+      <Filter>Combat</Filter>
+    </ClInclude>
+    <ClInclude Include="Combat\CombatEvents.h">
+      <Filter>Combat</Filter>
+    </ClInclude>
+    <ClInclude Include="Combat\CombatRules.h">
+      <Filter>Combat</Filter>
+    </ClInclude>
+    <ClInclude Include="Combat\CombatTypes.h">
+      <Filter>Combat</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\Controller.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\CameraImpact.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\PlayerCamera.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\PlayerController.h">
+      <Filter>Control</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\CharacterData.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\CombatData.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\DataLoadReport.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\JsonTextPatch.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\JsonEnum.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\MoveSetData.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\PlayerConfigData.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\StatusEffectData.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\WeaponData.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\CombatDebug.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\MoveSetEditor.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\MoveTimeline.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\SelfTests.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Effects\MeleeTrail.h">
+      <Filter>Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="PauseGameManager.hpp" />
+    <ClInclude Include="Settings\AudioSettingsData.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\GameplaySettingsData.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\GameSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\InputActionRegistry.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\InputBindingTypes.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\InputSettingsData.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\VideoSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\VideoSettingsData.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\CombatHud.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\LoadingScreen\UiDefaultLoadingScreen.h">
+      <Filter>UI\LoadingScreen</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UI\InputIconLibrary.h">
+      <Filter>UI\Pause\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UI\UiBindSlotButton.hpp">
+      <Filter>UI\Pause\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UI\UiConfirmDialog.hpp">
+      <Filter>UI\Pause\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UI\UiRebindCaptureModal.hpp">
+      <Filter>UI\Pause\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiGameSettings.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiInputSettings.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiPauseMenu.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiSettingsMenu.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiSettingsStyle.hpp">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiSoundSettings.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiVideoSettings.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapons\Projectile.h">
+      <Filter>Weapons</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

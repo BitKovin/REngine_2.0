@@ -1,0 +1,74 @@
+{
+    "entries": [
+        {
+            "key": "INPUT_CATEGORY_MOVEMENT",
+            "value": "Movement",
+            "description": "Category for movement related input actions"
+        },
+        {
+            "key": "INPUT_CATEGORY_COMBAT",
+            "value": "Combat",
+            "description": "Category for combat related input actions"
+        },
+        {
+            "key": "INPUT_CATEGORY_GENERAL",
+            "value": "General",
+            "description": "Category for general input actions"
+        },
+        {
+            "key": "INPUT_ACTION_FORWARD",
+            "value": "Move Forward",
+            "description": "Input action to move the player forward"
+        },
+        {
+            "key": "INPUT_ACTION_BACKWARD",
+            "value": "Move Backward",
+            "description": "Input action to move the player backward"
+        },
+        {
+            "key": "INPUT_ACTION_LEFT",
+            "value": "Move Left",
+            "description": "Input action to move the player left"
+        },
+        {
+            "key": "INPUT_ACTION_RIGHT",
+            "value": "Move Right",
+            "description": "Input action to move the player right"
+        },
+        {
+            "key": "INPUT_ACTION_JUMP",
+            "value": "Jump",
+            "description": "Input action to make the player jump"
+        },
+        {
+            "key": "INPUT_ACTION_DASH",
+            "value": "Dash",
+            "description": "Input action to make the player dash"
+        },
+        {
+            "key": "INPUT_ACTION_ATTACK",
+            "value": "Attack",
+            "description": "Input action to perform an main attack (to shoot right handed weapon)"
+        },
+        {
+            "key": "INPUT_ACTION_INTERACT",
+            "value": "Interact",
+            "description": "Input action to interact with objects or characters"
+        },
+        {
+            "key": "INPUT_ACTION_FIRE",
+            "value": "Fire",
+            "description": "Input action to fire the equipped firearm"
+        },
+        {
+            "key": "INPUT_ACTION_FINISHER",
+            "value": "Finisher",
+            "description": "Input action to perform a finisher on a staggered (poise-broken) enemy"
+        },
+        {
+            "key": "INPUT_ACTION_POSSESS",
+            "value": "Possess / Release",
+            "description": "Input action to possess the enemy under the crosshair, or release the possessed body"
+        }
+    ]
+}
