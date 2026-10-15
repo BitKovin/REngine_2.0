@@ -45,11 +45,14 @@ BodyType Physics::DebugDrawMask = BodyType::GroupAll & ~BodyType::CharacterCapsu
 std::vector<Physics::PendingBodyEnterPair> Physics::gRemovals;
 std::vector<Physics::PendingBodyEnterPair> Physics::gAdds;
 
+// Ignore pairs change from the character controllers' updates, which run in parallel across entities: writers lock.
+// The contact validation reads the set during the physics step only, when nothing writes it.
 void MyContactListener::addIgnorePair(const BodyID& body1, const BodyID& body2)
 {
 	uint32_t n1 = body1.GetIndexAndSequenceNumber();
 	uint32_t n2 = body2.GetIndexAndSequenceNumber();
 	if (n1 > n2) std::swap(n1, n2);
+	std::lock_guard<std::mutex> lock(ignoredPairsMutex);
 	ignoredPairs.insert({ n1, n2 });
 }
 
@@ -58,11 +61,13 @@ void MyContactListener::removeIgnorePair(const BodyID& body1, const BodyID& body
 	uint32_t n1 = body1.GetIndexAndSequenceNumber();
 	uint32_t n2 = body2.GetIndexAndSequenceNumber();
 	if (n1 > n2) std::swap(n1, n2);
+	std::lock_guard<std::mutex> lock(ignoredPairsMutex);
 	ignoredPairs.erase({ n1, n2 });
 }
 
 void MyContactListener::CleanIgnorePairs()
 {
+	std::lock_guard<std::mutex> lock(ignoredPairsMutex);
 	ignoredPairs.clear();
 }
 
@@ -145,50 +150,145 @@ ValidateResult MyContactListener::OnContactValidate(const Body& inBody1, const B
 	return ValidateResult::AcceptAllContactsForThisBodyPair;
 }
 
+namespace
+{
+	// Query shapes reused per thread: every trace built (allocated) its sphere / cylinder. Keys compare exactly; the
+	// handful of sizes in use (ground checks, weapon sweeps) stay cached.
+	template <typename Key, typename Make>
+	JPH::Shape::ShapeResult CachedQueryShape(std::vector<std::pair<Key, JPH::Ref<JPH::Shape>>>& cache, const Key& key, Make make)
+	{
+		for (const auto& entry : cache)
+		{
+			if (entry.first == key)
+			{
+				JPH::Shape::ShapeResult result;
+				result.Set(entry.second);
+				return result;
+			}
+		}
+
+		JPH::Shape::ShapeResult result = make();
+		if (!result.HasError())
+		{
+			if (cache.size() >= 32)
+				cache.clear();
+			cache.emplace_back(key, result.Get());
+		}
+		return result;
+	}
+
+	JPH::Shape::ShapeResult SphereQueryShape(float radius)
+	{
+		thread_local std::vector<std::pair<float, JPH::Ref<JPH::Shape>>> cache;
+		return CachedQueryShape(cache, radius, [radius]
+		{
+			JPH::SphereShapeSettings settings(radius);
+			settings.SetEmbedded();
+			return settings.Create();
+		});
+	}
+
+	JPH::Shape::ShapeResult CylinderQueryShape(float halfHeight, float radius)
+	{
+		thread_local std::vector<std::pair<std::pair<float, float>, JPH::Ref<JPH::Shape>>> cache;
+		return CachedQueryShape(cache, std::make_pair(halfHeight, radius), [halfHeight, radius]
+		{
+			JPH::CylinderShapeSettings settings(halfHeight, radius);
+			settings.SetEmbedded();
+			return settings.Create();
+		});
+	}
+}
+
+void Physics::CollectBodiesInBox(const vec3& min, const vec3& max, ObjectLayer layer, std::vector<BodyID>& out)
+{
+	class Collector : public JPH::CollideShapeBodyCollector
+	{
+	public:
+		explicit Collector(std::vector<BodyID>& inOut) : out(inOut) {}
+		void AddHit(const BodyID& inBodyID) override { out.push_back(inBodyID); }
+		std::vector<BodyID>& out;
+	};
+
+	Collector collector(out);
+	const JPH::AABox box(ToPhysics(glm::min(min, max)), ToPhysics(glm::max(min, max)));
+	physics_system->GetBroadPhaseQuery().CollideAABox(box, collector,
+		JPH::SpecifiedBroadPhaseLayerFilter(broad_phase_layer_interface->GetBroadPhaseLayer(layer)),
+		JPH::SpecifiedObjectLayerFilter(layer));
+}
+
+MyContactListener::ContactEventBuffer& MyContactListener::ThreadEvents()
+{
+	thread_local ContactEventBuffer* buffer = nullptr;
+	if (buffer == nullptr)
+	{
+		std::lock_guard<std::mutex> lock(eventBuffersMutex);
+		eventBuffers.push_back(std::make_unique<ContactEventBuffer>());
+		buffer = eventBuffers.back().get();
+	}
+	return *buffer;
+}
+
 void MyContactListener::beforeSimulation()
 {
-	previousContacts = std::move(currentContacts); // Move for efficiency
-	currentContacts.clear(); // Reset for the new step
 }
 
 void MyContactListener::afterSimulation()
 {
-	std::vector<Physics::PendingBodyEnterPair> adds;
-	std::vector<Physics::PendingBodyEnterPair> removals;
-
-
-
-	for (auto& [key, bodyID] : currentContacts)
-		if (previousContacts.find(key) == previousContacts.end())
-			Physics::gAdds.push_back({ key.second, key.first, bodyID }); // {target, entity, targetBodyID}
-
-	for (auto& [key, bodyID] : previousContacts)
-		if (currentContacts.find(key) == currentContacts.end())
-			Physics::gRemovals.push_back({ key.second, key.first, bodyID });
-
-	previousContacts = std::move(currentContacts);
-	currentContacts.clear();
-
-	auto newAdds = Physics::gAdds;
-	auto newRemovs = Physics::gRemovals;
-
-	for (const auto& p : adds)
+	// Every job of the step has finished: the buffers are ours. Removals first - a contact Jolt reports removed existed
+	// last step, one it reports added did not, so the order only matters for the same entity pair touching again.
+	for (const auto& buffer : eventBuffers)
 	{
-		newAdds.push_back(p);
-	}
-	for (const auto& p : removals)
-	{
-		newRemovs.push_back(p);
+		for (const ContactEvent& event : buffer->events)
+		{
+			if (event.added)
+				continue;
+
+			auto [first, last] = sensorContacts.equal_range(event.subShapes);
+			for (auto it = first; it != last; ++it)
+			{
+				const SensorContact& contact = it->second;
+				auto pair = entityPairs.find({ contact.sensorEntity, contact.otherEntity });
+				if (pair != entityPairs.end() && --pair->second.count <= 0)
+				{
+					Physics::gRemovals.push_back({ contact.otherEntity, contact.sensorEntity, contact.otherBody }); // {target, entity, targetBodyID}
+					entityPairs.erase(pair);
+				}
+			}
+			sensorContacts.erase(first, last);
+		}
 	}
 
-	Physics::gAdds = newAdds;
-	Physics::gRemovals = newRemovs;
-	
+	for (const auto& buffer : eventBuffers)
+	{
+		for (const ContactEvent& event : buffer->events)
+		{
+			if (!event.added)
+				continue;
 
+			sensorContacts.emplace(event.subShapes, SensorContact{ event.sensorEntity, event.otherEntity, event.otherBody });
+			EntityPairContacts& pair = entityPairs[{ event.sensorEntity, event.otherEntity }];
+			pair.lastBody = event.otherBody;
+			if (++pair.count == 1)
+				Physics::gAdds.push_back({ event.otherEntity, event.sensorEntity, event.otherBody });
+		}
+		buffer->events.clear();
+	}
+}
+
+void MyContactListener::Reset()
+{
+	for (const auto& buffer : eventBuffers)
+		buffer->events.clear();
+	sensorContacts.clear();
+	entityPairs.clear();
 }
 
 void MyContactListener::OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings)
 {
+	if (!inBody1.IsSensor() && !inBody2.IsSensor())
+		return;
+
 	auto data1 = Physics::GetBodyData(&inBody1);
 	auto data2 = Physics::GetBodyData(&inBody2);
 	Entity* entity1 = data1 ? data1->OwnerEntity : nullptr;
@@ -196,40 +296,22 @@ void MyContactListener::OnContactAdded(const Body& inBody1, const Body& inBody2,
 
 	if (entity1 == nullptr || entity2 == nullptr) return;
 
-	Physics::physicsMainLock.lock();
-
+	// The same key Jolt passes to OnContactRemoved for this contact.
+	const SubShapeIDPair subShapes(inBody1.GetID(), inManifold.mSubShapeID1, inBody2.GetID(), inManifold.mSubShapeID2);
+	ContactEventBuffer& buffer = ThreadEvents();
 	if (inBody1.IsSensor())
-		currentContacts[{ entity1, entity2 }] = inBody2.GetID();
-
+		buffer.events.push_back({ subShapes, entity1, entity2, inBody2.GetID(), true });
 	if (inBody2.IsSensor())
-		currentContacts[{ entity2, entity1 }] = inBody1.GetID();
-
-	Physics::physicsMainLock.unlock();
-}
-
-void MyContactListener::OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings)
-{
-	auto data1 = Physics::GetBodyData(&inBody1);
-	auto data2 = Physics::GetBodyData(&inBody2);
-	Entity* entity1 = data1 ? data1->OwnerEntity : nullptr;
-	Entity* entity2 = data2 ? data2->OwnerEntity : nullptr;
-
-	if (entity1 == nullptr || entity2 == nullptr) return;
-
-	Physics::physicsMainLock.lock();
-
-	if (inBody1.IsSensor())
-		currentContacts[{ entity1, entity2 }] = inBody2.GetID();
-
-	if (inBody2.IsSensor())
-		currentContacts[{ entity2, entity1 }] = inBody1.GetID();
-
-	Physics::physicsMainLock.unlock();
+		buffer.events.push_back({ subShapes, entity2, entity1, inBody1.GetID(), true });
 }
 
 void MyContactListener::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair)
 {
-	// Leave empty; removals are handled in afterSimulation()
+	// Called for every contact in the world; only tracked sensor contacts matter. sensorContacts is not written
+	// during the step, so reading it here is safe.
+	if (sensorContacts.find(inSubShapePair) == sensorContacts.end())
+		return;
+	ThreadEvents().events.push_back({ inSubShapePair, nullptr, nullptr, BodyID(), false });
 }
 
 
@@ -536,7 +618,7 @@ Body* Physics::CreateHitBoxBody(Entity* owner, SkeletalMesh* mesh, string hitbox
 		world_com,
 		JPH::Quat::sIdentity(),      // shape rotation is baked in
 		JPH::EMotionType::Kinematic,
-		Layers::MOVING
+		Layers::TRACE_ONLY           // queries only; SkeletalMesh::StartRagdoll moves it to MOVING
 	);
 
 	bcs.mMotionQuality = EMotionQuality::LinearCast;
@@ -882,8 +964,8 @@ RefConst<Shape> Physics::CreateConvexHullFromPoints(const std::vector<glm::vec3>
 vector<Physics::HitResult> Physics::PointTrace(
 	const vec3 point,
 	const BodyType mask,
-	const vector<Body*> ignoreList,
-	const vector<Entity*> entityIgnoreList,
+	const vector<Body*>& ignoreList,
+	const vector<Entity*>& entityIgnoreList,
 	bool traceAgainstConvex)
 {
 	vector<HitResult> hits;
@@ -973,7 +1055,7 @@ vector<Physics::HitResult> Physics::PointTrace(
 	return hits;
 }
 
-Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList, bool traceAgainstConvex)
+Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const BodyType mask, const vector<Body*>& ignoreList, const vector<Entity*>& entityIgnoreList, bool traceAgainstConvex)
 {
 	HitResult hit;
 	hit.fraction = 1.0f;
@@ -1080,7 +1162,7 @@ Physics::HitResult Physics::LineTrace(const vec3 start, const vec3 end, const Bo
 	return hit;
 }
 
-Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList, bool traceAgainstConvex)
+Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask, const vector<Body*>& ignoreList, const vector<Entity*>& entityIgnoreList, bool traceAgainstConvex)
 {
 	HitResult hit;
 
@@ -1098,10 +1180,7 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 	JPH::Vec3 endLoc = ToPhysics(end);
 
 	// Create a sphere shape for the trace.
-	auto sphere_shape_settings = JPH::SphereShapeSettings();
-	sphere_shape_settings.SetEmbedded();
-	sphere_shape_settings.mRadius = radius;
-	JPH::Shape::ShapeResult shape_result = sphere_shape_settings.Create();
+	JPH::Shape::ShapeResult shape_result = SphereQueryShape(radius);
 	JPH::ShapeRefC sphere_shape = shape_result.Get();
 
 	if (shape_result.HasError())
@@ -1205,7 +1284,7 @@ Physics::HitResult Physics::SphereTrace(const vec3 start, const vec3 end, float 
 
 // Multi Line Trace (collects ALL hits along the ray, sorted closest → farthest)
 std::vector<Physics::HitResult> Physics::MultiLineTrace(const vec3 start, const vec3 end, const BodyType mask,
-	const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList, bool traceAgainstConvex)
+	const vector<Body*>& ignoreList, const vector<Entity*>& entityIgnoreList, bool traceAgainstConvex)
 {
 	std::vector<HitResult> outHits;
 
@@ -1281,15 +1360,12 @@ std::vector<Physics::HitResult> Physics::MultiLineTrace(const vec3 start, const 
 
 // Multi Sphere Trace (collects ALL hits along the sphere sweep, sorted closest → farthest)
 std::vector<Physics::HitResult> Physics::MultiSphereTrace(const vec3 start, const vec3 end, float radius,
-	const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList, bool traceAgainstConvex)
+	const BodyType mask, const vector<Body*>& ignoreList, const vector<Entity*>& entityIgnoreList, bool traceAgainstConvex)
 {
 	std::vector<HitResult> outHits;
 
 	// Create sphere shape (identical to your single SphereTrace)
-	auto sphere_shape_settings = JPH::SphereShapeSettings();
-	sphere_shape_settings.SetEmbedded();
-	sphere_shape_settings.mRadius = radius;
-	JPH::Shape::ShapeResult shape_result = sphere_shape_settings.Create();
+	JPH::Shape::ShapeResult shape_result = SphereQueryShape(radius);
 	if (shape_result.HasError())
 	{
 		Logger::Log(shape_result.GetError().c_str());
@@ -1364,14 +1440,12 @@ std::vector<Physics::HitResult> Physics::MultiSphereTrace(const vec3 start, cons
 }
 
 std::vector<Physics::HitResult> Physics::MultiSphereOverlap(const vec3 center, float radius,
-	const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList, bool traceAgainstConvex)
+	const BodyType mask, const vector<Body*>& ignoreList, const vector<Entity*>& entityIgnoreList, bool traceAgainstConvex)
 {
 	std::vector<HitResult> outHits;
 
 	// Create the sphere shape
-	auto sphere_shape_settings = JPH::SphereShapeSettings(radius);  // simpler constructor
-	sphere_shape_settings.SetEmbedded();
-	JPH::Shape::ShapeResult shape_result = sphere_shape_settings.Create();
+	JPH::Shape::ShapeResult shape_result = SphereQueryShape(radius);
 	if (shape_result.HasError())
 	{
 		Logger::Log(shape_result.GetError().c_str());
@@ -1455,7 +1529,7 @@ std::vector<Physics::HitResult> Physics::MultiSphereOverlap(const vec3 center, f
 	return outHits;
 }
 
-Physics::HitResult Physics::SphereTraceForEntity(vector<Entity*> entityties, const vec3 start, const vec3 end, float radius, const BodyType mask, const vector<Body*> ignoreList, bool traceAgainstConvex)
+Physics::HitResult Physics::SphereTraceForEntity(const vector<Entity*>& entityties, const vec3 start, const vec3 end, float radius, const BodyType mask, const vector<Body*>& ignoreList, bool traceAgainstConvex)
 {
 	HitResult hit;
 
@@ -1473,10 +1547,7 @@ Physics::HitResult Physics::SphereTraceForEntity(vector<Entity*> entityties, con
 	JPH::Vec3 endLoc = ToPhysics(end);
 
 	// Create a sphere shape for the trace.
-	auto sphere_shape_settings = JPH::SphereShapeSettings();
-	sphere_shape_settings.SetEmbedded();
-	sphere_shape_settings.mRadius = radius;
-	JPH::Shape::ShapeResult shape_result = sphere_shape_settings.Create();
+	JPH::Shape::ShapeResult shape_result = SphereQueryShape(radius);
 	JPH::ShapeRefC sphere_shape = shape_result.Get();
 
 	if (shape_result.HasError())
@@ -1575,7 +1646,7 @@ Physics::HitResult Physics::SphereTraceForEntity(vector<Entity*> entityties, con
 	return hit;
 }
 
-Physics::HitResult Physics::CylinderTrace(const vec3 start, const vec3 end, float radius, float halfHeight, const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList, bool traceAgainstConvex)
+Physics::HitResult Physics::CylinderTrace(const vec3 start, const vec3 end, float radius, float halfHeight, const BodyType mask, const vector<Body*>& ignoreList, const vector<Entity*>& entityIgnoreList, bool traceAgainstConvex)
 {
 	HitResult hit;
 	// Initialize default values
@@ -1598,9 +1669,7 @@ Physics::HitResult Physics::CylinderTrace(const vec3 start, const vec3 end, floa
 	}
 
 	// Create cylinder shape
-	auto cylinder_shape_settings = JPH::CylinderShapeSettings(halfHeight, radius);
-	cylinder_shape_settings.SetEmbedded();
-	JPH::Shape::ShapeResult shape_result = cylinder_shape_settings.Create();
+	JPH::Shape::ShapeResult shape_result = CylinderQueryShape(halfHeight, radius);
 	JPH::ShapeRefC cylinder_shape = shape_result.Get();
 
 	if (shape_result.HasError()) {
@@ -1680,7 +1749,7 @@ Physics::HitResult Physics::CylinderTrace(const vec3 start, const vec3 end, floa
 	return hit;
 }
 
-Physics::HitResult Physics::ShapeTrace(const Shape* shape, vec3 start, vec3 end, vec3 scale, const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList, bool traceAgainstConvex)
+Physics::HitResult Physics::ShapeTrace(const Shape* shape, vec3 start, vec3 end, vec3 scale, const BodyType mask, const vector<Body*>& ignoreList, const vector<Entity*>& entityIgnoreList, bool traceAgainstConvex)
 {
 	HitResult hit;
 	hit.fraction = 1.0f;

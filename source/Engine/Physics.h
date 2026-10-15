@@ -37,7 +37,11 @@
 #include <Jolt/Physics/Body/BodyLockMulti.h>
 #include <Jolt/Physics/Constraints/SwingTwistConstraint.h>
 #include <Jolt/Physics/Collision/PhysicsMaterial.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeIDPair.h>
 #include <map>
+#include <memory>
+#include <mutex>
+#include <span>
 
 #include <Physics/PhysicsMaterialHelper.h>
 
@@ -133,7 +137,9 @@ enum class SensorCollisionMode
 	CollideOnlyWithSensors
 };
 
-struct BodyData 
+class CharacterController;
+
+struct BodyData
 {
 
 	~BodyData()
@@ -151,6 +157,8 @@ struct BodyData
 	string hitboxName = "";
 
 	SkeletalMesh* OwnerSkeletalMesh = nullptr; //for hitbox bodies
+
+	CharacterController* characterController = nullptr; // a character controller's capsule / sensor body
 
 	SensorCollisionMode sensorCollisionMode = SensorCollisionMode::CollideWithEverything;
 
@@ -171,6 +179,8 @@ namespace Layers
 {
 	static constexpr ObjectLayer NON_MOVING = 0;
 	static constexpr ObjectLayer MOVING = 1;
+	// Found by queries (traces, sweeps, overlaps), never paired by the simulation: hitboxes (moved every frame, mask
+	// None) - in MOVING every overlapping capsule made a narrow-phase pair the contact validation rejected each step.
 	static constexpr ObjectLayer TRACE_ONLY = 2;
 	static constexpr ObjectLayer NUM_LAYERS = 3;
 };
@@ -242,7 +252,8 @@ namespace BroadPhaseLayers
 {
 	static constexpr BroadPhaseLayer NON_MOVING(0);
 	static constexpr BroadPhaseLayer MOVING(1);
-	static constexpr uint NUM_LAYERS(2);
+	static constexpr BroadPhaseLayer TRACE_ONLY(2);   // its own tree: the moving bodies' pair search never visits it
+	static constexpr uint NUM_LAYERS(3);
 };
 
 // BroadPhaseLayerInterface implementation
@@ -255,6 +266,7 @@ public:
 		// Create a mapping table from object to broad phase layer
 		mObjectToBroadPhase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
 		mObjectToBroadPhase[Layers::MOVING] = BroadPhaseLayers::MOVING;
+		mObjectToBroadPhase[Layers::TRACE_ONLY] = BroadPhaseLayers::TRACE_ONLY;
 	}
 
 	virtual uint					GetNumBroadPhaseLayers() const override
@@ -275,6 +287,7 @@ public:
 		{
 		case (BroadPhaseLayer::Type)BroadPhaseLayers::NON_MOVING:	return "NON_MOVING";
 		case (BroadPhaseLayer::Type)BroadPhaseLayers::MOVING:		return "MOVING";
+		case (BroadPhaseLayer::Type)BroadPhaseLayers::TRACE_ONLY:	return "TRACE_ONLY";
 		default:													JPH_ASSERT(false); return "INVALID";
 		}
 	}
@@ -295,7 +308,9 @@ public:
 		case Layers::NON_MOVING:
 			return inLayer2 == BroadPhaseLayers::MOVING;
 		case Layers::MOVING:
-			return true;
+			return inLayer2 != BroadPhaseLayers::TRACE_ONLY;
+		case Layers::TRACE_ONLY:
+			return false;
 		default:
 			JPH_ASSERT(false);
 			return false;
@@ -319,9 +334,9 @@ public:
 		RVec3Arg inBaseOffset,
 		const CollideShapeResult& inCollisionResult) override;
 	static void beforeSimulation();
-	static void afterSimulation();
+	static void afterSimulation();   // turns this step's sensor contact events into Physics::gAdds / gRemovals
+	static void Reset();             // forgets every tracked sensor contact (all bodies are being destroyed)
 	void OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override;
-	void OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override;
 	void OnContactRemoved(const SubShapeIDPair& inSubShapePair) override;
 
 	static void addIgnorePair(const BodyID& body1, const BodyID& body2);
@@ -330,18 +345,63 @@ public:
 	static void CleanIgnorePairs();
 
 private:
-private:
-	static inline std::map<std::pair<Entity*, Entity*>, BodyID> previousContacts;
-	static inline std::map<std::pair<Entity*, Entity*>, BodyID> currentContacts;
+	// Sensor contacts follow Jolt's own add / remove events (a contact with a sleeping body is kept, no events). The
+	// step's worker threads only append to their own event buffer - no lock; afterSimulation pairs the events up on
+	// the calling thread: an entity pair's first contact is an enter, its last one gone an exit.
+	struct ContactEvent
+	{
+		SubShapeIDPair subShapes;
+		Entity* sensorEntity = nullptr;   // added only
+		Entity* otherEntity = nullptr;
+		BodyID otherBody;
+		bool added = false;
+	};
+	struct ContactEventBuffer
+	{
+		std::vector<ContactEvent> events;
+	};
+	struct SensorContact
+	{
+		Entity* sensorEntity = nullptr;
+		Entity* otherEntity = nullptr;
+		BodyID otherBody;
+	};
+	struct EntityPairContacts
+	{
+		int count = 0;
+		BodyID lastBody;
+	};
+	struct SubShapePairHash
+	{
+		size_t operator()(const SubShapeIDPair& pair) const { return static_cast<size_t>(pair.GetHash()); }
+	};
+	struct EntityPairHash
+	{
+		size_t operator()(const std::pair<Entity*, Entity*>& pair) const
+		{
+			return std::hash<const void*>{}(pair.first) ^ (std::hash<const void*>{}(pair.second) * 0x9E3779B97F4A7C15ull);
+		}
+	};
+
+	static ContactEventBuffer& ThreadEvents();
+
+	static inline std::mutex eventBuffersMutex;                                   // registering a thread's buffer only
+	static inline std::vector<std::unique_ptr<ContactEventBuffer>> eventBuffers;
+	// Tracked contacts, written only by afterSimulation (read by OnContactRemoved during the step); a sensor - sensor
+	// pair holds two entries, one per sensor.
+	static inline std::unordered_multimap<SubShapeIDPair, SensorContact, SubShapePairHash> sensorContacts;
+	static inline std::unordered_map<std::pair<Entity*, Entity*>, EntityPairContacts, EntityPairHash> entityPairs;
 	static inline std::unordered_set<std::pair<uint32_t, uint32_t>, PairHash> ignoredPairs;
+	static inline std::mutex ignoredPairsMutex;
 };
 
 class TraceBodyFilter : public BodyFilter
 {
 public:
-	// List of bodies to ignore during the ray cast.
-	std::vector<Body*> ignoreList = {};
-	std::vector<Entity*> entityIgnoreList = {};
+	// Bodies / entities to ignore. Non-owning: the filter lives for one query and views the caller's lists (copying
+	// them allocated on every trace).
+	std::span<Body* const> ignoreList;
+	std::span<Entity* const> entityIgnoreList;
 	// Collision mask to filter out bodies that don't belong to the desired groups.
 	BodyType mask = BodyType::GroupHitTest;
 
@@ -355,10 +415,10 @@ public:
 class TraceBodyFilterIncludeOnly : public BodyFilter
 {
 public:
-	// List of bodies to ignore during the ray cast.
-	std::vector<Body*> ignoreList = {};
+	// Non-owning views of the caller's lists (see TraceBodyFilter).
+	std::span<Body* const> ignoreList;
 
-	std::vector<Entity*> includeEntityList = {};
+	std::span<Entity* const> includeEntityList;
 
 	// Collision mask to filter out bodies that don't belong to the desired groups.
 	BodyType mask = BodyType::GroupHitTest;
@@ -767,12 +827,9 @@ public:
 
 	static void ResetSimulation()
 	{
-
-		MyContactListener::beforeSimulation();
-		MyContactListener::beforeSimulation();
+		MyContactListener::Reset();
 		gAdds.clear();
 		gRemovals.clear();
-
 	}
 
 	static void UpdateDebugDraw()
@@ -891,6 +948,16 @@ public:
 	static void UpdateSwingTwistMotor(TwoBodyConstraint* constraint, const quat& childTransformRelParent, const float& strength);
 
 
+
+	// Bodies of `layer` whose bounds overlap the box (broadphase only, no shape test), appended to `out`. Thread-safe
+	// like the traces.
+	static void CollectBodiesInBox(const vec3& min, const vec3& max, ObjectLayer layer, std::vector<BodyID>& out);
+
+	// Moves a body to another object layer (hitboxes: TRACE_ONLY, MOVING while ragdolling).
+	static void SetObjectLayer(const Body* body, ObjectLayer layer)
+	{
+		bodyInterface->SetObjectLayer(body->GetID(), layer);
+	}
 
 	static void Deactivate(const Body* body)
 	{
@@ -1038,11 +1105,11 @@ public:
 	static vector<Physics::HitResult> PointTrace(
 		const vec3 point,
 		const BodyType mask,
-		const vector<Body*> ignoreList = {},
-		const vector<Entity*> entityIgnoreList = {},
+		const vector<Body*>& ignoreList = {},
+		const vector<Entity*>& entityIgnoreList = {},
 		bool traceAgainstConvex = true); //since usually it traces againt volumes that are created to have 2 meshes
 
-	static HitResult LineTrace(const vec3 start, const vec3 end, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {}, const vector<Entity*> entityIgnoreList = {}, bool traceAgainstConvex = false);
+	static HitResult LineTrace(const vec3 start, const vec3 end, const BodyType mask = BodyType::GroupHitTest, const vector<Body*>& ignoreList = {}, const vector<Entity*>& entityIgnoreList = {}, bool traceAgainstConvex = false);
 
 	class ClosestHitShapeCastCollector : public JPH::CollisionCollector<JPH::ShapeCastResult, JPH::CollisionCollectorTraitsCastShape>
 	{
@@ -1068,14 +1135,14 @@ public:
 		JPH::ShapeCastResult mHit;
 	};
 	
-	static HitResult SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {}, const vector<Entity*> entityIgnoreList = {}, bool traceAgainstConvex = false);
-	static std::vector<HitResult> MultiLineTrace(const vec3 start, const vec3 end, const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList, bool traceAgainstConvex = false);
-	static std::vector<HitResult> MultiSphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList, bool traceAgainstConvex = false);
-	static std::vector<Physics::HitResult> MultiSphereOverlap(const vec3 center, float radius, const BodyType mask, const vector<Body*> ignoreList, const vector<Entity*> entityIgnoreList, bool traceAgainstConvex = false);
-	static HitResult SphereTraceForEntity(vector<Entity*> entityties, const vec3 start, const vec3 end, float radius, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {}, bool traceAgainstConvex = false);
+	static HitResult SphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask = BodyType::GroupHitTest, const vector<Body*>& ignoreList = {}, const vector<Entity*>& entityIgnoreList = {}, bool traceAgainstConvex = false);
+	static std::vector<HitResult> MultiLineTrace(const vec3 start, const vec3 end, const BodyType mask, const vector<Body*>& ignoreList, const vector<Entity*>& entityIgnoreList, bool traceAgainstConvex = false);
+	static std::vector<HitResult> MultiSphereTrace(const vec3 start, const vec3 end, float radius, const BodyType mask, const vector<Body*>& ignoreList, const vector<Entity*>& entityIgnoreList, bool traceAgainstConvex = false);
+	static std::vector<Physics::HitResult> MultiSphereOverlap(const vec3 center, float radius, const BodyType mask, const vector<Body*>& ignoreList, const vector<Entity*>& entityIgnoreList, bool traceAgainstConvex = false);
+	static HitResult SphereTraceForEntity(const vector<Entity*>& entityties, const vec3 start, const vec3 end, float radius, const BodyType mask = BodyType::GroupHitTest, const vector<Body*>& ignoreList = {}, bool traceAgainstConvex = false);
 
-	static HitResult CylinderTrace(const vec3 start, const vec3 end, float radius, float halfHeight, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {}, const vector<Entity*> entityIgnoreList = {}, bool traceAgainstConvex = false);
-	static HitResult ShapeTrace(const Shape* shape,vec3 start, vec3 end, vec3 scale, const BodyType mask = BodyType::GroupHitTest, const vector<Body*> ignoreList = {}, const vector<Entity*> entityIgnoreList = {}, bool traceAgainstConvex = false);
+	static HitResult CylinderTrace(const vec3 start, const vec3 end, float radius, float halfHeight, const BodyType mask = BodyType::GroupHitTest, const vector<Body*>& ignoreList = {}, const vector<Entity*>& entityIgnoreList = {}, bool traceAgainstConvex = false);
+	static HitResult ShapeTrace(const Shape* shape,vec3 start, vec3 end, vec3 scale, const BodyType mask = BodyType::GroupHitTest, const vector<Body*>& ignoreList = {}, const vector<Entity*>& entityIgnoreList = {}, bool traceAgainstConvex = false);
 
 };
 

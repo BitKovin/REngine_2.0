@@ -148,6 +148,13 @@ protected:
 	std::vector<BodyID> activeIgnorePairs;
 	std::unordered_map<BodyID, Delay> removeCollisionCooldown;
 
+	// Per-update scratch (capacity kept): stacking candidates from the broadphase, the ones below us.
+	std::vector<BodyID> stackingCandidates;
+	std::vector<BodyID> stackedBelow;
+	std::vector<Entity*> groundTraceIgnore;   // { owner }: ground traces skip the owner's other bodies
+
 	bool CanStandUp();
+	void TagBodies();   // marks body / sensorBody as this controller's (BodyData::characterController)
+	static CharacterController* ControllerOf(const BodyID& id);
 
 };

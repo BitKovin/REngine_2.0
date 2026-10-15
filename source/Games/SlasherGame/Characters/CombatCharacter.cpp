@@ -9,8 +9,6 @@
 #include <Debug/MoveTimeline.h>
 #include <Data/CombatData.h>
 
-#include <AiPerception/AiPerceptionSystem.h>
-#include <AiPerception/ObservationTarget.h>
 #include <Camera.h>
 #include <Entities/SoundPlayer.h>
 #include <Logger.hpp>
@@ -18,6 +16,7 @@
 #include <Physics.h>
 #include <Time.hpp>
 #include <imgui/imgui.h>
+#include <tracy/tracy/Tracy.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -92,6 +91,7 @@ void CombatCharacter::LoadAssets()
 	if (!meshData.textures.empty())
 		mesh->TexturesLocation = meshData.textures;
 	mesh->LoadFromFile(meshData.model);
+	mesh->TwoSided = true;
 	if (!meshData.meta.empty())
 		mesh->LoadMetaFromFile(meshData.meta);
 	mesh->Scale = glm::vec3(meshData.scale);
@@ -129,8 +129,6 @@ void CombatCharacter::Start()
 	ConfigureComponents();
 	CreateHitboxes();
 	moves.SetMoveSet(data->moveSet);
-
-	observationTarget = AiPerceptionSystem::CreateTarget(GetTargetPoint(), Id, { TeamPerceptionTag(data->team) });
 
 	aiController = std::make_unique<AIController>(*this);
 	aiController->SetBrain(data->ai.brain);
@@ -172,6 +170,7 @@ void CombatCharacter::CreateHitboxes()
 	const MovementData& m = data->movement;
 	fallbackHitbox = Physics::CreateCharacterBody(this, Position, m.radius * 0.9f, m.height * 0.9f, 1.0f, BodyType::HitBox, BodyType::None);
 	fallbackHitbox->SetMotionType(JPH::EMotionType::Kinematic);
+	Physics::SetObjectLayer(fallbackHitbox, Layers::TRACE_ONLY);   // like model hitboxes: found by sweeps, never simulated
 	Bodies.push_back(fallbackHitbox);
 }
 
@@ -220,11 +219,6 @@ Team CombatCharacter::GetTeamId() const
 void CombatCharacter::SetTeamId(Team team)
 {
 	GetTeam()->team = team;
-	if (observationTarget)
-	{
-		observationTarget->tags.clear();
-		observationTarget->tags.emplace(TeamPerceptionTag(team));
-	}
 }
 
 float CombatCharacter::GetTimeDilation() const
@@ -287,17 +281,26 @@ void CombatCharacter::UpdateCombat()
 	const float deltaTime = GetLocalDeltaTime();
 
 	if (controller != nullptr && !IsDead())
+	{
+		ZoneScopedN("Body: controller");
 		controller->UpdateInput(*this, input, realDeltaTime);
+	}
 
-	moves.Tick(deltaTime);
-	UpdateRecoveryRelease();
-	weapons.Tick(deltaTime);
-	UpdateWeaponReturn();
-	UpdateFacing(deltaTime);
-	UpdateAim();
-
-	if (observationTarget)
-		observationTarget->position = GetTargetPoint();
+	{
+		ZoneScopedN("Body: moves");
+		moves.Tick(deltaTime);
+		UpdateRecoveryRelease();
+	}
+	{
+		ZoneScopedN("Body: weapons");
+		weapons.Tick(deltaTime);
+		UpdateWeaponReturn();
+	}
+	{
+		ZoneScopedN("Body: facing + aim");
+		UpdateFacing(deltaTime);
+		UpdateAim();
+	}
 }
 
 void CombatCharacter::FlushCombatFrame()
@@ -347,22 +350,32 @@ void CombatCharacter::QueueHit(const HitRequestEvent& hit)
 		EcsScheduler::Emit(hit);
 }
 
-// ---- Engine frame -----------------------------------------------------------------------------------------
+// ---- Pose frame (CombatBodyPoseSystem) --------------------------------------------------------------------
 
-void CombatCharacter::UpdateAnimationRate()
+// Pose level of detail (COMBAT_DESIGN.md §2.4). The controlled body and attacking bodies evaluate every frame (their
+// blades sweep along the pose); the others by distance from the camera, and at the far rate while the camera does not
+// see them. Far and unseen bodies follow the ground with the controller's line traces instead of its shape cast.
+void CombatCharacter::UpdatePoseDetail()
 {
-	if (IsPlayerControlled())
+	const MoveSlot& primary = moves.GetPrimary();
+	const bool attacking = primary.IsActive() && primary.move->HasTag(MoveTag::Attack);
+	if (IsPlayerControlled() || attacking)
 	{
 		animationInterval = 1;
-		return;
+	}
+	else
+	{
+		const AnimationLodData& lod = data->animationLod;
+		const float distance = glm::distance(Position, Camera::position);
+		animationInterval = distance < lod.halfRateDistance ? 1 : (distance < lod.quarterRateDistance ? 2 : 4);
+		if (!mesh->IsCameraVisible())   // last rendered frame's culling
+			animationInterval = 4;
 	}
 
-	const AnimationLodData& lod = data->animationLod;
-	const float distance = glm::distance(Position, Camera::position);
-	animationInterval = distance < lod.halfRateDistance ? 1 : (distance < lod.quarterRateDistance ? 2 : 4);
+	movement.movementQuality = animationInterval == 4 ? CharacterControllerMovementQuality::NpcLowQuality : ToEngineQuality(data->movement.quality);
 }
 
-void CombatCharacter::AsyncUpdate()
+void CombatCharacter::UpdatePose()
 {
 	if (!IsCombatReady())
 		return;
@@ -371,14 +384,18 @@ void CombatCharacter::AsyncUpdate()
 
 	// Far bodies evaluate their pose at a reduced rate; the clips are sampled at the move clock, so a late
 	// evaluation shows exactly where the move is. Root motion becomes a velocity over the evaluated span.
-	UpdateAnimationRate();
+	UpdatePoseDetail();
 	animationPendingTime += deltaTime;
-	if (++animationFramesSinceEvaluate >= animationInterval || pose.boneTransforms.empty())
+	if (++animationFramesSinceEvaluate >= animationInterval || animator.GetPose().boneTransforms.empty())
 	{
+		ZoneScopedN("Body: animation");
 		AnimatorInput animatorInput;
 		BuildAnimatorInput(animatorInput);
-		animator.Evaluate(animatorInput, animationPendingTime);
-		pose = animator.GetResultPose();
+		{
+			ZoneScopedN("Body: animator evaluate");
+			animator.Evaluate(animatorInput, animationPendingTime);
+		}
+		const AnimationPose& pose = animator.ComposePose();   // the animator's storage, no copy
 
 		const glm::vec3 rootMotion = animator.ConsumeRootMotion();
 		rootMotionVelocity = animationPendingTime > 1e-6f ? rootMotion / animationPendingTime : glm::vec3(0.0f);
@@ -386,10 +403,16 @@ void CombatCharacter::AsyncUpdate()
 		animationFramesSinceEvaluate = 0;
 
 		if (!pose.boneTransforms.empty())
+		{
+			ZoneScopedN("Body: paste pose");
 			mesh->PasteAnimationPose(pose);
+		}
 	}
 
-	ApplyMovement(deltaTime);
+	{
+		ZoneScopedN("Body: movement");
+		ApplyMovement(deltaTime);
+	}
 	hitRecoil.Step(deltaTime, data->hitRecoil.frequency, data->hitRecoil.damping);
 
 	glm::vec3 shake(0.0f);
@@ -398,12 +421,45 @@ void CombatCharacter::AsyncUpdate()
 	mesh->Position = GetFeetPosition() + shake;
 	mesh->Rotation = glm::vec3(0.0f, yaw + data->mesh.yawOffset, 0.0f);
 
-	if (fallbackHitbox)
-		Physics::SetBodyPosition(fallbackHitbox, Position);
-	else
-		mesh->UpdateHitboxes();
+	{
+		ZoneScopedN("Body: hitboxes");
+		if (fallbackHitbox)
+			Physics::SetBodyPosition(fallbackHitbox, Position);
+		else
+			mesh->UpdateHitboxes();
+	}
 
-	weapons.AsyncUpdate(*mesh, pose, animator.GetWeaponDrive(), deltaTime);
+	ZoneScopedN("Body: weapon pose");
+	UpdateWeaponReach();
+	weapons.AsyncUpdate(*mesh, animator.GetPose(), animator.GetWeaponDrive(), deltaTime);
+}
+
+// Weapon length from the reach of the moves playing (MoveData::reach): the primary - or the attack playing out in
+// recovery - and the overlay; the longest reach per weapon wins.
+void CombatCharacter::UpdateWeaponReach()
+{
+	std::array<float, static_cast<size_t>(WeaponSlot::Count)> reach{};
+	auto add = [&](const MoveData* move, float time)
+	{
+		if (move != nullptr && move->reach.IsActive())
+		{
+			float& length = reach[static_cast<size_t>(move->reach.weapon)];
+			length = std::max(length, move->reach.At(time));
+		}
+	};
+
+	const MoveSlot& primary = moves.GetPrimary();
+	const RecoverySlot& recovery = moves.GetRecovery();
+	if (primary.IsActive())
+		add(primary.move, primary.time);
+	else if (recovery.IsActive())
+		add(recovery.move, recovery.time);
+	const MoveSlot& overlay = moves.GetOverlay();
+	if (overlay.IsActive())
+		add(overlay.move, overlay.time);
+
+	for (size_t slot = 0; slot < reach.size(); ++slot)
+		weapons.SetExtension(static_cast<WeaponSlot>(slot), reach[slot]);
 }
 
 void CombatCharacter::LateUpdate()
@@ -430,12 +486,6 @@ void CombatCharacter::Destroy()
 
 		if (aiController)
 			aiController->OnBodyDestroyed();
-
-		if (observationTarget)
-		{
-			AiPerceptionSystem::RemoveTarget(observationTarget);
-			observationTarget.reset();
-		}
 
 		movement.Destroy();
 	}
@@ -1198,9 +1248,6 @@ void CombatCharacter::OnDeath(Entity* killer)
 	input.ReleaseAll(Time::GameTime);
 	weapons.StopAllTrails();
 	moves.SetLocked(true);
-
-	if (observationTarget)
-		observationTarget->active = false;
 
 	if (aiController)
 		aiController->OnBodyDied();

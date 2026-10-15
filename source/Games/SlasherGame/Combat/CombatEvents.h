@@ -18,7 +18,7 @@ namespace HitFlags
 
 // THE combat funnel (COMBAT_DESIGN.md §6.1). Emitted on the main thread with EcsScheduler::Emit (bodies queue their
 // hits during the parallel update and emit them in body order); resolved by the single handler ResolveHitRequest
-// (CombatRules.cpp) when the PostUpdate tick group flushes its events, i.e. before AsyncUpdate.
+// (CombatRules.cpp) when the PostUpdate tick group flushes its events, i.e. before the bodies' pose (PostAsyncUpdate).
 struct HitRequestEvent
 {
 	EntityHandle attacker;

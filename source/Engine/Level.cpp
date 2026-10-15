@@ -33,6 +33,20 @@
 
 #include <tracy/tracy/Tracy.hpp>
 
+// A zone per entity, named after it only while a profiler is attached: building the name allocates (it did so every
+// frame for every entity even in builds without Tracy, where only ZoneName compiles out).
+#ifdef TRACY_ENABLE
+#define LEVEL_ENTITY_ZONE(prefix, object) \
+	ZoneScoped; \
+	if (TracyIsConnected) \
+	{ \
+		const std::string zoneName = std::string(prefix) + (object)->GetId(); \
+		ZoneName(zoneName.c_str(), zoneName.size()); \
+	}
+#else
+#define LEVEL_ENTITY_ZONE(prefix, object)
+#endif
+
 #include <Network/NetworkManager.h>
 #include <Network/NetworkedEntity.h>
 #include <IDrawMesh.h>
@@ -481,28 +495,24 @@ void Level::AsyncUpdate(bool paused)
 	AddPendingLevelObjects();
 	RemovePendingEntities();
 
-	entityArrayLock.lock();
-	auto objects = LevelObjects;
-	entityArrayLock.unlock();
-
-	std::vector<LevelObject*> toUpdate;
-	toUpdate.reserve(objects.size());
-
-	for (auto var : objects)
+	asyncUpdateObjects.clear();
 	{
-		if ((var->UpdateWhenPaused || !paused) && var->UpdateEnabled && var->wantsAsyncUpdate)
-			toUpdate.push_back(var);
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+		for (auto var : LevelObjects)
+		{
+			if ((var->UpdateWhenPaused || !paused) && var->UpdateEnabled && var->wantsAsyncUpdate)
+				asyncUpdateObjects.push_back(var);
+		}
 	}
 
-	if (!toUpdate.empty())
+	if (!asyncUpdateObjects.empty())
 	{
-		asyncUpdateThreadPool->ParallelFor(toUpdate.size(), [&toUpdate](size_t i)
+		asyncUpdateThreadPool->ParallelFor(asyncUpdateObjects.size(), [this](size_t i)
 			{
-				ZoneScoped;
-				std::string zoneName = "Async Update Entity" + toUpdate[i]->GetId();
-				ZoneName(zoneName.c_str(), zoneName.size());
-				toUpdate[i]->AsyncUpdate();
-			});}
+				LEVEL_ENTITY_ZONE("Async Update Entity", asyncUpdateObjects[i]);
+				asyncUpdateObjects[i]->AsyncUpdate();
+			});
+	}
 
 	AddPendingLevelObjects();
 	RemovePendingEntities();
@@ -512,29 +522,21 @@ void Level::PreFinalize() {
 	AddPendingLevelObjects();
 	RemovePendingEntities();
 
-	entityArrayLock.lock();
-	auto objects = LevelObjects;
-	entityArrayLock.unlock();
-
 	// Flatten object -> draw-mesh into one indexable list so ParallelFor
 	// splits it into equal contiguous chunks, regardless of how unevenly
 	// meshes are distributed across objects.
-	struct DrawMeshWork {
-		LevelObject* var;
-		IDrawMesh* mesh;
-	};
-
-	std::vector<DrawMeshWork> work;
-	work.reserve(objects.size());
-
-	for (auto var : objects)
-		for (auto d : var->GetDrawMeshes())
-			work.push_back({ var, d });
+	preFinalizeWork.clear();
+	{
+		std::lock_guard<std::recursive_mutex> lock(entityArrayLock);
+		for (auto var : LevelObjects)
+			for (auto d : var->GetDrawMeshes())
+				preFinalizeWork.push_back({ var, d });
+	}
 
 	// Total jobs = 1 (Navigation) + the number of mesh work items
-	size_t totalJobs = work.size() + 1;
+	size_t totalJobs = preFinalizeWork.size() + 1;
 
-	asyncUpdateThreadPool->ParallelFor(totalJobs, [&work](size_t i)
+	asyncUpdateThreadPool->ParallelFor(totalJobs, [this](size_t i)
 		{
 			if (i == 0)
 			{
@@ -544,12 +546,9 @@ void Level::PreFinalize() {
 			else
 			{
 				// Offset by 1 to access the correct mesh in the vector
-				size_t workIndex = i - 1;
-
-				ZoneScoped;
-				std::string zoneName = "draw object pre finalize" + work[workIndex].var->GetId();
-				ZoneName(zoneName.c_str(), zoneName.size());
-				work[workIndex].mesh->PreFinalize();
+				const DrawMeshWork& work = preFinalizeWork[i - 1];
+				LEVEL_ENTITY_ZONE("draw object pre finalize", work.object);
+				work.mesh->PreFinalize();
 			}
 		});
 
@@ -640,9 +639,7 @@ void Level::Update(bool paused)
 		{
 			if (var->UpdateEnabled)
 			{
-				ZoneScoped;
-				std::string zoneName = "Update Entity" + var->GetId();
-				ZoneName(zoneName.c_str(), zoneName.size());
+				LEVEL_ENTITY_ZONE("Update Entity", var);
 				var->Update();
 			}
 		}
@@ -664,9 +661,7 @@ void Level::LateUpdate(bool paused)
 		{
 			if (var->UpdateEnabled)
 			{
-				ZoneScoped;
-				std::string zoneName = "LateUpdate Entity" + var->GetId();
-				ZoneName(zoneName.c_str(), zoneName.size());
+				LEVEL_ENTITY_ZONE("LateUpdate Entity", var);
 				var->LateUpdate();
 			}
 		}
@@ -748,17 +743,17 @@ Entity* Level::FindEntityWithId(const hashed_string& id)
 
 void Level::FinalizeFrame()
 {
+	ZoneScopedN("Level::FinalizeFrame");
 	AddPendingLevelObjects();
 
 	VissibleRenderList.clear();
 	VisibleDrawCommands.Clear();
 
-	vector<IDrawMesh*> ShadowCasters;
-	vector<IDrawMesh*> DetailShadowCasters;
-
-	std::vector<IDrawCommand*> meshCommands; // reused scratch buffer
+	shadowCasters.clear();
+	detailShadowCasters.clear();
 
 	{
+		ZoneScopedN("Finalize Objects");
 
 		bool renderAll = EngineMain::MainInstance->LoadingFrames > 1;
 
@@ -797,6 +792,7 @@ void Level::FinalizeFrame()
 					for (IDrawCommand* cmd : meshCommands)
 					{
 						cmd->SortDistance = distance;
+						cmd->SortKey = cmd->GetSortKey();
 
 						VisibleDrawCommands.All.push_back(cmd);
 
@@ -816,11 +812,11 @@ void Level::FinalizeFrame()
 
 					if (mesh->IsDetailShadow())
 					{
-						DetailShadowCasters.push_back(mesh);
+						detailShadowCasters.push_back(mesh);
 					}
 					else
 					{
-						ShadowCasters.push_back(mesh);
+						shadowCasters.push_back(mesh);
 					}
 
 					
@@ -832,20 +828,26 @@ void Level::FinalizeFrame()
 		}
 	}
 
-	// Opaque/Masked: batch by shader identity, then front-to-back within a batch.
-	std::sort(VisibleDrawCommands.Depth.begin(), VisibleDrawCommands.Depth.end(),
-		[](IDrawCommand* a, IDrawCommand* b) {
-			if (a->GetSortKey() != b->GetSortKey()) return a->GetSortKey() < b->GetSortKey();
-			return a->SortDistance < b->SortDistance;
-		});
+	{
+		ZoneScopedN("Sort Draw Commands");
+		// Opaque/Masked: batch by shader identity, then front-to-back within a batch.
+		std::sort(VisibleDrawCommands.Depth.begin(), VisibleDrawCommands.Depth.end(),
+			[](IDrawCommand* a, IDrawCommand* b) {
+				if (a->SortKey != b->SortKey) return a->SortKey < b->SortKey;
+				return a->SortDistance < b->SortDistance;
+			});
 
-	// Transparent: strictly back-to-front, no batching.
-	std::sort(VisibleDrawCommands.Transparent.begin(), VisibleDrawCommands.Transparent.end(),
-		[](IDrawCommand* a, IDrawCommand* b) { return a->SortDistance > b->SortDistance; });
+		// Transparent: strictly back-to-front, no batching.
+		std::sort(VisibleDrawCommands.Transparent.begin(), VisibleDrawCommands.Transparent.end(),
+			[](IDrawCommand* a, IDrawCommand* b) { return a->SortDistance > b->SortDistance; });
+	}
 
-	ShadowRenderList = ShadowCasters;
-	DetailShadowRenderList = DetailShadowCasters;
+	ShadowRenderList.swap(shadowCasters);
+	DetailShadowRenderList.swap(detailShadowCasters);
 
-	LightManager::Update();
+	{
+		ZoneScopedN("LightManager::Update");
+		LightManager::Update();
+	}
 
 }

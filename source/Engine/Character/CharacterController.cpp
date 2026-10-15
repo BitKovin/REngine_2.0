@@ -8,6 +8,21 @@
 
 std::vector<CharacterController*> CharacterController::s_allControllers;
 
+void CharacterController::TagBodies()
+{
+	if (body)
+		Physics::GetBodyData(body)->characterController = this;
+	if (sensorBody)
+		Physics::GetBodyData(sensorBody)->characterController = this;
+}
+
+CharacterController* CharacterController::ControllerOf(const BodyID& id)
+{
+	Body* found = Physics::GetBodyFromId(id);
+	BodyData* data = found ? Physics::GetBodyData(found) : nullptr;
+	return data ? data->characterController : nullptr;
+}
+
 // ---------------------------------------------------------------------------
 
 CharacterController::CharacterController()
@@ -47,11 +62,13 @@ void CharacterController::Init(Entity* owner, vec3 position, float radius, float
 	Physics::GetBodyData(sensorBody)->dynamicCollisionGroupOrMask = true;
 	Physics::GetBodyData(sensorBody)->sensorCollisionMode = SensorCollisionMode::CollideOnlyWithSensors;
 	Physics::SetGravityFactor(sensorBody, 0);
+	TagBodies();
 
 	this->height = height;
 	this->radius = radius;
 
 	Physics::SetGravityFactor(body, 0);
+	groundTraceIgnore.assign(1, owner);
 
 	// Register in the global controller list (guard against double-add on re-init)
 	if (std::find(s_allControllers.begin(), s_allControllers.end(), this) == s_allControllers.end())
@@ -485,6 +502,7 @@ void CharacterController::Crouch()
 	Physics::GetBodyData(sensorBody)->dynamicCollisionGroupOrMask = true;
 	Physics::GetBodyData(sensorBody)->sensorCollisionMode = SensorCollisionMode::CollideOnlyWithSensors;
 	Physics::SetGravityFactor(sensorBody, 0);
+	TagBodies();
 
 	height = newHeight;
 	isCrouched = true;
@@ -535,6 +553,7 @@ void CharacterController::UnCrouch()
 	Physics::GetBodyData(sensorBody)->dynamicCollisionGroupOrMask = true;
 	Physics::GetBodyData(sensorBody)->sensorCollisionMode = SensorCollisionMode::CollideOnlyWithSensors;
 	Physics::SetGravityFactor(sensorBody, 0);
+	TagBodies();
 
 	height = newHeight;
 	isCrouched = false;
@@ -651,6 +670,7 @@ void CharacterController::SetLadderMode(bool enabled)
 	Physics::GetBodyData(sensorBody)->dynamicCollisionGroupOrMask = true;
 	Physics::GetBodyData(sensorBody)->sensorCollisionMode = SensorCollisionMode::CollideOnlyWithSensors;
 	Physics::SetGravityFactor(sensorBody, 0);
+	TagBodies();
 
 	height = standingHeight;
 
@@ -906,14 +926,19 @@ bool CharacterController::CheckGroundAt(vec3 location, float checkRadius, float&
 	vec3 start = location + vec3(0, 0.2f, 0);
 	vec3 end = location - vec3(0, height / 2.0f + stepHeight, 0);
 
+	// Characters (their capsule / sensor bodies, this one's included) are not ground: the trace goes through them to
+	// what is below. Rejecting a hit on another character used to lose the ground under a body in a crowd, and finding
+	// out cost a scan over every controller per hit.
+	const BodyType groundMask = static_cast<BodyType>(BodyType::GroupCharacter & ~BodyType::CharacterCapsule);
+	static const std::vector<Body*> noBodies;
 	if (checkRadius > 0)
 	{
-		result = Physics::CylinderTrace(start, end - vec3(0, 0.05f, 0), checkRadius, 0.05f, BodyType::GroupCharacter, { body, sensorBody }, { owner }, true);
+		result = Physics::CylinderTrace(start, end - vec3(0, 0.05f, 0), checkRadius, 0.05f, groundMask, noBodies, groundTraceIgnore, true);
 		result.position = result.shapePosition - vec3(0, 0.02f, 0);
 	}
 	else
 	{
-		result = Physics::LineTrace(start, end, BodyType::GroupCharacter, { body, sensorBody }, { owner }, true);
+		result = Physics::LineTrace(start, end, groundMask, noBodies, groundTraceIgnore, true);
 	}
 
 	*hitBody = result.hitbody;
@@ -921,17 +946,6 @@ bool CharacterController::CheckGroundAt(vec3 location, float checkRadius, float&
 
 	if (result.normal.y < 0.1)
 		return false;
-
-	// Discard hits against any other character's bodies entirely.
-	// Returning false means the hit goes into no bucket — standsOnGround
-	// stays false and the slope-clip code in Update() never strips vertical
-	// velocity, which was what was holding the character up.
-	for (const CharacterController* other : s_allControllers)
-	{
-		if (other == this) continue;
-		if (result.hitbody == other->body || result.hitbody == other->sensorBody)
-			return false;
-	}
 
 	outheight = result.position.y;
 
@@ -947,7 +961,7 @@ bool CharacterController::CheckGroundAt(vec3 location, float checkRadius, float&
 //
 // Called once per Update().  This controller is the "top" character.
 //
-// 1. Scan s_allControllers to find characters that are currently below us
+// 1. Find characters that are currently below us (broadphase box under the feet)
 //    (our feet near their top, XZ overlap).
 // 2. Add ignore pairs for newly detected bodies so we pass through them
 //    vertically while still being able to push horizontally.
@@ -964,11 +978,23 @@ void CharacterController::UpdateCharacterStacking(float deltaTime)
 	const float  myFeetY = myPos.y - height * 0.5f;
 
 	// ── 1. Detect which characters are currently below us ───────────────────
-	std::vector<BodyID> detectedThisFrame;
+	// Candidates: moving bodies whose bounds overlap the band under our feet where a stacked character's top can be
+	// (a broadphase query, not a scan over every controller).
+	constexpr float MaxOtherRadius = 1.0f;
+	const float reach = radius + MaxOtherRadius + 0.15f;
+	stackingCandidates.clear();
+	Physics::CollectBodiesInBox(
+		vec3(myPos.x - reach, myFeetY - height * 0.5f, myPos.z - reach),
+		vec3(myPos.x + reach, myFeetY + stepHeight + 0.3f, myPos.z + reach),
+		Layers::MOVING, stackingCandidates);
 
-	for (CharacterController* other : s_allControllers)
+	std::vector<BodyID>& detectedThisFrame = stackedBelow;
+	detectedThisFrame.clear();
+
+	for (const BodyID& candidate : stackingCandidates)
 	{
-		if (other == this || !other->body) continue;
+		CharacterController* other = ControllerOf(candidate);
+		if (other == nullptr || other == this || !other->body || other->body->GetID() != candidate) continue;   // capsules only
 
 		const vec3  otherPos = other->GetPosition();
 		const float otherTopY = otherPos.y + other->height * 0.5f;
@@ -1024,12 +1050,10 @@ void CharacterController::UpdateCharacterStacking(float deltaTime)
 	// ── 4. Horizontal separation push ────────────────────────────────────────
 	// Only the top character (this) drives the push so there is no
 	// double-counting between two controllers that are stacked.
-	for (CharacterController* other : s_allControllers)
+	for (const BodyID& paired : activeIgnorePairs)
 	{
-		if (other == this || !other->body) continue;
-
-		const bool isPaired = std::find(activeIgnorePairs.begin(), activeIgnorePairs.end(), other->body->GetID()) != activeIgnorePairs.end();
-		if (!isPaired) continue;
+		CharacterController* other = ControllerOf(paired);
+		if (other == nullptr || other == this || !other->body) continue;
 
 		vec3 diff = GetPosition() - other->GetPosition();
 		diff.y = 0.0f; // horizontal only

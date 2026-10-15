@@ -241,7 +241,8 @@ void StaticMesh::FinalizeFrameData()
 	finalizedPosition = Position;
 	finalizedRotation = Rotation;
 	finalizedScale = Scale;
-	finalMeshHideList = std::unordered_set<std::string>(MeshHideList);
+	if (finalMeshHideList != MeshHideList)   // copied only when it changed (rebuilding it allocated every frame)
+		finalMeshHideList = MeshHideList;
 	finalizedColor = Color;
 
 	if (model == nullptr) return;

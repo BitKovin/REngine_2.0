@@ -6,8 +6,9 @@ class RandomHelper
 {
 public:
 
-    static float RandomFloat();
-    static int RandomInt();
+    // Thread-safe (one generator per thread).
+    static float RandomFloat();   // [0, 1)
+    static int RandomInt();       // [0, INT_MAX]
 
     static glm::vec3 RandomPosition(float radius);
 };

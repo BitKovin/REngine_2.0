@@ -130,6 +130,23 @@ bool ResolveWeapon(WeaponData& data, DataLoadReport& report)
 		if (data.blade.radius <= 0.0f) report.Error("blade.radius", "must be > 0");
 	}
 
+	// Extension: a weapon bone of a Rig model (a Bone prop is rigid).
+	WeaponExtendData& extend = data.extend;
+	extend.boneHash = hashed_string(extend.bone);
+	extend.resolvedAxis = glm::vec3(0.0f, 1.0f, 0.0f);
+	if (!extend.bone.empty())
+	{
+		if (!data.HasRigMesh())
+			report.Error("extend.bone", "requires a Rig mesh (the bone moves inside the weapon model)");
+		if (glm::dot(extend.axis, extend.axis) < 1e-8f)
+			report.Error("extend.axis", "must not be zero");
+		else
+			extend.resolvedAxis = glm::normalize(extend.axis);
+	}
+
+	if (data.trailStart < 0.0f || data.trailStart >= 1.0f)
+		report.Error("trailStart", "must be in [0, 1)");
+
 	if (data.kind == WeaponKind::Firearm)
 	{
 		FirearmData& f = data.firearm;

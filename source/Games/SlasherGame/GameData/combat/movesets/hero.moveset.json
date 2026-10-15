@@ -25,10 +25,6 @@
 		"Draw": "draw"
 	},
 	"reactions": {
-		"Flinch": "flinch",
-		"Stagger": "stagger",
-		"Knockdown": "knockdown",
-		"Launch": "knockdown",
 		"Death": "death"
 	},
 	"moves": {
@@ -44,8 +40,9 @@
 			},
 			"hits": [ { "start": 0.25, "end": 0.4, "damage": 12, "poiseDamage": 6, "reaction": "Flinch", "knockback": 3.5, "hitStop": 0.07, "shake": 0.035 } ],
 			"combo": { "windowStart": 0.515, "alternativeAt": 0.71, "windowEnd": 1.195, "next": "light_1", "alternative": "heavy_1" },
-			"cancels": [ { "start": 0.42, "into": ["Dash", "Jump"] }, { "start": 0.66, "into": ["Locomotion"] } ],
+			"cancels": [ { "start": 0.42, "into": ["Dash", "Jump"] }, { "start": 0.71, "into": ["Locomotion"] } ],
 			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7 },
+			"reach": { "length": 0.2 },
 			"cues": [ { "time": 0.24, "trail": 1 }, { "time": 0.42, "trail": 0 } ]
 		},
 		"light_1": {
@@ -65,6 +62,7 @@
 			"combo": { "windowStart": 0.58, "alternativeAt": 0.66, "windowEnd": 0.98, "next": "light_2", "alternative": "heavy_2" },
 			"cancels": [ { "start": 0.56, "into": ["Dash", "Jump"] }, { "start": 0.78, "into": ["Locomotion"] } ],
 			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7 },
+			"reach": { "length": 0.2 },
 			"cues": [ { "time": 0.14, "trail": 1 }, { "time": 0.56, "trail": 0 } ]
 		},
 		"heavy_1": {
@@ -84,6 +82,7 @@
 			"cancels": [ { "start": 0.47, "into": ["Dash", "Jump"] }, { "start": 0.62, "into": ["Locomotion"] } ],
 			"armor": [ { "start": 0.1, "end": 0.45, "poiseResist": 0.6 } ],
 			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
+			"reach": { "length": 0.2 },
 			"cues": [ { "time": 0.22, "trail": 1 }, { "time": 0.47, "trail": 0 } ],
 			"params": { "plunge": { "start": 0.24, "speed": 18, "hold": 0.36 } },
 			"speed": 0.85
@@ -106,6 +105,7 @@
 			"combo": { "windowStart": 0.52, "alternativeAt": 0.60, "windowEnd": 0.95, "next": "light_3", "alternative": "heavy_3" },
 			"cancels": [ { "start": 0.52, "into": ["Dash", "Jump"] }, { "start": 0.72, "into": ["Locomotion"] } ],
 			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7, "advance": 1.5 },
+			"reach": { "length": 0.2 },
 			"cues": [ { "time": 0.02, "trail": 1 }, { "time": 0.5, "trail": 0 } ]
 		},
 		"heavy_2": {
@@ -125,6 +125,7 @@
 			"cancels": [ { "start": 0.79, "into": ["Dash", "Jump"] }, { "start": 0.95, "into": ["Locomotion"] } ],
 			"armor": [ { "start": 0.3, "end": 0.77, "poiseResist": 0.6 } ],
 			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
+			"reach": { "length": 0.2 },
 			"cues": [ { "time": 0.54, "trail": 1 }, { "time": 0.79, "trail": 0 } ]
 		},
 		"light_3": {
@@ -142,6 +143,7 @@
 			"recovery": { "start": 0.7, "lowerBodyBlend": 0.18 },
 			"cancels": [ { "start": 0.5, "into": ["Dash", "Jump", "Locomotion"] } ],
 			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7, "advance": 1.5 },
+			"reach": { "length": 0.2 },
 			"cues": [ { "time": 0.19, "trail": 1 }, { "time": 0.47, "trail": 0 } ]
 		},
 		"heavy_3": {
@@ -164,6 +166,7 @@
 			"cancels": [ { "start": 1.4, "into": ["Dash", "Jump", "Locomotion"] } ],
 			"armor": [ { "start": 0.2, "end": 1.38, "poiseResist": 0.8 } ],
 			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
+			"reach": { "length": 0.2 },
 			"cues": [
 				{ "time": 0.33, "trail": 1 }, { "time": 0.66, "trail": 0 },
 				{ "time": 0.96, "trail": 1 }, { "time": 1.4, "trail": 0 }
@@ -183,6 +186,7 @@
 			"cancels": [ { "start": 0.38, "into": ["Jump", "Dash"] } ],
 			"armor": [ { "start": 0.1, "end": 0.37, "poiseResist": 0.6 } ],
 			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.4, "maxMagnetSpeed": 7 },
+			"reach": { "length": 0.4 },
 			"cues": [ { "time": 0.25, "trail": 1 }, { "time": 0.4, "trail": 0 } ],
 			"params": { "launchSelf": { "onHit": true, "verticalSpeed": 9.6, "requireHeld": false } }
 		},

@@ -39,16 +39,6 @@ inline Attitude GetAttitude(Team a, Team b)
 	return a == b ? Attitude::Friendly : Attitude::Hostile;
 }
 
-inline const char* TeamPerceptionTag(Team team)
-{
-	switch (team)
-	{
-	case Team::Player: return "team_player";
-	case Team::Enemy:  return "team_enemy";
-	default:           return "team_neutral";
-	}
-}
-
 // ---- Damage -----------------------------------------------------------------------------------------
 
 enum class DamageSource : uint8_t

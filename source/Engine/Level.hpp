@@ -50,6 +50,19 @@ private:
 
 	std::shared_mutex entityNameMapMutex;
 
+	// Per-frame scratch of the update phases (game thread; capacity kept between frames).
+	struct DrawMeshWork
+	{
+		LevelObject* object;
+		IDrawMesh* mesh;
+	};
+	std::vector<LevelObject*> phaseObjects;
+	std::vector<LevelObject*> asyncUpdateObjects;
+	std::vector<DrawMeshWork> preFinalizeWork;
+	std::vector<IDrawMesh*> shadowCasters;          // FinalizeFrame (main thread)
+	std::vector<IDrawMesh*> detailShadowCasters;
+	std::vector<IDrawCommand*> meshCommands;
+
 
 public:
 

@@ -25,12 +25,12 @@
 	"firearm": {
 		"fireRate": 6,
 		"magazine": 0,
-		"spread": 0.8,
+		"spread": 0.1,
 		"pellets": 1,
 		"muzzles": [ { "bone": "muzzle_r" }, { "bone": "muzzle_l" } ],
 		"noiseRadius": 30,
 		"projectile": {
-			"speed": 140,
+			"speed": 210,
 			"radius": 0.03,
 			"maxDistance": 120,
 			"damage": 6,

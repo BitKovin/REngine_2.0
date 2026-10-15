@@ -56,7 +56,12 @@ public:
 
 	virtual void LoadAssetsIfNeeded(){}
 
-	virtual vector<IDrawMesh*> GetDrawMeshes() { return vector<IDrawMesh*>(); }
+	// By reference: the level walks every object's meshes twice a frame (PreFinalize, FinalizeFrame).
+	virtual const vector<IDrawMesh*>& GetDrawMeshes()
+	{
+		static const vector<IDrawMesh*> none;
+		return none;
+	}
 
 
 private:

@@ -23,6 +23,7 @@ public:
 
 	// Set by Level::FinalizeFrame(), consumed by the opaque/transparent sort.
 	float SortDistance = 0;
+	uint64_t SortKey = 0;   // GetSortKey(), taken once per frame (the sort compares it O(n log n) times)
 
 	virtual SurfaceType GetSurfaceType() const { return SurfaceType::Opaque; }
 

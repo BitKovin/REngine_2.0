@@ -50,6 +50,10 @@ public:
 	void SweepHitWindow(MoveSlot& slot, int windowIndex);
 	void EndHitWindow(int windowIndex);
 
+	// The weapon in `slot` is `meters` longer while in the hands (the moves' reach, WeaponData::extend). Set by the
+	// body every pose frame, before AsyncUpdate.
+	void SetExtension(WeaponSlot slot, float meters) { Slot(slot).extension = meters; }
+
 	// Requests the weapon trail on or off; the trail entity follows in LateUpdate (main thread).
 	void SetTrail(WeaponSlot slot, bool enabled);
 	void StopAllTrails();
@@ -108,6 +112,9 @@ private:
 		std::vector<RigBone> rigBones;
 		RigRest handRest;
 		RigRest holsterRest;
+		hashed_string extendBone;                 // WeaponData::extend bone; empty: this model does not extend
+		glm::vec3 extendAxis = glm::vec3(0.0f);   // in the bone's space
+		glm::vec3 extendModelAxis = glm::vec3(0.0f);   // the axis in model space (bind pose): model units per bone unit
 		AnimationPose current;                    // last output values, in the spaces of the current state
 		AnimationPose fadeFrom;
 		float fadeDuration = 0.0f;
@@ -127,6 +134,7 @@ private:
 		Delay holster;                            // holsterDelay, restarted on entering the hands and on every shot
 		particle_system_meleeTrail* trail = nullptr;
 		bool trailWanted = false;                 // requested by cues; the entity follows in SyncTrails
+		float extension = 0.0f;                   // m (SetExtension)
 	};
 
 	struct PendingShot
@@ -161,7 +169,7 @@ private:
 		const AnimationPose* fallback);
 	void PlaceBoneMesh(MeshInstance& instance, const WeaponAttachData& attach, SkeletalMesh& body);
 	static void PoseBuiltIn(MeshInstance& instance, SkeletalMesh& body, const AnimationPose& bodyPose);
-	void PoseRigMesh(MeshInstance& instance, bool inHands, SkeletalMesh& body, const AnimationPose& bodyPose,
+	void PoseRigMesh(MeshInstance& instance, bool inHands, float extension, SkeletalMesh& body, const AnimationPose& bodyPose,
 		const CharacterAnimator::WeaponDrive& drive, float deltaTime);
 
 	// World position of a weapon point on a posed mesh; false if the mesh is not posed or lacks the point's bone.

@@ -1,12 +1,18 @@
 #include <Particle/ParticleSystem.hpp>
 #include <Particle/RibbonEmitter.h>
 
+// Tracer of a projectile (COMBAT_DESIGN.md §9.4): a camera-facing ribbon from where the shot was a moment ago to
+// where it is, a warm streak added onto the scene (additive: it reads as light against the dark levels). The texture
+// is a band across the ribbon fading toward the old end. The look is tuned here; the system's Scale (copied to the
+// emitter every tick) multiplies it per spawn: x the width, y the lifetime.
 class BulletTrailEmitter : public RibbonEmitter
 {
 public:
 
-	float trailScale = 1.0f;
-	float lifeTimeMultiplier = 1.0f;
+	float Width = 0.05f;                                  // m at the shot
+	float EndWidth = 0.02f;                               // m at the old end
+	float LifeTime = 0.12f;                               // s; the ribbon covers this much of the shot's path
+	vec4 TrailColor = vec4(1.0f, 0.62f, 0.32f, 0.5f);
 	
 	BulletTrailEmitter() : RibbonEmitter()
 	{
@@ -17,13 +23,14 @@ public:
 		SimpleRibbon = true;
 		ParticleLighting = false;
 		PixelShader = "fs_unlit";
+		BlendMode = BgfxStateManager::Blend::Additive;
 	}
 
 	Particle UpdateParticle(Particle particle, float deltaTime) override
 	{
-		
-		particle.Transparency = mix(1.0,1.0, (particle.deathTime - particle.lifeTime) / particle.deathTime);
-		particle.Size = mix(0.015f, 0.055f, (particle.deathTime - particle.lifeTime) / particle.deathTime) * trailScale;
+		const float remaining = (particle.deathTime - particle.lifeTime) / particle.deathTime;
+		particle.Transparency = remaining;
+		particle.Size = mix(EndWidth, Width, remaining) * Scale.x;
 		return particle;
 	}
 
@@ -31,10 +38,10 @@ public:
 	{
 		Particle particle = ParticleEmitter::GetNewParticle();
 		
-		particle.Size = 0.03f;
-		particle.Color = vec4(0.16, 0.03, 0.03, 0.65);
-		particle.Transparency = 0.8;
-		particle.deathTime = 0.1f * lifeTimeMultiplier;
+		particle.Size = Width * Scale.x;
+		particle.Color = TrailColor;
+		particle.Transparency = 1.0f;
+		particle.deathTime = LifeTime * Scale.y;
 
 		return particle;
 	}
@@ -47,22 +54,9 @@ class BulletTrail : public ParticleSystem
 {
 public:
 
-	BulletTrailEmitter* emitter = nullptr;
-
 	BulletTrail()
 	{
-		emitter = new BulletTrailEmitter();
-		emitters.push_back(emitter);
-	}
-
-
-	void Update() override
-	{
-		ParticleSystem::Update();
-
-		emitter->trailScale = Scale.x;
-		emitter->lifeTimeMultiplier = Scale.y;
-
+		emitters.push_back(new BulletTrailEmitter());
 	}
 
 private:

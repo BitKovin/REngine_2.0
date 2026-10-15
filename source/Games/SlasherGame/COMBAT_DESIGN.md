@@ -53,14 +53,14 @@ fix whichever is wrong in the same change.
 
 | Engine block | Used for |
 |---|---|
-| `Entity` subclass (`Update` / `AsyncUpdate` / `LateUpdate`, `LoadAssets`, `Start`, `Destroy`) | `CombatCharacter` (every fighting body), `PlayerController`, `Projectile`, player start. All per-entity logic lives here, in plain readable methods |
+| `Entity` subclass (`Update` / `AsyncUpdate` / `LateUpdate`, `LoadAssets`, `Start`, `Destroy`) | `CombatCharacter` (every fighting body), `PlayerController`, `Projectile`, player start. All per-entity logic lives here, in plain readable methods; the body systems (§2.2) call the bodies' frame methods |
 | Member objects owned by the entity (like the old `Player` owned `CharacterController`, `SkeletalMesh`, `PlayerBodyAnimator`) | `CharacterController movement`, `SkeletalMesh* mesh`, `CharacterAnimator` (engine `Animator` subclass), `MoveRunner`, `WeaponSet` |
 | ECS components (`REGISTER_COMPONENT` + `ECS_COMPONENT` on the entity class) | Combat data other entities and rules need to read/write on *any* entity: team, poise, weak points, status effects, combat state, attack tokens. Accessed as `character->GetPoise()` or `entity->GetComponent<PoiseComponent>()` |
 | `Entity::Health` / `Entity::MaxHealth` | Health (not duplicated in a component) |
-| ECS systems (`TICK_COMPONENT`, `DECLARE_SYSTEM`) | Pure data ticking: poise regeneration, status effect expiry, weak point regrow, hit-stop. Parallel scheduling: `CombatBodyUpdateSystem` runs every body's frame and `ProjectileUpdateSystem` every projectile's sweep across the thread pool (`ctx.ParallelFor`) |
+| ECS systems (`TICK_COMPONENT`, `DECLARE_SYSTEM`) | Pure data ticking: poise regeneration, status effect expiry, weak point regrow, hit-stop. Parallel scheduling: `CombatBodyUpdateSystem` runs every body's combat frame, `CombatBodyPoseSystem` every body's pose (animation, movement, hitboxes) and `ProjectileUpdateSystem` every projectile's sweep across the thread pool (`ctx.ParallelFor`) |
 | ECS events (`EcsScheduler::Emit` + `EVENT_HANDLER`) | `HitRequestEvent` (the single damage funnel, one handler) and feedback notifications (`HitLandedEvent`, `DeathEvent`, …) |
 | `EntityHandle` | Every reference kept across frames: targets, attackers, token holders, possession links |
-| `AiPerceptionSystem` (`Observer` / `ObservationTarget`) | AI sight |
+| `AiPerceptionSystem` (`Observer`) | AI hearing (`EmitSoundAt`); sight is the AI controller's own (§8) |
 | `PathFollowQuery` + `CharacterController` | AI navigation |
 | `Spawner`, map entities, `REGISTER_ENTITY` | Placing / spawning enemies (`className = "enemy_grunt"`) |
 | NLOHMANN structs (`NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT`, like `SkeletalMeshMetaData`) | Moveset / character / weapon / effect data with round-trip serialization |
@@ -79,10 +79,18 @@ PostUpdate ECS                CombatBodyUpdateSystem (Characters/CombatBodySyste
                                                      corpse removal, dev data reload
                               ProjectileUpdateSystem: sweeps (ParallelFor), then impacts (main, stable order)
                               then the tick group's event flush: EVENT_HANDLER(ResolveHitRequest)
-Level::AsyncUpdate   (worker) CombatCharacter::AsyncUpdate: animator (clips slaved to the move clock, rate by
-                              distance), root motion, CharacterController::Update, pose paste, weapon posing
+Level::AsyncUpdate            (bodies have no AsyncUpdate work)
+PostAsyncUpdate ECS  (worker) CombatBodyPoseSystem, every started body - CombatCharacter::UpdatePose: animator
+                              (clips slaved to the move clock, pose LOD), root motion, CharacterController::Update,
+                              pose paste, hitboxes, weapon posing. After the hits resolved: a hit-stop that began
+                              this frame already holds the pose
 Level::LateUpdate    (main)   PlayerController: camera, HUD; weapon trail entities
 ```
+
+The ECS scheduler runs `ctx.ParallelFor` on the level's async-update pool (`EngineMain::Init` sets it with
+`LevelThreadPoolAdapter`, §13.1). The body systems hand the bodies out one by one to one job per pool thread
+(`ForEachBodyParallel`): a body's cost varies a lot (the controlled body and near bodies evaluate their pose every
+frame), and the pool's `ParallelFor` cuts a range into equal fixed chunks.
 
 **Parallel update rules** (`Combat/CombatFrame.h`). During steps 1–2 a body reads other bodies (their step-1
 position / grounded state, their components) and writes only itself. Everything else is queued on the body and runs
@@ -96,7 +104,8 @@ in step 3 on the main thread:
 | Trail entities | `SetTrail` records the request; `WeaponSet::LateUpdate` creates / stops the entity |
 | Cross-body actions (finisher pairing / release, ragdoll, time scale) | `CombatCharacter::RunOnMainThread` (runs at once when already on the main thread) |
 | Attack tokens on the target | `AttackTokensComponent` is locked (one mutex for all tables) |
-| AI observers (perception lists) | created in `OnPossess` (main thread), only moved during the update |
+| AI sight | reads this frame's bodies (`CombatFrame::GetBodies`) and traces the world; writes only its own controller |
+| AI observers (hearing) | created in `OnPossess` (main thread), only moved during the update |
 
 Hits from all bodies are resolved together in one pass after the system, in body order (sorted ECS ids). Two
 characters hitting each other on the same frame both land (a trade). When two attackers start a finisher on the same
@@ -114,12 +123,23 @@ victim in one frame, the first in body order pairs and the other finisher is int
 * No per-frame heap allocations in steady state (queued side effects are per event, not per frame).
 * No string lookups in per-frame paths: move ids, slots and tags are resolved to indices / bitmasks when data
   loads; clip names to `hashed_string`.
-* Body logic (AI, moves, sweeps, aim traces) runs in parallel (§2.2); pose evaluation and character movement run
-  in `AsyncUpdate` (parallel across entities). Physics queries (Jolt narrow-phase) are safe from both.
-* **Animation LOD** (`CharacterData::animationLod`): bodies farther than `halfRateDistance` from the camera evaluate
-  their pose every 2nd frame, beyond `quarterRateDistance` every 4th. Clips are sampled at the move clock, so a late
+* Body logic (AI, moves, sweeps, aim traces) and pose evaluation / character movement run in parallel ECS systems
+  (§2.2). Physics queries (Jolt narrow-phase) are safe from both.
+* AI sight costs per body, not per pair: only hostile bodies are looked at, nearest first, a bounded number of traces,
+  every 4th frame (§8).
+* Animation composes in place (`CharacterAnimator::ComposePose`): every blend writes into poses the animator keeps
+  between evaluations (`AnimationPose::LerpInPlace` / `LayeredLerpInPlace`, a completion that keeps its bone set), and
+  the body reads the result by reference - a steady composition does not allocate.
+* Measured with `-perf_crowd` (§11) on a 24-thread desktop, 300 bodies: 72 → 139 fps from the game-side work, then
+  141 → 260–284 fps (frame 7.2 → 3.6–3.9 ms) with the engine fixes of §13.1 / §13.2. The main thread's render
+  (~3.1–3.5 ms) now sets the frame.
+* **Pose LOD** (`CharacterData::animationLod`, `CombatCharacter::UpdatePoseDetail`): bodies farther than
+  `halfRateDistance` from the camera evaluate their pose every 2nd frame, beyond `quarterRateDistance` - or outside
+  the camera's view (the last rendered frame's culling) - every 4th. Clips are sampled at the move clock, so a late
   evaluation shows exactly where the move is; root motion becomes a velocity over the evaluated span; movement,
-  hitboxes and weapon placement still update every frame. The controlled body is always full rate.
+  hitboxes and weapon placement still update every frame. The controlled body and attacking bodies (their blades
+  sweep along the pose) are always full rate. Bodies at the 4th-frame rate also follow the ground with the
+  controller's cheaper line traces (`NpcLowQuality`): at 300 bodies that halved the movement cost.
 * Clips whose model has every body bone blend without the completion copy (§9.1).
 
 ---
@@ -146,7 +166,7 @@ A generic `combat_character` entity reads the data path from the map key `def`.
 | `mesh` | `SkeletalMesh*` (Drawables) | body, hitboxes from `.skmm` |
 | `animator` | `CharacterAnimator : Animator` member | locomotion blend space, air poses, action layer slaved to the move clock, recovery layer, upper-body overlay, pose-snapshot transitions, root-motion extraction, weapon drive poses |
 | `moves` | `MoveRunner` member | runs moves from the moveset: windows, combo resolution, recovery, cancels, cues, behaviours |
-| `weapons` | `WeaponSet` member | weapon meshes (Bone props or Rig models, §9.3), hand / holster mesh swaps, blade and muzzle points + sweeps, trails, firearm state and holster timer, projectile spawning |
+| `weapons` | `WeaponSet` member | weapon meshes (Bone props or Rig models, §9.3), hand / holster mesh swaps, reach extension, blade and muzzle points + sweeps, trails, firearm state and holster timer, projectile spawning |
 | `input` | `CharacterInput` member | what the current controller wants this frame |
 | `controller` | `Controller*` | who drives the body (PlayerController or the body's own AIController) |
 | `CombatBodyComponent` | ECS component | marks the body for `CombatBodyUpdateSystem` (§2.2) |
@@ -313,7 +333,19 @@ ids, slot names, tags, behaviours, window order) are validated with the full JSO
 ```
 
 Move fields not shown above: `airLegs` (Full moves in the air blend the legs to the air pose, default on, §5.8),
-`legWeight`, `variants`, `loop` / `loopStart`, `hold` (§5.4).
+`legWeight`, `variants`, `loop` / `loopStart`, `hold` (§5.4), `reach` (below).
+
+Reach (`ReachData`): the weapon in `weapon` (default Main) gets `length` m longer during the move — fully from
+`start` to `end`, growing over `blendIn` (default 0.12 s) before and shrinking back over `blendOut` (0.2 s) after;
+`start` / `end` < 0 (default) take the first / last blade hit window of that weapon. The weapon's extend bone does it
+(§9.3), so the mesh, the blade sweep and the trail all reach further. The hero: light attacks (`start`, `light_1..3`)
+0.2 m, heavy attacks (`heavy_1..3`, `launch`) 0.4 m. Validation: a reach needs `start` and `end` or a blade hit window to time
+it by; the character load warns when the weapon of a move's reach has no extend bone.
+
+```jsonc
+"reach": { "length": 0.6 }                                      // over the blade hits
+"reach": { "length": 0.8, "start": 0.3, "end": 0.6, "blendIn": 0.15, "blendOut": 0.25, "weapon": "Main" }
+```
 
 Hit window fields: `start`, `end`, `weapon` (blade of that slot) **or** `bone` + `radius` (body-bone sphere, kicks),
 `direct` (paired moves: hits the move's target without a sweep), `source`, `damage`, `poiseDamage`,
@@ -569,7 +601,7 @@ effects, regrow time (0 = permanent). "Guns break weak points, swords chip poise
 
 * **Melee**: weapons define a blade segment (base → tip, radius, samples) in the space of their socket bone
   (`blade.bone`, required for Rig weapons, §9.3) or of the weapon model; bone-sphere hits (kicks) use a body bone
-  + radius. `AsyncUpdate` stores the socket transform after the pose is final; the next `Update` sphere-sweeps
+  + radius. `UpdatePose` stores the socket transform after the pose is final; the next combat frame sphere-sweeps
   each sample from its previous to its current position (`Physics::MultiSphereTrace`, overlap on the first frame)
   against `HitBox | MainBody`, ignoring the attacker and friendlies, while a hit window is open. A per-window
   hit-once list prevents double hits.
@@ -588,8 +620,13 @@ effects, regrow time (0 = permanent). "Guns break weak points, swords chip poise
   thread-safe (tokens are locked, §2.2).
 * Brains: `MeleeBrain`, `RangedBrain`, `AllyBrain`; registered by name, selected by `ai.brain`.
 * Attack tokens live on the **target** (`AttackTokensComponent`), so enemies take turns instead of swarming.
-* Sight uses the engine `AiPerceptionSystem`: every body registers an `ObservationTarget` tagged with its team;
-  AI bodies own an `Observer`.
+* Sight (`AIController::UpdateSight`): the hostile bodies of this frame (`CombatFrame::GetBodies`) inside
+  `ai.sightRadius` and the `ai.fov` cone - the nearest 6 plus the current target - each through the BSP cluster
+  visibility and one trace against the opaque world; every 4th frame per body (spread over the bodies), the result
+  holding in between. Other bodies do not block sight (a crowd behind its front row still sees the hero). Hearing
+  stays with the engine `AiPerceptionSystem`: AI bodies own an `Observer` for `EmitSoundAt` (its own sight is off,
+  and bodies register no `ObservationTarget`): the engine observer traced every target against every observer
+  (at 300 bodies 37 ms of CPU per frame, 3.8 ms of the game thread).
 * BT-ready: a `BehaviorTreeBrain : AIBrain` can map the context to a blackboard later; nothing else changes.
 
 ---
@@ -598,7 +635,8 @@ effects, regrow time (0 = permanent). "Guns break weak points, swords chip poise
 
 ### 9.1 Body composition (`CharacterAnimator : Animator`)
 
-Evaluated in the body's `AsyncUpdate` from an `AnimatorInput` built from the move runner's state, in this order:
+Evaluated in the body's `UpdatePose` (`CombatBodyPoseSystem`) from an `AnimatorInput` built from the move runner's
+state, in this order:
 
 1. **Locomotion** — idle + 4-direction run blended by velocity relative to facing, phase-synced, playback rate
    from speed; fall / glide poses in the air. The idle is the **stance idle** of the weapon in the hands when it has
@@ -622,7 +660,11 @@ Evaluated in the body's `AsyncUpdate` from an `AnimatorInput` built from the mov
 5. **Upper-body / bone-masked primary**, then the **overlay** (firing, drawing) faded in / out by its `blendIn` /
    `blendOut`; the overlay is on top because it only runs with primaries that allow it. `UpperBody` layers from
    `locomotion.upperBodyBone` (mesh space); `Bones` only on the move's `maskBones` subtrees (local space) - the draw
-   shows on the right arm alone, like the scythe's stance hold.
+   shows on the right arm alone, like the scythe's stance hold. The overlay keeps its mask until it has faded out
+   (after the move ended the input has no overlay; fading on the default mask moved the whole upper body - the spine
+   twitch at the end of the draw). An overlay replacing a visible one (a draw after firing) cross-fades over the new
+   clip's `blendIn`: the outgoing one (last pose, weight, mask) and the incoming one are layered over the same pose
+   and the two results blend, so bones only one of them covers fade instead of snapping.
 6. **Aim** — a weapon whose stance lists `aimBones` (the pistols: `spine_01..03`) is an aiming weapon: while it is
    in the hands the body faces the aim direction (strafes, turning at `aimTurnRate`) and those bones turn the hold
    pose toward the aim point (the controller's: crosshair for the player, target for AI): yaw about up, then pitch,
@@ -688,6 +730,13 @@ Weapon bones of a Rig mesh (bones the body skeleton does not have), every frame 
 * **Points**: the blade (`blade.base` → `blade.tip`) and every muzzle are a weapon-model bone plus an `offset` in
   its space, evaluated on the final weapon pose (a bone is required for Rig weapons). The scythe sweeps between its
   `attack_start` and `attack_end` bones; shots cycle through every muzzle of every mesh (`muzzle_r`, `muzzle_l`).
+* **Extension** (`extend`): moves with a `reach` (§5.2) move the weapon's `extend.bone` out along `extend.axis` (its
+  own space) by the reach's length — on the drive target, so a move taking over blends the length to its own over
+  the transition above, like the clip's weapon bones. Meters are converted with the bone's bind-pose axis in model
+  space and the body's transform. The part of the mesh skinned to the bone and the points on it go along: the scythe
+  model skins its head to `attack_end` and the bottom of the handle to `attack_start`, so moving `attack_end` along
+  its Y lengthens the shaft, the blade sweep and the trail. Only a weapon bone of a Rig model can extend; in the
+  hands only.
 * **Hand / holster copies**: `hand.hide` / `holster.hide` list meshes of the model hidden in that state
   (`StaticMesh::MeshHideList`, name prefix) — the scythe model carries an in-hand (`active`) and a back (`holser`)
   copy. A weapon without a holster copy uses `visibleWhenHolstered: false`.
@@ -703,6 +752,17 @@ Feedback handlers on `HitLandedEvent` / `PoiseBrokenEvent` / `FinisherEvent` (`C
 drive move-specific sounds / trails / particles; the finisher's slow motion is `Time::AddTimeScaleEffect`. Rules
 never depend on feedback. The style reference is DMC3: semi-realistic, light hits sell themselves through the stop,
 the victim and blood - no flashes, no camera on every swing.
+
+Weapon trail (`Effects/MeleeTrail.h`, the engine `TrailEmitter`): `WeaponSet::PlaceTrail` puts the system on the outer
+part of the blade every frame (`SetTrailTransform` from `trailStart` along the blade to its tip), and every sample of
+the ribbon is that span - centred on it, turned along it, as long as it (so it follows the reach, §9.3). The newest
+sample follows the blade, older ones fade over 0.18 s. The look is the texture's (`textures/particles/melee_trail.png`,
+unlit, alpha-blended at 0.6): u runs from the oldest sample to the blade, v from the tip edge to the base - a faint
+pale-red edge at the tip over a dark crimson body that fades toward the base and the old end.
+
+Bullet tracer (`Effects/BulletTrail.cpp`, "bullet_trail", the projectile's `tracer`): a camera-facing ribbon from where
+the shot was 0.12 s ago to where it is, 8 cm wide at the shot narrowing to 3 cm, warm orange and additive - light
+against the dark levels, fading out over its life once the shot ends.
 
 | Layer | Source | What it does |
 |---|---|---|
@@ -803,7 +863,9 @@ GameData/combat/player.json                   hero entity, camera (+ impact resp
   } ],
   "stance": { "hold": "idle", "holdBones": ["clavicle_r"], "handBones": ["hand_r"], "blend": 0.2 },   // §9.1 (pistols add "aimBones")
   "blade": { "base": { "bone": "attack_start" }, "tip": { "bone": "attack_end" }, "radius": 0.3, "samples": 5 },
-  "trailParticle": "meleeTrail"
+  "extend": { "bone": "attack_end", "axis": { "x": 0, "y": 1, "z": 0 } },   // §9.3: moves' reach lengthens the shaft
+  "trailParticle": "meleeTrail",
+  "trailStart": 0.2                                     // the trail spans the blade from 20 % to the tip (§9.4)
 }
 ```
 
@@ -863,8 +925,17 @@ indices / bitmasks / `hashed_string`, and returns `std::shared_ptr<const T>` sha
   differs from the behaviour's defaults (`MoveParamsToStore`) - the file never fills up with defaults.
 * Debug draw: blade sweeps and hits, navigation path.
 * Console: `combat_reload`, `combat_selftest`, `god`, `possess`, `release`,
-  `spawn_combatant <type> [distance] [angle]` (around the controlled body, angle from the view direction, + = right).
+  `spawn_combatant <type> [distance] [angle]` (around the controlled body, angle from the view direction, + = right),
+  `perf_crowd` (below).
 * `-combat_selftest` launch argument (dev builds): runs the self tests, writes `SaveData/combat_selftest.log`, quits.
+* Profiling (dev builds): `perf_crowd <count> [spacing m] [types] [ally share]` spawns rings of bodies around the
+  controlled body (default mix grunt, grunt, gunner, brute); an ally share recruits that part of them like a released
+  possessed body, so the crowd fights. `-perf_crowd <same arguments>` runs it once the startup map is in, with god mode
+  on the controlled body: a repeatable load. Tracy zones mark the combat frame (`Combat: ...`), the body parts
+  (`Body: controller / moves / weapons / facing + aim / animation / animator evaluate / paste pose / movement /
+  hitboxes / weapon pose`), `AI: perception / think / path`, `Combat: resolve hit`, and a `Combat bodies` plot; a
+  build with `TRACY_ENABLE` + `TRACY_ON_DEMAND` (the VS project's configurations define them) is captured with
+  `Tools/tracy/tracy-capture.exe` and read with `tracy-csvexport.exe` or the profiler.
 * `combat_selftest` (dev builds) runs pure-logic suites in the real engine: combo resolver timing (§5.4),
   cancel windows, the hit-stop curve and shake, the feedback spring (peak, frame-rate independence), attack target
   scoring, moveset / weapon / character parsing / validation / round trip (masks, tracking defaults, air data,
@@ -889,21 +960,25 @@ stable); a body's action state is fully described by `(moveIndex, moveTime)` plu
 | Fact | Used for |
 |---|---|
 | Frame order PreUpdate ECS → `Level::Update` → PostUpdate ECS (+ event flush) → `AsyncUpdate` (parallel) → PostAsyncUpdate ECS → `LateUpdate` → PostLateUpdate ECS | §2.2 |
+| `EcsScheduler` runs `ctx.ParallelFor` on the pool given to `SetThreadPool` (`EngineMain::Init`: `LevelThreadPoolAdapter`, forwarding to `Level::Current->asyncUpdateThreadPool`), whose `ParallelFor` cuts the range into one equal chunk per thread and waits for the whole pool | §2.2 (`ForEachBodyParallel`) |
+| `StaticMesh::IsCameraVisible` returns the last rendered frame's culling result (a cached flag) | pose LOD |
 | Events emitted from one thread are flushed FIFO at the end of the next tick group | hit funnel ordering |
 | `LoadAssets` may run on a worker thread / throwaway preload instance (`PreloadEntityTypeAsync`) | thread-safe `CombatData`, side-effect-free `LoadAssets` |
 | `SkeletalMesh::SetAnimationTime / Update / PullRootMotion` (bone `"root"`), `PlayAnimation` | slaved clips, root motion |
 | `AnimationPose` = bone-local matrices by name; `GetModelSpaceTransform` (missing bones = identity); `PasteAnimationPose` (missing bones = bind); a freshly loaded mesh reports its bind pose | Rig weapon posing (body bones + weapon bones), sockets |
 | A `SkeletalMesh`'s pose snapshot refreshes only when the clip time changes (`dirtyPose`, protected) | `WeaponMesh::SampleClipPose` marks it dirty when sampling rest poses |
-| `AnimationPose::Lerp` (root from B; above 0.995 returns B as-is, dropping bones only in A), `LayeredLerp` (root from B, traverses the given root's topology, bones missing in B count as identity, `UseWorldSpaceRotation` = blend space of the start bone) | layers, snapshots, recovery (locomotion passed as B keeps the root), Rig weapon blends (both poses carry every weapon bone); upper-body layers restore the root |
+| `AnimationPose::Lerp` (root from B; above 0.995 returns B as-is, dropping bones only in A), `LayeredLerp` (root from B, traverses the given root's topology, bones missing in B count as identity, `UseWorldSpaceRotation` = blend space of the start bone); `LerpInPlace` / `LayeredLerpInPlace` give the same results written into the first pose | layers, snapshots, recovery (locomotion passed as B keeps the root), Rig weapon blends (both poses carry every weapon bone); upper-body layers restore the root |
 | `MathHelper` (`RotateVector`, `FindLookAtRotation`, `Transform` / `DecomposeMatrix`, `NormalizeAngle`) | facing, root motion to world, weapon attach matrices |
 | `Delay` (deadline on `Time::GameTime`) | move / AI attack cooldowns, AI reaction and target-loss timers, held AI buttons, respawn, corpse removal |
 | ECS systems may split their loop with `ctx.ParallelFor` (`ParallelSafe`) on the level thread pool; `EcsScheduler::Emit` is thread-safe (event types registered at startup); `EcsWorld` mutations are immediate and not thread-safe | `CombatBodyUpdateSystem`, `ProjectileUpdateSystem` |
 | Jolt narrow-phase queries (`Physics::LineTrace` / `SphereTrace` / `MultiSphereTrace`) are safe from worker threads (body read locks) | sweeps, aim and AI traces in the parallel update |
 | `SoundPlayer::PlayOneshot`, `GlobalParticleSystem::SpawnParticleAt`, `Level::AddEntity`, `Camera::AddCameraShake`, `Time::AddTimeScaleEffect`, `AiPerceptionSystem` lists are main-thread only | the queued side effects of §2.2 |
+| `CQuake3BSP::FindClusterAtPosition` / `IsClusterVisible` are read-only lookups | AI sight from worker threads |
 | `Physics::MultiSphereTrace / MultiSphereOverlap` return `entity` + `hitboxName`; hitboxes are `BodyType::HitBox` from `.skmm` | sweeps, weak points |
 | `CharacterController` moves by velocity during `Physics::Simulate` | root motion → velocity |
 | `REGISTER_ENTITY` token-pastes the class name | entity classes at global scope |
 | `StaticMesh::MeshHideList` hides model meshes by name prefix (copied in `FinalizeFrameData`, after `AsyncUpdate`) | hand / holster weapon copies |
+| Sensor contacts: `Physics::gAdds` / `gRemovals` get one enter when an entity pair's first contact starts and one exit when its last one ends (sleeping bodies keep theirs) | - (behaviour of the engine fix in §13.1; triggers of other games) |
 | The engine does not handle `info_player_start`; maps load as compiled `.bsp` | `SlasherPlayerStart` registers it and spawns the controller + hero |
 | A glTF model's animated non-joint nodes (`root`) also take skin-palette slots | rig size budget below |
 
@@ -915,6 +990,41 @@ stable); a body's action state is fully described by `(moveIndex, moveTime)` plu
 | The palette reaches shaders as `finalBonesMatrices0` (slots 0–127) and `finalBonesMatrices1` (128–255); `SKINNED_BONES_PER_UNIFORM`, `Shader::SetUniform(name, const mat4*, count)`, `SkeletalMeshDrawCommand::ApplyAdditionalShaderParams` (still sets the legacy `finalBonesMatrices` for shaders of other games) | bgfx shader binaries store a uniform array's size in 8 bits (256 wraps to 0) and its per-draw opcode in 10 bits of registers |
 | Game shaders: `GameData/shaders/source/bones.sh` (`GetBoneMatrix`) used by `vs_default`, `vs_shadowvolcap`, `vs_shadowvoledge`; compiled with `GameData/shaders/ShaderCompilationAutomation.exe` | the split palette |
 | `AnimationPose::LayeredLerp`: `UseWorldSpaceRotation` is no longer scaled by `progress` (it only chooses the blend space) | partial mesh-space blends mixed in the local-space result: a fading upper-body layer swung the torso toward the legs' pelvis twist (aim drifting after firing). Callers passing fractional values (ShooterGame) now get exactly the space they ask for |
+
+Performance fixes (from profiling `-perf_crowd 300`, 2026-10-15; §13.2 has what was found and measured). Each keeps the
+existing API and behaviour unless noted; all are standard C++ (no compiler- or library-specific behaviour).
+
+| Change | Why |
+|---|---|
+| `EngineMain::Init` sets the ECS thread pool (`EcsScheduler::SetThreadPool(LevelThreadPoolAdapter)`); `GameStart` no longer does | every `ctx.ParallelFor` of every game ran serially |
+| `Layers::TRACE_ONLY` mapped to its own broadphase layer, paired with nothing by the simulation; hitboxes (`CreateHitBoxBody`) are created in it, `StartRagdoll` / `StopRagdoll` move them to `MOVING` and back (`Physics::SetObjectLayer`) | hitboxes made a rejected narrow-phase pair with every overlapping capsule each step |
+| Contact listener: sensor contacts recorded per thread during the step (no lock), paired up after it by Jolt's sub-shape keys (`afterSimulation`). **Behaviour:** an entity pair gets one enter when its first contact starts and one exit when its last one ends - before, the contact set was emptied twice per step, so enters fired every step and exits never | `physicsMainLock` taken per contact inside the multithreaded step; the enter / exit bug (triggers of ShooterGame / StealthAction now get exits) |
+| Ignore pairs (`AddIgnorePair` / `RemoveIgnorePair`) lock their set | written from the parallel character updates (data race) |
+| Traces take their ignore lists by const reference (filters view them with `std::span`); sphere / cylinder query shapes cached per thread | a vector copy and a shape allocation per trace |
+| `CharacterController`: ground checks skip character bodies through the mask (no per-hit scan of every controller), its ignore list built once; stacking candidates from a broadphase box query (`Physics::CollectBodiesInBox`), controllers found through `BodyData::characterController` | allocations per trace, O(N²) scans; a ground cast hitting a neighbour lost the ground |
+| `Level`: per-entity zone names only while a profiler is connected, phase lists in reused member buffers, `GetDrawMeshes()` by const reference; `FinalizeFrame` caches each draw command's sort key (`IDrawCommand::SortKey`) before sorting | ~1300 allocations per frame; the sort re-resolved the shader per comparison (0.22 ms on the main thread) |
+| `StaticMesh::FinalizeFrameData` copies the hide list only when it changed | a set rebuilt per visible mesh per frame |
+| `AnimationPose::LerpInPlace` / `LayeredLerpInPlace` (the value forms call them); `GetModelSpaceTransform` / `ApplyFABRIK` use the shared skeleton topology (looked up without a lock for a thread's last skeleton) instead of copying the whole cached skeleton per call; `PasteAnimationPose(const AnimationPose&)` | hundreds of allocations per evaluated body |
+| `SkeletalMesh::UpdateHitboxes`: per-hitbox binding (bone index, inverse offset, constraint, velocities) rebuilt when the hitboxes or the model change; `GetBoneMatrix(const string&)` | string copies and name-keyed lookups per hitbox per frame |
+| `RandomHelper`: per-thread `std::mt19937` | `rand()` is not thread-safe (and on MSVC every worker started from the same seed); `RandomInt` returned 0 |
+
+### 13.2 Engine performance notes
+
+Found profiling `-perf_crowd 300` (2026-10-15). Fixed unless marked otherwise (the fixes are listed in §13.1).
+
+| Engine | Cost at 300 bodies | Status |
+|---|---|---|
+| Hitbox bodies are kinematic, `LinearCast`, in `Layers::MOVING`: every active capsule / sensor overlapping them (their own body's included) is a narrow-phase pair rejected by `OnContactValidate` every step (`dynamicCollisionGroupOrMask` disables Jolt's pair caching). `Layers::TRACE_ONLY` existed for this but was never mapped to a broadphase layer | 2.6 of the 3.7 ms physics step | fixed: physics step 3.6 → 0.9 ms |
+| `AnimationPose` is an `unordered_map<hashed_string, mat4>`; `Lerp` / `LayeredLerp` return new maps; `GetResultPose` and `PasteAnimationPose(AnimationPose)` copy; `GetModelSpaceTransform` copied the whole cached skeleton (names, name map, children) under a shared lock per call | ~73 µs per evaluated body (11 ms CPU per frame), hundreds of heap allocations per body per evaluation from 14 threads | fixed: in-place blends, const-ref paste, shared topology; the game composes in place (animation 12.4 → 7.4–8.3 ms CPU, two runs). Not changed: the map itself (flat bone-index arrays would save the remaining lookups but change a type every game uses) |
+| `SkeletalMesh::UpdateHitboxes`: per hitbox a `std::string` copy of the name, name-keyed lookups / inserts, a matrix inverse | 19 µs per body (5.8 ms CPU) | fixed: 16 µs per body (4.9 ms CPU) - the rest is Jolt's locked `SetPositionAndRotation` per hitbox (~1.3 µs each, 12 per body); batching it needs Jolt's broadphase interface, which the engine does not expose |
+| `CharacterController::CheckGroundAt` builds ignore vectors per trace and scans every controller (`s_allControllers`) per hit; a ground cast hitting a neighbour lost the ground; stacking scans every controller twice | movement 28 µs per body (8.4 ms CPU), O(N²) | fixed: 18 µs per body (5.4 ms CPU), mostly the ground cast against the map |
+| `ThreadPool`: one mutex-protected `std::queue<std::function>` for all jobs; `ParallelFor` = one equal chunk per thread and waits for the whole pool; idle workers fall back to 1–2 ms timed waits; the physics, async-update and main pools oversubscribe the usable threads | - | not changed: the bodies' phase runs at 84 % thread efficiency with `ForEachBodyParallel`, and waits are woken by notifications (the main thread's "Wait GameUpdate Jobs" time was `FinishFrame` work, now traced) - no measurable gain left for a scheduler rewrite |
+| `Level::Update / LateUpdate / AsyncUpdate / PreFinalize` built a `std::string` zone name per entity per frame (also without Tracy), copied `LevelObjects` per phase; `GetDrawMeshes()` returned a copy | ~1300 allocations per frame | fixed |
+| `Level::FinalizeFrame` sort called the virtual `GetSortKey()` (shader lookup) per comparison; `FinalizeFrameData` rebuilt each visible mesh's hide-list set | 0.44 ms on the main thread | fixed: 0.21 ms |
+| `EngineMain::Init` never called `EcsScheduler::SetThreadPool` | every `ctx.ParallelFor` serial | fixed |
+| `AiPerceptionSystem` / `Observer::UpdateVisibility`: every target against every observer, no tag (team) filter, the observer's BSP cluster recomputed per target | 37 ms CPU per frame when used | not changed: the game does not use its sight (0.04 ms per frame) |
+| The contact listener took the global `physicsMainLock` for every sensor contact inside the multithreaded step (and fired enters every step, exits never) | contention in the step | fixed |
+| `RandomHelper` used `rand()` (per-thread state on MSVC, every worker starting from the same seed; not thread-safe elsewhere) | - | fixed |
 
 ---
 
@@ -947,7 +1057,7 @@ SlasherGame/
                                authored JSON for the debug save)
   Actions/                     MoveRunner, ComboResolver, MoveBehavior (+ registry), Behaviors/* (Attack, Dash,
                                Jump, Glide, Fire, Draw, Reaction, Death, Finisher, Charge)
-  Characters/                  CombatCharacter (+ movement), CombatBodySystems (parallel body frame),
+  Characters/                  CombatCharacter (+ movement), CombatBodySystems (parallel body frame and pose),
                                CharacterAnimator, WeaponSet, WeaponMesh, CharacterInput, Characters.cpp
                                (registered hero / enemy types)
   Control/                     Controller, PlayerController, PlayerCamera, CameraImpact (kick / rumble within
@@ -957,7 +1067,7 @@ SlasherGame/
   Effects/                     particle systems (blood, melee trail, bullet trail)
   UI/                          CombatHud, Pause/*, LoadingScreen/*
   Settings/                    video / audio / input / gameplay (camera shake) settings + rebinding
-  Debug/                       CombatDebug (panel, console commands), MoveTimeline (the panel's move timeline),
+  Debug/                       CombatDebug (panel, console commands incl. perf_crowd), MoveTimeline (the panel's move timeline),
                                MoveSetEditor (every field of a moveset), SelfTests
   GameData/combat/             movesets, characters, weapons, effects.json, player.json
   GameData/shaders/source/     bones.sh (split bone palette, §13.1)
@@ -995,6 +1105,9 @@ SlasherGame/
 | Launcher on Attack held (`holdOpeners`, `hold`): from rest after 0.1 s with a cancellable wind-up, during any move after 0.6 s committed; tap = opener on release | One attack button; the hold is the one input that cannot be pressed by accident while mashing. From rest the wind-up hand-over keeps the opener responsive; inside a move a mashed press must never launch, so the delay is long and the launch commits at once |
 | Movement input ends attacks from their `Locomotion` cancel window (after the light zone) | Control returns ~0.25 s after a strike instead of at the end of the combo window; mashing with the stick held still steers; delay combos stand still (DMC rule) |
 | Short light zones (0.08 clip s): the heavy zone starts soon after the window opens | Lights are buffered into the window start, so a short zone loses none; heavy presses arrive slightly early and a long light zone (0.15 - 0.2 s) turned them into lights |
+| Body pose / movement in an ECS system (`CombatBodyPoseSystem`) instead of `AsyncUpdate`, bodies handed out dynamically | One place schedules all per-body work; runs after the hits resolved; dynamic hand-out instead of the pool's fixed chunks |
+| AI sight in the game (hostile bodies, nearest first, bounded traces), the engine observer only for hearing | The engine observer is O(observers × targets) with traces and no team filter: 3.8 ms of the game thread at 300 bodies |
+| Pose LOD also by camera visibility, attacking bodies always full rate; far / unseen bodies on line-trace movement | Crowds stand within the half-rate distance; blades sweep along the pose, so attackers keep it exact |
 | Separate `actionBuffer` for dash / jump / fire | A long buffer fired dashes the player no longer wanted |
 | Hit effects belong to the victim (`hitEffect`), hits only scale / override them | Blood vs sparks vs sand is what the body is made of |
 | Camera impact on a spring + trauma shake, light hits 0 | Directional jolts on heavy strikes; a shake on every swing numbs it (DMC3 keeps light hits still) |
@@ -1006,6 +1119,7 @@ SlasherGame/
 | The grip of the weapon's own clips overrides the hands in local space | Blended arms never loosen the hand around the weapon |
 | Procedural strafe from the forward run when no directional clips exist | Strafing while aiming without new assets; real clips replace it automatically |
 | Camera framing offset in camera space around a focus point on the body | A world-up pivot offset collapses into depth when looking down (the body covers the crosshair); a camera-space offset keeps the composition at every pitch |
+| Weapon reach is a procedural move of a weapon bone (`reach` per move, `extend` per weapon), applied before the weapon-bone transitions | One set of clips serves every reach; the blade sweep and trail follow the bone, and a move change blends the length like any weapon bone instead of snapping |
 
 ### Open items (assets / design input)
 

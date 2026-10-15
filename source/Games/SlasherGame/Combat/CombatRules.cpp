@@ -4,6 +4,7 @@
 #include <Combat/CombatComponents.h>
 
 #include <Time.hpp>
+#include <tracy/tracy/Tracy.hpp>
 
 #include <algorithm>
 
@@ -247,5 +248,6 @@ namespace CombatRules
 // The single handler of the combat funnel (COMBAT_DESIGN.md §6.1).
 EVENT_HANDLER(ResolveHitRequest, HitRequestEvent)
 {
+	ZoneScopedN("Combat: resolve hit");
 	CombatRules::ResolveHit(e);
 }

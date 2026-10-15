@@ -14,7 +14,7 @@
 		"minPitch": -70,
 		"maxPitch": 70,
 		"lookUpDistance": 2.2,
-		"followSharpness": 12,
+		"followSharpness": 20,
 		"fov": 70,
 		"impact": {
 			"_note": "DMC3-style and comfortable: light hits never move the view; heavy strikes jolt it (mostly a slide, biased down, no roll); rumble only for finishers, poise breaks and heavy hits taken. Waves stay <= 12 Hz and the view turns < 60 deg/s (validated).",

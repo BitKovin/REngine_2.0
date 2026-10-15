@@ -50,6 +50,17 @@ struct AnimationPose
 		float UseWorldSpaceRotation,
 		float progress);
 
+	// In-place forms of Lerp / LayeredLerp: the first pose becomes the result. They reuse its storage (no allocation
+	// once it has the other pose's bones); the value forms build a new pose per call. A chain of blends into one pose
+	// should use these.
+	static void LerpInPlace(AnimationPose& a, const AnimationPose& b, float progress);
+	static void LayeredLerpInPlace(const hashed_string& startBoneName,
+		roj::BoneNode* rootNode,
+		AnimationPose& poseA,
+		const AnimationPose& poseB,
+		float UseWorldSpaceRotation,
+		float progress);
+
 	static AnimationPose ApplyFABRIK(
 		const hashed_string& chainRootName,
 		const hashed_string& endEffectorName,
@@ -177,8 +188,24 @@ private:
 
 	std::vector<mat4> finalizedBoneTransforms;
 
-	std::unordered_map<string, vec3> boneLinearVel;
-	std::unordered_map<string, vec3> boneAngularVel;
+	// Per hitbox body (parallel to hitboxBodies): what UpdateHitboxes needs every frame, resolved once - the bone's
+	// index and inverse offset, the constraint - and the body's last kinematic velocities (StartRagdoll hands them
+	// over). Rebuilt when the hitboxes or the model change (RefreshHitboxBindings).
+	struct HitboxBinding
+	{
+		Body* body = nullptr;
+		int boneId = -1;                          // -1: the model lacks the bone (GetBoneMatrix's fallback)
+		mat4 inverseOffset = mat4(1.0f);
+		TwoBodyConstraint* constraint = nullptr;
+		vec3 linearVelocity = vec3(0.0f);
+		vec3 angularVelocity = vec3(0.0f);
+	};
+	std::vector<HitboxBinding> hitboxBindings;
+	bool hitboxBindingsDirty = true;
+	const roj::SkinnedModel* bindingModel = nullptr;
+	uint64_t bindingModelGeneration = 0;
+
+	void RefreshHitboxBindings();
 
 	double blendStartTime = 0;
 	double blendEndTime = 0;
@@ -268,7 +295,7 @@ public:
 	AnimationPose GetAnimationPose();
 	const AnimationPose& GetAnimationPoseRef();
 
-	void PasteAnimationPose(AnimationPose pose)
+	void PasteAnimationPose(const AnimationPose& pose)
 	{
 
 		if (model == nullptr)
@@ -420,9 +447,9 @@ public:
 
 	mat4 GetWorldMatrixNoOffsets();
 
-	mat4 GetBoneMatrix(string boneName);
+	mat4 GetBoneMatrix(const string& boneName);
 
-	mat4 GetBoneMatrixWorld(string boneName);
+	mat4 GetBoneMatrixWorld(const string& boneName);
 
 	float GetHitboxDamageMultiplier(string boneName);
 

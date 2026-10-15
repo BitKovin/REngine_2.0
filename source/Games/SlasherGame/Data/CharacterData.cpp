@@ -178,5 +178,17 @@ bool ResolveCharacterReferences(CharacterData& data, DataLoadReport& report)
 		}
 	}
 
+	// A move's reach lengthens the weapon of its slot through that weapon's extend bone (§9.3).
+	for (const MoveData& move : data.moveSet->moves)
+	{
+		if (!move.reach.IsActive())
+			continue;
+		const size_t slot = static_cast<size_t>(move.reach.weapon);
+		const WeaponData* weapon = slot < data.weaponData.size() ? data.weaponData[slot].get() : nullptr;
+		if (weapon == nullptr || weapon->extend.bone.empty())
+			report.Warning("moveset", "move '" + move.id + "' has a reach, but the character's " + WeaponSlotNames[slot]
+				+ " weapon has no extend bone - the weapon keeps its length");
+	}
+
 	return report.Ok();
 }

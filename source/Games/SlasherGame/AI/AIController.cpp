@@ -2,18 +2,22 @@
 
 #include <Characters/CombatCharacter.h>
 #include <Combat/CombatComponents.h>
+#include <Combat/CombatFrame.h>
 #include <Control/PlayerController.h>
 
 #include <AiPerception/AiPerceptionSystem.h>
-#include <AiPerception/ObservationTarget.h>
 #include <AiPerception/Observer.h>
+#include <EngineMain.h>
+#include <Level.hpp>
 #include <Logger.hpp>
 #include <Physics.h>
 #include <RandomHelper.h>
 #include <Time.hpp>
 #include <imgui/imgui.h>
+#include <tracy/tracy/Tracy.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 // ---- Registry ---------------------------------------------------------------------------------------------
@@ -55,6 +59,8 @@ std::string AIBrainRegistry::KnownNames()
 namespace
 {
 	constexpr float TokenLease = 4.0f;
+	constexpr unsigned long SightInterval = 4;   // frames between sight updates of a body (spread over the bodies)
+	constexpr int MaxSightCandidates = 6;        // nearest hostiles traced per sight update (+ the current target)
 }
 
 AIController::AIController(CombatCharacter& owner)
@@ -121,7 +127,7 @@ void AIController::EnsureObserver()
 
 	const AiData& ai = body.GetData()->ai;
 	observer = AiPerceptionSystem::CreateObserver(EyePosition(), body.GetForward(), ai.fov);
-	observer->maxDistance = ai.sightRadius;
+	observer->maxDistance = 0.0f;   // hearing only: sight is UpdateSight's
 	observer->ownerPtr = &body;
 	observer->owner = hashed_string(body.Id);
 }
@@ -203,18 +209,12 @@ CombatCharacter* AIController::GetLeader() const
 
 Entity* AIController::FindVisibleHostileNear(const glm::vec3& around, float maxDistance)
 {
-	if (!observer || !Level::Current)
-		return nullptr;
-
 	Entity* best = nullptr;
 	float bestDistance = maxDistance;
 
-	for (const auto& visible : observer->visibleTargets)
+	for (EntityHandle& visible : visibleHostiles)
 	{
-		if (!visible || !visible->active)
-			continue;
-
-		Entity* entity = Level::Current->FindEntityWithId(visible->ownerId);
+		Entity* entity = ResolveAlive(visible);
 		if (!IsHostile(entity))
 			continue;
 
@@ -250,19 +250,14 @@ void AIController::UpdatePerception(double now)
 
 	observer->position = EyePosition();
 	observer->forward = body.GetForward();
+	UpdateSight();
 
 	Entity* current = GetTarget();
 	targetVisible = false;
 	if (current)
 	{
-		for (const auto& visible : observer->visibleTargets)
-		{
-			if (visible && visible->active && visible->ownerId == current->Id)
-			{
-				targetVisible = true;
-				break;
-			}
-		}
+		const EntityHandle handle = EntityHandle::FromEntity(current);
+		targetVisible = std::find(visibleHostiles.begin(), visibleHostiles.end(), handle) != visibleHostiles.end();
 	}
 
 	const AiData& ai = body.GetData()->ai;
@@ -302,6 +297,86 @@ void AIController::UpdatePerception(double now)
 	}
 }
 
+// Sight (COMBAT_DESIGN.md §8): only hostile bodies are looked at - this frame's bodies (CombatFrame::GetBodies) inside
+// sightRadius and the view cone, the nearest MaxSightCandidates plus the current target, each through the BSP
+// visibility and one line-of-sight trace against the opaque world. Every SightInterval frames per body, spread over
+// the bodies; the result holds in between. (The engine observer traced every body in the level against every
+// other: at 300 bodies 37 ms of CPU per frame.)
+void AIController::UpdateSight()
+{
+	const unsigned long frame = EngineMain::MainInstance->frame;
+	if (sightValid && (frame + entt::to_integral(body.Handle())) % SightInterval != 0)
+		return;
+	sightValid = true;
+	visibleHostiles.clear();
+
+	const AiData& ai = body.GetData()->ai;
+	const glm::vec3 eye = EyePosition();
+	const glm::vec3 forward = body.GetForward();
+	const float rangeSquared = ai.sightRadius * ai.sightRadius;
+	const float minCos = std::cos(glm::radians(ai.fov * 0.5f));
+	const Team team = body.GetTeamId();
+	const Entity* current = ResolveAlive(target);
+
+	struct Candidate
+	{
+		CombatCharacter* body = nullptr;
+		float distanceSquared = 0.0f;
+	};
+	std::array<Candidate, MaxSightCandidates> nearest;
+	int count = 0;
+	Candidate currentCandidate;
+
+	for (CombatCharacter* other : CombatFrame::GetBodies())
+	{
+		if (other == &body || other->IsDead() || GetAttitude(team, other->GetTeamId()) != Attitude::Hostile)
+			continue;
+
+		const glm::vec3 offset = other->GetTargetPoint() - eye;
+		const float distanceSquared = glm::dot(offset, offset);
+		if (distanceSquared > rangeSquared || distanceSquared < 1e-6f || glm::dot(offset, forward) < minCos * std::sqrt(distanceSquared))
+			continue;
+
+		if (other == current)
+		{
+			currentCandidate = { other, distanceSquared };
+			continue;
+		}
+		if (count == MaxSightCandidates && distanceSquared >= nearest[count - 1].distanceSquared)
+			continue;
+
+		int slot = count < MaxSightCandidates ? count++ : count - 1;
+		while (slot > 0 && nearest[slot - 1].distanceSquared > distanceSquared)
+		{
+			nearest[slot] = nearest[slot - 1];
+			--slot;
+		}
+		nearest[slot] = { other, distanceSquared };
+	}
+
+	CQuake3BSP& bsp = Level::Current->BspData;
+	const int eyeCluster = bsp.FindClusterAtPosition(eye);
+	auto sees = [&](const CombatCharacter& other)
+	{
+		const glm::vec3 point = other.GetTargetPoint();
+		return bsp.IsClusterVisible(eyeCluster, bsp.FindClusterAtPosition(point)) && !Physics::LineTrace(eye, point, BodyType::WorldOpaque).hasHit;
+	};
+
+	// Nearest first, the current target in its place by distance.
+	bool currentPlaced = currentCandidate.body == nullptr;
+	for (int i = 0; i <= count; ++i)
+	{
+		if (!currentPlaced && (i == count || currentCandidate.distanceSquared <= nearest[i].distanceSquared))
+		{
+			currentPlaced = true;
+			if (sees(*currentCandidate.body))
+				visibleHostiles.push_back(EntityHandle::FromEntity(currentCandidate.body));
+		}
+		if (i < count && sees(*nearest[i].body))
+			visibleHostiles.push_back(EntityHandle::FromEntity(nearest[i].body));
+	}
+}
+
 void AIController::UpdateHeldButtons(double now)
 {
 	for (size_t i = 0; i < heldButtons.size();)
@@ -326,7 +401,10 @@ void AIController::UpdateInput(CombatCharacter& self, CharacterInput& characterI
 	const double now = Time::GameTime;
 	input = &characterInput;
 
-	UpdatePerception(now);
+	{
+		ZoneScopedN("AI: perception");
+		UpdatePerception(now);
+	}
 	UpdateHeldButtons(now);
 
 	input->move = glm::vec3(0.0f);
@@ -351,6 +429,7 @@ void AIController::UpdateInput(CombatCharacter& self, CharacterInput& characterI
 			brain->OnActivated(context);
 			brainNeedsActivation = false;
 		}
+		ZoneScopedN("AI: think");
 		brain->Think(context);
 	}
 
@@ -382,6 +461,7 @@ void AIController::MoveTo(const glm::vec3& point, float speedScale, float accept
 
 	if (!direct)
 	{
+		ZoneScopedN("AI: path");
 		path.acceptanceRadius = acceptanceRadius;
 		path.UpdateStartAndTarget(body.Position, point);
 		path.TryPerform();

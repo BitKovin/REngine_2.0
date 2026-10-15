@@ -136,6 +136,11 @@ void WeaponSet::LoadAssets(const CharacterData& data)
 			state.meshes.push_back(std::move(instance));
 		}
 
+		if (!weapon.extend.bone.empty() && std::none_of(state.meshes.begin(), state.meshes.end(),
+				[&](const MeshInstance& instance) { return instance.mesh != nullptr && instance.mesh->model != nullptr
+					&& instance.mesh->model->skeleton.findBone(weapon.extend.boneHash) != INVALID_BONE_IDX; }))
+			Logger::Error("[WeaponSet] %s: extend bone '%s' does not exist in the weapon's models", weapon.sourcePath.c_str(), weapon.extend.bone.c_str());
+
 		// A mesh may lack a point's bone (akimbo props, one muzzle each); every bone must exist somewhere.
 		for (size_t socket = 0; socket < weapon.sockets.size(); ++socket)
 		{
@@ -199,6 +204,28 @@ void WeaponSet::SetupRig(MeshInstance& instance, const WeaponData& weapon, const
 
 	// Body bones the model lacks (a weapon rig without the coat) are fine: the mesh is drawn with the body's pose, and
 	// the animator leaves bones a clip lacks to the pose underneath.
+
+	// Extension: one of the weapon bones (the model may lack it - akimbo props; LoadAssets checks that one has it).
+	instance.extendBone = hashed_string();
+	if (!weapon.extend.bone.empty() && skeleton.findBone(weapon.extend.boneHash) != INVALID_BONE_IDX)
+	{
+		const bool weaponBone = std::any_of(instance.rigBones.begin(), instance.rigBones.end(),
+			[&](const RigBone& bone) { return bone.name == weapon.extend.boneHash; });
+		const glm::vec3 modelAxis = glm::mat3(AnimationPose::GetModelSpaceTransform(weapon.extend.boneHash, instance.mesh->GetRootNode(), bindPose))
+			* weapon.extend.resolvedAxis;
+		if (!weaponBone)
+			Logger::Error("[WeaponSet] %s: extend bone '%s' is a body bone - it must be a weapon bone of '%s'",
+				weapon.sourcePath.c_str(), weapon.extend.bone.c_str(), meshData.model.c_str());
+		else if (glm::dot(modelAxis, modelAxis) < 1e-12f)
+			Logger::Error("[WeaponSet] %s: extend bone '%s' is scaled to nothing in '%s'", weapon.sourcePath.c_str(),
+				weapon.extend.bone.c_str(), meshData.model.c_str());
+		else
+		{
+			instance.extendBone = weapon.extend.boneHash;
+			instance.extendAxis = weapon.extend.resolvedAxis;
+			instance.extendModelAxis = modelAxis;
+		}
+	}
 
 	const bool handOk = SampleRest(instance, weapon, meshData.hand, bodySkeleton, bindPose, instance.handRest);
 	const bool holsterOk = SampleRest(instance, weapon, meshData.holster, bodySkeleton, bindPose, instance.holsterRest);
@@ -651,7 +678,7 @@ void WeaponSet::AsyncUpdate(SkeletalMesh& body, const AnimationPose& bodyPose, c
 			}
 			else if (show)
 			{
-				PoseRigMesh(instance, inHands, body, bodyPose, drive, deltaTime);
+				PoseRigMesh(instance, inHands, state.extension, body, bodyPose, drive, deltaTime);
 				show = instance.hasTransform;
 			}
 			else
@@ -700,7 +727,7 @@ void WeaponSet::PlaceBoneMesh(MeshInstance& instance, const WeaponAttachData& at
 	instance.hasTransform = true;
 }
 
-void WeaponSet::PoseRigMesh(MeshInstance& instance, bool inHands, SkeletalMesh& body, const AnimationPose& bodyPose,
+void WeaponSet::PoseRigMesh(MeshInstance& instance, bool inHands, float extension, SkeletalMesh& body, const AnimationPose& bodyPose,
 	const CharacterAnimator::WeaponDrive& drive, float deltaTime)
 {
 	WeaponMesh& mesh = *instance.mesh;
@@ -720,6 +747,16 @@ void WeaponSet::PoseRigMesh(MeshInstance& instance, bool inHands, SkeletalMesh& 
 			target = AnimationPose::Lerp(target, RigValues(instance, *drive.move, rest.follow, &rest.values), drive.moveWeight);
 		if (drive.overlay && drive.overlayWeight > 0.001f)
 			target = AnimationPose::Lerp(target, RigValues(instance, *drive.overlay, rest.follow, &rest.values), drive.overlayWeight);
+
+		// Reach: the extend bone moves out along its axis. On the target, so a move taking over blends the length to
+		// its own like the clip's weapon bones (the transition below).
+		if (extension > 0.0f && !instance.extendBone.empty())
+		{
+			const float metersPerUnit = glm::length(glm::mat3(body.GetWorldMatrix()) * instance.extendModelAxis);
+			auto it = target.boneTransforms.find(instance.extendBone);
+			if (it != target.boneTransforms.end() && metersPerUnit > 1e-6f)
+				it->second = it->second * glm::translate(glm::mat4(1.0f), instance.extendAxis * (extension / metersPerUnit));
+		}
 	}
 
 	// ---- Transitions: when another clip takes over, cross-fade from the last output (like the body) ----
@@ -803,12 +840,11 @@ void WeaponSet::PlaceTrail(SlotState& state)
 	if (state.trail == nullptr || !state.data || state.meshes.empty())
 		return;
 
+	// The ribbon spans the outer part of the blade, from trailStart to the tip.
 	glm::vec3 base, tip;
-	if (GetPoint(state.meshes[0], state.data->blade.base, base) && GetPoint(state.meshes[0], state.data->blade.tip, tip))
-	{
-		state.trail->Position = base;
-		state.trail->Position2 = tip;
-	}
+	if (GetPoint(state.meshes[0], state.data->blade.base, base) && GetPoint(state.meshes[0], state.data->blade.tip, tip)
+		&& glm::distance(base, tip) > 1e-4f)
+		state.trail->SetBlade(glm::mix(base, tip, state.data->trailStart), tip);
 }
 
 void WeaponSet::SetVisible(bool value)

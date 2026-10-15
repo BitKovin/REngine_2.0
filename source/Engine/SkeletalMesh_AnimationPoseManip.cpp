@@ -1,59 +1,12 @@
 #include <SkeletalMesh.hpp>
 
-AnimationPose AnimationPose::Lerp(const AnimationPose& a,
-	const AnimationPose& b,
-	float progress)
+namespace
 {
-	// Fast paths
-	if (progress > 0.995f)
-		return b;
+	const hashed_string RootBoneName("root");
 
-	if (progress < 0.005f)
+	// One bone of Lerp: translation and scale mixed, rotation slerped.
+	glm::mat4 LerpBoneMatrix(const glm::mat4& aMat, const glm::mat4& bMat, float progress)
 	{
-		AnimationPose result = a;
-		auto& out = result.boneTransforms;
-
-		// Insert bones that only exist in B (no interpolation, same as slow path)
-		for (const auto& [bone, bMat] : b.boneTransforms)
-		{
-			if (out.find(bone) == out.end())
-				out[bone] = bMat;
-		}
-
-		// Root always comes from B
-		auto bRootIt = b.boneTransforms.find("root");
-		if (bRootIt != b.boneTransforms.end())
-			out["root"] = bRootIt->second;
-
-		return result;
-	}
-
-	AnimationPose result;
-	auto& out = result.boneTransforms;
-
-	// Start by copying B (so bones only in B are preserved)
-	out = b.boneTransforms;
-
-	for (const auto& [bone, aMat] : a.boneTransforms)
-	{
-		auto bIt = b.boneTransforms.find(bone);
-
-		// 🔹 Bone only in A → keep A
-		if (bIt == b.boneTransforms.end())
-		{
-			out[bone] = aMat;
-			continue;
-		}
-
-		const mat4& bMat = bIt->second;
-
-		// 🔹 Root always from B
-		if (bone == "root")
-		{
-			out[bone] = bMat;
-			continue;
-		}
-
 		// ---------- Decompose A ----------
 		glm::vec3 aTrans = glm::vec3(aMat[3]);
 
@@ -97,9 +50,53 @@ AnimationPose AnimationPose::Lerp(const AnimationPose& a,
 		mat4 resultMat = glm::mat4(rsMat);
 		resultMat[3] = glm::vec4(trans, 1.0f);
 
-		out[bone] = resultMat;
+		return resultMat;
+	}
+}
+
+// Same result as a = Lerp(a, b, progress), written into a: bones of both blend (the root takes b's), bones only one
+// pose has keep that pose's matrix. Allocates only for bones a lacks.
+void AnimationPose::LerpInPlace(AnimationPose& a, const AnimationPose& b, float progress)
+{
+	auto& out = a.boneTransforms;
+	if (&a == &b)
+		return;   // every bone blends with itself
+
+	if (progress > 0.995f)
+	{
+		// a becomes b: values written over a's bones (no reallocation when it has them), bones only a has dropped.
+		for (const auto& [bone, bMat] : b.boneTransforms)
+			out.insert_or_assign(bone, bMat);
+		if (out.size() != b.boneTransforms.size())
+		{
+			for (auto it = out.begin(); it != out.end();)
+				it = b.boneTransforms.find(it->first) == b.boneTransforms.end() ? out.erase(it) : std::next(it);
+		}
+		return;
 	}
 
+	const bool keepA = progress < 0.005f;
+	for (const auto& [bone, bMat] : b.boneTransforms)
+	{
+		auto [it, inserted] = out.try_emplace(bone, bMat);
+		if (inserted)
+			continue;                      // only in b
+		if (bone == RootBoneName)
+			it->second = bMat;             // root always from b
+		else if (!keepA)
+			it->second = LerpBoneMatrix(it->second, bMat, progress);
+	}
+}
+
+AnimationPose AnimationPose::Lerp(const AnimationPose& a,
+	const AnimationPose& b,
+	float progress)
+{
+	if (progress > 0.995f)
+		return b;
+
+	AnimationPose result = a;
+	LerpInPlace(result, b, progress);
 	return result;
 }
 
@@ -138,12 +135,6 @@ static glm::mat4 ComputeGlobalTransform(
 	return global;
 }
 
-// Static caches keyed by root node pointer. Simple maps + shared mutex.
-static std::unordered_map<roj::BoneNode*, std::vector<hashed_string>> s_traversalMap;
-static std::unordered_map<roj::BoneNode*, std::unordered_map<hashed_string, int>> s_indexMap;
-static std::unordered_map<roj::BoneNode*, std::vector<int>> s_parentIndexMap;
-static std::unordered_map<roj::BoneNode*, std::vector<std::vector<int>>> s_childrenMap;
-static std::shared_mutex s_cacheMutex; // readers/writers (shared for readers, unique for writers)
 
 
 struct SkeletonTopology
@@ -157,7 +148,7 @@ struct SkeletonTopology
 static std::unordered_map<roj::BoneNode*, std::shared_ptr<const SkeletonTopology>> s_topologyCache;
 static std::shared_mutex s_topologyMutex;
 
-static std::shared_ptr<const SkeletonTopology> GetOrBuildTopology(roj::BoneNode* rootNode)
+static std::shared_ptr<const SkeletonTopology> FindOrBuildTopology(roj::BoneNode* rootNode)
 {
 	{
 		std::shared_lock<std::shared_mutex> rlock(s_topologyMutex);
@@ -206,6 +197,21 @@ static std::shared_ptr<const SkeletonTopology> GetOrBuildTopology(roj::BoneNode*
 	return topo;
 }
 
+// Cache entries are never removed, so a topology outlives every caller: callers get a plain pointer, and the skeleton
+// a thread asked for last skips the lock and the shared_ptr reference count (bodies of one skeleton ask thousands of
+// times a frame, from every worker).
+static const SkeletonTopology* GetOrBuildTopology(roj::BoneNode* rootNode)
+{
+	thread_local roj::BoneNode* lastRoot = nullptr;
+	thread_local const SkeletonTopology* lastTopology = nullptr;
+	if (rootNode != lastRoot)
+	{
+		lastTopology = FindOrBuildTopology(rootNode).get();
+		lastRoot = rootNode;
+	}
+	return lastTopology;
+}
+
 // Call once per skeleton right after the model finishes loading (e.g. from
 // wherever the BoneNode hierarchy gets constructed/parsed). Purely an
 // optimization - without this call, the first LayeredLerp for that skeleton
@@ -223,16 +229,36 @@ AnimationPose AnimationPose::LayeredLerp(
 	float UseWorldSpaceRotation,
 	float progress)
 {
+	AnimationPose out = poseA;
+	LayeredLerpInPlace(startBoneName, rootNode, out, poseB, UseWorldSpaceRotation, progress);
+	return out;
+}
+
+// Same result as poseA = LayeredLerp(..., poseA, poseB, ...), written into poseA. Each bone of the subtree reads its
+// A / B matrices before it is written, and the world-space chain reads ancestors outside the subtree, so blending in
+// place is exact (poseB may even be poseA).
+void AnimationPose::LayeredLerpInPlace(
+	const hashed_string& startBoneName,
+	roj::BoneNode* rootNode,
+	AnimationPose& poseA,
+	const AnimationPose& poseB,
+	float UseWorldSpaceRotation,
+	float progress)
+{
 	using glm::mat4;
 	using glm::vec3;
 	using glm::quat;
 
-	if (!rootNode) return poseA;
+	auto takeRootFromB = [&]()
+	{
+		auto rb = poseB.boneTransforms.find(RootBoneName);
+		if (rb != poseB.boneTransforms.end()) poseA.boneTransforms[RootBoneName] = mat4(rb->second);
+	};
+
+	if (!rootNode) return;
 	if (progress <= 0.005f) {
-		AnimationPose out = poseA;
-		auto rb = poseB.boneTransforms.find(hashed_string("root"));
-		if (rb != poseB.boneTransforms.end()) out.boneTransforms[hashed_string("root")] = rb->second;
-		return out;
+		takeRootFromB();
+		return;
 	}
 
 	// UseWorldSpaceRotation picks the space the start bone's rotation blends in (0 = local, 1 = world / mesh space);
@@ -307,17 +333,15 @@ AnimationPose AnimationPose::LayeredLerp(
 		return q;
 		};
 
-	// --- Topology: one cheap shared_ptr fetch, no per-call container copying ---
-	std::shared_ptr<const SkeletonTopology> topo = GetOrBuildTopology(rootNode);
+	// --- Topology: cached per skeleton, no per-call container copying ---
+	const SkeletonTopology* topo = GetOrBuildTopology(rootNode);
 	const int N = (int)topo->traversal.size();
-	if (N == 0) return poseA;
+	if (N == 0) return;
 
 	auto itStart = topo->indexMap.find(startBoneName);
 	if (itStart == topo->indexMap.end()) {
-		AnimationPose out = poseA;
-		auto rb = poseB.boneTransforms.find(hashed_string("root"));
-		if (rb != poseB.boneTransforms.end()) out.boneTransforms[hashed_string("root")] = rb->second;
-		return out;
+		takeRootFromB();
+		return;
 	}
 	const int startIdx = itStart->second;
 	const int subEnd = topo->subtreeEnd[startIdx]; // contiguous [startIdx, subEnd], thanks to preorder layout
@@ -327,7 +351,7 @@ AnimationPose AnimationPose::LayeredLerp(
 	// trip, and no risk of EPS_SCALE silently clamping an untouched bone's
 	// near-zero scale axis to 1.0 (which the original did to every bone,
 	// including ones nothing here is actually blending).
-	AnimationPose out = poseA;
+	AnimationPose& out = poseA;
 
 	// Ancestor chain (root .. parent(startIdx)), only walked/decomposed when
 	// world-space blending is actually in play for this call.
@@ -336,8 +360,8 @@ AnimationPose AnimationPose::LayeredLerp(
 	quat gqbChain(1.0f, 0.0f, 0.0f, 0.0f);      // product of pose-B rotations, root -> parent(startIdx)
 
 	if (needWorldChain) {
-		std::vector<int> ancestors;
-		ancestors.reserve(32);
+		thread_local std::vector<int> ancestors;
+		ancestors.clear();
 		for (int p = topo->parentIndex[startIdx]; p != -1; p = topo->parentIndex[p]) ancestors.push_back(p);
 		for (auto it = ancestors.rbegin(); it != ancestors.rend(); ++it) { // walk root-first
 			const hashed_string& name = topo->traversal[*it];
@@ -412,10 +436,7 @@ AnimationPose AnimationPose::LayeredLerp(
 		out.boneTransforms[name] = ComposeLocal(blendedT, blendedS, finalLocalQ);
 	}
 
-	auto rootItB = poseB.boneTransforms.find(hashed_string("root"));
-	if (rootItB != poseB.boneTransforms.end()) out.boneTransforms[hashed_string("root")] = rootItB->second;
-
-	return out;
+	takeRootFromB();
 }
 
 AnimationPose AnimationPose::ApplyFABRIK(
@@ -493,66 +514,11 @@ AnimationPose AnimationPose::ApplyFABRIK(
 		return q;
 		};
 
-	// --- Get or build cached skeleton arrays as in LayeredLerp ---
-	std::vector<hashed_string> traversal;
-	std::unordered_map<hashed_string, int> indexMap;
-	std::vector<int> parentIndex;
-	std::vector<std::vector<int>> children;
-
-	{
-		std::shared_lock<std::shared_mutex> rlock(s_cacheMutex);
-		auto it = s_indexMap.find(rootNode);
-		if (it != s_indexMap.end()) {
-			traversal = s_traversalMap[rootNode];
-			indexMap = it->second;
-			parentIndex = s_parentIndexMap[rootNode];
-			children = s_childrenMap[rootNode];
-		}
-	}
-
-	if (indexMap.empty()) {
-		std::unique_lock<std::shared_mutex> wlock(s_cacheMutex);
-		auto it2 = s_indexMap.find(rootNode);
-		if (it2 == s_indexMap.end()) {
-			std::vector<hashed_string> tmpTraversal; tmpTraversal.reserve(256);
-			std::unordered_map<hashed_string, hashed_string> tempParent;
-			std::function<void(roj::BoneNode*, const hashed_string*)> build = [&](roj::BoneNode* n, const hashed_string* parent) {
-				if (!n) return;
-				tmpTraversal.push_back(n->name);
-				if (parent) tempParent[n->name] = *parent;
-				for (auto& c : n->children) build(const_cast<roj::BoneNode*>(&c), &n->name);
-				};
-			build(rootNode, nullptr);
-			int N = (int)tmpTraversal.size();
-			std::unordered_map<hashed_string, int> tmpIndex; tmpIndex.reserve(N * 2);
-			for (int i = 0; i < N; ++i) tmpIndex[tmpTraversal[i]] = i;
-			std::vector<int> tmpParentIndex(N, -1);
-			for (int i = 0; i < N; ++i) {
-				auto pit = tempParent.find(tmpTraversal[i]);
-				if (pit != tempParent.end()) tmpParentIndex[i] = tmpIndex[pit->second];
-			}
-			std::vector<std::vector<int>> tmpChildren(N);
-			for (int i = 0; i < N; ++i) {
-				int p = tmpParentIndex[i];
-				if (p >= 0) tmpChildren[p].push_back(i);
-			}
-			s_traversalMap[rootNode] = std::move(tmpTraversal);
-			s_indexMap[rootNode] = std::move(tmpIndex);
-			s_parentIndexMap[rootNode] = std::move(tmpParentIndex);
-			s_childrenMap[rootNode] = std::move(tmpChildren);
-			traversal = s_traversalMap[rootNode];
-			indexMap = s_indexMap[rootNode];
-			parentIndex = s_parentIndexMap[rootNode];
-			children = s_childrenMap[rootNode];
-		}
-		else {
-			traversal = s_traversalMap[rootNode];
-			indexMap = it2->second;
-
-			parentIndex = s_parentIndexMap[rootNode];
-			children = s_childrenMap[rootNode];
-		}
-	}
+	// --- Shared skeleton topology (built once per skeleton; no per-call copies) ---
+	const SkeletonTopology* topo = GetOrBuildTopology(rootNode);
+	const std::vector<hashed_string>& traversal = topo->traversal;
+	const std::unordered_map<hashed_string, int>& indexMap = topo->indexMap;
+	const std::vector<int>& parentIndex = topo->parentIndex;
 
 	int N = (int)traversal.size();
 	if (N == 0) return inputPose;
@@ -760,72 +726,11 @@ glm::mat4 AnimationPose::GetModelSpaceTransform(
 
 	if (!rootNode) return mat4(1.0f);
 
-	// --- read or build cached skeleton arrays (same pattern as LayeredLerp) ---
-	std::vector<hashed_string> traversal;
-	std::unordered_map<hashed_string, int> indexMap;
-	std::vector<int> parentIndex;
-	std::vector<std::vector<int>> children;
-
-	{
-		std::shared_lock<std::shared_mutex> rlock(s_cacheMutex);
-		auto it = s_indexMap.find(rootNode);
-		if (it != s_indexMap.end()) {
-			traversal = s_traversalMap[rootNode];
-			indexMap = it->second;
-			parentIndex = s_parentIndexMap[rootNode];
-			children = s_childrenMap[rootNode];
-		}
-	}
-
-	if (indexMap.empty()) {
-		std::unique_lock<std::shared_mutex> wlock(s_cacheMutex);
-		auto it2 = s_indexMap.find(rootNode);
-		if (it2 == s_indexMap.end()) {
-			// build traversal and parent map
-			std::vector<hashed_string> tmpTraversal;
-			tmpTraversal.reserve(256);
-			std::unordered_map<hashed_string, hashed_string> tempParent;
-			std::function<void(roj::BoneNode*, const hashed_string*)> build = [&](roj::BoneNode* n, const hashed_string* parent) {
-				if (!n) return;
-				tmpTraversal.push_back(n->name);
-				if (parent) tempParent[n->name] = *parent;
-				for (auto& c : n->children) build(const_cast<roj::BoneNode*>(&c), &n->name);
-				};
-			build(rootNode, nullptr);
-
-			int N = (int)tmpTraversal.size();
-			std::unordered_map<hashed_string, int> tmpIndex; tmpIndex.reserve(N * 2);
-			for (int i = 0; i < N; ++i) tmpIndex[tmpTraversal[i]] = i;
-
-			std::vector<int> tmpParentIndex(N, -1);
-			for (int i = 0; i < N; ++i) {
-				auto pit = tempParent.find(tmpTraversal[i]);
-				if (pit != tempParent.end()) tmpParentIndex[i] = tmpIndex[pit->second];
-			}
-
-			std::vector<std::vector<int>> tmpChildren(N);
-			for (int i = 0; i < N; ++i) {
-				int p = tmpParentIndex[i];
-				if (p >= 0) tmpChildren[p].push_back(i);
-			}
-
-			s_traversalMap[rootNode] = std::move(tmpTraversal);
-			s_indexMap[rootNode] = std::move(tmpIndex);
-			s_parentIndexMap[rootNode] = std::move(tmpParentIndex);
-			s_childrenMap[rootNode] = std::move(tmpChildren);
-
-			traversal = s_traversalMap[rootNode];
-			indexMap = s_indexMap[rootNode];
-			parentIndex = s_parentIndexMap[rootNode];
-			children = s_childrenMap[rootNode];
-		}
-		else {
-			traversal = s_traversalMap[rootNode];
-			indexMap = it2->second;
-			parentIndex = s_parentIndexMap[rootNode];
-			children = s_childrenMap[rootNode];
-		}
-	}
+	// --- Shared skeleton topology (built once per skeleton; no per-call copies) ---
+	const SkeletonTopology* topo = GetOrBuildTopology(rootNode);
+	const std::vector<hashed_string>& traversal = topo->traversal;
+	const std::unordered_map<hashed_string, int>& indexMap = topo->indexMap;
+	const std::vector<int>& parentIndex = topo->parentIndex;
 
 	// --- find bone index ---
 	auto itBone = indexMap.find(boneName);
@@ -835,7 +740,8 @@ glm::mat4 AnimationPose::GetModelSpaceTransform(
 	int targetIdx = itBone->second;
 
 	// --- collect chain root->target indices (by following parents) ---
-	std::vector<int> chain;
+	thread_local std::vector<int> chain;
+	chain.clear();
 	int cur = targetIdx;
 	while (cur != -1) {
 		chain.push_back(cur);

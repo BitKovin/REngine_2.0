@@ -42,6 +42,7 @@
 #include <Localization/Localisation.h>
 
 #include <Ecs/Ecs.h>
+#include <Ecs/Integration/LevelThreadPoolAdapter.h>
 
 #include <UI/Reflection/UiElementRegistry.h>
 #include <UI/Editor/UiEditor.h>
@@ -206,6 +207,10 @@ void EngineMain::Init(std::vector<std::string> args)
 
     UpdateScreenSize();
 
+    // ParallelSafe systems split their loops over the level's async-update pool (Ecs.h). Without a pool every
+    // ctx.ParallelFor ran on the game thread.
+    static LevelThreadPoolAdapter ecsThreadPool;
+    EcsScheduler::SetThreadPool(&ecsThreadPool);
     EcsScheduler::Finalize();
 
     Logger::Info("init");
@@ -374,18 +379,25 @@ std::map<std::string, std::vector<std::string>> EngineMain::ParseCommands(const 
 
 void EngineMain::FinishFrame()
 {
+    ZoneScopedN("Finish Frame");
     AssetRegistry::AdvanceFrame(); // drives AssetLoadState::lastUsedFrame
 
-    Level::Current->RemovePendingEntities();
-    Level::Current->MemoryCleanPendingEntities();
+    {
+        ZoneScopedN("Remove Pending Entities");
+        Level::Current->RemovePendingEntities();
+        Level::Current->MemoryCleanPendingEntities();
+    }
 
     Camera::Update(Time::DeltaTime);
     Level::Current->FinalizeFrame();
-    
+
 
     NavigationSystem::DrawNavmesh();
 
-    DebugDraw::Finalize();
+    {
+        ZoneScopedN("DebugDraw Finalize");
+        DebugDraw::Finalize();
+    }
 
     UpdateScreenSize();
 

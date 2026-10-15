@@ -12,7 +12,7 @@
 #include <unordered_set>
 #include <vector>
 
-// What the animator needs for one evaluation. Built by CombatCharacter in AsyncUpdate from its own state.
+// What the animator needs for one evaluation. Built by CombatCharacter in UpdatePose from its own state.
 struct AnimatorInput
 {
 	struct Layer
@@ -61,7 +61,7 @@ struct AnimatorInput
 };
 
 // Body animation (COMBAT_DESIGN.md §9.1), built on the engine Animator. Owned by CombatCharacter and only used
-// from its AsyncUpdate. Composition, bottom to top:
+// from its UpdatePose. Composition, bottom to top:
 //
 //   locomotion: idle (or the stance idle of the weapon in the hands) + 4-direction run, phase-synced, playback
 //               rate from speed. Without strafe / backward clips the run is procedural: the legs run the forward
@@ -75,7 +75,8 @@ struct AnimatorInput
 //   recovery:   the clip of an attack that ended in recovery keeps playing on the same Animation (no restart, no
 //               transition) - on the whole body, moving the capsule, until the body moves; then the legs hand over
 //               to locomotion over lowerBodyBlend and the upper body over upperBodyBlend
-//   upper-body / bone-masked primary, then overlay (firing, drawing) - from upperBodyBone or the move's maskBones
+//   upper-body / bone-masked primary, then overlay (firing, drawing) - from upperBodyBone or the move's maskBones;
+//               the overlay keeps its mask through its fade-out, and one replacing another cross-fades the two results
 //   aim:        weapons with stance aim bones turn them toward the aim point (spine aim offset), faded by `aiming`
 //   grip:       the stance's hand bones take the grip of the clip posing the weapon (local space), so the weapon
 //               stays tight in the hand through every blend
@@ -118,8 +119,14 @@ public:
 #endif
 
 	// Samples every contributing clip for this evaluation (deltaTime: local seconds since the previous one). Then
-	// call GetResultPose() and ConsumeRootMotion().
+	// call ComposePose() and ConsumeRootMotion().
 	void Evaluate(const AnimatorInput& input, float deltaTime);
+
+	// Composes the evaluated clips into the animator's own pose and returns it (GetPose() until the next call). Every
+	// blend works in place on storage kept between evaluations, so a steady composition does not allocate.
+	// GetResultPose() returns a copy of the same pose.
+	const AnimationPose& ComposePose();
+	const AnimationPose& GetPose() const { return output; }
 
 	// Model-space root translation of the primary clip since the previous Evaluate (horizontal).
 	glm::vec3 ConsumeRootMotion();
@@ -197,7 +204,16 @@ private:
 	float overlayWeight = 0.0f;
 	float overlayFadeRate = 10.0f;
 	float overlayBlendOut = 0.2f;
-	AnimationPose overlaySnapshot;                        // last overlay pose when another overlay clip took over
+	// The overlay's mask, kept from its start until it has faded out: once the move ended the input describes no
+	// overlay (its default mask would put the fading clip on the whole upper body).
+	BodyMask overlayMask = BodyMask::UpperBody;
+	std::vector<hashed_string> overlayMaskBones;          // BodyMask::Bones
+	// The overlay another overlay clip replaced while visible: its last pose, mask and weight, cross-faded into the
+	// new one over its blendIn.
+	AnimationPose overlaySnapshot;
+	BodyMask overlaySnapshotMask = BodyMask::UpperBody;
+	std::vector<hashed_string> overlaySnapshotMaskBones;
+	float overlaySnapshotWeight = 0.0f;
 	float overlaySnapshotDuration = 0.0f;
 	float overlaySnapshotElapsed = 0.0f;
 	bool overlaySnapshotActive = false;
@@ -222,8 +238,14 @@ private:
 	float snapshotDuration = 0.0f;
 	float snapshotElapsed = 0.0f;
 	bool snapshotActive = false;
-	AnimationPose lastOutput;
+	AnimationPose lastOutput;                             // the composition before hit recoil (transition snapshots)
 	bool hasLastOutput = false;
+
+	// Composition storage, kept between evaluations (ComposePose).
+	AnimationPose output;                                 // the composed pose
+	AnimationPose completion;                             // a clip completed from the pose under it
+	AnimationPose blendScratch;                           // a turned run, a blend computed apart then swapped in
+	AnimationPose layerScratch;                           // the locomotion under a full-body move, a completed overlay
 
 	glm::vec3 rootMotion = glm::vec3(0.0f);
 
@@ -246,6 +268,6 @@ private:
 	void ApplyLegTwist(AnimationPose& pose, roj::BoneNode* rootNode, float angle) const;
 	void ApplyLean(AnimationPose& pose, roj::BoneNode* rootNode) const;
 	void ApplyAim(AnimationPose& pose, roj::BoneNode* rootNode) const;
-	void ApplyGrip(AnimationPose& pose, roj::BoneNode* rootNode) const;
+	void ApplyGrip(AnimationPose& pose, roj::BoneNode* rootNode);
 	void ApplyHitRecoil(AnimationPose& pose, roj::BoneNode* rootNode) const;
 };

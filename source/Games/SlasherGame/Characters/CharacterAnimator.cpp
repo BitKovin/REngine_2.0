@@ -52,14 +52,41 @@ namespace
 	const hashed_string RootBone("root");
 
 	// A clip of a model that lacks some of the body's bones (a weapon model without the coat) must leave them to the
-	// pose underneath: Lerp's fast path would drop them and LayeredLerp would collapse them to identity.
-	AnimationPose CompleteFrom(const AnimationPose& layer, const AnimationPose& base)
+	// pose underneath: Lerp's fast path would drop them and LayeredLerp would collapse them to identity. out = the
+	// layer's bones (its root included) plus the bones only base has, written over out's storage; out may be base.
+	void CompleteInto(AnimationPose& out, const AnimationPose& layer, const AnimationPose& base)
 	{
-		AnimationPose out = AnimationPose::Lerp(layer, base, 0.0f);   // the layer plus the bones only the base has
-		auto root = layer.boneTransforms.find(RootBone);
-		if (root != layer.boneTransforms.end())
-			out.boneTransforms[RootBone] = root->second;               // Lerp takes the root from the base
-		return out;
+		auto& bones = out.boneTransforms;
+		const bool aliased = &out == &base;
+		const size_t baseSize = base.boneTransforms.size();
+		if (!aliased)
+			for (const auto& [bone, transform] : base.boneTransforms)
+				bones.insert_or_assign(bone, transform);
+
+		size_t layerOnly = 0;
+		for (const auto& [bone, transform] : layer.boneTransforms)
+		{
+			const bool inserted = bones.insert_or_assign(bone, transform).second;
+			if (aliased ? inserted : base.boneTransforms.find(bone) == base.boneTransforms.end())
+				++layerOnly;
+		}
+
+		// Bones a previous completion left that neither pose has.
+		if (bones.size() != baseSize + layerOnly)
+		{
+			for (auto it = bones.begin(); it != bones.end();)
+			{
+				const bool keep = base.boneTransforms.find(it->first) != base.boneTransforms.end()
+					|| layer.boneTransforms.find(it->first) != layer.boneTransforms.end();
+				it = keep ? std::next(it) : bones.erase(it);
+			}
+		}
+	}
+
+	// to = from, over to's storage.
+	void CopyPose(AnimationPose& to, const AnimationPose& from)
+	{
+		AnimationPose::LerpInPlace(to, from, 1.0f);
 	}
 
 	// Turns `bone` about its own origin by `rotation` (model space): new local = local * model^-1 * turned.
@@ -327,7 +354,7 @@ void CharacterAnimator::BeginSnapshot(float duration)
 		return;
 	}
 
-	snapshot = lastOutput;
+	CopyPose(snapshot, lastOutput);
 	snapshotDuration = duration;
 	snapshotElapsed = 0.0f;
 	snapshotActive = true;
@@ -479,10 +506,22 @@ void CharacterAnimator::Evaluate(const AnimatorInput& input, float deltaTime)
 			overlaySnapshotActive = activeOverlay != nullptr && overlayWeight > 0.001f && input.overlay.blendIn > 0.001f;
 			if (overlaySnapshotActive)
 			{
-				overlaySnapshot = activeOverlay->GetAnimationPose();
+				CopyPose(overlaySnapshot, activeOverlay->GetAnimationPoseRef());
+				overlaySnapshotMask = overlayMask;
+				overlaySnapshotMaskBones.swap(overlayMaskBones);
+				overlaySnapshotWeight = overlayWeight;
 				overlaySnapshotDuration = input.overlay.blendIn;
 				overlaySnapshotElapsed = 0.0f;
 			}
+
+			// Bones without a bone list is the upper body (as for the primary).
+			const bool bones = input.overlay.mask == BodyMask::Bones && input.overlay.maskBones != nullptr;
+			overlayMask = bones ? BodyMask::Bones : BodyMask::UpperBody;
+			if (bones)
+				overlayMaskBones.assign(input.overlay.maskBones->begin(), input.overlay.maskBones->end());
+			else
+				overlayMaskBones.clear();
+
 			StartLayerClip(overlayLayer, input.overlay, activeOverlay, false);
 			overlayFadeRate = 1.0f / std::max(input.overlay.blendIn, 0.01f);
 			overlayBlendOut = input.overlay.blendOut;
@@ -695,23 +734,40 @@ void CharacterAnimator::UpdateStanceWeights(float deltaTime)
 
 AnimationPose CharacterAnimator::ProcessResultPose()
 {
-	if (!idle.animation)
-		return AnimationPose();
+	return ComposePose();
+}
+
+const AnimationPose& CharacterAnimator::ComposePose()
+{
+	if (!loaded || !idle.animation)
+	{
+		output.boneTransforms.clear();
+		return output;
+	}
 
 	roj::BoneNode* rootNode = idle.animation->GetRootNode();
-	AnimationPose completion;   // scratch for clips that need completing
+	AnimationPose& pose = output;
 
-	// A clip's pose ready to blend over `base`: as is when its model has every body bone, else completed from base.
+	// A clip's pose ready to blend over `base`: as is when its model has every body bone, else completed from base
+	// (into `completion`, valid until the next completion).
 	auto blendable = [&](Animation* animation, const AnimationPose& base) -> const AnimationPose&
 	{
 		if (IsComplete(animation))
 			return animation->GetAnimationPoseRef();
-		completion = CompleteFrom(animation->GetAnimationPoseRef(), base);
+		CompleteInto(completion, animation->GetAnimationPoseRef(), base);
 		return completion;
 	};
 
+	// pose = Lerp(from, pose, progress): computed apart (the result depends on which pose comes first), swapped in.
+	auto lerpFrom = [&](const AnimationPose& from, float progress)
+	{
+		CopyPose(blendScratch, from);
+		AnimationPose::LerpInPlace(blendScratch, pose, progress);
+		pose.boneTransforms.swap(blendScratch.boneTransforms);
+	};
+
 	// ---- Idle: the stance idles replace the locomotion idle (their weights sum to 1 once a weapon is held) ----
-	AnimationPose pose = idle.animation->GetAnimationPose();
+	CopyPose(pose, idle.animation->GetAnimationPoseRef());
 	{
 		float total = 0.0f;
 		for (const Stance& stance : stances)
@@ -724,7 +780,7 @@ AnimationPose CharacterAnimator::ProcessResultPose()
 			if (!stance.idle.animation || stance.weight <= 0.001f)
 				continue;
 			idleAccumulated += stance.weight;
-			pose = AnimationPose::Lerp(pose, blendable(stance.idle.animation, pose), stance.weight / idleAccumulated);
+			AnimationPose::LerpInPlace(pose, blendable(stance.idle.animation, pose), stance.weight / idleAccumulated);
 		}
 	}
 
@@ -738,13 +794,14 @@ AnimationPose CharacterAnimator::ProcessResultPose()
 		const float total = accumulated + clip.weight;
 		if (std::abs(twist) > 1e-4f && rootNode)
 		{
-			AnimationPose turned = blendable(clip.animation, pose);
+			AnimationPose& turned = blendScratch;
+			CopyPose(turned, blendable(clip.animation, pose));
 			ApplyLegTwist(turned, rootNode, twist);
-			pose = AnimationPose::Lerp(pose, turned, clip.weight / total);
+			AnimationPose::LerpInPlace(pose, turned, clip.weight / total);
 		}
 		else
 		{
-			pose = AnimationPose::Lerp(pose, blendable(clip.animation, pose), clip.weight / total);
+			AnimationPose::LerpInPlace(pose, blendable(clip.animation, pose), clip.weight / total);
 		}
 		accumulated = total;
 	};
@@ -759,44 +816,43 @@ AnimationPose CharacterAnimator::ProcessResultPose()
 		ApplyLean(pose, rootNode);
 
 	if (fall.animation && airWeight > 0.001f)
-		pose = AnimationPose::Lerp(pose, blendable(fall.animation, pose), airWeight);
+		AnimationPose::LerpInPlace(pose, blendable(fall.animation, pose), airWeight);
 
 	Animation* glidePose = glide.animation ? glide.animation : fall.animation;
 	if (glidePose && glideWeight > 0.001f)
-		pose = AnimationPose::Lerp(pose, blendable(glidePose, pose), glideWeight);
+		AnimationPose::LerpInPlace(pose, blendable(glidePose, pose), glideWeight);
 
 	const hashed_string upperBodyBone(data->locomotion.upperBodyBone);
 
 	// Partial layers: the engine's blends take the root bone from the layer, the legs keep theirs. A layer rooted at
 	// the upper-body bone blends that bone's rotation in mesh space, so the torso keeps the layer's facing whatever
 	// the legs do; a limb layer follows the torso (local space). Incomplete layers are completed from the pose first.
-	auto layerBranch = [&](const hashed_string& bone, const AnimationPose& layer, bool layerComplete, float weight)
+	auto layerBranch = [&](AnimationPose& target, const hashed_string& bone, const AnimationPose& layer, bool layerComplete, float weight)
 	{
-		auto root = pose.boneTransforms.find(RootBone);
-		const bool hasRoot = root != pose.boneTransforms.end();
+		auto root = target.boneTransforms.find(RootBone);
+		const bool hasRoot = root != target.boneTransforms.end();
 		const glm::mat4 baseRoot = hasRoot ? root->second : glm::mat4(1.0f);
 
 		const float meshSpace = bone == upperBodyBone ? 1.0f : 0.0f;
-		if (layerComplete)
-			pose = AnimationPose::LayeredLerp(bone, rootNode, pose, layer, meshSpace, weight);
-		else
-			pose = AnimationPose::LayeredLerp(bone, rootNode, pose, CompleteFrom(layer, pose), meshSpace, weight);
+		if (!layerComplete)
+			CompleteInto(completion, layer, target);
+		AnimationPose::LayeredLerpInPlace(bone, rootNode, target, layerComplete ? layer : completion, meshSpace, weight);
 
 		if (hasRoot)
-			pose.boneTransforms[RootBone] = baseRoot;
+			target.boneTransforms[RootBone] = baseRoot;
 	};
 
-	// A move layer on the upper body, or on the move's mask bones (BodyMask::Bones).
-	auto layerMove = [&](const AnimatorInput::Layer& input, const AnimationPose& layer, bool layerComplete, float weight)
+	// A move layer on the upper body, or on its mask bones (maskBones: BodyMask::Bones, else null).
+	auto layerMove = [&](AnimationPose& target, const std::vector<hashed_string>* maskBones, const AnimationPose& layer, bool layerComplete, float weight)
 	{
-		if (input.mask == BodyMask::Bones && input.maskBones != nullptr)
+		if (maskBones != nullptr)
 		{
-			for (const hashed_string& bone : *input.maskBones)
-				layerBranch(bone, layer, layerComplete, weight);
+			for (const hashed_string& bone : *maskBones)
+				layerBranch(target, bone, layer, layerComplete, weight);
 		}
 		else
 		{
-			layerBranch(upperBodyBone, layer, layerComplete, weight);
+			layerBranch(target, upperBodyBone, layer, layerComplete, weight);
 		}
 	};
 
@@ -819,7 +875,7 @@ AnimationPose CharacterAnimator::ProcessResultPose()
 			const AnimationPose& hold = stance.hold.animation->GetAnimationPoseRef();
 			const bool complete = IsComplete(stance.hold.animation);
 			for (const hashed_string& bone : stance.holdBones)
-				layerBranch(bone, hold, complete, stance.weight / holdAccumulated);
+				layerBranch(pose, bone, hold, complete, stance.weight / holdAccumulated);
 		}
 	}
 
@@ -837,18 +893,18 @@ AnimationPose CharacterAnimator::ProcessResultPose()
 		else if (current.primary.mask == BodyMask::Full && current.primary.airLegs)
 			legBlend = current.primary.legWeight * airWeight;
 		const bool keepLegs = rootNode && legBlend > 0.001f;
-		AnimationPose locomotionPose;
+		AnimationPose& locomotionPose = layerScratch;
 		if (keepLegs)
-			locomotionPose = pose;
+			CopyPose(locomotionPose, pose);
 
 		if (IsComplete(activePrimary))
-			pose = activePrimary->GetAnimationPose();
+			CopyPose(pose, activePrimary->GetAnimationPoseRef());
 		else
-			pose = CompleteFrom(activePrimary->GetAnimationPoseRef(), pose);
+			CompleteInto(pose, activePrimary->GetAnimationPoseRef(), pose);
 
 		if (keepLegs)
 			for (const hashed_string& leg : data->locomotion.legBoneHashes)
-				pose = AnimationPose::LayeredLerp(leg, rootNode, pose, locomotionPose, 0.0f, legBlend);
+				AnimationPose::LayeredLerpInPlace(leg, rootNode, pose, locomotionPose, 0.0f, legBlend);
 	}
 
 	// ---- Recovery: the whole body until the body moves, then the legs and the upper body hand over ----
@@ -858,23 +914,42 @@ AnimationPose CharacterAnimator::ProcessResultPose()
 
 		// Lerp takes the root from its second pose: locomotion keeps the root while the legs hand over.
 		if (recoveryLowerWeight > 0.001f)
-			pose = AnimationPose::Lerp(recoveryPose, pose, 1.0f - recoveryLowerWeight);
+			lerpFrom(recoveryPose, 1.0f - recoveryLowerWeight);
 
 		if (recoveryUpperWeight > 0.001f && recoveryLowerWeight < 0.999f)
-			layerBranch(upperBodyBone, recoveryPose, true, recoveryUpperWeight);
+			layerBranch(pose, upperBodyBone, recoveryPose, true, recoveryUpperWeight);
 	}
 
 	// ---- Upper-body / masked primary, then the overlay (it runs with primaries that allow it: on top) ----
 	if (activePrimary && !fullPrimary)
-		layerMove(current.primary, activePrimary->GetAnimationPoseRef(), IsComplete(activePrimary), 1.0f);
-
-	if (activeOverlay && overlayWeight > 0.001f && rootNode)
 	{
+		const bool bones = current.primary.mask == BodyMask::Bones && current.primary.maskBones != nullptr;
+		layerMove(pose, bones ? current.primary.maskBones : nullptr, activePrimary->GetAnimationPoseRef(), IsComplete(activePrimary), 1.0f);
+	}
+
+	// The overlay keeps the mask it started with until it has faded out. An overlay replacing a visible one
+	// cross-fades over the new clip's blendIn: the outgoing one (last pose, weight, mask) and the incoming one are each
+	// layered over the same pose and the results blend - bones both cover go from one clip to the other, bones only
+	// one covers fade from / to the pose underneath (nothing snaps when the masks differ).
+	if (rootNode)
+	{
+		const std::vector<hashed_string>* overlayBones = overlayMask == BodyMask::Bones ? &overlayMaskBones : nullptr;
+		const bool incoming = activeOverlay && overlayWeight > 0.001f;
 		if (overlaySnapshotActive)
-			layerMove(current.overlay, AnimationPose::Lerp(overlaySnapshot, CompleteFrom(activeOverlay->GetAnimationPoseRef(), overlaySnapshot),
-				glm::smoothstep(0.0f, 1.0f, overlaySnapshotElapsed / overlaySnapshotDuration)), false, overlayWeight);
-		else
-			layerMove(current.overlay, activeOverlay->GetAnimationPoseRef(), IsComplete(activeOverlay), overlayWeight);
+		{
+			AnimationPose& outgoing = layerScratch;
+			CopyPose(outgoing, pose);
+			if (overlaySnapshotWeight > 0.001f)
+				layerMove(outgoing, overlaySnapshotMask == BodyMask::Bones ? &overlaySnapshotMaskBones : nullptr,
+					overlaySnapshot, false, overlaySnapshotWeight);
+			if (incoming)
+				layerMove(pose, overlayBones, activeOverlay->GetAnimationPoseRef(), IsComplete(activeOverlay), overlayWeight);
+			lerpFrom(outgoing, glm::smoothstep(0.0f, 1.0f, overlaySnapshotElapsed / overlaySnapshotDuration));
+		}
+		else if (incoming)
+		{
+			layerMove(pose, overlayBones, activeOverlay->GetAnimationPoseRef(), IsComplete(activeOverlay), overlayWeight);
+		}
 	}
 
 	// ---- Aim offset of the weapon in the hands, then the grip of the hands holding it ----
@@ -887,7 +962,7 @@ AnimationPose CharacterAnimator::ProcessResultPose()
 	// ---- Transition from the frozen pose ----
 	if (snapshotActive && snapshotDuration > 0.0f)
 	{
-		pose = AnimationPose::Lerp(snapshot, pose, glm::smoothstep(0.0f, 1.0f, snapshotElapsed / snapshotDuration));
+		lerpFrom(snapshot, glm::smoothstep(0.0f, 1.0f, snapshotElapsed / snapshotDuration));
 	}
 
 	// ---- Root motion is applied to the capsule, not the mesh ----
@@ -898,7 +973,7 @@ AnimationPose CharacterAnimator::ProcessResultPose()
 		root->second[3].z = 0.0f;
 	}
 
-	lastOutput = pose;
+	CopyPose(lastOutput, pose);
 	hasLastOutput = true;
 
 	if (rootNode)
@@ -984,7 +1059,7 @@ void CharacterAnimator::ApplyAim(AnimationPose& pose, roj::BoneNode* rootNode) c
 // The hands holding the weapon take the grip of the clip posing it, in local space (the arm keeps whatever the
 // layers made of it): this weapon's overlay clip, else its move / recovery clip, else its hold clip. Weighted by
 // the stance (two weapons cross-fading each keep their own grip) and by how much those clips show.
-void CharacterAnimator::ApplyGrip(AnimationPose& pose, roj::BoneNode* rootNode) const
+void CharacterAnimator::ApplyGrip(AnimationPose& pose, roj::BoneNode* rootNode)
 {
 	auto ownedBy = [this](const Animation* animation, int slot)
 	{
@@ -1022,15 +1097,16 @@ void CharacterAnimator::ApplyGrip(AnimationPose& pose, roj::BoneNode* rootNode) 
 				continue;
 			Animation* clip = const_cast<Animation*>(source.clip);
 			const AnimationPose& grip = clip->GetAnimationPoseRef();
-			const AnimationPose completed = IsComplete(clip) ? AnimationPose() : CompleteFrom(grip, pose);
-			const AnimationPose& layer = IsComplete(clip) ? grip : completed;
+			if (!IsComplete(clip))
+				CompleteInto(completion, grip, pose);
+			const AnimationPose& layer = IsComplete(clip) ? grip : completion;
 
 			for (const hashed_string& hand : stance.handBones)
 			{
 				auto root = pose.boneTransforms.find(RootBone);
 				const bool hasRoot = root != pose.boneTransforms.end();
 				const glm::mat4 baseRoot = hasRoot ? root->second : glm::mat4(1.0f);
-				pose = AnimationPose::LayeredLerp(hand, rootNode, pose, layer, 0.0f, source.weight);
+				AnimationPose::LayeredLerpInPlace(hand, rootNode, pose, layer, 0.0f, source.weight);
 				if (hasRoot)
 					pose.boneTransforms[RootBone] = baseRoot;
 			}

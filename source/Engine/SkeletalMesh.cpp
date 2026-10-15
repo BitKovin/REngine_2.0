@@ -479,7 +479,7 @@ mat4 SkeletalMesh::GetWorldMatrixNoOffsets()
 	return translate(Position) * MathHelper::GetRotationMatrix(Rotation) * scale(Scale);
 }
 
-mat4 SkeletalMesh::GetBoneMatrix(string boneName)
+mat4 SkeletalMesh::GetBoneMatrix(const string& boneName)
 {
 	if (model == nullptr) return mat4();
 
@@ -495,7 +495,7 @@ mat4 SkeletalMesh::GetBoneMatrix(string boneName)
 
 }
 
-mat4 SkeletalMesh::GetBoneMatrixWorld(string boneName)
+mat4 SkeletalMesh::GetBoneMatrixWorld(const string& boneName)
 {
 	return GetWorldMatrix() * GetBoneMatrix(boneName);
 }
@@ -516,9 +516,14 @@ void SkeletalMesh::StartRagdoll()
 
 	InRagdoll = true;
 
-	for (auto& hitbox : hitboxBodies)
-	{
+	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
+	RefreshHitboxBindings();
 
+	for (const HitboxBinding& binding : hitboxBindings)
+	{
+		Body* hitbox = binding.body;
+
+		Physics::SetObjectLayer(hitbox, Layers::MOVING);   // simulated: collides with the world
 		Physics::SetMotionType(hitbox, JPH::EMotionType::Dynamic);
 		hitbox->SetMotionType(JPH::EMotionType::Dynamic);
 
@@ -526,29 +531,12 @@ void SkeletalMesh::StartRagdoll()
 			(BodyType::GroupCollisionTest | BodyType::HitBox) & ~BodyType::CharacterCapsule
 		);
 
-		const string boneName = Physics::GetBodyData(hitbox)->hitboxName;
+		const vec3 linearVel = binding.linearVelocity;
+		const vec3 angularVel = binding.angularVelocity;
 
-		vec3 linearVel = vec3();
-		vec3 angularVel = vec3();
-
-		auto linearRes = boneLinearVel.find(boneName);
-		auto angularRes = boneAngularVel.find(boneName);
-
-		if (linearRes != boneLinearVel.end())
+		if (binding.constraint != nullptr)
 		{
-			linearVel = linearRes->second;
-		}
-
-		if (angularRes != boneAngularVel.end())
-		{
-			angularVel = angularRes->second;
-		}
-
-		auto constraint = GetConstraintByHitboxName(boneName);
-
-		if(constraint != nullptr)
-		{
-			constraint->SetEnabled(true);
+			binding.constraint->SetEnabled(true);
 		}
 
 		if (EngineMain::MainInstance->SimulatingGameTicks == false)
@@ -578,6 +566,7 @@ void SkeletalMesh::StopRagdoll()
 		Physics::SetMotionType(hitbox, JPH::EMotionType::Kinematic);
 
 		Physics::SetCollisionMask(hitbox, BodyType::None);
+		Physics::SetObjectLayer(hitbox, Layers::TRACE_ONLY);
 
 
 	}
@@ -607,6 +596,7 @@ void SkeletalMesh::ClearHitboxes()
 
 	hitboxBodies.clear();
 	hitboxConstraints.clear();
+	hitboxBindingsDirty = true;
 }
 
 void SkeletalMesh::CreateHitbox(Entity* owner,HitboxData data)
@@ -618,6 +608,7 @@ void SkeletalMesh::CreateHitbox(Entity* owner,HitboxData data)
 	defaultBoneScale[data.boneName] = MathHelper::DecomposeMatrix(GetBoneMatrixWorld(data.boneName)).Scale;
 
 	hitboxBodies.push_back(body);
+	hitboxBindingsDirty = true;
 
 }
 
@@ -675,6 +666,7 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 
 	animator.ApplyBonePoseArray(oldPose.boneTransforms); //restoring old pose just in case
 
+	hitboxBindingsDirty = true;   // the constraints exist now
 }
 
 void SkeletalMesh::ApplyImpulseToAllHitboxes(vec3 impulse, bool scaleWithMass)
@@ -727,6 +719,53 @@ Body* SkeletalMesh::FindHitboxByName(string name)
 	}
 
 	return nullptr;
+}
+
+void SkeletalMesh::RefreshHitboxBindings()
+{
+	const uint64_t generation = model ? model->loadState.generation.load(std::memory_order_acquire) : 0;
+	bool valid = !hitboxBindingsDirty && bindingModel == model && bindingModelGeneration == generation
+		&& hitboxBindings.size() == hitboxBodies.size();
+	for (size_t i = 0; valid && i < hitboxBodies.size(); ++i)
+		valid = hitboxBindings[i].body == hitboxBodies[i];   // hitboxBodies is public
+	if (valid)
+		return;
+
+	std::vector<HitboxBinding> bindings(hitboxBodies.size());
+	for (size_t i = 0; i < hitboxBodies.size(); ++i)
+	{
+		HitboxBinding& binding = bindings[i];
+		binding.body = hitboxBodies[i];
+		const hashed_string boneName(Physics::GetBodyData(binding.body)->hitboxName);
+
+		if (model != nullptr)
+		{
+			auto bone = model->boneInfoMap.find(boneName);
+			if (bone != model->boneInfoMap.end())
+			{
+				binding.boneId = bone->second.id;
+				binding.inverseOffset = inverse(bone->second.offset);
+			}
+		}
+
+		auto constraint = hitboxConstraints.find(boneName);
+		if (constraint != hitboxConstraints.end())
+			binding.constraint = constraint->second;
+
+		for (const HitboxBinding& previous : hitboxBindings)   // keep the velocities of rebuilt bindings
+		{
+			if (previous.boneId >= 0 && previous.boneId == binding.boneId)
+			{
+				binding.linearVelocity = previous.linearVelocity;
+				binding.angularVelocity = previous.angularVelocity;
+			}
+		}
+	}
+
+	hitboxBindings = std::move(bindings);
+	hitboxBindingsDirty = false;
+	bindingModel = model;
+	bindingModelGeneration = generation;
 }
 
 void SkeletalMesh::UpdateHitboxes()
@@ -849,16 +888,29 @@ void SkeletalMesh::UpdateHitboxes()
 
 	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
 
+	RefreshHitboxBindings();
+
 	mat4 world = GetWorldMatrix();
 
-	for (Body* body : hitboxBodies)
+	for (HitboxBinding& binding : hitboxBindings)
 	{
-		string boneName = Physics::GetBodyData(body)->hitboxName;
+		Body* body = binding.body;
 
-		if(hitboxConstraints.contains(boneName))
-			hitboxConstraints[boneName]->SetEnabled(false);
+		if (binding.constraint)
+			binding.constraint->SetEnabled(false);
 
-		MathHelper::Transform boneTrans = MathHelper::DecomposeMatrix(world * GetBoneMatrix(boneName));
+		// GetBoneMatrix with the bone resolved; the decomposition of MathHelper::DecomposeMatrix without its Euler
+		// angles (unused here).
+		const mat4 boneMatrix = binding.boneId >= 0 ? boneTransforms[binding.boneId] * binding.inverseOffset : mat4();
+		vec3 decomposedScale, decomposedTranslation, decomposedSkew;
+		quat decomposedRotation;
+		vec4 decomposedPerspective;
+		MathHelper::Transform boneTrans;
+		if (glm::detail::decomposeMod(world * boneMatrix, decomposedScale, decomposedRotation, decomposedTranslation, decomposedSkew, decomposedPerspective))
+		{
+			boneTrans.Position = decomposedTranslation;
+			boneTrans.RotationQuaternion = decomposedRotation;
+		}
 
 		vec3 oldPos = FromPhysics(body->GetPosition());
 		vec3 newPos = boneTrans.Position;
@@ -873,8 +925,8 @@ void SkeletalMesh::UpdateHitboxes()
 
 		vec3 angularVelocity = (2.0f / Time::DeltaTimeF) * vec3(deltaRot.x, deltaRot.y, deltaRot.z);
 
-		boneLinearVel[boneName] = linearVelocity;
-		boneAngularVel[boneName] = angularVelocity;
+		binding.linearVelocity = linearVelocity;
+		binding.angularVelocity = angularVelocity;
 
 		Physics::SetBodyPositionAndRotationNoActivation(body, boneTrans.Position, boneTrans.RotationQuaternion);
 	}

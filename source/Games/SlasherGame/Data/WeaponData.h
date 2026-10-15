@@ -80,6 +80,20 @@ struct BladeData
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(BladeData, base, tip, radius, samples)
 };
 
+// How the weapon gets longer for moves with a `reach` (COMBAT_DESIGN.md §9.3): this weapon bone of its Rig model
+// moves out along `axis` - the part of the mesh skinned to it (the scythe's head) and the blade points on it go along.
+struct WeaponExtendData
+{
+	std::string bone;                                // empty: the weapon keeps its length
+	glm::vec3 axis = glm::vec3(0.0f, 1.0f, 0.0f);    // in the bone's own space
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponExtendData, bone, axis)
+
+	// Resolved
+	hashed_string boneHash;
+	glm::vec3 resolvedAxis = glm::vec3(0.0f, 1.0f, 0.0f);   // normalized
+};
+
 struct ProjectileData
 {
 	float speed = 120.0f;
@@ -160,11 +174,13 @@ struct WeaponData
 	// plays the moveset's Draw action (or switches instantly without one). 0 = it stays in the hands.
 	float holsterDelay = 0.0f;
 	BladeData blade;
+	WeaponExtendData extend;
 	std::string trailParticle = "meleeTrail";
+	float trailStart = 0.0f;                 // where along the blade the swing trail begins (0 = base, 1 = tip)
 	FirearmData firearm;
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponData, version, name, kind, meshes, stance, holsterDelay, blade,
-		trailParticle, firearm)
+		extend, trailParticle, trailStart, firearm)
 
 	// Resolved
 	std::string sourcePath;

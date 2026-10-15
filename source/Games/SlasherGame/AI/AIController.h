@@ -17,8 +17,9 @@ class CombatCharacter;
 class Observer;
 
 // The AI controller of one body (COMBAT_DESIGN.md §4.3, §8). Owned by the body; while the player possesses the
-// body it is not ticked but keeps its memory. Provides perception (engine AiPerceptionSystem Observer), target
-// tracking, navigation (PathFollowQuery), attack tokens and attack selection to its brain.
+// body it is not ticked but keeps its memory. Provides perception (sight of the hostile bodies, hearing through an
+// engine AiPerceptionSystem Observer), target tracking, navigation (PathFollowQuery), attack tokens and attack
+// selection to its brain.
 class AIController : public Controller
 {
 public:
@@ -50,7 +51,7 @@ public:
 	void ClearInvestigatePoint() { hasInvestigatePoint = false; }
 	// The body the player currently controls if it is on this body's team (allies follow it).
 	CombatCharacter* GetLeader() const;
-	// Nearest hostile currently visible within maxDistance of `around`.
+	// Nearest hostile seen by the last sight update within maxDistance of `around`.
 	Entity* FindVisibleHostileNear(const glm::vec3& around, float maxDistance);
 	void SetTarget(Entity* newTarget);
 
@@ -86,7 +87,9 @@ private:
 	std::string brainName;
 	bool brainNeedsActivation = true;
 
-	std::shared_ptr<Observer> observer;
+	std::shared_ptr<Observer> observer;       // hearing only (the engine observer's sight looked at every body)
+	std::vector<EntityHandle> visibleHostiles;   // last sight update, nearest first
+	bool sightValid = false;
 	EntityHandle target;
 	bool targetVisible = false;
 	Delay loseTargetDelay;                    // restarted while the target is visible; lost when it runs out
@@ -110,6 +113,7 @@ private:
 	void EnsureObserver();
 	void RemoveObserver();
 	void UpdatePerception(double now);
+	void UpdateSight();
 	void UpdateHeldButtons(double now);
 	void AimAt(const glm::vec3& aimPoint, const glm::vec3& facePoint);
 	bool IsHostile(Entity* entity) const;

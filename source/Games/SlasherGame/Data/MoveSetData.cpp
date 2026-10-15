@@ -3,7 +3,23 @@
 #include <Actions/MoveBehavior.h>
 #include <Data/JsonTextPatch.h>
 
+#include <glm.h>
+
 #include <algorithm>
+
+float ReachData::At(float time) const
+{
+	if (!IsActive())
+		return 0.0f;
+
+	float in = 1.0f;
+	if (time < resolvedStart)
+		in = blendIn > 0.0f ? glm::smoothstep(resolvedStart - blendIn, resolvedStart, time) : 0.0f;
+	float out = 1.0f;
+	if (time > resolvedEnd)
+		out = blendOut > 0.0f ? 1.0f - glm::smoothstep(resolvedEnd, resolvedEnd + blendOut, time) : 0.0f;
+	return length * std::min(in, out);
+}
 
 void MoveSetData::WriteJson(nlohmann::json& j, const MoveSetData& data)
 {
@@ -316,6 +332,32 @@ namespace
 		}
 		tracking.resolvedUntil = tracking.until >= 0.0f ? tracking.until : std::max(firstHit, 0.0f);
 		tracking.resolvedMagnetUntil = tracking.magnetUntil >= 0.0f ? tracking.magnetUntil : std::max(lastHit, tracking.resolvedUntil);
+
+		// Reach: fully out over the blade hits of its weapon by default.
+		ReachData& reach = move.reach;
+		const std::string reachPath = path + ".reach";
+		if (reach.length < 0.0f) report.Error(reachPath + ".length", "must be >= 0");
+		if (reach.blendIn < 0.0f) report.Error(reachPath + ".blendIn", "must be >= 0");
+		if (reach.blendOut < 0.0f) report.Error(reachPath + ".blendOut", "must be >= 0");
+		if (reach.weapon == WeaponSlot::Count) report.Error(reachPath + ".weapon", "expected Main or Secondary");
+		float firstBlade = -1.0f;
+		float lastBlade = -1.0f;
+		for (const HitWindowData& hit : move.hits)
+		{
+			if (!hit.bone.empty() || hit.direct || hit.weapon != reach.weapon)
+				continue;
+			firstBlade = firstBlade < 0.0f ? hit.start : std::min(firstBlade, hit.start);
+			lastBlade = std::max(lastBlade, hit.end);
+		}
+		reach.resolvedStart = reach.start >= 0.0f ? reach.start : std::max(firstBlade, 0.0f);
+		reach.resolvedEnd = reach.end >= 0.0f ? reach.end : std::max(lastBlade, reach.resolvedStart);
+		if (reach.IsActive())
+		{
+			if ((reach.start < 0.0f || reach.end < 0.0f) && firstBlade < 0.0f)
+				report.Error(reachPath, "no blade hit of its weapon to time it by - set start and end");
+			else if (reach.resolvedEnd < reach.resolvedStart)
+				report.Error(reachPath, "end must be >= start");
+		}
 
 		// Recovery
 		move.recoveryStart = -1.0f;

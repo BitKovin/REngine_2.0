@@ -6,54 +6,58 @@
 // ---------------------------------------------------------------------------
 // particle_meleeTrail
 //
-// A TrailEmitter that draws a short-lived red melee-swing ribbon.
-// pos2 is the secondary anchor point set each frame by the owning system
-// (used as particle.position2 so the trail knows the blade's other end).
+// The weapon's swing ribbon (COMBAT_DESIGN.md §9.4). TrailEmitter spans every sample by its Size along the forward
+// of its rotation, so each sample is the blade itself: centred on it, turned along it (base -> tip), as long as it.
+// The newest sample follows the blade every frame, so the ribbon starts exactly at the weapon; older ones fade over
+// their life. Colour and shape come from the texture: u runs from the oldest sample (0) to the blade (1), v from the
+// tip edge (0) to the base (1).
 // ---------------------------------------------------------------------------
 class particle_meleeTrail : public TrailEmitter
 {
 public:
-    vec3 pos2;
+    float Width = 0.0f;   // blade span (m), set by the system
 
     particle_meleeTrail()
     {
-        texture             = "GameData/textures/particles/trail.png";
+        texture             = "GameData/textures/particles/melee_trail.png";
         InitialSpawnCount   = 2;
-        SpawnRate           = 90;
+        SpawnRate           = 120;
         Emitting            = true;
-        IsViewmodel           = false;
-        ParticleLighting = false;
+        IsViewmodel         = false;
+        ParticleLighting    = false;
+        PixelShader         = "fs_unlit";
+        BlendMode           = BgfxStateManager::Blend::Alpha;
     }
 
+    void Update(float deltaTime) override
+    {
+        TrailEmitter::Update(deltaTime);
+
+        std::lock_guard<std::recursive_mutex> lock(particlesMutex);
+        if (Emitting && !Particles.empty())
+        {
+            Particle& head = Particles.back();
+            head.position = Position;
+            head.globalRotation = Rotation;
+            head.Size = Width;
+        }
+    }
 
     Particle UpdateParticle(Particle particle, float deltaTime) override
     {
         particle = TrailEmitter::UpdateParticle(particle, deltaTime);
-
-        // Keep scale in [0, 1] — mirrors C# Math.Clamp(particle.Scale, 0, 1).
-        particle.Size = glm::clamp(particle.Size, 0.0f, 1.0f);
-
+        const float age = glm::clamp(particle.lifeTime / particle.deathTime, 0.0f, 1.0f);
+        particle.Transparency = 1.0f - glm::smoothstep(0.0f, 1.0f, age);
         return particle;
     }
 
     Particle GetNewParticle() override
     {
         Particle particle = TrailEmitter::GetNewParticle();
-
-        // Store the blade's secondary tip so the trail renderer can orient itself.
-        // C#: particle.position2 = pos2
-        particle.position2 = pos2;
-
-        particle.BouncePower  = 0.1f;
+        particle.Size         = Width;
         particle.Transparency = 1.0f;
-        particle.deathTime    = 0.1f;
-
-        // C#: new Vector4(1, 0.2f, 0.2f, 0.4f) / 1.5f
-
-        float brightness = 0.11f;
-
-        particle.Color = glm::vec4(1.0f * brightness, 0.2f * brightness, 0.2f * brightness, 0.3f);
-
+        particle.deathTime    = 0.18f;
+        particle.Color        = glm::vec4(1.0f, 1.0f, 1.0f, 0.6f);   // overall opacity: present, not glaring
         return particle;
     }
 };
@@ -61,31 +65,37 @@ public:
 // ---------------------------------------------------------------------------
 // particle_system_meleeTrail
 //
-// GlobalParticleSystem wrapper.  Position2 is the blade's secondary tip;
-// it is forwarded to the emitter every async tick so freshly spawned
-// particles always receive the current tip position.
+// GlobalParticleSystem wrapper. SetBlade places it on the blade span every frame (WeaponSet, main thread); the
+// emitter picks it up in the async tick.
 // ---------------------------------------------------------------------------
 class particle_system_meleeTrail : public ParticleSystem
 {
 public:
-    vec3 Position2;
-
     particle_system_meleeTrail()
     {
         particle_MeleeTrail = new particle_meleeTrail();
         emitters.push_back(particle_MeleeTrail);
     }
 
+    void SetBlade(const vec3& base, const vec3& tip)
+    {
+        SetTrailTransform(base, tip);
+        Width = glm::distance(base, tip);
+    }
+
+    void Start() override
+    {
+        particle_MeleeTrail->Width = Width;
+        ParticleSystem::Start();
+    }
+
     void AsyncUpdate() override
     {
-        // Mirror C# AsyncUpdate: push Position2 into the emitter each frame
-        // before the base class ticks it, so GetNewParticle sees the latest value.
-        particle_MeleeTrail->pos2 = Position2;
-
+        particle_MeleeTrail->Width = Width;
         ParticleSystem::AsyncUpdate();
     }
 
 private:
     particle_meleeTrail* particle_MeleeTrail = nullptr;
+    float Width = 0.0f;
 };
-

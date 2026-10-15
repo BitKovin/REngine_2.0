@@ -1,4 +1,6 @@
 #include <Combat/CombatEvents.h>
+#include <Control/PlayerController.h>
+#include <Characters/CombatCharacter.h>
 #include <Debug/SelfTests.h>
 #include <PauseGameManager.hpp>
 #include <Settings/GameSettings.h>
@@ -7,6 +9,7 @@
 #include <UI/Pause/UiPauseMenu.h>
 
 #include <AssetRegistry.h>
+#include <Console/Console.h>
 #include <EngineMain.h>
 #include <Entity.h>
 #include <FileSystem/FileSystem.h>
@@ -77,6 +80,10 @@ public:
 			pendingStartupMap = false;
 			Level::LoadLevelFromFile(GetStartupMap());
 		}
+
+#ifndef DISTRIBUTION
+		UpdatePerfCrowd();
+#endif
 	}
 
 	void Finalize() override
@@ -179,6 +186,28 @@ private:
 	}
 
 #ifndef DISTRIBUTION
+	// -perf_crowd <count> [spacing] [types]: a repeatable load for profiling (COMBAT_DESIGN.md §11). Once the startup
+	// map is in and the player controls a body: god mode on it, then the perf_crowd console command.
+	static void UpdatePerfCrowd()
+	{
+		static bool done = false;
+		const auto argument = EngineMain::MainInstance->Arguments.find("perf_crowd");
+		if (done || argument == EngineMain::MainInstance->Arguments.end())
+			return;
+
+		PlayerController* player = PlayerController::GetActive();
+		CombatCharacter* body = player ? player->GetPossessedBody() : nullptr;
+		if (body == nullptr || !body->IsCombatReady() || AssetRegistry::HasPendingWork())
+			return;
+
+		done = true;
+		std::string command = "perf_crowd";
+		for (const std::string& value : argument->second)
+			command += " " + value;
+		Console::Get().Execute("god");
+		Console::Get().Execute(command);
+	}
+
 	static void RunSelfTestsAndQuit()
 	{
 		// Writes need a directory component (the native writer creates the parent directories).

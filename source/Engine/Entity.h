@@ -127,7 +127,7 @@ public:
 		OnDamage(Damage, DamageCauser, Weapon);
 	}
 
-	vector<IDrawMesh*> GetDrawMeshes()
+	const vector<IDrawMesh*>& GetDrawMeshes() override
 	{
 		return Drawables;
 	}

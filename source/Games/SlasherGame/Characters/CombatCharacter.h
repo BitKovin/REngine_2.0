@@ -22,7 +22,6 @@
 
 class AIController;
 class Controller;
-class ObservationTarget;
 struct HitResult;
 
 // Every fighting body: hero, enemies, allies, possessed enemies (COMBAT_DESIGN.md §3). Configured entirely by
@@ -33,7 +32,8 @@ struct HitResult;
 //                         controller input -> MoveRunner (moves, combos, hit sweeps) -> facing -> aim. Anything that
 //                         touches other entities or engine-global state is queued.
 //   FlushCombatFrame      (same system, main thread, in body order) queued hits, cues, shots, cross-body actions
-//   AsyncUpdate  (worker) animator (clips at the move clock, rate by distance) -> movement (root motion /
+//   UpdatePose   (PostAsyncUpdate, CombatBodyPoseSystem, parallel across bodies, after the hits resolved)
+//                         animator (clips at the move clock, rate by distance) -> movement (root motion /
 //                         locomotion / behaviour overrides, in local time) -> mesh pose + hitboxes -> weapon posing
 //   LateUpdate   (main)   weapon trails
 class CombatCharacter : public Entity
@@ -53,7 +53,6 @@ public:
 	// ---- Entity ------------------------------------------------------------------------------------------
 	void FromData(EntityData data) override;
 	void Start() override;
-	void AsyncUpdate() override;
 	void LateUpdate() override;
 	void Destroy() override;
 	void Teleport(vec3 position) override;
@@ -65,6 +64,7 @@ public:
 	void BeginCombatFrame();                  // worker thread: own state only (position, grounded, input edges)
 	void UpdateCombat();                      // worker thread: controller, moves, facing, aim; side effects queued
 	void FlushCombatFrame();                  // main thread, in body order: queued hits, cues, shots, actions
+	void UpdatePose();                        // worker thread (CombatBodyPoseSystem): animation, movement, hitboxes
 	// Runs fn on the main thread: at once when called there, otherwise in this body's FlushCombatFrame.
 	void RunOnMainThread(std::function<void()> fn);
 	void QueueHit(const HitRequestEvent& hit);   // emitted into the funnel by FlushCombatFrame, in order
@@ -203,7 +203,6 @@ protected:
 
 	Controller* controller = nullptr;
 	std::unique_ptr<AIController> aiController;
-	std::shared_ptr<ObservationTarget> observationTarget;
 	Body* fallbackHitbox = nullptr;
 	EntityHandle softTarget;
 
@@ -257,19 +256,19 @@ private:
 	std::vector<const CueData*> queuedCues;   // point into the moveset, alive until the flush
 	std::vector<std::function<void()>> queuedActions;
 
-	// Animation rate by distance (CharacterData::animationLod).
+	// Pose level of detail (CharacterData::animationLod, UpdatePoseDetail).
 	int animationInterval = 1;                // evaluate the pose every n-th frame
 	int animationFramesSinceEvaluate = 0;
 	float animationPendingTime = 0.0f;        // local seconds since the last evaluation
 	glm::vec3 rootMotionVelocity = glm::vec3(0.0f);   // model space, m/s, from the last evaluation
-	AnimationPose pose;                       // last evaluated pose
 
 	void ConfigureComponents();
 	void CreateHitboxes();
 	void UpdateFacing(float deltaTime);
 	void ApplyMovement(float deltaTime);
 	void BuildAnimatorInput(AnimatorInput& out) const;
-	void UpdateAnimationRate();
+	void UpdatePoseDetail();
+	void UpdateWeaponReach();
 	void UpdateWeaponReturn();
 	void UpdateRecoveryRelease();
 	void UpdateAim();

@@ -227,6 +227,29 @@ struct TrackingData
 	float resolvedMagnetUntil = 0.0f;
 };
 
+// Weapon reach (COMBAT_DESIGN.md §5.2, §9.3): the weapon in `weapon` is `length` m longer - fully from `start` to
+// `end`, growing over blendIn before and shrinking back over blendOut after (the weapon's extend bone moves out). A
+// move taking over blends the weapon to its own reach over its blendIn, like the clip's weapon bones.
+// Times are clip seconds; < 0 derives them from the move's blade hits of that weapon.
+struct ReachData
+{
+	float length = 0.0f;         // m added to the weapon; 0 = its own length
+	float start = -1.0f;         // fully out from here; < 0: the first blade hit's start
+	float end = -1.0f;           // going back from here; < 0: the last blade hit's end
+	float blendIn = 0.12f;       // seconds it grows before start
+	float blendOut = 0.2f;       // seconds it shrinks after end
+	WeaponSlot weapon = WeaponSlot::Main;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(ReachData, length, start, end, blendIn, blendOut, weapon)
+
+	// Resolved
+	float resolvedStart = 0.0f;
+	float resolvedEnd = 0.0f;
+
+	bool IsActive() const { return length > 0.0f; }
+	float At(float time) const;  // m the weapon is longer at clip time `time`
+};
+
 struct RootMotionData
 {
 	bool enabled = true;
@@ -310,6 +333,7 @@ struct MoveData
 	std::vector<ArmorWindowData> armor;
 	std::vector<TimeWindowData> invulnerable;
 	TrackingData tracking;
+	ReachData reach;
 	RootMotionData rootMotion;
 	RecoveryData recovery;
 	std::vector<CueData> cues;
@@ -317,7 +341,7 @@ struct MoveData
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(MoveData, behavior, clip, variants, animation, speed, loop, loopStart, heavy, tags, channel,
 		bodyMask, maskBones, legWeight, airLegs, overlay, startState, entry, endTime, blendOut, cooldown, hits, combo, hold, cancels,
-		armor, invulnerable, tracking, rootMotion, recovery, cues, params)
+		armor, invulnerable, tracking, reach, rootMotion, recovery, cues, params)
 
 	// Resolved
 	std::string id;
