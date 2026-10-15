@@ -43,7 +43,7 @@
 				"afterHold": { "blendIn": 0.1, "startTime": 0.08 }
 			},
 			"hits": [ { "start": 0.25, "end": 0.4, "damage": 12, "poiseDamage": 6, "reaction": "Flinch", "knockback": 3.5, "hitStop": 0.07, "shake": 0.035 } ],
-			"combo": { "windowStart": 0.515, "alternativeAt": 0.71, "windowEnd": 0.935, "next": "light_1", "alternative": "heavy_1" },
+			"combo": { "windowStart": 0.515, "alternativeAt": 0.71, "windowEnd": 1.195, "next": "light_1", "alternative": "heavy_1" },
 			"cancels": [ { "start": 0.42, "into": ["Dash", "Jump"] }, { "start": 0.66, "into": ["Locomotion"] } ],
 			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7 },
 			"cues": [ { "time": 0.24, "trail": 1 }, { "time": 0.42, "trail": 0 } ]
@@ -76,7 +76,7 @@
 			"startState": "Any",
 			"entry": {
 				"fresh": { "blendIn": 0.15, "startTime": 0.0 },
-				"afterLight": { "blendIn": 0.15, "startTime": 0.0 },
+				"afterLight": { "blendIn": 0.255, "startTime": 0.0 },
 				"afterHeavy": { "blendIn": 0.15, "startTime": 0.0 }
 			},
 			"hits": [ { "start": 0.24, "end": 0.45, "damage": 20, "poiseDamage": 14, "reaction": "Stagger", "knockback": 6.0, "hitStop": 0.12, "shake": 0.06, "camera": 0.6, "impactScale": 2, "air": { "stall": 0 } } ],
@@ -215,7 +215,7 @@
 			"blendOut": 0.2,
 			"rootMotion": { "enabled": false },
 			"invulnerable": [ { "start": 0.0, "end": 0.25 } ],
-			"cancels": [ { "start": 0.0, "into": ["Jump"] }, { "start": 0.3, "into": ["Attack", "Dash"] } ],
+			"cancels": [ { "into": ["Jump"] }, { "start": 0.3, "into": ["Attack"] }, { "start": 0.25, "into": ["Dash"] } ],
 			"recovery": { "start": 0.45, "lowerBodyBlend": 0.15 },
 			"params": { "distance": 6.0, "duration": 0.39, "curve": "EaseOut", "airCharges": 1, "exitSpeed": 1.0, "tailLocomotion": 1.0, "faceDirection": true }
 		},
@@ -303,7 +303,7 @@
 			"bodyMask": "Bones",
 			"maskBones": ["clavicle_r"],
 			"startState": "Any",
-			"entry": { "fresh": { "blendIn": 0.1, "startTime": 0.0 } },
+			"entry": { "fresh": { "blendIn": 0.04, "startTime": 0.0 } },
 			"blendOut": 0.2,
 			"cancels": [ { "start": 0.0, "into": ["Fire"] } ],
 			"params": { "weapon": "Main" }
