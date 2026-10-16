@@ -32,7 +32,7 @@ public:
 		mesh->Position = Position;
 		mesh->Scale = scaleVec / 32.0f;
 
-		mesh->Brightness = 2;
+		mesh->Brightness = 1;
 
 		mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/" + data.GetPropertyString("texture"));
 
