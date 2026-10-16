@@ -114,7 +114,7 @@ private:
 		auto map = EngineMain::MainInstance->Arguments.find("map");
 		if (map != EngineMain::MainInstance->Arguments.end() && !map->second.empty())
 			return "GameData/maps/" + map->second[0];
-		return "GameData/maps/example.bsp";
+		return "GameData/maps/demo_lit.bsp";
 	}
 
 	static void RegisterInputActions()

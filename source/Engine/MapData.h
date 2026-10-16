@@ -33,6 +33,14 @@ public:
 
     // ConvertRotation adjusts an imported rotation vector.
     static glm::vec3 ConvertRotation(glm::vec3 importRot, bool notForModel = false);
+
+    // True while the entities of a map in the engine's own coordinate space are read (rBSP v2 from the level editor): "origin" and other
+    // positions are metres, Y up, no axis swap or unit scale; "angles" are (pitch, yaw, roll) degrees as the engine uses them
+    // (MathHelper::GetRotationQuaternion), no Quake conversion. Set by the BSP loader for every map it loads.
+    static bool DirectSpace;
+    // For a map in the engine's space: gives every entity the legacy "angle" key (Quake yaw = engine yaw - 90) that game code reads as
+    // `angle + 90`, so those readers get the entity's real yaw.
+    static void AddLegacyAngle(std::map<std::string, std::string>& properties);
 };
 
 // MapData: Contains general map data, a list of entities and static values.

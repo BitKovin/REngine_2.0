@@ -230,6 +230,8 @@ private:
         case bgfx::TextureFormat::RGB8: return 3;
         case bgfx::TextureFormat::RGBA8: return 4;
         case bgfx::TextureFormat::BGRA8: return 4;
+        case bgfx::TextureFormat::RGBA16F: return 8;
+        case bgfx::TextureFormat::RGBA32F: return 16;
         default: return 4;
         }
     }

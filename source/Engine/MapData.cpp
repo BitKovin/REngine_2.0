@@ -14,6 +14,7 @@
 #include "LevelObjectFactory.h"
 
 // Static member definitions.
+bool EntityData::DirectSpace = false;
 bool MapData::MergeBrushes = false;
 float MapData::UnitSize = 32.0f;
 
@@ -61,6 +62,10 @@ glm::vec3 EntityData::GetPropertyVectorPosition(const std::string& propName) {
     }
 
     float x, y, z;
+    if (DirectSpace) {  // rBSP v2: already the engine's space
+        if (!safe_stof(parts[0], x) || !safe_stof(parts[1], y) || !safe_stof(parts[2], z)) return glm::vec3(0.0f);
+        return glm::vec3(x, y, z);
+    }
     if (!safe_stof(parts[0], x) || !safe_stof(parts[2], y) || !safe_stof(parts[1], z)) {
         return glm::vec3(0.0f);
     }
@@ -203,6 +208,9 @@ bool EntityData::HasPropery(const std::string& propName)
  */
 glm::vec3 EntityData::ConvertRotation(glm::vec3 importRot, bool notForModel) 
 {
+    if (DirectSpace)  // rBSP v2: (pitch, yaw, roll) degrees in the engine's convention already
+        return importRot;
+
     // Step 1: Adjust yaw for models
     if (!notForModel) {
         importRot.y += 180.0f; // Add 180 degrees to yaw
@@ -232,6 +240,19 @@ glm::vec3 EntityData::ConvertRotation(glm::vec3 importRot, bool notForModel)
 
     // Step 6: Convert back to degrees and return
     return rotation;
+}
+
+void EntityData::AddLegacyAngle(std::map<std::string, std::string>& properties)
+{
+    float yaw = 0.0f;
+    auto it = properties.find("angles");
+    if (it != properties.end()) {
+        auto parts = split_whitespace(it->second);
+        if (parts.size() >= 2) safe_stof(parts[1], yaw);
+    }
+    std::ostringstream s;
+    s << (yaw - 90.0f);
+    properties["angle"] = s.str();
 }
 
 // --------------------------

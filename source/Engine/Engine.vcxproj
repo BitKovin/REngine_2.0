@@ -368,6 +368,7 @@
     <ClCompile Include="BehaviourTree\TaskNodes.cpp" />
     <ClCompile Include="BehaviourTree\TreeNode.cpp" />
     <ClCompile Include="BSP\BSPModelDrawCommand.cpp" />
+    <ClCompile Include="BSP\ExrLightmap.cpp" />
     <ClCompile Include="BSP\Quake3BSP_Portals.cpp" />
     <ClCompile Include="Compression\zip\zip.cpp" />
     <ClCompile Include="Console\Console.cpp" />
@@ -577,6 +578,7 @@
     <ClInclude Include="BgfxResetManager.h" />
     <ClInclude Include="BgfxStateManager.h" />
     <ClInclude Include="BSP\BSPModelDrawCommand.h" />
+    <ClInclude Include="BSP\ExrLightmap.h" />
     <ClInclude Include="Compression\miniz.h" />
     <ClInclude Include="Compression\zip\miniz.h" />
     <ClInclude Include="Compression\zip\miniz_once.h" />

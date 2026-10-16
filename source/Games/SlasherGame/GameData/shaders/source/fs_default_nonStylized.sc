@@ -168,23 +168,17 @@ void CalculatePointLights(vec3 normal, vec3 worldPosition, vec3 viewDir, inout v
     }
 }
 
-vec3 CalculateDirectionalDiffuse(vec3 normal, vec3 lightDir)
-{
-    float diffuse_factor = ComputeStyledDiffuse(normal, lightDir);
-    
-    // Deadlock anchors exposure to a target value. We do this by setting a strong ambient floor
-    // combined with the heavily weighted directional light.
-    vec3 ambient = light_color.rgb * 0.9f; // Base ambient
-    vec3 diffuse = direct_light_color.rgb;
-
-    return mix(ambient, diffuse, diffuse_factor) * 1.0;
-}
-
 vec3 CalculateDirectionalSpecular(vec3 normal, vec3 lightDir, vec3 viewDir)
 {
     float specFactor = ComputeStyledSpecular(normal, lightDir, viewDir);
     return direct_light_color.rgb * specFactor;
 }
+
+// The baked light (light grid: ambient + directed along ONE direction) is linear HDR, as the level editor bakes and shows it; the albedo is sRGB.
+// They are multiplied in linear light and encoded back to sRGB, so a model is lit as in the editor's Lit view.
+vec3 LinearFromSrgb(vec3 c) { return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3_splat(2.4)), step(vec3_splat(0.04045), c)); }
+vec3 SrgbFromLinear(vec3 c) { c = clamp(c, 0.0, 1.0); return mix(c * 12.92, 1.055 * pow(c, vec3_splat(1.0 / 2.4)) - 0.055, step(vec3_splat(0.0031308), c)); }
+vec3 BakedLight(vec3 normal) { return light_color.rgb + direct_light_color.rgb * max(dot(normal, normalize(direct_light_dir.xyz)), 0.0); }
 
 vec4 ApplyFog(vec4 fragColor, vec3 worldPosition)
 {
@@ -242,7 +236,7 @@ void main()
     vec3 viewDir  = normalize(cameraPosition.xyz - v_world.xyz);
 
     // Accumulate Lighting
-    vec3 dirDiffuse  = CalculateDirectionalDiffuse(normal, lightDir);
+    vec3 dirDiffuse  = BakedLight(normal);
     vec3 dirSpecular = CalculateDirectionalSpecular(normal, lightDir, viewDir);
     
     vec3 pointDiffuse  = vec3(0.0,0.0,0.0);
@@ -257,7 +251,8 @@ void main()
 
     // Composition (Light Weight Mixing)
     vec3 finalColor =
-        color * (dirDiffuse + pointDiffuse) // Albedo modulated by stepped diffuse
+        SrgbFromLinear(LinearFromSrgb(color) * dirDiffuse) // Albedo lit by the baked light, in linear light
+        + color * pointDiffuse              // Albedo modulated by stepped diffuse of the dynamic lights
         + dirSpecular + pointSpecular       // Additive quantized specular
         + rim                               // Additive camera-attached rim
         + emissive;                         // Self-illumination

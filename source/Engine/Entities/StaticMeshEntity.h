@@ -20,7 +20,8 @@ public:
 
 		float scale = data.GetPropertyFloat("modelscale", 32.0f);
 
-		vec3 scaleVec = data.GetPropertyVectorPosition("modelscale_vec")*32.0f;
+		vec3 scaleVec = EntityData::DirectSpace ? data.GetPropertyVector("modelscale_vec", vec3(0.0f))  // rBSP v2: plain numbers
+		                                        : data.GetPropertyVectorPosition("modelscale_vec")*32.0f;
 		scaleVec.z *= -1;
 		if (scaleVec == vec3())
 		{

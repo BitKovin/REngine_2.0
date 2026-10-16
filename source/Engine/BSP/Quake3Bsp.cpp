@@ -1,4 +1,5 @@
 ﻿#include "Quake3Bsp.h"
+#include "ExrLightmap.h"
 
 #include <algorithm>
 #include <cstring>
@@ -149,7 +150,18 @@ bool CQuake3BSP::LoadBSP(const char* filename)
     m_bspIdent = ident;
     m_bspVersion = header.version;
 
-    if (ident == BSP_IDENT_FBSP) {
+    if (ident == BSP_IDENT_RBSP2) {
+        if (header.version != BSP_VERSION_RBSP2) {
+            printf("ERROR:: rBSP version %d is not supported (expected %d)\n", header.version, BSP_VERSION_RBSP2);
+            return false;
+        }
+        m_isFBSP = false;
+        m_isRBSP = true;
+        m_isRBSP2 = true;
+        m_lightmapSize = 0;  // external EXR pages, any size
+        printf("BSP format: rBSP v%d (level editor) - EXR lightmaps, 8 style slots\n", header.version);
+    }
+    else if (ident == BSP_IDENT_FBSP) {
         m_isFBSP = true;
         m_isRBSP = true;
         m_lightmapSize = BSP_LIGHTMAP_SIZE_FBSP;
@@ -316,7 +328,47 @@ bool CQuake3BSP::LoadBSP(const char* filename)
         }
     }
 
-    {
+    if (m_isRBSP2) {
+        // Lump 15: palette of 58 byte points (8 style slots); lump 17: header (the grid's bounds) + uint16 index per point
+        const auto& LP = lumps[kLightVolumes];
+        const auto& LA = lumps[kLightArray];
+        size_t paletteCount = 0;
+        if (LP.offset >= 0 && LP.length > 0 && size_t(LP.offset) + size_t(LP.length) <= totalSize)
+            paletteCount = size_t(LP.length) / sizeof(tBSPLightvolRBSP2);
+        lightVolPaletteRBSP.resize(paletteCount);
+        lightVolPalette.resize(paletteCount);
+        for (size_t j = 0; j < paletteCount; ++j) {
+            tBSPLightvolRBSP2 r2;
+            memcpy(&r2, base + LP.offset + j * sizeof(r2), sizeof(r2));
+            tBSPLightvolRBSP& r = lightVolPaletteRBSP[j];
+            for (int s = 0; s < BSP_MAX_LIGHTMAP_STYLES; ++s) {  // the exporter puts the strongest styles first
+                r.styles[s] = r2.styles[s];
+                for (int c = 0; c < 3; ++c) { r.ambient[s][c] = r2.ambient[s][c]; r.directional[s][c] = r2.directional[s][c]; }
+            }
+            r.dir[0] = r2.dir[0];
+            r.dir[1] = r2.dir[1];
+            tBSPLightvol& lv = lightVolPalette[j];
+            for (int c = 0; c < 3; ++c) { lv.ambient[c] = r2.ambient[0][c]; lv.directional[c] = r2.directional[0][c]; }
+            lv.dir[0] = r2.dir[0];
+            lv.dir[1] = r2.dir[1];
+        }
+        if (LA.offset >= 0 && LA.length >= int(sizeof(tBSPLightGridHeaderRBSP2)) && size_t(LA.offset) + size_t(LA.length) <= totalSize) {
+            tBSPLightGridHeaderRBSP2 gh;
+            memcpy(&gh, base + LA.offset, sizeof(gh));
+            m_gridOrigin = glm::vec3(gh.origin[0], gh.origin[1], gh.origin[2]);
+            m_gridDims = glm::ivec3(gh.dims[0], gh.dims[1], gh.dims[2]);
+            lightVolGridSize = glm::vec3(gh.cellSize[0], gh.cellSize[1], gh.cellSize[2]);
+            const size_t indexCount = (size_t(LA.length) - sizeof(gh)) / sizeof(uint16_t);
+            lightVolIndices.resize(indexCount);
+            for (size_t j = 0; j < indexCount; ++j) {
+                uint16_t v;
+                memcpy(&v, base + LA.offset + sizeof(gh) + j * 2, 2);
+                lightVolIndices[j] = v;
+            }
+        }
+        Logger::Log("rBSP LightGrid: palette=" + std::to_string(paletteCount) + " cells=" + std::to_string(lightVolIndices.size()));
+    }
+    else {
         if (m_isRBSP) {
             // Lump 15: palette of bspGridPoint_t (already deduplicated by q3map2)
             const auto& LP = lumps[kLightVolumes];
@@ -392,7 +444,34 @@ bool CQuake3BSP::LoadBSP(const char* filename)
     }
 
     // Vertices (Y-up swap)
-    {
+    if (m_isRBSP2) {
+        size_t cnt = 0;
+        if (checkLump(kVertices, sizeof(tBSPVertexRBSP2), cnt)) {
+            m_numOfVerts = static_cast<int>(cnt);
+            m_pVerts = new tBSPVertex[cnt];
+            m_pVertsRBSP = new tBSPVertexRBSP[cnt];
+            const uint8_t* ptr = base + lumps[kVertices].offset;
+            for (size_t i = 0; i < cnt; ++i) {
+                tBSPVertexRBSP2 r2;
+                memcpy(&r2, ptr + i * sizeof(r2), sizeof(r2));
+                tBSPVertexRBSP raw{};
+                raw.vPosition = glm::vec3(r2.vPosition.x, r2.vPosition.z, -r2.vPosition.y);
+                raw.vNormal = glm::vec3(r2.vNormal.x, r2.vNormal.z, -r2.vNormal.y);
+                raw.vTextureCoord = r2.vTextureCoord;
+                for (int s = 0; s < BSP_MAX_LIGHTMAP_STYLES; ++s) {
+                    raw.vLightmapCoord[s] = r2.vLightmapCoord[s];
+                    for (int c = 0; c < 4; ++c) raw.color[s][c] = r2.color[s][c];
+                }
+                m_pVertsRBSP[i] = raw;
+                m_pVerts[i].vPosition = raw.vPosition;
+                m_pVerts[i].vTextureCoord = raw.vTextureCoord;
+                m_pVerts[i].vLightmapCoord = raw.vLightmapCoord[0];
+                m_pVerts[i].vNormal = raw.vNormal;
+                for (int c = 0; c < 4; ++c) m_pVerts[i].color[c] = raw.color[0][c];
+            }
+        }
+    }
+    else {
         if (m_isRBSP) {
             // FBSP/RBSP: 80-byte on-disk vertex with 4 lightmap slots
             size_t cnt = 0;
@@ -462,7 +541,36 @@ bool CQuake3BSP::LoadBSP(const char* filename)
         // RBSP/FBSP: tBSPFaceRBSP = 148 bytes (4 lightmap + style slots)
         // We always store the canonical tBSPFace internally; RBSP faces are
         // converted via ConvertRBSPFace() which maps slot 0 → the single slot.
-        {
+        if (m_isRBSP2) {
+            size_t cnt = 0;
+            if (checkLump(kFaces, sizeof(tBSPFaceRBSP2), cnt)) {
+                const uint8_t* ptr = base + lumps[kFaces].offset;
+                m_numOfFaces = static_cast<int>(cnt);
+                m_pFaces = new tBSPFace[cnt];
+                m_pFacesRBSP = new tBSPFaceRBSP[cnt];
+                m_facesRBSP2.resize(cnt);
+                for (size_t fi = 0; fi < cnt; ++fi) {
+                    tBSPFaceRBSP2& f2 = m_facesRBSP2[fi];
+                    memcpy(&f2, ptr + fi * sizeof(f2), sizeof(f2));
+                    tBSPFaceRBSP& f = m_pFacesRBSP[fi];
+                    f.textureID = f2.textureID; f.effect = f2.effect; f.type = f2.type;
+                    f.startVertIndex = f2.startVertIndex; f.numOfVerts = f2.numOfVerts; f.startIndex = f2.startIndex; f.numOfIndices = f2.numOfIndices;
+                    for (int s = 0; s < BSP_MAX_LIGHTMAP_STYLES; ++s) {
+                        f.lightmapStyles[s] = f2.lightmapStyles[s];
+                        f.vertexStyles[s] = f2.vertexStyles[s];
+                        f.lightmapNum[s] = f2.lightmapNum[s];
+                        f.lMapCorner[s][0] = f2.lMapCorner[s][0];
+                        f.lMapCorner[s][1] = f2.lMapCorner[s][1];
+                    }
+                    f.lMapSize[0] = f2.lMapSize[0]; f.lMapSize[1] = f2.lMapSize[1];
+                    f.lMapPos = f2.lMapPos; f.lMapVecs[0] = f2.lMapVecs[0]; f.lMapVecs[1] = f2.lMapVecs[1];
+                    f.vNormal = f2.vNormal;
+                    f.size[0] = f2.size[0]; f.size[1] = f2.size[1];
+                    m_pFaces[fi] = ConvertRBSPFace(f);
+                }
+            }
+        }
+        else {
             const size_t onDiskSize = m_isRBSP ? sizeof(tBSPFaceRBSP)
                 : sizeof(tBSPFace);
             const auto& L = lumps[kFaces];
@@ -503,7 +611,7 @@ bool CQuake3BSP::LoadBSP(const char* filename)
         // ── Lightmaps: atlas size differs per format ───────────────────────────
         // IBSP / RBSP: 128×128 × 3 = 49152 bytes per atlas
         // FBSP:        512×512 × 3 = 786432 bytes per atlas
-        {
+        if (!m_isRBSP2) {
             const int    lmSz = m_lightmapSize;
             const size_t bytesPerLM = size_t(lmSz) * lmSz * 3;
             const auto& L = lumps[kLightmaps];
@@ -946,7 +1054,7 @@ int CQuake3BSP::GetWhiteLightmapNativeId() const
 int CQuake3BSP::GetFaceLightmapId(int faceIndex, int slot) const
 {
     if (faceIndex < 0 || faceIndex >= m_numOfFaces) return GetLightmapNativeId(-1);
-    if (slot < 0 || slot >= BSP_MAX_LIGHTMAP_STYLES)  return GetLightmapNativeId(-1);
+    if (slot < 0 || slot >= BSP_MAX_LIGHTMAP_SLOTS)  return GetLightmapNativeId(-1);
     if (!cachedFaces) return GetLightmapNativeId(-1);
     return cachedFaces[faceIndex].lightmapIds[slot];
 }
@@ -1136,6 +1244,10 @@ void CQuake3BSP::PreloadFace(int index, std::unordered_map<int, CachedFaceTextur
         cacheIt = textureCache.emplace(textureID, ResolveFaceTextureData(textureName)).first;
 
     CachedFaceTextureData data = cacheIt->second;
+    if (m_isRBSP2 && pTextures && (pTextures[textureID].flags & BSP_SURF_DECAL)) {
+        data.decal = true;
+        data.transparent = true;  // blended over the surface it lies on
+    }
     bool isCube = data.isCube;
     data.numOfIndices = numOfIndices;
     data.numActiveSlots = 1;
@@ -1146,13 +1258,31 @@ void CQuake3BSP::PreloadFace(int index, std::unordered_map<int, CachedFaceTextur
             return GetLightmapNativeId(lmAtlasIndex);
         if (isCube)
             return 0;
+        if (m_isRBSP2) return LoadExrLightmap(lmAtlasIndex);
         string path = GetLightMapFilePathFromId(lmAtlasIndex, filePath);
         if (path.empty()) return GetLightmapNativeId(-1);
         auto tex = AssetRegistry::GetTextureFromFile(path);
         return (tex && tex->getID() != 0) ? (int)tex->getID() : GetLightmapNativeId(-1);
         };
 
-    if (m_isFBSP && m_pFacesRBSP) {
+    for (int slot = BSP_MAX_LIGHTMAP_STYLES; slot < BSP_MAX_LIGHTMAP_SLOTS; ++slot) {
+        data.lightmapStyles[slot] = LS_NONE;
+        data.lightmapIds[slot] = GetLightmapNativeId(-1);
+    }
+    if (m_isRBSP2 && index < (int)m_facesRBSP2.size()) {
+        // rBSP v2: up to 8 slots, in order; a slot without a style ends the list
+        const tBSPFaceRBSP2& rf = m_facesRBSP2[index];
+        data.numActiveSlots = 0;
+        for (int slot = 0; slot < BSP_MAX_LIGHTMAP_SLOTS; ++slot) {
+            const bool active = rf.lightmapStyles[slot] != LS_NONE && rf.lightmapNum[slot] >= 0 && data.numActiveSlots == slot;
+            data.lightmapStyles[slot] = active ? rf.lightmapStyles[slot] : LS_NONE;
+            data.lightmapIds[slot] = active ? resolveLM(rf.lightmapNum[slot]) : GetLightmapNativeId(-1);
+            if (active) ++data.numActiveSlots;
+        }
+        if (data.numActiveSlots == 0) data.numActiveSlots = 1;  // slot 0 bound to the missing lightmap: lit from the light volume
+        data.lightmapId = data.lightmapIds[0];
+    }
+    else if (m_isFBSP && m_pFacesRBSP) {
         const tBSPFaceRBSP& rf = m_pFacesRBSP[index];
 
         // Slot 0
@@ -1228,7 +1358,12 @@ void CQuake3BSP::BuildMergedModels()
 
             // Also key on style slots 1-3 for FBSP
             string styleKey = "";
-            if (m_pFacesRBSP) {
+            if (m_isRBSP2 && i < (int)m_facesRBSP2.size()) {  // all 8 slots
+                const tBSPFaceRBSP2& rf = m_facesRBSP2[i];
+                for (int s = 1; s < BSP_RBSP2_STYLES; ++s)
+                    styleKey += "|" + to_string(rf.lightmapStyles[s]) + ":" + to_string(rf.lightmapNum[s]);
+            }
+            else if (m_pFacesRBSP) {
                 const tBSPFaceRBSP& rf = m_pFacesRBSP[i];
                 for (int s = 1; s < BSP_MAX_LIGHTMAP_STYLES; ++s)
                 {
@@ -1390,6 +1525,10 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
             std::ceil(modelMins.y / lightVolGridSize.y) + 1),
         static_cast<int>(std::floor(modelMaxs.z / lightVolGridSize.z) -
             std::ceil(modelMins.z / lightVolGridSize.z) + 1));
+    if (m_isRBSP2) {  // the grid's own bounds (header), not the world's
+        modelMins = m_gridOrigin;
+        lightVolGridDims = m_gridDims;
+    }
 
     float fx = (pos_quake.x - modelMins.x) / lightVolGridSize.x;
     float fy = (pos_quake.y - modelMins.y) / lightVolGridSize.y;
@@ -1431,6 +1570,8 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
 
             if (m_isRBSP == false)
                 styleWeight = 1.25f;
+            if (m_isRBSP2)
+                styleWeight = 2.0f;  // rBSP v2: bytes hold value / 2 (x2 range), nothing else
 
 
 
@@ -1442,7 +1583,7 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
                 float ambientFactor = 1.0f;
                 float directionalFactor = 1.0f;
 
-                if (s > 0)
+                if (s > 0 && !m_isRBSP2)
                 {
                     auto maxDirectionalLight = std::max(std::max(vol.directional[s][0], vol.directional[s][1]), vol.directional[s][2]);
 
@@ -1573,12 +1714,13 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
                         if (vol.styles[s] == LS_NONE) continue;
                         const glm::vec3 sc = GetStyleColor(vol.styles[s]);
                         if (sc == glm::vec3(0.0f)) continue;
+                        const float range = m_isRBSP2 ? 2.0f : 1.0f;  // rBSP v2: x2 range
                         fbAmb += glm::vec3(vol.ambient[s][0] / 255.0f,
                             vol.ambient[s][1] / 255.0f,
-                            vol.ambient[s][2] / 255.0f) * sc;
+                            vol.ambient[s][2] / 255.0f) * sc * range;
                         fbDir += glm::vec3(vol.directional[s][0] / 255.0f,
                             vol.directional[s][1] / 255.0f,
-                            vol.directional[s][2] / 255.0f) * sc;
+                            vol.directional[s][2] / 255.0f) * sc * range;
                     }
                     LightData ld{ fbAmb, fbDir, computeLightDirection(vol.dir) };
 
@@ -2073,7 +2215,7 @@ void CQuake3BSP::RenderBSP(const glm::vec3& cameraPos, tBSPModel& model,
 
         // GetLightvolColorPoint expects raw BSP units (engine Y-up), so scale back up.
         lightData = GetLightvolColorPoint(worldCenter_engine * MAP_SCALE);
-        lightData *= 2.0f;
+        if (!m_isRBSP2) lightData *= 2.0f;  // rBSP v2: the grid's x2 range is applied when it is read, nothing else
     }
 
     std::vector<bool> renderedFaces(m_numOfFaces);
@@ -2142,6 +2284,10 @@ void CQuake3BSP::RenderTransparentFaces()
     // bgfx: transparent faces disable depth writes – pass BGFX_STATE_WRITE_Z=0 in submit flags.
     // The state is applied inside RenderMergedFace when called from this path.
 
+    // decals first (rBSP v2): they lie on opaque surfaces and every other transparent face may be in front of them
+    std::stable_partition(facesToDrawTransparent.begin(), facesToDrawTransparent.end(), [this](const FaceRenderData& f) {
+        return f.faceIndex >= 0 && f.faceIndex < (int)mergedFacesData.size() && cachedFaces[mergedFacesData[f.faceIndex].referenceFace].decal;
+    });
     for (auto& face : facesToDrawTransparent)
         RenderMergedFace(face.faceIndex, face.useLightmap, face.lightPointData, face.modelMatrix);
 
@@ -2198,7 +2344,7 @@ bool CQuake3BSP::RenderMergedFace(int mergedIndex, bool lightmap,
     shader->SetUniform("light_color", lightData.ambientColor);
     shader->SetUniform("direct_light_color", lightData.directColor);
     shader->SetUniform("direct_light_dir", lightData.direction);
-    shader->SetUniform("isRBSP", m_isRBSP);
+    shader->SetUniform("isRBSP", m_isRBSP2 ? 2.0f : (m_isRBSP ? 1.0f : 0.0f));  // 2 = rBSP v2: values as stored, no tweaks
 
     bgfx::TextureHandle albedoHandle = { static_cast<uint16_t>(faceTexture) };
     if (data.isCube)
@@ -2208,11 +2354,12 @@ bool CQuake3BSP::RenderMergedFace(int mergedIndex, bool lightmap,
 
     // Bind all active lightmap slots. When lightmaps are disabled, fall back to
     // the black/white dummy for slot 0 and missing for the rest.
-    static const char* lmSamplers[BSP_MAX_LIGHTMAP_STYLES] = {
-        "s_bspLightmap", "s_bspLightmap1", "s_bspLightmap2", "s_bspLightmap3"
+    static const char* lmSamplers[BSP_MAX_LIGHTMAP_SLOTS] = {
+        "s_bspLightmap", "s_bspLightmap1", "s_bspLightmap2", "s_bspLightmap3",
+        "s_bspLightmap4", "s_bspLightmap5", "s_bspLightmap6", "s_bspLightmap7"
     };
     int missingId = m_missingLightmap ? (int)m_missingLightmap->getID() : 0;
-    for (int s = 0; s < BSP_MAX_LIGHTMAP_STYLES; ++s) {
+    for (int s = 0; s < BSP_MAX_LIGHTMAP_SLOTS; ++s) {
         int lmId;
         if (!lightmap) {
             lmId = (s == 0) ? GetWhiteLightmapNativeId() : missingId;
@@ -2225,10 +2372,11 @@ bool CQuake3BSP::RenderMergedFace(int mergedIndex, bool lightmap,
     }
     shader->SetUniform("numLightmapSlots", (float)(lightmap ? data.numActiveSlots : 0));
 
-    static const char* styleUniforms[BSP_MAX_LIGHTMAP_STYLES] = {
-    "lmStyleColor0", "lmStyleColor1", "lmStyleColor2", "lmStyleColor3"
+    static const char* styleUniforms[BSP_MAX_LIGHTMAP_SLOTS] = {
+    "lmStyleColor0", "lmStyleColor1", "lmStyleColor2", "lmStyleColor3",
+    "lmStyleColor4", "lmStyleColor5", "lmStyleColor6", "lmStyleColor7"
     };
-    for (int s = 0; s < BSP_MAX_LIGHTMAP_STYLES; ++s) {
+    for (int s = 0; s < BSP_MAX_LIGHTMAP_SLOTS; ++s) {
         glm::vec3 sc = GetStyleColor(data.lightmapStyles[s]);
         shader->SetUniform(styleUniforms[s], glm::vec4(sc, 1.0f));
     }
@@ -2331,7 +2479,7 @@ std::string CQuake3BSP::GetLightMapFilePathFromId(int id, const std::string& fil
     result.append(str, prefixLen);
     result.append(p, mapNameLen);
     result.push_back('/');
-    result += "lm_";
+    result += "lm_";  // rBSP v2: .exr (LoadExrLightmap), others: .tga
 
     char digits[4];
     int tmp = id;
@@ -2344,8 +2492,37 @@ std::string CQuake3BSP::GetLightMapFilePathFromId(int id, const std::string& fil
         return ""; // invalid ID
 
     result.append(digits, 4);
-    result += ".tga";
+    result += m_isRBSP2 ? ".exr" : ".tga";
     return result;
+}
+
+// rBSP v2: lightmap page `index` from <map>/lm_NNNN.exr as an RGBA16F texture (linear, used as stored, no mips: the shader reads level 0).
+int CQuake3BSP::LoadExrLightmap(int index)
+{
+    if (index < 0) return GetLightmapNativeId(-1);
+    auto it = m_exrLightmaps.find(index);
+    if (it == m_exrLightmaps.end()) {
+        std::shared_ptr<Texture> tex;
+        const std::string path = GetLightMapFilePathFromId(index, filePath);
+        try {
+            const std::vector<uint8_t> bytes = FileSystemEngine::ReadFileBinary(path.c_str());
+            ExrLightmapImage img;
+            std::string err;
+            if (DecodeExrLightmap(bytes.data(), bytes.size(), img, &err)) {
+                tex = std::make_shared<Texture>(reinterpret_cast<const unsigned char*>(img.rgbaHalf.data()), img.width, img.height,
+                    bgfx::TextureFormat::RGBA16F, false);
+                tex->setName("rBSP Lightmap " + std::to_string(index));
+            }
+            else {
+                Logger::Error("rBSP lightmap %s: %s", path.c_str(), err.c_str());
+            }
+        }
+        catch (const std::exception& e) {
+            Logger::Error("rBSP lightmap %s: %s", path.c_str(), e.what());
+        }
+        it = m_exrLightmaps.emplace(index, tex).first;
+    }
+    return (it->second && it->second->valid) ? (int)it->second->getID() : GetLightmapNativeId(-1);
 }
 
 void CQuake3BSP::BSPDebug(int index)
@@ -2491,6 +2668,10 @@ void CQuake3BSP::LoadToLevel()
 {
     auto parsedEntities = MapParser::ParseBSPEntities(entities);
     parsedEntities[0].Properties["classname"] = "worldspawn";
+    // rBSP v2 (level editor) writes entity values in the engine's own space: no Quake conversion (MapData.h)
+    EntityData::DirectSpace = m_isRBSP2;
+    if (m_isRBSP2)
+        for (auto& e : parsedEntities) EntityData::AddLegacyAngle(e.Properties);
 
     auto models = GetAllModelRefs();
 

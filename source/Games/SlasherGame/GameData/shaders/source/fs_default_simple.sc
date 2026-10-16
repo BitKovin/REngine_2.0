@@ -74,17 +74,19 @@ vec3 CalculateLight(vec3 normal, vec3 worldPosition)
     normal = normalize(normal);
 
 
-    float factor = clamp(dot(normal, normalize(direct_light_dir.xyz)) * 0.8 + 0.2, 0.0, 1.0);
-    vec3 light   = light_color.rgb +  direct_light_color.rgb * factor;
-
-    //light *= 3.0;
-
+    vec3 light = vec3_splat(0.0);  // the dynamic lights; the baked light is BakedLight()
     int numLights = min(MAX_POINT_LIGHTS, int(PointLightsNumber.x));
     for (int i = 0; i < numLights; i++)
         light += CalculateSimplePointLight(i, worldPosition, normal);
 
     return light;
 }
+
+// The baked light (light grid: ambient + directed along ONE direction) is linear HDR, as the level editor bakes and shows it; the albedo is sRGB.
+// They are multiplied in linear light and encoded back to sRGB, so a model is lit as in the editor's Lit view.
+vec3 LinearFromSrgb(vec3 c) { return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3_splat(2.4)), step(vec3_splat(0.04045), c)); }
+vec3 SrgbFromLinear(vec3 c) { c = clamp(c, 0.0, 1.0); return mix(c * 12.92, 1.055 * pow(c, vec3_splat(1.0 / 2.4)) - 0.055, step(vec3_splat(0.0031308), c)); }
+vec3 BakedLight(vec3 normal) { return light_color.rgb + direct_light_color.rgb * max(dot(normal, normalize(direct_light_dir.xyz)), 0.0); }
 
 vec4 ApplyFog(vec4 fragColor, vec3 worldPosition)
 {
@@ -117,7 +119,7 @@ void main()
 
     vec3 lightColor = CalculateLight(normal, v_world.xyz)
                     + texture2D(u_textureEmissive, v_texcoord0).rgb;
-    color *= lightColor;
+    color = SrgbFromLinear(LinearFromSrgb(color) * BakedLight(normalize(normal))) + color * lightColor;
 
     gl_FragColor = ApplyFog(vec4(color, alpha), v_world.xyz);
 }

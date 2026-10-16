@@ -5,16 +5,16 @@
 	"camera": {
 		"_note": "Behind and above the body, looking down. The view center sits frameHeight above the body's focus point along the camera's up axis, so the body stays below the crosshair at every pitch; looking up the boom shortens.",
 		"distance": 4.5,
-		"focusHeight": 0.6,
+		"focusHeight": 0.75,
 		"frameHeight": 0.6,
 		"shoulderOffset": 0.0,
-		"collisionRadius": 0.25,
+		"collisionRadius": 0.10,
 		"sensitivity": 1.0,
-		"defaultPitch": 25,
+		"defaultPitch": 5,
 		"minPitch": -70,
 		"maxPitch": 70,
 		"lookUpDistance": 2.2,
-		"followSharpness": 20,
+		"followSharpness": 35,
 		"fov": 70,
 		"impact": {
 			"_note": "DMC3-style and comfortable: light hits never move the view; heavy strikes jolt it (mostly a slide, biased down, no roll); rumble only for finishers, poise breaks and heavy hits taken. Waves stay <= 12 Hz and the view turns < 60 deg/s (validated).",
@@ -32,11 +32,11 @@
 		}
 	},
 	"feedback": {
-		"dealtShake": 0.6,
+		"dealtShake": 0.7,
 		"takenKick": 0.8,
 		"takenShake": 0.5,
 		"takenFirearmKick": 0.15,
-		"killShake": 0.0,
+		"killShake": 0.3,
 		"poiseBreakShake": 0.7,
 		"finisherShake": 0.9
 	},

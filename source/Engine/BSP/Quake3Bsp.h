@@ -35,6 +35,7 @@
 #define BSP_IDENT_IBSP  0x50534249u  // 'IBSP'
 #define BSP_IDENT_RBSP  0x50534252u  // 'RBSP'
 #define BSP_IDENT_FBSP  0x50534246u  // 'FBSP'
+#define BSP_IDENT_RBSP2 0x50534272u  // 'rBSP' (lower case r): the level editor's format, version 2 (mapeditor DESIGN §12)
 
 // IBSP versions
 #define BSP_VERSION_Q3   46   // Quake 3 Arena / OpenArena / Xonotic / etc.
@@ -42,6 +43,8 @@
 
 // RBSP / FBSP version (Raven Software / qFusion)
 #define BSP_VERSION_RAVEN  1
+// rBSP version (level editor)
+#define BSP_VERSION_RBSP2  2
 
 // Lightmap atlas sizes per format
 #define BSP_LIGHTMAP_SIZE_IBSP  128   // IBSP: 128x128
@@ -49,6 +52,12 @@
 
 // Maximum style slots per surface in RBSP/FBSP
 #define BSP_MAX_LIGHTMAP_STYLES 4
+// Style slots per surface / grid point stored in rBSP v2
+#define BSP_RBSP2_STYLES 8
+// Lightmap slots the renderer binds per face (rBSP v2 uses all 8; Raven RBSP / FBSP fill the first 4). Slots 4..7 share the 4th lightmap UV set.
+#define BSP_MAX_LIGHTMAP_SLOTS 8
+// rBSP v2 surface flag (shader lump): a decal. Decals are drawn first in the transparent pass, before every other transparent face.
+#define BSP_SURF_DECAL 0x100000
 #define LS_NORMAL  0x00   // always-on base style
 #define LS_NONE    0xFF   // slot unused
 
@@ -140,6 +149,50 @@ struct tBSPFaceRBSP {
     int     size[2];
 };
 static_assert(sizeof(tBSPFaceRBSP) == 148, "tBSPFaceRBSP must be 148 bytes");
+
+// ─────────────────────────────────────────────────────────────────────────────
+// rBSP v2 (level editor): Raven's lump list with 8 style slots, external EXR lightmaps (<map>/lm_NNNN.exr, linear half floats used as stored),
+// light grid with an explicit header and the x2 range (byte / 255 * 2), no brightness tweaks. Quake units / axes like IBSP.
+// ─────────────────────────────────────────────────────────────────────────────
+#pragma pack(push, 4)
+struct tBSPVertexRBSP2 {
+    glm::vec3 vPosition;
+    glm::vec2 vTextureCoord;
+    glm::vec2 vLightmapCoord[BSP_RBSP2_STYLES];
+    glm::vec3 vNormal;
+    uint8_t   color[BSP_RBSP2_STYLES][4];
+};
+struct tBSPFaceRBSP2 {
+    int     textureID, effect, type;
+    int     startVertIndex, numOfVerts, startIndex, numOfIndices;
+    uint8_t lightmapStyles[BSP_RBSP2_STYLES];
+    uint8_t vertexStyles[BSP_RBSP2_STYLES];
+    int     lightmapNum[BSP_RBSP2_STYLES];
+    int     lMapCorner[BSP_RBSP2_STYLES][2];
+    int     lMapSize[2];
+    glm::vec3 lMapPos;
+    glm::vec3 lMapVecs[2];
+    glm::vec3 vNormal;
+    int     size[2];
+};
+struct tBSPLightvolRBSP2 {
+    uint8_t ambient[BSP_RBSP2_STYLES][3];
+    uint8_t directional[BSP_RBSP2_STYLES][3];
+    uint8_t styles[BSP_RBSP2_STYLES];
+    uint8_t dir[2];
+};
+// Start of the light array lump: the grid's own bounds (Quake units / axes), then one uint16 palette index per point (x fastest).
+struct tBSPLightGridHeaderRBSP2 {
+    float origin[3];
+    float cellSize[3];
+    int   dims[3];
+    int   reserved;
+};
+#pragma pack(pop)
+static_assert(sizeof(tBSPVertexRBSP2) == 128, "tBSPVertexRBSP2 must be 128 bytes");
+static_assert(sizeof(tBSPFaceRBSP2) == 204, "tBSPFaceRBSP2 must be 204 bytes");
+static_assert(sizeof(tBSPLightvolRBSP2) == 58, "tBSPLightvolRBSP2 must be 58 bytes");
+static_assert(sizeof(tBSPLightGridHeaderRBSP2) == 40, "tBSPLightGridHeaderRBSP2 must be 40 bytes");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Lightmap image storage
@@ -298,13 +351,14 @@ struct CachedFaceTextureData
     // Slots 1-3 are additional style layers (RBSP/FBSP only).
     // Values are native GPU texture IDs (from m_lightmapTextures or fallback).
     int     lightmapId                             = 0;   // alias for lightmapIds[0]
-    int     lightmapIds[BSP_MAX_LIGHTMAP_STYLES]   = {};  // all slots
-    uint8_t lightmapStyles[BSP_MAX_LIGHTMAP_STYLES]= { LS_NONE, LS_NONE, LS_NONE, LS_NONE };
+    int     lightmapIds[BSP_MAX_LIGHTMAP_SLOTS]   = {};  // all slots
+    uint8_t lightmapStyles[BSP_MAX_LIGHTMAP_SLOTS]= { LS_NONE, LS_NONE, LS_NONE, LS_NONE, LS_NONE, LS_NONE, LS_NONE, LS_NONE };
     int     numActiveSlots                         = 1;
 
     std::vector<int> animatedTextureFrames;
 
     bool   transparent = false;
+    bool   decal = false;        // rBSP v2: BSP_SURF_DECAL (drawn before the other transparent faces)
     int    numOfIndices = 0;
 };
 
@@ -430,7 +484,16 @@ public:
 
     // ── Format detection (set during LoadBSP) ─────────────────────────────────
     bool    m_isFBSP        = false;  // true for FBSP (qFusion/Warsow)
-    bool    m_isRBSP        = false;  // true for RBSP or FBSP (Raven-derived)
+    bool    m_isRBSP        = false;  // true for RBSP or FBSP (Raven-derived), and rBSP v2
+    bool    m_isRBSP2       = false;  // rBSP v2 (level editor): EXR lightmaps, explicit light grid, no brightness tweaks
+    // rBSP v2 light grid (Quake units / axes, from the light array header)
+    glm::vec3  m_gridOrigin = glm::vec3(0);
+    glm::ivec3 m_gridDims   = glm::ivec3(0);
+    // rBSP v2: EXR lightmap pages by index, loaded on first use
+    std::map<int, std::shared_ptr<Texture>> m_exrLightmaps;
+    // rBSP v2: the faces as stored (8 slots; m_pFacesRBSP holds the first 4 for the shared code paths)
+    std::vector<tBSPFaceRBSP2> m_facesRBSP2;
+    int LoadExrLightmap(int index);
     int     m_lightmapSize  = BSP_LIGHTMAP_SIZE_IBSP;  // 128 or 512
     int     m_bspVersion    = 0;
     uint32_t m_bspIdent     = 0;
