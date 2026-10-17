@@ -1,0 +1,17 @@
+{
+  "name": "SlasherGame",
+  "textureRoot": "textures",
+  "textureExtensions": [
+    ".tga",
+    ".jpg",
+    ".jpeg",
+    ".png"
+  ],
+  "modelExtensions": [
+    ".glb"
+  ],
+  "lighting": {
+    "blockLight": [],
+    "receiveBakedLight": []
+  }
+}

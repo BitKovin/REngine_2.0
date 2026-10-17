@@ -65,6 +65,34 @@ vec3 CalculateSimplePointLight(int i, vec3 pixelPosition, vec3 normal)
 vec3 LinearFromSrgb(vec3 c) { return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3_splat(2.4)), step(vec3_splat(0.04045), c)); }
 vec3 SrgbFromLinear(vec3 c) { c = clamp(c, 0.0, 1.0); return mix(c * 12.92, 1.055 * pow(c, vec3_splat(1.0 / 2.4)) - 0.055, step(vec3_splat(0.0031308), c)); }
 
+// rBSP v2 (level editor): bicubic B-spline lookup from 4 bilinear fetches, as the editor's views do. Bilinear's slope jumps at every texel
+// border, which shows soft shadows as creases on the texel grid. Reads up to 2 texels around a chart's edge (the editor pads charts by 2).
+vec3 LightmapBicubic(sampler2D s, vec2 uv)
+{
+    vec2 size = vec2(textureSize(s, 0));
+    vec2 p  = uv * size - 0.5;
+    vec2 f  = fract(p);
+    vec2 i  = p - f;
+    vec2 f2 = f * f;
+    vec2 f3 = f2 * f;
+    vec2 w0 = (1.0 - 3.0 * f + 3.0 * f2 - f3) / 6.0;
+    vec2 w1 = (4.0 - 6.0 * f2 + 3.0 * f3) / 6.0;
+    vec2 w2 = (1.0 + 3.0 * f + 3.0 * f2 - 3.0 * f3) / 6.0;
+    vec2 w3 = f3 / 6.0;
+    vec2 g0 = w0 + w1;
+    vec2 g1 = w2 + w3;
+    vec2 a  = (i - 0.5 + w1 / g0) / size;
+    vec2 b  = (i + 1.5 + w3 / g1) / size;
+    return g0.y * (g0.x * texture2DLod(s, vec2(a.x, a.y), 0.0).rgb + g1.x * texture2DLod(s, vec2(b.x, a.y), 0.0).rgb)
+         + g1.y * (g0.x * texture2DLod(s, vec2(a.x, b.y), 0.0).rgb + g1.x * texture2DLod(s, vec2(b.x, b.y), 0.0).rgb);
+}
+
+vec3 SampleLightmap(sampler2D s, vec2 uv)
+{
+    if (isRBSP.x > 1.5) return LightmapBicubic(s, uv);
+    return texture2DLod(s, uv, 0.0).rgb;
+}
+
 vec4 ApplyFog(vec4 fragColor, vec3 pixelPosition)
 {
     float fragDistance = distance(pixelPosition, cameraPosition.xyz);
@@ -90,14 +118,14 @@ void main()
         // All slots share the same UV — they live in separate atlas textures
         int  slots     = int(numLightmapSlots.x);
 
-        if (slots > 0) o_lightmap += texture2DLod(s_bspLightmap,  v_texcoord1,0).rgb * lmStyleColor0.rgb;
-        if (slots > 1) o_lightmap += texture2DLod(s_bspLightmap1, v_texcoord2,0).rgb * lmStyleColor1.rgb;
-        if (slots > 2) o_lightmap += texture2DLod(s_bspLightmap2, v_texcoord3,0).rgb * lmStyleColor2.rgb;
-        if (slots > 3) o_lightmap += texture2DLod(s_bspLightmap3, v_texcoord4,0).rgb * lmStyleColor3.rgb;
-        if (slots > 4) o_lightmap += texture2DLod(s_bspLightmap4, v_texcoord4,0).rgb * lmStyleColor4.rgb;
-        if (slots > 5) o_lightmap += texture2DLod(s_bspLightmap5, v_texcoord4,0).rgb * lmStyleColor5.rgb;
-        if (slots > 6) o_lightmap += texture2DLod(s_bspLightmap6, v_texcoord4,0).rgb * lmStyleColor6.rgb;
-        if (slots > 7) o_lightmap += texture2DLod(s_bspLightmap7, v_texcoord4,0).rgb * lmStyleColor7.rgb;
+        if (slots > 0) o_lightmap += SampleLightmap(s_bspLightmap,  v_texcoord1) * lmStyleColor0.rgb;
+        if (slots > 1) o_lightmap += SampleLightmap(s_bspLightmap1, v_texcoord2) * lmStyleColor1.rgb;
+        if (slots > 2) o_lightmap += SampleLightmap(s_bspLightmap2, v_texcoord3) * lmStyleColor2.rgb;
+        if (slots > 3) o_lightmap += SampleLightmap(s_bspLightmap3, v_texcoord4) * lmStyleColor3.rgb;
+        if (slots > 4) o_lightmap += SampleLightmap(s_bspLightmap4, v_texcoord4) * lmStyleColor4.rgb;
+        if (slots > 5) o_lightmap += SampleLightmap(s_bspLightmap5, v_texcoord4) * lmStyleColor5.rgb;
+        if (slots > 6) o_lightmap += SampleLightmap(s_bspLightmap6, v_texcoord4) * lmStyleColor6.rgb;
+        if (slots > 7) o_lightmap += SampleLightmap(s_bspLightmap7, v_texcoord4) * lmStyleColor7.rgb;
 
         o_lightmap *= vertexLightFactor;
 

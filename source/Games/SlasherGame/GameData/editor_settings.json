@@ -1,0 +1,9 @@
+{
+  "editor": {},
+  "game": {
+    "args": "--map {mapname}.bsp",
+    "exe": "F:\\Git\\SdlWasmEngine\\source\\Debug\\SlasherGame.exe",
+    "workingDir": "F:\\Git\\SdlWasmEngine\\source\\Games\\SlasherGame"
+  },
+  "lastMap": "maps/untitled.map.json"
+}

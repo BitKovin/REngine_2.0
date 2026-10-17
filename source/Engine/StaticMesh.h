@@ -150,7 +150,7 @@ public:
 
 	bool GravityAlignedRotation = false; //should engine automatically rotate model to align with gravity vector as part of model matrix?
 
-	float Brightness = 1.3f;
+	float Brightness = 1.0f;
 
 	BgfxStateManager::Blend blendMode = BgfxStateManager::Blend::Alpha;
 	

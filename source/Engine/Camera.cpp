@@ -91,7 +91,7 @@
 
         StupidCameraFix();
         view = CalculateView();
-        projection = perspective(radians(FOV), AspectRatio, 0.05f, FarPlane);
+        projection = perspective(radians(FOV), AspectRatio, 0.02f, FarPlane);
 
         projectionOcclusion = perspective(radians(FOV * 1.3f), AspectRatio, 0.01f, FarPlane);
 
