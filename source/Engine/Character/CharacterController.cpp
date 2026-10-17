@@ -313,26 +313,23 @@ void CharacterController::Update(float deltaTime)
 			}
 		}
 
-		// The body hooked by the rim of its rounded bottom on an edge (the lip of a window sill, the corner of a post)
-		// while falling, or while held above the ground it should stand on. The traces do not hold it there, the
-		// physics does: the rounded bottom rests on the edge. Leaving the slide to the solver is not enough (the
-		// contact normal on a mesh edge can point straight up, and input into the wall pushes it back on), so move the
-		// body off the edge here and keep it from moving back onto it. Ground all around (a gap the body bridges) is
-		// left alone: there is nowhere to slip to. Only once the body stops rising (the velocity it was given, before this
-		// step's gravity): on the way up, sliding along an edge is movement the player can use.
-		vec3 offEdge = vec3(0.0f);
+		// An edge under the rim of the rounded bottom of the body (the lip of a window sill, the corner of a post), while
+		// falling or while held above the ground it should stand on. The traces do not hold the body there, the physics
+		// does: the rounded bottom rests on the edge, and moving into it the solver lifts the body over it (the contact
+		// normal points up and out), which adds rising speed nothing asked for. So the body slides off the edge here,
+		// and never moves into it. Ground all around (a gap the body bridges) is left alone: there is nowhere to slip
+		// to. Only once the body stops rising (the velocity it was given, before this step's gravity): on the way up,
+		// sliding along an edge is movement the player can use.
+		vec3  offEdge = vec3(0.0f);
+		float edgeClearance = 0.0f;
 		if ((onGround == false || heldAboveGround) && currentVelocity.y <= 0 && !suppressGravity)
 		{
-			float clearance = 0.0f;
-			offEdge = AwayFromEdgeUnderRim(clearance);
+			offEdge = AwayFromEdgeUnderRim(edgeClearance);
 			if (glm::length(offEdge) > 0.0f)
 			{
 				onGround = false;
 				standingOnBody = BodyID();
 				standingOnEntity = EntityHandle();
-
-				const vec3 bodyPosition = FromPhysics(body->GetPosition());
-				Physics::SweepBody(body, bodyPosition + offEdge * clearance, { owner });
 			}
 		}
 
@@ -394,12 +391,19 @@ void CharacterController::Update(float deltaTime)
 			}
 		}
 
-		// Moved off an edge: nothing may carry the body back over it this step, or it hooks on it again.
+		// Slide off the edge: no speed into it, and at least enough away from it to clear it in EdgeSlipTime (gently
+		// when it only grazes the rim, faster the deeper it reaches under the body).
 		if (glm::length(offEdge) > 0.0f)
 		{
+			constexpr float EdgeSlipTime = 0.15f;
 			const float towardEdge = glm::dot(applyVelocity, -offEdge);
 			if (towardEdge > 0.0f)
 				applyVelocity += offEdge * towardEdge;
+
+			const float slipSpeed = std::clamp(edgeClearance / EdgeSlipTime, 0.5f, 3.0f);
+			const float awayFromEdge = glm::dot(applyVelocity, offEdge);
+			if (awayFromEdge < slipSpeed)
+				applyVelocity += offEdge * (slipSpeed - awayFromEdge);
 		}
 
 		if (glm::isnan(applyVelocity).x || glm::isnan(applyVelocity).y || glm::isnan(applyVelocity).z)
@@ -667,7 +671,11 @@ vec3 CharacterController::AwayFromEdgeUnderRim(float& clearance)
 	//   - level with the cap center or above it: the side of the body, a wall;
 	//   - under the cap, within perchRadius of the axis: ground under the center, the body may rest on it;
 	//   - under the cap, further out: an edge hooking the rim. Those are collected.
+	// The probe reaches a little beyond the cap: an edge the body is about to come down on counts before it touches,
+	// so the body never lands on it to be lifted over it. (Flat ground it reaches lies within perchRadius: resting on
+	// it, the probe touches a disc of sqrt((r + LookAhead)^2 - r^2) around the axis.)
 	constexpr float Skin = 0.02f;
+	constexpr float LookAhead = 0.05f;
 	const float bodyHalfHeight = (height - stepHeight) * 0.5f;
 	const vec3  bodyPosition = FromPhysics(body->GetPosition());
 	const vec3  capCenter = bodyPosition - vec3(0, bodyHalfHeight - radius, 0);
@@ -676,7 +684,7 @@ vec3 CharacterController::AwayFromEdgeUnderRim(float& clearance)
 
 	clearance = 0.0f;
 	edgeContacts.clear();
-	for (const Physics::HitResult& hit : Physics::MultiSphereOverlap(capCenter, radius + Skin, groundMask, {}, groundTraceIgnore, true))
+	for (const Physics::HitResult& hit : Physics::MultiSphereOverlap(capCenter, radius + LookAhead, groundMask, {}, groundTraceIgnore, true))
 	{
 		if (hit.hitbody == nullptr || hit.hitbody->IsSensor())
 			continue;
@@ -953,6 +961,10 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 	// a window sill used to count as support all around the character and pull the stance down towards it, while the
 	// capsule hung on the sill.
 	const float lowestGroundHeight = heightComp - stepHeight;
+	// Likewise above: higher than a step (and the bottom of the body resting on flat ground, a little over it) is the
+	// lip of something the rounded bottom leans on, not ground to step up onto.
+	const float highestGroundHeight = heightComp + stepHeight + 0.1f;
+	auto IsGroundHeight = [&](float h) { return h >= lowestGroundHeight && h <= highestGroundHeight; };
 
 	// Helper: route one CheckGroundAt result into the right bucket.
 	// Weight is 1 for ring samples, 3 for the weighted center cast.
@@ -962,7 +974,7 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 			bool walkable = outCanStand; // set by the last CheckGroundAt call
 
-			if (walkable && outheight < lowestGroundHeight)
+			if (walkable && !IsGroundHeight(outheight))
 				return;
 
 			if (outheight > heightComp)
@@ -1009,7 +1021,7 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 			AccumulateHit(hit, 1.0f, hitBody, hitEntity);
 
-			if (hit && outCanStand && outheight >= lowestGroundHeight)
+			if (hit && outCanStand && IsGroundHeight(outheight))
 			{
 				if (glm::length(offset) <= perchRadius)
 					supportNearCenter = true;
@@ -1034,7 +1046,7 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 		AccumulateHit(hit, 3.0f, hitBody, hitEntity);
 
 		// It touches the highest ground anywhere under the character: an edge it reaches tells where that edge is.
-		if (hit && outCanStand && outheight >= lowestGroundHeight)
+		if (hit && outCanStand && IsGroundHeight(outheight))
 		{
 			centerContactOffset = MathHelper::XZ(contact - center);
 			if (glm::length(centerContactOffset) <= perchRadius)
@@ -1101,7 +1113,7 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 		vec3  perchNormal;
 		const Body* perchBody = nullptr;
 		supportNearCenter = CheckGroundAt(center - heightOffset, perchRadius, perchHeight, perchWalkable, perchNormal, &perchBody)
-			&& perchWalkable && perchHeight >= lowestGroundHeight;
+			&& perchWalkable && IsGroundHeight(perchHeight);
 	}
 	canStand = canStand && (supportNearCenter || supportAroundCenter);
 }
