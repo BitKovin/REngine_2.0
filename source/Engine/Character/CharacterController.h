@@ -57,6 +57,11 @@ public:
 
 	float groundMaxAngle = 40;
 
+	// Standing needs walkable ground within this fraction of the radius from the center, or ground on all sides of
+	// the center. Ground only off to one side (a narrow sill along a wall, the corner of a post) cannot hold the
+	// character: it slides off instead of perching on the edge.
+	float ledgeSupportFraction = 0.5f;
+
 	float stepSmoothingSpeed = 15.0f;
 
 	bool onGround = false;
@@ -121,7 +126,11 @@ protected:
 
 	void UpdateGroundCheck(bool& hitsGround, float& calculatedCharacterHeight, bool& canStand, vec3& walkableNormal, vec3& notWalkableNormal);
 
-	bool CheckGroundAt(vec3 location, float radius, float& height, bool& canStand, vec3& normal, const Body** hitBody, Entity** hitEntity = nullptr);
+	bool CheckGroundAt(vec3 location, float radius, float& height, bool& canStand, vec3& normal, const Body** hitBody, Entity** hitEntity = nullptr, vec3* hitPoint = nullptr);
+
+	// From the last UpdateGroundCheck: horizontal offset from the center to the walkable ground under the feet
+	// (zero when there is none, or it is all around the center). Points at the edge the character slides off.
+	vec3 groundSupportOffset = vec3(0.0f);
 
 	// Detects characters we are standing on, manages AddIgnorePair/RemoveIgnorePair,
 	// and applies horizontal separation impulses to both bodies.
@@ -154,6 +163,12 @@ protected:
 	std::vector<Entity*> groundTraceIgnore;   // { owner }: ground traces skip the owner's other bodies
 
 	bool CanStandUp();
+	// Whether the body can rise by `rise` without hitting anything above it (5 cm of slack at the top and the sides).
+	bool HasRoomAbove(float rise);
+	// Direction (horizontal, unit) to move the body off edges hooking the rim of its rounded bottom, and how far
+	// (`clearance`); zero when none does, or they are on all sides.
+	vec3 AwayFromEdgeUnderRim(float& clearance);
+	std::vector<vec3> edgeContacts;   // scratch for AwayFromEdgeUnderRim (capacity kept)
 	void TagBodies();   // marks body / sensorBody as this controller's (BodyData::characterController)
 	static CharacterController* ControllerOf(const BodyID& id);
 

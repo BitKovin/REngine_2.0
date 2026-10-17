@@ -1,5 +1,6 @@
 #include "CharacterController.h"
 
+#include <array>
 #include <cassert>
 
 // ---------------------------------------------------------------------------
@@ -275,13 +276,29 @@ void CharacterController::Update(float deltaTime)
 			}
 		}
 
+		// The walkable ground under the feet lies off to one side of the center (an edge), not all around it.
+		const bool supportToOneSide = glm::length(groundSupportOffset) > radius * 0.25f;
+		bool heldAboveGround = false;
+
 		if (onGround && velocity.y <= 0)
 		{
 			vec3 currentPosition = FromPhysics(body->GetPosition());
 			float newVerticalPosition = verticalPosition + stepHeight / 2.0f + height / 2.0f;
 
 			float snapDelta = newVerticalPosition - currentPosition.y;
-			if (std::abs(snapDelta) > 0.005f)
+
+			// Stepping up onto an edge without room above it for the whole character (a sill in a window recess lower
+			// than the character, a step under a low ceiling): standing there would leave the legs inside the ground,
+			// so it is not ground, and the character slides out from under the overhang. With ground all around there
+			// is nowhere to slide to; standing at the height that fits is the lesser evil there.
+			constexpr float MinCheckedStep = 0.05f;
+			if (snapDelta > MinCheckedStep && supportToOneSide && !HasRoomAbove(snapDelta))
+			{
+				onGround = false;
+				standingOnBody = BodyID();
+				standingOnEntity = EntityHandle();
+			}
+			else if (std::abs(snapDelta) > 0.005f)
 			{
 				Physics::SweepBody(body, vec3(currentPosition.x, newVerticalPosition, currentPosition.z), { owner });
 
@@ -290,6 +307,32 @@ void CharacterController::Update(float deltaTime)
 				{
 					heightSmoothOffset += moved;
 				}
+
+				// Going down to the ground but stopped on the way: something holds the body above where it stands.
+				heldAboveGround = snapDelta < -MinCheckedStep && -snapDelta - moved > MinCheckedStep;
+			}
+		}
+
+		// The body hooked by the rim of its rounded bottom on an edge (the lip of a window sill, the corner of a post)
+		// while falling, or while held above the ground it should stand on. The traces do not hold it there, the
+		// physics does: the rounded bottom rests on the edge. Leaving the slide to the solver is not enough (the
+		// contact normal on a mesh edge can point straight up, and input into the wall pushes it back on), so move the
+		// body off the edge here and keep it from moving back onto it. Ground all around (a gap the body bridges) is
+		// left alone: there is nowhere to slip to. Only once the body stops rising (the velocity it was given, before this
+		// step's gravity): on the way up, sliding along an edge is movement the player can use.
+		vec3 offEdge = vec3(0.0f);
+		if ((onGround == false || heldAboveGround) && currentVelocity.y <= 0 && !suppressGravity)
+		{
+			float clearance = 0.0f;
+			offEdge = AwayFromEdgeUnderRim(clearance);
+			if (glm::length(offEdge) > 0.0f)
+			{
+				onGround = false;
+				standingOnBody = BodyID();
+				standingOnEntity = EntityHandle();
+
+				const vec3 bodyPosition = FromPhysics(body->GetPosition());
+				Physics::SweepBody(body, bodyPosition + offEdge * clearance, { owner });
 			}
 		}
 
@@ -300,7 +343,13 @@ void CharacterController::Update(float deltaTime)
 
 		vec3 applyVelocity = velocity;
 
-		if (onGround == false && standsOnGround && (velocity.y <= 0))
+		// Only a steep surface that was actually hit slides the character along it. Without one notWalkableNormal is
+		// straight up, and clipping against it took all of the fall speed: the character hung in the air, falling,
+		// next to ground it could not stand on.
+		const bool touchesSteep = standsOnGround && glm::length(notWalkableNormal) > 1e-4f
+			&& GroundAngleDeg(notWalkableNormal) > groundMaxAngle;
+
+		if (onGround == false && touchesSteep && (velocity.y <= 0))
 		{
 			vec3 slopeNormal = normalize(notWalkableNormal);
 
@@ -325,7 +374,7 @@ void CharacterController::Update(float deltaTime)
 
 			UpdateSmoothPosition(deltaTime * 2);
 		}
-		else if (onGround == false && standsOnGround)
+		else if (onGround == false && touchesSteep)
 		{
 			vec3 slopeNormal = normalize(notWalkableNormal);
 			float velocityTowardSlope = dot(velocity, slopeNormal);
@@ -343,6 +392,14 @@ void CharacterController::Update(float deltaTime)
 
 				UpdateSmoothPosition(deltaTime * 2);
 			}
+		}
+
+		// Moved off an edge: nothing may carry the body back over it this step, or it hooks on it again.
+		if (glm::length(offEdge) > 0.0f)
+		{
+			const float towardEdge = glm::dot(applyVelocity, -offEdge);
+			if (towardEdge > 0.0f)
+				applyVelocity += offEdge * towardEdge;
 		}
 
 		if (glm::isnan(applyVelocity).x || glm::isnan(applyVelocity).y || glm::isnan(applyVelocity).z)
@@ -592,6 +649,64 @@ bool CharacterController::CanStandUp()
 	return !result.hasHit;
 }
 
+bool CharacterController::HasRoomAbove(float rise)
+{
+	// A sphere in the top cap of the body, a little thinner than it: a wall the body leans on is beside it, not above.
+	const float bodyHalfHeight = (height - stepHeight) * 0.5f;
+	const vec3  capCenter = FromPhysics(body->GetPosition()) + vec3(0, bodyHalfHeight - radius, 0);
+
+	Physics::HitResult result = Physics::SphereTrace(capCenter, capCenter + vec3(0, rise, 0), radius - 0.05f, BodyType::GroupCollisionTest, { body }, { owner }, true);
+
+	return !result.hasHit;
+}
+
+vec3 CharacterController::AwayFromEdgeUnderRim(float& clearance)
+{
+	// What touches the bottom cap of the body, told apart by where it touches it rather than by the contact normal (on
+	// a mesh edge that can point straight up):
+	//   - level with the cap center or above it: the side of the body, a wall;
+	//   - under the cap, within perchRadius of the axis: ground under the center, the body may rest on it;
+	//   - under the cap, further out: an edge hooking the rim. Those are collected.
+	constexpr float Skin = 0.02f;
+	const float bodyHalfHeight = (height - stepHeight) * 0.5f;
+	const vec3  bodyPosition = FromPhysics(body->GetPosition());
+	const vec3  capCenter = bodyPosition - vec3(0, bodyHalfHeight - radius, 0);
+	const float perchRadius = radius * ledgeSupportFraction;
+	const BodyType groundMask = static_cast<BodyType>(BodyType::GroupCharacter & ~BodyType::CharacterCapsule);
+
+	clearance = 0.0f;
+	edgeContacts.clear();
+	for (const Physics::HitResult& hit : Physics::MultiSphereOverlap(capCenter, radius + Skin, groundMask, {}, groundTraceIgnore, true))
+	{
+		if (hit.hitbody == nullptr || hit.hitbody->IsSensor())
+			continue;
+
+		const vec3 fromCap = hit.position - capCenter;
+		if (fromCap.y > -radius * 0.2f)
+			continue;
+		const vec3 out = MathHelper::XZ(fromCap);
+		if (glm::length(out) <= perchRadius)
+			continue;
+		edgeContacts.push_back(out);
+	}
+	if (edgeContacts.empty())
+		return vec3(0.0f);
+
+	// Away from the edges; edges on opposite sides (a gap the body bridges) cancel out.
+	vec3 away = vec3(0.0f);
+	for (const vec3& out : edgeContacts)
+		away -= glm::normalize(out);
+	if (glm::length(away) < 0.5f * static_cast<float>(edgeContacts.size()))
+		return vec3(0.0f);
+	away = glm::normalize(away);
+
+	// Far enough that every edge is outside the cap.
+	for (const vec3& out : edgeContacts)
+		clearance = std::max(clearance, radius + Skin + glm::dot(out, away));
+	clearance = std::min(clearance, radius);
+	return away;
+}
+
 
 float CharacterController::GroundAngleRad(const glm::vec3& normal)
 {
@@ -686,6 +801,7 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 	standingOnBody = BodyID();
 	standingOnEntity = EntityHandle();
 	notWalkableNormal = vec3(0, 1, 0);
+	groundSupportOffset = vec3(0.0f);
 
 	vec3 heightOffset = vec3(0, stepHeight, 0);
 	float outheight = 0;
@@ -822,6 +938,22 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 	const float heightComp = GetPosition().y - height / 2.0f - 0.001f;
 
+	// --- where the walkable ground is around the center (can the character stand on it, or only perch on an edge) ---
+	const vec3  center = FromPhysics(body->GetPosition());
+	const float perchRadius = radius * ledgeSupportFraction;
+	bool  supportNearCenter = false;               // walkable ground within perchRadius of the center
+	std::array<float, 64> supportAngles;           // directions of the walkable ring samples
+	int   supportAngleCount = 0;
+	vec3  underfootOffsetSum = vec3(0);            // walkable samples at the feet (not the ground a step below)
+	int   underfootCount = 0;
+	vec3  centerContactOffset = vec3(0);
+	const float underfootHeight = heightComp - 0.05f;
+
+	// Walkable ground further below the feet than a step is a drop, not ground to stand on. A floor half a meter below
+	// a window sill used to count as support all around the character and pull the stance down towards it, while the
+	// capsule hung on the sill.
+	const float lowestGroundHeight = heightComp - stepHeight;
+
 	// Helper: route one CheckGroundAt result into the right bucket.
 	// Weight is 1 for ring samples, 3 for the weighted center cast.
 	auto AccumulateHit = [&](bool hit, float weight, const Body* hb, Entity* he)
@@ -829,6 +961,9 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 			if (!hit) return;
 
 			bool walkable = outCanStand; // set by the last CheckGroundAt call
+
+			if (walkable && outheight < lowestGroundHeight)
+				return;
 
 			if (outheight > heightComp)
 				hitsGround = true;
@@ -873,17 +1008,55 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 				rayRadius, outheight, outCanStand, outNormal, &hitBody, &hitEntity);
 
 			AccumulateHit(hit, 1.0f, hitBody, hitEntity);
+
+			if (hit && outCanStand && outheight >= lowestGroundHeight)
+			{
+				if (glm::length(offset) <= perchRadius)
+					supportNearCenter = true;
+				if (supportAngleCount < static_cast<int>(supportAngles.size()))
+					supportAngles[supportAngleCount++] = std::atan2(offset.z, offset.x);
+				if (outheight > underfootHeight)
+				{
+					underfootOffsetSum += offset;
+					underfootCount++;
+				}
+			}
 		}
 	}
 
 	// Weighted center cast (weight 3 — same as before)
 	{
+		vec3 contact;
 		bool hit = CheckGroundAt(
-			FromPhysics(body->GetPosition()) - heightOffset,
-			radius - 0.01f, outheight, outCanStand, outNormal, &hitBody, &hitEntity);
+			center - heightOffset,
+			radius - 0.01f, outheight, outCanStand, outNormal, &hitBody, &hitEntity, &contact);
 
 		AccumulateHit(hit, 3.0f, hitBody, hitEntity);
+
+		// It touches the highest ground anywhere under the character: an edge it reaches tells where that edge is.
+		if (hit && outCanStand && outheight >= lowestGroundHeight)
+		{
+			centerContactOffset = MathHelper::XZ(contact - center);
+			if (glm::length(centerContactOffset) <= perchRadius)
+				supportNearCenter = true;
+			if (outheight <= underfootHeight)
+				centerContactOffset = vec3(0);
+		}
 	}
+
+	// The center is over the support when the walkable samples are not all on one side of it: no gap of half a turn
+	// between their directions (a gap or a hole the character bridges, rather than an edge it hangs over).
+	bool supportAroundCenter = false;
+	if (supportAngleCount >= 3)
+	{
+		std::sort(supportAngles.begin(), supportAngles.begin() + supportAngleCount);
+		float largestGap = supportAngles[0] + 2.0f * static_cast<float>(M_PI) - supportAngles[supportAngleCount - 1];
+		for (int i = 1; i < supportAngleCount; i++)
+			largestGap = std::max(largestGap, supportAngles[i] - supportAngles[i - 1]);
+		supportAroundCenter = largestGap < static_cast<float>(M_PI);
+	}
+
+	groundSupportOffset = underfootCount > 0 ? underfootOffsetSum / static_cast<float>(underfootCount) : centerContactOffset;
 
 	// -------------------------------------------------------
 	// Resolve: prefer walkable bucket; fall back to full set
@@ -916,10 +1089,24 @@ void CharacterController::UpdateGroundCheck(bool& hitsGround, float& calculatedG
 
 	const int totalHits = walkHits + steepHits;
 	hitsGround = hitsGround && (totalHits > 0);
-	canStand = hitsGround && (GroundAngleDeg(avgNormal) <= groundMaxAngle) && canStand && walkHits > 3;
+	canStand = hitsGround && (GroundAngleDeg(avgNormal) <= groundMaxAngle) && canStand;
+
+	// Standing needs the center over the support. Ground reaching only the rim of the character (a sill or trim along
+	// a wall, the corner of a post) would leave it perched on the edge: it is touched, not stood on. A thin support
+	// near the center can fall between the samples, so look there once before refusing.
+	if (canStand && !supportNearCenter && !supportAroundCenter)
+	{
+		float perchHeight = 0;
+		bool  perchWalkable = false;
+		vec3  perchNormal;
+		const Body* perchBody = nullptr;
+		supportNearCenter = CheckGroundAt(center - heightOffset, perchRadius, perchHeight, perchWalkable, perchNormal, &perchBody)
+			&& perchWalkable && perchHeight >= lowestGroundHeight;
+	}
+	canStand = canStand && (supportNearCenter || supportAroundCenter);
 }
 
-bool CharacterController::CheckGroundAt(vec3 location, float checkRadius, float& outheight, bool& canStand, vec3& normal, const Body** hitBody, Entity** hitEntity)
+bool CharacterController::CheckGroundAt(vec3 location, float checkRadius, float& outheight, bool& canStand, vec3& normal, const Body** hitBody, Entity** hitEntity, vec3* hitPoint)
 {
 	Physics::HitResult result;
 
@@ -934,11 +1121,13 @@ bool CharacterController::CheckGroundAt(vec3 location, float checkRadius, float&
 	if (checkRadius > 0)
 	{
 		result = Physics::CylinderTrace(start, end - vec3(0, 0.05f, 0), checkRadius, 0.05f, groundMask, noBodies, groundTraceIgnore, true);
+		if (hitPoint) *hitPoint = result.position;   // where the cylinder touched, before it becomes its bottom
 		result.position = result.shapePosition - vec3(0, 0.02f, 0);
 	}
 	else
 	{
 		result = Physics::LineTrace(start, end, groundMask, noBodies, groundTraceIgnore, true);
+		if (hitPoint) *hitPoint = result.position;
 	}
 
 	*hitBody = result.hitbody;

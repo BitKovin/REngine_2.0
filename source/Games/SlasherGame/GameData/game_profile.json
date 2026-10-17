@@ -1,17 +1,18 @@
 {
+  "exporter": "rbsp",
+  "lighting": {
+    "blockLight": [],
+    "receiveBakedLight": []
+  },
+  "modelExtensions": [
+    ".glb"
+  ],
   "name": "SlasherGame",
-  "textureRoot": "textures",
   "textureExtensions": [
     ".tga",
     ".jpg",
     ".jpeg",
     ".png"
   ],
-  "modelExtensions": [
-    ".glb"
-  ],
-  "lighting": {
-    "blockLight": [],
-    "receiveBakedLight": []
-  }
+  "textureRoot": "textures"
 }
