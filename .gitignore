@@ -40,7 +40,7 @@ CMakeUserPresets.json
 mono_crash.*
 
 # Build results (recursive inside /source/ and /source/Platforms/)
-source/**/[Dd]ebug/
+source/[Dd]ebug/
 source/**/[Dd]ebugPublic/
 source/**/[Rr]elease/
 source/**/[Rr]eleases/
