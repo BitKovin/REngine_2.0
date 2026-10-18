@@ -66,11 +66,12 @@ public:
 
 		time = data.GetPropertyFloat("time", time);
 
-		offsetPointName = data.GetPropertyString("rotationPointName");
-
 		targetLocation = data.GetPropertyVectorPosition("targetLocation");
 
 		useLightmap = data.GetPropertyBool("useLightmap");
+
+		offsetPosition = Position;
+		offsetRotation = Rotation;
 
 	}
 
@@ -79,18 +80,6 @@ public:
 	void Start()
 	{
 		Entity::Start();
-
-		if (offsetPointName.empty() == false)
-		{
-			Entity* offsetPoint = Level::Current->FindEntityWithName(offsetPointName);
-
-			if (offsetPoint == nullptr) return;
-
-			vec3 referenceRotation = EntityData::ConvertRotation(vec3(0, 0, 0), true);
-
-			offsetPosition = offsetPoint->Position;
-			offsetRotation = MathHelper::NormalizeAngles(offsetPoint->Rotation) - MathHelper::NormalizeAngles(referenceRotation);
-		}
 
 
 		for (auto model : Drawables)

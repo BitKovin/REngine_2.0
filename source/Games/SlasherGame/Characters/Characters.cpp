@@ -6,7 +6,7 @@
 class SlasherHero : public CombatCharacter
 {
 public:
-	SlasherHero() : CombatCharacter("GameData/combat/characters/hero.character.json") { ClassName = "slasher_hero"; }
+	SlasherHero() : CombatCharacter("GameData/combat/characters/hero.character.json") { ClassName = "slasher_hero"; Tags = { "player" }; }
 };
 REGISTER_ENTITY(SlasherHero, "slasher_hero")
 

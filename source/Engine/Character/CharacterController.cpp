@@ -246,7 +246,7 @@ void CharacterController::Update(float deltaTime)
 		if (currentBase)
 		{
 			lastStandingOnBody = currentBase->GetID();
-		}
+		}else
 		{
 			lastStandingOnBody = BodyID();
 		}
