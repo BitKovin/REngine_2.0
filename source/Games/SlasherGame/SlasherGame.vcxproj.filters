@@ -234,6 +234,9 @@
     <ClInclude Include="Combat\CombatEvents.h">
       <Filter>Combat</Filter>
     </ClInclude>
+    <ClInclude Include="Combat\AirJuggle.h">
+      <Filter>Combat</Filter>
+    </ClInclude>
     <ClInclude Include="Combat\CombatRules.h">
       <Filter>Combat</Filter>
     </ClInclude>

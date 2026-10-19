@@ -35,8 +35,8 @@ struct HitRequestEvent
 	float shake = 0.0f;                  // m the victim's mesh shakes during its hit-stop
 	float camera = 0.0f;                 // view kick if the player lands it (impact units)
 	float impactScale = 1.0f;            // multiplies the victim's hit effect
-	float airLift = 0.0f;                // in the air: the victim (and an airborne attacker) rise at least this fast (m/s)
-	float airStall = 0.0f;               // s of air combat for a victim hit in the air or launched
+	float airLift = -1.0f;               // in the air: the victim (and an airborne attacker) rise at least this fast (m/s); < 0: the character's default
+	float airStall = -1.0f;              // s the victim hovers after a hit in the air or a launch; < 0: the default of the damage source, 0: none
 	bool heavy = false;
 	uint8_t flags = 0;                   // HitFlags
 	int moveIndex = -1;                  // attacker's move (-1 = none)

@@ -56,7 +56,17 @@ bool ResolveCharacter(CharacterData& data, DataLoadReport& report)
 	if (air.riseGravityScale < 0.0f || air.fallGravityScale < 0.0f) report.Error("airCombat", "gravity scales must be >= 0");
 	if (air.maxFallSpeed <= 0.0f) report.Error("airCombat.maxFallSpeed", "must be > 0");
 	if (air.fallEase <= 0.0f) report.Error("airCombat.fallEase", "must be > 0");
-	if (air.hold < 0.0f) report.Error("airCombat.hold", "must be >= 0");
+	if (air.hold < 0.0f || air.victimHold < 0.0f || air.firearmHold < 0.0f) report.Error("airCombat", "hold / victimHold / firearmHold must be >= 0");
+	if (air.gravityRamp < 0.0f) report.Error("airCombat.gravityRamp", "must be >= 0");
+	if (air.maxHangTime <= 0.0f) report.Error("airCombat.maxHangTime", "must be > 0");
+	if (air.hangFade <= 0.0f) report.Error("airCombat.hangFade", "must be > 0");
+	if (air.hitLift < 0.0f) report.Error("airCombat.hitLift", "must be >= 0");
+	if (air.pullTime <= 0.0f) report.Error("airCombat.pullTime", "must be > 0");
+	if (air.pullRange < 0.0f || air.pullMaxHeight < 0.0f || air.pullMaxSpeed <= 0.0f) report.Error("airCombat", "pullRange / pullMaxHeight must be >= 0 and pullMaxSpeed > 0");
+	if (air.launchScale < 0.0f || air.launchScale > 1.0f) report.Error("airCombat.launchScale", "must be in [0, 1]");
+	if (air.launchDecay <= 0.0f || air.launchDecay > 1.0f) report.Error("airCombat.launchDecay", "must be in (0, 1]");
+	if (air.launchRecover < 0.0f) report.Error("airCombat.launchRecover", "must be >= 0");
+	if (air.launchMinScale < 0.0f || air.launchMinScale > 1.0f) report.Error("airCombat.launchMinScale", "must be in [0, 1]");
 	if (air.rootMotionScale < 0.0f || air.knockbackScale < 0.0f) report.Error("airCombat", "rootMotionScale / knockbackScale must be >= 0");
 
 	HitRecoilData& recoil = data.hitRecoil;

@@ -137,22 +137,52 @@ struct MovementData
 		airControl, gravity, turnRate, turnSharpness, radius, height, mass, quality)
 };
 
-// Air combat (COMBAT_DESIGN.md §5.8). A body is in air combat while airborne and fighting: running an attack (and for
-// `hold` after it), or for a hit's air stall after being hit in the air or launched. Rising keeps the normal arc -
-// jumps and launches reach their top; falling, gravity is scaled down and a faster fall eases to maxFallSpeed, so
-// fighters hang at the top of the arc and sink together.
+// Air combat (COMBAT_DESIGN.md §5.8, the rules in Combat/AirJuggle.h). A body HOVERS - almost no gravity - while it
+// juggles in the air, and every character has its own numbers (the hero's gravity is small but not off and runs out
+// sooner than an enemy's: the player starts to fall first).
+//   * attacker: a melee hit landed in the air starts its hover (swinging at air does not, nor does the ground launcher);
+//               it lasts while the attack that landed it runs and `hold` after it
+//   * victim:   hovers `victimHold` after every melee hit (each hit restarts it; a hit's air.stall may ask for more),
+//               `firearmHold` after a bullet (which also stops its vertical motion: it keeps its height)
+//   * hover: falling, `fallGravityScale` of the gravity and never faster than `maxFallSpeed` (a faster fall brakes
+//     to it, `fallEase`); rising keeps the normal arc, so jumps and launches reach their top
+//   * the hover ends: gravity fades back in over `gravityRamp`
+//   * no infinite air time: `maxHangTime` seconds after the body's first hover of an airtime its gravity grows back
+//     over `hangFade`, whatever hits it. Landing resets it.
 struct AirCombatData
 {
 	float riseGravityScale = 1.0f;   // rising: the arc of the jump / launch
-	float fallGravityScale = 0.25f;  // falling
-	float maxFallSpeed = 2.0f;       // m/s
-	float fallEase = 10.0f;          // 1/s: a faster fall eases down to maxFallSpeed (no snap)
-	float hold = 0.3f;               // s air combat lasts after the body's last air attack
+	float fallGravityScale = 0.02f;  // falling while hovering: the share of the gravity (small, not zero)
+	float maxFallSpeed = 0.15f;      // m/s: the sink of a hovering body
+	float fallEase = 20.0f;          // 1/s: a faster fall brakes to the hover sink (no snap)
+	float hold = 0.5f;               // s the attacker hovers after the attack that landed an air hit ends
+	float victimHold = 0.5f;         // s a victim hovers after a melee hit (every hit restarts it)
+	float firearmHold = 0.2f;        // s a victim hovers after a bullet
+	float gravityRamp = 0.4f;        // s gravity takes to return once the hover ended
+	float maxHangTime = 3.0f;        // s after the body's first hover of an airtime at which its gravity starts to return
+	float hangFade = 2.0f;           // s the hover's gravity then takes to grow back to the normal one
+	float hitLift = 2.5f;            // m/s: a melee hit in the air lifts victim and attacker (a slight rise, ~0.15 m)
 	float rootMotionScale = 0.5f;    // root motion of moves in the air (ground lunges would carry the body off)
 	float knockbackScale = 0.5f;     // horizontal knockback taken in the air (the attacker stays in reach)
 
+	// What a melee hit in the air does to its victim's position (read from the VICTIM's data), once, at the hit:
+	// within `pullTime` it is moved to the attacker's height (+ the hit's rise) and the attack's ideal distance. The
+	// destination is fixed at the hit - dash away and nothing follows.
+	float pullTime = 0.18f;          // s the settle takes
+	float pullRange = 1.0f;          // m beyond the ideal distance up to which the victim is pulled in
+	float pullMaxHeight = 1.0f;      // m of height difference up to which it is levelled with the attacker
+	float pullMaxSpeed = 12.0f;      // m/s
+
+	// The launcher in the air (read from the ATTACKER's data): weaker than on the ground and weaker with every one
+	// that connected since landing; melee hits of the combo between heal it - so combos keep the juggle going.
+	float launchScale = 0.5f;        // strength of the first launcher of an airtime (fraction of the ground launch)
+	float launchDecay = 0.6f;        // each earlier unhealed launcher multiplies the strength by this
+	float launchRecover = 0.25f;     // strain one melee hit on an airborne victim heals (a launcher = 1)
+	float launchMinScale = 0.15f;    // the strength never drops below this
+
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(AirCombatData, riseGravityScale, fallGravityScale, maxFallSpeed, fallEase,
-		hold, rootMotionScale, knockbackScale)
+		hold, victimHold, firearmHold, gravityRamp, maxHangTime, hangFade, hitLift, rootMotionScale, knockbackScale,
+		pullTime, pullRange, pullMaxHeight, pullMaxSpeed, launchScale, launchDecay, launchRecover, launchMinScale)
 };
 
 // Melee target selection (COMBAT_DESIGN.md §5.7): every hostile within the move's tracking.searchRange, all around the

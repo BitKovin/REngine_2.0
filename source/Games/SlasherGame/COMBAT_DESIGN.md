@@ -30,7 +30,7 @@ fix whichever is wrong in the same change.
 | R13 | The body takes its attack animations from the weapon model (full character rig + weapon bones, no character mesh) | §9.3 |
 | R14 | Recovery: when the combo window closes unused, control returns instantly; the attack plays out (weapon back to idle) until the player moves, then hands over to locomotion smoothly | §5.5 |
 | R15 | Hundreds of enemies on screen: per-body work runs in parallel through the engine ECS, far bodies animate at a reduced rate | §2.2, §2.4 |
-| R16 | Full air combat (DMC-like): the ground moves are the air moves (legs in the air pose); fighters attacking or attacked in the air have reduced gravity and hang together | §5.8 |
+| R16 | Full air combat (DMC-like): the ground moves are the air moves (legs in the air pose); landing hits in the air earns a hover (small gravity) and settles the victim for the next strike - air juggles, with limits | §5.8 |
 
 ---
 
@@ -280,7 +280,7 @@ A move without a `clip` runs on its `endTime` alone (logic-only moves); `loop` +
   "combos":    { "Attack": "light_1" },                 // optional "AirAttack": a different opener in the air (§5.8)
   "holdOpeners": { "Attack": "launch" },               // §5.4: Attack held -> the launcher
   "actions":   { "Dash": "dash", "AirDash": "air_dash", "Jump": "jump", "AirJump": "double_jump",
-                 "Glide": "glide", "Secondary": "fire", "Finisher": "finisher", "Draw": "draw" },
+                 "Glide": "glide", "Secondary": "fire", "Finisher": "finisher", "Draw": "draw", "AirDrop": "drop" },
   "reactions": { "Flinch": "react_flinch", "Stagger": "react_stagger", "Knockdown": "react_knockdown",
                  "Launch": "react_launch", "PoiseBreak": "react_broken", "FinisherVictim": "finisher_victim",
                  "Death": "death" },
@@ -353,7 +353,7 @@ Hit window fields: `start`, `end`, `weapon` (blade of that slot) **or** `bone` +
 long), `launch`, `hitStop` (s), `hitStopScale` (time scale while stopped, default 0.03), `shake` (m the victim's mesh
 shakes), `camera` (view kick when the player lands it, impact units; default 0 - light hits never move the view),
 `impactScale` (× the victim's hit effect), `air` (what the hit does in the air - `lift`: at least this upward speed
-for an airborne victim and an airborne attacker landing it, `stall`: seconds of air combat for the victim, §5.8),
+for two airborne fighters, `stall`: seconds the victim hovers; both < 0 = the character's `airCombat` default, `stall: 0` = no hover, §5.8),
 `hitSound`, `hitParticle` (override the victim's `hitEffect`).
 
 Tracking fields (§5.7): `searchRange` (target search radius, all around the body), `until` (turn toward the target
@@ -492,7 +492,7 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
 
 | Behaviour | Mechanics | `params` |
 |---|---|---|
-| `Attack` | hit windows → blade sweeps / bone spheres (run by `MoveRunner` + `WeaponSet`); **target assist**: the controller's focus, else the **attack target** (`CombatCharacter::FindAttackTarget`): every hostile within `tracking.searchRange` **all around the body** and in sight, scored by its angle from the move input direction (the facing without input) plus `targeting.distanceWeight` × distance / range, the previous attack's target favoured by `targeting.keepBonus` - pointing the stick at a body picks it, a near tie keeps the combo's target; the body turns toward it (or the input direction) until `tracking.until` - never snaps: fast for the first `startTurnTime` (`startTurnRate`), then at `turnRate`; the **magnet** adds speed toward it on top of the clip's root motion until `idealDistance`, arriving by the next strike, until `magnetUntil` (stationary clips still close in), and never lets anything carry the body closer; without a target `tracking.advance` steps forward while input is held. **Air** (§5.8): run in the air the attack keeps the body in air combat, follows the target's vertical motion, lifts the attacker with every hit on an airborne victim, goes on on the ground after landing; `plunge` dives in the air and holds its strike until landing; `launchSelf`: the attacker leaps too - at clip `time`, or `onHit` when one of the move's hits actually launches its target (armor downgrading the launch, or a kill, leaves it on the ground) - optionally only while Attack is held | `locomotion`, `air` (`matchTargetHeight`), `plunge` (`start`, `speed`, `hold`), `launchSelf` (`time`, `onHit`, `verticalSpeed`, `requireHeld`) |
+| `Attack` | hit windows → blade sweeps / bone spheres (run by `MoveRunner` + `WeaponSet`); **target assist**: the controller's focus, else the **attack target** (`CombatCharacter::FindAttackTarget`): every hostile within `tracking.searchRange` **all around the body** and in sight, scored by its angle from the move input direction (the facing without input) plus `targeting.distanceWeight` × distance / range, the previous attack's target favoured by `targeting.keepBonus` - pointing the stick at a body picks it, a near tie keeps the combo's target; the body turns toward it (or the input direction) until `tracking.until` - never snaps: fast for the first `startTurnTime` (`startTurnRate`), then at `turnRate`; the **magnet** adds speed toward it on top of the clip's root motion until `idealDistance`, arriving by the next strike, until `magnetUntil` (stationary clips still close in), and never lets anything carry the body closer; without a target `tracking.advance` steps forward while input is held. **Air** (§5.8): a melee hit landed in the air starts the attacker's hover and settles an airborne victim once (swinging at air earns nothing); before the hover the attack chases the target's height; it goes on on the ground after landing; `plunge` dives in the air and holds its strike until landing; `launchSelf`: the attacker leaps too - at clip `time`, or `onHit` when one of the move's hits actually launches its target (armor downgrading the launch, or a kill, leaves it on the ground) - optionally only while Attack is held | `locomotion`, `air` (`matchTargetHeight`, `needsTarget`), `plunge` (`start`, `speed`, `hold`), `launchSelf` (`time`, `onHit`, `verticalSpeed`, `requireHeld`) |
 | `Dash` | displacement along input (or facing), gravity suspended, i-frames from `invulnerable`, stops at walls, air charges. EaseOut slows linearly to `exitSpeed` × run speed, so the body runs out of the dash; after the displacement input steers the body (`tailLocomotion`). Jump cancels it from the first frame (data) | `distance`, `duration`, `curve`, `airCharges`, `exitSpeed`, `tailLocomotion`, `faceDirection` |
 | `Jump` | vertical velocity; ground or air (air jumps refill on landing); ends on landing; horizontal speed carries into the jump up to `carrySpeed` × run speed (a dash-jump leaves at run speed) | `velocity`, `maxAirJumps`, `airControl`, `carrySpeed` |
 | `Glide` | started by the move runner when the body falls with Jump held for `holdDelay` (no second press); reduced gravity, capped fall speed, limited time per airtime; ends on release; sustains at `endTime` | `maxDuration`, `gravityScale`, `maxFallSpeed`, `airControl`, `holdDelay` |
@@ -513,16 +513,44 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
   dashes, whose clips pose their own air legs, turn it off), root motion is scaled by `airCombat.rootMotionScale`
   (ground lunges would carry the body off) and knockback taken by `airCombat.knockbackScale` (the attacker stays in
   reach).
-* **Air combat** (`CharacterData::airCombat`, `CombatCharacter::EnterAirCombat`): a body is in air combat while
-  airborne and fighting - running an attack (and for `hold` after it), or for a hit's `air.stall` after being hit in the
-  air or launched. Rising, it keeps the normal arc (`riseGravityScale`): a jump or a launch reaches its top. Falling,
-  gravity is scaled by `fallGravityScale` and a faster fall eases to `maxFallSpeed` (no snap, gravity never pushes past
-  it): fighters hang at the top of the arc and sink slowly together. Landing ends it. Outside air combat (a combo
-  over, no hit for a while) the body falls normally.
-* **Together**: an attack in the air follows its target's vertical motion - the target's vertical speed plus a pull
-  toward its height (`air.matchTargetHeight`): attacker and launched target rise, hang and sink as one; against a
-  grounded target the attacker comes down onto it. A hit on an airborne victim lifts it to at least `hit.air.lift`, and
-  an airborne attacker landing it gets the same lift, so a combo bobs the pair up a little with every hit.
+* **Hover** (`CharacterData::airCombat`; the rules are `Combat/AirJuggle.h`, engine-free and unit-tested). A body
+  that juggles in the air has (almost) no gravity: falling it has `fallGravityScale` of it and sinks no faster than
+  `maxFallSpeed` (a faster fall brakes to that, `fallEase`); rising it keeps the normal arc (`riseGravityScale`) -
+  a jump or a launch reaches its top. Every character has its own numbers: an enemy's are near zero (0.02, 0.15 m/s),
+  the hero's a small gravity (0.25, 1.5 m/s): a tight combo (a hit every 0.3 s) holds her height, a sloppier one lets
+  her sink about 0.8 m in 2 s. **Hits earn the hover, not swings:**
+  * **attacker** - a melee hit landed while the attacker is airborne starts its hover; the attack that landed it
+    carries it (it hovers while that attack runs) and `hold` (0.5 s) after it. An air swing that hits nothing earns
+    nothing and falls normally. **The ground launcher is no air attack**: it hits from the ground and its leap is a
+    plain jump arc - no hover, no hang clock; the first air hit after it starts both. (The air launcher's hit
+    does count: it is landed in the air.)
+  * **victim** - hovers `victimHold` (0.5 s) after every melee hit in the air; every hit restarts the timer, none
+    shortens it (a hit's `air.stall` may ask for more: the launcher hangs its victim at the top for 1.2 s; `stall: 0`
+    asks for none - a plunge slams the victim down).
+  * **bullets** - a firearm hit stops an airborne enemy's vertical motion (it keeps its height) and restarts a
+    `firearmHold` (0.2 s) hover: sustained fire holds an enemy where it is, and when the fire stops gravity fades in
+    over `gravityRamp` and it falls. (The pistols' reaction is `None`; the air hit still counts. An enemy's bullets
+    do not stall the player.)
+  When a hover ends gravity **fades in** over `gravityRamp` (0.4 s) instead of snapping on.
+* **No infinite air time.** A body's hang clock starts with its first hover of an airtime and runs until it lands (not
+  while the body is on the ground; local, hit-stop dilated time). `maxHangTime` later the hover's gravity and sink
+  grow back over `hangFade` (2 s) to the normal ones, however often the body is hit or attacks. Per character, so
+  the player starts to fall first: **hero 2 s, enemies 3 s** (`airCombat.maxHangTime`). Landing resets the clock, the
+  hover and the launcher's strain.
+* **The settle: positioning comes from a landed hit, nothing else.** A melee hit between two airborne fighters
+  moves the *victim* once (`AirJuggle::PlanPull`, `CombatCharacter::SetAirPull`): within `pullTime` (0.18 s) to the
+  attacker's height plus the hit's rise, and - if it is further away than the attack's `idealDistance` but within
+  `pullRange` (1 m) of it - to the ideal distance. The destination is **fixed at the hit**: the victim never follows
+  the attacker afterwards, so dashing away leaves it where it was settled, and a victim out of reach is not pulled at
+  all. A victim closer than the ideal distance is not pushed away; one more than `pullMaxHeight` off in height only
+  rises with the hit. Launching hits, kills, grounded victims, plunges and player-controlled victims are never
+  pulled. No other system moves an enemy toward the player.
+* **A slight rise.** The same hit lifts both fighters to at least `hit.air.lift` (default `hitLift` 2.5 m/s, about
+  0.15 m under normal rise gravity); the victim's rise is part of its settle destination.
+* **The attacker's height.** Before the hover an air attack chases its target's height (the target's vertical speed
+  plus a pull, `air.matchTargetHeight`): it reaches an enemy that hangs above it, rises with a launched one, comes
+  down onto a grounded one. Hovering, the attacker keeps its own height - the small gravity is its own, it does not
+  copy the enemy's (that is why it can fall before the enemies it juggles); the hits level the enemy with it.
 * **Plunge**: an attack's air version may dive (`plunge`: from `start` at `speed`, the clip held at `hold` - strike pose,
   hit window open - until it lands, `MoveBehavior::HoldsClock`); landing, the clip and the move go on on the ground.
   The hero's `heavy_1` - the pause after the opener - plunges in the air.
@@ -531,13 +559,25 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
   committed from the start), a rising slash 0.27 - 0.37 with a `Launch` hit
   (`launch` 10.5 m/s: ~2.2 m up), 1.2 m of root motion forward, armor through the wind-up. When the hit launches its
   target the hero goes up with it (`launchSelf.onHit`, 9.6 m/s = 10.5 × √(21 / 25): the hero's gravity is 21, a
-  grunt's 25, so both peak at the same height); both rise after the shared hit-stop. Recovery starts at 0.4: airborne,
+  grunt's 25, so both peak at the same height); both rise after the shared hit-stop. The enemy hangs at the top for
+  the hit's `air.stall` (1.2 s); the hero does not hover - her first air hit starts that (the attack chases the
+  enemy's height until then). Recovery starts at 0.4: airborne,
   it releases at once - the legs blend to the air pose while the arms finish the follow-through (the clip itself
   stands on the ground). A whiff, or a target whose armor turns the launch into a stagger, leaves the hero on the
   ground; a launcher that breaks the target's poise still launches it (it flies in its broken pose and stays
   finishable). Launches survive their hit-stop: the movement's blocked-rise check (`CombatCharacter::ResolveRise`)
   measures the physics' vertical speed in the dilation it was applied with - judged in this frame's dilation, every
   launch was cut to a hop where the hit-stop eased out.
+* **Launcher in the air, and the drop.** The launcher (`startState: Any`) works in the air, **much weaker**: its launch
+  speed, the hero's own leap and the victim's hang scale by `launchScale` (0.5) for the first one of an airtime,
+  times `launchDecay` (0.6) for every launcher that connected before (`MovementResources::airLaunchStrain`, counted
+  when a launching hit connects - a whiff or a released wind-up is free), never below `launchMinScale` (0.15): 0.50,
+  0.30, 0.18, 0.15. Every melee hit of the combo landed between two airborne fighters heals `launchRecover` (0.25) of
+  the strain, so combos between launchers keep it strong (3 hits between: 0.50, 0.44, 0.39...). In the air it needs
+  something to launch (`air.needsTarget`: the controller's focus or a hostile in the attack target search); **without
+  one, holding Attack starts the drop attack** (`actions.AirDrop`, the hero's `drop`: the `heavy_1` plunge) -
+  `MoveRunner::GetStartableHoldOpener` falls back to it. Because a hold now means something in the air, the first
+  attack of an airtime waits for its release or `holdDelay` (0.1 s), like on the ground.
 
 ---
 
@@ -578,7 +618,7 @@ direction, hitbox name, flags (`IgnoreArmor`, `IgnoreInvulnerable`, `FriendlyFir
    popping. Durations carry the weight: light ~0.05-0.07 s (3-4 frames), enders ~0.1 s, heavies 0.12-0.16 s. A hit
    during a hit-stop stops the body again for the longer of the two at the deeper scale. The victim's mesh shakes
    along the hit direction (`shake`, at least 0.12 s), starting displaced, so the contact frame already shows the
-   blow; its upper body recoils (§9.1). A victim in the air gets its air stall (§5.8). Knockback, `HitLandedEvent`
+   blow; its upper body recoils (§9.1). A victim in the air gets its hover and lift (§5.8). Knockback, `HitLandedEvent`
    for feedback (§9.4).
 
 ### 6.4 Poise, broken, finisher
@@ -839,8 +879,11 @@ GameData/combat/player.json                   hero entity, camera (+ impact resp
   "finisher": { "range": 2.5, "angle": 60, "reward": "finisher_boost" },
   "attackTokens": { "melee": 2, "ranged": 2, "heavy": 1 },
   "targeting": { "distanceWeight": 0.5, "keepBonus": 0.2, "inputThreshold": 0.3 },   // §5.7
-  "airCombat": { "riseGravityScale": 1.0, "fallGravityScale": 0.25, "maxFallSpeed": 2.0, "fallEase": 10,
-                 "hold": 0.3, "rootMotionScale": 0.5, "knockbackScale": 0.5 },                  // §5.8
+  "airCombat": { "riseGravityScale": 1.0, "fallGravityScale": 0.02, "maxFallSpeed": 0.15, "fallEase": 20,
+                 "hold": 0.5, "victimHold": 0.5, "firearmHold": 0.2, "gravityRamp": 0.4,
+                 "maxHangTime": 3.0, "hangFade": 2.0, "hitLift": 2.5, "rootMotionScale": 0.5, "knockbackScale": 0.5,
+                 "pullTime": 0.18, "pullRange": 1.0, "pullMaxHeight": 1.0, "pullMaxSpeed": 12,
+                 "launchScale": 0.5, "launchDecay": 0.6, "launchRecover": 0.25, "launchMinScale": 0.15 },   // §5.8 (defaults = an enemy)
   "hitEffect": { "particle": "hit_flesh", "sound": "", "scale": 3 },                  // §9.4
   "hitRecoil": { "bones": [ { "bone": "spine_01", "weight": 0.3 }, { "bone": "spine_02", "weight": 0.3 },
                             { "bone": "spine_03", "weight": 0.25 }, { "bone": "neck_01", "weight": 0.15 } ],
@@ -1115,7 +1158,11 @@ SlasherGame/
 | Camera impact within hard comfort limits (≤ 12 Hz, bounded view speed, no roll, slide over turn, strongest wins) | The first tuning (18 Hz noise with 33 / 57 Hz harmonics, 2.5° rumble, roll, summed trauma) blurred the image and disoriented; comfort is enforced by code and validation, not left to tuning |
 | Air attacks reuse ground clips with `NoLegs` (hips follow the clip, legs mostly air pose) | No separate air clips needed; an upper-body layer left the hips static |
 | The ground moves are the air moves; the air look and physics come from the body (`airLegs`, `airCombat`) | Separate air moves duplicated tuning and could drift apart (an air opener without the ground opener's wind-up snapped out faster); combos now flow through take-off and landing |
-| Air combat keeps the rising arc and only hangs the fall | Stopping the rise when an attack starts killed jumps and launches; hanging at the top of the arc reads as natural DMC air combat |
+| Air combat keeps the rising arc and only hovers the fall | Stopping the rise when an attack starts killed jumps and launches; hanging at the top of the arc reads as natural DMC air combat |
+| The hover is earned by landed hits (the ground launcher excluded), not by being in the air attacking | Swinging at air must not earn what a hit earns; the launcher is no air attack, so the hang clock starts with the first real air hit |
+| A hit settles the victim once, to a destination fixed at the hit; nothing follows the attacker | A tether that follows (even briefly, even only while hovering) drags enemies after a dashing player and feels like a leash; DMC juggles keep the enemy in reach through the hit itself |
+| The attacker keeps its own height while hovering; only the victim is levelled | The attacker copying the enemy's vertical motion (the old behaviour) made the player float for as long as the enemy did - she could never fall first |
+| Hang limits per character (hero 2 s, enemies 3 s), gravity grows back instead of switching on | No infinite juggles, and the player comes down first; a growing gravity ends the fight gently instead of dropping both |
 | The grip of the weapon's own clips overrides the hands in local space | Blended arms never loosen the hand around the weapon |
 | Procedural strafe from the forward run when no directional clips exist | Strafing while aiming without new assets; real clips replace it automatically |
 | Camera framing offset in camera space around a focus point on the body | A world-up pivot offset collapses into depth when looking down (the body covers the crosshair); a camera-space offset keeps the composition at every pitch |

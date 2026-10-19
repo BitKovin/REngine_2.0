@@ -437,6 +437,7 @@
     <ClInclude Include="Combat\CombatFrame.h" />
     <ClInclude Include="Combat\Spring.h" />
     <ClInclude Include="Combat\CombatEvents.h" />
+    <ClInclude Include="Combat\AirJuggle.h" />
     <ClInclude Include="Combat\CombatRules.h" />
     <ClInclude Include="Combat\CombatTypes.h" />
     <ClInclude Include="Control\CameraImpact.h" />

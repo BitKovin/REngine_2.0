@@ -451,16 +451,32 @@ bool MoveRunner::ResolveCombo()
 	return true;
 }
 
+bool MoveRunner::CanStartAsHoldOpener(int moveIndex) const
+{
+	const MoveData* move = moveSet->GetMove(moveIndex);
+	if (move == nullptr || IsMoveOnCooldown(moveIndex) || !StartStateAllows(*move))
+		return false;
+	if (const MoveBehavior* behavior = GetBehavior(move->behaviorType))
+		return behavior->CanStart(*owner, *move);
+	return true;
+}
+
+// The launcher of the state. In the air it needs something to launch (AttackParams::air.needsTarget); with nothing in
+// front the drop attack - a plunge - takes its place, so holding Attack in the air always does something (§5.8).
 int MoveRunner::GetStartableHoldOpener() const
 {
-	const int holdOpener = moveSet->GetHoldOpener(moveSet->GetOpenerSlot(owner->IsGrounded()));
-	const MoveData* move = moveSet->GetMove(holdOpener);
-	if (move == nullptr || IsMoveOnCooldown(holdOpener) || !StartStateAllows(*move))
-		return -1;
-	if (const MoveBehavior* behavior = GetBehavior(move->behaviorType))
-		if (!behavior->CanStart(*owner, *move))
-			return -1;
-	return holdOpener;
+	const bool grounded = owner->IsGrounded();
+	const int holdOpener = moveSet->GetHoldOpener(moveSet->GetOpenerSlot(grounded));
+	if (CanStartAsHoldOpener(holdOpener))
+		return holdOpener;
+
+	if (!grounded && moveSet->GetMove(holdOpener) != nullptr)
+	{
+		const int drop = moveSet->GetActionMove(ActionSlot::AirDrop);
+		if (CanStartAsHoldOpener(drop))
+			return drop;
+	}
+	return -1;
 }
 
 // A hold move whose button was let go before hold.until (its wind-up) hands over to its release move - the launcher
@@ -677,7 +693,7 @@ void MoveRunner::HandleLocomotionCancel()
 void MoveRunner::StartOpener(bool grounded)
 {
 	const int opener = moveSet->GetComboOpener(moveSet->GetOpenerSlot(grounded));
-	const int holdOpener = GetStartableHoldOpener();   // a ground launcher in the air: none, the press starts the opener
+	const int holdOpener = GetStartableHoldOpener();   // none: the press starts the opener at once
 	if (holdOpener < 0)
 	{
 		TryStartFromButton(InputButton::Attack, opener);

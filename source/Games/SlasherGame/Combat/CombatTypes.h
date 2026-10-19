@@ -136,10 +136,11 @@ enum class ActionSlot : uint8_t
 	AirSecondary,
 	Finisher,
 	Draw,            // brings the Main weapon back once another weapon's holsterDelay ran out
+	AirDrop,         // the drop attack: what holding Attack in the air starts when there is nothing to launch (a plunge)
 	Count
 };
 
-inline constexpr const char* ActionSlotNames[] = { "Dash", "AirDash", "Jump", "AirJump", "Glide", "Secondary", "AirSecondary", "Finisher", "Draw" };
+inline constexpr const char* ActionSlotNames[] = { "Dash", "AirDash", "Jump", "AirJump", "Glide", "Secondary", "AirSecondary", "Finisher", "Draw", "AirDrop" };
 
 // Finds the index of name in a names table, -1 if absent.
 template<size_t N>

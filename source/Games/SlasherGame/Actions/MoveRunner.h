@@ -126,7 +126,8 @@ private:
 	bool ResolveCombo();
 	bool ReleaseHold();
 	void StartOpener(bool grounded);
-	int GetStartableHoldOpener() const;          // the hold opener (launcher) of the current state, if it can start
+	int GetStartableHoldOpener() const;          // the hold opener (launcher; in the air without a target the drop) of the current state, if it can start
+	bool CanStartAsHoldOpener(int moveIndex) const;
 	bool ShouldRecover(const MoveSlot& slot) const;
 	void BeginRecovery();
 	void AdvanceRecovery(float deltaTime);

@@ -111,13 +111,15 @@ struct MoveEntriesData
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(MoveEntriesData, fresh, afterLight, afterHeavy, afterHold)
 };
 
-// What a hit does in the air (COMBAT_DESIGN.md §5.8): a victim hit in the air is lifted to at least `lift` (so is an
-// airborne attacker landing it - they stay level) and stays in air combat for `stall` seconds (hangs, sinks slowly);
-// a launching hit keeps its `launch` speed and puts the victim in air combat for `stall` - it hangs at the top.
+// What a hit does in the air (COMBAT_DESIGN.md §5.8). A negative value takes the default of the character's airCombat
+// (melee: hitLift and victimHold; bullets: firearmHold).
+//   lift   a melee hit between two airborne fighters lifts both at least this fast (m/s) - the pair rises a little
+//   stall  seconds the victim hovers after the hit (every hit restarts it). 0: no hover, the victim falls at once - a
+//          plunge slams it down. A launching hit keeps its `launch` speed and hangs its victim at the top for this long.
 struct HitAirData
 {
-	float lift = 1.5f;                      // m/s upward, at least
-	float stall = 0.6f;                     // seconds of air combat (0: the victim falls normally)
+	float lift = -1.0f;
+	float stall = -1.0f;
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(HitAirData, lift, stall)
 };

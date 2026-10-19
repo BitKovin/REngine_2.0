@@ -4,6 +4,7 @@
 #include <Characters/CharacterAnimator.h>
 #include <Characters/CharacterInput.h>
 #include <Characters/WeaponSet.h>
+#include <Combat/AirJuggle.h>
 #include <Combat/CombatComponents.h>
 #include <Combat/CombatEvents.h>
 #include <Combat/Spring.h>
@@ -138,15 +139,26 @@ public:
 	void Launch(float upwardSpeed);                                            // sets vertical velocity (>= 0)
 	void SetVerticalSpeed(float speed);                                        // sets vertical velocity (any sign)
 	void LimitHorizontalSpeed(float maxSpeed);
-	// Air combat (COMBAT_DESIGN.md §5.8): for `seconds` (at least) the body rises on its normal arc and, falling, hangs:
-	// gravity scaled down, the fall eased to a slow sink (CharacterData::airCombat). Ends on landing.
+	// Air combat (COMBAT_DESIGN.md §5.8, rules in Combat/AirJuggle.h): for `seconds` (at least) the body hovers - it
+	// rises on its normal arc and, falling, has almost no gravity (CharacterData::airCombat). Ends on landing.
 	void EnterAirCombat(float seconds);
-	bool IsInAirCombat() const { return airCombatRemaining > 0.0f && !grounded; }
+	void EndAirCombat();                                                       // gravity at once (a slam, a corpse); no pull either
+	bool IsInAirCombat() const { return airBody.remaining > 0.0f && !grounded; }
+	bool IsAirHovering() const { return data && airBody.IsHovering(data->airCombat); }   // hover that can still be felt
 	void LiftTo(float upwardSpeed);                                            // vertical speed at least this (m/s)
 
-	// One step of the vertical speed in air combat: rising on the normal arc (riseGravityScale), falling with
-	// fallGravityScale, a fall faster than maxFallSpeed eased toward it.
-	static float StepAirCombatVertical(float vertical, float gravity, float deltaTime, const AirCombatData& air);
+	// A melee hit between two airborne fighters settles the victim once (AirJuggle::PlanPull): it covers
+	// `displacement` within airCombat.pullTime, on top of nothing else - the destination is fixed now, whatever the
+	// attacker does next. Called on the main thread by the attacker's hit; never for player-controlled bodies.
+	void SetAirPull(const glm::vec3& displacement, bool horizontal);
+
+	// The launcher in the air is weaker with every use (airCombat.launch*). PeekAirLaunchScale: the strength of one
+	// started now (1 on the ground). AddAirLaunchStrain: one connected. RecoverAirLaunch: a melee hit of the combo.
+	float PeekAirLaunchScale() const;
+	void AddAirLaunchStrain();
+	void RecoverAirLaunch();
+	void SetLaunchScale(float scale) { launchScale = scale; }                  // strength of the running attack's launching hits
+	float GetLaunchScale() const { return launchScale; }
 
 	// Upward speed (local units) after last frame's physics step: a rise the capsule could not make was blocked (a
 	// ceiling) - adopt what it made. `appliedDilation`: the time dilation the speed was handed to the physics with (a
@@ -159,6 +171,7 @@ public:
 		int airJumpsUsed = 0;
 		int airDashesUsed = 0;
 		float glideTimeUsed = 0.0f;
+		float airLaunchStrain = 0.0f;   // air launchers that connected since landing, less what combo hits healed
 	};
 	MovementResources& GetMovementResources() { return resources; }
 	const MovementResources& GetMovementResources() const { return resources; }
@@ -240,7 +253,11 @@ private:
 	float pendingVerticalSpeed = 0.0f;
 	float pendingLift = 0.0f;                 // LiftTo this frame (m/s, 0 = none)
 	float pendingHorizontalLimit = -1.0f;
-	float airCombatRemaining = 0.0f;          // local seconds (EnterAirCombat)
+	AirJuggle::Body airBody;                  // hover timers and the hang clock of this airtime (local seconds)
+	glm::vec3 pullDestination = glm::vec3(0.0f);   // SetAirPull: where the victim settles
+	float pullRemaining = 0.0f;               // local seconds of the settle left
+	bool pullHorizontal = false;
+	float launchScale = 1.0f;                 // strength of the launching hits of the running attack
 	float appliedDilation = 1.0f;             // time dilation of the velocity handed to the physics last frame
 	float yaw = 0.0f;
 	bool grounded = false;
@@ -265,6 +282,7 @@ private:
 	void ConfigureComponents();
 	void CreateHitboxes();
 	void UpdateFacing(float deltaTime);
+	void ApplyAirHit(const HitResult& result);
 	void ApplyMovement(float deltaTime);
 	void BuildAnimatorInput(AnimatorInput& out) const;
 	void UpdatePoseDetail();

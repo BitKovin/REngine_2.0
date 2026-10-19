@@ -268,7 +268,8 @@ void CombatCharacter::BeginCombatFrame()
 	if (grounded && !wasGrounded)
 	{
 		resources = MovementResources();
-		airCombatRemaining = 0.0f;
+		airBody.Land();
+		pullRemaining = 0.0f;
 	}
 
 	requests = FrameRequests();
@@ -695,17 +696,20 @@ void CombatCharacter::ApplyMovement(float deltaTime)
 	}
 	horizontal += MathHelper::XZ(requests.additiveVelocity);
 
+	const AirCombatData& airData = data->airCombat;
 	if (hasPendingVerticalSpeed)
 	{
 		vertical = pendingVerticalSpeed;
 		hasPendingVerticalSpeed = false;
+		pullRemaining = 0.0f;   // a launch, a jump or a bullet's stop decides; a settle does not fight it
 	}
 	else if (!(requests.hasVelocity && requests.velocityIncludesVertical))
 	{
+		const float hover = airBody.Hover(airData);
 		if (grounded && vertical <= 0.0f)
 			vertical = 0.0f;
-		else if (airCombatRemaining > 0.0f)
-			vertical = StepAirCombatVertical(vertical, m.gravity, deltaTime, data->airCombat);
+		else if (hover > 0.0f)
+			vertical = AirJuggle::StepVertical(vertical, m.gravity, deltaTime, airData, hover, airBody.Overtime(airData));
 		else
 			vertical -= m.gravity * requests.gravityScale * deltaTime;
 
@@ -718,8 +722,30 @@ void CombatCharacter::ApplyMovement(float deltaTime)
 		pendingLift = 0.0f;
 	}
 
-	// Counts down on the ground too: a launch enters air combat while the body still stands (landing resets it).
-	airCombatRemaining = std::max(0.0f, airCombatRemaining - deltaTime);
+	// The settle a melee hit in the air gave this body (SetAirPull): toward a destination fixed at the hit, covered in
+	// pullTime. It is the hit's doing and nothing else - the attacker is not followed.
+	if (pullRemaining > 0.0f)
+	{
+		if (grounded)
+		{
+			pullRemaining = 0.0f;
+		}
+		else
+		{
+			const glm::vec3 error = pullDestination - Position;
+			const AirJuggle::Velocity pull = AirJuggle::PullVelocity(error.x, error.y, error.z, pullRemaining, deltaTime, airData.pullMaxSpeed);
+			if (pullHorizontal)
+				horizontal = glm::vec3(pull.x, 0.0f, pull.z);
+			vertical = pull.y;
+			pullRemaining -= deltaTime;
+			if (pullRemaining <= 0.0f)
+				vertical = 0.0f;   // arrived: no leftover rise
+		}
+	}
+
+	// The hover's clocks count down on the ground too: a launch enters air combat while the body still stands
+	// (landing resets them).
+	airBody.Advance(deltaTime, grounded, airData);
 
 	velocity = horizontal + glm::vec3(0.0f, vertical, 0.0f);
 
@@ -902,7 +928,13 @@ float CombatCharacter::ResolveRise(float velocityY, float appliedDilation, float
 
 void CombatCharacter::EnterAirCombat(float seconds)
 {
-	airCombatRemaining = std::max(airCombatRemaining, seconds);
+	airBody.Enter(seconds);
+}
+
+void CombatCharacter::EndAirCombat()
+{
+	airBody.End();
+	pullRemaining = 0.0f;
 }
 
 void CombatCharacter::LiftTo(float upwardSpeed)
@@ -910,15 +942,30 @@ void CombatCharacter::LiftTo(float upwardSpeed)
 	pendingLift = std::max(pendingLift, upwardSpeed);
 }
 
-float CombatCharacter::StepAirCombatVertical(float vertical, float gravity, float deltaTime, const AirCombatData& air)
+void CombatCharacter::SetAirPull(const glm::vec3& displacement, bool horizontal)
 {
-	if (vertical > 0.0f)
-		return vertical - gravity * air.riseGravityScale * deltaTime;
-	if (vertical >= -air.maxFallSpeed)
-		return std::max(vertical - gravity * air.fallGravityScale * deltaTime, -air.maxFallSpeed);
+	if (!data || IsDead() || IsPlayerControlled())
+		return;
+	pullDestination = Position + displacement;
+	pullHorizontal = horizontal;
+	pullRemaining = data->airCombat.pullTime;
+	pendingLift = 0.0f;   // the destination already holds the rise of the hit
+}
 
-	// Faster than the sink (a fall that entered air combat): ease back to it without gravity pushing past it.
-	return -air.maxFallSpeed + (vertical + air.maxFallSpeed) * std::exp(-air.fallEase * deltaTime);
+float CombatCharacter::PeekAirLaunchScale() const
+{
+	return (grounded || !data) ? 1.0f : AirJuggle::LaunchScale(resources.airLaunchStrain, data->airCombat);
+}
+
+void CombatCharacter::AddAirLaunchStrain()
+{
+	resources.airLaunchStrain += 1.0f;
+}
+
+void CombatCharacter::RecoverAirLaunch()
+{
+	if (data)
+		resources.airLaunchStrain = std::max(0.0f, resources.airLaunchStrain - data->airCombat.launchRecover);
 }
 
 glm::vec3 CombatCharacter::TakePendingKnockback()
@@ -1161,14 +1208,10 @@ void CombatCharacter::OnHitResolved(const HitResult& result)
 		return;
 	}
 
-	// Air combat (§5.8): hit in the air or launched, the body hangs for the hit's stall; hit in the air it is lifted too
-	// (a launch keeps its own speed).
+	// Air combat (§5.8): hit in the air or launched - the body hovers (see ApplyAirHit). Bullets too: a pistol's
+	// reaction is None, the hit still counts.
 	if (result.request && (!grounded || result.reaction == HitReaction::Launch))
-	{
-		EnterAirCombat(result.request->airStall);
-		if (!grounded && result.reaction != HitReaction::Launch)
-			LiftTo(result.request->airLift);
-	}
+		ApplyAirHit(result);
 
 	const MoveSetData* moveSet = moves.GetMoveSet();
 	if (!moveSet)
@@ -1228,6 +1271,55 @@ void CombatCharacter::AddHitRecoil(const glm::vec3& direction, float strength)
 	hitRecoil.Displace(axis * angle, glm::radians(recoil.maxAngle));
 }
 
+// A hit that landed on this body in the air, or launched it (main thread, hit resolution). What it does depends on
+// where it came from:
+//   melee    the body hovers `victimHold` (or the hit's air.stall; 0: no hover - it falls at once) - every hit
+//            restarts the timer - and rises a little (hitLift, or the hit's air.lift). When the attacker is in the air
+//            too its AttackBehavior settles the victim next (SetAirPull), which also takes over the rise.
+//   bullet   it keeps its height: the vertical motion stops, and it hovers `firearmHold` (every bullet restarts it),
+//            then gravity fades in. Bullets alone do not keep a body up for long - they hold it for the next combo.
+//   a launch keeps its own speed. A player-controlled victim is not stopped by an enemy's bullets.
+void CombatCharacter::ApplyAirHit(const HitResult& result)
+{
+	const HitRequestEvent& hit = *result.request;
+	const AirCombatData& air = data->airCombat;
+
+	float hold = 0.0f;
+	float lift = 0.0f;
+	switch (hit.source)
+	{
+	case DamageSource::Melee:
+		hold = hit.airStall >= 0.0f ? hit.airStall : air.victimHold;
+		lift = hit.airLift >= 0.0f ? hit.airLift : air.hitLift;
+		break;
+	case DamageSource::Firearm:
+		if (IsPlayerControlled())
+			return;
+		hold = hit.airStall >= 0.0f ? hit.airStall : air.firearmHold;
+		break;
+	default:
+		if (hit.airStall < 0.0f)
+			return;   // environment, explosions...: nothing asked, whatever hover the body has stays
+		hold = hit.airStall;
+		break;
+	}
+
+	if (hold <= 0.0f)
+	{
+		EndAirCombat();   // no hover asked: it falls at once
+		return;
+	}
+
+	EnterAirCombat(hold);
+	if (result.reaction == HitReaction::Launch)
+		return;
+
+	if (hit.source == DamageSource::Firearm)
+		SetVerticalSpeed(0.0f);
+	else if (lift > 0.0f && !grounded)
+		LiftTo(lift);
+}
+
 void CombatCharacter::OnHitDealt(const HitResult& result)
 {
 	moves.NotifyHitDealt(result);
@@ -1243,6 +1335,7 @@ void CombatCharacter::OnDeath(Entity* killer)
 
 	state->dead = true;
 	state->invulnerable = false;
+	EndAirCombat();   // a corpse falls
 	corpseDelay.AddDelay(data->corpseLifetime);
 
 	input.ReleaseAll(Time::GameTime);
@@ -1313,8 +1406,10 @@ void CombatCharacter::DrawDebugUI()
 		ImGui::Text("Hit-stop %.3f / %.3f s (time x%.2f)  invulnerable %d", state->hitStopElapsed, state->hitStopDuration,
 			state->GetTimeDilation(), state->invulnerable ? 1 : 0);
 
-	ImGui::Text("Grounded %d  velocity (%.1f, %.1f, %.1f)  yaw %.0f  air combat %.2f  anim 1/%d", grounded ? 1 : 0,
-		velocity.x, velocity.y, velocity.z, yaw, airCombatRemaining, animationInterval);
+	ImGui::Text("Grounded %d  velocity (%.1f, %.1f, %.1f)  yaw %.0f  anim 1/%d", grounded ? 1 : 0,
+		velocity.x, velocity.y, velocity.z, yaw, animationInterval);
+	ImGui::Text("Air: hover %.2f (left %.2f s)  overtime %.2f  hang clock %.1f s  pull %.2f s  launch strain %.2f", airBody.Hover(data->airCombat),
+		airBody.remaining, airBody.Overtime(data->airCombat), airBody.clock, pullRemaining, resources.airLaunchStrain);
 
 	const float attackSpeed = GetAttackSpeedMultiplier();
 	auto speedOf = [attackSpeed](const MoveSlot& slot) { return slot.IsActive() ? slot.move->speed * attackSpeed : 1.0f; };

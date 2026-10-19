@@ -227,7 +227,6 @@ namespace
 			if (hit.shake < 0.0f) report.Error(hitPath + ".shake", "must be >= 0");
 			if (hit.camera < 0.0f) report.Error(hitPath + ".camera", "must be >= 0");
 			if (hit.impactScale < 0.0f) report.Error(hitPath + ".impactScale", "must be >= 0");
-			if (hit.air.stall < 0.0f) report.Error(hitPath + ".air.stall", "must be >= 0");
 			hit.resolvedWeakPointDamage = hit.weakPointDamage < 0.0f ? hit.damage : hit.weakPointDamage;
 			hit.boneHash = hashed_string(hit.bone);
 		}

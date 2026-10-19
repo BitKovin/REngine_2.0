@@ -53,7 +53,13 @@
 	"possession": { "allowed": true, "idleBrain": "Ally" },
 	"finisher": { "range": 2.5, "angle": 70, "reward": "finisher_boost" },
 	"targeting": { "distanceWeight": 0.5, "keepBonus": 0.2, "inputThreshold": 0.3 },
-	"airCombat": { "riseGravityScale": 1.0, "fallGravityScale": 0.25, "maxFallSpeed": 2.0, "fallEase": 10, "hold": 0.3, "rootMotionScale": 0.5, "knockbackScale": 0.5 },
+	"airCombat": {
+		"_note": "Juggling (COMBAT_DESIGN.md 5.8). A melee hit landed in the air starts the hero's hover: small gravity (fallGravityScale, sink at most maxFallSpeed), for the attack that landed it and hold s after. Gravity fades back in over gravityRamp; maxHangTime s after the first hover of an airtime it grows back anyway (hangFade) - shorter than an enemy's (default 3), so the hero starts to fall first. hitLift: each hit lifts both a little. The launcher in the air: launchScale of the ground launch, x launchDecay per earlier one, launchRecover healed per combo hit.",
+		"riseGravityScale": 1.0, "fallGravityScale": 0.25, "maxFallSpeed": 1.5, "fallEase": 20,
+		"hold": 1.5, "gravityRamp": 0.4, "maxHangTime": 5.0, "hangFade": 2.0, "hitLift": 2.5,
+		"rootMotionScale": 1.0, "knockbackScale": 0.5,
+		"launchScale": 0.5, "launchDecay": 0.6, "launchRecover": 0.25, "launchMinScale": 0.15
+	},
 	"hitEffect": { "particle": "hit_flesh", "scale": 2 },
 	"attackTokens": { "melee": 2, "ranged": 2, "heavy": 1 },
 	"corpseLifetime": 0

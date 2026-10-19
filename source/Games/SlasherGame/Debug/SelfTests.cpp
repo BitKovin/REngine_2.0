@@ -334,32 +334,140 @@ namespace
 		test.Check(CombatCharacter::ResolveRise(-3.0f, 1.0f, 0.0f) == -3.0f, "falling is left alone");
 	}
 
-	// Air combat vertical motion (COMBAT_DESIGN.md §5.8): rising keeps the arc, falling hangs and sinks slowly.
+	// Air juggling (COMBAT_DESIGN.md §5.8, Combat/AirJuggle.h): the hover, the clocks, the settle a hit gives, the
+	// launcher's strength.
 	void TestAirCombat(TestContext& test)
 	{
-		const AirCombatData air;
+		const AirCombatData air;                // an enemy's numbers (the defaults)
 		const float gravity = 21.0f;
 		const float frame = 1.0f / 60.0f;
-		test.Check(std::abs(CombatCharacter::StepAirCombatVertical(5.0f, gravity, frame, air) - (5.0f - gravity * frame)) < 1e-5f,
+
+		// ---- hover physics
+		test.Check(std::abs(AirJuggle::StepVertical(5.0f, gravity, frame, air, 1.0f, 0.0f) - (5.0f - gravity * frame)) < 1e-5f,
 			"rising keeps the normal arc (a launch reaches its top)");
-		test.Check(std::abs(CombatCharacter::StepAirCombatVertical(-1.0f, gravity, frame, air) - (-1.0f - gravity * air.fallGravityScale * frame)) < 1e-5f,
-			"falling, gravity is scaled down");
+
+		float hang = 0.0f;
+		float dropped = 0.0f;
+		for (int i = 0; i < 60; ++i)
+		{
+			hang = AirJuggle::StepVertical(hang, gravity, frame, air, 1.0f, 0.0f);
+			dropped += hang * frame;
+		}
+		test.Check(hang < 0.0f && hang >= -air.maxFallSpeed - 1e-4f && dropped > -air.maxFallSpeed,
+			"a hovering body hardly sinks (%.3f m/s, %.3f m after 1 s)", hang, dropped);
+		test.Check(air.fallGravityScale > 0.0f && air.fallGravityScale <= 0.05f, "an enemy's hover gravity is near zero, not zero");
 
 		float vertical = -12.0f;
 		float previous = vertical;
 		bool smooth = true;
 		for (int i = 0; i < 60; ++i)
 		{
-			vertical = CombatCharacter::StepAirCombatVertical(vertical, gravity, frame, air);
-			smooth = smooth && vertical - previous < 2.0f;   // no snap: eases over frames
+			vertical = AirJuggle::StepVertical(vertical, gravity, frame, air, 1.0f, 0.0f);
+			smooth = smooth && vertical - previous < 6.0f;   // no one-frame snap: it brakes over several
 			previous = vertical;
 		}
-		test.Check(smooth && std::abs(vertical + air.maxFallSpeed) < 0.05f, "a fast fall eases to maxFallSpeed (got %.2f)", vertical);
+		test.Check(smooth && std::abs(vertical + air.maxFallSpeed) < 0.05f, "a fast fall brakes to the hover sink (got %.2f)", vertical);
 
-		float hang = 0.0f;
-		for (int i = 0; i < 60; ++i)
-			hang = CombatCharacter::StepAirCombatVertical(hang, gravity, frame, air);
-		test.Check(hang < 0.0f && hang >= -air.maxFallSpeed - 1e-4f, "from the top of the arc the body sinks slowly (%.2f m/s after 1 s)", hang);
+		const float half = AirJuggle::Lerp(1.0f, air.fallGravityScale, 0.5f);
+		test.Check(std::abs(AirJuggle::StepVertical(-1.0f, gravity, frame, air, 0.5f, 0.0f) - (-1.0f - gravity * half * frame)) < 1e-5f,
+			"gravity fading back in is part of the hover's, with no sink cap");
+
+		// ---- timers: a hit restarts the hover, never shortens it; gravity fades in; landing resets the clock
+		AirJuggle::Body body;
+		test.Check(body.Hover(air) == 0.0f && !body.IsHovering(air), "nothing hovers until something starts it");
+		body.Enter(0.5f);
+		body.Advance(0.2f, false, air);
+		body.Enter(0.5f);
+		test.Check(std::abs(body.remaining - 0.5f) < 1e-5f, "a second hit restarts the 0.5 s timer");
+		body.Enter(0.2f);
+		test.Check(std::abs(body.remaining - 0.5f) < 1e-5f, "a shorter hold (a bullet) never cuts a longer hover");
+		test.Check(body.clock == 0.0f || body.clock > 0.0f, "the hang clock started with the first hover in the air");
+		body.Advance(0.6f, false, air);
+		test.Check(body.remaining == 0.0f && body.Hover(air) > 0.9f, "the hover over: gravity starts fading in from the hover's");
+		body.Advance(air.gravityRamp * 0.5f, false, air);
+		test.Check(std::abs(body.Hover(air) - 0.5f) < 0.02f, "half way through the fade: half");
+		body.Advance(air.gravityRamp, false, air);
+		test.Check(body.Hover(air) == 0.0f, "faded: normal gravity");
+
+		AirJuggle::Body onGround;
+		onGround.Enter(1.0f);
+		onGround.Advance(0.1f, true, air);
+		test.Check(onGround.clock < 0.0f, "a launch on the ground does not start the hang clock until the body is airborne");
+		onGround.Advance(0.1f, false, air);
+		test.Check(onGround.clock >= 0.0f, "...it starts in the air");
+		onGround.Land();
+		test.Check(onGround.clock < 0.0f && onGround.remaining == 0.0f && onGround.fade == 0.0f, "landing resets the clock and the hover");
+
+		// ---- no infinite air time, and the player falls first: her numbers are shorter than an enemy's
+		AirCombatData hero;
+		hero.maxHangTime = 2.0f;
+		hero.fallGravityScale = 0.25f;
+		hero.maxFallSpeed = 1.5f;
+		test.Check(hero.maxHangTime < air.maxHangTime, "the hero's hang time is shorter than an enemy's");
+
+		auto timeToSink = [&](const AirCombatData& data, float meters)
+		{
+			AirJuggle::Body juggled;
+			float v = 0.0f;
+			float y = 0.0f;
+			float t = 0.0f;
+			for (; t < 60.0f && y > -meters; t += frame)
+			{
+				juggled.Enter(0.5f);   // hit again and again, as often as it likes
+				v = AirJuggle::StepVertical(v, gravity, frame, data, juggled.Hover(data), juggled.Overtime(data));
+				y += v * frame;
+				juggled.Advance(frame, false, data);
+			}
+			return t;
+		};
+		const float enemySink = timeToSink(air, 3.0f);
+		const float heroSink = timeToSink(hero, 3.0f);
+		test.Check(enemySink < 60.0f && heroSink < 60.0f, "a body hit forever still comes down (%.1f s / %.1f s)", enemySink, heroSink);
+		test.Check(heroSink < enemySink && enemySink > air.maxHangTime, "the player starts to fall before the enemy (%.1f s vs %.1f s)", heroSink, enemySink);
+
+		// ---- the settle a melee hit gives: once, toward a destination fixed at the hit
+		AirCombatData pullAir;
+		const float ideal = 1.5f;
+		const AirJuggle::Pull far = AirJuggle::PlanPull(0.0f, 3.0f, 0.0f, ideal + 0.5f, 3.2f, 0.0f, ideal, 0.15f, pullAir);
+		test.Check(far.horizontal && std::abs(far.dx + 0.5f) < 1e-4f && std::abs(far.dz) < 1e-4f, "a victim 0.5 m too far is pulled in (dx %.2f)", far.dx);
+		test.Check(std::abs(far.dy - (3.0f + 0.15f - 3.2f)) < 1e-4f, "...and levelled with the attacker plus the hit's rise (dy %.2f)", far.dy);
+		const AirJuggle::Pull near = AirJuggle::PlanPull(0.0f, 3.0f, 0.0f, 1.0f, 3.0f, 0.0f, ideal, 0.15f, pullAir);
+		test.Check(!near.horizontal, "a victim closer than the ideal distance is not pushed away");
+		const AirJuggle::Pull out = AirJuggle::PlanPull(0.0f, 3.0f, 0.0f, ideal + pullAir.pullRange + 0.5f, 3.0f, 0.0f, ideal, 0.15f, pullAir);
+		test.Check(!out.horizontal, "a victim out of reach (dashed away) is not pulled at all");
+		const AirJuggle::Pull high = AirJuggle::PlanPull(0.0f, 3.0f, 0.0f, 1.5f, 3.0f + pullAir.pullMaxHeight + 1.0f, 0.0f, ideal, 0.15f, pullAir);
+		test.Check(std::abs(high.dy - 0.15f) < 1e-4f, "a victim far above or below only rises with the hit");
+
+		// Played out: the victim ends at the destination planned at the hit - the attacker dashing away changes nothing.
+		{
+			float victimX = ideal + 0.5f;
+			float victimY = 3.2f;
+			const float destX = victimX + far.dx;
+			const float destY = victimY + far.dy;
+			float attackerX = 0.0f;
+			float timeLeft = pullAir.pullTime;
+			while (timeLeft > 0.0f)
+			{
+				attackerX -= 12.0f * frame;   // the player dashes away
+				const AirJuggle::Velocity v = AirJuggle::PullVelocity(destX - victimX, destY - victimY, 0.0f, timeLeft, frame, pullAir.pullMaxSpeed);
+				victimX += v.x * frame;
+				victimY += v.y * frame;
+				timeLeft -= frame;
+			}
+			test.Check(std::abs(victimX - destX) < 0.02f && std::abs(victimY - destY) < 0.02f && std::abs(victimX - attackerX) > 3.0f,
+				"the settle ends where the hit planned it, whatever the attacker does next (victim x %.2f, attacker x %.2f)", victimX, attackerX);
+		}
+		const AirJuggle::Velocity capped = AirJuggle::PullVelocity(10.0f, 0.0f, 0.0f, 0.1f, frame, pullAir.pullMaxSpeed);
+		test.Check(std::abs(capped.x - pullAir.pullMaxSpeed) < 1e-3f, "a long way is not a teleport: the pull speed is capped");
+		test.Check(std::abs(AirJuggle::RiseHeight(2.5f, 21.0f) - 0.1488f) < 1e-3f, "the default hit lift is a rise of about 0.15 m");
+
+		// ---- the launcher in the air
+		const float first = AirJuggle::LaunchScale(0.0f, air);
+		const float second = AirJuggle::LaunchScale(1.0f, air);
+		test.Check(first < 1.0f && second < first && AirJuggle::LaunchScale(50.0f, air) == air.launchMinScale,
+			"the air launcher is weaker, weaker with every use, and has a floor (%.2f, %.2f)", first, second);
+		test.Check(std::abs(AirJuggle::LaunchScale(1.0f - 4.0f * air.launchRecover, air) - first) < 1e-5f,
+			"four combo hits heal one launcher's strain");
 	}
 
 	// Procedural feedback spring (COMBAT_DESIGN.md §9.4): a kick peaks where asked and settles.
@@ -594,8 +702,8 @@ namespace
 		test.Check(air && air->bodyMask == BodyMask::NoLegs, "NoLegs body mask parses");
 		test.Check(light1 && light1->airLegs && data.GetOpenerSlot(false) == ComboSlot::Attack,
 			"ground moves take the air pose on the legs in the air by default; without an AirAttack opener the air uses Attack's");
-		test.Check(air && air->hits[0].air.stall == 0.0f && air->hits[1].air.stall > 0.0f && air->hits[1].hitStopScale > 0.0f,
-			"hit air data parses with defaults");
+		test.Check(air && air->hits[0].air.stall == 0.0f && air->hits[1].air.stall < 0.0f && air->hits[1].air.lift < 0.0f && air->hits[1].hitStopScale > 0.0f,
+			"hit air data parses; a negative lift / stall takes the character's default");
 		test.Check(light1 && light1->reach.resolvedStart == 0.2f && light1->reach.resolvedEnd == 0.3f && light1->reach.weapon == WeaponSlot::Main,
 			"reach is fully out over the blade hits by default");
 		test.Check(light1 && light1->reach.At(0.25f) == 0.5f && std::abs(light1->reach.At(0.2f - 0.06f) - 0.25f) < 1e-4f
@@ -927,8 +1035,10 @@ namespace
 		expectError(R"({ "team": "Player", "moveset": "m.json", "hitRecoil": { "bones": [ { "bone": "" } ] } })", "a hit recoil bone without a name");
 		expectError(R"({ "team": "Player", "moveset": "m.json", "targeting": { "inputThreshold": 0 } })", "a zero targeting input threshold");
 		expectError(R"({ "team": "Player", "moveset": "m.json", "airCombat": { "maxFallSpeed": 0 } })", "an air combat fall speed of zero");
+		expectError(R"({ "team": "Player", "moveset": "m.json", "airCombat": { "launchScale": 1.5 } })", "an air launch stronger than the ground launch");
+		expectError(R"({ "team": "Player", "moveset": "m.json", "airCombat": { "pullTime": 0 } })", "a pull that takes no time");
 		test.Check(ok && character.airCombat.fallGravityScale < character.airCombat.riseGravityScale && character.airCombat.hold > 0.0f,
-			"air combat parses with defaults (hangs falling, keeps the arc rising)");
+			"air combat parses with defaults (hovers falling, keeps the arc rising)");
 	}
 
 	// ---- Shipped data ------------------------------------------------------------------------------------
@@ -964,6 +1074,19 @@ namespace
 			expectClean(character->moveset);
 			for (const auto& [slot, weaponFile] : character->weapons)
 				expectClean(weaponFile);
+
+			// The hero: the launcher works in the air (needing a target), the drop attack stands in without one, and she
+			// falls before the enemies she juggles.
+			if (StringHelper::EndsWith(file, "hero.character.json") && character->moveSet)
+			{
+				const MoveSetData& heroMoves = *character->moveSet;
+				const MoveData* launcher = heroMoves.GetMove(heroMoves.GetHoldOpener(ComboSlot::Attack));
+				const MoveData* drop = heroMoves.GetMove(heroMoves.GetActionMove(ActionSlot::AirDrop));
+				test.Check(launcher && launcher->startState == MoveStartState::Any, "the hero's launcher can start in the air");
+				test.Check(drop && drop->startState == MoveStartState::Air, "the hero has an air drop for the hold without a target");
+				test.Check(character->airCombat.maxHangTime < AirCombatData().maxHangTime, "the hero's hang time is shorter than an enemy's");
+				test.Check(character->airCombat.fallGravityScale > AirCombatData().fallGravityScale, "the hero keeps a little gravity while she hovers");
+			}
 
 			// The debug-panel save on the real file: one edited value is a local change that loads back (§10.4).
 			if (character->moveSet && !character->moveSet->moves.empty())
