@@ -126,7 +126,7 @@ private:
 	bool ResolveCombo();
 	bool ReleaseHold();
 	void StartOpener(bool grounded);
-	int GetStartableHoldOpener() const;          // the hold opener (launcher; in the air without a target the drop) of the current state, if it can start
+	int GetStartableHoldOpener(bool allowAirDropFallback) const; // a startable launcher; AirDrop fallback only for a fresh attack input
 	bool CanStartAsHoldOpener(int moveIndex) const;
 	bool ShouldRecover(const MoveSlot& slot) const;
 	void BeginRecovery();

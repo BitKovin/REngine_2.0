@@ -22,6 +22,16 @@ namespace AirJuggle
 
 	inline float Lerp(float a, float b, float t) { return a + (b - a) * t; }
 
+	// A hit-specific stall overrides the body's normal hover duration; zero explicitly disables the hover.
+	inline float ResolveHold(float requested, float fallback) { return requested >= 0.0f ? requested : fallback; }
+
+	// The attacker's hover is earned only by a successful melee launcher configured to launch the attacker too.
+	// Keep this gate pure so the edge cases can be covered by SelfTests.
+	inline bool ShouldShareLaunchHover(bool launchedTarget, bool launchSelfOnHit, bool alreadySelfLaunched, bool meleeHit)
+	{
+		return launchedTarget && launchSelfOnHit && !alreadySelfLaunched && meleeHit;
+	}
+
 	// One step of a body's vertical speed while it hovers (hover > 0). hover in [0, 1]: 1 fully hovering, between:
 	// gravity fading back in. overtime in [0, 1]: 0 until the hang clock passes maxHangTime, then growing to 1 - the
 	// hover's gravity and sink grow to the normal ones.

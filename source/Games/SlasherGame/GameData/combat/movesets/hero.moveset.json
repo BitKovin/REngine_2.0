@@ -67,7 +67,7 @@
 			"cues": [ { "time": 0.14, "trail": 1 }, { "time": 0.56, "trail": 0 } ]
 		},
 		"heavy_1": {
-			"_note": "In the air the strike is a plunge: it dives from 0.24 and holds the strike from 0.36 until it lands, then finishes on the ground.",
+			"_note": "",
 			"clip": "combo1_heavy_1",
 			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
 			"heavy": true,
@@ -85,7 +85,7 @@
 			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
 			"reach": { "length": 0.2 },
 			"cues": [ { "time": 0.22, "trail": 1 }, { "time": 0.47, "trail": 0 } ],
-			"params": { "plunge": { "start": 0.24, "speed": 18, "hold": 0.36 } },
+			"params": { },
 			"speed": 0.85
 		},
 		"light_2": {
@@ -174,7 +174,7 @@
 			]
 		},
 		"launch": {
-			"_note": "Launcher: hold Attack from neutral (holdDelay). Wind-up until 0.26 - released earlier, the usual attack takes over (start, afterHold). The rising slash 0.27 - 0.37 sends the target up and the hero with it (launchSelf onHit: 10.5 * sqrt(21 / 25) = 9.6 m/s rises level with a grunt); the leap is a plain jump arc - it gives the hero no hover, its first air hit does. Recovery at 0.4 hands the legs to the air pose once airborne. In the air (startState Any) it needs a target (air.needsTarget; without one the hold starts 'drop') and is much weaker: airCombat.launchScale of the ground launch, weaker with every one since landing, healed by the combo's hits.",
+			"_note": "Launcher: hold Attack from neutral (holdDelay). Wind-up until 0.26 - released earlier, the usual attack takes over (start, afterHold). The rising slash 0.27 - 0.37 sends the target up and the hero with it (launchSelf onHit: 10.5 * sqrt(21 / 25) = 9.6 m/s rises level with a grunt); on a successful launch, the hero also gets the same air.stall hover as the target (1.2 s). A time-triggered leap alone remains a plain jump arc. Recovery at 0.4 hands the legs to the air pose once airborne. In the air (startState Any) it needs a target (air.needsTarget; without one the hold starts 'drop') and is much weaker: airCombat.launchScale of the ground launch, weaker with every one since landing, healed by the combo's hits.",
 			"clip": "launch",
 			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
 			"speed": 0.7,
@@ -183,32 +183,32 @@
 			"startState": "Any",
 			"entry": { "fresh": { "blendIn": 0.1, "startTime": 0.0 } },
 			"hold": { "until": 0.26, "release": "start" },
-			"hits": [ { "start": 0.27, "end": 0.37, "damage": 16, "poiseDamage": 12, "reaction": "Launch", "launch": 10.5, "knockback": 1.0, "hitStop": 0.12, "shake": 0.06, "camera": 0.6, "impactScale": 2, "air": { "stall": 1.2 } } ],
+			"hits": [ { "start": 0.27, "end": 0.37, "damage": 16, "poiseDamage": 12, "reaction": "Launch", "launch": 15.5, "knockback": 1.0, "hitStop": 0.12, "shake": 0.06, "camera": 0.6, "impactScale": 2, "air": { "stall": 1.2 } } ],
 			"recovery": { "start": 0.6, "lowerBodyBlend": 0.2 },
 			"cancels": [ { "start": 0.38, "into": ["Jump", "Dash"] } ],
 			"armor": [ { "start": 0.1, "end": 0.37, "poiseResist": 0.6 } ],
 			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.4, "maxMagnetSpeed": 7 },
 			"reach": { "length": 0.4 },
 			"cues": [ { "time": 0.25, "trail": 1 }, { "time": 0.4, "trail": 0 } ],
-			"params": { "launchSelf": { "onHit": true, "verticalSpeed": 9.6, "requireHeld": false }, "air": { "needsTarget": true } }
+			"params": { "launchSelf": { "onHit": true, "verticalSpeed": 15.0, "requireHeld": false }, "air": { "needsTarget": true } }
 		},
 		"drop": {
 			"_note": "The drop attack: what holding Attack in the air starts when there is nothing to launch (actions.AirDrop). The heavy_1 plunge: dives from 0.24, holds the strike from 0.36 until it lands, then the combo goes on on the ground.",
-			"clip": "combo1_heavy_1",
+			"clip": "combo1_heavy_2",
 			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
 			"heavy": true,
 			"tags": ["Attack", "Melee"],
 			"startState": "Air",
 			"entry": { "fresh": { "blendIn": 0.12, "startTime": 0.0 } },
-			"hits": [ { "start": 0.24, "end": 0.45, "damage": 20, "poiseDamage": 14, "reaction": "Stagger", "knockback": 6.0, "hitStop": 0.12, "shake": 0.06, "camera": 0.6, "impactScale": 2, "air": { "stall": 0 } } ],
+			"hits": [ { "start": 0.24, "end": 0.85, "damage": 20, "poiseDamage": 14, "reaction": "Stagger", "knockback": 6.0, "hitStop": 0.12, "shake": 0.1, "camera": 0.6, "impactScale": 2, "air": { "stall": 0 } } ],
 			"combo": { "windowStart": 0.47, "alternativeAt": 0.55, "windowEnd": 0.75, "next": "light_2", "alternative": "heavy_2" },
 			"cancels": [ { "start": 0.47, "into": ["Dash", "Jump"] }, { "start": 0.62, "into": ["Locomotion"] } ],
-			"armor": [ { "start": 0.1, "end": 0.45, "poiseResist": 0.6 } ],
+			"armor": [ { "start": 0.1, "end": 0.85, "poiseResist": 0.6 } ],
 			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
 			"reach": { "length": 0.2 },
 			"cues": [ { "time": 0.22, "trail": 1 }, { "time": 0.47, "trail": 0 } ],
-			"params": { "plunge": { "start": 0.24, "speed": 18, "hold": 0.36 } },
-			"speed": 0.85
+			"params": { "plunge": { "start": 0.24, "speed": 18, "hold": 0.66 } },
+			"speed": 1.45
 		},
 		"finisher": {
 			"_note": "Placeholder until a finisher clip exists: the heavy_2 strike as a paired direct hit.",

@@ -15,17 +15,18 @@
 //     arriving by the next strike, so attacks without root motion still close in; nothing carries the body closer
 //   * air (COMBAT_DESIGN.md §5.8, rules in Combat/AirJuggle.h): every attack works in the air too. The hits are what
 //     matter there - a melee hit landed while the attacker is airborne starts its hover (almost no gravity,
-//     CharacterData::airCombat) for as long as that attack runs and `hold` after it; swinging at air earns nothing, and
-//     the ground launcher is no air attack (no hover, no hang clock). The same hit lifts attacker and victim a little
-//     and - victim in the air too - settles the victim once at the attack's ideal distance and the attacker's height
+//     CharacterData::airCombat) for as long as that attack runs and `hold` after it; swinging at air earns nothing.
+//     A successful launch that also launches the attacker gives the attacker the same hit-specific hover as its victim;
+//     a time-triggered leap alone does not. The same hit lifts attacker and victim a little and - victim in the air too -
+//     settles the victim once at the attack's ideal distance and the attacker's height
 //     (CombatCharacter::SetAirPull; the destination is fixed at the hit, nothing follows the attacker). Before the
 //     hover the attacker chases the target's height (rising with a launched target, coming down onto a grounded one);
 //     hovering it keeps its own height. Landing, the move simply goes on on the ground. A plunge (an attack whose air
 //     version dives) falls fast from plunge.start and holds its strike from plunge.hold until it lands.
 //     launchSelf: the attacker leaps too - at a clip time, or when one of the move's hits launches its target (the
 //     launcher: attacker and target go up together). air.needsTarget: in the air the move only starts with a target
-//     (the launcher - without one the hold starts the air drop, MoveRunner); started in the air a launcher is weaker
-//     with every use since landing (airCombat.launch*).
+//     (the launcher; a fresh hold-opener input may fall back to AirDrop, but combo follow-ups never do); a launcher
+//     started in the air is weaker with every use since landing (airCombat.launch*).
 struct AttackAirParams
 {
 	bool matchTargetHeight = true;   // before it hovers, chase the target's height while in the air
@@ -148,8 +149,8 @@ public:
 		if (plunging && !airborne)
 			plunging = false;
 
-		// The hover is earned by a hit (OnHitDealt) and carried by the attack that landed it: only then does the swing
-		// keep the body up. An attack that has not hit anything in the air gets nothing for being in the air.
+		// The hover is earned by a landed hit (OnHitDealt) and carried by the attack that landed it: only then does the
+		// swing keep the body up. An attack that has not hit anything in the air gets nothing for being in the air.
 		if (plunging)
 			character.RequestVelocity(glm::vec3(0.0f, -params.plunge.speed, 0.0f), true);
 		else if (airborne && hitInAir)
@@ -216,12 +217,28 @@ public:
 			character.AddAirLaunchStrain();
 		}
 
-		if (launching && params.launchSelf.onHit && !selfLaunched)
-			TryLaunchSelf(context);
-
-		// Everything below is for a melee hit landed while the attacker is airborne. The ground launcher is not one:
-		// it hits from the ground (then the attacker leaps) and starts no hover and no hang clock.
 		auto* victim = dynamic_cast<CombatCharacter*>(result.victim);
+		if (result.request != nullptr
+			&& AirJuggle::ShouldShareLaunchHover(launching, params.launchSelf.onHit, selfLaunched,
+				result.request->source == DamageSource::Melee)
+			&& TryLaunchSelf(context))
+		{
+			// The victim receives this same stall in CombatCharacter::ApplyAirHit. Give the attacker the same hover
+			// duration only when the launch actually lifted both bodies; a whiff, blocked launch, or held-input failure
+			// must not grant it. Resolve the default from the victim, matching the victim's own hit handling.
+			const CharacterData* victimData = victim != nullptr ? victim->GetData() : nullptr;
+			const CharacterData* attackerData = character.GetData();
+			const float fallbackHold = victimData != nullptr ? victimData->airCombat.victimHold
+				: (attackerData != nullptr ? attackerData->airCombat.victimHold : 0.0f);
+			const float hold = AirJuggle::ResolveHold(result.request->airStall, fallbackHold);
+			if (hold > 0.0f)
+				character.EnterAirCombat(hold);
+			else
+				character.EndAirCombat();
+		}
+
+		// The remaining handling is for melee hits landed while the attacker is airborne. The launcher above also earns
+		// hover when it successfully launches both bodies, even though its hit begins while the attacker is grounded.
 		if (plunging || victim == nullptr || result.request == nullptr || result.request->source != DamageSource::Melee || character.IsGrounded())
 			return;
 
@@ -252,16 +269,18 @@ public:
 	}
 
 private:
-	// Once per move; with requireHeld only while Attack is still held. The leap is a jump arc: it gives no hover - the
-	// attacker's first air hit does. A weaker (air) launcher lifts its attacker less, in step with its victim.
-	void TryLaunchSelf(MoveContext& context)
+	// Once per move; with requireHeld only while Attack is still held. A time-triggered leap alone follows a normal
+	// jump arc. When onHit successfully launches a target, OnHitDealt also grants the attacker the target's stall hover.
+	// A weaker (air) launcher lifts its attacker less, in step with its victim.
+	bool TryLaunchSelf(MoveContext& context)
 	{
 		selfLaunched = true;
 		const AttackParams& params = context.GetParams<AttackParams>();
 		CombatCharacter& character = context.Character;
 		if (params.launchSelf.requireHeld && !character.GetInput().Get(InputButton::Attack).held)
-			return;
+			return false;
 		character.Launch(params.launchSelf.verticalSpeed * launchScale);
+		return true;
 	}
 
 	static constexpr float MagnetFollowTime = 0.1f;   // s: arrival time once the strikes run

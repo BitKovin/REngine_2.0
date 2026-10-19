@@ -417,7 +417,8 @@ bool MoveRunner::ResolveCombo()
 	timing.windowEnd = link.windowEnd;
 	timing.hasLight = link.nextIndex >= 0 && StartStateAllows(*moveSet->GetMove(link.nextIndex));
 	timing.hasHeavy = link.alternativeIndex >= 0 && StartStateAllows(*moveSet->GetMove(link.alternativeIndex));
-	const int holdOpener = GetStartableHoldOpener();
+	// A combo follow-up can be light/heavy or the actual launcher. Never substitute AirDrop for a combo branch.
+	const int holdOpener = GetStartableHoldOpener(false);
 	timing.hasHold = holdOpener >= 0;
 	timing.holdDelay = moveSet->holdDelayInMove;
 
@@ -461,16 +462,17 @@ bool MoveRunner::CanStartAsHoldOpener(int moveIndex) const
 	return true;
 }
 
-// The launcher of the state. In the air it needs something to launch (AttackParams::air.needsTarget); with nothing in
-// front the drop attack - a plunge - takes its place, so holding Attack in the air always does something (§5.8).
-int MoveRunner::GetStartableHoldOpener() const
+// Returns the configured hold opener (the launcher) when it can start. AirDrop may stand in for a failed
+// launcher only when a fresh Attack input is choosing its opener. It is deliberately excluded from combo resolution:
+// without a launch target, a held combo input must resolve to the normal light/heavy branch, not a plunge.
+int MoveRunner::GetStartableHoldOpener(bool allowAirDropFallback) const
 {
 	const bool grounded = owner->IsGrounded();
 	const int holdOpener = moveSet->GetHoldOpener(moveSet->GetOpenerSlot(grounded));
 	if (CanStartAsHoldOpener(holdOpener))
 		return holdOpener;
 
-	if (!grounded && moveSet->GetMove(holdOpener) != nullptr)
+	if (allowAirDropFallback && !grounded && moveSet->GetMove(holdOpener) != nullptr)
 	{
 		const int drop = moveSet->GetActionMove(ActionSlot::AirDrop);
 		if (CanStartAsHoldOpener(drop))
@@ -693,7 +695,7 @@ void MoveRunner::HandleLocomotionCancel()
 void MoveRunner::StartOpener(bool grounded)
 {
 	const int opener = moveSet->GetComboOpener(moveSet->GetOpenerSlot(grounded));
-	const int holdOpener = GetStartableHoldOpener();   // none: the press starts the opener at once
+	const int holdOpener = GetStartableHoldOpener(true);   // only a fresh launcher attempt may fall back to AirDrop
 	if (holdOpener < 0)
 	{
 		TryStartFromButton(InputButton::Attack, opener);

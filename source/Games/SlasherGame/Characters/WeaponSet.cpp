@@ -471,7 +471,7 @@ void WeaponSet::EmitHit(const MoveSlot& slot, const HitWindowData& window, Entit
 	if (window.reaction == HitReaction::Launch)
 	{
 		// A launcher thrown in the air is weaker (CombatCharacter::PeekAirLaunchScale, fixed when the move started,
-		// 1 otherwise): it sends its victim up less and hangs it for less time.
+		// 1 otherwise): it sends its victim up less and shortens the shared stall for both bodies.
 		const float scale = owner->GetLaunchScale();
 		event.launch *= scale;
 		if (event.airStall > 0.0f)

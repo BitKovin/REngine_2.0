@@ -1289,7 +1289,7 @@ void CombatCharacter::ApplyAirHit(const HitResult& result)
 	switch (hit.source)
 	{
 	case DamageSource::Melee:
-		hold = hit.airStall >= 0.0f ? hit.airStall : air.victimHold;
+		hold = AirJuggle::ResolveHold(hit.airStall, air.victimHold);
 		lift = hit.airLift >= 0.0f ? hit.airLift : air.hitLift;
 		break;
 	case DamageSource::Firearm:

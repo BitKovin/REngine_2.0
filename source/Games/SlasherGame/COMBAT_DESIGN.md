@@ -521,9 +521,11 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
   her sink about 0.8 m in 2 s. **Hits earn the hover, not swings:**
   * **attacker** - a melee hit landed while the attacker is airborne starts its hover; the attack that landed it
     carries it (it hovers while that attack runs) and `hold` (0.5 s) after it. An air swing that hits nothing earns
-    nothing and falls normally. **The ground launcher is no air attack**: it hits from the ground and its leap is a
-    plain jump arc - no hover, no hang clock; the first air hit after it starts both. (The air launcher's hit
-    does count: it is landed in the air.)
+    nothing and falls normally. When a launcher also launches its attacker on a successful hit (`launchSelf.onHit`),
+    the attacker receives the same hit-specific `air.stall` hover duration as the victim (1.2 s for the ground
+    launcher); if the hit has no explicit stall, each body uses the victim-hold default from the victim's character data.
+    A time-triggered leap by itself still follows a normal jump arc and earns no hover. (The air launcher's hit also
+    grants this shared stall: it is landed in the air.)
   * **victim** - hovers `victimHold` (0.5 s) after every melee hit in the air; every hit restarts the timer, none
     shortens it (a hit's `air.stall` may ask for more: the launcher hangs its victim at the top for 1.2 s; `stall: 0`
     asks for none - a plunge slams the victim down).
@@ -559,9 +561,9 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
   committed from the start), a rising slash 0.27 - 0.37 with a `Launch` hit
   (`launch` 10.5 m/s: ~2.2 m up), 1.2 m of root motion forward, armor through the wind-up. When the hit launches its
   target the hero goes up with it (`launchSelf.onHit`, 9.6 m/s = 10.5 × √(21 / 25): the hero's gravity is 21, a
-  grunt's 25, so both peak at the same height); both rise after the shared hit-stop. The enemy hangs at the top for
-  the hit's `air.stall` (1.2 s); the hero does not hover - her first air hit starts that (the attack chases the
-  enemy's height until then). Recovery starts at 0.4: airborne,
+  grunt's 25, so both peak at the same height); both rise after the shared hit-stop and both receive the hit's
+  `air.stall` hover (1.2 s). This lets the hero hang with the launched target before starting the air combo. Recovery
+  starts at 0.4: airborne,
   it releases at once - the legs blend to the air pose while the arms finish the follow-through (the clip itself
   stands on the ground). A whiff, or a target whose armor turns the launch into a stagger, leaves the hero on the
   ground; a launcher that breaks the target's poise still launches it (it flies in its broken pose and stays
@@ -575,9 +577,11 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
   0.30, 0.18, 0.15. Every melee hit of the combo landed between two airborne fighters heals `launchRecover` (0.25) of
   the strain, so combos between launchers keep it strong (3 hits between: 0.50, 0.44, 0.39...). In the air it needs
   something to launch (`air.needsTarget`: the controller's focus or a hostile in the attack target search); **without
-  one, holding Attack starts the drop attack** (`actions.AirDrop`, the hero's `drop`: the `heavy_1` plunge) -
-  `MoveRunner::GetStartableHoldOpener` falls back to it. Because a hold now means something in the air, the first
-  attack of an airtime waits for its release or `holdDelay` (0.1 s), like on the ground.
+  one, a fresh held-launch attempt falls back to the drop attack** (`actions.AirDrop`, the hero's `drop`, which uses
+  the `heavy_1` plunge animation). This fallback applies only when `StartOpener` selects the hold opener. While a combo
+  is resolving, AirDrop is not a combo branch: without a launch target, the usual light/heavy follow-up rules still apply.
+  Because a hold now means something in the air, the first attack of an airtime waits for its release or `holdDelay`
+  (0.1 s), like on the ground.
 
 ---
 
@@ -1159,7 +1163,7 @@ SlasherGame/
 | Air attacks reuse ground clips with `NoLegs` (hips follow the clip, legs mostly air pose) | No separate air clips needed; an upper-body layer left the hips static |
 | The ground moves are the air moves; the air look and physics come from the body (`airLegs`, `airCombat`) | Separate air moves duplicated tuning and could drift apart (an air opener without the ground opener's wind-up snapped out faster); combos now flow through take-off and landing |
 | Air combat keeps the rising arc and only hovers the fall | Stopping the rise when an attack starts killed jumps and launches; hanging at the top of the arc reads as natural DMC air combat |
-| The hover is earned by landed hits (the ground launcher excluded), not by being in the air attacking | Swinging at air must not earn what a hit earns; the launcher is no air attack, so the hang clock starts with the first real air hit |
+| The hover is earned by landed hits, not by being in the air attacking; a successful self-launch shares its hit's stall | Swinging at air must not earn what a hit earns; a launcher that sends both bodies up should let the attacker hang with the victim |
 | A hit settles the victim once, to a destination fixed at the hit; nothing follows the attacker | A tether that follows (even briefly, even only while hovering) drags enemies after a dashing player and feels like a leash; DMC juggles keep the enemy in reach through the hit itself |
 | The attacker keeps its own height while hovering; only the victim is levelled | The attacker copying the enemy's vertical motion (the old behaviour) made the player float for as long as the enemy did - she could never fall first |
 | Hang limits per character (hero 2 s, enemies 3 s), gravity grows back instead of switching on | No infinite juggles, and the player comes down first; a growing gravity ends the fight gently instead of dropping both |

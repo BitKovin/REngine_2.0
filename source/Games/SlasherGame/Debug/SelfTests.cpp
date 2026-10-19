@@ -342,6 +342,23 @@ namespace
 		const float gravity = 21.0f;
 		const float frame = 1.0f / 60.0f;
 
+		test.Check(AirJuggle::ShouldShareLaunchHover(true, true, false, true),
+			"a successful melee launcher may share hover with its self-launched attacker");
+		test.Check(!AirJuggle::ShouldShareLaunchHover(false, true, false, true),
+			"a hit that does not launch its target grants no shared hover");
+		test.Check(!AirJuggle::ShouldShareLaunchHover(true, false, false, true),
+			"a launcher without launchSelf.onHit grants no shared hover");
+		test.Check(!AirJuggle::ShouldShareLaunchHover(true, true, true, true),
+			"an already-triggered self-launch cannot grant hover a second time");
+		test.Check(!AirJuggle::ShouldShareLaunchHover(true, true, false, false),
+			"non-melee hits do not use the melee launcher's shared hover path");
+		test.Check(std::abs(AirJuggle::ResolveHold(1.2f, air.victimHold) - 1.2f) < 1e-5f,
+			"the explicit launcher stall resolves to the same duration for both bodies");
+		test.Check(std::abs(AirJuggle::ResolveHold(-1.0f, air.victimHold) - air.victimHold) < 1e-5f,
+			"a missing launcher stall uses the victim's configured default");
+		test.Check(AirJuggle::ResolveHold(0.0f, air.victimHold) == 0.0f,
+			"a zero launcher stall explicitly disables the shared hover");
+
 		// ---- hover physics
 		test.Check(std::abs(AirJuggle::StepVertical(5.0f, gravity, frame, air, 1.0f, 0.0f) - (5.0f - gravity * frame)) < 1e-5f,
 			"rising keeps the normal arc (a launch reaches its top)");
@@ -1075,15 +1092,18 @@ namespace
 			for (const auto& [slot, weaponFile] : character->weapons)
 				expectClean(weaponFile);
 
-			// The hero: the launcher works in the air (needing a target), the drop attack stands in without one, and she
-			// falls before the enemies she juggles.
+			// The hero: the launcher needs a target in the air, AirDrop is the fallback for a fresh held-launch input
+			// only, regular heavy_1 remains a normal attack, and the hero falls before the enemies she juggles.
 			if (StringHelper::EndsWith(file, "hero.character.json") && character->moveSet)
 			{
 				const MoveSetData& heroMoves = *character->moveSet;
 				const MoveData* launcher = heroMoves.GetMove(heroMoves.GetHoldOpener(ComboSlot::Attack));
 				const MoveData* drop = heroMoves.GetMove(heroMoves.GetActionMove(ActionSlot::AirDrop));
+				const MoveData* heavy1 = heroMoves.GetMove(heroMoves.FindMove("heavy_1"));
 				test.Check(launcher && launcher->startState == MoveStartState::Any, "the hero's launcher can start in the air");
-				test.Check(drop && drop->startState == MoveStartState::Air, "the hero has an air drop for the hold without a target");
+				test.Check(drop && drop->startState == MoveStartState::Air, "the hero has an air drop for a fresh held-launch input without a target");
+				test.Check(heavy1 && !heavy1->params.contains("plunge") && drop && drop->params.contains("plunge"),
+					"the plunge is configured only on AirDrop, not on the regular heavy_1 move");
 				test.Check(character->airCombat.maxHangTime < AirCombatData().maxHangTime, "the hero's hang time is shorter than an enemy's");
 				test.Check(character->airCombat.fallGravityScale > AirCombatData().fallGravityScale, "the hero keeps a little gravity while she hovers");
 			}

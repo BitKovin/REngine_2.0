@@ -168,7 +168,7 @@ namespace
 			// Behaviour params
 			{ "params.locomotion", "Share of run speed the stick may add during the attack (0: root motion only)." },
 			{ "params.matchTargetHeight", "In the air, chase the target's height until a hit starts the hover." },
-			{ "params.needsTarget", "In the air the move only starts with a target in reach (the launcher: without one the hold starts the AirDrop action)." },
+			{ "params.needsTarget", "In the air the move only starts with a target in reach (the launcher: a fresh hold-opener input falls back to AirDrop without one; combo follow-ups do not)." },
 			{ "params.plunge", "Air version dives: from start at speed, the strike held from hold until landing." },
 			{ "params.launchSelf", "The attacker leaps too: at time, or onHit when a hit launches its target." },
 			{ "params.onHit", "Leap when one of the move's hits launches its target." },

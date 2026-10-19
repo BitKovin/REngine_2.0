@@ -115,7 +115,8 @@ struct MoveEntriesData
 // (melee: hitLift and victimHold; bullets: firearmHold).
 //   lift   a melee hit between two airborne fighters lifts both at least this fast (m/s) - the pair rises a little
 //   stall  seconds the victim hovers after the hit (every hit restarts it). 0: no hover, the victim falls at once - a
-//          plunge slams it down. A launching hit keeps its `launch` speed and hangs its victim at the top for this long.
+//          plunge slams it down. A launching hit keeps its `launch` speed and hangs its victim at the top for
+//          this long; if `launchSelf.onHit` also launches the attacker, the attacker shares this duration.
 struct HitAirData
 {
 	float lift = -1.0f;
