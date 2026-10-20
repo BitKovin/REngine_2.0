@@ -2,7 +2,7 @@
   {
     "Name": "emscripten",
     "Success": true,
-    "DurationSeconds": 105.0983417,
+    "DurationSeconds": 353.00907,
     "LogFilePath": "F:\\Git\\SdlWasmEngine\\BuildLogs\\emscripten.log",
     "ErrorMessage": null
   }
