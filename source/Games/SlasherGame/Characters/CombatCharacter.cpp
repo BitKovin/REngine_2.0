@@ -1042,7 +1042,7 @@ Entity* CombatCharacter::FindSoftTarget(const glm::vec3& direction, float range,
 	return best;
 }
 
-Entity* CombatCharacter::FindAttackTarget(float range) const
+Entity* CombatCharacter::FindAttackTarget(float range, float maxHeight, bool airborneOnly) const
 {
 	if (!data || range <= 0.0f)
 		return nullptr;
@@ -1078,6 +1078,14 @@ Entity* CombatCharacter::FindAttackTarget(float range) const
 		const float distance = glm::length(offset);
 		if (distance > range)
 			continue;
+		if (maxHeight >= 0.0f && std::abs(candidate->Position.y - Position.y) > maxHeight)
+			continue;
+		if (airborneOnly)
+		{
+			auto* body = dynamic_cast<CombatCharacter*>(candidate);
+			if (body == nullptr || body->IsGrounded())
+				continue;
+		}
 
 		const float cosAngle = distance > 1e-3f ? std::clamp(glm::dot(offset / distance, reference), -1.0f, 1.0f) : 1.0f;
 		const float score = CombatRules::ScoreAttackTarget(glm::degrees(std::acos(cosAngle)), distance, range, candidate == previous, targeting);
@@ -1103,7 +1111,7 @@ Entity* CombatCharacter::PredictAttackTarget() const
 	if (!moveSet)
 		return nullptr;
 	const MoveData* opener = moveSet->GetMove(moveSet->GetComboOpener(moveSet->GetOpenerSlot(grounded)));
-	return opener != nullptr ? FindAttackTarget(opener->tracking.searchRange) : nullptr;
+	return opener != nullptr ? FindAttackTarget(opener->tracking.searchRange, GetAttackHeightRange()) : nullptr;
 }
 
 void CombatCharacter::SetSoftTarget(Entity* target)

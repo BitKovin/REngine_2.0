@@ -186,8 +186,11 @@ public:
 		const Entity* prefer = nullptr) const;
 	// Target of an attack starting now (COMBAT_DESIGN.md §5.7): every hostile, alive combatant within range all around
 	// the body and in sight, the one closest to the move input direction (the facing without input) - distance breaks
-	// near ties, the current soft target is favoured (CharacterData::targeting). Safe from the parallel update.
-	Entity* FindAttackTarget(float range) const;
+	// near ties, the current soft target is favoured (CharacterData::targeting). maxHeight: only bodies at most this far
+	// above / below (< 0: any height); airborneOnly: only bodies in the air. Safe from the parallel update.
+	Entity* FindAttackTarget(float range, float maxHeight = -1.0f, bool airborneOnly = false) const;
+	// The maxHeight of this body's attack searches now: targeting.airHeightRange in the air, any height on the ground.
+	float GetAttackHeightRange() const { return grounded || !data ? -1.0f : data->targeting.airHeightRange; }
 	// What the attack opener would pick now (HUD), or nullptr.
 	Entity* PredictAttackTarget() const;
 	// Finishable target for this body's finisher, using its data's finisher range / angle around input or facing.

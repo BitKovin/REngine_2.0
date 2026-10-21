@@ -76,6 +76,11 @@ public:
 	// While true the move's clock stands still where it is (clip pose held, windows at that time stay open) - a plunge
 	// holding its strike until it lands. Asked every frame before the clock advances.
 	virtual bool HoldsClock(const MoveContext& context) const { (void)context; return false; }
+
+	// While true the move cannot be left - no combo link resolves, no cancel window opens, no recovery begins (a plunge
+	// while it dives: it ends on the ground). Presses made meanwhile wait (buffered as usual). Forced moves still
+	// interrupt it. Asked every frame before the clock advances.
+	virtual bool Commits(const MoveContext& context) const { (void)context; return false; }
 };
 
 struct MoveBehaviorType

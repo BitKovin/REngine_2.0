@@ -3,6 +3,7 @@
 #include <Characters/CharacterInput.h>
 
 #include <cstdint>
+#include <limits>
 
 enum class ComboDecision : uint8_t
 {
@@ -27,6 +28,19 @@ inline OpenerDecision DecideOpener(const ButtonState& button, double now, float 
 	if (heldFor >= holdDelay)
 		return OpenerDecision::Hold;
 	return button.held ? OpenerDecision::Wait : OpenerDecision::Opener;
+}
+
+// How long a press must be held to become the hold opener (DecideOpener's holdDelay). The short holdDelay is only for a
+// press made from rest whose hold opener hands back to the usual attack when released during its wind-up (the
+// launcher's hold rule): a tap that outlasts the delay still gets the usual attack. A press made during a move, or one
+// for a hold opener without that hand-over (the drop commits at once), needs the long holdDelayInMove - a hold the
+// player means. A press made on the other side of the ground (in the air, and the body has landed since - or the
+// reverse) never becomes this state's hold opener: it waits for its release, the usual attack.
+inline float HoldOpenerDelay(bool pressedInMove, bool pressedInThisState, bool handsOver, float holdDelay, float holdDelayInMove)
+{
+	if (!pressedInThisState)
+		return std::numeric_limits<float>::infinity();
+	return pressedInMove || !handsOver ? holdDelayInMove : holdDelay;
 }
 
 struct ComboTiming
@@ -58,11 +72,12 @@ class ComboResolver
 {
 public:
 	// A new attack with a combo link started. `button` is the attack button right now; its current press is
-	// the one that started the attack and never counts as a new press - with holdCarriesOver, held, it counts as held.
-	void Begin(const ButtonState& button, bool holdCarriesOver)
+	// the one that started the attack and never counts as a new press - with carryHold, held, it counts as held
+	// (holdCarriesOver - except for a move the hold itself started: that hold is spent on it).
+	void Begin(const ButtonState& button, bool carryHold)
 	{
 		lastPressId = button.pressId;
-		carried = holdCarriesOver && button.held;
+		carried = carryHold && button.held;
 		pending = carried ? Pending::Held : Pending::None;
 		pressClipTime = 0.0f;   // made before this attack
 		pressGameTime = button.pressTime;

@@ -116,6 +116,25 @@ namespace
 		late.SetButton(InputButton::Attack, false, 3.7);
 		test.Check(DecideOpener(late.Get(InputButton::Attack), 3.75, 0.6f) == OpenerDecision::Hold,
 			"released after holding for the delay (the launcher could not start yet): still the hold, never the opener");
+
+		// The delay by where the press was made and what it would start (HoldOpenerDelay).
+		test.Check(HoldOpenerDelay(false, true, true, 0.1f, 0.4f) == 0.1f, "from rest the launcher (its wind-up hands back) needs holdDelay");
+		test.Check(HoldOpenerDelay(true, true, true, 0.1f, 0.4f) == 0.4f, "during a move the launcher needs holdDelayInMove");
+		test.Check(HoldOpenerDelay(false, true, false, 0.1f, 0.4f) == 0.4f && HoldOpenerDelay(true, true, false, 0.1f, 0.4f) == 0.4f,
+			"the drop (no hand-over) always needs holdDelayInMove");
+		CharacterInput longTap;
+		longTap.SetButton(InputButton::Attack, true, 5.0);
+		longTap.SetButton(InputButton::Attack, false, 5.15);
+		test.Check(DecideOpener(longTap.Get(InputButton::Attack), 5.15, HoldOpenerDelay(false, true, false, 0.1f, 0.4f)) == OpenerDecision::Opener,
+			"a 0.15 s tap in the air with nothing to launch is the usual attack, not the drop");
+		const float otherState = HoldOpenerDelay(false, false, true, 0.1f, 0.4f);
+		CharacterInput landed;
+		landed.SetButton(InputButton::Attack, true, 6.0);
+		test.Check(DecideOpener(landed.Get(InputButton::Attack), 60.0, otherState) == OpenerDecision::Wait,
+			"a press made in the air, held after landing, never pops the ground launcher");
+		landed.SetButton(InputButton::Attack, false, 6.8);
+		test.Check(DecideOpener(landed.Get(InputButton::Attack), 6.8, otherState) == OpenerDecision::Opener,
+			"released after landing it is the usual attack");
 	}
 
 	void TestComboResolver(TestContext& test)
@@ -176,6 +195,13 @@ namespace
 		r = RunCombo(withHold, false, buffer, between(0.05f, 5.0f));
 		test.Check(r.decision == ComboDecision::Hold && r.time >= 0.65f - 1e-3f && r.time < 0.65f + 2.0f * frame,
 			"a hold started early becomes the launcher once both the window is open and holdDelay passed (got %s at %.3f)", DecisionName(r.decision), r.time);
+
+		// A move the hold itself started (the drop, the launcher): the hold is spent - held on, it is neither a heavy nor
+		// another launcher; a new press still feeds the link.
+		r = RunCombo(withHold, true, buffer, always, false);
+		test.Check(r.decision == ComboDecision::None, "the hold that started a hold opener does not carry into its link (got %s at %.3f)", DecisionName(r.decision), r.time);
+		r = RunCombo(withHold, true, buffer, [](float t) { return t < 0.3f || (t >= 0.70f && t < 0.72f); }, false);
+		test.Check(at(r, ComboDecision::Heavy, 0.72f), "after the spent hold, a new press in the heavy zone -> heavy on release (got %s at %.3f)", DecisionName(r.decision), r.time);
 
 		// The link stays armed while a press that may become the launcher is held, at most holdDelay.
 		{
@@ -783,6 +809,8 @@ namespace
 			"an on-hit self launch without speed");
 		expectError(R"({ "animations": ["a.glb"], "moves": { "m": { "clip": "c", "params": { "plunge": { "start": 0.3, "hold": 0.2 } } } } })",
 			"a plunge holding its strike before it dives");
+		expectError(R"({ "animations": ["a.glb"], "moves": { "m": { "clip": "c", "params": { "plunge": { "start": 0.3, "rise": -2 } } } } })",
+			"a plunge hopping downward");
 		expectError(R"({ "animations": ["a.glb"], "moves": { "m": { "clip": "c", "behavior": "Fire", "channel": "Overlay", "params": { "moveSpeed": 2 } } } })", "fire speeding the body up");
 		expectError(R"({ "animations": ["a.glb"], "moves": { "m": { "clip": "c", "behavior": "Dash", "params": { "tailLocomotion": 2 } } } })", "dash tail above run speed");
 		expectError(R"({ "animations": ["a.glb"], "moves": { "m": { "clip": "c", "behavior": "Glide", "params": { "holdDelay": -1 } } } })", "negative glide hold delay");
@@ -1051,6 +1079,7 @@ namespace
 		expectError(R"({ "team": "Player", "moveset": "m.json", "movement": { "turnSharpness": 0 } })", "a zero turn sharpness");
 		expectError(R"({ "team": "Player", "moveset": "m.json", "hitRecoil": { "bones": [ { "bone": "" } ] } })", "a hit recoil bone without a name");
 		expectError(R"({ "team": "Player", "moveset": "m.json", "targeting": { "inputThreshold": 0 } })", "a zero targeting input threshold");
+		expectError(R"({ "team": "Player", "moveset": "m.json", "targeting": { "airHeightRange": 0 } })", "a zero air targeting height range");
 		expectError(R"({ "team": "Player", "moveset": "m.json", "airCombat": { "maxFallSpeed": 0 } })", "an air combat fall speed of zero");
 		expectError(R"({ "team": "Player", "moveset": "m.json", "airCombat": { "launchScale": 1.5 } })", "an air launch stronger than the ground launch");
 		expectError(R"({ "team": "Player", "moveset": "m.json", "airCombat": { "pullTime": 0 } })", "a pull that takes no time");
@@ -1104,6 +1133,18 @@ namespace
 				test.Check(drop && drop->startState == MoveStartState::Air, "the hero has an air drop for a fresh held-launch input without a target");
 				test.Check(heavy1 && !heavy1->params.contains("plunge") && drop && drop->params.contains("plunge"),
 					"the plunge is configured only on AirDrop, not on the regular heavy_1 move");
+				if (drop && drop->params.contains("plunge"))
+				{
+					// A hop as the weapon goes up; everything that could leave the drop opens after its strike hold (on
+					// the ground) - a link or cancel before it would fire the moment the dive ends.
+					const nlohmann::json& plunge = drop->params["plunge"];
+					const float hold = plunge.value("hold", -1.0f);
+					bool afterHold = hold >= 0.0f && drop->combo.windowStart >= hold && drop->recoveryStart >= hold;
+					for (const CancelWindowData& cancel : drop->cancels)
+						afterHold = afterHold && cancel.start >= hold;
+					test.Check(plunge.value("rise", 0.0f) > 0.0f, "the drop hops before it dives");
+					test.Check(afterHold, "the drop's combo link, cancels and recovery open after its strike hold");
+				}
 				test.Check(character->airCombat.maxHangTime < AirCombatData().maxHangTime, "the hero's hang time is shorter than an enemy's");
 				test.Check(character->airCombat.fallGravityScale > AirCombatData().fallGravityScale, "the hero keeps a little gravity while she hovers");
 			}

@@ -434,6 +434,16 @@ depends on where it was pressed:
   hold already long enough starts the hold opener at once. Where a press was made decides its rule, not where the
   body is when it is judged: a press made during a dash and held past the dash's end still needs 0.6 s (judged from
   rest it would pop the launcher's wind-up the moment the dash ended).
+* The short `holdDelay` from rest is only for a hold opener whose wind-up hands back to the usual attack (a `hold`
+  rule): a tap that lasts a little longer still becomes the opener. A hold opener without one - the air drop, which
+  commits at once - always needs `holdDelayInMove` (`HoldOpenerDelay`, pure, self-tested): a 0.15 s tap in the air is
+  the usual attack, never the drop.
+* A press made in the air that is still undecided when the body lands (or the reverse) never starts the other state's
+  hold opener: held, it waits; released, it is the usual attack. A hold meant for the drop does not pop the ground
+  launcher on landing.
+* The hold that started a hold opener is spent on it: it does not carry into that move's combo link
+  (`holdCarriesOver` is for the press that started a usual attack). Holding on through the drop's landing is not a
+  heavy, nor another launcher.
 * A reaction or death (`StartForcedMove`) spends the held press: holding through a stagger fires nothing afterwards.
 * A ground launcher cannot start in the air: there an unowned press starts the air opener at once, and combo heavies
   start at once (the table above).
@@ -492,7 +502,7 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
 
 | Behaviour | Mechanics | `params` |
 |---|---|---|
-| `Attack` | hit windows → blade sweeps / bone spheres (run by `MoveRunner` + `WeaponSet`); **target assist**: the controller's focus, else the **attack target** (`CombatCharacter::FindAttackTarget`): every hostile within `tracking.searchRange` **all around the body** and in sight, scored by its angle from the move input direction (the facing without input) plus `targeting.distanceWeight` × distance / range, the previous attack's target favoured by `targeting.keepBonus` - pointing the stick at a body picks it, a near tie keeps the combo's target; the body turns toward it (or the input direction) until `tracking.until` - never snaps: fast for the first `startTurnTime` (`startTurnRate`), then at `turnRate`; the **magnet** adds speed toward it on top of the clip's root motion until `idealDistance`, arriving by the next strike, until `magnetUntil` (stationary clips still close in), and never lets anything carry the body closer; without a target `tracking.advance` steps forward while input is held. **Air** (§5.8): a melee hit landed in the air starts the attacker's hover and settles an airborne victim once (swinging at air earns nothing); before the hover the attack chases the target's height; it goes on on the ground after landing; `plunge` dives in the air and holds its strike until landing; `launchSelf`: the attacker leaps too - at clip `time`, or `onHit` when one of the move's hits actually launches its target (armor downgrading the launch, or a kill, leaves it on the ground) - optionally only while Attack is held | `locomotion`, `air` (`matchTargetHeight`, `needsTarget`), `plunge` (`start`, `speed`, `hold`), `launchSelf` (`time`, `onHit`, `verticalSpeed`, `requireHeld`) |
+| `Attack` | hit windows → blade sweeps / bone spheres (run by `MoveRunner` + `WeaponSet`); **target assist**: the controller's focus, else the **attack target** (`CombatCharacter::FindAttackTarget`): every hostile within `tracking.searchRange` **all around the body** and in sight, scored by its angle from the move input direction (the facing without input) plus `targeting.distanceWeight` × distance / range, the previous attack's target favoured by `targeting.keepBonus` - pointing the stick at a body picks it, a near tie keeps the combo's target; the body turns toward it (or the input direction) until `tracking.until` - never snaps: fast for the first `startTurnTime` (`startTurnRate`), then at `turnRate`; the **magnet** adds speed toward it on top of the clip's root motion until `idealDistance`, arriving by the next strike, until `magnetUntil` (stationary clips still close in), and never lets anything carry the body closer; without a target `tracking.advance` steps forward while input is held. **Air** (§5.8): the target is one within `targeting.airHeightRange` above / below (an enemy standing far below is not chased); a melee hit landed in the air starts the attacker's hover and settles an airborne victim once (swinging at air earns nothing); before the hover the attack chases the target's height; it goes on on the ground after landing; `plunge` hops by `rise` as it starts in the air, dives - steered onto the target below by the magnet, committed (`MoveBehavior::Commits`) - and holds its strike until landing; `needsTarget`: in the air the move only starts with something to launch, an airborne hostile within its magnet range; `launchSelf`: the attacker leaps too - at clip `time`, or `onHit` when one of the move's hits actually launches its target (armor downgrading the launch, or a kill, leaves it on the ground) - optionally only while Attack is held | `locomotion`, `air` (`matchTargetHeight`, `needsTarget`), `plunge` (`start`, `speed`, `hold`, `rise`), `launchSelf` (`time`, `onHit`, `verticalSpeed`, `requireHeld`) |
 | `Dash` | displacement along input (or facing), gravity suspended, i-frames from `invulnerable`, stops at walls, air charges. EaseOut slows linearly to `exitSpeed` × run speed, so the body runs out of the dash; after the displacement input steers the body (`tailLocomotion`). Jump cancels it from the first frame (data) | `distance`, `duration`, `curve`, `airCharges`, `exitSpeed`, `tailLocomotion`, `faceDirection` |
 | `Jump` | vertical velocity; ground or air (air jumps refill on landing); ends on landing; horizontal speed carries into the jump up to `carrySpeed` × run speed (a dash-jump leaves at run speed) | `velocity`, `maxAirJumps`, `airControl`, `carrySpeed` |
 | `Glide` | started by the move runner when the body falls with Jump held for `holdDelay` (no second press); reduced gravity, capped fall speed, limited time per airtime; ends on release; sustains at `endTime` | `maxDuration`, `gravityScale`, `maxFallSpeed`, `airControl`, `holdDelay` |
@@ -553,9 +563,13 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
   plus a pull, `air.matchTargetHeight`): it reaches an enemy that hangs above it, rises with a launched one, comes
   down onto a grounded one. Hovering, the attacker keeps its own height - the small gravity is its own, it does not
   copy the enemy's (that is why it can fall before the enemies it juggles); the hits level the enemy with it.
-* **Plunge**: an attack's air version may dive (`plunge`: from `start` at `speed`, the clip held at `hold` - strike pose,
-  hit window open - until it lands, `MoveBehavior::HoldsClock`); landing, the clip and the move go on on the ground.
-  The hero's `heavy_1` - the pause after the opener - plunges in the air.
+* **Plunge**: an attack's air version may dive (`plunge`: a hop of `rise` m/s as it starts in the air - the weapon goes
+  up - then from `start` at `speed`, the clip held at `hold` - strike pose, hit window open - until it lands,
+  `MoveBehavior::HoldsClock`); landing, the clip and the move go on on the ground. A plunge move keeps its own height
+  (no target height chase); diving, the magnet steers it onto the target below (within `magnetRange`), and the move is
+  **committed** (`MoveBehavior::Commits`): no combo link resolves, no cancel window opens and no recovery begins until
+  it lands - presses made meanwhile are judged then. Its links and cancels belong after `hold` (self-tested for the
+  hero's drop). The hero's only plunge is the drop.
 * **Launcher**: the hero's `launch` (clip `launch`, played at 0.7), the `Attack` hold opener (§5.4): wind-up until
   0.26 (from rest, released earlier, the usual attack `start` takes over; after a 0.6 s hold during another move it is
   committed from the start), a rising slash 0.27 - 0.37 with a `Launch` hit
@@ -576,12 +590,19 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
   when a launching hit connects - a whiff or a released wind-up is free), never below `launchMinScale` (0.15): 0.50,
   0.30, 0.18, 0.15. Every melee hit of the combo landed between two airborne fighters heals `launchRecover` (0.25) of
   the strain, so combos between launchers keep it strong (3 hits between: 0.50, 0.44, 0.39...). In the air it needs
-  something to launch (`air.needsTarget`: the controller's focus or a hostile in the attack target search); **without
-  one, a fresh held-launch attempt falls back to the drop attack** (`actions.AirDrop`, the hero's `drop`, which uses
-  the `heavy_1` plunge animation). This fallback applies only when `StartOpener` selects the hold opener. While a combo
-  is resolving, AirDrop is not a combo branch: without a launch target, the usual light/heavy follow-up rules still apply.
-  Because a hold now means something in the air, the first attack of an airtime waits for its release or `holdDelay`
-  (0.1 s), like on the ground.
+  something to launch (`air.needsTarget`): an **airborne** hostile within its `magnetRange` and
+  `targeting.airHeightRange` (the controller's focus must qualify too). An enemy standing below is nothing to launch:
+  **without one, a fresh hold falls back to the drop attack** (`actions.AirDrop`, the hero's `drop`). This fallback
+  applies only when `StartOpener` selects the hold opener. While a combo is resolving, AirDrop is not a combo branch:
+  without a launch target, the usual light/heavy follow-up rules still apply.
+  Because a hold now means something in the air, the first attack of an airtime waits for its release or the hold
+  delay, like on the ground: `holdDelay` (0.1 s) when the launcher can start (its wind-up hands back to `start`),
+  `holdDelayInMove` (0.4 s) for the drop, which commits at once - only a deliberate hold drops, a tap never does.
+* **The drop** (`drop`, the `combo1_heavy_2` clip at 1.45): hops 4 m/s as the weapon goes up, dives at 18 m/s from
+  0.24 steering onto the target below (the drop's target search ignores `airHeightRange`), holds the strike (hit
+  window open) from 0.66 until it lands; its hit `air.stall: 0` slams an airborne victim down. Landed, it goes on like
+  `heavy_2`: its combo link (`light_3` / `heavy_3` from the hold pose, 0.75 - 1.28) and cancels (0.79), all after
+  the hold. The hold that started it is spent - holding on through the landing starts nothing.
 
 ---
 
@@ -882,7 +903,7 @@ GameData/combat/player.json                   hero entity, camera (+ impact resp
   "possession": { "allowed": true },
   "finisher": { "range": 2.5, "angle": 60, "reward": "finisher_boost" },
   "attackTokens": { "melee": 2, "ranged": 2, "heavy": 1 },
-  "targeting": { "distanceWeight": 0.5, "keepBonus": 0.2, "inputThreshold": 0.3 },   // §5.7
+  "targeting": { "distanceWeight": 0.5, "keepBonus": 0.2, "inputThreshold": 0.3, "airHeightRange": 2.0 },   // §5.7, §5.8
   "airCombat": { "riseGravityScale": 1.0, "fallGravityScale": 0.02, "maxFallSpeed": 0.15, "fallEase": 20,
                  "hold": 0.5, "victimHold": 0.5, "firearmHold": 0.2, "gravityRamp": 0.4,
                  "maxHangTime": 3.0, "hangFade": 2.0, "hitLift": 2.5, "rootMotionScale": 0.5, "knockbackScale": 0.5,
@@ -1162,6 +1183,7 @@ SlasherGame/
 | Camera impact within hard comfort limits (≤ 12 Hz, bounded view speed, no roll, slide over turn, strongest wins) | The first tuning (18 Hz noise with 33 / 57 Hz harmonics, 2.5° rumble, roll, summed trauma) blurred the image and disoriented; comfort is enforced by code and validation, not left to tuning |
 | Air attacks reuse ground clips with `NoLegs` (hips follow the clip, legs mostly air pose) | No separate air clips needed; an upper-body layer left the hips static |
 | The ground moves are the air moves; the air look and physics come from the body (`airLegs`, `airCombat`) | Separate air moves duplicated tuning and could drift apart (an air opener without the ground opener's wind-up snapped out faster); combos now flow through take-off and landing |
+| The drop needs the long hold (`holdDelayInMove`) even from rest, is committed while it dives, and spends its hold; the air launcher needs an airborne target in reach | The drop has no wind-up hand-over, so the 0.1 s from-rest delay turned slightly long taps into drops (the hover gone); a link or cancel open mid-dive fired a heavy or the launcher in the air or on landing; a grounded enemy below counted as something to launch, so the drop never started above one |
 | Air combat keeps the rising arc and only hovers the fall | Stopping the rise when an attack starts killed jumps and launches; hanging at the top of the arc reads as natural DMC air combat |
 | The hover is earned by landed hits, not by being in the air attacking; a successful self-launch shares its hit's stall | Swinging at air must not earn what a hit earns; a launcher that sends both bodies up should let the attacker hang with the victim |
 | A hit settles the victim once, to a destination fixed at the hit; nothing follows the attacker | A tether that follows (even briefly, even only while hovering) drags enemies after a dashing player and feels like a leash; DMC juggles keep the enemy in reach through the hit itself |

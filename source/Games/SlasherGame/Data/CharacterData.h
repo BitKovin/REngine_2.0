@@ -188,13 +188,16 @@ struct AirCombatData
 // Melee target selection (COMBAT_DESIGN.md §5.7): every hostile within the move's tracking.searchRange, all around the
 // body, scored by its angle from the input direction (the facing without input) plus distance; lowest score wins.
 // Score = angle / 180 + distanceWeight * distance / searchRange - (keepBonus for the previous attack's target).
+// In the air (§5.8) only bodies within airHeightRange above / below count: an enemy standing far below is not what an
+// air swing goes for (the drop dives onto it).
 struct TargetingData
 {
 	float distanceWeight = 0.5f;     // how much a closer body outweighs a better-aligned one
 	float keepBonus = 0.2f;          // the previous attack's target wins near ties (= 36 degrees of angle)
 	float inputThreshold = 0.3f;     // move input magnitude that counts as a direction
+	float airHeightRange = 2.0f;     // m: an airborne attacker's targets are at most this far above / below it
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(TargetingData, distanceWeight, keepBonus, inputThreshold)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(TargetingData, distanceWeight, keepBonus, inputThreshold, airHeightRange)
 };
 
 // What this body shows where it is hit (COMBAT_DESIGN.md §9.4): blood, sparks, sand - a property of the victim. A hit

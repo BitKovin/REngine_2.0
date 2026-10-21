@@ -193,7 +193,7 @@
 			"params": { "launchSelf": { "onHit": true, "verticalSpeed": 15.0, "requireHeld": false }, "air": { "needsTarget": true } }
 		},
 		"drop": {
-			"_note": "The drop attack: what holding Attack in the air starts when there is nothing to launch (actions.AirDrop). The heavy_1 plunge: dives from 0.24, holds the strike from 0.36 until it lands, then the combo goes on on the ground.",
+			"_note": "The drop attack (actions.AirDrop): Attack held in the air for holdDelayInMove with nothing airborne in reach to launch - an enemy standing below included. The heavy_2 clip: the weapon goes up with a small hop (plunge.rise), dives from 0.24 steering onto the target below and holds the strike from 0.66 until it lands; diving it is committed (no combo, cancel or recovery in the air). Landed, it goes on like heavy_2: its combo link (light_3 / heavy_3 from its hold pose) and cancels, all after the hold.",
 			"clip": "combo1_heavy_2",
 			"animation": "GameData/models/player/weapons/scythe/scythe.glb",
 			"heavy": true,
@@ -201,13 +201,13 @@
 			"startState": "Air",
 			"entry": { "fresh": { "blendIn": 0.12, "startTime": 0.0 } },
 			"hits": [ { "start": 0.24, "end": 0.85, "damage": 20, "poiseDamage": 14, "reaction": "Stagger", "knockback": 6.0, "hitStop": 0.12, "shake": 0.1, "camera": 0.6, "impactScale": 2, "air": { "stall": 0 } } ],
-			"combo": { "windowStart": 0.47, "alternativeAt": 0.55, "windowEnd": 0.75, "next": "light_2", "alternative": "heavy_2" },
-			"cancels": [ { "start": 0.47, "into": ["Dash", "Jump"] }, { "start": 0.62, "into": ["Locomotion"] } ],
+			"combo": { "windowStart": 0.75, "alternativeAt": 0.825, "windowEnd": 1.28, "next": "light_3", "alternative": "heavy_3" },
+			"cancels": [ { "start": 0.79, "into": ["Dash", "Jump"] }, { "start": 0.95, "into": ["Locomotion"] } ],
 			"armor": [ { "start": 0.1, "end": 0.85, "poiseResist": 0.6 } ],
 			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
 			"reach": { "length": 0.2 },
-			"cues": [ { "time": 0.22, "trail": 1 }, { "time": 0.47, "trail": 0 } ],
-			"params": { "plunge": { "start": 0.24, "speed": 18, "hold": 0.66 } },
+			"cues": [ { "time": 0.22, "trail": 1 }, { "time": 0.85, "trail": 0 } ],
+			"params": { "plunge": { "start": 0.24, "speed": 18, "hold": 0.66, "rise": 4.0 } },
 			"speed": 1.45
 		},
 		"finisher": {

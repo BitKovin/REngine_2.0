@@ -28,6 +28,7 @@ struct MoveSlot
 	bool sustaining = false;
 	bool firstTick = true;
 	bool holdCommitted = false;                // started by a long hold: no hold.until release hand-over
+	bool committed = false;                    // MoveBehavior::Commits this frame: no link, cancel or recovery
 
 	std::vector<std::vector<entt::entity>> hitVictims;   // per hit window: hit-once list (versioned ids)
 	std::vector<uint8_t> hitWindowActive;
@@ -66,7 +67,9 @@ public:
 	void Tick(float deltaTime);
 
 	bool CanStartMove(int moveIndex, bool forced = false) const;
-	bool TryStartMove(int moveIndex);            // all rules apply (AI and code)
+	// All rules apply (AI and code). startedByHold: the Attack hold started it (a hold opener) - the hold is spent on it
+	// and does not carry into its combo link.
+	bool TryStartMove(int moveIndex, bool startedByHold = false);
 	bool StartForcedMove(int moveIndex);         // reactions, death, finisher victim: ignores cancel windows
 	void StopPrimary(MoveEndReason reason);
 	void StopOverlay(MoveEndReason reason);
@@ -116,11 +119,12 @@ private:
 	uint32_t serialCounter = 0;
 	bool locked = false;
 	bool comboArmed = false;                   // a press for the running combo link is held: the link stays open
-	uint32_t observedAttackPressId = 0;        // the Attack press seen last, and whether a primary move ran when it was
-	bool attackPressInMove = false;            // made (it decides the hold delay of a press no combo window owns)
+	uint32_t observedAttackPressId = 0;        // the Attack press seen last, and whether a primary move ran / the body
+	bool attackPressInMove = false;            // stood on the ground when it was made (they decide the hold delay of a
+	bool attackPressGrounded = true;           // press no combo window owns, HoldOpenerDelay)
 	const char* lastComboDecision = "-";
 
-	void StartSlot(MoveSlot& slot, const MoveData& move, MoveEntryKind entry);
+	void StartSlot(MoveSlot& slot, const MoveData& move, MoveEntryKind entry, bool startedByHold = false);
 	void EndSlot(MoveSlot& slot, MoveEndReason reason);
 	void AdvanceSlot(MoveSlot& slot, float deltaTime);
 	bool ResolveCombo();
@@ -135,7 +139,7 @@ private:
 	void ProcessCues(const MoveData& move, float time, float previousTime, bool firstTick);
 	void HandleButtons();
 	void HandleLocomotionCancel();
-	bool TryStartFromButton(InputButton button, int moveIndex);
+	bool TryStartFromButton(InputButton button, int moveIndex, bool startedByHold = false);
 	bool HasPendingPress(InputButton button) const;
 	void ConsumePress(InputButton button);
 	void PublishState();

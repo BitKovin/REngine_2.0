@@ -95,7 +95,11 @@ bool MoveRunner::StartStateAllows(const MoveData& move) const
 
 bool MoveRunner::CancelAllows(const MoveSlot& slot, TagMask tags) const
 {
-	if (!slot.IsActive() || slot.time >= slot.endTime)
+	if (!slot.IsActive())
+		return true;
+	if (slot.committed)
+		return false;
+	if (slot.time >= slot.endTime)
 		return true;
 
 	for (const CancelWindowData& window : slot.move->cancels)
@@ -137,7 +141,7 @@ bool MoveRunner::CanStartMove(int moveIndex, bool forced) const
 	return CancelAllows(overlay, move->tagMask);
 }
 
-bool MoveRunner::TryStartMove(int moveIndex)
+bool MoveRunner::TryStartMove(int moveIndex, bool startedByHold)
 {
 	if (!CanStartMove(moveIndex))
 		return false;
@@ -145,7 +149,7 @@ bool MoveRunner::TryStartMove(int moveIndex)
 	const MoveData& move = *moveSet->GetMove(moveIndex);
 	MoveSlot& slot = move.channel == MoveChannel::Overlay ? overlay : primary;
 	EndSlot(slot, MoveEndReason::Cancelled);
-	StartSlot(slot, move, MoveEntryKind::Fresh);
+	StartSlot(slot, move, MoveEntryKind::Fresh, startedByHold);
 	return true;
 }
 
@@ -193,7 +197,7 @@ void MoveRunner::StopAll(MoveEndReason reason)
 	PublishState();
 }
 
-void MoveRunner::StartSlot(MoveSlot& slot, const MoveData& move, MoveEntryKind entry)
+void MoveRunner::StartSlot(MoveSlot& slot, const MoveData& move, MoveEntryKind entry, bool startedByHold)
 {
 	const MoveEntryData& entryData = move.entry.Get(entry);
 
@@ -208,6 +212,7 @@ void MoveRunner::StartSlot(MoveSlot& slot, const MoveData& move, MoveEntryKind e
 	slot.sustaining = false;
 	slot.firstTick = true;
 	slot.holdCommitted = false;
+	slot.committed = false;
 	slot.hitVictims.resize(move.hits.size());
 	for (auto& victims : slot.hitVictims) victims.clear();
 	slot.hitWindowActive.assign(move.hits.size(), 0);
@@ -220,8 +225,9 @@ void MoveRunner::StartSlot(MoveSlot& slot, const MoveData& move, MoveEntryKind e
 	{
 		recovery = RecoverySlot();   // the new move owns the whole body
 
+		// The hold that started a hold opener (the launcher, the drop) is spent on it: holding on is not a heavy.
 		if (move.combo.IsValid())
-			comboResolver.Begin(owner->GetInput().Get(InputButton::Attack), moveSet->holdCarriesOver);
+			comboResolver.Begin(owner->GetInput().Get(InputButton::Attack), moveSet->holdCarriesOver && !startedByHold);
 		else
 			comboResolver.Reset();
 		comboArmed = false;
@@ -308,12 +314,14 @@ void MoveRunner::Tick(float deltaTime)
 	if (!moveSet)
 		return;
 
-	// Where a new Attack press was made - inside a move or from rest - before this frame can end that move.
+	// Where a new Attack press was made - inside a move or from rest, on the ground or in the air - before this frame
+	// can end that move.
 	const ButtonState& attack = owner->GetInput().Get(InputButton::Attack);
 	if (attack.pressId != observedAttackPressId)
 	{
 		observedAttackPressId = attack.pressId;
 		attackPressInMove = primary.IsActive();
+		attackPressGrounded = owner->IsGrounded();
 	}
 
 	// Before the primary: a recovery that begins this frame starts advancing next frame.
@@ -340,6 +348,7 @@ void MoveRunner::AdvanceSlot(MoveSlot& slot, float deltaTime)
 
 	slot.previousTime = slot.time;
 	const bool clockHeld = !slot.firstTick && slot.behavior && slot.behavior->HoldsClock(MakeContext(slot, deltaTime));
+	slot.committed = !slot.firstTick && slot.behavior && slot.behavior->Commits(MakeContext(slot, deltaTime));
 	if (!slot.firstTick && !clockHeld && (!slot.sustaining || move.loop))
 		slot.time += deltaTime * move.speed * owner->GetAttackSpeedMultiplier();
 
@@ -424,6 +433,8 @@ bool MoveRunner::ResolveCombo()
 
 	comboResolver.Observe(owner->GetInput().Get(InputButton::Attack), timing, primary.time);
 	comboArmed = comboResolver.IsArmed(timing, Time::GameTime);
+	if (primary.committed)
+		return false;   // a plunge diving: the link opens on the ground; presses made meanwhile are judged then
 	const ComboDecision decision = comboResolver.Evaluate(timing, primary.time, Time::GameTime, moveSet->inputBuffer);
 	if (decision == ComboDecision::None)
 		return false;
@@ -447,7 +458,7 @@ bool MoveRunner::ResolveCombo()
 	// The hold opener (launcher) after a long hold is a fresh, committed start: the hold already showed the intent.
 	const MoveEntryKind entry = decision == ComboDecision::Hold ? MoveEntryKind::Fresh : (move.heavy ? MoveEntryKind::AfterHeavy : MoveEntryKind::AfterLight);
 	EndSlot(primary, MoveEndReason::Chained);
-	StartSlot(primary, *next, entry);
+	StartSlot(primary, *next, entry, decision == ComboDecision::Hold);
 	primary.holdCommitted = decision == ComboDecision::Hold;
 	return true;
 }
@@ -515,12 +526,14 @@ bool MoveRunner::ComboCanContinue() const
 bool MoveRunner::ShouldRecover(const MoveSlot& slot) const
 {
 	// Runs after ResolveCombo: past recoveryStart (>= combo.windowEnd) the combo can no longer fire - unless a press for
-	// the link is still held (armed): its release still gets the follow-up, so the attack waits for it.
+	// the link is still held (armed): its release still gets the follow-up, so the attack waits for it. A committed move
+	// (a plunge diving) does not recover in the air.
 	const MoveData& move = *slot.move;
 	return move.recoveryStart >= 0.0f
 		&& slot.time >= move.recoveryStart
 		&& slot.time < slot.endTime
 		&& !slot.sustaining
+		&& !slot.committed
 		&& !comboArmed;
 }
 
@@ -610,9 +623,9 @@ void MoveRunner::ConsumePress(InputButton button)
 	consumedPressId[static_cast<size_t>(button)] = owner->GetInput().Get(button).pressId;
 }
 
-bool MoveRunner::TryStartFromButton(InputButton button, int moveIndex)
+bool MoveRunner::TryStartFromButton(InputButton button, int moveIndex, bool startedByHold)
 {
-	if (moveIndex < 0 || !TryStartMove(moveIndex))
+	if (moveIndex < 0 || !TryStartMove(moveIndex, startedByHold))
 		return false;
 	ConsumePress(button);
 	return true;
@@ -687,11 +700,14 @@ void MoveRunner::HandleLocomotionCancel()
 }
 
 // A fresh Attack press outside a combo window starts the slot's combo opener - or, when a hold opener can start, waits:
-// released early it starts the opener (on release), held long enough the hold opener (§5.4). A press made from rest
-// needs holdDelay (the launcher shows its wind-up and still falls back to the opener if released during it); one made
-// during a move (a dash, an attack past its combo window) holdDelayInMove, and the launcher commits at once. Where the
-// press was made counts, not where the body is now: a press held through the end of a dash is still the dash's. A
-// press that cannot start anything yet stays pending and decides when it can.
+// released early it starts the opener (on release), held long enough the hold opener (§5.4, HoldOpenerDelay). A press
+// made from rest needs holdDelay when the hold opener hands back to the opener if released during its wind-up (the
+// launcher); one made during a move (a dash, an attack past its combo window) holdDelayInMove, and the launcher commits
+// at once - as does a hold opener without that hand-over (the drop), which always needs holdDelayInMove: a tap that
+// lasts a little longer must stay the usual attack. Where the press was made counts, not where the body is now: a
+// press held through the end of a dash is still the dash's, and one made in the air that lands undecided (or the
+// reverse) never pops the other state's hold opener - released, it is the usual attack. A press that cannot start
+// anything yet stays pending and decides when it can.
 void MoveRunner::StartOpener(bool grounded)
 {
 	const int opener = moveSet->GetComboOpener(moveSet->GetOpenerSlot(grounded));
@@ -703,7 +719,8 @@ void MoveRunner::StartOpener(bool grounded)
 	}
 
 	const bool inMove = attackPressInMove;
-	const float delay = inMove ? moveSet->holdDelayInMove : moveSet->holdDelay;
+	const bool handsOver = moveSet->GetMove(holdOpener)->hold.IsValid();
+	const float delay = HoldOpenerDelay(inMove, attackPressGrounded == grounded, handsOver, moveSet->holdDelay, moveSet->holdDelayInMove);
 	switch (DecideOpener(owner->GetInput().Get(InputButton::Attack), Time::GameTime, delay))
 	{
 	case OpenerDecision::Wait:
@@ -712,7 +729,7 @@ void MoveRunner::StartOpener(bool grounded)
 		TryStartFromButton(InputButton::Attack, opener);
 		break;
 	case OpenerDecision::Hold:
-		if (TryStartFromButton(InputButton::Attack, holdOpener))
+		if (TryStartFromButton(InputButton::Attack, holdOpener, true))
 			primary.holdCommitted = inMove;
 		else if (!inMove)
 			TryStartFromButton(InputButton::Attack, opener);   // from rest the press still gets the usual attack

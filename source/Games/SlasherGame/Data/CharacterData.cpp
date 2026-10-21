@@ -49,6 +49,7 @@ bool ResolveCharacter(CharacterData& data, DataLoadReport& report)
 	if (targeting.distanceWeight < 0.0f) report.Error("targeting.distanceWeight", "must be >= 0");
 	if (targeting.keepBonus < 0.0f) report.Error("targeting.keepBonus", "must be >= 0");
 	if (targeting.inputThreshold <= 0.0f || targeting.inputThreshold > 1.0f) report.Error("targeting.inputThreshold", "must be in (0, 1]");
+	if (targeting.airHeightRange <= 0.0f) report.Error("targeting.airHeightRange", "must be > 0");
 
 	if (data.hitEffect.scale < 0.0f) report.Error("hitEffect.scale", "must be >= 0");
 
