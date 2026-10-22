@@ -975,6 +975,34 @@ kick or rumble faster than its speed limit is a warning (shipped data must load 
 The kick and the hit recoil share `DampedSpring` (`Combat/Spring.h`): an exact closed-form step (frame-rate
 independent), kicks normalized so the response peaks at the requested size about a quarter period later.
 
+### 9.5 Coat cloth
+
+The coat is bone cloth (engine `Cloth/BoneCloth.h`), spring bones the way early-2000s action games did coats: six
+panels (front, side and back, left and right), each one chain from the chest to the hem - the upper panel bone under
+`cloth_root2` continues into the three skirt bones under `cloth_root` it ends at. Each bone's tip trails a point - where the bone would hang on the bone above as
+that one hangs now - easing toward it each frame, quick at the chest and slow at the hem, so the panel bends smoothly
+with no hard point. The coat trails a share of the character's movement (`trail`) and all of its turning; no speed is
+kept, so starts and stops never jitter or overshoot. The coat's keys in the locomotion clips (and on its roots) are
+not used: the panels hang from the body in their rest shape. Settings: `GameData/models/player/player_coat.glb.skmm`
+(`cloth`), re-read in game with `cloth_reload`; `cloth_debug` draws the chains and capsules.
+
+* **Order.** `CombatCharacter::UpdatePose` composes the pose, moves the body, sets the mesh transform and only then
+  pastes (`PasteAnimationPoseWithCloth`) - the coat lags this frame's movement. A body with cloth pastes every frame
+  (the last composed pose between evaluations); hitstop's local delta time 0 holds the coat; `Teleport` resets it.
+* **Legs.** Capsules on thighs and calves, fitted to the pants mesh; the bone tips are pushed out of them.
+* **Wind.** `wind <x> <y> <z> [gust] [Hz]` sets the world wind; it pushes the tips. Two additive coat clips of
+  `player_coat.glb` turn the rest shape the panels swing back to: `coat_open` (front panels swing out, ~24 cm at the
+  hem; headwind, windward side more) and `coat_volume` (every panel flares ~11 cm at the hem; `volume` always, more
+  with wind speed). Both are two-frame actions in `player_coat.blend` (rest, then `coat_open_ctrl` Y 10 /
+  `coat_wind_ctrl` Y 25 with `coat_open_ctrl` Y -6 cancelling its opening); until the model is re-exported with them
+  the layers are off (a warning at load).
+* **Spin.** A fast turn - a quick turn, a spinning attack - opens the coat as if the air filled it: the yaw rate of the
+  fastest of the bones the coat roots hang from and their ancestors (root, pelvis, spine_01-03), each turned by the
+  entity and the animation together - so attacks that whip the pelvis or the spine open it too, even when the spine
+  counters the pelvis - adds `spinOpen` / `spinVolume` to the two layers, from `spinStart` to `spinFull` deg/s. It
+  rises with `layerSmoothing` and settles over `spinRelease`, so the coat stays open a beat after the turn. Both
+  weights 0 turn it off.
+
 ---
 
 ## 10. Data (`Data/`, `GameData/combat/`)
@@ -1178,6 +1206,8 @@ stable); a body's action state is fully described by `(moveIndex, moveTime)` plu
 | The palette reaches shaders as `finalBonesMatrices0` (slots 0–127) and `finalBonesMatrices1` (128–255); `SKINNED_BONES_PER_UNIFORM`, `Shader::SetUniform(name, const mat4*, count)`, `SkeletalMeshDrawCommand::ApplyAdditionalShaderParams` (still sets the legacy `finalBonesMatrices` for shaders of other games) | bgfx shader binaries store a uniform array's size in 8 bits (256 wraps to 0) and its per-draw opcode in 10 bits of registers |
 | Game shaders: `GameData/shaders/source/bones.sh` (`GetBoneMatrix`) used by `vs_default`, `vs_shadowvolcap`, `vs_shadowvoledge`; compiled with `GameData/shaders/ShaderCompilationAutomation.exe` | the split palette |
 | `AnimationPose::MakeAdditive` / `ApplyAdditiveInPlace` (`AdditiveSpace` Local / Mesh, like Unreal's additive animations) | aim sweeps and additive move layers (§9.1): a clip's difference from a reference pose added on a subtree. Mesh space turns bones in model space, so the aim holds whatever the pose underneath does with the parents and the coat stays where the clip keeps it; nothing else in the engine could add a pose |
+| Bone cloth: `Cloth/BoneCloth.h` (spring-bone chains under root bones, joined across branches: each tip eases toward where the bone would hang (no springs), trailing part of the body's movement, with leg capsules and additive wind layers), settings `BoneClothData` in `SkeletalMeshMetaData::cloth` (`.skmm`); `SkeletalMesh::PasteAnimationPoseWithCloth` / `ResetCloth` / `ReloadClothData`; console `cloth_debug`, `cloth_reload`. `SkeletalMesh` constructor and destructor moved to the .cpp | the coat (§9.5): the baked coat keys could not react to what the body does; reusable for any game's coats, skirts, capes, tails |
+| `World/WindField` (one world wind with gusts; console `wind`) | the coat's wind; the engine had no wind |
 | `AnimationPose::LayeredLerp`: `UseWorldSpaceRotation` is no longer scaled by `progress` (it only chooses the blend space) | partial mesh-space blends mixed in the local-space result: a fading upper-body layer swung the torso toward the legs' pelvis twist (aim drifting after firing). Callers passing fractional values (ShooterGame) now get exactly the space they ask for |
 
 Performance fixes (from profiling `-perf_crowd 300`, 2026-10-15; §13.2 has what was found and measured). Each keeps the
@@ -1287,6 +1317,7 @@ SlasherGame/
 | Weapons modelled into a character are weapon files without meshes | Existing enemy models keep their axes / guns; same hit and shot code |
 | Body frames run in an ECS system with `ParallelFor`; side effects queued and flushed in body order | Hundreds of enemies (R15) without giving up deterministic hit resolution; entity classes keep owning their logic |
 | Animation rate by camera distance, sampled at the move clock | The pose is the cost per body; a late evaluation is still exact |
+| Coat: old-school trailing bones, chest to hem - each tip eases toward where it would hang, no springs; the locomotion clips' coat keys unused; wind as additive layers on the rest shape | What early-2000s action games did. A cloth-style simulation (surfaces, one-sided collision, blends with the animation) cost more and still showed seams |
 | Target magnet adds to root motion instead of replacing it | Clips keep their authored motion; stationary attacks still close in; one rule keeps bodies out of each other |
 | Hit-stop stops instantly at the contact and only eases the release | An eased onset let the blade slide through and read soft; lag came from long stops, so lights stay at 3-4 frames (DMC3) |
 | Weight from strikes, not from locomotion | Halving acceleration / turn rate to add "weight" made the body feel uncontrollable; DMC-style crisp movement, impact from hit-stop, recoil, pushback, blood and camera |

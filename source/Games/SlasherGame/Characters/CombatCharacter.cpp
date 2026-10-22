@@ -398,6 +398,7 @@ void CombatCharacter::UpdatePose()
 	// evaluation shows exactly where the move is. Root motion becomes a velocity over the evaluated span.
 	UpdatePoseDetail();
 	animationPendingTime += deltaTime;
+	bool evaluated = false;
 	if (++animationFramesSinceEvaluate >= animationInterval || animator.GetPose().boneTransforms.empty())
 	{
 		ZoneScopedN("Body: animation");
@@ -413,12 +414,7 @@ void CombatCharacter::UpdatePose()
 		rootMotionVelocity = animationPendingTime > 1e-6f ? rootMotion / animationPendingTime : glm::vec3(0.0f);
 		animationPendingTime = 0.0f;
 		animationFramesSinceEvaluate = 0;
-
-		if (!pose.boneTransforms.empty())
-		{
-			ZoneScopedN("Body: paste pose");
-			mesh->PasteAnimationPose(pose);
-		}
+		evaluated = !pose.boneTransforms.empty();
 	}
 
 	{
@@ -432,6 +428,17 @@ void CombatCharacter::UpdatePose()
 		shake = state->GetShakeOffset();
 	mesh->Position = GetFeetPosition() + shake;
 	mesh->Rotation = glm::vec3(0.0f, yaw + data->mesh.yawOffset, 0.0f);
+
+	// After the transform: the bone cloth (the coat) feels the body's movement from it. Cloth moves every frame, on the
+	// last composed pose between evaluations.
+	{
+		ZoneScopedN("Body: paste pose");
+		const AnimationPose& pose = animator.GetPose();
+		if (mesh->HasCloth() && !pose.boneTransforms.empty())
+			mesh->PasteAnimationPoseWithCloth(pose, deltaTime);
+		else if (evaluated)
+			mesh->PasteAnimationPose(pose);
+	}
 
 	{
 		ZoneScopedN("Body: hitboxes");
@@ -524,6 +531,8 @@ void CombatCharacter::Teleport(vec3 position)
 	if (started)
 		movement.SetPosition(position);
 	velocity = glm::vec3(0.0f);
+	if (mesh != nullptr)
+		mesh->ResetCloth();   // the coat doesn't swing across the jump
 }
 
 // The weapons follow what the body does (COMBAT_DESIGN.md §9.3). The Secondary weapon:

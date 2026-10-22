@@ -3,6 +3,20 @@
 #include <algorithm>
 #include "Level.hpp"
 #include "EngineMain.h"
+#include "Logger.hpp"
+#include "Cloth/BoneCloth.h"
+
+SkeletalMesh::SkeletalMesh(Entity* owner) : StaticMesh(owner)
+{
+	CastDetailShadows = true;
+	skelMeshes++;
+}
+
+SkeletalMesh::~SkeletalMesh()
+{
+	ClearHitboxes();
+	skelMeshes--;
+}
 
 // Called once, from RewireForCurrentModel(), whenever model->loadState.generation
 // has changed since we last looked - see StaticMesh::PreFinalize(). Fires
@@ -72,6 +86,98 @@ AnimationPose SkeletalMesh::GetAnimationPose()
 	// One copy here, paid only by callers that actually need to own a
 	// snapshot (e.g. to survive across later mutating calls).
 	return GetAnimationPoseRef();
+}
+
+void SkeletalMesh::PasteAnimationPoseWithCloth(const AnimationPose& pose, float deltaTime)
+{
+	if (model == nullptr)
+		return;
+
+	RefreshCloth();
+	if (cloths.empty())
+	{
+		PasteAnimationPose(pose);
+		return;
+	}
+
+	// clothPose keeps its storage: no allocation once it has the pose's bones (plus the strip bones the cloth writes
+	// when the pose lacks them). A pose with another bone set starts it over.
+	if (clothPoseSourceSize != pose.boneTransforms.size())
+	{
+		clothPose.boneTransforms = pose.boneTransforms;
+		clothPoseSourceSize = pose.boneTransforms.size();
+	}
+	else
+	{
+		for (const auto& [bone, transform] : pose.boneTransforms)
+			clothPose.boneTransforms.insert_or_assign(bone, transform);
+	}
+	clothPose.boneTreeRoot = pose.boneTreeRoot;
+
+	const mat4 world = GetWorldMatrix();
+	for (auto& cloth : cloths)
+		cloth->Step(clothPose, world, deltaTime);
+
+	PasteAnimationPose(clothPose);
+}
+
+void SkeletalMesh::ResetCloth()
+{
+	for (auto& cloth : cloths)
+		cloth->Reset();
+}
+
+void SkeletalMesh::ReloadClothData()
+{
+	ClearMetaDataCache();
+	invalid_meta_files.clear();
+	clothReloadGeneration.fetch_add(1, std::memory_order_release);
+}
+
+void SkeletalMesh::RefreshCloth()
+{
+	// cloth_reload: this mesh reads its own .skmm, touching no shared cache - meshes paste on worker threads.
+	bool settingsChanged = false;
+	const uint64_t reload = clothReloadGeneration.load(std::memory_order_acquire);
+	if (clothReloadSeen != reload)
+	{
+		clothReloadSeen = reload;
+		const string file = AssetRegistry::ReadFileToString(filePath + ".skmm");
+		if (file.size() >= 3)
+		{
+			try
+			{
+				metaData.cloth = json::parse(file).get<SkeletalMeshMetaData>().cloth;
+			}
+			catch (const std::exception& e)
+			{
+				Logger::Warning("%s.skmm: %s", filePath.c_str(), e.what());
+			}
+		}
+		settingsChanged = true;
+	}
+
+	const uint64_t generation = model->loadState.generation.load(std::memory_order_acquire);
+	if (!settingsChanged && clothModel == model && clothModelGeneration == generation)
+		return;
+
+	// The strips need the geometry (it picks them and fits the colliders): until it is in, clothModel stays unset and
+	// this runs again next frame.
+	cloths.clear();
+	clothModel = nullptr;
+	const bool hasGeometry = std::any_of(model->meshes.begin(), model->meshes.end(),
+		[](const roj::SkinnedMesh& mesh) { return !mesh.vertices.empty(); });
+	if (!hasGeometry)
+		return;
+
+	clothModel = model;
+	clothModelGeneration = generation;
+	for (const BoneClothData& data : metaData.cloth)
+	{
+		auto cloth = std::make_unique<BoneCloth>();
+		if (cloth->Build(data, *model))
+			cloths.push_back(std::move(cloth));
+	}
 }
 
 void SkeletalMesh::ApplyWorldSpaceBoneTransforms(std::unordered_map<hashed_string, mat4>& pose)

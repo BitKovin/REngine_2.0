@@ -27,9 +27,15 @@
 
 #include "Physics.h"
 
+#include "Cloth/BoneClothData.h"
+
+#include <atomic>
+#include <memory>
 #include <shared_mutex>
 
 using namespace std;
+
+class BoneCloth;
 
 struct AnimationPose 
 {
@@ -192,8 +198,9 @@ struct SkeletalMeshMetaData
 {
 	vector<HitboxData> hitboxes;
 	vector<AnimationData> animations;
+	vector<BoneClothData> cloth;   // simulated by PasteAnimationPoseWithCloth
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(SkeletalMeshMetaData, hitboxes, animations)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(SkeletalMeshMetaData, hitboxes, animations, cloth)
 
 
 };
@@ -258,6 +265,18 @@ private:
 
 	size_t m_lastSkeletonBoneCount = 0;
 
+	// Bone cloth (metaData.cloth): built once the model's geometry is in, rebuilt when the model or the settings change.
+	std::vector<std::unique_ptr<BoneCloth>> cloths;
+	const roj::SkinnedModel* clothModel = nullptr;
+	uint64_t clothModelGeneration = 0;
+	uint64_t clothReloadSeen = 0;
+	AnimationPose clothPose;   // the pose pasted with the strips simulated; its storage is kept between frames
+	size_t clothPoseSourceSize = 0;   // bones of the pose clothPose was last started from
+
+	static inline std::atomic<uint64_t> clothReloadGeneration{ 0 };
+
+	void RefreshCloth();
+
 protected:
 
 	// Bones are now applied by SkeletalMeshDrawCommand::ApplyAdditionalShaderParams - not here anymore. Override StaticMesh::ApplyAdditionalShaderParams for custom (non-bone) params.
@@ -301,18 +320,9 @@ public:
 
 	std::vector<Body*> hitboxBodies;
 
-	SkeletalMesh(Entity* owner) : StaticMesh(owner)
-	{
-		CastDetailShadows = true;
-		skelMeshes++;
-	}
-
-	~SkeletalMesh()
-	{
-		ClearHitboxes();
-		skelMeshes--;
-		
-	}
+	// Both in the .cpp, where BoneCloth (owned through cloths) is a complete type.
+	SkeletalMesh(Entity* owner);
+	~SkeletalMesh();
 
 	AnimationPose GetAnimationPose();
 	const AnimationPose& GetAnimationPoseRef();
@@ -333,6 +343,19 @@ public:
 		animator.ApplyBonePoseArray(pose.boneTransforms);
 		boneTransforms = animator.getBoneMatrices();
 	}
+
+	// Pastes `pose` with the bone cloth (metaData.cloth, see Cloth/BoneCloth.h) simulated on it. Call once a frame,
+	// after this frame's Position/Rotation are set - the strips feel the mesh's movement from them - with the owner's
+	// delta time (0 holds the strips, for hitstop). Without cloth it is PasteAnimationPose.
+	void PasteAnimationPoseWithCloth(const AnimationPose& pose, float deltaTime);
+
+	bool HasCloth() const { return !metaData.cloth.empty(); }
+
+	// The cloth strips snap to the pose on the next paste (after a teleport or a cut).
+	void ResetCloth();
+
+	// Every skeletal mesh re-reads the cloth settings of its .skmm on its next PasteAnimationPoseWithCloth. Main thread.
+	static void ReloadClothData();
 
 	void ApplyWorldSpaceBoneTransforms(std::unordered_map<hashed_string, mat4>& pose);
 

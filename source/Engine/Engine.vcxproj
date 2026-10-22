@@ -550,6 +550,8 @@
     <ClCompile Include="Video\Video.cpp" />
     <ClCompile Include="Video\VideoInstance.cpp" />
     <ClCompile Include="World\WorldOrientationManager.cpp" />
+    <ClCompile Include="World\WindField.cpp" />
+    <ClCompile Include="Cloth\BoneCloth.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AiPerception\AiPerceptionSystem.h" />
@@ -845,6 +847,9 @@
     <ClInclude Include="Video\Video.h" />
     <ClInclude Include="Video\VideoInstance.h" />
     <ClInclude Include="World\WorldOrientationManager.h" />
+    <ClInclude Include="World\WindField.h" />
+    <ClInclude Include="Cloth\BoneCloth.h" />
+    <ClInclude Include="Cloth\BoneClothData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
