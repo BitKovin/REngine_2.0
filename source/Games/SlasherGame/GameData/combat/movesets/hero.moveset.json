@@ -401,7 +401,8 @@
 			"armor": [ { "start": 0.3, "end": 1.16, "poiseResist": 0.6 } ],
 			"grips": [ { "start": 0.35, "end": 1.85 } ],
 			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
-			"cues": [ { "time": 0.88, "trail": 1 }, { "time": 1.18, "trail": 0 } ]
+			"cues": [ { "time": 0.88, "trail": 1 }, { "time": 1.18, "trail": 0 } ],
+			"speed": 1.5
 		},
 		"sword_light_2": {
 			"_note": "A flick 0.03 - 0.1, then the main cut 0.24 - 0.46 (peak 0.33).",
@@ -443,7 +444,8 @@
 			"armor": [ { "start": 0.3, "end": 0.97, "poiseResist": 0.6 } ],
 			"grips": [ { "start": 0.28, "end": 1.65 } ],
 			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
-			"cues": [ { "time": 0.78, "trail": 1 }, { "time": 1.0, "trail": 0 } ]
+			"cues": [ { "time": 0.78, "trail": 1 }, { "time": 1.0, "trail": 0 } ],
+			"speed": 1.5
 		},
 		"sword_light_3": {
 			"_note": "Light ender: the cut 0.56 - 0.88 (peak 0.62), 2.2 m of root motion.",
@@ -461,7 +463,8 @@
 			"recovery": { "start": 1.0, "lowerBodyBlend": 0.18 },
 			"cancels": [ { "start": 0.9, "into": ["Dash", "Jump", "Locomotion"] } ],
 			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7 },
-			"cues": [ { "time": 0.54, "trail": 1 }, { "time": 0.9, "trail": 0 } ]
+			"cues": [ { "time": 0.54, "trail": 1 }, { "time": 0.9, "trail": 0 } ],
+			"speed": 1.3
 		},
 		"sword_heavy_3": {
 			"_note": "Heavy ender: a long cut 0.6 - 1.02 (peak 0.68) and 2.6 m of root motion.",
