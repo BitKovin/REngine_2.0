@@ -245,7 +245,7 @@ float CombatCharacter::GetMoveSpeedMultiplier() const
 	return effects ? effects->modifiers.moveSpeed : 1.0f;
 }
 
-const WeaponData* CombatCharacter::GetAimingWeapon() const
+const WeaponData* CombatCharacter::FindAimingWeapon(bool posing) const
 {
 	if (IsDead())
 		return nullptr;
@@ -254,7 +254,7 @@ const WeaponData* CombatCharacter::GetAimingWeapon() const
 	if (primary.IsActive() && primary.move->overlay != OverlayPolicy::Allow)
 		return nullptr;
 	const MoveSlot& overlay = moves.GetOverlay();
-	if (overlay.IsActive() && overlay.move->suspendsAim)
+	if (posing && overlay.IsActive() && overlay.move->suspendsAim)
 		return nullptr;   // the overlay poses the weapon itself (a spinning reload)
 
 	// The firearm out aims - beside the melee weapon too (a pistol in the off hand); else the Main weapon, if it does.
@@ -734,7 +734,8 @@ void CombatCharacter::BuildAnimatorInput(AnimatorInput& out) const
 			out.layeredStances |= secondary;
 	}
 	out.aiming = hasAimPoint;
-	out.strafing = hasAimPoint || requests.hasFacing;   // facing set by the aim or a move / brain, not by the movement
+	// Facing set by the aim (a reload included) or a move / brain, not by the movement.
+	out.strafing = GetFacingWeapon() != nullptr || requests.hasFacing;
 
 	// Model space = the mesh's space: undo the mesh yaw (facing + the model's yaw offset).
 	const glm::vec3 toModel(0.0f, -(yaw + data->mesh.yawOffset), 0.0f);
@@ -769,7 +770,7 @@ void CombatCharacter::BuildAnimatorInput(AnimatorInput& out) const
 		layer.legWeight = move.legWeight;
 		layer.airLegs = move.airLegs;
 		layer.additive = &move.additive;
-		layer.space = move.layerSpace;
+		layer.meshSpace = move.LayerMeshSpace();
 		layer.movement = move.HasTag(MoveTag::Movement);
 		layer.rootMotion = move.rootMotion.enabled;
 	};
@@ -790,7 +791,7 @@ void CombatCharacter::BuildAnimatorInput(AnimatorInput& out) const
 		out.recovery.lowerBodyBlend = move.recovery.lowerBodyBlend;
 		out.recovery.upperBodyBlend = move.recovery.upperBodyBlend;
 		out.recovery.blendOut = move.resolvedBlendOut;
-		out.recovery.space = move.layerSpace;
+		out.recovery.meshSpace = move.LayerMeshSpace();
 		out.recovery.movement = move.HasTag(MoveTag::Movement);
 	}
 }
@@ -962,9 +963,9 @@ void CombatCharacter::UpdateFacing(float deltaTime)
 		if (requests.facingSharpness > 0.0f)
 			sharpness = requests.facingSharpness;
 	}
-	else if (const WeaponData* aiming = GetAimingWeapon())
+	else if (const WeaponData* aiming = GetFacingWeapon())
 	{
-		// An aiming weapon in the hands: the body keeps facing the aim and strafes.
+		// An aiming weapon in the hands: the body keeps facing the aim and strafes - through a reload too.
 		desired = input.aimDirection;
 		rate = aiming->stance.aimTurnRate;
 	}
@@ -1474,29 +1475,33 @@ void CombatCharacter::AddHitRecoil(const glm::vec3& direction, float strength)
 
 // A hit that landed on this body in the air, or launched it (main thread, hit resolution). What it does depends on
 // where it came from:
-//   melee    the body hovers `victimHold` (or the hit's air.stall; 0: no hover - it falls at once) - every hit
-//            restarts the timer - and rises a little (hitLift, or the hit's air.lift). When the attacker is in the air
-//            too its AttackBehavior settles the victim next (SetAirPull), which also takes over the rise.
-//   bullet   it keeps its height: the vertical motion stops, and it hovers `firearmHold` (every bullet restarts it),
+//   melee    the body hovers the attacker's `victimHold` (or the hit's longer air.stall; 0: no hover - it falls at
+//            once) - every hit restarts the timer - and rises a little (hitLift, or the hit's air.lift). When the
+//            attacker is in the air too its AttackBehavior settles the victim next (SetAirPull), which also takes over
+//            the rise, and keeps it hovering while that attack runs.
+//   bullet   it keeps its height: the vertical motion stops, and it hovers the shooter's `firearmHold` (every bullet restarts it),
 //            then gravity fades in. Bullets alone do not keep a body up for long - they hold it for the next combo.
 //   a launch keeps its own speed. A player-controlled victim is not stopped by an enemy's bullets.
 void CombatCharacter::ApplyAirHit(const HitResult& result)
 {
 	const HitRequestEvent& hit = *result.request;
 	const AirCombatData& air = data->airCombat;
+	// How long a hit holds this body is the attacker's (its hits juggle); without one, this body's own numbers.
+	const auto* attackerBody = dynamic_cast<const CombatCharacter*>(result.attacker);
+	const AirCombatData& holder = attackerBody != nullptr && attackerBody->GetData() != nullptr ? attackerBody->GetData()->airCombat : air;
 
 	float hold = 0.0f;
 	float lift = 0.0f;
 	switch (hit.source)
 	{
 	case DamageSource::Melee:
-		hold = AirJuggle::ResolveHold(hit.airStall, air.victimHold);
+		hold = AirJuggle::ResolveHold(hit.airStall, holder.victimHold);
 		lift = hit.airLift >= 0.0f ? hit.airLift : air.hitLift;
 		break;
 	case DamageSource::Firearm:
 		if (IsPlayerControlled())
 			return;
-		hold = hit.airStall >= 0.0f ? hit.airStall : air.firearmHold;
+		hold = AirJuggle::ResolveHold(hit.airStall, holder.firearmHold);
 		break;
 	default:
 		if (hit.airStall < 0.0f)

@@ -3,6 +3,7 @@
 #ifndef DISTRIBUTION
 
 #include <Actions/ComboResolver.h>
+#include <Characters/CharacterAnimator.h>
 #include <Characters/CombatCharacter.h>
 #include <Combat/CombatComponents.h>
 #include <Combat/CombatRules.h>
@@ -14,6 +15,7 @@
 #include <Data/WeaponData.h>
 #include <Settings/GameplaySettingsData.h>
 
+#include <Animation.h>
 #include <FileSystem/FileSystem.h>
 #include <Helpers/StringHelper.h>
 #include <Logger.hpp>
@@ -24,6 +26,8 @@
 #include <cstdarg>
 #include <cstdio>
 #include <functional>
+#include <memory>
+#include <tuple>
 
 namespace
 {
@@ -378,8 +382,10 @@ namespace
 			"an already-triggered self-launch cannot grant hover a second time");
 		test.Check(!AirJuggle::ShouldShareLaunchHover(true, true, false, false),
 			"non-melee hits do not use the melee launcher's shared hover path");
-		test.Check(std::abs(AirJuggle::ResolveHold(1.2f, air.victimHold) - 1.2f) < 1e-5f,
-			"the explicit launcher stall resolves to the same duration for both bodies");
+		test.Check(std::abs(AirJuggle::ResolveHold(air.victimHold + 1.0f, air.victimHold) - (air.victimHold + 1.0f)) < 1e-5f,
+			"an explicit stall may ask for a longer hover");
+		test.Check(std::abs(AirJuggle::ResolveHold(0.1f, air.victimHold) - air.victimHold) < 1e-5f,
+			"...never a shorter one: a juggled body falls only when the hits stop");
 		test.Check(std::abs(AirJuggle::ResolveHold(-1.0f, air.victimHold) - air.victimHold) < 1e-5f,
 			"a missing launcher stall uses the victim's configured default");
 		test.Check(AirJuggle::ResolveHold(0.0f, air.victimHold) == 0.0f,
@@ -441,12 +447,12 @@ namespace
 		onGround.Land();
 		test.Check(onGround.clock < 0.0f && onGround.remaining == 0.0f && onGround.fade == 0.0f, "landing resets the clock and the hover");
 
-		// ---- no infinite air time, and the player falls first: her numbers are shorter than an enemy's
+		// ---- no infinite air time for the player; an enemy has no limit of its own - her juggle is its limit
 		AirCombatData hero;
 		hero.maxHangTime = 2.0f;
 		hero.fallGravityScale = 0.25f;
 		hero.maxFallSpeed = 1.5f;
-		test.Check(hero.maxHangTime < air.maxHangTime, "the hero's hang time is shorter than an enemy's");
+		test.Check(hero.maxHangTime > 0.0f && air.maxHangTime <= 0.0f, "only the player's hang time is limited");
 
 		auto timeToSink = [&](const AirCombatData& data, float meters)
 		{
@@ -465,8 +471,8 @@ namespace
 		};
 		const float enemySink = timeToSink(air, 3.0f);
 		const float heroSink = timeToSink(hero, 3.0f);
-		test.Check(enemySink < 60.0f && heroSink < 60.0f, "a body hit forever still comes down (%.1f s / %.1f s)", enemySink, heroSink);
-		test.Check(heroSink < enemySink && enemySink > air.maxHangTime, "the player starts to fall before the enemy (%.1f s vs %.1f s)", heroSink, enemySink);
+		test.Check(heroSink < hero.maxHangTime + hero.hangFade + 2.0f, "the player hit forever still comes down (%.1f s)", heroSink);
+		test.Check(enemySink >= 3.0f / air.maxFallSpeed - 0.1f, "an enemy kept hit only sinks at the hover's speed (%.1f s for 3 m)", enemySink);
 
 		// ---- the settle a melee hit gives: once, toward a destination fixed at the hit
 		AirCombatData pullAir;
@@ -1023,6 +1029,18 @@ namespace
 		reversed.endPitch = -90.0f;
 		test.Check(std::abs(reversed.TimeAt(45.0f, 1.0f) - 0.25f) < 1e-5f && std::abs(reversed.TimeAt(-45.0f, 1.0f) - 0.75f) < 1e-5f,
 			"a sweep may run from up to down");
+		test.Check(aimingOk && sweep.yawBoneHashes.size() == 3 && sweep.yawBoneHashes[0] == hashed_string("spine_01") && sweep.maxYaw > 0.0f,
+			"the aim's yaw turns the spine chain by default");
+		WeaponData carried;
+		DataLoadReport carriedReport;
+		test.Check(ParseWeaponText(R"({ "kind": "Firearm", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ],
+			"stance": { "holdBones": ["spine_01"], "moveHoldBones": ["hand_r"], "sweep": { "clip": "sweep" } } })", carried, carriedReport)
+			&& carried.stance.moveHoldBones.size() == 1, "a firearm keeps its hands' hold over movement moves (%s)",
+			carriedReport.Errors.empty() ? "" : carriedReport.Errors.front().c_str());
+		expectError(R"({ "kind": "Firearm", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ], "stance": { "moveHoldBones": ["hand_r"] } })",
+			"arms held over moves without a hold");
+		expectError(R"({ "kind": "Firearm", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ],
+			"stance": { "holdBones": ["spine_01"], "sweep": { "clip": "sweep", "maxYaw": 200 } } })", "an aim yaw beyond 180 degrees");
 		expectError(R"({ "kind": "Firearm", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ],
 			"stance": { "hold": "idle", "holdBones": ["spine_01"], "sweep": { "clip": "sweep" } } })", "a hold clip beside a sweep (the hold is the sweep's middle)");
 		expectError(R"({ "kind": "Firearm", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ],
@@ -1166,6 +1184,171 @@ namespace
 			"local additive turns each bone in its parent's space");
 	}
 
+	// ---- Body animation on the shipped hero (its clips, the real skeleton) -------------------------------------
+
+	float AngleDegrees(const glm::mat4& a, const glm::mat4& b)
+	{
+		const float dot = std::abs(glm::dot(glm::normalize(glm::quat_cast(glm::mat3(a))), glm::normalize(glm::quat_cast(glm::mat3(b)))));
+		return glm::degrees(2.0f * std::acos(std::min(dot, 1.0f)));
+	}
+
+	void TestCharacterAnimator(TestContext& test)
+	{
+		CombatData::LoadScope scope;
+		std::shared_ptr<const CharacterData> hero = CombatData::LoadCharacter("GameData/combat/characters/hero.character.json");
+		test.Check(hero != nullptr && hero->moveSet != nullptr, "the hero loads for the animator tests");
+		if (!hero || !hero->moveSet)
+			return;
+		const MoveSetData& moveSet = *hero->moveSet;
+
+		auto body = std::make_unique<Animation>(nullptr);
+		body->LoadFromFile(hero->mesh.model);
+		CharacterAnimator animator(nullptr);
+		animator.Configure(hero, body->model ? &body->model->skeleton : nullptr);
+		animator.LoadAssetsIfNeeded();
+		roj::BoneNode* rootNode = body->GetRootNode();
+		test.Check(rootNode != nullptr, "the hero's skeleton loads");
+		if (!rootNode)
+			return;
+
+		auto weaponKey = [&](const char* name)
+		{
+			for (size_t slot = 0; slot < hero->weaponData.size(); ++slot)
+				for (size_t i = 0; i < hero->weaponData[slot].size(); ++i)
+					if (hero->weaponData[slot][i]->name == name)
+						return hero->GetWeaponKey(static_cast<WeaponSlot>(slot), i);
+			return -1;
+		};
+		auto layerOf = [&](const char* id, float time, uint32_t serial)
+		{
+			AnimatorInput::Layer layer;
+			const MoveData* move = moveSet.GetMove(moveSet.FindMove(id));
+			if (move == nullptr)
+				return layer;
+			layer.animation = move->animationIndex;
+			layer.clip = move->GetClipHash(0);
+			layer.time = time;
+			layer.serial = serial;
+			layer.mask = move->bodyMask;
+			layer.maskBones = move->bodyMask == BodyMask::Bones ? &move->maskBoneHashes : nullptr;
+			layer.legWeight = move->legWeight;
+			layer.airLegs = move->airLegs;
+			layer.additive = &move->additive;
+			layer.meshSpace = move->LayerMeshSpace();
+			layer.movement = move->HasTag(MoveTag::Movement);
+			return layer;
+		};
+		// A clip on its own at a time (model space needs the same skeleton: every clip file is the body's rig).
+		auto clipPose = [&](const std::string& file, const char* clip, float time)
+		{
+			auto animation = std::make_unique<Animation>(nullptr);
+			animation->LoadFromFile(file);
+			animation->PlayAnimation(clip, false, 0.0f);
+			animation->SetAnimationTime(time);
+			animation->Update(0.0f);
+			return animation->GetAnimationPoseRef();
+		};
+		// Settles every fade (long steps), then composes.
+		auto compose = [&](const AnimatorInput& input) -> const AnimationPose&
+		{
+			for (int i = 0; i < 3; ++i)
+				animator.Evaluate(input, 1.0f);
+			return animator.ComposePose();
+		};
+		auto model = [&](const AnimationPose& pose, const char* bone) { return AnimationPose::GetModelSpaceTransform(hashed_string(bone), rootNode, pose); };
+		const hashed_string root("root");
+
+		const int rifle = weaponKey("rifle");
+		const int pistols = weaponKey("pistols");
+		test.Check(rifle >= 0 && pistols >= 0, "the hero carries the rifle and the pistols");
+		if (rifle < 0 || pistols < 0)
+			return;
+		uint32_t serial = 1;
+
+		// The rifle's reload spins the body by its root - standing, running and in the air (where its legs hand over to
+		// the air pose, which used to take the root with them).
+		const MoveData* reload = moveSet.GetMove(moveSet.FindMove("rifle_reload"));
+		test.Check(reload != nullptr, "the rifle has its reload");
+		if (reload)
+		{
+			const std::string& file = moveSet.animations[static_cast<size_t>(reload->animationIndex)];
+			const float spinTime = animator.GetClipDuration(reload->animationIndex, reload->GetClipHash(0)) * 0.5f;
+			const AnimationPose spin = clipPose(file, "reload", spinTime);
+			const glm::mat4 clipRoot = spin.boneTransforms.count(root) ? spin.boneTransforms.at(root) : glm::mat4(1.0f);
+			for (const auto& [grounded, speed, name] : { std::tuple{ true, 0.0f, "standing" }, std::tuple{ true, 5.0f, "running" },
+				std::tuple{ false, 0.0f, "in the air" } })
+			{
+				AnimatorInput input;
+				input.grounded = grounded;
+				input.localVelocity = glm::vec2(0.0f, speed);
+				input.velocity = glm::vec3(0.0f, 0.0f, speed);
+				input.stances = 1u << rifle;
+				input.overlay = layerOf("rifle_reload", spinTime, ++serial);
+				const AnimationPose& pose = compose(input);
+				const auto it = pose.boneTransforms.find(root);
+				const float off = it != pose.boneTransforms.end() ? AngleDegrees(it->second, clipRoot) : 180.0f;
+				test.Check(off < 1.0f, "the rifle reload spins the body %s (root %.1f deg off the clip)", name, off);
+			}
+		}
+
+		// A dash with the pistols out: the body - arms included - keeps the dash, only the hands hold the pistols.
+		const MoveData* dash = moveSet.GetMove(moveSet.FindMove("dash"));
+		const WeaponData* pistolData = nullptr;
+		for (const auto& weapon : hero->weaponData[static_cast<size_t>(WeaponSlot::Secondary)])
+			if (weapon->name == "pistols")
+				pistolData = weapon.get();
+		if (dash && pistolData)
+		{
+			const float time = 0.2f;
+			const AnimationPose dashPose = clipPose(moveSet.animations[static_cast<size_t>(dash->animationIndex)], "dash", time);
+			// The pistols' hold is their sweep's middle frame.
+			const WeaponStanceData& stance = pistolData->stance;
+			auto sweep = std::make_unique<Animation>(nullptr);
+			sweep->LoadFromFile(stance.resolvedAnimation);
+			sweep->PlayAnimation(stance.sweep.clip, false, 0.0f);
+			sweep->SetAnimationTime(sweep->GetAnimationDuration() * 0.5f);
+			sweep->Update(0.0f);
+			const AnimationPose& hold = sweep->GetAnimationPoseRef();
+
+			AnimatorInput input;
+			input.stances = 1u << pistols;
+			input.primary = layerOf("dash", time, ++serial);
+			const AnimationPose& pose = compose(input);
+			const float torso = AngleDegrees(model(pose, "spine_03"), model(dashPose, "spine_03"));
+			const float arm = AngleDegrees(model(pose, "lowerarm_r"), model(dashPose, "lowerarm_r"));
+			test.Check(torso < 1.0f && arm < 1.0f, "a dash keeps its torso and arms under the pistols (%.1f / %.1f deg off the dash)", torso, arm);
+			const hashed_string hand("hand_r");
+			const float grip = pose.boneTransforms.count(hand) && hold.boneTransforms.count(hand)
+				? AngleDegrees(pose.boneTransforms.at(hand), hold.boneTransforms.at(hand)) : 180.0f;
+			test.Check(grip < 1.0f, "...while the right hand holds the pistol as the hold does (%.1f deg off)", grip);
+		}
+
+		// Aiming: the weapon points at the aim at once while the body still turns - the yaw bones turn the upper body by
+		// the yaw between facing and aim, at most the sweep's maxYaw.
+		if (pistolData)
+		{
+			const float maxYaw = pistolData->stance.sweep.maxYaw;
+			auto aimed = [&](float yawDegrees)
+			{
+				AnimatorInput input;
+				input.stances = 1u << pistols;
+				input.aiming = true;
+				input.strafing = true;
+				input.forward = glm::vec3(0.0f, 0.0f, 1.0f);
+				input.aimDirection = glm::vec3(std::sin(glm::radians(yawDegrees)), 0.0f, std::cos(glm::radians(yawDegrees)));
+				return model(compose(input), "spine_03");
+			};
+			const glm::mat4 level = aimed(0.0f);
+			const glm::mat4 left = aimed(30.0f);
+			const glm::mat4 expected = glm::mat4_cast(glm::angleAxis(glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f))) * level;
+			test.Check(AngleDegrees(left, expected) < 1.0f, "aiming 30 deg off the facing turns the upper body 30 deg toward it (%.1f deg off)",
+				AngleDegrees(left, expected));
+			const glm::mat4 far = aimed(maxYaw + 50.0f);
+			const glm::mat4 clamped = glm::mat4_cast(glm::angleAxis(glm::radians(maxYaw), glm::vec3(0.0f, 1.0f, 0.0f))) * level;
+			test.Check(AngleDegrees(far, clamped) < 1.0f, "...at most maxYaw (%.1f deg off)", AngleDegrees(far, clamped));
+		}
+	}
+
 	void TestCharacterData(TestContext& test)
 	{
 		CharacterData character;
@@ -1296,6 +1479,13 @@ namespace
 				test.Check(drop && drop->startState == MoveStartState::Air, "the hero has an air drop for a fresh held-launch input without a target");
 				test.Check(heavy1 && !heavy1->params.contains("plunge") && drop && drop->params.contains("plunge"),
 					"the plunge is configured only on AirDrop, not on the regular heavy_1 move");
+					// Only the drops slam (stall 0): a combo heavy in the air keeps its victim hovering.
+					bool heaviesHold = true;
+					for (const char* name : { "heavy_1", "sword_heavy_1" })
+						if (const MoveData* move = heroMoves.GetMove(heroMoves.FindMove(name)))
+							for (const HitWindowData& hit : move->hits)
+								heaviesHold = heaviesHold && hit.air.stall != 0.0f;
+					test.Check(heaviesHold, "the combo heavies keep an airborne victim hovering (only the drops slam)");
 				if (drop && drop->params.contains("plunge"))
 				{
 					// A hop as the weapon goes up; everything that could leave the drop opens after its strike hold (on
@@ -1308,7 +1498,8 @@ namespace
 					test.Check(plunge.value("rise", 0.0f) > 0.0f, "the drop hops before it dives");
 					test.Check(afterHold, "the drop's combo link, cancels and recovery open after its strike hold");
 				}
-				test.Check(character->airCombat.maxHangTime < AirCombatData().maxHangTime, "the hero's hang time is shorter than an enemy's");
+				test.Check(character->airCombat.maxHangTime > 0.0f && AirCombatData().maxHangTime <= 0.0f,
+					"the hero's air time is limited, an enemy's only by her juggle");
 				test.Check(character->airCombat.fallGravityScale > AirCombatData().fallGravityScale, "the hero keeps a little gravity while she hovers");
 			}
 
@@ -1364,6 +1555,7 @@ bool RunCombatSelfTests(std::string& summary)
 	TestAdditivePoses(test);
 	TestCharacterData(test);
 	TestShippedData(test);
+	TestCharacterAnimator(test);
 
 	char header[128];
 	std::snprintf(header, sizeof(header), "combat self tests: %d passed, %d failed\n", test.passed, test.failed);

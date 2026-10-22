@@ -201,6 +201,7 @@ namespace
 		}
 		if (move.overlay == OverlayPolicy::Invalid) report.Error(path + ".overlay", "expected Block or Allow");
 		if (move.layerSpace == PoseSpace::Invalid) report.Error(path + ".layerSpace", "expected Default, Local or Mesh");
+		if (move.layerMeshShare > 1.0f) report.Error(path + ".layerMeshShare", "must be within 0..1 (< 0: layerSpace decides)");
 		if (move.channel == MoveChannel::Overlay && move.bodyMask == BodyMask::NoLegs)
 			report.Error(path + ".bodyMask", "an Overlay is Full (legs hand over while moving), UpperBody or Bones");
 		if (move.startState == MoveStartState::Invalid) report.Error(path + ".startState", "expected Ground, Air or Any");

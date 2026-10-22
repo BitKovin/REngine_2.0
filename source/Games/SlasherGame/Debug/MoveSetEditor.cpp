@@ -73,6 +73,7 @@ namespace
 			{ "channel", "Primary: the body. Overlay: on top of the primary move (firing, drawing)." },
 			{ "bodyMask", "Where the clip shows. Full: whole body (an Overlay hands its legs to the pose underneath as the body runs / flies).\nNoLegs: the legs keep the locomotion / air pose. UpperBody: from the spine up. Bones: only maskBones." },
 			{ "layerSpace", "Space the clip's partial layers blend in (UpperBody / Bones mask, the recovery's upper body). Default: mesh at the\nspine (the torso keeps the clip's facing), local at limbs. Local: the torso stays on the running hips. Mesh at a limb:\nthe arm keeps the clip's aim whatever the chest does." },
+			{ "layerMeshShare", "Between Local and Mesh: the share (0..1) of the layers' start-bone rotation blended in mesh space\n(0 Local, 1 Mesh, 0.5 half way). Negative: layerSpace decides." },
 			{ "suspendsAim", "An Overlay that poses the weapon itself (a spinning reload): the aim sweep pauses while it shows." },
 			{ "additive.bones", "Subtrees the clip's difference from its reference frame is added to (before the mask layer). Empty: none." },
 			{ "additive.space", "Local: each bone turns in its parent's space. Mesh: in model space." },
@@ -819,7 +820,7 @@ bool MoveSetEditor::DrawMove(MoveData& move)
 	};
 	static const std::vector<Section> sections = {
 		{ "General", { "behavior", "clip", "variants", "animation", "speed", "loop", "loopStart", "heavy", "tags", "channel", "bodyMask",
-			"maskBones", "legWeight", "airLegs", "layerSpace", "overlay", "suspendsAim", "startState", "endTime", "blendOut", "cooldown" }, true,
+			"maskBones", "legWeight", "airLegs", "layerSpace", "layerMeshShare", "overlay", "suspendsAim", "startState", "endTime", "blendOut", "cooldown" }, true,
 			"What the move is, what it plays and where." },
 		{ "Additive layer", { "additive" }, false, "The clip's difference from its reference frame, added before its mask layer (Overlay moves)." },
 		{ "Entry", { "entry" }, false, "How the move begins, depending on what came before it." },

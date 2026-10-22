@@ -364,6 +364,9 @@ struct MoveData
 	// hand-over. Default: mesh space at locomotion.upperBodyBone (the torso keeps the clip's facing), local at
 	// limbs. Local keeps the torso on the running hips (a side-on sword stance must not twist off the legs).
 	PoseSpace layerSpace = PoseSpace::Default;
+	// Between the two: the share (0..1) of the layers' start-bone rotation blended in mesh space - 0 Local, 1 Mesh, 0.5
+	// half way (a sheathe that half keeps its facing). < 0: layerSpace decides.
+	float layerMeshShare = -1.0f;
 	OverlayPolicy overlay = OverlayPolicy::Block;   // Block also suspends aiming (the body faces the move, not the aim)
 	bool suspendsAim = false;                       // an Overlay that poses the weapon itself (a spinning reload): no sweep
 	MoveStartState startState = MoveStartState::Ground;
@@ -386,7 +389,7 @@ struct MoveData
 	nlohmann::json params = nlohmann::json::object();
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(MoveData, behavior, clip, variants, animation, speed, loop, loopStart, heavy, tags, channel,
-		bodyMask, maskBones, legWeight, airLegs, additive, layerSpace, overlay, suspendsAim, startState, entry, endTime, blendOut,
+		bodyMask, maskBones, legWeight, airLegs, additive, layerSpace, layerMeshShare, overlay, suspendsAim, startState, entry, endTime, blendOut,
 		cooldown, hits, combo, hold, cancels, armor, invulnerable, grips, tracking, reach, rootMotion, recovery, cues, params)
 
 	// Resolved
@@ -403,6 +406,8 @@ struct MoveData
 	float recoveryStart = -1.0f;  // clip time recovery begins; < 0: none
 
 	bool HasTag(MoveTag tag) const { return (tagMask & TagBit(tag)) != 0; }
+	// The layers' mesh-space share: layerMeshShare, else layerSpace's (-1: Default, the layer decides).
+	float LayerMeshSpace() const { return layerMeshShare >= 0.0f ? layerMeshShare : MeshSpaceShare(layerSpace); }
 	bool HasClip() const { return !clip.empty(); }
 	int GetClipCount() const { return HasClip() ? 1 + static_cast<int>(variantHashes.size()) : 0; }
 	// Clip index n (wrapping): 0 = clip, n = variants[n - 1].

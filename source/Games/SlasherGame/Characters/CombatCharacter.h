@@ -100,7 +100,9 @@ public:
 	float GetMoveSpeedMultiplier() const;
 	// A weapon in the hands aims (its stance has a sweep) and nothing overrides it: no primary move runs, or the
 	// running one allows overlays (jumping, gliding). A dash or an attack faces its own direction instead.
-	const WeaponData* GetAimingWeapon() const;
+	// An overlay that poses the weapon itself (a spinning reload) pauses the aim pose; the body still faces the aim.
+	const WeaponData* GetAimingWeapon() const { return FindAimingWeapon(true); }
+	const WeaponData* GetFacingWeapon() const { return FindAimingWeapon(false); }
 	// Equips weapon `index` of `slot` (the player's switch, COMBAT_DESIGN.md §9.3): the outgoing weapon's moves stop and
 	// the move tables follow the new one.
 	void EquipWeapon(WeaponSlot slot, size_t index);
@@ -304,6 +306,7 @@ private:
 	void SyncEquippedMoves();
 	void UpdateRecoveryRelease();
 	void UpdateAim();
+	const WeaponData* FindAimingWeapon(bool posing) const;   // posing: an overlay posing the weapon itself stops it
 	void AddHitRecoil(const glm::vec3& direction, float strength);
 	void PlayCueNow(const CueData& cue);
 	void AdoptReloadedData();

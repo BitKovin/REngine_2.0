@@ -221,6 +221,13 @@ SLASHER_JSON_ENUM(PoseSpace, {
 	{ PoseSpace::Mesh, "Mesh" },
 })
 
+// A layer's start-bone rotation as a share blended in mesh space (LayeredLerp): Local 0, Mesh 1, Default -1 (the
+// layer decides).
+inline float MeshSpaceShare(PoseSpace space)
+{
+	return space == PoseSpace::Mesh ? 1.0f : (space == PoseSpace::Local ? 0.0f : -1.0f);
+}
+
 // ---- AI ---------------------------------------------------------------------------------------------
 
 enum class AttackToken : uint8_t

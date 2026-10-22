@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <vector>
 
 // "Attack": melee attacks. Hit windows are processed by MoveRunner / WeaponSet; this behaviour is the target assist
 // and the air combat of an attack (COMBAT_DESIGN.md §5.7):
@@ -17,6 +18,8 @@
 //   * air (COMBAT_DESIGN.md §5.8, rules in Combat/AirJuggle.h): every attack works in the air too. The hits are what
 //     matter there - a melee hit landed while the attacker is airborne starts its hover (almost no gravity,
 //     CharacterData::airCombat) for as long as that attack runs and `hold` after it; swinging at air earns nothing.
+//     The airborne victims of that attack hover as long as it runs too, and the attacker's `victimHold` after it: the
+//     attacker's hits decide how long a juggled body stays up.
 //     A successful launch that also launches the attacker gives the attacker the same hit-specific hover as its victim;
 //     a time-triggered leap alone does not. The same hit lifts attacker and victim a little and - victim in the air too -
 //     settles the victim once at the attack's ideal distance and the attacker's height
@@ -125,6 +128,7 @@ public:
 		plunged = false;
 		selfLaunched = false;
 		hitInAir = false;
+		airVictims.clear();
 
 		// A launcher started in the air is weaker the more of them connected since landing (combo hits heal that). Its
 		// strength is fixed now (the hits read it, CombatCharacter::GetLaunchScale); the use is counted when a
@@ -169,7 +173,10 @@ public:
 		if (plunging)
 			character.RequestVelocity(glm::vec3(0.0f, -params.plunge.speed, 0.0f), true);
 		else if (airborne && hitInAir)
+		{
 			character.EnterAirCombat(character.GetData()->airCombat.hold);
+			CarryVictimHovers();
+		}
 
 		const float turnRate = context.Time < tracking.startTurnTime ? std::max(tracking.startTurnRate, tracking.turnRate) : tracking.turnRate;
 
@@ -242,12 +249,8 @@ public:
 		{
 			// The victim receives this same stall in CombatCharacter::ApplyAirHit. Give the attacker the same hover
 			// duration only when the launch actually lifted both bodies; a whiff, blocked launch, or held-input failure
-			// must not grant it. Resolve the default from the victim, matching the victim's own hit handling.
-			const CharacterData* victimData = victim != nullptr ? victim->GetData() : nullptr;
-			const CharacterData* attackerData = character.GetData();
-			const float fallbackHold = victimData != nullptr ? victimData->airCombat.victimHold
-				: (attackerData != nullptr ? attackerData->airCombat.victimHold : 0.0f);
-			const float hold = AirJuggle::ResolveHold(result.request->airStall, fallbackHold);
+			// must not grant it. The same hold as the victim's (CombatCharacter::ApplyAirHit): the attacker's victimHold.
+			const float hold = AirJuggle::ResolveHold(result.request->airStall, character.GetData()->airCombat.victimHold);
 			if (hold > 0.0f)
 				character.EnterAirCombat(hold);
 			else
@@ -265,6 +268,12 @@ public:
 
 		if (launching || result.killed || victim->IsGrounded())
 			return;   // a launch keeps its own speeds; a corpse or a grounded victim has nothing to settle
+
+		// The attack carries the victim's hover as it carries its own (OnTick): the victim hangs while the attack runs
+		// and its hold after, so the next attack's wind-up has something to hit.
+		const float victimHold = AirJuggle::ResolveHold(result.request->airStall, character.GetData()->airCombat.victimHold);
+		if (victimHold > 0.0f)
+			airVictims.push_back({ EntityHandle::FromEntity(victim), victimHold });
 
 		// Both rise a little - and the victim is settled at the attack's distance and the attacker's height, once.
 		const AirCombatData& air = character.GetData()->airCombat;
@@ -336,6 +345,24 @@ private:
 		return true;
 	}
 
+	// Keeps the airborne victims of this attack hovering while it runs. Only a hover still felt is extended: a victim
+	// slammed since (stall 0), landed or out of hang time is left to fall.
+	void CarryVictimHovers()
+	{
+		for (AirVictim& carried : airVictims)
+		{
+			auto* victim = dynamic_cast<CombatCharacter*>(ResolveAlive(carried.handle));
+			if (victim != nullptr && !victim->IsGrounded() && victim->IsAirHovering())
+				victim->EnterAirCombat(carried.hold);
+		}
+	}
+
+	struct AirVictim
+	{
+		EntityHandle handle;
+		float hold = 0.0f;                            // s it hovers after this attack ends
+	};
+
 	static constexpr float MagnetFollowTime = 0.1f;   // s: arrival time once the strikes run
 	static constexpr float MinArrivalTime = 0.05f;
 	static constexpr float HeightMatchRate = 6.0f;    // 1/s
@@ -346,6 +373,7 @@ private:
 	bool plunged = false;                             // the plunge happened (once per move)
 	bool selfLaunched = false;
 	bool hitInAir = false;                            // this attack landed a melee hit while airborne: it carries the hover
+	std::vector<AirVictim> airVictims;                // airborne bodies it hit: it carries their hover too
 	float launchScale = 1.0f;                         // strength of this move's launching hits (air launcher strain)
 	bool airLauncher = false;                         // started in the air with a launching hit
 	bool launchStrainTaken = false;                   // its launch connected and was counted

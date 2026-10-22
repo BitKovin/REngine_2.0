@@ -54,9 +54,9 @@
 	"finisher": { "range": 2.5, "angle": 70, "reward": "finisher_boost" },
 	"targeting": { "distanceWeight": 0.5, "keepBonus": 0.2, "inputThreshold": 0.3 },
 	"airCombat": {
-		"_note": "Juggling (COMBAT_DESIGN.md 5.8). A melee hit landed in the air starts the hero's hover: small gravity (fallGravityScale, sink at most maxFallSpeed), for the attack that landed it and hold s after. Gravity fades back in over gravityRamp; maxHangTime s after the first hover of an airtime it grows back anyway (hangFade) - shorter than an enemy's (default 3), so the hero starts to fall first. hitLift: each hit lifts both a little. The launcher in the air: launchScale of the ground launch, x launchDecay per earlier one, launchRecover healed per combo hit.",
+		"_note": "Juggling (COMBAT_DESIGN.md 5.8). A melee hit landed in the air starts the hero's hover: small gravity (fallGravityScale, sink at most maxFallSpeed), for the attack that landed it and hold s after. Gravity fades back in over gravityRamp; maxHangTime s after the first hover of an airtime it grows back anyway (hangFade) - enemies have no limit of their own, so this is the juggle's limit. victimHold / firearmHold: how long her hits hold the enemy she juggles (after the attack that hit it). hitLift: each hit lifts both a little. The launcher in the air: launchScale of the ground launch, x launchDecay per earlier one, launchRecover healed per combo hit.",
 		"riseGravityScale": 1.0, "fallGravityScale": 0.25, "maxFallSpeed": 1.5, "fallEase": 20,
-		"hold": 1.5, "gravityRamp": 0.4, "maxHangTime": 4.0, "hangFade": 2.0, "hitLift": 3.5,
+		"hold": 1.5, "victimHold": 2.5, "gravityRamp": 0.4, "maxHangTime": 11.0, "hangFade": 2.0, "hitLift": 3.5,
 		"rootMotionScale": 1.0, "knockbackScale": 1.0,
 		"launchScale": 0.5, "launchDecay": 0.6, "launchRecover": 0.25, "launchMinScale": 0.15
 	},

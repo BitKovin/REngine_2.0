@@ -373,12 +373,15 @@ and the upper body of its recovery hand-over. Default: mesh at `locomotion.upper
 clip's facing), local at limbs. Every sword move is `Local`: the sword's attack stance is side-on (54° off the
 facing, 105° off the idle) and a mesh-space hand-over twisted the chest that far off the running hips. The musket's
 shot is `Mesh` at `clavicle_l`: the arm keeps the clip's aim whatever the run does with the chest.
+`layerMeshShare` (0..1, unset = by `layerSpace`) sets anything between: the share of the layers' start-bone rotation
+blended in mesh space (0 Local, 1 Mesh). The sword's sheathes are 0.5 - half kept facing, half on the running hips.
 
 `grips` (`start`, `end`, `hands`, `weapon`): windows where the clip holds its weapon with more hands than the
 weapon's own (the sword's two-handed heavies and drop: the left hand on the grip); the parts those hands carry
 (`WeaponMeshData::carried`, the scabbard) hide. They run on through the recovery.
 
-`suspendsAim`: an Overlay that poses the weapon itself (the rifle's spinning reload) pauses the aim sweep.
+`suspendsAim`: an Overlay that poses the weapon itself (the rifle's spinning reload) pauses the aim sweep; the body
+still faces the aim direction (and strafes) through it.
 
 A `Full` Overlay replaces the whole body - its root included (the reload spins on it) - and hands its legs to the
 pose underneath by `legWeight` as the body runs (`airLegs`: and as it flies); standing it keeps the clip's footwork.
@@ -516,7 +519,8 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
   locomotion and facing follow input, any move may start (an attack press starts the opener).
 * The recovery clock keeps advancing (`speed` × attack speed) and fires the move's remaining `cues` (sheathe
   sounds…); hit windows and behaviours no longer run. Any new primary move clears it; overlay moves (firing) play
-  over it.
+  over it - an aiming weapon's hold goes over its upper body while it aims (§9.1), so a gun without a fire clip (the
+  rifle) still shows its pose while the legs blend out of the attack.
 * Animation (§9.1): the animator keeps sampling the *same* clip instance — no restart, no transition. Until the
   body moves the clip plays on the **whole body** and its root motion still moves the capsule, so a long exit plays
   exactly as authored and ends in the idle stance. When the body moves (movement input, airborne, death) the body
@@ -587,19 +591,21 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
     launcher); if the hit has no explicit stall, each body uses the victim-hold default from the victim's character data.
     A time-triggered leap by itself still follows a normal jump arc and earns no hover. (The air launcher's hit also
     grants this shared stall: it is landed in the air.)
-  * **victim** - hovers `victimHold` (0.5 s) after every melee hit in the air; every hit restarts the timer, none
-    shortens it (a hit's `air.stall` may ask for more: the launcher hangs its victim at the top for 1.2 s; `stall: 0`
-    asks for none - a plunge slams the victim down).
+  * **victim** - the player controls a juggled enemy by landing hits: it hovers while the attack that hit it in the
+    air runs and the **attacker's** `victimHold` after it (the hero's 2.5 s), so a slow wind-up always has something
+    to hit. Every hit restarts the timer, nothing else ends it. A hit's `air.stall` may ask for more, never less (the
+    launcher's 1.2 s gives way to the longer hold); `stall: 0` asks for none - the drops slam the victim down.
   * **bullets** - a firearm hit stops an airborne enemy's vertical motion (it keeps its height) and restarts a
-    `firearmHold` (0.2 s) hover: sustained fire holds an enemy where it is, and when the fire stops gravity fades in
+    the shooter's `firearmHold` (0.2 s) hover: sustained fire holds an enemy where it is, and when the fire stops gravity fades in
     over `gravityRamp` and it falls. (The pistols' reaction is `None`; the air hit still counts. An enemy's bullets
     do not stall the player.)
   When a hover ends gravity **fades in** over `gravityRamp` (0.4 s) instead of snapping on.
-* **No infinite air time.** A body's hang clock starts with its first hover of an airtime and runs until it lands (not
-  while the body is on the ground; local, hit-stop dilated time). `maxHangTime` later the hover's gravity and sink
-  grow back over `hangFade` (2 s) to the normal ones, however often the body is hit or attacks. Per character, so
-  the player starts to fall first: **hero 2 s, enemies 3 s** (`airCombat.maxHangTime`). Landing resets the clock, the
-  hover and the launcher's strain.
+* **No infinite air time - the player's.** A body's hang clock starts with its first hover of an airtime and runs
+  until it lands (not while the body is on the ground; local, hit-stop dilated time). `maxHangTime` later the hover's
+  gravity and sink grow back over `hangFade` (2 s) to the normal ones, however often the body is hit or attacks. Only
+  the hero has a limit (`airCombat.maxHangTime`); an enemy's is 0 - none of its own: it falls when her juggle ends
+  (she comes down, misses, or stops attacking for longer than her `victimHold`), never for a reason of its own.
+  Landing resets the clock, the hover and the launcher's strain.
 * **The settle: positioning comes from a landed hit, nothing else.** A melee hit between two airborne fighters
   moves the *victim* once (`AirJuggle::PlanPull`, `CombatCharacter::SetAirPull`): within `pullTime` (0.18 s) to the
   attacker's height plus the hit's rise, and - if it is further away than the attack's `idealDistance` but within
@@ -768,15 +774,19 @@ state, in this order:
    holds the middle frame of its sweep (step 7); `idleTime` / `holdTime` hold one frame of a clip instead of looping
    it. `holdSpace` chooses the space the hold's start bones blend in (default: mesh at the upper-body bone, local at
    limbs; the musket's arm is Mesh). Move clips pose the arms themselves, so the hold stays under every move - except
-   Movement moves (jump, glide, dash: their clips carry no weapon), over which the stances with `holdOverMoves` (the
-   firearms) are laid again: a gun stays held in the air. A firearm that leaves the melee weapon in the hands (the
+   Movement moves (jump, glide, dash: their clips carry no weapon), over which the stances with `moveHoldBones` (the
+   firearms: their hands) lay the hold again on the hands only, in local space: a gun stays in the hands while the
+   body - arms included - dashes, jumps or glides the way its clip does. While a weapon aims, its whole hold goes
+   back over a move's clip (a jump or glide allows aiming, §5.6) or an attack playing out in recovery, faded in with
+   the aim, unless the clip is that weapon's own: the sweep and yaw (step 7) aim the hold pose, so the weapon points at
+   the aim point in the air and while the legs blend out of an attack (the rifle has no fire clip to cover it). A firearm that leaves the melee weapon in the hands (the
    musket in the left hand, §9.3) is a **layered** stance: its hold goes on top of the others with its own weight
    instead of cross-fading with them. A sheathable weapon has two stances: `stance` while drawn and `sheathedStance`
    while sheathed (the sword's: its idle and the plain locomotion run), cross-fading when it changes state.
 3. **Full-body primary** — the move clip sampled at the move clock replaces 1–2. `NoLegs` moves, and `Full` moves
    in the air (`airLegs`, faded by the air weight with take-off and landing), then blend the `locomotion.legBones`
    subtrees (thighs down) toward the locomotion / air pose by the move's `legWeight`, local to the clip's hips: the
-   hips swing with the attack, the legs mostly keep the air pose.
+   hips swing with the attack, the legs mostly keep the air pose. The clip keeps its `root` through that hand-over.
 4. **Recovery** (§5.5) — the ended attack's clip on the same `Animation` instance. Full-body weight fades
    1 → 0 over `lowerBodyBlend` (legs to locomotion), then the upper body (`LayeredLerp` from
    `locomotion.upperBodyBone`) holds it until the clip ends and fades over `blendOut`.
@@ -791,6 +801,8 @@ state, in this order:
    clip's `blendIn`: the outgoing one (last pose, difference, weight, shape) and the incoming one are layered over the
    same pose and the two results blend, so bones only one of them covers fade instead of snapping. When another
    overlay clip takes over a visible one (each shot restarting its recoil clip), it blends from the previous pose.
+   A `Full` overlay owns the whole body, its `root` included - the rifle reload's spin plays standing, running and in
+   the air (handing its legs over used to hand the root over too: the engine's partial blends take it from their layer).
 6. **Grip** — the weapon's `stance.handBones` (the hands holding it) take the grip of the clip posing the weapon in
    local space: its overlay clip, else its move / recovery clip (clips from the weapon's own model), else its hold
    clip, weighted by how much each shows. Blends and mesh-space layers move the arms, never the grip, so the weapon
@@ -804,8 +816,11 @@ state, in this order:
    mesh space - after the weapon's own clips (recoil, reload, the musket's shot) and the grip, weighted by the stance
    and the aim fade. It replaced a procedural spine rotation that turned the coat with the spine: the sweep turns
    spine, arms and coat the way the clip does, and bones the clip lacks (the pistols' model has no coat) keep their
-   mesh-space rotation. Shots leave from the muzzles toward the same aim point. Aiming applies only while no primary
-   move blocks overlays (§5.6); the sweep fades in / out over 0.15 s.
+   mesh-space rotation. Then the **yaw**: the body turns toward the aim at `aimTurnRate`, and until it gets there
+   `sweep.yawBones` (spine_01..03, an even share each, after the pitch) turn the rest about up, at most `sweep.maxYaw`
+   (60°) - the weapon is on the aim at once, as with the procedural aim the sweep replaced. Shots leave from the
+   muzzles toward the same aim point. Aiming applies only while no primary move blocks overlays (§5.6); the aim fades
+   in / out over 0.15 s.
 8. **Hit recoil** (`hitRecoil`) — every hit bends the upper body away from the blow at once by
    `knockback × degreesPerKnockback` (≤ `maxAngle`; armored hits half), spread over the `bones` chain by weight
    (default spine_01..03 + neck_01); a damped spring (`frequency`, `damping`) in the body's local time brings it back,
@@ -1002,8 +1017,8 @@ GameData/combat/player.json                   hero entity, camera (+ impact resp
   "attackTokens": { "melee": 2, "ranged": 2, "heavy": 1 },
   "targeting": { "distanceWeight": 0.5, "keepBonus": 0.2, "inputThreshold": 0.3, "airHeightRange": 2.0 },   // §5.7, §5.8
   "airCombat": { "riseGravityScale": 1.0, "fallGravityScale": 0.02, "maxFallSpeed": 0.15, "fallEase": 20,
-                 "hold": 0.5, "victimHold": 0.5, "firearmHold": 0.2, "gravityRamp": 0.4,
-                 "maxHangTime": 3.0, "hangFade": 2.0, "hitLift": 2.5, "rootMotionScale": 0.5, "knockbackScale": 0.5,
+                 "hold": 0.5, "victimHold": 1.8, "firearmHold": 0.2, "gravityRamp": 0.4,
+                 "maxHangTime": 0, "hangFade": 2.0, "hitLift": 2.5, "rootMotionScale": 0.5, "knockbackScale": 0.5,
                  "pullTime": 0.18, "pullRange": 1.0, "pullMaxHeight": 1.0, "pullMaxSpeed": 12,
                  "launchScale": 0.5, "launchDecay": 0.6, "launchRecover": 0.25, "launchMinScale": 0.15 },   // §5.8 (defaults = an enemy)
   "hitEffect": { "particle": "hit_flesh", "sound": "", "scale": 3 },                  // §9.4
@@ -1294,7 +1309,7 @@ SlasherGame/
 | The hover is earned by landed hits, not by being in the air attacking; a successful self-launch shares its hit's stall | Swinging at air must not earn what a hit earns; a launcher that sends both bodies up should let the attacker hang with the victim |
 | A hit settles the victim once, to a destination fixed at the hit; nothing follows the attacker | A tether that follows (even briefly, even only while hovering) drags enemies after a dashing player and feels like a leash; DMC juggles keep the enemy in reach through the hit itself |
 | The attacker keeps its own height while hovering; only the victim is levelled | The attacker copying the enemy's vertical motion (the old behaviour) made the player float for as long as the enemy did - she could never fall first |
-| Hang limits per character (hero 2 s, enemies 3 s), gravity grows back instead of switching on | No infinite juggles, and the player comes down first; a growing gravity ends the fight gently instead of dropping both |
+| Only the player's air time is limited (gravity grows back instead of switching on); a juggled enemy hangs while the attacker's hits keep coming (the attacker's `victimHold`, carried through the attack that hit it) | No infinite juggles, and the player comes down first; an enemy that fell for a reason of its own (its own hang clock, a short stall, a slow wind-up) felt uncontrollable - the player's hits alone decide |
 | The grip of the weapon's own clips overrides the hands in local space | Blended arms never loosen the hand around the weapon |
 | Procedural strafe from the forward run when no directional clips exist | Strafing while aiming without new assets; real clips replace it automatically |
 | Camera framing offset in camera space around a focus point on the body | A world-up pivot offset collapses into depth when looking down (the body covers the crosshair); a camera-space offset keeps the composition at every pitch |
@@ -1307,7 +1322,9 @@ SlasherGame/
 | The standing sheathe is a full-body move started exactly when an attack has played out to its ready stance; otherwise an upper-body one in local space | The clip turns the hips 105° and steps the feet from the attack stance into the idle: played over idle legs (the first version) it twisted the body, and fading the attack into the idle first spun it |
 | Sword layers in local space (`layerSpace`) | The sword's stance is side-on; a mesh-space hand-over held the chest 54° off the running hips |
 | The rifle's reload is a Full overlay whose legs hand over while moving | Its clip spins the whole body on the root; on the upper body alone the torso spun over still legs |
-| Firearm holds over movement moves (`holdOverMoves`) | Jump / glide / dash clips carry no gun: in the air the rifle hung from arms posed for nothing |
+| Firearm holds over movement moves on the hands only (`moveHoldBones`) | Jump / glide / dash clips carry no gun, so the hands must hold it; the whole upper-body hold (spine_01) stiffened the dash's torso upright, and the arms belong to the move too |
+| The aim turns the yaw between facing and aim too (`sweep.yawBones`, `maxYaw`) | The sweep alone only pitches: the weapon trailed the body's turn toward the crosshair |
+| Full-body clips (moves, Full overlays) keep their `root` while their legs hand over | The rifle reload's spin vanished in the air and while running: the legs' hand-over took the root from the pose underneath |
 | The musket's arm in mesh space, kept out a moment after the shot and lowered before it hides | The local arm swung with the run's chest sway and the strafe twist; hiding at the clip's end popped the gun out of an aimed arm |
 
 ### Open items (assets / design input)

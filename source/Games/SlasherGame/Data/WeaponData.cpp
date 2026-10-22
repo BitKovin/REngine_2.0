@@ -46,6 +46,11 @@ namespace
 		for (size_t i = 0; i < stance.holdBones.size(); ++i)
 			if (stance.holdBones[i].empty())
 				report.Error(path + ".holdBones[" + std::to_string(i) + "]", "empty bone name");
+		for (size_t i = 0; i < stance.moveHoldBones.size(); ++i)
+			if (stance.moveHoldBones[i].empty())
+				report.Error(path + ".moveHoldBones[" + std::to_string(i) + "]", "empty bone name");
+		if (!stance.moveHoldBones.empty() && stance.resolvedHold.empty())
+			report.Error(path + ".moveHoldBones", "require a hold or a sweep");
 		for (size_t i = 0; i < stance.handBones.size(); ++i)
 			if (stance.handBones[i].empty())
 				report.Error(path + ".handBones[" + std::to_string(i) + "]", "empty bone name");
@@ -56,8 +61,17 @@ namespace
 		if (stance.holdSpace == PoseSpace::Invalid) report.Error(path + ".holdSpace", "expected Default, Local or Mesh");
 
 		sweep.boneHashes.clear();
+		sweep.yawBoneHashes.clear();
 		if (sweep.IsEnabled())
 		{
+			for (size_t i = 0; i < sweep.yawBones.size(); ++i)
+			{
+				if (sweep.yawBones[i].empty())
+					report.Error(path + ".sweep.yawBones[" + std::to_string(i) + "]", "empty bone name");
+				sweep.yawBoneHashes.emplace_back(sweep.yawBones[i]);
+			}
+			if (sweep.maxYaw < 0.0f || sweep.maxYaw > 180.0f)
+				report.Error(path + ".sweep.maxYaw", "must be within 0..180 degrees");
 			if (sweep.bones.empty())
 				report.Error(path + ".sweep.bones", "required (the subtrees the sweep turns)");
 			for (size_t i = 0; i < sweep.bones.size(); ++i)

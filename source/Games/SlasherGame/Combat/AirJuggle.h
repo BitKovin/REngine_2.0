@@ -11,7 +11,8 @@
 //     Falling, a hovering body has `fallGravityScale` of the gravity and sinks no faster than `maxFallSpeed`; rising it
 //     keeps the normal arc. When the hover ends gravity fades back in over `gravityRamp`.
 //   * HANG CLOCK: runs from a body's first hover of an airtime until it lands. Past `maxHangTime` gravity grows back
-//     over `hangFade` however often the body is hit - no infinite juggles. Each character has its own numbers.
+//     over `hangFade` however often the body is hit - no infinite juggles. Only the player has a limit of her own
+//     (maxHangTime > 0): an enemy hangs as long as she keeps hitting it, so her limit is the juggle's.
 //   * PULL: a melee hit in the air settles its victim once - toward the attacker's height (plus the slight rise of the
 //     hit) and the attack's ideal distance. The destination is fixed at the hit: the victim never follows the
 //     attacker afterwards.
@@ -22,8 +23,14 @@ namespace AirJuggle
 
 	inline float Lerp(float a, float b, float t) { return a + (b - a) * t; }
 
-	// A hit-specific stall overrides the body's normal hover duration; zero explicitly disables the hover.
-	inline float ResolveHold(float requested, float fallback) { return requested >= 0.0f ? requested : fallback; }
+	// A hit-specific stall may ask for a longer hover than the body's normal one, never a shorter one (a juggled body
+	// falls only when the hits stop); zero explicitly disables the hover (a slam).
+	inline float ResolveHold(float requested, float fallback)
+	{
+		if (requested < 0.0f)
+			return fallback;
+		return requested > 0.0f ? std::max(requested, fallback) : 0.0f;
+	}
 
 	// The attacker's hover is earned only by a successful melee launcher configured to launch the attacker too.
 	// Keep this gate pure so the edge cases can be covered by SelfTests.
@@ -82,6 +89,8 @@ namespace AirJuggle
 		template <class Air>
 		float Overtime(const Air& air) const
 		{
+			if (air.maxHangTime <= 0.0f)
+				return 0.0f;   // no limit of its own
 			return clock > air.maxHangTime ? std::clamp((clock - air.maxHangTime) / air.hangFade, 0.0f, 1.0f) : 0.0f;
 		}
 

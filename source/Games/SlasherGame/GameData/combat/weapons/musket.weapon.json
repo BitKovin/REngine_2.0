@@ -17,7 +17,7 @@
 	"stance": {
 		"holdBones": ["clavicle_l"],
 		"holdSpace": "Mesh",
-		"holdOverMoves": true,
+		"moveHoldBones": ["hand_l"],
 		"handBones": ["hand_l"],
 		"sweep": { "clip": "sweep", "bones": ["spine_01"], "space": "Mesh", "startPitch": -90, "endPitch": 90 },
 		"aimTurnRate": 1080,

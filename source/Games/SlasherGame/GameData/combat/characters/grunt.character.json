@@ -12,7 +12,7 @@
 		"runClipSpeed": 4.3
 	},
 	"moveset": "GameData/combat/movesets/grunt.moveset.json",
-	"health": 120,
+	"health": 150,
 	"poise": { "max": 35, "regenDelay": 2.0, "regenRate": 15, "breakDuration": 3.0, "brokenDamageTaken": 1.5, "firearmScale": 0.3 },
 	"movement": { "walkSpeed": 2.0, "runSpeed": 4.8, "acceleration": 30, "deceleration": 40, "turnRate": 540, "radius": 0.4, "height": 1.8, "quality": "NpcGeneric" },
 	"weakPoints": [

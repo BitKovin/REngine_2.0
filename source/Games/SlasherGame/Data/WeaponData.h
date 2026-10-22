@@ -162,11 +162,16 @@ struct WeaponSweepData
 	PoseSpace space = PoseSpace::Mesh;
 	float startPitch = -90.0f;               // degrees (up > 0) the weapon aims at on the clip's first frame...
 	float endPitch = 90.0f;                  // ...and on its last; between them time follows pitch linearly on each half
+	// The yaw between the body's facing and the aim, turned about up on these bones (parent first, an even share each):
+	// the weapon points at the aim at once while the body still turns toward it (aimTurnRate).
+	std::vector<std::string> yawBones = { "spine_01", "spine_02", "spine_03" };
+	float maxYaw = 60.0f;                    // degrees
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponSweepData, clip, bones, space, startPitch, endPitch)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponSweepData, clip, bones, space, startPitch, endPitch, yawBones, maxYaw)
 
 	// Resolved
 	std::vector<hashed_string> boneHashes;
+	std::vector<hashed_string> yawBoneHashes;
 
 	bool IsEnabled() const { return !clip.empty(); }
 	// Clip time for an aim pitch (degrees), clamped to the clip.
@@ -187,9 +192,9 @@ struct WeaponStanceData
 	// Space the hold's start bones blend in; Default: mesh space at locomotion.upperBodyBone, local for
 	// limbs. Mesh at a limb (the musket's left arm) keeps the arm aimed whatever the run does with the chest.
 	PoseSpace holdSpace = PoseSpace::Default;
-	// The hold goes over movement moves too (jumps, glides, dashes: their clips do not carry this weapon): a firearm
-	// stays held in the air.
-	bool holdOverMoves = false;
+	// Over movement moves (jumps, glides, dashes: their clips do not carry this weapon) the hold goes on these subtrees -
+	// the hands holding the weapon - so it stays in them while the body, arms included, keeps the move. Empty: none.
+	std::vector<std::string> moveHoldBones;
 	// Aiming weapon: while it is in the hands the body faces the aim direction (strafes, turning at aimTurnRate) and
 	// the sweep aims the pose at the aim point.
 	WeaponSweepData sweep;
@@ -201,7 +206,7 @@ struct WeaponStanceData
 	float blend = 0.2f;                      // seconds
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponStanceData, animation, idle, idleTime, hold, holdBones, holdTime,
-		holdSpace, holdOverMoves, sweep, aimTurnRate, handBones, blend)
+		holdSpace, moveHoldBones, sweep, aimTurnRate, handBones, blend)
 
 	// Resolved
 	std::string resolvedAnimation;

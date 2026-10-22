@@ -22,6 +22,9 @@ bool ResolveCharacter(CharacterData& data, DataLoadReport& report)
 			report.Error("locomotion.sources." + field, "empty path");
 	}
 
+	if (data.locomotion.upperBodyBone.empty())
+		report.Error("locomotion.upperBodyBone", "required (the bone upper-body layers start at)");
+	data.locomotion.upperBodyBoneHash = hashed_string(data.locomotion.upperBodyBone);
 	data.locomotion.legBoneHashes.clear();
 	for (size_t i = 0; i < data.locomotion.legBones.size(); ++i)
 	{
@@ -59,7 +62,7 @@ bool ResolveCharacter(CharacterData& data, DataLoadReport& report)
 	if (air.fallEase <= 0.0f) report.Error("airCombat.fallEase", "must be > 0");
 	if (air.hold < 0.0f || air.victimHold < 0.0f || air.firearmHold < 0.0f) report.Error("airCombat", "hold / victimHold / firearmHold must be >= 0");
 	if (air.gravityRamp < 0.0f) report.Error("airCombat.gravityRamp", "must be >= 0");
-	if (air.maxHangTime <= 0.0f) report.Error("airCombat.maxHangTime", "must be > 0");
+	if (air.maxHangTime < 0.0f) report.Error("airCombat.maxHangTime", "must be >= 0 (0: no limit)");
 	if (air.hangFade <= 0.0f) report.Error("airCombat.hangFade", "must be > 0");
 	if (air.hitLift < 0.0f) report.Error("airCombat.hitLift", "must be >= 0");
 	if (air.pullTime <= 0.0f) report.Error("airCombat.pullTime", "must be > 0");

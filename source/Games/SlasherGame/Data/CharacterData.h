@@ -86,6 +86,7 @@ struct LocomotionData
 		runRight, fall, glide, upperBodyBone, legBones, runClipSpeed, sources, strafe, lean)
 
 	// Resolved
+	hashed_string upperBodyBoneHash;
 	std::vector<hashed_string> legBoneHashes;
 };
 
@@ -138,17 +139,19 @@ struct MovementData
 };
 
 // Air combat (COMBAT_DESIGN.md §5.8, the rules in Combat/AirJuggle.h). A body HOVERS - almost no gravity - while it
-// juggles in the air, and every character has its own numbers (the hero's gravity is small but not off and runs out
-// sooner than an enemy's: the player starts to fall first).
+// juggles in the air, and every character has its own numbers (the hero's gravity is small but not off and runs out;
+// an enemy's does not run out by itself: the player's hits alone keep it up or let it fall).
 //   * attacker: a melee hit landed in the air starts its hover (swinging at air does not, nor does the ground launcher);
 //               it lasts while the attack that landed it runs and `hold` after it
-//   * victim:   hovers `victimHold` after every melee hit (each hit restarts it; a hit's air.stall may ask for more),
+//   * victim:   hovers while the attack that hit it runs and the attacker's `victimHold` after it (each hit restarts it; a hit's
+//               air.stall may ask for more, never less; 0 slams it),
 //               `firearmHold` after a bullet (which also stops its vertical motion: it keeps its height)
 //   * hover: falling, `fallGravityScale` of the gravity and never faster than `maxFallSpeed` (a faster fall brakes
 //     to it, `fallEase`); rising keeps the normal arc, so jumps and launches reach their top
 //   * the hover ends: gravity fades back in over `gravityRamp`
 //   * no infinite air time: `maxHangTime` seconds after the body's first hover of an airtime its gravity grows back
-//     over `hangFade`, whatever hits it. Landing resets it.
+//     over `hangFade`, whatever hits it (the player's; an enemy's 0: none - it falls when her juggle ends). Landing
+//     resets it.
 struct AirCombatData
 {
 	float riseGravityScale = 1.0f;   // rising: the arc of the jump / launch
@@ -156,10 +159,11 @@ struct AirCombatData
 	float maxFallSpeed = 0.15f;      // m/s: the sink of a hovering body
 	float fallEase = 20.0f;          // 1/s: a faster fall brakes to the hover sink (no snap)
 	float hold = 0.5f;               // s the attacker hovers after the attack that landed an air hit ends
-	float victimHold = 0.5f;         // s a victim hovers after a melee hit (every hit restarts it)
+	// Read from the ATTACKER's data: how long its hits hold the body they juggle.
+	float victimHold = 1.8f;         // s a victim hovers after the attack that landed a melee hit on it (every hit restarts it)
 	float firearmHold = 0.2f;        // s a victim hovers after a bullet
 	float gravityRamp = 0.4f;        // s gravity takes to return once the hover ended
-	float maxHangTime = 3.0f;        // s after the body's first hover of an airtime at which its gravity starts to return
+	float maxHangTime = 0.0f;        // s after the body's first hover of an airtime at which its gravity starts to return; 0: no limit of its own (an enemy: it falls when the hits stop)
 	float hangFade = 2.0f;           // s the hover's gravity then takes to grow back to the normal one
 	float hitLift = 2.5f;            // m/s: a melee hit in the air lifts victim and attacker (a slight rise, ~0.15 m)
 	float rootMotionScale = 0.5f;    // root motion of moves in the air (ground lunges would carry the body off)

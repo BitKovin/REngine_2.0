@@ -14,7 +14,7 @@
 	"hands": ["Right", "Left"],
 	"stance": {
 		"holdBones": ["spine_01"],
-		"holdOverMoves": true,
+		"moveHoldBones": ["hand_r", "hand_l"],
 		"handBones": ["hand_r", "hand_l"],
 		"sweep": { "clip": "sweep", "bones": ["spine_01"], "space": "Mesh", "startPitch": 90, "endPitch": -90 },
 		"aimTurnRate": 900,

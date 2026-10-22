@@ -90,7 +90,7 @@
 				"afterLight": { "blendIn": 0.255, "startTime": 0.0 },
 				"afterHeavy": { "blendIn": 0.15, "startTime": 0.0 }
 			},
-			"hits": [ { "start": 0.24, "end": 0.45, "damage": 20, "poiseDamage": 14, "reaction": "Stagger", "knockback": 6.0, "hitStop": 0.12, "shake": 0.06, "camera": 0.6, "impactScale": 2, "air": { "stall": 0 } } ],
+			"hits": [ { "start": 0.24, "end": 0.45, "damage": 20, "poiseDamage": 14, "reaction": "Stagger", "knockback": 6.0, "hitStop": 0.12, "shake": 0.06, "camera": 0.6, "impactScale": 2 } ],
 			"combo": { "windowStart": 0.47, "alternativeAt": 0.55, "windowEnd": 0.75, "next": "light_2", "alternative": "heavy_2" },
 			"cancels": [ { "start": 0.47, "into": ["Dash", "Jump"] }, { "start": 0.62, "into": ["Locomotion"] } ],
 			"armor": [ { "start": 0.1, "end": 0.45, "poiseResist": 0.6 } ],
@@ -380,7 +380,8 @@
 			"combo": { "windowStart": 0.38, "alternativeAt": 0.46, "windowEnd": 0.85, "next": "sword_light_2", "alternative": "sword_heavy_2" },
 			"cancels": [ { "start": 0.38, "into": ["Dash", "Jump"] }, { "start": 0.54, "into": ["Locomotion"] } ],
 			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7, "advance": 1.5 },
-			"cues": [ { "time": 0.06, "trail": 1 }, { "time": 0.36, "trail": 0 } ]
+			"cues": [ { "time": 0.06, "trail": 1 }, { "time": 0.36, "trail": 0 } ],
+			"speed": 0.8
 		},
 		"sword_heavy_1": {
 			"_note": "Long wind-up, one heavy cut 0.9 - 1.16 (peak 1.05). Two-handed 0.35 - 1.85 (the left hand on the grip: the scabbard hides).",
@@ -395,14 +396,14 @@
 				"afterLight": { "blendIn": 0.2, "startTime": 0.0 },
 				"afterHeavy": { "blendIn": 0.15, "startTime": 0.0 }
 			},
-			"hits": [ { "start": 0.9, "end": 1.16, "damage": 22, "poiseDamage": 15, "reaction": "Stagger", "knockback": 6.5, "hitStop": 0.12, "shake": 0.06, "camera": 0.6, "impactScale": 2, "air": { "stall": 0 } } ],
+			"hits": [ { "start": 0.9, "end": 1.16, "damage": 22, "poiseDamage": 15, "reaction": "Stagger", "knockback": 6.5, "hitStop": 0.12, "shake": 0.06, "camera": 0.6, "impactScale": 2 } ],
 			"combo": { "windowStart": 1.18, "alternativeAt": 1.26, "windowEnd": 1.6, "next": "sword_light_2", "alternative": "sword_heavy_2" },
 			"cancels": [ { "start": 1.18, "into": ["Dash", "Jump"] }, { "start": 1.34, "into": ["Locomotion"] } ],
 			"armor": [ { "start": 0.3, "end": 1.16, "poiseResist": 0.6 } ],
 			"grips": [ { "start": 0.35, "end": 1.85 } ],
 			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
 			"cues": [ { "time": 0.88, "trail": 1 }, { "time": 1.18, "trail": 0 } ],
-			"speed": 1.5
+			"speed": 1.2
 		},
 		"sword_light_2": {
 			"_note": "A flick 0.03 - 0.1, then the main cut 0.24 - 0.46 (peak 0.33).",
@@ -423,7 +424,8 @@
 			"combo": { "windowStart": 0.5, "alternativeAt": 0.58, "windowEnd": 0.95, "next": "sword_light_3", "alternative": "sword_heavy_3" },
 			"cancels": [ { "start": 0.5, "into": ["Dash", "Jump"] }, { "start": 0.66, "into": ["Locomotion"] } ],
 			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.5, "maxMagnetSpeed": 7 },
-			"cues": [ { "time": 0.02, "trail": 1 }, { "time": 0.48, "trail": 0 } ]
+			"cues": [ { "time": 0.02, "trail": 1 }, { "time": 0.48, "trail": 0 } ],
+			"speed": 0.8
 		},
 		"sword_heavy_2": {
 			"_note": "One heavy cut 0.8 - 0.97 (peak 0.88). Two-handed 0.28 - 1.65.",
@@ -445,7 +447,7 @@
 			"grips": [ { "start": 0.28, "end": 1.65 } ],
 			"tracking": { "turnRate": 480, "magnetRange": 3.0, "idealDistance": 1.6, "maxMagnetSpeed": 7 },
 			"cues": [ { "time": 0.78, "trail": 1 }, { "time": 1.0, "trail": 0 } ],
-			"speed": 1.5
+			"speed": 1.2
 		},
 		"sword_light_3": {
 			"_note": "Light ender: the cut 0.56 - 0.88 (peak 0.62), 2.2 m of root motion.",
@@ -502,7 +504,8 @@
 			"armor": [ { "start": 0.1, "end": 0.55, "poiseResist": 0.6 } ],
 			"tracking": { "turnRate": 600, "magnetRange": 3.0, "idealDistance": 1.4, "maxMagnetSpeed": 7 },
 			"cues": [ { "time": 0.3, "trail": 1 }, { "time": 0.58, "trail": 0 } ],
-			"params": { "launchSelf": { "onHit": true, "verticalSpeed": 15.0, "requireHeld": false }, "air": { "needsTarget": true } }
+			"params": { "launchSelf": { "onHit": true, "verticalSpeed": 15.0, "requireHeld": false }, "air": { "needsTarget": true } },
+			"speed": 1.295
 		},
 		"sword_drop": {
 			"_note": "The drop attack (AirDrop): the clip hops (its hips rise until 0.3), dives from 0.4 steering onto the target below and holds the falling cut at 0.56 until it lands; the impact follows (0.58).",
@@ -546,6 +549,7 @@
 			"clip": "hide",
 			"animation": "GameData/models/player/weapons/sword/sword.glb",
 			"layerSpace": "Local",
+			"layerMeshShare": 0.5,
 			"tags": ["Special"],
 			"startState": "Ground",
 			"entry": { "fresh": { "blendIn": 0.1, "startTime": 0.0 } },
@@ -561,6 +565,7 @@
 			"clip": "hide",
 			"animation": "GameData/models/player/weapons/sword/sword.glb",
 			"layerSpace": "Local",
+			"layerMeshShare": 0.5,
 			"tags": ["Special"],
 			"channel": "Overlay",
 			"bodyMask": "UpperBody",
@@ -609,8 +614,10 @@
 			"suspendsAim": true,
 			"startState": "Any",
 			"entry": { "fresh": { "blendIn": 0.15, "startTime": 0.0 } },
-			"blendOut": 0.25,
-			"params": { "weapon": "Secondary", "moveSpeed": 0.6 }
+			"blendOut": 0.29,
+			"params": { "weapon": "Secondary", "moveSpeed": 0.6 },
+			"speed": 1.5,
+			"endTime": 1.25
 		},
 		"flinch": {
 			"_note": "No hit reaction clips for the hero yet: logic-only reactions (knockback, lockout).",
