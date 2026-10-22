@@ -207,7 +207,7 @@ public:
 
 `CombatCharacter::UpdateCombat` asks its controller for input first, so input is always fresh (the player's look
 input was taken in `Level::Update`, before the body system). `CharacterInput` = move axis (world space), aim direction, focus target and **virtual buttons**
-(`Attack`, `Secondary`, `Dash`, `Jump`, `Finisher`, `Interact`) with press/release times. AI may also call
+(`Attack`, `Secondary`, `Dash`, `Jump`, `Finisher`, `Interact`, `SwitchMain`, `SwitchSecondary`) with press/release times. AI may also call
 `MoveRunner::TryStartMove(moveIndex)` directly. Both paths obey the same move rules, so a possessed enemy plays
 by its own moveset and an AI-driven hero obeys the same rules as when the player drives it.
 
@@ -226,6 +226,10 @@ crosshair). On top of the framing the camera has an impact response (`camera.imp
 kick and a rumble within comfort limits, in unscaled time; shakes queued through the engine (`Camera::AddCameraShake`) are applied
 after it. The HUD target marker shows the running attack's target, else the body the next attack would pick
 (`CombatCharacter::PredictAttackTarget`), else what the camera looks at.
+
+Weapon switching is DMC-style cycling: `switch_melee` (X, gamepad d-pad left) → `SwitchMain` cycles the Main
+(melee) weapons, `switch_firearm` (C, d-pad right) → `SwitchSecondary` the firearms (§9.3). The HUD shows the
+equipped weapons above the ammo.
 
 ### 4.3 AIController
 
@@ -333,7 +337,51 @@ ids, slot names, tags, behaviours, window order) are validated with the full JSO
 ```
 
 Move fields not shown above: `airLegs` (Full moves in the air blend the legs to the air pose, default on, §5.8),
-`legWeight`, `variants`, `loop` / `loopStart`, `hold` (§5.4), `reach` (below).
+`legWeight`, `variants`, `loop` / `loopStart`, `hold` (§5.4), `reach` (below), `additive` (below).
+
+**Per-weapon moves** (`weaponMoves`, keyed by `WeaponData::name`): while a weapon is equipped (§9.3) its entries
+replace the moveset's own `combos` / `holdOpeners` / `actions` - the body looks every slot up through
+`MoveRunner::GetTables()` (`MoveSetData::BuildTables`). Combos and hold openers belong to the Main weapon; actions to
+the slot that owns them (`ActionWeaponSlot`): `Secondary`, `AirSecondary`, `Reload` to the firearm, the rest (`Draw`,
+`AirDrop`, `Finisher`, `Sheathe`) to the melee weapon. Movement actions stay in the moveset's own table. A weapon's
+table cannot remove an entry, so weapon-specific moves never go in the moveset's own tables (the sword has no draw:
+it must not inherit the scythe's). AI attacks name a `slot` ("Attack", "Secondary") instead of a move to use the
+equipped weapon's. Character validation warns about tables of weapons the character does not have and entries the
+weapon's slot does not own.
+
+```jsonc
+"weaponMoves": {
+  "scythe":  { "combos": { "Attack": "start" }, "holdOpeners": { "Attack": "launch" },
+               "actions": { "Finisher": "finisher", "Draw": "draw", "AirDrop": "drop" } },
+  "sword":   { "combos": { "Attack": "sword_start" }, "holdOpeners": { "Attack": "sword_launch" },
+               "actions": { "Finisher": "sword_finisher", "AirDrop": "sword_drop", "Sheathe": "sword_sheathe",
+                           "MovingSheathe": "sword_sheathe_moving" } },
+  "musket":  { "actions": { "Secondary": "musket_fire" } },
+  "rifle":   { "actions": { "Secondary": "rifle_fire", "Reload": "rifle_reload" } }
+}
+```
+
+**Additive layer** (`additive`, Overlay moves only): the clip's difference from its own pose at `referenceTime` is
+added to the `bones` subtrees (`space` Local or Mesh, the root bone keeps the pose's) before the `bodyMask` layer
+replaces its own bones with the clip. The musket's shot: `bodyMask` Bones `clavicle_l` (the arm takes the clip),
+`additive` `["root"]` Local (the kick moves spine and coat a little).
+
+Cue field `sheathe`: 1 puts the Main weapon into its sheath (the frame the blade is in), 0 draws it (§9.3).
+
+`layerSpace` (`Default` / `Local` / `Mesh`): the space the move's partial layers blend in - its UpperBody / Bones mask
+and the upper body of its recovery hand-over. Default: mesh at `locomotion.upperBodyBone` (the torso keeps the
+clip's facing), local at limbs. Every sword move is `Local`: the sword's attack stance is side-on (54° off the
+facing, 105° off the idle) and a mesh-space hand-over twisted the chest that far off the running hips. The musket's
+shot is `Mesh` at `clavicle_l`: the arm keeps the clip's aim whatever the run does with the chest.
+
+`grips` (`start`, `end`, `hands`, `weapon`): windows where the clip holds its weapon with more hands than the
+weapon's own (the sword's two-handed heavies and drop: the left hand on the grip); the parts those hands carry
+(`WeaponMeshData::carried`, the scabbard) hide. They run on through the recovery.
+
+`suspendsAim`: an Overlay that poses the weapon itself (the rifle's spinning reload) pauses the aim sweep.
+
+A `Full` Overlay replaces the whole body - its root included (the reload spins on it) - and hands its legs to the
+pose underneath by `legWeight` as the body runs (`airLegs`: and as it flies); standing it keeps the clip's footwork.
 
 Reach (`ReachData`): the weapon in `weapon` (default Main) gets `length` m longer during the move — fully from
 `start` to `end`, growing over `blendIn` (default 0.12 s) before and shrinking back over `blendOut` (0.2 s) after;
@@ -492,9 +540,10 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
   a lone attack frees the body ~0.25 s after its strike instead of at the end of the combo window. Validation warns about a `Locomotion` window inside the light zone, and rejects `Locomotion` as a move tag.
 * Buffers: an Attack press waits `inputBuffer` (combos and cancels into attacks queue up); every other action waits
   `actionBuffer` - a dash pressed long before its cancel window opens is not wanted any more when it would fire.
-* `Overlay` moves start only when the primary move has `"overlay": "Allow"` (or none runs); starting a primary
-  move with `"overlay": "Block"` interrupts the overlay. A blocking primary also suspends aiming (§9.1): the dash
-  faces its direction and the aim offset fades out; jumping and gliding allow overlays and keep aiming.
+* `Overlay` moves start only when the primary move has `"overlay": "Allow"` (or none runs), or when a cancel window
+  of the blocking primary lets their tags in - the overlay then ends it (firing cuts the standing sheathe short);
+  starting a primary move with `"overlay": "Block"` interrupts the overlay. A blocking primary also suspends aiming (§9.1): the dash
+  faces its direction and the aim sweep fades out; jumping and gliding allow overlays and keep aiming.
 * Forced moves (hit reactions, finisher victim, death) ignore cancel windows; armor decides whether a reaction
   plays at all.
 
@@ -506,8 +555,10 @@ clip time:  0 ── hits ── ws ═══ combo window ═══ we ┊ reco
 | `Dash` | displacement along input (or facing), gravity suspended, i-frames from `invulnerable`, stops at walls, air charges. EaseOut slows linearly to `exitSpeed` × run speed, so the body runs out of the dash; after the displacement input steers the body (`tailLocomotion`). Jump cancels it from the first frame (data) | `distance`, `duration`, `curve`, `airCharges`, `exitSpeed`, `tailLocomotion`, `faceDirection` |
 | `Jump` | vertical velocity; ground or air (air jumps refill on landing); ends on landing; horizontal speed carries into the jump up to `carrySpeed` × run speed (a dash-jump leaves at run speed) | `velocity`, `maxAirJumps`, `airControl`, `carrySpeed` |
 | `Glide` | started by the move runner when the body falls with Jump held for `holdDelay` (no second press); reduced gravity, capped fall speed, limited time per airtime; ends on release; sustains at `endTime` | `maxDuration`, `gravityScale`, `maxFallSpeed`, `airControl`, `holdDelay` |
-| `Fire` | overlay; fires on start and at the weapon's fire rate while held (or per press), projectiles from the next muzzle toward the aim point, strafe-to-aim facing, locomotion at `moveSpeed`; a weapon drawn by the move fires on the next frame (muzzle in the hands). With `restartOnShot` every shot restarts the clip (`MoveRunner::RestartClip`) as clip n for the weapon's n-th muzzle | `weapon`, `button`, `automatic`, `aimTurnRate`, `restartOnShot`, `moveSpeed` |
-| `Draw` | puts `weapon` in the hands when it starts (the clip begins with the grab: the other weapon is put away and this one shown at once) and plays the draw clip, usually an UpperBody overlay. The body starts the `Draw` action by itself once another weapon's `holsterDelay` ran out (§9.3) | `weapon` |
+| `Fire` | overlay; fires on start and at the weapon's fire rate while held (or per press), projectiles from the next muzzle toward the aim point, strafe-to-aim facing, locomotion at `moveSpeed`; a weapon drawn by the move fires on the next frame (muzzle in the hands). With `restartOnShot` every shot restarts the clip (`MoveRunner::RestartClip`) as clip n for the weapon's n-th muzzle. Without `sustain` the move is one shot: it starts only when the weapon is ready and plays its clip once (the musket) | `weapon`, `button`, `automatic`, `sustain`, `aimTurnRate`, `restartOnShot`, `moveSpeed` |
+| `Draw` | puts `weapon` in the hands when it starts (the clip begins with the grab: the other weapon is put away and this one shown at once) and plays the draw clip, usually an UpperBody overlay. The body starts the `Draw` action of its Main weapon by itself once the Secondary one's `holsterDelay` ran out (§9.3) | `weapon` |
+| `Reload` | the reload clip of `weapon` on the overlay channel (the rifle's: Full - it spins the body); the weapon's own timer (`reloadTime`) refills the magazine, the move starts it and keeps the weapon in the hands; the body moves at `moveSpeed`. The body starts the `Reload` action by itself while its firearm reloads, cutting the fire move short; a trigger still held afterwards fires again | `weapon`, `moveSpeed` |
+| `Sheathe` | a sheathable Main weapon goes back into its sheath; its cue's `sheathe` switches the meshes on the frame the blade is in. The body starts it by itself once a drawn sheathable weapon has nothing left to do (§9.3): `Sheathe` (standing, full body) or `MovingSheathe` (upper body); interrupted, it plays again later | - |
 | `Reaction` | knockback / launch handed over by the hit funnel; optionally held while poise is broken | `knockbackScale`, `knockbackTime`, `launchScale`, `holdWhileBroken` |
 | `Finisher` / `FinisherVictim` | paired: victim aligned in front of the attacker, both `inFinisher` (pairing and release on the main thread, §2.2); damage from `direct` hit windows; reward status effect on completion; slow motion | `distance`, `reward`, `slowMotionDuration`, `slowMotionScale` |
 | `Charge` | windup, then rush with limited homing until hit / wall / timeout; optional self-stagger on wall crash | `speed`, `chargeStart`, `maxDuration`, `homingRate`, `stopOnHit`, `crashStagger` |
@@ -713,8 +764,15 @@ state, in this order:
    directions play the forward run. On the ground the torso leans into acceleration (`locomotion.lean`: forward
    when speeding up, inward when turning, smoothed).
 2. **Stance hold** — the weapon's `stance.hold` clip on each `stance.holdBones` subtree (the scythe idle on the
-   right arm, the pistol aim on the upper body): how the weapon is carried during locomotion. Move clips pose the
-   arms themselves, so the hold stays under every move.
+   right arm, the pistols' aim on the upper body): how the weapon is carried during locomotion. An aiming weapon
+   holds the middle frame of its sweep (step 7); `idleTime` / `holdTime` hold one frame of a clip instead of looping
+   it. `holdSpace` chooses the space the hold's start bones blend in (default: mesh at the upper-body bone, local at
+   limbs; the musket's arm is Mesh). Move clips pose the arms themselves, so the hold stays under every move - except
+   Movement moves (jump, glide, dash: their clips carry no weapon), over which the stances with `holdOverMoves` (the
+   firearms) are laid again: a gun stays held in the air. A firearm that leaves the melee weapon in the hands (the
+   musket in the left hand, §9.3) is a **layered** stance: its hold goes on top of the others with its own weight
+   instead of cross-fading with them. A sheathable weapon has two stances: `stance` while drawn and `sheathedStance`
+   while sheathed (the sword's: its idle and the plain locomotion run), cross-fading when it changes state.
 3. **Full-body primary** — the move clip sampled at the move clock replaces 1–2. `NoLegs` moves, and `Full` moves
    in the air (`airLegs`, faded by the air weight with take-off and landing), then blend the `locomotion.legBones`
    subtrees (thighs down) toward the locomotion / air pose by the move's `legWeight`, local to the clip's hips: the
@@ -723,24 +781,31 @@ state, in this order:
    1 → 0 over `lowerBodyBlend` (legs to locomotion), then the upper body (`LayeredLerp` from
    `locomotion.upperBodyBone`) holds it until the clip ends and fades over `blendOut`.
 5. **Upper-body / bone-masked primary**, then the **overlay** (firing, drawing) faded in / out by its `blendIn` /
-   `blendOut`; the overlay is on top because it only runs with primaries that allow it. `UpperBody` layers from
+   `blendOut`; the overlay is on top because it only runs with primaries that allow it. An overlay with an `additive`
+   layer (§5.2) first adds its clip's difference from the clip's reference frame to the additive bones (the musket's
+   kick through spine and coat), then lays its mask. `UpperBody` layers from
    `locomotion.upperBodyBone` (mesh space); `Bones` only on the move's `maskBones` subtrees (local space) - the draw
    shows on the right arm alone, like the scythe's stance hold. The overlay keeps its mask until it has faded out
    (after the move ended the input has no overlay; fading on the default mask moved the whole upper body - the spine
    twitch at the end of the draw). An overlay replacing a visible one (a draw after firing) cross-fades over the new
-   clip's `blendIn`: the outgoing one (last pose, weight, mask) and the incoming one are layered over the same pose
-   and the two results blend, so bones only one of them covers fade instead of snapping.
-6. **Aim** — a weapon whose stance lists `aimBones` (the pistols: `spine_01..03`) is an aiming weapon: while it is
-   in the hands the body faces the aim direction (strafes, turning at `aimTurnRate`) and those bones turn the hold
-   pose toward the aim point (the controller's: crosshair for the player, target for AI): yaw about up, then pitch,
-   clamped to `aimMaxYaw` / `aimMaxPitch`, spread evenly over the bones, weighted by the stance. The hold pose aims
-   along the body's facing; shots leave from the muzzles toward the same point. When another overlay clip takes
-   over a visible one (each shot restarting its recoil clip), it blends from the previous pose over its `blendIn`.
-   Aiming applies only while no primary move blocks overlays (§5.6); the aim offset fades in / out over 0.15 s.
-7. **Grip** — the weapon's `stance.handBones` (the hands holding it) take the grip of the clip posing the weapon in
+   clip's `blendIn`: the outgoing one (last pose, difference, weight, shape) and the incoming one are layered over the
+   same pose and the two results blend, so bones only one of them covers fade instead of snapping. When another
+   overlay clip takes over a visible one (each shot restarting its recoil clip), it blends from the previous pose.
+6. **Grip** — the weapon's `stance.handBones` (the hands holding it) take the grip of the clip posing the weapon in
    local space: its overlay clip, else its move / recovery clip (clips from the weapon's own model), else its hold
    clip, weighted by how much each shows. Blends and mesh-space layers move the arms, never the grip, so the weapon
-   stays tight in the hand.
+   stays tight in the hand. Layered stances grip their own hands on top.
+7. **Aim sweep** — a weapon whose stance has a `sweep` (every firearm of the hero) is an aiming weapon: while it is
+   in the hands the body faces the aim direction (strafes, turning at `aimTurnRate`) and the sweep aims the pose at
+   the aim point (the controller's: crosshair for the player, target for AI). The sweep clip aims the weapon from
+   `startPitch` on its first frame to `endPitch` on its last, level on its middle frame - the hold pose (step 2);
+   each half maps pitch to time linearly. The clip at the aim pitch, as its difference from the middle frame
+   (`AnimationPose::MakeAdditive`), is added on the `sweep.bones` subtrees (spine_01: the upper body and the coat) in
+   mesh space - after the weapon's own clips (recoil, reload, the musket's shot) and the grip, weighted by the stance
+   and the aim fade. It replaced a procedural spine rotation that turned the coat with the spine: the sweep turns
+   spine, arms and coat the way the clip does, and bones the clip lacks (the pistols' model has no coat) keep their
+   mesh-space rotation. Shots leave from the muzzles toward the same aim point. Aiming applies only while no primary
+   move blocks overlays (§5.6); the sweep fades in / out over 0.15 s.
 8. **Hit recoil** (`hitRecoil`) — every hit bends the upper body away from the blow at once by
    `knockback × degreesPerKnockback` (≤ `maxAngle`; armored hits half), spread over the `bones` chain by weight
    (default spine_01..03 + neck_01); a damped spring (`frequency`, `damping`) in the body's local time brings it back,
@@ -807,9 +872,41 @@ Weapon bones of a Rig mesh (bones the body skeleton does not have), every frame 
   copy. A weapon without a holster copy uses `visibleWhenHolstered: false`.
 * **Built-in weapons**: a weapon file without meshes is part of the character model (an enemy's modelled axe or
   gun); its points use the body's bones.
-* **Holster timer**: a weapon other than Main with `holsterDelay` > 0 goes back once that many seconds passed since
-  it entered the hands or last fired — the body plays the moveset's `Draw` action (instant swap without one).
-  Attacks swap to their hit windows' weapon instantly.
+* **Rig models without weapon bones**: a model skinned to body bones only (the musket and rifle to a hand, the sword
+  and its scabbard to both) is drawn with the body pose as it is; its points are a body bone of the model (`hand_l`)
+  plus an offset in that bone's space (model units).
+* **Weapon lists and switching**: a character lists several weapons per slot (`weapons.Main` / `weapons.Secondary`
+  arrays, the first equipped); `SwitchMain` / `SwitchSecondary` presses cycle them (`CombatCharacter::EquipWeapon`).
+  The outgoing weapon's moves stop with it (its overlay actions; a Main weapon's recovery), the move tables follow the
+  new one (§5.2). A Main switch waits while a melee attack runs (its combo belongs to the old weapon). A firearm that
+  was out is replaced in the hands by the new one (unless that one only comes out to fire). Weapons that are not
+  equipped show their holster state.
+* **Hands and presentation**: each weapon holds `hands` (the scythe and sword: Right; the musket: Left; pistols and
+  rifle: both). The equipped Main weapon is in the hands unless the Secondary weapon is out and takes every hand any
+  of its in-hand states needs: then it is holstered and the firearm's stance replaces its stance. A firearm leaving
+  one of them free is layered beside it (§9.1): the scythe stays in the right hand while the musket fires from the
+  left.
+* **Sheath** (`sheathedHands`, mesh attachment `sheathed`, `sheathedStance`): a sheathable melee weapon (the sword,
+  held sheathed in the left hand) has a third state. It rests sheathed (the sword idle; running is the plain run); an
+  attack of the Main weapon draws it as it starts (the mesh switches to the drawn blade at once, the attack's blend
+  covers the turn into the side-on attack stance). Once it has nothing left to do - no primary move, no overlay - the
+  body sheathes it: standing, right after an attack played out to its ready stance (its recovery ended unreleased),
+  the `Sheathe` action - the full-body clip steps from the attack stance into the idle and ends on it; while moving,
+  in the air, or when something else drew it, `MovingSheathe` - the clip on the upper body in local space over the
+  legs. A standing sheathe hands over like a recovery when the stick is pushed (legs to the run, the upper body keeps
+  the clip to its end) and is cut by an attack, dash, jump or shot. The cue `sheathe: 1` puts the blade in on the
+  frame it is seated; cut before, the weapon stays drawn and sheathes again later. A firearm coming out moves the
+  weapon to the state whose hands it leaves free (`WeaponSet::FitMainToHands`): a left-hand firearm draws it, a
+  right-hand one sheathes it, one taking both hides it (it comes back sheathed).
+* **Carried parts** (`carried`: a hand and mesh prefixes): parts of the model held by a hand the weapon does not hold
+  (the sword's scabbard, `active_optional`, in the left hand) hide while that hand holds something else - the other
+  slot's weapon, or this weapon's grip in a two-handed move window (`MoveData::grips`).
+* **Holster timer**: a Secondary weapon with `holsterDelay` > 0 goes back once that many seconds passed since it came
+  out or last fired, when nothing on the overlay channel runs — beside the Main weapon with the fade below, otherwise
+  the Main weapon's `Draw` action plays (instant swap without one). A firearm with `holsterAfterFire` (the musket, no
+  idle in the hands) goes away once no fire move ran for its `holsterDelay` (0.35 s: it stays aimed after the
+  shot). Put away beside the Main weapon, its mesh stays in the hand while its stance fades over `stance.blend` - the
+  arm lowers it, then it goes. Attacks swap to their hit windows' weapon instantly.
 
 ### 9.4 Feedback
 
@@ -896,10 +993,10 @@ GameData/combat/player.json                   hero entity, camera (+ impact resp
                 "gravity": 25, "turnRate": 540, "turnSharpness": 12, "radius": 0.4, "height": 1.8, "quality": "NpcGeneric" },
   "weakPoints": [ { "name": "head", "hitboxes": ["head"], "health": 30, "sources": ["Firearm"],
                     "multiplier": 2.0, "onBreak": ["BreakPoise"], "regrow": 0 } ],
-  "weapons": { "Main": "GameData/combat/weapons/grunt_blade.weapon.json" },
+  "weapons": { "Main": ["GameData/combat/weapons/grunt_blade.weapon.json"] },      // per slot, the first equipped (§9.3)
   "ai": { "brain": "Melee", "sightRadius": 25, "fov": 140, "preferredMinRange": 1.5, "preferredMaxRange": 3.0,
           "attacks": [ { "move": "light_1", "minRange": 0, "maxRange": 2.2, "weight": 3, "cooldown": 1.5,
-                         "token": "Melee" } ] },
+                         "token": "Melee" } ] },      // or "slot": "Attack" - the equipped weapon's move (§5.2)
   "possession": { "allowed": true },
   "finisher": { "range": 2.5, "angle": 60, "reward": "finisher_boost" },
   "attackTokens": { "melee": 2, "ranged": 2, "heavy": 1 },
@@ -929,7 +1026,8 @@ GameData/combat/player.json                   hero entity, camera (+ impact resp
     "holster": { "hide": ["active"] },                   // on the back: the in-hand copy hidden
     "visibleWhenHolstered": true
   } ],
-  "stance": { "hold": "idle", "holdBones": ["clavicle_r"], "handBones": ["hand_r"], "blend": 0.2 },   // §9.1 (pistols add "aimBones")
+  "hands": ["Right"],                                    // §9.3; a sheathable weapon adds "sheathedHands" + mesh "sheathed"
+  "stance": { "idle": "idle", "hold": "idle", "holdBones": ["clavicle_r"], "handBones": ["hand_r"], "blend": 0.2 },   // §9.1
   "blade": { "base": { "bone": "attack_start" }, "tip": { "bone": "attack_end" }, "radius": 0.3, "samples": 5 },
   "extend": { "bone": "attack_end", "axis": { "x": 0, "y": 1, "z": 0 } },   // §9.3: moves' reach lengthens the shaft
   "trailParticle": "meleeTrail",
@@ -938,12 +1036,19 @@ GameData/combat/player.json                   hero entity, camera (+ impact resp
 ```
 
 `hand.bone` / `holster.bone` are optional follow bones (§9.3); the shipped rigs parent their weapon bones to the
-hands, so they are not needed. A firearm lists its muzzles and may set `holsterDelay`:
+hands, so they are not needed. A firearm lists its muzzles, its hands and its aim sweep, and may set `holsterDelay`
+(or `holsterAfterFire`):
 
 ```jsonc
+"hands": ["Right", "Left"],
+"stance": { "holdBones": ["spine_01"], "handBones": ["hand_r", "hand_l"],
+            "sweep": { "clip": "sweep", "bones": ["spine_01"], "space": "Mesh", "startPitch": -90, "endPitch": 90 } },
 "holsterDelay": 1.5,
 "firearm": { "fireRate": 6, "muzzles": [ { "bone": "muzzle_r" }, { "bone": "muzzle_l" } ], "projectile": { ... } }
 ```
+
+Shipped hero weapons: `scythe`, `sword` (Main); `pistols`, `musket` (left hand, one shot, `holsterAfterFire`),
+`rifle` (automatic, 30 rounds, reload clip; no fire clip yet - its fire move is clip-less) (Secondary).
 
 A `Bone` mesh (rigid prop) instead names the body bone and its `offset` / `rotation` / `scale`
 (`"hand": { "bone": "hand_r", "offset": { "x": 0, "y": 0.02, "z": 0.05 }, "rotation": { "x": 0, "y": 90, "z": 0 } }`;
@@ -1057,6 +1162,7 @@ stable); a body's action state is fully described by `(moveIndex, moveTime)` plu
 | `MAX_SKINNED_BONES` 128 → 256 (`skinned_model.hpp`) | the player rigs (cloth bones) use 135–138 palette slots; skinning writes past a 128-slot palette (heap corruption) |
 | The palette reaches shaders as `finalBonesMatrices0` (slots 0–127) and `finalBonesMatrices1` (128–255); `SKINNED_BONES_PER_UNIFORM`, `Shader::SetUniform(name, const mat4*, count)`, `SkeletalMeshDrawCommand::ApplyAdditionalShaderParams` (still sets the legacy `finalBonesMatrices` for shaders of other games) | bgfx shader binaries store a uniform array's size in 8 bits (256 wraps to 0) and its per-draw opcode in 10 bits of registers |
 | Game shaders: `GameData/shaders/source/bones.sh` (`GetBoneMatrix`) used by `vs_default`, `vs_shadowvolcap`, `vs_shadowvoledge`; compiled with `GameData/shaders/ShaderCompilationAutomation.exe` | the split palette |
+| `AnimationPose::MakeAdditive` / `ApplyAdditiveInPlace` (`AdditiveSpace` Local / Mesh, like Unreal's additive animations) | aim sweeps and additive move layers (§9.1): a clip's difference from a reference pose added on a subtree. Mesh space turns bones in model space, so the aim holds whatever the pose underneath does with the parents and the coat stays where the clip keeps it; nothing else in the engine could add a pose |
 | `AnimationPose::LayeredLerp`: `UseWorldSpaceRotation` is no longer scaled by `progress` (it only chooses the blend space) | partial mesh-space blends mixed in the local-space result: a fading upper-body layer swung the torso toward the legs' pelvis twist (aim drifting after firing). Callers passing fractional values (ShooterGame) now get exactly the space they ask for |
 
 Performance fixes (from profiling `-perf_crowd 300`, 2026-10-15; §13.2 has what was found and measured). Each keeps the
@@ -1124,7 +1230,7 @@ SlasherGame/
                                CombatData (cache), DataLoadReport, JsonEnum, JsonTextPatch (in-place edits of
                                authored JSON for the debug save)
   Actions/                     MoveRunner, ComboResolver, MoveBehavior (+ registry), Behaviors/* (Attack, Dash,
-                               Jump, Glide, Fire, Draw, Reaction, Death, Finisher, Charge)
+                               Jump, Glide, Fire, Draw, Reload, Sheathe, Reaction, Death, Finisher, Charge)
   Characters/                  CombatCharacter (+ movement), CombatBodySystems (parallel body frame and pose),
                                CharacterAnimator, WeaponSet, WeaponMesh, CharacterInput, Characters.cpp
                                (registered hero / enemy types)
@@ -1193,6 +1299,16 @@ SlasherGame/
 | Procedural strafe from the forward run when no directional clips exist | Strafing while aiming without new assets; real clips replace it automatically |
 | Camera framing offset in camera space around a focus point on the body | A world-up pivot offset collapses into depth when looking down (the body covers the crosshair); a camera-space offset keeps the composition at every pitch |
 | Weapon reach is a procedural move of a weapon bone (`reach` per move, `extend` per weapon), applied before the weapon-bone transitions | One set of clips serves every reach; the blade sweep and trail follow the bone, and a move change blends the length like any weapon bone instead of snapping |
+| Aiming is an authored sweep clip added in mesh space (its middle frame is the hold), not a procedural spine rotation | The spine rotation turned the coat with the spine; the sweep moves spine, arms and coat as authored, and mesh space keeps the aim right over any base pose |
+| Additive poses in the engine (`AnimationPose`), next to the blends | A generic pose operation every game can use, not a SlasherGame helper |
+| Per-weapon move tables in the character's moveset (`weaponMoves`), one moveset per body | Switching weapons swaps the opener, launcher, drop, draw, fire and reload without a second moveset to load or keep in sync; combo links stay moves of one file (editor) |
+| Hand occupancy decides where the melee weapon goes when a firearm comes out | One rule covers holstering (pistols, rifle), staying in the hand (musket in the left hand) and sheathing (a right-hand gun beside the sword) |
+| Sword attacks draw at once from the sheath; the sheathe plays after every combo | The user's choice: responsive openers; the sheathed idle is the sword's rest state |
+| The standing sheathe is a full-body move started exactly when an attack has played out to its ready stance; otherwise an upper-body one in local space | The clip turns the hips 105° and steps the feet from the attack stance into the idle: played over idle legs (the first version) it twisted the body, and fading the attack into the idle first spun it |
+| Sword layers in local space (`layerSpace`) | The sword's stance is side-on; a mesh-space hand-over held the chest 54° off the running hips |
+| The rifle's reload is a Full overlay whose legs hand over while moving | Its clip spins the whole body on the root; on the upper body alone the torso spun over still legs |
+| Firearm holds over movement moves (`holdOverMoves`) | Jump / glide / dash clips carry no gun: in the air the rifle hung from arms posed for nothing |
+| The musket's arm in mesh space, kept out a moment after the shot and lowered before it hides | The local arm swung with the run's chest sway and the strafe twist; hiding at the clip's end popped the gun out of an aimed arm |
 
 ### Open items (assets / design input)
 
@@ -1208,3 +1324,5 @@ SlasherGame/
 * Final tuning numbers (all in JSON).
 * Gameplay trigger for possession (API + debug command exist).
 * Ammo economy (magazine + reload supported; `magazine: 0` = infinite).
+* Rifle fire clip (rifle_fire is clip-less: the aimed sweep pose holds while firing); the sword's `draw` clip is not
+  used (attacks draw from the sheath at once); combat sounds for the musket and rifle.

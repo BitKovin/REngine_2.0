@@ -128,19 +128,31 @@ bool ResolveCharacter(CharacterData& data, DataLoadReport& report)
 			wp.hitboxHashes.emplace_back(hitbox);
 	}
 
-	for (const auto& [slotName, file] : data.weapons)
+	size_t weaponCount = 0;
+	for (const auto& [slotName, files] : data.weapons)
 	{
 		if (FindSlotIndex(WeaponSlotNames, slotName) < 0)
 			report.Error("weapons." + slotName, "unknown slot (allowed: Main, Secondary)");
-		if (file.empty())
-			report.Error("weapons." + slotName, "empty path");
+		if (files.empty())
+			report.Warning("weapons." + slotName, "no weapon listed");
+		for (size_t i = 0; i < files.size(); ++i)
+			if (files[i].empty())
+				report.Error("weapons." + slotName + "[" + std::to_string(i) + "]", "empty path");
+		weaponCount += files.size();
 	}
+	if (weaponCount > CharacterData::MaxWeapons)
+		report.Error("weapons", "at most " + std::to_string(CharacterData::MaxWeapons) + " weapons");
 
 	for (size_t i = 0; i < data.ai.attacks.size(); ++i)
 	{
-		const AiAttackData& attack = data.ai.attacks[i];
+		AiAttackData& attack = data.ai.attacks[i];
 		const std::string path = "ai.attacks[" + std::to_string(i) + "]";
-		if (attack.move.empty()) report.Error(path + ".move", "required");
+		attack.comboSlot = attack.slot.empty() ? -1 : FindSlotIndex(ComboSlotNames, attack.slot);
+		attack.actionSlot = attack.slot.empty() || attack.comboSlot >= 0 ? -1 : FindSlotIndex(ActionSlotNames, attack.slot);
+		if (attack.move.empty() == attack.slot.empty())
+			report.Error(path, "set either move or slot");
+		else if (!attack.slot.empty() && attack.comboSlot < 0 && attack.actionSlot < 0)
+			report.Error(path + ".slot", "unknown combo or action slot '" + attack.slot + "'");
 		if (attack.maxRange < attack.minRange) report.Error(path, "maxRange must be >= minRange");
 		if (attack.weight <= 0.0f) report.Error(path + ".weight", "must be > 0");
 		if (attack.token == AttackToken::Count) report.Error(path + ".token", "unknown token");
@@ -168,6 +180,8 @@ bool ResolveCharacterReferences(CharacterData& data, DataLoadReport& report)
 
 	for (AiAttackData& attack : data.ai.attacks)
 	{
+		if (attack.move.empty())
+			continue;   // a slot: resolved through the equipped weapons' tables at run time
 		attack.moveIndex = data.moveSet->FindMove(attack.move);
 		if (attack.moveIndex < 0)
 			report.Error("ai.attacks", "move '" + attack.move + "' does not exist in " + data.moveset);
@@ -177,27 +191,55 @@ bool ResolveCharacterReferences(CharacterData& data, DataLoadReport& report)
 	const std::vector<std::string>& sources = data.moveSet->animations;
 	for (size_t slot = 0; slot < data.weaponData.size(); ++slot)
 	{
-		const WeaponData* weapon = data.weaponData[slot].get();
-		if (!weapon)
-			continue;
-
-		for (const WeaponMeshData& mesh : weapon->meshes)
+		for (const auto& weapon : data.weaponData[slot])
 		{
-			if (mesh.attach == WeaponAttachMode::Rig && std::find(sources.begin(), sources.end(), mesh.model) == sources.end())
-				report.Warning(std::string("weapons.") + WeaponSlotNames[slot], "Rig weapon model '" + mesh.model
-					+ "' is not an animation source of " + data.moveset + " - the attack clips should come from it, otherwise its weapon bones stay at rest");
+			for (const WeaponMeshData& mesh : weapon->meshes)
+			{
+				if (mesh.attach == WeaponAttachMode::Rig && std::find(sources.begin(), sources.end(), mesh.model) == sources.end())
+					report.Warning(std::string("weapons.") + WeaponSlotNames[slot], "Rig weapon model '" + mesh.model
+						+ "' is not an animation source of " + data.moveset + " - the attack clips should come from it, otherwise its weapon bones stay at rest");
+			}
 		}
 	}
 
-	// A move's reach lengthens the weapon of its slot through that weapon's extend bone (§9.3).
+	// Per-weapon move tables (MoveSetData::weaponMoves) name weapons of this character, and only fill slots that
+	// weapon's slot owns (ActionWeaponSlot): a melee weapon's table never decides what Secondary fires.
+	for (const auto& [name, table] : data.moveSet->weaponMoves)
+	{
+		WeaponSlot owner = WeaponSlot::Count;
+		for (size_t slot = 0; slot < data.weaponData.size(); ++slot)
+			for (const auto& weapon : data.weaponData[slot])
+				if (weapon->name == name)
+					owner = static_cast<WeaponSlot>(slot);
+		if (owner == WeaponSlot::Count)
+		{
+			report.Warning("moveset.weaponMoves." + name, "no weapon of this character is named '" + name + "' - the table is never used");
+			continue;
+		}
+		if (owner != WeaponSlot::Main && (!table.combos.empty() || !table.holdOpeners.empty()))
+			report.Warning("moveset.weaponMoves." + name, "combos / holdOpeners belong to the Main weapon - ignored for a Secondary weapon");
+		for (const auto& [slotName, moveId] : table.actions)
+		{
+			const int action = FindSlotIndex(ActionSlotNames, slotName);
+			if (action >= 0 && ActionWeaponSlot(static_cast<ActionSlot>(action)) != owner)
+				report.Warning("moveset.weaponMoves." + name + ".actions." + slotName, std::string("belongs to the ")
+					+ WeaponSlotNames[static_cast<size_t>(ActionWeaponSlot(static_cast<ActionSlot>(action)))] + " weapon - ignored");
+		}
+	}
+
+	// A move's reach lengthens the weapon whose clips it plays (or the slot's first) through its extend bone (§9.3).
 	for (const MoveData& move : data.moveSet->moves)
 	{
 		if (!move.reach.IsActive())
 			continue;
-		const size_t slot = static_cast<size_t>(move.reach.weapon);
-		const WeaponData* weapon = slot < data.weaponData.size() ? data.weaponData[slot].get() : nullptr;
+		const auto& candidates = data.weaponData[static_cast<size_t>(move.reach.weapon)];
+		const WeaponData* weapon = candidates.empty() ? nullptr : candidates.front().get();
+		for (const auto& candidate : candidates)
+			for (const WeaponMeshData& mesh : candidate->meshes)
+				if (mesh.model == move.animation)
+					weapon = candidate.get();
 		if (weapon == nullptr || weapon->extend.bone.empty())
-			report.Warning("moveset", "move '" + move.id + "' has a reach, but the character's " + WeaponSlotNames[slot]
+			report.Warning("moveset", "move '" + move.id + "' has a reach, but its " + WeaponSlotNames[static_cast<size_t>(move.reach.weapon)]
 				+ " weapon has no extend bone - the weapon keeps its length");
 	}
 

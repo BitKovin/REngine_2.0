@@ -1,6 +1,7 @@
 #include "WeaponData.h"
 
 #include <algorithm>
+#include <cmath>
 
 bool WeaponData::HasRigMesh() const
 {
@@ -10,8 +11,81 @@ bool WeaponData::HasRigMesh() const
 	return false;
 }
 
+// The clip is level at its middle; each half covers the pitches from level to one end (validated: the ends have
+// opposite signs).
+float WeaponSweepData::TimeAt(float pitchDegrees, float duration) const
+{
+	const float middle = duration * 0.5f;
+	const bool towardEnd = (pitchDegrees >= 0.0f) == (endPitch >= 0.0f);
+	const float limit = towardEnd ? endPitch : startPitch;
+	const float fraction = limit != 0.0f ? std::clamp(pitchDegrees / limit, 0.0f, 1.0f) : 0.0f;
+	return towardEnd ? middle + fraction * middle : middle - fraction * middle;
+}
+
 namespace
 {
+	void ResolveStance(WeaponStanceData& stance, const std::string& defaultAnimation, const std::string& path, DataLoadReport& report)
+	{
+		WeaponSweepData& sweep = stance.sweep;
+		stance.resolvedAnimation = !stance.animation.empty() ? stance.animation : defaultAnimation;
+		stance.resolvedHold = sweep.IsEnabled() ? sweep.clip : stance.hold;
+		if ((!stance.idle.empty() || !stance.resolvedHold.empty()) && stance.resolvedAnimation.empty())
+			report.Error(path + ".animation", "required when the weapon has no mesh");
+		if (sweep.IsEnabled() && !stance.hold.empty())
+			report.Error(path + ".hold", "a weapon with a sweep holds the sweep's middle frame - leave hold empty");
+		if (sweep.IsEnabled() && stance.holdTime >= 0.0f)
+			report.Error(path + ".holdTime", "a sweep's hold is its middle frame");
+		if (!stance.resolvedHold.empty() && stance.holdBones.empty())
+			report.Error(path + ".holdBones", "required with a hold or a sweep (the bones whose subtrees take the hold pose)");
+		if (stance.resolvedHold.empty() && !stance.holdBones.empty())
+			report.Warning(path + ".holdBones", "ignored without a hold");
+		if (stance.idle.empty() && stance.idleTime >= 0.0f)
+			report.Warning(path + ".idleTime", "ignored without an idle");
+		if (stance.hold.empty() && stance.holdTime >= 0.0f)
+			report.Warning(path + ".holdTime", "ignored without a hold");
+		for (size_t i = 0; i < stance.holdBones.size(); ++i)
+			if (stance.holdBones[i].empty())
+				report.Error(path + ".holdBones[" + std::to_string(i) + "]", "empty bone name");
+		for (size_t i = 0; i < stance.handBones.size(); ++i)
+			if (stance.handBones[i].empty())
+				report.Error(path + ".handBones[" + std::to_string(i) + "]", "empty bone name");
+		if (!stance.handBones.empty() && stance.resolvedHold.empty())
+			report.Error(path + ".handBones", "require a hold or a sweep (the grip when no clip of this weapon drives it)");
+		if (stance.aimTurnRate <= 0.0f) report.Error(path + ".aimTurnRate", "must be > 0");
+		if (stance.blend < 0.0f) report.Error(path + ".blend", "must be >= 0");
+		if (stance.holdSpace == PoseSpace::Invalid) report.Error(path + ".holdSpace", "expected Default, Local or Mesh");
+
+		sweep.boneHashes.clear();
+		if (sweep.IsEnabled())
+		{
+			if (sweep.bones.empty())
+				report.Error(path + ".sweep.bones", "required (the subtrees the sweep turns)");
+			for (size_t i = 0; i < sweep.bones.size(); ++i)
+			{
+				if (sweep.bones[i].empty())
+					report.Error(path + ".sweep.bones[" + std::to_string(i) + "]", "empty bone name");
+				sweep.boneHashes.emplace_back(sweep.bones[i]);
+			}
+			if (sweep.space != PoseSpace::Local && sweep.space != PoseSpace::Mesh)
+				report.Error(path + ".sweep.space", "expected Local or Mesh");
+			if (!(sweep.startPitch * sweep.endPitch < 0.0f) || std::abs(sweep.startPitch) > 90.0f || std::abs(sweep.endPitch) > 90.0f)
+				report.Error(path + ".sweep", "startPitch and endPitch must lie on either side of level (the middle frame), within 90 degrees");
+		}
+	}
+
+	HandMask ResolveHands(const std::vector<WeaponHand>& hands, const std::string& path, DataLoadReport& report)
+	{
+		HandMask mask = 0;
+		for (size_t i = 0; i < hands.size(); ++i)
+		{
+			if (hands[i] == WeaponHand::Count)
+				report.Error(path + "[" + std::to_string(i) + "]", "expected Right or Left");
+			else
+				mask |= HandBit(hands[i]);
+		}
+		return mask;
+	}
+
 	void ResolveAttach(WeaponAttachData& attach, WeaponAttachMode mode, const std::string& path, DataLoadReport& report)
 	{
 		attach.boneHash = hashed_string(attach.bone);
@@ -91,34 +165,56 @@ bool ResolveWeapon(WeaponData& data, DataLoadReport& report)
 		}
 
 		ResolveAttach(mesh.hand, mesh.attach, path + ".hand", report);
+		ResolveAttach(mesh.sheathed, mesh.attach, path + ".sheathed", report);
 		ResolveAttach(mesh.holster, mesh.attach, path + ".holster", report);
 	}
 
-	// Stance
-	WeaponStanceData& stance = data.stance;
-	stance.resolvedAnimation = !stance.animation.empty() ? stance.animation : (data.meshes.empty() ? std::string() : data.meshes[0].model);
-	if ((!stance.idle.empty() || !stance.hold.empty()) && stance.resolvedAnimation.empty())
-		report.Error("stance.animation", "required when the weapon has no mesh");
-	if (!stance.hold.empty() && stance.holdBones.empty())
-		report.Error("stance.holdBones", "required with stance.hold (the bones whose subtrees take the hold clip)");
-	if (stance.hold.empty() && !stance.holdBones.empty())
-		report.Warning("stance.holdBones", "ignored without stance.hold");
-	for (size_t i = 0; i < stance.holdBones.size(); ++i)
-		if (stance.holdBones[i].empty())
-			report.Error("stance.holdBones[" + std::to_string(i) + "]", "empty bone name");
-	for (size_t i = 0; i < stance.aimBones.size(); ++i)
-		if (stance.aimBones[i].empty())
-			report.Error("stance.aimBones[" + std::to_string(i) + "]", "empty bone name");
-	for (size_t i = 0; i < stance.handBones.size(); ++i)
-		if (stance.handBones[i].empty())
-			report.Error("stance.handBones[" + std::to_string(i) + "]", "empty bone name");
-	if (!stance.handBones.empty() && stance.hold.empty())
-		report.Error("stance.handBones", "require stance.hold (the grip when no clip of this weapon drives it)");
-	if (stance.aimMaxPitch < 0.0f || stance.aimMaxPitch > 89.0f) report.Error("stance.aimMaxPitch", "must be in [0, 89]");
-	if (stance.aimMaxYaw < 0.0f || stance.aimMaxYaw > 180.0f) report.Error("stance.aimMaxYaw", "must be in [0, 180]");
-	if (stance.aimTurnRate <= 0.0f) report.Error("stance.aimTurnRate", "must be > 0");
-	if (stance.blend < 0.0f) report.Error("stance.blend", "must be >= 0");
+	// Hands
+	data.handMask = ResolveHands(data.hands, "hands", report);
+	data.sheathedHandMask = ResolveHands(data.sheathedHands, "sheathedHands", report);
+	if (data.handMask == 0 && !data.meshes.empty())
+		report.Error("hands", "a weapon with meshes holds at least one hand");
+	if (data.sheathedHandMask != 0 && data.kind != WeaponKind::Melee)
+		report.Error("sheathedHands", "only melee weapons have a sheathed state");
+	for (size_t i = 0; i < data.meshes.size(); ++i)
+	{
+		const WeaponAttachData& sheathed = data.meshes[i].sheathed;
+		if (!data.CanSheathe() && (!sheathed.bone.empty() || !sheathed.clip.empty() || !sheathed.hide.empty()))
+			report.Warning("meshes[" + std::to_string(i) + "].sheathed", "ignored without sheathedHands");
+	}
+
+	// Stances (the sheathed one only for a sheathable weapon)
+	const std::string defaultAnimation = data.meshes.empty() ? std::string() : data.meshes[0].model;
+	ResolveStance(data.stance, defaultAnimation, "stance", report);
+	ResolveStance(data.sheathedStance, defaultAnimation, "sheathedStance", report);
+	if (!data.CanSheathe() && (!data.sheathedStance.idle.empty() || !data.sheathedStance.resolvedHold.empty()))
+		report.Warning("sheathedStance", "ignored without sheathedHands");
+	if (data.sheathedStance.IsAiming())
+		report.Error("sheathedStance.sweep", "a sheathed weapon does not aim");
+
+	// Parts held by other hands
+	for (size_t i = 0; i < data.meshes.size(); ++i)
+	{
+		for (size_t c = 0; c < data.meshes[i].carried.size(); ++c)
+		{
+			const WeaponCarriedData& carried = data.meshes[i].carried[c];
+			const std::string path = "meshes[" + std::to_string(i) + "].carried[" + std::to_string(c) + "]";
+			if (carried.hand == WeaponHand::Count)
+				report.Error(path + ".hand", "expected Right or Left");
+			else if ((data.handMask & HandBit(carried.hand)) != 0)
+				report.Warning(path + ".hand", "the weapon holds this hand itself - its parts would hide whenever another weapon is out");
+			if (carried.meshes.empty())
+				report.Warning(path + ".meshes", "empty - nothing to hide");
+			for (const std::string& mesh : carried.meshes)
+				if (mesh.empty())
+					report.Error(path + ".meshes", "empty mesh name");
+		}
+	}
+
 	if (data.holsterDelay < 0.0f) report.Error("holsterDelay", "must be >= 0");
+	if (data.holsterAfterFire && data.kind != WeaponKind::Firearm)
+		report.Error("holsterAfterFire", "only firearms fire");
+
 
 	// Points
 	data.sockets.clear();

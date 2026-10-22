@@ -105,14 +105,19 @@ namespace
 				return false;
 
 			d.moveSet = CombatData::LoadMoveSet(d.moveset);
-			for (const auto& [slotName, file] : d.weapons)
+			for (const auto& [slotName, files] : d.weapons)
 			{
 				const int slot = FindSlotIndex(WeaponSlotNames, slotName);
 				if (slot < 0) continue;
 
-				d.weaponData[static_cast<size_t>(slot)] = CombatData::LoadWeapon(file);
-				if (!d.weaponData[static_cast<size_t>(slot)])
-					r.Error("weapons." + slotName, "failed to load '" + file + "'");
+				for (size_t i = 0; i < files.size(); ++i)
+				{
+					std::shared_ptr<const WeaponData> weapon = CombatData::LoadWeapon(files[i]);
+					if (weapon)
+						d.weaponData[static_cast<size_t>(slot)].push_back(std::move(weapon));
+					else
+						r.Error("weapons." + slotName + "[" + std::to_string(i) + "]", "failed to load '" + files[i] + "'");
+				}
 			}
 
 			return ResolveCharacterReferences(d, r) && r.Ok();

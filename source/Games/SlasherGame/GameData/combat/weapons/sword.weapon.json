@@ -1,0 +1,36 @@
+{
+	"version": 1,
+	"name": "sword",
+	"hudLabel": "Sword",
+	"kind": "Melee",
+	"_note": "No weapon bones: the model is skinned to the hands. 'active' is the drawn blade (right hand), 'active_optional' the empty scabbard (left hand, hidden while that hand grips the sword in a two-handed move or holds a firearm), 'hidden' the sword in its scabbard (left hand). It rests sheathed; attacks draw it, sword_sheathe / sword_sheathe_moving put it back once a combo ended. Every sword attack begins and ends in the same side-on ready stance (frame 0 of 'start', 105 deg from the idle). Drawn outside an attack (a firearm in the left hand drew it) the body keeps the idle and the arms hold the ready pose; sheathed it is the sword idle with the plain locomotion run. A firearm taking the left hand draws it, one taking both hides it (it comes back sheathed). Blade points: the guard (20 cm up from the pommel) to the tip, in hand_r space (model units, cm).",
+	"meshes": [
+		{
+			"model": "GameData/models/player/weapons/sword/sword.glb",
+			"attach": "Rig",
+			"hand": { "hide": ["hidden"] },
+			"sheathed": { "hide": ["active"] },
+			"visibleWhenHolstered": false,
+			"carried": [ { "hand": "Left", "meshes": ["active_optional"] } ]
+		}
+	],
+	"hands": ["Right"],
+	"sheathedHands": ["Left"],
+	"stance": {
+		"idle": "idle",
+		"hold": "start",
+		"holdTime": 0.0,
+		"holdBones": ["clavicle_r", "clavicle_l"],
+		"handBones": ["hand_r"],
+		"blend": 0.2
+	},
+	"sheathedStance": { "idle": "idle", "blend": 0.25 },
+	"blade": {
+		"base": { "bone": "hand_r", "offset": { "x": -16.7, "y": -5.8, "z": 10.8 } },
+		"tip": { "bone": "hand_r", "offset": { "x": -76.0, "y": -13.3, "z": 104.3 } },
+		"radius": 0.15,
+		"samples": 6
+	},
+	"trailParticle": "meleeTrail",
+	"trailStart": 0.2
+}

@@ -1,6 +1,7 @@
 {
 	"version": 1,
 	"name": "scythe",
+	"hudLabel": "Scythe",
 	"kind": "Melee",
 	"meshes": [
 		{
@@ -11,7 +12,8 @@
 			"visibleWhenHolstered": true
 		}
 	],
-	"stance": { "hold": "idle", "holdBones": ["clavicle_r"], "handBones": ["hand_r"], "blend": 0.2 },
+	"hands": ["Right"],
+	"stance": { "idle": "idle", "hold": "idle", "holdBones": ["clavicle_r"], "handBones": ["hand_r"], "blend": 0.2 },
 	"blade": {
 		"base": { "bone": "attack_start" },
 		"tip": { "bone": "attack_end" },

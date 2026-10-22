@@ -109,10 +109,12 @@ enum class InputButton : uint8_t
 	Jump,
 	Finisher,
 	Interact,
+	SwitchMain,      // cycles the Main (melee) weapons
+	SwitchSecondary, // cycles the Secondary (firearm) weapons
 	Count
 };
 
-inline constexpr const char* InputButtonNames[] = { "Attack", "Secondary", "Dash", "Jump", "Finisher", "Interact" };
+inline constexpr const char* InputButtonNames[] = { "Attack", "Secondary", "Dash", "Jump", "Finisher", "Interact", "SwitchMain", "SwitchSecondary" };
 
 // Keys of a moveset's "combos" table (combo openers).
 enum class ComboSlot : uint8_t
@@ -137,10 +139,15 @@ enum class ActionSlot : uint8_t
 	Finisher,
 	Draw,            // brings the Main weapon back once another weapon's holsterDelay ran out
 	AirDrop,         // the drop attack: what holding Attack in the air starts when there is nothing to launch (a plunge)
+	Sheathe,         // a sheathable Main weapon (WeaponData::sheathedHands) goes back into its sheath once its combo ended,
+	                 // standing (a full-body move: the clip steps from the attack stance into the idle)
+	MovingSheathe,   // the same while moving or in the air (over the legs); falls back to Sheathe
+	Reload,          // the Secondary weapon reloads (starts by itself while its magazine refills)
 	Count
 };
 
-inline constexpr const char* ActionSlotNames[] = { "Dash", "AirDash", "Jump", "AirJump", "Glide", "Secondary", "AirSecondary", "Finisher", "Draw", "AirDrop" };
+inline constexpr const char* ActionSlotNames[] = { "Dash", "AirDash", "Jump", "AirJump", "Glide", "Secondary", "AirSecondary", "Finisher", "Draw", "AirDrop",
+	"Sheathe", "MovingSheathe", "Reload" };
 
 // Finds the index of name in a names table, -1 if absent.
 template<size_t N>
@@ -167,6 +174,52 @@ SLASHER_JSON_ENUM(WeaponSlot, {
 })
 
 inline constexpr const char* WeaponSlotNames[] = { "Main", "Secondary" };
+
+// The weapon slot whose equipped weapon's moves fill an action slot (MoveSetData::BuildTables): firing and reloading
+// belong to the firearm, everything else (the draw, the drop, the finisher, sheathing) to the melee weapon.
+inline WeaponSlot ActionWeaponSlot(ActionSlot slot)
+{
+	return slot == ActionSlot::Secondary || slot == ActionSlot::AirSecondary || slot == ActionSlot::Reload
+		? WeaponSlot::Secondary : WeaponSlot::Main;
+}
+
+// Hands a weapon holds (WeaponData::hands): a firearm taking a hand the melee weapon needs puts it away or into
+// its sheath (COMBAT_DESIGN.md §9.3).
+enum class WeaponHand : uint8_t
+{
+	Right,
+	Left,
+	Count
+};
+
+SLASHER_JSON_ENUM(WeaponHand, {
+	{ WeaponHand::Count, nullptr },
+	{ WeaponHand::Right, "Right" },
+	{ WeaponHand::Left, "Left" },
+})
+
+using HandMask = uint8_t;
+inline constexpr HandMask HandBit(WeaponHand hand) { return static_cast<HandMask>(1u << static_cast<uint8_t>(hand)); }
+
+// ---- Animation --------------------------------------------------------------------------------------
+
+// Space a layer turns bones in (AnimationPose::AdditiveSpace, LayeredLerp's start bone): Local - each bone in its
+// parent's space; Mesh - in model space, so the turn holds whatever the pose underneath does with the parents (aim
+// sweeps). Default: what the layer does without a choice (the field's documentation says which).
+enum class PoseSpace : uint8_t
+{
+	Invalid,
+	Default,
+	Local,
+	Mesh
+};
+
+SLASHER_JSON_ENUM(PoseSpace, {
+	{ PoseSpace::Invalid, nullptr },
+	{ PoseSpace::Default, "Default" },
+	{ PoseSpace::Local, "Local" },
+	{ PoseSpace::Mesh, "Mesh" },
+})
 
 // ---- AI ---------------------------------------------------------------------------------------------
 

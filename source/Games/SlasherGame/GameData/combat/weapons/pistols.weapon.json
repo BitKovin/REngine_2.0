@@ -1,23 +1,23 @@
 {
 	"version": 1,
 	"name": "pistols",
+	"hudLabel": "Pistols",
 	"kind": "Firearm",
 	"meshes": [
 		{
 			"model": "GameData/models/player/weapons/pistols/pistols.glb",
 			"attach": "Rig",
-			"hand": { "clip": "idle" },
+			"hand": { "clip": "sweep", "clipTime": 0.5 },
 			"visibleWhenHolstered": false
 		}
 	],
+	"hands": ["Right", "Left"],
 	"stance": {
-		"_note": "The pistols' clips have no coat bones: the coat keeps the pose underneath.",
-		"hold": "idle",
+		"_note": "The pistols' clips have no coat bones: the coat keeps the pose underneath, and the sweep (mesh space) leaves it where it is in mesh space instead of turning it with the spine. The sweep aims from 90 deg down (first frame) to 90 deg up (last frame), level in the middle - the hold pose.",
 		"holdBones": ["spine_01"],
+		"holdOverMoves": true,
 		"handBones": ["hand_r", "hand_l"],
-		"aimBones": ["spine_01", "spine_02", "spine_03"],
-		"aimMaxPitch": 70,
-		"aimMaxYaw": 60,
+		"sweep": { "clip": "sweep", "bones": ["spine_01"], "space": "Mesh", "startPitch": -90, "endPitch": 90 },
 		"aimTurnRate": 900,
 		"blend": 0.15
 	},

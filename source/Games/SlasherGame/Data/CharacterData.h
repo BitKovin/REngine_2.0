@@ -263,6 +263,9 @@ struct WeakPointData
 struct AiAttackData
 {
 	std::string move;
+	// Instead of a move: a combo slot ("Attack") or action slot ("Secondary") - the move of the equipped weapons in it
+	// (MoveTables), so a body that switches weapons attacks with the one it holds.
+	std::string slot;
 	float minRange = 0.0f;
 	float maxRange = 2.0f;
 	float weight = 1.0f;
@@ -274,7 +277,7 @@ struct AiAttackData
 
 	friend void to_json(nlohmann::json& j, const AiAttackData& a)
 	{
-		j = nlohmann::json{ { "move", a.move }, { "minRange", a.minRange }, { "maxRange", a.maxRange }, { "weight", a.weight },
+		j = nlohmann::json{ { "move", a.move }, { "slot", a.slot }, { "minRange", a.minRange }, { "maxRange", a.maxRange }, { "weight", a.weight },
 			{ "cooldown", a.cooldown }, { "token", a.token }, { "requireLineOfSight", a.requireLineOfSight },
 			{ "holdTime", a.holdTime }, { "holdButton", InputButtonNames[static_cast<size_t>(a.holdButton)] } };
 	}
@@ -283,6 +286,7 @@ struct AiAttackData
 	{
 		const AiAttackData d;
 		a.move = j.value("move", d.move);
+		a.slot = j.value("slot", d.slot);
 		a.minRange = j.value("minRange", d.minRange);
 		a.maxRange = j.value("maxRange", d.maxRange);
 		a.weight = j.value("weight", d.weight);
@@ -295,7 +299,9 @@ struct AiAttackData
 	}
 
 	// Resolved
-	int moveIndex = -1;
+	int moveIndex = -1;              // `move`; -1 with a slot
+	int comboSlot = -1;              // `slot` naming a ComboSlot
+	int actionSlot = -1;             // `slot` naming an ActionSlot
 };
 
 struct AiData
@@ -361,7 +367,9 @@ struct CharacterData
 	PoiseData poise;
 	MovementData movement;
 	std::vector<WeakPointData> weakPoints;
-	std::map<std::string, std::string> weapons;  // slot name -> weapon file
+	// Slot name -> weapon files. The first is equipped at start; the player cycles them (InputButton::SwitchMain /
+	// SwitchSecondary, COMBAT_DESIGN.md §9.3).
+	std::map<std::string, std::vector<std::string>> weapons;
 	AiData ai;
 	PossessionData possession;
 	FinisherData finisher;
@@ -379,9 +387,46 @@ struct CharacterData
 	// Resolved
 	std::string sourcePath;
 	std::shared_ptr<const MoveSetData> moveSet;
-	std::array<std::shared_ptr<const WeaponData>, static_cast<size_t>(WeaponSlot::Count)> weaponData;
+	std::array<std::vector<std::shared_ptr<const WeaponData>>, static_cast<size_t>(WeaponSlot::Count)> weaponData;
 
-	const WeaponData* GetWeapon(WeaponSlot slot) const { return weaponData[static_cast<size_t>(slot)].get(); }
+	static constexpr size_t MaxWeapons = 16;   // all slots together (the animator keeps one stance per weapon)
+
+	size_t GetWeaponCount(WeaponSlot slot) const { return weaponData[static_cast<size_t>(slot)].size(); }
+	const WeaponData* GetWeapon(WeaponSlot slot, size_t index = 0) const
+	{
+		const auto& list = weaponData[static_cast<size_t>(slot)];
+		return index < list.size() ? list[index].get() : nullptr;
+	}
+	// One index per weapon of every slot (Main's first): the animator's stance of a weapon.
+	int GetWeaponKey(WeaponSlot slot, size_t index) const
+	{
+		size_t key = index;
+		for (size_t s = 0; s < static_cast<size_t>(slot); ++s)
+			key += weaponData[s].size();
+		return index < GetWeaponCount(slot) ? static_cast<int>(key) : -1;
+	}
+	// The sheathed stance of a sheathable weapon (WeaponData::sheathedStance): keys after every weapon's, in the same
+	// order; -1 for a weapon without one.
+	int GetSheathedStanceKey(WeaponSlot slot, size_t index) const
+	{
+		const WeaponData* weapon = GetWeapon(slot, index);
+		if (weapon == nullptr || !weapon->HasSheathedStance())
+			return -1;
+		size_t key = 0;
+		for (const auto& list : weaponData)
+			key += list.size();
+		for (size_t s = 0; s < weaponData.size(); ++s)
+		{
+			for (size_t i = 0; i < weaponData[s].size(); ++i)
+			{
+				if (s == static_cast<size_t>(slot) && i == index)
+					return static_cast<int>(key);
+				if (weaponData[s][i]->HasSheathedStance())
+					++key;
+			}
+		}
+		return -1;
+	}
 	int FindWeakPointByHitbox(const hashed_string& hitbox) const
 	{
 		for (size_t i = 0; i < weakPoints.size(); ++i)

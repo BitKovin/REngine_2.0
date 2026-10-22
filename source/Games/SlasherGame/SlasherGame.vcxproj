@@ -383,6 +383,8 @@
     <ClCompile Include="Actions\Behaviors\FinisherBehaviors.cpp" />
     <ClCompile Include="Actions\Behaviors\FireBehavior.cpp" />
     <ClCompile Include="Actions\Behaviors\ReactionBehaviors.cpp" />
+    <ClCompile Include="Actions\Behaviors\ReloadBehavior.cpp" />
+    <ClCompile Include="Actions\Behaviors\SheatheBehavior.cpp" />
     <ClCompile Include="Actions\MoveBehavior.cpp" />
     <ClCompile Include="Actions\MoveRunner.cpp" />
     <ClCompile Include="Characters\CharacterAnimator.cpp" />

@@ -4,7 +4,8 @@
 
 // "Draw": puts `weapon` in the hands when the move starts - the clip begins with the grab, so the other weapon is
 // put away and this one shown at once - and plays the draw clip, usually as an UpperBody Overlay so the legs keep
-// running. The body starts the moveset's Draw action by itself once another weapon's holsterDelay ran out.
+// running. The body starts the Draw action of its Main weapon by itself once the Secondary one's holsterDelay ran
+// out.
 struct DrawParams : MoveBehaviorParams
 {
 	WeaponSlot weapon = WeaponSlot::Main;
@@ -25,12 +26,12 @@ public:
 	{
 		const DrawParams& params = static_cast<const DrawParams&>(*move.behaviorParams);
 		const WeaponSet& weapons = character.GetWeapons();
-		return weapons.HasWeapon(params.weapon) && weapons.GetActiveSlot() != params.weapon;
+		return weapons.HasWeapon(params.weapon) && !weapons.IsInHands(params.weapon);
 	}
 
 	void OnStart(MoveContext& context) override
 	{
-		context.Character.GetWeapons().SetActiveSlot(context.GetParams<DrawParams>().weapon);
+		context.Character.GetWeapons().BringOut(context.GetParams<DrawParams>().weapon);
 	}
 };
 

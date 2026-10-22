@@ -37,6 +37,7 @@ private:
 	std::shared_ptr<UiText> healthText;
 	std::shared_ptr<UiText> effectsText;
 	std::shared_ptr<UiText> ammoText;
+	std::shared_ptr<UiText> weaponsText;
 
 	std::shared_ptr<UiElement> targetPanel;
 	std::shared_ptr<UiText> targetName;

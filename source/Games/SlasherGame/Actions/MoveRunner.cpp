@@ -31,6 +31,7 @@ void MoveRunner::SetMoveSet(std::shared_ptr<const MoveSetData> newMoveSet)
 	behaviors.resize(static_cast<size_t>(MoveBehaviorRegistry::Count()));
 	cooldowns.assign(moveSet ? moveSet->moves.size() : 0, Delay());
 	comboResolver.Reset();
+	tables = moveSet ? moveSet->BuildTables(equippedMain, equippedSecondary) : MoveTables();
 
 	if (!moveSet)
 		return;
@@ -44,6 +45,18 @@ void MoveRunner::SetMoveSet(std::shared_ptr<const MoveSetData> newMoveSet)
 		if (!instance)
 			instance = MoveBehaviorRegistry::Get(move.behaviorType).Create();
 	}
+}
+
+void MoveRunner::SetEquippedWeapons(const std::string& mainWeapon, const std::string& secondaryWeapon)
+{
+	equippedMain = mainWeapon;
+	equippedSecondary = secondaryWeapon;
+	tables = moveSet ? moveSet->BuildTables(equippedMain, equippedSecondary) : MoveTables();
+}
+
+void MoveRunner::ClearRecovery()
+{
+	recovery = RecoverySlot();
 }
 
 MoveBehavior* MoveRunner::GetBehavior(int type) const
@@ -101,7 +114,11 @@ bool MoveRunner::CancelAllows(const MoveSlot& slot, TagMask tags) const
 		return false;
 	if (slot.time >= slot.endTime)
 		return true;
+	return CancelWindowAllows(slot, tags);
+}
 
+bool MoveRunner::CancelWindowAllows(const MoveSlot& slot, TagMask tags) const
+{
 	for (const CancelWindowData& window : slot.move->cancels)
 	{
 		const float end = window.end < 0.0f ? slot.endTime : window.end;
@@ -135,10 +152,17 @@ bool MoveRunner::CanStartMove(int moveIndex, bool forced) const
 	if (move->channel == MoveChannel::Primary)
 		return CancelAllows(primary, move->tagMask);
 
-	// Overlay
-	if (primary.IsActive() && primary.move->overlay != OverlayPolicy::Allow)
+	// Overlay: beside a primary that blocks overlays only through one of its cancel windows (the overlay then ends it:
+	// firing cuts a standing sheathe short).
+	if (BlocksOverlay(*move))
 		return false;
 	return CancelAllows(overlay, move->tagMask);
+}
+
+bool MoveRunner::BlocksOverlay(const MoveData& overlayMove) const
+{
+	return primary.IsActive() && primary.move->overlay != OverlayPolicy::Allow
+		&& (primary.committed || !CancelWindowAllows(primary, overlayMove.tagMask));
 }
 
 bool MoveRunner::TryStartMove(int moveIndex, bool startedByHold)
@@ -148,6 +172,8 @@ bool MoveRunner::TryStartMove(int moveIndex, bool startedByHold)
 
 	const MoveData& move = *moveSet->GetMove(moveIndex);
 	MoveSlot& slot = move.channel == MoveChannel::Overlay ? overlay : primary;
+	if (move.channel == MoveChannel::Overlay && primary.IsActive() && primary.move->overlay != OverlayPolicy::Allow)
+		EndSlot(primary, MoveEndReason::Cancelled);   // let in through its cancel window (CanStartMove)
 	EndSlot(slot, MoveEndReason::Cancelled);
 	StartSlot(slot, move, MoveEntryKind::Fresh, startedByHold);
 	return true;
@@ -479,13 +505,13 @@ bool MoveRunner::CanStartAsHoldOpener(int moveIndex) const
 int MoveRunner::GetStartableHoldOpener(bool allowAirDropFallback) const
 {
 	const bool grounded = owner->IsGrounded();
-	const int holdOpener = moveSet->GetHoldOpener(moveSet->GetOpenerSlot(grounded));
+	const int holdOpener = tables.GetHoldOpener(tables.GetOpenerSlot(grounded));
 	if (CanStartAsHoldOpener(holdOpener))
 		return holdOpener;
 
 	if (allowAirDropFallback && !grounded && moveSet->GetMove(holdOpener) != nullptr)
 	{
-		const int drop = moveSet->GetActionMove(ActionSlot::AirDrop);
+		const int drop = tables.GetActionMove(ActionSlot::AirDrop);
 		if (CanStartAsHoldOpener(drop))
 			return drop;
 	}
@@ -647,31 +673,31 @@ void MoveRunner::HandleButtons()
 
 	if (HasPendingPress(InputButton::Secondary))
 	{
-		int move = grounded ? -1 : moveSet->GetActionMove(ActionSlot::AirSecondary);
-		if (move < 0) move = moveSet->GetActionMove(ActionSlot::Secondary);
+		int move = grounded ? -1 : tables.GetActionMove(ActionSlot::AirSecondary);
+		if (move < 0) move = tables.GetActionMove(ActionSlot::Secondary);
 		TryStartFromButton(InputButton::Secondary, move);
 	}
 
 	if (HasPendingPress(InputButton::Dash))
 	{
-		int move = grounded ? -1 : moveSet->GetActionMove(ActionSlot::AirDash);
-		if (move < 0) move = moveSet->GetActionMove(ActionSlot::Dash);
+		int move = grounded ? -1 : tables.GetActionMove(ActionSlot::AirDash);
+		if (move < 0) move = tables.GetActionMove(ActionSlot::Dash);
 		TryStartFromButton(InputButton::Dash, move);
 	}
 
 	if (HasPendingPress(InputButton::Jump))
-		TryStartFromButton(InputButton::Jump, moveSet->GetActionMove(grounded ? ActionSlot::Jump : ActionSlot::AirJump));
+		TryStartFromButton(InputButton::Jump, tables.GetActionMove(grounded ? ActionSlot::Jump : ActionSlot::AirJump));
 
 	// Holding jump while falling glides - no second press (the Glide behaviour checks the hold and the fall).
 	if (!grounded && owner->GetInput().Get(InputButton::Jump).held)
 	{
-		const int glide = moveSet->GetActionMove(ActionSlot::Glide);
+		const int glide = tables.GetActionMove(ActionSlot::Glide);
 		if (glide >= 0 && primary.move != moveSet->GetMove(glide))
 			TryStartMove(glide);
 	}
 
 	if (HasPendingPress(InputButton::Finisher))
-		TryStartFromButton(InputButton::Finisher, moveSet->GetActionMove(ActionSlot::Finisher));
+		TryStartFromButton(InputButton::Finisher, tables.GetActionMove(ActionSlot::Finisher));
 }
 
 // Movement input ends a primary move inside a Locomotion cancel window (COMBAT_DESIGN.md §5.6) - unless the player is
@@ -710,7 +736,7 @@ void MoveRunner::HandleLocomotionCancel()
 // anything yet stays pending and decides when it can.
 void MoveRunner::StartOpener(bool grounded)
 {
-	const int opener = moveSet->GetComboOpener(moveSet->GetOpenerSlot(grounded));
+	const int opener = tables.GetComboOpener(tables.GetOpenerSlot(grounded));
 	const int holdOpener = GetStartableHoldOpener(true);   // only a fresh launcher attempt may fall back to AirDrop
 	if (holdOpener < 0)
 	{

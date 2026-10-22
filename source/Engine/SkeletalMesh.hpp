@@ -61,6 +61,28 @@ struct AnimationPose
 		float UseWorldSpaceRotation,
 		float progress);
 
+	// Additive poses (like Unreal's additive animations). MakeAdditive stores how `target` differs from `reference`;
+	// ApplyAdditiveInPlace adds such a difference onto another pose.
+	//   Local: each bone's local rotation turns by the clip's local turn (in its parent's space), translation and
+	//          scale change by the clip's local change.
+	//   Mesh:  rotations are added in mesh (model) space - a bone gets the model-space turn the clip gives it whatever
+	//          the pose underneath does with its parents (an aim offset pitches the chest about the model's side axis
+	//          even when the base pose leans; children the clip keeps still in mesh space stay still). Translation
+	//          and scale stay local.
+	// Bones that the target or the reference lacks get no difference: in Local space they keep their local values, in
+	// Mesh space their model-space rotation (like every other bone without a turn of its own). Bones the pose lacks are
+	// not added.
+	enum class AdditiveSpace : uint8_t { Local, Mesh };
+
+	// out = target relative to reference (written over out's storage).
+	static void MakeAdditive(AnimationPose& out, roj::BoneNode* rootNode, const AnimationPose& reference,
+		const AnimationPose& target, AdditiveSpace space);
+
+	// Adds `additive` (from MakeAdditive with the same space) to the subtree of startBoneName - the start bone included,
+	// the rest of the pose untouched - by weight (0 = nothing, 1 = the full difference).
+	static void ApplyAdditiveInPlace(const hashed_string& startBoneName, roj::BoneNode* rootNode, AnimationPose& pose,
+		const AnimationPose& additive, AdditiveSpace space, float weight);
+
 	static AnimationPose ApplyFABRIK(
 		const hashed_string& chainRootName,
 		const hashed_string& endEffectorName,

@@ -81,6 +81,16 @@
             "description": "Input action to perform a finisher on a staggered (poise-broken) enemy (TODO: translate)"
         },
         {
+            "key": "INPUT_ACTION_SWITCH_MELEE",
+            "value": "Switch Melee Weapon",
+            "description": "Input action to cycle to the next melee weapon (TODO: translate)"
+        },
+        {
+            "key": "INPUT_ACTION_SWITCH_FIREARM",
+            "value": "Switch Firearm",
+            "description": "Input action to cycle to the next firearm (TODO: translate)"
+        },
+        {
             "key": "INPUT_ACTION_POSSESS",
             "value": "Possess / Release",
             "description": "Input action to possess the enemy under the crosshair, or release the possessed body (TODO: translate)"

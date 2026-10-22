@@ -327,8 +327,7 @@ void PlayerController::LateUpdate()
 			target = body->FindSoftTarget(camera.GetPlanarForward(), 15.0f, 25.0f);
 		state.target = target;
 
-		const MoveSetData* moveSet = body->GetMoves().GetMoveSet();
-		state.finisherAvailable = moveSet && moveSet->GetActionMove(ActionSlot::Finisher) >= 0 && body->FindFinisherTarget() != nullptr;
+		state.finisherAvailable = body->GetMoves().GetTables().GetActionMove(ActionSlot::Finisher) >= 0 && body->FindFinisherTarget() != nullptr;
 		state.possessionCandidate = !state.possessingOther && FindPossessionCandidate() != nullptr;
 	}
 
@@ -372,6 +371,8 @@ void PlayerController::UpdateInput(CombatCharacter& body, CharacterInput& input,
 	MapButton(input, InputButton::Jump, "jump", now);
 	MapButton(input, InputButton::Finisher, "finisher", now);
 	MapButton(input, InputButton::Interact, "interact", now);
+	MapButton(input, InputButton::SwitchMain, "switch_melee", now);
+	MapButton(input, InputButton::SwitchSecondary, "switch_firearm", now);
 }
 
 REGISTER_ENTITY(PlayerController, "player_controller")

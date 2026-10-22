@@ -44,17 +44,33 @@ struct WeaponAttachData
 	hashed_string boneHash;
 };
 
+// Parts of a weapon model held by a hand the weapon itself does not hold (the sword's scabbard in the left hand): hidden
+// while that hand holds something else - another weapon, or this weapon's grip in a two-handed move (MoveData::grips).
+struct WeaponCarriedData
+{
+	WeaponHand hand = WeaponHand::Left;
+	std::vector<std::string> meshes;         // name prefixes (StaticMesh::MeshHideList)
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponCarriedData, hand, meshes)
+};
+
+// Attachment states (COMBAT_DESIGN.md §9.3): `hand` while the weapon is in the hands, `sheathed` while a sheathable
+// weapon (WeaponData::sheathedHands) is held in its sheath, `holster` while it is put away (another weapon took the
+// hands, or it is not the equipped weapon of its slot).
 struct WeaponMeshData
 {
 	std::string model;
 	std::string textures;                    // empty = "<model>/"
 	WeaponAttachMode attach = WeaponAttachMode::Bone;
 	float scale = 1.0f;                      // Bone mode (a Rig mesh uses the body's transform)
-	WeaponAttachData hand;                   // while this weapon is the one in the hands
-	WeaponAttachData holster;                // while the other slot is in the hands
+	WeaponAttachData hand;
+	WeaponAttachData sheathed;
+	WeaponAttachData holster;
 	bool visibleWhenHolstered = true;
+	std::vector<WeaponCarriedData> carried;  // in the hands only
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponMeshData, model, textures, attach, scale, hand, holster, visibleWhenHolstered)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponMeshData, model, textures, attach, scale, hand, sheathed, holster,
+		visibleWhenHolstered, carried)
 };
 
 // A point on the weapon: `offset` in the space of a weapon-model bone, or in model space without a bone (rigid
@@ -123,7 +139,8 @@ struct FirearmData
 	float spread = 0.6f;             // degrees (cone half-angle)
 	int pellets = 1;
 	// Shots cycle through every muzzle of every mesh (meshes in order, muzzles in order within a mesh); Fire moves
-	// with restartOnShot play clip n (0 = clip, n = variants[n - 1]) for the n-th of them (akimbo recoil).
+	// with restartOnShot play clip n (0 = clip, n = variants[n - 1]) for the n-th of them (akimbo recoil). A Rig model
+	// skinned straight to a hand (no weapon bones) puts its muzzle on that hand bone.
 	std::vector<WeaponPointData> muzzles{ WeaponPointData{ "", glm::vec3(0.0f, 0.05f, 0.2f) } };
 	std::string fireSound;
 	std::string muzzleParticle;
@@ -134,19 +151,48 @@ struct FirearmData
 		fireSound, muzzleParticle, noiseRadius, projectile)
 };
 
+// Aim sweep (COMBAT_DESIGN.md §9.1): a clip of the weapon aimed from one pitch to the other, level at its middle frame.
+// The middle frame is the weapon's hold pose; while the body aims, the clip at the aim pitch is added on top of the
+// pose (after the weapon's own clips - recoil, reload - and the grip) as the difference from the middle frame, on
+// the `bones` subtrees. It turns spine, arms and coat the way the clip does: the coat no longer turns with the spine.
+struct WeaponSweepData
+{
+	std::string clip;                        // empty: not an aiming weapon
+	std::vector<std::string> bones = { "spine_01" };
+	PoseSpace space = PoseSpace::Mesh;
+	float startPitch = -90.0f;               // degrees (up > 0) the weapon aims at on the clip's first frame...
+	float endPitch = 90.0f;                  // ...and on its last; between them time follows pitch linearly on each half
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponSweepData, clip, bones, space, startPitch, endPitch)
+
+	// Resolved
+	std::vector<hashed_string> boneHashes;
+
+	bool IsEnabled() const { return !clip.empty(); }
+	// Clip time for an aim pitch (degrees), clamped to the clip.
+	float TimeAt(float pitchDegrees, float duration) const;
+};
+
 // How the body holds the weapon while it is in the hands (COMBAT_DESIGN.md §9.1). Clips loop on the body's idle
-// clock and cross-fade over `blend` when the weapon enters or leaves the hands.
+// clock (or hold one frame: idleTime / holdTime) and cross-fade over `blend` when the weapon enters or leaves the
+// hands.
 struct WeaponStanceData
 {
 	std::string animation;                   // clip source; empty = the model of the weapon's first mesh
 	std::string idle;                        // full-body idle replacing the locomotion idle; empty = keep it
+	float idleTime = -1.0f;                  // >= 0: the idle is this frame of its clip (a ready stance)
 	std::string hold;                        // layered over locomotion on each holdBones subtree (move clips pose
-	std::vector<std::string> holdBones;      // the arms themselves)
-	// Aiming weapon: while it is in the hands the body faces the aim direction (strafes) and these bones turn the
-	// hold pose toward the aim point, parent first (spine aim offset). Empty = not an aiming weapon.
-	std::vector<std::string> aimBones;
-	float aimMaxPitch = 70.0f;               // degrees
-	float aimMaxYaw = 60.0f;                 // degrees off the body's facing (covers the body still turning)
+	std::vector<std::string> holdBones;      // the arms themselves); with a sweep: its middle frame (hold stays empty)
+	float holdTime = -1.0f;                  // >= 0: the hold is this frame of its clip
+	// Space the hold's start bones blend in; Default: mesh space at locomotion.upperBodyBone, local for
+	// limbs. Mesh at a limb (the musket's left arm) keeps the arm aimed whatever the run does with the chest.
+	PoseSpace holdSpace = PoseSpace::Default;
+	// The hold goes over movement moves too (jumps, glides, dashes: their clips do not carry this weapon): a firearm
+	// stays held in the air.
+	bool holdOverMoves = false;
+	// Aiming weapon: while it is in the hands the body faces the aim direction (strafes, turning at aimTurnRate) and
+	// the sweep aims the pose at the aim point.
+	WeaponSweepData sweep;
 	float aimTurnRate = 900.0f;              // deg/s the body turns toward the aim direction
 	// Hands holding the weapon. Their subtrees (hand + fingers) always take the grip of the clip posing the weapon -
 	// this weapon's move / overlay clip while one drives it, its hold clip otherwise - in local space, after every
@@ -154,39 +200,62 @@ struct WeaponStanceData
 	std::vector<std::string> handBones;
 	float blend = 0.2f;                      // seconds
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponStanceData, animation, idle, hold, holdBones, aimBones, aimMaxPitch,
-		aimMaxYaw, aimTurnRate, handBones, blend)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponStanceData, animation, idle, idleTime, hold, holdBones, holdTime,
+		holdSpace, holdOverMoves, sweep, aimTurnRate, handBones, blend)
 
 	// Resolved
 	std::string resolvedAnimation;
+	std::string resolvedHold;                // the hold clip: `hold`, or the sweep clip (sampled at its middle)
+
+	bool IsAiming() const { return sweep.IsEnabled(); }
 };
 
 struct WeaponData
 {
 	int version = 1;
-	std::string name;
+	std::string name;                        // also the key of its moves in a moveset (MoveSetData::weaponMoves)
+	std::string hudLabel;                    // shown on the HUD; empty = name
 	WeaponKind kind = WeaponKind::Melee;
 	// Usually one; two for akimbo props (shots alternate between them). None: the weapon is part of the character
 	// model and its blade / muzzle points use body bones.
 	std::vector<WeaponMeshData> meshes;
 	WeaponStanceData stance;
+	// Hands the weapon holds in the hands (COMBAT_DESIGN.md §9.3). A Secondary weapon taking a hand the Main weapon's
+	// state needs moves the Main weapon to its other in-hand state (drawn <-> sheathed) if that one's hands are free,
+	// else puts it away - and only then replaces its stance; one that leaves those hands free (a pistol in the off
+	// hand) is layered over the Main weapon, which stays in the hands.
+	std::vector<WeaponHand> hands = { WeaponHand::Right };
+	// Melee weapons with a sheath held in the hands (a katana in its scabbard): the hands holding it sheathed. Such a
+	// weapon rests sheathed; attacks draw it, the moveset's Sheathe action puts it back once its combo ended (a cue's
+	// `sheathe` switches the meshes on the frame the blade goes in). Empty = no sheathed state.
+	std::vector<WeaponHand> sheathedHands;
+	// The stance while sheathed (`stance` is the drawn one); empty fields keep the locomotion clips (a plain run).
+	WeaponStanceData sheathedStance;
 	// Seconds after the weapon entered the hands or last fired before a non-Main weapon is put away: the body
 	// plays the moveset's Draw action (or switches instantly without one). 0 = it stays in the hands.
 	float holsterDelay = 0.0f;
+	// Firearm without an idle in the hands: it is put away once no Fire move has run for holsterDelay seconds; its
+	// stance fades out over stance.blend before the mesh goes (the arm lowers the weapon).
+	bool holsterAfterFire = false;
 	BladeData blade;
 	WeaponExtendData extend;
 	std::string trailParticle = "meleeTrail";
 	float trailStart = 0.0f;                 // where along the blade the swing trail begins (0 = base, 1 = tip)
 	FirearmData firearm;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponData, version, name, kind, meshes, stance, holsterDelay, blade,
-		extend, trailParticle, trailStart, firearm)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponData, version, name, hudLabel, kind, meshes, stance, hands, sheathedHands,
+		sheathedStance, holsterDelay, holsterAfterFire, blade, extend, trailParticle, trailStart, firearm)
 
 	// Resolved
 	std::string sourcePath;
 	std::vector<std::string> sockets;     // distinct weapon-model bones used by blade / muzzle points
+	HandMask handMask = 0;
+	HandMask sheathedHandMask = 0;
 
 	bool HasRigMesh() const;
+	bool CanSheathe() const { return sheathedHandMask != 0; }
+	// The weapon has its own sheathed stance (CharacterData::GetSheathedStanceKey).
+	bool HasSheathedStance() const { return CanSheathe(); }
 };
 
 bool ResolveWeapon(WeaponData& data, DataLoadReport& report);

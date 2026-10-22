@@ -57,11 +57,11 @@ namespace
 			{ "moveset.blendOut", "Seconds a move blends back to locomotion when it ends, unless the move sets its own." },
 			{ "moveset.combos", "The opener of each combo: Attack (ground, and the air too when there is no AirAttack opener), AirAttack." },
 			{ "moveset.holdOpeners", "The move a long Attack hold starts (the launcher): from rest after holdDelay, during a move after holdDelayInMove." },
-			{ "moveset.actions", "The move each button / situation starts (Dash, AirDash, Jump, AirJump, Glide, Secondary, Finisher, Draw, AirDrop)." },
+			{ "moveset.actions", "The move each button / situation starts (Dash, AirDash, Jump, AirJump, Glide, Secondary, AirSecondary, Finisher,\nDraw, AirDrop, Sheathe, MovingSheathe, Reload). Weapon moves live in the moveset's weaponMoves (by weapon name)." },
 			{ "moveset.reactions", "The move a hit reaction plays (Flinch, Stagger, Knockdown, Launch, PoiseBreak, FinisherVictim, Death)." },
 			{ "moveset.animations", "Clip source files of the moveset, loaded with the body." },
 			// General
-			{ "behavior", "Behaviour running the move: Attack, Dash, Jump, Glide, Fire, Draw, Reaction, Death, Finisher, FinisherVictim, Charge." },
+			{ "behavior", "Behaviour running the move: Attack, Dash, Jump, Glide, Fire, Draw, Reload, Sheathe, Reaction, Death, Finisher, FinisherVictim, Charge." },
 			{ "clip", "Clip name in the animation file. Empty: no clip of its own (needs endTime)." },
 			{ "variants", "More clips sharing the move's timing; the behaviour picks one (Fire: one per muzzle)." },
 			{ "animation", "Clip source file; empty: the moveset's only animation file." },
@@ -71,7 +71,15 @@ namespace
 			{ "heavy", "A heavy attack: follow-ups use their afterHeavy entry; it staggers unarmored bodies a light one only flinches." },
 			{ "tags", "What the move is - cancel windows ('into') and the AI pick moves by these." },
 			{ "channel", "Primary: the body. Overlay: on top of the primary move (firing, drawing)." },
-			{ "bodyMask", "Where the clip shows. Full: whole body. NoLegs: the legs keep the locomotion / air pose. UpperBody: from the spine up. Bones: only maskBones." },
+			{ "bodyMask", "Where the clip shows. Full: whole body (an Overlay hands its legs to the pose underneath as the body runs / flies).\nNoLegs: the legs keep the locomotion / air pose. UpperBody: from the spine up. Bones: only maskBones." },
+			{ "layerSpace", "Space the clip's partial layers blend in (UpperBody / Bones mask, the recovery's upper body). Default: mesh at the\nspine (the torso keeps the clip's facing), local at limbs. Local: the torso stays on the running hips. Mesh at a limb:\nthe arm keeps the clip's aim whatever the chest does." },
+			{ "suspendsAim", "An Overlay that poses the weapon itself (a spinning reload): the aim sweep pauses while it shows." },
+			{ "additive.bones", "Subtrees the clip's difference from its reference frame is added to (before the mask layer). Empty: none." },
+			{ "additive.space", "Local: each bone turns in its parent's space. Mesh: in model space." },
+			{ "additive.referenceTime", "Clip time of the reference frame the difference is taken from." },
+			{ "grips.start", "Clip time the clip starts holding the weapon with more hands (a two-handed swing)." },
+			{ "grips.end", "Clip time it lets go; -1: the end of the clip." },
+			{ "hands", "Hands holding the weapon meanwhile: parts of its model they carry (the scabbard) hide." },
 			{ "maskBones", "bodyMask Bones: the bones whose subtrees the clip shows on." },
 			{ "legWeight", "NoLegs, and Full moves in the air: share of the legs taken from the locomotion / air pose." },
 			{ "airLegs", "Full moves in the air blend the legs toward the air pose. Off: the clip poses its own air legs (jumps, dashes)." },
@@ -165,6 +173,7 @@ namespace
 			{ "trail", "Weapon trail: 1 on, 0 off, -1 unchanged." },
 			{ "trailWeapon", "Weapon slot whose trail it switches." },
 			{ "cameraShake", "Camera rumble (trauma 0..1) when the player's body plays it." },
+			{ "sheathe", "1: the Main weapon goes into its sheath here (the frame the blade is in), 0: it is drawn, -1 unchanged." },
 			// Behaviour params
 			{ "params.locomotion", "Share of run speed the stick may add during the attack (0: root motion only)." },
 			{ "params.matchTargetHeight", "In the air, chase the target's height until a hit starts the hover." },
@@ -243,6 +252,7 @@ namespace
 		static const std::vector<std::string> overlays = EnumNames<OverlayPolicy>();
 		static const std::vector<std::string> states = EnumNames<MoveStartState>();
 		static const std::vector<std::string> buttons = NameList(InputButtonNames);
+		static const std::vector<std::string> spaces = EnumNames<PoseSpace>();
 		static std::vector<std::string> behaviors;
 		if (behaviors.empty())
 			for (int i = 0; i < MoveBehaviorRegistry::Count(); ++i)
@@ -258,6 +268,10 @@ namespace
 		if (key == "startState") return &states;
 		if (key == "behavior") return &behaviors;
 		if (key == "button") return &buttons;
+		if (key == "space" || key == "layerSpace")
+		{
+			return &spaces;
+		}
 		if (key == "next" || key == "alternative" || key == "release")
 		{
 			allowNone = true;
@@ -805,8 +819,9 @@ bool MoveSetEditor::DrawMove(MoveData& move)
 	};
 	static const std::vector<Section> sections = {
 		{ "General", { "behavior", "clip", "variants", "animation", "speed", "loop", "loopStart", "heavy", "tags", "channel", "bodyMask",
-			"maskBones", "legWeight", "airLegs", "overlay", "startState", "endTime", "blendOut", "cooldown" }, true,
+			"maskBones", "legWeight", "airLegs", "layerSpace", "overlay", "suspendsAim", "startState", "endTime", "blendOut", "cooldown" }, true,
 			"What the move is, what it plays and where." },
+		{ "Additive layer", { "additive" }, false, "The clip's difference from its reference frame, added before its mask layer (Overlay moves)." },
 		{ "Entry", { "entry" }, false, "How the move begins, depending on what came before it." },
 		{ "Hits", { "hits" }, true, "Damage windows: when and how the weapon deals damage." },
 		{ "Combo link", { "combo" }, true, "When Attack chains into the next attack: LIGHT zone (tap) and HEAVY zone (hold / late press)." },
@@ -818,6 +833,7 @@ bool MoveSetEditor::DrawMove(MoveData& move)
 		{ "Reach", { "reach" }, false, "How much longer the weapon gets during the move (heavy attacks reach further)." },
 		{ "Armor", { "armor" }, false, "Windows where hits stagger less." },
 		{ "Invulnerable", { "invulnerable" }, false, "Windows where hits do not land (i-frames)." },
+		{ "Grips", { "grips" }, false, "Windows where the clip holds its weapon with more hands (two-handed swings): what those hands carry hides." },
 		{ "Cues", { "cues" }, false, "Sounds, particles, weapon trails and camera rumble at clip times." },
 	};
 

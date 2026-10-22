@@ -18,7 +18,7 @@
 	"weakPoints": [
 		{ "name": "head", "hitboxes": ["neck_01"], "health": 15, "sources": ["Firearm"], "multiplier": 2.0, "onBreak": ["Kill"], "regrow": 0 }
 	],
-	"weapons": { "Secondary": "GameData/combat/weapons/gunner_rifle.weapon.json" },
+	"weapons": { "Secondary": ["GameData/combat/weapons/gunner_rifle.weapon.json"] },
 	"ai": {
 		"brain": "Ranged",
 		"sightRadius": 30,

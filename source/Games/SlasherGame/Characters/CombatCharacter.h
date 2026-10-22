@@ -98,9 +98,12 @@ public:
 	float GetTimeDilation() const;
 	float GetAttackSpeedMultiplier() const;
 	float GetMoveSpeedMultiplier() const;
-	// The weapon in the hands aims (stance aim bones) and nothing overrides it: no primary move runs, or the running
-	// one allows overlays (jumping, gliding). A dash or an attack faces its own direction instead.
+	// A weapon in the hands aims (its stance has a sweep) and nothing overrides it: no primary move runs, or the
+	// running one allows overlays (jumping, gliding). A dash or an attack faces its own direction instead.
 	const WeaponData* GetAimingWeapon() const;
+	// Equips weapon `index` of `slot` (the player's switch, COMBAT_DESIGN.md §9.3): the outgoing weapon's moves stop and
+	// the move tables follow the new one.
+	void EquipWeapon(WeaponSlot slot, size_t index);
 
 	// ---- Combat callbacks (main thread, from the hit funnel) ---------------------------------------------
 	virtual void OnHitResolved(const HitResult& result);
@@ -267,8 +270,14 @@ private:
 	bool started = false;
 	uint32_t adoptedDataGeneration = 0;
 	Delay corpseDelay;                        // started on death; the corpse is removed when it runs out
-	glm::vec3 aimPoint = glm::vec3(0.0f);     // where the weapon in the hands aims this frame (stance aim bones)
+	glm::vec3 aimPoint = glm::vec3(0.0f);     // where the weapon in the hands aims this frame (its sweep)
 	bool hasAimPoint = false;
+	bool reloadPlayed = false;                // the running reload of the Secondary weapon started its Reload move
+	bool fireAfterReload = false;             // the reload cut a fire move short: a held trigger fires again after it
+	float secondaryLinger = -1.0f;            // holsterAfterFire: local s until it goes away (< 0: not counting)
+	bool recoveryWasHeld = false;             // last frame an attack played out unreleased (the body stood in its stance)
+	std::array<uint32_t, static_cast<size_t>(WeaponSlot::Count)> switchPressSeen{};   // SwitchMain / SwitchSecondary
+	std::array<uint32_t, static_cast<size_t>(WeaponSlot::Count)> pendingSwitches{};   // presses not applied yet
 	DampedSpring hitRecoil;                   // world-space rotation vector (radians) of the upper body (§9.1)
 
 	// Side effects of the parallel update, run by FlushCombatFrame on the main thread.
@@ -289,8 +298,10 @@ private:
 	void ApplyMovement(float deltaTime);
 	void BuildAnimatorInput(AnimatorInput& out) const;
 	void UpdatePoseDetail();
-	void UpdateWeaponReach();
-	void UpdateWeaponReturn();
+	void UpdateWeaponPosing();
+	void UpdateWeaponState(float deltaTime);
+	void UpdateWeaponSwitch();
+	void SyncEquippedMoves();
 	void UpdateRecoveryRelease();
 	void UpdateAim();
 	void AddHitRecoil(const glm::vec3& direction, float strength);

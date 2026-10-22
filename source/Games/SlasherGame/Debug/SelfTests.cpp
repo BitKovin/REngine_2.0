@@ -1005,14 +1005,46 @@ namespace
 		expectError(R"({ "kind": "Melee", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ], "stance": { "hold": "idle" } })", "stance hold without holdBones");
 		expectError(R"({ "kind": "Melee", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r", "hide": [""] } } ] })", "empty hide entry");
 		expectError(R"({ "kind": "Firearm", "holsterDelay": -1, "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ] })", "negative holsterDelay");
-		expectError(R"({ "kind": "Firearm", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ], "stance": { "aimBones": ["spine_01"], "aimMaxPitch": 95 } })", "aim pitch limit beyond 89 degrees");
 
+		// Aim sweep (§9.1): the hold is the sweep's middle frame; time follows pitch on each half of the clip.
 		WeaponData aiming;
 		DataLoadReport aimingReport;
-		const bool aimingOk = ParseWeaponText(R"({ "kind": "Firearm", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ],
-			"stance": { "hold": "aim", "holdBones": ["spine_01"], "aimBones": ["spine_01", "spine_02"], "aimMaxYaw": 45 } })", aiming, aimingReport);
-		test.Check(aimingOk && aiming.stance.aimBones.size() == 2 && aiming.stance.aimMaxYaw == 45.0f && aiming.stance.aimMaxPitch == 70.0f,
-			"stance aim bones and limits parse with defaults");
+		const bool aimingOk = ParseWeaponText(R"({ "kind": "Firearm", "hands": ["Right", "Left"], "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ],
+			"stance": { "holdBones": ["spine_01"], "sweep": { "clip": "sweep", "bones": ["spine_01", "neck_01"], "startPitch": -80, "endPitch": 60 } } })", aiming, aimingReport);
+		const WeaponSweepData& sweep = aiming.stance.sweep;
+		test.Check(aimingOk && aiming.stance.IsAiming() && aiming.stance.resolvedHold == "sweep" && sweep.boneHashes.size() == 2
+			&& sweep.space == PoseSpace::Mesh && aiming.handMask == (HandBit(WeaponHand::Right) | HandBit(WeaponHand::Left)),
+			"a sweep makes the stance aim and hold its clip, mesh space by default (%s)", aimingReport.Errors.empty() ? "" : aimingReport.Errors.front().c_str());
+		test.Check(std::abs(sweep.TimeAt(0.0f, 2.0f) - 1.0f) < 1e-5f && std::abs(sweep.TimeAt(-40.0f, 2.0f) - 0.5f) < 1e-5f
+			&& std::abs(sweep.TimeAt(30.0f, 2.0f) - 1.5f) < 1e-5f && sweep.TimeAt(-120.0f, 2.0f) == 0.0f && sweep.TimeAt(75.0f, 2.0f) == 2.0f,
+			"sweep time: level in the middle, each half linear to its end pitch, clamped");
+		WeaponSweepData reversed;
+		reversed.startPitch = 90.0f;
+		reversed.endPitch = -90.0f;
+		test.Check(std::abs(reversed.TimeAt(45.0f, 1.0f) - 0.25f) < 1e-5f && std::abs(reversed.TimeAt(-45.0f, 1.0f) - 0.75f) < 1e-5f,
+			"a sweep may run from up to down");
+		expectError(R"({ "kind": "Firearm", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ],
+			"stance": { "hold": "idle", "holdBones": ["spine_01"], "sweep": { "clip": "sweep" } } })", "a hold clip beside a sweep (the hold is the sweep's middle)");
+		expectError(R"({ "kind": "Firearm", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ],
+			"stance": { "holdBones": ["spine_01"], "sweep": { "clip": "sweep", "startPitch": 10, "endPitch": 80 } } })", "a sweep not level in its middle");
+		expectError(R"({ "kind": "Firearm", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ], "stance": { "sweep": { "clip": "sweep" } } })",
+			"a sweep without hold bones");
+		expectError(R"({ "kind": "Firearm", "sheathedHands": ["Left"], "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ] })", "a sheathed firearm");
+		expectError(R"({ "kind": "Melee", "holsterAfterFire": true, "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ] })", "holsterAfterFire on a melee weapon");
+		expectError(R"({ "kind": "Melee", "hands": [], "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ] })", "a weapon holding no hand");
+		expectError(R"({ "kind": "Melee", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ], "stance": { "holdSpace": "World" } })", "an unknown hold space");
+		expectError(R"({ "kind": "Melee", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" }, "carried": [ { "hand": "Third", "meshes": ["x"] } ] } ] })",
+			"a carried part on an unknown hand");
+
+		WeaponData sheathable;
+		DataLoadReport sheathableReport;
+		const bool sheathableOk = ParseWeaponText(R"({ "kind": "Melee", "sheathedHands": ["Left"],
+			"meshes": [ { "model": "s.glb", "attach": "Rig", "hand": { "hide": ["hidden"] }, "sheathed": { "hide": ["active"] }, "visibleWhenHolstered": false } ],
+			"blade": { "base": { "bone": "hand_r" }, "tip": { "bone": "hand_r", "offset": { "x": 0, "y": 0, "z": 100 } } } })", sheathable, sheathableReport);
+		test.Check(sheathableOk && sheathable.CanSheathe() && sheathable.handMask == HandBit(WeaponHand::Right)
+			&& sheathable.sheathedHandMask == HandBit(WeaponHand::Left) && sheathableReport.Warnings.empty(),
+			"a sheathable Rig sword skinned to the hands loads cleanly (%s)",
+			!sheathableReport.Errors.empty() ? sheathableReport.Errors.front().c_str() : (sheathableReport.Warnings.empty() ? "" : sheathableReport.Warnings.front().c_str()));
 		expectError(R"({ "kind": "Melee", "meshes": [ { "model": "w.glb", "attach": "Socket" } ] })", "unknown attach mode");
 		expectError(R"({ "kind": "Melee", "meshes": [ { "model": "w.glb", "hand": { "bone": "hand_r" } } ], "stance": { "handBones": ["hand_r"] } })",
 			"grip hand bones without a hold clip");
@@ -1042,6 +1074,96 @@ namespace
 	{
 		nlohmann::json json;
 		return ParseDataJson(text, json, report) && ConvertDataJson(json, out, "", report) && ResolveCharacter(out, report);
+	}
+
+	// ---- Additive poses (AnimationPose::MakeAdditive / ApplyAdditiveInPlace) -----------------------------------
+
+	glm::mat4 TestBone(const glm::quat& rotation, const glm::vec3& translation)
+	{
+		glm::mat4 m = glm::mat4_cast(rotation);
+		m[3] = glm::vec4(translation, 1.0f);
+		return m;
+	}
+
+	float RotationDifference(const glm::mat4& a, const glm::mat4& b)
+	{
+		const glm::quat qa = glm::quat_cast(glm::mat3(a));
+		const glm::quat qb = glm::quat_cast(glm::mat3(b));
+		return 1.0f - std::abs(glm::dot(glm::normalize(qa), glm::normalize(qb)));
+	}
+
+	void TestAdditivePoses(TestContext& test)
+	{
+		// root -> spine -> arm. The engine caches a skeleton's topology by its root node for the program's lifetime: the
+		// test skeleton is static so its address stays its own.
+		static roj::BoneNode root = [] {
+			roj::BoneNode r;
+			r.name = hashed_string("root");
+			roj::BoneNode spine;
+			spine.name = hashed_string("spine");
+			roj::BoneNode arm;
+			arm.name = hashed_string("arm");
+			spine.children.push_back(arm);
+			r.children.push_back(spine);
+			return r;
+		}();
+
+		const hashed_string spine("spine"), arm("arm"), rootBone("root");
+		const glm::vec3 up(0.0f, 1.0f, 0.0f), side(1.0f, 0.0f, 0.0f);
+		const glm::quat pitch = glm::angleAxis(glm::radians(30.0f), side);
+		const glm::quat twist = glm::angleAxis(glm::radians(40.0f), up);
+
+		AnimationPose reference;
+		reference.SetBoneTransform(rootBone, glm::mat4(1.0f));
+		reference.SetBoneTransform(spine, TestBone(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), up));
+		reference.SetBoneTransform(arm, TestBone(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), up));
+
+		// The clip pitches the spine; the arm counter-turns so it stays still in model space, and moves up a little.
+		AnimationPose target = reference;
+		target.SetBoneTransform(spine, TestBone(pitch, up));
+		target.SetBoneTransform(arm, TestBone(glm::inverse(pitch), up + glm::vec3(0.0f, 0.1f, 0.0f)));
+
+		// The base twists the spine instead.
+		AnimationPose base = reference;
+		base.SetBoneTransform(spine, TestBone(twist, up));
+
+		for (const auto space : { AnimationPose::AdditiveSpace::Local, AnimationPose::AdditiveSpace::Mesh })
+		{
+			const char* name = space == AnimationPose::AdditiveSpace::Local ? "local" : "mesh";
+			AnimationPose difference;
+			AnimationPose::MakeAdditive(difference, &root, reference, target, space);
+
+			AnimationPose onReference = reference;
+			AnimationPose::ApplyAdditiveInPlace(rootBone, &root, onReference, difference, space, 1.0f);
+			test.Check(RotationDifference(AnimationPose::GetModelSpaceTransform(arm, &root, onReference), AnimationPose::GetModelSpaceTransform(arm, &root, target)) < 1e-5f
+				&& glm::length(glm::vec3(onReference.boneTransforms[arm][3]) - glm::vec3(target.boneTransforms[arm][3])) < 1e-5f,
+				"%s additive on its own reference gives the target", name);
+
+			AnimationPose untouched = base;
+			AnimationPose::ApplyAdditiveInPlace(rootBone, &root, untouched, difference, space, 0.0f);
+			test.Check(untouched.boneTransforms[spine] == base.boneTransforms[spine], "%s additive at weight 0 changes nothing", name);
+
+			AnimationPose half = reference;
+			AnimationPose::ApplyAdditiveInPlace(spine, &root, half, difference, space, 0.5f);
+			const float halfAngle = glm::degrees(glm::angle(glm::quat_cast(glm::mat3(half.boneTransforms[spine]))));
+			test.Check(std::abs(halfAngle - 15.0f) < 0.05f, "%s additive at weight 0.5 turns half way (%.2f deg)", name, halfAngle);
+		}
+
+		// Mesh space on a different base: the spine gets the clip's model-space pitch over its own twist, the arm keeps the
+		// model-space rotation the clip keeps (it does not turn with the spine); local space turns it with the spine.
+		AnimationPose meshDifference, localDifference;
+		AnimationPose::MakeAdditive(meshDifference, &root, reference, target, AnimationPose::AdditiveSpace::Mesh);
+		AnimationPose::MakeAdditive(localDifference, &root, reference, target, AnimationPose::AdditiveSpace::Local);
+		AnimationPose meshPose = base, localPose = base;
+		AnimationPose::ApplyAdditiveInPlace(rootBone, &root, meshPose, meshDifference, AnimationPose::AdditiveSpace::Mesh, 1.0f);
+		AnimationPose::ApplyAdditiveInPlace(rootBone, &root, localPose, localDifference, AnimationPose::AdditiveSpace::Local, 1.0f);
+		const glm::mat4 meshSpine = AnimationPose::GetModelSpaceTransform(spine, &root, meshPose);
+		test.Check(RotationDifference(meshSpine, glm::mat4_cast(pitch * twist)) < 1e-5f, "mesh additive pitches the twisted spine about the model's axis");
+		test.Check(RotationDifference(AnimationPose::GetModelSpaceTransform(arm, &root, meshPose), AnimationPose::GetModelSpaceTransform(arm, &root, base)) < 1e-5f,
+			"mesh additive leaves a bone the clip keeps still where it is in model space");
+		test.Check(RotationDifference(AnimationPose::GetModelSpaceTransform(spine, &root, localPose), glm::mat4_cast(pitch * twist)) < 1e-5f
+			&& RotationDifference(localPose.boneTransforms[arm], glm::mat4_cast(glm::inverse(pitch))) < 1e-5f,
+			"local additive turns each bone in its parent's space");
 	}
 
 	void TestCharacterData(TestContext& test)
@@ -1118,16 +1240,57 @@ namespace
 				continue;
 
 			expectClean(character->moveset);
-			for (const auto& [slot, weaponFile] : character->weapons)
-				expectClean(weaponFile);
+			for (const auto& [slot, weaponFiles] : character->weapons)
+				for (const std::string& weaponFile : weaponFiles)
+					expectClean(weaponFile);
 
 			// The hero: the launcher needs a target in the air, AirDrop is the fallback for a fresh held-launch input
 			// only, regular heavy_1 remains a normal attack, and the hero falls before the enemies she juggles.
 			if (StringHelper::EndsWith(file, "hero.character.json") && character->moveSet)
 			{
 				const MoveSetData& heroMoves = *character->moveSet;
-				const MoveData* launcher = heroMoves.GetMove(heroMoves.GetHoldOpener(ComboSlot::Attack));
-				const MoveData* drop = heroMoves.GetMove(heroMoves.GetActionMove(ActionSlot::AirDrop));
+				const MoveTables scythe = heroMoves.BuildTables("scythe", "pistols");
+				const MoveData* launcher = heroMoves.GetMove(scythe.GetHoldOpener(ComboSlot::Attack));
+				const MoveData* drop = heroMoves.GetMove(scythe.GetActionMove(ActionSlot::AirDrop));
+
+				// Every weapon brings its own moves; the sword has no draw (it comes back sheathed) but sheathes itself,
+				// the musket fires one shot per move, the rifle reloads.
+				const MoveTables sword = heroMoves.BuildTables("sword", "rifle");
+				const MoveTables musket = heroMoves.BuildTables("sword", "musket");
+				test.Check(scythe.GetComboOpener(ComboSlot::Attack) == heroMoves.FindMove("start") && scythe.GetActionMove(ActionSlot::Draw) >= 0
+					&& scythe.GetActionMove(ActionSlot::Secondary) == heroMoves.FindMove("fire") && scythe.GetActionMove(ActionSlot::Sheathe) < 0,
+					"the scythe and pistols bring their moves");
+				test.Check(sword.GetComboOpener(ComboSlot::Attack) == heroMoves.FindMove("sword_start") && sword.GetActionMove(ActionSlot::Draw) < 0
+					&& sword.GetActionMove(ActionSlot::Sheathe) == heroMoves.FindMove("sword_sheathe")
+					&& sword.GetActionMove(ActionSlot::Reload) == heroMoves.FindMove("rifle_reload")
+					&& sword.GetActionMove(ActionSlot::Dash) == heroMoves.GetActionMove(ActionSlot::Dash),
+					"the sword and rifle bring theirs, movement stays the moveset's");
+				test.Check(musket.GetActionMove(ActionSlot::Secondary) == heroMoves.FindMove("musket_fire") && musket.GetActionMove(ActionSlot::Reload) < 0,
+					"the musket fires its own move and never reloads");
+				const MoveData* standingSheathe = heroMoves.GetMove(sword.GetActionMove(ActionSlot::Sheathe));
+				const MoveData* movingSheathe = heroMoves.GetMove(sword.GetActionMove(ActionSlot::MovingSheathe));
+				test.Check(standingSheathe && standingSheathe->channel == MoveChannel::Primary && standingSheathe->bodyMask == BodyMask::Full
+					&& movingSheathe && movingSheathe->channel == MoveChannel::Overlay && movingSheathe->layerSpace == PoseSpace::Local,
+					"the sword sheathes on the whole body standing, on the upper body (local) moving");
+				const MoveData* heavy = heroMoves.GetMove(heroMoves.FindMove("sword_heavy_1"));
+				test.Check(heavy && heavy->layerSpace == PoseSpace::Local && heavy->grips.size() == 1 && heavy->grips[0].handMask == HandBit(WeaponHand::Left),
+					"the sword's two-handed heavy grips with the left hand and hands over in local space");
+				const MoveData* reload = heroMoves.GetMove(sword.GetActionMove(ActionSlot::Reload));
+				test.Check(reload && reload->channel == MoveChannel::Overlay && reload->bodyMask == BodyMask::Full && reload->suspendsAim,
+					"the rifle reloads on the whole body (its clip spins) and pauses the aim");
+				const WeaponData* heroSword = character->GetWeapon(WeaponSlot::Main, 1);
+				test.Check(heroSword && heroSword->CanSheathe() && character->GetSheathedStanceKey(WeaponSlot::Main, 1) == 5
+					&& character->GetSheathedStanceKey(WeaponSlot::Main, 0) < 0 && !heroSword->meshes.empty() && heroSword->meshes[0].carried.size() == 1,
+					"the sword has a sheathed stance after every weapon's (key 5) and a scabbard carried by the left hand");
+				std::vector<std::string> weaponNames;
+				for (const auto& slotWeapons : character->weaponData)
+					for (const auto& weapon : slotWeapons)
+						weaponNames.push_back(weapon->name);
+				test.Check(character->GetWeaponCount(WeaponSlot::Main) == 2 && character->GetWeaponCount(WeaponSlot::Secondary) == 3
+					&& character->GetWeaponKey(WeaponSlot::Secondary, 0) == 2 && character->GetWeaponKey(WeaponSlot::Main, 2) < 0,
+					"the hero cycles two melee weapons and three firearms (one stance key each)");
+				for (const std::string& name : weaponNames)
+					test.Check(heroMoves.weaponMoves.find(name) != heroMoves.weaponMoves.end(), "the hero's moveset has moves for its %s", name.c_str());
 				const MoveData* heavy1 = heroMoves.GetMove(heroMoves.FindMove("heavy_1"));
 				test.Check(launcher && launcher->startState == MoveStartState::Any, "the hero's launcher can start in the air");
 				test.Check(drop && drop->startState == MoveStartState::Air, "the hero has an air drop for a fresh held-launch input without a target");
@@ -1198,6 +1361,7 @@ bool RunCombatSelfTests(std::string& summary)
 	TestMoveSetSave(test);
 	TestParamsEditing(test);
 	TestWeaponData(test);
+	TestAdditivePoses(test);
 	TestCharacterData(test);
 	TestShippedData(test);
 

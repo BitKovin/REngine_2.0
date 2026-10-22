@@ -7,7 +7,7 @@
 
 namespace
 {
-	constexpr float AimBlendTime = 0.15f;          // s for the aim offset to fade in / out
+	constexpr float AimBlendTime = 0.15f;          // s for the aim sweeps to fade in / out
 	constexpr float StrafeMinSpeed = 0.3f;         // m/s below which the legs keep their direction
 	constexpr float StrafeHysteresis = 20.0f;      // deg around 90 between running forward and backward
 
@@ -104,6 +104,23 @@ namespace
 		turned[2] = glm::vec4(basis[2], 0.0f);
 		it->second = it->second * glm::inverse(model) * turned;
 	}
+
+	AnimationPose::AdditiveSpace ToAdditiveSpace(PoseSpace space)
+	{
+		return space == PoseSpace::Mesh ? AnimationPose::AdditiveSpace::Mesh : AnimationPose::AdditiveSpace::Local;
+	}
+
+	// Adds `difference` to `bone`'s subtree by weight; the root bone keeps its value (it belongs to the legs).
+	void AddBranch(AnimationPose& pose, roj::BoneNode* rootNode, const hashed_string& bone, const AnimationPose& difference,
+		PoseSpace space, float weight)
+	{
+		auto root = pose.boneTransforms.find(RootBone);
+		const bool hasRoot = root != pose.boneTransforms.end();
+		const glm::mat4 baseRoot = hasRoot ? root->second : glm::mat4(1.0f);
+		AnimationPose::ApplyAdditiveInPlace(bone, rootNode, pose, difference, ToAdditiveSpace(space), weight);
+		if (hasRoot)
+			pose.boneTransforms[RootBone] = baseRoot;
+	}
 }
 
 void CharacterAnimator::Configure(std::shared_ptr<const CharacterData> characterData, const roj::FlatSkeleton* skeleton)
@@ -127,40 +144,55 @@ void CharacterAnimator::LoadLocomotionClip(LocomotionClip& clip, const std::stri
 	}
 }
 
+// One stance per weapon of every slot (CharacterData::GetWeaponKey order), then the sheathed stance of every sheathable
+// weapon (GetSheathedStanceKey order).
 void CharacterAnimator::LoadStances()
 {
-	for (size_t slot = 0; slot < stances.size(); ++slot)
-	{
-		Stance& stance = stances[slot];
-		stance = Stance();
-
-		const WeaponData* weapon = data->weaponData[slot].get();
-		if (!weapon)
-			continue;
-
-		const WeaponStanceData& stanceData = weapon->stance;
-		stance.blend = stanceData.blend;
-
-		LoadLocomotionClip(stance.idle, stanceData.resolvedAnimation, stanceData.idle, true);
-		if (!stanceData.hold.empty() && stanceData.hold == stanceData.idle)
-			stance.hold = stance.idle;
-		else
-			LoadLocomotionClip(stance.hold, stanceData.resolvedAnimation, stanceData.hold, true);
-
-		for (const std::string& bone : stanceData.holdBones)
-			stance.holdBones.emplace_back(bone);
-		for (const std::string& bone : stanceData.aimBones)
-			stance.aimBones.emplace_back(bone);
-		for (const std::string& bone : stanceData.handBones)
-			stance.handBones.emplace_back(bone);
-		stance.sources.push_back(stanceData.resolvedAnimation);
-		for (const WeaponMeshData& mesh : weapon->meshes)
-			stance.sources.push_back(mesh.model);
-		stance.aimMaxPitch = stanceData.aimMaxPitch;
-		stance.aimMaxYaw = stanceData.aimMaxYaw;
-	}
+	stances.clear();
+	for (const auto& slot : data->weaponData)
+		for (const auto& weapon : slot)
+			LoadStance(stances.emplace_back(), weapon->stance, *weapon);
+	for (const auto& slot : data->weaponData)
+		for (const auto& weapon : slot)
+			if (weapon->HasSheathedStance())
+				LoadStance(stances.emplace_back(), weapon->sheathedStance, *weapon);
 
 	stancesStarted = false;
+}
+
+void CharacterAnimator::LoadStance(Stance& stance, const WeaponStanceData& stanceData, const WeaponData& weapon)
+{
+	stance.blend = stanceData.blend;
+
+	LoadLocomotionClip(stance.idle, stanceData.resolvedAnimation, stanceData.idle, true);
+	stance.idleTime = stanceData.idleTime;
+	const bool sameClip = !stanceData.resolvedHold.empty() && stanceData.resolvedHold == stanceData.idle;
+	if (!stanceData.IsAiming() && sameClip && stanceData.holdTime == stanceData.idleTime)
+		stance.hold = stance.idle;
+	else
+		LoadLocomotionClip(stance.hold, stanceData.resolvedAnimation, stanceData.resolvedHold, true);
+	stance.holdTime = stanceData.holdTime;
+	stance.holdSpace = stanceData.holdSpace;
+	stance.holdOverMoves = stanceData.holdOverMoves;
+
+	// An aiming weapon holds its sweep's middle frame; a second instance of the clip follows the aim pitch.
+	if (stanceData.IsAiming())
+	{
+		LoadLocomotionClip(stance.sweep, stanceData.resolvedAnimation, stanceData.sweep.clip, false);
+		if (stance.hold.animation && stance.sweep.animation)
+		{
+			stance.sweepData = &stanceData.sweep;
+			stance.holdTime = stance.hold.duration * 0.5f;
+		}
+	}
+
+	for (const std::string& bone : stanceData.holdBones)
+		stance.holdBones.emplace_back(bone);
+	for (const std::string& bone : stanceData.handBones)
+		stance.handBones.emplace_back(bone);
+	stance.sources.push_back(stanceData.resolvedAnimation);
+	for (const WeaponMeshData& mesh : weapon.meshes)
+		stance.sources.push_back(mesh.model);
 }
 
 void CharacterAnimator::LoadMoveSetSource(const std::string& source)
@@ -212,21 +244,21 @@ void CharacterAnimator::FindIncompleteClips()
 	}
 }
 
-// Which weapon a move clip poses: the slot whose models (or stance source) the clip's file is.
+// Which weapon a move clip poses: the one whose models (or stance source) the clip's file is.
 void CharacterAnimator::MapClipWeapons()
 {
 	clipWeapons.clear();
 	for (size_t source = 0; source < loadedSources.size(); ++source)
 	{
-		for (size_t slot = 0; slot < stances.size(); ++slot)
+		for (size_t key = 0; key < stances.size(); ++key)
 		{
-			const std::vector<std::string>& files = stances[slot].sources;
+			const std::vector<std::string>& files = stances[key].sources;
 			if (std::find(files.begin(), files.end(), loadedSources[source]) == files.end())
 				continue;
 			if (primaryLayer[source])
-				clipWeapons[primaryLayer[source]] = static_cast<int>(slot);
+				clipWeapons[primaryLayer[source]] = static_cast<int>(key);
 			if (overlayLayer[source])
-				clipWeapons[overlayLayer[source]] = static_cast<int>(slot);
+				clipWeapons[overlayLayer[source]] = static_cast<int>(key);
 			break;
 		}
 	}
@@ -507,22 +539,43 @@ void CharacterAnimator::Evaluate(const AnimatorInput& input, float deltaTime)
 			if (overlaySnapshotActive)
 			{
 				CopyPose(overlaySnapshot, activeOverlay->GetAnimationPoseRef());
-				overlaySnapshotMask = overlayMask;
-				overlaySnapshotMaskBones.swap(overlayMaskBones);
+				std::swap(overlaySnapshotShape, overlayShape);
+				if (!overlaySnapshotShape.additiveBones.empty())
+					CopyPose(overlaySnapshotDifference, overlayDifference);
 				overlaySnapshotWeight = overlayWeight;
 				overlaySnapshotDuration = input.overlay.blendIn;
 				overlaySnapshotElapsed = 0.0f;
 			}
 
-			// Bones without a bone list is the upper body (as for the primary).
+			// Bones without a bone list is the upper body (as for the primary); a Full overlay replaces the whole body.
 			const bool bones = input.overlay.mask == BodyMask::Bones && input.overlay.maskBones != nullptr;
-			overlayMask = bones ? BodyMask::Bones : BodyMask::UpperBody;
+			overlayShape.mask = bones ? BodyMask::Bones : (input.overlay.mask == BodyMask::Full ? BodyMask::Full : BodyMask::UpperBody);
+			overlayShape.space = input.overlay.space;
+			overlayShape.legWeight = input.overlay.legWeight;
+			overlayShape.airLegs = input.overlay.airLegs;
 			if (bones)
-				overlayMaskBones.assign(input.overlay.maskBones->begin(), input.overlay.maskBones->end());
+				overlayShape.maskBones.assign(input.overlay.maskBones->begin(), input.overlay.maskBones->end());
 			else
-				overlayMaskBones.clear();
+				overlayShape.maskBones.clear();
+			const MoveAdditiveData* additive = input.overlay.additive;
+			if (additive && additive->IsEnabled())
+			{
+				overlayShape.additiveBones.assign(additive->boneHashes.begin(), additive->boneHashes.end());
+				overlayShape.additiveSpace = additive->space;
+			}
+			else
+			{
+				overlayShape.additiveBones.clear();
+			}
 
 			StartLayerClip(overlayLayer, input.overlay, activeOverlay, false);
+			if (activeOverlay && !overlayShape.additiveBones.empty())
+			{
+				// The additive layer's reference: the clip at its reference time (then back to the move clock).
+				Sample(activeOverlay, additive->referenceTime);
+				CopyPose(overlayReference, activeOverlay->GetAnimationPoseRef());
+				Sample(activeOverlay, input.overlay.time);
+			}
 			overlayFadeRate = 1.0f / std::max(input.overlay.blendIn, 0.01f);
 			overlayBlendOut = input.overlay.blendOut;
 		}
@@ -557,6 +610,7 @@ void CharacterAnimator::Evaluate(const AnimatorInput& input, float deltaTime)
 	UpdateLocomotionWeights(deltaTime);
 	UpdateLean(deltaTime);
 	UpdateStanceWeights(deltaTime);
+	UpdateSweeps();
 
 	if (snapshotActive)
 	{
@@ -708,10 +762,13 @@ void CharacterAnimator::UpdateLean(float deltaTime)
 
 void CharacterAnimator::UpdateStanceWeights(float deltaTime)
 {
-	for (size_t slot = 0; slot < stances.size(); ++slot)
+	for (size_t key = 0; key < stances.size(); ++key)
 	{
-		Stance& stance = stances[slot];
-		const float target = static_cast<int>(slot) == current.stance ? 1.0f : 0.0f;
+		Stance& stance = stances[key];
+		const bool shown = key < 32 && ((current.stances >> key) & 1u) != 0;
+		const float target = shown ? 1.0f : 0.0f;
+		if (shown)
+			stance.layered = ((current.layeredStances >> key) & 1u) != 0;   // kept while it fades out
 
 		// The first frame starts in the current stance instead of fading in from the locomotion idle.
 		if (!stancesStarted || stance.blend <= 0.0f)
@@ -723,13 +780,28 @@ void CharacterAnimator::UpdateStanceWeights(float deltaTime)
 		if (stance.weight <= 0.001f)
 			continue;
 
-		// Same clock as the locomotion idle: standing still, the hold layer matches the stance idle.
+		// Same clock as the locomotion idle: standing still, the hold layer matches the stance idle. A sweep's hold is
+		// its middle frame.
 		if (stance.idle.animation)
-			Sample(stance.idle.animation, LoopTime(idleTime, stance.idle.duration));
+			Sample(stance.idle.animation, stance.idleTime >= 0.0f ? stance.idleTime : LoopTime(idleTime, stance.idle.duration));
 		if (stance.hold.animation && stance.hold.animation != stance.idle.animation)
-			Sample(stance.hold.animation, LoopTime(idleTime, stance.hold.duration));
+			Sample(stance.hold.animation, stance.holdTime >= 0.0f ? stance.holdTime : LoopTime(idleTime, stance.hold.duration));
 	}
 	stancesStarted = true;
+}
+
+// The sweep of every shown aiming weapon at the aim pitch (the direction from the chest to the aim point, model space).
+void CharacterAnimator::UpdateSweeps()
+{
+	if (aimWeight <= 0.0f)
+		return;
+
+	const glm::vec3 aim = current.aimDirection;
+	const float flat = glm::length(glm::vec2(aim.x, aim.z));
+	const float pitch = glm::degrees(std::atan2(aim.y, flat));
+	for (Stance& stance : stances)
+		if (stance.sweepData && stance.weight > 0.001f)
+			Sample(stance.sweep.animation, stance.sweepData->TimeAt(pitch, stance.sweep.duration));
 }
 
 AnimationPose CharacterAnimator::ProcessResultPose()
@@ -771,13 +843,13 @@ const AnimationPose& CharacterAnimator::ComposePose()
 	{
 		float total = 0.0f;
 		for (const Stance& stance : stances)
-			if (stance.idle.animation)
+			if (stance.idle.animation && !stance.layered)
 				total += stance.weight;
 
 		float idleAccumulated = std::max(0.0f, 1.0f - total);
 		for (const Stance& stance : stances)
 		{
-			if (!stance.idle.animation || stance.weight <= 0.001f)
+			if (!stance.idle.animation || stance.layered || stance.weight <= 0.001f)
 				continue;
 			idleAccumulated += stance.weight;
 			AnimationPose::LerpInPlace(pose, blendable(stance.idle.animation, pose), stance.weight / idleAccumulated);
@@ -824,16 +896,18 @@ const AnimationPose& CharacterAnimator::ComposePose()
 
 	const hashed_string upperBodyBone(data->locomotion.upperBodyBone);
 
-	// Partial layers: the engine's blends take the root bone from the layer, the legs keep theirs. A layer rooted at
-	// the upper-body bone blends that bone's rotation in mesh space, so the torso keeps the layer's facing whatever
-	// the legs do; a limb layer follows the torso (local space). Incomplete layers are completed from the pose first.
-	auto layerBranch = [&](AnimationPose& target, const hashed_string& bone, const AnimationPose& layer, bool layerComplete, float weight)
+	// Partial layers: the engine's blends take the root bone from the layer, the legs keep theirs. By default a layer
+	// rooted at the upper-body bone blends that bone's rotation in mesh space, so the torso keeps the layer's facing
+	// whatever the legs do, and a limb layer follows the torso (local space); `space` overrides it (PoseSpace::Default =
+	// that default). Incomplete layers are completed from the pose first.
+	auto layerBranch = [&](AnimationPose& target, const hashed_string& bone, const AnimationPose& layer, bool layerComplete, float weight,
+		PoseSpace space)
 	{
 		auto root = target.boneTransforms.find(RootBone);
 		const bool hasRoot = root != target.boneTransforms.end();
 		const glm::mat4 baseRoot = hasRoot ? root->second : glm::mat4(1.0f);
 
-		const float meshSpace = bone == upperBodyBone ? 1.0f : 0.0f;
+		const float meshSpace = space == PoseSpace::Default ? (bone == upperBodyBone ? 1.0f : 0.0f) : (space == PoseSpace::Mesh ? 1.0f : 0.0f);
 		if (!layerComplete)
 			CompleteInto(completion, layer, target);
 		AnimationPose::LayeredLerpInPlace(bone, rootNode, target, layerComplete ? layer : completion, meshSpace, weight);
@@ -843,41 +917,58 @@ const AnimationPose& CharacterAnimator::ComposePose()
 	};
 
 	// A move layer on the upper body, or on its mask bones (maskBones: BodyMask::Bones, else null).
-	auto layerMove = [&](AnimationPose& target, const std::vector<hashed_string>* maskBones, const AnimationPose& layer, bool layerComplete, float weight)
+	auto layerMove = [&](AnimationPose& target, const std::vector<hashed_string>* maskBones, const AnimationPose& layer, bool layerComplete,
+		float weight, PoseSpace space)
 	{
 		if (maskBones != nullptr)
 		{
 			for (const hashed_string& bone : *maskBones)
-				layerBranch(target, bone, layer, layerComplete, weight);
+				layerBranch(target, bone, layer, layerComplete, weight, space);
 		}
 		else
 		{
-			layerBranch(target, upperBodyBone, layer, layerComplete, weight);
+			layerBranch(target, upperBodyBone, layer, layerComplete, weight, space);
+		}
+	};
+
+	// The holds of the stances shown, in their space: base stances normalized, layered ones on top. overMovesOnly:
+	// only the stances that also hold over movement moves (with their own weight).
+	auto layerHolds = [&](bool overMovesOnly)
+	{
+		float total = 0.0f;
+		for (const Stance& stance : stances)
+			if (stance.hold.animation && !stance.layered)
+				total += stance.weight;
+
+		float holdAccumulated = std::max(0.0f, 1.0f - total);
+		for (const bool layered : { false, true })
+		{
+			for (const Stance& stance : stances)
+			{
+				if (!stance.hold.animation || stance.layered != layered || stance.weight <= 0.001f)
+					continue;
+				float weight = stance.weight;
+				if (!layered && !overMovesOnly)
+				{
+					holdAccumulated += stance.weight;
+					weight = stance.weight / holdAccumulated;
+				}
+				if (overMovesOnly && !stance.holdOverMoves)
+					continue;
+
+				const AnimationPose& hold = stance.hold.animation->GetAnimationPoseRef();
+				const bool complete = IsComplete(stance.hold.animation);
+				for (const hashed_string& bone : stance.holdBones)
+					layerBranch(pose, bone, hold, complete, weight, stance.holdSpace);
+			}
 		}
 	};
 
 	// ---- Stance hold: how the weapon in the hands is carried during locomotion ----
-	// Weights are normalized like the idles, so a cross-fade between two weapons does not dip into the base.
+	// Weights are normalized like the idles, so a cross-fade between two weapons does not dip into the base. Layered
+	// stances (a weapon beside the one in the hands) go on top with their own weight.
 	if (rootNode)
-	{
-		float total = 0.0f;
-		for (const Stance& stance : stances)
-			if (stance.hold.animation)
-				total += stance.weight;
-
-		float holdAccumulated = std::max(0.0f, 1.0f - total);
-		for (const Stance& stance : stances)
-		{
-			if (!stance.hold.animation || stance.weight <= 0.001f)
-				continue;
-			holdAccumulated += stance.weight;
-
-			const AnimationPose& hold = stance.hold.animation->GetAnimationPoseRef();
-			const bool complete = IsComplete(stance.hold.animation);
-			for (const hashed_string& bone : stance.holdBones)
-				layerBranch(pose, bone, hold, complete, stance.weight / holdAccumulated);
-		}
-	}
+		layerHolds(false);
 
 	// ---- Full-body primary: replaces locomotion (move clips pose the arms themselves). NoLegs blends the legs toward
 	// the locomotion pose (the air pose in the air) by legWeight, local to the clip's hips: the hips follow the attack
@@ -917,46 +1008,88 @@ const AnimationPose& CharacterAnimator::ComposePose()
 			lerpFrom(recoveryPose, 1.0f - recoveryLowerWeight);
 
 		if (recoveryUpperWeight > 0.001f && recoveryLowerWeight < 0.999f)
-			layerBranch(pose, upperBodyBone, recoveryPose, true, recoveryUpperWeight);
+			layerBranch(pose, upperBodyBone, recoveryPose, true, recoveryUpperWeight, current.recovery.space);
 	}
 
 	// ---- Upper-body / masked primary, then the overlay (it runs with primaries that allow it: on top) ----
 	if (activePrimary && !fullPrimary)
 	{
 		const bool bones = current.primary.mask == BodyMask::Bones && current.primary.maskBones != nullptr;
-		layerMove(pose, bones ? current.primary.maskBones : nullptr, activePrimary->GetAnimationPoseRef(), IsComplete(activePrimary), 1.0f);
+		layerMove(pose, bones ? current.primary.maskBones : nullptr, activePrimary->GetAnimationPoseRef(), IsComplete(activePrimary), 1.0f,
+			current.primary.space);
 	}
 
-	// The overlay keeps the mask it started with until it has faded out. An overlay replacing a visible one
-	// cross-fades over the new clip's blendIn: the outgoing one (last pose, weight, mask) and the incoming one are each
-	// layered over the same pose and the results blend - bones both cover go from one clip to the other, bones only
-	// one covers fade from / to the pose underneath (nothing snaps when the masks differ).
+	// ---- A movement move's clip carries no weapon: the firearms in the hands keep their hold over it ----
+	const bool movementClip = activePrimary ? current.primary.movement : (activeRecovery != nullptr && current.recovery.movement);
+	if (rootNode && movementClip)
+		layerHolds(true);
+
+	// The overlay keeps the shape it started with until it has faded out: its additive layer (the clip's difference from
+	// its reference frame), then its mask. An overlay replacing a visible one cross-fades over the new clip's blendIn:
+	// the outgoing one (last pose, difference, weight, shape) and the incoming one are each layered over the same pose
+	// and the results blend - bones both cover go from one clip to the other, bones only one covers fade from / to the
+	// pose underneath (nothing snaps when the masks differ).
+	// A Full overlay replaces the whole body - its root too (the reload's spin) - and hands its legs to the pose underneath
+	// by legWeight as the body runs (and, with airLegs, as it flies): standing it keeps the clip's footwork.
+	const float moving = std::max(1.0f - idle.weight, 0.0f);
+	auto layerOverlay = [&](AnimationPose& target, const OverlayShape& shape, const AnimationPose& clip, bool complete,
+		const AnimationPose& difference, float weight)
+	{
+		for (const hashed_string& bone : shape.additiveBones)
+			AddBranch(target, rootNode, bone, difference, shape.additiveSpace, weight);
+		if (shape.mask != BodyMask::Full)
+		{
+			layerMove(target, shape.mask == BodyMask::Bones ? &shape.maskBones : nullptr, clip, complete, weight, shape.space);
+			return;
+		}
+
+		AnimationPose& full = fullScratch;
+		if (complete)
+			CopyPose(full, clip);
+		else
+			CompleteInto(full, clip, target);
+		const float legBlend = shape.legWeight * std::max(moving, shape.airLegs ? airWeight : 0.0f);
+		if (legBlend > 0.001f)
+			for (const hashed_string& leg : data->locomotion.legBoneHashes)
+				AnimationPose::LayeredLerpInPlace(leg, rootNode, full, target, 0.0f, legBlend);
+
+		// Lerp takes the root from its second pose at any weight: fade it with the rest.
+		auto targetRoot = target.boneTransforms.find(RootBone);
+		auto fullRoot = full.boneTransforms.find(RootBone);
+		if (targetRoot != target.boneTransforms.end() && fullRoot != full.boneTransforms.end())
+			fullRoot->second = MathHelper::Transform::Lerp(MathHelper::DecomposeMatrix(targetRoot->second),
+				MathHelper::DecomposeMatrix(fullRoot->second), weight).ToMatrix();
+		AnimationPose::LerpInPlace(target, full, weight);
+	};
+
 	if (rootNode)
 	{
-		const std::vector<hashed_string>* overlayBones = overlayMask == BodyMask::Bones ? &overlayMaskBones : nullptr;
 		const bool incoming = activeOverlay && overlayWeight > 0.001f;
+		if (incoming && !overlayShape.additiveBones.empty())
+			AnimationPose::MakeAdditive(overlayDifference, rootNode, overlayReference, activeOverlay->GetAnimationPoseRef(),
+				ToAdditiveSpace(overlayShape.additiveSpace));
+
 		if (overlaySnapshotActive)
 		{
 			AnimationPose& outgoing = layerScratch;
 			CopyPose(outgoing, pose);
 			if (overlaySnapshotWeight > 0.001f)
-				layerMove(outgoing, overlaySnapshotMask == BodyMask::Bones ? &overlaySnapshotMaskBones : nullptr,
-					overlaySnapshot, false, overlaySnapshotWeight);
+				layerOverlay(outgoing, overlaySnapshotShape, overlaySnapshot, false, overlaySnapshotDifference, overlaySnapshotWeight);
 			if (incoming)
-				layerMove(pose, overlayBones, activeOverlay->GetAnimationPoseRef(), IsComplete(activeOverlay), overlayWeight);
+				layerOverlay(pose, overlayShape, activeOverlay->GetAnimationPoseRef(), IsComplete(activeOverlay), overlayDifference, overlayWeight);
 			lerpFrom(outgoing, glm::smoothstep(0.0f, 1.0f, overlaySnapshotElapsed / overlaySnapshotDuration));
 		}
 		else if (incoming)
 		{
-			layerMove(pose, overlayBones, activeOverlay->GetAnimationPoseRef(), IsComplete(activeOverlay), overlayWeight);
+			layerOverlay(pose, overlayShape, activeOverlay->GetAnimationPoseRef(), IsComplete(activeOverlay), overlayDifference, overlayWeight);
 		}
 	}
 
-	// ---- Aim offset of the weapon in the hands, then the grip of the hands holding it ----
+	// ---- The grip of the hands holding the weapons, then the aim sweeps on top of everything the weapons do ----
 	if (rootNode)
 	{
-		ApplyAim(pose, rootNode);
 		ApplyGrip(pose, rootNode);
+		ApplySweeps(pose, rootNode);
 	}
 
 	// ---- Transition from the frozen pose ----
@@ -1021,38 +1154,26 @@ void CharacterAnimator::ApplyHitRecoil(AnimationPose& pose, roj::BoneNode* rootN
 		RotateInModelSpace(pose, rootNode, bone.boneHash, glm::mat3_cast(glm::angleAxis(angle * bone.weight, axis)));
 }
 
-void CharacterAnimator::ApplyAim(AnimationPose& pose, roj::BoneNode* rootNode) const
+// The hold pose of an aiming weapon is its sweep's middle frame, aimed level along the facing (the body turns to the
+// aim). The sweep at the aim pitch, as its difference from that frame, turns the sweep bones the way the clip does -
+// spine, arms, coat - over whatever the weapon's clips (recoil, reload) and the grip made of the pose. Weighted by the
+// stance and the aim fade.
+void CharacterAnimator::ApplySweeps(AnimationPose& pose, roj::BoneNode* rootNode)
 {
-	// The stance's hold pose aims along the body's facing; its aim bones turn it toward the aim point: yaw about up,
-	// then pitch, each clamped, spread evenly over the bones (parent first, each about its own origin).
 	const float fade = glm::smoothstep(0.0f, 1.0f, aimWeight);
 	if (fade <= 0.001f)
 		return;
 
-	glm::vec3 reference(current.forward.x, 0.0f, current.forward.z);
-	if (glm::dot(reference, reference) < 1e-6f || glm::dot(current.aimDirection, current.aimDirection) < 1e-6f)
-		return;
-	reference = glm::normalize(reference);
-
-	const glm::vec3 aim = glm::normalize(current.aimDirection);
-	const glm::vec3 aimFlat(aim.x, 0.0f, aim.z);
-	const float flatLength = glm::length(aimFlat);
-	const float yaw = flatLength > 1e-3f ? YawBetween(reference, aimFlat / flatLength) : 0.0f;
-	const float pitch = std::atan2(aim.y, flatLength);
-	const glm::vec3 pitchAxis = glm::normalize(glm::cross(reference, Up));
-
-	for (const Stance& stance : stances)
+	for (Stance& stance : stances)
 	{
-		if (stance.aimBones.empty() || stance.weight <= 0.001f)
+		const float weight = stance.weight * fade;
+		if (!stance.sweepData || weight <= 0.001f)
 			continue;
 
-		const float share = stance.weight * fade / static_cast<float>(stance.aimBones.size());
-		const float yawStep = glm::clamp(yaw, -glm::radians(stance.aimMaxYaw), glm::radians(stance.aimMaxYaw)) * share;
-		const float pitchStep = glm::clamp(pitch, -glm::radians(stance.aimMaxPitch), glm::radians(stance.aimMaxPitch)) * share;
-		const glm::mat3 step = glm::mat3_cast(glm::angleAxis(yawStep, Up) * glm::angleAxis(pitchStep, pitchAxis));
-
-		for (const hashed_string& bone : stance.aimBones)
-			RotateInModelSpace(pose, rootNode, bone, step);
+		AnimationPose::MakeAdditive(stance.sweepDifference, rootNode, stance.hold.animation->GetAnimationPoseRef(),
+			stance.sweep.animation->GetAnimationPoseRef(), ToAdditiveSpace(stance.sweepData->space));
+		for (const hashed_string& bone : stance.sweepData->boneHashes)
+			AddBranch(pose, rootNode, bone, stance.sweepDifference, stance.sweepData->space, weight);
 	}
 }
 
@@ -1069,17 +1190,23 @@ void CharacterAnimator::ApplyGrip(AnimationPose& pose, roj::BoneNode* rootNode)
 
 	float total = 0.0f;
 	for (const Stance& stance : stances)
-		if (!stance.handBones.empty() && stance.hold.animation)
+		if (!stance.handBones.empty() && stance.hold.animation && !stance.layered)
 			total += stance.weight;
 	float accumulated = std::max(0.0f, 1.0f - total);
 
-	for (size_t slot = 0; slot < stances.size(); ++slot)
+	// The stances in the hands share the grip (normalized like their holds); layered ones grip their own hands on top.
+	for (const bool layered : { false, true })
+	for (size_t key = 0; key < stances.size(); ++key)
 	{
-		const Stance& stance = stances[slot];
-		if (stance.handBones.empty() || !stance.hold.animation || stance.weight <= 0.001f)
+		const Stance& stance = stances[key];
+		if (stance.handBones.empty() || !stance.hold.animation || stance.layered != layered || stance.weight <= 0.001f)
 			continue;
-		accumulated += stance.weight;
-		const float share = stance.weight / accumulated;
+		float share = stance.weight;
+		if (!layered)
+		{
+			accumulated += stance.weight;
+			share = stance.weight / accumulated;
+		}
 
 		const Animation* moveClip = activePrimary ? activePrimary : activeRecovery;
 		const float moveWeight = activePrimary ? 1.0f : recoveryUpperWeight;
@@ -1087,8 +1214,8 @@ void CharacterAnimator::ApplyGrip(AnimationPose& pose, roj::BoneNode* rootNode)
 		struct Source { const Animation* clip; float weight; };
 		const Source sources[] = {
 			{ stance.hold.animation, share },
-			{ ownedBy(moveClip, static_cast<int>(slot)) ? moveClip : nullptr, share * moveWeight },
-			{ ownedBy(activeOverlay, static_cast<int>(slot)) ? activeOverlay : nullptr, share * overlayWeight },
+			{ ownedBy(moveClip, static_cast<int>(key)) ? moveClip : nullptr, share * moveWeight },
+			{ ownedBy(activeOverlay, static_cast<int>(key)) ? activeOverlay : nullptr, share * overlayWeight },
 		};
 
 		for (const Source& source : sources)
@@ -1126,23 +1253,32 @@ CharacterAnimator::WeaponDrive CharacterAnimator::GetWeaponDrive()
 	WeaponDrive drive;
 	drive.moveTransition = driveTransition;
 
+	auto weaponOf = [this](const Animation* animation)
+	{
+		auto it = clipWeapons.find(animation);
+		return it == clipWeapons.end() ? -1 : it->second;
+	};
+
 	if (activePrimary)
 	{
 		drive.move = &activePrimary->GetAnimationPoseRef();
 		drive.moveWeight = 1.0f;
 		drive.moveSerial = primarySerial;
+		drive.moveWeapon = weaponOf(activePrimary);
 	}
 	else if (activeRecovery)
 	{
 		drive.move = &activeRecovery->GetAnimationPoseRef();
 		drive.moveWeight = recoveryUpperWeight;
 		drive.moveSerial = recoveryMoveSerial;
+		drive.moveWeapon = weaponOf(activeRecovery);
 	}
 
 	if (activeOverlay && overlayWeight > 0.001f)
 	{
 		drive.overlay = &activeOverlay->GetAnimationPoseRef();
 		drive.overlayWeight = overlayWeight;
+		drive.overlayWeapon = weaponOf(activeOverlay);
 	}
 	return drive;
 }

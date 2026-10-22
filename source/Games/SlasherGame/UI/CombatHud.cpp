@@ -75,6 +75,12 @@ CombatHud::CombatHud()
 	ammoText->position = glm::vec2(-48.0f, -48.0f);
 	AddChild(ammoText);
 
+	weaponsText = MakeText(26.0f, glm::vec4(0.8f, 0.8f, 0.8f, 1.0f));
+	weaponsText->origin = glm::vec2(1.0f, 1.0f);
+	weaponsText->pivot = glm::vec2(1.0f, 1.0f);
+	weaponsText->position = glm::vec2(-48.0f, -96.0f);
+	AddChild(weaponsText);
+
 	// ---- Soft target (top center) ----
 	targetPanel = std::make_shared<UiElement>();
 	targetPanel->origin = glm::vec2(0.5f, 0.0f);
@@ -160,11 +166,24 @@ void CombatHud::Refresh(const State& state)
 			ammoText->text = "RELOADING";
 		else
 			ammoText->text = magazine < 0 ? "" : std::to_string(magazine);
+
+		// The equipped weapons (what the switch buttons cycle).
+		std::string weapons;
+		for (WeaponSlot slot : { WeaponSlot::Main, WeaponSlot::Secondary })
+		{
+			const WeaponData* weapon = body->GetWeapons().GetWeapon(slot);
+			if (weapon == nullptr)
+				continue;
+			if (!weapons.empty()) weapons += "   ";
+			weapons += weapon->hudLabel.empty() ? weapon->name : weapon->hudLabel;
+		}
+		weaponsText->text = weapons;
 	}
 	else
 	{
 		effectsText->text = "";
 		ammoText->text = "";
+		weaponsText->text = "";
 	}
 
 	// Target panel

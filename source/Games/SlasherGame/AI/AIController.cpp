@@ -645,6 +645,17 @@ bool AIController::TryStartAttack()
 	if (attackCooldowns.size() != attacks.size())
 		attackCooldowns.assign(attacks.size(), Delay());
 
+	// The move of an attack: its own, or what the equipped weapons put in its slot.
+	const MoveTables& tables = body.GetMoves().GetTables();
+	auto moveOf = [&tables](const AiAttackData& attack)
+	{
+		if (attack.comboSlot >= 0)
+			return tables.GetComboOpener(static_cast<ComboSlot>(attack.comboSlot));
+		if (attack.actionSlot >= 0)
+			return tables.GetActionMove(static_cast<ActionSlot>(attack.actionSlot));
+		return attack.moveIndex;
+	};
+
 	// Valid candidates, then weighted picks without replacement until one gets its token.
 	std::vector<size_t> candidates;
 	float totalWeight = 0.0f;
@@ -654,7 +665,7 @@ bool AIController::TryStartAttack()
 		if (distance < attack.minRange || distance > attack.maxRange) continue;
 		if (attackCooldowns[i].Wait()) continue;
 		if (attack.requireLineOfSight && !targetVisible) continue;
-		if (!body.GetMoves().CanStartMove(attack.moveIndex)) continue;
+		if (!body.GetMoves().CanStartMove(moveOf(attack))) continue;
 		candidates.push_back(i);
 		totalWeight += attack.weight;
 	}
@@ -678,7 +689,7 @@ bool AIController::TryStartAttack()
 			continue;
 
 		input->focus = EntityHandle::FromEntity(current);
-		if (!body.GetMoves().TryStartMove(attack.moveIndex))
+		if (!body.GetMoves().TryStartMove(moveOf(attack)))
 			continue;
 
 		if (attack.cooldown > 0.0f)

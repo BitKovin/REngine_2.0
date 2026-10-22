@@ -761,3 +761,226 @@ glm::mat4 AnimationPose::GetModelSpaceTransform(
 
 	return global;
 }
+
+// ---- Additive poses -------------------------------------------------------------------------------------
+
+namespace
+{
+	struct BoneTRS
+	{
+		glm::vec3 translation = glm::vec3(0.0f);
+		glm::vec3 scale = glm::vec3(1.0f);
+		glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	};
+
+	BoneTRS DecomposeBone(const glm::mat4& m)
+	{
+		constexpr float MinScale = 1e-6f;
+		BoneTRS out;
+		out.translation = glm::vec3(m[3]);
+		glm::mat3 rotation;
+		for (int i = 0; i < 3; ++i)
+		{
+			const glm::vec3 axis(m[i]);
+			const float length = glm::length(axis);
+			out.scale[i] = length > MinScale ? length : 1.0f;
+			rotation[i] = length > MinScale ? axis / length : axis;
+		}
+		out.rotation = glm::normalize(glm::quat_cast(rotation));
+		return out;
+	}
+
+	glm::mat4 ComposeBone(const BoneTRS& bone)
+	{
+		glm::mat4 out = glm::mat4_cast(bone.rotation);
+		out[0] *= bone.scale.x;
+		out[1] *= bone.scale.y;
+		out[2] *= bone.scale.z;
+		out[3] = glm::vec4(bone.translation, 1.0f);
+		return out;
+	}
+
+	glm::quat LocalRotation(const AnimationPose& pose, const hashed_string& bone)
+	{
+		auto it = pose.boneTransforms.find(bone);
+		return it != pose.boneTransforms.end() ? DecomposeBone(it->second).rotation : glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	}
+
+	// Model-space rotation of every bone of the topology (preorder: parents first). Bones the pose lacks count as
+	// identity, like GetModelSpaceTransform.
+	void ModelRotations(const SkeletonTopology& topo, const AnimationPose& pose, std::vector<glm::quat>& out)
+	{
+		const int count = static_cast<int>(topo.traversal.size());
+		out.resize(static_cast<size_t>(count));
+		for (int i = 0; i < count; ++i)
+		{
+			const glm::quat local = LocalRotation(pose, topo.traversal[i]);
+			const int parent = topo.parentIndex[i];
+			out[static_cast<size_t>(i)] = parent < 0 ? local : glm::normalize(out[static_cast<size_t>(parent)] * local);
+		}
+	}
+
+	// slerp(identity, q, weight), the short way round.
+	glm::quat ScaleRotation(glm::quat q, float weight)
+	{
+		if (q.w < 0.0f)
+			q = -q;
+		return weight >= 0.999f ? q : glm::normalize(glm::slerp(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), q, weight));
+	}
+}
+
+// The difference of a bone is stored as a transform: translation = target - reference, scale = target / reference,
+// rotation = target * reference^-1 (local rotations for Local, model-space rotations for Mesh).
+void AnimationPose::MakeAdditive(AnimationPose& out, roj::BoneNode* rootNode, const AnimationPose& reference,
+	const AnimationPose& target, AdditiveSpace space)
+{
+	auto& bones = out.boneTransforms;
+	if (&out == &reference || &out == &target)
+		return;   // the difference needs both inputs intact
+
+	const SkeletonTopology* topo = nullptr;
+	thread_local std::vector<glm::quat> referenceModel;
+	thread_local std::vector<glm::quat> targetModel;
+	if (space == AdditiveSpace::Mesh)
+	{
+		if (!rootNode)
+		{
+			bones.clear();
+			return;
+		}
+		topo = GetOrBuildTopology(rootNode);
+		ModelRotations(*topo, reference, referenceModel);
+		ModelRotations(*topo, target, targetModel);
+	}
+
+	auto hasDifference = [&](const hashed_string& bone)
+	{
+		return target.boneTransforms.find(bone) != target.boneTransforms.end()
+			&& reference.boneTransforms.find(bone) != reference.boneTransforms.end()
+			&& (topo == nullptr || topo->indexMap.find(bone) != topo->indexMap.end());
+	};
+
+	size_t written = 0;
+	for (const auto& [bone, targetMatrix] : target.boneTransforms)
+	{
+		if (!hasDifference(bone))
+			continue;
+
+		const BoneTRS a = DecomposeBone(reference.boneTransforms.at(bone));
+		const BoneTRS b = DecomposeBone(targetMatrix);
+		BoneTRS delta;
+		delta.translation = b.translation - a.translation;
+		delta.scale = b.scale / a.scale;
+		if (topo == nullptr)
+		{
+			delta.rotation = glm::normalize(b.rotation * glm::inverse(a.rotation));
+		}
+		else
+		{
+			const size_t i = static_cast<size_t>(topo->indexMap.at(bone));
+			delta.rotation = glm::normalize(targetModel[i] * glm::inverse(referenceModel[i]));
+		}
+
+		bones.insert_or_assign(bone, ComposeBone(delta));
+		++written;
+	}
+
+	// Bones a previous difference had that this one does not.
+	if (bones.size() != written)
+	{
+		for (auto it = bones.begin(); it != bones.end();)
+			it = hasDifference(it->first) ? std::next(it) : bones.erase(it);
+	}
+}
+
+void AnimationPose::ApplyAdditiveInPlace(const hashed_string& startBoneName, roj::BoneNode* rootNode, AnimationPose& pose,
+	const AnimationPose& additive, AdditiveSpace space, float weight)
+{
+	weight = glm::clamp(weight, 0.0f, 1.0f);
+	if (!rootNode || weight <= 0.001f || additive.boneTransforms.empty())
+		return;
+
+	const SkeletonTopology* topo = GetOrBuildTopology(rootNode);
+	auto start = topo->indexMap.find(startBoneName);
+	if (start == topo->indexMap.end())
+		return;
+	const int startIndex = start->second;
+	const int subtreeEnd = topo->subtreeEnd[startIndex];   // preorder: the subtree is [startIndex, subtreeEnd]
+
+	// Mesh space: the model rotation of every bone before (base) and after (out) the addition, by topology index - the
+	// ancestors of the start bone keep their own.
+	thread_local std::vector<glm::quat> baseModel;
+	thread_local std::vector<glm::quat> outModel;
+	const bool mesh = space == AdditiveSpace::Mesh;
+	if (mesh)
+	{
+		baseModel.resize(topo->traversal.size());
+		outModel.resize(topo->traversal.size());
+		thread_local std::vector<int> ancestors;
+		ancestors.clear();
+		for (int p = topo->parentIndex[startIndex]; p != -1; p = topo->parentIndex[p])
+			ancestors.push_back(p);
+		glm::quat chain(1.0f, 0.0f, 0.0f, 0.0f);
+		for (auto it = ancestors.rbegin(); it != ancestors.rend(); ++it)   // root first
+		{
+			chain = glm::normalize(chain * LocalRotation(pose, topo->traversal[*it]));
+			baseModel[static_cast<size_t>(*it)] = chain;
+			outModel[static_cast<size_t>(*it)] = chain;
+		}
+	}
+
+	const glm::quat identity(1.0f, 0.0f, 0.0f, 0.0f);
+	for (int index = startIndex; index <= subtreeEnd; ++index)
+	{
+		const size_t i = static_cast<size_t>(index);
+		const int parent = topo->parentIndex[index];
+		const bool hasParent = mesh && parent >= 0;   // the model rotations exist only in mesh space
+		const glm::quat parentBase = hasParent ? baseModel[static_cast<size_t>(parent)] : identity;
+		const glm::quat parentOut = hasParent ? outModel[static_cast<size_t>(parent)] : identity;
+
+		auto it = pose.boneTransforms.find(topo->traversal[index]);
+		if (it == pose.boneTransforms.end())
+		{
+			// A bone the pose lacks stays missing; its children see it as identity (GetModelSpaceTransform).
+			if (mesh)
+			{
+				baseModel[i] = parentBase;
+				outModel[i] = parentOut;
+			}
+			continue;
+		}
+
+		auto delta = additive.boneTransforms.find(topo->traversal[index]);
+		const bool hasDelta = delta != additive.boneTransforms.end();
+		if (!mesh && !hasDelta)
+			continue;
+
+		BoneTRS local = DecomposeBone(it->second);
+		BoneTRS change;
+		if (hasDelta)
+			change = DecomposeBone(delta->second);
+		const glm::quat turn = hasDelta ? ScaleRotation(change.rotation, weight) : identity;
+
+		if (mesh)
+		{
+			const glm::quat base = glm::normalize(parentBase * local.rotation);
+			const glm::quat turned = glm::normalize(turn * base);
+			baseModel[i] = base;
+			outModel[i] = turned;
+			if (!hasDelta && parentBase == parentOut)
+				continue;   // neither this bone nor anything above it turned
+			local.rotation = glm::normalize(glm::inverse(parentOut) * turned);
+		}
+		else
+		{
+			local.rotation = glm::normalize(turn * local.rotation);
+		}
+
+		if (hasDelta)
+		{
+			local.translation += change.translation * weight;
+			local.scale *= glm::mix(glm::vec3(1.0f), change.scale, weight);
+		}
+		it->second = ComposeBone(local);
+	}
+}

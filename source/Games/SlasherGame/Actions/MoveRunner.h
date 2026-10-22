@@ -63,6 +63,11 @@ public:
 	void SetMoveSet(std::shared_ptr<const MoveSetData> moveSet);
 	const MoveSetData* GetMoveSet() const { return moveSet.get(); }
 
+	// The weapons the body holds (WeaponData::name, empty = none): their moves fill the combo and action slots
+	// (MoveSetData::BuildTables). Every slot lookup goes through GetTables().
+	void SetEquippedWeapons(const std::string& mainWeapon, const std::string& secondaryWeapon);
+	const MoveTables& GetTables() const { return tables; }
+
 	// Per frame, after the controller wrote input: advances moves, resolves combos, routes buttons.
 	void Tick(float deltaTime);
 
@@ -95,6 +100,8 @@ public:
 	bool IsRecovering() const { return recovery.IsActive(); }
 	// The body moves (input, airborne): the recovery clip hands over to locomotion (COMBAT_DESIGN.md §5.5).
 	void ReleaseRecovery() { recovery.released = recovery.IsActive(); }
+	// Drops the recovery at once (its weapon left the hands: a weapon switch).
+	void ClearRecovery();
 	bool IsMoveOnCooldown(int moveIndex) const;
 
 	// Windows of the primary move at its current time.
@@ -108,6 +115,9 @@ public:
 private:
 	CombatCharacter* owner = nullptr;
 	std::shared_ptr<const MoveSetData> moveSet;
+	MoveTables tables;
+	std::string equippedMain;
+	std::string equippedSecondary;
 	std::vector<std::unique_ptr<MoveBehavior>> behaviors;   // indexed by MoveBehaviorRegistry type
 	std::vector<Delay> cooldowns;                           // per move index
 	std::array<uint32_t, static_cast<size_t>(InputButton::Count)> consumedPressId{};
@@ -145,6 +155,8 @@ private:
 	void PublishState();
 
 	bool CancelAllows(const MoveSlot& slot, TagMask tags) const;
+	bool CancelWindowAllows(const MoveSlot& slot, TagMask tags) const;   // a cancel window only (not the move's end)
+	bool BlocksOverlay(const MoveData& overlayMove) const;
 	bool StartStateAllows(const MoveData& move) const;
 	bool ComboCanContinue() const;               // the primary's combo has a follow-up that can start in this state
 	float ResolveEndTime(const MoveData& move) const;

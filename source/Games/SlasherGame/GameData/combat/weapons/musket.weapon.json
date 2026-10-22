@@ -1,0 +1,47 @@
+{
+	"version": 1,
+	"name": "musket",
+	"hudLabel": "Musket",
+	"kind": "Firearm",
+	"_note": "A heavy one-shot pistol in the left hand. No idle: it comes out for its shot (the fire clip on the left arm, its kick added to the whole body), stays aimed holsterDelay s after the shot's clip, then the arm lowers it over stance.blend and it goes (holsterAfterFire). The arm is posed in mesh space, so the run's chest sway and the body's strafe twist do not swing the aim. It leaves the right hand free, so the melee weapon stays in the hands (a sheathed sword is drawn). Skinned to hand_l (no weapon bones): the muzzle is a point in hand_l space (model units, cm), found from the barrel's end.",
+	"meshes": [
+		{
+			"model": "GameData/models/player/weapons/musket/musket.glb",
+			"attach": "Rig",
+			"visibleWhenHolstered": false
+		}
+	],
+	"hands": ["Left"],
+	"holsterAfterFire": true,
+	"holsterDelay": 0.35,
+	"stance": {
+		"holdBones": ["clavicle_l"],
+		"holdSpace": "Mesh",
+		"holdOverMoves": true,
+		"handBones": ["hand_l"],
+		"sweep": { "clip": "sweep", "bones": ["spine_01"], "space": "Mesh", "startPitch": -90, "endPitch": 90 },
+		"aimTurnRate": 1080,
+		"blend": 0.25
+	},
+	"firearm": {
+		"fireRate": 1.2,
+		"magazine": 0,
+		"spread": 0.0,
+		"pellets": 1,
+		"muzzles": [ { "bone": "hand_l", "offset": { "x": 64.0, "y": 35.2, "z": -12.6 } } ],
+		"noiseRadius": 45,
+		"projectile": {
+			"speed": 260,
+			"radius": 0.05,
+			"maxDistance": 150,
+			"damage": 45,
+			"poiseDamage": 20,
+			"weakPointDamage": 70,
+			"reaction": "Stagger",
+			"knockback": 6.0,
+			"hitStop": 0.06,
+			"tracer": "bullet_trail",
+			"impactParticle": "hit_flesh"
+		}
+	}
+}

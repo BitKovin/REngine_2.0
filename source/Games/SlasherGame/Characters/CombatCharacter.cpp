@@ -129,6 +129,7 @@ void CombatCharacter::Start()
 	ConfigureComponents();
 	CreateHitboxes();
 	moves.SetMoveSet(data->moveSet);
+	SyncEquippedMoves();
 
 	aiController = std::make_unique<AIController>(*this);
 	aiController->SetBrain(data->ai.brain);
@@ -252,9 +253,18 @@ const WeaponData* CombatCharacter::GetAimingWeapon() const
 	const MoveSlot& primary = moves.GetPrimary();
 	if (primary.IsActive() && primary.move->overlay != OverlayPolicy::Allow)
 		return nullptr;
+	const MoveSlot& overlay = moves.GetOverlay();
+	if (overlay.IsActive() && overlay.move->suspendsAim)
+		return nullptr;   // the overlay poses the weapon itself (a spinning reload)
 
-	const WeaponData* weapon = weapons.GetWeapon(weapons.GetActiveSlot());
-	return weapon != nullptr && !weapon->stance.aimBones.empty() ? weapon : nullptr;
+	// The firearm out aims - beside the melee weapon too (a pistol in the off hand); else the Main weapon, if it does.
+	for (WeaponSlot slot : { WeaponSlot::Secondary, WeaponSlot::Main })
+	{
+		const WeaponData* weapon = weapons.GetWeapon(slot);
+		if (weapon != nullptr && weapons.IsInHands(slot) && weapon->stance.IsAiming())
+			return weapon;
+	}
+	return nullptr;
 }
 
 // ---- Combat frame -----------------------------------------------------------------------------------------
@@ -287,6 +297,7 @@ void CombatCharacter::UpdateCombat()
 		controller->UpdateInput(*this, input, realDeltaTime);
 	}
 
+	UpdateWeaponSwitch();
 	{
 		ZoneScopedN("Body: moves");
 		moves.Tick(deltaTime);
@@ -295,7 +306,7 @@ void CombatCharacter::UpdateCombat()
 	{
 		ZoneScopedN("Body: weapons");
 		weapons.Tick(deltaTime);
-		UpdateWeaponReturn();
+		UpdateWeaponState(deltaTime);
 	}
 	{
 		ZoneScopedN("Body: facing + aim");
@@ -431,22 +442,28 @@ void CombatCharacter::UpdatePose()
 	}
 
 	ZoneScopedN("Body: weapon pose");
-	UpdateWeaponReach();
+	UpdateWeaponPosing();
 	weapons.AsyncUpdate(*mesh, animator.GetPose(), animator.GetWeaponDrive(), deltaTime);
 }
 
-// Weapon length from the reach of the moves playing (MoveData::reach): the primary - or the attack playing out in
-// recovery - and the overlay; the longest reach per weapon wins.
-void CombatCharacter::UpdateWeaponReach()
+// What the moves playing do to the weapons (MoveData::reach, grips): the primary - or the attack playing out in
+// recovery - and the overlay; the longest reach per weapon wins, grip hands add up.
+void CombatCharacter::UpdateWeaponPosing()
 {
 	std::array<float, static_cast<size_t>(WeaponSlot::Count)> reach{};
+	std::array<HandMask, static_cast<size_t>(WeaponSlot::Count)> grips{};
 	auto add = [&](const MoveData* move, float time)
 	{
-		if (move != nullptr && move->reach.IsActive())
+		if (move == nullptr)
+			return;
+		if (move->reach.IsActive())
 		{
 			float& length = reach[static_cast<size_t>(move->reach.weapon)];
 			length = std::max(length, move->reach.At(time));
 		}
+		for (const GripWindowData& grip : move->grips)
+			if (time >= grip.start && (grip.end < 0.0f || time <= grip.end))
+				grips[static_cast<size_t>(grip.weapon)] |= grip.handMask;
 	};
 
 	const MoveSlot& primary = moves.GetPrimary();
@@ -460,7 +477,10 @@ void CombatCharacter::UpdateWeaponReach()
 		add(overlay.move, overlay.time);
 
 	for (size_t slot = 0; slot < reach.size(); ++slot)
+	{
 		weapons.SetExtension(static_cast<WeaponSlot>(slot), reach[slot]);
+		weapons.SetGripHands(static_cast<WeaponSlot>(slot), grips[slot]);
+	}
 }
 
 void CombatCharacter::LateUpdate()
@@ -506,22 +526,176 @@ void CombatCharacter::Teleport(vec3 position)
 	velocity = glm::vec3(0.0f);
 }
 
-// A weapon other than Main goes back once its holsterDelay ran out (COMBAT_DESIGN.md §9.3): the Draw action plays
-// when nothing on the overlay channel runs (firing keeps it in the hands), or the swap is instant without one.
-void CombatCharacter::UpdateWeaponReturn()
+// The weapons follow what the body does (COMBAT_DESIGN.md §9.3). The Secondary weapon:
+//   * reloading, it plays its Reload action (once per reload), cutting its fire move short - a trigger still held when
+//     the reload is done fires again;
+//   * one that only comes out to fire (holsterAfterFire) goes away once no fire move ran for its holsterDelay; its
+//     stance fades out over stance.blend with the mesh still in the hand;
+//   * once its holsterDelay ran out it goes back when nothing on the overlay channel runs (firing keeps it in the
+//     hands): beside the Main weapon with the same fade, otherwise the Main weapon's Draw plays (an instant swap
+//     without one).
+// A sheathable Main weapon that is drawn and has nothing left to do - its combo ended - plays its Sheathe action: the
+// standing one (full body) once an attack played out to its ready stance, the moving one at once while the body moves
+// or flies.
+void CombatCharacter::UpdateWeaponState(float deltaTime)
 {
-	const WeaponSlot active = weapons.GetActiveSlot();
-	if (active == WeaponSlot::Main || !weapons.HasWeapon(WeaponSlot::Main) || !weapons.IsHolsterDue(active) || IsDead())
-		return;
-	if (moves.GetOverlay().IsActive())
+	if (IsDead())
 		return;
 
+	const MoveTables& tables = moves.GetTables();
 	const MoveSetData* moveSet = moves.GetMoveSet();
-	const int draw = moveSet ? moveSet->GetActionMove(ActionSlot::Draw) : -1;
-	if (draw >= 0)
-		moves.TryStartMove(draw);   // refused while a primary move blocks overlays: retried next frame
-	else if (!moves.IsPrimaryActive())
-		weapons.SetActiveSlot(WeaponSlot::Main);
+	const MoveSlot& overlay = moves.GetOverlay();
+	const bool firing = overlay.IsActive() && overlay.move->HasTag(MoveTag::Fire);
+
+	if (!weapons.IsReloading(WeaponSlot::Secondary))
+	{
+		reloadPlayed = false;
+		if (fireAfterReload && !moves.GetOverlay().IsActive())
+		{
+			int fire = grounded ? -1 : tables.GetActionMove(ActionSlot::AirSecondary);
+			if (fire < 0)
+				fire = tables.GetActionMove(ActionSlot::Secondary);
+			const bool held = input.Get(InputButton::Secondary).held;
+			fireAfterReload = held && fire >= 0 && !moves.TryStartMove(fire);   // held: retried until it starts
+		}
+	}
+	else if (!reloadPlayed && weapons.IsInHands(WeaponSlot::Secondary))
+	{
+		const int reload = tables.GetActionMove(ActionSlot::Reload);
+		if (reload < 0)
+			reloadPlayed = true;      // a plain timer
+		else
+		{
+			if (firing)
+			{
+				moves.StopOverlay(MoveEndReason::Interrupted);
+				fireAfterReload = true;
+			}
+			reloadPlayed = moves.TryStartMove(reload);   // refused while a primary move blocks overlays: retried
+		}
+	}
+
+	const WeaponData* secondary = weapons.GetWeapon(WeaponSlot::Secondary);
+	if (secondary != nullptr && secondary->holsterAfterFire && weapons.IsInHands(WeaponSlot::Secondary))
+	{
+		if (firing)
+			secondaryLinger = -1.0f;
+		else if (secondaryLinger < 0.0f)
+			secondaryLinger = secondary->holsterDelay;
+		else if ((secondaryLinger -= deltaTime) <= 0.0f)
+		{
+			weapons.PutAwaySecondary(secondary->stance.blend);
+			secondaryLinger = -1.0f;
+		}
+	}
+	else
+	{
+		secondaryLinger = -1.0f;
+	}
+
+	if (weapons.HasWeapon(WeaponSlot::Main) && weapons.IsHolsterDue() && !moves.GetOverlay().IsActive())
+	{
+		const int draw = tables.GetActionMove(ActionSlot::Draw);
+		if (weapons.IsSecondaryLayered())
+			weapons.PutAwaySecondary(secondary->stance.blend);   // the Main weapon never left the hands
+		else if (draw >= 0)
+			moves.TryStartMove(draw);     // refused while a primary move blocks overlays: retried next frame
+		else if (!moves.IsPrimaryActive())
+			weapons.BringOut(WeaponSlot::Main);
+	}
+
+	const WeaponData* main = weapons.GetWeapon(WeaponSlot::Main);
+	const RecoverySlot& recovery = moves.GetRecovery();
+	// A standing sheathe handed over to a recovery (the body moved) plays on and seats the blade itself.
+	const bool sheatheRecovering = recovery.IsActive() && recovery.move->index == tables.GetActionMove(ActionSlot::Sheathe);
+	if (main != nullptr && main->CanSheathe() && !weapons.IsSheathed() && weapons.IsInHands(WeaponSlot::Main)
+		&& !moves.IsPrimaryActive() && !moves.GetOverlay().IsActive() && !(recovery.IsActive() && !recovery.released)
+		&& !sheatheRecovering)
+	{
+		// The standing sheathe steps from the attack stance into the idle: only right after an attack played out to it
+		// (its recovery ended unreleased), with the body still. Otherwise - moving, flying, or drawn by something else
+		// (a firearm in the sheath hand) - the upper body sheathes over whatever the legs do.
+		const bool fromAttackStance = recoveryWasHeld && !recovery.IsActive() && grounded
+			&& glm::length(MathHelper::XZ(input.move)) <= 0.1f;
+		int sheathe = fromAttackStance ? -1 : tables.GetActionMove(ActionSlot::MovingSheathe);
+		if (sheathe < 0)
+			sheathe = tables.GetActionMove(ActionSlot::Sheathe);
+		if (sheathe < 0 || moveSet == nullptr)
+			weapons.SetSheathed(true);
+		else
+			moves.TryStartMove(sheathe);   // its cue puts the blade in; interrupted before, it plays again
+	}
+	recoveryWasHeld = recovery.IsActive() && !recovery.released;
+}
+
+// The player cycles the weapons of a slot (InputButton::SwitchMain / SwitchSecondary, COMBAT_DESIGN.md §9.3). Every
+// press advances one weapon; presses wait while the Main weapon is busy in a move of its own (an attack: its combo
+// belongs to it) and apply once it is free.
+void CombatCharacter::UpdateWeaponSwitch()
+{
+	constexpr std::array<std::pair<WeaponSlot, InputButton>, 2> Buttons = { {
+		{ WeaponSlot::Main, InputButton::SwitchMain }, { WeaponSlot::Secondary, InputButton::SwitchSecondary } } };
+
+	for (const auto& [slot, button] : Buttons)
+	{
+		const size_t index = static_cast<size_t>(slot);
+		const uint32_t pressId = input.Get(button).pressId;
+		if (pressId != switchPressSeen[index])
+		{
+			pendingSwitches[index] += pressId - switchPressSeen[index];
+			switchPressSeen[index] = pressId;
+		}
+
+		const size_t count = weapons.GetWeaponCount(slot);
+		if (pendingSwitches[index] == 0 || count < 2 || IsDead())
+		{
+			pendingSwitches[index] = 0;
+			continue;
+		}
+
+		const MoveSlot& primary = moves.GetPrimary();
+		if (slot == WeaponSlot::Main && primary.IsActive() && primary.move->HasTag(MoveTag::Melee))
+			continue;   // waits for the attack to end
+
+		EquipWeapon(slot, (weapons.GetEquippedIndex(slot) + pendingSwitches[index]) % count);
+		pendingSwitches[index] = 0;
+	}
+}
+
+void CombatCharacter::EquipWeapon(WeaponSlot slot, size_t index)
+{
+	if (index >= weapons.GetWeaponCount(slot) || index == weapons.GetEquippedIndex(slot))
+		return;
+
+	// Moves of the outgoing weapon leave with it: its actions on the overlay channel (a draw, a sheathe, firing,
+	// reloading) and, for the Main weapon, an attack still playing out in recovery.
+	const MoveTables& tables = moves.GetTables();
+	const MoveSlot& overlay = moves.GetOverlay();
+	if (overlay.IsActive())
+	{
+		for (size_t action = 0; action < static_cast<size_t>(ActionSlot::Count); ++action)
+		{
+			if (ActionWeaponSlot(static_cast<ActionSlot>(action)) == slot && tables.actions[action] == overlay.move->index)
+			{
+				moves.StopOverlay(MoveEndReason::Interrupted);
+				break;
+			}
+		}
+	}
+	if (slot == WeaponSlot::Main)
+		moves.ClearRecovery();
+	else
+		fireAfterReload = false;
+
+	weapons.Equip(slot, index);
+	SyncEquippedMoves();
+}
+
+void CombatCharacter::SyncEquippedMoves()
+{
+	const WeaponData* main = weapons.GetWeapon(WeaponSlot::Main);
+	const WeaponData* secondary = weapons.GetWeapon(WeaponSlot::Secondary);
+	moves.SetEquippedWeapons(main ? main->name : std::string(), secondary ? secondary->name : std::string());
 }
 
 // A recovering attack plays out on the whole body until the body moves (COMBAT_DESIGN.md §5.5).
@@ -536,7 +710,7 @@ void CombatCharacter::UpdateRecoveryRelease()
 }
 
 // The weapon in the hands aims at the controller's aim point (the crosshair for the player, the target for AI)
-// when its stance has aim bones and no move overrides it; the animator turns those bones toward it (§9.1).
+// when its stance has a sweep and no move overrides it; the animator adds the sweep at the aim pitch (§9.1).
 void CombatCharacter::UpdateAim()
 {
 	hasAimPoint = GetAimingWeapon() != nullptr;
@@ -549,7 +723,16 @@ void CombatCharacter::BuildAnimatorInput(AnimatorInput& out) const
 	out.localVelocity = glm::vec2(glm::dot(velocity, GetRight()), glm::dot(velocity, GetForward()));
 	out.grounded = grounded;
 	out.gliding = requests.gliding;
-	out.stance = static_cast<int>(weapons.GetActiveSlot());
+	auto stanceBit = [](int key) { return key >= 0 ? 1u << static_cast<uint32_t>(key) : 0u; };
+	if (weapons.IsInHands(WeaponSlot::Main))
+		out.stances |= stanceBit(weapons.GetStanceKey(WeaponSlot::Main));
+	if (weapons.IsInHands(WeaponSlot::Secondary))
+	{
+		const uint32_t secondary = stanceBit(weapons.GetStanceKey(WeaponSlot::Secondary));
+		out.stances |= secondary;
+		if (weapons.IsSecondaryLayered())
+			out.layeredStances |= secondary;
+	}
 	out.aiming = hasAimPoint;
 	out.strafing = hasAimPoint || requests.hasFacing;   // facing set by the aim or a move / brain, not by the movement
 
@@ -585,6 +768,9 @@ void CombatCharacter::BuildAnimatorInput(AnimatorInput& out) const
 		layer.maskBones = move.bodyMask == BodyMask::Bones ? &move.maskBoneHashes : nullptr;
 		layer.legWeight = move.legWeight;
 		layer.airLegs = move.airLegs;
+		layer.additive = &move.additive;
+		layer.space = move.layerSpace;
+		layer.movement = move.HasTag(MoveTag::Movement);
 		layer.rootMotion = move.rootMotion.enabled;
 	};
 
@@ -604,6 +790,8 @@ void CombatCharacter::BuildAnimatorInput(AnimatorInput& out) const
 		out.recovery.lowerBodyBlend = move.recovery.lowerBodyBlend;
 		out.recovery.upperBodyBlend = move.recovery.upperBodyBlend;
 		out.recovery.blendOut = move.resolvedBlendOut;
+		out.recovery.space = move.layerSpace;
+		out.recovery.movement = move.HasTag(MoveTag::Movement);
 	}
 }
 
@@ -1110,7 +1298,8 @@ Entity* CombatCharacter::PredictAttackTarget() const
 	const MoveSetData* moveSet = moves.GetMoveSet();
 	if (!moveSet)
 		return nullptr;
-	const MoveData* opener = moveSet->GetMove(moveSet->GetComboOpener(moveSet->GetOpenerSlot(grounded)));
+	const MoveTables& tables = moves.GetTables();
+	const MoveData* opener = moveSet->GetMove(tables.GetComboOpener(tables.GetOpenerSlot(grounded)));
 	return opener != nullptr ? FindAttackTarget(opener->tracking.searchRange, GetAttackHeightRange()) : nullptr;
 }
 
@@ -1149,12 +1338,14 @@ void CombatCharacter::OnMoveStarted(const MoveSlot& slot, bool primary)
 	if (!primary)
 		return;
 
-	// The first weapon-driven hit window decides which weapon is in the hands for this move.
+	// The first weapon-driven hit window decides which weapon is in the hands for this move - drawn from its sheath.
 	for (const HitWindowData& hit : slot.move->hits)
 	{
 		if (hit.bone.empty())
 		{
-			weapons.SetActiveSlot(hit.weapon);
+			weapons.BringOut(hit.weapon);
+			if (hit.weapon == WeaponSlot::Main)
+				weapons.SetSheathed(false);
 			break;
 		}
 	}
@@ -1187,6 +1378,8 @@ void CombatCharacter::PlayCueNow(const CueData& cue)
 
 	if (cue.trail >= 0)
 		weapons.SetTrail(cue.trailWeapon, cue.trail == 1);
+	if (cue.sheathe >= 0)
+		weapons.SetSheathed(cue.sheathe == 1);
 
 	if (cue.cameraShake > 0.0f && IsPlayerControlled())
 		if (PlayerController* player = PlayerController::GetActive())

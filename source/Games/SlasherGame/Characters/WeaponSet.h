@@ -21,6 +21,12 @@ struct MoveSlot;
 // The body's weapons (COMBAT_DESIGN.md §3, §7, §9.3): weapon meshes (Bone props or Rig models), melee blade
 // sweeps for hit windows, weapon trails and firearm state. Member of CombatCharacter.
 //
+// Each slot holds a list of weapons; one is equipped (Equip, cycled by the player). The equipped Main weapon is in
+// the hands unless the Secondary one is out and takes every hand it could be held with; the Secondary weapon is out
+// from its first shot until its holsterDelay runs out (holsterAfterFire: until no fire move ran for holsterDelay). A
+// sheathable Main weapon (the sword) is drawn by attacks and sheathed again by its Sheathe move; a firearm taking its
+// sheath hand draws it, one taking its sword hand sheathes it.
+//
 // Threading: AsyncUpdate poses and places the meshes from the body's final pose (own entity only). Sweeps, firing
 // and trail requests run in the body's parallel update (COMBAT_DESIGN.md §2.2) and read the socket transforms of the
 // previous AsyncUpdate; hits go to the body's queue, shots and trail entities are created on the main thread
@@ -28,6 +34,9 @@ struct MoveSlot;
 class WeaponSet
 {
 public:
+	// Where a weapon mesh is (WeaponMeshData's attachment states).
+	enum class Presentation : uint8_t { Hand, Sheathed, Holster };
+
 	void Initialize(CombatCharacter* owner);
 
 	// LoadAssets path, after the body mesh loaded: creates weapon meshes (owned by the character's Drawables),
@@ -35,15 +44,42 @@ public:
 	void LoadAssets(const CharacterData& data);
 	void Destroy();
 
-	const WeaponData* GetWeapon(WeaponSlot slot) const;
+	// ---- Equipment -----------------------------------------------------------------------------------
+	const WeaponData* GetWeapon(WeaponSlot slot) const;          // the equipped one
 	bool HasWeapon(WeaponSlot slot) const { return GetWeapon(slot) != nullptr; }
+	size_t GetWeaponCount(WeaponSlot slot) const { return Slot(slot).weapons.size(); }
+	size_t GetEquippedIndex(WeaponSlot slot) const { return Slot(slot).equipped; }
+	// Equips weapon `index` of `slot`: the previous one goes to its holster (its trail stops). A sheathable Main weapon
+	// starts sheathed; a Secondary weapon that was out stays out as the new one unless that one only comes out to fire.
+	// The body updates its move tables (CombatCharacter::EquipWeapon).
+	void Equip(WeaponSlot slot, size_t index);
 
-	// The weapon in the hands; the other one is holstered. The last used slot stays in the hands until its
-	// holsterDelay runs out (IsHolsterDue).
-	WeaponSlot GetActiveSlot() const { return activeSlot; }
-	void SetActiveSlot(WeaponSlot slot);
-	// The weapon in `slot` has a holsterDelay that passed since it entered the hands or last fired.
-	bool IsHolsterDue(WeaponSlot slot) const;
+	// The weapon of `slot` is in the hands (drawn or sheathed for Main).
+	bool IsInHands(WeaponSlot slot) const;
+	// Puts the weapon of `slot` in the hands: Secondary comes out (its holsterDelay restarts); Main puts the Secondary
+	// away. Attacks bring out the weapon of their first hit window.
+	void BringOut(WeaponSlot slot);
+	// Puts the Secondary weapon away. With fadeSeconds its mesh stays in the hand that long while its stance fades out
+	// (the arm lowers it) - it no longer counts as in the hands meanwhile.
+	void PutAwaySecondary(float fadeSeconds = 0.0f);
+	// The Secondary weapon has a holsterDelay that passed since it came out or last fired.
+	bool IsHolsterDue() const;
+	// The Secondary weapon is out and leaves the Main one in the hands: it is layered over the Main stance (a pistol in
+	// the off hand) instead of replacing it.
+	bool IsSecondaryLayered() const { return secondaryOut && MainFitsBeside(); }
+
+	// The Main weapon rests in its sheath (WeaponData::sheathedHands; false for weapons without one).
+	bool IsSheathed() const { return mainSheathed; }
+	void SetSheathed(bool sheathed);
+	Presentation GetMainPresentation() const;
+
+	// Animator stance keys of the equipped weapons (CharacterData::GetWeaponKey; GetSheathedStanceKey while the Main
+	// weapon is sheathed), -1 without one.
+	int GetStanceKey(WeaponSlot slot) const;
+
+	// Hands the clips of the moves playing hold the weapon of `slot` with beyond its own (MoveData::grips): the parts
+	// those hands carry (WeaponMeshData::carried) hide. Set by the body every pose frame, before AsyncUpdate.
+	void SetGripHands(WeaponSlot slot, HandMask hands) { Slot(slot).gripHands = hands; }
 
 	// ---- Melee (driven by MoveRunner hit windows) ----------------------------------------------------
 	void BeginHitWindow(int windowIndex);
@@ -52,7 +88,7 @@ public:
 
 	// The weapon in `slot` is `meters` longer while in the hands (the moves' reach, WeaponData::extend). Set by the
 	// body every pose frame, before AsyncUpdate.
-	void SetExtension(WeaponSlot slot, float meters) { Slot(slot).extension = meters; }
+	void SetExtension(WeaponSlot slot, float meters);
 
 	// Requests the weapon trail on or off; the trail entity follows in LateUpdate (main thread).
 	void SetTrail(WeaponSlot slot, bool enabled);
@@ -105,13 +141,13 @@ private:
 		std::vector<glm::mat4> sockets;           // world space, written in AsyncUpdate
 		glm::mat4 world = glm::mat4(1.0f);        // model to world, written in AsyncUpdate
 		bool hasTransform = false;
-		int hideState = -1;                       // attachment state whose `hide` list the mesh shows
+		int hideState = -1;                       // Presentation whose `hide` list the mesh shows...
+		HandMask hideBusyHands = 0;               // ...and the busy hands whose carried parts it hides
 
 		// Rig mode
 		bool rigReady = false;
-		std::vector<RigBone> rigBones;
-		RigRest handRest;
-		RigRest holsterRest;
+		std::vector<RigBone> rigBones;            // may be empty: a model skinned to body bones only (a gun in the hand)
+		std::array<RigRest, 3> rests;             // per Presentation
 		hashed_string extendBone;                 // WeaponData::extend bone; empty: this model does not extend
 		glm::vec3 extendAxis = glm::vec3(0.0f);   // in the bone's space
 		glm::vec3 extendModelAxis = glm::vec3(0.0f);   // the axis in model space (bind pose): model units per bone unit
@@ -120,26 +156,35 @@ private:
 		float fadeDuration = 0.0f;
 		float fadeElapsed = 0.0f;
 		uint32_t driveSerial = 0;
-		int state = -1;                           // 1 = in the hands, 0 = holstered, -1 = not posed yet
+		int state = -1;                           // Presentation posed last, -1 = not posed yet
 	};
 
-	struct SlotState
+	// One weapon of a slot.
+	struct WeaponState
 	{
 		std::shared_ptr<const WeaponData> data;
+		int stanceKey = -1;                       // CharacterData::GetWeaponKey
+		int sheathedStanceKey = -1;               // CharacterData::GetSheathedStanceKey
 		std::vector<MeshInstance> meshes;
 		float fireCooldown = 0.0f;
 		int magazine = 0;
 		float reloadRemaining = 0.0f;
 		int nextMuzzle = 0;                       // position in the shot cycle
-		Delay holster;                            // holsterDelay, restarted on entering the hands and on every shot
 		particle_system_meleeTrail* trail = nullptr;
 		bool trailWanted = false;                 // requested by cues; the entity follows in SyncTrails
 		float extension = 0.0f;                   // m (SetExtension)
 	};
 
+	struct SlotState
+	{
+		std::vector<WeaponState> weapons;
+		size_t equipped = 0;
+		HandMask gripHands = 0;                   // SetGripHands
+	};
+
 	struct PendingShot
 	{
-		WeaponSlot slot = WeaponSlot::Secondary;
+		std::shared_ptr<const WeaponData> weapon;
 		glm::vec3 muzzle = glm::vec3(0.0f);
 		glm::vec3 direction = glm::vec3(0.0f, 0.0f, 1.0f);
 	};
@@ -152,7 +197,10 @@ private:
 
 	CombatCharacter* owner = nullptr;
 	std::array<SlotState, static_cast<size_t>(WeaponSlot::Count)> slots;
-	WeaponSlot activeSlot = WeaponSlot::Main;
+	bool secondaryOut = false;                    // the Secondary weapon is in the hands
+	float secondaryLeaving = 0.0f;                // s its mesh still shows while its stance fades (PutAwaySecondary)
+	bool mainSheathed = false;                    // the Main weapon rests in its sheath
+	Delay holster;                                // Secondary holsterDelay, restarted on coming out and on every shot
 	std::vector<HitWindowState> windows;
 	std::vector<glm::vec3> sampleScratch;
 	std::vector<PendingShot> pendingShots;
@@ -160,6 +208,18 @@ private:
 
 	SlotState& Slot(WeaponSlot slot) { return slots[static_cast<size_t>(slot)]; }
 	const SlotState& Slot(WeaponSlot slot) const { return slots[static_cast<size_t>(slot)]; }
+	WeaponState* Equipped(WeaponSlot slot);
+	const WeaponState* Equipped(WeaponSlot slot) const;
+
+	// Hands the out Secondary weapon takes (0 when it is away).
+	HandMask BusyHands() const;
+	// Hands holding something other than the weapon of `slot` (the other slot's weapon in the hand, its own two-handed
+	// grip): the parts of its model those hands carry hide.
+	HandMask CarryingHandsBusy(WeaponSlot slot) const;
+	// The Main weapon has an in-hand state (drawn, or sheathed) whose hands the Secondary weapon leaves free.
+	bool MainFitsBeside() const;
+	void FitMainToHands();
+	Presentation GetPresentation(WeaponSlot slot, size_t index) const;
 
 	void SetupRig(MeshInstance& instance, const WeaponData& weapon, const roj::FlatSkeleton& bodySkeleton);
 	bool SampleRest(MeshInstance& instance, const WeaponData& weapon, const WeaponAttachData& attach,
@@ -169,14 +229,14 @@ private:
 		const AnimationPose* fallback);
 	void PlaceBoneMesh(MeshInstance& instance, const WeaponAttachData& attach, SkeletalMesh& body);
 	static void PoseBuiltIn(MeshInstance& instance, SkeletalMesh& body, const AnimationPose& bodyPose);
-	void PoseRigMesh(MeshInstance& instance, bool inHands, float extension, SkeletalMesh& body, const AnimationPose& bodyPose,
-		const CharacterAnimator::WeaponDrive& drive, float deltaTime);
+	void PoseRigMesh(MeshInstance& instance, Presentation presentation, int stanceKey, float extension, SkeletalMesh& body,
+		const AnimationPose& bodyPose, const CharacterAnimator::WeaponDrive& drive, float deltaTime);
 
 	// World position of a weapon point on a posed mesh; false if the mesh is not posed or lacks the point's bone.
 	static bool GetPoint(const MeshInstance& instance, const WeaponPointData& point, glm::vec3& out);
 	void ComputeSamples(const HitWindowData& window, std::vector<glm::vec3>& out) const;
 	void SyncTrails();                                            // main thread
-	static void PlaceTrail(SlotState& state);
+	static void PlaceTrail(WeaponState& state);
 	void EmitHit(const MoveSlot& slot, const HitWindowData& window, Entity* victim, const glm::vec3& point,
 		const glm::vec3& normal, const glm::vec3& sweepDirection, const std::string& hitbox);
 };

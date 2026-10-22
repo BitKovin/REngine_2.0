@@ -37,6 +37,8 @@ void MoveSetData::WriteJson(nlohmann::json& j, const MoveSetData& data)
 	j["holdOpeners"] = data.holdOpeners;
 	j["actions"] = data.actions;
 	j["reactions"] = data.reactions;
+	if (!data.weaponMoves.empty())
+		j["weaponMoves"] = data.weaponMoves;
 
 	nlohmann::json moves = nlohmann::json::object();
 	for (const MoveData& move : data.moves)
@@ -60,6 +62,7 @@ void MoveSetData::ReadJson(const nlohmann::json& j, MoveSetData& data)
 	data.holdOpeners = j.value("holdOpeners", defaults.holdOpeners);
 	data.actions = j.value("actions", defaults.actions);
 	data.reactions = j.value("reactions", defaults.reactions);
+	data.weaponMoves = j.value("weaponMoves", defaults.weaponMoves);
 
 	data.moves.clear();
 	auto moves = j.find("moves");
@@ -181,7 +184,25 @@ namespace
 			report.Error(path + ".maskBones", "required by bodyMask Bones");
 		if (move.bodyMask != BodyMask::Bones && !move.maskBones.empty())
 			report.Warning(path + ".maskBones", "ignored: bodyMask is not Bones");
+		MoveAdditiveData& additive = move.additive;
+		additive.boneHashes.clear();
+		for (size_t i = 0; i < additive.bones.size(); ++i)
+		{
+			if (additive.bones[i].empty())
+				report.Error(path + ".additive.bones[" + std::to_string(i) + "]", "empty bone name");
+			additive.boneHashes.emplace_back(additive.bones[i]);
+		}
+		if (additive.IsEnabled())
+		{
+			if (move.channel != MoveChannel::Overlay) report.Error(path + ".additive", "only Overlay moves have an additive layer");
+			if (!move.HasClip()) report.Error(path + ".additive", "requires a clip");
+			if (additive.space != PoseSpace::Local && additive.space != PoseSpace::Mesh) report.Error(path + ".additive.space", "expected Local or Mesh");
+			if (additive.referenceTime < 0.0f) report.Error(path + ".additive.referenceTime", "must be >= 0");
+		}
 		if (move.overlay == OverlayPolicy::Invalid) report.Error(path + ".overlay", "expected Block or Allow");
+		if (move.layerSpace == PoseSpace::Invalid) report.Error(path + ".layerSpace", "expected Default, Local or Mesh");
+		if (move.channel == MoveChannel::Overlay && move.bodyMask == BodyMask::NoLegs)
+			report.Error(path + ".bodyMask", "an Overlay is Full (legs hand over while moving), UpperBody or Bones");
 		if (move.startState == MoveStartState::Invalid) report.Error(path + ".startState", "expected Ground, Air or Any");
 
 		// Tags
@@ -303,12 +324,32 @@ namespace
 			if (!ValidWindow(move.invulnerable[i].start, move.invulnerable[i].end))
 				report.Error(path + ".invulnerable[" + std::to_string(i) + "]", "invalid start/end");
 
+		for (size_t i = 0; i < move.grips.size(); ++i)
+		{
+			GripWindowData& grip = move.grips[i];
+			const std::string gripPath = path + ".grips[" + std::to_string(i) + "]";
+			if (!ValidWindow(grip.start, grip.end)) report.Error(gripPath, "invalid start/end");
+			if (grip.weapon == WeaponSlot::Count) report.Error(gripPath + ".weapon", "expected Main or Secondary");
+			grip.handMask = 0;
+			for (WeaponHand hand : grip.hands)
+			{
+				if (hand == WeaponHand::Count) report.Error(gripPath + ".hands", "expected Right or Left");
+				else grip.handMask |= HandBit(hand);
+			}
+			if (grip.handMask == 0) report.Warning(gripPath + ".hands", "empty - the window changes nothing");
+			if (!move.HasClip()) report.Warning(gripPath, "a move without a clip holds nothing");
+		}
+
+		if (move.suspendsAim && move.channel != MoveChannel::Overlay)
+			report.Warning(path + ".suspendsAim", "only for Overlay moves - a blocking primary already suspends aiming");
+
 		for (size_t i = 0; i < move.cues.size(); ++i)
 		{
 			const CueData& cue = move.cues[i];
 			const std::string cuePath = path + ".cues[" + std::to_string(i) + "]";
 			if (cue.trail < -1 || cue.trail > 1) report.Error(cuePath + ".trail", "expected -1, 0 or 1");
 			if (cue.trailWeapon == WeaponSlot::Count) report.Error(cuePath + ".trailWeapon", "expected Main or Secondary");
+			if (cue.sheathe < -1 || cue.sheathe > 1) report.Error(cuePath + ".sheathe", "expected -1, 0 or 1");
 		}
 
 		// Tracking: windows default to the hit windows (turn until the first strike, pull until the last one ends).
@@ -419,17 +460,27 @@ bool ResolveMoveSet(MoveSetData& data, DataLoadReport& report)
 	for (MoveData& move : data.moves)
 		ResolveMove(data, move, report);
 
-	data.comboOpeners.fill(-1);
-	data.holdOpenerMoves.fill(-1);
-	data.actionMoves.fill(-1);
+	data.tables = MoveTables();
 	data.reactionMoves.fill(-1);
-	ResolveSlotTable(data, data.combos, ComboSlotNames, data.comboOpeners, "combos", report);
-	ResolveSlotTable(data, data.holdOpeners, ComboSlotNames, data.holdOpenerMoves, "holdOpeners", report);
-	for (size_t i = 0; i < data.holdOpenerMoves.size(); ++i)
-		if (data.holdOpenerMoves[i] >= 0 && data.comboOpeners[i] < 0)
+	ResolveSlotTable(data, data.combos, ComboSlotNames, data.tables.comboOpeners, "combos", report);
+	ResolveSlotTable(data, data.holdOpeners, ComboSlotNames, data.tables.holdOpeners, "holdOpeners", report);
+	for (size_t i = 0; i < data.tables.holdOpeners.size(); ++i)
+		if (data.tables.holdOpeners[i] >= 0 && data.tables.comboOpeners[i] < 0)
 			report.Error(std::string("holdOpeners.") + ComboSlotNames[i], "needs a combo opener in the same slot (a press released early starts it)");
-	ResolveSlotTable(data, data.actions, ActionSlotNames, data.actionMoves, "actions", report);
+	ResolveSlotTable(data, data.actions, ActionSlotNames, data.tables.actions, "actions", report);
 	ResolveSlotTable(data, data.reactions, ReactionSlotNames, data.reactionMoves, "reactions", report);
+
+	for (auto& [weapon, table] : data.weaponMoves)
+	{
+		const std::string path = "weaponMoves." + weapon;
+		table.tables = MoveTables();
+		ResolveSlotTable(data, table.combos, ComboSlotNames, table.tables.comboOpeners, path + ".combos", report);
+		ResolveSlotTable(data, table.holdOpeners, ComboSlotNames, table.tables.holdOpeners, path + ".holdOpeners", report);
+		for (size_t i = 0; i < table.tables.holdOpeners.size(); ++i)
+			if (table.tables.holdOpeners[i] >= 0 && table.tables.comboOpeners[i] < 0 && data.tables.comboOpeners[i] < 0)
+				report.Error(path + ".holdOpeners." + ComboSlotNames[i], "needs a combo opener in the same slot (a press released early starts it)");
+		ResolveSlotTable(data, table.actions, ActionSlotNames, table.tables.actions, path + ".actions", report);
+	}
 
 	// Channel sanity for table entries
 	for (size_t i = 0; i < data.reactionMoves.size(); ++i)
@@ -440,6 +491,38 @@ bool ResolveMoveSet(MoveSetData& data, DataLoadReport& report)
 	}
 
 	return report.Ok();
+}
+
+MoveTables MoveSetData::BuildTables(const std::string& mainWeapon, const std::string& secondaryWeapon) const
+{
+	MoveTables result = tables;
+
+	auto overlay = [](int& slot, int weaponMove) { if (weaponMove >= 0) slot = weaponMove; };
+	auto find = [this](const std::string& weapon) -> const MoveTables*
+	{
+		auto it = weapon.empty() ? weaponMoves.end() : weaponMoves.find(weapon);
+		return it == weaponMoves.end() ? nullptr : &it->second.tables;
+	};
+
+	if (const MoveTables* main = find(mainWeapon))
+	{
+		for (size_t i = 0; i < result.comboOpeners.size(); ++i)
+		{
+			overlay(result.comboOpeners[i], main->comboOpeners[i]);
+			overlay(result.holdOpeners[i], main->holdOpeners[i]);
+		}
+		for (size_t i = 0; i < result.actions.size(); ++i)
+			if (ActionWeaponSlot(static_cast<ActionSlot>(i)) == WeaponSlot::Main)
+				overlay(result.actions[i], main->actions[i]);
+	}
+
+	if (const MoveTables* secondary = find(secondaryWeapon))
+	{
+		for (size_t i = 0; i < result.actions.size(); ++i)
+			if (ActionWeaponSlot(static_cast<ActionSlot>(i)) == WeaponSlot::Secondary)
+				overlay(result.actions[i], secondary->actions[i]);
+	}
+	return result;
 }
 
 const nlohmann::json& DefaultMoveJson()
@@ -455,6 +538,7 @@ const nlohmann::json* MoveArrayElementDefaults(const std::string& field)
 		{ "cancels", nlohmann::json(CancelWindowData()) },
 		{ "armor", nlohmann::json(ArmorWindowData()) },
 		{ "invulnerable", nlohmann::json(TimeWindowData()) },
+		{ "grips", nlohmann::json(GripWindowData()) },
 		{ "cues", nlohmann::json(CueData()) },
 	};
 	const auto it = defaults.find(field);

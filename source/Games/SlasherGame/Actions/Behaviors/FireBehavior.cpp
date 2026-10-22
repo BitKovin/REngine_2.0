@@ -6,12 +6,14 @@
 // at the weapon's fire rate while the button is held (automatic) or once per press (semi-automatic). The body
 // faces the aim direction (strafes) and moves at moveSpeed while the move runs; the move sustains while held.
 // With restartOnShot every shot plays the clip from the start - clip n for the weapon's n-th muzzle (0 = clip,
-// n = variants[n - 1]), so akimbo shots alternate their recoil clips.
+// n = variants[n - 1]), so akimbo shots alternate their recoil clips. Without `sustain` the move is one shot: it
+// starts only when the weapon is ready and plays its clip once (the musket); the next press starts it again.
 struct FireParams : MoveBehaviorParams
 {
 	WeaponSlot weapon = WeaponSlot::Secondary;
 	InputButton button = InputButton::Secondary;
 	bool automatic = true;
+	bool sustain = true;
 	float aimTurnRate = 1080.0f;     // deg/s toward the aim direction
 	bool restartOnShot = false;
 	float moveSpeed = 1.0f;          // locomotion speed scale while firing
@@ -19,8 +21,8 @@ struct FireParams : MoveBehaviorParams
 	friend void to_json(nlohmann::json& j, const FireParams& p)
 	{
 		j = nlohmann::json{ { "weapon", p.weapon }, { "button", InputButtonNames[static_cast<size_t>(p.button)] },
-			{ "automatic", p.automatic }, { "aimTurnRate", p.aimTurnRate }, { "restartOnShot", p.restartOnShot },
-			{ "moveSpeed", p.moveSpeed } };
+			{ "automatic", p.automatic }, { "sustain", p.sustain }, { "aimTurnRate", p.aimTurnRate },
+			{ "restartOnShot", p.restartOnShot }, { "moveSpeed", p.moveSpeed } };
 	}
 
 	friend void from_json(const nlohmann::json& j, FireParams& p)
@@ -30,6 +32,7 @@ struct FireParams : MoveBehaviorParams
 		const int button = FindSlotIndex(InputButtonNames, j.value("button", std::string(InputButtonNames[static_cast<size_t>(defaults.button)])));
 		p.button = button < 0 ? InputButton::Count : static_cast<InputButton>(button);
 		p.automatic = j.value("automatic", defaults.automatic);
+		p.sustain = j.value("sustain", defaults.sustain);
 		p.aimTurnRate = j.value("aimTurnRate", defaults.aimTurnRate);
 		p.restartOnShot = j.value("restartOnShot", defaults.restartOnShot);
 		p.moveSpeed = j.value("moveSpeed", defaults.moveSpeed);
@@ -40,6 +43,7 @@ struct FireParams : MoveBehaviorParams
 		if (weapon == WeaponSlot::Count) report.Error(path + ".weapon", "expected Main or Secondary");
 		if (button == InputButton::Count) report.Error(path + ".button", "unknown button");
 		if (moveSpeed < 0.0f || moveSpeed > 1.0f) report.Error(path + ".moveSpeed", "must be in [0, 1]");
+		if (!sustain && restartOnShot) report.Warning(path + ".restartOnShot", "ignored without sustain (one shot per move)");
 		return report.Ok();
 	}
 };
@@ -50,8 +54,12 @@ public:
 	bool CanStart(const CombatCharacter& character, const MoveData& move) const override
 	{
 		const FireParams& params = static_cast<const FireParams&>(*move.behaviorParams);
-		const WeaponData* weapon = character.GetWeapons().GetWeapon(params.weapon);
-		return weapon != nullptr && weapon->kind == WeaponKind::Firearm;
+		const WeaponSet& weapons = character.GetWeapons();
+		const WeaponData* weapon = weapons.GetWeapon(params.weapon);
+		if (weapon == nullptr || weapon->kind != WeaponKind::Firearm)
+			return false;
+		// A one-shot move without a shot would play its recoil for nothing.
+		return params.sustain || weapons.IsReadyToFire(params.weapon);
 	}
 
 	void OnStart(MoveContext& context) override
@@ -61,8 +69,8 @@ public:
 
 		// A weapon drawn by this move has no muzzle in the hands until the next pose: the first shot waits a frame.
 		WeaponSet& weapons = context.Character.GetWeapons();
-		pendingShot = weapons.GetActiveSlot() != params.weapon;
-		weapons.SetActiveSlot(params.weapon);
+		pendingShot = !weapons.IsInHands(params.weapon);
+		weapons.BringOut(params.weapon);
 		if (!pendingShot)
 			TryShoot(context, params);
 	}
@@ -82,6 +90,9 @@ public:
 			return;
 		}
 
+		if (!params.sustain)
+			return;   // one shot per move
+
 		const ButtonState& button = character.GetInput().Get(params.button);
 		const bool wantsShot = params.automatic ? button.held : button.pressId != lastShotPressId;
 		if (wantsShot)
@@ -94,7 +105,7 @@ public:
 	bool Sustains(const MoveContext& context) const override
 	{
 		const FireParams& params = context.GetParams<FireParams>();
-		return context.Character.GetInput().Get(params.button).held;
+		return params.sustain && context.Character.GetInput().Get(params.button).held;
 	}
 
 private:
@@ -113,7 +124,7 @@ private:
 		}
 
 		const int muzzle = weapons.Fire(params.weapon, character.GetAimPoint());
-		if (muzzle >= 0 && params.restartOnShot)
+		if (muzzle >= 0 && params.restartOnShot && params.sustain)
 			context.Runner.RestartClip(context.Move, muzzle);
 	}
 };

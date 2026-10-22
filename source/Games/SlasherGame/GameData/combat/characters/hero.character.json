@@ -4,7 +4,7 @@
 	"team": "Player",
 	"mesh": { "model": "GameData/models/player/player_coat.glb", "hitboxes": false },
 	"locomotion": {
-		"_note": "player_coat has no idle of its own: the scythe model's idle is the character's idle.",
+		"_note": "player_coat has no idle of its own: the scythe model's idle is the character's idle (each melee weapon's stance brings its own).",
 		"idle": "idle",
 		"sources": { "idle": "GameData/models/player/weapons/scythe/scythe.glb" },
 		"runForward": "run",
@@ -35,8 +35,8 @@
 		"quality": "Player"
 	},
 	"weapons": {
-		"Main": "GameData/combat/weapons/scythe.weapon.json",
-		"Secondary": "GameData/combat/weapons/pistols.weapon.json"
+		"Main": ["GameData/combat/weapons/scythe.weapon.json", "GameData/combat/weapons/sword.weapon.json"],
+		"Secondary": ["GameData/combat/weapons/pistols.weapon.json", "GameData/combat/weapons/musket.weapon.json", "GameData/combat/weapons/rifle.weapon.json"]
 	},
 	"ai": {
 		"brain": "Ally",
@@ -46,8 +46,8 @@
 		"comboChance": 0.6,
 		"heavyChance": 0.3,
 		"attacks": [
-			{ "move": "start", "minRange": 0, "maxRange": 2.4, "weight": 3, "cooldown": 1.0, "token": "Melee" },
-			{ "move": "fire", "minRange": 4, "maxRange": 18, "weight": 1, "cooldown": 2.0, "token": "Ranged", "holdTime": 0.8, "holdButton": "Secondary" }
+			{ "slot": "Attack", "minRange": 0, "maxRange": 2.4, "weight": 3, "cooldown": 1.0, "token": "Melee" },
+			{ "slot": "Secondary", "minRange": 4, "maxRange": 18, "weight": 1, "cooldown": 2.0, "token": "Ranged", "holdTime": 0.8, "holdButton": "Secondary" }
 		]
 	},
 	"possession": { "allowed": true, "idleBrain": "Ally" },

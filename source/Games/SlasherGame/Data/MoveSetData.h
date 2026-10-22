@@ -64,7 +64,8 @@ enum class MoveChannel : uint8_t { Invalid, Primary, Overlay };
 SLASHER_JSON_ENUM(MoveChannel, { { MoveChannel::Invalid, nullptr }, { MoveChannel::Primary, "Primary" }, { MoveChannel::Overlay, "Overlay" } })
 
 // Where a move's clip shows:
-//   Full       the whole body
+//   Full       the whole body (an Overlay: its legs hand over to the pose underneath by legWeight as the body runs
+//              or flies - a full-body reload keeps its footwork standing and runs on the move)
 //   NoLegs     the whole body - hips included - with the legs (locomotion.legBones) blended toward the locomotion
 //              pose by the move's legWeight, relative to the clip's hips: air attacks swing the body over the air pose
 //   UpperBody  from locomotion.upperBodyBone up (mesh space), the hips and legs keep locomotion: overlays while running
@@ -300,8 +301,43 @@ struct CueData
 	int trail = -1;              // -1 unchanged, 0 stop weapon trail, 1 start weapon trail
 	WeaponSlot trailWeapon = WeaponSlot::Main;
 	float cameraShake = 0.0f;    // intensity, 0 = none
+	int sheathe = -1;            // -1 unchanged, 1 the Main weapon goes into its sheath (the frame the blade is in), 0 out
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(CueData, time, sound, particle, bone, trail, trailWeapon, cameraShake)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(CueData, time, sound, particle, bone, trail, trailWeapon, cameraShake, sheathe)
+};
+
+// A window where the clip holds its weapon with more hands than the weapon's own (the sword's two-handed swings): parts
+// other hands carry (WeaponMeshData::carried, the scabbard) are hidden meanwhile. Clip seconds; runs on while the move
+// plays out in recovery.
+struct GripWindowData
+{
+	float start = 0.0f;
+	float end = -1.0f;               // < 0: until the clip ends
+	std::vector<WeaponHand> hands = { WeaponHand::Left };
+	WeaponSlot weapon = WeaponSlot::Main;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(GripWindowData, start, end, hands, weapon)
+
+	// Resolved
+	HandMask handMask = 0;
+};
+
+// An additive layer of the move's clip (COMBAT_DESIGN.md §9.1): the clip's difference from its own pose at
+// `referenceTime` is added to the `bones` subtrees (the root bone keeps the pose's) - before the bodyMask layer, which
+// then replaces its own bones with the clip. Overlay moves only. The musket's shot: the left arm takes the clip, the
+// whole body gets its kick (spine, coat).
+struct MoveAdditiveData
+{
+	std::vector<std::string> bones;  // empty: no additive layer
+	PoseSpace space = PoseSpace::Local;
+	float referenceTime = 0.0f;      // clip seconds
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(MoveAdditiveData, bones, space, referenceTime)
+
+	// Resolved
+	std::vector<hashed_string> boneHashes;
+
+	bool IsEnabled() const { return !bones.empty(); }
 };
 
 struct MoveData
@@ -323,7 +359,13 @@ struct MoveData
 	                                     // air pose (the rest keeps the clip's own leg motion)
 	bool airLegs = true;                 // bodyMask Full: in the air the legs blend toward the air pose by legWeight
 	                                     // (false: the clip poses its own air legs - jumps, air dashes)
+	MoveAdditiveData additive;
+	// Space the clip's partial layers blend in - its UpperBody / Bones mask and the upper body of its recovery
+	// hand-over. Default: mesh space at locomotion.upperBodyBone (the torso keeps the clip's facing), local at
+	// limbs. Local keeps the torso on the running hips (a side-on sword stance must not twist off the legs).
+	PoseSpace layerSpace = PoseSpace::Default;
 	OverlayPolicy overlay = OverlayPolicy::Block;   // Block also suspends aiming (the body faces the move, not the aim)
+	bool suspendsAim = false;                       // an Overlay that poses the weapon itself (a spinning reload): no sweep
 	MoveStartState startState = MoveStartState::Ground;
 	MoveEntriesData entry;
 	float endTime = -1.0f;       // < 0: clip length
@@ -335,6 +377,7 @@ struct MoveData
 	std::vector<CancelWindowData> cancels;
 	std::vector<ArmorWindowData> armor;
 	std::vector<TimeWindowData> invulnerable;
+	std::vector<GripWindowData> grips;
 	TrackingData tracking;
 	ReachData reach;
 	RootMotionData rootMotion;
@@ -343,8 +386,8 @@ struct MoveData
 	nlohmann::json params = nlohmann::json::object();
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(MoveData, behavior, clip, variants, animation, speed, loop, loopStart, heavy, tags, channel,
-		bodyMask, maskBones, legWeight, airLegs, overlay, startState, entry, endTime, blendOut, cooldown, hits, combo, hold, cancels,
-		armor, invulnerable, tracking, reach, rootMotion, recovery, cues, params)
+		bodyMask, maskBones, legWeight, airLegs, additive, layerSpace, overlay, suspendsAim, startState, entry, endTime, blendOut,
+		cooldown, hits, combo, hold, cancels, armor, invulnerable, grips, tracking, reach, rootMotion, recovery, cues, params)
 
 	// Resolved
 	std::string id;
@@ -371,6 +414,42 @@ struct MoveData
 	}
 };
 
+// The moves a body starts from its combo and action slots (COMBAT_DESIGN.md §5.2): the moveset's own tables, or - for
+// a body - those with its equipped weapons' entries over them (MoveSetData::BuildTables). -1 = nothing.
+struct MoveTables
+{
+	std::array<int, static_cast<size_t>(ComboSlot::Count)> comboOpeners;
+	std::array<int, static_cast<size_t>(ComboSlot::Count)> holdOpeners;
+	std::array<int, static_cast<size_t>(ActionSlot::Count)> actions;
+
+	MoveTables() { comboOpeners.fill(-1); holdOpeners.fill(-1); actions.fill(-1); }
+
+	int GetComboOpener(ComboSlot slot) const { return comboOpeners[static_cast<size_t>(slot)]; }
+	// The slot whose opener a press starts: AirAttack in the air if there is one, else Attack (one combo for both - its
+	// moves start in the air too, COMBAT_DESIGN.md §5.8).
+	ComboSlot GetOpenerSlot(bool grounded) const
+	{
+		return !grounded && GetComboOpener(ComboSlot::AirAttack) >= 0 ? ComboSlot::AirAttack : ComboSlot::Attack;
+	}
+	int GetHoldOpener(ComboSlot slot) const { return holdOpeners[static_cast<size_t>(slot)]; }
+	int GetActionMove(ActionSlot slot) const { return actions[static_cast<size_t>(slot)]; }
+};
+
+// Moves of one weapon, by its WeaponData::name: while it is equipped its entries replace the moveset's. Combos and
+// hold openers belong to the Main weapon, actions to the slot that owns them (ActionWeaponSlot): the melee weapon's
+// draw, drop, finisher and sheathe, the firearm's fire and reload.
+struct WeaponMovesData
+{
+	std::map<std::string, std::string> combos;
+	std::map<std::string, std::string> holdOpeners;
+	std::map<std::string, std::string> actions;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponMovesData, combos, holdOpeners, actions)
+
+	// Resolved (-1 = keep the moveset's)
+	MoveTables tables;
+};
+
 struct MoveSetData
 {
 	int version = 1;
@@ -386,17 +465,16 @@ struct MoveSetData
 	std::map<std::string, std::string> holdOpeners;   // combo slot -> move started by holding Attack from neutral
 	std::map<std::string, std::string> actions;
 	std::map<std::string, std::string> reactions;
+	std::map<std::string, WeaponMovesData> weaponMoves;   // weapon name -> its moves (over the tables above)
 	std::vector<MoveData> moves;      // serialized as an object { "id": { ... } }
 
 	// Resolved
 	std::string sourcePath;
 	std::unordered_map<std::string, int> moveIndexById;
-	std::array<int, static_cast<size_t>(ComboSlot::Count)> comboOpeners;
-	std::array<int, static_cast<size_t>(ComboSlot::Count)> holdOpenerMoves;
-	std::array<int, static_cast<size_t>(ActionSlot::Count)> actionMoves;
+	MoveTables tables;                // combos, holdOpeners, actions
 	std::array<int, static_cast<size_t>(ReactionSlot::Count)> reactionMoves;
 
-	MoveSetData() { comboOpeners.fill(-1); holdOpenerMoves.fill(-1); actionMoves.fill(-1); reactionMoves.fill(-1); }
+	MoveSetData() { reactionMoves.fill(-1); }
 
 	int FindMove(const std::string& id) const
 	{
@@ -409,16 +487,17 @@ struct MoveSetData
 		return (index >= 0 && index < static_cast<int>(moves.size())) ? &moves[static_cast<size_t>(index)] : nullptr;
 	}
 
-	int GetComboOpener(ComboSlot slot) const { return comboOpeners[static_cast<size_t>(slot)]; }
-	// The slot whose opener a press starts: AirAttack in the air if the moveset has one, else Attack (one combo for
-	// both - its moves start in the air too, COMBAT_DESIGN.md §5.8).
-	ComboSlot GetOpenerSlot(bool grounded) const
-	{
-		return !grounded && GetComboOpener(ComboSlot::AirAttack) >= 0 ? ComboSlot::AirAttack : ComboSlot::Attack;
-	}
-	int GetHoldOpener(ComboSlot slot) const { return holdOpenerMoves[static_cast<size_t>(slot)]; }
-	int GetActionMove(ActionSlot slot) const { return actionMoves[static_cast<size_t>(slot)]; }
+	// The moveset's own tables (without any weapon's moves).
+	int GetComboOpener(ComboSlot slot) const { return tables.GetComboOpener(slot); }
+	ComboSlot GetOpenerSlot(bool grounded) const { return tables.GetOpenerSlot(grounded); }
+	int GetHoldOpener(ComboSlot slot) const { return tables.GetHoldOpener(slot); }
+	int GetActionMove(ActionSlot slot) const { return tables.GetActionMove(slot); }
 	int GetReactionMove(ReactionSlot slot) const { return reactionMoves[static_cast<size_t>(slot)]; }
+
+	// The tables of a body holding these weapons (WeaponData::name; empty or unknown = none): the moveset's, with the
+	// main weapon's combos, hold openers and Main-owned actions and the secondary weapon's Secondary-owned actions over
+	// them.
+	MoveTables BuildTables(const std::string& mainWeapon, const std::string& secondaryWeapon) const;
 
 	// Hidden friends (found by ADL only), like the NLOHMANN macros generate. "moves" is an object keyed by id.
 	friend void to_json(nlohmann::json& j, const MoveSetData& data) { WriteJson(j, data); }

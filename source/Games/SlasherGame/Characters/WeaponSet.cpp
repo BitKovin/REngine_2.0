@@ -53,6 +53,16 @@ namespace
 		if (!name.empty())
 			Entity::PreloadEntityType(name);
 	}
+
+	const WeaponAttachData& Attachment(const WeaponMeshData& mesh, WeaponSet::Presentation presentation)
+	{
+		switch (presentation)
+		{
+		case WeaponSet::Presentation::Hand:     return mesh.hand;
+		case WeaponSet::Presentation::Sheathed: return mesh.sheathed;
+		default:                                return mesh.holster;
+		}
+	}
 }
 
 void WeaponSet::Initialize(CombatCharacter* character)
@@ -65,104 +75,116 @@ void WeaponSet::LoadAssets(const CharacterData& data)
 	SkeletalMesh* body = owner->GetMesh();
 	const roj::FlatSkeleton* bodySkeleton = body && body->model ? &body->model->skeleton : nullptr;
 
-	for (size_t i = 0; i < slots.size(); ++i)
+	for (size_t slotIndex = 0; slotIndex < slots.size(); ++slotIndex)
 	{
-		SlotState& state = slots[i];
-		state.data = data.weaponData[i];
-		state.meshes.clear();
-		if (!state.data)
-			continue;
+		SlotState& slot = slots[slotIndex];
+		slot.weapons.clear();
+		slot.equipped = 0;
 
-		const WeaponData& weapon = *state.data;
-		for (const WeaponMeshData& meshData : weapon.meshes)
+		const auto& list = data.weaponData[slotIndex];
+		for (size_t weaponIndex = 0; weaponIndex < list.size(); ++weaponIndex)
 		{
-			auto* mesh = new WeaponMesh(owner);
-			if (!meshData.textures.empty())
-				mesh->TexturesLocation = meshData.textures;
-			mesh->LoadFromFile(meshData.model);
-			mesh->PreloadAssets();
-			mesh->Visible = false;   // shown once posed
-			owner->Drawables.push_back(mesh);
+			WeaponState state;
+			state.data = list[weaponIndex];
+			state.stanceKey = data.GetWeaponKey(static_cast<WeaponSlot>(slotIndex), weaponIndex);
+			state.sheathedStanceKey = data.GetSheathedStanceKey(static_cast<WeaponSlot>(slotIndex), weaponIndex);
 
-			MeshInstance instance;
-			instance.mesh = mesh;
-			instance.data = &meshData;
-			instance.socketBones.assign(weapon.sockets.size(), hashed_string());
-			instance.socketBind.assign(weapon.sockets.size(), glm::mat4(1.0f));
-			instance.sockets.assign(weapon.sockets.size(), glm::mat4(1.0f));
-
-			if (mesh->model == nullptr)
+			const WeaponData& weapon = *state.data;
+			for (const WeaponMeshData& meshData : weapon.meshes)
 			{
-				Logger::Error("[WeaponSet] %s: could not load weapon model '%s'", weapon.sourcePath.c_str(), meshData.model.c_str());
+				auto* mesh = new WeaponMesh(owner);
+				if (!meshData.textures.empty())
+					mesh->TexturesLocation = meshData.textures;
+				mesh->LoadFromFile(meshData.model);
+				mesh->PreloadAssets();
+				mesh->Visible = false;   // shown once posed
+				owner->Drawables.push_back(mesh);
+
+				MeshInstance instance;
+				instance.mesh = mesh;
+				instance.data = &meshData;
+				instance.socketBones.assign(weapon.sockets.size(), hashed_string());
+				instance.socketBind.assign(weapon.sockets.size(), glm::mat4(1.0f));
+				instance.sockets.assign(weapon.sockets.size(), glm::mat4(1.0f));
+
+				if (mesh->model == nullptr)
+				{
+					Logger::Error("[WeaponSet] %s: could not load weapon model '%s'", weapon.sourcePath.c_str(), meshData.model.c_str());
+				}
+				else
+				{
+					for (size_t socket = 0; socket < weapon.sockets.size(); ++socket)
+					{
+						const hashed_string bone(weapon.sockets[socket]);
+						if (mesh->model->skeleton.findBone(bone) == INVALID_BONE_IDX)
+							continue;
+						instance.socketBones[socket] = bone;
+						// Still in the bind pose here (nothing sampled yet); a Bone mesh stays in it.
+						instance.socketBind[socket] = AnimationPose::GetModelSpaceTransform(bone, mesh->GetRootNode(), mesh->GetAnimationPoseRef());
+					}
+
+					if (meshData.attach == WeaponAttachMode::Rig)
+					{
+						if (bodySkeleton)
+							SetupRig(instance, weapon, *bodySkeleton);
+						else
+							Logger::Error("[WeaponSet] %s: Rig mesh '%s' needs a loaded body model", weapon.sourcePath.c_str(), meshData.model.c_str());
+					}
+				}
+
+				state.meshes.push_back(std::move(instance));
 			}
-			else
+
+			// No meshes: the weapon is part of the character model (an axe or gun modelled into an enemy). Its points use
+			// the body's bones and are posed with it.
+			if (weapon.meshes.empty() && bodySkeleton)
 			{
+				MeshInstance instance;
+				instance.socketBones.assign(weapon.sockets.size(), hashed_string());
+				instance.socketBind.assign(weapon.sockets.size(), glm::mat4(1.0f));
+				instance.sockets.assign(weapon.sockets.size(), glm::mat4(1.0f));
 				for (size_t socket = 0; socket < weapon.sockets.size(); ++socket)
 				{
 					const hashed_string bone(weapon.sockets[socket]);
-					if (mesh->model->skeleton.findBone(bone) == INVALID_BONE_IDX)
-						continue;
-					instance.socketBones[socket] = bone;
-					// Still in the bind pose here (nothing sampled yet); a Bone mesh stays in it.
-					instance.socketBind[socket] = AnimationPose::GetModelSpaceTransform(bone, mesh->GetRootNode(), mesh->GetAnimationPoseRef());
+					if (bodySkeleton->findBone(bone) != INVALID_BONE_IDX)
+						instance.socketBones[socket] = bone;
 				}
-
-				if (meshData.attach == WeaponAttachMode::Rig)
-				{
-					if (bodySkeleton)
-						SetupRig(instance, weapon, *bodySkeleton);
-					else
-						Logger::Error("[WeaponSet] %s: Rig mesh '%s' needs a loaded body model", weapon.sourcePath.c_str(), meshData.model.c_str());
-				}
+				state.meshes.push_back(std::move(instance));
 			}
 
-			state.meshes.push_back(std::move(instance));
-		}
+			if (!weapon.extend.bone.empty() && std::none_of(state.meshes.begin(), state.meshes.end(),
+					[&](const MeshInstance& instance) { return instance.mesh != nullptr && instance.mesh->model != nullptr
+						&& instance.mesh->model->skeleton.findBone(weapon.extend.boneHash) != INVALID_BONE_IDX; }))
+				Logger::Error("[WeaponSet] %s: extend bone '%s' does not exist in the weapon's models", weapon.sourcePath.c_str(), weapon.extend.bone.c_str());
 
-		// No meshes: the weapon is part of the character model (an axe or gun modelled into an enemy). Its points use
-		// the body's bones and are posed with it.
-		if (weapon.meshes.empty() && bodySkeleton)
-		{
-			MeshInstance instance;
-			instance.socketBones.assign(weapon.sockets.size(), hashed_string());
-			instance.socketBind.assign(weapon.sockets.size(), glm::mat4(1.0f));
-			instance.sockets.assign(weapon.sockets.size(), glm::mat4(1.0f));
+			// A mesh may lack a point's bone (akimbo props, one muzzle each); every bone must exist somewhere.
 			for (size_t socket = 0; socket < weapon.sockets.size(); ++socket)
 			{
-				const hashed_string bone(weapon.sockets[socket]);
-				if (bodySkeleton->findBone(bone) != INVALID_BONE_IDX)
-					instance.socketBones[socket] = bone;
+				const bool found = std::any_of(state.meshes.begin(), state.meshes.end(),
+					[socket](const MeshInstance& instance) { return !instance.socketBones[socket].empty(); });
+				if (!found)
+					Logger::Error("[WeaponSet] %s: bone '%s' (blade / muzzle point) does not exist in the weapon's models (the body's, without meshes)",
+						weapon.sourcePath.c_str(), weapon.sockets[socket].c_str());
 			}
-			state.meshes.push_back(std::move(instance));
-		}
 
-		if (!weapon.extend.bone.empty() && std::none_of(state.meshes.begin(), state.meshes.end(),
-				[&](const MeshInstance& instance) { return instance.mesh != nullptr && instance.mesh->model != nullptr
-					&& instance.mesh->model->skeleton.findBone(weapon.extend.boneHash) != INVALID_BONE_IDX; }))
-			Logger::Error("[WeaponSet] %s: extend bone '%s' does not exist in the weapon's models", weapon.sourcePath.c_str(), weapon.extend.bone.c_str());
+			PreloadEffect(weapon.trailParticle);
+			if (weapon.kind == WeaponKind::Firearm)
+			{
+				state.magazine = weapon.firearm.magazine;
+				PreloadEffect(weapon.firearm.muzzleParticle);
+				PreloadEffect(weapon.firearm.projectile.tracer);
+				PreloadEffect(weapon.firearm.projectile.impactParticle);
+			}
 
-		// A mesh may lack a point's bone (akimbo props, one muzzle each); every bone must exist somewhere.
-		for (size_t socket = 0; socket < weapon.sockets.size(); ++socket)
-		{
-			const bool found = std::any_of(state.meshes.begin(), state.meshes.end(),
-				[socket](const MeshInstance& instance) { return !instance.socketBones[socket].empty(); });
-			if (!found)
-				Logger::Error("[WeaponSet] %s: bone '%s' (blade / muzzle point) does not exist in the weapon's models (the body's, without meshes)",
-					weapon.sourcePath.c_str(), weapon.sockets[socket].c_str());
-		}
-
-		PreloadEffect(weapon.trailParticle);
-		if (weapon.kind == WeaponKind::Firearm)
-		{
-			state.magazine = weapon.firearm.magazine;
-			PreloadEffect(weapon.firearm.muzzleParticle);
-			PreloadEffect(weapon.firearm.projectile.tracer);
-			PreloadEffect(weapon.firearm.projectile.impactParticle);
+			slot.weapons.push_back(std::move(state));
 		}
 	}
 
-	// Hand the melee weapon first if there is one.
-	activeSlot = slots[static_cast<size_t>(WeaponSlot::Main)].data ? WeaponSlot::Main : WeaponSlot::Secondary;
+	// The melee weapon in the hands first if there is one; a sheathable one rests in its sheath.
+	secondaryOut = !HasWeapon(WeaponSlot::Main) && HasWeapon(WeaponSlot::Secondary);
+	secondaryLeaving = 0.0f;
+	const WeaponData* main = GetWeapon(WeaponSlot::Main);
+	mainSheathed = main != nullptr && main->CanSheathe();
 }
 
 void WeaponSet::Destroy()
@@ -170,6 +192,187 @@ void WeaponSet::Destroy()
 	StopAllTrails();
 	SyncTrails();
 	pendingShots.clear();
+}
+
+// ---- Equipment -------------------------------------------------------------------------------------------
+
+WeaponSet::WeaponState* WeaponSet::Equipped(WeaponSlot slot)
+{
+	SlotState& state = Slot(slot);
+	return state.equipped < state.weapons.size() ? &state.weapons[state.equipped] : nullptr;
+}
+
+const WeaponSet::WeaponState* WeaponSet::Equipped(WeaponSlot slot) const
+{
+	const SlotState& state = Slot(slot);
+	return state.equipped < state.weapons.size() ? &state.weapons[state.equipped] : nullptr;
+}
+
+const WeaponData* WeaponSet::GetWeapon(WeaponSlot slot) const
+{
+	const WeaponState* state = Equipped(slot);
+	return state ? state->data.get() : nullptr;
+}
+
+int WeaponSet::GetStanceKey(WeaponSlot slot) const
+{
+	const WeaponState* state = Equipped(slot);
+	if (state == nullptr)
+		return -1;
+	if (slot == WeaponSlot::Main && state->sheathedStanceKey >= 0 && GetMainPresentation() == Presentation::Sheathed)
+		return state->sheathedStanceKey;
+	return state->stanceKey;
+}
+
+void WeaponSet::Equip(WeaponSlot slot, size_t index)
+{
+	SlotState& state = Slot(slot);
+	if (index >= state.weapons.size() || index == state.equipped)
+		return;
+
+	if (WeaponState* previous = Equipped(slot))
+	{
+		previous->trailWanted = false;
+		previous->extension = 0.0f;
+	}
+	state.equipped = index;
+
+	const WeaponData& weapon = *state.weapons[index].data;
+	if (slot == WeaponSlot::Main)
+	{
+		mainSheathed = weapon.CanSheathe();
+	}
+	else
+	{
+		secondaryLeaving = 0.0f;
+		if (secondaryOut)
+		{
+			// The new firearm takes the old one's place in the hands - unless it only ever comes out to fire.
+			secondaryOut = !weapon.holsterAfterFire;
+			holster.AddDelay(weapon.holsterDelay);
+		}
+	}
+	FitMainToHands();
+}
+
+// A sheathable Main weapon takes the in-hand state the Secondary weapon leaves free: drawn when the firearm takes its
+// sheath hand (the musket in the left hand), sheathed when it takes its sword hand; both taken, it is put away and
+// comes back sheathed.
+void WeaponSet::FitMainToHands()
+{
+	const WeaponData* main = GetWeapon(WeaponSlot::Main);
+	if (main == nullptr || !main->CanSheathe())
+		return;
+
+	const HandMask busy = BusyHands();
+	const bool drawnFree = (main->handMask & busy) == 0;
+	const bool sheathedFree = (main->sheathedHandMask & busy) == 0;
+	if (mainSheathed && !sheathedFree && drawnFree)
+		mainSheathed = false;
+	else if (!mainSheathed && !drawnFree)
+		mainSheathed = true;
+}
+
+HandMask WeaponSet::BusyHands() const
+{
+	const WeaponData* secondary = secondaryOut ? GetWeapon(WeaponSlot::Secondary) : nullptr;
+	return secondary ? secondary->handMask : 0;
+}
+
+bool WeaponSet::MainFitsBeside() const
+{
+	const WeaponData* main = GetWeapon(WeaponSlot::Main);
+	if (main == nullptr)
+		return false;
+	const HandMask busy = BusyHands();
+	return (main->handMask & busy) == 0 || (main->CanSheathe() && (main->sheathedHandMask & busy) == 0);
+}
+
+bool WeaponSet::IsInHands(WeaponSlot slot) const
+{
+	if (!HasWeapon(slot))
+		return false;
+	return slot == WeaponSlot::Secondary ? secondaryOut : MainFitsBeside();
+}
+
+void WeaponSet::BringOut(WeaponSlot slot)
+{
+	const WeaponData* weapon = GetWeapon(slot);
+	if (weapon == nullptr)
+		return;
+
+	if (slot == WeaponSlot::Main)
+	{
+		secondaryOut = false;
+		return;
+	}
+
+	if (!secondaryOut)
+		holster.AddDelay(weapon->holsterDelay);
+	secondaryOut = true;
+	secondaryLeaving = 0.0f;
+	FitMainToHands();
+}
+
+void WeaponSet::PutAwaySecondary(float fadeSeconds)
+{
+	secondaryLeaving = secondaryOut ? std::max(fadeSeconds, 0.0f) : 0.0f;
+	secondaryOut = false;
+}
+
+bool WeaponSet::IsHolsterDue() const
+{
+	const WeaponData* weapon = GetWeapon(WeaponSlot::Secondary);
+	return secondaryOut && weapon && weapon->holsterDelay > 0.0f && holster.GetRemainTime() <= 0.0;
+}
+
+void WeaponSet::SetSheathed(bool sheathed)
+{
+	const WeaponData* main = GetWeapon(WeaponSlot::Main);
+	mainSheathed = sheathed && main != nullptr && main->CanSheathe();
+}
+
+// The equipped Main weapon drawn or sheathed (FitMainToHands keeps that state's hands free of the Secondary weapon), or
+// holstered while the Secondary weapon takes every hand it could be held with.
+WeaponSet::Presentation WeaponSet::GetMainPresentation() const
+{
+	const WeaponData* main = GetWeapon(WeaponSlot::Main);
+	if (main == nullptr)
+		return Presentation::Holster;
+
+	const HandMask busy = BusyHands();
+	const bool drawnFree = (main->handMask & busy) == 0;
+	const bool sheathedFree = main->CanSheathe() && (main->sheathedHandMask & busy) == 0;
+	if (mainSheathed && sheathedFree)
+		return Presentation::Sheathed;
+	if (drawnFree)
+		return Presentation::Hand;
+	return sheathedFree ? Presentation::Sheathed : Presentation::Holster;
+}
+
+WeaponSet::Presentation WeaponSet::GetPresentation(WeaponSlot slot, size_t index) const
+{
+	if (index != Slot(slot).equipped)
+		return Presentation::Holster;
+	if (slot == WeaponSlot::Main)
+		return GetMainPresentation();
+	return secondaryOut || secondaryLeaving > 0.0f ? Presentation::Hand : Presentation::Holster;
+}
+
+HandMask WeaponSet::CarryingHandsBusy(WeaponSlot slot) const
+{
+	HandMask busy = Slot(slot).gripHands;
+	const WeaponSlot other = slot == WeaponSlot::Main ? WeaponSlot::Secondary : WeaponSlot::Main;
+	const WeaponData* weapon = GetWeapon(other);
+	if (weapon != nullptr)
+	{
+		const Presentation presentation = GetPresentation(other, Slot(other).equipped);
+		if (presentation == Presentation::Hand)
+			busy |= weapon->handMask;
+		else if (presentation == Presentation::Sheathed)
+			busy |= weapon->sheathedHandMask;
+	}
+	return busy;
 }
 
 // ---- Rig weapons (COMBAT_DESIGN.md §9.3) ----------------------------------------------------------------
@@ -180,7 +383,8 @@ void WeaponSet::SetupRig(MeshInstance& instance, const WeaponData& weapon, const
 	const roj::FlatSkeleton& skeleton = instance.mesh->model->skeleton;
 	const AnimationPose bindPose = instance.mesh->GetAnimationPose();   // nothing sampled yet
 
-	// Weapon bones: everything the body skeleton does not have.
+	// Weapon bones: everything the body skeleton does not have. A model skinned to body bones only (a gun in the hand,
+	// a sword and its scabbard) has none - it follows the body pose as it is.
 	instance.rigBones.clear();
 	auto isWeaponBone = [&](uint16_t index) { return bodySkeleton.findBone(skeleton.bones[index].name) == INVALID_BONE_IDX; };
 
@@ -194,12 +398,6 @@ void WeaponSet::SetupRig(MeshInstance& instance, const WeaponData& weapon, const
 		bone.parent = parent != INVALID_BONE_IDX ? skeleton.bones[parent].name : hashed_string();
 		bone.root = parent == INVALID_BONE_IDX || !isWeaponBone(parent);
 		instance.rigBones.push_back(bone);
-	}
-
-	if (instance.rigBones.empty())
-	{
-		Logger::Error("[WeaponSet] %s: Rig model '%s' has no bones beyond the body skeleton", weapon.sourcePath.c_str(), meshData.model.c_str());
-		return;
 	}
 
 	// Body bones the model lacks (a weapon rig without the coat) are fine: the mesh is drawn with the body's pose, and
@@ -227,9 +425,11 @@ void WeaponSet::SetupRig(MeshInstance& instance, const WeaponData& weapon, const
 		}
 	}
 
-	const bool handOk = SampleRest(instance, weapon, meshData.hand, bodySkeleton, bindPose, instance.handRest);
-	const bool holsterOk = SampleRest(instance, weapon, meshData.holster, bodySkeleton, bindPose, instance.holsterRest);
-	instance.rigReady = handOk && holsterOk;
+	bool ok = true;
+	for (Presentation presentation : { Presentation::Hand, Presentation::Sheathed, Presentation::Holster })
+		ok = SampleRest(instance, weapon, Attachment(meshData, presentation), bodySkeleton, bindPose,
+			instance.rests[static_cast<size_t>(presentation)]) && ok;
+	instance.rigReady = ok;
 }
 
 bool WeaponSet::SampleRest(MeshInstance& instance, const WeaponData& weapon, const WeaponAttachData& attach,
@@ -285,27 +485,6 @@ AnimationPose WeaponSet::RigValues(const MeshInstance& instance, const Animation
 	return values;
 }
 
-const WeaponData* WeaponSet::GetWeapon(WeaponSlot slot) const
-{
-	return Slot(slot).data.get();
-}
-
-void WeaponSet::SetActiveSlot(WeaponSlot slot)
-{
-	if (!HasWeapon(slot) || slot == activeSlot)
-		return;
-
-	activeSlot = slot;
-	SlotState& state = Slot(slot);
-	state.holster.AddDelay(state.data->holsterDelay);
-}
-
-bool WeaponSet::IsHolsterDue(WeaponSlot slot) const
-{
-	const SlotState& state = Slot(slot);
-	return state.data && state.data->holsterDelay > 0.0f && state.holster.GetRemainTime() <= 0.0;
-}
-
 // ---- Points ------------------------------------------------------------------------------------------
 
 bool WeaponSet::GetPoint(const MeshInstance& instance, const WeaponPointData& point, glm::vec3& out)
@@ -340,14 +519,14 @@ void WeaponSet::ComputeSamples(const HitWindowData& window, std::vector<glm::vec
 		return;
 	}
 
-	const SlotState& state = Slot(window.weapon);
-	if (!state.data)
+	const WeaponState* state = Equipped(window.weapon);
+	if (state == nullptr)
 		return;
 
-	const BladeData& blade = state.data->blade;
+	const BladeData& blade = state->data->blade;
 	const int count = std::max(2, blade.samples);
 
-	for (const MeshInstance& instance : state.meshes)
+	for (const MeshInstance& instance : state->meshes)
 	{
 		glm::vec3 base, tip;
 		if (!GetPoint(instance, blade.base, base) || !GetPoint(instance, blade.tip, tip))
@@ -400,9 +579,9 @@ void WeaponSet::SweepHitWindow(MoveSlot& slot, int windowIndex)
 		return;
 
 	if (window.bone.empty())
-		SetActiveSlot(window.weapon);
+		BringOut(window.weapon);
 
-	const float radius = window.bone.empty() ? Slot(window.weapon).data->blade.radius : window.radius;
+	const float radius = window.bone.empty() ? GetWeapon(window.weapon)->blade.radius : window.radius;
 	auto ownerTeam = owner->GetTeam();
 	const bool canSweep = state.hasPrevious && state.previousSamples.size() == sampleScratch.size();
 
@@ -496,67 +675,82 @@ void WeaponSet::EmitHit(const MoveSlot& slot, const HitWindowData& window, Entit
 	owner->QueueHit(event);
 }
 
+void WeaponSet::SetExtension(WeaponSlot slot, float meters)
+{
+	if (WeaponState* state = Equipped(slot))
+		state->extension = meters;
+}
+
 void WeaponSet::SetTrail(WeaponSlot slot, bool enabled)
 {
-	Slot(slot).trailWanted = enabled;
+	if (WeaponState* state = Equipped(slot))
+		state->trailWanted = enabled;
 }
 
 void WeaponSet::SyncTrails()
 {
-	for (SlotState& state : slots)
+	for (SlotState& slot : slots)
 	{
-		if (!state.data || state.data->trailParticle.empty())
-			continue;
-
-		if (state.trailWanted && state.trail == nullptr)
+		for (WeaponState& state : slot.weapons)
 		{
-			Entity* entity = LevelObjectFactory::instance().create(state.data->trailParticle);
-			auto* trail = dynamic_cast<particle_system_meleeTrail*>(entity);
-			if (trail == nullptr)
-			{
-				delete entity;
-				Logger::Error("[WeaponSet] trail effect '%s' is not a melee trail system", state.data->trailParticle.c_str());
-				state.trailWanted = false;   // reported once per request
+			if (state.data->trailParticle.empty())
 				continue;
-			}
 
-			state.trail = trail;
-			PlaceTrail(state);              // before its first frame
-			trail->Start();
-			Level::Current->AddEntity(trail);
-			trail->LoadAssetsIfNeeded();    // already preloaded in LoadAssets: no file access here
-		}
-		else if (!state.trailWanted && state.trail != nullptr)
-		{
-			state.trail->StopAll();
-			state.trail->DestroyWithDelay(1.0f);
-			state.trail = nullptr;
+			if (state.trailWanted && state.trail == nullptr)
+			{
+				Entity* entity = LevelObjectFactory::instance().create(state.data->trailParticle);
+				auto* trail = dynamic_cast<particle_system_meleeTrail*>(entity);
+				if (trail == nullptr)
+				{
+					delete entity;
+					Logger::Error("[WeaponSet] trail effect '%s' is not a melee trail system", state.data->trailParticle.c_str());
+					state.trailWanted = false;   // reported once per request
+					continue;
+				}
+
+				state.trail = trail;
+				PlaceTrail(state);              // before its first frame
+				trail->Start();
+				Level::Current->AddEntity(trail);
+				trail->LoadAssetsIfNeeded();    // already preloaded in LoadAssets: no file access here
+			}
+			else if (!state.trailWanted && state.trail != nullptr)
+			{
+				state.trail->StopAll();
+				state.trail->DestroyWithDelay(1.0f);
+				state.trail = nullptr;
+			}
 		}
 	}
 }
 
 void WeaponSet::StopAllTrails()
 {
-	for (size_t i = 0; i < slots.size(); ++i)
-		SetTrail(static_cast<WeaponSlot>(i), false);
+	for (SlotState& slot : slots)
+		for (WeaponState& state : slot.weapons)
+			state.trailWanted = false;
 }
 
 // ---- Firearms ----------------------------------------------------------------------------------------
 
 void WeaponSet::Tick(float deltaTime)
 {
-	for (SlotState& state : slots)
+	secondaryLeaving = std::max(secondaryLeaving - deltaTime, 0.0f);
+	for (SlotState& slot : slots)
 	{
-		if (state.fireCooldown > 0.0f)
-			state.fireCooldown -= deltaTime;
-
-		if (state.reloadRemaining > 0.0f)
+		for (WeaponState& state : slot.weapons)
 		{
-			state.reloadRemaining -= deltaTime;
-			if (state.reloadRemaining <= 0.0f && state.data)
+			if (state.fireCooldown > 0.0f)
+				state.fireCooldown -= deltaTime;
+
+			if (state.reloadRemaining > 0.0f)
 			{
-				state.reloadRemaining = 0.0f;
-				state.magazine = state.data->firearm.magazine;
+				state.reloadRemaining -= deltaTime;
+				if (state.reloadRemaining <= 0.0f)
+				{
+					state.reloadRemaining = 0.0f;
+					state.magazine = state.data->firearm.magazine;
+				}
 			}
 		}
 	}
@@ -564,35 +758,36 @@ void WeaponSet::Tick(float deltaTime)
 
 bool WeaponSet::IsReadyToFire(WeaponSlot slot) const
 {
-	const SlotState& state = Slot(slot);
-	if (!state.data || state.data->kind != WeaponKind::Firearm)
+	const WeaponState* state = Equipped(slot);
+	if (state == nullptr || state->data->kind != WeaponKind::Firearm)
 		return false;
-	if (state.fireCooldown > 0.0f || state.reloadRemaining > 0.0f)
+	if (state->fireCooldown > 0.0f || state->reloadRemaining > 0.0f)
 		return false;
-	return state.data->firearm.magazine == 0 || state.magazine > 0;
+	return state->data->firearm.magazine == 0 || state->magazine > 0;
 }
 
 bool WeaponSet::IsReloading(WeaponSlot slot) const
 {
-	return Slot(slot).reloadRemaining > 0.0f;
+	const WeaponState* state = Equipped(slot);
+	return state != nullptr && state->reloadRemaining > 0.0f;
 }
 
 int WeaponSet::GetMagazine(WeaponSlot slot) const
 {
-	const SlotState& state = Slot(slot);
-	if (!state.data || state.data->firearm.magazine == 0)
+	const WeaponState* state = Equipped(slot);
+	if (state == nullptr || state->data->firearm.magazine == 0)
 		return -1;
-	return state.magazine;
+	return state->magazine;
 }
 
 bool WeaponSet::StartReload(WeaponSlot slot)
 {
-	SlotState& state = Slot(slot);
-	if (!state.data || state.data->kind != WeaponKind::Firearm || state.data->firearm.magazine == 0)
+	WeaponState* state = Equipped(slot);
+	if (state == nullptr || state->data->kind != WeaponKind::Firearm || state->data->firearm.magazine == 0)
 		return false;
-	if (state.reloadRemaining > 0.0f || state.magazine == state.data->firearm.magazine)
+	if (state->reloadRemaining > 0.0f || state->magazine == state->data->firearm.magazine)
 		return false;
-	state.reloadRemaining = state.data->firearm.reloadTime;
+	state->reloadRemaining = state->data->firearm.reloadTime;
 	return true;
 }
 
@@ -601,7 +796,7 @@ int WeaponSet::Fire(WeaponSlot slot, const glm::vec3& aimPoint)
 	if (!IsReadyToFire(slot))
 		return -1;
 
-	SlotState& state = Slot(slot);
+	WeaponState& state = *Equipped(slot);
 	const FirearmData& firearm = state.data->firearm;
 
 	// The shot cycle: every muzzle of every mesh. Muzzles that are not posed (hidden mesh, bone missing in that
@@ -625,14 +820,15 @@ int WeaponSet::Fire(WeaponSlot slot, const glm::vec3& aimPoint)
 	glm::vec3 direction = aimPoint - muzzle;
 	direction = glm::dot(direction, direction) > 1e-6f ? glm::normalize(direction) : owner->GetForward();
 
-	pendingShots.push_back({ slot, muzzle, direction });
+	pendingShots.push_back({ state.data, muzzle, direction });
 
 	state.fireCooldown = 1.0f / firearm.fireRate;
 	if (firearm.magazine > 0 && --state.magazine <= 0)
 		StartReload(slot);
 
-	SetActiveSlot(slot);
-	state.holster.AddDelay(state.data->holsterDelay);
+	BringOut(slot);
+	if (slot == WeaponSlot::Secondary)
+		holster.AddDelay(state.data->holsterDelay);
 	return shot;
 }
 
@@ -640,13 +836,9 @@ void WeaponSet::FlushShots()
 {
 	for (const PendingShot& shot : pendingShots)
 	{
-		const SlotState& state = Slot(shot.slot);
-		if (!state.data)
-			continue;
-
-		const FirearmData& firearm = state.data->firearm;
+		const FirearmData& firearm = shot.weapon->firearm;
 		for (int i = 0; i < firearm.pellets; ++i)
-			Projectile::Spawn(state.data, *owner, shot.muzzle, ApplySpread(shot.direction, firearm.spread));
+			Projectile::Spawn(shot.weapon, *owner, shot.muzzle, ApplySpread(shot.direction, firearm.spread));
 
 		if (!firearm.fireSound.empty())
 			SoundPlayer::PlayOneshot(firearm.fireSound, 2.0f, 1.0f, false, shot.muzzle);
@@ -662,50 +854,62 @@ void WeaponSet::FlushShots()
 
 void WeaponSet::AsyncUpdate(SkeletalMesh& body, const AnimationPose& bodyPose, const CharacterAnimator::WeaponDrive& drive, float deltaTime)
 {
-	for (size_t i = 0; i < slots.size(); ++i)
+	for (size_t slotIndex = 0; slotIndex < slots.size(); ++slotIndex)
 	{
-		SlotState& state = slots[i];
-		const bool inHands = static_cast<WeaponSlot>(i) == activeSlot;
-
-		for (MeshInstance& instance : state.meshes)
+		SlotState& slot = slots[slotIndex];
+		const HandMask carryingBusy = CarryingHandsBusy(static_cast<WeaponSlot>(slotIndex));
+		for (size_t weaponIndex = 0; weaponIndex < slot.weapons.size(); ++weaponIndex)
 		{
-			if (instance.mesh == nullptr)
-			{
-				PoseBuiltIn(instance, body, bodyPose);
-				continue;
-			}
+			WeaponState& state = slot.weapons[weaponIndex];
+			const Presentation presentation = GetPresentation(static_cast<WeaponSlot>(slotIndex), weaponIndex);
+			const HandMask busy = presentation == Presentation::Hand ? carryingBusy : 0;
 
-			const WeaponMeshData& meshData = *instance.data;
-			const WeaponAttachData& attach = inHands ? meshData.hand : meshData.holster;
-
-			bool show = visible && (inHands || meshData.visibleWhenHolstered) && instance.mesh->model != nullptr;
-			if (meshData.attach == WeaponAttachMode::Bone)
+			for (MeshInstance& instance : state.meshes)
 			{
-				show = show && !attach.bone.empty();
-				if (show)
-					PlaceBoneMesh(instance, attach, body);
-			}
-			else if (show)
-			{
-				PoseRigMesh(instance, inHands, state.extension, body, bodyPose, drive, deltaTime);
-				show = instance.hasTransform;
-			}
-			else
-			{
-				instance.state = -1;   // hidden: snap to the current pose when shown again
-			}
+				if (instance.mesh == nullptr)
+				{
+					PoseBuiltIn(instance, body, bodyPose);
+					continue;
+				}
 
-			if (!show)
-				instance.hasTransform = false;
+				const WeaponMeshData& meshData = *instance.data;
+				const WeaponAttachData& attach = Attachment(meshData, presentation);
 
-			instance.mesh->Visible = show;
+				bool show = visible && (presentation != Presentation::Holster || meshData.visibleWhenHolstered) && instance.mesh->model != nullptr;
+				if (meshData.attach == WeaponAttachMode::Bone)
+				{
+					show = show && !attach.bone.empty();
+					if (show)
+						PlaceBoneMesh(instance, attach, body);
+				}
+				else if (show)
+				{
+					PoseRigMesh(instance, presentation, state.stanceKey, state.extension, body, bodyPose, drive, deltaTime);
+					show = instance.hasTransform;
+				}
+				else
+				{
+					instance.state = -1;   // hidden: snap to the current pose when shown again
+				}
 
-			// Meshes of the model that belong to the other state (the in-hand vs the holstered copy).
-			const int hideState = inHands ? 1 : 0;
-			if (show && instance.hideState != hideState)
-			{
-				instance.hideState = hideState;
-				instance.mesh->MeshHideList = std::unordered_set<std::string>(attach.hide.begin(), attach.hide.end());
+				if (!show)
+					instance.hasTransform = false;
+
+				instance.mesh->Visible = show;
+
+				// Meshes of the model that belong to another state (the in-hand vs the sheathed or holstered copy), and the
+				// parts a hand carries while it holds something else (the scabbard during a two-handed swing).
+				const int hideState = static_cast<int>(presentation);
+				if (show && (instance.hideState != hideState || instance.hideBusyHands != busy))
+				{
+					instance.hideState = hideState;
+					instance.hideBusyHands = busy;
+					std::unordered_set<std::string> hide(attach.hide.begin(), attach.hide.end());
+					for (const WeaponCarriedData& carried : meshData.carried)
+						if ((busy & HandBit(carried.hand)) != 0)
+							hide.insert(carried.meshes.begin(), carried.meshes.end());
+					instance.mesh->MeshHideList = std::move(hide);
+				}
 			}
 		}
 	}
@@ -736,8 +940,8 @@ void WeaponSet::PlaceBoneMesh(MeshInstance& instance, const WeaponAttachData& at
 	instance.hasTransform = true;
 }
 
-void WeaponSet::PoseRigMesh(MeshInstance& instance, bool inHands, float extension, SkeletalMesh& body, const AnimationPose& bodyPose,
-	const CharacterAnimator::WeaponDrive& drive, float deltaTime)
+void WeaponSet::PoseRigMesh(MeshInstance& instance, Presentation presentation, int stanceKey, float extension, SkeletalMesh& body,
+	const AnimationPose& bodyPose, const CharacterAnimator::WeaponDrive& drive, float deltaTime)
 {
 	WeaponMesh& mesh = *instance.mesh;
 	if (!instance.rigReady || bodyPose.boneTransforms.empty())
@@ -746,15 +950,18 @@ void WeaponSet::PoseRigMesh(MeshInstance& instance, bool inHands, float extensio
 		return;
 	}
 
-	const RigRest& rest = inHands ? instance.handRest : instance.holsterRest;
+	const bool inHands = presentation == Presentation::Hand;
+	const RigRest& rest = instance.rests[static_cast<size_t>(presentation)];
 
-	// ---- Target: the rest pose, pulled toward the clips driving the body while in the hands ----
+	// ---- Target: the rest pose, pulled toward the clips driving the body while in the hands. A clip of another
+	// weapon's model does not drive this one (a weapon bone of the same name means something else there). ----
 	AnimationPose target = rest.values;
-	if (inHands)
+	if (inHands && !instance.rigBones.empty())
 	{
-		if (drive.move && drive.moveWeight > 0.001f)
+		auto drives = [stanceKey](int clipWeapon) { return clipWeapon < 0 || clipWeapon == stanceKey; };
+		if (drive.move && drive.moveWeight > 0.001f && drives(drive.moveWeapon))
 			target = AnimationPose::Lerp(target, RigValues(instance, *drive.move, rest.follow, &rest.values), drive.moveWeight);
-		if (drive.overlay && drive.overlayWeight > 0.001f)
+		if (drive.overlay && drive.overlayWeight > 0.001f && drives(drive.overlayWeapon))
 			target = AnimationPose::Lerp(target, RigValues(instance, *drive.overlay, rest.follow, &rest.values), drive.overlayWeight);
 
 		// Reach: the extend bone moves out along its axis. On the target, so a move taking over blends the length to
@@ -769,12 +976,12 @@ void WeaponSet::PoseRigMesh(MeshInstance& instance, bool inHands, float extensio
 	}
 
 	// ---- Transitions: when another clip takes over, cross-fade from the last output (like the body) ----
-	const int state = inHands ? 1 : 0;
+	const int state = static_cast<int>(presentation);
 	const uint32_t driveSerial = inHands ? drive.moveSerial : 0;
 
 	if (instance.state != state)
 	{
-		// First pose, or hands <-> holster: the value spaces differ, snap.
+		// First pose, or another attachment state: the value spaces differ, snap.
 		instance.state = state;
 		instance.driveSerial = driveSerial;
 		instance.fadeDuration = 0.0f;
@@ -840,13 +1047,14 @@ void WeaponSet::PoseRigMesh(MeshInstance& instance, bool inHands, float extensio
 void WeaponSet::LateUpdate()
 {
 	SyncTrails();
-	for (SlotState& state : slots)
-		PlaceTrail(state);
+	for (SlotState& slot : slots)
+		for (WeaponState& state : slot.weapons)
+			PlaceTrail(state);
 }
 
-void WeaponSet::PlaceTrail(SlotState& state)
+void WeaponSet::PlaceTrail(WeaponState& state)
 {
-	if (state.trail == nullptr || !state.data || state.meshes.empty())
+	if (state.trail == nullptr || state.meshes.empty())
 		return;
 
 	// The ribbon spans the outer part of the blade, from trailStart to the tip.

@@ -129,6 +129,8 @@ private:
 		Input::AddAction("attack")->AddMouseButton(MouseButton::Left)->AddButton(GamepadButton::X);
 		Input::AddAction("attack2")->AddMouseButton(MouseButton::Right)->AddButton(GamepadButton::RightTrigger);
 		Input::AddAction("finisher")->AddKeyboardKey(SDL_KeyCode::SDLK_e)->AddButton(GamepadButton::Y);
+		Input::AddAction("switch_melee")->AddKeyboardKey(SDL_KeyCode::SDLK_x)->AddButton(GamepadButton::DPadLeft);
+		Input::AddAction("switch_firearm")->AddKeyboardKey(SDL_KeyCode::SDLK_c)->AddButton(GamepadButton::DPadRight);
 
 		Input::AddAction("interact")->AddKeyboardKey(SDL_KeyCode::SDLK_f);
 		Input::AddAction("possess")->AddKeyboardKey(SDL_KeyCode::SDLK_q)->AddButton(GamepadButton::LeftShoulder);
@@ -159,6 +161,8 @@ private:
 		InputActionRegistry::Register("attack", "${INPUT_ACTION_ATTACK}", "${INPUT_CATEGORY_COMBAT}");
 		InputActionRegistry::Register("attack2", "${INPUT_ACTION_FIRE}", "${INPUT_CATEGORY_COMBAT}");
 		InputActionRegistry::Register("finisher", "${INPUT_ACTION_FINISHER}", "${INPUT_CATEGORY_COMBAT}");
+		InputActionRegistry::Register("switch_melee", "${INPUT_ACTION_SWITCH_MELEE}", "${INPUT_CATEGORY_COMBAT}");
+		InputActionRegistry::Register("switch_firearm", "${INPUT_ACTION_SWITCH_FIREARM}", "${INPUT_CATEGORY_COMBAT}");
 		InputActionRegistry::Register("possess", "${INPUT_ACTION_POSSESS}", "${INPUT_CATEGORY_COMBAT}");
 		InputActionRegistry::Register("interact", "${INPUT_ACTION_INTERACT}", "${INPUT_CATEGORY_GENERAL}");
 	}

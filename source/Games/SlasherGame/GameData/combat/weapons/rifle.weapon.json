@@ -1,0 +1,44 @@
+{
+	"version": 1,
+	"name": "rifle",
+	"hudLabel": "Rifle",
+	"kind": "Firearm",
+	"_note": "Automatic rifle held with both hands (the left one supports the barrel in the sweep), so the melee weapon is put away while it is out. No fire clip yet: firing holds the aimed sweep pose (rifle_fire is clip-less - give it a clip when one exists). An empty magazine plays the reload clip (rifle_reload) on the whole body - it spins on its root bone; reloadTime matches it. Skinned to hand_r (no weapon bones): the muzzle is a point in hand_r space (model units, cm). The sweep aims from 90 deg up (first frame) to 90 deg down (last frame).",
+	"meshes": [
+		{
+			"model": "GameData/models/player/weapons/rifle/rifle.glb",
+			"attach": "Rig",
+			"visibleWhenHolstered": false
+		}
+	],
+	"hands": ["Right", "Left"],
+	"stance": {
+		"holdBones": ["spine_01"],
+		"holdOverMoves": true,
+		"handBones": ["hand_r", "hand_l"],
+		"sweep": { "clip": "sweep", "bones": ["spine_01"], "space": "Mesh", "startPitch": 90, "endPitch": -90 },
+		"aimTurnRate": 900,
+		"blend": 0.15
+	},
+	"holsterDelay": 2.0,
+	"firearm": {
+		"fireRate": 10,
+		"magazine": 30,
+		"reloadTime": 1.33,
+		"spread": 1.2,
+		"pellets": 1,
+		"muzzles": [ { "bone": "hand_r", "offset": { "x": -69.0, "y": -15.8, "z": 6.1 } } ],
+		"noiseRadius": 35,
+		"projectile": {
+			"speed": 220,
+			"radius": 0.03,
+			"maxDistance": 140,
+			"damage": 5,
+			"poiseDamage": 1,
+			"weakPointDamage": 11,
+			"reaction": "None",
+			"tracer": "bullet_trail",
+			"impactParticle": "hit_flesh"
+		}
+	}
+}
