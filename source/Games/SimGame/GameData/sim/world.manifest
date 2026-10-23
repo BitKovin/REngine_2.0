@@ -1,0 +1,5 @@
+# World nav manifest: one map per line (GameData/maps), the first is the layout root.
+sim_test_a.bsp
+sim_test_road.bsp
+sim_test_b.bsp
+sim_test_c.bsp

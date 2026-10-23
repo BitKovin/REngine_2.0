@@ -92,4 +92,119 @@
       <Filter>UI\Pause</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Sim">
+      <UniqueIdentifier>{9869d6ef-7e62-5b1e-9638-21c2eac76e13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sim\Bridge">
+      <UniqueIdentifier>{6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sim\Core">
+      <UniqueIdentifier>{fd0ee9cc-3544-583a-84f6-6ea8dda61c6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sim\Nav">
+      <UniqueIdentifier>{d3e756fd-a758-59e5-b0df-be0ae6d7bb6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sim\Tests">
+      <UniqueIdentifier>{bf574409-4373-5de5-9013-0078024c3f42}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Sim\Bridge\SimMapEntities.cpp">
+      <Filter>Sim\Bridge</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bridge\SimMapEntities.h">
+      <Filter>Sim\Bridge</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Bridge\SimNavBaker.cpp">
+      <Filter>Sim\Bridge</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bridge\SimNavBaker.h">
+      <Filter>Sim\Bridge</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Core\SimHost.cpp">
+      <Filter>Sim\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Core\SimScheduler.cpp">
+      <Filter>Sim\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Core\SimServer.cpp">
+      <Filter>Sim\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Core\SimTypeRegistry.cpp">
+      <Filter>Sim\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Core\SimWorld.cpp">
+      <Filter>Sim\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Nav\NavTileData.cpp">
+      <Filter>Sim\Nav</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Nav\WorldNav.cpp">
+      <Filter>Sim\Nav</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Nav\WorldNavBake.cpp">
+      <Filter>Sim\Nav</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Nav\WorldNavData.cpp">
+      <Filter>Sim\Nav</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Tests\SimKernelTests.cpp">
+      <Filter>Sim\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Tests\SimNavTests.cpp">
+      <Filter>Sim\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Tests\SimSelfTests.cpp">
+      <Filter>Sim\Tests</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Core\LazyValue.h">
+      <Filter>Sim\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Core\SimArchive.h">
+      <Filter>Sim\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Core\SimEventLog.h">
+      <Filter>Sim\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Core\SimHost.h">
+      <Filter>Sim\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Core\SimRandom.h">
+      <Filter>Sim\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Core\SimScheduler.h">
+      <Filter>Sim\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Core\SimServer.h">
+      <Filter>Sim\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Core\SimTypeRegistry.h">
+      <Filter>Sim\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Core\SimTypes.h">
+      <Filter>Sim\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Core\SimWorld.h">
+      <Filter>Sim\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Nav\NavTileData.h">
+      <Filter>Sim\Nav</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Nav\WorldNav.h">
+      <Filter>Sim\Nav</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Nav\WorldNavBake.h">
+      <Filter>Sim\Nav</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Nav\WorldNavData.h">
+      <Filter>Sim\Nav</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Tests\SimSelfTests.h">
+      <Filter>Sim\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Tests\SimTestFramework.h">
+      <Filter>Sim\Tests</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

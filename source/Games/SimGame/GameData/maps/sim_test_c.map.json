@@ -1,0 +1,1104 @@
+{
+  "entities": [
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "brushes": [
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/floor_grey_a"
+            }
+          ],
+          "id": "b1",
+          "op": "add",
+          "vertices": [
+            [
+              -12,
+              -1,
+              -12
+            ],
+            [
+              12,
+              -1,
+              -12
+            ],
+            [
+              12,
+              0,
+              -12
+            ],
+            [
+              -12,
+              0,
+              -12
+            ],
+            [
+              -12,
+              -1,
+              12
+            ],
+            [
+              12,
+              -1,
+              12
+            ],
+            [
+              12,
+              0,
+              12
+            ],
+            [
+              -12,
+              0,
+              12
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            }
+          ],
+          "id": "b2",
+          "op": "add",
+          "vertices": [
+            [
+              -12,
+              0,
+              -12
+            ],
+            [
+              12,
+              0,
+              -12
+            ],
+            [
+              12,
+              3.4,
+              -12
+            ],
+            [
+              -12,
+              3.4,
+              -12
+            ],
+            [
+              -12,
+              0,
+              12
+            ],
+            [
+              12,
+              0,
+              12
+            ],
+            [
+              12,
+              3.4,
+              12
+            ],
+            [
+              -12,
+              3.4,
+              12
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/floor_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            }
+          ],
+          "id": "b3",
+          "op": "subtract",
+          "vertices": [
+            [
+              -10,
+              0,
+              -10
+            ],
+            [
+              10,
+              0,
+              -10
+            ],
+            [
+              10,
+              3,
+              -10
+            ],
+            [
+              -10,
+              3,
+              -10
+            ],
+            [
+              -10,
+              0,
+              10
+            ],
+            [
+              10,
+              0,
+              10
+            ],
+            [
+              10,
+              3,
+              10
+            ],
+            [
+              -10,
+              3,
+              10
+            ]
+          ]
+        }
+      ],
+      "classname": "worldspawn",
+      "id": "e_worldspawn",
+      "keyvalues": {
+        "_sky_auto": "box",
+        "_sky_texture": "env/skybox1_cube"
+      },
+      "origin": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "brushes": [
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "common/trigger"
+            }
+          ],
+          "id": "b11",
+          "op": "add",
+          "vertices": [
+            [
+              -10,
+              0,
+              -1.5
+            ],
+            [
+              -7,
+              0,
+              -1.5
+            ],
+            [
+              -7,
+              3,
+              -1.5
+            ],
+            [
+              -10,
+              3,
+              -1.5
+            ],
+            [
+              -10,
+              0,
+              1.5
+            ],
+            [
+              -7,
+              0,
+              1.5
+            ],
+            [
+              -7,
+              3,
+              1.5
+            ],
+            [
+              -10,
+              3,
+              1.5
+            ]
+          ]
+        }
+      ],
+      "classname": "sim_portal",
+      "id": "e10",
+      "keyvalues": {
+        "targetLevel": "sim_test_b.bsp",
+        "targetSpawn": "from_c",
+        "targetname": "to_b"
+      },
+      "origin": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "brushes": [
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b8",
+          "op": "add",
+          "vertices": [
+            [
+              3.4,
+              0,
+              3.4
+            ],
+            [
+              4.6,
+              0,
+              3.4
+            ],
+            [
+              4.6,
+              1.2,
+              3.4
+            ],
+            [
+              3.4,
+              1.2,
+              3.4
+            ],
+            [
+              3.4,
+              0,
+              4.6
+            ],
+            [
+              4.6,
+              0,
+              4.6
+            ],
+            [
+              4.6,
+              1.2,
+              4.6
+            ],
+            [
+              3.4,
+              1.2,
+              4.6
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b9",
+          "op": "add",
+          "vertices": [
+            [
+              4.8999999999999995,
+              0,
+              3.6
+            ],
+            [
+              5.7,
+              0,
+              3.6
+            ],
+            [
+              5.7,
+              0.8,
+              3.6
+            ],
+            [
+              4.8999999999999995,
+              0.8,
+              3.6
+            ],
+            [
+              4.8999999999999995,
+              0,
+              4.4
+            ],
+            [
+              5.7,
+              0,
+              4.4
+            ],
+            [
+              5.7,
+              0.8,
+              4.4
+            ],
+            [
+              4.8999999999999995,
+              0.8,
+              4.4
+            ]
+          ]
+        }
+      ],
+      "classname": "func_detail",
+      "id": "e_detail",
+      "keyvalues": {},
+      "origin": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "classname": "light_point",
+      "id": "e4",
+      "keyvalues": {
+        "brightness": "3",
+        "color": "1 0.9 0.7",
+        "radius": "12"
+      },
+      "origin": [
+        -5,
+        2.4,
+        -5
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "classname": "light_point",
+      "id": "e5",
+      "keyvalues": {
+        "brightness": "3",
+        "color": "1 0.9 0.7",
+        "radius": "12"
+      },
+      "origin": [
+        5,
+        2.4,
+        -5
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "classname": "light_point",
+      "id": "e6",
+      "keyvalues": {
+        "brightness": "3",
+        "color": "1 0.9 0.7",
+        "radius": "12"
+      },
+      "origin": [
+        -5,
+        2.4,
+        5
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "classname": "light_point",
+      "id": "e7",
+      "keyvalues": {
+        "brightness": "3",
+        "color": "1 0.9 0.7",
+        "radius": "12"
+      },
+      "origin": [
+        5,
+        2.4,
+        5
+      ]
+    },
+    {
+      "angles": [
+        0,
+        90,
+        0
+      ],
+      "classname": "sim_spawn",
+      "id": "e12",
+      "keyvalues": {
+        "angle": "0",
+        "targetname": "from_b"
+      },
+      "origin": [
+        -5.5,
+        0.6,
+        0
+      ]
+    },
+    {
+      "brushes": [
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "projection": {
+                "rotate": 0,
+                "scale": [
+                  2,
+                  2
+                ],
+                "shift": [
+                  -4.5,
+                  -1.75
+                ]
+              },
+              "texture": "FPSTextures/BigWall_02",
+              "uvs": [
+                [
+                  0.25,
+                  -0.25
+                ],
+                [
+                  0,
+                  -0.25
+                ],
+                [
+                  0,
+                  1
+                ],
+                [
+                  0.25,
+                  1
+                ]
+              ]
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "projection": {
+                "rotate": 0,
+                "scale": [
+                  2,
+                  2
+                ],
+                "shift": [
+                  4.75,
+                  -1.75
+                ]
+              },
+              "texture": "FPSTextures/BigWall_02",
+              "uvs": [
+                [
+                  0,
+                  -0.25
+                ],
+                [
+                  0,
+                  1
+                ],
+                [
+                  0.25,
+                  1
+                ],
+                [
+                  0.25,
+                  -0.25
+                ]
+              ]
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "projection": {
+                "rotate": 0,
+                "scale": [
+                  2,
+                  2
+                ],
+                "shift": [
+                  -4.5,
+                  1
+                ]
+              },
+              "texture": "FPSTextures/BigWall_02",
+              "uvs": [
+                [
+                  0.25,
+                  1
+                ],
+                [
+                  0.25,
+                  -0.25
+                ],
+                [
+                  0,
+                  -0.25
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "projection": {
+                "rotate": 0,
+                "scale": [
+                  2,
+                  2
+                ],
+                "shift": [
+                  4.75,
+                  1
+                ]
+              },
+              "texture": "FPSTextures/BigWall_02",
+              "uvs": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  0.25,
+                  1
+                ],
+                [
+                  0.25,
+                  -0.25
+                ],
+                [
+                  0,
+                  -0.25
+                ]
+              ]
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "projection": {
+                "rotate": 0,
+                "scale": [
+                  2,
+                  2
+                ],
+                "shift": [
+                  -1.5,
+                  1
+                ]
+              },
+              "texture": "FPSTextures/BigWall_02",
+              "uvs": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  1.25,
+                  1
+                ],
+                [
+                  1.25,
+                  -0.25
+                ],
+                [
+                  0,
+                  -0.25
+                ]
+              ]
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "projection": {
+                "rotate": 0,
+                "scale": [
+                  2,
+                  2
+                ],
+                "shift": [
+                  2.75,
+                  1
+                ]
+              },
+              "texture": "FPSTextures/BigWall_02",
+              "uvs": [
+                [
+                  1.25,
+                  1
+                ],
+                [
+                  1.25,
+                  -0.25
+                ],
+                [
+                  0,
+                  -0.25
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            }
+          ],
+          "id": "b_e7d73b62",
+          "op": "add",
+          "vertices": [
+            [
+              -10,
+              0,
+              -1.5
+            ],
+            [
+              -10,
+              0,
+              1
+            ],
+            [
+              -9.5,
+              0,
+              1
+            ],
+            [
+              -9.5,
+              0,
+              -1.5
+            ],
+            [
+              -10,
+              2.5,
+              -1.5
+            ],
+            [
+              -10,
+              2.5,
+              1
+            ],
+            [
+              -9.5,
+              2.5,
+              1
+            ],
+            [
+              -9.5,
+              2.5,
+              -1.5
+            ]
+          ]
+        }
+      ],
+      "classname": "func_detail",
+      "id": "e_2fcf087c",
+      "origin": [
+        -15.25,
+        1.25,
+        4.25
+      ]
+    }
+  ],
+  "prefabInstances": [],
+  "schemaVersion": "0.2"
+}

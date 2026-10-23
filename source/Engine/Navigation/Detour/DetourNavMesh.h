@@ -90,6 +90,10 @@ static const unsigned int DT_NULL_LINK = 0xffffffff;
 /// A flag that indicates that an off-mesh connection can be traversed in both directions. (Is bidirectional.)
 static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 
+/// dtOffMeshConnection::side value for a connection whose end may land in any tile (REngine addition, SimGame world
+/// navigation). addTile never connects these; dtNavMesh::connectRemoteOffMeshLinks does.
+static const unsigned char DT_OFFMESH_SIDE_REMOTE = 0xfe;
+
 /// The maximum number of user defined area ids.
 /// @ingroup detour
 static const int DT_MAX_AREAS = 64;
@@ -377,6 +381,12 @@ public:
 	dtStatus removeTile(dtTileRef ref, unsigned char** data, int* dataSize);
 
 	/// @}
+
+	/// Connects the end of every off-mesh connection with side DT_OFFMESH_SIDE_REMOTE to the tiles at its end position,
+	/// wherever they are (stock Detour only lands connections in the start tile or its 8 neighbours).
+	/// Call once, after all tiles are added. (REngine addition, used by SimGame's world navigation.)
+	/// @return The number of connections that found a landing polygon.
+	int connectRemoteOffMeshLinks();
 
 	/// @{
 	/// @name Query Functions

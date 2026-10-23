@@ -410,6 +410,40 @@
       <Project>{d353d7f2-b610-486e-b37f-eac38f0a6e35}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Sim\Bridge\SimMapEntities.cpp" />
+    <ClInclude Include="Sim\Bridge\SimMapEntities.h" />
+    <ClCompile Include="Sim\Bridge\SimNavBaker.cpp" />
+    <ClInclude Include="Sim\Bridge\SimNavBaker.h" />
+    <ClCompile Include="Sim\Core\SimHost.cpp" />
+    <ClCompile Include="Sim\Core\SimScheduler.cpp" />
+    <ClCompile Include="Sim\Core\SimServer.cpp" />
+    <ClCompile Include="Sim\Core\SimTypeRegistry.cpp" />
+    <ClCompile Include="Sim\Core\SimWorld.cpp" />
+    <ClCompile Include="Sim\Nav\NavTileData.cpp" />
+    <ClCompile Include="Sim\Nav\WorldNav.cpp" />
+    <ClCompile Include="Sim\Nav\WorldNavBake.cpp" />
+    <ClCompile Include="Sim\Nav\WorldNavData.cpp" />
+    <ClCompile Include="Sim\Tests\SimKernelTests.cpp" />
+    <ClCompile Include="Sim\Tests\SimNavTests.cpp" />
+    <ClCompile Include="Sim\Tests\SimSelfTests.cpp" />
+    <ClInclude Include="Sim\Core\LazyValue.h" />
+    <ClInclude Include="Sim\Core\SimArchive.h" />
+    <ClInclude Include="Sim\Core\SimEventLog.h" />
+    <ClInclude Include="Sim\Core\SimHost.h" />
+    <ClInclude Include="Sim\Core\SimRandom.h" />
+    <ClInclude Include="Sim\Core\SimScheduler.h" />
+    <ClInclude Include="Sim\Core\SimServer.h" />
+    <ClInclude Include="Sim\Core\SimTypeRegistry.h" />
+    <ClInclude Include="Sim\Core\SimTypes.h" />
+    <ClInclude Include="Sim\Core\SimWorld.h" />
+    <ClInclude Include="Sim\Nav\NavTileData.h" />
+    <ClInclude Include="Sim\Nav\WorldNav.h" />
+    <ClInclude Include="Sim\Nav\WorldNavBake.h" />
+    <ClInclude Include="Sim\Nav\WorldNavData.h" />
+    <ClInclude Include="Sim\Tests\SimSelfTests.h" />
+    <ClInclude Include="Sim\Tests\SimTestFramework.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

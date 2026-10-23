@@ -1,0 +1,5650 @@
+{
+  "entities": [
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "brushes": [
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/floor_green_a"
+            }
+          ],
+          "id": "b1",
+          "op": "add",
+          "vertices": [
+            [
+              -30,
+              -1,
+              -30
+            ],
+            [
+              30,
+              -1,
+              -30
+            ],
+            [
+              30,
+              0,
+              -30
+            ],
+            [
+              -30,
+              0,
+              -30
+            ],
+            [
+              -30,
+              -1,
+              30
+            ],
+            [
+              30,
+              -1,
+              30
+            ],
+            [
+              30,
+              0,
+              30
+            ],
+            [
+              -30,
+              0,
+              30
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            }
+          ],
+          "id": "b2",
+          "op": "add",
+          "vertices": [
+            [
+              -31,
+              -1,
+              -31
+            ],
+            [
+              31,
+              -1,
+              -31
+            ],
+            [
+              31,
+              3,
+              -31
+            ],
+            [
+              -31,
+              3,
+              -31
+            ],
+            [
+              -31,
+              -1,
+              -30
+            ],
+            [
+              31,
+              -1,
+              -30
+            ],
+            [
+              31,
+              3,
+              -30
+            ],
+            [
+              -31,
+              3,
+              -30
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            }
+          ],
+          "id": "b3",
+          "op": "add",
+          "vertices": [
+            [
+              -31,
+              -1,
+              30
+            ],
+            [
+              31,
+              -1,
+              30
+            ],
+            [
+              31,
+              3,
+              30
+            ],
+            [
+              -31,
+              3,
+              30
+            ],
+            [
+              -31,
+              -1,
+              31
+            ],
+            [
+              31,
+              -1,
+              31
+            ],
+            [
+              31,
+              3,
+              31
+            ],
+            [
+              -31,
+              3,
+              31
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            }
+          ],
+          "id": "b4",
+          "op": "add",
+          "vertices": [
+            [
+              -31,
+              -1,
+              -30
+            ],
+            [
+              -30,
+              -1,
+              -30
+            ],
+            [
+              -30,
+              3,
+              -30
+            ],
+            [
+              -31,
+              3,
+              -30
+            ],
+            [
+              -31,
+              -1,
+              30
+            ],
+            [
+              -30,
+              -1,
+              30
+            ],
+            [
+              -30,
+              3,
+              30
+            ],
+            [
+              -31,
+              3,
+              30
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_grey_a"
+            }
+          ],
+          "id": "b5",
+          "op": "add",
+          "vertices": [
+            [
+              30,
+              -1,
+              -30
+            ],
+            [
+              31,
+              -1,
+              -30
+            ],
+            [
+              31,
+              3,
+              -30
+            ],
+            [
+              30,
+              3,
+              -30
+            ],
+            [
+              30,
+              -1,
+              30
+            ],
+            [
+              31,
+              -1,
+              30
+            ],
+            [
+              31,
+              3,
+              30
+            ],
+            [
+              30,
+              3,
+              30
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_grey_b"
+            }
+          ],
+          "id": "b6",
+          "op": "add",
+          "vertices": [
+            [
+              -14,
+              0,
+              -10
+            ],
+            [
+              2,
+              0,
+              -10
+            ],
+            [
+              2,
+              7.2,
+              -10
+            ],
+            [
+              -14,
+              7.2,
+              -10
+            ],
+            [
+              -14,
+              0,
+              4
+            ],
+            [
+              2,
+              0,
+              4
+            ],
+            [
+              2,
+              7.2,
+              4
+            ],
+            [
+              -14,
+              7.2,
+              4
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/floor_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_grey_b"
+            }
+          ],
+          "id": "b7",
+          "op": "subtract",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              -9.6
+            ],
+            [
+              1.6,
+              0,
+              -9.6
+            ],
+            [
+              1.6,
+              3,
+              -9.6
+            ],
+            [
+              -13.6,
+              3,
+              -9.6
+            ],
+            [
+              -13.6,
+              0,
+              3.6
+            ],
+            [
+              1.6,
+              0,
+              3.6
+            ],
+            [
+              1.6,
+              3,
+              3.6
+            ],
+            [
+              -13.6,
+              3,
+              3.6
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/floor_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_grey_b"
+            }
+          ],
+          "id": "b8",
+          "op": "subtract",
+          "vertices": [
+            [
+              -13.6,
+              3.4,
+              -9.6
+            ],
+            [
+              1.6,
+              3.4,
+              -9.6
+            ],
+            [
+              1.6,
+              6.3999999999999995,
+              -9.6
+            ],
+            [
+              -13.6,
+              6.3999999999999995,
+              -9.6
+            ],
+            [
+              -13.6,
+              3.4,
+              3.6
+            ],
+            [
+              1.6,
+              3.4,
+              3.6
+            ],
+            [
+              1.6,
+              6.3999999999999995,
+              3.6
+            ],
+            [
+              -13.6,
+              6.3999999999999995,
+              3.6
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/floor_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "dev/grey"
+            }
+          ],
+          "id": "b9",
+          "op": "subtract",
+          "vertices": [
+            [
+              -6,
+              0,
+              3.5
+            ],
+            [
+              -4.6,
+              0,
+              3.5
+            ],
+            [
+              -4.6,
+              2.4,
+              3.5
+            ],
+            [
+              -6,
+              2.4,
+              3.5
+            ],
+            [
+              -6,
+              0,
+              4.5
+            ],
+            [
+              -4.6,
+              0,
+              4.5
+            ],
+            [
+              -4.6,
+              2.4,
+              4.5
+            ],
+            [
+              -6,
+              2.4,
+              4.5
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/floor_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "dev/grey"
+            }
+          ],
+          "id": "b10",
+          "op": "subtract",
+          "vertices": [
+            [
+              -3,
+              0,
+              -10.5
+            ],
+            [
+              -1.6,
+              0,
+              -10.5
+            ],
+            [
+              -1.6,
+              2.4,
+              -10.5
+            ],
+            [
+              -3,
+              2.4,
+              -10.5
+            ],
+            [
+              -3,
+              0,
+              -9.5
+            ],
+            [
+              -1.6,
+              0,
+              -9.5
+            ],
+            [
+              -1.6,
+              2.4,
+              -9.5
+            ],
+            [
+              -3,
+              2.4,
+              -9.5
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "dev/wood"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "dev/grey"
+            }
+          ],
+          "id": "b11",
+          "op": "subtract",
+          "vertices": [
+            [
+              -11.6,
+              1,
+              3.5
+            ],
+            [
+              -10.4,
+              1,
+              3.5
+            ],
+            [
+              -10.4,
+              2.2,
+              3.5
+            ],
+            [
+              -11.6,
+              2.2,
+              3.5
+            ],
+            [
+              -11.6,
+              1,
+              4.5
+            ],
+            [
+              -10.4,
+              1,
+              4.5
+            ],
+            [
+              -10.4,
+              2.2,
+              4.5
+            ],
+            [
+              -11.6,
+              2.2,
+              4.5
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "dev/wood"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "dev/grey"
+            }
+          ],
+          "id": "b12",
+          "op": "subtract",
+          "vertices": [
+            [
+              -11.6,
+              4.4,
+              3.5
+            ],
+            [
+              -10.4,
+              4.4,
+              3.5
+            ],
+            [
+              -10.4,
+              5.6,
+              3.5
+            ],
+            [
+              -11.6,
+              5.6,
+              3.5
+            ],
+            [
+              -11.6,
+              4.4,
+              4.5
+            ],
+            [
+              -10.4,
+              4.4,
+              4.5
+            ],
+            [
+              -10.4,
+              5.6,
+              4.5
+            ],
+            [
+              -11.6,
+              5.6,
+              4.5
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "dev/wood"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "dev/grey"
+            }
+          ],
+          "id": "b13",
+          "op": "subtract",
+          "vertices": [
+            [
+              -9.6,
+              1,
+              3.5
+            ],
+            [
+              -8.4,
+              1,
+              3.5
+            ],
+            [
+              -8.4,
+              2.2,
+              3.5
+            ],
+            [
+              -9.6,
+              2.2,
+              3.5
+            ],
+            [
+              -9.6,
+              1,
+              4.5
+            ],
+            [
+              -8.4,
+              1,
+              4.5
+            ],
+            [
+              -8.4,
+              2.2,
+              4.5
+            ],
+            [
+              -9.6,
+              2.2,
+              4.5
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "dev/wood"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "dev/grey"
+            }
+          ],
+          "id": "b14",
+          "op": "subtract",
+          "vertices": [
+            [
+              -9.6,
+              4.4,
+              3.5
+            ],
+            [
+              -8.4,
+              4.4,
+              3.5
+            ],
+            [
+              -8.4,
+              5.6,
+              3.5
+            ],
+            [
+              -9.6,
+              5.6,
+              3.5
+            ],
+            [
+              -9.6,
+              4.4,
+              4.5
+            ],
+            [
+              -8.4,
+              4.4,
+              4.5
+            ],
+            [
+              -8.4,
+              5.6,
+              4.5
+            ],
+            [
+              -9.6,
+              5.6,
+              4.5
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "dev/wood"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "dev/grey"
+            }
+          ],
+          "id": "b15",
+          "op": "subtract",
+          "vertices": [
+            [
+              -0.6,
+              1,
+              3.5
+            ],
+            [
+              0.6,
+              1,
+              3.5
+            ],
+            [
+              0.6,
+              2.2,
+              3.5
+            ],
+            [
+              -0.6,
+              2.2,
+              3.5
+            ],
+            [
+              -0.6,
+              1,
+              4.5
+            ],
+            [
+              0.6,
+              1,
+              4.5
+            ],
+            [
+              0.6,
+              2.2,
+              4.5
+            ],
+            [
+              -0.6,
+              2.2,
+              4.5
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "dev/wall"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "dev/wood"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "dev/grey"
+            }
+          ],
+          "id": "b16",
+          "op": "subtract",
+          "vertices": [
+            [
+              -0.6,
+              4.4,
+              3.5
+            ],
+            [
+              0.6,
+              4.4,
+              3.5
+            ],
+            [
+              0.6,
+              5.6,
+              3.5
+            ],
+            [
+              -0.6,
+              5.6,
+              3.5
+            ],
+            [
+              -0.6,
+              4.4,
+              4.5
+            ],
+            [
+              0.6,
+              4.4,
+              4.5
+            ],
+            [
+              0.6,
+              5.6,
+              4.5
+            ],
+            [
+              -0.6,
+              5.6,
+              4.5
+            ]
+          ]
+        },
+        {
+          "carve": {
+            "nonStructural": false,
+            "self": true,
+            "structural": false
+          },
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/floor_grey_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "dev/grey"
+            }
+          ],
+          "id": "b17",
+          "op": "subtract",
+          "vertices": [
+            [
+              -13.6,
+              2.9,
+              -2
+            ],
+            [
+              -12,
+              2.9,
+              -2
+            ],
+            [
+              -12,
+              3.5,
+              -2
+            ],
+            [
+              -13.6,
+              3.5,
+              -2
+            ],
+            [
+              -13.6,
+              2.9,
+              3.6
+            ],
+            [
+              -12,
+              2.9,
+              3.6
+            ],
+            [
+              -12,
+              3.5,
+              3.6
+            ],
+            [
+              -13.6,
+              3.5,
+              3.6
+            ]
+          ]
+        }
+      ],
+      "classname": "worldspawn",
+      "id": "e_worldspawn",
+      "keyvalues": {
+        "_sky_auto": "box",
+        "_sky_texture": "env/skybox1_cube"
+      },
+      "origin": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "brushes": [
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "common/trigger"
+            }
+          ],
+          "id": "b55",
+          "op": "add",
+          "vertices": [
+            [
+              26,
+              0,
+              -1.5
+            ],
+            [
+              29,
+              0,
+              -1.5
+            ],
+            [
+              29,
+              3,
+              -1.5
+            ],
+            [
+              26,
+              3,
+              -1.5
+            ],
+            [
+              26,
+              0,
+              1.5
+            ],
+            [
+              29,
+              0,
+              1.5
+            ],
+            [
+              29,
+              3,
+              1.5
+            ],
+            [
+              26,
+              3,
+              1.5
+            ]
+          ]
+        }
+      ],
+      "classname": "sim_portal",
+      "id": "e54",
+      "keyvalues": {
+        "targetLevel": "sim_test_road.bsp",
+        "targetSpawn": "from_a",
+        "targetname": "to_road"
+      },
+      "origin": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "brushes": [
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b18",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              3.3200000000000003
+            ],
+            [
+              -12,
+              0,
+              3.3200000000000003
+            ],
+            [
+              -12,
+              0.16999999999999998,
+              3.3200000000000003
+            ],
+            [
+              -13.6,
+              0.16999999999999998,
+              3.3200000000000003
+            ],
+            [
+              -13.6,
+              0,
+              3.6
+            ],
+            [
+              -12,
+              0,
+              3.6
+            ],
+            [
+              -12,
+              0.16999999999999998,
+              3.6
+            ],
+            [
+              -13.6,
+              0.16999999999999998,
+              3.6
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b19",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              3.04
+            ],
+            [
+              -12,
+              0,
+              3.04
+            ],
+            [
+              -12,
+              0.33999999999999997,
+              3.04
+            ],
+            [
+              -13.6,
+              0.33999999999999997,
+              3.04
+            ],
+            [
+              -13.6,
+              0,
+              3.3200000000000003
+            ],
+            [
+              -12,
+              0,
+              3.3200000000000003
+            ],
+            [
+              -12,
+              0.33999999999999997,
+              3.3200000000000003
+            ],
+            [
+              -13.6,
+              0.33999999999999997,
+              3.3200000000000003
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b20",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              2.76
+            ],
+            [
+              -12,
+              0,
+              2.76
+            ],
+            [
+              -12,
+              0.51,
+              2.76
+            ],
+            [
+              -13.6,
+              0.51,
+              2.76
+            ],
+            [
+              -13.6,
+              0,
+              3.04
+            ],
+            [
+              -12,
+              0,
+              3.04
+            ],
+            [
+              -12,
+              0.51,
+              3.04
+            ],
+            [
+              -13.6,
+              0.51,
+              3.04
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b21",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              2.48
+            ],
+            [
+              -12,
+              0,
+              2.48
+            ],
+            [
+              -12,
+              0.6799999999999999,
+              2.48
+            ],
+            [
+              -13.6,
+              0.6799999999999999,
+              2.48
+            ],
+            [
+              -13.6,
+              0,
+              2.76
+            ],
+            [
+              -12,
+              0,
+              2.76
+            ],
+            [
+              -12,
+              0.6799999999999999,
+              2.76
+            ],
+            [
+              -13.6,
+              0.6799999999999999,
+              2.76
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b22",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              2.2
+            ],
+            [
+              -12,
+              0,
+              2.2
+            ],
+            [
+              -12,
+              0.8499999999999999,
+              2.2
+            ],
+            [
+              -13.6,
+              0.8499999999999999,
+              2.2
+            ],
+            [
+              -13.6,
+              0,
+              2.48
+            ],
+            [
+              -12,
+              0,
+              2.48
+            ],
+            [
+              -12,
+              0.8499999999999999,
+              2.48
+            ],
+            [
+              -13.6,
+              0.8499999999999999,
+              2.48
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b23",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              1.92
+            ],
+            [
+              -12,
+              0,
+              1.92
+            ],
+            [
+              -12,
+              1.02,
+              1.92
+            ],
+            [
+              -13.6,
+              1.02,
+              1.92
+            ],
+            [
+              -13.6,
+              0,
+              2.2
+            ],
+            [
+              -12,
+              0,
+              2.2
+            ],
+            [
+              -12,
+              1.02,
+              2.2
+            ],
+            [
+              -13.6,
+              1.02,
+              2.2
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b24",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              1.64
+            ],
+            [
+              -12,
+              0,
+              1.64
+            ],
+            [
+              -12,
+              1.19,
+              1.64
+            ],
+            [
+              -13.6,
+              1.19,
+              1.64
+            ],
+            [
+              -13.6,
+              0,
+              1.92
+            ],
+            [
+              -12,
+              0,
+              1.92
+            ],
+            [
+              -12,
+              1.19,
+              1.92
+            ],
+            [
+              -13.6,
+              1.19,
+              1.92
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b25",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              1.3599999999999999
+            ],
+            [
+              -12,
+              0,
+              1.3599999999999999
+            ],
+            [
+              -12,
+              1.3599999999999999,
+              1.3599999999999999
+            ],
+            [
+              -13.6,
+              1.3599999999999999,
+              1.3599999999999999
+            ],
+            [
+              -13.6,
+              0,
+              1.64
+            ],
+            [
+              -12,
+              0,
+              1.64
+            ],
+            [
+              -12,
+              1.3599999999999999,
+              1.64
+            ],
+            [
+              -13.6,
+              1.3599999999999999,
+              1.64
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b26",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              1.0799999999999996
+            ],
+            [
+              -12,
+              0,
+              1.0799999999999996
+            ],
+            [
+              -12,
+              1.5299999999999998,
+              1.0799999999999996
+            ],
+            [
+              -13.6,
+              1.5299999999999998,
+              1.0799999999999996
+            ],
+            [
+              -13.6,
+              0,
+              1.3599999999999999
+            ],
+            [
+              -12,
+              0,
+              1.3599999999999999
+            ],
+            [
+              -12,
+              1.5299999999999998,
+              1.3599999999999999
+            ],
+            [
+              -13.6,
+              1.5299999999999998,
+              1.3599999999999999
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b27",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              0.7999999999999998
+            ],
+            [
+              -12,
+              0,
+              0.7999999999999998
+            ],
+            [
+              -12,
+              1.6999999999999997,
+              0.7999999999999998
+            ],
+            [
+              -13.6,
+              1.6999999999999997,
+              0.7999999999999998
+            ],
+            [
+              -13.6,
+              0,
+              1.0799999999999996
+            ],
+            [
+              -12,
+              0,
+              1.0799999999999996
+            ],
+            [
+              -12,
+              1.6999999999999997,
+              1.0799999999999996
+            ],
+            [
+              -13.6,
+              1.6999999999999997,
+              1.0799999999999996
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b28",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              0.52
+            ],
+            [
+              -12,
+              0,
+              0.52
+            ],
+            [
+              -12,
+              1.8699999999999999,
+              0.52
+            ],
+            [
+              -13.6,
+              1.8699999999999999,
+              0.52
+            ],
+            [
+              -13.6,
+              0,
+              0.7999999999999998
+            ],
+            [
+              -12,
+              0,
+              0.7999999999999998
+            ],
+            [
+              -12,
+              1.8699999999999999,
+              0.7999999999999998
+            ],
+            [
+              -13.6,
+              1.8699999999999999,
+              0.7999999999999998
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b29",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              0.23999999999999977
+            ],
+            [
+              -12,
+              0,
+              0.23999999999999977
+            ],
+            [
+              -12,
+              2.04,
+              0.23999999999999977
+            ],
+            [
+              -13.6,
+              2.04,
+              0.23999999999999977
+            ],
+            [
+              -13.6,
+              0,
+              0.52
+            ],
+            [
+              -12,
+              0,
+              0.52
+            ],
+            [
+              -12,
+              2.04,
+              0.52
+            ],
+            [
+              -13.6,
+              2.04,
+              0.52
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b30",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              -0.04000000000000048
+            ],
+            [
+              -12,
+              0,
+              -0.04000000000000048
+            ],
+            [
+              -12,
+              2.21,
+              -0.04000000000000048
+            ],
+            [
+              -13.6,
+              2.21,
+              -0.04000000000000048
+            ],
+            [
+              -13.6,
+              0,
+              0.23999999999999977
+            ],
+            [
+              -12,
+              0,
+              0.23999999999999977
+            ],
+            [
+              -12,
+              2.21,
+              0.23999999999999977
+            ],
+            [
+              -13.6,
+              2.21,
+              0.23999999999999977
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b31",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              -0.3200000000000003
+            ],
+            [
+              -12,
+              0,
+              -0.3200000000000003
+            ],
+            [
+              -12,
+              2.38,
+              -0.3200000000000003
+            ],
+            [
+              -13.6,
+              2.38,
+              -0.3200000000000003
+            ],
+            [
+              -13.6,
+              0,
+              -0.04000000000000048
+            ],
+            [
+              -12,
+              0,
+              -0.04000000000000048
+            ],
+            [
+              -12,
+              2.38,
+              -0.04000000000000048
+            ],
+            [
+              -13.6,
+              2.38,
+              -0.04000000000000048
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b32",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              -0.6000000000000001
+            ],
+            [
+              -12,
+              0,
+              -0.6000000000000001
+            ],
+            [
+              -12,
+              2.55,
+              -0.6000000000000001
+            ],
+            [
+              -13.6,
+              2.55,
+              -0.6000000000000001
+            ],
+            [
+              -13.6,
+              0,
+              -0.3200000000000003
+            ],
+            [
+              -12,
+              0,
+              -0.3200000000000003
+            ],
+            [
+              -12,
+              2.55,
+              -0.3200000000000003
+            ],
+            [
+              -13.6,
+              2.55,
+              -0.3200000000000003
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b33",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              -0.8800000000000003
+            ],
+            [
+              -12,
+              0,
+              -0.8800000000000003
+            ],
+            [
+              -12,
+              2.7199999999999998,
+              -0.8800000000000003
+            ],
+            [
+              -13.6,
+              2.7199999999999998,
+              -0.8800000000000003
+            ],
+            [
+              -13.6,
+              0,
+              -0.6000000000000001
+            ],
+            [
+              -12,
+              0,
+              -0.6000000000000001
+            ],
+            [
+              -12,
+              2.7199999999999998,
+              -0.6000000000000001
+            ],
+            [
+              -13.6,
+              2.7199999999999998,
+              -0.6000000000000001
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b34",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              -1.1600000000000006
+            ],
+            [
+              -12,
+              0,
+              -1.1600000000000006
+            ],
+            [
+              -12,
+              2.8899999999999997,
+              -1.1600000000000006
+            ],
+            [
+              -13.6,
+              2.8899999999999997,
+              -1.1600000000000006
+            ],
+            [
+              -13.6,
+              0,
+              -0.8800000000000003
+            ],
+            [
+              -12,
+              0,
+              -0.8800000000000003
+            ],
+            [
+              -12,
+              2.8899999999999997,
+              -0.8800000000000003
+            ],
+            [
+              -13.6,
+              2.8899999999999997,
+              -0.8800000000000003
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b35",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              -1.4400000000000008
+            ],
+            [
+              -12,
+              0,
+              -1.4400000000000008
+            ],
+            [
+              -12,
+              3.0599999999999996,
+              -1.4400000000000008
+            ],
+            [
+              -13.6,
+              3.0599999999999996,
+              -1.4400000000000008
+            ],
+            [
+              -13.6,
+              0,
+              -1.1600000000000006
+            ],
+            [
+              -12,
+              0,
+              -1.1600000000000006
+            ],
+            [
+              -12,
+              3.0599999999999996,
+              -1.1600000000000006
+            ],
+            [
+              -13.6,
+              3.0599999999999996,
+              -1.1600000000000006
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b36",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              -1.7200000000000002
+            ],
+            [
+              -12,
+              0,
+              -1.7200000000000002
+            ],
+            [
+              -12,
+              3.2299999999999995,
+              -1.7200000000000002
+            ],
+            [
+              -13.6,
+              3.2299999999999995,
+              -1.7200000000000002
+            ],
+            [
+              -13.6,
+              0,
+              -1.4400000000000008
+            ],
+            [
+              -12,
+              0,
+              -1.4400000000000008
+            ],
+            [
+              -12,
+              3.2299999999999995,
+              -1.4400000000000008
+            ],
+            [
+              -13.6,
+              3.2299999999999995,
+              -1.4400000000000008
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b37",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              -2.0000000000000004
+            ],
+            [
+              -12,
+              0,
+              -2.0000000000000004
+            ],
+            [
+              -12,
+              3.3999999999999995,
+              -2.0000000000000004
+            ],
+            [
+              -13.6,
+              3.3999999999999995,
+              -2.0000000000000004
+            ],
+            [
+              -13.6,
+              0,
+              -1.7200000000000002
+            ],
+            [
+              -12,
+              0,
+              -1.7200000000000002
+            ],
+            [
+              -12,
+              3.3999999999999995,
+              -1.7200000000000002
+            ],
+            [
+              -13.6,
+              3.3999999999999995,
+              -1.7200000000000002
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            }
+          ],
+          "id": "b38",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              0,
+              -5.2
+            ],
+            [
+              -9,
+              0,
+              -5.2
+            ],
+            [
+              -9,
+              3,
+              -5.2
+            ],
+            [
+              -13.6,
+              3,
+              -5.2
+            ],
+            [
+              -13.6,
+              0,
+              -4.8
+            ],
+            [
+              -9,
+              0,
+              -4.8
+            ],
+            [
+              -9,
+              3,
+              -4.8
+            ],
+            [
+              -13.6,
+              3,
+              -4.8
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            }
+          ],
+          "id": "b39",
+          "op": "add",
+          "vertices": [
+            [
+              -7.6,
+              0,
+              -5.2
+            ],
+            [
+              1.6,
+              0,
+              -5.2
+            ],
+            [
+              1.6,
+              3,
+              -5.2
+            ],
+            [
+              -7.6,
+              3,
+              -5.2
+            ],
+            [
+              -7.6,
+              0,
+              -4.8
+            ],
+            [
+              1.6,
+              0,
+              -4.8
+            ],
+            [
+              1.6,
+              3,
+              -4.8
+            ],
+            [
+              -7.6,
+              3,
+              -4.8
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            }
+          ],
+          "id": "b40",
+          "op": "add",
+          "vertices": [
+            [
+              -9,
+              2.4,
+              -5.2
+            ],
+            [
+              -7.6,
+              2.4,
+              -5.2
+            ],
+            [
+              -7.6,
+              3,
+              -5.2
+            ],
+            [
+              -9,
+              3,
+              -5.2
+            ],
+            [
+              -9,
+              2.4,
+              -4.8
+            ],
+            [
+              -7.6,
+              2.4,
+              -4.8
+            ],
+            [
+              -7.6,
+              3,
+              -4.8
+            ],
+            [
+              -9,
+              3,
+              -4.8
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            }
+          ],
+          "id": "b41",
+          "op": "add",
+          "vertices": [
+            [
+              -13.6,
+              3.4,
+              -5.2
+            ],
+            [
+              -9,
+              3.4,
+              -5.2
+            ],
+            [
+              -9,
+              6.4,
+              -5.2
+            ],
+            [
+              -13.6,
+              6.4,
+              -5.2
+            ],
+            [
+              -13.6,
+              3.4,
+              -4.8
+            ],
+            [
+              -9,
+              3.4,
+              -4.8
+            ],
+            [
+              -9,
+              6.4,
+              -4.8
+            ],
+            [
+              -13.6,
+              6.4,
+              -4.8
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            }
+          ],
+          "id": "b42",
+          "op": "add",
+          "vertices": [
+            [
+              -7.6,
+              3.4,
+              -5.2
+            ],
+            [
+              1.6,
+              3.4,
+              -5.2
+            ],
+            [
+              1.6,
+              6.4,
+              -5.2
+            ],
+            [
+              -7.6,
+              6.4,
+              -5.2
+            ],
+            [
+              -7.6,
+              3.4,
+              -4.8
+            ],
+            [
+              1.6,
+              3.4,
+              -4.8
+            ],
+            [
+              1.6,
+              6.4,
+              -4.8
+            ],
+            [
+              -7.6,
+              6.4,
+              -4.8
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_brown_a"
+            }
+          ],
+          "id": "b43",
+          "op": "add",
+          "vertices": [
+            [
+              -9,
+              5.8,
+              -5.2
+            ],
+            [
+              -7.6,
+              5.8,
+              -5.2
+            ],
+            [
+              -7.6,
+              6.4,
+              -5.2
+            ],
+            [
+              -9,
+              6.4,
+              -5.2
+            ],
+            [
+              -9,
+              5.8,
+              -4.8
+            ],
+            [
+              -7.6,
+              5.8,
+              -4.8
+            ],
+            [
+              -7.6,
+              6.4,
+              -4.8
+            ],
+            [
+              -9,
+              6.4,
+              -4.8
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b48",
+          "op": "add",
+          "vertices": [
+            [
+              11.4,
+              0,
+              9.4
+            ],
+            [
+              12.6,
+              0,
+              9.4
+            ],
+            [
+              12.6,
+              1.2,
+              9.4
+            ],
+            [
+              11.4,
+              1.2,
+              9.4
+            ],
+            [
+              11.4,
+              0,
+              10.6
+            ],
+            [
+              12.6,
+              0,
+              10.6
+            ],
+            [
+              12.6,
+              1.2,
+              10.6
+            ],
+            [
+              11.4,
+              1.2,
+              10.6
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b49",
+          "op": "add",
+          "vertices": [
+            [
+              13.4,
+              0,
+              -6.6
+            ],
+            [
+              14.6,
+              0,
+              -6.6
+            ],
+            [
+              14.6,
+              1.2,
+              -6.6
+            ],
+            [
+              13.4,
+              1.2,
+              -6.6
+            ],
+            [
+              13.4,
+              0,
+              -5.4
+            ],
+            [
+              14.6,
+              0,
+              -5.4
+            ],
+            [
+              14.6,
+              1.2,
+              -5.4
+            ],
+            [
+              13.4,
+              1.2,
+              -5.4
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b50",
+          "op": "add",
+          "vertices": [
+            [
+              -22.6,
+              0,
+              11.4
+            ],
+            [
+              -21.4,
+              0,
+              11.4
+            ],
+            [
+              -21.4,
+              1.2,
+              11.4
+            ],
+            [
+              -22.6,
+              1.2,
+              11.4
+            ],
+            [
+              -22.6,
+              0,
+              12.6
+            ],
+            [
+              -21.4,
+              0,
+              12.6
+            ],
+            [
+              -21.4,
+              1.2,
+              12.6
+            ],
+            [
+              -22.6,
+              1.2,
+              12.6
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b51",
+          "op": "add",
+          "vertices": [
+            [
+              -20.6,
+              0,
+              -18.6
+            ],
+            [
+              -19.4,
+              0,
+              -18.6
+            ],
+            [
+              -19.4,
+              1.2,
+              -18.6
+            ],
+            [
+              -20.6,
+              1.2,
+              -18.6
+            ],
+            [
+              -20.6,
+              0,
+              -17.4
+            ],
+            [
+              -19.4,
+              0,
+              -17.4
+            ],
+            [
+              -19.4,
+              1.2,
+              -17.4
+            ],
+            [
+              -20.6,
+              1.2,
+              -17.4
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b52",
+          "op": "add",
+          "vertices": [
+            [
+              17.4,
+              0,
+              19.4
+            ],
+            [
+              18.6,
+              0,
+              19.4
+            ],
+            [
+              18.6,
+              1.2,
+              19.4
+            ],
+            [
+              17.4,
+              1.2,
+              19.4
+            ],
+            [
+              17.4,
+              0,
+              20.6
+            ],
+            [
+              18.6,
+              0,
+              20.6
+            ],
+            [
+              18.6,
+              1.2,
+              20.6
+            ],
+            [
+              17.4,
+              1.2,
+              20.6
+            ]
+          ]
+        },
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "lq_dev/wall_tan_a"
+            }
+          ],
+          "id": "b53",
+          "op": "add",
+          "vertices": [
+            [
+              5.4,
+              0,
+              -20.6
+            ],
+            [
+              6.6,
+              0,
+              -20.6
+            ],
+            [
+              6.6,
+              1.2,
+              -20.6
+            ],
+            [
+              5.4,
+              1.2,
+              -20.6
+            ],
+            [
+              5.4,
+              0,
+              -19.4
+            ],
+            [
+              6.6,
+              0,
+              -19.4
+            ],
+            [
+              6.6,
+              1.2,
+              -19.4
+            ],
+            [
+              5.4,
+              1.2,
+              -19.4
+            ]
+          ]
+        }
+      ],
+      "classname": "func_detail",
+      "id": "e_detail",
+      "keyvalues": {},
+      "origin": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "classname": "light_point",
+      "id": "e44",
+      "keyvalues": {
+        "brightness": "2.5",
+        "color": "1 0.9 0.7",
+        "radius": "10"
+      },
+      "origin": [
+        -6,
+        1.6,
+        0
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "classname": "light_point",
+      "id": "e45",
+      "keyvalues": {
+        "brightness": "2.5",
+        "color": "1 0.9 0.7",
+        "radius": "10"
+      },
+      "origin": [
+        -6,
+        1.6,
+        -7.5
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "classname": "light_point",
+      "id": "e46",
+      "keyvalues": {
+        "brightness": "2.5",
+        "color": "1 0.9 0.7",
+        "radius": "10"
+      },
+      "origin": [
+        -6,
+        5,
+        0
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "classname": "light_point",
+      "id": "e47",
+      "keyvalues": {
+        "brightness": "2.5",
+        "color": "1 0.9 0.7",
+        "radius": "10"
+      },
+      "origin": [
+        -6,
+        5,
+        -7.5
+      ]
+    },
+    {
+      "angles": [
+        0,
+        -90,
+        0
+      ],
+      "classname": "sim_spawn",
+      "id": "e56",
+      "keyvalues": {
+        "angle": "180",
+        "targetname": "from_road"
+      },
+      "origin": [
+        24.5,
+        0.6,
+        0
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "classname": "sim_spawn",
+      "id": "e57",
+      "keyvalues": {
+        "angle": "90",
+        "spawnflags": "1",
+        "targetname": "start"
+      },
+      "origin": [
+        -5.2,
+        0.1,
+        8
+      ]
+    },
+    {
+      "angles": [
+        55,
+        30,
+        0
+      ],
+      "classname": "light_directional",
+      "id": "e58",
+      "keyvalues": {
+        "brightness": "1.5",
+        "color": "1 0.96 0.88"
+      },
+      "origin": [
+        0,
+        40,
+        0
+      ]
+    }
+  ],
+  "prefabInstances": [],
+  "schemaVersion": "0.2"
+}

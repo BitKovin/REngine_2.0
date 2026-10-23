@@ -5,10 +5,13 @@
 #include <Settings/GameSettings.h>
 #include <Settings/InputActionRegistry.h>
 #include <UI/Pause/UiPauseMenu.h>
+#include <Sim/Bridge/SimNavBaker.h>
+#include <Sim/Tests/SimSelfTests.h>
 
 #include <AssetRegistry.h>
 #include <EngineMain.h>
 #include <Entity.h>
+#include <FileSystem/FileSystem.h>
 #include <Input.h>
 #include <Logger.hpp>
 #include <UI/RmlUi/RmlUiContext.h>
@@ -26,6 +29,8 @@
 // Launch arguments:
 //   -map <file>          startup map inside GameData/maps (default: blank.bsp)
 //   -quit_after <secs>   quit after that many seconds of game time; for automated runs (see Docs/README.md)
+//   -sim_selftest        run the sim self tests, write SaveData/sim_selftest.log and quit
+//   -sim_bake_nav [file] bake the world nav mesh from a manifest (default GameData/sim/world.manifest) and quit
 class GameStart : public Entity
 {
 public:
@@ -40,11 +45,12 @@ public:
 	void Start() override
 	{
 		Entity::Start();
-		pendingStartupMap = true;
 
+		// A new gamestart is created with every level; only the first one loads the startup map.
 		if (initialized)
 			return;
 		initialized = true;
+		pendingStartupMap = true;
 
 		UiRenderer::AddFallbackFont("GameData/fonts/NotoSans.ttf");
 		UiRenderer::AddFallbackFont("GameData/fonts/NotoSerifJP.ttf");
@@ -54,11 +60,26 @@ public:
 
 		GameSettings::Instance().LoadFromFile();
 		GameSettings::Instance().ApplyAll();
+
+#ifndef DISTRIBUTION
+		if (EngineMain::MainInstance->Arguments.contains("sim_selftest"))
+			RunSimSelfTestsAndQuit();
+
+		if (auto bake = EngineMain::MainInstance->Arguments.find("sim_bake_nav"); bake != EngineMain::MainInstance->Arguments.end())
+		{
+			pendingStartupMap = false; // the baker loads the levels
+			SimNavBaker::Start(bake->second.empty() ? SimNavBaker::DefaultManifest : bake->second[0], true);
+		}
+#endif
 	}
 
 	void Update() override
 	{
 		UpdatePause();
+
+#ifndef DISTRIBUTION
+		SimNavBaker::Update();
+#endif
 
 		UiManager::UiScale = Input::IsScrenTouched ? 1.3f : 1.0f;
 
@@ -169,6 +190,22 @@ private:
 	}
 
 #ifndef DISTRIBUTION
+	static void RunSimSelfTestsAndQuit()
+	{
+		// Writes need a directory component (the native writer creates the parent directories).
+		static constexpr const char* LogPath = "SaveData/sim_selftest.log";
+
+		std::string summary;
+		const bool passed = RunSimSelfTests(summary);
+		if (!FileSystemEngine::WriteFile(LogPath, summary))
+			Logger::Error("could not write %s", LogPath);
+		Logger::Log(passed ? "sim self tests PASSED" : "sim self tests FAILED");
+
+		SDL_Event quit;
+		quit.type = SDL_QUIT;
+		SDL_PushEvent(&quit);
+	}
+
 	// -quit_after <seconds>: a run that ends by itself, so automated and headless runs do not need a kill timeout.
 	static void UpdateQuitAfter()
 	{

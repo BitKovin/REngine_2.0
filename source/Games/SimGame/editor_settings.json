@@ -1,0 +1,9 @@
+{
+  "editor": {},
+  "game": {
+    "args": "--map {mapname}.bsp",
+    "exe": "",
+    "workingDir": ""
+  },
+  "lastMap": ""
+}

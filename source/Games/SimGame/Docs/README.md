@@ -8,6 +8,8 @@ This folder holds the project's documentation and other non-code files. Source l
 | File | What it is |
 |---|---|
 | [living_world_simulation_design.md](living_world_simulation_design.md) | The original design document (draft 3): pillars, rules R1 to R14, systems, milestones |
+| [SIM_CONTRACT.md](SIM_CONTRACT.md) | **Start here when working on code.** Module map, interfaces, invariants, tests, next steps |
+| [SIM_CONTRACT.md](SIM_CONTRACT.md) | **Start here when working on code.** Module map, interfaces, invariants, tests, next steps |
 | [living_world_simulation_addendum.md](living_world_simulation_addendum.md) | How the design is implemented on this engine. **Wins wherever it disagrees with the design document.** Decisions D1 to D12, build order M0 to M9, process for an AI implementer (section 17), open items |
 
 Keep new documents here: contracts per slice (see addendum section 17.4), `SIM_CONTRACT.md` once the sim library exists,
@@ -22,7 +24,11 @@ SimGame/
   Settings/             copied from ShooterGame: video / audio / input settings data and the rebinding registry
   UI/Pause/             copied from ShooterGame: pause menu, settings screens, save/load menu
   PauseGameManager.hpp  copied from ShooterGame
-  GameStart.cpp         bootstrap entity: input actions, settings, pause handling, startup map
+  GameStart.cpp         bootstrap entity: input actions, settings, pause handling, startup map, -sim_selftest
+  Sim/Core/             simulation kernel (see SIM_CONTRACT.md)
+  Sim/Nav/              world navigation: tile surgery, bake, runtime paths
+  Sim/Tests/            headless self tests
+  GameData/entities.ent level editor entity definitions (engine classes + sim_* classes)
   SimGame.vcxproj       Visual Studio project (CMake globs sources, so the project file is only for the IDE)
 ```
 
@@ -56,6 +62,8 @@ it (`fmod_stage_windows_dlls` in `sourceLibraries/fmod/CMakeLists.txt`). Run it 
 | `-map <file>` | Startup map inside `GameData/maps` (default `blank.bsp`) |
 | `-quit_after <seconds>` | Quit after that many seconds of game time (not in Distribution builds) |
 | `-headless` | No visible window, muted sound, no real input devices, no crash dialog. For automated runs |
+| `-sim_selftest` | Run the sim self tests headless, write `SaveData/sim_selftest.log`, quit |
+| `-sim_selftest` | Run the sim self tests headless, write `SaveData/sim_selftest.log`, quit |
 | `-renderapi dx11\|dx12\|vk\|gl\|noop` | Renderer. `noop` does no GPU work but cannot find compiled shaders, so it only suits runs that never render |
 
 Automated smoke run:
@@ -69,5 +77,5 @@ bin\SimGame.exe -headless -quit_after 5
 
 - Follow the process in addendum section 17: a short contract per slice, tests first, text output from every tool.
 - Reuse engine facilities (ECS, entities, `EntityHandle`, `MathHelper`, `FileSystemEngine`) before writing helpers.
-- The simulation library is engine-free and lives separately from this folder's game code once it exists
-  (addendum section 17.5).
+- The simulation lives in `Sim/` inside this project and uses engine code sparingly (owner decision, SIM_CONTRACT.md §1).
+- Engine changes made for SimGame: `dtNavMesh::connectRemoteOffMeshLinks` (additive, Detour).

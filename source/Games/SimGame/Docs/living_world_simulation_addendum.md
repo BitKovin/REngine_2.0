@@ -576,3 +576,13 @@ Facts read from the engine source. Verify again if the engine changes.
 | Bones? | Removed after N days during the blood moon | §10.3 |
 | Evidence? | Kept on the map | §10.4 |
 | Trains? | Physical and scheduled, effectively fast travel | §12 |
+| Engine-free sim library? (2026-10-23) | No. The sim lives in the SimGame project and uses engine code sparingly; tests run in-game headless (`-sim_selftest`). Overrides §17.3 and §17.5 | SIM_CONTRACT.md §1 |
+| Containers in sim code? | Prefer entt containers (dense_map, dense_set) | SIM_CONTRACT.md §1 |
+| Merged world mesh or per-level meshes? | One merged mesh (D3 confirmed) | §4 |
+| Long off-mesh links (risk §15) | Resolved with an additive engine Detour method, `dtNavMesh::connectRemoteOffMeshLinks`, which lands links by position. Levels are laid out apart with a one-tile gap, no adjacency needed | SIM_CONTRACT.md §4 |
+| Where does the bake get level nav? | The bake command loads each level through the engine (which builds or loads its nav) and copies the live navmesh tiles. The tile cache is not part of the world mesh | SIM_CONTRACT.md §7 |
+| Engine-free sim library? (2026-10-23) | No. The sim lives in the SimGame project and uses engine code sparingly; tests run in-game headless (`-sim_selftest`). Overrides §17.3 and §17.5 | SIM_CONTRACT.md §1 |
+| Containers in sim code? | Prefer entt containers (dense_map, dense_set) | SIM_CONTRACT.md §1 |
+| Merged world mesh or per-level meshes? | One merged mesh (D3 confirmed) | §4 |
+| Long off-mesh links (risk §15) | Resolved with an additive engine Detour method, `dtNavMesh::connectRemoteOffMeshLinks`, which lands links by position. Levels are laid out apart with a one-tile gap, no adjacency needed | SIM_CONTRACT.md §4 |
+| Where does the bake get level nav? | The bake command loads each level through the engine (which builds or loads its nav) and copies the live navmesh tiles. The tile cache is not part of the world mesh | SIM_CONTRACT.md §7 |
