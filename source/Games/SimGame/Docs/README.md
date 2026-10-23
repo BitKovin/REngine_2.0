@@ -53,7 +53,8 @@ ninja
 
 The executable is `Build/SimGame/windows/bin/SimGame.exe`; the build also stages `fmod.dll` and `fmodstudio.dll` next to
 it (`fmod_stage_windows_dlls` in `sourceLibraries/fmod/CMakeLists.txt`). Run it with the working directory set to
-`Build/SimGame/windows` (that is where `GameData` ends up, not in `bin`).
+the game folder `source/Games/SimGame`, so the source `GameData` is used directly (no copying). The staged
+`Build/SimGame/windows/GameData` is for packaged runs only.
 
 ## Launch arguments
 

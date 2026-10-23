@@ -167,7 +167,8 @@ struct HungerModule : sim::Module
 
 ## 5. Tests (all headless, ~2 s)
 
-Run: `cd Build/SimGame/windows` then `bin/SimGame.exe -headless -sim_selftest`; the report is
+Run with the working directory set to the game folder `source/Games/SimGame` (its GameData is used directly; do not
+rely on or copy the staged `Build/SimGame/windows/GameData`): `..\..\..\Build\SimGame\windowsin\SimGame.exe -headless -sim_selftest`; the report is
 `SaveData/sim_selftest.log` (first line: passed / failed / seconds). In a running game: console command `sim_selftest`.
 
 | Suite | Covers |
@@ -199,7 +200,7 @@ func_door, triggers, navBlock, ...). Sim classes, not yet read by code except th
 
 ## 7. Next steps (in order) — for the next session
 
-1. ~~Bake console command~~ **done**: `bin/SimGame.exe -headless -sim_bake_nav` (cwd `Build/SimGame/windows`) loads every
+1. ~~Bake console command~~ **done**: `SimGame.exe -headless -sim_bake_nav` (cwd `source/Games/SimGame`, so the output lands in the source GameData) loads every
    manifest map through `Level::LoadLevelFromFile` (the engine builds or loads each level's nav), captures the live
    navmesh tiles and the sim_portal / sim_spawn entities, bakes, writes `GameData/sim/world.nav` (build GameData),
    reloads it and routes from the root level's player start to every spawn of every other level. Report:
