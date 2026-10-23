@@ -71,6 +71,14 @@ namespace sim
 		return id;
 	}
 
+	uint32_t Host::SendRequest(Message message)
+	{
+		message.requestId = nextRequestId++;
+		const uint32_t id = message.requestId;
+		Send(std::move(message));
+		return id;
+	}
+
 	std::vector<Message> Host::Receive()
 	{
 		std::vector<Message> result;
@@ -127,15 +135,20 @@ namespace sim
 		case Message::Kind::Save:
 		{
 			Message out = reply(Message::Kind::Reply);
-			out.blob = server.GetWorld().Save(true);
+			out.blob = server.GetWorld().Save(message.value <= 0.5);
+			if (hooks.beforeSave)
+				out.extra = hooks.beforeSave(server.GetWorld());
 			replies.push_back(std::move(out));
 			break;
 		}
 		case Message::Kind::Load:
 		{
 			std::string error;
-			if (server.Load(message.blob.data(), message.blob.size(), error))
+			if (server.Load(message.blob.data(), message.blob.size(), error) && (!hooks.afterLoad || hooks.afterLoad(server, message.extra, error)))
+			{
+				lastSnapshotTick = server.GetWorld().Now();
 				replies.push_back(reply(Message::Kind::Reply));
+			}
 			else
 			{
 				Message out = reply(Message::Kind::Error);
@@ -225,6 +238,16 @@ namespace sim
 
 		currentTick = server.GetWorld().Now();
 		pausedFlag = paused;
+
+		if (hooks.publishSnapshot && server.GetWorld().Now() - lastSnapshotTick >= std::max<Tick>(1, hooks.snapshotInterval))
+		{
+			lastSnapshotTick = server.GetWorld().Now();
+			Message snapshot;
+			snapshot.kind = Message::Kind::Snapshot;
+			snapshot.tick = lastSnapshotTick;
+			hooks.publishSnapshot(server.GetWorld(), snapshot.blob);
+			outputs.push_back(std::move(snapshot));
+		}
 
 		if (!outputs.empty() || !replies.empty())
 		{

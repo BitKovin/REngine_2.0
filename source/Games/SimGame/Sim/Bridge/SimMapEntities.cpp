@@ -1,5 +1,7 @@
 #include "SimMapEntities.h"
 
+#include <SimPawn.h>
+
 #include <BSP/Quake3Bsp.h>
 #include <RegisterLevelObject.h>
 
@@ -30,6 +32,8 @@ void SimSpawn::FromData(EntityData data)
 {
 	Entity::FromData(data);
 	playerStart = (static_cast<int>(data.GetPropertyFloat("spawnflags")) & 1) != 0;
+	if (playerStart)
+		SimPawn::SpawnAt(Position, data.GetPropertyFloat("angle") + 90.0f); // the pawn the sim follows (SLICE_M2B_BRIDGE 3.4)
 }
 
 REGISTER_ENTITY(SimPortal, "sim_portal")

@@ -12,12 +12,14 @@
 
 #ifndef DISTRIBUTION
 
+#include "SimWorldNavFile.h"
+
 #include <string>
 
 namespace SimNavBaker
 {
-	constexpr const char* DefaultManifest = "GameData/sim/world.manifest";
-	constexpr const char* OutputPath = "GameData/sim/world.nav";
+	constexpr const char* DefaultManifest = SimWorldNavFile::DefaultManifest;
+	constexpr const char* OutputPath = SimWorldNavFile::Path;
 	constexpr const char* ReportPath = "SaveData/sim_bake_nav.log";
 
 	// Starts a bake; returns false (and logs why) if the manifest cannot be read or a bake is running.

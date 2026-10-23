@@ -5,8 +5,13 @@
 #include <Settings/GameSettings.h>
 #include <Settings/InputActionRegistry.h>
 #include <UI/Pause/UiPauseMenu.h>
+#include <Sim/Bridge/SimBridge.h>
 #include <Sim/Bridge/SimNavBaker.h>
+#include <Sim/Bridge/SimNavDebugDraw.h>
+#include <Sim/Bridge/SimWorldNavFile.h>
 #include <Sim/Tests/SimSelfTests.h>
+
+#include <SimPawn.h>
 
 #include <AssetRegistry.h>
 #include <EngineMain.h>
@@ -20,6 +25,8 @@
 
 #include <SDL2/SDL.h>
 
+#include <algorithm>
+#include <cstdlib>
 #include <memory>
 #include <string>
 
@@ -27,10 +34,15 @@
 // Persistent across levels.
 //
 // Launch arguments:
-//   -map <file>          startup map inside GameData/maps (default: blank.bsp)
+//   -map <file>          startup map inside GameData/maps (default: the first map of GameData/sim/world.manifest, else blank.bsp)
 //   -quit_after <secs>   quit after that many seconds of game time; for automated runs (see Docs/README.md)
 //   -sim_selftest        run the sim self tests, write SaveData/sim_selftest.log and quit
 //   -sim_bake_nav [file] bake the world nav mesh from a manifest (default GameData/sim/world.manifest) and quit
+//   -sim_nav_draw        draw the loaded level's world nav mesh and portal links (console: sim_nav_draw)
+//   -sim_demo [count]    place commuting demo walkers (default 40), drawn as boxes (console: sim_demo, sim_agents)
+//   -sim_bridge_test     automated in-game check of the bridge, pawn and save hook; writes SaveData/sim_bridge.log and quits
+//
+// The sim starts with the game (SimBridge). Development builds check that GameData/sim/world.nav is newer than every map it was baked from.
 class GameStart : public Entity
 {
 public:
@@ -61,24 +73,52 @@ public:
 		GameSettings::Instance().LoadFromFile();
 		GameSettings::Instance().ApplyAll();
 
-#ifndef DISTRIBUTION
-		if (EngineMain::MainInstance->Arguments.contains("sim_selftest"))
-			RunSimSelfTestsAndQuit();
+		const auto& arguments = EngineMain::MainInstance->Arguments;
+		bool simGame = true; // false for the tool runs that load levels without playing them
+		int demoCount = 0;
+		bool bridgeTest = false;
 
-		if (auto bake = EngineMain::MainInstance->Arguments.find("sim_bake_nav"); bake != EngineMain::MainInstance->Arguments.end())
+#ifndef DISTRIBUTION
+		if (arguments.contains("sim_selftest"))
 		{
+			simGame = false;
+			RunSimSelfTestsAndQuit();
+		}
+
+		if (auto bake = arguments.find("sim_bake_nav"); bake != arguments.end())
+		{
+			simGame = false;
 			pendingStartupMap = false; // the baker loads the levels
 			SimNavBaker::Start(bake->second.empty() ? SimNavBaker::DefaultManifest : bake->second[0], true);
 		}
+
+		if (simGame)
+		{
+			if (arguments.contains("sim_nav_draw"))
+				SimNavDebugDraw::SetEnabled(true);
+			if (auto demo = arguments.find("sim_demo"); demo != arguments.end())
+				demoCount = demo->second.empty() ? 40 : std::max(0, std::atoi(demo->second[0].c_str()));
+			if (arguments.contains("sim_bridge_test"))
+			{
+				bridgeTest = true;
+				demoCount = demoCount > 0 ? demoCount : 40;
+			}
+		}
 #endif
+
+		SimPawn::SpawnEnabled = simGame;
+		if (simGame)
+			SimBridge::Start(demoCount, bridgeTest);
 	}
 
 	void Update() override
 	{
 		UpdatePause();
+		SimBridge::Update();
 
 #ifndef DISTRIBUTION
 		SimNavBaker::Update();
+		SimNavDebugDraw::Update();
 #endif
 
 		UiManager::UiScale = Input::IsScrenTouched ? 1.3f : 1.0f;
@@ -117,7 +157,9 @@ private:
 		auto map = EngineMain::MainInstance->Arguments.find("map");
 		if (map != EngineMain::MainInstance->Arguments.end() && !map->second.empty())
 			return "GameData/maps/" + map->second[0];
-		return "GameData/maps/blank.bsp";
+		// No -map: the first level of the world manifest (the layout root), so the game opens in the sim's world.
+		const std::vector<std::string> maps = SimWorldNavFile::ReadManifest(SimWorldNavFile::DefaultManifest);
+		return maps.empty() ? "GameData/maps/blank.bsp" : SimWorldNavFile::MapPath(maps[0]);
 	}
 
 	static void RegisterInputActions()

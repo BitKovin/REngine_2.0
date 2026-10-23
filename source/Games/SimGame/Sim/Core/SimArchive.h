@@ -42,8 +42,10 @@ namespace sim
 		void Assign(const char* text)
 		{
 			chars.fill('\0');
-			if (text)
-				std::strncpy(chars.data(), text, N - 1);
+			if (!text)
+				return;
+			for (size_t i = 0; i + 1 < N && text[i] != '\0'; ++i)
+				chars[i] = text[i];
 		}
 		const char* c_str() const { return chars.data(); }
 		std::string str() const { return chars.data(); }

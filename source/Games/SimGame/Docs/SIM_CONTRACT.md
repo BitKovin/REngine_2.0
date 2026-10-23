@@ -4,8 +4,9 @@ The working contract of the SimGame simulation: module map, public interfaces, i
 where, and what comes next. **Every session starts by reading this file and updates it before ending** (addendum
 section 17.7). Design and addendum stay the source of truth for *decisions*; this file is the source of truth for *code*.
 
-Status: 2026-10-23. Kernel (M1 core, parts of M3) and WorldNav (M0, including the engine bake command) are done and tested.
+Status: 2026-10-23. Kernel (M1 core, parts of M3) and WorldNav (M0: bake command, stale check, debug draw) are done and tested.
 The test world (`GameData/sim/world.manifest`: sim_test_a, sim_test_road, sim_test_b, sim_test_c) bakes with 6/6 portals linked.
+M2a abstract movement (`Sim/Movement`, `SLICE_M2_MOVEMENT.md`) and M2b the bridge, walking pawn, snapshot and save hook (`SLICE_M2B_BRIDGE.md`) are done and tested. Next: bodies and the level transition.
 
 ---
 
@@ -17,7 +18,7 @@ The test world (`GameData/sim/world.manifest`: sim_test_a, sim_test_road, sim_te
 | Prefer entt containers | `entt::dense_map` / `dense_set` over `std::map` / `unordered_map` in sim code. They iterate in insertion order, so iteration is deterministic. |
 | The sim never touches engine statics | No `NavigationSystem`, `EcsWorld`, `Level`, `Time`, `Input` from sim code. The sim thread owns its own entt registry and its own `dtNavMesh`. |
 | World nav is ONE merged Detour mesh (D3) | Built from the levels' navmesh tiles (the tiles the engine's tile-cache pipeline produced, so the same polygon grid). The tile cache itself is **not** part of the world mesh. |
-| One engine change so far | `dtNavMesh::connectRemoteOffMeshLinks` + `DT_OFFMESH_SIDE_REMOTE` in `source/Engine/Navigation/Detour/DetourNavMesh.{h,cpp}`: purely additive, approved by the owner. List any further engine change here. |
+| Engine changes so far | (1) `dtNavMesh::connectRemoteOffMeshLinks` + `DT_OFFMESH_SIDE_REMOTE` in `source/Engine/Navigation/Detour/DetourNavMesh.{h,cpp}`: purely additive. (2) `GameSaveSystem::RegisterExtension` / `GameSaveExtension` and `Extensions` in `GameSaveData` (`source/Engine/SaveSystem/GameSaveSystem.{h,cpp}`): additive, a game registers state that is saved and loaded with the level; old saves load. (3) `Helpers/Base64.h`: the Base64 helpers that were file-static in `EmscriptenFileSystem.cpp`, moved to a shared header (the web file system includes it; **not built on this machine**, the move is literal apart from unsigned accumulators and a byte-safe table index). All owner-approved. List any further engine change here. |
 | Builds and tests | The implementer may build and run headless tests (see section 7). Never run the game without `-headless`. |
 
 ---
@@ -46,12 +47,22 @@ Sim/
     WorldNavData.h/.cpp     LevelNavData, ReadLevelNavFile (engine .nav, tests only), bake inputs, world file
     WorldNavBake.h/.cpp     BakeWorldNav (pure), CaptureLevelNav (copy tiles from a live engine dtNavMesh)
     WorldNav.h/.cpp         runtime: combined mesh, Project, FindPath, PathService (sliced A*)
+    WorldNavDebug.h/.cpp    pure debug geometry: CollectDebugSegments (level-local or whole-world line segments)
+  Movement/                 abstract movement (section 8): game concepts live here, not in Core
+    SimSpeedTable.h         shared speed table: mover class x gait x area -> m/s (header only; the physical layer will read it too)
+    SimWalk.h/.cpp          pure path walking: Advance, PositionOf, LevelOf, WalkLength (no World)
+    SimMovement.h/.cpp      MovementModule(WorldNav&): components, events, commands, tunables, systems, invariant, snapshot, placements, rebake migration
+    SimDemoPopulation.h/.cpp  development only: demo module (PopulateDemo, TripWanted, commute rules), the same rules the tests run
   Bridge/                   engine side (the only code that uses both the sim and engine gameplay types)
     SimMapEntities.h/.cpp   sim_portal (TriggerBase; keeps targetLevel, targetSpawn, brush centre) and sim_spawn entities
     SimNavBaker.h/.cpp      bake shell: console `sim_bake_nav [manifest]`, launch `-sim_bake_nav [manifest]` (bakes, quits)
+    SimWorldNavFile.h/.cpp  world.nav path, Load, map path <-> level, CheckFresh / CheckAtGameLoad (stale check)
+    SimNavDebugDraw.h/.cpp  DebugDraw of the loaded level's world mesh + portal links: console `sim_nav_draw [on|off]`, launch `-sim_nav_draw`
   Tests/
     SimTestFramework.h      TestContext (Check / Note / Section), Stopwatch, suite declarations
     SimSelfTests.h/.cpp     RunSimSelfTests + console command sim_selftest
+    SimNavFixtures.h/.cpp   real baked levels shared by the nav and movement tests (LoadFixture, OriginalMesh, BuildChain)
+    SimMovementTests.cpp    movement suite
     SimKernelTests.cpp      kernel suite, with a toy "test" module that exercises every kernel path
     SimNavTests.cpp         world nav suite on real GameData/maps/*.bsp.nav fixtures
 GameData/entities.ent       level editor entity definitions (engine classes + sim_* classes, section 6)
@@ -153,30 +164,43 @@ struct HungerModule : sim::Module
   Validation (fails the bake, names map and entity): unknown target level or spawn, portal or spawn not on the mesh,
   unconnected level, link without a landing polygon, portal ends of one level that cannot reach each other, any level
   pair without a route.
-- **World file**: `WorldNavData::Serialize/Deserialize` (zlib via ByteCompressor). Holds levels (name, source version =
+- **World file** (format 2): `WorldNavData::Serialize/Deserialize` (zlib via ByteCompressor). Holds the spawn points (`WorldSpawn`: name, level, nav position,
+  player start; snapped onto the mesh by the bake, a spawn that does not snap is skipped with a warning), `Fingerprint()` (FNV of level names,
+  offsets, tile shifts and links: what saved positions depend on) and levels (name, source version =
   map mtime, offset, tile shift), links, translated tile blobs.
 - **Runtime** (`WorldNav`, sim thread only): `Load` adds all tiles, then `connectRemoteOffMeshLinks` and checks every
   link landed. `Project`, `FindPath` (one-shot, tools), `PathService` (sliced A* with an iteration budget; results in
   request order; the result does not depend on the budget — tested). Positions are nav space;
   `ToNav(level, local)` / `ToLocal(level, nav)`; `LevelOfPoly`. `NavPath` has corners, corner levels, the polygon
   corridor, `complete`, length and `portalCrossings`. Query node pool 65,535 (Detour maximum).
+- **Stale check** (`FindStaleLevels`, pure; bridge `SimWorldNavFile::CheckAtGameLoad`): a world level is stale when the map's
+  modification time (`FileSystemEngine::GetFileModificationTime`, the value the bake stored in `WorldLevel::sourceVersion`)
+  differs, or the map is gone. `GameStart` runs it once at game load in development builds (not for `-sim_selftest` and
+  `-sim_bake_nav`) and logs `Logger::Error` banners: `==== SIM WORLD NAV IS STALE ...` (one line per level plus the fix), or
+  `==== SIM WORLD NAV UNAVAILABLE` when the file is missing. The future SimBridge calls the same functions.
+- **Debug draw**: `CollectDebugSegments(nav, level, centre, radius, out)` returns level-local lines (level < 0: the whole world in
+  nav space): polygon edges (`Edge` shared, `Border` boundary), and for each portal a marker (diamond + 3 m beam):
+  `LinkStart` (trigger end), `LinkStartBroken` (portal not in the mesh), `LinkEnd` (landing). Edges are culled by `radius`
+  (an end within it), markers never. `SimNavDebugDraw` caches the level's segments, draws those within 100 m of the camera
+  each frame with `DebugDraw::Line`, and reads its own copy of world.nav (game thread), never the sim's mesh.
 - Known Detour behaviour: one-shot `findPath` and sliced A* may pick different equal-cost routes; translated meshes may
   break A* ties differently (float rounding). Reachability is always identical (tested).
 
 ---
 
-## 5. Tests (all headless, ~2 s)
+## 5. Tests (all headless, ~4 s)
 
 Run with the working directory set to the game folder `source/Games/SimGame` (its GameData is used directly; do not
-rely on or copy the staged `Build/SimGame/windows/GameData`): `..\..\..\Build\SimGame\windowsin\SimGame.exe -headless -sim_selftest`; the report is
+rely on or copy the staged `Build/SimGame/windows/GameData`): `..\..\..\Build\SimGame\windows\bin\SimGame.exe -headless -sim_selftest`; the report is
 `SaveData/sim_selftest.log` (first line: passed / failed / seconds). In a running game: console command `sim_selftest`.
 
 | Suite | Covers |
 |---|---|
 | Kernel | archives, RNG, lazy values, scheduler (order, cancel, reuse, compaction), event log ring, registration errors, stagger, waves + causes + why-trace + timeline, rejection and stale handles, cascade cap, scheduled events in big steps, determinism (1,500 ticks × 40 agents, hash every tick), save round trip (byte-identical re-save, 1,500 ticks continued identically, killed agent stays dead, corrupt data rejected), replay incl. fast-forward steps and tamper detection, invariants and logged tunables, text commands, Host pump (accumulator, pause/step, fast-forward, wake, save/load, refusal of non-inputs), Host thread (input/output across threads, pause, step, save barrier, stop), throughput note |
-| Nav | parse/rewrite of all 8 fixtures, translated level answers like the original (5 levels × 40 paths + 40 projections), 4-level chain bake with world file round trip, route across 3 portals both ways, level order of corners, sliced service, levels never stitch without links, validation messages |
+| Nav | parse/rewrite of all 8 fixtures, translated level answers like the original (5 levels × 40 paths + 40 projections), 4-level chain bake with world file round trip, route across 3 portals both ways, level order of corners, sliced service, levels never stitch without links, validation messages, stale check (changed, missing and restored-older maps; map path to level name), debug geometry (edges and borders inside the level's bounds, one marker per portal end, levels add up to the whole world, range culling keeps markers) |
+| Bridge | Base64 (known vectors, every length); world file v2 (spawns, fingerprint stability); sim save file (round trip, truncation, garbage, other format version); thread mode (20 start/stop cycles, speed, snapshots on the game thread, pause, text and save while paused, stop time, timeout); pump mode (same hashes twice, player anchor, snapshot tiers = TierOf, only the newest snapshot, level change, unknown level); save barrier (hash equal after load, 400 equal ticks, truncated / wrong schema / corrupt world refused with the sim untouched); rebake (other layout: 16 of 16 re-placed by level within 2.5 m, new walks, no violation; missing level removes its agents); snapshot and save cost at 400 walkers |
 
-Measured (Release, this machine): toy world 400 agents ~0.5–1 M events/s; state hash of 400 agents 0.5 ms.
+Measured (Release, this machine): toy world 400 agents ~0.5–1 M events/s; state hash of 400 agents 0.5 ms; longest test route (3 portals, 74 polygons) 55 us one-shot.
 
 ---
 
@@ -200,22 +224,108 @@ func_door, triggers, navBlock, ...). Sim classes, not yet read by code except th
 
 ## 7. Next steps (in order) — for the next session
 
-1. ~~Bake console command~~ **done**: `SimGame.exe -headless -sim_bake_nav` (cwd `source/Games/SimGame`, so the output lands in the source GameData) loads every
-   manifest map through `Level::LoadLevelFromFile` (the engine builds or loads each level's nav), captures the live
-   navmesh tiles and the sim_portal / sim_spawn entities, bakes, writes `GameData/sim/world.nav` (build GameData),
-   reloads it and routes from the root level's player start to every spawn of every other level. Report:
-   `SaveData/sim_bake_nav.log`. Still to do: the stale check at game load (compare `WorldLevel::sourceVersion` with
-   the map's mtime, loud warning in development builds), and deciding whether world.nav is copied into the source
-   GameData (open question below).
-2. **WorldNav debug draw** (bridge): draw the loaded level's part of the world mesh and the links with `DebugDraw`.
-3. **M2 movement** on top of kernel + WorldNav: walker component (path corners, progress, speed), movement system
-   stepping by tier (T0/T1/T2 by distance to the player, addendum 6.2), shared speed table, arrival events, teleport
-   detector invariant, path requests through PathService applied at one point in the tick.
-4. **Bridge entity** (`SimBridge`, persistent like `gamestart`): owns `Host` in Thread mode, sends player position,
-   receives outputs; spawn handshake with PVS; custom level transition (addendum 5.2); save chunk through
-   `GameSaveSystem` via the save barrier.
+1. ~~Bake console command~~ **done**: `SimGame.exe -headless -sim_bake_nav` (cwd `source/Games/SimGame`, so the output lands in the
+   source GameData) loads every manifest map through `Level::LoadLevelFromFile` (the engine builds or loads each level's nav),
+   captures the live navmesh tiles and the sim_portal / sim_spawn entities, bakes, writes `GameData/sim/world.nav`, reloads it
+   and routes from the root level's player start to every spawn of every other level. Report: `SaveData/sim_bake_nav.log`.
+   Both headless runs were confirmed from the game folder (2026-10-23). The engine writes `<map>.bsp.nav` next to each map on
+   first load; they and `world.nav` are untracked: commit them if the team wants the baked files in the repo.
+2. ~~Stale check at game load~~ **done** (section 4).
+3. ~~WorldNav debug draw~~ **done** (section 4). Verified headless with `-map sim_test_a.bsp -sim_nav_draw` (1,235 segments, no
+   crash); the picture itself still needs a look in a visible run.
+4. ~~M2a abstract movement~~ **done** (section 8, `SLICE_M2_MOVEMENT.md`).
+5. ~~Bridge and walking pawn~~ **done** (section 9, `SLICE_M2B_BRIDGE.md`).
+6. **Bodies and the spawn handshake** (rest of M2): the sim proposes spawn/despawn from the Snapshot path, the client accepts outside the
+   camera's PVS and answers with the body; NPC bodies follow the remaining waypoints on the level mesh.
+7. **Custom level transition** (addendum 5.2): `sim_portal` triggers act on the pawn, no `TimeSkip`, the pawn goes through the same portal pair
+   in the sim. Needs a decision on how the pawn is carried between levels (`LevelTraversalSystem::PlayerSerializedData`).
+8. **Abstract-versus-physical calibration** (addendum 7.1): walk a real body along a route a headless agent also walks; the pawn already uses the
+   shared speed table.
+
+Settled by the owner:
+- Calendar time scale (2026-10-23): **0.5 game minutes per world second** (1 game minute = 2 s, 1 game hour = 2 min, a day =
+  48 min). Movement stays in real world seconds (0.1 s ticks). Needs rates and schedules (M4) are derived from it.
 
 Open questions for the owner (ask before the step that needs them):
-- Calendar time scale: movement is real world time (0.1 s ticks); how many calendar minutes per world second? Needed
-  by needs rates and schedules (M4).
-- Where the world manifest and world.nav live (`GameData/sim/` proposed).
+- Where the world manifest and world.nav live: `GameData/sim/` is in use (source GameData); confirm, and whether world.nav
+  and the `sim_test_*.bsp.nav` files are committed (they are untracked). world.nav is format 2 now: rebake once after pulling.
+- The web build: nothing from M2b was built or run for wasm (threads, `Helpers/Base64.h` in `EmscriptenFileSystem.cpp`).
+
+---
+
+## 8. Movement contract (Sim/Movement, tests in SimMovementTests.cpp)
+
+Use: `MovementModule movement(worldNav)` (WorldNav loaded, outlives every World), `builder.Add(movement)` after the kernel.
+`movement.Place(ctx, navPosition)` in `RunSetup` creates a walker. A rule asks for a walk with the `RequestWalk` command; it
+never sets a position (design 5.4). Everything is in nav space; the level is derived (addendum 4.5).
+
+| Record | Notes |
+|---|---|
+| `Position {nav}`, `Walker {...}` | components; `Walker` holds state (Idle, WaitingForPath, Walking), gait, `speedScale` (per agent, from the `placement` stream), the path (`corners`, `cornerLevels`), `progress` (leg, metres into it, portal wait), `lastIntegrated` and the detector fields |
+| `PlayerAnchor {level, nav}` | the player as the game tells it; the only stored level |
+| input `PlayerMoved {level, local}` | rule `player_moved` -> command `SetPlayerLocus` (unknown level is rejected) |
+| commands | `RequestWalk {walker, destination, gait}`, `StopWalk`, `SetGait`, `SetPlayerLocus`; each syncs a walking walker to now first, so speed changes and stops are exact |
+| events | `PathAssigned {length, corners, portals}`, `PathFailed {reason}` (start_off_mesh, destination_off_mesh, no_path, unreachable; partial paths fail), `PortalCrossed`, `Arrived {at}` (`at` = exact tick, the event may come later), `PositionException {reason: placed, portal}` |
+| tunables | `movement.tier0_radius` 50 m, `tier0_step` 1, `tier1_step` 2, `tier2_step` 10 ticks, `portal_delay` 1 s, `paths_per_tick` 16, `speed_scale_spread` 0.1 |
+
+- **Systems** (kernel order): `movement.paths`, then `movement.integrate`.
+  `paths`: walkers in WaitingForPath, oldest `requestedAt` first (ties by entity index), at most `paths_per_tick` per step; start
+  and destination are projected, requests go through `PathService`, `Update(INT_MAX)` solves them to completion inside the
+  step, results come back in request order. The queue is the set of waiting walkers (components), so nothing is lost across a
+  save. Deviation from addendum 6.3 (slicing across ticks), owner-approved: the longest test route costs 55 us.
+  `integrate`: each Walking walker is due by `IsStaggerDue(entity, now, dt, step of its tier)` and then advances by the time
+  since `lastIntegrated`. Tier: T0 within `tier0_radius` (horizontal) of the player in the player's level, T1 the rest of that
+  level, T2 other levels or no player. A larger kernel step (fast-forward) makes everybody due; results do not depend on it.
+- **Walking**: `Advance` consumes `speed x time` along the corners (3D length). Speed = table(class, gait, area) x `speedScale`.
+  A leg whose two corners lie in different levels is a portal: walk to its start, wait `portal_delay`, continue from its end.
+  The straight line between the two ends is never walked and never counted. Progress is (leg, metres into the leg) in double
+  precision, so one big step and many small steps end at the same place.
+- **No-teleport rule**: `AdvanceWalker` (and `Place`) are the only writers of `Position`. Invariant `movement.no_teleport`
+  (runs after every step when `World::checkInvariants`): `Position` equals what the module last wrote, the last integration did
+  not walk further than the fastest gait x `speedScale` allows, and a position written this step is on the mesh (0.3 x 1 x 0.3 m
+  projection). Position changes that are not walking are `PositionException` events: `placed`, `portal`.
+- `PositionAt(world, entity, tick)` extrapolates along the path without changing anything; `TierOf`, `LevelOf` are queries.
+- Not in this slice: bodies and materialization, calibration against a real body, per-area speeds (the path does not report
+  areas yet), groups, doors, encounters.
+
+Tests (added to `-sim_selftest`): walking maths alone (big step = small steps at every instant, portal delay, speed change,
+degenerate paths); tiers (radius, level, player moving between levels, 50 / 10 integrations per 100 ticks for tier 1 / 2,
+a portal crossing changes tier); path requests (cap, oldest first, destroyed walker, destination off the mesh, unreachable island);
+gait change mid-walk, stop, extrapolation versus a tick-by-tick walker; detector (foreign write, over-speed, off-mesh);
+fast-forward (blocks of 1, 10, 600 ticks: same arrival ticks); commute (40 walkers over 4 levels / 6 portals for 18,000 ticks =
+30 min: 981 trips, 1203 portal crossings, every arrival within 1.5 ticks of length / speed + delays, no violation, replay and
+mid-walk save/load identical). Cost: 400 walkers 36 us per tick (Release, this machine).
+
+---
+
+## 9. Bridge contract (Sim/Bridge, SimPawn, tests in SimBridgeTests.cpp; `SLICE_M2B_BRIDGE.md`)
+
+- **Start**: `GameStart::Start` calls `SimBridge::Start(demoCount, test)` unless the run is `-sim_selftest` or `-sim_bake_nav` (those also disable
+  the pawn). It loads `GameData/sim/world.nav` into the bridge's own `WorldNav` (stale check as before), builds movement (+ demo in development
+  builds) into a registry, creates a `SimClient` (Host in **Thread mode**, seed 1) and registers the save extension. A missing or unreadable world
+  file leaves the game running without a sim and logs `==== SIM NOT STARTED`. Stop: on `SDL_QUIT` (event watch) and from `atexit`.
+- **Every frame** (`GameStart::Update`, after the pause state): pause menu -> `Pause`/`Resume`; `SimClient::Update` drains the Host; the pawn's feet
+  position goes out as `PlayerMoved {level, local}` when the level changes, after 0.5 m, or after 0.5 s; development builds draw each agent of the loaded
+  level as a box (tier 0 green, 1 yellow, 2 grey).
+- **Pawn** (`SimPawn`, "sim_pawn"): CharacterController, mouse look, forward/backward/left/right/crouch/jump; run speed 4.0 m/s from the speed table,
+  walk speed 1.4 m/s while crouching; eye camera; saved with the level; `SimSpawn` creates it at the default player start (once per level load, using
+  `Level::CurrentLevelChangeId`). `StartScriptedWalk(metres)` for automated runs. The editor camera is no longer the player.
+- **Startup map**: without `-map` the game opens the first map of `GameData/sim/world.manifest` (was blank.bsp).
+- **Snapshot** (Host addition): `HostHooks::publishSnapshot` runs on the sim thread every 2 ticks (5 Hz); `MovementModule::WriteSnapshot` writes a
+  `SnapshotView` (player anchor + an `AgentView` per walker: entity, level, tier, state, nav position); the client keeps only the newest.
+- **Host hooks** (project code): `beforeSave` (placements of every walker, computed at the barrier tick), `afterLoad` (rebake migration). `Message` gained
+  `Snapshot` and `extra`; `Save` with `value > 0.5` leaves the event log out; `Host::SendRequest(Message)`.
+- **Save**: the engine hook `GameSaveSystem::RegisterExtension` (section 1). `save` -> `SimClient::SaveBlocking` (the game thread waits for the sim's
+  answer at its next tick boundary, even while paused; 2 s timeout fails the whole save, nothing is written). `load` runs before the level is touched:
+  `LoadBlocking`, false cancels the load. A save without a sim entry starts a fresh sim (logged). The event log is kept in development builds only.
+  The file: `SimSaveFile` (magic, format 1, tick, **schema hash** = component names + versions, **layout fingerprint**, level names, placements, kernel blob,
+  zlib). A different schema or format refuses the load with the sim untouched; the kernel rejects corrupt blobs the same way.
+- **Rebake** (fingerprint differs): after the kernel load, one logged setup (`rebake migration`) puts every walker back at its level (by name) and
+  level-local position on the new mesh (projection 2, 10, 50 m), clears its path, emits `PositionException(rebake)` and `Replaced`; the demo rule sends it
+  on a new trip. A level that is gone, or no mesh within 50 m, removes the agent with an error naming it. The player anchor is dropped (the pawn reports again).
+- **Console** (development): `sim_pause`, `sim_resume`, `sim_step n`, `sim_speed x [stepTicks]`, `sim_text <command>`, `sim_stats`,
+  `sim_demo [count]`, `sim_agents [on|off]`, `sim_player x y z`.
+- **Automated in-game run**: `SimGame.exe -headless -sim_bridge_test` (cwd = game folder) walks the pawn 20 m with 40 demo walkers, checks the anchor and
+  that agents moved, pauses, saves through `GameSaveSystem` (one `.savg` with the sim entry), lets the sim run on, loads, checks the state hash equals the
+  saved one, checks the sim keeps running, writes `SaveData/sim_bridge.log` and quits. 13 checks pass; exit code 0.
+- Not verified: how it looks and feels (boxes, pawn movement, camera) in a visible run; the web build.

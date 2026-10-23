@@ -474,3 +474,6 @@ Build/*
 *spirv-cross.lib
 *tint.lib
 source/Games/ShooterGame/imgui.ini
+
+source/Games/SimGame/imgui.ini
+source/Games/SimGame/SaveData/

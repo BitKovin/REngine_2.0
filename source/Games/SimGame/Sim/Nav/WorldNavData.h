@@ -10,6 +10,7 @@
 #include <glm/vec3.hpp>
 
 #include <cstdint>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -39,6 +40,7 @@ namespace sim::nav
 	{
 		std::string name;
 		glm::vec3 position{ 0.0f };
+		bool playerStart = false; // the level's default player start
 	};
 
 	struct LevelInput
@@ -101,6 +103,22 @@ namespace sim::nav
 		}
 	};
 
+	// A named arrival point (sim_spawn) snapped onto the world mesh; the demo population and the player start use them.
+	struct WorldSpawn
+	{
+		std::string name;
+		uint16_t level = 0;
+		glm::vec3 position{ 0.0f }; // nav space
+		bool playerStart = false;
+		template<class Ar> void Visit(Ar& ar)
+		{
+			ar("name", name);
+			ar("level", level);
+			ar("position", position);
+			ar("playerStart", playerStart);
+		}
+	};
+
 	struct WorldTile
 	{
 		uint16_t level = 0;
@@ -110,7 +128,7 @@ namespace sim::nav
 
 	struct WorldNavData
 	{
-		static constexpr uint32_t FormatVersion = 1;
+		static constexpr uint32_t FormatVersion = 2; // 2: spawns
 
 		float tileWidth = 0.0f;
 		int32_t maxTiles = 0;
@@ -120,6 +138,7 @@ namespace sim::nav
 		float walkableClimb = 0.0f;
 		std::vector<WorldLevel> levels;
 		std::vector<WorldLink> links;
+		std::vector<WorldSpawn> spawns;
 		std::vector<WorldTile> tiles;
 
 		template<class Ar> void Visit(Ar& ar)
@@ -132,6 +151,7 @@ namespace sim::nav
 			ar("walkableClimb", walkableClimb);
 			ar("levels", levels);
 			ar("links", links);
+			ar("spawns", spawns);
 			ar("tiles", tiles);
 		}
 
@@ -139,5 +159,22 @@ namespace sim::nav
 		static bool Deserialize(const std::vector<uint8_t>& bytes, WorldNavData& out, std::string& error);
 
 		int FindLevel(const std::string& name) const;
+
+		// Identifies the layout a saved sim is tied to: levels (name, offset, tile shift) and links. A rebake that moves a
+		// level changes it; spawns and tile contents do not (saved positions only depend on the layout).
+		uint64_t Fingerprint() const;
 	};
+
+	// A level whose map changed (or disappeared) since the world file was baked: its physical nav mesh and the
+	// world mesh may no longer agree (addendum 4.5).
+	struct StaleLevel
+	{
+		std::string name;
+		uint32_t baked = 0;   // the map's modification time when the world file was baked
+		uint32_t current = 0; // now; 0 when the map file does not exist
+		std::string Describe() const;
+	};
+
+	// `mapVersion` returns a map's current modification time (0 for a missing map). Result is in level order.
+	std::vector<StaleLevel> FindStaleLevels(const WorldNavData& data, const std::function<uint32_t(const std::string&)>& mapVersion);
 }

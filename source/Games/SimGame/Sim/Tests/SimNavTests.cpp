@@ -1,19 +1,23 @@
 // World nav tests on real baked levels (GameData/maps/*.bsp.nav, addendum section 17.2: round-trip tests on real
 // fixtures). Failures name the level.
 
-#include "SimTestFramework.h"
+#include "SimNavFixtures.h"
 
 #ifndef DISTRIBUTION
 
+#include <Sim/Bridge/SimWorldNavFile.h>
 #include <Sim/Core/SimRandom.h>
 #include <Sim/Nav/NavTileData.h>
 #include <Sim/Nav/WorldNav.h>
 #include <Sim/Nav/WorldNavBake.h>
+#include <Sim/Nav/WorldNavDebug.h>
 
 #include <FileSystem/FileSystem.h>
 #include <Navigation/Detour/DetourAlloc.h>
 #include <Navigation/Detour/DetourCommon.h>
 
+#include <entt/container/dense_map.hpp>
+#include <glm/common.hpp>
 #include <glm/geometric.hpp>
 
 #include <cmath>
@@ -25,88 +29,6 @@ namespace sim::test
 	namespace
 	{
 		using namespace sim::nav;
-
-		const char* Fixtures[] = { "lvl1", "test", "example", "test_interior", "l1_town", "lvl1_proto", "lvl2", "blank" };
-
-		bool LoadFixture(TestContext& t, const std::string& name, LevelInput& out)
-		{
-			const std::string path = "GameData/maps/" + name + ".bsp.nav";
-			std::string error;
-			out = LevelInput{};
-			out.name = name + ".bsp";
-			const bool ok = ReadLevelNavFile(FileSystemEngine::ReadFileBinary(path), out.nav, error);
-			t.Check(ok, "%s loads: %s", path.c_str(), error.c_str());
-			return ok;
-		}
-
-		// The level's own mesh, as the engine would hold it.
-		struct OriginalMesh
-		{
-			dtNavMesh* mesh = nullptr;
-			dtNavMeshQuery* query = nullptr;
-			~OriginalMesh()
-			{
-				dtFreeNavMeshQuery(query);
-				dtFreeNavMesh(mesh);
-			}
-			bool Build(const LevelNavData& nav)
-			{
-				mesh = dtAllocNavMesh();
-				if (dtStatusFailed(mesh->init(&nav.params)))
-					return false;
-				for (const auto& blob : nav.tiles)
-				{
-					unsigned char* copy = static_cast<unsigned char*>(dtAlloc(static_cast<int>(blob.size()), DT_ALLOC_PERM));
-					std::memcpy(copy, blob.data(), blob.size());
-					if (dtStatusFailed(mesh->addTile(copy, static_cast<int>(blob.size()), DT_TILE_FREE_DATA, 0, nullptr)))
-					{
-						dtFree(copy);
-						return false;
-					}
-				}
-				query = dtAllocNavMeshQuery();
-				return dtStatusSucceed(query->init(mesh, WorldNav::QueryNodes));
-			}
-		};
-
-		glm::vec3 PolyCentre(const dtMeshTile* tile, const dtPoly* poly)
-		{
-			glm::vec3 centre(0.0f);
-			for (int i = 0; i < poly->vertCount; ++i)
-				centre += glm::vec3(tile->verts[poly->verts[i] * 3], tile->verts[poly->verts[i] * 3 + 1], tile->verts[poly->verts[i] * 3 + 2]);
-			return centre / static_cast<float>(poly->vertCount);
-		}
-
-		// Ground polygons of the largest walkable region around the busiest tile (avoids rooftops and islands).
-		std::vector<std::pair<dtPolyRef, glm::vec3>> MainRegionPolys(OriginalMesh& original)
-		{
-			const dtNavMesh* mesh = original.mesh;
-			const dtMeshTile* busiest = nullptr;
-			for (int i = 0; i < mesh->getMaxTiles(); ++i)
-			{
-				const dtMeshTile* tile = mesh->getTile(i);
-				if (tile && tile->header && (!busiest || tile->header->polyCount > busiest->header->polyCount))
-					busiest = tile;
-			}
-			std::vector<std::pair<dtPolyRef, glm::vec3>> result;
-			if (!busiest)
-				return result;
-			const dtPolyRef seed = mesh->getPolyRefBase(busiest);
-			const glm::vec3 seedPos = PolyCentre(busiest, &busiest->polys[0]);
-			SimQueryFilter filter;
-			std::vector<dtPolyRef> refs(8192);
-			int count = 0;
-			original.query->findPolysAroundCircle(seed, &seedPos.x, 100000.0f, &filter, refs.data(), nullptr, nullptr, &count, static_cast<int>(refs.size()));
-			for (int i = 0; i < count; ++i)
-			{
-				const dtMeshTile* tile = nullptr;
-				const dtPoly* poly = nullptr;
-				mesh->getTileAndPolyByRef(refs[i], &tile, &poly);
-				if (poly->getType() == DT_POLYTYPE_GROUND)
-					result.emplace_back(refs[i], PolyCentre(tile, poly));
-			}
-			return result;
-		}
 
 		// Corridor as (tile x, tile y, layer, polygon index) so two meshes can be compared.
 		struct PolyKey
@@ -259,50 +181,6 @@ namespace sim::test
 			}
 		}
 
-		// A chain of levels joined east to west by synthetic portals at the edges of their main walkable region.
-		struct Chain
-		{
-			std::vector<LevelInput> levels;
-			std::vector<glm::vec3> east, west; // portal points per level, level-local
-		};
-
-		bool BuildChain(TestContext& t, const std::vector<const char*>& names, Chain& chain)
-		{
-			for (const char* name : names)
-			{
-				LevelInput level;
-				if (!LoadFixture(t, name, level))
-					return false;
-				OriginalMesh original;
-				if (!original.Build(level.nav))
-					return false;
-				const auto polys = MainRegionPolys(original);
-				if (polys.empty())
-					return false;
-				glm::vec3 east = polys[0].second, west = polys[0].second;
-				for (const auto& poly : polys)
-				{
-					if (poly.second.x > east.x)
-						east = poly.second;
-					if (poly.second.x < west.x)
-						west = poly.second;
-				}
-				chain.east.push_back(east);
-				chain.west.push_back(west);
-				chain.levels.push_back(std::move(level));
-			}
-			for (size_t i = 0; i + 1 < chain.levels.size(); ++i)
-			{
-				LevelInput& a = chain.levels[i];
-				LevelInput& b = chain.levels[i + 1];
-				a.portals.push_back({ "to_" + b.name, chain.east[i], b.name, "from_" + a.name });
-				b.spawns.push_back({ "from_" + a.name, chain.west[i + 1] });
-				b.portals.push_back({ "to_" + a.name, chain.west[i + 1], a.name, "from_" + b.name });
-				a.spawns.push_back({ "from_" + b.name, chain.east[i] });
-			}
-			return true;
-		}
-
 		void TestChainBake(TestContext& t)
 		{
 			t.Section("nav: bake a chain of four levels");
@@ -342,6 +220,14 @@ namespace sim::test
 			for (const int level : path.pointLevels)
 				levelsVisited += std::to_string(level) + " ";
 			t.Check(ordered, "the route visits the levels in order (%s)", levelsVisited.c_str());
+			{
+				// Cost of the longest route of the chain (budget for path requests per tick).
+				constexpr int Repeats = 200;
+				Stopwatch timer;
+				for (int i = 0; i < Repeats; ++i)
+					nav.FindPath(start, end);
+				t.Note("one-shot path across 3 portals (%zu corners, %d polygons): %.0f us", path.points.size(), path.polyCount, timer.Seconds() / Repeats * 1e6);
+			}
 			const NavPath back = nav.FindPath(end, start);
 			t.Check(back.complete && back.portalCrossings == 3, "and back again (complete %d, crossings %d)", back.complete, back.portalCrossings);
 			const glm::vec3 local = nav.ToLocal(2, nav.ToNav(2, chain.west[2]));
@@ -424,6 +310,128 @@ namespace sim::test
 			t.Check(!BakeWorldNav(lonely.levels, BakeSettings{}, data, report) && report.Text().find("not connected") != std::string::npos,
 				"a level without portals is reported as unconnected");
 		}
+
+		void TestStaleCheck(TestContext& t)
+		{
+			t.Section("nav: stale world file check");
+			WorldNavData data;
+			for (const char* name : { "a.bsp", "b.bsp", "c.bsp", "d.bsp" })
+			{
+				WorldLevel level;
+				level.name = name;
+				level.sourceVersion = 100 + static_cast<uint32_t>(data.levels.size());
+				data.levels.push_back(level);
+			}
+			// a: unchanged, b: edited after the bake, c: deleted, d: restored to an older version.
+			entt::dense_map<std::string, uint32_t> versions;
+			versions.emplace("a.bsp", 100);
+			versions.emplace("b.bsp", 500);
+			versions.emplace("d.bsp", 7);
+			auto lookup = [&](const std::string& name)
+			{
+				const auto found = versions.find(name);
+				return found == versions.end() ? 0u : found->second;
+			};
+			const auto stale = FindStaleLevels(data, lookup);
+			t.Check(stale.size() == 3 && stale[0].name == "b.bsp" && stale[1].name == "c.bsp" && stale[2].name == "d.bsp", "exactly the changed, missing and older maps are stale, in level order (%zu)", stale.size());
+			if (stale.size() == 3)
+			{
+				t.Check(stale[0].baked == 101 && stale[0].current == 500 && stale[0].Describe().find("b.bsp") != std::string::npos, "a changed map reports both versions: %s", stale[0].Describe().c_str());
+				t.Check(stale[1].current == 0 && stale[1].Describe().find("missing") != std::string::npos, "a deleted map is reported as missing: %s", stale[1].Describe().c_str());
+			}
+			data.levels.erase(data.levels.begin() + 1, data.levels.end());
+			t.Check(FindStaleLevels(data, lookup).empty(), "an unchanged world file has no stale level");
+
+			t.Check(SimWorldNavFile::LevelNameOfMapPath("GameData/maps/village.bsp") == "village.bsp", "map path to level name");
+			t.Check(SimWorldNavFile::LevelNameOfMapPath("gamedata\\Maps\\Village.bsp") == "Village.bsp", "folder case and slashes do not matter");
+			t.Check(SimWorldNavFile::LevelNameOfMapPath("GameData/other/village.bsp").empty() && SimWorldNavFile::LevelNameOfMapPath("GameData/maps/").empty(), "paths outside the map folder map to nothing");
+			t.Check(SimWorldNavFile::FindLevel(data, "GameData/maps/A.BSP") == 0 && SimWorldNavFile::FindLevel(data, "GameData/maps/zzz.bsp") == -1, "levels are found by map path, ignoring case");
+		}
+
+		void LevelBounds(const LevelNavData& nav, glm::vec3& low, glm::vec3& high)
+		{
+			low = glm::vec3(1e30f);
+			high = glm::vec3(-1e30f);
+			for (const auto& blob : nav.tiles)
+			{
+				const dtMeshHeader* header = reinterpret_cast<const dtMeshHeader*>(blob.data());
+				low = glm::min(low, glm::vec3(header->bmin[0], header->bmin[1], header->bmin[2]));
+				high = glm::max(high, glm::vec3(header->bmax[0], header->bmax[1], header->bmax[2]));
+			}
+		}
+
+		void TestDebugSegments(TestContext& t)
+		{
+			t.Section("nav: debug draw geometry");
+			Chain chain;
+			if (!t.Check(BuildChain(t, { "lvl1", "test", "example", "test_interior" }, chain), "fixtures load"))
+				return;
+			WorldNavData data;
+			BakeReport report;
+			WorldNav nav;
+			std::string error;
+			if (!t.Check(BakeWorldNav(chain.levels, BakeSettings{}, data, report) && nav.Load(data, error), "chain bakes and loads: %s", error.c_str()))
+				return;
+
+			std::vector<DebugSegment> world;
+			CollectDebugSegments(nav, -1, glm::vec3(0.0f), 0.0f, world);
+			auto isEdge = [](const DebugSegment& s) { return s.kind == DebugKind::Edge || s.kind == DebugKind::Border; };
+			size_t worldEdges = 0;
+			for (const auto& segment : world)
+				worldEdges += isEdge(segment) ? 1 : 0;
+
+			size_t edgeSum = 0;
+			for (size_t level = 0; level < chain.levels.size(); ++level)
+			{
+				const char* name = chain.levels[level].name.c_str();
+				std::vector<DebugSegment> segments;
+				CollectDebugSegments(nav, static_cast<int>(level), glm::vec3(0.0f), 0.0f, segments);
+				glm::vec3 low, high;
+				LevelBounds(chain.levels[level].nav, low, high);
+				size_t edges = 0, borders = 0, starts = 0, ends = 0, outside = 0;
+				for (const auto& segment : segments)
+				{
+					edges += segment.kind == DebugKind::Edge ? 1 : 0;
+					borders += segment.kind == DebugKind::Border ? 1 : 0;
+					starts += segment.kind == DebugKind::LinkStart ? 1 : 0;
+					ends += segment.kind == DebugKind::LinkEnd ? 1 : 0;
+					for (const glm::vec3& p : { segment.a, segment.b })
+						if (p.x < low.x - 0.01f || p.x > high.x + 0.01f || p.z < low.z - 0.01f || p.z > high.z + 0.01f || p.y < low.y - 0.1f || p.y > high.y + 4.0f)
+							++outside;
+				}
+				size_t expectedStarts = 0, expectedEnds = 0;
+				for (const WorldLink& link : data.links)
+				{
+					expectedStarts += link.fromLevel == level ? 1 : 0;
+					expectedEnds += link.toLevel == level && link.linked ? 1 : 0;
+				}
+				edgeSum += edges + borders;
+				t.Check(edges > 0 && borders > 0, "%s: draws polygon edges (%zu) and surface borders (%zu)", name, edges, borders);
+				t.Check(outside == 0, "%s: every point is in the level's own local bounds (%zu outside)", name, outside);
+				t.Check(starts == expectedStarts * 5 && ends == expectedEnds * 5, "%s: one marker per portal end (%zu starts, %zu landings)", name, starts / 5, ends / 5);
+			}
+			t.Check(edgeSum == worldEdges, "the levels' edges add up to the whole world's (%zu of %zu)", edgeSum, worldEdges);
+
+			std::vector<DebugSegment> none;
+			CollectDebugSegments(nav, 99, glm::vec3(0.0f), 0.0f, none);
+			t.Check(none.empty(), "an unknown level draws nothing");
+
+			// Range limit: edges need an end inside the radius, markers always stay.
+			std::vector<DebugSegment> all, near;
+			const glm::vec3 centre = chain.east[0];
+			CollectDebugSegments(nav, 0, centre, 0.0f, all);
+			CollectDebugSegments(nav, 0, centre, 15.0f, near);
+			size_t allEdges = 0, nearEdges = 0, allMarkers = 0, nearMarkers = 0, farEdges = 0;
+			for (const auto& segment : all)
+				(isEdge(segment) ? allEdges : allMarkers) += 1;
+			for (const auto& segment : near)
+			{
+				(isEdge(segment) ? nearEdges : nearMarkers) += 1;
+				if (isEdge(segment) && std::hypot(segment.a.x - centre.x, segment.a.z - centre.z) > 15.0f && std::hypot(segment.b.x - centre.x, segment.b.z - centre.z) > 15.0f)
+					++farEdges;
+			}
+			t.Check(nearEdges > 0 && nearEdges < allEdges && farEdges == 0 && nearMarkers == allMarkers, "a 15 m range keeps %zu of %zu edges and every portal marker", nearEdges, allEdges);
+		}
 	}
 
 	void RunNavTests(TestContext& context)
@@ -433,6 +441,8 @@ namespace sim::test
 		TestChainBake(context);
 		TestLevelsDoNotStitch(context);
 		TestBakeValidation(context);
+		TestStaleCheck(context);
+		TestDebugSegments(context);
 	}
 }
 

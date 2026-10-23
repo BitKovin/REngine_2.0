@@ -4,6 +4,7 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#include <Helpers/Base64.h>
 
 EM_JS(void, SetupPersistentSystemJS, (), {
     try {
@@ -65,41 +66,6 @@ EM_JS(void, WriteFileJS, (const char* relPath, const char* content), {
 }
     });
 
-// Base64 helpers for Binary -> Text conversion
-static const std::string b64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-static std::string Base64Encode(const std::vector<uint8_t>& in) {
-    std::string out;
-    int val = 0, valb = -6;
-    for (uint8_t c : in) {
-        val = (val << 8) + c;
-        valb += 8;
-        while (valb >= 0) {
-            out.push_back(b64chars[(val >> valb) & 0x3F]);
-            valb -= 6;
-        }
-    }
-    if (valb > -6) out.push_back(b64chars[((val << 8) >> (valb + 8)) & 0x3F]);
-    while (out.size() % 4) out.push_back('=');
-    return out;
-}
-
-static std::vector<uint8_t> Base64Decode(const std::string& in) {
-    std::vector<uint8_t> out;
-    std::vector<int> T(256, -1);
-    for (int i = 0; i < 64; i++) T[b64chars[i]] = i;
-    int val = 0, valb = -8;
-    for (char c : in) {
-        if (T[c] == -1) break;
-        val = (val << 6) + T[c];
-        valb += 6;
-        if (valb >= 0) {
-            out.push_back(static_cast<uint8_t>((val >> valb) & 0xFF));
-            valb -= 8;
-        }
-    }
-    return out;
-}
 #endif
 
 EmscriptenFileSystem::EmscriptenFileSystem()
@@ -143,7 +109,7 @@ std::optional<std::string> EmscriptenFileSystem::ReadSaveFile(const std::string&
 bool EmscriptenFileSystem::WriteSaveFileBinary(const std::string& path, const std::vector<uint8_t>& data) {
 #ifdef __EMSCRIPTEN__
     // Convert to text and save
-    return WriteSaveFile(path, Base64Encode(data));
+    return WriteSaveFile(path, Base64::Encode(data));
 #else
     return NativeFileSystem::WriteSaveFileBinary(path, data);
 #endif
@@ -153,7 +119,7 @@ std::optional<std::vector<uint8_t>> EmscriptenFileSystem::ReadSaveFileBinary(con
 #ifdef __EMSCRIPTEN__
     auto text = ReadSaveFile(path);
     if (text) {
-        return Base64Decode(*text);
+        return Base64::Decode(*text);
     }
     return std::nullopt;
 #else

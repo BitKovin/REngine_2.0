@@ -581,8 +581,7 @@ Facts read from the engine source. Verify again if the engine changes.
 | Merged world mesh or per-level meshes? | One merged mesh (D3 confirmed) | §4 |
 | Long off-mesh links (risk §15) | Resolved with an additive engine Detour method, `dtNavMesh::connectRemoteOffMeshLinks`, which lands links by position. Levels are laid out apart with a one-tile gap, no adjacency needed | SIM_CONTRACT.md §4 |
 | Where does the bake get level nav? | The bake command loads each level through the engine (which builds or loads its nav) and copies the live navmesh tiles. The tile cache is not part of the world mesh | SIM_CONTRACT.md §7 |
-| Engine-free sim library? (2026-10-23) | No. The sim lives in the SimGame project and uses engine code sparingly; tests run in-game headless (`-sim_selftest`). Overrides §17.3 and §17.5 | SIM_CONTRACT.md §1 |
-| Containers in sim code? | Prefer entt containers (dense_map, dense_set) | SIM_CONTRACT.md §1 |
-| Merged world mesh or per-level meshes? | One merged mesh (D3 confirmed) | §4 |
-| Long off-mesh links (risk §15) | Resolved with an additive engine Detour method, `dtNavMesh::connectRemoteOffMeshLinks`, which lands links by position. Levels are laid out apart with a one-tile gap, no adjacency needed | SIM_CONTRACT.md §4 |
-| Where does the bake get level nav? | The bake command loads each level through the engine (which builds or loads its nav) and copies the live navmesh tiles. The tile cache is not part of the world mesh | SIM_CONTRACT.md §7 |
+| Calendar time scale? (2026-10-23) | 0.5 game minutes per world second: a game minute is 2 s, a game hour 2 min, a day 48 min. Movement stays in real seconds | §6, M4 needs and schedules |
+| Player source for M2b? (2026-10-23) | A minimal walking pawn on the engine CharacterController, created at the default player start | SLICE_M2B_BRIDGE.md 3.4 |
+| Sim saves? (2026-10-23) | Engine hook: one save file holds level and sim (`GameSaveSystem::RegisterExtension`); the save is a barrier request | SLICE_M2B_BRIDGE.md 6 |
+| Save made against another world layout? (2026-10-23) | Re-place agents by level name and local position; agents of a missing level are removed with an error | SLICE_M2B_BRIDGE.md 6.3 |

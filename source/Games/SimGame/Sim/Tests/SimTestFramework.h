@@ -64,6 +64,8 @@ namespace sim::test
 	// Test suites (one file each).
 	void RunKernelTests(TestContext& context);
 	void RunNavTests(TestContext& context);
+	void RunMovementTests(TestContext& context);
+	void RunBridgeTests(TestContext& context);
 }
 
 #endif

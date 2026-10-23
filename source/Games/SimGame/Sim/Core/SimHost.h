@@ -12,6 +12,7 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <functional>
 #include <mutex>
 #include <thread>
 
@@ -26,11 +27,13 @@ namespace sim
 			Resume,
 			Step,       // client: while paused, run `value` steps
 			SetSpeed,   // client: world seconds per real second = value; ticks per step = stepTicks (fast-forward)
-			Save,       // client: snapshot at the next tick boundary; reply carries `blob`
-			Load,       // client: replace the world with `blob`; reply carries ok or `text` error
+			Save,       // client: snapshot at the next tick boundary; reply carries `blob` (and `extra` from the beforeSave hook).
+			            //         value > 0.5 leaves the event log out of the snapshot
+			Load,       // client: replace the world with `blob`, then run the afterLoad hook with `extra`; reply carries ok or `text` error
 			Text,       // client: run a text command (Server::RunTextCommand); reply carries `text`
 			Reply,      // sim: answer to a request with the same requestId
 			Woke,       // sim: a wake event stopped fast-forward; eventId names it
+			Snapshot,   // sim: the publisher's blob (what the game may draw); only the newest matters
 			Error,      // sim: a request failed; `text` says why
 		};
 
@@ -43,6 +46,7 @@ namespace sim
 		Tick stepTicks = 1;
 		alignas(8) std::array<uint8_t, MaxPayloadSize> payload{};
 		std::vector<uint8_t> blob;
+		std::vector<uint8_t> extra; // Save reply / Load request: game data that travels with the snapshot (see HostHooks)
 		std::string text;
 
 		// The payload of an output event as T, or nullptr.
@@ -50,6 +54,18 @@ namespace sim
 		{
 			return kind == Kind::Event && type == types.EventId<T>() ? reinterpret_cast<const T*>(payload.data()) : nullptr;
 		}
+	};
+
+	// Game-specific work the Host does on the sim thread at tick boundaries. Set before Start.
+	struct HostHooks
+	{
+		// Fills `blob` with what the client may draw. Runs after the step that crosses `snapshotInterval` ticks.
+		std::function<void(const World&, std::vector<uint8_t>& blob)> publishSnapshot;
+		Tick snapshotInterval = 2;
+		// Save barrier: extra data computed from the world at the same tick as the snapshot.
+		std::function<std::vector<uint8_t>(const World&)> beforeSave;
+		// After a successful Load: `extra` is what the matching save's beforeSave returned (migrations).
+		std::function<bool(Server&, const std::vector<uint8_t>& extra, std::string& error)> afterLoad;
 	};
 
 	class Host
@@ -63,6 +79,8 @@ namespace sim
 		Host& operator=(const Host&) = delete;
 
 		const TypeRegistry& Types() const { return *types; }
+
+		void SetHooks(HostHooks newHooks) { hooks = std::move(newHooks); }
 
 		// Direct server access: only before Start, or from the pumping thread in Pump mode.
 		Server& ServerUnsafe() { return server; }
@@ -81,6 +99,8 @@ namespace sim
 			Send(std::move(message));
 		}
 		uint32_t SendRequest(Message::Kind kind, std::string text = {}, std::vector<uint8_t> blob = {});
+		// Same for a prepared message (Save's `value`, Load's `extra`); returns the request id the reply will carry.
+		uint32_t SendRequest(Message message);
 
 		// Messages from the sim since the last call.
 		std::vector<Message> Receive();
@@ -98,6 +118,8 @@ namespace sim
 	private:
 		std::shared_ptr<const TypeRegistry> types;
 		Server server;
+		HostHooks hooks;
+		Tick lastSnapshotTick = 0;
 		Mode mode = Mode::Pump;
 		bool started = false;
 

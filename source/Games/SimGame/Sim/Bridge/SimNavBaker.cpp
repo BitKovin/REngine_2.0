@@ -147,7 +147,7 @@ namespace SimNavBaker
 				else if (auto* spawn = dynamic_cast<SimSpawn*>(object))
 				{
 					// The player start goes first: it is the origin of the smoke routes.
-					const sim::nav::SpawnInput entry{ spawn->Name, spawn->Position };
+					const sim::nav::SpawnInput entry{ spawn->Name, spawn->Position, spawn->playerStart };
 					if (spawn->playerStart)
 						input.spawns.insert(input.spawns.begin(), entry);
 					else
@@ -171,15 +171,7 @@ namespace SimNavBaker
 			Logger::Error("sim_bake_nav: a bake is already running");
 			return false;
 		}
-		std::istringstream lines(FileSystemEngine::ReadFile(manifestPath));
-		std::vector<std::string> maps;
-		std::string line;
-		while (std::getline(lines, line))
-		{
-			line.erase(std::remove_if(line.begin(), line.end(), [](unsigned char c) { return std::isspace(c); }), line.end());
-			if (!line.empty() && line[0] != '#')
-				maps.push_back(line);
-		}
+		std::vector<std::string> maps = SimWorldNavFile::ReadManifest(manifestPath);
 		if (maps.empty())
 		{
 			Logger::Error("sim_bake_nav: manifest %s is missing or lists no maps", manifestPath.c_str());

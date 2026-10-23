@@ -113,11 +113,45 @@ namespace sim::nav
 		return true;
 	}
 
+	uint64_t WorldNavData::Fingerprint() const
+	{
+		HashArchive hash;
+		for (const WorldLevel& level : levels)
+		{
+			hash.Add(level.name);
+			hash.Add(level.offset);
+			hash.Add(level.tileShiftX);
+			hash.Add(level.tileShiftY);
+		}
+		for (const WorldLink& link : links)
+			hash.Add(link);
+		return hash.hash;
+	}
+
 	int WorldNavData::FindLevel(const std::string& name) const
 	{
 		for (size_t i = 0; i < levels.size(); ++i)
 			if (levels[i].name == name)
 				return static_cast<int>(i);
 		return -1;
+	}
+
+	std::string StaleLevel::Describe() const
+	{
+		if (current == 0)
+			return name + ": the map file is missing (the world file was baked from version " + std::to_string(baked) + ")";
+		return name + ": the map changed after the bake (baked from version " + std::to_string(baked) + ", map is now " + std::to_string(current) + ")";
+	}
+
+	std::vector<StaleLevel> FindStaleLevels(const WorldNavData& data, const std::function<uint32_t(const std::string&)>& mapVersion)
+	{
+		std::vector<StaleLevel> stale;
+		for (const WorldLevel& level : data.levels)
+		{
+			const uint32_t current = mapVersion(level.name);
+			if (current != level.sourceVersion)
+				stale.push_back({ level.name, level.sourceVersion, current });
+		}
+		return stale;
 	}
 }

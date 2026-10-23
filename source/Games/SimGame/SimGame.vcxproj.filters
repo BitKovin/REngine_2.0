@@ -102,6 +102,9 @@
     <Filter Include="Sim\Core">
       <UniqueIdentifier>{fd0ee9cc-3544-583a-84f6-6ea8dda61c6b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sim\Movement">
+      <UniqueIdentifier>{3b8c1f52-7a64-4d09-9e31-5c2a8d4f6b17}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Sim\Nav">
       <UniqueIdentifier>{d3e756fd-a758-59e5-b0df-be0ae6d7bb6c}</UniqueIdentifier>
     </Filter>
@@ -121,6 +124,77 @@
     </ClCompile>
     <ClInclude Include="Sim\Bridge\SimNavBaker.h">
       <Filter>Sim\Bridge</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Bridge\SimNavDebugDraw.cpp">
+      <Filter>Sim\Bridge</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bridge\SimNavDebugDraw.h">
+      <Filter>Sim\Bridge</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Bridge\SimWorldNavFile.cpp">
+      <Filter>Sim\Bridge</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bridge\SimWorldNavFile.h">
+      <Filter>Sim\Bridge</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Bridge\SimClient.cpp">
+      <Filter>Sim\Bridge</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bridge\SimClient.h">
+      <Filter>Sim\Bridge</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Bridge\SimSaveFile.cpp">
+      <Filter>Sim\Bridge</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bridge\SimSaveFile.h">
+      <Filter>Sim\Bridge</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Movement\SimDemoPopulation.cpp">
+      <Filter>Sim\Movement</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Movement\SimDemoPopulation.h">
+      <Filter>Sim\Movement</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Tests\SimBridgeTests.cpp">
+      <Filter>Sim\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Bridge\SimBridge.cpp">
+      <Filter>Sim\Bridge</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bridge\SimBridge.h">
+      <Filter>Sim\Bridge</Filter>
+    </ClInclude>
+    <ClCompile Include="SimPawn.cpp" />
+    <ClInclude Include="SimPawn.h" />
+    <ClCompile Include="Sim\Movement\SimMovement.cpp">
+      <Filter>Sim\Movement</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Movement\SimMovement.h">
+      <Filter>Sim\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="Sim\Movement\SimSpeedTable.h">
+      <Filter>Sim\Movement</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Movement\SimWalk.cpp">
+      <Filter>Sim\Movement</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Movement\SimWalk.h">
+      <Filter>Sim\Movement</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Tests\SimMovementTests.cpp">
+      <Filter>Sim\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Tests\SimNavFixtures.cpp">
+      <Filter>Sim\Tests</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Tests\SimNavFixtures.h">
+      <Filter>Sim\Tests</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Nav\WorldNavDebug.cpp">
+      <Filter>Sim\Nav</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Nav\WorldNavDebug.h">
+      <Filter>Sim\Nav</Filter>
     </ClInclude>
     <ClCompile Include="Sim\Core\SimHost.cpp">
       <Filter>Sim\Core</Filter>

@@ -464,6 +464,21 @@ namespace sim::nav
 			out.links.push_back(world);
 		}
 
+		// Spawn points, snapped onto their level's mesh. One that does not snap is skipped with a warning (the ones that
+		// portals name were checked above and fail the bake).
+		for (size_t index = 0; index < inputs.size(); ++index)
+			for (const SpawnInput& spawn : inputs[index].spawns)
+			{
+				MeshPoint point;
+				if (!Snap(*levels[index], spawn.position, settings, point))
+				{
+					report.warnings.push_back(Fmt("%s spawn point '%s' at (%.1f %.1f %.1f) does not snap to the nav mesh and is left out", inputs[index].name.c_str(),
+						spawn.name.c_str(), spawn.position.x, spawn.position.y, spawn.position.z));
+					continue;
+				}
+				out.spawns.push_back({ spawn.name, static_cast<uint16_t>(index), point.local + out.levels[index].offset, spawn.playerStart });
+			}
+
 		WorldNav nav;
 		std::string error;
 		if (!nav.Load(out, error))
@@ -540,7 +555,8 @@ namespace sim::nav
 		int linked = 0;
 		for (const WorldLink& link : out.links)
 			linked += link.linked ? 1 : 0;
-		report.notes.push_back(Fmt("%d of %zu portals linked, %d border edges masked between levels, %zu tiles", linked, out.links.size(), masked, out.tiles.size()));
+		report.notes.push_back(Fmt("%d of %zu portals linked, %d border edges masked between levels, %zu tiles, %zu spawn points", linked, out.links.size(), masked, out.tiles.size(),
+			out.spawns.size()));
 		return report.Ok();
 	}
 }
