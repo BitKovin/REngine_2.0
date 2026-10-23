@@ -66,6 +66,8 @@ namespace sim::test
 	void RunNavTests(TestContext& context);
 	void RunMovementTests(TestContext& context);
 	void RunBridgeTests(TestContext& context);
+	void RunBodiesTests(TestContext& context);
+	void RunNpcTests(TestContext& context);
 }
 
 #endif

@@ -27,4 +27,8 @@ namespace SimBridge
 	void Stop();
 
 	bool IsRunning();
+
+	// Puts the pawn a few metres from a named NPC and keeps the view on it (launch -sim_look <id>, console sim_look <id>), for looking at
+	// the NPC with screenshots. Empty id stops following.
+	void LookAtNpc(const std::string& id);
 }

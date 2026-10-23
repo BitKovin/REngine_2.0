@@ -73,6 +73,13 @@ glm::vec3 SimPawn::FeetPosition() const
 	return Position - vec3(0.0f, controller.height * 0.5f, 0.0f);
 }
 
+void SimPawn::LookAt(const glm::vec3& point)
+{
+	const vec3 eye = Position + vec3(0.0f, controller.GetCameraHeight() - controller.height * 0.5f, 0.0f);
+	const vec3 rotation = MathHelper::FindLookAtRotation(eye, point);
+	cameraRotation = vec3(glm::clamp(rotation.x, -89.0f, 89.0f), rotation.y, 0.0f);
+}
+
 void SimPawn::StartScriptedWalk(float metres)
 {
 	scriptedTarget = metres;

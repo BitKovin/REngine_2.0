@@ -2,6 +2,7 @@
 
 #include <LevelObjectFactory.h>
 #include <Time.hpp>
+#include "Screenshot.h"
 #include <Physics.h>
 #include <SoundSystem/SoundManager.hpp>
 #include <Particle/ParticleEmitter.h>
@@ -1020,6 +1021,7 @@ void EngineMain::Render()
 
 		ZoneScopedN("Present");
 
+        Screenshot::BeforePresent(Time::GameTimeNoPause, Arguments);
         bgfx::frame();
         ViewIdManager::Reset();
     }

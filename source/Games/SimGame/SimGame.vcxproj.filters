@@ -99,6 +99,12 @@
     <Filter Include="Sim\Bridge">
       <UniqueIdentifier>{6f1d2a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sim\Bodies">
+      <UniqueIdentifier>{7c2e91a4-5d38-4b6f-a1c0-3e8f2d4b9a65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sim\Npcs">
+      <UniqueIdentifier>{a4d2c7e1-83b5-4f09-9c6a-1e5b7d3f8a20}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Sim\Core">
       <UniqueIdentifier>{fd0ee9cc-3544-583a-84f6-6ea8dda61c6b}</UniqueIdentifier>
     </Filter>
@@ -166,6 +172,44 @@
     </ClInclude>
     <ClCompile Include="SimPawn.cpp" />
     <ClInclude Include="SimPawn.h" />
+    <ClCompile Include="Sim\Bodies\SimBodies.cpp">
+      <Filter>Sim\Bodies</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bodies\SimBodies.h">
+      <Filter>Sim\Bodies</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Bridge\SimAgents.cpp">
+      <Filter>Sim\Bridge</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bridge\SimAgents.h">
+      <Filter>Sim\Bridge</Filter>
+    </ClInclude>
+    <ClCompile Include="SimNpc.cpp" />
+    <ClInclude Include="SimNpc.h" />
+    <ClCompile Include="Sim\Tests\SimBodiesTests.cpp">
+      <Filter>Sim\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Npcs\SimNpcs.cpp">
+      <Filter>Sim\Npcs</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Npcs\SimNpcs.h">
+      <Filter>Sim\Npcs</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Bridge\SimNpcFile.cpp">
+      <Filter>Sim\Bridge</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bridge\SimNpcFile.h">
+      <Filter>Sim\Bridge</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Nav\WorldNavReport.cpp">
+      <Filter>Sim\Nav</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Nav\WorldNavReport.h">
+      <Filter>Sim\Nav</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Tests\SimNpcsTests.cpp">
+      <Filter>Sim\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="Sim\Movement\SimMovement.cpp">
       <Filter>Sim\Movement</Filter>
     </ClCompile>

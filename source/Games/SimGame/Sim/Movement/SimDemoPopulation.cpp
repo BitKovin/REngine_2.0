@@ -8,8 +8,8 @@ namespace sim::movement
 
 	void DemoModule::ChooseTrip(RuleContext& ctx, Entity walker, int32_t index) const
 	{
-		if (points.empty())
-			return;
+		if (points.empty() || ctx.world.TryGet<movement::Identity>(walker))
+			return; // authored NPCs follow their own routines
 		Rng rng = ctx.Random();
 		const size_t chosen = index >= 0 ? static_cast<size_t>(index) % points.size() : rng.Below(static_cast<uint32_t>(points.size()));
 		ctx.Command(RequestWalk{ walker, points[chosen], Gait::Walk });

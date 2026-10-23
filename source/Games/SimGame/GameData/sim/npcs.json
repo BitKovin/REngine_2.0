@@ -1,0 +1,79 @@
+{
+	"npcs": [
+		{
+			"id": "warden", "name": "Warden Harlan", "model": "guard", "routine": "loop", "level": "sim_test_a.bsp",
+			"stops": [
+				{ "at": [6, 0.2, 14],   "wait": [3, 6] },
+				{ "at": [6, 0.2, -4],   "wait": [3, 6] },
+				{ "at": [-14, 0.2, -4], "wait": [3, 6] },
+				{ "at": [-14, 0.2, 14], "wait": [3, 6] }
+			]
+		},
+		{
+			"id": "baker", "name": "Edith Marsh", "model": "base", "routine": "pingpong", "level": "sim_test_a.bsp",
+			"stops": [
+				{ "at": [-12, 0.2, 12], "wait": [8, 15] },
+				{ "at": [-2, 0.2, 16],  "wait": [6, 10] }
+			]
+		},
+		{
+			"id": "widow", "name": "Mrs. Aldous", "model": "base", "speed": 0.6, "routine": "pingpong", "level": "sim_test_a.bsp",
+			"stops": [
+				{ "at": [-9, 0.2, 4], "wait": [10, 20] },
+				{ "at": [-1, 0.2, 4], "wait": [10, 20] }
+			]
+		},
+		{
+			"id": "newsboy", "name": "Tom Pell", "model": "base", "gait": "run", "speed": 0.9, "routine": "loop", "level": "sim_test_a.bsp",
+			"stops": [
+				{ "at": [12, 0.2, 20],  "wait": [5, 9] },
+				{ "at": [-20, 0.2, 20], "wait": [5, 9] }
+			]
+		},
+		{
+			"id": "sergeant", "name": "Sergeant Pike", "model": "guard", "speed": 0.8, "routine": "pingpong", "level": "sim_test_a.bsp",
+			"stops": [
+				{ "at": [22, 0.2, 4],  "wait": [10, 20] },
+				{ "at": [22, 0.2, -4], "wait": [10, 20] }
+			]
+		},
+		{
+			"id": "courier", "name": "Nell Cutter", "model": "base", "speed": 1.1, "routine": "loop",
+			"stops": [
+				{ "level": "sim_test_a.bsp",    "at": [20, 0.2, -6],  "wait": [2, 4] },
+				{ "level": "sim_test_road.bsp", "at": [-10, 0.2, 4],  "wait": [2, 4] },
+				{ "level": "sim_test_road.bsp", "at": [10, 0.2, -4],  "wait": [2, 4] }
+			]
+		},
+		{
+			"id": "tinker", "name": "Old Barnaby", "model": "base", "speed": 0.7, "routine": "pingpong", "level": "sim_test_road.bsp",
+			"stops": [
+				{ "at": [-10, 0.2, 6], "wait": [10, 20] },
+				{ "at": [10, 0.2, 6],  "wait": [10, 20] }
+			]
+		},
+		{
+			"id": "drover", "name": "Hob Tanner", "model": "guard", "routine": "pingpong", "level": "sim_test_road.bsp",
+			"stops": [
+				{ "at": [-20, 0.2, -6], "wait": [5, 10] },
+				{ "at": [20, 0.2, -6],  "wait": [5, 10] }
+			]
+		},
+		{
+			"id": "miller", "name": "Gideon Wray", "model": "base", "routine": "loop", "level": "sim_test_b.bsp",
+			"stops": [
+				{ "at": [-10, 0.2, -14], "wait": [6, 10] },
+				{ "at": [10, 0.2, -14],  "wait": [6, 10] },
+				{ "at": [10, 0.2, 6],    "wait": [6, 10] },
+				{ "at": [-10, 0.2, 6],   "wait": [6, 10] }
+			]
+		},
+		{
+			"id": "hermit", "name": "Brother Alaric", "model": "base", "speed": 0.6, "routine": "pingpong", "level": "sim_test_c.bsp",
+			"stops": [
+				{ "at": [3, 0.2, 3],  "wait": [20, 30] },
+				{ "at": [3, 0.2, -3], "wait": [20, 30] }
+			]
+		}
+	]
+}

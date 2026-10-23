@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include "../imgui/imgui.h"
+#include "../Screenshot.h"
 #include "../imgui/imgui_impl_bgfx.h"
 #include "../imgui/imgui_impl_sdl2.h"
 #include <deque>
@@ -455,6 +456,7 @@ int main(int argc, char* args[])
     // ====================== BGFX INITIALIZATION (replaces all OpenGL) ======================
     bgfx::Init init;
     init.type = renderApi; 
+    init.callback = Screenshot::Callback();   // saving frames: console `screenshot`, launch -screenshot <seconds> <file>
     init.debug = false;
     init.profile = false;
 

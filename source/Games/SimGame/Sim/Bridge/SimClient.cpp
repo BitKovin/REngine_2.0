@@ -22,6 +22,7 @@ namespace sim
 				error = "the load request carries no readable save header";
 				return false;
 			}
+			movement::MovementModule::ClearEmbodiment(server); // the game starts without bodies
 			if (header.fingerprint == worldNav->Data().Fingerprint())
 				return true;
 			std::vector<movement::Placement> placements;

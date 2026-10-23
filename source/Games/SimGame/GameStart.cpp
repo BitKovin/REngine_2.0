@@ -9,6 +9,7 @@
 #include <Sim/Bridge/SimNavBaker.h>
 #include <Sim/Bridge/SimNavDebugDraw.h>
 #include <Sim/Bridge/SimWorldNavFile.h>
+#include <Sim/Nav/WorldNavReport.h>
 #include <Sim/Tests/SimSelfTests.h>
 
 #include <SimPawn.h>
@@ -39,6 +40,8 @@
 //   -sim_selftest        run the sim self tests, write SaveData/sim_selftest.log and quit
 //   -sim_bake_nav [file] bake the world nav mesh from a manifest (default GameData/sim/world.manifest) and quit
 //   -sim_nav_draw        draw the loaded level's world nav mesh and portal links (console: sim_nav_draw)
+//   -sim_nav_report      write SaveData/sim_nav_report.txt (spawn points, portals, walkable spots per level) and quit
+//   -sim_look <npc id>   stand near an authored NPC and keep the view on it (console: sim_look); with -screenshot for a picture of it
 //   -sim_demo [count]    place commuting demo walkers (default 40), drawn as boxes (console: sim_demo, sim_agents)
 //   -sim_bridge_test     automated in-game check of the bridge, pawn and save hook; writes SaveData/sim_bridge.log and quits
 //
@@ -85,6 +88,12 @@ public:
 			RunSimSelfTestsAndQuit();
 		}
 
+		if (arguments.contains("sim_nav_report"))
+		{
+			simGame = false;
+			WriteNavReportAndQuit();
+		}
+
 		if (auto bake = arguments.find("sim_bake_nav"); bake != arguments.end())
 		{
 			simGame = false;
@@ -96,6 +105,8 @@ public:
 		{
 			if (arguments.contains("sim_nav_draw"))
 				SimNavDebugDraw::SetEnabled(true);
+			if (auto look = arguments.find("sim_look"); look != arguments.end() && !look->second.empty())
+				SimBridge::LookAtNpc(look->second[0]);
 			if (auto demo = arguments.find("sim_demo"); demo != arguments.end())
 				demoCount = demo->second.empty() ? 40 : std::max(0, std::atoi(demo->second[0].c_str()));
 			if (arguments.contains("sim_bridge_test"))
@@ -243,6 +254,23 @@ private:
 			Logger::Error("could not write %s", LogPath);
 		Logger::Log(passed ? "sim self tests PASSED" : "sim self tests FAILED");
 
+		SDL_Event quit;
+		quit.type = SDL_QUIT;
+		SDL_PushEvent(&quit);
+	}
+
+	// -sim_nav_report: text report of the baked world for content authors (spawn points, portals, walkable spots), then quit.
+	static void WriteNavReportAndQuit()
+	{
+		static constexpr const char* ReportPath = "SaveData/sim_nav_report.txt";
+		sim::nav::WorldNavData data;
+		sim::nav::WorldNav nav;
+		std::string error;
+		if (!SimWorldNavFile::Load(data, error) || !nav.Load(data, error))
+			FileSystemEngine::WriteFile(ReportPath, "cannot load the world nav: " + error + "\n");
+		else
+			FileSystemEngine::WriteFile(ReportPath, sim::nav::BuildNavReport(nav));
+		Logger::Log("wrote %s", ReportPath);
 		SDL_Event quit;
 		quit.type = SDL_QUIT;
 		SDL_PushEvent(&quit);

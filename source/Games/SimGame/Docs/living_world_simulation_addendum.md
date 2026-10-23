@@ -585,3 +585,6 @@ Facts read from the engine source. Verify again if the engine changes.
 | Player source for M2b? (2026-10-23) | A minimal walking pawn on the engine CharacterController, created at the default player start | SLICE_M2B_BRIDGE.md 3.4 |
 | Sim saves? (2026-10-23) | Engine hook: one save file holds level and sim (`GameSaveSystem::RegisterExtension`); the save is a barrier request | SLICE_M2B_BRIDGE.md 6 |
 | Save made against another world layout? (2026-10-23) | Re-place agents by level name and local position; agents of a missing level are removed with an error | SLICE_M2B_BRIDGE.md 6.3 |
+| How does a body move? (2026-10-23) | The sim dictates targets (the next corner of the agent's route); the body navigates by itself with its own state code; while a body exists it is the mover and the agent follows its reports | SLICE_M2C_BODIES.md |
+| Look of agents? (2026-10-23) | A mix of base.glb and guard.glb, chosen by the sim and saved with the agent | SLICE_M2C_BODIES.md |
+| How are NPCs defined and started? (2026-10-23) | `GameData/sim/npcs.json`, always on (no launch flag); `sim_npc` map entities stay reserved for the authored-NPC milestone | SLICE_M2D_NPCS.md |

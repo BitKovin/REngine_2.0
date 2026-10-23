@@ -198,7 +198,7 @@ development builds; a destroyed agent when its level is gone; pawn speeds from t
 - `sim_player` takes `x y z` in the loaded level (no level argument). `-sim_pawn_walk` was folded into `-sim_bridge_test`, which implies 40 demo walkers.
 - The demo module is always registered in development builds (inert until `PopulateDemo` arrives), so `sim_demo` never restarts the sim.
 - Without `-map` the game now opens the first map of the manifest instead of blank.bsp (owner report: it opened a blank map).
-- The pawn is faster than a person walks: run speed (4.0 m/s) by default, walk speed (1.4 m/s) while crouching.
+- The pawn is faster than a person walks: run speed by default, walk speed while crouching (both from the speed table: 4.0 / 1.4 m/s then, 8.0 / 2.4 m/s since the owner changed the table).
 - `Helpers/Base64.h` also fixes two latent problems of the moved code (signed shift overflow, negative `char` as a table index); results are identical.
 - `GameSaveSystem` got `ExtensionSaveFailed` so a failed extension save writes nothing.
 - Checked: self tests (bridge suite) and `-headless -sim_bridge_test`. Not checked: a visible run, the web build.

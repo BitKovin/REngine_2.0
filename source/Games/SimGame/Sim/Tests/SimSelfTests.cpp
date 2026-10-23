@@ -18,6 +18,8 @@ bool RunSimSelfTests(std::string& summary)
 	RunNavTests(context);
 	RunMovementTests(context);
 	RunBridgeTests(context);
+	RunBodiesTests(context);
+	RunNpcTests(context);
 
 	char header[160];
 	std::snprintf(header, sizeof(header), "sim self tests: %d passed, %d failed, %.2f s\n", context.passed, context.failed, timer.Seconds());

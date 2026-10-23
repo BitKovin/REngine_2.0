@@ -43,6 +43,7 @@ namespace sim::movement
 		std::vector<uint16_t> cornerLevels;
 		Progress progress;
 		float walkLength = 0.0f;          // metres of walking in the whole path
+		uint32_t pathSerial = 0;          // counts path assignments: a body re-learns its goal when the path changes
 		Tick lastIntegrated = 0;          // progress is current up to this tick
 
 		// What the last integration did, for the teleport detector (design 5.4).
@@ -62,6 +63,7 @@ namespace sim::movement
 			ar("cornerLevels", cornerLevels);
 			ar("progress", progress);
 			ar("walkLength", walkLength);
+			ar("pathSerial", pathSerial);
 			ar("lastIntegrated", lastIntegrated);
 			ar("lastTo", lastTo);
 			ar("lastWalked", lastWalked);
@@ -69,6 +71,43 @@ namespace sim::movement
 		}
 
 		PathView View() const { return { &corners, &cornerLevels }; }
+	};
+
+	// A named agent (an authored NPC): the id content refers to, and the name people see. Agents without it are anonymous crowd.
+	struct Identity
+	{
+		static constexpr const char* TypeName = "Identity";
+		FixedString<24> id;
+		std::string name;
+		template<class Ar> void Visit(Ar& ar) { ar("id", id); ar("name", name); }
+	};
+
+	// A walker that has, or is about to get, a physical body in the loaded level (SLICE_M2C_BODIES.md). Set and cleared by the
+	// bodies module. While Active the body is the mover: the walker's progress along its path follows what the body reports and
+	// it is not integrated (except across a portal, which only the sim can do).
+	struct Embodied
+	{
+		enum class State : uint8_t { Proposed, Active, Releasing };
+
+		static constexpr uint32_t NoGoal = 0xFFFFFFFFu;
+		static constexpr const char* TypeName = "Embodied";
+		State state = State::Proposed;
+		Tick since = 0;                 // when the state was entered
+		Tick lastReport = 0;            // the body's last position report
+		uint32_t goalSerial = 0;        // the path the body was last told about (Walker::pathSerial)
+		uint32_t goalLeg = NoGoal;      // and the leg whose end corner is its goal
+		Gait goalGait = Gait::Walk;
+		bool stopSent = false;          // the body was told to stand still
+		template<class Ar> void Visit(Ar& ar)
+		{
+			ar("state", state);
+			ar("since", since);
+			ar("lastReport", lastReport);
+			ar("goalSerial", goalSerial);
+			ar("goalLeg", goalLeg);
+			ar("goalGait", goalGait);
+			ar("stopSent", stopSent);
+		}
 	};
 
 	// The player, as the game tells it (the one place a level is stored: the game knows which level is loaded).
@@ -196,8 +235,10 @@ namespace sim::movement
 		uint16_t level = 0;
 		uint8_t tier = 0;  // Tier
 		uint8_t state = 0; // Walker::State
+		uint8_t body = 0;  // 0 none, 1 proposed, 2 active, 3 releasing (Embodied::State + 1)
 		glm::vec3 nav{ 0.0f };
-		template<class Ar> void Visit(Ar& ar) { ar("entity", entity); ar("level", level); ar("tier", tier); ar("state", state); ar("nav", nav); }
+		FixedString<24> id; // Identity::id of a named agent, empty for the crowd
+		template<class Ar> void Visit(Ar& ar) { ar("entity", entity); ar("level", level); ar("tier", tier); ar("state", state); ar("body", body); ar("nav", nav); ar("id", id); }
 	};
 
 	// The whole Snapshot blob: the sim's idea of where the player is, and every walker.
@@ -258,7 +299,23 @@ namespace sim::movement
 		// reports again). `oldLevels` are the level names the placements index. Returns the number destroyed.
 		size_t ReplaceAfterRebake(Server& server, const std::vector<std::string>& oldLevels, const std::vector<Placement>& placements) const;
 
+		// After a load the game has no bodies: drops every Embodied (the walkers carry on from the saved progress).
+		static void ClearEmbodiment(Server& server);
+
+		// The RequestWalk command's work, for modules that send walkers somewhere from their own commands: the walker goes to
+		// `destination` (nav space) at `gait`, replacing a walk under way. False when it is not a walker.
+		bool StartWalk(ApplyContext& context, Entity walker, const glm::vec3& destination, Gait gait) const;
+
+		// True while the walker's body is the mover (see Embodied): the walker is not integrated and PositionAt returns where it is.
+		static bool IsBodyDriven(const World& world, Entity entity);
+
+		// The body of an embodied walker stands at `local` (level-local). The walker's progress follows to the nearest point on
+		// the remaining path, never faster than the fastest gait allows; far from the path it asks for a new one; at the end it
+		// arrives. `rebase` lets progress move back (a body that appeared behind the walker). Standing walkers just follow.
+		void ApplyBodyPosition(ApplyContext& context, Entity entity, const glm::vec3& local, bool rebase) const;
+
 		TunableId tier0Radius = 0, tier0Step = 0, tier1Step = 0, tier2Step = 0, portalDelay = 0, pathsPerTick = 0, speedScaleSpread = 0;
+		TunableId bodyOffPath = 0, bodyArriveRadius = 0;
 		RandomStreamId placement = 0;
 
 	private:

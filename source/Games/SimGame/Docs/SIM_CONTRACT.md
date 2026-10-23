@@ -6,7 +6,7 @@ section 17.7). Design and addendum stay the source of truth for *decisions*; thi
 
 Status: 2026-10-23. Kernel (M1 core, parts of M3) and WorldNav (M0: bake command, stale check, debug draw) are done and tested.
 The test world (`GameData/sim/world.manifest`: sim_test_a, sim_test_road, sim_test_b, sim_test_c) bakes with 6/6 portals linked.
-M2a abstract movement (`Sim/Movement`, `SLICE_M2_MOVEMENT.md`) and M2b the bridge, walking pawn, snapshot and save hook (`SLICE_M2B_BRIDGE.md`) are done and tested. Next: bodies and the level transition.
+M2a abstract movement (`Sim/Movement`, `SLICE_M2_MOVEMENT.md`) and M2b the bridge, walking pawn, snapshot and save hook (`SLICE_M2B_BRIDGE.md`) M2c agent bodies (`SLICE_M2C_BODIES.md`) and M2d ten authored NPCs from `GameData/sim/npcs.json` (`SLICE_M2D_NPCS.md`) are done and tested. Next: the level transition.
 
 ---
 
@@ -18,8 +18,8 @@ M2a abstract movement (`Sim/Movement`, `SLICE_M2_MOVEMENT.md`) and M2b the bridg
 | Prefer entt containers | `entt::dense_map` / `dense_set` over `std::map` / `unordered_map` in sim code. They iterate in insertion order, so iteration is deterministic. |
 | The sim never touches engine statics | No `NavigationSystem`, `EcsWorld`, `Level`, `Time`, `Input` from sim code. The sim thread owns its own entt registry and its own `dtNavMesh`. |
 | World nav is ONE merged Detour mesh (D3) | Built from the levels' navmesh tiles (the tiles the engine's tile-cache pipeline produced, so the same polygon grid). The tile cache itself is **not** part of the world mesh. |
-| Engine changes so far | (1) `dtNavMesh::connectRemoteOffMeshLinks` + `DT_OFFMESH_SIDE_REMOTE` in `source/Engine/Navigation/Detour/DetourNavMesh.{h,cpp}`: purely additive. (2) `GameSaveSystem::RegisterExtension` / `GameSaveExtension` and `Extensions` in `GameSaveData` (`source/Engine/SaveSystem/GameSaveSystem.{h,cpp}`): additive, a game registers state that is saved and loaded with the level; old saves load. (3) `Helpers/Base64.h`: the Base64 helpers that were file-static in `EmscriptenFileSystem.cpp`, moved to a shared header (the web file system includes it; **not built on this machine**, the move is literal apart from unsigned accumulators and a byte-safe table index). All owner-approved. List any further engine change here. |
-| Builds and tests | The implementer may build and run headless tests (see section 7). Never run the game without `-headless`. |
+| Engine changes so far | (1) `dtNavMesh::connectRemoteOffMeshLinks` + `DT_OFFMESH_SIDE_REMOTE` in `source/Engine/Navigation/Detour/DetourNavMesh.{h,cpp}`: purely additive. (2) `GameSaveSystem::RegisterExtension` / `GameSaveExtension` and `Extensions` in `GameSaveData` (`source/Engine/SaveSystem/GameSaveSystem.{h,cpp}`): additive, a game registers state that is saved and loaded with the level; old saves load. (3) `Helpers/Base64.h`: the Base64 helpers that were file-static in `EmscriptenFileSystem.cpp`, moved to a shared header (the web file system includes it; **not built on this machine**, the move is literal apart from unsigned accumulators and a byte-safe table index). (4) **Screenshot hook** (2026-10-23): `source/Engine/Screenshot.{h,cpp}` saves a presented frame as a PNG (console `screenshot [name]`, launch `-screenshot <game seconds> [-screenshot_file <name>]`, files in `SaveData/screenshots/`). Wired in two places: `windows_main.hpp` passes `Screenshot::Callback()` as `bgfx::Init::callback` (this callback also takes over bgfx's fatal and trace output), and `EngineMain::Render` calls `Screenshot::BeforePresent` just before `bgfx::frame()`; `Engine.vcxproj` lists the two files. Purely additive; works in `-headless` runs. Other platform mains do not install the callback, so on them the requests do nothing (**not built on web / GDK on this machine**). All owner-approved. List any further engine change here. |
+| Builds and tests | The implementer may build and run headless tests (see section 7). Never run the game without `-headless`. To look at the game: `SimGame.exe -headless -sim_look <npc id> -screenshot 6 -screenshot_file name -quit_after 9` from the game folder, then read `SaveData/screenshots/name.png` (one picture per run; the sim is deterministic, so runs repeat: the courier leaves level a at 3 s and is back at 38 s). The user builds and checks the game in their own runs. |
 
 ---
 
@@ -48,24 +48,41 @@ Sim/
     WorldNavBake.h/.cpp     BakeWorldNav (pure), CaptureLevelNav (copy tiles from a live engine dtNavMesh)
     WorldNav.h/.cpp         runtime: combined mesh, Project, FindPath, PathService (sliced A*)
     WorldNavDebug.h/.cpp    pure debug geometry: CollectDebugSegments (level-local or whole-world line segments)
+    WorldNavReport.h/.cpp   text report for content authors: extent, spawns, portals, walkable spots per level (launch -sim_nav_report)
   Movement/                 abstract movement (section 8): game concepts live here, not in Core
     SimSpeedTable.h         shared speed table: mover class x gait x area -> m/s (header only; the physical layer will read it too)
     SimWalk.h/.cpp          pure path walking: Advance, PositionOf, LevelOf, WalkLength (no World)
     SimMovement.h/.cpp      MovementModule(WorldNav&): components, events, commands, tunables, systems, invariant, snapshot, placements, rebake migration
     SimDemoPopulation.h/.cpp  development only: demo module (PopulateDemo, TripWanted, commute rules), the same rules the tests run
+  Bodies/                   materialization, sim side (section 10)
+    SimBodies.h/.cpp        BodiesModule: proposals, goals, input events, Appearance / BodyRetry components
+  Npcs/                     authored NPCs (section 11)
+    SimNpcs.h/.cpp          NpcModule: Routine component, RoutineStep timer rule, NpcDefinition (plain data), Validate, Place
   Bridge/                   engine side (the only code that uses both the sim and engine gameplay types)
+    SimNpcFile.h/.cpp       GameData/sim/npcs.json -> NpcDefinition (format documented in the header), errors named by NPC and stop
     SimMapEntities.h/.cpp   sim_portal (TriggerBase; keeps targetLevel, targetSpawn, brush centre) and sim_spawn entities
     SimNavBaker.h/.cpp      bake shell: console `sim_bake_nav [manifest]`, launch `-sim_bake_nav [manifest]` (bakes, quits)
     SimWorldNavFile.h/.cpp  world.nav path, Load, map path <-> level, CheckFresh / CheckAtGameLoad (stale check)
     SimNavDebugDraw.h/.cpp  DebugDraw of the loaded level's world mesh + portal links: console `sim_nav_draw [on|off]`, launch `-sim_nav_draw`
+    SimSaveFile.h/.cpp      the sim part of a game save: header (tick, schema hash, layout fingerprint, level names, placements) + kernel blob; pure
+    SimClient.h/.cpp        game-thread side of the Host, no engine dependency: player reports, newest snapshot, blocking save/load/text, control
+    SimAgents.h/.cpp        game side of bodies: answers proposals (hidden from the camera), owns the SimNpc entities, goals in, reports out
+    SimBridge.h/.cpp        engine glue: static singleton started by GameStart (world file, modules, SimClient in Thread mode, pause, GameSaveSystem
+                            extension "sim", agent boxes, sim_* console commands, the -sim_bridge_test run)
   Tests/
     SimTestFramework.h      TestContext (Check / Note / Section), Stopwatch, suite declarations
     SimSelfTests.h/.cpp     RunSimSelfTests + console command sim_selftest
     SimNavFixtures.h/.cpp   real baked levels shared by the nav and movement tests (LoadFixture, OriginalMesh, BuildChain)
     SimMovementTests.cpp    movement suite
+    SimBridgeTests.cpp      bridge suite: SimClient in both Host modes, snapshot, save barrier, rebake
+    SimBodiesTests.cpp      bodies suite against a scripted stand-in for the game
+    SimNpcsTests.cpp        authored NPC suite: routines, validation, parser, saves, rebakes, replay, the shipped content
     SimKernelTests.cpp      kernel suite, with a toy "test" module that exercises every kernel path
     SimNavTests.cpp         world nav suite on real GameData/maps/*.bsp.nav fixtures
 GameData/entities.ent       level editor entity definitions (engine classes + sim_* classes, section 6)
+GameData/sim/npcs.json      the authored NPCs (section 11)
+SimNpc.h/.cpp               the physical body of an agent: CharacterController + SkeletalMesh + own navigation (section 10)
+SimPawn.h/.cpp              the walking pawn (section 9): Entity on the engine CharacterController, created by SimSpawn at the default player start
 ```
 
 ---
@@ -235,8 +252,8 @@ func_door, triggers, navBlock, ...). Sim classes, not yet read by code except th
    crash); the picture itself still needs a look in a visible run.
 4. ~~M2a abstract movement~~ **done** (section 8, `SLICE_M2_MOVEMENT.md`).
 5. ~~Bridge and walking pawn~~ **done** (section 9, `SLICE_M2B_BRIDGE.md`).
-6. **Bodies and the spawn handshake** (rest of M2): the sim proposes spawn/despawn from the Snapshot path, the client accepts outside the
-   camera's PVS and answers with the body; NPC bodies follow the remaining waypoints on the level mesh.
+6. ~~Bodies and the spawn handshake~~ **done** (section 10, `SLICE_M2C_BODIES.md`). Next for bodies: doors and dynamic obstacles, bodies avoiding
+   each other, reactions, hitboxes and death.
 7. **Custom level transition** (addendum 5.2): `sim_portal` triggers act on the pawn, no `TimeSkip`, the pawn goes through the same portal pair
    in the sim. Needs a decision on how the pawn is carried between levels (`LevelTraversalSystem::PlayerSerializedData`).
 8. **Abstract-versus-physical calibration** (addendum 7.1): walk a real body along a route a headless agent also walks; the pawn already uses the
@@ -307,8 +324,8 @@ mid-walk save/load identical). Cost: 400 walkers 36 us per tick (Release, this m
 - **Every frame** (`GameStart::Update`, after the pause state): pause menu -> `Pause`/`Resume`; `SimClient::Update` drains the Host; the pawn's feet
   position goes out as `PlayerMoved {level, local}` when the level changes, after 0.5 m, or after 0.5 s; development builds draw each agent of the loaded
   level as a box (tier 0 green, 1 yellow, 2 grey).
-- **Pawn** (`SimPawn`, "sim_pawn"): CharacterController, mouse look, forward/backward/left/right/crouch/jump; run speed 4.0 m/s from the speed table,
-  walk speed 1.4 m/s while crouching; eye camera; saved with the level; `SimSpawn` creates it at the default player start (once per level load, using
+- **Pawn** (`SimPawn`, "sim_pawn"): CharacterController, mouse look, forward/backward/left/right/crouch/jump; run speed from the speed table (8.0 m/s),
+  walk speed (2.4 m/s) while crouching; eye camera; saved with the level; `SimSpawn` creates it at the default player start (once per level load, using
   `Level::CurrentLevelChangeId`). `StartScriptedWalk(metres)` for automated runs. The editor camera is no longer the player.
 - **Startup map**: without `-map` the game opens the first map of `GameData/sim/world.manifest` (was blank.bsp).
 - **Snapshot** (Host addition): `HostHooks::publishSnapshot` runs on the sim thread every 2 ticks (5 Hz); `MovementModule::WriteSnapshot` writes a
@@ -329,3 +346,59 @@ mid-walk save/load identical). Cost: 400 walkers 36 us per tick (Release, this m
   that agents moved, pauses, saves through `GameSaveSystem` (one `.savg` with the sim entry), lets the sim run on, loads, checks the state hash equals the
   saved one, checks the sim keeps running, writes `SaveData/sim_bridge.log` and quits. 13 checks pass; exit code 0.
 - Not verified: how it looks and feels (boxes, pawn movement, camera) in a visible run; the web build.
+
+
+---
+
+## 10. Bodies contract (Sim/Bodies, Sim/Bridge/SimAgents, SimNpc; tests in SimBodiesTests.cpp; `SLICE_M2C_BODIES.md`)
+
+- **Direction** (owner): the sim dictates targets, the body navigates by itself with its own movement and state code. Look: a mix of base.glb and guard.glb.
+- **Sim**: `BodiesModule(movement, worldNav)`, registered after the movement module. Output events `BodySpawnProposed`, `BodyDespawnProposed`, `BodyGoal`;
+  input events `BodyAccepted`, `BodyRefused`, `BodyReleased`, `BodyReport`, `BodiesCleared` (one command `ApplyBodyInput`, logged and replayable). Components
+  `Embodied` (movement), `Appearance`, `BodyRetry`. Proposals every 5 ticks (0.5 s), nearest first within `spawn_radius` 120 m (release beyond `despawn_radius` 140 m, in another
+  level, or at a portal; the despawn event carries the reason OutOfRange / OtherLevel / NoPlayer / AtPortal), budget 32. The radii are wider than the 64 m test levels on
+  purpose, so everything inside a level has a body; a big open level wants about 80 and 100. While a body is Active it is the mover: `MovementModule::ApplyBodyPosition` moves the walker's progress to the nearest point on its route (forward only,
+  never faster than the fastest gait), re-plans when the body stands more than 3 m off, arrives within 0.75 m of the end, steps onto a portal leg at the end of the leg
+  before it (the sim crosses). Silent bodies (3 s), unanswered proposals (3 s) and unreleased despawns (6 s) are taken back. A load drops all `Embodied`.
+- **Game**: `SimAgents::Update` (from `SimBridge::Update`) answers proposals. Every proposal is accepted (owner: bodies fade in and out, also in sight and close by). It is
+  answered from the first snapshot at least as new as the proposal's tick (snapshots trail the sim by a tick or two; an older one still shows an agent on the far side of a
+  portal it just took, which once put bodies at another level's coordinates, 45 m off, "out of sight"); if the agent is no longer in the player's level there is no body (refused,
+  logged "left the level before its body appeared"). The body appears where the agent is then. **Appearing**: at once right after a level load (3 s window: the loading screen
+  hid it) and when the spot is out of sight (outside a 70 degree half cone, behind world geometry, or in a BSP cluster the camera cannot see); otherwise it fades in over
+  `SimNpc::FadeSeconds` (1 s). **Disappearing**: out of sight at once, in sight it fades out first (still walking and reporting meanwhile, so the sim keeps following it); the
+  reason (portal, range, level) only decides when it is proposed. Bodies report their feet position every 0.2 s. Level changes destroy the bodies and send `BodiesCleared`.
+  `SimNpc` ("sim_agent_body"): NPC-quality CharacterController, `PathFollowQuery` on the level mesh, speeds from the shared table x `speedScale`, Idle / Moving / Blocked
+  states, walks on to the next corner without stopping, idle / walk / run animation from the model's clips by speed. **Fade**: the mesh tint alpha (`Color.a`) runs 0 to 1 or
+  1 to 0; below 1 the engine draws the mesh as a blended Transparent surface (no depth write, so limbs show through each other for that second), at 1 it is back to the
+  alpha-tested `Masked` draw (`SimNpc::UpdateFade`).
+- **Look** (owner, 2026-10-23): `base.glb` has no textures, so citizens are a plain white-textured figure with a per-person tint (a mannequin, kept on purpose); `guard.glb`
+  is textured and left alone. The tint comes from the sim entity number, so a person always looks the same. Both read well in screenshots at 5 to 25 m.
+- **Tools**: `sim_stats` prints bodies, proposals, spawned at once / faded in, refusals, despawns, goals and reports; boxes are drawn only for agents without a body. Every
+  appearance and disappearance is logged: `sim body: <id> appears at (x y z), N m away, <the level just loaded | out of sight | fading in, in sight>`, `sim body: <id> goes:
+  <reached a portal | out of range | player left the level | no player> (<faded out | out of sight>)`, `sim body: <id> left the level before its body appeared; no body`.
+  Named NPCs carry a beam over their head in the sim's position: grey no body, yellow asked for, green has one, orange being taken back (note: an agent that has stepped
+  onto a portal leg is already in the next level for the sim, so its beam is gone while its body is still fading out at the portal).
+- **Tested**: scripted stand-in game (budget, order, hysteresis, body-driven arrival times, goals, re-planning, time-outs, refusal cool-down, release, portal handoff,
+  stray reports, load, replay with body reports) and the in-game run (9 bodies appear out of sight, walk, the sim follows within 3 m, they return after a load).
+- **Looked at** (screenshots, 2026-10-23): bodies stand where the sim's agent is (the view is centred on the agent and the body is in the middle), animate, are textured or tinted,
+  fade in at the portal exit 1.4 m from the door and out at the portal; a 6 s fade showed the blend. **Not verified**: the web build, whether the walk animation matches the
+  speed table (nobody compared times), how a fade looks at 60 fps in motion (only stills), and the missing-file notes the engine logs for `guard.glb`'s external textures
+  (`models/npc/guard.glb/body.png` and others; the model still draws textured).
+
+
+---
+
+## 11. Authored NPCs (Sim/Npcs, Sim/Bridge/SimNpcFile, GameData/sim/npcs.json; tests in SimNpcsTests.cpp; `SLICE_M2D_NPCS.md`)
+
+- **Content is data** (owner): `GameData/sim/npcs.json`, always on, no launch flag. Ten NPCs ship (two models, one crossing levels). Format: header of `SimNpcFile.h`.
+  `SimGame.exe -headless -sim_nav_report` writes `SaveData/sim_nav_report.txt` with coordinates to author against.
+- **Start**: `SimBridge::Start` parses the file, validates every NPC against the baked world (`NpcModule::Validate`), logs `==== SIM NPC CONTENT` with every problem,
+  and places the valid ones in each fresh sim (not after a load: the save holds them). Module order: movement, bodies, npcs, demo.
+- **Records**: `movement::Identity {id, name}`, `npcs::Routine`, `bodies::Appearance`. Stops are level name + level-local position (rebake-proof). Events: `RoutineStep`
+  (scheduled). Rules: `Arrived` -> wait in the stop's range -> `RoutineStep` -> command `RoutineAdvance` -> `MovementModule::StartWalk`; `PathFailed` / `Replaced` retry after 3 s.
+  The crowd (demo) rules skip anything with an `Identity`.
+- **Tools**: console `sim_npcs`, `sim_goto <id>`, `sim_look <id>` (the pawn stands 6 m from the NPC once and the view stays on it; launch `-sim_look <id>`, with `-screenshot` for a
+  picture), beam over named NPCs coloured by body state (section 10; `sim_agents`); snapshot `AgentView.id`.
+- **Looked at** (screenshots, 2026-10-23): the NPCs of level a (warden, baker, widow, newsboy, sergeant, courier) have bodies near the pawn and walk; the courier crosses the portal
+  both ways (out at 3 s, back at 38 s, appears at the door). Not looked at: the residents of the other levels, whether each route's stops and waits look right in play, NPC
+  reactions (not built yet).

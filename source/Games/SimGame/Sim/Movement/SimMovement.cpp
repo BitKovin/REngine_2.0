@@ -14,6 +14,8 @@ namespace sim::movement
 	namespace
 	{
 		constexpr float SpeedTolerance = 0.01f; // metres of slack in the speed check (float rounding)
+		constexpr Tick ReplanCooldown = 20;     // ticks between plans for a body that keeps standing off its route
+		constexpr float PortalReach = 0.4f;     // metres short of a portal's start at which a body counts as there
 		const glm::vec3 OnMeshExtents{ 0.3f, 1.0f, 0.3f };
 
 		void ClearPath(Walker& walker)
@@ -32,6 +34,8 @@ namespace sim::movement
 		reg.Component<Position>();
 		reg.Component<Walker>();
 		reg.Component<PlayerAnchor>();
+		reg.Component<Embodied>();
+		reg.Component<Identity>();
 
 		reg.Event<PlayerMoved>(EventInput);
 		reg.Event<PathAssigned>();
@@ -48,23 +52,14 @@ namespace sim::movement
 		portalDelay = reg.Tunable("portal_delay", 1.0f, 0.0f, 60.0f, "seconds a walker spends at a level portal");
 		pathsPerTick = reg.Tunable("paths_per_tick", 16.0f, 1.0f, 1000.0f, "path requests solved per step, oldest first");
 		speedScaleSpread = reg.Tunable("speed_scale_spread", 0.1f, 0.0f, 0.5f, "per-agent speed variation at placement (+/- fraction)");
+		bodyOffPath = reg.Tunable("body_off_path", 3.0f, 0.5f, 50.0f, "metres a body may stand from its path before the sim plans a new one");
+		bodyArriveRadius = reg.Tunable("body_arrive_radius", 0.75f, 0.1f, 5.0f, "metres from the end of its path at which a body counts as arrived");
 		placement = reg.RandomStream("placement");
 
 		reg.Command<RequestWalk>([this](ApplyContext& ctx, const RequestWalk& command)
 		{
-			Walker* walker = ctx.world.TryGet<Walker>(command.walker);
-			if (!walker || !ctx.world.TryGet<Position>(command.walker))
-			{
+			if (!StartWalk(ctx, command.walker, command.destination, command.gait))
 				ctx.Reject("no such walker");
-				return;
-			}
-			SyncWalker(ctx, command.walker);
-			ClearPath(*walker);
-			walker->state = Walker::State::WaitingForPath;
-			walker->destination = command.destination;
-			walker->gait = command.gait;
-			walker->requestedAt = ctx.Now();
-			walker->lastIntegrated = ctx.Now();
 		});
 
 		reg.Command<StopWalk>([this](ApplyContext& ctx, const StopWalk& command)
@@ -163,13 +158,22 @@ namespace sim::movement
 		return TierFor(FindPlayer(world.Registry()), LevelOf(world, entity), position->nav, world.Tunable(tier0Radius));
 	}
 
+	bool MovementModule::IsBodyDriven(const World& world, Entity entity)
+	{
+		const Embodied* body = world.TryGet<Embodied>(entity);
+		const Walker* walker = world.TryGet<Walker>(entity);
+		if (!body || !walker || body->state == Embodied::State::Proposed)
+			return false;
+		return walker->state == Walker::State::Walking && !walker->progress.crossing && !IsPortalLeg(walker->View(), walker->progress.leg);
+	}
+
 	glm::vec3 MovementModule::PositionAt(const World& world, Entity entity, Tick tick) const
 	{
 		const Position* position = world.TryGet<Position>(entity);
 		if (!position)
 			return glm::vec3(0.0f);
 		const Walker* walker = world.TryGet<Walker>(entity);
-		if (!walker || walker->state != Walker::State::Walking)
+		if (!walker || walker->state != Walker::State::Walking || IsBodyDriven(world, entity))
 			return position->nav;
 		Progress progress = walker->progress;
 		Advance(walker->View(), progress, TicksToSeconds(std::max<Tick>(0, tick - walker->lastIntegrated)), SpeedOf(*walker), world.Tunable(portalDelay));
@@ -194,6 +198,13 @@ namespace sim::movement
 			view.level = static_cast<uint16_t>(std::max(LevelOf(world, entity), 0));
 			view.tier = static_cast<uint8_t>(TierFor(player, view.level, position.nav, radius));
 			view.state = static_cast<uint8_t>(walker.state);
+			if (const Identity* identity = world.TryGet<Identity>(entity))
+				view.id = identity->id;
+			if (const Embodied* body = world.TryGet<Embodied>(entity))
+			{
+				view.body = static_cast<uint8_t>(static_cast<int>(body->state) + 1);
+				view.tier = 0; // a body forces tier 0
+			}
 			view.nav = position.nav;
 			views.push_back(view);
 		}
@@ -236,6 +247,14 @@ namespace sim::movement
 		out.clear();
 		reader.Read(out);
 		return !reader.Failed() && reader.AtEnd();
+	}
+
+	void MovementModule::ClearEmbodiment(Server& server)
+	{
+		const World& world = static_cast<const Server&>(server).GetWorld();
+		const auto* storage = world.Registry().storage<Embodied>();
+		if (storage && !storage->empty()) // a load without bodies changes nothing
+			server.RunSetup("clear bodies", [](ApplyContext& ctx) { ctx.world.Registry().clear<Embodied>(); });
 	}
 
 	size_t MovementModule::ReplaceAfterRebake(Server& server, const std::vector<std::string>& oldLevels, const std::vector<Placement>& placements) const
@@ -291,6 +310,7 @@ namespace sim::movement
 				ctx.Destroy(entity);
 				++lost;
 			}
+			registry.clear<Embodied>(); // the game has no bodies after a load
 			std::vector<Entity> anchors;
 			for (const Entity entity : registry.view<PlayerAnchor>())
 				anchors.push_back(entity);
@@ -298,6 +318,162 @@ namespace sim::movement
 				ctx.Destroy(entity);
 		});
 		return lost;
+	}
+
+	// ---- Bodies -----------------------------------------------------------------------------------------------------
+
+	void MovementModule::ApplyBodyPosition(ApplyContext& ctx, Entity entity, const glm::vec3& local, bool rebase) const
+	{
+		Walker* walker = ctx.world.TryGet<Walker>(entity);
+		Position* position = ctx.world.TryGet<Position>(entity);
+		if (!walker || !position)
+			return;
+		const Tick now = ctx.Now();
+		const Tick elapsed = std::max<Tick>(0, now - walker->lastIntegrated);
+		const int level = walker->corners.empty() ? LevelOf(ctx.world, entity) : movement::LevelOf(walker->View(), walker->progress);
+		if (level < 0)
+			return;
+		const glm::vec3 nav = worldNav.ToNav(level, local);
+		// The fastest the body may have gone since the last report (the detector allows 0.01 m on top for float rounding).
+		const float allowed = MaxSpeed(walker->moverClass) * walker->speedScale * static_cast<float>(TicksToSeconds(elapsed)) + 0.005f;
+
+		auto commit = [&](const glm::vec3& where, float walked)
+		{
+			position->nav = where;
+			walker->lastTo = where;
+			walker->lastWalked = walked;
+			walker->lastTicks = elapsed;
+			walker->lastIntegrated = now;
+		};
+
+		const PathView view = walker->View();
+		const bool onPath = walker->state == Walker::State::Walking && !walker->corners.empty() && !walker->progress.crossing && !IsPortalLeg(view, walker->progress.leg);
+		if (!onPath)
+		{
+			// Standing (idle, waiting for a path): the walker follows its body, within what a walk could cover.
+			const nav::NavPoint point = worldNav.Project(nav);
+			if (!point.IsValid())
+				return;
+			glm::vec3 delta = point.position - position->nav;
+			float distance = glm::length(delta);
+			if (distance > allowed)
+			{
+				delta *= allowed / distance;
+				distance = allowed;
+			}
+			commit(position->nav + delta, distance);
+			return;
+		}
+
+		// Nearest point on the next few legs of the remaining path.
+		const size_t count = view.Count();
+		const uint32_t firstLeg = walker->progress.leg;
+		const uint32_t startLeg = rebase && firstLeg >= 2 ? firstLeg - 2 : (rebase ? 0 : firstLeg);
+		float bestDistance = 1e30f;
+		uint32_t bestLeg = firstLeg;
+		float bestAlong = 0.0f;
+		for (uint32_t leg = startLeg; leg + 1 < count && leg <= firstLeg + 3; ++leg)
+		{
+			if (IsPortalLeg(view, leg))
+			{
+				if (leg < firstLeg)
+					continue;
+				break;
+			}
+			const glm::vec3& a = walker->corners[leg];
+			const glm::vec3 ab = walker->corners[leg + 1] - a;
+			const float lengthSquared = glm::dot(ab, ab);
+			const float t = lengthSquared > 0.0f ? glm::clamp(glm::dot(nav - a, ab) / lengthSquared, 0.0f, 1.0f) : 0.0f;
+			const float distance = glm::distance(nav, a + ab * t);
+			if (distance <= bestDistance + 1e-4f) // a tie at a corner goes to the later leg
+			{
+				bestDistance = distance;
+				bestLeg = leg;
+				bestAlong = t * std::sqrt(lengthSquared);
+			}
+		}
+
+		if (bestDistance > ctx.world.Tunable(bodyOffPath) && now - walker->requestedAt >= ReplanCooldown)
+		{
+			// The body went its own way (around something): plan again from where it stands, as far as the mesh knows it.
+			const nav::NavPoint point = worldNav.Project(nav, glm::vec3(4.0f, 4.0f, 4.0f));
+			glm::vec3 where = position->nav;
+			float walked = 0.0f;
+			if (point.IsValid())
+			{
+				const glm::vec3 delta = point.position - position->nav;
+				const float distance = glm::length(delta);
+				walked = std::min(distance, allowed);
+				where = distance > 0.0f ? position->nav + delta / distance * walked : position->nav;
+			}
+			ClearPath(*walker);
+			walker->state = Walker::State::WaitingForPath;
+			walker->requestedAt = now;
+			commit(where, walked);
+			return;
+		}
+
+		auto legLength = [&](uint32_t leg) { return glm::distance(walker->corners[leg], walker->corners[leg + 1]); };
+		Progress next = walker->progress;
+		float walked = 0.0f;
+		if (rebase)
+		{
+			next.leg = bestLeg;
+			next.legDistance = bestAlong;
+		}
+		else
+		{
+			// Forward only: a body that waits or steps back leaves the walker where it is.
+			if (bestLeg < firstLeg || (bestLeg == firstLeg && bestAlong < walker->progress.legDistance))
+			{
+				bestLeg = firstLeg;
+				bestAlong = static_cast<float>(walker->progress.legDistance);
+			}
+			walked = bestLeg == firstLeg ? bestAlong - static_cast<float>(walker->progress.legDistance) : legLength(firstLeg) - static_cast<float>(walker->progress.legDistance) + bestAlong;
+			for (uint32_t leg = firstLeg + 1; leg < bestLeg; ++leg)
+				walked += legLength(leg);
+			if (walked > allowed)
+			{
+				// Faster than anything can walk: advance by what could be covered.
+				Progress limited = walker->progress;
+				Advance(view, limited, 1.0, allowed, ctx.world.Tunable(portalDelay));
+				next = limited;
+				walked = allowed;
+			}
+			else
+			{
+				next.leg = bestLeg;
+				next.legDistance = bestAlong;
+			}
+		}
+		// At the end of the leg before a portal the body's work is done: the walker steps onto the portal leg and the sim takes it
+		// across (a body cannot cross levels).
+		if (IsPortalLeg(view, next.leg + 1) && next.legDistance >= legLength(next.leg) - PortalReach)
+		{
+			++next.leg;
+			next.legDistance = 0.0;
+		}
+		walker->progress = next;
+
+		// The end: nothing but ground ahead and within the arrival radius.
+		bool portalAhead = false;
+		float remaining = 0.0f;
+		for (uint32_t leg = next.leg; leg + 1 < count; ++leg)
+		{
+			portalAhead |= IsPortalLeg(view, leg);
+			remaining += legLength(leg);
+		}
+		remaining -= static_cast<float>(next.legDistance);
+		if (!next.crossing && !portalAhead && remaining <= ctx.world.Tunable(bodyArriveRadius))
+		{
+			const Tick arrivedAt = now;
+			commit(walker->corners.back(), std::min(walked + remaining, allowed));
+			walker->state = Walker::State::Idle;
+			ClearPath(*walker);
+			ctx.Emit(Arrived{ entity, arrivedAt });
+			return;
+		}
+		commit(PositionOf(view, next), walked);
 	}
 
 	// ---- Placement and the position chokepoint ----------------------------------------------------------------------
@@ -346,11 +522,26 @@ namespace sim::movement
 		}
 	}
 
+	bool MovementModule::StartWalk(ApplyContext& ctx, Entity entity, const glm::vec3& destination, Gait gait) const
+	{
+		Walker* walker = ctx.world.TryGet<Walker>(entity);
+		if (!walker || !ctx.world.TryGet<Position>(entity))
+			return false;
+		SyncWalker(ctx, entity);
+		ClearPath(*walker);
+		walker->state = Walker::State::WaitingForPath;
+		walker->destination = destination;
+		walker->gait = gait;
+		walker->requestedAt = ctx.Now();
+		walker->lastIntegrated = ctx.Now();
+		return true;
+	}
+
 	void MovementModule::SyncWalker(ApplyContext& ctx, Entity entity) const
 	{
 		Walker* walker = ctx.world.TryGet<Walker>(entity);
 		Position* position = ctx.world.TryGet<Position>(entity);
-		if (walker && position && walker->state == Walker::State::Walking)
+		if (walker && position && walker->state == Walker::State::Walking && !IsBodyDriven(ctx.world, entity))
 			AdvanceWalker(ctx, entity, *walker, *position);
 	}
 
@@ -428,6 +619,7 @@ namespace sim::movement
 				walker.cornerLevels.push_back(static_cast<uint16_t>(std::max(level, 0)));
 			walker.progress = Progress{};
 			walker.walkLength = static_cast<float>(WalkLength(walker.View()));
+			++walker.pathSerial;
 			walker.state = Walker::State::Walking;
 			walker.lastIntegrated = ctx.Now();
 			ctx.Emit(PathAssigned{ entity, walker.walkLength, static_cast<uint16_t>(walker.corners.size()), static_cast<uint16_t>(result.path.portalCrossings) });
@@ -444,7 +636,7 @@ namespace sim::movement
 
 		for (const auto [entity, walker, position] : registry.view<Walker, Position>().each())
 		{
-			if (walker.state != Walker::State::Walking)
+			if (walker.state != Walker::State::Walking || IsBodyDriven(ctx.world, entity))
 				continue;
 			const Tier tier = TierFor(player, movement::LevelOf(walker.View(), walker.progress), position.nav, radius);
 			if (IsStaggerDue(entity, now, dt, steps[static_cast<int>(tier)]))

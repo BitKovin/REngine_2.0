@@ -475,8 +475,8 @@ namespace sim::test
 				rig.server->QueueInput(GaitWanted{ rig.walkers[0], Gait::Run });
 				Run(t, rig, 3000, "gait");
 				const auto arrived = Collect<Arrived>(rig);
-				const double walked = 1.4 * TicksToSeconds(changeAt - started);
-				const double expected = started + (changeAt - started) + (length - walked) / 4.0 * TicksPerSecond;
+				const double walked = Speed(MoverClass::Person, Gait::Walk, GroundArea) * TicksToSeconds(changeAt - started);
+				const double expected = started + (changeAt - started) + (length - walked) / Speed(MoverClass::Person, Gait::Run, GroundArea) * TicksPerSecond;
 				t.Check(arrived.size() == 1 && std::fabs(arrived[0].second.at - expected) <= 1.5, "switching to a run mid-walk: arrival at %.1f expected, got %lld (%.1f m route)",
 					expected, arrived.empty() ? -1LL : static_cast<long long>(arrived[0].second.at), length);
 			}

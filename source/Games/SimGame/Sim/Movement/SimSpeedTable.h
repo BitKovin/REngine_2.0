@@ -34,7 +34,7 @@ namespace sim::movement
 		return multipliers;
 	}();
 
-	constexpr float BaseSpeed(MoverClass, Gait gait) { return gait == Gait::Run ? 4.0f : 1.4f; }
+	constexpr float BaseSpeed(MoverClass, Gait gait) { return gait == Gait::Run ? 8.0f : 2.4f; }
 
 	constexpr float Speed(MoverClass moverClass, Gait gait, uint8_t area) { return BaseSpeed(moverClass, gait) * AreaMultipliers[area & 63]; }
 

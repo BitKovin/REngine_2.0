@@ -68,7 +68,7 @@ game.
 **Tunables** (all live-tunable): `tier0_radius` 50 m, `tier0_step` 1 tick, `tier1_step` 2 ticks, `tier2_step` 10 ticks,
 `portal_delay` 1.0 s, `paths_per_tick` 16, `speed_scale_spread` 0.1 (per-agent variation set at placement).
 
-**Speed table** (m/s, person): walk 1.4, run 4.0, area multiplier 1.0 for the single ground area the engine bakes today
+**Speed table** (m/s, person): walk 1.4, run 4.0 (the owner has since raised them to **2.4 and 8.0** in `SimSpeedTable.h`; the tests read the table), area multiplier 1.0 for the single ground area the engine bakes today
 (the table is keyed by area so roads and mud can be added without touching the integrator).
 
 ## 4. Step order (kernel systems, registration order)
@@ -124,7 +124,7 @@ speed limit, or if a position is not on the mesh (projection fails by more than 
    `PathService` stays in use (request order, dedicated query) and its iteration budget stays available if a real world ever
    needs it. Say so if you want true slicing now.
 2. Partial paths fail instead of walking to the closest reachable point.
-3. Speeds 1.4 / 4.0 m/s and the tier numbers above are placeholders until the calibration slice measures a real body.
+3. Speeds (1.4 / 4.0 m/s here, 2.4 / 8.0 m/s now) and the tier numbers above are placeholders until the calibration slice measures a real body.
 4. The player is a separate `PlayerAnchor` (told by the game), not a Walker.
 
 ## 10. Settled by the owner

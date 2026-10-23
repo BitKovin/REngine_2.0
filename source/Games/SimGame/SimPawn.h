@@ -33,6 +33,9 @@ public:
 	// Where the pawn stands (the floor under the capsule).
 	glm::vec3 FeetPosition() const;
 
+	// Turns the view to a point (a camera for looking at something: sim_look, -sim_look).
+	void LookAt(const glm::vec3& point);
+
 	// Automated runs: walk forward, turn away from walls, until `metres` of ground have been covered.
 	void StartScriptedWalk(float metres);
 	bool ScriptedWalkDone() const { return scriptedTarget > 0.0f && scriptedWalked >= scriptedTarget; }

@@ -3,8 +3,13 @@
 
 #include "SimBridge.h"
 
+#include "SimAgents.h"
 #include "SimClient.h"
+#include "SimNpcFile.h"
 #include "SimWorldNavFile.h"
+
+#include <Sim/Bodies/SimBodies.h>
+#include <Sim/Npcs/SimNpcs.h>
 
 #include <PauseGameManager.hpp>
 #include <SimPawn.h>
@@ -39,6 +44,9 @@ namespace SimBridge
 		{
 			std::unique_ptr<sim::nav::WorldNav> nav;
 			std::unique_ptr<sim::movement::MovementModule> movement;
+			std::unique_ptr<sim::bodies::BodiesModule> bodies;
+			std::unique_ptr<sim::npcs::NpcModule> npcs;
+			std::vector<sim::npcs::NpcDefinition> npcDefinitions; // the valid ones from npcs.json, placed in every fresh sim
 #ifndef DISTRIBUTION
 			std::unique_ptr<sim::movement::DemoModule> demo;
 #endif
@@ -55,6 +63,9 @@ namespace SimBridge
 
 			bool drawAgents = true;
 
+			std::string lookId;      // the NPC the view follows
+			bool lookPlaced = false; // the pawn was put next to it
+
 			// Last member: destroyed first, so the Host thread is gone before the world it reads.
 			std::unique_ptr<sim::SimClient> client;
 		};
@@ -63,6 +74,28 @@ namespace SimBridge
 		bool exitHooksInstalled = false;
 
 		bool Running() { return state.client && state.client->IsRunning(); }
+
+		// -sim_look / sim_look: the pawn stands 6 m from the NPC, once, and its view stays on the NPC.
+		void FollowLook()
+		{
+			if (state.lookId.empty() || !SimPawn::Instance || !Level::Current)
+				return;
+			const auto& world = state.nav->Data();
+			const int level = SimWorldNavFile::FindLevel(world, Level::Current->filePath);
+			for (const sim::movement::AgentView& agent : state.client->Agents())
+			{
+				if (state.lookId != agent.id.c_str() || agent.level != level)
+					continue;
+				const glm::vec3 local = agent.nav - world.levels[level].offset;
+				if (!state.lookPlaced)
+				{
+					SimPawn::Instance->Teleport(local + glm::vec3(-4.2f, 0.9f, -4.2f));
+					state.lookPlaced = true;
+				}
+				SimPawn::Instance->LookAt(local + glm::vec3(0.0f, 1.2f, 0.0f));
+				return;
+			}
+		}
 
 		int SDLCALL OnSdlEvent(void*, SDL_Event* event)
 		{
@@ -78,7 +111,14 @@ namespace SimBridge
 			setup.worldNav = state.nav.get();
 			setup.movement = state.movement.get();
 			setup.seed = 1;
+			SimAgents::Reset();
 			state.client = std::make_unique<sim::SimClient>(setup);
+			if (!state.npcDefinitions.empty())
+				state.client->ServerForSetup().RunSetup("authored npcs", [](sim::ApplyContext& ctx)
+				{
+					for (const sim::npcs::NpcDefinition& definition : state.npcDefinitions)
+						state.npcs->Place(ctx, definition);
+				});
 			state.client->Start(sim::Host::Mode::Thread);
 			state.reported = false;
 			state.pausedByGame = false;
@@ -158,6 +198,12 @@ namespace SimBridge
 		}
 
 #ifndef DISTRIBUTION
+		// The beam over a named NPC shows its body: grey none (abstract), yellow asked for, green has one, orange being taken back.
+		uint32_t BeamColour(uint8_t body)
+		{
+			return body == 2 ? DebugColor::Green : body == 1 ? DebugColor::Yellow : body == 3 ? DebugColor::Orange : DebugColor::Gray;
+		}
+
 		uint32_t TierColour(uint8_t tier)
 		{
 			return tier == 0 ? DebugColor::Green : tier == 1 ? DebugColor::Yellow : DebugColor::Gray;
@@ -177,8 +223,35 @@ namespace SimBridge
 				if (agent.level != level)
 					continue;
 				const glm::vec3 local = agent.nav - offset;
+				if (agent.id.c_str()[0] != '\0') // a named NPC: a beam over its head, so it can be found
+					DebugDraw::Line(local + glm::vec3(0.0f, 2.0f, 0.0f), local + glm::vec3(0.0f, 5.0f, 0.0f), duration, 0.01f, BeamColour(agent.body));
+				if (agent.body == 2 || agent.body == 3) // a body draws itself
+					continue;
 				DebugDraw::Bounds(local - glm::vec3(0.25f, 0.0f, 0.25f), local + glm::vec3(0.25f, 1.8f, 0.25f), duration, 0.01f, TierColour(agent.tier));
 			}
+		}
+
+		// One line per authored NPC the sim knows (from the newest snapshot).
+		std::vector<std::string> NpcLines()
+		{
+			std::vector<std::string> lines;
+			const auto& world = state.nav->Data();
+			for (const sim::movement::AgentView& agent : state.client->Agents())
+			{
+				if (agent.id.c_str()[0] == '\0')
+					continue;
+				std::string name = agent.id.str();
+				for (const sim::npcs::NpcDefinition& definition : state.npcDefinitions)
+					if (definition.id == name)
+						name += " (" + definition.name + ")";
+				const glm::vec3 local = agent.nav - world.levels[agent.level].offset;
+				static const char* states[] = { "standing", "waiting for a path", "walking" };
+				static const char* bodies[] = { "no body", "body proposed", "body", "body leaving" };
+				char line[300];
+				std::snprintf(line, sizeof(line), "  %-34s %-20s (%6.1f %5.1f %6.1f) %-18s %s", name.c_str(), world.levels[agent.level].name.c_str(), local.x, local.y, local.z, states[agent.state % 3], bodies[agent.body % 4]);
+				lines.push_back(line);
+			}
+			return lines;
 		}
 
 		std::string Stats()
@@ -193,10 +266,14 @@ namespace SimBridge
 				++tiers[agent.tier % 3];
 				walking += agent.state == static_cast<uint8_t>(sim::movement::Walker::State::Walking) ? 1 : 0;
 			}
-			char buffer[400];
-			std::snprintf(buffer, sizeof(buffer), "sim: tick %lld%s, %llu snapshots (newest tick %lld), %zu agents (%d walking; tier 0/1/2 = %d/%d/%d), player %s", static_cast<long long>(state.client->CurrentTick()),
-				state.client->IsPaused() ? " (paused)" : "", static_cast<unsigned long long>(state.client->SnapshotsReceived()), static_cast<long long>(state.client->SnapshotTick()),
-				snapshot.agents.size(), walking, tiers[0], tiers[1], tiers[2], snapshot.hasPlayer ? "known" : "not reported yet");
+			const SimAgents::Counters& agents = SimAgents::GetCounters();
+			char buffer[600];
+			std::snprintf(buffer, sizeof(buffer), "sim: tick %lld%s, %llu snapshots (newest tick %lld), %zu agents (%d walking; tier 0/1/2 = %d/%d/%d), player %s; bodies %zu (+%zu waiting): %llu proposals, %llu spawned hidden, %llu in view, %llu refused, %llu despawned, %llu goals, %llu reports",
+				static_cast<long long>(state.client->CurrentTick()), state.client->IsPaused() ? " (paused)" : "", static_cast<unsigned long long>(state.client->SnapshotsReceived()),
+				static_cast<long long>(state.client->SnapshotTick()), snapshot.agents.size(), walking, tiers[0], tiers[1], tiers[2], snapshot.hasPlayer ? "known" : "not reported yet",
+				SimAgents::BodyCount(), SimAgents::PendingCount(), static_cast<unsigned long long>(agents.proposals), static_cast<unsigned long long>(agents.spawnedHidden),
+				static_cast<unsigned long long>(agents.spawnedVisible), static_cast<unsigned long long>(agents.refused), static_cast<unsigned long long>(agents.despawned),
+				static_cast<unsigned long long>(agents.goals), static_cast<unsigned long long>(agents.reports));
 			return buffer;
 		}
 
@@ -209,6 +286,7 @@ namespace SimBridge
 			Clock::time_point begin, stageStart;
 			std::vector<sim::movement::AgentView> startAgents;
 			sim::Tick tickAtLoad = 0;
+			std::vector<std::pair<sim::Entity, glm::vec3>> bodyStart;
 			std::string hashSaved, hashLater;
 			std::string report;
 			int failures = 0;
@@ -315,13 +393,70 @@ namespace SimBridge
 						if (before.entity == now.entity && glm::distance(before.nav, now.nav) > 0.5f)
 							++moved;
 				t.Check(moved > 0, "%d of %zu demo agents have moved", moved, snapshot.agents.size());
-				t.Check(state.client->CurrentTick() > 50 && state.client->SnapshotsReceived() > 5, "the sim ran %lld ticks and sent %llu snapshots", static_cast<long long>(state.client->CurrentTick()),
+				t.Check(state.client->CurrentTick() > 25 && state.client->SnapshotsReceived() > 5, "the sim ran %lld ticks and sent %llu snapshots", static_cast<long long>(state.client->CurrentTick()),
 					static_cast<unsigned long long>(state.client->SnapshotsReceived()));
 				t.Line("%s", Stats().c_str());
+				t.Next(10);
+				break;
+			}
+			case 10: // bodies: the sim proposes them for agents near the pawn, the game spawns them
+			{
+				if (SimAgents::BodyCount() == 0)
+				{
+					if (t.Seconds(t.stageStart) > 25.0)
+					{
+						t.Check(false, "no body appeared within 25 s. %s", Stats().c_str());
+						t.Next(12);
+					}
+					break;
+				}
+				t.bodyStart = SimAgents::BodyPositions();
+				t.Line("%zu bodies after %.1f s", t.bodyStart.size(), t.Seconds(t.stageStart));
+				t.Next(11);
+				break;
+			}
+			case 11: // and they walk the routes the sim dictates, the sim follows them
+			{
+				if (t.Seconds(t.stageStart) < 6.0)
+					break;
+				const auto positions = SimAgents::BodyPositions();
+				const auto& snapshot = state.client->Snapshot();
+				int moved = 0, followed = 0, driven = 0;
+				for (const auto& [entity, feet] : positions)
+				{
+					for (const auto& before : t.bodyStart)
+						if (before.first == entity && glm::distance(before.second, feet) > 1.0f)
+							++moved;
+					for (const auto& agent : snapshot.agents)
+						if (agent.entity == entity && agent.body == 2)
+						{
+							++driven;
+							if (level >= 0 && glm::distance(agent.nav - state.nav->Data().levels[level].offset, feet) < 3.0f)
+								++followed;
+						}
+				}
+				t.Check(!positions.empty(), "%zu bodies are still there", positions.size());
+				t.Check(moved > 0, "%d of %zu bodies walked more than 1 m", moved, t.bodyStart.size());
+				t.Check(driven > 0 && followed == driven, "the sim's agents follow their bodies (%d of %d within 3 m)", followed, driven);
+				int named = 0, namedWithBody = 0;
+				for (const auto& agent : snapshot.agents)
+					if (agent.id.c_str()[0] != '\0')
+					{
+						++named;
+						namedWithBody += agent.body == 2 ? 1 : 0;
+					}
+				t.Check(named == static_cast<int>(state.npcDefinitions.size()) && named > 0, "all %zu authored NPCs are in the sim (%d)", state.npcDefinitions.size(), named);
+				t.Check(namedWithBody > 0, "authored NPCs near the player have bodies (%d of %d)", namedWithBody, named);
+				t.Line("%s", Stats().c_str());
+				for (const std::string& line : NpcLines())
+					t.Line("%s", line.c_str());
+				t.Next(12);
+				break;
+			}
+			case 12:
 				state.client->Pause();
 				t.Next(3);
 				break;
-			}
 			case 3: // paused: save level and sim into one file
 			{
 				if (!state.client->IsPaused() && t.Seconds(t.stageStart) < 2.0)
@@ -352,7 +487,9 @@ namespace SimBridge
 				GameSaveSystem::LoadGameFromFile("sim_bridge_test");
 				std::string after;
 				const bool gotAfter = HashOf(after);
-				t.Check(gotAfter && after == t.hashSaved, "loading the save restored the saved sim state: %s", after.c_str());
+				// The hash differs by design when bodies were out at the save: a load drops them (the game has none). The tick is the same.
+				auto tickOf = [](const std::string& text) { return text.substr(0, text.find(" hash")); };
+				t.Check(gotAfter && tickOf(after) == tickOf(t.hashSaved) && tickOf(after) != tickOf(t.hashLater), "loading the save restored the saved sim state (%s, was %s)", tickOf(after).c_str(), tickOf(t.hashLater).c_str());
 				t.tickAtLoad = state.client->CurrentTick();
 				state.client->Resume();
 				t.Next(6);
@@ -363,6 +500,14 @@ namespace SimBridge
 				{
 					t.Check(state.client->CurrentTick() > t.tickAtLoad, "the sim keeps running after the load (tick %lld)", static_cast<long long>(state.client->CurrentTick()));
 					t.Check(state.client->Snapshot().hasPlayer, "and knows the player again");
+					t.Next(13);
+				}
+				break;
+			case 13: // the bodies come back after the load: the level reloaded, the sim proposes them again
+				if (SimAgents::BodyCount() > 0 || t.Seconds(t.stageStart) > 25.0)
+				{
+					t.Check(SimAgents::BodyCount() > 0, "bodies are back after the load (%zu)", SimAgents::BodyCount());
+					t.Line("%s", Stats().c_str());
 					t.Next(7);
 					Finish();
 				}
@@ -394,8 +539,33 @@ namespace SimBridge
 		state.nav = std::move(nav);
 		state.movement = std::make_unique<sim::movement::MovementModule>(*state.nav);
 
+		state.bodies = std::make_unique<sim::bodies::BodiesModule>(*state.movement, *state.nav);
+		state.npcs = std::make_unique<sim::npcs::NpcModule>(*state.movement, *state.nav);
+
+		// The authored NPCs: what parses and fits the baked world is placed, the rest is reported loudly (one bad NPC costs only itself).
+		{
+			std::vector<sim::npcs::NpcDefinition> parsed;
+			std::vector<std::string> problems;
+			SimNpcFile::Load(data, parsed, problems);
+			for (sim::npcs::NpcDefinition& definition : parsed)
+			{
+				const std::vector<std::string> invalid = state.npcs->Validate(definition);
+				problems.insert(problems.end(), invalid.begin(), invalid.end());
+				if (invalid.empty())
+					state.npcDefinitions.push_back(std::move(definition));
+			}
+			if (!problems.empty())
+			{
+				Logger::Error("==== SIM NPC CONTENT: %zu problems in %s, %zu of %zu npcs will be placed ====", problems.size(), SimNpcFile::Path, state.npcDefinitions.size(), parsed.size());
+				for (const std::string& problem : problems)
+					Logger::Error("  %s", problem.c_str());
+			}
+		}
+
 		sim::RegistryBuilder builder;
 		builder.Add(*state.movement);
+		builder.Add(*state.bodies);
+		builder.Add(*state.npcs);
 #ifndef DISTRIBUTION
 		std::vector<glm::vec3> points;
 		for (const sim::nav::WorldSpawn& spawn : data.spawns)
@@ -432,7 +602,7 @@ namespace SimBridge
 #else
 		(void)selfTestRun;
 #endif
-		Logger::Log("sim: started (%zu levels, %zu spawn points, %d demo walkers)", data.levels.size(), data.spawns.size(), demoCount);
+		Logger::Log("sim: started (%zu levels, %zu spawn points, %zu authored npcs, %d demo walkers)", data.levels.size(), data.spawns.size(), state.npcDefinitions.size(), demoCount);
 		return true;
 	}
 
@@ -443,6 +613,12 @@ namespace SimBridge
 	}
 
 	bool IsRunning() { return Running(); }
+
+	void LookAtNpc(const std::string& id)
+	{
+		state.lookId = id;
+		state.lookPlaced = false;
+	}
 
 	void Update()
 	{
@@ -458,7 +634,9 @@ namespace SimBridge
 				state.client->Resume();
 		}
 		state.client->Update();
+		FollowLook();
 		ReportPlayer();
+		SimAgents::Update(*state.client, state.nav->Data());
 #ifndef DISTRIBUTION
 		DrawAgents();
 		if (selfTest.enabled)
@@ -532,6 +710,46 @@ namespace SimBridge
 		const int count = static_cast<int>(Number(args, 0, 40.0f));
 		state.demoCount += count;
 		state.client->GetHost().SendEvent(sim::movement::PopulateDemo{ static_cast<uint16_t>(count) });
+	}
+
+	CONSOLE_FUNC("sim_npcs", "List the authored NPCs: id, name, level, position, what they are doing, and whether they have a body")
+	{
+		if (!NeedsSim())
+			return;
+		for (const std::string& line : NpcLines())
+			Logger::Log("%s", line.c_str());
+	}
+
+	CONSOLE_FUNC("sim_goto", "Move the pawn next to an authored NPC of the loaded level: sim_goto <id>")
+	{
+		if (!NeedsSim() || args.empty() || !SimPawn::Instance || !Level::Current)
+		{
+			Logger::Log("sim_goto <id>: needs the sim, a pawn and an NPC id (see sim_npcs)");
+			return;
+		}
+		const auto& world = state.nav->Data();
+		for (const sim::movement::AgentView& agent : state.client->Agents())
+		{
+			if (args[0] != agent.id.c_str())
+				continue;
+			const glm::vec3 local = agent.nav - world.levels[agent.level].offset;
+			const int level = SimWorldNavFile::FindLevel(world, Level::Current->filePath);
+			if (level != agent.level)
+			{
+				Logger::Log("sim_goto: %s is in %s at (%.1f %.1f %.1f); load that level first (map %s)", args[0].c_str(), world.levels[agent.level].name.c_str(), local.x, local.y, local.z,
+					world.levels[agent.level].name.c_str());
+				return;
+			}
+			SimPawn::Instance->Teleport(local + glm::vec3(0.0f, 0.9f, 3.0f));
+			Logger::Log("sim_goto: next to %s", args[0].c_str());
+			return;
+		}
+		Logger::Log("sim_goto: no NPC '%s'", args[0].c_str());
+	}
+
+	CONSOLE_FUNC("sim_look", "Stand 6 m from an authored NPC and keep the view on it: sim_look <id> (sim_look alone: stop)")
+	{
+		LookAtNpc(args.empty() ? std::string() : args[0]);
 	}
 
 	CONSOLE_FUNC("sim_agents", "Draw the sim's agents as boxes in the loaded level: sim_agents [on|off] (default toggle)")

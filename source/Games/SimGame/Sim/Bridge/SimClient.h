@@ -44,6 +44,9 @@ namespace sim
 		// The player's level (index in the world file) and level-local position.
 		void ReportPlayer(uint16_t level, const glm::vec3& local);
 
+		// Any registered input event.
+		template<class E> void Send(const E& event) { host.SendEvent(event); }
+
 		// Newest snapshot (decoded on demand), its tick, and how many arrived so far.
 		const movement::SnapshotView& Snapshot();
 		const std::vector<movement::AgentView>& Agents() { return Snapshot().agents; }
