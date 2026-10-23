@@ -66,7 +66,7 @@
       "Generator": "Ninja",
       "GameName": null,
       "ExtraCMakeArgs": [],
-      "ExtraEnvCommands": [],
+      "ExtraEnvCommands": ["export CMAKE_BUILD_PARALLEL_LEVEL=5"],
       "Configuration": "Release",
       "Windows": null,
       "Docker": null,

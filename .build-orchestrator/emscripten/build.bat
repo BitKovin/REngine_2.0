@@ -8,6 +8,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
+export CMAKE_BUILD_PARALLEL_LEVEL=5
 echo === Configuring [emscripten] ===
 emcmake cmake -S "F:\Git\SdlWasmEngine" -B "F:\Git\SdlWasmEngine\build\emscripten" -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DGAME_NAME="SlasherGame" -DSKIP_GAMEDATA_FINALIZE=1
 if errorlevel 1 exit /b 1

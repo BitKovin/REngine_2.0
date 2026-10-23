@@ -351,6 +351,21 @@ function(fmod_link_and_stage target)
 endfunction()
 
 # --------------------------------------------------
+# fmod_stage_windows_dlls(<executable target>)
+# --------------------------------------------------
+# Windows needs fmod.dll / fmodstudio.dll next to the game executable, but
+# fmod_link_and_stage() is called on the static `engine` library, whose output
+# directory is not the executable's. Call this on the game executable instead.
+# Uses the same always-run ALL target as the Linux/Android staging above, so the
+# dlls are also restored after a clean of the output directory.
+function(fmod_stage_windows_dlls target)
+    if(WIN32 AND NOT XBOX_GDK)
+        fmod_stage_runtime_lib(${FMOD_PACKAGE_DIR}/lib/x86_64/fmod.dll       fmod.dll       ${target})
+        fmod_stage_runtime_lib(${FMOD_PACKAGE_DIR}/lib/x86_64/fmodstudio.dll fmodstudio.dll ${target})
+    endif()
+endfunction()
+
+# --------------------------------------------------
 # fmod_stage_android_jar(<dest_dir>)
 # --------------------------------------------------
 # FMOD's Android integration also ships a small Java helper, fmod.jar

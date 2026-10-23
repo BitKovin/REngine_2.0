@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{e0f91f02-a405-4426-bab3-20835d5bbfc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{26e7b95e-4961-4798-8237-a76fbd89482a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Pause">
+      <UniqueIdentifier>{a91d584f-9d6a-4c1f-8e41-779b02af490d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Pause\UI">
+      <UniqueIdentifier>{4510aea4-595d-4d73-851f-9892df59c055}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GameStart.cpp" />
+    <ClCompile Include="Settings\GameSettings.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\InputActionRegistry.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\InputSettingsData.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\VideoSettingsData.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PauseGameManager.hpp" />
+    <ClInclude Include="Settings\AudioSettingsData.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\GameSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\InputActionRegistry.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\InputBindingTypes.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\InputSettingsData.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\VideoSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\VideoSettingsData.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UI\InputIconLibrary.h">
+      <Filter>UI\Pause\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UI\UiBindSlotButton.hpp">
+      <Filter>UI\Pause\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UI\UiConfirmDialog.hpp">
+      <Filter>UI\Pause\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UI\UiRebindCaptureModal.hpp">
+      <Filter>UI\Pause\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiGameSettings.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiInputSettings.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiPauseMenu.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiSaveLoadMenu.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiSaveSlotRow.hpp">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiSettingsMenu.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiSettingsStyle.hpp">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiSoundSettings.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Pause\UiVideoSettings.h">
+      <Filter>UI\Pause</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

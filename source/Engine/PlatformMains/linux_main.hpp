@@ -21,10 +21,14 @@
 #endif
 
 #include "../EngineMain.h"
+#include "../SoundSystem/SoundManager.hpp"
 #include "PlatformWindowData.h"
 using namespace PlatformWindowData;
 
 EngineMain* engine = nullptr;
+
+// -headless: no window, no real input devices, muted sound. See main().
+static bool g_Headless = false;
 
 void update_screen_size(int w, int h) {
     SDL_SetWindowSize(window, w, h);
@@ -77,19 +81,6 @@ void desktop_render_loop() {
 }
 
 int main(int argc, char* args[]) {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
-        fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    int flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
-    window = SDL_CreateWindow("Image", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        800, 600, flags);
-    if (!window) {
-        fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
-        return 1;
-    }
-
     std::vector<std::string> args_s(args, args + argc);
     auto args_m = EngineMain::ParseCommands(args_s);
     for (auto a : args_m)
@@ -115,6 +106,33 @@ int main(int argc, char* args[]) {
 #endif
 
 
+    }
+
+    // -headless: for automated runs that must not disturb the user. SDL's dummy video and audio drivers give a
+    // window that never appears, there is no mouse capture, and sound is muted.
+    // Checked on the raw arguments: ParseCommands splits a single-dash all-letter flag like -headless into letters.
+    g_Headless = std::find(args_s.begin(), args_s.end(), "-headless") != args_s.end() ||
+        std::find(args_s.begin(), args_s.end(), "--headless") != args_s.end();
+    if (g_Headless)
+    {
+        SDL_setenv("SDL_VIDEODRIVER", "dummy", 1);
+        SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
+        SoundManager::GlobalVolume = 0.0f;
+        Logger::Log("headless mode");
+    }
+
+    // The joystick subsystem is skipped in headless runs so real controllers are not touched.
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | (g_Headless ? 0 : SDL_INIT_JOYSTICK)) < 0) {
+        fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    int flags = (g_Headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN) | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+    window = SDL_CreateWindow("Image", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        800, 600, flags);
+    if (!window) {
+        fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        return 1;
     }
 
     bgfx::RendererType::Enum renderApi = bgfx::RendererType::OpenGL;
@@ -143,6 +161,13 @@ int main(int argc, char* args[]) {
             renderApi = bgfx::RendererType::OpenGL;
             Logger::Log("Using OpenGL renderer");
         }
+        else if (renderApiStr == "noop")
+        {
+            // No GPU work at all. It cannot find compiled shaders (they are looked up per renderer type), so only use
+            // it for runs that never render.
+            renderApi = bgfx::RendererType::Noop;
+            Logger::Log("Using Noop renderer");
+        }
         else
         {
             Logger::Log("Unknown render API specified: " + renderApiStr + ", using default");
@@ -152,27 +177,30 @@ int main(int argc, char* args[]) {
     // ====================== BGFX INITIALIZATION ======================
     bgfx::Init init;
     init.type = bgfx::RendererType::Vulkan;   // or Vulkan/Metal; OpenGL is safe on Linux
+    if (g_Headless && renderApiOverride != args_m.end())
+        init.type = renderApi;   // a normal run ignores -renderapi here, a headless run honours it (e.g. noop)
     init.debug = false;
     init.profile = false;
 
-    SDL_SysWMinfo wmInfo;
+    SDL_SysWMinfo wmInfo = {};
     SDL_VERSION(&wmInfo.version);
-    if (!SDL_GetWindowWMInfo(window, &wmInfo)) {
+    // Headless: the dummy video driver has no native window handle, so nwh stays null and bgfx renders offscreen only.
+    if (!g_Headless && !SDL_GetWindowWMInfo(window, &wmInfo)) {
         fprintf(stderr, "SDL_GetWindowWMInfo failed: %s\n", SDL_GetError());
         return 1;
     }
 
     // Set native window handle based on the available SDL video driver
-    bool handleSet = false;
+    bool handleSet = g_Headless;
 #if defined(SDL_VIDEO_DRIVER_X11)
-    if (wmInfo.subsystem == SDL_SYSWM_X11) {
+    if (!g_Headless && wmInfo.subsystem == SDL_SYSWM_X11) {
         init.swapChain.nwh = (void*)wmInfo.info.x11.window;
         init.swapChain.ndt = wmInfo.info.x11.display;   // also needed on X11
         handleSet = true;
     }
 #endif
 #if defined(SDL_VIDEO_DRIVER_WAYLAND)
-    if (wmInfo.subsystem == SDL_SYSWM_WAYLAND) {
+    if (!g_Headless && wmInfo.subsystem == SDL_SYSWM_WAYLAND) {
         init.swapChain.nwh = wmInfo.info.wl.surface;
         init.swapChain.ndt = wmInfo.info.wl.display;
         handleSet = true;
@@ -203,7 +231,8 @@ int main(int argc, char* args[]) {
     InitImGui();
 
     SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, "1", SDL_HINT_OVERRIDE);
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    if (!g_Headless)    // would capture the user's real cursor
+        SDL_SetRelativeMouseMode(SDL_TRUE);
 
     printf("bgfx initialized successfully.\n");
 

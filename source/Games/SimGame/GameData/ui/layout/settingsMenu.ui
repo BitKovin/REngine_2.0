@@ -1,0 +1,246 @@
+{
+  "children": [
+    {
+      "name": "$background",
+      "properties": {
+        "Color": [
+          0.20000000298023224,
+          0.0,
+          0.0,
+          0.5
+        ],
+        "ParentRelativeScaling": [
+          1.0,
+          1.0
+        ]
+      },
+      "type": "UiImage"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "name": "$2bab01d0",
+              "properties": {
+                "Origin": [
+                  0.5,
+                  0.5
+                ],
+                "Pivot": [
+                  0.5,
+                  0.5
+                ],
+                "Size": [
+                  271.55157470703125,
+                  48.0
+                ],
+                "Text": "${SETTINGS_MENU_GAMEPLAY}"
+              },
+              "type": "UiText"
+            }
+          ],
+          "layout": "GameData/ui/layout/StyledButton.ui",
+          "name": "gameButton",
+          "properties": {
+            "GlowIntensity": 4.0,
+            "GlowRadius": 13.5,
+            "OutlineEnabled": true,
+            "OutlineWidth": 3.0,
+            "Size": [
+              400.0,
+              70.0
+            ]
+          },
+          "type": "UiButton"
+        },
+        {
+          "children": [
+            {
+              "name": "$f86d6bf0",
+              "properties": {
+                "Origin": [
+                  0.5,
+                  0.5
+                ],
+                "Pivot": [
+                  0.5,
+                  0.5
+                ],
+                "Size": [
+                  209.263671875,
+                  48.0
+                ],
+                "Text": "${SETTINGS_MENU_INPUT}"
+              },
+              "type": "UiText"
+            }
+          ],
+          "layout": "GameData/ui/layout/StyledButton.ui",
+          "name": "inputButton",
+          "properties": {
+            "GlowIntensity": 4.0,
+            "GlowRadius": 13.5,
+            "OutlineEnabled": true,
+            "OutlineWidth": 3.0,
+            "Position": [
+              0.0,
+              76.0
+            ],
+            "Size": [
+              400.0,
+              70.0
+            ]
+          },
+          "type": "UiButton"
+        },
+        {
+          "children": [
+            {
+              "name": "$95c5717d",
+              "properties": {
+                "Origin": [
+                  0.5,
+                  0.5
+                ],
+                "Pivot": [
+                  0.5,
+                  0.5
+                ],
+                "Size": [
+                  209.81399536132813,
+                  48.0
+                ],
+                "Text": "${SETTINGS_MENU_VIDEO}"
+              },
+              "type": "UiText"
+            }
+          ],
+          "layout": "GameData/ui/layout/StyledButton.ui",
+          "name": "videoButton",
+          "properties": {
+            "GlowIntensity": 4.0,
+            "GlowRadius": 13.5,
+            "OutlineEnabled": true,
+            "OutlineWidth": 3.0,
+            "Position": [
+              0.0,
+              152.0
+            ],
+            "Size": [
+              400.0,
+              70.0
+            ]
+          },
+          "type": "UiButton"
+        },
+        {
+          "children": [
+            {
+              "name": "$1b6a3783",
+              "properties": {
+                "Origin": [
+                  0.5,
+                  0.5
+                ],
+                "Pivot": [
+                  0.5,
+                  0.5
+                ],
+                "Size": [
+                  217.8649444580078,
+                  48.0
+                ],
+                "Text": "${SETTINGS_MENU_SOUND}"
+              },
+              "type": "UiText"
+            }
+          ],
+          "layout": "GameData/ui/layout/StyledButton.ui",
+          "name": "soundButton",
+          "properties": {
+            "GlowIntensity": 4.0,
+            "GlowRadius": 13.5,
+            "OutlineEnabled": true,
+            "OutlineWidth": 3.0,
+            "Position": [
+              0.0,
+              228.0
+            ],
+            "Size": [
+              400.0,
+              70.0
+            ]
+          },
+          "type": "UiButton"
+        },
+        {
+          "children": [
+            {
+              "name": "$ffd1acfd",
+              "properties": {
+                "Origin": [
+                  0.5,
+                  0.5
+                ],
+                "Pivot": [
+                  0.5,
+                  0.5
+                ],
+                "Size": [
+                  71.05223083496094,
+                  48.0
+                ],
+                "Text": "${SETTINGS_BACK}"
+              },
+              "type": "UiText"
+            }
+          ],
+          "layout": "GameData/ui/layout/StyledButton.ui",
+          "name": "backButton",
+          "properties": {
+            "GlowIntensity": 4.0,
+            "GlowRadius": 13.5,
+            "OutlineEnabled": true,
+            "OutlineWidth": 3.0,
+            "Position": [
+              0.0,
+              304.0
+            ],
+            "Size": [
+              400.0,
+              70.0
+            ]
+          },
+          "type": "UiButton"
+        }
+      ],
+      "name": "optionsBox",
+      "properties": {
+        "ContentDistance": 6.0,
+        "Origin": [
+          0.5,
+          0.5
+        ],
+        "Pivot": [
+          0.5,
+          0.5
+        ],
+        "Size": [
+          400.0,
+          374.0
+        ]
+      },
+      "type": "UiVerticalBox"
+    }
+  ],
+  "name": "",
+  "properties": {
+    "FocusTrap": true,
+    "Size": [
+      2055.10400390625,
+      1080.0
+    ]
+  },
+  "type": "UiCanvas"
+}

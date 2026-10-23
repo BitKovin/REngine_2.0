@@ -507,6 +507,9 @@ if(NOT ENGINE_AS_LIBRARY)
     # ——————————————————————————————————————————————————————————
     platform_configure_game_target(${GAME_TARGET_NAME})
 
+    # Windows: fmod.dll / fmodstudio.dll next to the executable (no-op on other platforms)
+    fmod_stage_windows_dlls(${GAME_TARGET_NAME})
+
     # Persist last selected game for tooling convenience
     file(WRITE "${CMAKE_BINARY_DIR}/last_game.txt" "${GAME_NAME}\n")
     message(STATUS "Last game written to: ${CMAKE_BINARY_DIR}/last_game.txt")

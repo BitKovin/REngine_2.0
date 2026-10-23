@@ -20,6 +20,7 @@
 #pragma comment(lib, "Dbghelp.lib")
 
 #include "../EngineMain.h"
+#include "../SoundSystem/SoundManager.hpp"
 #include "PlatformWindowData.h"
 #include <bgfx/bgfx.h>
 using namespace PlatformWindowData;
@@ -50,7 +51,11 @@ void update_screen_size(int w, int h) {
 // Multi-viewport: lets ImGui windows be dragged out of the game window into their own OS windows.
 // It is OFF by default in the engine (Android, Emscripten, ... can't create extra native windows) and each platform main
 // opts in explicitly. This is the only switch on Windows: it drives the ImGui config flag, the window style and the renderer backend.
-static const bool kImGuiMultiViewport = true;
+// Headless runs (-headless) switch it off: floating ImGui windows are real OS windows.
+static bool kImGuiMultiViewport = true;
+
+// -headless: no window, no OS dialogs, no real input devices. See main().
+static bool g_Headless = false;
 
 void InitImGui() {
     IMGUI_CHECKVERSION();
@@ -336,12 +341,21 @@ LONG WINAPI EngineUnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionPointer
         msg << line.str() << L"\n";
     }
     msg << L"\nMinidump saved to:\n" << dumpPath;
-    MessageBoxW(
-        nullptr,
-        msg.str().c_str(),
-        L"Application Crash",
-        MB_ICONERROR | MB_OK
-    );
+    if (g_Headless)
+    {
+        // Automated run: a message box would block the run and pop up on the user's desktop.
+        fwprintf(stderr, L"%ls\n", msg.str().c_str());
+        fflush(stderr);
+    }
+    else
+    {
+        MessageBoxW(
+            nullptr,
+            msg.str().c_str(),
+            L"Application Crash",
+            MB_ICONERROR | MB_OK
+        );
+    }
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
@@ -367,6 +381,20 @@ int main(int argc, char* args[])
     {
         Logger::Log("switching working directory to " + workingDirOverride->second[0]);
         _chdir(workingDirOverride->second[0].c_str());
+    }
+
+    // -headless: for automated runs that must not disturb the user. The window is created hidden (never shown, no focus
+    // steal; a real one because Direct3D needs a native handle, so SDL's dummy video driver is no option here), SDL
+    // audio uses its dummy driver, there is no multi-viewport ImGui, no DirectInput / mouse capture, and sound is muted.
+    // Checked on the raw arguments: ParseCommands splits a single-dash all-letter flag like -headless into letters.
+    g_Headless = std::find(args_s.begin(), args_s.end(), "-headless") != args_s.end() ||
+        std::find(args_s.begin(), args_s.end(), "--headless") != args_s.end();
+    if (g_Headless)
+    {
+        SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
+        kImGuiMultiViewport = false;
+        SoundManager::GlobalVolume = 0.0f;
+        Logger::Log("headless mode");
     }
 
 	bgfx::RendererType::Enum renderApi = bgfx::RendererType::Direct3D11;   // default to Direct3D11 on Windows
@@ -395,6 +423,13 @@ int main(int argc, char* args[])
 			renderApi = bgfx::RendererType::OpenGL;
 			Logger::Log("Using OpenGL renderer");
 		}
+		else if (renderApiStr == "noop")
+		{
+			// No GPU work at all. It cannot find compiled shaders (they are looked up per renderer type), so only use
+			// it for runs that never render.
+			renderApi = bgfx::RendererType::Noop;
+			Logger::Log("Using Noop renderer");
+		}
 		else
 		{
 			Logger::Log("Unknown render API specified: " + renderApiStr + ", using default");
@@ -407,14 +442,15 @@ int main(int argc, char* args[])
     }
 
     // ====================== WINDOW (no OpenGL flags) ======================
-    int flags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+    int flags = (g_Headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN) | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
     window = SDL_CreateWindow("Image", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, flags);
     if (!window) {
         fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
 
-    InitDirectInput(window);
+    if (!g_Headless)    // DirectInput reads the real mouse, even in the background
+        InitDirectInput(window);
 
     // ====================== BGFX INITIALIZATION (replaces all OpenGL) ======================
     bgfx::Init init;
@@ -429,7 +465,7 @@ int main(int argc, char* args[])
         fprintf(stderr, "SDL_GetWindowWMInfo failed: %s\n", SDL_GetError());
         return 1;
     }
-    init.swapChain.nwh = wmInfo.info.win.window;   // Windows native handle  
+    init.swapChain.nwh = wmInfo.info.win.window;   // Windows native handle (of the hidden window when headless)
 
     init.swapChain.width = 800;
     init.swapChain.height = 600;
@@ -455,7 +491,8 @@ int main(int argc, char* args[])
 
     SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE);
     SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, "1", SDL_HINT_OVERRIDE);
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    if (!g_Headless)    // would capture the user's real cursor
+        SDL_SetRelativeMouseMode(SDL_TRUE);
 
     Input::AddAction("test")->AddKeyboardKey(SDL_GetScancodeFromKey(SDLK_t));
     Input::AddAction("fullscreen")->AddKeyboardKey(SDL_GetScancodeFromKey(SDLK_F11));
