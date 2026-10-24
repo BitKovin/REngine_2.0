@@ -93,6 +93,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <Filter Include="Characters">
+      <UniqueIdentifier>{3c8d5e2a-7b41-4f69-9d0e-5a1b2c3d4e6f}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Sim">
       <UniqueIdentifier>{9869d6ef-7e62-5b1e-9638-21c2eac76e13}</UniqueIdentifier>
     </Filter>
@@ -201,6 +204,18 @@
     <ClInclude Include="Sim\Bridge\SimNpcFile.h">
       <Filter>Sim\Bridge</Filter>
     </ClInclude>
+    <ClCompile Include="Sim\Bridge\SimTransition.cpp">
+      <Filter>Sim\Bridge</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bridge\SimTransition.h">
+      <Filter>Sim\Bridge</Filter>
+    </ClInclude>
+    <ClCompile Include="Sim\Bridge\SimTransitionTest.cpp">
+      <Filter>Sim\Bridge</Filter>
+    </ClCompile>
+    <ClInclude Include="Sim\Bridge\SimTransitionTest.h">
+      <Filter>Sim\Bridge</Filter>
+    </ClInclude>
     <ClCompile Include="Sim\Nav\WorldNavReport.cpp">
       <Filter>Sim\Nav</Filter>
     </ClCompile>
@@ -210,6 +225,36 @@
     <ClCompile Include="Sim\Tests\SimNpcsTests.cpp">
       <Filter>Sim\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="Sim\Tests\SimTransitionTests.cpp">
+      <Filter>Sim\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Sim\Tests\SimCharacterTests.cpp">
+      <Filter>Sim\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="Characters\CharacterAnimator.cpp">
+      <Filter>Characters</Filter>
+    </ClCompile>
+    <ClInclude Include="Characters\CharacterAnimator.h">
+      <Filter>Characters</Filter>
+    </ClInclude>
+    <ClCompile Include="Characters\CharacterBody.cpp">
+      <Filter>Characters</Filter>
+    </ClCompile>
+    <ClInclude Include="Characters\CharacterBody.h">
+      <Filter>Characters</Filter>
+    </ClInclude>
+    <ClCompile Include="Characters\CharacterModels.cpp">
+      <Filter>Characters</Filter>
+    </ClCompile>
+    <ClInclude Include="Characters\CharacterModels.h">
+      <Filter>Characters</Filter>
+    </ClInclude>
+    <ClInclude Include="Characters\CharacterState.h">
+      <Filter>Characters</Filter>
+    </ClInclude>
+    <ClInclude Include="Characters\BodyVisibility.h">
+      <Filter>Characters</Filter>
+    </ClInclude>
     <ClCompile Include="Sim\Movement\SimMovement.cpp">
       <Filter>Sim\Movement</Filter>
     </ClCompile>

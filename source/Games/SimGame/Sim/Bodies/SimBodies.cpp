@@ -63,8 +63,8 @@ namespace sim::bodies
 
 		// The test levels are about 64 m across and have no fog, so what is inside the level must exist as a body: the radii are wider
 		// than a level, and bodies come and go with the player's level and with portals. A big open level wants these near 80 and 100.
-		spawnRadius = reg.Tunable("spawn_radius", 120.0f, 1.0f, 1000.0f, "metres from the player (same level) within which agents get a body");
-		despawnRadius = reg.Tunable("despawn_radius", 140.0f, 1.0f, 1000.0f, "metres from the player beyond which a body is taken back (above spawn_radius)");
+		spawnRadius = reg.Tunable("spawn_radius", 65.0f, 1.0f, 1000.0f, "metres from the player (same level) within which agents get a body (the game shows it only within its visible radius, see SimAgents)");
+		despawnRadius = reg.Tunable("despawn_radius", 80.0f, 1.0f, 1000.0f, "metres from the player beyond which a body is taken back (above spawn_radius)");
 		maxBodies = reg.Tunable("max_bodies", 32.0f, 0.0f, 512.0f, "bodies at the same time (proposed and active)");
 		proposePeriod = reg.Tunable("propose_period", 5.0f, 1.0f, 100.0f, "ticks between spawn and despawn proposals");
 		proposalTimeout = reg.Tunable("proposal_timeout", 30.0f, 1.0f, 1000.0f, "ticks the game has to answer a spawn proposal");

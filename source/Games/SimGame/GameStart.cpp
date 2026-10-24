@@ -8,6 +8,7 @@
 #include <Sim/Bridge/SimBridge.h>
 #include <Sim/Bridge/SimNavBaker.h>
 #include <Sim/Bridge/SimNavDebugDraw.h>
+#include <Sim/Bridge/SimTransitionTest.h>
 #include <Sim/Bridge/SimWorldNavFile.h>
 #include <Sim/Nav/WorldNavReport.h>
 #include <Sim/Tests/SimSelfTests.h>
@@ -44,6 +45,8 @@
 //   -sim_look <npc id>   stand near an authored NPC and keep the view on it (console: sim_look); with -screenshot for a picture of it
 //   -sim_demo [count]    place commuting demo walkers (default 40), drawn as boxes (console: sim_demo, sim_agents)
 //   -sim_bridge_test     automated in-game check of the bridge, pawn and save hook; writes SaveData/sim_bridge.log and quits
+//   -sim_transition_test automated in-game check of the level transition through the test chain; writes SaveData/sim_transition.log and quits
+//   -sim_view first|third  start in that view (V or console sim_view switches); -sim_pitch <degrees> starts looking that far down (negative: up), for pictures
 //
 // The sim starts with the game (SimBridge). Development builds check that GameData/sim/world.nav is newer than every map it was baked from.
 class GameStart : public Entity
@@ -114,6 +117,12 @@ public:
 				bridgeTest = true;
 				demoCount = demoCount > 0 ? demoCount : 40;
 			}
+			if (arguments.contains("sim_transition_test"))
+				SimTransitionTest::Start();
+			if (auto view = arguments.find("sim_view"); view != arguments.end() && !view->second.empty())
+				SimPawn::SetViewMode(view->second[0] == "third" ? SimPawn::ViewMode::ThirdPerson : SimPawn::ViewMode::FirstPerson);
+			if (auto pitch = arguments.find("sim_pitch"); pitch != arguments.end() && !pitch->second.empty())
+				SimPawn::LaunchPitch = static_cast<float>(std::atof(pitch->second[0].c_str()));
 		}
 #endif
 
@@ -128,6 +137,7 @@ public:
 		SimBridge::Update();
 
 #ifndef DISTRIBUTION
+		SimTransitionTest::Update();
 		SimNavBaker::Update();
 		SimNavDebugDraw::Update();
 #endif
@@ -186,6 +196,7 @@ private:
 		Input::AddAction("attack2")->AddMouseButton(MouseButton::Right)->AddButton(GamepadButton::LeftTrigger);
 
 		Input::AddAction("interact")->AddKeyboardKey(SDL_KeyCode::SDLK_f);
+		Input::AddAction("view")->AddKeyboardKey(SDL_KeyCode::SDLK_v);
 
 #if __EMSCRIPTEN__
 		Input::AddAction("pause")->AddKeyboardKey(SDL_KeyCode::SDLK_BACKQUOTE)->AddButton(GamepadButton::Back);
@@ -216,6 +227,7 @@ private:
 		InputActionRegistry::Register("attack", "${INPUT_ACTION_ATTACK}", "${INPUT_CATEGORY_COMBAT}");
 		InputActionRegistry::Register("attack2", "${INPUT_ACTION_ATTACK2}", "${INPUT_CATEGORY_COMBAT}");
 		InputActionRegistry::Register("interact", "${INPUT_ACTION_INTERACT}", "${INPUT_CATEGORY_GENERAL}");
+		InputActionRegistry::Register("view", "${INPUT_ACTION_VIEW}", "${INPUT_CATEGORY_GENERAL}");
 		InputActionRegistry::Register("qSave", "${INPUT_ACTION_QUICK_SAVE}", "${INPUT_CATEGORY_GENERAL}");
 		InputActionRegistry::Register("qLoad", "${INPUT_ACTION_QUICK_LOAD}", "${INPUT_CATEGORY_GENERAL}");
 	}

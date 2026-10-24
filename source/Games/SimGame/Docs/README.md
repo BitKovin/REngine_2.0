@@ -13,6 +13,10 @@ This folder holds the project's documentation and other non-code files. Source l
 | [SLICE_M2B_BRIDGE.md](SLICE_M2B_BRIDGE.md) | Slice contract of M2b: SimBridge, walking pawn, snapshot, save hook (implemented) |
 | [SLICE_M2C_BODIES.md](SLICE_M2C_BODIES.md) | Slice contract of M2c: agent bodies, spawn handshake, sim-dictated goals (implemented) |
 | [SLICE_M2D_NPCS.md](SLICE_M2D_NPCS.md) | Slice contract of M2d: the ten authored NPCs of `GameData/sim/npcs.json`, how to author more (implemented) |
+| [SLICE_M2E_TRANSITION.md](SLICE_M2E_TRANSITION.md) | Slice contract of M2e: walking through a `sim_portal` into the next level (implemented) |
+| [SLICE_M2F_CHARACTERS.md](SLICE_M2F_CHARACTERS.md) | Slice contract of M2f: one character body for NPCs and the player, first/third person, hidden warm-up ring (implemented) |
+| [HANDOFF_M4_BAKER.md](HANDOFF_M4_BAKER.md) | Hand-over for starting the baker slice in a new session: reading order, state, first steps, how to run the map editor and the build, the start message |
+| [SLICE_M4_BAKER.md](SLICE_M4_BAKER.md) | Slice contract of M4 "the baker": a playable village with calendar, needs, items, a bread chain, first player verbs, consequences (proposed) |
 | [living_world_simulation_addendum.md](living_world_simulation_addendum.md) | How the design is implemented on this engine. **Wins wherever it disagrees with the design document.** Decisions D1 to D12, build order M0 to M9, process for an AI implementer (section 17), open items |
 
 Keep new documents here: contracts per slice (see addendum section 17.4), `SIM_CONTRACT.md` once the sim library exists,
@@ -34,8 +38,9 @@ SimGame/
   Sim/Bridge/           engine side: map entities, bake command, world file, nav debug draw, SimClient / SimBridge (the sim thread and the save hook)
   Sim/Bodies/           materialization, sim side (proposals, goals, reports)
   Sim/Npcs/             authored NPCs (routines); content in GameData/sim/npcs.json
-  SimPawn.h/.cpp        the walking pawn
-  SimNpc.h/.cpp         the physical body of an agent
+  Characters/           how characters look: state, models table, animator, body, ring visibility (NPCs and the pawn share them)
+  SimPawn.h/.cpp        the walking pawn (first / third person)
+  SimNpc.h/.cpp         the driver of an agent's character: physics, navigation, fade
   Sim/Tests/            headless self tests
   GameData/entities.ent level editor entity definitions (engine classes + sim_* classes)
   SimGame.vcxproj       Visual Studio project (CMake globs sources, so the project file is only for the IDE)
@@ -78,6 +83,8 @@ the game folder `source/Games/SimGame`, so the source `GameData` is used directl
 | `-sim_nav_report` | Write `SaveData/sim_nav_report.txt` (spawn points, portals, walkable spots per level, level-local) for authoring NPC routes, quit |
 | `-sim_demo [count]` | Place commuting demo walkers (default 40) at the world's spawn points; drawn as boxes (console: `sim_demo`, `sim_agents`, `sim_stats`) |
 | `-sim_look <npc id>` | Stand 6 m from an authored NPC and keep the view on it (console: `sim_look`); with `-screenshot` this is how to look at the game headless |
+| `-sim_transition_test` | Automated in-game check of the level transition through the test chain; writes `SaveData/sim_transition.log`, quits |
+| `-sim_view first\|third`, `-sim_pitch <deg>` | Start in that view / looking that far down (negative: up): for pictures (console `sim_view`, key V) |
 | `-screenshot <seconds> [-screenshot_file <name>]` | Save the frame at that much game time to `SaveData/screenshots/<name>.png` (engine hook, `Engine/Screenshot.*`; console: `screenshot [name]`); one picture per run, combine with `-quit_after` |
 | `-sim_bridge_test` | Automated in-game check of the bridge, pawn and save hook; writes `SaveData/sim_bridge.log`, quits |
 | `-renderapi dx11\|dx12\|vk\|gl\|noop` | Renderer. `noop` does no GPU work but cannot find compiled shaders, so it only suits runs that never render |

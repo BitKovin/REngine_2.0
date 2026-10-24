@@ -24,31 +24,9 @@ namespace
 	constexpr float BlockedSpeedFraction = 0.2f;
 }
 
-// ---- Animator ---------------------------------------------------------------------------------------------------------
+// ---- Driver -----------------------------------------------------------------------------------------------------------
 
-void SimNpcAnimator::LoadAssets()
-{
-	locomotion = AddAnimation(modelPath, "idle");
-}
-
-void SimNpcAnimator::Update()
-{
-	if (!loaded)
-		return;
-	const char* wanted = movementSpeed > 3.0f ? "run" : movementSpeed > 1.0f ? "walk" : "idle";
-	if (locomotion->currentAnimationData->animationName != wanted)
-		locomotion->PlayAnimation(wanted, true, 0.2f);
-	Animator::Update();
-}
-
-// ---- Body -------------------------------------------------------------------------------------------------------------
-
-const char* SimNpc::ModelPath(int model)
-{
-	return model == 1 ? "GameData/models/npc/guard.glb" : "GameData/models/npc/base.glb";
-}
-
-SimNpc* SimNpc::SpawnAt(const glm::vec3& feet, const glm::vec3& heading, int model, float speedScale, uint32_t variant)
+SimNpc* SimNpc::SpawnAt(const glm::vec3& feet, const glm::vec3& heading, int model, float speedScale, uint32_t variant, bool warming)
 {
 	if (!Level::Current)
 		return nullptr;
@@ -57,6 +35,7 @@ SimNpc* SimNpc::SpawnAt(const glm::vec3& feet, const glm::vec3& heading, int mod
 		return nullptr;
 	npc->model = model;
 	npc->variant = variant;
+	npc->warming = warming;
 	npc->speedScale = speedScale;
 	npc->Position = feet + glm::vec3(0.0f, Height * 0.5f, 0.0f);
 	if (glm::dot(heading, heading) > 1e-6f)
@@ -64,6 +43,9 @@ SimNpc* SimNpc::SpawnAt(const glm::vec3& feet, const glm::vec3& heading, int mod
 	Level::Current->AddEntity(npc);
 	npc->Start();
 	npc->LoadAssetsIfNeeded();
+	CharacterBody* body = CharacterBody::Spawn(npc->MakeState(glm::vec3(0.0f)));
+	if (body)
+		npc->bodyHandle = EntityHandle::FromEntity(body);
 	return npc;
 }
 
@@ -72,9 +54,6 @@ SimNpc::SimNpc()
 	ClassName = "sim_agent_body";
 	SaveGame = false;
 	Tags = { "npc", "citizen" };
-	mesh = new SkeletalMesh(this);
-	Drawables.push_back(mesh);
-	mesh->UpdatePoseOnlyWhenRendered = true;
 	pathFollow.reachedTarget = true;
 	pathFollow.allowPartialPath = true;
 	pathFollow.acceptanceRadius = ArriveDistance;
@@ -91,17 +70,39 @@ void SimNpc::Start()
 	controller = new CharacterController();
 	controller->movementQuality = CharacterControllerMovementQuality::NpcGeneric;
 	controller->Init(this, Position, Radius, Height, Mass);
-	mesh->Position = Position - glm::vec3(0.0f, Height * 0.5f, 0.0f);
-	mesh->Rotation = glm::vec3(0.0f, MathHelper::FindLookAtRotation(glm::vec3(), facing).y, 0.0f);
 }
 
-void SimNpc::LoadAssets()
+void SimNpc::Destroy()
 {
-	mesh->LoadFromFile(ModelPath(model));
-	mesh->DepthPrePath = false;
-	mesh->Masked = true;
-	animator = std::make_unique<SimNpcAnimator>(this, ModelPath(model));
-	animator->LoadAssetsIfNeeded();
+	if (CharacterBody* body = Body())
+		body->Destroy();
+	Entity::Destroy();
+}
+
+CharacterBody* SimNpc::Body() const
+{
+	return dynamic_cast<CharacterBody*>(const_cast<EntityHandle&>(bodyHandle).Resolve());
+}
+
+bool SimNpc::WasRendered() const
+{
+	const CharacterBody* body = Body();
+	return body && body->Drawn();
+}
+
+// Everything the look needs, from this driver's movement and presence.
+CharacterState SimNpc::MakeState(const glm::vec3& velocity) const
+{
+	CharacterState state;
+	state.feet = FeetPosition();
+	state.bodyYaw = MathHelper::FindLookAtRotation(glm::vec3(), facing).y;
+	state.look = glm::vec2(0.0f, state.bodyYaw);
+	state.velocity = velocity;
+	state.model = model;
+	state.variant = variant;
+	state.alpha = alpha;
+	state.visibility = warming ? CharacterState::Visibility::Warming : CharacterState::Visibility::Shown;
+	return state;
 }
 
 glm::vec3 SimNpc::FeetPosition() const
@@ -135,25 +136,11 @@ void SimNpc::Stop()
 	pathFollow.reachedTarget = true;
 }
 
-// base.glb has no textures at all and renders black. A mesh draws with ONE colour texture and one tint (the engine copies both from the mesh to
-// every part each frame), so the citizen model is a plain white-textured figure tinted per person: readable and varied, but a mannequin. guard.glb
-// brings its own textures and is left alone.
-void SimNpc::ApplyPaint()
-{
-	if (paintApplied || model == 1)
-		return;
-	static const glm::vec4 tints[] = { { 0.62f, 0.50f, 0.40f, 1 }, { 0.40f, 0.48f, 0.62f, 1 }, { 0.58f, 0.58f, 0.50f, 1 }, { 0.46f, 0.58f, 0.44f, 1 }, { 0.68f, 0.42f, 0.40f, 1 }, { 0.54f, 0.52f, 0.60f, 1 } };
-	mesh->ColorTexture = AssetRegistry::GetTextureFromFile("GameData/textures/generic/white.png");
-	mesh->Color = tints[((variant * 2654435761u) >> 8) % 6];
-	paintApplied = true;
-}
-
 void SimNpc::FadeIn()
 {
 	alpha = 0.0f;
 	fadingIn = true;
 	fadingOut = false;
-	UpdateFade(0.0f); // invisible from the first frame
 }
 
 void SimNpc::FadeOut()
@@ -162,8 +149,7 @@ void SimNpc::FadeOut()
 	fadingOut = true;
 }
 
-// While the alpha is below 1 the mesh is drawn blended (a tint alpha under 1 makes it a Transparent surface, which never writes depth, so the
-// limbs show through each other for the second a fade lasts); at 1 it goes back to the alpha-tested Masked draw.
+// The alpha runs as the character fades; CharacterBody draws it blended while it is below 1 and back to the alpha-tested draw at 1.
 void SimNpc::UpdateFade(float deltaTime)
 {
 	if (fadingIn)
@@ -173,17 +159,15 @@ void SimNpc::UpdateFade(float deltaTime)
 	}
 	else if (fadingOut)
 		alpha = std::max(0.0f, alpha - deltaTime / FadeSeconds);
-	mesh->Color.a = alpha;
-	mesh->Masked = alpha >= 1.0f;
 }
 
 void SimNpc::Update()
 {
 	if (!controller)
 		return;
-	ApplyPaint();
-	UpdateFade(Time::DeltaTimeF);
 	const float deltaTime = Time::DeltaTimeF;
+	age += deltaTime;
+	UpdateFade(deltaTime);
 	controller->Update(deltaTime);
 	Position = controller->GetSmoothPosition();
 	Navigate(deltaTime);
@@ -198,9 +182,8 @@ void SimNpc::Update()
 			facing = glm::normalize(facing);
 	}
 
-	mesh->Position = Position - glm::vec3(0.0f, Height * 0.5f, 0.0f);
-	mesh->Rotation = glm::vec3(0.0f, MathHelper::FindLookAtRotation(glm::vec3(), facing).y, 0.0f);
-	UpdateAnimation(horizontalSpeed);
+	if (CharacterBody* body = Body())
+		body->Apply(MakeState(velocity));
 }
 
 // The body's own movement: path to the goal on the level mesh, follow its corners, slow to a stop at the end. The state
@@ -284,17 +267,6 @@ void SimNpc::Navigate(float deltaTime)
 	const float step = (deltaLength > 0.0f && glm::length(wish) < 0.01f ? Acceleration * 1.5f : Acceleration) * deltaTime;
 	next += deltaLength > step ? delta / deltaLength * step : delta;
 	controller->SetVelocity(glm::vec3(next.x, current.y, next.z));
-}
-
-void SimNpc::UpdateAnimation(float horizontalSpeed)
-{
-	if (EngineMain::MainInstance->SimulatingGameTicks)
-		mesh->WasRended = false;
-	if (!animator || !mesh->WasRended)
-		return;
-	animator->movementSpeed = horizontalSpeed;
-	animator->Update();
-	mesh->PasteAnimationPose(animator->GetResultPose());
 }
 
 REGISTER_ENTITY(SimNpc, "sim_agent_body")

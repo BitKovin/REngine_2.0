@@ -12,6 +12,12 @@
 
 #include <string>
 
+namespace sim
+{
+	class SimClient;
+	namespace nav { struct WorldNavData; }
+}
+
 namespace SimBridge
 {
 	constexpr const char* TestReportPath = "SaveData/sim_bridge.log";
@@ -27,6 +33,10 @@ namespace SimBridge
 	void Stop();
 
 	bool IsRunning();
+
+	// For the in-game test runs next to the bridge (SimTransitionTest). Null when the sim is not running.
+	sim::SimClient* Client();
+	const sim::nav::WorldNavData* World();
 
 	// Puts the pawn a few metres from a named NPC and keeps the view on it (launch -sim_look <id>, console sim_look <id>), for looking at
 	// the NPC with screenshots. Empty id stops following.

@@ -6,7 +6,7 @@ section 17.7). Design and addendum stay the source of truth for *decisions*; thi
 
 Status: 2026-10-23. Kernel (M1 core, parts of M3) and WorldNav (M0: bake command, stale check, debug draw) are done and tested.
 The test world (`GameData/sim/world.manifest`: sim_test_a, sim_test_road, sim_test_b, sim_test_c) bakes with 6/6 portals linked.
-M2a abstract movement (`Sim/Movement`, `SLICE_M2_MOVEMENT.md`) and M2b the bridge, walking pawn, snapshot and save hook (`SLICE_M2B_BRIDGE.md`) M2c agent bodies (`SLICE_M2C_BODIES.md`) and M2d ten authored NPCs from `GameData/sim/npcs.json` (`SLICE_M2D_NPCS.md`) are done and tested. Next: the level transition.
+M2a abstract movement (`Sim/Movement`, `SLICE_M2_MOVEMENT.md`) and M2b the bridge, walking pawn, snapshot and save hook (`SLICE_M2B_BRIDGE.md`) M2c agent bodies (`SLICE_M2C_BODIES.md`) and M2d ten authored NPCs from `GameData/sim/npcs.json` (`SLICE_M2D_NPCS.md`) are done and tested. M2e the level transition (`SLICE_M2E_TRANSITION.md`) is done and tested. M2f character representation (`SLICE_M2F_CHARACTERS.md`) is done and tested.
 
 ---
 
@@ -81,8 +81,9 @@ Sim/
     SimNavTests.cpp         world nav suite on real GameData/maps/*.bsp.nav fixtures
 GameData/entities.ent       level editor entity definitions (engine classes + sim_* classes, section 6)
 GameData/sim/npcs.json      the authored NPCs (section 11)
-SimNpc.h/.cpp               the physical body of an agent: CharacterController + SkeletalMesh + own navigation (section 10)
-SimPawn.h/.cpp              the walking pawn (section 9): Entity on the engine CharacterController, created by SimSpawn at the default player start
+SimNpc.h/.cpp               the driver of an agent's character: CharacterController + own navigation, fade and ring presence (section 10)
+SimPawn.h/.cpp              the walking pawn (section 9): Entity on the engine CharacterController, created by SimSpawn at the default player start; first / third person
+Characters/                 how characters look, shared by NPCs and the pawn (section 13): CharacterState, CharacterModels, CharacterAnimator, CharacterBody, BodyVisibility
 ```
 
 ---
@@ -254,9 +255,10 @@ func_door, triggers, navBlock, ...). Sim classes, not yet read by code except th
 5. ~~Bridge and walking pawn~~ **done** (section 9, `SLICE_M2B_BRIDGE.md`).
 6. ~~Bodies and the spawn handshake~~ **done** (section 10, `SLICE_M2C_BODIES.md`). Next for bodies: doors and dynamic obstacles, bodies avoiding
    each other, reactions, hitboxes and death.
-7. **Custom level transition** (addendum 5.2): `sim_portal` triggers act on the pawn, no `TimeSkip`, the pawn goes through the same portal pair
+7. ~~Custom level transition~~ **done** (section 12). ~~Character representation~~ **done** (section 13). (`SLICE_M2F_CHARACTERS.md`) Original text of 7: `sim_portal` triggers act on the pawn, no `TimeSkip`, the pawn goes through the same portal pair
    in the sim. Needs a decision on how the pawn is carried between levels (`LevelTraversalSystem::PlayerSerializedData`).
-8. **Abstract-versus-physical calibration** (addendum 7.1): walk a real body along a route a headless agent also walks; the pawn already uses the
+8. **The baker slice** (`SLICE_M4_BAKER.md`, proposed, decisions folded in): village map (about 100 m), calendar, baked light styles + sky blend (two additive engine changes), items, needs (KCD-like for the player), activities, a bread chain, first player verbs, consequences.
+9. **Abstract-versus-physical calibration** (addendum 7.1): walk a real body along a route a headless agent also walks; the pawn already uses the
    shared speed table.
 
 Settled by the owner:
@@ -355,9 +357,9 @@ mid-walk save/load identical). Cost: 400 walkers 36 us per tick (Release, this m
 - **Direction** (owner): the sim dictates targets, the body navigates by itself with its own movement and state code. Look: a mix of base.glb and guard.glb.
 - **Sim**: `BodiesModule(movement, worldNav)`, registered after the movement module. Output events `BodySpawnProposed`, `BodyDespawnProposed`, `BodyGoal`;
   input events `BodyAccepted`, `BodyRefused`, `BodyReleased`, `BodyReport`, `BodiesCleared` (one command `ApplyBodyInput`, logged and replayable). Components
-  `Embodied` (movement), `Appearance`, `BodyRetry`. Proposals every 5 ticks (0.5 s), nearest first within `spawn_radius` 120 m (release beyond `despawn_radius` 140 m, in another
-  level, or at a portal; the despawn event carries the reason OutOfRange / OtherLevel / NoPlayer / AtPortal), budget 32. The radii are wider than the 64 m test levels on
-  purpose, so everything inside a level has a body; a big open level wants about 80 and 100. While a body is Active it is the mover: `MovementModule::ApplyBodyPosition` moves the walker's progress to the nearest point on its route (forward only,
+  `Embodied` (movement), `Appearance`, `BodyRetry`. Proposals every 5 ticks (0.5 s), nearest first within `spawn_radius` 65 m (release beyond `despawn_radius` 80 m, in another
+  level, or at a portal; the despawn event carries the reason OutOfRange / OtherLevel / NoPlayer / AtPortal), budget 32. The game draws bodies only within its visible radius (45 m) and
+  keeps the ring beyond it unseen (section 13); a big open level will want larger radii. While a body is Active it is the mover: `MovementModule::ApplyBodyPosition` moves the walker's progress to the nearest point on its route (forward only,
   never faster than the fastest gait), re-plans when the body stands more than 3 m off, arrives within 0.75 m of the end, steps onto a portal leg at the end of the leg
   before it (the sim crosses). Silent bodies (3 s), unanswered proposals (3 s) and unreleased despawns (6 s) are taken back. A load drops all `Embodied`.
 - **Game**: `SimAgents::Update` (from `SimBridge::Update`) answers proposals. Every proposal is accepted (owner: bodies fade in and out, also in sight and close by). It is
@@ -402,3 +404,39 @@ mid-walk save/load identical). Cost: 400 walkers 36 us per tick (Release, this m
 - **Looked at** (screenshots, 2026-10-23): the NPCs of level a (warden, baker, widow, newsboy, sergeant, courier) have bodies near the pawn and walk; the courier crosses the portal
   both ways (out at 3 s, back at 38 s, appears at the door). Not looked at: the residents of the other levels, whether each route's stops and waits look right in play, NPC
   reactions (not built yet).
+
+
+---
+
+## 12. Level transition (Sim/Bridge/SimTransition, SimTransitionTest, SimPortal / SimSpawn; tests in SimTransitionTests.cpp; `SLICE_M2E_TRANSITION.md`)
+
+- The pawn walking into a `sim_portal` (older than 2 s) loads the portal's `targetLevel` and arrives at its `targetSpawn` (a `sim_spawn` of that level): `SimPortal::OnBodyEntered`
+  -> `SimTransition::Request` -> next `SimBridge::Update` -> `Resolve` against the world file (level and spawn exist, else refused and logged naming the portal) -> the
+  leaving level into `LevelTraversalSystem::LevelMemory` (pawn excluded; saved with the game), the target's memory restored as it was left, `Traveling` set, load. No engine
+  change, no `TimeSkip`. `SimSpawn::FromData` creates the pawn at the arrival spawn (yaw from the spawn, pitch kept, no momentum); the default player start does not while
+  arriving. If the map lost the spawn, the pawn is placed from the world file and an error is logged.
+- The sim needs nothing new: the pawn's first report puts the player's anchor in the new level; bodies of the old level are gone with it (`BodiesCleared`).
+- Tests: decision and "every shipped link lands on a spawn" in the self tests; `SimGame.exe -headless -sim_transition_test` (cwd = game folder) walks the chain a - road - b - c
+  and back (6 transitions, landing, no bounce, anchor, save in b / load in a), report `SaveData/sim_transition.log`.
+- Not verified: how the loading screen and arrival feel in a visible run; all four landings by eye.
+
+
+---
+
+## 13. Characters (Characters/, SimNpc and SimPawn as drivers, SimAgents ring; tests in SimCharacterTests.cpp; `SLICE_M2F_CHARACTERS.md`)
+
+- **One state, one body.** A driver (`SimNpc`, `SimPawn`) fills a `CharacterState` (feet, body yaw, look, velocity, stance, model, variant, alpha, visibility) every frame and applies it to its
+  `CharacterBody` (`sim_character_body`, an Entity with no physics or sim knowledge; held by `EntityHandle`; destroyed by the driver's `Destroy`). `CharacterModels` is the table (citizen
+  `base.glb`, guard `guard.glb`, player `player_coat.glb` with locomotion clips from `base.glb`; all one UE4 skeleton): mesh, clips, whether it has the directional / crouch clips, tint,
+  two-sided, the bones the first-person body hides. `CharacterAnimator` is the one locomotion animator.
+- **First person**: visibility `FirstPersonOwner`. The full pose (cloth included, simulated once) goes to a shadow-only mesh; the visible mesh gets the same pose with neck and upper arms
+  scaled to zero, 0.2 m behind the eye. Third person: `Shown`, one mesh, camera boom with a sphere trace. `SimPawn::View` (V, `sim_view`, `-sim_view`) outlives pawns. The viewmodel (arms)
+  is not built: it comes with the first held item.
+- **The ring**: bodies are made within `spawn_radius` (65 m), drawn within `VisibleRadius` (45 m, `sim_body_radius`), released beyond `despawn_radius` (80 m). A body made in the ring is
+  Warming: it walks, reports and animates but is not drawn and casts no shadow; at `WarmupSeconds` (1.5 s) of life and within the radius it is shown at once (faded in only if it was not
+  warmed up and is in sight); beyond radius + 5 m it goes back. `BodyVisibility::Shown` is the decision. Made within the radius the old rules apply (load window, out of sight, fade).
+  `sim_stats` shows warming bodies and the counters; the log has `sim body: <id> becomes visible` / `goes back to the ring`.
+- **Gotchas found**: the engine lights a mesh from the light volume at its entity's position (put it mid-body, not on the floor); call `PreloadAssets()` on character meshes; the engine's pitch is
+  positive when looking down.
+- **Tests**: self tests (visibility table incl. hysteresis and a walk in and out, clip choice per model, every model's glb has the bones and clips); `-sim_bridge_test` (ring consistency: no
+  warming body drawn, every body shown or warming as its distance says; the ring used; the pawn's view modes and shadow mesh). Looked at: see `SLICE_M2F_CHARACTERS.md` section 10.

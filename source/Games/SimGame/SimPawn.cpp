@@ -6,10 +6,13 @@
 #include <Sim/Movement/SimSpeedTable.h>
 
 #include <Camera.h>
+#include <Console/ConsoleRegister.h>
 #include <Helpers/JsonMacros.hpp>
 #include <Input.h>
 #include <Level.hpp>
+#include <Logger.hpp>
 #include <MathHelper.hpp>
+#include <Physics.h>
 #include <RegisterLevelObject.h>
 
 namespace
@@ -18,6 +21,10 @@ namespace
 	constexpr float JumpSpeed = 9.5f;
 	constexpr float GroundAcceleration = 40.0f;
 	constexpr float AirAcceleration = 6.0f;
+	// Third-person camera boom: behind the eye along the view, up a little, pulled in by a sphere trace so it never enters a wall.
+	constexpr float ThirdPersonDistance = 2.4f;
+	constexpr float ThirdPersonUp = 0.3f;
+	constexpr float ThirdPersonRadius = 0.3f;
 	// One pawn per level; SimSpawn asks for it from FromData, before the previous level's pawn is necessarily gone.
 	int pawnLevelChange = -1;
 }
@@ -36,7 +43,19 @@ SimPawn::~SimPawn()
 		Instance = nullptr;
 }
 
-SimPawn* SimPawn::SpawnAt(const glm::vec3& feet, float yaw)
+void SimPawn::Destroy()
+{
+	if (CharacterBody* body = Body())
+		body->Destroy();
+	Entity::Destroy();
+}
+
+CharacterBody* SimPawn::Body() const
+{
+	return dynamic_cast<CharacterBody*>(const_cast<EntityHandle&>(bodyHandle).Resolve());
+}
+
+SimPawn* SimPawn::SpawnAt(const glm::vec3& feet, float yaw, float pitch)
 {
 	if (!SpawnEnabled || !Level::Current || pawnLevelChange == Level::CurrentLevelChangeId)
 		return nullptr;
@@ -47,7 +66,8 @@ SimPawn* SimPawn::SpawnAt(const glm::vec3& feet, float yaw)
 	if (!pawn)
 		return nullptr;
 	pawn->Position = feet + vec3(0.0f, 0.9f, 0.0f);
-	pawn->cameraRotation = vec3(0.0f, yaw, 0.0f);
+	pawn->cameraRotation = vec3(glm::clamp(LaunchPitch.value_or(pitch), -89.0f, 89.0f), yaw, 0.0f);
+	LaunchPitch.reset();
 	Level::Current->AddEntity(pawn);
 	return pawn;
 }
@@ -157,10 +177,49 @@ void SimPawn::Update()
 		velocity.y = JumpSpeed;
 	controller.SetVelocity(velocity);
 
-	// Eye camera.
+	if (!scripted && Input::LockCursor)
+		if (InputAction* toggle = Input::GetAction("view"); toggle && toggle->Pressed())
+			View = View == ViewMode::FirstPerson ? ViewMode::ThirdPerson : ViewMode::FirstPerson;
+
+	// Camera: the eye, or a boom behind it.
 	const float feetY = Position.y - controller.height * 0.5f;
 	Camera::position = vec3(Position.x, feetY + controller.GetCameraHeight(), Position.z);
 	Camera::rotation = cameraRotation;
+	if (View == ViewMode::ThirdPerson)
+		PlaceThirdPersonCamera();
+
+	// The look: created with the first frame (not in Start, which the level may run while it is still adding entities), then driven by the state.
+	if (!bodyCreated)
+	{
+		bodyCreated = true;
+		if (CharacterBody* body = CharacterBody::Spawn(MakeState(crouching)))
+			bodyHandle = EntityHandle::FromEntity(body);
+	}
+	if (CharacterBody* body = Body())
+		body->Apply(MakeState(crouching));
+}
+
+CharacterState SimPawn::MakeState(bool crouching)
+{
+	CharacterState state;
+	state.feet = FeetPosition();
+	state.bodyYaw = cameraRotation.y; // the body faces where the camera looks; strafing and backing up play their own clips
+	state.look = glm::vec2(cameraRotation.x, cameraRotation.y);
+	state.velocity = controller.GetVelocity();
+	state.stance = crouching ? CharacterState::Stance::Crouching : CharacterState::Stance::Standing;
+	state.onGround = controller.onGround;
+	state.model = CharacterModels::PlayerCoat;
+	state.visibility = View == ViewMode::FirstPerson ? CharacterState::Visibility::FirstPersonOwner : CharacterState::Visibility::Shown;
+	return state;
+}
+
+// The camera sits behind the eye along the view and a little up; a sphere trace from the eye stops it at the first wall so the view never goes through one.
+void SimPawn::PlaceThirdPersonCamera()
+{
+	const vec3 eye = Camera::position;
+	const vec3 wanted = eye - MathHelper::GetForwardVector(cameraRotation) * ThirdPersonDistance + vec3(0.0f, ThirdPersonUp, 0.0f);
+	const auto hit = Physics::SphereTrace(eye, wanted, ThirdPersonRadius, BodyType::GroupCollisionTest, {}, { this });
+	Camera::position = hit.hasHit ? hit.shapePosition : wanted;
 }
 
 void SimPawn::Serialize(json& target)
@@ -180,3 +239,14 @@ void SimPawn::Deserialize(json& source)
 }
 
 REGISTER_ENTITY(SimPawn, "sim_pawn")
+
+#ifndef DISTRIBUTION
+CONSOLE_FUNC("sim_view", "Switch the player's view: sim_view [first|third] (no argument toggles)")
+{
+	if (!args.empty())
+		SimPawn::SetViewMode(args[0] == "third" || args[0] == "3" ? SimPawn::ViewMode::ThirdPerson : SimPawn::ViewMode::FirstPerson);
+	else
+		SimPawn::SetViewMode(SimPawn::GetViewMode() == SimPawn::ViewMode::FirstPerson ? SimPawn::ViewMode::ThirdPerson : SimPawn::ViewMode::FirstPerson);
+	Logger::Log("sim_view: %s", SimPawn::GetViewMode() == SimPawn::ViewMode::FirstPerson ? "first person" : "third person");
+}
+#endif

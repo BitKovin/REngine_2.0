@@ -1,0 +1,42 @@
+{
+    "animations": [],
+    "hitboxes": [],
+    "cloth": [
+        {
+            "roots": [ "cloth_root2", "cloth_root" ],
+            "forward": { "x": 0.0, "y": 0.0, "z": 1.0 },
+            "tipLength": 0.0,
+
+            "followRoot": 60.0,
+            "followTip": 5.0,
+            "trail": 0.5,
+            "maxAngleRoot": 8.0,
+            "maxAngleTip": 50.0,
+            "radius": 0.05,
+            "teleportDistance": 2.0,
+
+            "colliders": [
+                { "bone": "thigh_l", "to": "calf_l", "radius": 0.0, "endRadius": 0.0 },
+                { "bone": "calf_l", "to": "foot_l", "radius": 0.0, "endRadius": 0.0 },
+                { "bone": "thigh_r", "to": "calf_r", "radius": 0.0, "endRadius": 0.0 },
+                { "bone": "calf_r", "to": "foot_r", "radius": 0.0, "endRadius": 0.0 }
+            ],
+
+            "openClip": "coat_open",
+            "volumeClip": "coat_volume",
+            "volume": 0.5,
+            "openWindStart": 1.0,
+            "openWindFull": 13.0,
+            "windwardBias": 0.5,
+            "volumeWindStart": 1.0,
+            "volumeWindFull": 15.0,
+            "layerSmoothing": 0.2,
+
+            "spinOpen": 0.8,
+            "spinVolume": 0.6,
+            "spinStart": 180.0,
+            "spinFull": 720.0,
+            "spinRelease": 0.5
+        }
+    ]
+}

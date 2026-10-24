@@ -18,6 +18,7 @@
         { "key": "INPUT_ACTION_ATTACK3", "value": "Secondary Offhand Attack", "description": "Input action to perform a secondary attack from the offhand weapon" },
 
         { "key": "INPUT_ACTION_INTERACT",   "value": "Interact", "description": "Input action to interact with objects or characters" },
+        { "key": "INPUT_ACTION_VIEW", "value": "Switch view", "description": "Input action to switch between first and third person" },
         { "key": "INPUT_ACTION_QUICK_SAVE", "value": "Quick Save", "description": "Input action to quickly save the game" },
         { "key": "INPUT_ACTION_QUICK_LOAD", "value": "Quick Load", "description": "Input action to quickly load the game" },
 

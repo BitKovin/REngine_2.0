@@ -68,6 +68,8 @@ namespace sim::test
 	void RunBridgeTests(TestContext& context);
 	void RunBodiesTests(TestContext& context);
 	void RunNpcTests(TestContext& context);
+	void RunTransitionTests(TestContext& context);
+	void RunCharacterTests(TestContext& context);
 }
 
 #endif

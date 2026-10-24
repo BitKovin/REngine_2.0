@@ -6,7 +6,9 @@
 #include <Sim/Bodies/SimBodies.h>
 #include <Sim/Bridge/SimWorldNavFile.h>
 
+#include <Characters/BodyVisibility.h>
 #include <SimNpc.h>
+#include <SimPawn.h>
 
 #include <Camera.h>
 #include <EntityHandle.h>
@@ -47,6 +49,7 @@ namespace SimAgents
 		entt::dense_map<uint32_t, Pending> pending;
 		entt::dense_map<uint32_t, Body> bodies;
 		Counters counters;
+		float visibleRadius = DefaultVisibleRadius;
 		int levelChangeId = -1;
 		Clock::time_point levelChangedAt = Clock::now();
 
@@ -106,6 +109,12 @@ namespace SimAgents
 				return true;
 			}
 			return false;
+		}
+
+		// The player's place for the ring: the pawn, not the camera (a cinematic or third-person camera is elsewhere).
+		glm::vec3 PlayerPosition()
+		{
+			return SimPawn::Instance ? SimPawn::Instance->FeetPosition() : Camera::position;
 		}
 
 		SimNpc* Resolve(Body& body)
@@ -196,9 +205,11 @@ namespace SimAgents
 					continue;
 				}
 				const glm::vec3 feet = agent->nav - world.levels[agent->level].offset;
+				// Made in the ring: not drawn until it has warmed up and reached the visible radius. Made within it: the rules below.
+				const bool inRing = glm::distance(feet, PlayerPosition()) > visibleRadius;
 				const bool hidden = HiddenFromCamera(feet);
-				const bool fadeIn = !hidden && !levelJustLoaded;
-				SimNpc* npc = SimNpc::SpawnAt(feet, proposal.heading, proposal.model, proposal.speedScale, Key(proposal.entity));
+				const bool fadeIn = !inRing && !hidden && !levelJustLoaded;
+				SimNpc* npc = SimNpc::SpawnAt(feet, proposal.heading, proposal.model, proposal.speedScale, Key(proposal.entity), inRing);
 				if (!npc)
 				{
 					Send(client, BodyRefused{ proposal.entity });
@@ -212,9 +223,9 @@ namespace SimAgents
 				body.label = LabelOf(agent, proposal.entity);
 				body.lastReport = Clock::now();
 				bodies[entry.first] = body;
-				(fadeIn ? counters.spawnedVisible : counters.spawnedHidden) += 1;
-				Logger::Log("sim body: %s appears at (%.1f %.1f %.1f), %.0f m away, %s", body.label.c_str(), feet.x, feet.y, feet.z, glm::distance(feet, Camera::position),
-					levelJustLoaded ? "the level just loaded" : hidden ? "out of sight" : "fading in, in sight");
+				(inRing ? counters.spawnedWarming : fadeIn ? counters.spawnedVisible : counters.spawnedHidden) += 1;
+				Logger::Log("sim body: %s appears at (%.1f %.1f %.1f), %.0f m away, %s", body.label.c_str(), feet.x, feet.y, feet.z, glm::distance(feet, PlayerPosition()),
+					inRing ? "in the ring (not drawn, warming up)" : levelJustLoaded ? "the level just loaded" : hidden ? "out of sight" : "fading in, in sight");
 				Send(client, BodyAccepted{ proposal.entity, npc->FeetPosition() });
 			}
 			for (const uint32_t key : done)
@@ -236,10 +247,36 @@ namespace SimAgents
 					continue;
 				}
 				const glm::vec3 feet = npc->FeetPosition();
+				// The ring: shown once warmed up and within the visible radius, back in the ring a little beyond it. Not while it is leaving.
+				if (!body.despawning)
+				{
+					BodyVisibility::Input input;
+					input.distance = glm::distance(feet, PlayerPosition());
+					input.wasShown = !npc->Warming();
+					input.warmedUp = npc->WarmedUp();
+					input.visibleRadius = visibleRadius;
+					input.hysteresis = VisibleHysteresis;
+					const bool shown = BodyVisibility::Shown(input);
+					if (shown && npc->Warming())
+					{
+						npc->SetWarming(false);
+						const bool fade = !npc->WarmedUp() && !HiddenFromCamera(feet); // only a body that did not get its warm-up and is in sight
+						if (fade)
+							npc->FadeIn();
+						++counters.becameShown;
+						Logger::Log("sim body: %s becomes visible (%.0f m, %s)", body.label.c_str(), input.distance, fade ? "fading in, not warmed up" : "walking in from the ring");
+					}
+					else if (!shown && !npc->Warming())
+					{
+						npc->SetWarming(true);
+						++counters.returnedToRing;
+						Logger::Log("sim body: %s goes back to the ring (%.0f m)", body.label.c_str(), input.distance);
+					}
+				}
 				if (body.despawning)
 				{
-					// Out of sight it goes at once; in sight it fades out first (still walking and reporting, so the sim keeps following it).
-					if (!npc->FadingOut() && !HiddenFromCamera(feet))
+					// Out of sight (or not drawn at all: in the ring) it goes at once; in sight it fades out first (still walking and reporting, so the sim keeps following it).
+					if (!npc->FadingOut() && !npc->Warming() && !HiddenFromCamera(feet))
 						npc->FadeOut();
 					if (!npc->FadingOut() || npc->FadedOut())
 					{
@@ -303,5 +340,27 @@ namespace SimAgents
 	}
 
 	size_t PendingCount() { return pending.size(); }
+
+	size_t WarmingCount()
+	{
+		size_t count = 0;
+		for (auto&& entry : bodies)
+			if (SimNpc* npc = Resolve(entry.second); npc && npc->Warming())
+				++count;
+		return count;
+	}
+
+	std::vector<BodyInfo> BodyInfos()
+	{
+		std::vector<BodyInfo> infos;
+		const glm::vec3 player = PlayerPosition();
+		for (auto&& entry : bodies)
+			if (SimNpc* npc = Resolve(entry.second))
+				infos.push_back({ static_cast<sim::Entity>(entry.first), npc->FeetPosition(), glm::distance(npc->FeetPosition(), player), npc->Warming(), npc->WasRendered(), npc->Age() });
+		return infos;
+	}
+
+	float VisibleRadius() { return visibleRadius; }
+	void SetVisibleRadius(float metres) { visibleRadius = metres > 1.0f ? metres : 1.0f; }
 	const Counters& GetCounters() { return counters; }
 }

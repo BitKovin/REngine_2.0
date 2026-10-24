@@ -1,4 +1,10 @@
+// Time.hpp first: engine headers below use Time without including it.
+#include <Time.hpp>
+
 #include "SimMapEntities.h"
+
+#include "SimBridge.h"
+#include "SimTransition.h"
 
 #include <SimPawn.h>
 
@@ -28,12 +34,28 @@ void SimPortal::Start()
 	TriggerBase::Start();
 }
 
+void SimPortal::OnBodyEntered(Body* body, Entity* entity)
+{
+	// Only the pawn, and not in its first seconds: a landing next to the return portal must not bounce it back.
+	constexpr double ArrivalGrace = 2.0;
+	if (!SimBridge::IsRunning() || !entity->HasTag("player") || Time::GameTime - entity->SpawnTime <= ArrivalGrace)
+		return;
+	SimTransition::Request(Name, targetLevel, targetSpawn);
+}
+
 void SimSpawn::FromData(EntityData data)
 {
 	Entity::FromData(data);
 	playerStart = (static_cast<int>(data.GetPropertyFloat("spawnflags")) & 1) != 0;
-	if (playerStart)
-		SimPawn::SpawnAt(Position, data.GetPropertyFloat("angle") + 90.0f); // the pawn the sim follows (SLICE_M2B_BRIDGE 3.4)
+	const float yaw = data.GetPropertyFloat("angle") + 90.0f;
+	float pitch = 0.0f;
+	if (SimTransition::Arriving())
+	{
+		if (SimTransition::TakeArrival(Name, pitch))
+			SimPawn::SpawnAt(Position, yaw, pitch); // the pawn arrives where the portal sent it
+	}
+	else if (playerStart)
+		SimPawn::SpawnAt(Position, yaw); // the pawn the sim follows (SLICE_M2B_BRIDGE 3.4)
 }
 
 REGISTER_ENTITY(SimPortal, "sim_portal")

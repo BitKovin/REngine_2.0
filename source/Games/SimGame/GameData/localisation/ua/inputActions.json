@@ -21,6 +21,7 @@
         { "key": "INPUT_ACTION_ATTACK3", "value": "Друга атака іншою рукою", "description": "" },
 
         { "key": "INPUT_ACTION_INTERACT",   "value": "Взаємодія", "description": "" },
+        { "key": "INPUT_ACTION_VIEW", "value": "Змінити вигляд", "description": "Input action to switch between first and third person" },
         { "key": "INPUT_ACTION_QUICK_SAVE", "value": "Швидке збереження", "description": "" },
         { "key": "INPUT_ACTION_QUICK_LOAD", "value": "Швидке завантаження", "description": "" },
 

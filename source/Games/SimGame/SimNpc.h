@@ -1,39 +1,22 @@
 #pragma once
 
-// The physical body of a sim agent (SLICE_M2C_BODIES.md). An Entity on the engine's CharacterController with a skeletal mesh
-// and a locomotion animator. It runs its own navigation on the level's nav mesh (PathFollowQuery) and its own state code; the sim
-// only dictates targets: SetGoal(next corner of the agent's route), Stop(). Where the body stands is reported back by the
-// bridge, and the sim moves the agent's progress along its route to match.
+// The physical body of a sim agent (SLICE_M2C_BODIES.md): the driver of a character. An Entity on the engine's CharacterController that runs its own
+// navigation on the level's nav mesh (PathFollowQuery) and its own state code; the sim only dictates targets: SetGoal(next corner of the agent's
+// route), Stop(). Where the body stands is reported back by the bridge, and the sim moves the agent's progress along its route to match.
+//
+// How it looks is a CharacterBody (SLICE_M2F_CHARACTERS.md): every frame this fills a CharacterState and applies it. This class owns when it is shown
+// (the warm-up ring) and the fade.
 //
 // Never saved with the level: the sim owns the agent, the body is recreated when the sim proposes one.
 
+#include <Characters/CharacterBody.h>
+
 #include <Character/CharacterController.h>
 #include <Entity.h>
-#include <Animator.h>
+#include <EntityHandle.h>
 #include <Navigation/PathFollowQuery.h>
-#include <SkeletalMesh.hpp>
 
 #include <Sim/Movement/SimSpeedTable.h>
-
-// Idle / walk / run layer over the animations that ship in the model (idle, walk, run), picked by the speed on the ground.
-class SimNpcAnimator : public Animator
-{
-public:
-	SimNpcAnimator(Entity* owner, std::string modelPath) : Animator(owner), modelPath(std::move(modelPath)) {}
-
-	float movementSpeed = 0.0f;
-
-	void Update() override;
-
-protected:
-	void LoadAssets() override;
-	// The base class returns an empty pose (a T-pose); this animator's pose is its one locomotion layer.
-	AnimationPose ProcessResultPose() override { return locomotion ? locomotion->GetAnimationPose() : AnimationPose(); }
-
-private:
-	std::string modelPath;
-	Animation* locomotion = nullptr;
-};
 
 class SimNpc : public Entity
 {
@@ -45,26 +28,35 @@ public:
 		Blocked, // wants to move but is not getting anywhere
 	};
 
-	// Models the sim can ask for (Appearance::model).
-	static const char* ModelPath(int model);
+	// Seconds a body has to live before it may be shown walking in from the ring (SLICE_M2F_CHARACTERS.md section 6).
+	static constexpr float WarmupSeconds = 1.5f;
 
-	// Creates a body standing at `feet` (level-local) looking along `heading`. Null when no level is loaded.
-	// `variant` (the sim entity's number) picks the clothes colours of the untextured citizen model, so the same person always looks the same.
-	static SimNpc* SpawnAt(const glm::vec3& feet, const glm::vec3& heading, int model, float speedScale, uint32_t variant);
+	// Creates a body standing at `feet` (level-local) looking along `heading`, in the ring (Warming: not drawn) when `warming`. Null when no level is loaded.
+	// `model` is a CharacterModels index; `variant` (the sim entity's number) picks the clothes colours of an untextured model, so the same person always looks the same.
+	static SimNpc* SpawnAt(const glm::vec3& feet, const glm::vec3& heading, int model, float speedScale, uint32_t variant, bool warming);
 
 	SimNpc();
 	~SimNpc() override;
 
 	void Start() override;
 	void Update() override;
-	void LoadAssets() override;
+	void Destroy() override;
+
+	// Shown or in the ring. A body that is Warming walks and animates but is not drawn; it is shown at once (SetWarming(false)) or faded in (then FadeIn).
+	void SetWarming(bool warming) { this->warming = warming; }
+	bool Warming() const { return warming; }
+	// Lived long enough to be mid-stride when it is shown.
+	bool WarmedUp() const { return age >= WarmupSeconds; }
+	float Age() const { return age; }
+	// Drawn in the last frame (false while warming or out of the camera's view).
+	bool WasRendered() const;
 
 	// The sim's target (level-local feet position). `final` marks the end of the route; otherwise `next` (when `hasNext`) is the
 	// corner after it, which the body walks on to without stopping at the goal.
 	void SetGoal(const glm::vec3& feet, const glm::vec3& next, bool hasNext, sim::movement::Gait gait, bool final);
 	void Stop();
 
-	// Appearing and disappearing: the model's alpha runs 0 -> 1 (FadeIn, right after SpawnAt) or 1 -> 0 (FadeOut) over FadeSeconds. A body that is
+	// Appearing and disappearing: the character's alpha runs 0 -> 1 (FadeIn, right after SpawnAt) or 1 -> 0 (FadeOut) over FadeSeconds. A body that is
 	// faded out is invisible and should be destroyed by its owner. Without either call the body is simply there.
 	static constexpr float FadeSeconds = 1.0f;
 	void FadeIn();
@@ -75,18 +67,15 @@ public:
 	glm::vec3 FeetPosition() const;
 	State GetState() const { return state; }
 	int Model() const { return model; }
-	// Set once the mesh was drawn since the last frame; animations only advance for visible bodies.
-	bool WasRendered() const { return mesh && mesh->WasRended; }
-
 private:
 	CharacterController* controller = nullptr;
-	SkeletalMesh* mesh = nullptr;
-	std::unique_ptr<SimNpcAnimator> animator;
+	EntityHandle bodyHandle;      // the CharacterBody that is how this character looks
 	PathFollowQuery pathFollow;
 
 	int model = 0;
 	uint32_t variant = 0;
-	bool paintApplied = false;
+	bool warming = false;
+	float age = 0.0f;
 	float alpha = 1.0f;
 	bool fadingIn = false;
 	bool fadingOut = false;
@@ -101,8 +90,8 @@ private:
 	glm::vec3 facing{ 0.0f, 0.0f, 1.0f };
 	float blockedFor = 0.0f;
 
-	void ApplyPaint();
 	void UpdateFade(float deltaTime);
 	void Navigate(float deltaTime);
-	void UpdateAnimation(float horizontalSpeed);
+	CharacterState MakeState(const glm::vec3& velocity) const;
+	CharacterBody* Body() const;
 };

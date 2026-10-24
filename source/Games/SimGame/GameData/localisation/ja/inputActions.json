@@ -18,6 +18,7 @@
         { "key": "INPUT_ACTION_ATTACK3", "value": "サブ特殊攻撃", "description": "Input action to perform a secondary attack from the offhand weapon" },
 
         { "key": "INPUT_ACTION_INTERACT",   "value": "調べる", "description": "Input action to interact with objects or characters" },
+        { "key": "INPUT_ACTION_VIEW", "value": "視点切り替え", "description": "Input action to switch between first and third person" },
         { "key": "INPUT_ACTION_QUICK_SAVE", "value": "クイックセーブ", "description": "Input action to quickly save the game" },
         { "key": "INPUT_ACTION_QUICK_LOAD", "value": "クイックロード", "description": "Input action to quickly load the game" },
 

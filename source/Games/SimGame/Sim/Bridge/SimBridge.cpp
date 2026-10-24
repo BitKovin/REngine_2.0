@@ -6,13 +6,18 @@
 #include "SimAgents.h"
 #include "SimClient.h"
 #include "SimNpcFile.h"
+#include "SimTransition.h"
 #include "SimWorldNavFile.h"
 
 #include <Sim/Bodies/SimBodies.h>
 #include <Sim/Npcs/SimNpcs.h>
 
+#include <Characters/CharacterBody.h>
 #include <PauseGameManager.hpp>
+#include <SimNpc.h>
 #include <SimPawn.h>
+
+#include <Camera.h>
 
 #include <Console/ConsoleRegister.h>
 #include <FileSystem/FileSystem.h>
@@ -267,12 +272,13 @@ namespace SimBridge
 				walking += agent.state == static_cast<uint8_t>(sim::movement::Walker::State::Walking) ? 1 : 0;
 			}
 			const SimAgents::Counters& agents = SimAgents::GetCounters();
-			char buffer[600];
-			std::snprintf(buffer, sizeof(buffer), "sim: tick %lld%s, %llu snapshots (newest tick %lld), %zu agents (%d walking; tier 0/1/2 = %d/%d/%d), player %s; bodies %zu (+%zu waiting): %llu proposals, %llu spawned hidden, %llu in view, %llu refused, %llu despawned, %llu goals, %llu reports",
+			char buffer[800];
+			std::snprintf(buffer, sizeof(buffer), "sim: tick %lld%s, %llu snapshots (newest tick %lld), %zu agents (%d walking; tier 0/1/2 = %d/%d/%d), player %s; bodies %zu (+%zu waiting, %zu warming in the ring, %llu came out of it, %llu went back): %llu proposals, %llu spawned hidden, %llu in view, %llu in the ring, %llu refused, %llu despawned, %llu goals, %llu reports",
 				static_cast<long long>(state.client->CurrentTick()), state.client->IsPaused() ? " (paused)" : "", static_cast<unsigned long long>(state.client->SnapshotsReceived()),
 				static_cast<long long>(state.client->SnapshotTick()), snapshot.agents.size(), walking, tiers[0], tiers[1], tiers[2], snapshot.hasPlayer ? "known" : "not reported yet",
-				SimAgents::BodyCount(), SimAgents::PendingCount(), static_cast<unsigned long long>(agents.proposals), static_cast<unsigned long long>(agents.spawnedHidden),
-				static_cast<unsigned long long>(agents.spawnedVisible), static_cast<unsigned long long>(agents.refused), static_cast<unsigned long long>(agents.despawned),
+				SimAgents::BodyCount(), SimAgents::PendingCount(), SimAgents::WarmingCount(), static_cast<unsigned long long>(agents.becameShown), static_cast<unsigned long long>(agents.returnedToRing),
+				static_cast<unsigned long long>(agents.proposals), static_cast<unsigned long long>(agents.spawnedHidden), static_cast<unsigned long long>(agents.spawnedVisible),
+				static_cast<unsigned long long>(agents.spawnedWarming), static_cast<unsigned long long>(agents.refused), static_cast<unsigned long long>(agents.despawned),
 				static_cast<unsigned long long>(agents.goals), static_cast<unsigned long long>(agents.reports));
 			return buffer;
 		}
@@ -396,9 +402,46 @@ namespace SimBridge
 				t.Check(state.client->CurrentTick() > 25 && state.client->SnapshotsReceived() > 5, "the sim ran %lld ticks and sent %llu snapshots", static_cast<long long>(state.client->CurrentTick()),
 					static_cast<unsigned long long>(state.client->SnapshotsReceived()));
 				t.Line("%s", Stats().c_str());
-				t.Next(10);
+				t.Next(20);
 				break;
 			}
+			case 20: // the pawn has a body of its own: in first person the body is seen from its eyes, with a shadow-only mesh
+				{
+					CharacterBody* body = pawn ? pawn->Body() : nullptr;
+					if (!body)
+					{
+						if (t.Seconds(t.stageStart) > 5.0)
+						{
+							t.Check(false, "the pawn has no CharacterBody after 5 s");
+							t.Next(10);
+						}
+						break;
+					}
+					t.Check(body->LastVisibility() == CharacterState::Visibility::FirstPersonOwner && body->ShadowMeshActive(), "first person: the pawn's body is its owner's, with the shadow mesh active");
+					SimPawn::SetViewMode(SimPawn::ViewMode::ThirdPerson);
+					t.Next(21);
+					break;
+				}
+			case 21: // third person: the full body is drawn, the camera is behind the pawn
+				{
+					if (t.Seconds(t.stageStart) < 0.4)
+						break;
+					CharacterBody* body = pawn ? pawn->Body() : nullptr;
+					t.Check(body && body->LastVisibility() == CharacterState::Visibility::Shown && !body->ShadowMeshActive(), "third person: the body is shown, the shadow mesh is off");
+					t.Check(pawn && glm::distance(Camera::position, pawn->FeetPosition()) > 0.8f && glm::distance(Camera::position, pawn->FeetPosition()) < 4.0f, "third person: the camera is %.1f m from the pawn's feet", pawn ? glm::distance(Camera::position, pawn->FeetPosition()) : -1.0f);
+					SimPawn::SetViewMode(SimPawn::ViewMode::FirstPerson);
+					t.Next(22);
+					break;
+				}
+			case 22:
+				{
+					if (t.Seconds(t.stageStart) < 0.4)
+						break;
+					CharacterBody* body = pawn ? pawn->Body() : nullptr;
+					t.Check(body && body->LastVisibility() == CharacterState::Visibility::FirstPersonOwner && body->ShadowMeshActive(), "back in first person: shadow mesh active again");
+					t.Next(10);
+					break;
+				}
 			case 10: // bodies: the sim proposes them for agents near the pawn, the game spawns them
 			{
 				if (SimAgents::BodyCount() == 0)
@@ -435,6 +478,19 @@ namespace SimBridge
 								++followed;
 						}
 				}
+				int warming = 0, drawnWhileWarming = 0, misplaced = 0;
+				for (const SimAgents::BodyInfo& info : SimAgents::BodyInfos())
+				{
+					warming += info.warming ? 1 : 0;
+					drawnWhileWarming += info.warming && info.drawn ? 1 : 0;
+					// A shown body is within the visible radius (plus the hysteresis); a warming one is beyond it or has not lived long enough to be shown.
+					if (!info.warming && info.distance > SimAgents::VisibleRadius() + SimAgents::VisibleHysteresis + 2.0f)
+						++misplaced;
+					if (info.warming && info.distance <= SimAgents::VisibleRadius() && info.age >= SimNpc::WarmupSeconds + 0.5f)
+						++misplaced;
+				}
+				t.Check(drawnWhileWarming == 0, "no warming body is drawn (%d warming bodies)", warming);
+				t.Check(misplaced == 0, "every body is shown or warming as its distance says (%d wrong)", misplaced);
 				t.Check(!positions.empty(), "%zu bodies are still there", positions.size());
 				t.Check(moved > 0, "%d of %zu bodies walked more than 1 m", moved, t.bodyStart.size());
 				t.Check(driven > 0 && followed == driven, "the sim's agents follow their bodies (%d of %d within 3 m)", followed, driven);
@@ -507,6 +563,7 @@ namespace SimBridge
 				if (SimAgents::BodyCount() > 0 || t.Seconds(t.stageStart) > 25.0)
 				{
 					t.Check(SimAgents::BodyCount() > 0, "bodies are back after the load (%zu)", SimAgents::BodyCount());
+					t.Check(SimAgents::GetCounters().spawnedWarming > 0 && SimAgents::GetCounters().becameShown > 0, "the ring was used: %llu bodies made warming, %llu came out of it", static_cast<unsigned long long>(SimAgents::GetCounters().spawnedWarming), static_cast<unsigned long long>(SimAgents::GetCounters().becameShown));
 					t.Line("%s", Stats().c_str());
 					t.Next(7);
 					Finish();
@@ -596,6 +653,7 @@ namespace SimBridge
 #ifndef DISTRIBUTION
 		if (selfTestRun)
 		{
+			SimAgents::SetVisibleRadius(15.0f); // the test levels are smaller than the real radius: a small one puts part of them in the ring
 			selfTest.enabled = true;
 			selfTest.begin = selfTest.stageStart = Clock::now();
 		}
@@ -613,6 +671,9 @@ namespace SimBridge
 	}
 
 	bool IsRunning() { return Running(); }
+
+	sim::SimClient* Client() { return Running() ? state.client.get() : nullptr; }
+	const sim::nav::WorldNavData* World() { return state.nav ? &state.nav->Data() : nullptr; }
 
 	void LookAtNpc(const std::string& id)
 	{
@@ -634,6 +695,7 @@ namespace SimBridge
 				state.client->Resume();
 		}
 		state.client->Update();
+		SimTransition::Update(state.nav->Data());
 		FollowLook();
 		ReportPlayer();
 		SimAgents::Update(*state.client, state.nav->Data());
@@ -750,6 +812,13 @@ namespace SimBridge
 	CONSOLE_FUNC("sim_look", "Stand 6 m from an authored NPC and keep the view on it: sim_look <id> (sim_look alone: stop)")
 	{
 		LookAtNpc(args.empty() ? std::string() : args[0]);
+	}
+
+	CONSOLE_FUNC("sim_body_radius", "Metres from the player within which bodies are drawn (farther out they walk unseen, warming up): sim_body_radius [metres]")
+	{
+		if (!args.empty())
+			SimAgents::SetVisibleRadius(Number(args, 0, SimAgents::DefaultVisibleRadius));
+		Logger::Log("sim_body_radius: %.0f m", SimAgents::VisibleRadius());
 	}
 
 	CONSOLE_FUNC("sim_agents", "Draw the sim's agents as boxes in the loaded level: sim_agents [on|off] (default toggle)")
