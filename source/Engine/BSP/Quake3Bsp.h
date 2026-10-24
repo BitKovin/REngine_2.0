@@ -654,6 +654,12 @@ public:
 
     glm::vec3 GetStyleColor(uint8_t style) const;
 
+    // A game may install a function that decides the value of a light style (an RGB multiplier of the style's lightmap layers and light volume probes; it may exceed 1).
+    // It is asked first for every style other than LS_NORMAL; returning false falls back to the built-in 10 Hz pattern table. Install it once at game start (nullptr removes it).
+    using LightStyleProvider = bool (*)(uint8_t style, glm::vec3& colour);
+    static void SetLightStyleProvider(LightStyleProvider provider);
+    static inline LightStyleProvider lightStyleProvider = nullptr;
+
     void DrawForward(mat4x4 view, mat4x4 projection);
 
     void RenderBSP(const glm::vec3& cameraPos, tBSPModel& model,

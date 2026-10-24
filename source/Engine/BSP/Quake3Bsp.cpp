@@ -2138,10 +2138,22 @@ static QLightStyle g_LightStyles[64] =
     // rest default empty
 };
 
+void CQuake3BSP::SetLightStyleProvider(LightStyleProvider provider)
+{
+    lightStyleProvider = provider;
+}
+
 glm::vec3 CQuake3BSP::GetStyleColor(uint8_t style) const
 {
     if (style == LS_NORMAL) return glm::vec3(1.0f);
     if (style == LS_NONE)   return glm::vec3(0.0f);
+
+    if (lightStyleProvider)
+    {
+        glm::vec3 provided;
+        if (lightStyleProvider(style, provided))
+            return provided;
+    }
 
 
 

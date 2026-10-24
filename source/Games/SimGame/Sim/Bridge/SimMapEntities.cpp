@@ -54,9 +54,11 @@ void SimSpawn::FromData(EntityData data)
 		if (SimTransition::TakeArrival(Name, pitch))
 			SimPawn::SpawnAt(Position, yaw, pitch); // the pawn arrives where the portal sent it
 	}
-	else if (playerStart)
+	else if (StartOverride.empty() ? playerStart : Name == StartOverride)
 		SimPawn::SpawnAt(Position, yaw); // the pawn the sim follows (SLICE_M2B_BRIDGE 3.4)
 }
 
 REGISTER_ENTITY(SimPortal, "sim_portal")
 REGISTER_ENTITY(SimSpawn, "sim_spawn")
+REGISTER_ENTITY(SimSite, "sim_site")
+REGISTER_ENTITY(SimSettlement, "sim_settlement")

@@ -1,6 +1,6 @@
 # Slice contract: M4 the baker (a village you can play in)
 
-Status: **proposed** (2026-10-24), not implemented. The owner's answers to the first questions are in section 13 and are folded in below; this is ready for approval. Sources: design document 6.2 (needs), 6.6 (decision), 6.7 (activities),
+Status: **approved, in progress** (2026-10-24; step 1 started). **Revised after the layout choice (13.6 to 13.9): one big open level with three villages, each a prefab; where section 3 or 10 differ, the revision paragraph at the top of section 3 wins.** The owner's answers to the first questions are in section 13 and are folded in below; this is ready for approval. Sources: design document 6.2 (needs), 6.6 (decision), 6.7 (activities),
 8 (items), 9.3 to 9.9 (shops, wages, filling positions), 11.3 (death cascade), 12.3 (fill a position); addendum 8, 9, 14 (M4), 17.4; SIM_CONTRACT sections 9 to 13.
 
 This is the design's own first proof ("remove the baker: prices, queues and hunger respond"), built **thin, and played in first person**, so that the sim stops being a tech
@@ -32,6 +32,15 @@ trains, blood moon, population generation (residents are authored), health and i
 line), weather, seasons, farming simulation (fields are a site where people work for a valve wage), a second shop or competition (the miller's flour is the only price besides bread).
 
 ## 3. The village map (levels are authored; I build with the map editor)
+
+**Revision (owner, 13.6 to 13.9).** The world of this slice is **one big flat open level**, `vale.map.json` / `vale.bsp` (about 560 x 460 m, forest belts between the villages, dirt roads joining their gates, a tall tree
+wall and invisible clip at its edge; one `sim_portal` pair to `sim_test_road.bsp` at a road end), the new layout root and startup map. It holds **three villages of about 100 x 100 m, each its own prefab**
+(`prefabs/village_a.map.json` ribbon street, `village_b.map.json` green and ring, `village_c.map.json` crossroads with a church on a terrace; the home village is **C**), placed as instances so that editing one village is
+local to its file. **Interiors are never separate levels**: every house, the bakery, the mill and the tavern are **nested prefabs** (`prefabs/buildings/*.map.json`) with their interior in the same level, and props are
+prefabs again (`prefabs/props/*.map.json`). Sim entities inside prefabs take their ids from the **resolved `targetname`** (the editor joins the instance names with `|`, e.g. `village_c|bakery|counter`), and
+`site` keys are editor **references** (type `target` in `entities.ent`), so a prefab used twice never produces a duplicate id and ids stay stable while instance names stay stable. `sim_spawn` and `sim_portal`
+stay in the root map (their names must not be prefixed). **All three villages are populated** (about 16 residents in 8 households each, about 48 in all, authored data; each village has its own baker, miller, grain valve and
+price: no trade between villages in this slice). The player wakes in a **room at the tavern of village C**.
 
 - **Level** `village.bsp` (+ `.map.json`), the new layout root and startup map of `world.manifest`; one `sim_portal` pair to `sim_test_road.bsp` (a, road, b, c stay as "elsewhere" and as
   transition and nav tests). About **100 x 100 m** (owner): the whole village is within the despawn radius from its middle, and the ring (45 / 65 / 80 m) only matters at its edges and
@@ -190,7 +199,7 @@ line), weather, seasons, farming simulation (fields are a site where people work
 
 | Step | Content | Gate |
 |---|---|---|
-| 1 Map | Village layout variants, then the chosen one with sites, doors, slots, containers, props, bake; the four light styles authored in the editor | Two or three pictures to choose from; the bake passes; NPCs of the old test data can walk the street |
+| 1 Map | Village layout variants, then the chosen one with sites, doors, slots, containers, props, bake; the four light styles authored in the editor | Two or three pictures to choose from; the bake passes; NPCs of the old test data can walk the street. **Status 2026-10-24: layout chosen (all three, home C); prefab set, three villages and the vale built, exported, baked, nav bake passes; owner review of the pictures pending; the four light styles are not authored yet (step 2b); the old test NPCs are bound to the test levels, not walking the vale** |
 | 2 Time | Calendar, `HourStruck`, clock HUD, Wait / Sleep with wake events, the `day` tool | Waiting a day at speed passes in seconds, wakes on a test event; replay and save identical |
 | 2b Light of the day | E1 style provider, E2 sky sphere and shader, the daylight curves, `sim_time` / `-sim_hour`; first on a test box map with the four styles, then on the village | Pictures at 05:00, 06:30, 12:00, 18:00, 19:00, 23:00 show a believable day without a pop at any hour; the characters' light follows; lamps come on at dusk |
 | 3 Items | Types, containers (map-backed), transfers, ledger, audit, container views and props, `Take` / `Drop` / `Eat`, inventory HUD | The player picks up a prop loaf and eats it; the audit stays clean over a 30-day toy run |
@@ -209,6 +218,10 @@ line), weather, seasons, farming simulation (fields are a site where people work
 4. **Village**: about 100 x 100 m (smaller than my first proposal), real human scale, Victorian-gothic hamlet, the new layout root and startup map.
 5. **Props**: the level editor's **prefabs** (brush geometry, section 3 and 5), not Blender models; item props are prefab brush entities shown and hidden from the sim's container contents (section 5).
 
+6. **Villages (2026-10-24)**: all three layout variants are built, on one big open map with forests between them, **each village a prefab** to localise editing. Home village **C** (crossroads, church on a terrace).
+7. **Population**: all three villages populated now (about 48 residents), sites and loops in each.
+8. **Interiors**: not separate levels; houses and buildings are prefabs placed in the one level.
+9. **Player start**: a room at the tavern of village C (no household, no pantry: food comes from the shop).
 Still open and not blocking until step 2b: **the sky art**. Three cubemaps are needed (day, dusk, night with stars). Options: derive them from the panorama already in GameData (`env/skybox1_cube.png`,
 a stormy red sky) by grading, generate them procedurally in the shader (gradient + clouds noise + stars), or you supply panoramas. I will propose the procedural one first (it needs no assets and blends
 exactly), and you judge it from pictures.

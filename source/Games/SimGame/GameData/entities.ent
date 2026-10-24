@@ -213,52 +213,61 @@ Arrival point for level transitions, and the player start. A sim_portal in anoth
     <group name="sim_portal" color="0.3 0.6 1">
 Level transition trigger. The player loads targetLevel and lands at targetSpawn. NPCs use the same transition through the world nav mesh: the bake links this trigger's centre to targetSpawn. The brush centre must be on or just above walkable ground (the bake searches 4 m up and down, 2 m sideways). One trigger per direction: the target level needs its own sim_portal back.
         <string key="targetname" name="Name">Unique in this level; used in bake messages.</string>
-        <string key="targetLevel" name="Target Level" value="village.bsp">Map file name inside GameData/maps, as listed in the world manifest.</string>
+        <string key="targetLevel" name="Target Level" value="vale.bsp">Map file name inside GameData/maps, as listed in the world manifest.</string>
         <string key="targetSpawn" name="Target Spawn">targetname of a sim_spawn in the target level.</string>
         <boolean key="_cs" name="Cast Shadows" value="0" />
         <string key="classname" name="Classname" value="sim_portal">The classname of the entity.</string>
     </group>
     <group name="sim_settlement" color="0.8 0.7 0.2">
-Volume of a settlement (village, town district). Sites inside belong to it: notice boards, candidate searches and reputation are per settlement.
-        <string key="settlementId" name="Settlement Id (stable)">Unique across the whole world, e.g. ashby.</string>
+Volume of a settlement (village, town district). Sites inside belong to it: notice boards, candidate searches and reputation are per settlement. Its id is the resolved targetname (inside a prefab: the instance names joined with |, e.g. village_c|settlement).
+        <string key="targetname" name="Settlement Id (stable)">Unique across the whole world; in a prefab only the local name, the editor prefixes the instance names.</string>
         <string key="displayName" name="Display Name" />
         <boolean key="_cs" name="Cast Shadows" value="0" />
         <string key="classname" name="Classname" value="sim_settlement">The classname of the entity.</string>
     </group>
     <group name="sim_site" color="0.9 0.5 0.1">
-A place that matters to the simulation (design section 5.2): house, pub, bakery, church, shop, field, well, market, graveyard, station. The brush is its footprint (ownership, privacy). Agents enter through its sim_door points; inside they are counted by occupancy and slots, not positions.
-        <string key="siteId" name="Site Id (stable)">Unique across the whole world, e.g. ashby_crooked_lamp.</string>
-        <string key="kind" name="Kind" value="house">Site template id from the sim data (house, pub, bakery, church, shop, field, well, market, graveyard, station, ...).</string>
+A place that matters to the simulation (design section 5.2): house, pub, bakery, church, shop, field, well, market, graveyard, station. The brush is its footprint (ownership, privacy). Agents enter through its sim_door points; inside they are counted by occupancy and slots, not positions. Its id is the resolved targetname (e.g. village_c|bakery|site): saved in game saves, so never rename the prefab instances once a level ships.
+        <string key="targetname" name="Site Id (stable)">Unique across the whole world once the editor has prefixed the instance names.</string>
+        <string key="kind" name="Kind" value="house">Site template id from the sim data (house, pub, bakery, mill, church, field, green, market, well, ...).</string>
         <string key="displayName" name="Display Name" />
         <integer key="capacity" name="Capacity" value="0">Maximum occupants; 0 takes the kind's default.</integer>
+        <boolean key="playable" name="Playable interior" value="1">1: the interior exists in the level (slots and doors must lie on the nav mesh). 0: a closed shell, its slots and containers are only points for the sim.</boolean>
+        <string key="owner" name="Owner">Resident id that owns the site (a shop's holder); empty for none.</string>
         <boolean key="_cs" name="Cast Shadows" value="0" />
         <string key="classname" name="Classname" value="sim_site">The classname of the entity.</string>
     </group>
     <point name="sim_door" color="1 0.6 0.2" box="-12 -12 0 12 12 48">
-Entrance of a site: where agents enter and exit. Place it on walkable ground just outside the doorway. A site can have several.
-        <string key="site" name="Site Id">siteId of the sim_site it opens into.</string>
-        <string key="door" name="Physical Door">Optional targetname of the func_door whose lock state mirrors this entrance.</string>
-        <angle key="angle" name="Yaw Angle (facing out)" value="0" />
+Entrance of a site: where agents enter and exit. Place it on walkable ground just outside the doorway; its yaw (`angles`) points out of the building. A site can have several.
+        <string key="targetname" name="Name (stable)">Unique in the level once prefixed.</string>
+        <target key="site" name="Site">The sim_site it opens into (an editor reference).</target>
+        <target key="door" name="Physical Door">Optional func_door whose lock state mirrors this entrance.</target>
         <string key="classname" name="Classname" value="sim_door">The classname of the entity.</string>
     </point>
     <point name="sim_slot" color="0.7 0.4 1" box="-10 -10 0 10 10 40">
-A typed position inside a site (seat, bed, work, counter, queue, stand). The sim counts slots; bodies use the exact spot when the level is loaded.
-        <string key="site" name="Site Id">siteId of the sim_site it belongs to.</string>
-        <string key="slotType" name="Slot Type" value="seat">seat, bed, work, counter, queue, stand, or a type from the sim data.</string>
-        <angle key="angle" name="Yaw Angle" value="0" />
+A typed position inside a site (seat, bed, work, counter, queue, stand). The sim counts slots; bodies use the exact spot when the level is loaded. Its yaw (`angles`) is the way the occupant faces (yaw 0 = +Z, 90 = +X).
+        <string key="targetname" name="Name (stable)">Unique in the level once prefixed.</string>
+        <target key="site" name="Site">The sim_site it belongs to (an editor reference).</target>
+        <string key="slotType" name="Slot Type" value="seat">seat, bed, work, counter, customer, queue, stand, oven, millstone, field, or a type from the sim data.</string>
         <string key="classname" name="Classname" value="sim_slot">The classname of the entity.</string>
     </point>
     <point name="sim_container" color="0.6 0.4 0.2" box="-12 -12 0 12 12 32">
-A container prop whose contents are simulated items (addendum section 9): shelf, pantry, cashbox, barrel, wardrobe, crate. Everything else in a level is static scenery.
-        <string key="containerId" name="Container Id (stable)">Unique across the whole world, e.g. ashby_bakery_shelf_1.</string>
-        <string key="site" name="Site Id">siteId of the sim_site it belongs to (optional for containers in the open).</string>
-        <string key="containerType" name="Container Type" value="shelf">shelf, pantry, cashbox, barrel, wardrobe, crate, or a type from the sim data.</string>
+A container whose contents are simulated items (addendum section 9): shelf, pantry, till, bin, purse, chest. Everything else in a level is static scenery. With visible = 1 its contents show through the sim_item_prop entities that name it.
+        <string key="targetname" name="Container Id (stable)">Unique in the level once prefixed.</string>
+        <target key="site" name="Site">The sim_site it belongs to (optional for containers in the open).</target>
+        <string key="containerType" name="Container Type" value="shelf">shelf, pantry, till, bin, purse, or a type from the sim data.</string>
         <string key="access" name="Access" value="owner">owner, household, staff or public.</string>
-        <model key="model" name="Model Path" />
-        <real key="modelscale" name="Uniform Scale" value="1" />
-        <angle key="angle" name="Yaw Angle" value="0" />
+        <integer key="capacity" name="Capacity" value="0">Places for items; for a visible container it must not exceed the number of sim_item_prop entities.</integer>
+        <boolean key="visible" name="Shows contents" value="0">1: contents are shown through sim_item_prop entities.</boolean>
         <string key="classname" name="Classname" value="sim_container">The classname of the entity.</string>
     </point>
+    <group name="sim_item_prop" color="1 0.9 0.2">
+A place where an item of a container can be seen: a brush entity in the shape of the item (a loaf). It is shown while the container's place `slot` holds `itemType`, hidden otherwise (hidden = not drawn, no collision, not interactable). For a bulk lot, `slot` is the fill stage (1 = a third, 2 = two thirds, 3 = full) and the prop is shown while the stock reaches that stage.
+        <target key="container" name="Container">The sim_container this prop shows (an editor reference).</target>
+        <integer key="slot" name="Place / fill stage" value="0" />
+        <string key="itemType" name="Item type" value="bread_loaf">Item type id from the sim data.</string>
+        <boolean key="_cs" name="Cast Shadows" value="1" />
+        <string key="classname" name="Classname" value="sim_item_prop">The classname of the entity.</string>
+    </group>
     <point name="sim_npc" color="0.9 0.9 0.3" box="-16 -16 -32 16 16 32">
 Starting place of an authored NPC (priest, doctor, publican...). Generated population needs no entities; it comes from sites.
         <string key="npcId" name="NPC Id (stable)">Authored NPC id from the sim data.</string>

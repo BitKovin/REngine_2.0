@@ -1,0 +1,2666 @@
+{
+ "entities": [
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b1",
+     "op": "add",
+     "vertices": [
+      [
+       -4.5,
+       -0.3,
+       -8.0
+      ],
+      [
+       4.5,
+       -0.3,
+       -8.0
+      ],
+      [
+       4.5,
+       8.12,
+       -8.0
+      ],
+      [
+       -4.5,
+       8.12,
+       -8.0
+      ],
+      [
+       -4.5,
+       -0.3,
+       8.0
+      ],
+      [
+       4.5,
+       -0.3,
+       8.0
+      ],
+      [
+       4.5,
+       8.12,
+       8.0
+      ],
+      [
+       -4.5,
+       8.12,
+       8.0
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_dev/wall_grey_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4
+       ],
+       "texture": "lq_dev/wall_grey_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        5,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_grey_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_grey_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        5
+       ],
+       "texture": "lq_dev/wall_grey_c"
+      }
+     ],
+     "id": "b10",
+     "op": "add",
+     "vertices": [
+      [
+       -5.0,
+       8.12,
+       -8.5
+      ],
+      [
+       5.0,
+       8.12,
+       -8.5
+      ],
+      [
+       5.0,
+       8.12,
+       8.5
+      ],
+      [
+       -5.0,
+       8.12,
+       8.5
+      ],
+      [
+       0.0,
+       13.32,
+       -8.5
+      ],
+      [
+       0.0,
+       13.32,
+       8.5
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b11",
+     "op": "add",
+     "vertices": [
+      [
+       -2.5,
+       -0.3,
+       7.5
+      ],
+      [
+       2.5,
+       -0.3,
+       7.5
+      ],
+      [
+       2.5,
+       17.12,
+       7.5
+      ],
+      [
+       -2.5,
+       17.12,
+       7.5
+      ],
+      [
+       -2.5,
+       -0.3,
+       12.5
+      ],
+      [
+       2.5,
+       -0.3,
+       12.5
+      ],
+      [
+       2.5,
+       17.12,
+       12.5
+      ],
+      [
+       -2.5,
+       17.12,
+       12.5
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        2,
+        3,
+        0,
+        1
+       ],
+       "texture": "lq_dev/wall_grey_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4
+       ],
+       "texture": "lq_dev/wall_grey_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_grey_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        4
+       ],
+       "texture": "lq_dev/wall_grey_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        4
+       ],
+       "texture": "lq_dev/wall_grey_c"
+      }
+     ],
+     "id": "b12",
+     "op": "add",
+     "vertices": [
+      [
+       -2.8,
+       17.12,
+       7.2
+      ],
+      [
+       2.8,
+       17.12,
+       7.2
+      ],
+      [
+       2.8,
+       17.12,
+       12.8
+      ],
+      [
+       -2.8,
+       17.12,
+       12.8
+      ],
+      [
+       0.0,
+       28.12,
+       10.0
+      ]
+     ]
+    }
+   ],
+   "classname": "func_group",
+   "id": "e_struct",
+   "keyvalues": {},
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b2",
+     "op": "add",
+     "vertices": [
+      [
+       4.5,
+       0,
+       -6.3
+      ],
+      [
+       5.1,
+       0,
+       -6.3
+      ],
+      [
+       5.1,
+       6.12,
+       -6.3
+      ],
+      [
+       4.5,
+       6.12,
+       -6.3
+      ],
+      [
+       4.5,
+       0,
+       -5.7
+      ],
+      [
+       5.1,
+       0,
+       -5.7
+      ],
+      [
+       5.1,
+       6.12,
+       -5.7
+      ],
+      [
+       4.5,
+       6.12,
+       -5.7
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b3",
+     "op": "add",
+     "vertices": [
+      [
+       -5.1,
+       0,
+       -6.3
+      ],
+      [
+       -4.5,
+       0,
+       -6.3
+      ],
+      [
+       -4.5,
+       6.12,
+       -6.3
+      ],
+      [
+       -5.1,
+       6.12,
+       -6.3
+      ],
+      [
+       -5.1,
+       0,
+       -5.7
+      ],
+      [
+       -4.5,
+       0,
+       -5.7
+      ],
+      [
+       -4.5,
+       6.12,
+       -5.7
+      ],
+      [
+       -5.1,
+       6.12,
+       -5.7
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b4",
+     "op": "add",
+     "vertices": [
+      [
+       4.5,
+       0,
+       -2.3
+      ],
+      [
+       5.1,
+       0,
+       -2.3
+      ],
+      [
+       5.1,
+       6.12,
+       -2.3
+      ],
+      [
+       4.5,
+       6.12,
+       -2.3
+      ],
+      [
+       4.5,
+       0,
+       -1.7
+      ],
+      [
+       5.1,
+       0,
+       -1.7
+      ],
+      [
+       5.1,
+       6.12,
+       -1.7
+      ],
+      [
+       4.5,
+       6.12,
+       -1.7
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b5",
+     "op": "add",
+     "vertices": [
+      [
+       -5.1,
+       0,
+       -2.3
+      ],
+      [
+       -4.5,
+       0,
+       -2.3
+      ],
+      [
+       -4.5,
+       6.12,
+       -2.3
+      ],
+      [
+       -5.1,
+       6.12,
+       -2.3
+      ],
+      [
+       -5.1,
+       0,
+       -1.7
+      ],
+      [
+       -4.5,
+       0,
+       -1.7
+      ],
+      [
+       -4.5,
+       6.12,
+       -1.7
+      ],
+      [
+       -5.1,
+       6.12,
+       -1.7
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b6",
+     "op": "add",
+     "vertices": [
+      [
+       4.5,
+       0,
+       1.7
+      ],
+      [
+       5.1,
+       0,
+       1.7
+      ],
+      [
+       5.1,
+       6.12,
+       1.7
+      ],
+      [
+       4.5,
+       6.12,
+       1.7
+      ],
+      [
+       4.5,
+       0,
+       2.3
+      ],
+      [
+       5.1,
+       0,
+       2.3
+      ],
+      [
+       5.1,
+       6.12,
+       2.3
+      ],
+      [
+       4.5,
+       6.12,
+       2.3
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b7",
+     "op": "add",
+     "vertices": [
+      [
+       -5.1,
+       0,
+       1.7
+      ],
+      [
+       -4.5,
+       0,
+       1.7
+      ],
+      [
+       -4.5,
+       6.12,
+       1.7
+      ],
+      [
+       -5.1,
+       6.12,
+       1.7
+      ],
+      [
+       -5.1,
+       0,
+       2.3
+      ],
+      [
+       -4.5,
+       0,
+       2.3
+      ],
+      [
+       -4.5,
+       6.12,
+       2.3
+      ],
+      [
+       -5.1,
+       6.12,
+       2.3
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b8",
+     "op": "add",
+     "vertices": [
+      [
+       4.5,
+       0,
+       5.7
+      ],
+      [
+       5.1,
+       0,
+       5.7
+      ],
+      [
+       5.1,
+       6.12,
+       5.7
+      ],
+      [
+       4.5,
+       6.12,
+       5.7
+      ],
+      [
+       4.5,
+       0,
+       6.3
+      ],
+      [
+       5.1,
+       0,
+       6.3
+      ],
+      [
+       5.1,
+       6.12,
+       6.3
+      ],
+      [
+       4.5,
+       6.12,
+       6.3
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b9",
+     "op": "add",
+     "vertices": [
+      [
+       -5.1,
+       0,
+       5.7
+      ],
+      [
+       -4.5,
+       0,
+       5.7
+      ],
+      [
+       -4.5,
+       6.12,
+       5.7
+      ],
+      [
+       -5.1,
+       6.12,
+       5.7
+      ],
+      [
+       -5.1,
+       0,
+       6.3
+      ],
+      [
+       -4.5,
+       0,
+       6.3
+      ],
+      [
+       -4.5,
+       6.12,
+       6.3
+      ],
+      [
+       -5.1,
+       6.12,
+       6.3
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood5"
+      }
+     ],
+     "id": "b13",
+     "op": "add",
+     "vertices": [
+      [
+       -0.9,
+       0.12,
+       12.5
+      ],
+      [
+       0.9,
+       0.12,
+       12.5
+      ],
+      [
+       0.9,
+       2.92,
+       12.5
+      ],
+      [
+       -0.9,
+       2.92,
+       12.5
+      ],
+      [
+       -0.9,
+       0.12,
+       12.65
+      ],
+      [
+       0.9,
+       0.12,
+       12.65
+      ],
+      [
+       0.9,
+       2.92,
+       12.65
+      ],
+      [
+       -0.9,
+       2.92,
+       12.65
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/plank2"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/plank2"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/plank2"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/plank2"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/plank2"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/plank2"
+      }
+     ],
+     "id": "b14",
+     "op": "add",
+     "vertices": [
+      [
+       -0.75,
+       0.12,
+       12.65
+      ],
+      [
+       0.75,
+       0.12,
+       12.65
+      ],
+      [
+       0.75,
+       2.8200000000000003,
+       12.65
+      ],
+      [
+       -0.75,
+       2.8200000000000003,
+       12.65
+      ],
+      [
+       -0.75,
+       0.12,
+       12.7
+      ],
+      [
+       0.75,
+       0.12,
+       12.7
+      ],
+      [
+       0.75,
+       2.8200000000000003,
+       12.7
+      ],
+      [
+       -0.75,
+       2.8200000000000003,
+       12.7
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood5"
+      }
+     ],
+     "id": "b15",
+     "op": "add",
+     "vertices": [
+      [
+       -0.45,
+       6.12,
+       12.5
+      ],
+      [
+       0.45,
+       6.12,
+       12.5
+      ],
+      [
+       0.45,
+       8.120000000000001,
+       12.5
+      ],
+      [
+       -0.45,
+       8.120000000000001,
+       12.5
+      ],
+      [
+       -0.45,
+       6.12,
+       12.6
+      ],
+      [
+       0.45,
+       6.12,
+       12.6
+      ],
+      [
+       0.45,
+       8.120000000000001,
+       12.6
+      ],
+      [
+       -0.45,
+       8.120000000000001,
+       12.6
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood5"
+      }
+     ],
+     "id": "b16",
+     "op": "add",
+     "vertices": [
+      [
+       -0.45,
+       11.12,
+       12.5
+      ],
+      [
+       0.45,
+       11.12,
+       12.5
+      ],
+      [
+       0.45,
+       13.12,
+       12.5
+      ],
+      [
+       -0.45,
+       13.12,
+       12.5
+      ],
+      [
+       -0.45,
+       11.12,
+       12.6
+      ],
+      [
+       0.45,
+       11.12,
+       12.6
+      ],
+      [
+       0.45,
+       13.12,
+       12.6
+      ],
+      [
+       -0.45,
+       13.12,
+       12.6
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood5"
+      }
+     ],
+     "id": "b17",
+     "op": "add",
+     "vertices": [
+      [
+       -0.45,
+       15.12,
+       12.5
+      ],
+      [
+       0.45,
+       15.12,
+       12.5
+      ],
+      [
+       0.45,
+       17.119999999999997,
+       12.5
+      ],
+      [
+       -0.45,
+       17.119999999999997,
+       12.5
+      ],
+      [
+       -0.45,
+       15.12,
+       12.6
+      ],
+      [
+       0.45,
+       15.12,
+       12.6
+      ],
+      [
+       0.45,
+       17.119999999999997,
+       12.6
+      ],
+      [
+       -0.45,
+       17.119999999999997,
+       12.6
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood5"
+      }
+     ],
+     "id": "b18",
+     "op": "add",
+     "vertices": [
+      [
+       -4.6,
+       2.62,
+       -5.6
+      ],
+      [
+       -4.5,
+       2.62,
+       -5.6
+      ],
+      [
+       -4.5,
+       6.62,
+       -5.6
+      ],
+      [
+       -4.6,
+       6.62,
+       -5.6
+      ],
+      [
+       -4.6,
+       2.62,
+       -4.4
+      ],
+      [
+       -4.5,
+       2.62,
+       -4.4
+      ],
+      [
+       -4.5,
+       6.62,
+       -4.4
+      ],
+      [
+       -4.6,
+       6.62,
+       -4.4
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood5"
+      }
+     ],
+     "id": "b19",
+     "op": "add",
+     "vertices": [
+      [
+       4.5,
+       2.62,
+       -5.6
+      ],
+      [
+       4.6,
+       2.62,
+       -5.6
+      ],
+      [
+       4.6,
+       6.62,
+       -5.6
+      ],
+      [
+       4.5,
+       6.62,
+       -5.6
+      ],
+      [
+       4.5,
+       2.62,
+       -4.4
+      ],
+      [
+       4.6,
+       2.62,
+       -4.4
+      ],
+      [
+       4.6,
+       6.62,
+       -4.4
+      ],
+      [
+       4.5,
+       6.62,
+       -4.4
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood5"
+      }
+     ],
+     "id": "b20",
+     "op": "add",
+     "vertices": [
+      [
+       -4.6,
+       2.62,
+       -0.6
+      ],
+      [
+       -4.5,
+       2.62,
+       -0.6
+      ],
+      [
+       -4.5,
+       6.62,
+       -0.6
+      ],
+      [
+       -4.6,
+       6.62,
+       -0.6
+      ],
+      [
+       -4.6,
+       2.62,
+       0.6
+      ],
+      [
+       -4.5,
+       2.62,
+       0.6
+      ],
+      [
+       -4.5,
+       6.62,
+       0.6
+      ],
+      [
+       -4.6,
+       6.62,
+       0.6
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood5"
+      }
+     ],
+     "id": "b21",
+     "op": "add",
+     "vertices": [
+      [
+       4.5,
+       2.62,
+       -0.6
+      ],
+      [
+       4.6,
+       2.62,
+       -0.6
+      ],
+      [
+       4.6,
+       6.62,
+       -0.6
+      ],
+      [
+       4.5,
+       6.62,
+       -0.6
+      ],
+      [
+       4.5,
+       2.62,
+       0.6
+      ],
+      [
+       4.6,
+       2.62,
+       0.6
+      ],
+      [
+       4.6,
+       6.62,
+       0.6
+      ],
+      [
+       4.5,
+       6.62,
+       0.6
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood5"
+      }
+     ],
+     "id": "b22",
+     "op": "add",
+     "vertices": [
+      [
+       -4.6,
+       2.62,
+       4.4
+      ],
+      [
+       -4.5,
+       2.62,
+       4.4
+      ],
+      [
+       -4.5,
+       6.62,
+       4.4
+      ],
+      [
+       -4.6,
+       6.62,
+       4.4
+      ],
+      [
+       -4.6,
+       2.62,
+       5.6
+      ],
+      [
+       -4.5,
+       2.62,
+       5.6
+      ],
+      [
+       -4.5,
+       6.62,
+       5.6
+      ],
+      [
+       -4.6,
+       6.62,
+       5.6
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood5"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood5"
+      }
+     ],
+     "id": "b23",
+     "op": "add",
+     "vertices": [
+      [
+       4.5,
+       2.62,
+       4.4
+      ],
+      [
+       4.6,
+       2.62,
+       4.4
+      ],
+      [
+       4.6,
+       6.62,
+       4.4
+      ],
+      [
+       4.5,
+       6.62,
+       4.4
+      ],
+      [
+       4.5,
+       2.62,
+       5.6
+      ],
+      [
+       4.6,
+       2.62,
+       5.6
+      ],
+      [
+       4.6,
+       6.62,
+       5.6
+      ],
+      [
+       4.5,
+       6.62,
+       5.6
+      ]
+     ]
+    }
+   ],
+   "classname": "func_detail",
+   "id": "e_detail",
+   "keyvalues": {},
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_dev/trigger"
+      }
+     ],
+     "id": "b24",
+     "op": "add",
+     "vertices": [
+      [
+       -4.5,
+       0.01999999999999999,
+       -8.0
+      ],
+      [
+       4.5,
+       0.01999999999999999,
+       -8.0
+      ],
+      [
+       4.5,
+       8.12,
+       -8.0
+      ],
+      [
+       -4.5,
+       8.12,
+       -8.0
+      ],
+      [
+       -4.5,
+       0.01999999999999999,
+       8.0
+      ],
+      [
+       4.5,
+       0.01999999999999999,
+       8.0
+      ],
+      [
+       4.5,
+       8.12,
+       8.0
+      ],
+      [
+       -4.5,
+       8.12,
+       8.0
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_site",
+   "id": "e_site",
+   "keyvalues": {
+    "capacity": "40",
+    "displayName": "Church",
+    "kind": "church",
+    "playable": "0",
+    "targetname": "site"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_door",
+   "id": "e_door",
+   "keyvalues": {
+    "targetname": "door"
+   },
+   "origin": [
+    0.0,
+    0.12,
+    13.4
+   ],
+   "refs": {
+    "site": "e_site"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_stand1",
+   "keyvalues": {
+    "slotType": "stand",
+    "targetname": "stand1"
+   },
+   "origin": [
+    0,
+    0.12,
+    0
+   ],
+   "refs": {
+    "site": "e_site"
+   }
+  },
+  {
+   "angles": [
+    0,
+    180,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_stand2",
+   "keyvalues": {
+    "slotType": "stand",
+    "targetname": "stand2"
+   },
+   "origin": [
+    2.0,
+    0.12,
+    4.0
+   ],
+   "refs": {
+    "site": "e_site"
+   }
+  }
+ ],
+ "prefabInstances": [],
+ "schemaVersion": "0.2"
+}

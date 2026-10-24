@@ -1551,6 +1551,153 @@
         0.1875,
         3
       ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "brushes": [
+        {
+          "faces": [
+            {
+              "id": 0,
+              "loop": [
+                0,
+                3,
+                2,
+                1
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 1,
+              "loop": [
+                4,
+                5,
+                6,
+                7
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 2,
+              "loop": [
+                0,
+                4,
+                7,
+                3
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 3,
+              "loop": [
+                1,
+                2,
+                6,
+                5
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 4,
+              "loop": [
+                0,
+                1,
+                5,
+                4
+              ],
+              "texture": "common/trigger"
+            },
+            {
+              "id": 5,
+              "loop": [
+                3,
+                7,
+                6,
+                2
+              ],
+              "texture": "common/trigger"
+            }
+          ],
+          "id": "b_to_vale",
+          "op": "add",
+          "vertices": [
+            [
+              -1.5,
+              0,
+              -29
+            ],
+            [
+              1.5,
+              0,
+              -29
+            ],
+            [
+              1.5,
+              3,
+              -29
+            ],
+            [
+              -1.5,
+              3,
+              -29
+            ],
+            [
+              -1.5,
+              0,
+              -26
+            ],
+            [
+              1.5,
+              0,
+              -26
+            ],
+            [
+              1.5,
+              3,
+              -26
+            ],
+            [
+              -1.5,
+              3,
+              -26
+            ]
+          ]
+        }
+      ],
+      "classname": "sim_portal",
+      "id": "e_to_vale",
+      "keyvalues": {
+        "targetLevel": "vale.bsp",
+        "targetSpawn": "from_road",
+        "targetname": "to_vale"
+      },
+      "origin": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "angles": [
+        0,
+        0,
+        0
+      ],
+      "classname": "sim_spawn",
+      "id": "e_from_vale",
+      "keyvalues": {
+        "angle": "90",
+        "targetname": "from_vale"
+      },
+      "origin": [
+        0,
+        0.1,
+        -24.5
+      ]
     }
   ],
   "prefabInstances": [],

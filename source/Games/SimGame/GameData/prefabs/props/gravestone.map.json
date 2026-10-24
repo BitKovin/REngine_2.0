@@ -1,0 +1,239 @@
+{
+ "entities": [
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b1",
+     "op": "add",
+     "vertices": [
+      [
+       -0.3,
+       0,
+       -0.07
+      ],
+      [
+       0.3,
+       0,
+       -0.07
+      ],
+      [
+       0.3,
+       0.75,
+       -0.07
+      ],
+      [
+       -0.3,
+       0.75,
+       -0.07
+      ],
+      [
+       -0.3,
+       0,
+       0.07
+      ],
+      [
+       0.3,
+       0,
+       0.07
+      ],
+      [
+       0.3,
+       0.75,
+       0.07
+      ],
+      [
+       -0.3,
+       0.75,
+       0.07
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        4,
+        0,
+        3,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        6,
+        2,
+        1,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        6,
+        5,
+        4,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b2",
+     "op": "add",
+     "vertices": [
+      [
+       -0.3,
+       0.75,
+       -0.07
+      ],
+      [
+       0.3,
+       0.75,
+       -0.07
+      ],
+      [
+       0.3,
+       0.75,
+       0.07
+      ],
+      [
+       -0.3,
+       0.75,
+       0.07
+      ],
+      [
+       -0.18,
+       0.95,
+       -0.07
+      ],
+      [
+       0.18,
+       0.95,
+       -0.07
+      ],
+      [
+       0.18,
+       0.95,
+       0.07
+      ],
+      [
+       -0.18,
+       0.95,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "func_group",
+   "id": "e_struct",
+   "keyvalues": {},
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  }
+ ],
+ "prefabInstances": [],
+ "schemaVersion": "0.2"
+}

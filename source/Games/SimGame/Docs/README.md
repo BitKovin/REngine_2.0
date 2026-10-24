@@ -42,6 +42,7 @@ SimGame/
   SimPawn.h/.cpp        the walking pawn (first / third person)
   SimNpc.h/.cpp         the driver of an agent's character: physics, navigation, fade
   Sim/Tests/            headless self tests
+  MapGen/               Python level kit: props, buildings, the three villages and the vale (maps/vale.map.json) generated as level editor prefabs and maps (SIM_CONTRACT section 14)
   GameData/entities.ent level editor entity definitions (engine classes + sim_* classes)
   SimGame.vcxproj       Visual Studio project (CMake globs sources, so the project file is only for the IDE)
 ```
@@ -84,9 +85,10 @@ the game folder `source/Games/SimGame`, so the source `GameData` is used directl
 | `-sim_demo [count]` | Place commuting demo walkers (default 40) at the world's spawn points; drawn as boxes (console: `sim_demo`, `sim_agents`, `sim_stats`) |
 | `-sim_look <npc id>` | Stand 6 m from an authored NPC and keep the view on it (console: `sim_look`); with `-screenshot` this is how to look at the game headless |
 | `-sim_transition_test` | Automated in-game check of the level transition through the test chain; writes `SaveData/sim_transition.log`, quits |
+| `-sim_start <spawn>` | Start at the `sim_spawn` with that targetname instead of the default player start (the vale has `view_c_square`, `view_c_terrace`, `view_c_bakery`, `view_c_mill`, `view_c_tavern`, `view_a_street`, `view_b_green` for pictures) |
 | `-sim_view first\|third`, `-sim_pitch <deg>` | Start in that view / looking that far down (negative: up): for pictures (console `sim_view`, key V) |
 | `-screenshot <seconds> [-screenshot_file <name>]` | Save the frame at that much game time to `SaveData/screenshots/<name>.png` (engine hook, `Engine/Screenshot.*`; console: `screenshot [name]`); one picture per run, combine with `-quit_after` |
-| `-sim_bridge_test` | Automated in-game check of the bridge, pawn and save hook; writes `SaveData/sim_bridge.log`, quits |
+| `-sim_bridge_test` | Automated in-game check of the bridge, pawn and save hook (starts in `sim_test_a`); writes `SaveData/sim_bridge.log`, quits |
 | `-renderapi dx11\|dx12\|vk\|gl\|noop` | Renderer. `noop` does no GPU work but cannot find compiled shaders, so it only suits runs that never render |
 
 Automated runs: always from the game folder, always `-headless`:
@@ -108,4 +110,4 @@ error if not (rebake with `-sim_bake_nav`).
 - Follow the process in addendum section 17: a short contract per slice, tests first, text output from every tool.
 - Reuse engine facilities (ECS, entities, `EntityHandle`, `MathHelper`, `FileSystemEngine`) before writing helpers.
 - The simulation lives in `Sim/` inside this project and uses engine code sparingly (owner decision, SIM_CONTRACT.md §1).
-- Engine changes made for SimGame (all additive): `dtNavMesh::connectRemoteOffMeshLinks` (Detour); `GameSaveSystem::RegisterExtension` and `Extensions` in the save data; `Helpers/Base64.h`.
+- Engine changes made for SimGame (all additive): the light style provider `CQuake3BSP::SetLightStyleProvider`; `dtNavMesh::connectRemoteOffMeshLinks` (Detour); `GameSaveSystem::RegisterExtension` and `Extensions` in the save data; `Helpers/Base64.h`.

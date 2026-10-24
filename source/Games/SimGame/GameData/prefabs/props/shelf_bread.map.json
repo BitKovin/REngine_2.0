@@ -1,0 +1,2480 @@
+{
+ "entities": [
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood1"
+      }
+     ],
+     "id": "b1",
+     "op": "add",
+     "vertices": [
+      [
+       -1.2,
+       0,
+       -0.24
+      ],
+      [
+       1.2,
+       0,
+       -0.24
+      ],
+      [
+       1.2,
+       0.12,
+       -0.24
+      ],
+      [
+       -1.2,
+       0.12,
+       -0.24
+      ],
+      [
+       -1.2,
+       0,
+       0.2
+      ],
+      [
+       1.2,
+       0,
+       0.2
+      ],
+      [
+       1.2,
+       0.12,
+       0.2
+      ],
+      [
+       -1.2,
+       0.12,
+       0.2
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/plank1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/plank1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/plank1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/plank1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/plank1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/plank1"
+      }
+     ],
+     "id": "b2",
+     "op": "add",
+     "vertices": [
+      [
+       -1.2,
+       0.12,
+       -0.24
+      ],
+      [
+       1.2,
+       0.12,
+       -0.24
+      ],
+      [
+       1.2,
+       1.95,
+       -0.24
+      ],
+      [
+       -1.2,
+       1.95,
+       -0.24
+      ],
+      [
+       -1.2,
+       0.12,
+       -0.2
+      ],
+      [
+       1.2,
+       0.12,
+       -0.2
+      ],
+      [
+       1.2,
+       1.95,
+       -0.2
+      ],
+      [
+       -1.2,
+       1.95,
+       -0.2
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood1"
+      }
+     ],
+     "id": "b3",
+     "op": "add",
+     "vertices": [
+      [
+       -1.23,
+       0.12,
+       -0.24
+      ],
+      [
+       -1.17,
+       0.12,
+       -0.24
+      ],
+      [
+       -1.17,
+       1.95,
+       -0.24
+      ],
+      [
+       -1.23,
+       1.95,
+       -0.24
+      ],
+      [
+       -1.23,
+       0.12,
+       0.2
+      ],
+      [
+       -1.17,
+       0.12,
+       0.2
+      ],
+      [
+       -1.17,
+       1.95,
+       0.2
+      ],
+      [
+       -1.23,
+       1.95,
+       0.2
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood1"
+      }
+     ],
+     "id": "b4",
+     "op": "add",
+     "vertices": [
+      [
+       -0.03,
+       0.12,
+       -0.24
+      ],
+      [
+       0.03,
+       0.12,
+       -0.24
+      ],
+      [
+       0.03,
+       1.95,
+       -0.24
+      ],
+      [
+       -0.03,
+       1.95,
+       -0.24
+      ],
+      [
+       -0.03,
+       0.12,
+       0.2
+      ],
+      [
+       0.03,
+       0.12,
+       0.2
+      ],
+      [
+       0.03,
+       1.95,
+       0.2
+      ],
+      [
+       -0.03,
+       1.95,
+       0.2
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood1"
+      }
+     ],
+     "id": "b5",
+     "op": "add",
+     "vertices": [
+      [
+       1.17,
+       0.12,
+       -0.24
+      ],
+      [
+       1.23,
+       0.12,
+       -0.24
+      ],
+      [
+       1.23,
+       1.95,
+       -0.24
+      ],
+      [
+       1.17,
+       1.95,
+       -0.24
+      ],
+      [
+       1.17,
+       0.12,
+       0.2
+      ],
+      [
+       1.23,
+       0.12,
+       0.2
+      ],
+      [
+       1.23,
+       1.95,
+       0.2
+      ],
+      [
+       1.17,
+       1.95,
+       0.2
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood1"
+      }
+     ],
+     "id": "b6",
+     "op": "add",
+     "vertices": [
+      [
+       -1.2,
+       0.5,
+       -0.24
+      ],
+      [
+       1.2,
+       0.5,
+       -0.24
+      ],
+      [
+       1.2,
+       0.54,
+       -0.24
+      ],
+      [
+       -1.2,
+       0.54,
+       -0.24
+      ],
+      [
+       -1.2,
+       0.5,
+       0.2
+      ],
+      [
+       1.2,
+       0.5,
+       0.2
+      ],
+      [
+       1.2,
+       0.54,
+       0.2
+      ],
+      [
+       -1.2,
+       0.54,
+       0.2
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood1"
+      }
+     ],
+     "id": "b7",
+     "op": "add",
+     "vertices": [
+      [
+       -1.2,
+       1.0,
+       -0.24
+      ],
+      [
+       1.2,
+       1.0,
+       -0.24
+      ],
+      [
+       1.2,
+       1.04,
+       -0.24
+      ],
+      [
+       -1.2,
+       1.04,
+       -0.24
+      ],
+      [
+       -1.2,
+       1.0,
+       0.2
+      ],
+      [
+       1.2,
+       1.0,
+       0.2
+      ],
+      [
+       1.2,
+       1.04,
+       0.2
+      ],
+      [
+       -1.2,
+       1.04,
+       0.2
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_wood/med_wood1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_wood/med_wood1"
+      }
+     ],
+     "id": "b8",
+     "op": "add",
+     "vertices": [
+      [
+       -1.2,
+       1.5,
+       -0.24
+      ],
+      [
+       1.2,
+       1.5,
+       -0.24
+      ],
+      [
+       1.2,
+       1.54,
+       -0.24
+      ],
+      [
+       -1.2,
+       1.54,
+       -0.24
+      ],
+      [
+       -1.2,
+       1.5,
+       0.2
+      ],
+      [
+       1.2,
+       1.5,
+       0.2
+      ],
+      [
+       1.2,
+       1.54,
+       0.2
+      ],
+      [
+       -1.2,
+       1.54,
+       0.2
+      ]
+     ]
+    }
+   ],
+   "classname": "func_group",
+   "id": "e_struct",
+   "keyvalues": {},
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "classname": "sim_container",
+   "id": "e_container",
+   "keyvalues": {
+    "access": "public",
+    "capacity": "12",
+    "containerType": "shelf",
+    "targetname": "shelf",
+    "visible": "1"
+   },
+   "origin": [
+    0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        2,
+        3,
+        0,
+        1
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b9",
+     "op": "add",
+     "vertices": [
+      [
+       -1.05,
+       0.54,
+       -0.08
+      ],
+      [
+       -0.75,
+       0.54,
+       -0.08
+      ],
+      [
+       -0.75,
+       0.54,
+       0.1
+      ],
+      [
+       -1.05,
+       0.54,
+       0.1
+      ],
+      [
+       -1.02,
+       0.67,
+       -0.05
+      ],
+      [
+       -0.78,
+       0.67,
+       -0.05
+      ],
+      [
+       -0.78,
+       0.67,
+       0.07
+      ],
+      [
+       -1.02,
+       0.67,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf0",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "0"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b10",
+     "op": "add",
+     "vertices": [
+      [
+       -0.44999999999999996,
+       0.54,
+       -0.08
+      ],
+      [
+       -0.15,
+       0.54,
+       -0.08
+      ],
+      [
+       -0.15,
+       0.54,
+       0.1
+      ],
+      [
+       -0.44999999999999996,
+       0.54,
+       0.1
+      ],
+      [
+       -0.42,
+       0.67,
+       -0.05
+      ],
+      [
+       -0.18,
+       0.67,
+       -0.05
+      ],
+      [
+       -0.18,
+       0.67,
+       0.07
+      ],
+      [
+       -0.42,
+       0.67,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf1",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "1"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b11",
+     "op": "add",
+     "vertices": [
+      [
+       0.15,
+       0.54,
+       -0.08
+      ],
+      [
+       0.44999999999999996,
+       0.54,
+       -0.08
+      ],
+      [
+       0.44999999999999996,
+       0.54,
+       0.1
+      ],
+      [
+       0.15,
+       0.54,
+       0.1
+      ],
+      [
+       0.18,
+       0.67,
+       -0.05
+      ],
+      [
+       0.42,
+       0.67,
+       -0.05
+      ],
+      [
+       0.42,
+       0.67,
+       0.07
+      ],
+      [
+       0.18,
+       0.67,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf2",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "2"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b12",
+     "op": "add",
+     "vertices": [
+      [
+       0.75,
+       0.54,
+       -0.08
+      ],
+      [
+       1.05,
+       0.54,
+       -0.08
+      ],
+      [
+       1.05,
+       0.54,
+       0.1
+      ],
+      [
+       0.75,
+       0.54,
+       0.1
+      ],
+      [
+       0.78,
+       0.67,
+       -0.05
+      ],
+      [
+       1.02,
+       0.67,
+       -0.05
+      ],
+      [
+       1.02,
+       0.67,
+       0.07
+      ],
+      [
+       0.78,
+       0.67,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf3",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "3"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        2,
+        3,
+        0,
+        1
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b13",
+     "op": "add",
+     "vertices": [
+      [
+       -1.05,
+       1.04,
+       -0.08
+      ],
+      [
+       -0.75,
+       1.04,
+       -0.08
+      ],
+      [
+       -0.75,
+       1.04,
+       0.1
+      ],
+      [
+       -1.05,
+       1.04,
+       0.1
+      ],
+      [
+       -1.02,
+       1.17,
+       -0.05
+      ],
+      [
+       -0.78,
+       1.17,
+       -0.05
+      ],
+      [
+       -0.78,
+       1.17,
+       0.07
+      ],
+      [
+       -1.02,
+       1.17,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf4",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "4"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b14",
+     "op": "add",
+     "vertices": [
+      [
+       -0.44999999999999996,
+       1.04,
+       -0.08
+      ],
+      [
+       -0.15,
+       1.04,
+       -0.08
+      ],
+      [
+       -0.15,
+       1.04,
+       0.1
+      ],
+      [
+       -0.44999999999999996,
+       1.04,
+       0.1
+      ],
+      [
+       -0.42,
+       1.17,
+       -0.05
+      ],
+      [
+       -0.18,
+       1.17,
+       -0.05
+      ],
+      [
+       -0.18,
+       1.17,
+       0.07
+      ],
+      [
+       -0.42,
+       1.17,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf5",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "5"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b15",
+     "op": "add",
+     "vertices": [
+      [
+       0.15,
+       1.04,
+       -0.08
+      ],
+      [
+       0.44999999999999996,
+       1.04,
+       -0.08
+      ],
+      [
+       0.44999999999999996,
+       1.04,
+       0.1
+      ],
+      [
+       0.15,
+       1.04,
+       0.1
+      ],
+      [
+       0.18,
+       1.17,
+       -0.05
+      ],
+      [
+       0.42,
+       1.17,
+       -0.05
+      ],
+      [
+       0.42,
+       1.17,
+       0.07
+      ],
+      [
+       0.18,
+       1.17,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf6",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "6"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b16",
+     "op": "add",
+     "vertices": [
+      [
+       0.75,
+       1.04,
+       -0.08
+      ],
+      [
+       1.05,
+       1.04,
+       -0.08
+      ],
+      [
+       1.05,
+       1.04,
+       0.1
+      ],
+      [
+       0.75,
+       1.04,
+       0.1
+      ],
+      [
+       0.78,
+       1.17,
+       -0.05
+      ],
+      [
+       1.02,
+       1.17,
+       -0.05
+      ],
+      [
+       1.02,
+       1.17,
+       0.07
+      ],
+      [
+       0.78,
+       1.17,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf7",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "7"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        2,
+        3,
+        0,
+        1
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b17",
+     "op": "add",
+     "vertices": [
+      [
+       -1.05,
+       1.54,
+       -0.08
+      ],
+      [
+       -0.75,
+       1.54,
+       -0.08
+      ],
+      [
+       -0.75,
+       1.54,
+       0.1
+      ],
+      [
+       -1.05,
+       1.54,
+       0.1
+      ],
+      [
+       -1.02,
+       1.67,
+       -0.05
+      ],
+      [
+       -0.78,
+       1.67,
+       -0.05
+      ],
+      [
+       -0.78,
+       1.67,
+       0.07
+      ],
+      [
+       -1.02,
+       1.67,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf8",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "8"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b18",
+     "op": "add",
+     "vertices": [
+      [
+       -0.44999999999999996,
+       1.54,
+       -0.08
+      ],
+      [
+       -0.15,
+       1.54,
+       -0.08
+      ],
+      [
+       -0.15,
+       1.54,
+       0.1
+      ],
+      [
+       -0.44999999999999996,
+       1.54,
+       0.1
+      ],
+      [
+       -0.42,
+       1.67,
+       -0.05
+      ],
+      [
+       -0.18,
+       1.67,
+       -0.05
+      ],
+      [
+       -0.18,
+       1.67,
+       0.07
+      ],
+      [
+       -0.42,
+       1.67,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf9",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "9"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b19",
+     "op": "add",
+     "vertices": [
+      [
+       0.15,
+       1.54,
+       -0.08
+      ],
+      [
+       0.44999999999999996,
+       1.54,
+       -0.08
+      ],
+      [
+       0.44999999999999996,
+       1.54,
+       0.1
+      ],
+      [
+       0.15,
+       1.54,
+       0.1
+      ],
+      [
+       0.18,
+       1.67,
+       -0.05
+      ],
+      [
+       0.42,
+       1.67,
+       -0.05
+      ],
+      [
+       0.42,
+       1.67,
+       0.07
+      ],
+      [
+       0.18,
+       1.67,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf10",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "10"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/wall_brown_c"
+      }
+     ],
+     "id": "b20",
+     "op": "add",
+     "vertices": [
+      [
+       0.75,
+       1.54,
+       -0.08
+      ],
+      [
+       1.05,
+       1.54,
+       -0.08
+      ],
+      [
+       1.05,
+       1.54,
+       0.1
+      ],
+      [
+       0.75,
+       1.54,
+       0.1
+      ],
+      [
+       0.78,
+       1.67,
+       -0.05
+      ],
+      [
+       1.02,
+       1.67,
+       -0.05
+      ],
+      [
+       1.02,
+       1.67,
+       0.07
+      ],
+      [
+       0.78,
+       1.67,
+       0.07
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_item_prop",
+   "id": "e_loaf11",
+   "keyvalues": {
+    "itemType": "bread_loaf",
+    "slot": "11"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "refs": {
+    "container": "e_container"
+   }
+  }
+ ],
+ "prefabInstances": [],
+ "schemaVersion": "0.2"
+}

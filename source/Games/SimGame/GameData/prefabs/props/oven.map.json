@@ -1,0 +1,472 @@
+{
+ "entities": [
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "wall/brickWall1"
+      }
+     ],
+     "id": "b1",
+     "op": "add",
+     "vertices": [
+      [
+       -1.2,
+       0,
+       -0.9
+      ],
+      [
+       1.2,
+       0,
+       -0.9
+      ],
+      [
+       1.2,
+       1.0,
+       -0.9
+      ],
+      [
+       -1.2,
+       1.0,
+       -0.9
+      ],
+      [
+       -1.2,
+       0,
+       0.9
+      ],
+      [
+       1.2,
+       0,
+       0.9
+      ],
+      [
+       1.2,
+       1.0,
+       0.9
+      ],
+      [
+       -1.2,
+       1.0,
+       0.9
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        6,
+        5,
+        4,
+        7
+       ],
+       "texture": "wall/brickWall1"
+      }
+     ],
+     "id": "b2",
+     "op": "add",
+     "vertices": [
+      [
+       -1.2,
+       1.0,
+       -0.9
+      ],
+      [
+       1.2,
+       1.0,
+       -0.9
+      ],
+      [
+       1.2,
+       1.0,
+       0.9
+      ],
+      [
+       -1.2,
+       1.0,
+       0.9
+      ],
+      [
+       -0.7,
+       1.75,
+       -0.5
+      ],
+      [
+       0.7,
+       1.75,
+       -0.5
+      ],
+      [
+       0.7,
+       1.75,
+       0.5
+      ],
+      [
+       -0.7,
+       1.75,
+       0.5
+      ]
+     ]
+    }
+   ],
+   "classname": "func_group",
+   "id": "e_struct",
+   "keyvalues": {},
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_dev/dot_grey_c"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_dev/dot_grey_c"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_dev/dot_grey_c"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_dev/dot_grey_c"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_dev/dot_grey_c"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_dev/dot_grey_c"
+      }
+     ],
+     "id": "b3",
+     "op": "add",
+     "vertices": [
+      [
+       -0.4,
+       0.45,
+       0.9
+      ],
+      [
+       0.4,
+       0.45,
+       0.9
+      ],
+      [
+       0.4,
+       0.95,
+       0.9
+      ],
+      [
+       -0.4,
+       0.95,
+       0.9
+      ],
+      [
+       -0.4,
+       0.45,
+       0.96
+      ],
+      [
+       0.4,
+       0.45,
+       0.96
+      ],
+      [
+       0.4,
+       0.95,
+       0.96
+      ],
+      [
+       -0.4,
+       0.95,
+       0.96
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "wall/brickWall1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "wall/brickWall1"
+      }
+     ],
+     "id": "b4",
+     "op": "add",
+     "vertices": [
+      [
+       -0.25,
+       1.75,
+       -0.35
+      ],
+      [
+       0.25,
+       1.75,
+       -0.35
+      ],
+      [
+       0.25,
+       3.0,
+       -0.35
+      ],
+      [
+       -0.25,
+       3.0,
+       -0.35
+      ],
+      [
+       -0.25,
+       1.75,
+       0.15
+      ],
+      [
+       0.25,
+       1.75,
+       0.15
+      ],
+      [
+       0.25,
+       3.0,
+       0.15
+      ],
+      [
+       -0.25,
+       3.0,
+       0.15
+      ]
+     ]
+    }
+   ],
+   "classname": "func_detail",
+   "id": "e_detail",
+   "keyvalues": {},
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  }
+ ],
+ "prefabInstances": [],
+ "schemaVersion": "0.2"
+}

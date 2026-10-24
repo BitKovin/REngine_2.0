@@ -1,0 +1,4278 @@
+{
+ "entities": [
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      }
+     ],
+     "id": "b2",
+     "op": "add",
+     "vertices": [
+      [
+       -50,
+       -0.3,
+       -3
+      ],
+      [
+       50,
+       -0.3,
+       -3
+      ],
+      [
+       50,
+       0.04,
+       -3
+      ],
+      [
+       -50,
+       0.04,
+       -3
+      ],
+      [
+       -50,
+       -0.3,
+       3
+      ],
+      [
+       50,
+       -0.3,
+       3
+      ],
+      [
+       50,
+       0.04,
+       3
+      ],
+      [
+       -50,
+       0.04,
+       3
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      }
+     ],
+     "id": "b3",
+     "op": "add",
+     "vertices": [
+      [
+       37,
+       -0.3,
+       -10
+      ],
+      [
+       41,
+       -0.3,
+       -10
+      ],
+      [
+       41,
+       0.04,
+       -10
+      ],
+      [
+       37,
+       0.04,
+       -10
+      ],
+      [
+       37,
+       -0.3,
+       -3
+      ],
+      [
+       41,
+       -0.3,
+       -3
+      ],
+      [
+       41,
+       0.04,
+       -3
+      ],
+      [
+       37,
+       0.04,
+       -3
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_cobstn1_1"
+      }
+     ],
+     "id": "b4",
+     "op": "add",
+     "vertices": [
+      [
+       34,
+       -0.3,
+       3
+      ],
+      [
+       38,
+       -0.3,
+       3
+      ],
+      [
+       38,
+       0.04,
+       3
+      ],
+      [
+       34,
+       0.04,
+       3
+      ],
+      [
+       34,
+       -0.3,
+       9.0
+      ],
+      [
+       38,
+       -0.3,
+       9.0
+      ],
+      [
+       38,
+       0.04,
+       9.0
+      ],
+      [
+       34,
+       0.04,
+       9.0
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      }
+     ],
+     "id": "b5",
+     "op": "add",
+     "vertices": [
+      [
+       21,
+       -0.3,
+       3
+      ],
+      [
+       25,
+       -0.3,
+       3
+      ],
+      [
+       25,
+       0.04,
+       3
+      ],
+      [
+       21,
+       0.04,
+       3
+      ],
+      [
+       21,
+       -0.3,
+       26
+      ],
+      [
+       25,
+       -0.3,
+       26
+      ],
+      [
+       25,
+       0.04,
+       26
+      ],
+      [
+       21,
+       0.04,
+       26
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/may_drt1_1"
+      }
+     ],
+     "id": "b6",
+     "op": "add",
+     "vertices": [
+      [
+       37.5,
+       -0.3,
+       -14.6
+      ],
+      [
+       40.5,
+       -0.3,
+       -14.6
+      ],
+      [
+       40.5,
+       0.04,
+       -14.6
+      ],
+      [
+       37.5,
+       0.04,
+       -14.6
+      ],
+      [
+       37.5,
+       -0.3,
+       -10
+      ],
+      [
+       40.5,
+       -0.3,
+       -10
+      ],
+      [
+       40.5,
+       0.04,
+       -10
+      ],
+      [
+       37.5,
+       0.04,
+       -10
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b7",
+     "op": "add",
+     "vertices": [
+      [
+       28,
+       0.0,
+       -42
+      ],
+      [
+       50,
+       0.0,
+       -42
+      ],
+      [
+       50,
+       1.4,
+       -42
+      ],
+      [
+       28,
+       1.4,
+       -42
+      ],
+      [
+       28,
+       0.0,
+       -41.5
+      ],
+      [
+       50,
+       0.0,
+       -41.5
+      ],
+      [
+       50,
+       1.4,
+       -41.5
+      ],
+      [
+       28,
+       1.4,
+       -41.5
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b8",
+     "op": "add",
+     "vertices": [
+      [
+       28,
+       0.0,
+       -10.5
+      ],
+      [
+       37.5,
+       0.0,
+       -10.5
+      ],
+      [
+       37.5,
+       1.4,
+       -10.5
+      ],
+      [
+       28,
+       1.4,
+       -10.5
+      ],
+      [
+       28,
+       0.0,
+       -10
+      ],
+      [
+       37.5,
+       0.0,
+       -10
+      ],
+      [
+       37.5,
+       1.4,
+       -10
+      ],
+      [
+       28,
+       1.4,
+       -10
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b9",
+     "op": "add",
+     "vertices": [
+      [
+       40.5,
+       0.0,
+       -10.5
+      ],
+      [
+       50,
+       0.0,
+       -10.5
+      ],
+      [
+       50,
+       1.4,
+       -10.5
+      ],
+      [
+       40.5,
+       1.4,
+       -10.5
+      ],
+      [
+       40.5,
+       0.0,
+       -10
+      ],
+      [
+       50,
+       0.0,
+       -10
+      ],
+      [
+       50,
+       1.4,
+       -10
+      ],
+      [
+       40.5,
+       1.4,
+       -10
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b10",
+     "op": "add",
+     "vertices": [
+      [
+       28,
+       0.0,
+       -42
+      ],
+      [
+       28.5,
+       0.0,
+       -42
+      ],
+      [
+       28.5,
+       1.4,
+       -42
+      ],
+      [
+       28,
+       1.4,
+       -42
+      ],
+      [
+       28,
+       0.0,
+       -10
+      ],
+      [
+       28.5,
+       0.0,
+       -10
+      ],
+      [
+       28.5,
+       1.4,
+       -10
+      ],
+      [
+       28,
+       1.4,
+       -10
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b11",
+     "op": "add",
+     "vertices": [
+      [
+       49.5,
+       0.0,
+       -42
+      ],
+      [
+       50,
+       0.0,
+       -42
+      ],
+      [
+       50,
+       1.4,
+       -42
+      ],
+      [
+       49.5,
+       1.4,
+       -42
+      ],
+      [
+       49.5,
+       0.0,
+       -10
+      ],
+      [
+       50,
+       0.0,
+       -10
+      ],
+      [
+       50,
+       1.4,
+       -10
+      ],
+      [
+       49.5,
+       1.4,
+       -10
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        2,
+        3,
+        0,
+        1
+       ],
+       "texture": "lq_dev/floor_blue_a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_dev/floor_blue_a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        4,
+        0,
+        3,
+        7
+       ],
+       "texture": "lq_dev/floor_blue_a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        6,
+        2,
+        1,
+        5
+       ],
+       "texture": "lq_dev/floor_blue_a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        7,
+        3,
+        2,
+        6
+       ],
+       "texture": "lq_dev/floor_blue_a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_dev/floor_blue_a"
+      }
+     ],
+     "id": "b12",
+     "op": "add",
+     "vertices": [
+      [
+       49.6,
+       -0.6,
+       20.5
+      ],
+      [
+       43.0,
+       -0.6,
+       20.5
+      ],
+      [
+       43.0,
+       -0.6,
+       9.5
+      ],
+      [
+       49.6,
+       -0.6,
+       9.5
+      ],
+      [
+       49.6,
+       0.06,
+       20.5
+      ],
+      [
+       43.0,
+       0.06,
+       20.5
+      ],
+      [
+       43.0,
+       0.06,
+       9.5
+      ],
+      [
+       49.6,
+       0.06,
+       9.5
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        2,
+        3,
+        0,
+        1
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        4,
+        0,
+        3,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        7,
+        3,
+        2,
+        6
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b13",
+     "op": "add",
+     "vertices": [
+      [
+       49.6,
+       -0.3,
+       20.7
+      ],
+      [
+       43.0,
+       -0.3,
+       20.7
+      ],
+      [
+       43.0,
+       -0.3,
+       20.3
+      ],
+      [
+       49.6,
+       -0.3,
+       20.3
+      ],
+      [
+       49.6,
+       0.7,
+       20.7
+      ],
+      [
+       43.0,
+       0.7,
+       20.7
+      ],
+      [
+       43.0,
+       0.7,
+       20.3
+      ],
+      [
+       49.6,
+       0.7,
+       20.3
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b14",
+     "op": "add",
+     "vertices": [
+      [
+       42.8,
+       -0.3,
+       20.5
+      ],
+      [
+       42.8,
+       -0.3,
+       9.5
+      ],
+      [
+       43.2,
+       -0.3,
+       9.5
+      ],
+      [
+       43.2,
+       -0.3,
+       20.5
+      ],
+      [
+       42.8,
+       0.7,
+       20.5
+      ],
+      [
+       42.8,
+       0.7,
+       9.5
+      ],
+      [
+       43.2,
+       0.7,
+       9.5
+      ],
+      [
+       43.2,
+       0.7,
+       20.5
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        5,
+        1,
+        0,
+        4
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        4,
+        0,
+        3,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        6,
+        5,
+        4,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b15",
+     "op": "add",
+     "vertices": [
+      [
+       43.0,
+       -0.3,
+       9.3
+      ],
+      [
+       49.6,
+       -0.3,
+       9.3
+      ],
+      [
+       49.6,
+       -0.3,
+       9.7
+      ],
+      [
+       43.0,
+       -0.3,
+       9.7
+      ],
+      [
+       43.0,
+       0.7,
+       9.3
+      ],
+      [
+       49.6,
+       0.7,
+       9.3
+      ],
+      [
+       49.6,
+       0.7,
+       9.7
+      ],
+      [
+       43.0,
+       0.7,
+       9.7
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 1,
+       "loop": [
+        1,
+        0,
+        4,
+        5
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 2,
+       "loop": [
+        7,
+        4,
+        0,
+        3
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 3,
+       "loop": [
+        2,
+        1,
+        5,
+        6
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 4,
+       "loop": [
+        3,
+        2,
+        6,
+        7
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      },
+      {
+       "id": 5,
+       "loop": [
+        5,
+        4,
+        7,
+        6
+       ],
+       "texture": "lq_medieval/med_block_1a"
+      }
+     ],
+     "id": "b16",
+     "op": "add",
+     "vertices": [
+      [
+       49.800000000000004,
+       -0.3,
+       9.5
+      ],
+      [
+       49.800000000000004,
+       -0.3,
+       20.5
+      ],
+      [
+       49.4,
+       -0.3,
+       20.5
+      ],
+      [
+       49.4,
+       -0.3,
+       9.5
+      ],
+      [
+       49.800000000000004,
+       0.7,
+       9.5
+      ],
+      [
+       49.800000000000004,
+       0.7,
+       20.5
+      ],
+      [
+       49.4,
+       0.7,
+       20.5
+      ],
+      [
+       49.4,
+       0.7,
+       9.5
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "Ground/grass"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "Ground/grass"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "Ground/grass"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "Ground/grass"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "Ground/grass"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "Ground/grass"
+      }
+     ],
+     "id": "b17",
+     "op": "add",
+     "vertices": [
+      [
+       -21,
+       -0.3,
+       6
+      ],
+      [
+       -7,
+       -0.3,
+       6
+      ],
+      [
+       -7,
+       0.03,
+       6
+      ],
+      [
+       -21,
+       0.03,
+       6
+      ],
+      [
+       -21,
+       -0.3,
+       20
+      ],
+      [
+       -7,
+       -0.3,
+       20
+      ],
+      [
+       -7,
+       0.03,
+       20
+      ],
+      [
+       -21,
+       0.03,
+       20
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      }
+     ],
+     "id": "b20",
+     "op": "add",
+     "vertices": [
+      [
+       15.5,
+       0,
+       29.0
+      ],
+      [
+       47.5,
+       0,
+       29.0
+      ],
+      [
+       47.5,
+       0.22,
+       29.0
+      ],
+      [
+       15.5,
+       0.22,
+       29.0
+      ],
+      [
+       15.5,
+       0,
+       30.0
+      ],
+      [
+       47.5,
+       0,
+       30.0
+      ],
+      [
+       47.5,
+       0.22,
+       30.0
+      ],
+      [
+       15.5,
+       0.22,
+       30.0
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      }
+     ],
+     "id": "b21",
+     "op": "add",
+     "vertices": [
+      [
+       15.5,
+       0,
+       31.2
+      ],
+      [
+       47.5,
+       0,
+       31.2
+      ],
+      [
+       47.5,
+       0.22,
+       31.2
+      ],
+      [
+       15.5,
+       0.22,
+       31.2
+      ],
+      [
+       15.5,
+       0,
+       32.2
+      ],
+      [
+       47.5,
+       0,
+       32.2
+      ],
+      [
+       47.5,
+       0.22,
+       32.2
+      ],
+      [
+       15.5,
+       0.22,
+       32.2
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      }
+     ],
+     "id": "b22",
+     "op": "add",
+     "vertices": [
+      [
+       15.5,
+       0,
+       33.4
+      ],
+      [
+       47.5,
+       0,
+       33.4
+      ],
+      [
+       47.5,
+       0.22,
+       33.4
+      ],
+      [
+       15.5,
+       0.22,
+       33.4
+      ],
+      [
+       15.5,
+       0,
+       34.4
+      ],
+      [
+       47.5,
+       0,
+       34.4
+      ],
+      [
+       47.5,
+       0.22,
+       34.4
+      ],
+      [
+       15.5,
+       0.22,
+       34.4
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      }
+     ],
+     "id": "b23",
+     "op": "add",
+     "vertices": [
+      [
+       15.5,
+       0,
+       35.6
+      ],
+      [
+       47.5,
+       0,
+       35.6
+      ],
+      [
+       47.5,
+       0.22,
+       35.6
+      ],
+      [
+       15.5,
+       0.22,
+       35.6
+      ],
+      [
+       15.5,
+       0,
+       36.6
+      ],
+      [
+       47.5,
+       0,
+       36.6
+      ],
+      [
+       47.5,
+       0.22,
+       36.6
+      ],
+      [
+       15.5,
+       0.22,
+       36.6
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      }
+     ],
+     "id": "b24",
+     "op": "add",
+     "vertices": [
+      [
+       15.5,
+       0,
+       37.800000000000004
+      ],
+      [
+       47.5,
+       0,
+       37.800000000000004
+      ],
+      [
+       47.5,
+       0.22,
+       37.800000000000004
+      ],
+      [
+       15.5,
+       0.22,
+       37.800000000000004
+      ],
+      [
+       15.5,
+       0,
+       38.800000000000004
+      ],
+      [
+       47.5,
+       0,
+       38.800000000000004
+      ],
+      [
+       47.5,
+       0.22,
+       38.800000000000004
+      ],
+      [
+       15.5,
+       0.22,
+       38.800000000000004
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      }
+     ],
+     "id": "b25",
+     "op": "add",
+     "vertices": [
+      [
+       15.5,
+       0,
+       40.00000000000001
+      ],
+      [
+       47.5,
+       0,
+       40.00000000000001
+      ],
+      [
+       47.5,
+       0.22,
+       40.00000000000001
+      ],
+      [
+       15.5,
+       0.22,
+       40.00000000000001
+      ],
+      [
+       15.5,
+       0,
+       41.00000000000001
+      ],
+      [
+       47.5,
+       0,
+       41.00000000000001
+      ],
+      [
+       47.5,
+       0.22,
+       41.00000000000001
+      ],
+      [
+       15.5,
+       0.22,
+       41.00000000000001
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      }
+     ],
+     "id": "b26",
+     "op": "add",
+     "vertices": [
+      [
+       15.5,
+       0,
+       42.20000000000001
+      ],
+      [
+       47.5,
+       0,
+       42.20000000000001
+      ],
+      [
+       47.5,
+       0.22,
+       42.20000000000001
+      ],
+      [
+       15.5,
+       0.22,
+       42.20000000000001
+      ],
+      [
+       15.5,
+       0,
+       43.20000000000001
+      ],
+      [
+       47.5,
+       0,
+       43.20000000000001
+      ],
+      [
+       47.5,
+       0.22,
+       43.20000000000001
+      ],
+      [
+       15.5,
+       0.22,
+       43.20000000000001
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      }
+     ],
+     "id": "b27",
+     "op": "add",
+     "vertices": [
+      [
+       15.5,
+       0,
+       44.40000000000001
+      ],
+      [
+       47.5,
+       0,
+       44.40000000000001
+      ],
+      [
+       47.5,
+       0.22,
+       44.40000000000001
+      ],
+      [
+       15.5,
+       0.22,
+       44.40000000000001
+      ],
+      [
+       15.5,
+       0,
+       45.40000000000001
+      ],
+      [
+       47.5,
+       0,
+       45.40000000000001
+      ],
+      [
+       47.5,
+       0.22,
+       45.40000000000001
+      ],
+      [
+       15.5,
+       0.22,
+       45.40000000000001
+      ]
+     ]
+    },
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_terra/med_bigdirt"
+      }
+     ],
+     "id": "b28",
+     "op": "add",
+     "vertices": [
+      [
+       15.5,
+       0,
+       46.600000000000016
+      ],
+      [
+       47.5,
+       0,
+       46.600000000000016
+      ],
+      [
+       47.5,
+       0.22,
+       46.600000000000016
+      ],
+      [
+       15.5,
+       0.22,
+       46.600000000000016
+      ],
+      [
+       15.5,
+       0,
+       47.600000000000016
+      ],
+      [
+       47.5,
+       0,
+       47.600000000000016
+      ],
+      [
+       47.5,
+       0.22,
+       47.600000000000016
+      ],
+      [
+       15.5,
+       0.22,
+       47.600000000000016
+      ]
+     ]
+    }
+   ],
+   "classname": "func_detail",
+   "id": "e_detail",
+   "keyvalues": {},
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_dev/trigger"
+      }
+     ],
+     "id": "b1",
+     "op": "add",
+     "vertices": [
+      [
+       -50,
+       -0.5,
+       -50
+      ],
+      [
+       50,
+       -0.5,
+       -50
+      ],
+      [
+       50,
+       0.5,
+       -50
+      ],
+      [
+       -50,
+       0.5,
+       -50
+      ],
+      [
+       -50,
+       -0.5,
+       50
+      ],
+      [
+       50,
+       -0.5,
+       50
+      ],
+      [
+       50,
+       0.5,
+       50
+      ],
+      [
+       -50,
+       0.5,
+       50
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_settlement",
+   "id": "e_settlement",
+   "keyvalues": {
+    "displayName": "Ashby",
+    "targetname": "settlement"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_dev/trigger"
+      }
+     ],
+     "id": "b18",
+     "op": "add",
+     "vertices": [
+      [
+       -21,
+       -0.3,
+       6
+      ],
+      [
+       -7,
+       -0.3,
+       6
+      ],
+      [
+       -7,
+       2.0,
+       6
+      ],
+      [
+       -21,
+       2.0,
+       6
+      ],
+      [
+       -21,
+       -0.3,
+       20
+      ],
+      [
+       -7,
+       -0.3,
+       20
+      ],
+      [
+       -7,
+       2.0,
+       20
+      ],
+      [
+       -21,
+       2.0,
+       20
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_site",
+   "id": "e_green",
+   "keyvalues": {
+    "capacity": "12",
+    "displayName": "Green",
+    "kind": "green",
+    "playable": "1",
+    "targetname": "green"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_door",
+   "id": "e_green_door",
+   "keyvalues": {
+    "targetname": "green_door"
+   },
+   "origin": [
+    -14,
+    0,
+    5
+   ],
+   "refs": {
+    "site": "e_green"
+   }
+  },
+  {
+   "angles": [
+    0,
+    90,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_green_slot0",
+   "keyvalues": {
+    "slotType": "stand",
+    "targetname": "green_slot0"
+   },
+   "origin": [
+    -17,
+    0,
+    11
+   ],
+   "refs": {
+    "site": "e_green"
+   }
+  },
+  {
+   "angles": [
+    0,
+    270,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_green_slot1",
+   "keyvalues": {
+    "slotType": "stand",
+    "targetname": "green_slot1"
+   },
+   "origin": [
+    -11,
+    0,
+    11
+   ],
+   "refs": {
+    "site": "e_green"
+   }
+  },
+  {
+   "angles": [
+    0,
+    180,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_green_slot2",
+   "keyvalues": {
+    "slotType": "stand",
+    "targetname": "green_slot2"
+   },
+   "origin": [
+    -14,
+    0,
+    17
+   ],
+   "refs": {
+    "site": "e_green"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_green_slot3",
+   "keyvalues": {
+    "slotType": "stand",
+    "targetname": "green_slot3"
+   },
+   "origin": [
+    -18,
+    0,
+    16
+   ],
+   "refs": {
+    "site": "e_green"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_green_slot4",
+   "keyvalues": {
+    "slotType": "stand",
+    "targetname": "green_slot4"
+   },
+   "origin": [
+    -10,
+    0,
+    16
+   ],
+   "refs": {
+    "site": "e_green"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_dev/trigger"
+      }
+     ],
+     "id": "b19",
+     "op": "add",
+     "vertices": [
+      [
+       -15.5,
+       -0.3,
+       11.5
+      ],
+      [
+       -12.5,
+       -0.3,
+       11.5
+      ],
+      [
+       -12.5,
+       2.0,
+       11.5
+      ],
+      [
+       -15.5,
+       2.0,
+       11.5
+      ],
+      [
+       -15.5,
+       -0.3,
+       14.5
+      ],
+      [
+       -12.5,
+       -0.3,
+       14.5
+      ],
+      [
+       -12.5,
+       2.0,
+       14.5
+      ],
+      [
+       -15.5,
+       2.0,
+       14.5
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_site",
+   "id": "e_well",
+   "keyvalues": {
+    "capacity": "4",
+    "displayName": "Well",
+    "kind": "well",
+    "playable": "1",
+    "targetname": "well"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_door",
+   "id": "e_well_door",
+   "keyvalues": {
+    "targetname": "well_door"
+   },
+   "origin": [
+    -14,
+    0,
+    10.4
+   ],
+   "refs": {
+    "site": "e_well"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_well_slot0",
+   "keyvalues": {
+    "slotType": "stand",
+    "targetname": "well_slot0"
+   },
+   "origin": [
+    -14,
+    0,
+    10.5
+   ],
+   "refs": {
+    "site": "e_well"
+   }
+  },
+  {
+   "angles": [
+    0,
+    270,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_well_slot1",
+   "keyvalues": {
+    "slotType": "stand",
+    "targetname": "well_slot1"
+   },
+   "origin": [
+    -12,
+    0,
+    13
+   ],
+   "refs": {
+    "site": "e_well"
+   }
+  },
+  {
+   "angles": [
+    0,
+    90,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_well_slot2",
+   "keyvalues": {
+    "slotType": "stand",
+    "targetname": "well_slot2"
+   },
+   "origin": [
+    -16,
+    0,
+    13
+   ],
+   "refs": {
+    "site": "e_well"
+   }
+  },
+  {
+   "angles": [
+    0,
+    180,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_well_slot3",
+   "keyvalues": {
+    "slotType": "stand",
+    "targetname": "well_slot3"
+   },
+   "origin": [
+    -14,
+    0,
+    15.5
+   ],
+   "refs": {
+    "site": "e_well"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "brushes": [
+    {
+     "faces": [
+      {
+       "id": 0,
+       "loop": [
+        0,
+        3,
+        2,
+        1
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 1,
+       "loop": [
+        4,
+        5,
+        6,
+        7
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 2,
+       "loop": [
+        0,
+        4,
+        7,
+        3
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 3,
+       "loop": [
+        1,
+        2,
+        6,
+        5
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 4,
+       "loop": [
+        0,
+        1,
+        5,
+        4
+       ],
+       "texture": "lq_dev/trigger"
+      },
+      {
+       "id": 5,
+       "loop": [
+        3,
+        7,
+        6,
+        2
+       ],
+       "texture": "lq_dev/trigger"
+      }
+     ],
+     "id": "b29",
+     "op": "add",
+     "vertices": [
+      [
+       15,
+       -0.2,
+       28
+      ],
+      [
+       48,
+       -0.2,
+       28
+      ],
+      [
+       48,
+       2.0,
+       28
+      ],
+      [
+       15,
+       2.0,
+       28
+      ],
+      [
+       15,
+       -0.2,
+       48
+      ],
+      [
+       48,
+       -0.2,
+       48
+      ],
+      [
+       48,
+       2.0,
+       48
+      ],
+      [
+       15,
+       2.0,
+       48
+      ]
+     ]
+    }
+   ],
+   "classname": "sim_site",
+   "id": "e_field",
+   "keyvalues": {
+    "capacity": "12",
+    "displayName": "Field",
+    "kind": "field",
+    "playable": "1",
+    "targetname": "field"
+   },
+   "origin": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_door",
+   "id": "e_field_door",
+   "keyvalues": {
+    "targetname": "field_door"
+   },
+   "origin": [
+    23,
+    0,
+    27
+   ],
+   "refs": {
+    "site": "e_field"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_field_slot0",
+   "keyvalues": {
+    "slotType": "field",
+    "targetname": "field_slot0"
+   },
+   "origin": [
+    19.125,
+    0,
+    33.0
+   ],
+   "refs": {
+    "site": "e_field"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_field_slot1",
+   "keyvalues": {
+    "slotType": "field",
+    "targetname": "field_slot1"
+   },
+   "origin": [
+    19.125,
+    0,
+    43.0
+   ],
+   "refs": {
+    "site": "e_field"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_field_slot2",
+   "keyvalues": {
+    "slotType": "field",
+    "targetname": "field_slot2"
+   },
+   "origin": [
+    27.375,
+    0,
+    33.0
+   ],
+   "refs": {
+    "site": "e_field"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_field_slot3",
+   "keyvalues": {
+    "slotType": "field",
+    "targetname": "field_slot3"
+   },
+   "origin": [
+    27.375,
+    0,
+    43.0
+   ],
+   "refs": {
+    "site": "e_field"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_field_slot4",
+   "keyvalues": {
+    "slotType": "field",
+    "targetname": "field_slot4"
+   },
+   "origin": [
+    35.625,
+    0,
+    33.0
+   ],
+   "refs": {
+    "site": "e_field"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_field_slot5",
+   "keyvalues": {
+    "slotType": "field",
+    "targetname": "field_slot5"
+   },
+   "origin": [
+    35.625,
+    0,
+    43.0
+   ],
+   "refs": {
+    "site": "e_field"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_field_slot6",
+   "keyvalues": {
+    "slotType": "field",
+    "targetname": "field_slot6"
+   },
+   "origin": [
+    43.875,
+    0,
+    33.0
+   ],
+   "refs": {
+    "site": "e_field"
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "classname": "sim_slot",
+   "id": "e_field_slot7",
+   "keyvalues": {
+    "slotType": "field",
+    "targetname": "field_slot7"
+   },
+   "origin": [
+    43.875,
+    0,
+    43.0
+   ],
+   "refs": {
+    "site": "e_field"
+   }
+  }
+ ],
+ "prefabInstances": [
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/buildings/house_open.map.json",
+   "id": "i_house1",
+   "name": "house1",
+   "origin": [
+    -41,
+    0.0,
+    -10.5
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/buildings/house_shell.map.json",
+   "id": "i_house2",
+   "name": "house2",
+   "origin": [
+    -28.5,
+    0.0,
+    -10.5
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/buildings/bakery.map.json",
+   "id": "i_bakery",
+   "name": "bakery",
+   "origin": [
+    -14,
+    0.0,
+    -11
+   ],
+   "overrides": {
+    "e_site": {
+     "keyvalues": {
+      "displayName": "Bakery"
+     }
+    }
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/buildings/tavern.map.json",
+   "id": "i_tavern",
+   "name": "tavern",
+   "origin": [
+    3,
+    0.0,
+    -12.5
+   ],
+   "overrides": {
+    "e_site": {
+     "keyvalues": {
+      "displayName": "The Tavern"
+     }
+    }
+   }
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/buildings/house_shell.map.json",
+   "id": "i_house3",
+   "name": "house3",
+   "origin": [
+    17.5,
+    0.0,
+    -10.5
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/buildings/church.map.json",
+   "id": "i_church",
+   "name": "church",
+   "origin": [
+    39,
+    0.0,
+    -28
+   ],
+   "overrides": {
+    "e_site": {
+     "keyvalues": {
+      "displayName": "Church"
+     }
+    }
+   }
+  },
+  {
+   "angles": [
+    0,
+    -15,
+    0
+   ],
+   "file": "prefabs/props/gravestone.map.json",
+   "id": "i_gravestone6",
+   "name": "gravestone6",
+   "origin": [
+    30.5,
+    0.0,
+    -39.0
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    -5,
+    0
+   ],
+   "file": "prefabs/props/gravestone.map.json",
+   "id": "i_gravestone7",
+   "name": "gravestone7",
+   "origin": [
+    42.4,
+    0.0,
+    -36.6
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    5,
+    0
+   ],
+   "file": "prefabs/props/gravestone.map.json",
+   "id": "i_gravestone8",
+   "name": "gravestone8",
+   "origin": [
+    37.3,
+    0.0,
+    -34.2
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    -15,
+    0
+   ],
+   "file": "prefabs/props/gravestone.map.json",
+   "id": "i_gravestone9",
+   "name": "gravestone9",
+   "origin": [
+    32.2,
+    0.0,
+    -31.8
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    -5,
+    0
+   ],
+   "file": "prefabs/props/gravestone.map.json",
+   "id": "i_gravestone10",
+   "name": "gravestone10",
+   "origin": [
+    44.1,
+    0.0,
+    -37.4
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    5,
+    0
+   ],
+   "file": "prefabs/props/gravestone.map.json",
+   "id": "i_gravestone11",
+   "name": "gravestone11",
+   "origin": [
+    39.0,
+    0.0,
+    -35.0
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    180,
+    0
+   ],
+   "file": "prefabs/buildings/house_shell.map.json",
+   "id": "i_house4",
+   "name": "house4",
+   "origin": [
+    -41,
+    0.0,
+    10.5
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    180,
+    0
+   ],
+   "file": "prefabs/buildings/house_open.map.json",
+   "id": "i_house5",
+   "name": "house5",
+   "origin": [
+    -28.5,
+    0.0,
+    10.5
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    180,
+    0
+   ],
+   "file": "prefabs/buildings/house_shell.map.json",
+   "id": "i_house6",
+   "name": "house6",
+   "origin": [
+    0.5,
+    0.0,
+    10.5
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    180,
+    0
+   ],
+   "file": "prefabs/buildings/house_shell.map.json",
+   "id": "i_house7",
+   "name": "house7",
+   "origin": [
+    12.5,
+    0.0,
+    10.5
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    180,
+    0
+   ],
+   "file": "prefabs/buildings/mill.map.json",
+   "id": "i_mill",
+   "name": "mill",
+   "origin": [
+    36,
+    0.0,
+    15
+   ],
+   "overrides": {
+    "e_site": {
+     "keyvalues": {
+      "displayName": "Mill"
+     }
+    }
+   }
+  },
+  {
+   "angles": [
+    0,
+    0.0,
+    0
+   ],
+   "file": "prefabs/props/well.map.json",
+   "id": "i_well17",
+   "name": "well17",
+   "origin": [
+    -14,
+    0.0,
+    13
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/props/haystack.map.json",
+   "id": "i_haystack18",
+   "name": "haystack18",
+   "origin": [
+    46,
+    0.0,
+    30
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/props/lamp_post.map.json",
+   "id": "i_lamp1",
+   "name": "lamp1",
+   "origin": [
+    -48.0,
+    0,
+    -3.7
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/props/lamp_post.map.json",
+   "id": "i_lamp2",
+   "name": "lamp2",
+   "origin": [
+    -32.0,
+    0,
+    3.7
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/props/lamp_post.map.json",
+   "id": "i_lamp3",
+   "name": "lamp3",
+   "origin": [
+    -16.0,
+    0,
+    -3.7
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/props/lamp_post.map.json",
+   "id": "i_lamp4",
+   "name": "lamp4",
+   "origin": [
+    0.0,
+    0,
+    3.7
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/props/lamp_post.map.json",
+   "id": "i_lamp5",
+   "name": "lamp5",
+   "origin": [
+    16.0,
+    0,
+    -3.7
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/props/lamp_post.map.json",
+   "id": "i_lamp6",
+   "name": "lamp6",
+   "origin": [
+    32.0,
+    0,
+    3.7
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/props/lamp_post.map.json",
+   "id": "i_lamp7",
+   "name": "lamp7",
+   "origin": [
+    48.0,
+    0,
+    -3.7
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    20,
+    0
+   ],
+   "file": "prefabs/props/tree.map.json",
+   "id": "i_tree26",
+   "name": "tree26",
+   "origin": [
+    -12,
+    0,
+    8
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    108,
+    0
+   ],
+   "file": "prefabs/props/tree.map.json",
+   "id": "i_tree27",
+   "name": "tree27",
+   "origin": [
+    -18,
+    0,
+    18
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    171,
+    0
+   ],
+   "file": "prefabs/props/tree.map.json",
+   "id": "i_tree28",
+   "name": "tree28",
+   "origin": [
+    -9,
+    0,
+    18
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    320,
+    0
+   ],
+   "file": "prefabs/props/tree.map.json",
+   "id": "i_tree29",
+   "name": "tree29",
+   "origin": [
+    -46,
+    0,
+    -6
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    344,
+    0
+   ],
+   "file": "prefabs/props/tree.map.json",
+   "id": "i_tree30",
+   "name": "tree30",
+   "origin": [
+    30,
+    0,
+    38
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    2,
+    0
+   ],
+   "file": "prefabs/props/tree.map.json",
+   "id": "i_tree31",
+   "name": "tree31",
+   "origin": [
+    -4,
+    0,
+    30
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    180,
+    0
+   ],
+   "file": "prefabs/props/tree.map.json",
+   "id": "i_tree32",
+   "name": "tree32",
+   "origin": [
+    -30,
+    0,
+    30
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    56,
+    0
+   ],
+   "file": "prefabs/props/tree.map.json",
+   "id": "i_tree33",
+   "name": "tree33",
+   "origin": [
+    -44,
+    0,
+    28
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/props/fence.map.json",
+   "id": "i_fence34",
+   "name": "fence34",
+   "origin": [
+    -32,
+    0.0,
+    21.5
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/props/fence.map.json",
+   "id": "i_fence35",
+   "name": "fence35",
+   "origin": [
+    -20,
+    0.0,
+    21.5
+   ],
+   "overrides": {}
+  },
+  {
+   "angles": [
+    0,
+    0,
+    0
+   ],
+   "file": "prefabs/props/fence.map.json",
+   "id": "i_fence36",
+   "name": "fence36",
+   "origin": [
+    -8,
+    0.0,
+    21.5
+   ],
+   "overrides": {}
+  }
+ ],
+ "schemaVersion": "0.2"
+}

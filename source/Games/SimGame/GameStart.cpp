@@ -6,6 +6,7 @@
 #include <Settings/InputActionRegistry.h>
 #include <UI/Pause/UiPauseMenu.h>
 #include <Sim/Bridge/SimBridge.h>
+#include <Sim/Bridge/SimMapEntities.h>
 #include <Sim/Bridge/SimNavBaker.h>
 #include <Sim/Bridge/SimNavDebugDraw.h>
 #include <Sim/Bridge/SimTransitionTest.h>
@@ -46,6 +47,7 @@
 //   -sim_demo [count]    place commuting demo walkers (default 40), drawn as boxes (console: sim_demo, sim_agents)
 //   -sim_bridge_test     automated in-game check of the bridge, pawn and save hook; writes SaveData/sim_bridge.log and quits
 //   -sim_transition_test automated in-game check of the level transition through the test chain; writes SaveData/sim_transition.log and quits
+//   -sim_start <spawn>   start at the sim_spawn with that name instead of the default player start (pictures from other places)
 //   -sim_view first|third  start in that view (V or console sim_view switches); -sim_pitch <degrees> starts looking that far down (negative: up), for pictures
 //
 // The sim starts with the game (SimBridge). Development builds check that GameData/sim/world.nav is newer than every map it was baked from.
@@ -119,6 +121,8 @@ public:
 			}
 			if (arguments.contains("sim_transition_test"))
 				SimTransitionTest::Start();
+			if (auto start = arguments.find("sim_start"); start != arguments.end() && !start->second.empty())
+				SimSpawn::StartOverride = start->second[0];
 			if (auto view = arguments.find("sim_view"); view != arguments.end() && !view->second.empty())
 				SimPawn::SetViewMode(view->second[0] == "third" ? SimPawn::ViewMode::ThirdPerson : SimPawn::ViewMode::FirstPerson);
 			if (auto pitch = arguments.find("sim_pitch"); pitch != arguments.end() && !pitch->second.empty())
@@ -178,6 +182,9 @@ private:
 		auto map = EngineMain::MainInstance->Arguments.find("map");
 		if (map != EngineMain::MainInstance->Arguments.end() && !map->second.empty())
 			return "GameData/maps/" + map->second[0];
+		// The in-game tests walk the test chain a - road - b - c, which starts in sim_test_a (the authored NPCs of npcs.json live there).
+		if (EngineMain::MainInstance->Arguments.contains("sim_bridge_test") || EngineMain::MainInstance->Arguments.contains("sim_transition_test"))
+			return "GameData/maps/sim_test_a.bsp";
 		// No -map: the first level of the world manifest (the layout root), so the game opens in the sim's world.
 		const std::vector<std::string> maps = SimWorldNavFile::ReadManifest(SimWorldNavFile::DefaultManifest);
 		return maps.empty() ? "GameData/maps/blank.bsp" : SimWorldNavFile::MapPath(maps[0]);

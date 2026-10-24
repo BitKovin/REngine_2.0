@@ -18,7 +18,7 @@ M2a abstract movement (`Sim/Movement`, `SLICE_M2_MOVEMENT.md`) and M2b the bridg
 | Prefer entt containers | `entt::dense_map` / `dense_set` over `std::map` / `unordered_map` in sim code. They iterate in insertion order, so iteration is deterministic. |
 | The sim never touches engine statics | No `NavigationSystem`, `EcsWorld`, `Level`, `Time`, `Input` from sim code. The sim thread owns its own entt registry and its own `dtNavMesh`. |
 | World nav is ONE merged Detour mesh (D3) | Built from the levels' navmesh tiles (the tiles the engine's tile-cache pipeline produced, so the same polygon grid). The tile cache itself is **not** part of the world mesh. |
-| Engine changes so far | (1) `dtNavMesh::connectRemoteOffMeshLinks` + `DT_OFFMESH_SIDE_REMOTE` in `source/Engine/Navigation/Detour/DetourNavMesh.{h,cpp}`: purely additive. (2) `GameSaveSystem::RegisterExtension` / `GameSaveExtension` and `Extensions` in `GameSaveData` (`source/Engine/SaveSystem/GameSaveSystem.{h,cpp}`): additive, a game registers state that is saved and loaded with the level; old saves load. (3) `Helpers/Base64.h`: the Base64 helpers that were file-static in `EmscriptenFileSystem.cpp`, moved to a shared header (the web file system includes it; **not built on this machine**, the move is literal apart from unsigned accumulators and a byte-safe table index). (4) **Screenshot hook** (2026-10-23): `source/Engine/Screenshot.{h,cpp}` saves a presented frame as a PNG (console `screenshot [name]`, launch `-screenshot <game seconds> [-screenshot_file <name>]`, files in `SaveData/screenshots/`). Wired in two places: `windows_main.hpp` passes `Screenshot::Callback()` as `bgfx::Init::callback` (this callback also takes over bgfx's fatal and trace output), and `EngineMain::Render` calls `Screenshot::BeforePresent` just before `bgfx::frame()`; `Engine.vcxproj` lists the two files. Purely additive; works in `-headless` runs. Other platform mains do not install the callback, so on them the requests do nothing (**not built on web / GDK on this machine**). All owner-approved. List any further engine change here. |
+| Engine changes so far | (1) `dtNavMesh::connectRemoteOffMeshLinks` + `DT_OFFMESH_SIDE_REMOTE` in `source/Engine/Navigation/Detour/DetourNavMesh.{h,cpp}`: purely additive. (2) `GameSaveSystem::RegisterExtension` / `GameSaveExtension` and `Extensions` in `GameSaveData` (`source/Engine/SaveSystem/GameSaveSystem.{h,cpp}`): additive, a game registers state that is saved and loaded with the level; old saves load. (3) `Helpers/Base64.h`: the Base64 helpers that were file-static in `EmscriptenFileSystem.cpp`, moved to a shared header (the web file system includes it; **not built on this machine**, the move is literal apart from unsigned accumulators and a byte-safe table index). (4) **Screenshot hook** (2026-10-23): `source/Engine/Screenshot.{h,cpp}` saves a presented frame as a PNG (console `screenshot [name]`, launch `-screenshot <game seconds> [-screenshot_file <name>]`, files in `SaveData/screenshots/`). Wired in two places: `windows_main.hpp` passes `Screenshot::Callback()` as `bgfx::Init::callback` (this callback also takes over bgfx's fatal and trace output), and `EngineMain::Render` calls `Screenshot::BeforePresent` just before `bgfx::frame()`; `Engine.vcxproj` lists the two files. Purely additive; works in `-headless` runs. Other platform mains do not install the callback, so on them the requests do nothing (**not built on web / GDK on this machine**). (5) **Light style provider (E1, 2026-10-24)**: `CQuake3BSP::SetLightStyleProvider(bool(*)(uint8_t style, glm::vec3& colour))` and a static `lightStyleProvider` in `source/Engine/BSP/Quake3Bsp.{h,cpp}` (18 lines). `GetStyleColor` asks it first for every style except `LS_NORMAL` / `LS_NONE`; when it returns true that RGB (may exceed 1) is the style's multiplier for the lightmap layers and the light volume probes, otherwise the built-in 10 Hz pattern table answers as before. Nothing changes while no game installs a provider. All owner-approved. List any further engine change here. |
 | Builds and tests | The implementer may build and run headless tests (see section 7). Never run the game without `-headless`. To look at the game: `SimGame.exe -headless -sim_look <npc id> -screenshot 6 -screenshot_file name -quit_after 9` from the game folder, then read `SaveData/screenshots/name.png` (one picture per run; the sim is deterministic, so runs repeat: the courier leaves level a at 3 s and is back at 38 s). The user builds and checks the game in their own runs. |
 
 ---
@@ -84,6 +84,7 @@ GameData/sim/npcs.json      the authored NPCs (section 11)
 SimNpc.h/.cpp               the driver of an agent's character: CharacterController + own navigation, fade and ring presence (section 10)
 SimPawn.h/.cpp              the walking pawn (section 9): Entity on the engine CharacterController, created by SimSpawn at the default player start; first / third person
 Characters/                 how characters look, shared by NPCs and the pawn (section 13): CharacterState, CharacterModels, CharacterAnimator, CharacterBody, BodyVisibility
+MapGen/                     Python level kit of the baker slice (section 14): kit.py (prefab / map writer on the level editor's kit), props.py, buildings.py, villages.py, world.py, build_*.py, render.py (design-review pictures)
 ```
 
 ---
@@ -231,12 +232,22 @@ func_door, triggers, navBlock, ...). Sim classes, not yet read by code except th
 |---|---|---|---|
 | `sim_spawn` | point | targetname, angle, spawnflags bit 0 = default player start | bake (spawn), level transition (M2) |
 | `sim_portal` | brush | targetname, targetLevel, targetSpawn | bake (portal), level transition (M2) |
-| `sim_settlement` | brush | settlementId, displayName | M4+ |
-| `sim_site` | brush | siteId, kind, displayName, capacity | M4 |
-| `sim_door` | point | site, door (func_door targetname), angle | M2 path cache / M4 |
-| `sim_slot` | point | site, slotType, angle | M4 |
-| `sim_container` | point | containerId, site, containerType, access, model | M4 items |
+| `sim_settlement` | brush | targetname (id), displayName | M4+ |
+| `sim_site` | brush | targetname (id), kind, displayName, capacity, playable, owner | M4 |
+| `sim_door` | point | targetname, site (ref), door (ref, func_door), yaw out of the building | M2 path cache / M4 |
+| `sim_slot` | point | targetname, site (ref), slotType, yaw (the way the occupant faces) | M4 |
+| `sim_container` | point | targetname, site (ref), containerType, access, capacity, visible | M4 items |
+| `sim_item_prop` | brush | container (ref), slot, itemType | M4 items (shown / hidden from the container's contents) |
 | `sim_npc` | point | npcId, angle | M9 authored NPCs |
+
+**Ids and references (changed 2026-10-24, before any code read them).** Sim entities that live in prefabs take their id from the **resolved `targetname`**: the editor joins the names of the prefab instances with `|` in front of the entity's
+own `targetname`, so `village_c|bakery|site` is the bakery's site, `village_c|bakery|counter1|...` a prop inside it. Ids stay stable as long as the instance names do (never rename an instance of a shipped level). The old `siteId` /
+`containerId` / `settlementId` keys are gone. `site`, `door`, `container` are editor **references** (type `target` in `entities.ent`, stored in the entity's `refs`), which the export writes as the resolved name of the target, so
+a prefab used twice never collides and a rename never breaks a link. **Facing** is the entity's yaw in `angles` (`angles` composes with the prefab's rotation, the `angle` key does not): forward = (sin yaw, cos yaw) in (x, z), 0 = +Z, 90 = +X;
+the exported entity carries `angles "0 yaw 0"` only when the yaw is not zero. The engine's BSP loader rewrites the legacy `angle` key from `angles` (engine yaw - 90), so `angles` is the only facing to author, `sim_spawn` included (found 2026-10-24: an `angle` key in a `.map.json` is ignored). `sim_spawn` and `sim_portal` keep plain names
+(a portal's `targetSpawn` names a spawn of another level) and stay in the root map (a prefab would prefix their names).
+`sim_site.playable = 0` marks a closed shell (house exteriors, the church): its slots and containers are points that may lie inside solid geometry; for `playable = 1` the bake requires doors and slots on the nav mesh.
+A `sim_item_prop` is a brush entity (exported as a `*N` model): it needs the engine to hide it and disable its collision at runtime (SLICE_M4 section 5, verified when step 3 starts).
 
 ---
 
@@ -440,3 +451,21 @@ mid-walk save/load identical). Cost: 400 walkers 36 us per tick (Release, this m
   positive when looking down.
 - **Tests**: self tests (visibility table incl. hysteresis and a walk in and out, clip choice per model, every model's glb has the bones and clips); `-sim_bridge_test` (ring consistency: no
   warming body drawn, every body shown or warming as its distance says; the ring used; the pawn's view modes and shadow mesh). Looked at: see `SLICE_M2F_CHARACTERS.md` section 10.
+
+---
+
+## 14. The level kit and the vale (MapGen/, GameData/prefabs, GameData/maps/vale.map.json; `SLICE_M4_BAKER.md` section 3)
+
+Levels and prefabs are **generated** by Python (the level editor's `level-blockout` kit, imported from `F:\Git\mapeditor\.claude\skills\level-blockout\scripts` or `LEVEL_KIT`), written as `.map.json` (schema 0.2, metres, Y up, north = -Z) and opened in the editor
+for the owner's edits. `python MapGen/build_world.py` (cwd `MapGen`) rewrites everything: `prefabs/props/*` (27 props: furniture, bread shelf with 12 `sim_item_prop` loaves, bins with three fill stages, oven, millstone, mill wheel, lamp post with a style 4 light,
+trees), `prefabs/buildings/*` (`house_open`, `house_shell`, `bakery`, `mill`, `tavern`, `church`), `prefabs/village_a|b|c.map.json` and `maps/vale.map.json`. Scale is real human (door 1.0 x 2.1, storey 2.8, floor top 0.12 above the ground).
+Interiors are never separate levels. `python MapGen/render.py` (and `pics_*.py`) draw flat design-review pictures of any map or prefab file (cut-aways, sim markers); they are not the engine's look.
+`bsp_export_tool <assets> maps/vale.map.json maps/vale.bsp [--lighting lighting.json]` flattens the prefabs (rotation and nesting work), resolves names and references (checked: `village_c|bakery|...` ids, `container` references of item props) and bakes.
+The village generators check overlaps and that every door is reachable from the gates on a 0.5 m grid (`villages.V.check`); the engine's nav bake is the final word.
+
+The vale: 600 x 400 m flat, villages A (ribbon street) at (-170, -60), B (green and ring road) at (170, -70), C (crossroads, church on a 2.4 m terrace, **home**) at (0, 100), dirt roads from the gates of C to A and B and out of the map at both ends,
+1,660 forest trees (`tree_far` 2 brushes, `tree` 4), a rock rim. The player starts in the tavern's guest room of C (`sim_spawn start`, `TAVERN_ROOM_SPAWN`). Loading it in the engine builds the nav mesh in about 20 s (headless). Verified 2026-10-24: `vale.bsp` is baked (35 lightmap pages, 60 to 90 s on the GPU), `-sim_bake_nav` passes with the manifest vale, a, road, b, c (8 of 8 portals linked, 17 spawn points, complete routes from the guest room
+to every other level), `-sim_selftest` 11,276 checks, `-sim_bridge_test` and `-sim_transition_test` pass (both now start in `sim_test_a` by themselves). Lighting is still a placeholder (one sun, no sky fill: shadows are black; the lamps use the engine's strobe pattern of style 4 until the provider has a game side).
+**The engine's nav agent** (Navigation.cpp: radius 0.5 m, height 2.0 m, climb 0.6 m, slope 40 degrees) decides the interiors: passages are 1.3 m wide and 2.3 m high or the room behind them is an island (found when the guest room was cut off by a 1.0 m door).
+`sim_site` and `sim_settlement` are registered engine entities (`SimSite`, `SimSettlement` in `SimMapEntities`: invisible sensor volumes, no collision; without them their brush was drawn as black slabs). `-sim_start <spawn>` starts the pawn at another `sim_spawn` (the vale has seven `view_*` spawns for pictures).
+Not read by the sim yet: sites, doors, slots, containers and item props (loader and bake validation come with step 3 and 4).
