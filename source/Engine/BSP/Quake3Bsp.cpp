@@ -2472,9 +2472,27 @@ void CQuake3BSP::BuildStaticOpaqueObstacles()
         opaqueVBOs[i] = modelVBO;
     }
 }
+// Cache: bsp file path -> (lightmap id -> resolved lightmap file path)
+static std::unordered_map<std::string, std::unordered_map<int, std::string>> s_lightMapPathCache;
 
 std::string CQuake3BSP::GetLightMapFilePathFromId(int id, const std::string& filePath)
 {
+    // Only 4 digits are supported (lm_0000 .. lm_9999)
+    if (id < 0 || id > 9999)
+        return ""; // invalid ID
+
+    // Fast path: cached result
+    {
+        auto mapIt = s_lightMapPathCache.find(filePath);
+        if (mapIt != s_lightMapPathCache.end())
+        {
+            auto idIt = mapIt->second.find(id);
+            if (idIt != mapIt->second.end())
+                return idIt->second;
+        }
+    }
+
+    // Slow path: build the path and probe the file system
     const size_t len = filePath.size();
     assert(len > 4 && filePath.compare(len - 4, 4, ".bsp") == 0);
 
@@ -2483,15 +2501,15 @@ std::string CQuake3BSP::GetLightMapFilePathFromId(int id, const std::string& fil
     const char* p = end;
     while (p > str && *(p - 1) != '/' && *(p - 1) != '\\') --p;
 
-    size_t prefixLen = p - str;
-    size_t mapNameLen = len - prefixLen - 4;
+    const size_t prefixLen = p - str;
+    const size_t mapNameLen = len - prefixLen - 4;
 
     std::string result;
     result.reserve(prefixLen + mapNameLen + 1 + 3 + 4 + 4);
     result.append(str, prefixLen);
     result.append(p, mapNameLen);
     result.push_back('/');
-    result += "lm_";  // rBSP v2: .exr (LoadExrLightmap), others: .tga
+    result += "lm_"; // rBSP v2: .exr (LoadExrLightmap), others: .tga
 
     char digits[4];
     int tmp = id;
@@ -2499,32 +2517,32 @@ std::string CQuake3BSP::GetLightMapFilePathFromId(int id, const std::string& fil
         digits[i] = char('0' + (tmp % 10));
         tmp /= 10;
     }
+    result.append(digits, 4);
 
-    if (digits[3] == '-')
-        return ""; // invalid ID
+    static const char* const formats[] = { ".jpg", ".exr", ".tga" };
+    const char* selectedFormat = ".exr"; // default if nothing exists on disk
 
-	std::string formats[] = {".jpg",  ".exr", ".tga" };
-
-	std::string selectedFormat = ".exr";
-
-    for (const auto& format : formats)
+    const size_t baseLen = result.size();
+    for (const char* format : formats)
     {
-        // Check if the file with this format exists
-		std::string fullPath = result + digits + format;
-		bool exists = FileSystemEngine::GetFileModificationTime(fullPath.c_str()) > 0;
-
-		if (exists)
-		{
-			selectedFormat = format;
-			break;
-		}
+        result.resize(baseLen);
+        result += format;
+        if (FileSystemEngine::GetFileModificationTime(result.c_str()) > 0)
+        {
+            selectedFormat = format;
+            break;
+        }
     }
 
-    result.append(digits, 4);
+    result.resize(baseLen);
     result += selectedFormat;
+
+    // Store in cache
+    {
+        s_lightMapPathCache[filePath][id] = result;
+    }
     return result;
 }
-
 // rBSP v2: lightmap page `index` from <map>/lm_NNNN.exr as an RGBA16F texture (linear, used as stored, no mips: the shader reads level 0).
 int CQuake3BSP::LoadExrLightmap(int index)
 {
@@ -2533,6 +2551,13 @@ int CQuake3BSP::LoadExrLightmap(int index)
     if (it == m_exrLightmaps.end()) {
         std::shared_ptr<Texture> tex;
         const std::string path = GetLightMapFilePathFromId(index, filePath);
+        // 8 bit pages the editor exports as lm_NNNN.jpg (linear light, byte / 255): the generic texture loader, owned by the registry
+        if (path.size() > 4 && path.compare(path.size() - 4, 4, ".jpg") == 0) {
+            Texture* jpg = AssetRegistry::GetTextureFromFile(path);
+            if (jpg && jpg->valid) return (int)jpg->getID();
+            Logger::Error("rBSP lightmap %s: cannot load", path.c_str());
+            return GetLightmapNativeId(-1);
+        }
         try {
             const std::vector<uint8_t> bytes = FileSystemEngine::ReadFileBinary(path.c_str());
             ExrLightmapImage img;

@@ -509,4 +509,10 @@ Plays fmod snapshop when entering. Can override each other.
     <integer key="style" name="Light style" default="0" min="0" max="63" step="1">0 = always on. Other styles are their own lightmap layer, animated at 10 Hz by the style's pattern (1 flicker, 2 slow pulse, 3 candle, 4 fast strobe, 5 gentle pulse, 9 slow strobe, ... see the game profile); at most 8 styles reach one surface.</integer>
     </point>
 
+
+    <group name="editor_playable_area" color="0.2 0.8 0.4">
+Editor-only volume (no texture, not exported, no collision): where the player can be. Lighting spends its budget here: lightmap detail falls off in cascades with the distance from the union of these volumes (World settings: Quality falloff), and the light volume only covers them plus a margin. Several volumes add up; without one the whole level is treated as playable.
+        <string key="classname" name="Classname" value="editor_playable_area">The classname of the entity.</string>
+    </group>
+
 </classes>
