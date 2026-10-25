@@ -1,0 +1,9 @@
+{
+  "editor": {},
+  "game": {
+    "args": "--map {mapname}.bsp",
+    "exe": "F:\\Git\\SdlWasmEngine\\source\\Release\\ShooterGame.exe",
+    "workingDir": "F:\\Git\\SdlWasmEngine\\source\\Games\\ShooterGame"
+  },
+  "lastMap": "maps/lvl2.map.json"
+}

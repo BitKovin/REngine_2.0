@@ -2503,8 +2503,25 @@ std::string CQuake3BSP::GetLightMapFilePathFromId(int id, const std::string& fil
     if (digits[3] == '-')
         return ""; // invalid ID
 
+	std::string formats[] = {".jpg",  ".exr", ".tga" };
+
+	std::string selectedFormat = ".exr";
+
+    for (const auto& format : formats)
+    {
+        // Check if the file with this format exists
+		std::string fullPath = result + digits + format;
+		bool exists = FileSystemEngine::GetFileModificationTime(fullPath.c_str()) > 0;
+
+		if (exists)
+		{
+			selectedFormat = format;
+			break;
+		}
+    }
+
     result.append(digits, 4);
-    result += m_isRBSP2 ? ".exr" : ".tga";
+    result += selectedFormat;
     return result;
 }
 

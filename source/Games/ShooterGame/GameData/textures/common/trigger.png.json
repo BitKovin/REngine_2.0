@@ -1,0 +1,28 @@
+{
+  "hotspots": [],
+  "relief": null,
+  "repeat": {
+    "u": {
+      "alt": null,
+      "anchor": "start",
+      "edge": "auto",
+      "fill": "mirror",
+      "mode": "repeat",
+      "split": 0.5
+    },
+    "v": {
+      "alt": null,
+      "anchor": "end",
+      "edge": "auto",
+      "fill": "mirror",
+      "mode": "repeat",
+      "split": 0.5
+    }
+  },
+  "transparency": {
+    "cutoff": 0.5,
+    "mode": "translucent",
+    "opacity": 0.5,
+    "tint": 1.0
+  }
+}
