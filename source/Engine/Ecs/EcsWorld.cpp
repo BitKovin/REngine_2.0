@@ -4,6 +4,10 @@ void EcsWorld::Destroy(entt::entity e)
 {
     if (Entity* owner = GetEntity(e))
         owner->Destroy();
-    else if (Storage().valid(e))
-        Storage().destroy(e);
+    else
+    {
+        EcsGuard::ExclusiveGuard g("EcsWorld::Destroy(rowOnly)");
+        if (Storage().valid(e))
+            Storage().destroy(e);
+    }
 }

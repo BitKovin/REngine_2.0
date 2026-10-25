@@ -441,6 +441,7 @@
     <ClCompile Include="includedLibraries\h264bsd\h264bsd_vui.c" />
     <ClCompile Include="includedLibraries\stb_implementation.cpp" />
     <ClCompile Include="Screenshot.cpp" />
+    <ClInclude Include="Ecs\EcsGuard.h" />
     <ClInclude Include="Screenshot.h" />
     <ClCompile Include="LevelTraversalSystem.cpp" />
     <ClCompile Include="LoadingScreen\LoadingScreenSystem.cpp" />

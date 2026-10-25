@@ -1,5 +1,7 @@
 #include <Ecs/EcsScheduler.h>
 #include <Ecs/EventRegistry.h>
+#include <Ecs/EcsGuard.h>
+#include <Ecs/EcsWorld.h>
 
 #include <algorithm>
 #include <cassert>
@@ -29,6 +31,10 @@ void EcsScheduler::Finalize()
         data.Plans[g] = BuildExecutionOrder((TickGroup)g, data.Groups[g], globalByName);
 
     data.Finalized = true;
+
+    // Every component type is registered by now: create all pools up front so
+    // no system ever triggers a pool-map insertion while iterating.
+    EcsWorld::PrewarmPools();
 }
 
 EcsScheduler::TickGroupPlan EcsScheduler::BuildExecutionOrder(
@@ -356,20 +362,31 @@ void EcsScheduler::RunTickGroup(TickGroup group, entt::registry& registry, float
         sys->Execute(ctx);
     };
 
-    for (auto& batch : batches)
     {
-        if (batch.size() == 1 || data.ThreadPool == nullptr)
-        {
-            for (auto* sys : batch) runOne(sys);
-        }
-        else
-        {
-            data.ThreadPool->ParallelFor(batch.size(), [&](size_t i) { runOne(batch[i]); });
-        }
-    }
+        // Phase 1 - systems run. The registry's STRUCTURE is frozen: this thread
+        // holds the ECS gate shared, so an async entity construction/destruction
+        // on any other thread waits until the phase ends. Batch worker threads
+        // inherit that coverage (EcsGuard::InheritCoverage) instead of locking.
+        EcsGuard::SharedGuard systemsPhase;
 
-    // one flush point per tick group: deferred structural changes first,
-    // then fan out everything emitted this tick group to event handlers
+        for (auto& batch : batches)
+        {
+            if (batch.size() == 1 || data.ThreadPool == nullptr)
+            {
+                for (auto* sys : batch) runOne(sys);
+            }
+            else
+            {
+                auto body = EcsGuard::InheritCoverage([&](size_t i) { runOne(batch[i]); });
+                data.ThreadPool->ParallelFor(batch.size(), std::function<void(size_t)>(body));
+            }
+        }
+    } // gate released here
+
+    // Phase 2 - one flush point per tick group: deferred structural changes
+    // (CommandBuffer::Flush takes the gate exclusively itself), then fan out
+    // everything emitted this tick group to event handlers. Handlers run with
+    // NO gate held, so they may freely spawn/destroy entities.
     data.Commands.Flush(registry);
     data.Events.FlushAll(data.Dispatcher);
 }

@@ -69,6 +69,9 @@ void Level::CloseLevel()
 	delete(EngineMain::MainInstance->MainThreadPool);
 	EngineMain::MainInstance->MainThreadPool = nullptr;
 
+	//jobs that never ran will never clear their in-flight preload marker
+	Entity::ClearPreloadInFlight();
+
 	Current->AddPendingLevelObjects();
 	for (LevelObject* obj : Current->LevelObjects)
 	{
@@ -438,6 +441,13 @@ void Level::RemoveEntitySilent(LevelObject* obj)
 {
 	std::lock_guard<std::recursive_mutex> lock(pendingEntityArrayLock);
 
+	//queue each object for removal exactly once - a second push is a double delete waiting to happen
+	if (obj != nullptr)
+	{
+		if (obj->QueuedForRemoval) return;
+		obj->QueuedForRemoval = true;
+	}
+
 	Entity* entity = (Entity*)obj;
 
 	if (entity)
@@ -466,6 +476,9 @@ void Level::RemoveEntitySilent(LevelObject* obj)
 void Level::RemoveEntity(LevelObject* obj)
 {
 	std::lock_guard<std::recursive_mutex> lock(pendingEntityArrayLock);
+
+	//already queued: skip everything, including the network despawn broadcast/unregister below
+	if (obj != nullptr && obj->QueuedForRemoval) return;
 
 	RemoveEntitySilent(obj);
 
@@ -592,25 +605,31 @@ void Level::MemoryCleanPendingEntities()
 	DeletedLevelObjectAdresses = std::unordered_set<void*>();
 	DeletedLevelObjectAdresses.reserve(PendingMemoryCleanObjects.size());
 
-	for (auto& entity : PendingMemoryCleanObjects)
+	//A destructor / FinalLevelRemove may queue more objects (children, owned entities). Never iterate the
+	//member vector while deleting: a push_back would invalidate the loop. Take a batch, delete it, and
+	//repeat until nothing new was queued.
+	while (!PendingMemoryCleanObjects.empty())
 	{
+		vector<LevelObject*> batch;
+		batch.swap(PendingMemoryCleanObjects);
 
-		if (entity == nullptr) continue;
-
-		if (DeletedLevelObjectAdresses.find(entity) != DeletedLevelObjectAdresses.end())
+		for (auto& entity : batch)
 		{
-			//Logger::Log("entity was deleted twice. possible crash avoided");
-			continue;
+
+			if (entity == nullptr) continue;
+
+			if (!DeletedLevelObjectAdresses.insert(entity).second)
+			{
+				//Logger::Log("entity was deleted twice. possible crash avoided");
+				continue;
+			}
+
+			entity->FinalLevelRemove();
+			delete(entity);
+
 		}
-
-		DeletedLevelObjectAdresses.insert(entity);
-
-		entity->FinalLevelRemove();
-		delete(entity);
-
 	}
 
-	PendingMemoryCleanObjects.clear();
 	PendingMemoryCleanObjects = vector<LevelObject*>();
 
 }

@@ -2,6 +2,8 @@
 #include "LevelObjectFactory.h"
 
 #include <EngineMain.h>
+#include <mutex>
+#include <unordered_set>
 #include <tracy/tracy/Tracy.hpp>
 
 void Entity::FromData(EntityData data)
@@ -63,6 +65,21 @@ void Entity::PreloadEntityType(std::string technicalName)
 	Level::Current->AddLoadedEntityType(technicalName);
 }
 
+namespace
+{
+	// Types currently being preloaded by an async job. A batch that names the
+	// same type repeatedly (e.g. many spawners of one class) would otherwise
+	// queue - and fully construct - one throwaway Entity per request.
+	std::mutex g_preloadInFlightLock;
+	std::unordered_set<std::string> g_preloadInFlight;
+}
+
+void Entity::ClearPreloadInFlight()
+{
+	std::lock_guard<std::mutex> lk(g_preloadInFlightLock);
+	g_preloadInFlight.clear();
+}
+
 void Entity::PreloadEntityTypeAsync(std::string technicalName)
 {
 
@@ -75,8 +92,25 @@ void Entity::PreloadEntityTypeAsync(std::string technicalName)
 		return;
 	}
 
+	{
+		std::lock_guard<std::mutex> lk(g_preloadInFlightLock);
+		if (!g_preloadInFlight.insert(technicalName).second)
+			return; //another job is already preloading this type
+	}
+
 	EngineMain::MainInstance->MainThreadPool->QueueJob([technicalName]()
 		{
+			// always clear the in-flight marker, even if creation fails
+			struct InFlightRelease
+			{
+				const std::string& name;
+				~InFlightRelease()
+				{
+					std::lock_guard<std::mutex> lk(g_preloadInFlightLock);
+					g_preloadInFlight.erase(name);
+				}
+			} release{ technicalName };
+
 			ZoneScoped;
 			std::string zoneName = "PreloadEntityTypeAsync Job for" + technicalName;
 
@@ -119,8 +153,7 @@ void Entity::DestroyPhysics()
 void Entity::OnLevelRemoved()
 {
 
-	if (m_Handle.valid())
-		m_Handle.destroy();
+	EcsWorld::DestroyOwned(m_Handle.entity(), this);
 
 }
 

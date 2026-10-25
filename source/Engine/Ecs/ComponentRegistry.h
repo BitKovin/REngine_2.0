@@ -16,7 +16,11 @@
 // NOTE: REGISTER_COMPONENT (and ECS_COMPONENT in Entity.h) must be invoked
 // at namespace/class scope, never inside a function body.
 
+#include <Ecs/EcsGuard.h>
+
 #include <entt/entt.hpp>
+#include <atomic>
+#include <cstdint>
 #include <functional>
 #include <string>
 #include <type_traits>
@@ -26,6 +30,7 @@ struct ComponentTypeInfo
 {
     entt::id_type Id = 0;
     std::string   Name;
+    std::function<void(entt::registry&)>                             EnsureStorage; // creates the pool up front (see EcsWorld::PrewarmPools)
     std::function<void(entt::registry&, entt::entity)>               EmplaceDefault;
     std::function<bool(const entt::registry&, entt::entity)>         Has;
     std::function<void(entt::registry&, entt::entity)>               Remove;
@@ -49,6 +54,7 @@ public:
         ComponentTypeInfo info;
         info.Id   = entt::type_id<T>().hash();
         info.Name = name;
+        info.EnsureStorage  = [](entt::registry& r) { (void)r.storage<T>(); };
         info.EmplaceDefault = [](entt::registry& r, entt::entity e) { r.emplace_or_replace<T>(e); };
         info.Has            = [](const entt::registry& r, entt::entity e) { return r.all_of<T>(e); };
         info.Remove         = [](entt::registry& r, entt::entity e) { r.remove<T>(e); };
@@ -68,6 +74,7 @@ public:
 
         Storage().ByName[name]  = info.Id;
         Storage().ById[info.Id] = std::move(info);
+        Storage().Version.fetch_add(1, std::memory_order_release);
     }
 
     static const ComponentTypeInfo* Find(const std::string& name)
@@ -90,8 +97,13 @@ public:
     // nullptr. Only use this for purely data-driven, non-rendered rows -
     // for anything a player can see, spawn it through Entity::Spawn()
     // instead, the same as any other entity.
+    // Bumped on every Register(); lets EcsWorld cheaply notice that new
+    // component types need their pools pre-created.
+    static uint32_t Version() { return Storage().Version.load(std::memory_order_acquire); }
+
     static entt::entity Clone(entt::registry& r, entt::entity src)
     {
+        EcsGuard::ExclusiveGuard g("ComponentRegistry::Clone");
         entt::entity dst = r.create();
         for (auto& [id, info] : Storage().ById)
             info.CopyTo(r, src, dst);
@@ -103,6 +115,7 @@ private:
     {
         std::unordered_map<entt::id_type, ComponentTypeInfo> ById;
         std::unordered_map<std::string, entt::id_type>       ByName;
+        std::atomic<uint32_t>                                Version{ 0 };
     };
     static Data& Storage() { static Data data; return data; }
 };

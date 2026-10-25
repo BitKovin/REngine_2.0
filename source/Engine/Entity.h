@@ -22,6 +22,8 @@
 
 #include <Ecs/EcsWorld.h>
 #include <Ecs/EntityOwner.h>
+#include <Ecs/EcsGuard.h>
+#include <tuple>
 #include <Ecs/ComponentRef.h>
 #include <Ecs/ComponentList.h>
 
@@ -76,8 +78,9 @@ public:
 
 	Entity()
 	{
-		m_Handle = entt::handle(EcsWorld::Registry(), EcsWorld::Create());
-		m_Handle.emplace<EntityOwner>(this);
+		// One atomic, gated step: create the id AND attach EntityOwner. Safe from
+		// any thread (async preload workers construct Entities here too).
+		m_Handle = entt::handle(EcsWorld::Registry(), EcsWorld::CreateOwned(this));
 		// ECS_COMPONENT member initializers in subclasses run after this
 		// constructor body completes, in declaration order - m_Handle is
 		// always valid by the time any of them fire.
@@ -87,8 +90,10 @@ public:
 		DestroyDrawables();
 
 		
-		if (m_Handle.valid())
-			m_Handle.destroy();
+		// Gated, and only destroys the row if it still belongs to THIS Entity
+		// (guards double-destroy and stale handles that outlived a Reset()).
+		EcsWorld::DestroyOwned(m_Handle.entity(), this);
+		m_Handle = entt::handle();
 	}
 
 
@@ -262,6 +267,9 @@ public:
 	static void PreloadEntityType(std::string technicalName);
 	static void PreloadEntityTypeAsync(std::string technicalName);
 
+	//forget in-flight async preloads (call after the thread pool is stopped, e.g. on level close)
+	static void ClearPreloadInFlight();
+
 	std::string GetId() override
 	{
 		return Id;
@@ -282,16 +290,16 @@ public:
 	// they stay exactly as they are. Use ECS_COMPONENT/AddComponent for new
 	// gameplay data only, not to duplicate what this class already tracks.
 	template<typename T, typename... Args>
-	T& AddComponent(Args&&... args) { return m_Handle.emplace_or_replace<T>(std::forward<Args>(args)...); }
+	T& AddComponent(Args&&... args) { return EcsWorld::AddComponent<T>(m_Handle.entity(), std::forward<Args>(args)...); }
 
 	template<typename T>
 	ComponentRef<T> GetComponent() { return ComponentRef<T>(*m_Handle.registry(), m_Handle.entity()); }
 
 	template<typename T>
-	bool HasComponent() const { return m_Handle.all_of<T>(); }
+	bool HasComponent() const { return EcsWorld::HasComponent<T>(m_Handle.entity()); }
 
 	template<typename T>
-	void RemoveComponent() { m_Handle.remove<T>(); }
+	void RemoveComponent() { EcsWorld::RemoveComponent<T>(m_Handle.entity()); }
 
 	entt::entity Handle() const { return m_Handle.entity(); }
 	const ComponentList& Components() const { return m_Components; }
@@ -334,9 +342,9 @@ private:
 #define ECS_COMPONENT(Type, Name, ...) \
 	public: \
 		ComponentRef<Type> Get##Name() { return ComponentRef<Type>(*m_Handle.registry(), m_Handle.entity()); } \
-		bool Has##Name() const { return m_Handle.all_of<Type>(); } \
+		bool Has##Name() const { return EcsWorld::HasComponent<Type>(m_Handle.entity()); } \
 	private: \
 		bool m_##Name##_ComponentInit = ( \
-			m_Handle.emplace<Type>(__VA_ARGS__), \
+			EcsWorld::EmplaceFromTuple<Type>(m_Handle.entity(), std::forward_as_tuple(__VA_ARGS__)), \
 			m_Components.Add(entt::type_id<Type>().hash(), #Type), \
 			true)

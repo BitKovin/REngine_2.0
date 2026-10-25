@@ -55,7 +55,11 @@ struct SystemContext
     // entt::entity, `auto` works fine too: [](auto, Health& h) {...} - you
     // only need the real type if you're going to do something with the id.
     template<typename... Components, typename Fn>
-    void ForEach(Fn&& fn) { Registry.view<Components...>().each(std::forward<Fn>(fn)); }
+    void ForEach(Fn&& fn)
+    {
+        EcsGuard::SharedGuard g; // no-op inside a tick group (already held); protects use outside one
+        Registry.view<Components...>().each(std::forward<Fn>(fn));
+    }
 
     // Same as ForEach, but resolves the owning Entity first and calls
     // fn(Entity*, Components&...) instead of fn(entt::entity, Components&...).
@@ -64,6 +68,7 @@ struct SystemContext
     template<typename... Components, typename Fn>
     void ForEachEntity(Fn&& fn)
     {
+        EcsGuard::SharedGuard g;
         Registry.view<Components...>().each([&](entt::entity e, Components&... comps)
         {
             if (Entity* self = EcsWorld::GetEntity(e))
@@ -156,7 +161,11 @@ struct SystemContext
     // which most thread pool implementations aren't reentrant for.
     void ParallelFor(size_t count, const std::function<void(size_t)>& fn) const
     {
-        if (ThreadPool) ThreadPool->ParallelFor(count, fn);
-        else for (size_t i = 0; i < count; ++i) fn(i);
+        // Worker threads inherit this thread's hold on the ECS gate (they read
+        // the registry on its behalf) - without this they would each try to take
+        // it themselves while the owner waits on them.
+        auto body = EcsGuard::InheritCoverage(fn);
+        if (ThreadPool) ThreadPool->ParallelFor(count, std::function<void(size_t)>(body));
+        else for (size_t i = 0; i < count; ++i) body(i);
     }
 };

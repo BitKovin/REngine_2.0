@@ -1,0 +1,16 @@
+{
+  "name": "shooter game",
+  "textureRoot": "textures",
+  "textureExtensions": [
+    ".tga",
+    ".jpg",
+    ".png"
+  ],
+  "modelExtensions": [
+    ".glb"
+  ],
+  "lighting": {
+    "blockLight": [],
+    "receiveBakedLight": []
+  }
+}

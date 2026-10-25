@@ -113,7 +113,17 @@ void main()
     if(isRBSP.x > 0.0)
     {
 
-        vec3 vertexLightFactor = (useVertexLight.x > 0.0) ? v_color0.rgb : vec3_splat(1.0);
+        // Vertex colour = light scale (core/light_scale.h): rgb is the mantissa (linear, 0..1), A the shared exponent, multiplier 2^(5 * (1 - A)) = 1 .. 32.
+        // A chart's texels are stored divided by this colour, so the lightmap times it is the baked light (HDR, and the darks use the page's whole 8 bits).
+        // A vertex lit surface has no lightmap (the engine binds a white one) and all its light is in this colour. Opaque white (every older file) = no scale.
+        // The surfaces of one smooth group share the exponent, so interpolating rgb and A separately and decoding after equals interpolating the light.
+        // rBSP v2: the scale is part of the stored light (the pages are normalised by it), so it is ALWAYS applied, whatever useVertexLight says.
+        // Older rBSP keeps the old switch (its vertex colour is plain white or a vertex light).
+        vec3 vertexLightFactor = vec3_splat(1.0);
+        if (isRBSP.x > 1.5)
+            vertexLightFactor = v_color0.rgb * exp2(5.0 * (1.0 - v_color0.a));
+        else if (useVertexLight.x > 0.0)
+            vertexLightFactor = v_color0.rgb;
 
         // All slots share the same UV — they live in separate atlas textures
         int  slots     = int(numLightmapSlots.x);

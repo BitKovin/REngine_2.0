@@ -8,10 +8,19 @@
 //
 // This is engine-owned and internal - game code never touches it directly,
 // only through SystemContext.
+//
+// Flush() takes the ECS gate EXCLUSIVELY for the whole pass, so a flush cannot
+// overlap an async entity construction on another thread, and Enqueue
+// callbacks may use the raw registry safely. Commands enqueued BY a command
+// during the flush are kept for the next flush (the lists are swapped out
+// first, so a callback can't invalidate the iteration it is running inside).
+
+#include <Ecs/EcsGuard.h>
 
 #include <entt/entt.hpp>
 #include <functional>
 #include <mutex>
+#include <utility>
 #include <vector>
 
 class CommandBuffer
@@ -29,6 +38,7 @@ public:
         std::lock_guard lock(m_Mutex);
         m_Pending.push_back([e, ...capturedArgs = std::forward<Args>(args)](entt::registry& r) mutable
         {
+            if (!r.valid(e)) return; // destroyed between request and flush
             r.emplace_or_replace<T>(e, std::move(capturedArgs)...);
         });
     }
@@ -37,7 +47,7 @@ public:
     void Remove(entt::entity e)
     {
         std::lock_guard lock(m_Mutex);
-        m_Pending.push_back([e](entt::registry& r) { r.remove<T>(e); });
+        m_Pending.push_back([e](entt::registry& r) { if (r.valid(e)) r.remove<T>(e); });
     }
 
     // Escape hatch for anything the typed helpers above don't cover - e.g.
@@ -52,10 +62,19 @@ public:
 
     void Flush(entt::registry& r)
     {
-        for (auto& fn : m_Pending) fn(r);
-        for (auto e : m_Destroys) if (r.valid(e)) r.destroy(e);
-        m_Pending.clear();
-        m_Destroys.clear();
+        std::vector<std::function<void(entt::registry&)>> pending;
+        std::vector<entt::entity>                         destroys;
+        {
+            std::lock_guard lock(m_Mutex);
+            pending.swap(m_Pending);
+            destroys.swap(m_Destroys);
+        }
+
+        if (pending.empty() && destroys.empty()) return;
+
+        EcsGuard::ExclusiveGuard g("CommandBuffer::Flush");
+        for (auto& fn : pending) fn(r);
+        for (auto e : destroys) if (r.valid(e)) r.destroy(e);
     }
 
 private:

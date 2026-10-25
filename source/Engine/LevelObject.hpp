@@ -14,6 +14,10 @@ public:
 
 	bool Destroyed = false;
 
+	//set once the object has been queued for removal from its Level; makes RemoveEntity idempotent
+	//(CloseLevel calls Dispose() -> Destroy() -> RemoveEntity() and then RemoveEntity() again)
+	bool QueuedForRemoval = false;
+
 	bool UpdateWhenPaused = false;
 	bool LateUpdateWhenPaused = false;
 
