@@ -13,6 +13,10 @@ def register():
 
 
 def unregister():
+    from . import sim
+    for name in list(sim.RUNNING):
+        if name in bpy.data.objects:
+            sim.stop(bpy.data.objects[name])
     if not bpy.app.background:
         overlay.unregister()
     for c in reversed(ops.CLASSES + ui.CLASSES):

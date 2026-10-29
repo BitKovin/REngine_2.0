@@ -1,6 +1,6 @@
 # Bone Cloth Rig: Blender add-on design
 
-Status: **design approved (decisions in §14); Phase 1 built, see §15 for what exists and what differs.**
+Status: **design approved (decisions in §14); Phases 1 and 2 built, see §15 for what exists and what differs.**
 Add-on home: `Tools/BlenderAddons/bone_cloth/` (Blender extension, `blender_manifest.toml`). Target and minimum: Blender 5.1
 (slotted actions, bone collections); no compatibility code for older versions.
 Engine side it feeds: `source/Engine/Cloth/BoneCloth.{h,cpp}`, `Cloth/BoneClothData.h`, `SkeletalMesh::PasteAnimationPoseWithCloth`,
@@ -1077,6 +1077,28 @@ its anchors), so the add-on has a third anchor mode, **Follow the spine**, used 
 - Auto Setup also drops a chest part that has no cloth under it, and uses fewer panels per side when the mesh is too sparse for
   that many (a missing-vertices panel would be cut by the game).
 - `tests/test_jacket.py` runs this on a saved jacket scene.
+
+### 15.2 Phase 2 (built after the first jacket)
+
+| Piece | State |
+|-------|-------|
+| Swing preview (`sim.py`, step 9) | A port of `BoneCloth::Step` (wind and spin weights, rest shape with the layers, swing, colliders) running on the armature, driven by the timeline. Test motions: stand, walk, run, circle, spin, stop and go, strafe, teleport; wind speed, direction, gusts; engine debug lines. Tested (`test_sim.py`): rests exactly when nothing happens, trails a running body by 11-19 cm, a 12 m/s headwind opens every strip, a 720 deg/s spin gives full spin weight, a teleport settles |
+| Adopt an existing rig (`adopt.py`) | Strips found by the engine's rules from the root bones; settings, colliders and clip names from the `.skmm`; the original `player_coat` rig is recognised as 6 strips of 4 joined bones. Never rebuilt or deleted (Start over only forgets it) |
+| Post-export check (`glb_check.py`) | Every export is read back like the loader (all nodes, skins, weights, animations) and compared with the panel's plan: strips, sides and collider radii |
+| Cape (`BACK_ONLY` + `CHEST` anchor) | Panels over the back, one root at the shoulders; tested on a synthetic cape (5 panels, blown back 26 cm in a headwind) |
+| Strand | One chain along the mesh from a picked bone, joints at slice centres along its principal axis; weights run along it; tested on a synthetic ponytail |
+| Hand-made poses | Saved with their slide, mirrored R/L, never overwritten by Update, recognised when keys are added by hand |
+
+Things found while building it, worth knowing:
+
+- The preset's always-on `volume` (0.3 for the Jacket) means the rest shape in the game is never the plain rest: the preview
+  at "stand still" shows it, as the game does.
+- On a teleport the engine computes the body's velocity from the jump, so the wind layers open for a frame or two (a gale of
+  120 m/s) before the weights settle. The port reproduces this; the strips themselves snap and do not stretch.
+- Bone selection in Blender 5 lives on pose bones (`PoseBone.select`), not on `Bone`.
+
+Still open: migrating `player_coat.blend` itself (the adopt step works; removing the legacy driver rig is not automated),
+viewport gizmos, user presets, side-overlap fix for double-breasted flaps.
 
 Engine behaviours the add-on works around (notes only, no changes proposed):
 - No gravity: rest directions are kept on the anchor, so a pelvis tilted in an animation tilts the skirt. The rest shape and the

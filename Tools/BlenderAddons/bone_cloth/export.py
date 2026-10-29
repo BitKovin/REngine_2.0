@@ -149,6 +149,25 @@ def export_glb(setup, arm, path):
     bpy.ops.export_scene.gltf(filepath=path, **kwargs)
 
 
+def verify_written(setup, arm, path):
+    """Reads the written model back the way the game does and compares it with the panel's plan (DESIGN.md 8.11.4)."""
+    from . import glb_check
+    frame = frames.compute_frame(arm, setup.character)
+    try:
+        skel, verts, strips = doctor.engine_strips(setup, arm, frame)
+        expected = [([skel.names[j.bone] for j in s.joints], s.side) for s in strips]
+        cols = []
+        for c in setup.colliders:
+            if c.enabled and c.bone in arm.data.bones and c.to in arm.data.bones:
+                cols.append((c.bone, c.to) + tuple(colliders.radii(c)))
+        problems = glb_check.compare(path, expected, cols, roots=list(reversed(bones_mod.roots(setup))))
+    except Exception as e:           # the check must never hide a successful export
+        return ["Could not read the written model back: %s" % e]
+    if problems:
+        return ["Problem: " + p for p in problems]
+    return ["Read the model back like the game: %d panels, as planned" % len(expected)]
+
+
 def run(setup, arm, settings_only=False):
     """Checks, then writes every target. Returns (messages, issues)."""
     issues = doctor.run(setup, arm)
@@ -165,6 +184,8 @@ def run(setup, arm, settings_only=False):
             msgs.append("Wrote " + path)
         if t.write_skmm:
             msgs.append("Wrote " + write_skmm(setup, arm, path))
+        if t.write_glb and t.write_skmm and not settings_only:
+            msgs.extend(verify_written(setup, arm, path))
     if not msgs:
         msgs.append("Add an export target first (the .glb path in the game's models folder)")
     return msgs, issues

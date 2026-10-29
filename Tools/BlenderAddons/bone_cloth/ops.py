@@ -565,7 +565,70 @@ class BONECLOTH_OT_export(_Op):
             print("[Bone Cloth]", m)
         if msgs and msgs[0].startswith("Export stopped"):
             raise RuntimeError(msgs[0])
+        problems = [m for m in msgs if m.startswith("Problem:")]
+        if problems:
+            self.report({'WARNING'}, "; ".join(problems))
         return msgs[-1]
+
+
+class BONECLOTH_OT_adopt(_Op):
+    bl_idname = "bone_cloth.adopt"
+    bl_label = "Adopt an existing rig"
+    bl_description = ("Takes over cloth bones that were made by hand: the strips are found the way the game finds them, the "
+                      "settings, colliders and clip names come from the model's .skmm. Nothing is rebuilt or deleted")
+    roots: StringProperty(name="Root bones", description="The bones the strips hang from, separated by commas "
+                          "(empty: read them from the .skmm)", default="")
+    skmm_path: StringProperty(name=".skmm file", subtype='FILE_PATH', default="")
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self, width=420)
+
+    def run(self, context, arm, setup):
+        from . import adopt
+        entry = adopt.read_skmm(bpy.path.abspath(self.skmm_path)) if self.skmm_path else None
+        roots = [r for r in self.roots.split(",") if r.strip()] or (entry["roots"] if entry else [])
+        log = adopt.adopt(setup, arm, roots, entry)
+        for line in log:
+            print("[Bone Cloth]", line)
+        return "Adopted: " + log[0]
+
+
+class BONECLOTH_OT_sim_play(_Op):
+    bl_idname = "bone_cloth.sim_play"
+    bl_label = "Play with cloth"
+    bl_description = ("Plays the timeline with the engine's cloth swing running on the cloth bones, with the test motion "
+                      "and wind chosen below. Nothing is keyed; Stop puts the pose back")
+
+    def run(self, context, arm, setup):
+        from . import sim
+        if setup.rest.applied is False and not bones_mod.generated(setup):
+            raise RuntimeError("Build the bones first")
+        sim.start(setup, arm, context.scene)
+        if not context.screen.is_animation_playing:
+            bpy.ops.screen.animation_play()
+        return "Playing: %s" % setup.preview.motion.replace("_", " ").lower()
+
+
+class BONECLOTH_OT_sim_stop(_Op):
+    bl_idname = "bone_cloth.sim_stop"
+    bl_label = "Stop"
+
+    def run(self, context, arm, setup):
+        from . import sim
+        sim.stop(arm)
+        if context.screen.is_animation_playing:
+            bpy.ops.screen.animation_play()
+
+
+class BONECLOTH_OT_sim_reset(_Op):
+    bl_idname = "bone_cloth.sim_reset"
+    bl_label = "Reset cloth"
+    bl_description = "The strips snap back to the body's rest shape on the next frame"
+
+    def run(self, context, arm, setup):
+        from . import sim
+        if arm.name in sim.RUNNING:
+            sim.RUNNING[arm.name].reset()
 
 
 class BONECLOTH_OT_toggle_overlay(_Op):

@@ -35,6 +35,8 @@ def measure(setup, arm):
         g.waist_line = m['waist']
     if g.anchors == 'HIPS':
         g.top_line = g.waist_line
+    if g.anchors == 'CHEST':
+        g.waist_line = g.top_line
     if g.hem_auto:
         g.hem_line = m['hem']
     if g.layout == 'OPEN_FRONT':
@@ -65,6 +67,9 @@ def preview_plan(setup, arm):
 
 
 def build_bones(setup, arm):
+    if setup.adopted:
+        raise RuntimeError("These bones were made by hand and adopted, so they are not rebuilt. Use Start over to let "
+                           "the add-on make its own")
     if setup.rest.applied:
         rest_shape.reset(setup, arm)
     plan, frame = preview_plan(setup, arm)
@@ -135,7 +140,10 @@ def update_all(setup, arm):
         if stages.status(setup, arm, key) != "stale":
             continue
         if key == "bones":
-            build_bones(setup, arm)
+            if setup.adopted:
+                stages.mark_done(setup, "bones", "adopted")
+            else:
+                build_bones(setup, arm)
             # a new set of bones needs new weights and poses
         elif key == "weights":
             settle_weights(setup, arm, build_weights(setup, arm), lambda m: print("[Bone Cloth]", m))
@@ -215,6 +223,8 @@ def auto_setup(setup, arm, body=None, log=print):
     plan = build_bones(setup, arm)
     log("Bones: %d strips (%s)" % (len(plan.strips), "; ".join(plan.skipped) or "all placed"))
     colliders.add_defaults(setup, arm)
+    if setup.guides.layout == 'STRAND':
+        setup.colliders.clear()
     stages.mark_done(setup, "colliders")
     stats = settle_weights(setup, arm, build_weights(setup, arm), log)
     log("Weights: %s" % {k: v for k, v in stats.items() if k != 'bones'})

@@ -65,12 +65,17 @@ class BCCharacter(PropertyGroup):
 class BCGuides(PropertyGroup):
     layout: EnumProperty(name="Layout", items=[
         ('OPEN_FRONT', "Open front", "Coat or jacket with the front open"),
-        ('CLOSED_RING', "Closed ring", "Skirt, closed jacket or robe: panels all the way around")], default='OPEN_FRONT')
+        ('CLOSED_RING', "Closed ring", "Skirt, closed jacket or robe: panels all the way around"),
+        ('BACK_ONLY', "Back only (cape)", "A cape or cloak: panels over the back, hanging from the shoulders"),
+        ('STRAND', "Single strand", "A tail, scarf end or flap: one chain of bones along the mesh, from a bone")],
+        default='OPEN_FRONT')
     anchors: EnumProperty(name="Anchors", items=[
         ('CHEST_AND_HIPS', "Chest + hips", "An upper part rides the chest, the skirt turns with the hips"),
         ('HIPS', "Hips only", "Everything hangs from the hips"),
+        ('CHEST', "Chest only", "A cape: everything hangs from the shoulders, the top line is the shoulder line"),
         ('SPINE', "Follow the spine", "Short jackets: every panel runs from the chest to the hem and each part hangs "
          "from the spine bone at its height, so the jacket bends with the spine")], default='CHEST_AND_HIPS')
+    strand_anchor: StringProperty(name="Hangs from", description="Single strand: the bone the strand hangs from")
     opening_half_angle: FloatProperty(name="Front opening", subtype='ANGLE', unit='ROTATION', default=0.7, min=0.0,
                                       max=3.0, description="Half of the opening at the front", update=_redraw)
     columns_per_side: IntProperty(name="Panels per side", default=3, min=1, max=6, update=_redraw)
@@ -245,6 +250,26 @@ class BCExport(PropertyGroup):
     last_roots: StringProperty(default="")
 
 
+class BCPreview(PropertyGroup):
+    motion: EnumProperty(name="Test motion", items=[
+        ('ANIMATION', "Animation only", "The armature is left alone (its own animation and root motion)"),
+        ('STAND', "Stand still", "The character does not move: only the wind acts"),
+        ('WALK', "Walk 1.5 m/s", ""), ('RUN', "Run 5 m/s", ""),
+        ('CIRCLE', "Run in a circle", "5 m/s around a 3 m circle: turning all the time"),
+        ('SPIN', "Spin 720 deg/s", "Standing, turning fast: the cloth should open"),
+        ('STOP_GO', "Stop and go", "Run 1.5 s, stand 1.5 s, again"),
+        ('STRAFE', "Strafe", "Sideways at 3 m/s, changing direction every second"),
+        ('TELEPORT', "Teleport", "Stands, then jumps 5 m every 2 s: the cloth must snap, not stretch")], default='RUN')
+    wind_speed: FloatProperty(name="Wind speed", description="m/s", default=0.0, min=0.0, max=40.0)
+    wind_from: FloatProperty(name="Wind from", subtype='ANGLE', unit='ROTATION', description="Where the wind blows from, "
+                             "seen from the character: 0 the front, 90 the left, 180 behind", default=0.0)
+    gust: FloatProperty(name="Gusts", description="Share of the wind speed the gusts add and take away", default=0.3,
+                        min=0.0, max=1.0)
+    gust_hz: FloatProperty(name="Gust rate", description="Hz", default=0.4, min=0.0, max=5.0)
+    debug_lines: BoolProperty(name="Engine debug lines", description="Draw the strips (yellow) and the leg capsules "
+                              "(orange) the way cloth_debug does in the game", default=True)
+
+
 class BCStage(PropertyGroup):
     name: StringProperty()
     input_hash: StringProperty()
@@ -258,8 +283,9 @@ class BCSetup(PropertyGroup):
     name: StringProperty(name="Name", default="coat")
     prefix: StringProperty(name="Bone prefix", default="coat")
     preset: EnumProperty(name="Preset", items=[
-        ('LONG_COAT', "Long coat", ""), ('JACKET', "Jacket", ""), ('SKIRT', "Skirt", ""), ('ROBE', "Robe", ""),
+        ('LONG_COAT', "Long coat", ""), ('JACKET', "Jacket", ""), ('SKIRT', "Skirt", ""), ('ROBE', "Robe", ""), ('CAPE', "Cape", ""), ('STRAND', "Strand", ""),
         ('CUSTOM', "Custom", "")], default='LONG_COAT')
+    adopted: BoolProperty(default=False, description="The bones were made by hand and adopted: never rebuilt or deleted")
     preset_version: IntProperty(default=0)       # presets.VERSION when the preset was last applied
     cloth_objects: CollectionProperty(type=BCObjectRef)
     cloth_index: IntProperty()
@@ -272,6 +298,7 @@ class BCSetup(PropertyGroup):
     colliders_index: IntProperty()
     motion: PointerProperty(type=BCMotion)
     export: PointerProperty(type=BCExport)
+    preview: PointerProperty(type=BCPreview)
     stages: CollectionProperty(type=BCStage)
     generated_bones: StringProperty(default="")      # JSON list
     root_bones: StringProperty(default="")           # JSON list
@@ -286,7 +313,7 @@ class BCArmature(PropertyGroup):
 
 
 CLASSES = (BCObjectRef, BCColumn, BCPin, BCCharacter, BCGuides, BCWeights, BCRest, BCPoseLayer, BCPoses, BCCollider,
-           BCMotion, BCExportTarget, BCExport, BCStage, BCSetup, BCArmature)
+           BCMotion, BCExportTarget, BCExport, BCPreview, BCStage, BCSetup, BCArmature)
 
 
 def register():

@@ -133,8 +133,13 @@ def _draw():
         ghost = _plan.get(setup.id)
         if ghost:
             _lines(ghost, (0.2, 1.0, 0.9, 0.9), 3.0, region)
+        from . import sim
+        running = sim.RUNNING.get(arm.name)
+        if running is not None and setup.preview.debug_lines:
+            _lines(running.debug_lines, (1.0, 0.9, 0.1, 1.0), 4.0, region)
         caps = []
-        for a, b, r0, r1 in colliders.capsules(setup, arm):
+        for a, b, r0, r1 in (running.capsules if running is not None and hasattr(running, "capsules")
+                             else colliders.capsules(setup, arm)):
             caps.extend(_capsule(a, b, r0, r1))
         _lines(caps, (1.0, 0.55, 0.1, 0.8), 1.5, region)
         gpu.state.blend_set('NONE')

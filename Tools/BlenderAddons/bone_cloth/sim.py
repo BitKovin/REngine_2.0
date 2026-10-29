@@ -1,0 +1,515 @@
+"""Preview simulator: a port of Engine/Cloth/BoneCloth.cpp (Step, Swing, wind and spin weights) running on the armature in
+Blender, so the cloth swings in the viewport the way it will in the game (DESIGN.md section 8.9).
+
+Everything is worked in Blender world space (Z up). The engine's `world` matrix is the armature object's matrix; its model
+space matrices are the pose matrices, which include the armature object's scale, so bone-local lengths convert to metres
+exactly as they do in the engine. ENGINE_COMMIT in engine_contract.py names the version this follows."""
+import math
+
+import bpy
+import numpy as np
+from mathutils import Matrix, Quaternion, Vector
+
+from . import bones as bones_mod
+from . import colliders as colliders_mod
+from . import engine_contract as ec
+from . import frames, model_data, pipeline, poses
+
+MAX_DELTA_TIME = 1.0 / 15.0
+UP = np.array([0.0, 0.0, 1.0])
+RUNNING = {}          # armature name -> ClothSim (the frame handler drives these)
+
+
+# ---- the engine's small helpers ---------------------------------------------------------------------------------------
+
+def smoothstep(a, b, x):
+    t = min(max((x - a) / (b - a), 0.0), 1.0)
+    return t * t * (3.0 - 2.0 * t)
+
+
+def ramp(start, full, x):
+    """smoothstep that also takes start == full (a step)."""
+    return smoothstep(start, full, x) if full > start else (1.0 if x >= start else 0.0)
+
+
+def perpendicular(v):
+    other = np.array([1.0, 0.0, 0.0]) if abs(v[0]) < 0.9 else np.array([0.0, 1.0, 0.0])
+    c = np.cross(v, other)
+    return c / np.linalg.norm(c)
+
+
+def unit(v, fallback):
+    n = np.linalg.norm(v)
+    return v / n if n > 1e-9 else fallback
+
+
+def axis_angle(axis, angle):
+    axis = axis / np.linalg.norm(axis)
+    K = np.array([[0, -axis[2], axis[1]], [axis[2], 0, -axis[0]], [-axis[1], axis[0], 0]])
+    return np.eye(3) + math.sin(angle) * K + (1.0 - math.cos(angle)) * (K @ K)
+
+
+def rotation_between(a, b):
+    """glm::rotation: the shortest turn taking unit vector a to unit vector b, as a 3x3."""
+    d = float(np.dot(a, b))
+    if d > 1.0 - 1e-9:
+        return np.eye(3)
+    if d < -1.0 + 1e-9:
+        return axis_angle(perpendicular(a), math.pi)
+    return axis_angle(np.cross(a, b), math.acos(d))
+
+
+def constrain(head, tail, rest_tail, max_angle):
+    """The tail kept at the joint's length from its head, within max_angle of its rest direction."""
+    rest = rest_tail - head
+    length = np.linalg.norm(rest)
+    if length < 1e-6:
+        return rest_tail
+    rest_dir = rest / length
+    direction = tail - head
+    current = np.linalg.norm(direction)
+    direction = direction / current if current > 1e-6 else rest_dir
+    if np.dot(direction, rest_dir) < math.cos(max_angle):
+        axis = np.cross(rest_dir, direction)
+        n = np.linalg.norm(axis)
+        axis = axis / n if n > 1e-6 else perpendicular(rest_dir)
+        direction = axis_angle(axis, max_angle) @ rest_dir
+    return head + direction * length
+
+
+def axis_parameter(p, a, b):
+    axis = b - a
+    l2 = float(np.dot(axis, axis))
+    return float(np.clip(np.dot(p - a, axis) / l2, 0.0, 1.0)) if l2 > 1e-12 else 0.0
+
+
+def wind_sample(velocity, gust_strength, gust_hz, position, time):
+    """World/WindField.cpp: one base wind with gusts travelling along it."""
+    speed = float(np.linalg.norm(velocity))
+    if speed < 1e-4 or gust_strength <= 0.0:
+        return velocity
+    direction = velocity / speed
+    travel = float(np.dot(position, direction)) / speed
+    phase = (time - travel) * gust_hz * 2.0 * math.pi
+    gust = 0.65 * math.sin(phase) + 0.35 * math.sin(phase * 2.37 + 1.3)
+    return velocity * (1.0 + gust_strength * gust)
+
+
+def mat3(m):
+    return np.array(m)[:3, :3]
+
+
+# ---- test motions -----------------------------------------------------------------------------------------------------
+
+MOTIONS = [
+    ('ANIMATION', "Animation only", "The armature is left alone (its own animation and root motion)"),
+    ('STAND', "Stand still", "The character does not move: only the wind acts"),
+    ('WALK', "Walk 1.5 m/s", ""), ('RUN', "Run 5 m/s", ""),
+    ('CIRCLE', "Run in a circle", "5 m/s around a 3 m circle: turning all the time"),
+    ('SPIN', "Spin 720 deg/s", "Standing, turning fast: the cloth should open"),
+    ('STOP_GO', "Stop and go", "Run 1.5 s, stand 1.5 s, again"),
+    ('STRAFE', "Strafe", "Sideways at 3 m/s, changing direction every second"),
+    ('TELEPORT', "Teleport", "Stands, then jumps 5 m every 2 s: the cloth must snap, not stretch"),
+]
+
+
+def motion_state(kind, t, forward):
+    """(displacement vector, yaw radians) of the test motion at time t, from the character's start."""
+    fwd = np.array([forward[0], forward[1], 0.0])
+    fwd = fwd / max(np.linalg.norm(fwd), 1e-9)
+    left = np.cross(UP, fwd)
+    if kind == 'WALK':
+        return fwd * 1.5 * t, 0.0
+    if kind == 'RUN':
+        return fwd * 5.0 * t, 0.0
+    if kind == 'CIRCLE':
+        r, v = 3.0, 5.0
+        a = v * t / r
+        return fwd * (r * math.sin(a)) + left * (r * (1.0 - math.cos(a))), a
+    if kind == 'SPIN':
+        return np.zeros(3), math.radians(720.0) * t
+    if kind == 'STOP_GO':
+        cycle = 3.0
+        full, rest = divmod(t, cycle)
+        return fwd * 5.0 * (full * 1.5 + min(rest, 1.5)), 0.0
+    if kind == 'STRAFE':
+        # 1 s legs, alternating: a triangle wave of the position
+        phase = (t % 2.0)
+        return left * 3.0 * (phase if phase < 1.0 else 2.0 - phase), 0.0
+    if kind == 'TELEPORT':
+        return fwd * 5.0 * math.floor(t / 2.0), 0.0
+    return np.zeros(3), 0.0
+
+
+# ---- the simulation -----------------------------------------------------------------------------------------------------
+
+class Joint:
+    def __init__(self, bone_name, bone, above, tip_local, follow, max_angle):
+        self.name, self.bone, self.above = bone_name, bone, above
+        self.tip_local = np.asarray(tip_local, float)
+        self.follow, self.max_angle = follow, max_angle
+        self.head = np.zeros(3)
+        self.tail = np.zeros(3)
+        self.basis = np.eye(3)
+
+
+class SimStrip:
+    def __init__(self, joints, side):
+        self.joints, self.side = joints, side
+        self.opens = self.flares = False
+        self.open_weight = 0.0
+
+
+class ClothSim:
+    """One BoneCloth (one .skmm cloth entry) on an armature."""
+
+    def __init__(self, setup, arm):
+        self.setup, self.arm = setup, arm
+        m = setup.motion
+        self.data = {k: getattr(m, k) for k in (
+            "followRoot", "followTip", "trail", "maxAngleRoot", "maxAngleTip", "radius", "teleportDistance", "tipLength",
+            "volume", "openWindStart", "openWindFull", "windwardBias", "volumeWindStart", "volumeWindFull",
+            "layerSmoothing", "spinOpen", "spinVolume", "spinStart", "spinFull", "spinRelease")}
+        self.frame = pipeline.frame_of(setup, arm)
+        skel, verts = model_data.collect(arm)
+        self.skel = skel
+        root_ids = [skel.index[r] for r in bones_mod.roots(setup) if r in skel.index]
+        fwd = self.frame.flat_forward()
+        ec_strips = ec.build_strips(skel, verts, root_ids, fwd, UP, self.data["tipLength"])
+        self.roots = root_ids
+        self.strips = []
+        for s in ec_strips:
+            joints = []
+            for j in s.joints:
+                follow = max(self.data["followRoot"] + (self.data["followTip"] - self.data["followRoot"]) * j.along, 0.0)
+                ang = math.radians(min(max(self.data["maxAngleRoot"] + (self.data["maxAngleTip"] - self.data["maxAngleRoot"])
+                                           * j.along, 0.0), 180.0))
+                joints.append(Joint(skel.names[j.bone], j.bone, j.above, j.tip_local, follow, ang))
+            self.strips.append(SimStrip(joints, s.side))
+        # the wind layers
+        self.q_open = poses.read_action(setup.poses.open.action) if setup.poses.open.enabled else {}
+        self.q_vol = poses.read_action(setup.poses.volume.action) if setup.poses.volume.enabled else {}
+        self.l_open = poses.read_action_locs(setup.poses.open.action) if setup.poses.open.enabled else {}
+        self.l_vol = poses.read_action_locs(setup.poses.volume.action) if setup.poses.volume.enabled else {}
+        for st in self.strips:
+            ao = {skel.index[b]: v.angle for b, v in self.q_open.items() if b in skel.index}
+            av = {skel.index[b]: v.angle for b, v in self.q_vol.items() if b in skel.index}
+            st.opens = any(ao.get(j.bone, 0.0) >= ec.LAYER_MIN_ANGLE for j in st.joints)
+            st.flares = any(av.get(j.bone, 0.0) >= ec.LAYER_MIN_ANGLE for j in st.joints)
+        # colliders (bone indices, radii as the engine will fit them)
+        self.colliders = []
+        colliders_mod.fit_all(setup, arm, (skel, verts))
+        for c in setup.colliders:
+            if c.enabled and c.bone in skel.index and c.to in skel.index:
+                r0, r1 = colliders_mod.radii(c)
+                self.colliders.append((skel.index[c.bone], skel.index[c.to], r0, r1))
+        # the body bones the roots hang from and their ancestors: the spin is read from them
+        carry = set()
+        for root in self.roots:
+            p = skel.parent[root]
+            while p >= 0:
+                carry.add(p)
+                p = skel.parent[p]
+        self.spin_bones = sorted(carry)
+        self.forward_local = mat3(arm.matrix_world).T @ np.array(fwd) / 1.0   # facing in the object's own axes
+        n = np.linalg.norm(self.forward_local)
+        self.forward_local = self.forward_local / n if n > 1e-9 else np.array([0.0, -1.0, 0.0])
+        self.left_axis_local = None
+        self.wind = np.zeros(3)
+        self.gust, self.gust_hz = 0.0, 0.4
+        self.needs_reset = True
+        self.volume_weight = 0.0
+        self.spin_weight = 0.0
+        self.previous_origin = np.zeros(3)
+        self.previous_spin = {}
+        self.debug_lines = []
+        self.names_needed = set(skel.names[b] for st in self.strips for j in st.joints for b in (j.bone, j.above)
+                                if b >= 0) | set(skel.names[r] for r in self.roots)
+        self.names_needed |= set(skel.names[b] for b in self.spin_bones)
+        for a, b, _, _ in self.colliders:
+            self.names_needed |= {skel.names[a], skel.names[b]}
+        self.cloth_pose_names = [pb.name for pb in arm.pose.bones if "bone_cloth" in pb]
+        self.muted = []
+        self.start_transform = arm.matrix_basis.copy()
+
+    # ---- control ----
+    def reset(self):
+        self.needs_reset = True
+
+    def set_wind(self, velocity, gust, gust_hz):
+        self.wind = np.asarray(velocity, float)
+        self.gust, self.gust_hz = gust, gust_hz
+
+    def mute_follow(self, on):
+        """BC Follow constraints keep the strips joined while posing by hand; the simulation does that itself."""
+        if on:
+            self.muted = []
+            for pb in self.arm.pose.bones:
+                for c in pb.constraints:
+                    if c.name == "BC Follow" and not c.mute:
+                        c.mute = True
+                        self.muted.append(c)
+        else:
+            for c in self.muted:
+                c.mute = False
+            self.muted = []
+
+    # ---- model space ----
+    def _read(self):
+        """World matrices of the bones the simulation needs, from the evaluated armature."""
+        dg = bpy.context.evaluated_depsgraph_get()
+        ev = self.arm.evaluated_get(dg)
+        mw = np.array(ev.matrix_world)
+        self.mw = mw
+        self.M = {}
+        for name in self.names_needed:
+            pb = ev.pose.bones.get(name)
+            if pb is not None:
+                self.M[self.skel.index[name]] = mw @ np.array(pb.matrix)
+
+    def _rest_shape(self):
+        """Strips and roots at their rest transforms, then the wind layers turned by their weights."""
+        ident = Quaternion((1, 0, 0, 0))
+        bases, locs = {}, {}
+        vol_w = self.data["volume"] + self.volume_weight + self.data["spinVolume"] * self.spin_weight
+        for st in self.strips:
+            ow = st.open_weight + self.data["spinOpen"] * self.spin_weight
+            for j in st.joints:
+                q = ident
+                loc = Vector((0.0, 0.0, 0.0))
+                if st.flares and j.name in self.q_vol:
+                    wv = min(max(vol_w, 0.0), 1.0)
+                    q = ident.slerp(self.q_vol[j.name], wv) @ q
+                    loc = loc + self.l_vol.get(j.name, Vector((0, 0, 0))) * wv
+                if st.opens and j.name in self.q_open:
+                    wo = min(max(ow, 0.0), 1.0)
+                    q = ident.slerp(self.q_open[j.name], wo) @ q
+                    loc = loc + self.l_open.get(j.name, Vector((0, 0, 0))) * wo
+                bases[j.name] = q
+                if loc.length > 0:
+                    locs[j.name] = loc
+        poses.set_bases(self.arm, bases, locs)
+        bpy.context.view_layer.update()
+
+    # ---- wind and spin weights ----
+    def _spin_rate(self, dt):
+        fastest = 0.0
+        for b in self.spin_bones:
+            m = self.M.get(b)
+            if m is None:
+                continue
+            r = m[:3, :3].copy()
+            for k in range(3):
+                n = np.linalg.norm(r[:, k])
+                if n > 1e-8:
+                    r[:, k] /= n
+            q = Matrix(r.tolist()).to_quaternion()
+            q.normalize()
+            if not self.needs_reset and dt > 0.0 and b in self.previous_spin:
+                change = q @ self.previous_spin[b].inverted()
+                if change.w < 0.0:
+                    change = Quaternion((-change.w, -change.x, -change.y, -change.z))
+                angle = 2.0 * math.acos(min(change.w, 1.0))
+                axis = np.array([change.x, change.y, change.z])
+                n = np.linalg.norm(axis)
+                if n > 1e-6:
+                    fastest = max(fastest, abs(angle * axis[2] / n) / dt)      # the yaw about the world's up
+            self.previous_spin[b] = q
+        return fastest
+
+    def _wind_weights(self, dt, time, origin, rotation):
+        d = self.data
+        if not self.q_open and not self.q_vol:
+            return
+        blend = 1.0 - math.exp(-dt / max(d["layerSmoothing"], 1e-3)) if dt > 0.0 else 0.0
+        if d["spinOpen"] > 0.0 or d["spinVolume"] > 0.0:
+            rate = self._spin_rate(dt)
+            if self.needs_reset:
+                self.spin_weight = 0.0
+            elif dt > 0.0:
+                wanted = ramp(math.radians(d["spinStart"]), math.radians(d["spinFull"]), rate)
+                release = 1.0 - math.exp(-dt / max(d["spinRelease"], 1e-3))
+                self.spin_weight += (wanted - self.spin_weight) * (blend if wanted > self.spin_weight else release)
+        velocity = (origin - self.previous_origin) / dt if dt > 0.0 else np.zeros(3)
+        rel = wind_sample(self.wind, self.gust, self.gust_hz, origin, time) - velocity
+        fwd = rotation @ self.forward_local
+        left = np.cross(UP, fwd)
+        headwind = max(0.0, -float(np.dot(rel, fwd)))
+        leftward = float(np.dot(rel, left))
+        self.volume_weight += (ramp(d["volumeWindStart"], d["volumeWindFull"], float(np.linalg.norm(rel))) - self.volume_weight) * blend
+        for st in self.strips:
+            windward = max(0.0, -st.side * leftward)
+            wanted = ramp(d["openWindStart"], d["openWindFull"], headwind + d["windwardBias"] * windward)
+            st.open_weight += (wanted - st.open_weight) * blend
+
+    # ---- the swing ----
+    def _swing(self, dt, snap, origin):
+        d = self.data
+        moved = origin - self.previous_origin
+        carry = moved * ((1.0 - min(max(d["trail"], 0.0), 1.0)) if dt > 0.0 else 1.0)
+        cs = [(self.M[a][:3, 3], self.M[b][:3, 3], r0, r1) for a, b, r0, r1 in self.colliders if a in self.M and b in self.M]
+        self.debug_lines = []
+        for st in self.strips:
+            head = self.M[st.joints[0].bone][:3, 3].copy()
+            above_rest = np.eye(3)
+            above_now = np.eye(3)
+            for k, j in enumerate(st.joints):
+                rest_model = self.M[j.bone][:3, :3]
+                rest_basis = rest_model if k == 0 else above_now @ np.linalg.inv(above_rest) @ rest_model
+                rest_tail = head + rest_basis @ j.tip_local
+                if snap:
+                    tail = rest_tail
+                else:
+                    tail = (j.tail + carry) * math.exp(-j.follow * dt) + rest_tail * (1.0 - math.exp(-j.follow * dt))
+                tail = constrain(head, tail, rest_tail, j.max_angle)
+                for a, b, r0, r1 in cs:
+                    t = axis_parameter(tail, a, b)
+                    nearest = a + (b - a) * t
+                    radius = r0 + (r1 - r0) * t + d["radius"]
+                    off = tail - nearest
+                    dist = float(np.linalg.norm(off))
+                    if dist < radius and dist > 1e-6:
+                        tail = nearest + off * (radius / dist)
+                j.tail = constrain(head, tail, rest_tail, j.max_angle)
+                frm, to = rest_tail - head, j.tail - head
+                j.basis = rest_basis
+                if np.dot(frm, frm) > 1e-12 and np.dot(to, to) > 1e-12:
+                    j.basis = rotation_between(frm / np.linalg.norm(frm), to / np.linalg.norm(to)) @ rest_basis
+                j.head = head
+                self.debug_lines.append((head.copy(), j.tail.copy()))
+                above_rest, above_now = rest_model, j.basis
+                head = j.tail
+        self.capsules = cs
+
+    def _write(self):
+        """Each joint's swung transform as a pose basis (parents first), so the armature modifier shows it."""
+        arm = self.arm
+        mwi = np.linalg.inv(self.mw)
+        done = {}
+        for st in self.strips:
+            for j in st.joints:
+                t_world = np.eye(4)
+                t_world[:3, :3] = j.basis
+                t_world[:3, 3] = j.head
+                t_arm = mwi @ t_world
+                bone = arm.data.bones[j.name]
+                parent = bone.parent
+                if parent is None:
+                    p_pose = np.eye(4)
+                    rest_rel = np.array(bone.matrix_local)
+                else:
+                    pidx = self.skel.index[parent.name]
+                    p_pose = done.get(parent.name)
+                    if p_pose is None:
+                        p_pose = mwi @ self.M[pidx]
+                    rest_rel = np.linalg.inv(np.array(parent.matrix_local)) @ np.array(bone.matrix_local)
+                basis = np.linalg.inv(rest_rel) @ np.linalg.inv(p_pose) @ t_arm
+                done[j.name] = t_arm
+                arm.pose.bones[j.name].matrix_basis = Matrix(basis.tolist())
+
+    # ---- one frame ----
+    def step(self, dt, time=0.0):
+        """Advances the cloth by dt seconds. Returns nothing; the pose bones hold the result."""
+        dt = min(max(dt, 0.0), MAX_DELTA_TIME)
+        self._read()
+        origin = self.mw[:3, 3].copy()
+        rotation = self.mw[:3, :3].copy()
+        for k in range(3):
+            n = np.linalg.norm(rotation[:, k])
+            if n > 1e-8:
+                rotation[:, k] /= n
+        if self.needs_reset:
+            self.previous_origin = origin
+        snap = self.needs_reset or float(np.linalg.norm(origin - self.previous_origin)) > self.data["teleportDistance"]
+        self._wind_weights(dt, time, origin, rotation)
+        self._rest_shape()
+        self._read()
+        self._swing(dt, snap, origin)
+        self._write()
+        self.previous_origin = origin
+        self.needs_reset = False
+
+
+# ---- driving it from the timeline -----------------------------------------------------------------------------------
+
+def start(setup, arm, scene):
+    stop(arm)
+    sim = ClothSim(setup, arm)
+    sim.mute_follow(True)
+    sim.reset()
+    pv = setup.preview
+    sim.preview = pv
+    sim.scene_start = scene.frame_current
+    sim.last_frame = None
+    sim.start_transform = arm.matrix_basis.copy()
+    sim.start_forward = sim.frame.flat_forward().copy()
+    RUNNING[arm.name] = sim
+    if _handler not in bpy.app.handlers.frame_change_post:
+        bpy.app.handlers.frame_change_post.append(_handler)
+    return sim
+
+
+def stop(arm):
+    sim = RUNNING.pop(arm.name, None)
+    if sim is None:
+        return
+    sim.mute_follow(False)
+    for pb in arm.pose.bones:
+        if "bone_cloth" in pb:
+            pb.matrix_basis = Matrix.Identity(4)
+    if sim.preview.motion not in ('ANIMATION',):
+        arm.matrix_basis = sim.start_transform
+    if not RUNNING and _handler in bpy.app.handlers.frame_change_post:
+        bpy.app.handlers.frame_change_post.remove(_handler)
+    bpy.context.view_layer.update()
+
+
+def apply_motion(sim, arm, t):
+    pv = sim.preview
+    if pv.motion == 'ANIMATION':
+        return
+    disp, yaw = motion_state(pv.motion, t, sim.start_forward)
+    m0 = sim.start_transform
+    loc = Vector(m0.to_translation()) + Vector(tuple(float(x) for x in disp))
+    rot = Matrix.Rotation(yaw, 4, 'Z') @ m0.to_quaternion().to_matrix().to_4x4()       # rotation only: the scale is added below
+    scale = m0.to_scale()
+    arm.matrix_basis = Matrix.Translation(loc) @ rot @ Matrix.Diagonal(Vector((scale.x, scale.y, scale.z, 1.0)))
+
+
+def wind_world(sim, arm):
+    pv = sim.preview
+    fwd = sim.start_forward
+    ang = math.radians(pv.wind_from)          # 0: from the front, 90: from the character's left
+    from_dir = math.cos(ang) * fwd + math.sin(ang) * np.cross(UP, fwd)
+    return -from_dir * pv.wind_speed
+
+
+def advance(sim, arm, scene):
+    """One timeline frame of the simulation (frame handler, or called directly by tests)."""
+    frame = scene.frame_current
+    fps = scene.render.fps / scene.render.fps_base
+    if sim.last_frame is None or frame < sim.last_frame or frame - sim.last_frame > 3:
+        sim.reset()
+        dt = 0.0
+    else:
+        dt = (frame - sim.last_frame) / fps
+    sim.last_frame = frame
+    t = (frame - sim.scene_start) / fps
+    apply_motion(sim, arm, t)
+    bpy.context.view_layer.update()
+    sim.set_wind(wind_world(sim, arm), sim.preview.gust, sim.preview.gust_hz)
+    sim.step(dt, t)
+
+
+@bpy.app.handlers.persistent
+def _handler(scene, depsgraph=None):
+    for name, sim in list(RUNNING.items()):
+        arm = bpy.data.objects.get(name)
+        if arm is None:
+            RUNNING.pop(name, None)
+            continue
+        try:
+            advance(sim, arm, scene)
+        except Exception as e:          # a preview must never break the timeline
+            print("[Bone Cloth] preview stopped:", e)
+            stop(arm)

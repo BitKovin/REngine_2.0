@@ -117,6 +117,30 @@ class StripGeo:
         if self.side == '':
             self.theta[:] = self.theta_top
         self.n = len(self.bones)
+        self.strand = bool(info.get("strand"))
+        self.points = np.array(heads + [tail])
+
+    def arc_param(self, pos):
+        """Closest point of the polyline for each position: (distance along it, its total length), metres."""
+        seg = self.points[1:] - self.points[:-1]
+        length = np.linalg.norm(seg, axis=1)
+        starts = np.concatenate([[0.0], np.cumsum(length)[:-1]])
+        best = np.full(len(pos), np.inf)
+        arc = np.zeros(len(pos))
+        for k in range(len(seg)):
+            d = seg[k] / max(length[k], 1e-9)
+            u = np.clip((pos - self.points[k]) @ d, 0.0, length[k])
+            dist = np.linalg.norm(pos - (self.points[k] + np.outer(u, d)), axis=1)
+            better = dist < best
+            best[better] = dist[better]
+            arc[better] = (starts[k] + u)[better]
+        return arc, float(length.sum())
+
+    def sigma_strand(self, pos):
+        arc, total = self.arc_param(pos)
+        seg = np.linalg.norm(self.points[1:] - self.points[:-1], axis=1)
+        edges = np.concatenate([[0.0], np.cumsum(seg)])
+        return np.interp(arc, edges, np.arange(len(edges), dtype=float))
 
     def angle_at(self, h):
         return np.interp(h, self.z[::-1], self.theta[::-1])
@@ -125,10 +149,10 @@ class StripGeo:
         return np.interp(h, self.z[::-1], np.arange(len(self.z))[::-1].astype(float))
 
 
-def _along(strip, h, softness):
-    """V (N, n): how the strip's own bones share a vertex at height h."""
+def _along(strip, h, softness, pos=None):
+    """V (N, n): how the strip's own bones share a vertex at height h (or, for a strand, along it)."""
     n = strip.n
-    sigma = strip.sigma(h)
+    sigma = strip.sigma_strand(pos) if strip.strand else strip.sigma(h)
     if n == 1:
         return np.ones((len(h), 1))
     b = softness
@@ -261,9 +285,13 @@ def build_object(setup, arm, frame, obj, strip_infos, stats):
             for g in v.groups:
                 if g.group == vg_amount.index:
                     painted[i] = g.weight
-    c = cloth_amount(setup, pos, W_body, body_names, exclude, painted)
-
     strips = [StripGeo(arm, frame, s) for s in strip_infos]
+    if strips and strips[0].strand:
+        # a strand is loose from its start on: the cloth amount grows along it, the first 12% blends with the body
+        arc, total = strips[0].arc_param(pos)
+        c = _smooth(0.0, max(0.12 * total, 0.03), arc)
+    else:
+        c = cloth_amount(setup, pos, W_body, body_names, exclude, painted)
     theta = frame.angle(pos)
     h = pos[:, 2]
     closed = setup.guides.layout == 'CLOSED_RING'
@@ -276,7 +304,7 @@ def build_object(setup, arm, frame, obj, strip_infos, stats):
     W_cloth = np.zeros((n, len(cloth_cols)))
     col = 0
     for si, s in enumerate(strips):
-        V = _along(s, h, w.joint_softness)
+        V = _along(s, h, w.joint_softness, pos)
         W_cloth[:, col:col + s.n] = U[:, si:si + 1] * V
         col += s.n
     total = W_cloth.sum(axis=1, keepdims=True)

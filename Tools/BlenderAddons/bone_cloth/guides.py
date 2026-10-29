@@ -99,6 +99,11 @@ def measure(setup, arm, frame, geom):
     z = geom.torso[:, 2] if len(geom.torso) else np.array([0.0])
     out['hem'] = float(z.min()) + 0.01
     out['top'] = float(frames.bone_head(arm, ch.chest)[2])
+    if g.anchors == 'CHEST':
+        for key in ('clavicle_l', 'clavicle_r'):
+            if getattr(ch, key) in arm.data.bones:
+                out['top'] = float(frames.bone_head(arm, getattr(ch, key))[2]) - 0.02       # the shoulder line
+                break
     if g.anchors == 'SPINE' and len(geom.torso):
         # a short jacket starts at the upper chest, a little above the chest joint, and never above its own cloth
         out['top'] = min(out['top'] + 0.12, float(geom.torso[:, 2].max()) - 0.02)
@@ -160,9 +165,16 @@ def rebuild_columns(setup, opening=None):
     g = setup.guides
     old = {c.name: (c.top_offset, c.open_mult, c.volume_mult, c.rest_flare_mult) for c in g.columns}
     g.columns.clear()
+    if g.layout == 'STRAND':
+        return
     n = g.columns_per_side
     names = column_names(n)
-    if g.layout == 'OPEN_FRONT':
+    if g.layout == 'BACK_ONLY':
+        span = math.radians(80.0)              # the cape covers the back and a little of the sides
+        angles = [math.pi - span + span * (i + 0.5) / n for i in range(n)] if n > 1 else [math.pi - span / 2]
+        if g.center_back:
+            angles = [a - span / (2.0 * n) for a in angles]    # leave room for the panel at the very back
+    elif g.layout == 'OPEN_FRONT':
         a0 = g.opening_half_angle if opening is None else opening
         a1 = math.pi
         arc = a1 - a0
@@ -397,9 +409,51 @@ def _plan_spine(setup, arm, frame, geom, plan):
     return plan
 
 
+def _plan_strand(setup, arm, frame, geom, plan):
+    """One strip along the mesh: from the picked bone to the far end, through the centre of each slice of the cloth."""
+    g = setup.guides
+    prefix = setup.prefix
+    anchor = g.strand_anchor
+    if anchor not in arm.data.bones:
+        plan.skipped.append("Pick the bone the strand hangs from (Shape step)")
+        return plan
+    verts = geom.verts
+    if len(verts) < 8:
+        plan.skipped.append("The cloth has too few vertices")
+        return plan
+    start = frames.bone_head(arm, anchor)
+    # the strand's direction: from the anchor toward the far end of the cloth
+    far = verts[np.argsort(np.linalg.norm(verts - start, axis=1))[-max(3, len(verts) // 20):]].mean(axis=0)
+    near_ = verts[np.argsort(np.linalg.norm(verts - start, axis=1))[:max(3, len(verts) // 20)]].mean(axis=0)
+    axis = far - near_
+    axis = axis / max(np.linalg.norm(axis), 1e-9)
+    t = (verts - near_) @ axis
+    t0, t1 = float(t.min()), float(t.max())
+    n = g.rows
+    pts = [near_.copy()]
+    half = 0.5 * (t1 - t0) / n
+    for k in range(1, n):
+        boundary = t0 + (t1 - t0) * k / n
+        band = verts[np.abs(t - boundary) <= half]
+        pts.append(band.mean(axis=0) if len(band) else near_ + axis * (boundary - float(np.dot(near_ - near_, axis))))
+    pts.append(verts[int(np.argmax(t))])              # the free end: the farthest vertex
+    # where the strand sits around the body decides which way the wind poses push it (a tail behind is pushed back)
+    theta = float(frame.angle(np.mean(pts, axis=0)))
+    plan.roots.append(PlanBone(prefix + "_root", pts[0], pts[0] + axis * 0.05, anchor, 0.0))
+    bl = []
+    for k in range(len(pts) - 1):
+        name = "%s_strand_%02d" % (prefix, k)
+        parent, connected = (prefix + "_root", False) if k == 0 else (bl[-1].name, True)
+        bl.append(PlanBone(name, pts[k], pts[k + 1], parent, theta, connected))
+    plan.strips.append(("strand", "", bl))
+    return plan
+
+
 def make_plan(setup, arm, frame, geom):
     g, ch = setup.guides, setup.character
     plan = Plan()
+    if g.layout == 'STRAND':
+        return _plan_strand(setup, arm, frame, geom, plan)
     if g.anchors == 'SPINE':
         return _plan_spine(setup, arm, frame, geom, plan)
     prefix = setup.prefix
@@ -408,9 +462,12 @@ def make_plan(setup, arm, frame, geom):
     axis_xy = frame.origin
 
     top_z, waist_z = g.top_line, g.waist_line
+    cape = g.anchors == 'CHEST'
+    if cape:
+        waist_z = top_z                         # the panels start at the shoulder line and hang from the chest
     lower_root_name = prefix + ("_root_lower" if two_roots else "_root")
     plan.roots.append(PlanBone(lower_root_name, [axis_xy[0], axis_xy[1], waist_z],
-                               [axis_xy[0], axis_xy[1], waist_z - 0.1], ch.hips, 0.0))
+                               [axis_xy[0], axis_xy[1], waist_z - 0.1], ch.chest if cape else ch.hips, 0.0))
     if two_roots:
         plan.roots.append(PlanBone(prefix + "_root_upper", [axis_xy[0], axis_xy[1], top_z],
                                    [axis_xy[0], axis_xy[1], top_z - 0.1], ch.chest, 0.0))

@@ -42,7 +42,12 @@ def roots(setup):
 
 
 def remove_generated(setup, arm):
-    """Deletes the bones this setup made, their vertex groups on every mesh, and nothing else."""
+    """Deletes the bones this setup made, their vertex groups on every mesh, and nothing else. A rig that was adopted is
+    not the add-on's to delete: the setup just forgets it."""
+    if setup.adopted:
+        setup.generated_bones = setup.root_bones = setup.strips_json = "[]"
+        setup.adopted = False
+        return
     names = generated(setup) + roots(setup)
     names = [n for n in names if n in arm.data.bones]
     if names:
@@ -116,7 +121,8 @@ def build(setup, arm, frame, plan):
     setup.generated_bones = json.dumps(created)
     setup.root_bones = json.dumps(created_roots)
     setup.strips_json = json.dumps([
-        {"column": col, "side": side, "theta": bones[0].theta, "bones": [b.name for b in bones if b.name in created]}
+        {"column": col, "side": side, "theta": bones[0].theta, "bones": [b.name for b in bones if b.name in created],
+         "strand": col == "strand"}
         for col, side, bones in plan.strips])
     return created_roots, created
 

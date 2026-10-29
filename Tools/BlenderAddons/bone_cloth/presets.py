@@ -55,6 +55,36 @@ PRESETS = {
         'poses.open.enabled': False, 'poses.open.amount': 0.0,
         'poses.volume.amount': 0.08, 'poses.volume.direction': 0.0, 'poses.volume.upper_share': 0.3,
     },
+    'CAPE': {
+        'guides.layout': 'BACK_ONLY', 'guides.anchors': 'CHEST', 'guides.columns_per_side': 2,
+        'guides.center_back': True, 'guides.center_front': False, 'guides.upper_part': False, 'guides.rows': 4,
+        'weights.profile': 'LOOSE_BELOW_CHEST', 'weights.start_from_top': 0.04, 'weights.full_from_waist': -0.12,
+        'rest.clear_legs': True, 'rest.flare': 0.0,
+        'motion.followRoot': 40.0, 'motion.followTip': 4.0, 'motion.trail': 0.6, 'motion.maxAngleRoot': 10.0,
+        'motion.maxAngleTip': 80.0, 'motion.radius': 0.04, 'motion.volume': 0.3, 'motion.openWindStart': 1.0,
+        'motion.openWindFull': 10.0, 'motion.volumeWindStart': 1.0, 'motion.volumeWindFull': 12.0,
+        'motion.layerSmoothing': 0.3, 'motion.spinOpen': 0.6, 'motion.spinVolume': 0.8, 'motion.spinStart': 120.0,
+        'motion.spinFull': 600.0, 'motion.spinRelease': 0.7,
+        # the wind blows it back and out: one pose does it, there is no front to open
+        'poses.open.enabled': False, 'poses.open.amount': 0.0,
+        'poses.volume.amount': 0.35, 'poses.volume.direction': 0.0, 'poses.volume.backward': 0.6, 'poses.volume.bend': 0.4,
+        'poses.volume.upper_share': 0.5, 'poses.volume.max_turn': 1.0,
+    },
+    'STRAND': {
+        'guides.layout': 'STRAND', 'guides.anchors': 'HIPS', 'guides.columns_per_side': 1, 'guides.center_back': False,
+        'guides.upper_part': False, 'guides.rows': 5,
+        'weights.profile': 'CUSTOM', 'weights.start_from_top': 0.0, 'weights.full_from_waist': 0.0,
+        'weights.exclude_arms': False, 'weights.rigid_parts': False,
+        'rest.clear_legs': False, 'rest.flare': 0.0,
+        'motion.followRoot': 50.0, 'motion.followTip': 6.0, 'motion.trail': 0.4, 'motion.maxAngleRoot': 10.0,
+        'motion.maxAngleTip': 70.0, 'motion.radius': 0.02, 'motion.volume': 0.0, 'motion.openWindStart': 2.0,
+        'motion.openWindFull': 10.0, 'motion.volumeWindStart': 2.0, 'motion.volumeWindFull': 12.0,
+        'motion.layerSmoothing': 0.2, 'motion.spinOpen': 0.0, 'motion.spinVolume': 0.0, 'motion.spinStart': 180.0,
+        'motion.spinFull': 720.0, 'motion.spinRelease': 0.5,
+        'poses.open.enabled': False, 'poses.open.amount': 0.0,
+        'poses.volume.amount': 0.15, 'poses.volume.direction': 0.0, 'poses.volume.backward': 0.6, 'poses.volume.bend': 0.4,
+        'poses.volume.upper_share': 1.0, 'poses.volume.max_turn': 0.9,
+    },
     'ROBE': {
         'guides.layout': 'CLOSED_RING', 'guides.anchors': 'CHEST_AND_HIPS', 'guides.columns_per_side': 3,
         'guides.center_front': False, 'guides.center_back': True, 'guides.upper_part': True, 'guides.rows': 4,
@@ -115,7 +145,8 @@ def blend_heights(setup):
     w, g = setup.weights, setup.guides
     if w.blend_auto:
         w.blend_start = g.top_line + w.start_from_top
-        w.blend_full = g.waist_line + w.full_from_waist
+        # a cape has no waist: its 'fully loose' offset counts from the shoulder line
+        w.blend_full = (g.top_line if g.anchors == 'CHEST' else g.waist_line) + w.full_from_waist
 
 
 def outdated(setup):

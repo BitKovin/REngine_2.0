@@ -157,6 +157,11 @@ class BONECLOTH_PT_character(_Sub):
         row = layout.row(align=True)
         row.prop(ch, "facing", text="Facing")
         row.prop(ch, "flip", toggle=True)
+        layout.separator()
+        if setup.adopted:
+            layout.label(text="Adopted rig: its bones are not rebuilt", icon='LINKED')
+        else:
+            layout.operator("bone_cloth.adopt", icon='IMPORT')
 
 
 # ---- 2 mesh --------------------------------------------------------------------------------------------------------
@@ -198,7 +203,10 @@ class BONECLOTH_PT_shape(_Sub):
         layout.operator("bone_cloth.measure", icon='DRIVER_DISTANCE')
         col = layout.column(align=True)
         col.prop(g, "layout")
-        col.prop(g, "anchors")
+        if g.layout == 'STRAND':
+            col.prop_search(g, "strand_anchor", arm.data, "bones")
+        else:
+            col.prop(g, "anchors")
         if g.layout == 'OPEN_FRONT':
             col.prop(g, "opening_half_angle")
         if g.anchors == 'SPINE':
@@ -480,6 +488,39 @@ class BONECLOTH_PT_motion(_Sub):
             col.prop(m, "forward")
 
 
+# ---- 9 preview -----------------------------------------------------------------------------------------------------
+
+class BONECLOTH_PT_preview(_Sub):
+    bl_label = "9  Preview"
+    bl_idname = "BONECLOTH_PT_preview"
+    bl_parent_id = "BONECLOTH_PT_main"
+
+    def draw(self, context):
+        from . import sim
+        arm, setup = _ctx(context)
+        layout, pv = self.layout, setup.preview
+        _hint(layout, setup, "Plays the engine's cloth swing in the viewport:\nrun, spin, stop and go, with wind.")
+        running = arm.name in sim.RUNNING
+        row = layout.row(align=True)
+        row.scale_y = 1.3
+        if running:
+            row.operator("bone_cloth.sim_stop", icon='PAUSE')
+            row.operator("bone_cloth.sim_reset", icon='LOOP_BACK')
+        else:
+            row.operator("bone_cloth.sim_play", icon='PLAY')
+        col = layout.column(align=True)
+        col.prop(pv, "motion", text="")
+        col.prop(pv, "wind_speed")
+        sub = col.column(align=True)
+        sub.enabled = pv.wind_speed > 0
+        sub.prop(pv, "wind_from")
+        sub.prop(pv, "gust", slider=True)
+        sub.prop(pv, "gust_hz")
+        layout.prop(pv, "debug_lines")
+        if setup.show_help:
+            layout.label(text="Tune in Motion (feel, wind ranges, spin), then Play again.")
+
+
 # ---- 10 check & export ---------------------------------------------------------------------------------------------
 
 class BONECLOTH_PT_export(_Sub):
@@ -530,4 +571,4 @@ class BONECLOTH_PT_export(_Sub):
 
 
 CLASSES = (BONECLOTH_PT_main, BONECLOTH_PT_character, BONECLOTH_PT_mesh, BONECLOTH_PT_shape, BONECLOTH_PT_weights,
-           BONECLOTH_PT_rest, BONECLOTH_PT_poses, BONECLOTH_PT_colliders, BONECLOTH_PT_motion, BONECLOTH_PT_export)
+           BONECLOTH_PT_rest, BONECLOTH_PT_poses, BONECLOTH_PT_colliders, BONECLOTH_PT_motion, BONECLOTH_PT_preview, BONECLOTH_PT_export)
