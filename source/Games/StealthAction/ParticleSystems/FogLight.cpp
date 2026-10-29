@@ -90,6 +90,7 @@ public:
         particle.UserValue1 = 4 + RandomFloat() * 4;
 
         particle.deathTime = 1000000;
+		particle.Color = vec4(0.8f, 0.8f, 0.8f, 1);
 
         return particle;
     }

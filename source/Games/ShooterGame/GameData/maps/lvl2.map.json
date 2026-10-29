@@ -50357,7 +50357,7 @@
         "_ambient": "0.03 0.03 0.03",
         "_ao_radius": "3",
         "_cc_exposure": "1",
-        "_light_scale": "0.8",
+        "_light_scale": "0.75",
         "_lod_density": "0.3",
         "_lod_levels": "3",
         "_noshadersun": "1",
