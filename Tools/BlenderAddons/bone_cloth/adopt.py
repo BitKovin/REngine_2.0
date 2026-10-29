@@ -102,7 +102,7 @@ def adopt(setup, arm, roots, skmm=None):
         c = g.columns.add()
         c.name, c.angle = col, abs(theta)
         c.side = 'L' if any(s["column"] == col and s["side"] == "l" for s in strips_json) else 'C'
-        c.open_mult = 1.0 if abs(theta) < math.radians(80) else (0.4 if abs(theta) < math.radians(150) else 0.0)
+        c.open_mult = 1.0 if abs(theta) < math.radians(80) else (0.4 if abs(theta) < math.radians(150) else 0.8)
     g.columns_per_side = max(1, len([c for c in g.columns if c.side == 'L']))
     tops = [skel.head(skel.index[names[0]])[2] for names, _, _ in found]
     hems = [float(np.array(arm.matrix_world @ arm.data.bones[names[-1]].tail_local)[2]) for names, _, _ in found]

@@ -176,6 +176,12 @@ def layer_directions(frame, theta, layer_kind, direction, backward=0.0):
     return d - backward * frame.forward
 
 
+def beside_opening(theta):
+    """1 for a panel beside the front opening, fading to 0 over the last 60 degrees toward the back: how much of the Open
+    pose's sideways motion (slide along the ring, top bone's slide) the panel takes."""
+    return min(1.0, max(0.0, (math.pi - abs(theta)) / math.radians(60.0)))
+
+
 def open_target(frame, rig, theta, direction, backward, amount):
     """(direction, distance) that carry a panel's hem to its place in the open pose: the hem keeps its height and slides ALONG the ring around the body (away
     from the front opening, further with `backward`) while it moves out by `1 - direction`, so the hems of all panels stay on one smooth arc. A straight
@@ -194,6 +200,10 @@ def open_target(frame, rig, theta, direction, backward, amount):
     if norm < 1e-9:
         return radial, amount
     out, along = out / norm * amount, along / norm * amount       # the hem moves `amount` in total
+    # sliding along the ring is for the panels beside the opening; toward the back the ring runs the wrong way (the left and
+    # right back panels would be pushed into each other), so there the slide turns into outward travel, same distance
+    fade = beside_opening(theta)
+    out, along = math.hypot(out, along * (1.0 - fade)), along * fade
     # slide along the ring: positive turns about the body axis go from the front toward the character's left (`left = up x forward`)
     phi = sign * along / r
     c, s_ = math.cos(phi), math.sin(phi)
@@ -215,7 +225,7 @@ def slide_location(arm, frame, rig, theta, kind, distance):
     front opening (open) or outward (volume): the whole panel hangs from that bone, so the whole panel shifts."""
     if kind == "open":
         sign = 1.0 if theta > 1e-3 else (-1.0 if theta < -1e-3 else 0.0)
-        world = sign * frame.left * distance
+        world = sign * frame.left * distance * beside_opening(theta)
     else:
         world = frame.radial(theta) * distance
     in_arm = arm.matrix_world.inverted().to_3x3() @ Vector(tuple(float(x) for x in world))

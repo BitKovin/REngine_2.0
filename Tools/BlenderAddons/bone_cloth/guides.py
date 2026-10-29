@@ -191,7 +191,7 @@ def rebuild_columns(setup, opening=None):
         if name in old:
             c.top_offset, c.open_mult, c.volume_mult, c.rest_flare_mult = old[name]
         else:
-            c.open_mult = 1.0 if ang < math.radians(80) else (0.4 if ang < math.radians(150) else 0.0)
+            c.open_mult = 1.0 if ang < math.radians(80) else (0.4 if ang < math.radians(150) else 0.8)
             # following the spine (jackets): the front panels do the opening, so they flare less than the rest
             c.volume_mult = 0.5 if (g.anchors == 'SPINE' and ang < math.radians(80)) else 1.0
     if g.center_front:
