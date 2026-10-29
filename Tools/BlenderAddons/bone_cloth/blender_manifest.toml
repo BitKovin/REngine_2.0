@@ -1,0 +1,22 @@
+schema_version = "1.0.0"
+
+id = "bone_cloth"
+version = "0.1.0"
+name = "Bone Cloth"
+tagline = "Sets up coats, jackets and skirts for the engine's bone cloth"
+maintainer = "BitKovin"
+type = "add-on"
+
+blender_version_min = "5.1.0"
+
+license = ["SPDX:GPL-3.0-or-later"]
+
+[permissions]
+files = "Writes the exported .glb model and .skmm settings"
+
+[build]
+paths_exclude_pattern = [
+  "tests/",
+  "__pycache__/",
+  "DESIGN.md",
+]

@@ -1,0 +1,161 @@
+{
+ "note": "symmetric Open target: the user's hand-tweaked right front panel mirrored onto the left. Bone pose basis (rotation_quaternion wxyz, location).",
+ "bones": {
+  "coat_front_00_l": {
+   "rotation_quaternion": [
+    0.999403,
+    0.025399,
+    -0.015058,
+    -0.017937
+   ],
+   "location": [
+    7.93053,
+    -0.8293,
+    -0.64736
+   ]
+  },
+  "coat_front_01_l": {
+   "rotation_quaternion": [
+    0.994199,
+    0.089704,
+    -0.014451,
+    -0.057565
+   ],
+   "location": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "coat_front_02_l": {
+   "rotation_quaternion": [
+    0.968651,
+    0.210239,
+    -0.040699,
+    -0.125932
+   ],
+   "location": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "coat_front_03_l": {
+   "rotation_quaternion": [
+    0.917152,
+    0.281027,
+    0.239565,
+    0.14988
+   ],
+   "location": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "coat_front_04_l": {
+   "rotation_quaternion": [
+    0.910004,
+    -0.212363,
+    -0.347922,
+    0.075797
+   ],
+   "location": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "coat_front_05_l": {
+   "rotation_quaternion": [
+    0.981865,
+    -0.157908,
+    -0.094298,
+    0.04597
+   ],
+   "location": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "coat_front_00_r": {
+   "rotation_quaternion": [
+    0.999403,
+    0.025572,
+    0.014504,
+    0.018145
+   ],
+   "location": [
+    -7.93797,
+    -0.77641,
+    -0.62126
+   ]
+  },
+  "coat_front_01_r": {
+   "rotation_quaternion": [
+    0.994199,
+    0.090138,
+    0.013485,
+    0.057119
+   ],
+   "location": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "coat_front_02_r": {
+   "rotation_quaternion": [
+    0.968651,
+    0.209268,
+    0.042924,
+    0.126806
+   ],
+   "location": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "coat_front_03_r": {
+   "rotation_quaternion": [
+    0.917152,
+    0.270966,
+    -0.244876,
+    -0.159514
+   ],
+   "location": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "coat_front_04_r": {
+   "rotation_quaternion": [
+    0.910004,
+    -0.227454,
+    0.325462,
+    -0.119299
+   ],
+   "location": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "coat_front_05_r": {
+   "rotation_quaternion": [
+    0.981865,
+    -0.158759,
+    0.089732,
+    -0.051808
+   ],
+   "location": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  }
+ }
+}
