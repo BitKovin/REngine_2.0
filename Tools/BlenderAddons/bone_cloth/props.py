@@ -103,6 +103,9 @@ class BCGuides(PropertyGroup):
     path: EnumProperty(name="Path", items=[
         ('FOLLOW', "Follow the surface", ""), ('STRAIGHT', "Straight", "Straight from the waist to the hem")],
         default='FOLLOW', update=_redraw)
+    max_bone_length: FloatProperty(name="Max bone length", subtype='DISTANCE', unit='LENGTH', description="Follow the spine: "
+                                   "a section longer than this is split into equal bones, so the panel bends in smaller, even steps",
+                                   default=0.0, min=0.0, max=1.0, update=_redraw)
     bone_inset: FloatProperty(name="Bones toward the spine", description="Follow the spine: how far the torso part of "
                               "the bones moves from the cloth surface to the spine's joints. The more, the closer the "
                               "jacket follows a bending spine; the panels stay apart as long as this is below 1",
@@ -167,8 +170,9 @@ class BCPoseLayer(PropertyGroup):
                          default=0.0, min=0.0, max=0.5)
     backward: FloatProperty(name="Blown back", description="How much the panels are swept backwards, as in a headwind",
                             default=0.0, min=0.0, max=2.0)
-    bend: FloatProperty(name="Bend", description="0: bends evenly along the panel, 1: mostly near the hem", default=0.5,
-                        min=0.0, max=1.0)
+    bend: FloatProperty(name="Bend", description="Where along the panel the turn happens: 0 spreads it evenly (an arc), "
+                        "1 mostly near the hem, below 0 more near the top (a straighter line from the top)", default=0.5,
+                        min=-1.0, max=1.0)
     upper_share: FloatProperty(name="Chest part", description="How much the chest-to-waist bone takes part", default=0.5,
                                min=0.0, max=1.0)
 

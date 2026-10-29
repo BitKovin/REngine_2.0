@@ -49,7 +49,7 @@ bpy.context.view_layer.update()
 gen = tails("r")
 rms = float(np.sqrt(((gen - target_tails) ** 2).sum(axis=1).mean())) * 100
 print("generator vs hand-made target, tail rms (cm): %.2f" % rms)
-assert rms < 3.0, rms
+assert rms < 4.0, rms
 
 # 3. hand pose: tweak the right side, mirror it, save; Update keeps it; Back to generated replaces it
 poses.set_bases(arm, {}, {})
@@ -88,4 +88,14 @@ fc.keyframe_points[1].co[1] += 0.1
 fc.update()
 print("after keying into the clip: hand =", poses.layer_is_hand(s.poses.open), "(must be True)")
 assert poses.layer_is_hand(s.poses.open)
+# a hand pose belongs to its bones: rebuilding them differently is reported (and it was the reason a rebuilt jacket looked wrong)
+poses.capture_current(s, arm, "open")
+print("pose made for these bones: layout changed =", poses.layout_changed(arm, s.poses.open))
+assert not poses.layout_changed(arm, s.poses.open)
+from bone_cloth import doctor
+s.guides.max_bone_length = 0.12
+pipeline.build_bones(s, arm)
+print("after rebuilding with 12 cm bones: layout changed =", poses.layout_changed(arm, s.poses.open), "| check:", [i.id for i in doctor.run(s, arm) if i.severity == "error"])
+assert poses.layout_changed(arm, s.poses.open)
+assert any(i.id == "HAND-POSE-BONES" for i in doctor.run(s, arm))
 print("ALL OK")

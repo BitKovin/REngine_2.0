@@ -5,7 +5,7 @@ import numpy as np
 
 from . import weights as weights_mod
 
-VERSION = 10      # raise when a preset's values change; setups on an older one are told to apply it again
+VERSION = 16      # raise when a preset's values change; setups on an older one are told to apply it again
 
 _COMMON_MOTION = dict(teleportDistance=2.0, tipLength=0.0, windwardBias=0.5)
 
@@ -25,21 +25,23 @@ PRESETS = {
     },
     'JACKET': {
         'guides.layout': 'OPEN_FRONT', 'guides.anchors': 'SPINE', 'guides.columns_per_side': 3,
-        'guides.center_back': False, 'guides.upper_part': False, 'guides.rows': 2, 'guides.bone_inset': 0.75,
+        'guides.center_back': False, 'guides.upper_part': False, 'guides.rows': 2, 'guides.bone_inset': 0.75, 'guides.max_bone_length': 0.0,
         'weights.profile': 'LOOSE_BELOW_CHEST', 'weights.start_from_top': 0.15, 'weights.full_from_waist': 0.40,
         'rest.clear_legs': True, 'rest.flare': 0.0,
         'motion.followRoot': 80.0, 'motion.followTip': 12.0, 'motion.trail': 0.3, 'motion.maxAngleRoot': 5.0,
-        'motion.maxAngleTip': 40.0, 'motion.radius': 0.03, 'motion.volume': 0.3, 'motion.openWindStart': 2.0,
+        'motion.maxAngleTip': 40.0, 'motion.radius': 0.03, 'motion.volume': 0.0, 'motion.openWindStart': 2.0,
         'motion.openWindFull': 12.0, 'motion.volumeWindStart': 2.0, 'motion.volumeWindFull': 14.0,
-        'motion.layerSmoothing': 0.2, 'motion.spinOpen': 0.5, 'motion.spinVolume': 0.4, 'motion.spinStart': 180.0,
+        # the Volume pose is blown back (a directional wind shape): an always-on share or a spin share of it throws the
+        # jacket to one side, so neither is used; a spin opens it fully (the Open pose is symmetric)
+        'motion.layerSmoothing': 0.2, 'motion.spinOpen': 1.0, 'motion.spinVolume': 0.0, 'motion.spinStart': 180.0,
         'motion.spinFull': 720.0, 'motion.spinRelease': 0.4,
         # the poses are the full-wind shapes (the game blends toward them with the headwind): front panels open wide and
         # sweep back, every panel is blown back in one smooth arc. The Open values are fitted to a hand-made pose
-        # (tests/data/jacket_open_target.json, rms error 1.9 cm); a jacket's opening is better authored by hand: save it
+        # (tests/data/jacket_open_target.json, rms error 3.5 cm); a jacket's opening is better authored by hand: save it
         # with 'Save my pose' and Update keeps it
-        'poses.open.amount': 0.29, 'poses.open.direction': 0.54, 'poses.open.backward': 1.12, 'poses.open.bend': 0.0,
-        'poses.open.upper_share': 1.0, 'poses.open.max_turn': 0.77, 'poses.open.slide': 0.08,
-        'poses.volume.amount': 0.40, 'poses.volume.direction': 0.0, 'poses.volume.backward': 1.0, 'poses.volume.bend': 0.25,
+        'poses.open.amount': 0.34, 'poses.open.direction': 0.8, 'poses.open.backward': 0.0, 'poses.open.bend': -0.3,
+        'poses.open.upper_share': 0.3, 'poses.open.max_turn': 1.27, 'poses.open.slide': 0.11,
+        'poses.volume.amount': 0.40, 'poses.volume.direction': 0.0, 'poses.volume.backward': 1.0, 'poses.volume.bend': -0.25,
         'poses.volume.upper_share': 1.0, 'poses.volume.max_turn': 0.95,
     },
     'SKIRT': {

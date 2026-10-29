@@ -35,17 +35,18 @@ class StripRig:
         self.has_upper = "_00" in self.names[0]
 
     def fk(self, rots):
-        """Joint heads and tails after the cumulative world rotations `rots`. A bone whose parent is in the strip starts at the parent's new tail; a bone
-        parented to the body (the upper bones of a jacket sit on spine bones) keeps its rest head and turns about it, as it does in the skeleton."""
+        """Joint heads and tails after the cumulative world rotations `rots`, as one chain from the strip's top: every
+        joint starts where the one above ends. That is how the engine builds a strip (each head is the previous joint's
+        tail), and in Blender the BC Follow constraint pins a bone that hangs from a different spine bone to the previous
+        tail the same way, so the heads of the upper bones do NOT stay at their rest positions."""
         heads, tails = [], []
-        index = {n: k for k, n in enumerate(self.names)}
-        for k, name in enumerate(self.names):
+        head = self.heads[0]
+        for k in range(len(self.names)):
             v = self.tails[k] - self.heads[k]
-            parent = self.parent_in_strip[k]
-            head = tails[index[parent]] if parent is not None else self.heads[k]
             tail = head + np.array(rots[k]) @ v
             heads.append(head)
             tails.append(tail)
+            head = tail
         return heads, tails
 
 
@@ -58,15 +59,22 @@ def shares(rig, bend, upper_share):
     if total < 1e-9:
         return np.full(n, 1.0 / n)
     mid = (np.cumsum(length) - 0.5 * length) / total
-    w = length * np.power(np.clip(mid, 1e-3, 1.0), 3.0 * bend)
+    w = length * np.power(np.clip(mid, 0.05, 1.0), 3.0 * bend)
     if rig.has_upper:
         w[0] *= upper_share
     s = w.sum()
     return w / s if s > 1e-9 else np.full(n, 1.0 / n)
 
 
+REFERENCE_BEND = 0.25      # the shape that defines where the hem goes; the layer's bend only changes how the panel gets there
+
+
 def solve_strip(arm, frame, rig, direction, amount, bend, upper_share, max_angle=MAX_ANGLE):
-    """Cumulative world rotations (list of 3x3 numpy) that move the strip's hem by `amount` toward `direction`."""
+    """Cumulative world rotations (list of 3x3 numpy) that move the strip's hem `amount` toward `direction`.
+
+    The hem's place is fixed first, from a neutral shape (REFERENCE_BEND); `bend` then only chooses how the turn is spread
+    along the panel (negative: more near the top, a straighter line; positive: more near the hem) and the total turn is
+    fitted so the hem lands as close to that same place as it can. So changing the bend keeps the end points."""
     n = len(rig.names)
     ident = [np.eye(3)] * n
     if amount <= 1e-6 or np.linalg.norm(direction) < 1e-9:
@@ -80,26 +88,46 @@ def solve_strip(arm, frame, rig, direction, amount, bend, upper_share, max_angle
     if np.linalg.norm(axis) < 1e-6:
         return ident
     axis /= np.linalg.norm(axis)
-    sh = shares(rig, bend, upper_share)
-    cum = np.cumsum(sh)
 
-    def rots_for(alpha):
+    def profile(b):
+        return np.cumsum(shares(rig, b, upper_share))
+
+    def rots_for(cum, alpha):
         return [np.array(_rot(axis, alpha * c)) for c in cum]
 
-    def moved(alpha):
-        _, tails = rig.fk(rots_for(alpha))
-        return float(np.linalg.norm(tails[-1] - hem))
+    def hem_at(cum, alpha):
+        return rig.fk(rots_for(cum, alpha))[1][-1]
 
-    if moved(max_angle) <= amount:
-        return rots_for(max_angle)
-    lo, hi = 0.0, max_angle
-    for _ in range(40):
-        mid = 0.5 * (lo + hi)
-        if moved(mid) < amount:
-            lo = mid
+    # 1. the place: the neutral shape turned until the hem has moved `amount` (or the turn limit is reached)
+    ref = profile(REFERENCE_BEND)
+    if float(np.linalg.norm(hem_at(ref, max_angle) - hem)) <= amount:
+        a_ref = max_angle
+    else:
+        lo, hi = 0.0, max_angle
+        for _ in range(40):
+            mid = 0.5 * (lo + hi)
+            if float(np.linalg.norm(hem_at(ref, mid) - hem)) < amount:
+                lo = mid
+            else:
+                hi = mid
+        a_ref = 0.5 * (lo + hi)
+    target = hem_at(ref, a_ref)
+    if abs(bend - REFERENCE_BEND) < 1e-9:
+        return rots_for(ref, a_ref)
+
+    # 2. the way: this bend's profile, turned (within the limit) to land nearest that place
+    cum = profile(bend)
+    alphas = np.linspace(0.0, max_angle, 71)
+    best = min(alphas, key=lambda a: float(np.linalg.norm(hem_at(cum, a) - target)))
+    step = alphas[1] - alphas[0]
+    lo, hi = max(0.0, best - step), min(max_angle, best + step)
+    for _ in range(30):                           # refine around the best sample (golden-section)
+        m1, m2 = lo + (hi - lo) * 0.382, lo + (hi - lo) * 0.618
+        if np.linalg.norm(hem_at(cum, m1) - target) < np.linalg.norm(hem_at(cum, m2) - target):
+            hi = m2
         else:
-            hi = mid
-    return rots_for(0.5 * (lo + hi))
+            lo = m1
+    return rots_for(cum, 0.5 * (lo + hi))
 
 
 def to_basis(arm, rig, rots):
@@ -255,6 +283,7 @@ def write_action(arm, layer, quats, locs=None):
     act.use_fake_user = True
     act["bone_cloth"] = layer.id_data.name
     act["bc_sig"], act["bc_count"] = action_signature(act)
+    stamp_layout(arm, act)
     layer.action = act
     if shown:
         ad.action = act
@@ -317,6 +346,45 @@ def action_signature(act):
                         parts.append("%s[%d]=%.4f" % (fc.data_path, fc.array_index, fc.evaluate(2.0)))
     import zlib
     return "%08x" % zlib.crc32("|".join(sorted(parts)).encode("utf-8")), len(parts)
+
+
+def layout_signature(arm, names):
+    """A fingerprint of the bones a pose is made for: their names and rest positions (to a millimetre)."""
+    import zlib
+    parts = []
+    for n in sorted(names):
+        b = arm.data.bones.get(n)
+        if b is not None:
+            parts.append("%s:%s" % (n, ",".join("%.1f" % (x * 10.0) for x in tuple(b.head_local) + tuple(b.tail_local))))
+    return "%08x" % zlib.crc32("|".join(parts).encode("utf-8"))
+
+
+def pose_bone_names(act):
+    names = set()
+    if act is not None:
+        for lyr in act.layers:
+            for st in lyr.strips:
+                for cb in st.channelbags:
+                    for fc in cb.fcurves:
+                        if fc.data_path.startswith('pose.bones["'):
+                            names.add(fc.data_path.split('"')[1])
+    return names
+
+
+def stamp_layout(arm, act):
+    """Remembers which bones the clip was made for."""
+    cloth = [n for n in pose_bone_names(act) if n in arm.pose.bones and "bone_cloth" in arm.pose.bones[n]]
+    act["bc_layout"] = layout_signature(arm, cloth)
+    act["bc_layout_bones"] = len(cloth)
+
+
+def layout_changed(arm, layer):
+    """True when the clip was made for other bones than these (the bones were rebuilt since)."""
+    act = layer.action
+    if act is None or "bc_layout" not in act:
+        return False
+    cloth = [n for n in pose_bone_names(act) if n in arm.pose.bones and "bone_cloth" in arm.pose.bones[n]]
+    return len(cloth) != act.get("bc_layout_bones", len(cloth)) or layout_signature(arm, cloth) != act["bc_layout"]
 
 
 def layer_is_hand(layer):

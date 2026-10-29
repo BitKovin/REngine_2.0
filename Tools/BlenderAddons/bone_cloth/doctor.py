@@ -55,6 +55,13 @@ def run(setup, arm):
         add(Issue("ROOT-MISSING", "error", "Bones the setup made are gone: %s. Press Build bones." % ", ".join(missing[:3]),
                   bones=missing))
 
+    # ---- a hand-made pose belongs to the bones it was made for ----
+    for kind in ("open", "volume"):
+        layer = getattr(setup.poses, kind)
+        if layer.enabled and poses.layout_changed(arm, layer):
+            add(Issue("HAND-POSE-BONES", "error", "The %s pose was made for different bones than these (they were rebuilt "
+                      "since), so it would look wrong. Put the bone settings back, or pose again and save it." % kind))
+
     # ---- name clashes ----
     for b in generated + bones_mod.roots(setup):
         if b in bpy.data.objects:
@@ -140,7 +147,7 @@ def run(setup, arm):
 
     for kind in ("open", "volume"):
         layer = getattr(setup.poses, kind)
-        if layer.enabled and poses.layer_is_hand(layer):
+        if layer.enabled and poses.layer_is_hand(layer) and not poses.layout_changed(arm, layer):
             add(Issue("HAND-POSE", "info", "The %s pose is hand made: Update keeps it as it is (Back to generated in Wind "
                       "poses throws it away)" % kind))
 

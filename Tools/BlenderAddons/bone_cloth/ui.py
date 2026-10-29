@@ -211,6 +211,7 @@ class BONECLOTH_PT_shape(_Sub):
             col.prop(g, "opening_half_angle")
         if g.anchors == 'SPINE':
             col.prop(g, "bone_inset", slider=True)
+            col.prop(g, "max_bone_length")
         col.prop(g, "columns_per_side")
         row = col.row(align=True)
         row.prop(g, "center_back", toggle=True)

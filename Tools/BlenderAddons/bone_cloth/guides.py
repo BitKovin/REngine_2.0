@@ -373,6 +373,12 @@ def _plan_spine(setup, arm, frame, geom, plan):
             zs = [tz] + bounds
             fr = _row_fractions(g)
             zs += [last_z + (hem_z - last_z) * t for t in fr[1:]]
+            if g.max_bone_length > 0.02:              # long sections become equal bones (same owner: they chain)
+                refined = [zs[0]]
+                for a_, b_ in zip(zs[:-1], zs[1:]):
+                    parts = max(1, int(math.ceil((a_ - b_) / g.max_bone_length - 1e-6)))
+                    refined += [a_ + (b_ - a_) * i / parts for i in range(1, parts + 1)]
+                zs = refined
             hem_index = len(zs) - 1
             twin = cache.get((col.name, 'l'))[0] if suffix == 'r' and (col.name, 'l') in cache else None
             pts = _column_points(geom, frame, g, theta, zs, hem_index, twin, True)
