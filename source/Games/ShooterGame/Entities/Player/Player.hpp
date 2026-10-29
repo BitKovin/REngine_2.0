@@ -496,6 +496,8 @@ public:
 
 		weaponSlots.resize(10);
 
+		UseBoundsCenterForLightVol = false;
+
 		//AddComponent<PlayerTestComponent>();
 
 	}

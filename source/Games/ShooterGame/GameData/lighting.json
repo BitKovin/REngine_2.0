@@ -1,5 +1,5 @@
 {
-  "albedo": 0.7,
+  "albedo": 1,
   "areaSamplesPerPass": 1,
   "atlasSize": 1024,
   "bounces": true,
@@ -10,7 +10,7 @@
   "denoiseQuality": 1,
   "directSupersample": 1,
   "exposure": 1.0,
-  "firstSendFraction": 0.1,
+  "firstSendFraction": 0.01,
   "flushIntervalMs": 25.0,
   "giSamplesPerPass": 16,
   "giScale": 1,
@@ -24,14 +24,14 @@
   "lightvolMaxProbes": 100000000,
   "lightvolNormals": 32,
   "lightvolProbesPerStep": 8,
-  "maxHoldSeconds": 3.0,
+  "maxHoldSeconds": 0.5,
   "maxPasses": 24,
   "mergeAngleDeg": 15.0,
   "padding": 2,
   "skySamplesPerPass": 16,
   "texelsPerMeter": 8.0,
   "texelsPerStep": 1500,
-  "tickBudgetMs": 120.0,
+  "tickBudgetMs": 300,
   "useGpu": true,
   "useTextures": true
 }

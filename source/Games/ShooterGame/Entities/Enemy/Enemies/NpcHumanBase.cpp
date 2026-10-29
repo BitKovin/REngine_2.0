@@ -41,6 +41,8 @@ NpcHumanBase::NpcHumanBase()
     CanMigrateOwner          = true;
     DestroyOnOwnerDisconnect = false;
 
+	UseBoundsCenterForLightVol = false;
+
     Tags.push_back("canBurn");
 }
 
@@ -102,6 +104,14 @@ void NpcHumanBase::ResolveTarget()
 // players directly as NetworkedEntities.
 void NpcHumanBase::UpdatePerception()
 {
+
+	auto currentCluser = Level::Current->BspData.FindClusterAtPosition(Position);
+	auto cameraCluster = Level::Current->BspData.FindClusterAtPosition(Camera::position);
+
+    if (Level::Current->BspData.IsClusterVisible(currentCluser, cameraCluster))
+    {
+		DebugDraw::Line(Position, Camera::position - vec3(0,1,0), 0.1f, 0.02f, DebugColor::Green);
+    }
 
     if (IsDead()) return;
 

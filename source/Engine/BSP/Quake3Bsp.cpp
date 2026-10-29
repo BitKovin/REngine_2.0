@@ -77,6 +77,36 @@ CQuake3BSP::~CQuake3BSP()
     // are all shared_ptr<Texture> – destroyed automatically.
 }
 
+// rBSP v2 (the editor's format) stores node bounds as 32-bit integers.
+// The original IBSP/RBSP tBSPNode uses the legacy on-disk layout (short bounds),
+// so it must not be used to stride through the rBSP v2 node lump.
+struct tBSPNodeRBSP2OnDisk
+{
+    int32_t plane;
+    int32_t children[2];
+    int32_t mins[3];
+    int32_t maxs[3];
+};
+static_assert(sizeof(tBSPNodeRBSP2OnDisk) == 36,
+    "rBSP v2 node records are 36 bytes");
+
+// rBSP v2 also uses 32-bit leaf bounds. Legacy Quake tBSPLeaf records use
+// short bounds, so their stride is not compatible with the editor's 48-byte
+// leaf records either.
+struct tBSPLeafRBSP2OnDisk
+{
+    int32_t cluster;
+    int32_t area;
+    int32_t mins[3];
+    int32_t maxs[3];
+    int32_t firstLeafSurface;
+    int32_t numLeafSurfaces;
+    int32_t firstLeafBrush;
+    int32_t numLeafBrushes;
+};
+static_assert(sizeof(tBSPLeafRBSP2OnDisk) == 48,
+    "rBSP v2 leaf records are 48 bytes");
+
 // ─────────────────────────────────────────────────────────────────────────────
 // LoadBSP
 // ─────────────────────────────────────────────────────────────────────────────
@@ -234,7 +264,29 @@ bool CQuake3BSP::LoadBSP(const char* filename)
     // Nodes
     {
         size_t cnt = 0;
-        if (checkLump(kNodes, sizeof(tBSPNode), cnt)) {
+        if (m_isRBSP2) {
+            // The editor's rBSP v2 has 32-bit mins/maxs (36 bytes per node),
+            // unlike legacy tBSPNode records. Read the exact disk stride, then
+            // copy the fields used for tree traversal into the canonical nodes.
+            // Bounds are not used by FindClusterAtPosition; leaving canonical
+            // bounds zeroed also avoids narrowing the rBSP v2 32-bit bounds.
+            if (checkLump(kNodes, sizeof(tBSPNodeRBSP2OnDisk), cnt)) {
+                nodes.resize(cnt);
+                const uint8_t* ptr = base + lumps[kNodes].offset;
+                for (size_t i = 0; i < cnt; ++i) {
+                    tBSPNodeRBSP2OnDisk raw{};
+                    memcpy(&raw, ptr + i * sizeof(raw), sizeof(raw));
+                    nodes[i].plane = raw.plane;
+                    nodes[i].children[0] = raw.children[0];
+                    nodes[i].children[1] = raw.children[1];
+                }
+            }
+            else {
+                printf("ERROR:: Invalid rBSP v2 node lump\n");
+                return false;
+            }
+        }
+        else if (checkLump(kNodes, sizeof(tBSPNode), cnt)) {
             nodes.resize(cnt);
             memcpy(nodes.data(), base + lumps[kNodes].offset, cnt * sizeof(tBSPNode));
         }
@@ -243,16 +295,43 @@ bool CQuake3BSP::LoadBSP(const char* filename)
     // Leafs
     {
         size_t cnt = 0;
-        if (checkLump(kLeafs, sizeof(tBSPLeaf), cnt)) {
+        if (m_isRBSP2) {
+            // Convert the 48-byte rBSP v2 leaf layout explicitly. Visibility
+            // needs cluster + leaf-face ranges; the legacy bounds arrays may
+            // be narrower, so leave their canonical storage zeroed rather than
+            // narrowing the editor's 32-bit bounds.
+            if (checkLump(kLeafs, sizeof(tBSPLeafRBSP2OnDisk), cnt)) {
+                leafs.resize(cnt);
+                const uint8_t* ptr = base + lumps[kLeafs].offset;
+                for (size_t i = 0; i < cnt; ++i) {
+                    tBSPLeafRBSP2OnDisk raw{};
+                    memcpy(&raw, ptr + i * sizeof(raw), sizeof(raw));
+                    tBSPLeaf& lf = leafs[i];
+                    lf.cluster = raw.cluster;
+                    lf.area = raw.area;
+                    lf.leafface = raw.firstLeafSurface;
+                    lf.n_leaffaces = raw.numLeafSurfaces;
+                    lf.leafbrush = raw.firstLeafBrush;
+                    lf.n_leafbrushes = raw.numLeafBrushes;
+                }
+            }
+            else {
+                printf("ERROR:: Invalid rBSP v2 leaf lump\n");
+                return false;
+            }
+        }
+        else if (checkLump(kLeafs, sizeof(tBSPLeaf), cnt)) {
             leafs.resize(cnt);
             memcpy(leafs.data(), base + lumps[kLeafs].offset, cnt * sizeof(tBSPLeaf));
             for (auto& lf : leafs) {
-                float t = lf.mins[1];
+                // Quake Z-up -> engine Y-up. When negating an axis, swap the
+                // old max/min so transformed bounds remain ordered.
+                const auto oldMinY = lf.mins[1];
+                const auto oldMaxY = lf.maxs[1];
                 lf.mins[1] = lf.mins[2];
-                lf.mins[2] = -t;
-                t = lf.maxs[1];
                 lf.maxs[1] = lf.maxs[2];
-                lf.maxs[2] = -t;
+                lf.mins[2] = -oldMaxY;
+                lf.maxs[2] = -oldMinY;
             }
         }
     }
@@ -287,12 +366,14 @@ bool CQuake3BSP::LoadBSP(const char* filename)
                 originalMaxs = glm::vec3(models[0].maxs[0], models[0].maxs[1], models[0].maxs[2]);
             }
             for (auto& m : models) {
-                float t = m.mins[1];
+                // Quake Z-up -> engine Y-up. The flipped axis must swap old
+                // extrema; negating mins into mins reverses the Z bounds.
+                const float oldMinY = m.mins[1];
+                const float oldMaxY = m.maxs[1];
                 m.mins[1] = m.mins[2];
-                m.mins[2] = -t;
-                t = m.maxs[1];
                 m.maxs[1] = m.maxs[2];
-                m.maxs[2] = -t;
+                m.mins[2] = -oldMaxY;
+                m.maxs[2] = -oldMinY;
             }
         }
     }
@@ -433,14 +514,36 @@ bool CQuake3BSP::LoadBSP(const char* filename)
         }
     }
 
-    // VisData
-    if (lumps[kVisData].length >= 2 * (int)sizeof(int)) {
-        size_t off = lumps[kVisData].offset;
-        visData.n_vecs = *reinterpret_cast<const int*>(base + off);
-        visData.sz_vecs = *reinterpret_cast<const int*>(base + off + sizeof(int));
-        size_t totalVis = size_t(visData.n_vecs) * visData.sz_vecs;
-        visData.vecs.resize(totalVis);
-        memcpy(visData.vecs.data(), base + off + 2 * sizeof(int), totalVis);
+    // Visibility (rBSP v2 uses the same Quake bitset header: cluster count,
+    // bytes per cluster row, then one uncompressed bitset row per cluster).
+    // Validate the entire payload before allocating or copying it.
+    visData.n_vecs = 0;
+    visData.sz_vecs = 0;
+    visData.vecs.clear();
+    {
+        const auto& L = lumps[kVisData];
+        if (L.offset >= 0 && L.length >= int(2 * sizeof(int)) &&
+            size_t(L.offset) + size_t(L.length) <= totalSize) {
+            int nVecs = 0, bytesPerVec = 0;
+            memcpy(&nVecs, base + L.offset, sizeof(nVecs));
+            memcpy(&bytesPerVec, base + L.offset + sizeof(nVecs), sizeof(bytesPerVec));
+            const size_t payloadBytes = size_t(L.length) - 2 * sizeof(int);
+            const size_t requiredBytesPerVec = nVecs > 0
+                ? (size_t(nVecs) + 7u) / 8u : 0u;
+            const bool dimensionsValid = nVecs > 0 && bytesPerVec > 0 &&
+                size_t(bytesPerVec) >= requiredBytesPerVec &&
+                size_t(nVecs) <= payloadBytes / size_t(bytesPerVec);
+            if (dimensionsValid) {
+                const size_t totalVis = size_t(nVecs) * size_t(bytesPerVec);
+                visData.n_vecs = nVecs;
+                visData.sz_vecs = bytesPerVec;
+                visData.vecs.resize(totalVis);
+                memcpy(visData.vecs.data(), base + L.offset + 2 * sizeof(int), totalVis);
+            }
+            else {
+                printf("WARNING:: Invalid BSP visibility lump; visibility culling disabled\n");
+            }
+        }
     }
 
     // Vertices (Y-up swap)
@@ -1642,10 +1745,10 @@ LightVolPointData CQuake3BSP::GetLightvolColorPoint(const glm::vec3& position, b
 
     struct LightData { glm::vec3 amb, dir_color, dir_vec; };
     LightData datas[8] = {
-        {amb000, dir000, vec000}, {amb100, dir100, vec100},
-        {amb010, dir010, vec010}, {amb110, dir110, vec110},
-        {amb001, dir001, vec001}, {amb101, dir101, vec101},
-        {amb011, dir011, vec011}, {amb111, dir111, vec111}
+        { amb000, dir000, vec000 },{ amb100, dir100, vec100 },
+        { amb010, dir010, vec010 },{ amb110, dir110, vec110 },
+        { amb001, dir001, vec001 },{ amb101, dir101, vec101 },
+        { amb011, dir011, vec011 },{ amb111, dir111, vec111 }
     };
     bool valids[8] = { valid000, valid100, valid010, valid110,
                         valid001, valid101, valid011, valid111 };
@@ -2080,39 +2183,57 @@ glm::vec3 CQuake3BSP::LinetraceLightmapColor(glm::vec3 start, glm::vec3 end)
 
 int CQuake3BSP::FindClusterAtPosition(glm::vec3 cameraPos)
 {
+    // Positions supplied by the engine are in scaled engine units; BSP planes
+    // are in raw Quake units. Convert once before traversing the tree.
     cameraPos *= MAP_SCALE;
 
-    int nodeIndex = 0;
-    int depth = 0;
-    while (nodeIndex >= 0 && depth < 200) {
-        const tBSPNode& node = nodes[nodeIndex];
-        const tBSPPlane& plane = planes[node.plane];
-        float dist = glm::dot(cameraPos, plane.normal) - plane.dist;
+    if (nodes.empty() || planes.empty() || leafs.empty())
+        return -1;
 
-        int childIndex = dist >= 0 ? 0 : 1;
-        int nextChild = node.children[childIndex];
+    int nodeIndex = 0;
+    size_t depth = 0;
+    // A valid binary tree cannot require more steps than its node count. This
+    // also bounds traversal for malformed/cyclic node data.
+    while (nodeIndex >= 0 && depth++ <= nodes.size()) {
+        if (static_cast<size_t>(nodeIndex) >= nodes.size())
+            return -1;
+
+        const tBSPNode& node = nodes[static_cast<size_t>(nodeIndex)];
+        if (node.plane < 0 || static_cast<size_t>(node.plane) >= planes.size())
+            return -1;
+
+        const tBSPPlane& plane = planes[static_cast<size_t>(node.plane)];
+        const float dist = glm::dot(cameraPos, plane.normal) - plane.dist;
+        const int childIndex = dist >= 0 ? 0 : 1;
+        const int nextChild = node.children[childIndex];
         if (nextChild < 0) {
-            int leafIndex = -nextChild - 1;
-            return leafs[leafIndex].cluster;
+            const int64_t leafIndex = -static_cast<int64_t>(nextChild) - 1;
+            if (leafIndex < 0 || static_cast<size_t>(leafIndex) >= leafs.size())
+                return -1;
+            return leafs[static_cast<size_t>(leafIndex)].cluster;
         }
         nodeIndex = nextChild;
-        depth++;
     }
-    printf("Failed to find cluster\n");
+
     return -1;
 }
 
 bool CQuake3BSP::IsClusterVisible(int sourceCluster, int testCluster)
 {
-    if (sourceCluster < 0) return true;
-    if (testCluster < 0) return true;
-    if (visData.n_vecs == 0) return true;
+    // Unknown clusters intentionally fail open. This is safe for visibility
+    // (it may draw extra objects) and prevents malformed files reading past PVS.
+    if (sourceCluster < 0 || testCluster < 0 || visData.n_vecs <= 0 ||
+        visData.sz_vecs <= 0 || sourceCluster >= visData.n_vecs ||
+        testCluster >= visData.n_vecs)
+        return true;
 
-    int byteIndex = (sourceCluster * visData.sz_vecs) + (testCluster / 8);
-    int bitIndex = testCluster % 8;
+    const size_t byteIndex = size_t(sourceCluster) * size_t(visData.sz_vecs) +
+        size_t(testCluster / 8);
+    if (byteIndex >= visData.vecs.size())
+        return true;
 
-    unsigned char byteValue = visData.vecs[byteIndex];
-    return (byteValue & (1 << bitIndex)) != 0;
+    const unsigned char byteValue = visData.vecs[byteIndex];
+    return (byteValue & (1u << (testCluster % 8))) != 0;
 }
 
 // You can move this somewhere global / static
@@ -2299,7 +2420,7 @@ void CQuake3BSP::RenderTransparentFaces()
     // decals first (rBSP v2): they lie on opaque surfaces and every other transparent face may be in front of them
     std::stable_partition(facesToDrawTransparent.begin(), facesToDrawTransparent.end(), [this](const FaceRenderData& f) {
         return f.faceIndex >= 0 && f.faceIndex < (int)mergedFacesData.size() && cachedFaces[mergedFacesData[f.faceIndex].referenceFace].decal;
-    });
+        });
     for (auto& face : facesToDrawTransparent)
         RenderMergedFace(face.faceIndex, face.useLightmap, face.lightPointData, face.modelMatrix);
 
@@ -2824,20 +2945,50 @@ bool BSPModelRef::IsInFrustrum(Frustum frustrum)
 
 bool BSPModelRef::IsBspVisible()
 {
-    int sourceC = bsp->FindClusterAtPosition(Camera::finalizedPosition);
-    auto b = GetTransformedBounds();
+    const int sourceC = bsp->FindClusterAtPosition(Camera::finalizedPosition);
+    // Without a source cluster there is no safe PVS row to consult.
+    if (sourceC < 0)
+        return true;
 
-    if (CheckPointBspVisible(sourceC, b.Center())) return true;
-    if (CheckPointBspVisible(sourceC, b.Max))      return true;
-    if (CheckPointBspVisible(sourceC, b.Min))      return true;
-    if (CheckPointBspVisible(sourceC, mix(b.Center(), b.Min, 0.5f))) return true;
+    const BoundingBox b = GetTransformedBounds();
+    const glm::vec3 center = b.Center();
+    const float xs[3] = { b.Min.x, center.x, b.Max.x };
+    const float ys[3] = { b.Min.y, center.y, b.Max.y };
+    const float zs[3] = { b.Min.z, center.z, b.Max.z };
+    bool foundKnownTargetCluster = false;
 
-    return false;
+    // A brush entity's center (or one of its corners) can lie in a solid
+    // visibility cell whose cluster is -1. That sample is not evidence that
+    // the object is visible. Check a 3x3x3 set across the transformed bounds,
+    // and accept the object if any *known* target cluster is PVS-visible.
+    for (float x : xs) {
+        for (float y : ys) {
+            for (float z : zs) {
+                const int targetC = bsp->FindClusterAtPosition(glm::vec3(x, y, z));
+                if (targetC < 0)
+                    continue;
+
+                foundKnownTargetCluster = true;
+                if (bsp->IsClusterVisible(sourceC, targetC))
+                    return true;
+            }
+        }
+    }
+
+    // If every sample was in an unknown/solid cell, preserve correctness by
+    // drawing rather than culling an object whose visibility cannot be tested.
+    return !foundKnownTargetCluster;
 }
 
 bool BSPModelRef::CheckPointBspVisible(int cameraCluster, vec3 position)
 {
-    int targetC = bsp->FindClusterAtPosition(position);
+    if (cameraCluster < 0)
+        return true;
+
+    const int targetC = bsp->FindClusterAtPosition(position);
+    if (targetC < 0)
+        return false;
+
     return bsp->IsClusterVisible(cameraCluster, targetC);
 }
 

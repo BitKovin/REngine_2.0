@@ -33,7 +33,6 @@ class PickupAmmoCannon : public PickupBase
 		mesh->Rotation = Rotation - vec3(0, 90, 0);
 		mesh->MeshCustomShaderParams["rim_pow"] = vec4(2.5f);
 		mesh->MeshCustomShaderParams["rim_color"] = vec4(2.0f, 2.0f, 0.4f, 1.0f);
-		mesh->Scale = vec3(1 / 32.f);
 		Drawables.push_back(mesh);
 
 	}

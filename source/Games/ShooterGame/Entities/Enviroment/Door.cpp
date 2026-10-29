@@ -93,6 +93,7 @@ void Door::LoadAssets()
 	doorMesh->TexturesLocation = "GameData/models/enviroment/door.glb/";
 	doorMesh->MeshHideList.insert("frame");
     doorMesh->Brightness = 1;
+    doorMesh->SetPixelShader("fs_default_env");
 	Drawables.push_back(doorMesh);
 
 	doorFrameMesh = new StaticMesh(this);
@@ -100,7 +101,10 @@ void Door::LoadAssets()
 	doorFrameMesh->TexturesLocation = "GameData/models/enviroment/door.glb/";
 	doorFrameMesh->MeshHideList.insert("door");
     doorFrameMesh->Brightness = 1;
+    doorFrameMesh->SetPixelShader("fs_default_env");
 	Drawables.push_back(doorFrameMesh);
+
+	UseBoundsCenterForLightVol = true;
 
 }
 

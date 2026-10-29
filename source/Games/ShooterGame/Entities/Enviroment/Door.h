@@ -39,8 +39,6 @@ public:
 
 		LoadAssetsIfNeeded();
 
-		Rotation.y = data.GetPropertyFloat("angle");
-
 		doorFrameMesh->Position = Position;
 		doorFrameMesh->Rotation = Rotation;
 		doorMesh->Position = Position;

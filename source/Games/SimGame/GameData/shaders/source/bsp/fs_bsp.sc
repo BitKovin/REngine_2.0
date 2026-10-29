@@ -62,9 +62,6 @@ vec3 CalculateSimplePointLight(int i, vec3 pixelPosition, vec3 normal)
     return lightCol * intense * dirFactor;
 }
 
-vec3 LinearFromSrgb(vec3 c) { return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3_splat(2.4)), step(vec3_splat(0.04045), c)); }
-vec3 SrgbFromLinear(vec3 c) { c = clamp(c, 0.0, 1.0); return mix(c * 12.92, 1.055 * pow(c, vec3_splat(1.0 / 2.4)) - 0.055, step(vec3_splat(0.0031308), c)); }
-
 // rBSP v2 (level editor): bicubic B-spline lookup from 4 bilinear fetches, as the editor's views do. Bilinear's slope jumps at every texel
 // border, which shows soft shadows as creases on the texel grid. Reads up to 2 texels around a chart's edge (the editor pads charts by 2).
 vec3 LightmapBicubic(sampler2D s, vec2 uv)
@@ -157,17 +154,8 @@ void main()
     for (int i = 0; i < numLights; i++)
         dynamicLight += CalculateSimplePointLight(i, v_world.xyz, normal);
 
-    vec3 lit;
-    if (isRBSP.x > 1.5)
-    {
-        // rBSP v2 (level editor): the baked light is linear HDR and the albedo is sRGB, so they are multiplied in linear light and
-        // encoded back to sRGB, as the editor's Lit view does. The game's dynamic lights keep their gamma-space look.
-        lit = SrgbFromLinear(LinearFromSrgb(o_texture.rgb) * o_lightmap) + o_texture.rgb * dynamicLight;
-    }
-    else
-    {
-        lit = o_texture.rgb * (o_lightmap + dynamicLight);
-    }
+    // albedo and light are multiplied as they are, in the texture's own space (rBSP v2 included: no sRGB conversion)
+    vec3 lit = o_texture.rgb * (o_lightmap + dynamicLight);
 
     gl_FragColor = ApplyFog(vec4(lit * brightness.x, o_texture.a), v_world.xyz);
 }

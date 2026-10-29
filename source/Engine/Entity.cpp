@@ -220,6 +220,14 @@ void Entity::Serialize(json& target)
 LightVolPointData Entity::GetLightVolData(bool wallCheck)
 {
 
+	if (UseBoundsCenterForLightVol)
+	{
+		auto bounds = GetBoundingBox();
+		auto center = bounds.Center();
+		auto light = Level::Current->BspData.GetLightvolColorPoint(center * MAP_SCALE, wallCheck);
+		return light;
+	}
+
 	auto light = Level::Current->BspData.GetLightvolColorPoint(Position * MAP_SCALE, wallCheck);
 
 	return light;
