@@ -3035,7 +3035,7 @@ void Player::LoadAssets()
 	//bodyMesh->TexturesLocation = "GameData/models/npc/guard.glb/";
 	bodyMesh->PreloadAssets();
 	bodyMesh->CastDetailShadows = false;
-	bodyMesh->Scale = vec3(0.94f);
+	bodyMesh->Scale = vec3(0.9f);
 
 	bodyAnimator.LoadAssetsIfNeeded();
 
