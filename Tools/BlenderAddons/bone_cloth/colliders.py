@@ -16,7 +16,7 @@ def add_defaults(setup, arm):
     setup.colliders.clear()
     for bone, to in landmarks.leg_capsules(setup.character):
         c = setup.colliders.add()
-        c.bone, c.to = bone, to
+        c.bone, c.to, c.covers = bone, to, True
     if setup.guides.layout != 'STRAND':
         add_torso(setup, arm)
 

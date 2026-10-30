@@ -29,6 +29,8 @@ def skmm_entry(setup, arm):
             else:
                 col = {"bone": c.bone, "to": c.to, "radius": 0.0 if c.auto_radius else round(c.radius, 4),
                        "endRadius": 0.0 if c.auto_end else round(c.end_radius, 4)}
+                if c.covers:
+                    col["covers"] = True
             if any(abs(v) > 1e-6 for v in c.offset):
                 col["offset"] = [round(float(v), 4) for v in frame.to_engine(np.array(c.offset))]
             cols.append(col)
@@ -80,6 +82,7 @@ def entry_text(e, indent="        "):
     lines.append('%s"colliders": [' % i1)
     for k, c in enumerate(e["colliders"]):
         extra = ', "surface": true' if c.get("surface") else ""
+        extra += ', "covers": true' if c.get("covers") else ""
         if "offset" in c:
             o = c["offset"]
             extra += ', "offset": { "x": %s, "y": %s, "z": %s }' % (_f(o[0]), _f(o[1]), _f(o[2]))

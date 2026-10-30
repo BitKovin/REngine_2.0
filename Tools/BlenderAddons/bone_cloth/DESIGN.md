@@ -1195,6 +1195,16 @@ didn't converge (one probe each, ~20 per strip): 8 (LEG_ITERATIONS). tests/test_
 (crouch_l), 9.6 -> 7.7 (crouch_r); renders show the front and sides lying over the thighs. What's left is between
 probes (12 probes per joint did not change it).
 
+Only colliders the cloth covers (collider `covers`, set on the auto leg capsules) do this. Arm capsules first got it
+too (every non-surface collider) and the jacket exploded: the arms hang outside the jacket, so the cloth between arm
+and body was thrown across them. Other colliders keep the plain tip push. With bones inside the body that push does
+little and can harm: arm capsules (hand to lowerarm) put the jacket 2.4 cm into the torso in a 25 m/s side wind
+(test_wind_clips fails on a scene with them). Tried the arms' match - the same solver keeping the cloth on an arm's
+inner side - and dropped it: the jacket was flung up over the shoulders (15 cm into the arms; 8.6 cm when only cloth
+blown fully past an arm was brought back) in the game's idle, no wind. The rest allowance comes from the bind pose, where
+the arms are out (A-pose); hanging, the forearm capsules sit in the jacket's sides, so keeping the cloth under them
+fights the torso. With the tip push the jacket stays within 0.5 cm of the arms in a 25 m/s side wind and a 180 deg/s turn.
+
 Turns follow the user's hand-made turn (moderate): the whole jacket turns about 16 degrees with the body, the trailing
 front panel opens 0.8 of the Open pose and flares out, the back flares 0.4; frame 2 is half of frame 3. A hand-made left
 clip is kept and its right clip mirrored from it. Still open on the jacket: in the Open pose the front panels swing

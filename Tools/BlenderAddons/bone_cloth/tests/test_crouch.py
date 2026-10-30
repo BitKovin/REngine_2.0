@@ -32,7 +32,7 @@ for a in actions.values():                 # only the bones: the object keys wou
 print("imported actions:", sorted(actions)[:40])
 s.preview.motion, s.preview.wind_speed = 'ANIMATION', 0.0
 start = arm.matrix_basis.copy()
-legs = [c for c in s.colliders if not c.surface]
+legs = [c for c in s.colliders if c.covers]
 cloth_bones = {b for info in bones_mod.strips(s, arm) for b in info["bones"]}
 
 

@@ -440,6 +440,7 @@ void BoneCloth::BuildColliders(const std::vector<glm::mat4>& restWorld, const st
 		collider.radius = config.radius;
 		collider.endRadius = config.endRadius;
 		collider.surface = config.surface;
+		collider.covers = config.covers && !config.surface;
 		const glm::vec3 start = glm::vec3(restWorld[collider.bone][3]) + config.offset;
 		const glm::vec3 end = glm::vec3(restWorld[collider.to][3]) + config.offset;
 		collider.startLocal = glm::vec3(glm::inverse(restWorld[collider.bone]) * glm::vec4(start, 1.0f));
@@ -548,8 +549,11 @@ void BoneCloth::BuildProbes(const std::vector<glm::mat4>& restWorld, const std::
 		}
 	}
 
-	// The legs push the same probes and each joint's tail (the joint below turns about it). One that rests inside a leg
-	// may go that deep; one resting in a leg's shadow is left alone by it - the cloth keeps the shape it was made with.
+	// The colliders the cloth covers (legs) push the same probes and each joint's tail (the joint below turns about it).
+	// One that rests inside a leg may go that deep; one resting in a leg's shadow is left alone by it - the cloth keeps
+	// the shape it was made with.
+	if (std::none_of(colliders.begin(), colliders.end(), [](const Collider& c) { return c.covers; }))
+		return;
 	glm::vec3 axisLow(restWorld[roots.front()][3]), axisHigh = axisLow;
 	for (uint16_t root : roots)
 	{
@@ -575,7 +579,7 @@ void BoneCloth::BuildProbes(const std::vector<glm::mat4>& restWorld, const std::
 				probe.allowance.assign(colliders.size(), -1.0f);
 				for (size_t c = 0; c < colliders.size(); ++c)
 				{
-					if (colliders[c].surface)
+					if (!colliders[c].covers)
 						continue;
 					const glm::vec3 start(restWorld[colliders[c].bone] * glm::vec4(colliders[c].startLocal, 1.0f));
 					const glm::vec3 end(restWorld[colliders[c].to] * glm::vec4(colliders[c].endLocal, 1.0f));

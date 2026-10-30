@@ -504,6 +504,8 @@ class BONECLOTH_PT_colliders(_Sub):
                 r.prop(c, "end_radius", text="")
             r = box.row(align=True)
             r.prop(c, "surface")
+            if not c.surface:
+                r.prop(c, "covers")
             if c.surface or any(abs(v) > 1e-6 for v in c.offset):
                 box.prop(c, "offset")
         layout.prop(setup.motion, "radius", text="Padding")

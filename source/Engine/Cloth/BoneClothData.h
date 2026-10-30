@@ -23,11 +23,14 @@ struct BoneClothCollider
 	// A surface collider (a torso) keeps the cloth itself out - points on the cloth each joint carries - instead of the
 	// joints' tips, which may lie inside the body when the bones run near the spine. No padding is added to its radius.
 	bool surface = false;
+	// The cloth covers this part (a leg under a jacket): with surface colliders, the cloth itself stays on its outer side,
+	// also when the part comes up through it (a thigh in a crouch). Not for parts outside the cloth (arms).
+	bool covers = false;
 	// Moves both ends by this much, model space, as the model rests; each end then moves with its bone (a capsule along
 	// the side of a torso, beside the spine).
 	glm::vec3 offset = glm::vec3(0.0f);
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(BoneClothCollider, bone, to, radius, endRadius, surface, offset)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(BoneClothCollider, bone, to, radius, endRadius, surface, covers, offset)
 };
 
 struct BoneClothData

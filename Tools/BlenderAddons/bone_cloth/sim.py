@@ -213,6 +213,7 @@ class ClothSim:
         self.colliders = []
         colliders_mod.fit_all(setup, arm, (skel, verts))
         rest_caps = []
+        self.covers = []          # per collider: the cloth covers it (a leg)
         for c in setup.colliders:
             if c.enabled and c.bone in skel.index and c.to in skel.index:
                 a, b = skel.index[c.bone], skel.index[c.to]
@@ -221,6 +222,7 @@ class ClothSim:
                 self.colliders.append((a, b, r0, r1, c.surface, (np.linalg.inv(skel.rest_world[a]) @ np.append(start, 1.0))[:3],
                                        (np.linalg.inv(skel.rest_world[b]) @ np.append(end, 1.0))[:3]))
                 rest_caps.append((start, end, r0, r1, c.surface))
+                self.covers.append(c.covers and not c.surface)
         if any(c[4] for c in self.colliders):
             heads = [skel.head(r) for r in self.roots]
             low, high = min(heads, key=lambda h: h[2]), max(heads, key=lambda h: h[2])
@@ -232,8 +234,9 @@ class ClothSim:
                     j.probes = [((to_bone @ np.append(q, 1.0))[:3], ec.probe_ignore(q, rest_caps)) for q in picked]
                     # the legs push the same probes and the joint's tail (the joint below turns about it)
                     tail = (skel.rest_world[j.bone] @ np.append(j.tip_local, 1.0))[:3]
-                    j.leg_probes = [((to_bone @ np.append(q, 1.0))[:3], ec.leg_allowance(q, rest_caps, low, axis_dir))
-                                    for q in list(picked) + [tail]]
+                    j.leg_probes = ([((to_bone @ np.append(q, 1.0))[:3],
+                                     ec.leg_allowance(q, rest_caps, self.covers, low, axis_dir))
+                                    for q in list(picked) + [tail]] if any(self.covers) else [])
         # the body bones the roots hang from and their ancestors: the spin is read from them
         carry = set()
         for root in self.roots:
@@ -487,10 +490,10 @@ class ClothSim:
                 j.basis = rest_basis
                 if np.dot(frm, frm) > 1e-12 and np.dot(to, to) > 1e-12:
                     j.basis = rotation_between(frm / np.linalg.norm(frm), to / np.linalg.norm(to)) @ rest_basis
-                # the legs: the cloth of this joint and of those below it (hanging off it as posed) kept on the legs'
-                # outer side, turning this joint by its share of each push - the joints from here to the probe's own
-                # split it, so the strip bends over a thigh along its length
-                legs = [c for c, cap in enumerate(cs) if not cap[4]]
+                # the legs (colliders the cloth covers): the cloth of this joint and of those below it (hanging off it as
+                # posed) kept on the legs' outer side, turning this joint by its share of each push - the joints from
+                # here to the probe's own split it, so the strip bends over a thigh along its length
+                legs = [c for c in range(len(cs)) if self.covers[c]]
                 if legs and collision > 0.0 and any(m.leg_probes for m in st.joints[k:]):
                     to_k = np.linalg.inv(self.M[j.bone])
                     pts = [((to_k @ (self.M[m.bone] @ np.append(local, 1.0)))[:3], allowance, n + 1)

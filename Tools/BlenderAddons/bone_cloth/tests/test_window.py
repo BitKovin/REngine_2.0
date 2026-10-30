@@ -18,6 +18,7 @@ m = s.motion
 m.followRoot, m.followTip, m.trail, m.maxAngleRoot, m.maxAngleTip = 90.0, 90.0, 0.0, 2.0, 16.0
 m.swing, m.collision, m.spinOpen = 1.0, 0.0, 0.0
 m.windStrengthFront = m.windStrengthSides = m.windStrengthBack = m.spinStrength = 0.0
+m.physicsFront = m.physicsBack = m.physicsSides = m.physicsVertical = m.physicsSpin = 1.0
 s.preview.motion, s.preview.wind_speed = 'ANIMATION', 0.0
 TIPS = ["coat_front_05_l", "coat_front_05_r", "coat_back_05_l", "coat_back_05_r"]
 FPS = 60.0

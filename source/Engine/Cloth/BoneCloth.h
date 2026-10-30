@@ -46,7 +46,7 @@ private:
 		uint32_t ignore = 0;                 // per collider: it rests inside that one, so that one leaves it alone
 	};
 
-	// A probe for the legs (the leg colliders, with surface colliders on the cloth): the joint's probes and its tail.
+	// A probe for the colliders the cloth covers (legs; with surface colliders): the joint's probes and its tail.
 	struct LegProbe
 	{
 		glm::vec3 local = glm::vec3(0.0f);   // in the joint's bone frame
@@ -97,6 +97,7 @@ private:
 		float radius = 0.0f;
 		float endRadius = 0.0f;
 		bool surface = false;
+		bool covers = false;
 		glm::vec3 startLocal = glm::vec3(0.0f);   // the offset end points in their bones' frames
 		glm::vec3 endLocal = glm::vec3(0.0f);
 	};

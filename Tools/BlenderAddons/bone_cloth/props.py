@@ -239,6 +239,9 @@ class BCCollider(PropertyGroup):
     surface: BoolProperty(name="Keeps the cloth out", default=False, description="surface: the cloth itself (a few "
                           "vertices each bone carries) stays out of it, not the bones' tips - for the torso, where the "
                           "bones run inside the body. Auto radii shrink until the resting cloth is just outside")
+    covers: BoolProperty(name="Cloth covers it", default=False, description="covers: the cloth goes over this part (a "
+                         "leg under a jacket) - with surface capsules, the cloth itself is kept on its outer side, even "
+                         "when it comes up through the cloth (a thigh in a crouch). Not for parts outside the cloth (arms)")
     offset: FloatVectorProperty(name="Offset", size=3, subtype='TRANSLATION', unit='LENGTH', default=(0.0, 0.0, 0.0),
                                 description="offset: moves both ends by this much as the character rests (a capsule "
                                 "along the side of the torso); each end then moves with its bone")

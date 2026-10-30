@@ -345,13 +345,14 @@ def leg_push(point, start, end, r0, r1, axis_low, axis_dir, allowance=0.0):
     return nearest + normal * radius
 
 
-def leg_allowance(point, capsules, axis_low, axis_dir):
+def leg_allowance(point, capsules, covers, axis_low, axis_dir):
     """A leg probe at rest, per capsule (start, end, r0, r1, surface): how deep it may go into that leg - as deep as it
     rests there, so the cloth keeps the shape it was made with (0 for a leg it clears). None: the capsule leaves it
-    alone - a surface capsule, or a leg it rests in the shadow of."""
+    alone - one the cloth does not cover (covers[c] false: a surface capsule, an arm), or a leg it rests in the shadow
+    of."""
     out = []
-    for start, end, r0, r1, surface in capsules:
-        if surface:
+    for (start, end, r0, r1, surface), cover in zip(capsules, covers):
+        if surface or not cover:
             out.append(None)
             continue
         allowance = max(capsule_depth(point, start, end, r0, r1)[0], 0.0)
