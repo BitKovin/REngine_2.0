@@ -2539,7 +2539,7 @@ void Player::AsyncUpdate()
 		}
 
 
-		bodyMesh->PasteAnimationPose(pose);
+		bodyMesh->PasteAnimationPoseWithCloth(pose, Time::DeltaTimeF);
 	}
 
 	controller.Update(Time::DeltaTimeF);
@@ -3027,6 +3027,7 @@ void Player::LoadAssets()
 	armsMesh->IsViewmodel = true;
 
 	bodyMesh->LoadFromFile("GameData/models/player/body/player_body.glb");
+
 	bodyMesh->GravityAlignedRotation = true;
 	//bodyMesh->LoadFromFile("GameData/models/npc/guard.glb/");
 	bodyMesh->DepthPrePath = false;
