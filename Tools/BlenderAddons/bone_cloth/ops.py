@@ -3,9 +3,11 @@ import json
 
 import bpy
 from bpy.props import BoolProperty, EnumProperty, IntProperty, StringProperty
+from mathutils import Quaternion, Vector
 
 from . import bones as bones_mod
-from . import (colliders, doctor, export, guides, mesh_prep, overlay, pipeline, poses, presets, props, rest_shape,
+from . import engine_contract as ec
+from . import (clipgen, colliders, doctor, export, guides, mesh_prep, overlay, pipeline, poses, presets, props, rest_shape,
                stages, weights)
 
 
@@ -270,6 +272,19 @@ class BONECLOTH_OT_build_weights(_Op):
             stats.get('vertices', 0), stats.get('moving', 0), stats.get('blended', 0))
 
 
+class BONECLOTH_OT_weights_mirror(_Op):
+    bl_idname = "bone_cloth.weights_mirror"
+    bl_label = "Mirror weights"
+    bl_description = ("Gives the other side the weights of this side at the mirrored spot of the mesh (left and right "
+                      "bones swapped), so both sides move alike even where the mesh's halves are not built alike")
+    source: EnumProperty(name="From", items=[('L', "Left", "Copy the left side onto the right"),
+                                             ('R', "Right", "Copy the right side onto the left")], default='L')
+
+    def run(self, context, arm, setup):
+        n = weights.mirror(setup, arm, self.source)
+        return "Mirrored the weights of %d vertices from the %s side" % (n, "left" if self.source == 'L' else "right")
+
+
 class BONECLOTH_OT_amount_show(_Op):
     bl_idname = "bone_cloth.amount_show"
     bl_label = "Show cloth amount"
@@ -417,18 +432,144 @@ class BONECLOTH_OT_pose_preview_reset(_Op):
 
     def run(self, context, arm, setup):
         setup.poses.preview_open = setup.poses.preview_volume = 0.0
+        setup.poses.preview_wind = setup.poses.preview_turn = 0.0
         poses.set_bases(arm, {})
+
+
+# ---- wind and turn clips -------------------------------------------------------------------------------------------
+
+_CLIP_ITEMS = [(k, poses.CLIP_TITLES[k], "") for k in ec.CLIP_SLOTS]
+
+
+class BONECLOTH_OT_clip_new(_Op):
+    bl_idname = "bone_cloth.clip_new"
+    bl_label = "New clip"
+    bl_description = ("Makes the clip with the cloth at rest on frames 1 and 2 and shows it on the armature: pose the "
+                      "cloth on frame 2 (and later frames for more steps) and key it")
+    key: EnumProperty(items=_CLIP_ITEMS)
+
+    def run(self, context, arm, setup):
+        act = poses.new_clip(setup, arm, self.key)
+        poses.edit_clip(arm, act)
+        stages.mark_done(setup, "poses")
+        return "Made %s: pose the cloth on frame 2 and key it" % act.name
+
+
+class BONECLOTH_OT_clip_generate(_Op):
+    bl_idname = "bone_cloth.clip_generate"
+    bl_label = "Generate clips"
+    bl_description = ("Writes all six clips (rest, then two stronger frames each) from the Open pose - your hand-made "
+                      "one if there is one - and the strengths above. Clips you made or changed are kept")
+    force: BoolProperty(name="Replace mine too", default=False)
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_confirm(self, event) if self.force else self.execute(context)
+
+    def run(self, context, arm, setup):
+        poses.set_bases(arm, {})
+        written, kept = clipgen.generate(setup, arm, self.force)
+        stages.mark_done(setup, "poses")
+        msg = "Wrote %d clips" % len(written)
+        if kept:
+            msg += "; kept yours: " + ", ".join(poses.CLIP_TITLES[k].lower() for k in kept)
+        return msg
+
+
+class BONECLOTH_OT_clip_edit(_Op):
+    bl_idname = "bone_cloth.clip_edit"
+    bl_label = "Edit"
+    bl_description = "Shows the clip on the armature, to pose and key it with Blender's own tools"
+    key: EnumProperty(items=_CLIP_ITEMS)
+
+    def run(self, context, arm, setup):
+        act = poses.clip_slot(setup, self.key).action
+        if act is None:
+            raise RuntimeError("Make the clip first")
+        poses.edit_clip(arm, act)
+        return "Showing %s (frames %d-%d)" % (act.name, act.frame_range[0], act.frame_range[1])
+
+
+class BONECLOTH_OT_clip_key(_Op):
+    bl_idname = "bone_cloth.clip_key"
+    bl_label = "Key pose here"
+    bl_description = ("Keys how every cloth bone is posed now into the clip at the current frame (rotation and the top "
+                      "bones' slide), and makes the clip run at least that far")
+    key: EnumProperty(items=_CLIP_ITEMS)
+
+    def run(self, context, arm, setup):
+        act = poses.clip_slot(setup, self.key).action
+        if act is None:
+            raise RuntimeError("Make the clip first")
+        frame = context.scene.frame_current
+        poses.key_into_clip(act, frame, poses.current_bases(setup, arm))
+        stages.mark_done(setup, "poses")
+        return "Keyed frame %d of %s" % (frame, act.name)
+
+
+class BONECLOTH_OT_clip_from_layer(_Op):
+    bl_idname = "bone_cloth.clip_from_layer"
+    bl_label = "Use the Open pose"
+    bl_description = "Keys the Open pose (its last frame) into the clip at the current frame, to start the clip from it"
+    key: EnumProperty(items=_CLIP_ITEMS)
+    layer: EnumProperty(items=[('open', "Open", ""), ('volume', "Volume", "")], default='open')
+
+    def run(self, context, arm, setup):
+        act = poses.clip_slot(setup, self.key).action
+        source = getattr(setup.poses, self.layer).action
+        if act is None or source is None:
+            raise RuntimeError("Both the clip and the %s pose are needed" % self.layer)
+        names = set(poses.cloth_bone_names(setup, arm))
+        q, locs = poses.read_action(source), poses.read_action_locs(source)
+        bases = {b: (q.get(b, Quaternion()), locs.get(b, Vector((0.0, 0.0, 0.0)))) for b in names}
+        frame = context.scene.frame_current
+        poses.key_into_clip(act, frame, bases)
+        stages.mark_done(setup, "poses")
+        return "Keyed the %s pose into %s at frame %d" % (self.layer, act.name, frame)
+
+
+class BONECLOTH_OT_clip_mirror(_Op):
+    bl_idname = "bone_cloth.clip_mirror"
+    bl_label = "Mirror"
+    bl_description = "Writes this clip from the other side's, mirrored frame by frame (both sides of the cloth swap)"
+    key: EnumProperty(items=[(k, poses.CLIP_TITLES[k], "") for k in poses.MIRROR_OF])
+
+    def run(self, context, arm, setup):
+        act = poses.mirror_clip(setup, arm, self.key)
+        stages.mark_done(setup, "poses")
+        return "Wrote %s, mirrored" % act.name
+
+
+class BONECLOTH_OT_clip_clear(_Op):
+    bl_idname = "bone_cloth.clip_clear"
+    bl_label = "Leave out"
+    bl_description = "The cloth keeps its rest shape for this side. The action itself is kept"
+    key: EnumProperty(items=_CLIP_ITEMS)
+
+    def run(self, context, arm, setup):
+        poses.clip_slot(setup, self.key).action = None
 
 
 # ---- colliders -----------------------------------------------------------------------------------------------------
 
 class BONECLOTH_OT_colliders_defaults(_Op):
     bl_idname = "bone_cloth.colliders_defaults"
-    bl_label = "Legs"
-    bl_description = "Capsules on both thighs and calves"
+    bl_label = "Defaults"
+    bl_description = "Capsules on both thighs and calves, and the torso's surface capsules, replacing the list"
 
     def run(self, context, arm, setup):
         pipeline.setup_colliders(setup, arm, defaults=True)
+
+
+class BONECLOTH_OT_colliders_torso(_Op):
+    bl_idname = "bone_cloth.colliders_torso"
+    bl_label = "Torso"
+    bl_description = ("Adds surface capsules from the hips to the chest (the spine, and the sides when the torso is wider "
+                      "than deep) that keep the cloth itself out of the body, sized to sit just inside the resting cloth")
+
+    def run(self, context, arm, setup):
+        colliders.add_torso(setup, arm)
+        colliders.fit_all(setup, arm)
+        return "Added the torso's surface capsules"
 
 
 class BONECLOTH_OT_colliders_fit(_Op):

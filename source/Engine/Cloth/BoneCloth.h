@@ -3,6 +3,7 @@
 #include "BoneClothData.h"
 #include "../SkeletalMesh.hpp"
 
+#include <array>
 #include <vector>
 
 // Bone cloth: coats, skirts and capes rigged as strips of bones, swinging the way action games of the early 2000s did
@@ -13,15 +14,18 @@
 // rest direction on the bone above as that bone hangs now - and eases toward it a share of the way each frame, quick at
 // the top and slow at the end, so the strip bends smoothly, trails the body and catches up. The strips trail a share
 // of the character's movement (BoneClothData::trail) and all of its turning. No speed is kept, so nothing overshoots or
-// jitters when the body starts or stops. Leg capsules push the tips out. The animation's
-// keys on the strip bones and their roots are not used: the strips hang from the body in their rest shape, turned by
-// the wind layers (BoneClothData::openClip / volumeClip, additive clips) before they swing. A fast turn of the body
-// drives those layers too (BoneClothData::spinOpen / spinVolume): the coat opens as it spins.
+// jitters when the body starts or stops. Leg capsules push the tips out; surface capsules (a torso) push the cloth itself
+// out - a few of each joint's vertices it carries along, turning the joint about its head - so bones that run inside the
+// body still keep their cloth outside it. The animation's keys on the strip bones and their roots are not used: the
+// strips hang from the body in their rest shape, posed by the wind and turn clips (BoneClothData::windFront...turnRight:
+// each played as far as the wind from that side or the turn has grown, and blended) or by the older wind layers
+// (openClip / volumeClip, additive clips, with spinOpen / spinVolume) before they swing.
 class BoneCloth
 {
 public:
-	// Strips, colliders and wind layers from `data` on `model`, which needs its geometry: the vertices pick the strips
-	// and fit the colliders. False (logged) when the model lacks what data names; the cloth is then unusable.
+	// Strips, colliders, probes and wind poses from `data` on `model`, which needs its geometry: the vertices pick the
+	// strips and their probes and fit the colliders. False (logged) when the model lacks what data names; the cloth is
+	// then unusable.
 	bool Build(const BoneClothData& data, roj::SkinnedModel& model);
 
 	// Swings the strips hanging from `pose`'s body and writes their bones (and their roots) into it. world: the mesh's
@@ -34,6 +38,13 @@ public:
 	static inline bool DebugDrawEnabled = false;   // console: cloth_debug
 
 private:
+	// A point on the cloth a joint carries, kept out of the surface colliders.
+	struct Probe
+	{
+		glm::vec3 local = glm::vec3(0.0f);   // in the joint's bone frame
+		uint32_t ignore = 0;                 // per collider: it rests inside that one, so that one leaves it alone
+	};
+
 	// One bone of a strip.
 	struct Joint
 	{
@@ -46,6 +57,7 @@ private:
 		glm::vec3 head = glm::vec3(0.0f);         // world
 		glm::vec3 tail = glm::vec3(0.0f);         // world, trailing
 		glm::mat3 basis = glm::mat3(1.0f);        // world, turned to the tail
+		std::vector<Probe> probes;
 	};
 
 	struct Strip
@@ -63,18 +75,38 @@ private:
 		uint16_t to = 0;
 		float radius = 0.0f;
 		float endRadius = 0.0f;
+		bool surface = false;
+		glm::vec3 startLocal = glm::vec3(0.0f);   // the offset end points in their bones' frames
+		glm::vec3 endLocal = glm::vec3(0.0f);
 	};
+
+	// A clip's change of every strip bone from its first frame, sampled evenly over the clip.
+	struct BoneChange
+	{
+		glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);   // in the parent's space
+		glm::vec3 translation = glm::vec3(0.0f);
+		glm::vec3 scale = glm::vec3(1.0f);
+	};
+	struct ClipSamples
+	{
+		std::vector<std::vector<BoneChange>> samples;   // [sample][strip bone]; empty: no clip (the rest shape)
+	};
+	enum ClipSlot { WindFront, WindLeft, WindBack, WindRight, TurnLeft, TurnRight, ClipCount };   // wind: by angle
 
 	struct RestVertex;   // BoneCloth.cpp
 
 	bool BuildStrips(const std::vector<glm::mat4>& restWorld, const std::vector<RestVertex>& vertices);
 	void BuildColliders(const std::vector<glm::mat4>& restWorld, const std::vector<RestVertex>& vertices);
 	void BuildWindLayer(const std::string& clip, AnimationPose& difference, bool Strip::* uses);
+	void BuildClip(const std::string& clip, ClipSamples& out);
+	void BuildProbes(const std::vector<glm::mat4>& restWorld, const std::vector<RestVertex>& vertices);
 	const char* Label() const { return data.roots.empty() ? "" : data.roots.front().c_str(); }
 
 	void UpdateWindWeights(const AnimationPose& pose, const glm::mat4& world, float deltaTime);
 	float SpinRate(const AnimationPose& pose, const glm::mat4& world, float deltaTime);
-	void RestShape(AnimationPose& pose) const;
+	void AddClip(ClipSlot slot, float position, float weight);
+	void RestShape(AnimationPose& pose);
+	glm::vec3 ColliderPoint(const glm::mat4& world, uint16_t bone, const glm::vec3& local) const;
 	void ComputeModelSpace(const AnimationPose& pose);
 	void Swing(const glm::mat4& world, float deltaTime, bool snap);
 	void WriteBones(AnimationPose& pose, const glm::mat4& world);
@@ -96,6 +128,17 @@ private:
 	std::vector<int> spinParents;     // per bone, its parent's index in spinBones (-1: the top, under the world)
 	std::vector<glm::mat3> spinTurns; // per bone, world, this frame (scratch)
 	std::vector<glm::quat> previousSpinTurns;
+
+	std::vector<uint16_t> clothBones;           // every strip bone once (the clips' samples are in this order)
+	std::array<ClipSamples, ClipCount> clips;
+	bool hasClips = false;
+	glm::vec2 windAir = glm::vec2(0.0f);        // smoothed apparent wind, model space: along forward, along left
+	float windSpeed = 0.0f;                     // smoothed apparent wind speed (does not fade while the body spins)
+	float turnAmount = 0.0f;                    // smoothed, -1 (full right) .. 1 (full left)
+	std::vector<glm::vec4> blendRotation;       // per strip bone, this frame (scratch)
+	std::vector<glm::vec3> blendTranslation;
+	std::vector<glm::vec3> blendScale;
+	AnimationPose clipChange;                   // the blended clips as a Local additive pose (scratch)
 
 	std::vector<glm::mat4> modelSpace;   // the body as animated, the strips and roots at rest (with the wind layers)
 	std::vector<glm::vec3> colliderStart;   // world, this frame

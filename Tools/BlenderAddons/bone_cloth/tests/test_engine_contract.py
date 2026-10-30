@@ -130,6 +130,59 @@ def test_layer_threshold():
     assert ec.layer_uses_strip(s, {4: np.radians(0.6)})
 
 
+def test_probes():
+    sk = coat()
+    # bone 3 carries four vertices fully and one by 0.3 (not a candidate); two sit on the same spot
+    v = verts([((0.2, 0, 0.9), [(3, 1.0)]), ((0.2, 0, 0.9), [(3, 1.0)]), ((-0.1, 0, 0.8), [(3, 1.0)]),
+               ((0, 0.05, 0.95), [(3, 0.6), (1, 0.4)]), ((0.5, 0, 0.8), [(3, 0.3), (1, 0.7)])])
+    probes = ec.pick_probes(sk, v, 3)
+    # the farthest from the head (0,0,1) first, then the farthest from those taken; the duplicate is not taken twice
+    assert np.allclose(probes[0], (0.2, 0, 0.9)) and np.allclose(probes[1], (-0.1, 0, 0.8)), probes
+    assert len(probes) == 3, probes
+    assert len(ec.pick_probes(sk, v, 4)) == 0
+    caps = [(np.array([0, 0, 0.7]), np.array([0, 0, 1.2]), 0.15, 0.15, True),       # holds the 2nd and 3rd probes
+            (np.array([0, 0, 0.7]), np.array([0, 0, 1.2]), 0.5, 0.5, False)]         # not a surface capsule
+    assert [ec.probe_ignore(q, caps) for q in probes] == [0, 1, 1]
+
+
+def test_clip_layers():
+    # still air, no turn: the rest shape
+    assert ec.clip_layers(0.0, 0.0, 0.0, 0.0) == []
+    # air moving backward = wind from the front: the front clip only
+    assert ec.clip_layers(-5.0, 0.0, 0.5, 0.0) == [[(0, 0.5, 1.0)]]
+    # air moving to the right = wind from the left (slot 1); from behind = slot 2; from the right = slot 3
+    assert ec.clip_layers(0.0, -5.0, 1.0, 0.0)[0][0][0] == 1
+    assert ec.clip_layers(5.0, 0.0, 1.0, 0.0)[0][0][0] == 2
+    assert ec.clip_layers(0.0, 5.0, 1.0, 0.0)[0][0][0] == 3
+    # halfway between the front and the left: half each, at the same position
+    (wind,) = ec.clip_layers(-1.0, -1.0, 0.8, 0.0)
+    assert sorted((slot, round(pos, 6), round(w, 6)) for slot, pos, w in wind) == [(0, 0.8, 0.5), (1, 0.8, 0.5)], wind
+    # between the right and the front wraps round
+    assert sorted(slot for slot, _, _ in ec.clip_layers(-1.0, 1.0, 1.0, 0.0)[0]) == [0, 3]
+    # wind and turn are separate layers, the turn on top, each at full weight; left turn slot 4, right turn slot 5
+    assert ec.clip_layers(-5.0, 0.0, 0.25, 0.75) == [[(0, 0.25, 1.0)], [(4, 0.75, 1.0)]]
+    assert ec.clip_layers(0.0, 0.0, 0.0, -0.4) == [[(5, 0.4, 1.0)]]
+    # strength: how far each side's clip and the turn's play, clamped to the end
+    assert ec.clip_layers(-5.0, 0.0, 0.5, 0.0, (0.5, 1.0, 1.0, 1.0)) == [[(0, 0.25, 1.0)]]
+    assert ec.clip_layers(0.0, -5.0, 0.5, 0.0, (1.0, 3.0, 1.0, 1.0)) == [[(1, 1.0, 1.0)]]
+    assert ec.clip_layers(0.0, 0.0, 0.0, 0.5, (1.0, 1.0, 1.0, 1.5)) == [[(4, 0.75, 1.0)]]
+    # no spin: the wind as it is
+    assert ec.spin_air(-2.0, 1.0, 0.5, 0.0, 12.0, 2.2) == (-2.0, 1.0)
+    # a full spin: the wind's speed is headwind whatever its side, plus spin_open of wind_full
+    assert ec.spin_air(0.0, 3.0, 0.5, 1.0, 12.0, 3.0) == (-9.0, 0.0)
+    # half a spin: half of each
+    f, l = ec.spin_air(0.0, 4.0, 0.0, 0.5, 12.0, 4.0)
+    assert abs(f + 2.0) < 1e-12 and abs(l - 2.0) < 1e-12
+
+
+def test_sample_pair():
+    assert ec.sample_pair(0.0) == (0, 1, 0.0)
+    lower, upper, t = ec.sample_pair(1.0)
+    assert (lower, upper) == (ec.CLIP_SAMPLE_COUNT - 2, ec.CLIP_SAMPLE_COUNT - 1) and abs(t - 1.0) < 1e-12
+    lower, upper, t = ec.sample_pair(0.5)
+    assert (lower, upper) == (8, 9) and abs(t) < 1e-12
+
+
 if __name__ == "__main__":
     n = 0
     for name, fn in list(globals().items()):

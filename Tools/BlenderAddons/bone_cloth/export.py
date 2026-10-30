@@ -23,16 +23,31 @@ def skmm_entry(setup, arm):
     cols = []
     for c in setup.colliders:
         if c.enabled and c.bone in arm.data.bones and c.to in arm.data.bones:
-            cols.append({"bone": c.bone, "to": c.to, "radius": 0.0 if c.auto_radius else round(c.radius, 4),
-                         "endRadius": 0.0 if c.auto_end else round(c.end_radius, 4)})
-    open_clip = setup.poses.open.clip_name if setup.poses.open.enabled and setup.poses.open.action else ""
-    vol_clip = setup.poses.volume.clip_name if setup.poses.volume.enabled and setup.poses.volume.action else ""
+            if c.surface:      # the game's own fit is for limbs: a surface capsule always gets its radii
+                r0, r1 = colliders.radii(c)
+                col = {"bone": c.bone, "to": c.to, "radius": round(r0, 4), "endRadius": round(r1, 4), "surface": True}
+            else:
+                col = {"bone": c.bone, "to": c.to, "radius": 0.0 if c.auto_radius else round(c.radius, 4),
+                       "endRadius": 0.0 if c.auto_end else round(c.end_radius, 4)}
+            if any(abs(v) > 1e-6 for v in c.offset):
+                col["offset"] = [round(float(v), 4) for v in frame.to_engine(np.array(c.offset))]
+            cols.append(col)
+    clips = poses.uses_clips(setup)        # the clips replace the two older layers
+    open_clip = setup.poses.open.clip_name if not clips and setup.poses.open.enabled and setup.poses.open.action else ""
+    vol_clip = setup.poses.volume.clip_name if not clips and setup.poses.volume.enabled and setup.poses.volume.action else ""
+    clip_names = [(k, poses.clip_slot(setup, k).action.name if poses.clip_slot(setup, k).action else "")
+                  for k in ("windFront", "windBack", "windLeft", "windRight")]
+    turn_names = [(k, poses.clip_slot(setup, k).action.name if poses.clip_slot(setup, k).action else "")
+                  for k in ("turnLeft", "turnRight")]
     return {
         "roots": roots, "forward": [float(v) for v in fwd], "tipLength": m.tipLength,
         "motion": [("followRoot", m.followRoot), ("followTip", m.followTip), ("trail", m.trail),
                    ("maxAngleRoot", m.maxAngleRoot), ("maxAngleTip", m.maxAngleTip), ("radius", m.radius),
                    ("teleportDistance", m.teleportDistance)],
         "colliders": cols,
+        "clips": (clip_names + [("windStart", m.windStart), ("windFull", m.windFull)] + turn_names
+                  + [("windStrengthFront", m.windStrengthFront), ("windStrengthSides", m.windStrengthSides),
+                     ("windStrengthBack", m.windStrengthBack), ("spinStrength", m.spinStrength)]) if clips else [],
         "wind": [("openClip", open_clip), ("volumeClip", vol_clip), ("volume", m.volume),
                  ("openWindStart", m.openWindStart), ("openWindFull", m.openWindFull), ("windwardBias", m.windwardBias),
                  ("volumeWindStart", m.volumeWindStart), ("volumeWindFull", m.volumeWindFull),
@@ -61,11 +76,19 @@ def entry_text(e, indent="        "):
     lines.append("")
     lines.append('%s"colliders": [' % i1)
     for k, c in enumerate(e["colliders"]):
-        lines.append('%s    { "bone": %s, "to": %s, "radius": %s, "endRadius": %s }%s' % (
-            i1, json.dumps(c["bone"]), json.dumps(c["to"]), _f(c["radius"]), _f(c["endRadius"]),
+        extra = ', "surface": true' if c.get("surface") else ""
+        if "offset" in c:
+            o = c["offset"]
+            extra += ', "offset": { "x": %s, "y": %s, "z": %s }' % (_f(o[0]), _f(o[1]), _f(o[2]))
+        lines.append('%s    { "bone": %s, "to": %s, "radius": %s, "endRadius": %s%s }%s' % (
+            i1, json.dumps(c["bone"]), json.dumps(c["to"]), _f(c["radius"]), _f(c["endRadius"]), extra,
             "," if k + 1 < len(e["colliders"]) else ""))
     lines.append("%s]," % i1)
     lines.append("")
+    for key, v in e.get("clips", []):
+        lines.append('%s"%s": %s,' % (i1, key, _scalar(v)))
+    if e.get("clips"):
+        lines.append("")
     for key, v in e["wind"]:
         lines.append('%s"%s": %s,' % (i1, key, _scalar(v)))
     lines.append("")
@@ -170,11 +193,17 @@ def verify_written(setup, arm, path):
 
 def run(setup, arm, settings_only=False):
     """Checks, then writes every target. Returns (messages, issues)."""
+    mirrored = []
+    for key, source in poses.MIRROR_OF.items():      # mirrored clips follow their other side
+        if poses.clip_slot(setup, key).mirrored and poses.clip_slot(setup, source).action is not None:
+            poses.mirror_clip(setup, arm, key)
+            mirrored.append("Wrote %s from %s, mirrored" % (poses.CLIP_TITLES[key].lower(),
+                                                             poses.CLIP_TITLES[source].lower()))
     issues = doctor.run(setup, arm)
     errors = doctor.blocking(issues)
     if errors:
         return ["Export stopped: " + errors[0].message], issues
-    msgs = []
+    msgs = mirrored
     for t in setup.export.targets:
         if not t.glb_path:
             continue

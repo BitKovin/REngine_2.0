@@ -177,11 +177,48 @@ class BCPoseLayer(PropertyGroup):
                                min=0.0, max=1.0)
 
 
+class BCClipSlot(PropertyGroup):
+    """One wind or turn clip: frame 1 the rest shape, then the poses the cloth goes through as the wind from that side
+    (or the turn) grows. The game plays it as far as the wind is strong."""
+    action: PointerProperty(type=bpy.types.Action, name="Clip")
+    mirrored: BoolProperty(name="Mirror of the other side", default=True, description="Written from the other side's "
+                           "clip, mirrored (right from left), on export and with the Mirror button")
+
+
+class BCClipGen(PropertyGroup):
+    """How strong the generated clips' later frames are (clipgen.py)."""
+    blow_back: FloatProperty(name="Blown back", description="Last frame of a headwind (and of the far side in a side "
+                             "wind): how far the front panels swing round toward the back, as a share of the Open "
+                             "pose's opening. Far past 1 the front panels cross the side seams and tear away from the "
+                             "back ones", default=1.0, min=0.0, max=3.0)
+    lift: FloatProperty(name="Hem lift", subtype='ANGLE', unit='ROTATION', description="Strong wind: how far the hems "
+                        "lift away from the body", default=0.4363, min=0.0, max=1.5)
+    sweep: FloatProperty(name="Sweep", subtype='ANGLE', unit='ROTATION', description="Side wind and turning: how far "
+                         "the panels sweep round the body with the air", default=0.6109, min=0.0, max=1.5)
+    turn_flare: FloatProperty(name="Turn flare", subtype='ANGLE', unit='ROTATION', description="Turning: how far the "
+                              "hems fly out", default=0.5236, min=0.0, max=1.5)
+
+
 class BCPoses(PropertyGroup):
     open: PointerProperty(type=BCPoseLayer)
     volume: PointerProperty(type=BCPoseLayer)
     preview_open: FloatProperty(name="Open", default=0.0, min=0.0, max=1.0, update=lambda s, c: _preview(c))
     preview_volume: FloatProperty(name="Volume", default=0.0, min=0.0, max=1.0, update=lambda s, c: _preview(c))
+    # the wind and turn clips (BoneClothData windFront ... turnRight); they replace Open and Volume when any is set
+    windFront: PointerProperty(type=BCClipSlot)
+    windLeft: PointerProperty(type=BCClipSlot)
+    windBack: PointerProperty(type=BCClipSlot)
+    windRight: PointerProperty(type=BCClipSlot)
+    turnLeft: PointerProperty(type=BCClipSlot)
+    turnRight: PointerProperty(type=BCClipSlot)
+    gen: PointerProperty(type=BCClipGen)
+    preview_wind: FloatProperty(name="Wind", description="How far through the wind clips (0 rest, 1 their last frame)",
+                                default=0.0, min=0.0, max=1.0, update=lambda s, c: _preview(c))
+    preview_wind_from: FloatProperty(name="From", subtype='ANGLE', unit='ROTATION', description="Where the wind comes "
+                                     "from, seen from the character: 0 the front, 90 the left, 180 behind", default=0.0,
+                                     update=lambda s, c: _preview(c))
+    preview_turn: FloatProperty(name="Turn", description="How far through the turn clips: positive turning left, "
+                                "negative turning right", default=0.0, min=-1.0, max=1.0, update=lambda s, c: _preview(c))
 
 
 def _preview(context):
@@ -199,6 +236,12 @@ class BCCollider(PropertyGroup):
     end_radius: FloatProperty(name="End radius", subtype='DISTANCE', unit='LENGTH', default=0.06, min=0.0)
     fitted_radius: FloatProperty(default=0.0)
     fitted_end: FloatProperty(default=0.0)
+    surface: BoolProperty(name="Keeps the cloth out", default=False, description="surface: the cloth itself (a few "
+                          "vertices each bone carries) stays out of it, not the bones' tips - for the torso, where the "
+                          "bones run inside the body. Auto radii shrink until the resting cloth is just outside")
+    offset: FloatVectorProperty(name="Offset", size=3, subtype='TRANSLATION', unit='LENGTH', default=(0.0, 0.0, 0.0),
+                                description="offset: moves both ends by this much as the character rests (a capsule "
+                                "along the side of the torso); each end then moves with its bone")
 
 
 class BCMotion(PropertyGroup):
@@ -220,13 +263,28 @@ class BCMotion(PropertyGroup):
                              "the farthest vertex", default=0.0, min=0.0)
     volume: FloatProperty(name="Always-on volume", description="volume: base weight of the Volume pose", default=0.0,
                           min=0.0, max=1.0)
+    windStart: FloatProperty(name="Clips start at", description="windStart: apparent wind where the wind clips leave "
+                             "their first frame (m/s)", default=2.0, min=0.0)
+    windFull: FloatProperty(name="Clips end at", description="windFull: apparent wind where they reach their last frame "
+                            "(m/s)", default=12.0, min=0.0)
+    windStrengthFront: FloatProperty(name="Wind front", description="windStrengthFront: how far the wind-from-the-front "
+                                     "clip plays for the same wind. 1 as made, below calmer, above reaches its end sooner",
+                                     default=1.0, min=0.0, soft_max=2.0)
+    windStrengthSides: FloatProperty(name="Wind sides", description="windStrengthSides: the same for the left and right "
+                                     "wind clips", default=1.0, min=0.0, soft_max=2.0)
+    windStrengthBack: FloatProperty(name="Wind back", description="windStrengthBack: the same for the wind-from-behind "
+                                    "clip", default=1.0, min=0.0, soft_max=2.0)
+    spinStrength: FloatProperty(name="Spin", description="spinStrength: how far the turn clips play for the same turn",
+                                default=1.0, min=0.0, soft_max=2.0)
     openWindStart: FloatProperty(name="Wind opens from", description="openWindStart (m/s)", default=2.0, min=0.0)
     openWindFull: FloatProperty(name="Fully open at", description="openWindFull (m/s)", default=8.0, min=0.0)
     windwardBias: FloatProperty(name="Windward side bias", default=0.5, min=0.0, max=1.0)
     volumeWindStart: FloatProperty(name="Wind fills from", description="volumeWindStart (m/s)", default=2.0, min=0.0)
     volumeWindFull: FloatProperty(name="Fully filled at", description="volumeWindFull (m/s)", default=10.0, min=0.0)
     layerSmoothing: FloatProperty(name="Wind response time", subtype='TIME', unit='TIME_ABSOLUTE', default=0.2, min=0.0)
-    spinOpen: FloatProperty(name="Spin opens", default=0.0, min=0.0, max=1.0)
+    spinOpen: FloatProperty(name="Spin opens", description="spinOpen: how much a fast turn opens the front. With "
+                            "the clips: a full spin counts as this share of 'Clips end at' of headwind", default=0.0,
+                            min=0.0, max=1.0)
     spinVolume: FloatProperty(name="Spin fills", default=0.0, min=0.0, max=1.0)
     spinStart: FloatProperty(name="Spin from", description="spinStart (degrees/s)", default=180.0, min=0.0)
     spinFull: FloatProperty(name="Spin full at", description="spinFull (degrees/s)", default=720.0, min=0.0)
@@ -316,8 +374,8 @@ class BCArmature(PropertyGroup):
     active: IntProperty(default=0)
 
 
-CLASSES = (BCObjectRef, BCColumn, BCPin, BCCharacter, BCGuides, BCWeights, BCRest, BCPoseLayer, BCPoses, BCCollider,
-           BCMotion, BCExportTarget, BCExport, BCPreview, BCStage, BCSetup, BCArmature)
+CLASSES = (BCObjectRef, BCColumn, BCPin, BCCharacter, BCGuides, BCWeights, BCRest, BCPoseLayer, BCClipSlot, BCClipGen, BCPoses,
+           BCCollider, BCMotion, BCExportTarget, BCExport, BCPreview, BCStage, BCSetup, BCArmature)
 
 
 def register():

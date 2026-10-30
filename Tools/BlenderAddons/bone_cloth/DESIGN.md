@@ -95,6 +95,9 @@ implements every rule marked ⚙ as a pure function (numpy, no `bpy`) and unit-t
 | C16 | Skeleton = every glTF node, under one synthetic `RootNode`; model space = glTF scene space (metres, Y-up), including the armature object's transform. Bone and object names share one namespace | An object named like a cloth bone breaks lookup | Check `NAME-CLASH` |
 | C17 | `forward` is model-space facing, default +Z, which is Blender −Y after the exporter's Y-up conversion | A character facing +Y in Blender needs forward (0,0,−1) | Auto-detected from the feet; written to `.skmm` |
 | C18 | Units: lengths m, speeds m/s, angles degrees, `followRoot/Tip` 1/s | — | All add-on lengths are world metres (Blender shows scene units) |
+| C19 ⚙ | **Wind and turn clips** (`windFront/Left/Back/Right`, `turnLeft/Right`): each sampled at **17** even times; a sample is the Local change from the clip's first frame. Clip position = `ramp(windStart, windFull, |apparent wind|)` (horizontal, smoothed by `layerSmoothing`), or the signed turn rate's ramp (`spinStart..spinFull`, settling over `spinRelease`). The two wind sides nearest the wind's direction share by angle; wind and turn share by position; rotations are summed short-way and normalised | Frame 1 must be the rest shape; the clip's length sets the steps; both sides of a mirrored clip swap | `clip_shares`, `sample_pair`; `poses.blend_clips` previews exactly this; the clips replace `openClip` / `volumeClip` in the `.skmm` |
+| C20 ⚙ | **Surface colliders** (`surface: true`): the joints' tips ignore them; instead each joint's **probes** (up to **6** vertices it carries ≥ **0.5** of, farthest-first) are kept out, the joint turned about its head (up to **3** times a frame, no padding, past `maxAngle`). A probe resting inside a surface capsule is ignored by it | The cloth, not the bone, must clear the body: bones may run inside it | `pick_probes`, `probe_ignore`; Torso button; auto radii end 1 cm inside the resting cloth (5th percentile) and are always written |
+| C21 | Collider `offset` (model space): both ends shifted at rest, each then moving with its bone | Side capsules for an oval torso | Written in engine axes when non-zero |
 
 ---
 
@@ -1107,3 +1110,73 @@ Engine behaviours the add-on works around (notes only, no changes proposed):
 - Joined strips are detected by geometry only (C4), so the generator must align them exactly and the check must show near-misses.
 - Collider auto-fit counts every mesh's vertices by dominant bone, including cloth still dominated by body bones; torso capsules need
   manual radii.
+
+### 15.3 Wind and turn clips, torso surface collision (2026-10-30)
+
+The ShooterGame jacket's bones run 2-4 cm off the spine, inside the body, and its hand-made Open pose twists them about their
+own axes: the panel swings around the spine like a door. That is the look wanted, so the bones stay; but tip collision
+could never keep that cloth out of the torso (the tips are inside any torso capsule and a twist does not move them), and
+Open stacked on Volume compounded the twists (112 degrees on `coat_front_03`). Two changes, engine and add-on together:
+
+- **Clips instead of layers (C19).** Poses are authored, physics is the safety net: a clip per wind side and per turn
+  direction, played as far as the wind or turn has grown and blended, never stacked. A headwind clip can open the jacket on
+  frame 2 and blow it back on frame 3. Right clips are the left ones mirrored with both sides swapped
+  (`poses.swapped_pose`).
+- **Surface colliders and probes (C20, C21).** The torso capsules keep a few of each joint's vertices out by turning the
+  joint about its head. On the jacket a single spine capsule (11.5 / 13.5 cm) fits: its cloth rests 11-17 cm from the spine
+  all round, so no side capsules. In the preview a 15-degree turn clip took the probes 1.6 cm into it; with the probes,
+  0.07 cm.
+- The check poses every clip frame and the 45-degree blends in Blender (so the BC Follow joins act as the game's) and
+  reports new depth into any collider and edge stretch.
+
+Not covered: skinning still stretches the seam between a front panel twisted around the body and the back panel
+(`POSE-STRETCH` reports it, 1.5x on the jacket's Open pose); that is for the pose, not the collision. Engine changes:
+`Cloth/BoneCloth.{h,cpp}`, `BoneClothData.h`, `AnimationPose::BoneTRS / DecomposeBone / ComposeBone` made public.
+
+### 15.4 Generated clips (clipgen.py)
+
+All six clips come from one reference Open pose: the hand-made one, or a hinge (front panels swing up to 55 degrees
+round the body, reached 60 % down the panel; back panels flare 35 degrees). Each bone's world turn is taken apart by
+swing-twist about the body's up into a yaw (round the body), a flare out (about the panel's tangent) and a roll (about
+its radial), with a per-panel profile (how far down the panel each bone has its share). Every frame scales these:
+`frame_params` per clip and side (front opening, back flare, extra hem lift, a push - every panel moved the same way,
+the air's - or a spin - every panel turned round the body, the cloth trailing a turn). Opening beyond the Open pose
+spreads up the panel by `profile ** 0.3`, so the chest pieces peel back with it instead of the panel creasing at the
+waist; the windward front panel takes no push (it would cross the opening). Frame 2 of the headwind reproduces the
+reference exactly.
+
+Judged on rendered contact sheets (`tests/render_clips.py`: five views per pose, cloth coloured by panel, top view cut
+at chest height), not on numbers. What the sheets showed and changed: a side wind made as a spin sent the back panels
+upwind (now a push); the windward front panel swept over the opening (now pressed only); the blown-back front creased
+at the waist (now the chest follows). Still visible: a crease or small tear at the front/back seam by the hip when the
+front panel is thrown far round - skinning, reported by POSE-STRETCH.
+
+Later, on large renders and the live viewport (the user's reports): hem lift pushed straight out from the body sent the
+front of a headwind forward (now it goes the way the air goes, after the panels' swing); the back stacking its flare on
+the lift gave an M (now front and back lift alike); swinging the front panels far past the Open pose crossed the side
+seams and tore them from the back panels, and the reference's roll, applied about axes the panel had swung away from,
+folded each panel (now the reference shape is built first and carried round as one piece, Blown back defaults to
+1.0 - a front panel never swings round further than the Open pose, past which it crosses the side seam - and the lift
+spreads down every panel by length alike so panels lift together at their seams).
+
+Wind and turn combine in layers (C19 revised): the wind's clips (two sides by angle) at full weight, the turn's clip
+on top. While the body spins, the wind's side fades by the spin weight - it sweeps round faster than cloth can follow,
+and in the preview it made the jacket flap open and shut twice a turn - and its smoothed speed counts as headwind
+instead, plus spinOpen x windFull at a full spin (`spin_air`): spinning in wind opens and flares the jacket steadily.
+
+Wind from behind follows the user's hand-made clip (subtle): the front panels close 0.15 of the Open pose's opening
+(their slide too) with 0.34 of its roll against it, the front hems tilt out 0.42 of Hem lift, the back stays; frame 2 is
+half. Generated against the hand-made one: 0.6 cm apart on average at frame 3, 2.1 cm at the hem tips.
+
+Weights: the mesh's halves are not built alike (130 / 128 vertices), and the weights came out uneven at the side seams
+(right side 1-7 cm behind the side still 43-84% on its front panel, the left 24%), so turning left opened the right side
+50% more than the mirrored turn opened the left. Mirror weights (Weights step) gives each vertex on one side the
+weights at its mirror image on the other side's surface, interpolated across the face it lands on, left and right bones
+swapped.
+
+Turns follow the user's hand-made turn (moderate): the whole jacket turns about 16 degrees with the body, the trailing
+front panel opens 0.8 of the Open pose and flares out, the back flares 0.4; frame 2 is half of frame 3. A hand-made left
+clip is kept and its right clip mirrored from it. Still open on the jacket: in the Open pose the front panels swing
+through the hips (the torso capsule is narrower than the hips), and the side-seam hem corners fold - skinning between a
+panel turned 55 degrees and one at 0 (weights cannot reach the arc; smoothing off, hard seams, a denser mesh did not
+help, fitting weights to the poses helped a little).

@@ -316,6 +316,9 @@ class BONECLOTH_PT_weights(_Sub):
         op = row.operator("bone_cloth.amount_show", text="Paint amount")
         op.paint = True
         layout.operator("bone_cloth.build_weights", icon='GROUP_VERTEX')
+        row = layout.row(align=True)
+        row.operator("bone_cloth.weights_mirror", text="Mirror L → R", icon='MOD_MIRROR').source = 'L'
+        row.operator("bone_cloth.weights_mirror", text="Mirror R → L").source = 'R'
 
 
 # ---- 5 rest shape --------------------------------------------------------------------------------------------------
@@ -362,6 +365,10 @@ class BONECLOTH_PT_poses(_Sub):
     def draw(self, context):
         arm, setup = _ctx(context)
         layout = self.layout
+        _draw_clips(layout, setup)
+        if poses_mod.uses_clips(setup):
+            layout.label(text="Open and Volume are left out while clips are set", icon='INFO')
+            return
         _hint(layout, setup, "Open: front panels swing out like doors.\nVolume: every panel flares. The game blends\nfrom the rest shape toward each pose.")
         for kind, title in (("open", "Open"), ("volume", "Volume")):
             layer = getattr(setup.poses, kind)
@@ -408,6 +415,56 @@ class BONECLOTH_PT_poses(_Sub):
             row.prop(c, "volume_mult", text="Flares")
 
 
+
+
+def _draw_clips(layout, setup):
+    box = layout.box()
+    box.label(text="Wind and turn clips", icon='ACTION')
+    _hint(box, setup, "Frame 1 is the rest shape; later frames are what\nthe cloth goes through as the wind from that side\n"
+          "(or the turn) grows. Sides in between blend.")
+    gen = setup.poses.gen
+    col = box.column(align=True)
+    col.prop(gen, "blow_back")
+    col.prop(gen, "lift")
+    col.prop(gen, "sweep")
+    col.prop(gen, "turn_flare")
+    row = box.row(align=True)
+    row.operator("bone_cloth.clip_generate", icon='FILE_REFRESH').force = False
+    if any(s.action is not None and poses_mod.clip_is_hand(s.action)
+           for s in (poses_mod.clip_slot(setup, k) for k in poses_mod.ec.CLIP_SLOTS)):
+        row.operator("bone_cloth.clip_generate", text="Replace mine too").force = True
+    for key in poses_mod.ec.CLIP_SLOTS:
+        slot = poses_mod.clip_slot(setup, key)
+        col = box.column(align=True)
+        row = col.row(align=True)
+        mine = slot.action is not None and poses_mod.clip_is_hand(slot.action)
+        row.label(text=poses_mod.CLIP_TITLES[key] + ("  (yours)" if mine else ""))
+        if key in poses_mod.MIRROR_OF:
+            row.prop(slot, "mirrored", text="", icon='MOD_MIRROR')
+            op = row.operator("bone_cloth.clip_mirror", text="Mirror")
+            op.key = key
+        row = col.row(align=True)
+        row.prop(slot, "action", text="")
+        if slot.action is None:
+            op = row.operator("bone_cloth.clip_new", text="New", icon='ADD')
+            op.key = key
+            continue
+        for name, text, icon in (("bone_cloth.clip_edit", "Edit", 'GREASEPENCIL'),
+                                 ("bone_cloth.clip_key", "Key pose here", 'KEY_HLT'),
+                                 ("bone_cloth.clip_clear", "", 'X')):
+            op = row.operator(name, text=text, icon=icon)
+            op.key = key
+        if setup.poses.open.action is not None and key == "windFront":
+            op = col.operator("bone_cloth.clip_from_layer", text="Key the Open pose here")
+            op.key, op.layer = key, 'open'
+    col = box.column(align=True)
+    col.label(text="Preview")
+    col.prop(setup.poses, "preview_wind", slider=True)
+    col.prop(setup.poses, "preview_wind_from")
+    col.prop(setup.poses, "preview_turn", slider=True)
+    col.operator("bone_cloth.pose_preview_reset")
+
+
 # ---- 7 collisions --------------------------------------------------------------------------------------------------
 
 class BONECLOTH_PT_colliders(_Sub):
@@ -419,9 +476,11 @@ class BONECLOTH_PT_colliders(_Sub):
     def draw(self, context):
         arm, setup = _ctx(context)
         layout = self.layout
-        _hint(layout, setup, "Capsules the cloth cannot enter (the legs).\nAuto radii are measured like the game does.")
+        _hint(layout, setup, "Capsules the cloth cannot enter. Legs push the bones'\ntips out; surface capsules (the torso) push the\n"
+              "cloth itself out. Auto radii are measured like the game does.")
         row = layout.row(align=True)
         row.operator("bone_cloth.colliders_defaults", icon='MOD_PHYSICS')
+        row.operator("bone_cloth.colliders_torso", icon='ADD')
         row.operator("bone_cloth.colliders_fit", icon='FILE_REFRESH')
         row.operator("bone_cloth.collider_add", text="", icon='ADD')
         for i, c in enumerate(setup.colliders):
@@ -443,6 +502,10 @@ class BONECLOTH_PT_colliders(_Sub):
                 r.label(text="%.1f cm" % (c.fitted_end * 100))
             else:
                 r.prop(c, "end_radius", text="")
+            r = box.row(align=True)
+            r.prop(c, "surface")
+            if c.surface or any(abs(v) > 1e-6 for v in c.offset):
+                box.prop(c, "offset")
         layout.prop(setup.motion, "radius", text="Padding")
 
 
@@ -464,8 +527,19 @@ class BONECLOTH_PT_motion(_Sub):
         col = layout.column(align=True)
         col.prop(m, "weight", slider=True)
         col.prop(m, "response", slider=True)
+        if poses_mod.uses_clips(setup):
+            box = layout.box()
+            box.label(text="Strength", icon='MODIFIER')
+            col = box.column(align=True)
+            col.prop(m, "spinStrength")
+            col.prop(m, "windStrengthFront")
+            col.prop(m, "windStrengthSides")
+            col.prop(m, "windStrengthBack")
         col = layout.column(align=True)
         col.label(text="Wind")
+        if poses_mod.uses_clips(setup):
+            col.prop(m, "windStart")
+            col.prop(m, "windFull")
         col.prop(m, "openWindStart")
         col.prop(m, "openWindFull")
         col.prop(m, "volumeWindStart")

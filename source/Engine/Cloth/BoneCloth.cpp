@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 struct BoneCloth::RestVertex
 {
@@ -23,6 +24,11 @@ namespace
 	constexpr float TipWeight = 0.25f;       // vertices that reach a strip's end
 	constexpr float JoinTolerance = 0.05f;   // a strip continues into one whose top is this far off its line, per length
 	constexpr float SideTolerance = 0.02f;   // strip tops nearer the middle than this are neither left nor right
+	constexpr float ProbeWeight = 0.5f;      // a joint's probes are among the vertices it carries this much of
+	constexpr size_t MaxProbes = 6;          // per joint, spread over the cloth it carries
+	constexpr int ProbeIterations = 3;       // turns a frame that bring a joint's deepest probe out of the surface colliders
+	constexpr uint32_t MaxSurfaceColliders = 32;   // a probe's `ignore` has a bit per collider
+	constexpr int ClipSampleCount = 17;      // samples taken evenly over each wind and turn clip
 	constexpr float MaxDeltaTime = 1.0f / 15.0f;   // longer frames (hitches) swing this much
 	constexpr float DebugLineTime = 0.001f;        // one frame
 
@@ -162,8 +168,26 @@ bool BoneCloth::Build(const BoneClothData& clothData, roj::SkinnedModel& clothMo
 	if (!BuildStrips(restWorld, vertices))
 		return false;
 	BuildColliders(restWorld, vertices);
+	BuildProbes(restWorld, vertices);
 	BuildWindLayer(data.openClip, openDifference, &Strip::opens);
 	BuildWindLayer(data.volumeClip, volumeDifference, &Strip::flares);
+
+	clothBones.clear();
+	for (const Strip& strip : strips)
+		for (const Joint& joint : strip.joints)
+			clothBones.push_back(joint.bone);
+	const std::string* clipNames[ClipCount] = { &data.windFront, &data.windLeft, &data.windBack, &data.windRight,
+		&data.turnLeft, &data.turnRight };
+	hasClips = false;
+	for (int slot = 0; slot < ClipCount; ++slot)
+	{
+		BuildClip(*clipNames[slot], clips[static_cast<size_t>(slot)]);
+		hasClips = hasClips || !clips[static_cast<size_t>(slot)].samples.empty();
+	}
+	blendRotation.resize(clothBones.size());
+	blendTranslation.resize(clothBones.size());
+	blendScale.resize(clothBones.size());
+	clipChange.boneTreeRoot = &model->defaultRoot;
 
 	std::vector<bool> carriesRoot(boneCount, false);
 	for (uint16_t root : roots)
@@ -363,11 +387,14 @@ void BoneCloth::BuildColliders(const std::vector<glm::mat4>& restWorld, const st
 		}
 		collider.radius = config.radius;
 		collider.endRadius = config.endRadius;
+		collider.surface = config.surface;
+		const glm::vec3 start = glm::vec3(restWorld[collider.bone][3]) + config.offset;
+		const glm::vec3 end = glm::vec3(restWorld[collider.to][3]) + config.offset;
+		collider.startLocal = glm::vec3(glm::inverse(restWorld[collider.bone]) * glm::vec4(start, 1.0f));
+		collider.endLocal = glm::vec3(glm::inverse(restWorld[collider.to]) * glm::vec4(end, 1.0f));
 
 		if (config.radius <= 0.0f || config.endRadius <= 0.0f)
 		{
-			const glm::vec3 start(restWorld[collider.bone][3]);
-			const glm::vec3 end(restWorld[collider.to][3]);
 			std::vector<float> nearStart, nearEnd, all;
 			for (const RestVertex& vertex : vertices)
 			{
@@ -395,6 +422,124 @@ void BoneCloth::BuildColliders(const std::vector<glm::mat4>& restWorld, const st
 				config.to.c_str(), collider.radius, collider.endRadius);
 		}
 		colliders.push_back(collider);
+	}
+}
+
+void BoneCloth::BuildProbes(const std::vector<glm::mat4>& restWorld, const std::vector<RestVertex>& vertices)
+{
+	// Each joint's probes: the vertices it carries most of, spread out - the farthest from its head first, then each
+	// next the farthest from those taken. A probe that rests inside a surface collider is left alone by that collider,
+	// so the cloth keeps the shape it was made with.
+	bool anySurface = false;
+	for (size_t c = 0; c < colliders.size(); ++c)
+	{
+		if (!colliders[c].surface)
+			continue;
+		if (c >= MaxSurfaceColliders)
+		{
+			Logger::Warning("BoneCloth (%s): only the first %u colliders can be surface colliders", Label(), MaxSurfaceColliders);
+			colliders[c].surface = false;
+			continue;
+		}
+		anySurface = true;
+	}
+	if (!anySurface)
+		return;
+
+	std::vector<glm::vec3> candidates;
+	std::vector<float> nearest;
+	for (Strip& strip : strips)
+	{
+		for (Joint& joint : strip.joints)
+		{
+			candidates.clear();
+			for (const RestVertex& vertex : vertices)
+				for (int k = 0; k < MAX_BONE_INFLUENCE; ++k)
+					if (vertex.bones[k] == joint.bone && vertex.weights[k] >= ProbeWeight)
+						candidates.push_back(vertex.position);
+			const glm::mat4 toBone = glm::inverse(restWorld[joint.bone]);
+			const glm::vec3 head(restWorld[joint.bone][3]);
+			nearest.assign(candidates.size(), std::numeric_limits<float>::max());
+			for (size_t taken = 0; taken < MaxProbes && taken < candidates.size(); ++taken)
+			{
+				size_t best = 0;
+				float farthest = -1.0f;
+				for (size_t i = 0; i < candidates.size(); ++i)
+				{
+					const float distance = taken == 0 ? glm::distance(candidates[i], head) : nearest[i];
+					if (distance > farthest)
+					{
+						farthest = distance;
+						best = i;
+					}
+				}
+				if (taken > 0 && farthest < 1e-4f)
+					break;   // the rest sit on the probes taken
+				const glm::vec3 position = candidates[best];
+				for (size_t i = 0; i < candidates.size(); ++i)
+					nearest[i] = std::min(nearest[i], glm::distance(candidates[i], position));
+
+				Probe probe;
+				probe.local = glm::vec3(toBone * glm::vec4(position, 1.0f));
+				for (size_t c = 0; c < colliders.size(); ++c)
+				{
+					if (!colliders[c].surface)
+						continue;
+					const glm::vec3 start(restWorld[colliders[c].bone] * glm::vec4(colliders[c].startLocal, 1.0f));
+					const glm::vec3 end(restWorld[colliders[c].to] * glm::vec4(colliders[c].endLocal, 1.0f));
+					const float t = AxisParameter(position, start, end);
+					if (glm::distance(position, glm::mix(start, end, t)) < glm::mix(colliders[c].radius, colliders[c].endRadius, t))
+						probe.ignore |= 1u << c;
+				}
+				joint.probes.push_back(probe);
+			}
+		}
+	}
+}
+
+void BoneCloth::BuildClip(const std::string& clip, ClipSamples& out)
+{
+	// The clip's change of each strip bone from its first frame (Local, like the wind layers), sampled evenly.
+	out.samples.clear();
+	if (clip.empty())
+		return;
+	const hashed_string key(clip);
+	auto found = model->clips.find(key);
+	if (found == model->clips.end() || model->animations.find(key) == model->animations.end())
+	{
+		Logger::Warning("BoneCloth (%s): the model has no clip '%s'; the strips keep their rest shape there", Label(),
+			clip.c_str());
+		return;
+	}
+
+	const roj::FlatSkeleton& skeleton = model->skeleton;
+	roj::Animator sampler(model);
+	sampler.set(key);
+	AnimationPose first, sample, difference;
+	first.boneTreeRoot = sample.boneTreeRoot = &model->defaultRoot;
+	out.samples.assign(ClipSampleCount, std::vector<BoneChange>(clothBones.size()));
+	for (int s = 0; s < ClipSampleCount; ++s)
+	{
+		sampler.m_currTime = found->second->duration * static_cast<float>(s) / static_cast<float>(ClipSampleCount - 1);
+		sampler.UpdateAnimationPose();
+		if (s == 0)
+		{
+			first.boneTransforms = sampler.GetBonePoseArray();
+			continue;   // no change at the start
+		}
+		sample.boneTransforms = sampler.GetBonePoseArray();
+		AnimationPose::MakeAdditive(difference, &model->defaultRoot, first, sample, AnimationPose::AdditiveSpace::Local);
+		for (size_t b = 0; b < clothBones.size(); ++b)
+		{
+			auto change = difference.boneTransforms.find(skeleton.bones[clothBones[b]].name);
+			if (change == difference.boneTransforms.end())
+				continue;
+			const AnimationPose::BoneTRS trs = AnimationPose::DecomposeBone(change->second);
+			BoneChange& to = out.samples[static_cast<size_t>(s)][b];
+			to.rotation = trs.rotation;
+			to.translation = trs.translation;
+			to.scale = trs.scale;
+		}
 	}
 }
 
@@ -455,9 +600,9 @@ void BoneCloth::Step(AnimationPose& pose, const glm::mat4& world, float deltaTim
 
 float BoneCloth::SpinRate(const AnimationPose& pose, const glm::mat4& world, float deltaTime)
 {
-	// The fastest turn about the world's up, radians/s, of the body bones the roots hang from and their ancestors - the
-	// character's turn and the animation's pelvis and spine together, so a pelvis twist the spine counters still counts.
-	// Bones the pose lacks are at rest.
+	// The fastest turn about the world's up, radians/s (> 0: turning left), of the body bones the roots hang from and
+	// their ancestors - the character's turn and the animation's pelvis and spine together, so a pelvis twist the spine
+	// counters still counts. Bones the pose lacks are at rest.
 	const roj::FlatSkeleton& skeleton = model->skeleton;
 	float fastest = 0.0f;
 	for (size_t i = 0; i < spinBones.size(); ++i)
@@ -479,8 +624,9 @@ float BoneCloth::SpinRate(const AnimationPose& pose, const glm::mat4& world, flo
 			const float angle = 2.0f * std::acos(std::min(change.w, 1.0f));
 			const glm::vec3 axis(change.x, change.y, change.z);
 			const float axisLength = glm::length(axis);
-			if (axisLength > 1e-6f)
-				fastest = std::max(fastest, std::abs(angle * axis.y / axisLength) / deltaTime);
+			const float rate = axisLength > 1e-6f ? angle * axis.y / axisLength / deltaTime : 0.0f;
+			if (std::abs(rate) > std::abs(fastest))
+				fastest = rate;
 		}
 		previousSpinTurns[i] = now;
 	}
@@ -489,23 +635,31 @@ float BoneCloth::SpinRate(const AnimationPose& pose, const glm::mat4& world, flo
 
 void BoneCloth::UpdateWindWeights(const AnimationPose& pose, const glm::mat4& world, float deltaTime)
 {
-	if (openDifference.boneTransforms.empty() && volumeDifference.boneTransforms.empty())
+	const bool layers = !openDifference.boneTransforms.empty() || !volumeDifference.boneTransforms.empty();
+	if (!layers && !hasClips)
 		return;
 
 	const float blend = deltaTime > 0.0f ? 1.0f - std::exp(-deltaTime / std::max(data.layerSmoothing, 1e-3f)) : 0.0f;
 
-	// Spin: the body's turn rate since the last frame. It rises like the wind layers and settles slower, so a quick
-	// turn leaves the coat open a moment after it.
-	if (data.spinOpen > 0.0f || data.spinVolume > 0.0f)
+	// Spin: the body's turn rate since the last frame. It rises like the wind and settles slower, so a quick turn leaves
+	// the coat open a moment after it. The turn clips keep its direction.
+	const bool turnClips = !clips[TurnLeft].samples.empty() || !clips[TurnRight].samples.empty();
+	if (data.spinOpen > 0.0f || data.spinVolume > 0.0f || turnClips)
 	{
 		const float rate = SpinRate(pose, world, deltaTime);
 		if (needsReset)
+		{
 			spinWeight = 0.0f;
+			turnAmount = 0.0f;
+		}
 		else if (deltaTime > 0.0f)
 		{
-			const float wanted = Ramp(glm::radians(data.spinStart), glm::radians(data.spinFull), rate);
+			const float wanted = Ramp(glm::radians(data.spinStart), glm::radians(data.spinFull), std::abs(rate));
 			const float release = 1.0f - std::exp(-deltaTime / std::max(data.spinRelease, 1e-3f));
 			spinWeight += (wanted - spinWeight) * (wanted > spinWeight ? blend : release);
+			const float turn = rate >= 0.0f ? wanted : -wanted;
+			const bool growing = std::abs(turn) > std::abs(turnAmount) && turn * turnAmount >= 0.0f;
+			turnAmount += (turn - turnAmount) * (growing ? blend : release);
 		}
 	}
 
@@ -520,6 +674,15 @@ void BoneCloth::UpdateWindWeights(const AnimationPose& pose, const glm::mat4& wo
 	const float headwind = std::max(0.0f, -glm::dot(wind, forward));
 	const float leftward = glm::dot(wind, leftAxis);   // > 0: the air moves to the left, so it comes from the right
 
+	if (hasClips)
+	{
+		const glm::vec2 air(glm::dot(wind, forward), leftward);
+		windAir = needsReset ? air : windAir + (air - windAir) * blend;
+		windSpeed = needsReset ? glm::length(air) : windSpeed + (glm::length(air) - windSpeed) * blend;
+	}
+	if (!layers)
+		return;
+
 	volumeWeight += (Ramp(data.volumeWindStart, data.volumeWindFull, glm::length(wind)) - volumeWeight) * blend;
 	for (Strip& strip : strips)
 	{
@@ -529,11 +692,48 @@ void BoneCloth::UpdateWindWeights(const AnimationPose& pose, const glm::mat4& wo
 	}
 }
 
-void BoneCloth::RestShape(AnimationPose& pose) const
+void BoneCloth::AddClip(ClipSlot slot, float position, float weight)
+{
+	// The clip's change at `position` (0..1 through it), between the two nearest samples, added by `weight`. No clip:
+	// no change (the rest shape).
+	if (weight <= 0.0f)
+		return;
+	const ClipSamples& clip = clips[static_cast<size_t>(slot)];
+	if (clip.samples.empty())
+	{
+		for (size_t b = 0; b < clothBones.size(); ++b)
+		{
+			blendRotation[b].w += weight;
+			blendScale[b] += glm::vec3(weight);
+		}
+		return;
+	}
+	const float at = glm::clamp(position, 0.0f, 1.0f) * static_cast<float>(clip.samples.size() - 1);
+	const size_t lower = std::min(static_cast<size_t>(at), clip.samples.size() - 2);
+	const float upper = at - static_cast<float>(lower);
+	for (size_t side = 0; side < 2; ++side)
+	{
+		const float share = weight * (side == 0 ? 1.0f - upper : upper);
+		if (share <= 0.0f)
+			continue;
+		const std::vector<BoneChange>& changes = clip.samples[lower + side];
+		for (size_t b = 0; b < clothBones.size(); ++b)
+		{
+			glm::quat rotation = changes[b].rotation;
+			if (rotation.w < 0.0f)
+				rotation = -rotation;   // the short way round, like every other one added
+			blendRotation[b] += glm::vec4(rotation.x, rotation.y, rotation.z, rotation.w) * share;
+			blendTranslation[b] += changes[b].translation * share;
+			blendScale[b] += changes[b].scale * share;
+		}
+	}
+}
+
+void BoneCloth::RestShape(AnimationPose& pose)
 {
 	// The roots and the strips keep their rest transforms on the body (the animation's keys on them are not used);
-	// the wind layers then turn the strips, on each run of a strip within one branch of the skeleton (a joined strip
-	// hangs from two).
+	// the wind and turn clips, then the wind layers turn the strips, on each run of a strip within one branch of the
+	// skeleton (a joined strip hangs from two).
 	const roj::FlatSkeleton& skeleton = model->skeleton;
 	for (uint16_t root : roots)
 		pose.boneTransforms.insert_or_assign(skeleton.bones[root].name, skeleton.bones[root].localBind);
@@ -541,24 +741,75 @@ void BoneCloth::RestShape(AnimationPose& pose) const
 		for (const Joint& joint : strip.joints)
 			pose.boneTransforms.insert_or_assign(skeleton.bones[joint.bone].name, skeleton.bones[joint.bone].localBind);
 
-	if (openDifference.boneTransforms.empty() && volumeDifference.boneTransforms.empty())
-		return;
 	roj::BoneNode* rootNode = &model->defaultRoot;
-	for (const Strip& strip : strips)
+	auto applyToRuns = [&](const AnimationPose& difference, auto weightOf)
 	{
-		for (size_t k = 0; k < strip.joints.size(); ++k)
+		for (const Strip& strip : strips)
 		{
-			if (k > 0 && skeleton.bones[strip.joints[k].bone].parentIdx == strip.joints[k - 1].bone)
+			const float weight = weightOf(strip);
+			if (weight <= 0.0f)
 				continue;
-			const hashed_string& top = skeleton.bones[strip.joints[k].bone].name;
-			if (strip.flares)
-				AnimationPose::ApplyAdditiveInPlace(top, rootNode, pose, volumeDifference, AnimationPose::AdditiveSpace::Local,
-					data.volume + volumeWeight + data.spinVolume * spinWeight);
-			if (strip.opens)
-				AnimationPose::ApplyAdditiveInPlace(top, rootNode, pose, openDifference, AnimationPose::AdditiveSpace::Local,
-					strip.openWeight + data.spinOpen * spinWeight);
+			for (size_t k = 0; k < strip.joints.size(); ++k)
+			{
+				if (k > 0 && skeleton.bones[strip.joints[k].bone].parentIdx == strip.joints[k - 1].bone)
+					continue;
+				AnimationPose::ApplyAdditiveInPlace(skeleton.bones[strip.joints[k].bone].name, rootNode, pose, difference,
+					AnimationPose::AdditiveSpace::Local, weight);
+			}
 		}
+	};
+
+	// The clips in two layers: the wind's - the two sides nearest to where it comes from, as far through as the wind is
+	// strong - and the turn's on top of it, so a turn in the wind shows both. A spin opens the front: as the body spins
+	// the wind's side matters less (it sweeps round the body faster than cloth can follow) and its speed, with spinOpen
+	// of windFull at a full spin, counts as headwind instead.
+	auto applyBlend = [&](auto addClips)
+	{
+		std::fill(blendRotation.begin(), blendRotation.end(), glm::vec4(0.0f));
+		std::fill(blendTranslation.begin(), blendTranslation.end(), glm::vec3(0.0f));
+		std::fill(blendScale.begin(), blendScale.end(), glm::vec3(0.0f));
+		addClips();
+		for (size_t b = 0; b < clothBones.size(); ++b)
+		{
+			const glm::vec4& sum = blendRotation[b];
+			AnimationPose::BoneTRS change;   // the shares add up to 1
+			if (glm::length(sum) > 1e-6f)
+				change.rotation = glm::normalize(glm::quat(sum.w, sum.x, sum.y, sum.z));
+			change.translation = blendTranslation[b];
+			change.scale = blendScale[b];
+			clipChange.boneTransforms.insert_or_assign(skeleton.bones[clothBones[b]].name, AnimationPose::ComposeBone(change));
+		}
+		applyToRuns(clipChange, [](const Strip&) { return 1.0f; });
+	};
+	const glm::vec2 air = windAir * (1.0f - spinWeight)
+		- glm::vec2(spinWeight * (windSpeed + data.spinOpen * data.windFull), 0.0f);
+	const float windPosition = hasClips ? Ramp(data.windStart, data.windFull, glm::length(air)) : 0.0f;
+	if (windPosition > 0.0f)
+	{
+		applyBlend([&]
+		{
+			// Where the wind comes from, in quarter turns from the front toward the left (the slot order).
+			float around = std::atan2(-air.y, -air.x) / glm::half_pi<float>();
+			if (around < 0.0f)
+				around += 4.0f;
+			const int side = std::min(static_cast<int>(around), 3);
+			const float toNext = around - static_cast<float>(side);
+			const float strength[4] = { data.windStrengthFront, data.windStrengthSides, data.windStrengthBack,
+				data.windStrengthSides };   // the slot order: front, left, back, right
+			AddClip(static_cast<ClipSlot>(side), windPosition * strength[side], 1.0f - toNext);
+			AddClip(static_cast<ClipSlot>((side + 1) % 4), windPosition * strength[(side + 1) % 4], toNext);
+		});
 	}
+	const float turnPosition = hasClips ? std::abs(turnAmount) : 0.0f;
+	if (turnPosition > 1e-4f)
+		applyBlend([&] { AddClip(turnAmount > 0.0f ? TurnLeft : TurnRight, turnPosition * data.spinStrength, 1.0f); });
+
+	if (!volumeDifference.boneTransforms.empty())
+		applyToRuns(volumeDifference, [&](const Strip& strip)
+			{ return strip.flares ? data.volume + volumeWeight + data.spinVolume * spinWeight : 0.0f; });
+	if (!openDifference.boneTransforms.empty())
+		applyToRuns(openDifference, [&](const Strip& strip)
+			{ return strip.opens ? strip.openWeight + data.spinOpen * spinWeight : 0.0f; });
 }
 
 void BoneCloth::ComputeModelSpace(const AnimationPose& pose)
@@ -584,8 +835,8 @@ void BoneCloth::Swing(const glm::mat4& world, float deltaTime, bool snap)
 	const glm::vec3 carry = moved * (deltaTime > 0.0f ? 1.0f - glm::clamp(data.trail, 0.0f, 1.0f) : 1.0f);
 	for (size_t c = 0; c < colliders.size(); ++c)
 	{
-		colliderStart[c] = glm::vec3(world * modelSpace[colliders[c].bone][3]);
-		colliderEnd[c] = glm::vec3(world * modelSpace[colliders[c].to][3]);
+		colliderStart[c] = ColliderPoint(world, colliders[c].bone, colliders[c].startLocal);
+		colliderEnd[c] = ColliderPoint(world, colliders[c].to, colliders[c].endLocal);
 	}
 
 	for (Strip& strip : strips)
@@ -606,6 +857,8 @@ void BoneCloth::Swing(const glm::mat4& world, float deltaTime, bool snap)
 			tail = Constrain(head, tail, restTail, joint.maxAngle);
 			for (size_t c = 0; c < colliders.size(); ++c)
 			{
+				if (colliders[c].surface)
+					continue;
 				const float t = AxisParameter(tail, colliderStart[c], colliderEnd[c]);
 				const glm::vec3 nearest = glm::mix(colliderStart[c], colliderEnd[c], t);
 				const float radius = glm::mix(colliders[c].radius, colliders[c].endRadius, t) + data.radius;
@@ -622,6 +875,39 @@ void BoneCloth::Swing(const glm::mat4& world, float deltaTime, bool snap)
 			joint.basis = restBasis;
 			if (glm::dot(from, from) > 1e-12f && glm::dot(to, to) > 1e-12f)
 				joint.basis = glm::mat3_cast(glm::rotation(glm::normalize(from), glm::normalize(to))) * restBasis;
+
+			// The cloth it carries kept out of the surface colliders: the joint turned about its head, each time just
+			// enough to bring its deepest probe to the capsule's surface. The swing limit does not hold this back.
+			for (int iteration = 0; iteration < ProbeIterations && !joint.probes.empty(); ++iteration)
+			{
+				float deepest = 0.0f;
+				glm::vec3 probeFrom(0.0f), probeTo(0.0f);
+				for (const Probe& probe : joint.probes)
+				{
+					const glm::vec3 point = head + joint.basis * probe.local;
+					for (size_t c = 0; c < colliders.size(); ++c)
+					{
+						if (!colliders[c].surface || (probe.ignore & (1u << c)) != 0)
+							continue;
+						const float t = AxisParameter(point, colliderStart[c], colliderEnd[c]);
+						const glm::vec3 nearest = glm::mix(colliderStart[c], colliderEnd[c], t);
+						const float radius = glm::mix(colliders[c].radius, colliders[c].endRadius, t);
+						const glm::vec3 offset = point - nearest;
+						const float distance = glm::length(offset);
+						if (radius - distance > deepest && distance > 1e-6f)
+						{
+							deepest = radius - distance;
+							probeFrom = point - head;
+							probeTo = nearest + offset * (radius / distance) - head;
+						}
+					}
+				}
+				if (deepest <= 0.0f || glm::dot(probeFrom, probeFrom) < 1e-12f || glm::dot(probeTo, probeTo) < 1e-12f)
+					break;
+				const glm::mat3 turn = glm::mat3_cast(glm::rotation(glm::normalize(probeFrom), glm::normalize(probeTo)));
+				joint.basis = turn * joint.basis;
+				joint.tail = head + turn * (joint.tail - head);
+			}
 			joint.head = head;
 
 			aboveRest = restModel;
@@ -629,6 +915,11 @@ void BoneCloth::Swing(const glm::mat4& world, float deltaTime, bool snap)
 			head = joint.tail;
 		}
 	}
+}
+
+glm::vec3 BoneCloth::ColliderPoint(const glm::mat4& world, uint16_t bone, const glm::vec3& local) const
+{
+	return glm::vec3(world * (modelSpace[bone] * glm::vec4(local, 1.0f)));
 }
 
 void BoneCloth::WriteBones(AnimationPose& pose, const glm::mat4& world)
@@ -654,18 +945,25 @@ void BoneCloth::WriteBones(AnimationPose& pose, const glm::mat4& world)
 void BoneCloth::DrawDebug(const glm::mat4& world) const
 {
 	for (const Strip& strip : strips)
+	{
 		for (const Joint& joint : strip.joints)
+		{
 			DebugDraw::Line(joint.head, joint.tail, DebugLineTime, 0.01f, DebugColor::Yellow);
+			for (const Probe& probe : joint.probes)
+				DebugDraw::Point(joint.head + joint.basis * probe.local, DebugLineTime, 0.008f, DebugColor::Cyan);
+		}
+	}
 
 	for (const Collider& collider : colliders)
 	{
-		const glm::vec3 start(world * modelSpace[collider.bone][3]);
-		const glm::vec3 end(world * modelSpace[collider.to][3]);
+		const glm::vec3 start = ColliderPoint(world, collider.bone, collider.startLocal);
+		const glm::vec3 end = ColliderPoint(world, collider.to, collider.endLocal);
+		const uint32_t color = collider.surface ? DebugColor::Cyan : DebugColor::Orange;
 		const glm::vec3 axis = end - start;
 		const glm::vec3 direction = glm::length(axis) > 1e-6f ? glm::normalize(axis) : glm::vec3(0.0f, 1.0f, 0.0f);
 		const glm::vec3 u = Perpendicular(direction);
 		const glm::vec3 v = glm::cross(direction, u);
-		DebugDraw::Line(start, end, DebugLineTime, 0.01f, DebugColor::Orange);
+		DebugDraw::Line(start, end, DebugLineTime, 0.01f, color);
 		constexpr int Segments = 8;
 		for (int s = 0; s < Segments; ++s)
 		{
@@ -673,14 +971,14 @@ void BoneCloth::DrawDebug(const glm::mat4& world) const
 			const float angle1 = glm::two_pi<float>() * static_cast<float>(s + 1) / Segments;
 			const glm::vec3 ring0 = u * std::cos(angle0) + v * std::sin(angle0);
 			const glm::vec3 ring1 = u * std::cos(angle1) + v * std::sin(angle1);
-			DebugDraw::Line(start + ring0 * collider.radius, start + ring1 * collider.radius, DebugLineTime, 0.01f, DebugColor::Orange);
-			DebugDraw::Line(end + ring0 * collider.endRadius, end + ring1 * collider.endRadius, DebugLineTime, 0.01f, DebugColor::Orange);
-			DebugDraw::Line(start + ring0 * collider.radius, end + ring0 * collider.endRadius, DebugLineTime, 0.01f, DebugColor::Orange);
+			DebugDraw::Line(start + ring0 * collider.radius, start + ring1 * collider.radius, DebugLineTime, 0.01f, color);
+			DebugDraw::Line(end + ring0 * collider.endRadius, end + ring1 * collider.endRadius, DebugLineTime, 0.01f, color);
+			DebugDraw::Line(start + ring0 * collider.radius, end + ring0 * collider.endRadius, DebugLineTime, 0.01f, color);
 		}
 	}
 }
 
-CONSOLE_FUNC("cloth_debug", "cloth_debug [0|1] - draws bone cloth strips (yellow) and colliders (orange)")
+CONSOLE_FUNC("cloth_debug", "cloth_debug [0|1] - draws bone cloth strips (yellow), colliders (orange), surface colliders and probes (cyan)")
 {
 	BoneCloth::DebugDrawEnabled = args.empty() ? !BoneCloth::DebugDrawEnabled : Console::ArgBool(args, 0);
 }

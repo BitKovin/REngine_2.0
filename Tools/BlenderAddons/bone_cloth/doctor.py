@@ -10,6 +10,8 @@ from . import colliders, frames, mesh_prep, model_data, poses, stages
 from . import engine_contract as ec
 
 LAST = {}     # setup id -> list of Issue
+POSE_DEPTH = 0.01       # cloth that rests outside the capsules and a clip pose takes this far in is reported
+POSE_STRETCH = 1.3      # ... and cloth a clip pose stretches this much
 
 
 class Issue:
@@ -131,9 +133,10 @@ def run(setup, arm):
         add(Issue("JOINTS-256", "error", "%d bones will be exported; the game allows %d" % (count, ec.MAX_SKINNED_BONES)))
 
     # ---- wind clips ----
+    clips = poses.uses_clips(setup)
     for kind in ("open", "volume"):
         layer = getattr(setup.poses, kind)
-        if not layer.enabled:
+        if not layer.enabled or clips:
             continue
         if layer.action is None:
             add(Issue("CLIP-MISSING", "warning", "The %s pose has not been made. Open Wind poses and press Update." % kind,
@@ -145,8 +148,35 @@ def run(setup, arm):
             add(Issue("CLIP-FLAT", "warning", "No panel turns in the %s pose, so the game leaves that layer off." % kind,
                       "poses"))
 
+    if clips:
+        cloth = set(used)
+        for key in ec.CLIP_SLOTS:
+            act = poses.clip_slot(setup, key).action
+            if act is None:
+                continue
+            last = poses.clip_samples(act)[-1]
+            if not any(b in cloth and (q.angle >= ec.LAYER_MIN_ANGLE or loc.length > 1e-4) for b, (q, loc) in last.items()):
+                add(Issue("CLIP-FLAT", "warning", "The %s clip ends where it starts: its last frame is the rest shape, "
+                          "so it does nothing in the game" % poses.CLIP_TITLES[key].lower()))
+        for key, source in poses.MIRROR_OF.items():
+            if poses.clip_slot(setup, key).action is None and poses.clip_slot(setup, source).action is not None:
+                add(Issue("CLIP-NO-MIRROR", "info", "%s has no clip: the cloth keeps its rest shape there. Mirror it "
+                          "from %s." % (poses.CLIP_TITLES[key], poses.CLIP_TITLES[source].lower())))
+        if not sim_running(arm):
+            for label, depth, depth_bone, stretch, stretch_bone in clip_body_check(setup, arm, cloth):
+                if depth > POSE_DEPTH:
+                    add(Issue("POSE-IN-BODY", "warning", "%s: the cloth goes %.1f cm into a collider near %s. The game "
+                              "pushes it out, so it will not look as posed." % (label, depth * 100, depth_bone),
+                              bones=[depth_bone]))
+                if stretch > POSE_STRETCH:
+                    add(Issue("POSE-STRETCH", "warning", "%s: the cloth stretches to %.1fx near %s (skinning cannot slide "
+                              "one panel over another; turn the panels less apart there)" % (label, stretch, stretch_bone),
+                              bones=[stretch_bone]))
+
     for kind in ("open", "volume"):
         layer = getattr(setup.poses, kind)
+        if clips:
+            break
         if layer.enabled and poses.layer_is_hand(layer) and not poses.layout_changed(arm, layer):
             add(Issue("HAND-POSE", "info", "The %s pose is hand made: Update keeps it as it is (Back to generated in Wind "
                       "poses throws it away)" % kind))
@@ -167,7 +197,7 @@ def run(setup, arm):
                       % (c.bone, c.to, r0 * 100, r1 * 100)))
 
     # ---- rest shape against the legs ----
-    caps = colliders.capsules(setup, arm)
+    caps = colliders.capsules(setup, arm, surface=False)
     if caps:
         pad = setup.motion.radius
         for info in bones_mod.strips(setup, arm):
@@ -218,6 +248,115 @@ def run(setup, arm):
                   "update"))
     LAST[setup.id] = issues
     return issues
+
+
+def sim_running(arm):
+    from . import sim
+    return arm.name in sim.RUNNING
+
+
+def _posed_capsules(setup, arm):
+    """[(start, end, r0, r1)] of every enabled collider on the body as it is posed now."""
+    out = []
+    for c in setup.colliders:
+        if c.enabled and c.bone in arm.pose.bones and c.to in arm.pose.bones:
+            off = np.array(c.offset)
+            r0, r1 = colliders.radii(c)
+            out.append((frames.v3(arm.matrix_world @ arm.pose.bones[c.bone].head) + off,
+                        frames.v3(arm.matrix_world @ arm.pose.bones[c.to].head) + off, r0, r1))
+    return out
+
+
+def _cloth_mesh_state(setup, cloth):
+    """Per cloth object: (world positions of the evaluated mesh, edges, mask of the vertices the strip bones carry most)."""
+    dg = bpy.context.evaluated_depsgraph_get()
+    out = []
+    for o in mesh_prep.cloth_objects(setup):
+        ev = o.evaluated_get(dg)
+        me = ev.to_mesh()
+        n = len(me.vertices)
+        pos = np.empty(n * 3)
+        me.vertices.foreach_get('co', pos)
+        mw = np.array(o.matrix_world)
+        pos = pos.reshape(n, 3) @ mw[:3, :3].T + mw[:3, 3]
+        edges = np.empty(len(me.edges) * 2, dtype=np.int64)
+        me.edges.foreach_get('vertices', edges)
+        ev.to_mesh_clear()
+        names = {g.index: g.name for g in o.vertex_groups}
+        mask = np.array([bool(v.groups) and names.get(max(v.groups, key=lambda g: g.weight).group) in cloth
+                         for v in o.data.vertices])
+        out.append((pos, edges.reshape(-1, 2), mask))
+    return out
+
+
+def clip_body_check(setup, arm, cloth):
+    """The clips' frames, and the blends halfway between two neighbouring wind sides, posed in Blender (the BC Follow
+    constraints join the strips as the game does): [(label, deepest new depth into a collider, bone near it, largest
+    stretch of an edge, bone near it)]. The armature's pose is put back afterwards."""
+    sets = poses.clip_sample_sets(setup)
+    cases = []
+    for key in ec.CLIP_SLOTS:
+        act = poses.clip_slot(setup, key).action
+        if act is None:
+            continue
+        fr = poses.clip_frames(act)
+        for f in fr[1:]:
+            position = (f - fr[0]) / (fr[-1] - fr[0])
+            cases.append(("%s, frame %d" % (poses.CLIP_TITLES[key], f), [(ec.CLIP_SLOTS.index(key), position, 1.0)]))
+    for side in range(4):
+        a, b = ec.CLIP_SLOTS[side], ec.CLIP_SLOTS[(side + 1) % 4]
+        if a in sets and b in sets:
+            for position in (0.5, 1.0):
+                cases.append(("%s and %s %d%%" % (poses.CLIP_TITLES[a], poses.CLIP_TITLES[b].lower().replace("wind ", ""),
+                                                  position * 100), [(side, position, 0.5), ((side + 1) % 4, position, 0.5)]))
+    if not cases:
+        return []
+
+    held = {pb.name: (pb.matrix_basis.copy(), pb.rotation_mode) for pb in arm.pose.bones}
+    results = []
+    try:
+        poses.set_bases(arm, {})
+        bpy.context.view_layer.update()
+        caps = _posed_capsules(setup, arm)
+        rest = _cloth_mesh_state(setup, cloth)
+        rest_depth = [np.max([[ec.capsule_depth(p, *c)[0] for c in caps] for p in pos], axis=1) if caps else np.zeros(len(pos))
+                      for pos, _, _ in rest]
+        for label, shares in cases:
+            pose = poses.blend_clips(sets, shares)
+            poses.set_bases(arm, {b: q for b, (q, _) in pose.items()}, {b: loc for b, (_, loc) in pose.items()})
+            bpy.context.view_layer.update()
+            depth, depth_at, stretch, stretch_at = 0.0, None, 1.0, None
+            for (pos, edges, mask), (rpos, _, _), rd in zip(_cloth_mesh_state(setup, cloth), rest, rest_depth):
+                for i in np.where(mask & (rd <= 0.0))[0]:
+                    for c in caps:
+                        d = ec.capsule_depth(pos[i], *c)[0]
+                        if d > depth:
+                            depth, depth_at = d, (rpos, i)
+                both = mask[edges[:, 0]] & mask[edges[:, 1]]
+                if both.any():
+                    e = edges[both]
+                    ratio = np.linalg.norm(pos[e[:, 0]] - pos[e[:, 1]], axis=1) / np.maximum(
+                        np.linalg.norm(rpos[e[:, 0]] - rpos[e[:, 1]], axis=1), 1e-6)
+                    k = int(np.argmax(ratio))
+                    if ratio[k] > stretch:
+                        stretch, stretch_at = float(ratio[k]), (rpos, int(e[k, 0]))
+            results.append((label, depth, _nearest_bone(arm, cloth, depth_at), stretch, _nearest_bone(arm, cloth, stretch_at)))
+    finally:
+        for pb in arm.pose.bones:
+            matrix, mode = held[pb.name]
+            pb.rotation_mode = mode
+            pb.matrix_basis = matrix
+        bpy.context.view_layer.update()
+    return results
+
+
+def _nearest_bone(arm, cloth, at):
+    """The cloth bone whose head is nearest a vertex at rest (to name where a problem is)."""
+    if at is None:
+        return ""
+    rpos, i = at
+    p = rpos[i]
+    return min(cloth, key=lambda b: float(np.linalg.norm(frames.bone_head(arm, b) - p)) if b in arm.data.bones else 1e9)
 
 
 def blocking(issues):

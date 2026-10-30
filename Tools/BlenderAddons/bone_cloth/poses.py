@@ -1,11 +1,13 @@
 """Step 6 (and the rest shape): the swing solver, wind-pose actions, preview (DESIGN.md sections 8.5.2, 8.6)."""
 import math
+from contextlib import contextmanager
 
 import bpy
 import numpy as np
 from mathutils import Matrix, Quaternion, Vector
 
 from . import bones as bones_mod
+from . import engine_contract as ec
 from . import frames
 
 MAX_ANGLE = math.radians(70.0)
@@ -435,49 +437,76 @@ def partner_name(name):
     return None
 
 
+def _mirrored(arm, src_names, dst_names):
+    """{bone: (rotation, location)} for dst_names: the current pose of src_names mirrored through the body's centre plane
+    (rotations, and the top bone's slide)."""
+    mir3 = Matrix(((-1, 0, 0), (0, 1, 0), (0, 0, 1)))
+    deltas = []
+    for n in src_names:
+        pb = arm.pose.bones[n]
+        rest = pb.bone.matrix_local.to_3x3().normalized()
+        deltas.append(mir3 @ (pb.matrix.to_3x3().normalized() @ rest.inverted()) @ mir3)
+    out = {}
+    for k, n in enumerate(dst_names):
+        bone = arm.data.bones[n]
+        rb = bone.matrix_local.to_3x3().normalized()
+        par = bone.parent.name if bone.parent else None
+        if par in dst_names:
+            delta = deltas[dst_names.index(par)].inverted() @ deltas[k]
+        else:
+            delta = deltas[k]
+        out[n] = ((rb.inverted() @ delta @ rb).to_quaternion(), Vector((0.0, 0.0, 0.0)))
+    # the slide of the top bone
+    s_pb = arm.pose.bones[src_names[0]]
+    t = Vector(s_pb.head) - Vector(s_pb.bone.head_local)
+    d_bone = arm.data.bones[dst_names[0]]
+    out[dst_names[0]] = (out[dst_names[0]][0],
+                         d_bone.matrix_local.to_3x3().normalized().inverted() @ Vector((-t.x, t.y, t.z)))
+    return out
+
+
 def mirror_pose(setup, arm, source):
     """Copies the pose of one side's panels onto the other side's, mirrored through the body's centre plane. source is
     'R' or 'L'. Works on the current pose of the cloth bones (rotations and the top bones' slide). Returns the bone names
     that were set."""
     infos = bones_mod.strips(setup, arm)
     by_name = {i["bones"][0]: i for i in infos}
-    mir3 = Matrix(((-1, 0, 0), (0, 1, 0), (0, 0, 1)))
     suffix = "_r" if source == 'R' else "_l"
-    changed = []
+    result = {}
     for info in infos:
         first = info["bones"][0]
         if not first.endswith(suffix):
             continue
         twin = by_name.get(partner_name(first))
-        if twin is None:
+        if twin is None or len(info["bones"]) != len(twin["bones"]):
             continue
-        src_names, dst_names = info["bones"], twin["bones"]
-        if len(src_names) != len(dst_names):
+        result.update(_mirrored(arm, info["bones"], twin["bones"]))
+    _pose_bones(arm, result)
+    return list(result)
+
+
+def swapped_pose(setup, arm):
+    """The cloth bones' current pose mirrored through the body's centre plane, both sides at once: the left panels take
+    the right ones' pose and the other way round, a middle panel mirrors onto itself. {bone: (rotation, location)}."""
+    infos = bones_mod.strips(setup, arm)
+    by_name = {i["bones"][0]: i for i in infos}
+    out = {}
+    for info in infos:
+        name = partner_name(info["bones"][0])
+        twin = by_name.get(name) if name else info
+        if twin is None or len(info["bones"]) != len(twin["bones"]):
             continue
-        deltas = []
-        for n in src_names:
-            pb = arm.pose.bones[n]
-            rest = pb.bone.matrix_local.to_3x3().normalized()
-            deltas.append(mir3 @ (pb.matrix.to_3x3().normalized() @ rest.inverted()) @ mir3)
-        for k, n in enumerate(dst_names):
-            bone = arm.data.bones[n]
-            rb = bone.matrix_local.to_3x3().normalized()
-            par = bone.parent.name if bone.parent else None
-            if par in dst_names:
-                delta = deltas[dst_names.index(par)].inverted() @ deltas[k]
-            else:
-                delta = deltas[k]
-            pb = arm.pose.bones[n]
-            pb.rotation_mode = 'QUATERNION'
-            pb.rotation_quaternion = (rb.inverted() @ delta @ rb).to_quaternion()
-            changed.append(n)
-        # the slide of the top bone
-        s_pb = arm.pose.bones[src_names[0]]
-        t = Vector(s_pb.head) - Vector(s_pb.bone.head_local)
-        d_bone = arm.data.bones[dst_names[0]]
-        arm.pose.bones[dst_names[0]].location = d_bone.matrix_local.to_3x3().normalized().inverted() @ Vector((-t.x, t.y, t.z))
+        out.update(_mirrored(arm, info["bones"], twin["bones"]))
+    return out
+
+
+def _pose_bones(arm, bases):
+    for n, (q, loc) in bases.items():
+        pb = arm.pose.bones[n]
+        pb.rotation_mode = 'QUATERNION'
+        pb.rotation_quaternion = q
+        pb.location = loc
     bpy.context.view_layer.update()
-    return changed
 
 
 def key_pose_into(act, arm, names):
@@ -565,6 +594,17 @@ def apply_preview(context):
     setup = get_setup(arm)
     if setup is None:
         return
+    if uses_clips(setup):
+        pv = setup.poses
+        # in clip positions (1 = the clips' end): the wind's, turned to headwind by the spin, and spinOpen of the way
+        air = ec.spin_air(-math.cos(pv.preview_wind_from) * pv.preview_wind, -math.sin(pv.preview_wind_from) * pv.preview_wind,
+                          setup.motion.spinOpen, abs(pv.preview_turn), 1.0, pv.preview_wind)
+        layers = ec.clip_layers(air[0], air[1], min(math.hypot(*air), 1.0), pv.preview_turn, strengths(setup))
+        pose = blend_layers(clip_sample_sets(setup), layers)
+        set_bases(arm, {b: q for b, (q, _) in pose.items()}, {b: loc for b, (_, loc) in pose.items()})
+        arm.update_tag()
+        context.view_layer.update()
+        return
     wo, wv = setup.poses.preview_open, setup.poses.preview_volume
     if wo > 0 or wv > 0:
         set_bases(arm, preview_bases(setup, wo, wv), preview_locs(setup, wo, wv))
@@ -572,3 +612,271 @@ def apply_preview(context):
         set_bases(arm, {})
     arm.update_tag()
     context.view_layer.update()
+
+
+# ---- wind and turn clips --------------------------------------------------------------------------------------------
+# Each clip is the cloth bones' poses from frame 1 (the rest shape) on, as the wind from one side - or the turn - grows;
+# the game plays it as far as the wind is strong, blends the wind's sides and puts the turn's on top
+# (engine_contract.clip_layers).
+
+CLIP_TITLES = {"windFront": "Wind from the front", "windLeft": "Wind from the left", "windBack": "Wind from behind",
+               "windRight": "Wind from the right", "turnLeft": "Turning left", "turnRight": "Turning right"}
+MIRROR_OF = {"windRight": "windLeft", "turnRight": "turnLeft"}      # a clip that can be written from the other side's
+
+
+def clip_slot(setup, key):
+    return getattr(setup.poses, key)
+
+
+def uses_clips(setup):
+    """True when any wind or turn clip is set: they replace the Open and Volume layers."""
+    return any(clip_slot(setup, k).action is not None for k in ec.CLIP_SLOTS)
+
+
+def cloth_bone_names(setup, arm):
+    return [b for info in bones_mod.strips(setup, arm) for b in info["bones"]]
+
+
+def _channelbag(act):
+    for lyr in act.layers:
+        for st in lyr.strips:
+            for cb in st.channelbags:
+                return cb
+    return None
+
+
+def _rest_channels(cb, names, frames_at):
+    """Every channel of the named bones (location, rotation, scale), keyed at rest on each of `frames_at`."""
+    for bone in names:
+        for path, values in (("location", (0.0, 0.0, 0.0)), ("rotation_quaternion", (1.0, 0.0, 0.0, 0.0)),
+                             ("scale", (1.0, 1.0, 1.0))):
+            for i, v in enumerate(values):
+                fc = cb.fcurves.new('pose.bones["%s"].%s' % (bone, path), index=i, group_name=bone)
+                for frame_no in frames_at:
+                    fc.keyframe_points.insert(frame_no, v).interpolation = 'LINEAR'
+
+
+def new_clip(setup, arm, key):
+    """A clip of the cloth bones at rest on frames 1 and 2, set on the slot (pose and key the later frames)."""
+    snake = "".join("_" + c.lower() if c.isupper() else c for c in key)
+    act = bpy.data.actions.new("%s_%s" % (setup.prefix, snake))
+    slot = act.slots.new('OBJECT', arm.name)
+    cb = act.layers.new("Layer").strips.new(type='KEYFRAME').channelbag(slot, ensure=True)
+    _rest_channels(cb, cloth_bone_names(setup, arm), (1, 2))
+    act.use_frame_range = True
+    act.frame_start, act.frame_end = 1, 2
+    act.use_fake_user = True
+    act["bone_cloth"] = arm.name
+    clip_slot(setup, key).action = act
+    return act
+
+
+def write_clip(setup, arm, key, frame_bases):
+    """The slot's clip made of `frame_bases` ([{bone: (rotation, location)}] for frames 2, 3, ...) after the rest shape
+    on frame 1, replacing its keys (the action and its name are kept), marked as generated."""
+    act = clip_slot(setup, key).action or new_clip(setup, arm, key)
+    cb = _channelbag(act)
+    for fc in list(cb.fcurves):
+        cb.fcurves.remove(fc)
+    _rest_channels(cb, cloth_bone_names(setup, arm), (1,))
+    act.frame_start, act.frame_end = 1, 1
+    for k, bases in enumerate(frame_bases):
+        key_into_clip(act, 2 + k, bases)
+    act["bc_clip_sig"] = "%s:%d" % action_signature(act)
+    return act
+
+
+def clip_is_hand(act):
+    """True for a clip the artist made or changed: one the add-on did not write, or changed since it did (a clip that
+    is still all rest counts as neither)."""
+    if "bc_clip_sig" in act:
+        return act["bc_clip_sig"] != "%s:%d" % action_signature(act)
+    end = bases_at(act, clip_frames(act)[-1])
+    return any(q.angle > 1e-4 or loc.length > 1e-6 for q, loc in end.values())
+
+
+@contextmanager
+def held_pose(arm):
+    """The body at rest and no clip on the armature while posing for a measurement; everything put back after."""
+    ad = arm.animation_data
+    held_action = ad.action if ad else None
+    held_slot = ad.action_slot if ad else None
+    held = {pb.name: (pb.matrix_basis.copy(), pb.rotation_mode) for pb in arm.pose.bones}
+    try:
+        if ad:
+            ad.action = None
+        for pb in arm.pose.bones:
+            pb.matrix_basis = Matrix.Identity(4)
+        bpy.context.view_layer.update()
+        yield
+    finally:
+        for pb in arm.pose.bones:
+            matrix, mode = held[pb.name]
+            pb.rotation_mode = mode
+            pb.matrix_basis = matrix
+        if ad:
+            ad.action = held_action
+            if held_slot is not None:
+                ad.action_slot = held_slot
+        bpy.context.view_layer.update()
+
+
+def edit_clip(arm, act):
+    """Shows the clip on the armature (its action), so it is posed and keyed with Blender's own tools."""
+    if arm.animation_data is None:
+        arm.animation_data_create()
+    ad = arm.animation_data
+    ad.action = act
+    if act.slots:
+        ad.action_slot = act.slots[0]
+    scene = bpy.context.scene
+    scene.frame_set(scene.frame_current)
+
+
+def current_bases(setup, arm, names=None):
+    """{bone: (rotation, location)} of the cloth bones as posed now."""
+    names = names if names is not None else cloth_bone_names(setup, arm)
+    return {n: (arm.pose.bones[n].rotation_quaternion.copy(), arm.pose.bones[n].location.copy()) for n in names}
+
+
+def key_into_clip(act, frame, bases):
+    """Writes `bases` ({bone: (rotation, location)}) into the clip at `frame`, replacing keys there, and widens the
+    clip's range to it. A channel the clip did not have yet starts at rest on the clip's first frame."""
+    cb = _channelbag(act)
+    if cb is None:
+        raise RuntimeError("The clip '%s' has no keys to add to" % act.name)
+    first = int(round(act.frame_range[0]))
+    for bone, (q, loc) in bases.items():
+        for path, values, rest in (("rotation_quaternion", tuple(q), (1.0, 0.0, 0.0, 0.0)),
+                                   ("location", tuple(loc), (0.0, 0.0, 0.0))):
+            for i, v in enumerate(values):
+                data_path = 'pose.bones["%s"].%s' % (bone, path)
+                fc = cb.fcurves.find(data_path, index=i)
+                if fc is None:
+                    fc = cb.fcurves.new(data_path, index=i, group_name=bone)
+                    if frame != first:
+                        fc.keyframe_points.insert(first, rest[i]).interpolation = 'LINEAR'
+                fc.keyframe_points.insert(frame, float(v)).interpolation = 'LINEAR'
+                fc.update()
+    act.use_frame_range = True
+    act.frame_start = min(act.frame_start, frame)
+    act.frame_end = max(act.frame_end, frame)
+
+
+def clip_frames(act):
+    """The whole frames of the clip, first to last (the exporter samples every one)."""
+    a, b = int(round(act.frame_range[0])), int(round(act.frame_range[1]))
+    return list(range(a, max(a, b) + 1))
+
+
+def bases_at(act, frame):
+    """{bone: (rotation, location)} the clip gives the bones at `frame`."""
+    parts = {}
+    for lyr in act.layers:
+        for st in lyr.strips:
+            for cb in st.channelbags:
+                for fc in cb.fcurves:
+                    if not fc.data_path.startswith('pose.bones["'):
+                        continue
+                    bone = fc.data_path.split('"')[1]
+                    entry = parts.setdefault(bone, [[1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+                    if fc.data_path.endswith(".rotation_quaternion"):
+                        entry[0][fc.array_index] = fc.evaluate(frame)
+                    elif fc.data_path.endswith(".location"):
+                        entry[1][fc.array_index] = fc.evaluate(frame)
+    return {b: (Quaternion(q).normalized(), Vector(loc)) for b, (q, loc) in parts.items()}
+
+
+def clip_samples(act, count=ec.CLIP_SAMPLE_COUNT):
+    """The clip as the game samples it: `count` even samples over its range, each {bone: (rotation, location)} as the
+    change from the clip's first frame. The exported clip holds every frame and the game interpolates between them."""
+    frames = clip_frames(act)
+    per_frame = [bases_at(act, f) for f in frames]
+    first = per_frame[0]
+    out = []
+    for s in range(count):
+        at = (len(frames) - 1) * s / (count - 1)
+        lo = min(int(at), max(len(frames) - 2, 0))
+        hi = min(lo + 1, len(frames) - 1)
+        t = at - lo
+        sample = {}
+        for bone, (q0, l0) in first.items():
+            qa, la = per_frame[lo].get(bone, (q0, l0))
+            qb, lb = per_frame[hi].get(bone, (q0, l0))
+            sample[bone] = (qa.slerp(qb, t) @ q0.inverted(), la.lerp(lb, t) - l0)
+        out.append(sample)
+    return out
+
+
+def clip_sample_sets(setup):
+    """{slot key: samples} of every clip that is set."""
+    return {k: clip_samples(clip_slot(setup, k).action) for k in ec.CLIP_SLOTS if clip_slot(setup, k).action is not None}
+
+
+def strengths(setup):
+    """(front, sides, back, spin) for engine_contract.clip_layers, from the Motion step's Strength box."""
+    m = setup.motion
+    return m.windStrengthFront, m.windStrengthSides, m.windStrengthBack, m.spinStrength
+
+
+def blend_layers(sample_sets, layers):
+    """{bone: (rotation, location)} of engine_contract.clip_layers' layers, each blended, the later on top of the
+    earlier (the turn on the wind), as the game applies them."""
+    out = {}
+    for layer in layers:
+        for bone, (q, loc) in blend_clips(sample_sets, layer).items():
+            q0, l0 = out.get(bone, (Quaternion(), Vector((0.0, 0.0, 0.0))))
+            out[bone] = (q @ q0, l0 + loc)
+    return out
+
+
+def blend_clips(sample_sets, shares):
+    """{bone: (rotation, location)} the clips give the cloth bones for one layer [(slot, position, weight)], blended as
+    the game does: a weighted sum of the samples' rotations, each the short way round, normalised.
+    A slot without a clip, or a bone it does not key, counts as the rest shape."""
+    total = sum(w for _, _, w in shares)
+    sums, locs, weights = {}, {}, {}
+    for slot, position, weight in shares:
+        samples = sample_sets.get(ec.CLIP_SLOTS[slot])
+        if not samples:
+            continue
+        lower, upper, t = ec.sample_pair(position, len(samples))
+        for index, part in ((lower, 1.0 - t), (upper, t)):
+            share = weight * part
+            if share <= 0.0:
+                continue
+            for bone, (q, loc) in samples[index].items():
+                v = np.array([q.w, q.x, q.y, q.z]) * (1.0 if q.w >= 0.0 else -1.0)
+                sums[bone] = sums.get(bone, np.zeros(4)) + v * share
+                locs[bone] = locs.get(bone, Vector((0.0, 0.0, 0.0))) + loc * share
+                weights[bone] = weights.get(bone, 0.0) + share
+    out = {}
+    for bone, v in sums.items():
+        v = v + np.array([1.0, 0.0, 0.0, 0.0]) * (total - weights[bone])      # the rest shape's share
+        n = float(np.linalg.norm(v))
+        out[bone] = (Quaternion(v / n if n > 1e-9 else (1.0, 0.0, 0.0, 0.0)), locs[bone])
+    return out
+
+
+def mirror_clip(setup, arm, key):
+    """Writes the slot `key` (windRight, turnRight) from its other side's clip, mirrored frame by frame: both sides of
+    the jacket swap. The body is held at rest while it is worked out; the armature's pose and clip are put back."""
+    source = clip_slot(setup, MIRROR_OF[key]).action
+    if source is None:
+        raise RuntimeError("Make the %s clip first" % CLIP_TITLES[MIRROR_OF[key]].lower())
+    target = clip_slot(setup, key).action
+    if target is None or target == source:
+        target = new_clip(setup, arm, key)
+    cb = _channelbag(target)
+    for fc in list(cb.fcurves):
+        cb.fcurves.remove(fc)
+    _rest_channels(cb, cloth_bone_names(setup, arm), (clip_frames(source)[0],))   # every channel starts at rest
+    target.use_frame_range = True
+    target.frame_start, target.frame_end = source.frame_range[0], source.frame_range[1]
+    with held_pose(arm):
+        for frame in clip_frames(source):
+            pose = bases_at(source, frame)
+            _pose_bones(arm, {b: v for b, v in pose.items() if b in arm.pose.bones})
+            key_into_clip(target, frame, swapped_pose(setup, arm))
+    target["bc_clip_sig"] = "%s:%d" % action_signature(target)
+    return target

@@ -15,6 +15,13 @@ MAX_BONE_INFLUENCE = 4
 MAX_SKINNED_BONES = 256
 FALLBACK_COLLIDER_RADIUS = 0.06
 LAYER_MIN_ANGLE = np.radians(0.5)
+PROBE_WEIGHT = 0.5           # a joint's probes are among the vertices it carries this much of
+MAX_PROBES = 6               # per joint
+PROBE_ITERATIONS = 3         # turns a frame that bring a joint's deepest probe out of the surface colliders
+MAX_SURFACE_COLLIDERS = 32   # a probe's ignore mask has a bit per collider
+CLIP_SAMPLE_COUNT = 17       # samples the engine takes evenly over each wind and turn clip
+# BoneClothData's clip fields in the engine's slot order (the wind ones by angle: front, left, back, right)
+CLIP_SLOTS = ("windFront", "windLeft", "windBack", "windRight", "turnLeft", "turnRight")
 
 
 class Skeleton:
@@ -254,3 +261,80 @@ def limit_influences(bones, weights, keep=MAX_BONE_INFLUENCE):
     w = np.asarray([weights[i] for i in order], dtype=float)
     total = w.sum()
     return b, (w / total if total > 0 else w)
+
+
+def pick_probes(skel, verts, bone):
+    """BuildProbes: rest positions of up to MAX_PROBES vertices carrying PROBE_WEIGHT or more of `bone`, spread out - the
+    farthest from the bone's head first, then each next the farthest from those taken."""
+    sel = ((verts.bones == bone) & (verts.weights >= PROBE_WEIGHT)).any(axis=1)
+    candidates = verts.position[sel]
+    if not len(candidates):
+        return np.zeros((0, 3))
+    head = skel.head(bone)
+    nearest = np.full(len(candidates), np.inf)
+    taken = []
+    for k in range(min(MAX_PROBES, len(candidates))):
+        score = np.linalg.norm(candidates - head, axis=1) if k == 0 else nearest
+        best = int(np.argmax(score))       # the first of equals, like the engine's strict >
+        if k > 0 and score[best] < 1e-4:
+            break
+        taken.append(candidates[best])
+        nearest = np.minimum(nearest, np.linalg.norm(candidates - candidates[best], axis=1))
+    return np.array(taken)
+
+
+def capsule_depth(point, start, end, r0, r1):
+    """How deep a point is inside a capsule (negative: outside), with the nearest axis point."""
+    axis = end - start
+    l2 = float(np.dot(axis, axis))
+    t = float(np.clip(np.dot(point - start, axis) / l2, 0.0, 1.0)) if l2 > 1e-12 else 0.0
+    nearest = start + axis * t
+    return r0 + (r1 - r0) * t - float(np.linalg.norm(point - nearest)), nearest
+
+
+def probe_ignore(position, capsules):
+    """The ignore mask of a probe at rest: a bit for each surface capsule (start, end, r0, r1, surface) it rests in."""
+    mask = 0
+    for c, (start, end, r0, r1, surface) in enumerate(capsules[:MAX_SURFACE_COLLIDERS]):
+        if surface and capsule_depth(position, start, end, r0, r1)[0] > 0.0:
+            mask |= 1 << c
+    return mask
+
+
+def spin_air(air_forward, air_left, spin_open, spin_weight, wind_full, wind_speed):
+    """RestShape: the apparent wind the clips see. As the body spins (spin_weight 0..1) the wind's side counts less - it
+    sweeps round the body faster than cloth can follow - and its speed (wind_speed, smoothed) counts as headwind
+    instead, with spin_open of wind_full added at a full spin: the front opens."""
+    s = spin_weight
+    return air_forward * (1.0 - s) - s * (wind_speed + spin_open * wind_full), air_left * (1.0 - s)
+
+
+def clip_layers(air_forward, air_left, wind_position, turn_amount, strength=(1.0, 1.0, 1.0, 1.0)):
+    """RestShape: the layers that pose the strips, in order - the wind's, then the turn's on top of it. Each layer is
+    [(slot index, position through the clip, weight)] with weights summing to 1; a part at rest has no layer. air: the
+    apparent wind along the facing and the character's left (where the air moves to); wind_position: 0..1 from
+    windStart..windFull; turn_amount: -1 (full right) .. 1 (full left); strength: (front, sides, back, spin) - how far
+    each clip plays for the same wind or turn (windStrengthFront/Sides/Back, spinStrength), its position clamped to 1."""
+    front, sides, back, spin = strength
+    by_slot = (front, sides, back, sides)
+    layers = []
+    if wind_position > 0.0:
+        around = np.arctan2(-air_left, -air_forward) / (np.pi / 2.0)     # where it comes from, quarter turns toward the left
+        if around < 0.0:
+            around += 4.0
+        side = min(int(around), 3)
+        to_next = around - side
+        nxt = (side + 1) % 4
+        layers.append([o for o in ((side, min(wind_position * by_slot[side], 1.0), 1.0 - to_next),
+                                   (nxt, min(wind_position * by_slot[nxt], 1.0), to_next)) if o[2] > 0.0])
+    if abs(turn_amount) > 1e-4:
+        layers.append([(4 if turn_amount > 0.0 else 5, min(abs(turn_amount) * spin, 1.0), 1.0)])
+    return layers
+
+
+def sample_pair(position, count=CLIP_SAMPLE_COUNT):
+    """AddClip: the two samples around `position` (0..1 through a clip) and the share of the upper one."""
+    at = min(max(position, 0.0), 1.0) * (count - 1)
+    lower = min(int(at), count - 2)
+    return lower, lower + 1, at - lower
+

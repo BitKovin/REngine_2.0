@@ -148,6 +148,7 @@ class Joint:
         self.name, self.bone, self.above = bone_name, bone, above
         self.tip_local = np.asarray(tip_local, float)
         self.follow, self.max_angle = follow, max_angle
+        self.probes = []          # (position in the bone's frame, ignore mask)
         self.head = np.zeros(3)
         self.tail = np.zeros(3)
         self.basis = np.eye(3)
@@ -169,7 +170,7 @@ class ClothSim:
         self.data = {k: getattr(m, k) for k in (
             "followRoot", "followTip", "trail", "maxAngleRoot", "maxAngleTip", "radius", "teleportDistance", "tipLength",
             "volume", "openWindStart", "openWindFull", "windwardBias", "volumeWindStart", "volumeWindFull",
-            "layerSmoothing", "spinOpen", "spinVolume", "spinStart", "spinFull", "spinRelease")}
+            "layerSmoothing", "spinOpen", "spinVolume", "spinStart", "spinFull", "spinRelease", "windStart", "windFull")}
         self.frame = pipeline.frame_of(setup, arm)
         skel, verts = model_data.collect(arm)
         self.skel = skel
@@ -186,23 +187,39 @@ class ClothSim:
                                            * j.along, 0.0), 180.0))
                 joints.append(Joint(skel.names[j.bone], j.bone, j.above, j.tip_local, follow, ang))
             self.strips.append(SimStrip(joints, s.side))
-        # the wind layers
-        self.q_open = poses.read_action(setup.poses.open.action) if setup.poses.open.enabled else {}
-        self.q_vol = poses.read_action(setup.poses.volume.action) if setup.poses.volume.enabled else {}
-        self.l_open = poses.read_action_locs(setup.poses.open.action) if setup.poses.open.enabled else {}
-        self.l_vol = poses.read_action_locs(setup.poses.volume.action) if setup.poses.volume.enabled else {}
+        # the wind and turn clips; then the older wind layers
+        self.clips = poses.clip_sample_sets(setup)
+        self.wind_air = np.zeros(2)       # along the facing, along the left
+        self.wind_speed = 0.0
+        self.turn_amount = 0.0
+        layers = not self.clips          # the export leaves the layers out when there are clips
+        self.q_open = poses.read_action(setup.poses.open.action) if layers and setup.poses.open.enabled else {}
+        self.q_vol = poses.read_action(setup.poses.volume.action) if layers and setup.poses.volume.enabled else {}
+        self.l_open = poses.read_action_locs(setup.poses.open.action) if layers and setup.poses.open.enabled else {}
+        self.l_vol = poses.read_action_locs(setup.poses.volume.action) if layers and setup.poses.volume.enabled else {}
         for st in self.strips:
             ao = {skel.index[b]: v.angle for b, v in self.q_open.items() if b in skel.index}
             av = {skel.index[b]: v.angle for b, v in self.q_vol.items() if b in skel.index}
             st.opens = any(ao.get(j.bone, 0.0) >= ec.LAYER_MIN_ANGLE for j in st.joints)
             st.flares = any(av.get(j.bone, 0.0) >= ec.LAYER_MIN_ANGLE for j in st.joints)
-        # colliders (bone indices, radii as the engine will fit them)
+        # colliders (bone indices, radii as the engine will fit them, surface, the offset ends in their bones' frames)
         self.colliders = []
         colliders_mod.fit_all(setup, arm, (skel, verts))
+        rest_caps = []
         for c in setup.colliders:
             if c.enabled and c.bone in skel.index and c.to in skel.index:
+                a, b = skel.index[c.bone], skel.index[c.to]
                 r0, r1 = colliders_mod.radii(c)
-                self.colliders.append((skel.index[c.bone], skel.index[c.to], r0, r1))
+                start, end = skel.head(a) + np.array(c.offset), skel.head(b) + np.array(c.offset)
+                self.colliders.append((a, b, r0, r1, c.surface, (np.linalg.inv(skel.rest_world[a]) @ np.append(start, 1.0))[:3],
+                                       (np.linalg.inv(skel.rest_world[b]) @ np.append(end, 1.0))[:3]))
+                rest_caps.append((start, end, r0, r1, c.surface))
+        if any(c[4] for c in self.colliders):
+            for st in self.strips:
+                for j in st.joints:
+                    to_bone = np.linalg.inv(skel.rest_world[j.bone])
+                    j.probes = [((to_bone @ np.append(q, 1.0))[:3], ec.probe_ignore(q, rest_caps))
+                                for q in ec.pick_probes(skel, verts, j.bone)]
         # the body bones the roots hang from and their ancestors: the spin is read from them
         carry = set()
         for root in self.roots:
@@ -226,8 +243,8 @@ class ClothSim:
         self.names_needed = set(skel.names[b] for st in self.strips for j in st.joints for b in (j.bone, j.above)
                                 if b >= 0) | set(skel.names[r] for r in self.roots)
         self.names_needed |= set(skel.names[b] for b in self.spin_bones)
-        for a, b, _, _ in self.colliders:
-            self.names_needed |= {skel.names[a], skel.names[b]}
+        for c in self.colliders:
+            self.names_needed |= {skel.names[c[0]], skel.names[c[1]]}
         self.cloth_pose_names = [pb.name for pb in arm.pose.bones if "bone_cloth" in pb]
         self.muted = []
         self.start_transform = arm.matrix_basis.copy()
@@ -268,15 +285,23 @@ class ClothSim:
                 self.M[self.skel.index[name]] = mw @ np.array(pb.matrix)
 
     def _rest_shape(self):
-        """Strips and roots at their rest transforms, then the wind layers turned by their weights."""
+        """Strips and roots at their rest transforms, posed by the wind and turn clips, then the wind layers turned by
+        their weights."""
         ident = Quaternion((1, 0, 0, 0))
         bases, locs = {}, {}
+        clip_pose = {}
+        if self.clips:
+            air = ec.spin_air(self.wind_air[0], self.wind_air[1], self.data["spinOpen"], self.spin_weight,
+                              self.data["windFull"], self.wind_speed)
+            wind_position = ramp(self.data["windStart"], self.data["windFull"], float(np.hypot(*air)))
+            clip_pose = poses.blend_layers(self.clips, ec.clip_layers(air[0], air[1], wind_position, self.turn_amount,
+                                                                      poses.strengths(self.setup)))
         vol_w = self.data["volume"] + self.volume_weight + self.data["spinVolume"] * self.spin_weight
         for st in self.strips:
             ow = st.open_weight + self.data["spinOpen"] * self.spin_weight
             for j in st.joints:
-                q = ident
-                loc = Vector((0.0, 0.0, 0.0))
+                q, loc = clip_pose.get(j.name, (ident, Vector((0.0, 0.0, 0.0))))
+                loc = loc.copy()
                 if st.flares and j.name in self.q_vol:
                     wv = min(max(vol_w, 0.0), 1.0)
                     q = ident.slerp(self.q_vol[j.name], wv) @ q
@@ -312,30 +337,44 @@ class ClothSim:
                 angle = 2.0 * math.acos(min(change.w, 1.0))
                 axis = np.array([change.x, change.y, change.z])
                 n = np.linalg.norm(axis)
-                if n > 1e-6:
-                    fastest = max(fastest, abs(angle * axis[2] / n) / dt)      # the yaw about the world's up
+                rate = angle * axis[2] / n / dt if n > 1e-6 else 0.0          # the yaw about the world's up, > 0 left
+                if abs(rate) > abs(fastest):
+                    fastest = rate
             self.previous_spin[b] = q
         return fastest
 
     def _wind_weights(self, dt, time, origin, rotation):
         d = self.data
-        if not self.q_open and not self.q_vol:
+        layers = bool(self.q_open or self.q_vol)
+        if not layers and not self.clips:
             return
         blend = 1.0 - math.exp(-dt / max(d["layerSmoothing"], 1e-3)) if dt > 0.0 else 0.0
-        if d["spinOpen"] > 0.0 or d["spinVolume"] > 0.0:
+        turn_clips = "turnLeft" in self.clips or "turnRight" in self.clips
+        if d["spinOpen"] > 0.0 or d["spinVolume"] > 0.0 or turn_clips:
             rate = self._spin_rate(dt)
             if self.needs_reset:
                 self.spin_weight = 0.0
+                self.turn_amount = 0.0
             elif dt > 0.0:
-                wanted = ramp(math.radians(d["spinStart"]), math.radians(d["spinFull"]), rate)
+                wanted = ramp(math.radians(d["spinStart"]), math.radians(d["spinFull"]), abs(rate))
                 release = 1.0 - math.exp(-dt / max(d["spinRelease"], 1e-3))
                 self.spin_weight += (wanted - self.spin_weight) * (blend if wanted > self.spin_weight else release)
+                turn = wanted if rate >= 0.0 else -wanted
+                growing = abs(turn) > abs(self.turn_amount) and turn * self.turn_amount >= 0.0
+                self.turn_amount += (turn - self.turn_amount) * (blend if growing else release)
         velocity = (origin - self.previous_origin) / dt if dt > 0.0 else np.zeros(3)
         rel = wind_sample(self.wind, self.gust, self.gust_hz, origin, time) - velocity
         fwd = rotation @ self.forward_local
         left = np.cross(UP, fwd)
         headwind = max(0.0, -float(np.dot(rel, fwd)))
         leftward = float(np.dot(rel, left))
+        if self.clips:
+            air = np.array([float(np.dot(rel, fwd)), leftward])
+            self.wind_air = air if self.needs_reset else self.wind_air + (air - self.wind_air) * blend
+            speed = float(np.linalg.norm(air))
+            self.wind_speed = speed if self.needs_reset else self.wind_speed + (speed - self.wind_speed) * blend
+        if not layers:
+            return
         self.volume_weight += (ramp(d["volumeWindStart"], d["volumeWindFull"], float(np.linalg.norm(rel))) - self.volume_weight) * blend
         for st in self.strips:
             windward = max(0.0, -st.side * leftward)
@@ -347,7 +386,8 @@ class ClothSim:
         d = self.data
         moved = origin - self.previous_origin
         carry = moved * ((1.0 - min(max(d["trail"], 0.0), 1.0)) if dt > 0.0 else 1.0)
-        cs = [(self.M[a][:3, 3], self.M[b][:3, 3], r0, r1) for a, b, r0, r1 in self.colliders if a in self.M and b in self.M]
+        cs = [((self.M[a] @ np.append(sl, 1.0))[:3], (self.M[b] @ np.append(el, 1.0))[:3], r0, r1, surface)
+              for a, b, r0, r1, surface, sl, el in self.colliders if a in self.M and b in self.M]
         self.debug_lines = []
         for st in self.strips:
             head = self.M[st.joints[0].bone][:3, 3].copy()
@@ -362,7 +402,9 @@ class ClothSim:
                 else:
                     tail = (j.tail + carry) * math.exp(-j.follow * dt) + rest_tail * (1.0 - math.exp(-j.follow * dt))
                 tail = constrain(head, tail, rest_tail, j.max_angle)
-                for a, b, r0, r1 in cs:
+                for a, b, r0, r1, surface in cs:
+                    if surface:
+                        continue
                     t = axis_parameter(tail, a, b)
                     nearest = a + (b - a) * t
                     radius = r0 + (r1 - r0) * t + d["radius"]
@@ -375,11 +417,30 @@ class ClothSim:
                 j.basis = rest_basis
                 if np.dot(frm, frm) > 1e-12 and np.dot(to, to) > 1e-12:
                     j.basis = rotation_between(frm / np.linalg.norm(frm), to / np.linalg.norm(to)) @ rest_basis
+                # the cloth it carries kept out of the surface colliders, turning the joint about its head
+                for _ in range(ec.PROBE_ITERATIONS if j.probes else 0):
+                    deepest, probe_from, probe_to = 0.0, None, None
+                    for local, ignore in j.probes:
+                        point = head + j.basis @ local
+                        for c, (a, b, r0, r1, surface) in enumerate(cs):
+                            if not surface or ignore & (1 << c):
+                                continue
+                            depth, nearest = ec.capsule_depth(point, a, b, r0, r1)
+                            off = point - nearest
+                            dist = float(np.linalg.norm(off))
+                            if depth > deepest and dist > 1e-6:
+                                deepest, probe_from = depth, point - head
+                                probe_to = nearest + off * ((depth + dist) / dist) - head
+                    if probe_from is None or np.dot(probe_from, probe_from) < 1e-12 or np.dot(probe_to, probe_to) < 1e-12:
+                        break
+                    turn = rotation_between(probe_from / np.linalg.norm(probe_from), probe_to / np.linalg.norm(probe_to))
+                    j.basis = turn @ j.basis
+                    j.tail = head + turn @ (j.tail - head)
                 j.head = head
                 self.debug_lines.append((head.copy(), j.tail.copy()))
                 above_rest, above_now = rest_model, j.basis
                 head = j.tail
-        self.capsules = cs
+        self.capsules = [c[:4] for c in cs]
 
     def _write(self):
         """Each joint's swung transform as a pose basis (parents first), so the armature modifier shows it."""
@@ -479,7 +540,7 @@ def apply_motion(sim, arm, t):
 def wind_world(sim, arm):
     pv = sim.preview
     fwd = sim.start_forward
-    ang = math.radians(pv.wind_from)          # 0: from the front, 90: from the character's left
+    ang = pv.wind_from                        # radians (an angle property): 0 from the front, pi/2 from the left
     from_dir = math.cos(ang) * fwd + math.sin(ang) * np.cross(UP, fwd)
     return -from_dir * pv.wind_speed
 

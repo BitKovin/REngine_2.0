@@ -80,6 +80,17 @@ struct AnimationPose
 	// not added.
 	enum class AdditiveSpace : uint8_t { Local, Mesh };
 
+	// A bone transform split into translation, rotation and scale (no shear), and put back together - the form the
+	// additive differences are made and applied in.
+	struct BoneTRS
+	{
+		glm::vec3 translation = glm::vec3(0.0f);
+		glm::vec3 scale = glm::vec3(1.0f);
+		glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	};
+	static BoneTRS DecomposeBone(const glm::mat4& m);
+	static glm::mat4 ComposeBone(const BoneTRS& bone);
+
 	// out = target relative to reference (written over out's storage).
 	static void MakeAdditive(AnimationPose& out, roj::BoneNode* rootNode, const AnimationPose& reference,
 		const AnimationPose& target, AdditiveSpace space);

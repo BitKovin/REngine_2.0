@@ -14,7 +14,7 @@ MAX_EXTRA_STEPS = 20      # 5 mm each: at most 10 cm of extra flare to clear the
 def solve(setup, arm, frame):
     """{bone: quaternion} for the rest settings, including the extra flare that keeps the cloth off the legs."""
     r = setup.rest
-    caps = colliders.capsules(setup, arm) if r.clear_legs else []
+    caps = colliders.capsules(setup, arm, surface=False) if r.clear_legs else []
     pad = setup.motion.radius + r.clearance
     out, report = {}, []
     for info in bones_mod.strips(setup, arm):

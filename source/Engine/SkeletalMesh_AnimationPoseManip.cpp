@@ -764,46 +764,41 @@ glm::mat4 AnimationPose::GetModelSpaceTransform(
 
 // ---- Additive poses -------------------------------------------------------------------------------------
 
+AnimationPose::BoneTRS AnimationPose::DecomposeBone(const glm::mat4& m)
+{
+	constexpr float MinScale = 1e-6f;
+	BoneTRS out;
+	out.translation = glm::vec3(m[3]);
+	glm::mat3 rotation;
+	for (int i = 0; i < 3; ++i)
+	{
+		const glm::vec3 axis(m[i]);
+		const float length = glm::length(axis);
+		out.scale[i] = length > MinScale ? length : 1.0f;
+		rotation[i] = length > MinScale ? axis / length : axis;
+	}
+	out.rotation = glm::normalize(glm::quat_cast(rotation));
+	return out;
+}
+
+glm::mat4 AnimationPose::ComposeBone(const BoneTRS& bone)
+{
+	glm::mat4 out = glm::mat4_cast(bone.rotation);
+	out[0] *= bone.scale.x;
+	out[1] *= bone.scale.y;
+	out[2] *= bone.scale.z;
+	out[3] = glm::vec4(bone.translation, 1.0f);
+	return out;
+}
+
 namespace
 {
-	struct BoneTRS
-	{
-		glm::vec3 translation = glm::vec3(0.0f);
-		glm::vec3 scale = glm::vec3(1.0f);
-		glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-	};
-
-	BoneTRS DecomposeBone(const glm::mat4& m)
-	{
-		constexpr float MinScale = 1e-6f;
-		BoneTRS out;
-		out.translation = glm::vec3(m[3]);
-		glm::mat3 rotation;
-		for (int i = 0; i < 3; ++i)
-		{
-			const glm::vec3 axis(m[i]);
-			const float length = glm::length(axis);
-			out.scale[i] = length > MinScale ? length : 1.0f;
-			rotation[i] = length > MinScale ? axis / length : axis;
-		}
-		out.rotation = glm::normalize(glm::quat_cast(rotation));
-		return out;
-	}
-
-	glm::mat4 ComposeBone(const BoneTRS& bone)
-	{
-		glm::mat4 out = glm::mat4_cast(bone.rotation);
-		out[0] *= bone.scale.x;
-		out[1] *= bone.scale.y;
-		out[2] *= bone.scale.z;
-		out[3] = glm::vec4(bone.translation, 1.0f);
-		return out;
-	}
+	using BoneTRS = AnimationPose::BoneTRS;
 
 	glm::quat LocalRotation(const AnimationPose& pose, const hashed_string& bone)
 	{
 		auto it = pose.boneTransforms.find(bone);
-		return it != pose.boneTransforms.end() ? DecomposeBone(it->second).rotation : glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		return it != pose.boneTransforms.end() ? AnimationPose::DecomposeBone(it->second).rotation : glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 	// Model-space rotation of every bone of the topology (preorder: parents first). Bones the pose lacks count as

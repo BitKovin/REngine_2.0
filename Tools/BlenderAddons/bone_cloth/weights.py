@@ -2,7 +2,8 @@
 import bmesh
 import bpy
 import numpy as np
-from mathutils import kdtree
+from mathutils import Vector, kdtree
+from mathutils.bvhtree import BVHTree
 
 from . import bones as bones_mod
 from . import frames, landmarks, mesh_prep
@@ -455,3 +456,84 @@ def write_amount_group(setup, arm, frame, obj):
         if c[i] > 0:
             vg.add([i], float(c[i]), 'REPLACE')
     return c
+
+
+# ---- mirroring ------------------------------------------------------------------------------------------------------
+
+MIRROR_MIDDLE = 0.005      # vertices this close to the centre plane keep their weights
+
+
+def mirror_name(name):
+    """The bone (group) on the other side: coat_front_01_l <-> coat_front_01_r, thigh_l <-> thigh_r, .L <-> .R."""
+    for a, b in (("_l", "_r"), ("_r", "_l"), (".L", ".R"), (".R", ".L"), ("Left", "Right"), ("Right", "Left")):
+        if name.endswith(a):
+            return name[:-len(a)] + b
+    if ":Left" in name:
+        return name.replace(":Left", ":Right")
+    if ":Right" in name:
+        return name.replace(":Right", ":Left")
+    return name
+
+
+def mirror_object(setup, arm, obj, source='L'):
+    """Gives every vertex on the other side the weights found at its mirror image on the `source` side ('L' or 'R') of
+    the mesh - interpolated across the face that point lands on, left and right bones swapped - so both sides move
+    alike even where the two halves of the mesh are not built alike. Weights are limited to 4 and normalised. Returns
+    the number of vertices written."""
+    frame = frames.compute_frame(arm, setup.character)
+    me = obj.data
+    mw = obj.matrix_world
+    pos = np.array([tuple(mw @ v.co) for v in me.vertices])
+    side = (pos - frame.origin) @ frame.left            # > 0: the character's left
+    sign = 1.0 if source == 'L' else -1.0
+    me.calc_loop_triangles()
+    tris = [t for t in me.loop_triangles if all(side[i] * sign >= -MIRROR_MIDDLE for i in t.vertices)]
+    if not tris:
+        raise RuntimeError("The %s side of %s has no faces to copy from" % ("left" if source == 'L' else "right", obj.name))
+    tree = BVHTree.FromPolygons([tuple(pos[i]) for i in range(len(pos))], [tuple(t.vertices) for t in tris])
+    groups = {g.index: g.name for g in obj.vertex_groups}
+    weights = [{groups[g.group]: g.weight for g in v.groups if g.weight > 0.0} for v in me.vertices]
+    written = {}
+    for i in np.where(side * sign < -MIRROR_MIDDLE)[0]:
+        p = pos[i] - 2.0 * side[i] * frame.left             # the mirror image, on the source side
+        hit, _, face, _ = tree.find_nearest(Vector(p))
+        if hit is None:
+            continue
+        a, b, c = (pos[k] for k in tris[face].vertices)
+        bary = _barycentric(np.array(hit), a, b, c)
+        acc = {}
+        for k, t in zip(tris[face].vertices, bary):
+            for name, w in weights[k].items():
+                acc[mirror_name(name)] = acc.get(mirror_name(name), 0.0) + w * t
+        top = sorted(acc.items(), key=lambda kv: -kv[1])[:4]
+        total = sum(w for _, w in top)
+        written[int(i)] = {n: w / total for n, w in top if w > 1e-4} if total > 0 else {}
+    for name in {n for w in written.values() for n in w}:
+        if name not in obj.vertex_groups:
+            obj.vertex_groups.new(name=name)
+    for i, w in written.items():
+        for g in list(me.vertices[i].groups):
+            if groups.get(g.group) in arm.data.bones or groups.get(g.group) is None:
+                obj.vertex_groups[g.group].remove([i])
+        for name, value in w.items():
+            obj.vertex_groups[name].add([i], value, 'REPLACE')
+    me.update()
+    return len(written)
+
+
+def _barycentric(p, a, b, c):
+    v0, v1, v2 = b - a, c - a, p - a
+    d00, d01, d11 = v0 @ v0, v0 @ v1, v1 @ v1
+    d20, d21 = v2 @ v0, v2 @ v1
+    den = d00 * d11 - d01 * d01
+    if abs(den) < 1e-18:
+        return np.array([1.0, 0.0, 0.0])
+    v = (d11 * d20 - d01 * d21) / den
+    w = (d00 * d21 - d01 * d20) / den
+    t = np.clip(np.array([1.0 - v - w, v, w]), 0.0, 1.0)
+    return t / max(t.sum(), 1e-12)
+
+
+def mirror(setup, arm, source='L'):
+    """mirror_object on every cloth object. Returns the number of vertices written."""
+    return sum(mirror_object(setup, arm, obj, source) for obj in mesh_prep.cloth_objects(setup))
