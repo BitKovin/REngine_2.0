@@ -313,6 +313,7 @@ bool BoneCloth::BuildStrips(const std::vector<glm::mat4>& restWorld, const std::
 			joint.above = k > 0 ? chain[k - 1] : skeleton.bones[chain[k]].parentIdx;
 			const float along = count > 1 ? static_cast<float>(k) / static_cast<float>(count - 1) : 0.0f;
 			joint.follow = std::max(glm::mix(data.followRoot, data.followTip, along), 0.0f);
+			joint.along = along;
 			joint.maxAngle = glm::radians(glm::clamp(glm::mix(data.maxAngleRoot, data.maxAngleTip, along), 0.0f, 180.0f));
 			if (k + 1 < count)
 				joint.tipLocal = glm::vec3(glm::inverse(restWorld[chain[k]]) * restWorld[chain[k + 1]][3]);
@@ -831,6 +832,38 @@ void BoneCloth::Swing(const glm::mat4& world, float deltaTime, bool snap)
 	// a share of the way each frame (faster near the top), so the strip trails the body and catches up. No speed is
 	// kept: nothing overshoots. The tails first move with the character but for the share they trail (all of it when
 	// no time passes, so in hitstop the strips keep their shape on the body).
+	// With motionWindow set, the trailing comes from how the body moved over that window instead (see BoneClothData).
+	const float swing = glm::clamp(data.swing, 0.0f, 1.0f);
+	const float collision = glm::clamp(data.collision, 0.0f, 1.0f);
+	const bool windowed = data.motionWindow > 0.0f;
+	clock += deltaTime;
+	// The body's axis (through the roots' heads, lowest to highest) and its facing, for the windowed trail.
+	glm::vec3 axisLow(world * modelSpace[roots.front()][3]), axisHigh = axisLow;
+	for (uint16_t root : roots)
+	{
+		const glm::vec3 h(world * modelSpace[root][3]);
+		axisLow = h.y < axisLow.y ? h : axisLow;
+		axisHigh = h.y > axisHigh.y ? h : axisHigh;
+	}
+	glm::mat3 facing(world);
+	for (int axis = 0; axis < 3; ++axis)
+		facing[axis] = glm::length(facing[axis]) > 1e-8f ? glm::normalize(facing[axis]) : facing[axis];
+	const glm::vec3 modelForward = glm::length(data.forward) > 1e-6f ? glm::normalize(data.forward) : glm::vec3(0.0f, 0.0f, 1.0f);
+	const glm::vec3 axis = axisHigh - axisLow;
+	const glm::vec3 axisDirection = glm::dot(axis, axis) > 1e-8f ? glm::normalize(axis) : glm::vec3(0.0f, 1.0f, 0.0f);
+	// The body's own movement over the window, so a spot's turn around the axis can be told apart from it.
+	glm::vec3 bodyVelocity(0.0f);
+	if (windowed)
+	{
+		if (snap)
+			bodyTrack.clear();
+		if (deltaTime > 0.0f || bodyTrack.empty())
+			bodyTrack.push_back(glm::vec4(axisLow, clock));
+		while (bodyTrack.size() > 2 && bodyTrack[1].w <= clock - data.motionWindow)
+			bodyTrack.pop_front();
+		const float span = clock - bodyTrack.front().w;
+		bodyVelocity = span > 1e-4f ? (axisLow - glm::vec3(bodyTrack.front())) / span : glm::vec3(0.0f);
+	}
 	const glm::vec3 moved = glm::vec3(world[3]) - previousOrigin;
 	const glm::vec3 carry = moved * (deltaTime > 0.0f ? 1.0f - glm::clamp(data.trail, 0.0f, 1.0f) : 1.0f);
 	for (size_t c = 0; c < colliders.size(); ++c)
@@ -852,10 +885,52 @@ void BoneCloth::Swing(const glm::mat4& world, float deltaTime, bool snap)
 				: aboveNow * glm::inverse(aboveRest) * restModel;   // its rest bend on the joint above
 			const glm::vec3 restTail = head + restBasis * joint.tipLocal;
 
-			glm::vec3 tail = snap ? restTail
-				: glm::mix(joint.tail + carry, restTail, 1.0f - std::exp(-joint.follow * deltaTime));
+			glm::vec3 tail;
+			if (windowed)
+			{
+				// The average speed of the spot the tail hangs from (the body as animated, the strip as posed) over the
+				// window: a sway back and forth inside it cancels out.
+				const glm::vec3 anchor(world * (modelSpace[joint.bone] * glm::vec4(joint.tipLocal, 1.0f)));
+				if (snap)
+				{
+					joint.anchors.clear();
+					joint.lag = glm::vec3(0.0f);
+				}
+				if (deltaTime > 0.0f || joint.anchors.empty())
+					joint.anchors.push_back(glm::vec4(anchor, clock));
+				while (joint.anchors.size() > 2 && joint.anchors[1].w <= clock - data.motionWindow)
+					joint.anchors.pop_front();
+				const glm::vec4& oldest = joint.anchors.front();
+				const float span = clock - oldest.w;
+				const glm::vec3 velocity = span > 1e-4f ? (anchor - glm::vec3(oldest)) / span : glm::vec3(0.0f);
+				// Out from the body's axis, and the way around it.
+				glm::vec3 out = restTail - axisLow;
+				out -= axisDirection * glm::dot(out, axisDirection);
+				out = glm::length(out) > 1e-6f ? glm::normalize(out) : glm::vec3(0.0f);
+				const glm::vec3 around = glm::cross(axisDirection, out);
+				// The turn: the spot's movement around the axis beyond the body's own. The rest is scaled by which way
+				// the body moves (model space: forward, left, up).
+				const glm::vec3 spin = around * glm::dot(velocity - bodyVelocity, around);
+				const glm::vec3 local = glm::transpose(facing) * (velocity - spin);
+				const float along = glm::dot(local, modelForward);
+				const float side = glm::dot(local, leftAxis);
+				const float up = local.y;
+				const glm::vec3 scaled = modelForward * along * (along >= 0.0f ? data.physicsFront : data.physicsBack)
+					+ leftAxis * side * data.physicsSides + glm::vec3(0.0f, up * data.physicsVertical, 0.0f);
+				glm::vec3 wanted = -(facing * scaled + spin * data.physicsSpin) * glm::mix(data.lagRoot, data.lagTip, joint.along);
+				// Never toward the body's axis: only out from it, or along.
+				wanted -= out * std::min(glm::dot(wanted, out), 0.0f);
+				if (deltaTime > 0.0f)
+					joint.lag = glm::mix(joint.lag, wanted, 1.0f - std::exp(-joint.follow * deltaTime));
+				tail = restTail + joint.lag * swing;
+			}
+			else
+			{
+				tail = snap ? restTail : glm::mix(joint.tail + carry, restTail, 1.0f - std::exp(-joint.follow * deltaTime));
+				tail = glm::mix(restTail, tail, swing);   // swing 0: the pose exactly
+			}
 			tail = Constrain(head, tail, restTail, joint.maxAngle);
-			for (size_t c = 0; c < colliders.size(); ++c)
+			for (size_t c = 0; c < colliders.size() && collision > 0.0f; ++c)
 			{
 				if (colliders[c].surface)
 					continue;
@@ -865,7 +940,7 @@ void BoneCloth::Swing(const glm::mat4& world, float deltaTime, bool snap)
 				const glm::vec3 offset = tail - nearest;
 				const float distance = glm::length(offset);
 				if (distance < radius && distance > 1e-6f)
-					tail = nearest + offset * (radius / distance);
+					tail = glm::mix(tail, nearest + offset * (radius / distance), collision);
 			}
 			joint.tail = Constrain(head, tail, restTail, joint.maxAngle);
 
@@ -878,7 +953,7 @@ void BoneCloth::Swing(const glm::mat4& world, float deltaTime, bool snap)
 
 			// The cloth it carries kept out of the surface colliders: the joint turned about its head, each time just
 			// enough to bring its deepest probe to the capsule's surface. The swing limit does not hold this back.
-			for (int iteration = 0; iteration < ProbeIterations && !joint.probes.empty(); ++iteration)
+			for (int iteration = 0; iteration < ProbeIterations && !joint.probes.empty() && collision > 0.0f; ++iteration)
 			{
 				float deepest = 0.0f;
 				glm::vec3 probeFrom(0.0f), probeTo(0.0f);
@@ -904,7 +979,8 @@ void BoneCloth::Swing(const glm::mat4& world, float deltaTime, bool snap)
 				}
 				if (deepest <= 0.0f || glm::dot(probeFrom, probeFrom) < 1e-12f || glm::dot(probeTo, probeTo) < 1e-12f)
 					break;
-				const glm::mat3 turn = glm::mat3_cast(glm::rotation(glm::normalize(probeFrom), glm::normalize(probeTo)));
+				const glm::mat3 turn = glm::mat3_cast(glm::slerp(glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+					glm::rotation(glm::normalize(probeFrom), glm::normalize(probeTo)), collision));
 				joint.basis = turn * joint.basis;
 				joint.tail = head + turn * (joint.tail - head);
 			}

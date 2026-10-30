@@ -1174,6 +1174,15 @@ Weights: the mesh's halves are not built alike (130 / 128 vertices), and the wei
 weights at its mirror image on the other side's surface, interpolated across the face it lands on, left and right bones
 swapped.
 
+Physics: Swing and Collision (0..1) scale the trailing and the colliders' push; both 0 = the clips alone. Windowed
+trailing (motionWindow > 0): each tip trails the average speed of the spot it hangs from over the window (lagRoot..lagTip
+seconds of it), so a walk's sway cancels - pelvis sliding 3 cm at 2 Hz: hem tips 0.74 cm classic, 0.11 cm with 0.5 s -
+while a run still trails. motionWindow 0 keeps the classic trailing (Slasher's coat).
+The windowed trail is split into the body's turn (movement around the axis through the roots, beyond the body's own) and
+the rest, by direction: physicsFront/Back/Sides/Vertical and physicsSpin scale each. It never points toward that axis:
+running backward used to push the back panel (bones inside the body, only 2-3 probes) into the torso; now the back hem
+tips stay 13.9 cm out (14.1 standing) with a 0.1 s trail.
+
 Turns follow the user's hand-made turn (moderate): the whole jacket turns about 16 degrees with the body, the trailing
 front panel opens 0.8 of the Open pose and flares out, the back flares 0.4; frame 2 is half of frame 3. A hand-made left
 clip is kept and its right clip mirrored from it. Still open on the jacket: in the Open pose the front panels swing

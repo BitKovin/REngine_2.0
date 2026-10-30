@@ -46,6 +46,22 @@ struct BoneClothData
 	float maxAngleTip = 70.0f;     // ...down to the free end
 	float radius = 0.02f;          // how far the joints keep from colliders
 	float teleportDistance = 2.0f; // the character moves farther in a frame: the strips snap to rest
+	float swing = 1.0f;            // how much the strips trail and swing (0: they hold the pose exactly)
+	// Windowed trailing (motionWindow > 0, replacing trail): each tip trails the average speed at which the spot it
+	// hangs from moved over the last motionWindow seconds, so a sway back and forth within the window cancels out and
+	// only steady movement (a run, a turn) shows. lagRoot..lagTip: seconds of that speed the tip trails behind.
+	float motionWindow = 0.0f;
+	float lagRoot = 0.0f;
+	float lagTip = 0.02f;
+	// ...scaled by which way the body moves: forward, backward, sideways, up and down, and the share that comes from
+	// the body turning (around its axis, the line through the roots). The trail never carries the cloth toward that
+	// axis, only out from it or along it.
+	float physicsFront = 1.0f;
+	float physicsBack = 1.0f;
+	float physicsSides = 1.0f;
+	float physicsVertical = 1.0f;
+	float physicsSpin = 1.0f;
+	float collision = 1.0f;        // how hard the colliders push them (0: not at all; both 0: the clips alone)
 
 	std::vector<BoneClothCollider> colliders;
 
@@ -91,7 +107,8 @@ struct BoneClothData
 	float spinRelease = 0.5f;        // seconds it takes to settle once the turn ends (it rises with layerSmoothing)
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(BoneClothData, roots, forward, tipLength,
-		followRoot, followTip, trail, maxAngleRoot, maxAngleTip, radius, teleportDistance,
+		followRoot, followTip, trail, maxAngleRoot, maxAngleTip, radius, teleportDistance, swing, collision,
+		motionWindow, lagRoot, lagTip, physicsFront, physicsBack, physicsSides, physicsVertical, physicsSpin,
 		colliders, windFront, windBack, windLeft, windRight, windStart, windFull, turnLeft, turnRight,
 		windStrengthFront, windStrengthSides, windStrengthBack, spinStrength,
 		openClip, volumeClip, volume, openWindStart, openWindFull, windwardBias, volumeWindStart, volumeWindFull,

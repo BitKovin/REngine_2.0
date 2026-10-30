@@ -149,6 +149,9 @@ class Joint:
         self.tip_local = np.asarray(tip_local, float)
         self.follow, self.max_angle = follow, max_angle
         self.probes = []          # (position in the bone's frame, ignore mask)
+        self.along = 0.0
+        self.anchors = []         # windowed trailing: (time, where the tail would hang)
+        self.lag = np.zeros(3)
         self.head = np.zeros(3)
         self.tail = np.zeros(3)
         self.basis = np.eye(3)
@@ -170,7 +173,9 @@ class ClothSim:
         self.data = {k: getattr(m, k) for k in (
             "followRoot", "followTip", "trail", "maxAngleRoot", "maxAngleTip", "radius", "teleportDistance", "tipLength",
             "volume", "openWindStart", "openWindFull", "windwardBias", "volumeWindStart", "volumeWindFull",
-            "layerSmoothing", "spinOpen", "spinVolume", "spinStart", "spinFull", "spinRelease", "windStart", "windFull")}
+            "layerSmoothing", "spinOpen", "spinVolume", "spinStart", "spinFull", "spinRelease", "windStart", "windFull",
+            "swing", "collision", "motionWindow", "lagRoot", "lagTip", "physicsFront", "physicsBack", "physicsSides",
+            "physicsVertical", "physicsSpin")}
         self.frame = pipeline.frame_of(setup, arm)
         skel, verts = model_data.collect(arm)
         self.skel = skel
@@ -186,6 +191,7 @@ class ClothSim:
                 ang = math.radians(min(max(self.data["maxAngleRoot"] + (self.data["maxAngleTip"] - self.data["maxAngleRoot"])
                                            * j.along, 0.0), 180.0))
                 joints.append(Joint(skel.names[j.bone], j.bone, j.above, j.tip_local, follow, ang))
+                joints[-1].along = j.along
             self.strips.append(SimStrip(joints, s.side))
         # the wind and turn clips; then the older wind layers
         self.clips = poses.clip_sample_sets(setup)
@@ -238,6 +244,8 @@ class ClothSim:
         self.volume_weight = 0.0
         self.spin_weight = 0.0
         self.previous_origin = np.zeros(3)
+        self.clock = 0.0
+        self.body_track = []      # windowed trailing: (time, the body axis's lowest point)
         self.previous_spin = {}
         self.debug_lines = []
         self.names_needed = set(skel.names[b] for st in self.strips for j in st.joints for b in (j.bone, j.above)
@@ -386,6 +394,32 @@ class ClothSim:
         d = self.data
         moved = origin - self.previous_origin
         carry = moved * ((1.0 - min(max(d["trail"], 0.0), 1.0)) if dt > 0.0 else 1.0)
+        swing = min(max(d["swing"], 0.0), 1.0)
+        collision = min(max(d["collision"], 0.0), 1.0)
+        window = d["motionWindow"]
+        self.clock += dt
+        # the body's axis (through the roots' heads) and its facing, for the windowed trail
+        heads = [self.M[r][:3, 3] for r in self.roots if r in self.M]
+        axis_low = min(heads, key=lambda h: h[2]) if heads else np.zeros(3)
+        axis_high = max(heads, key=lambda h: h[2]) if heads else np.zeros(3)
+        facing = self.mw[:3, :3].copy()
+        for k in range(3):
+            facing[:, k] /= max(np.linalg.norm(facing[:, k]), 1e-12)
+        fwd_l = self.forward_local
+        up_l = np.array([0.0, 0.0, 1.0]) @ facing          # world up in the object's axes
+        left_l = np.cross(up_l, fwd_l)
+        axis = axis_high - axis_low
+        axis_dir = axis / np.linalg.norm(axis) if float(axis @ axis) > 1e-8 else np.array([0.0, 0.0, 1.0])
+        body_velocity = np.zeros(3)                         # the body's own movement over the window
+        if window > 0.0:
+            if snap:
+                self.body_track = []
+            if dt > 0.0 or not self.body_track:
+                self.body_track.append((self.clock, axis_low.copy()))
+            while len(self.body_track) > 2 and self.body_track[1][0] <= self.clock - window:
+                self.body_track.pop(0)
+            span = self.clock - self.body_track[0][0]
+            body_velocity = (axis_low - self.body_track[0][1]) / span if span > 1e-4 else np.zeros(3)
         cs = [((self.M[a] @ np.append(sl, 1.0))[:3], (self.M[b] @ np.append(el, 1.0))[:3], r0, r1, surface)
               for a, b, r0, r1, surface, sl, el in self.colliders if a in self.M and b in self.M]
         self.debug_lines = []
@@ -397,13 +431,41 @@ class ClothSim:
                 rest_model = self.M[j.bone][:3, :3]
                 rest_basis = rest_model if k == 0 else above_now @ np.linalg.inv(above_rest) @ rest_model
                 rest_tail = head + rest_basis @ j.tip_local
-                if snap:
-                    tail = rest_tail
+                if window > 0.0:
+                    # windowed trailing: the average speed of the spot the tail hangs from over the window
+                    anchor = (self.M[j.bone] @ np.append(j.tip_local, 1.0))[:3]
+                    if snap:
+                        j.anchors, j.lag = [], np.zeros(3)
+                    if dt > 0.0 or not j.anchors:
+                        j.anchors.append((self.clock, anchor))
+                    while len(j.anchors) > 2 and j.anchors[1][0] <= self.clock - window:
+                        j.anchors.pop(0)
+                    t0, p0 = j.anchors[0]
+                    span = self.clock - t0
+                    velocity = (anchor - p0) / span if span > 1e-4 else np.zeros(3)
+                    out = rest_tail - axis_low                      # out from the body's axis, and around it
+                    out = out - axis_dir * float(out @ axis_dir)
+                    out = out / np.linalg.norm(out) if np.linalg.norm(out) > 1e-6 else np.zeros(3)
+                    around = np.cross(axis_dir, out)
+                    spin = around * float((velocity - body_velocity) @ around)
+                    local = facing.T @ (velocity - spin)
+                    along, side, up = float(local @ fwd_l), float(local @ left_l), float(local @ up_l)
+                    scaled = (fwd_l * along * (d["physicsFront"] if along >= 0.0 else d["physicsBack"])
+                              + left_l * side * d["physicsSides"] + up_l * up * d["physicsVertical"])
+                    wanted = -(facing @ scaled + spin * d["physicsSpin"]) * (d["lagRoot"] + (d["lagTip"] - d["lagRoot"]) * j.along)
+                    wanted = wanted - out * min(float(wanted @ out), 0.0)     # never toward the body's axis
+                    if dt > 0.0:
+                        j.lag = j.lag + (wanted - j.lag) * (1.0 - math.exp(-j.follow * dt))
+                    tail = rest_tail + j.lag * swing
                 else:
-                    tail = (j.tail + carry) * math.exp(-j.follow * dt) + rest_tail * (1.0 - math.exp(-j.follow * dt))
+                    if snap:
+                        tail = rest_tail
+                    else:
+                        tail = (j.tail + carry) * math.exp(-j.follow * dt) + rest_tail * (1.0 - math.exp(-j.follow * dt))
+                    tail = rest_tail + (tail - rest_tail) * swing      # swing 0: the pose exactly
                 tail = constrain(head, tail, rest_tail, j.max_angle)
                 for a, b, r0, r1, surface in cs:
-                    if surface:
+                    if surface or collision <= 0.0:
                         continue
                     t = axis_parameter(tail, a, b)
                     nearest = a + (b - a) * t
@@ -411,14 +473,14 @@ class ClothSim:
                     off = tail - nearest
                     dist = float(np.linalg.norm(off))
                     if dist < radius and dist > 1e-6:
-                        tail = nearest + off * (radius / dist)
+                        tail = tail + (nearest + off * (radius / dist) - tail) * collision
                 j.tail = constrain(head, tail, rest_tail, j.max_angle)
                 frm, to = rest_tail - head, j.tail - head
                 j.basis = rest_basis
                 if np.dot(frm, frm) > 1e-12 and np.dot(to, to) > 1e-12:
                     j.basis = rotation_between(frm / np.linalg.norm(frm), to / np.linalg.norm(to)) @ rest_basis
                 # the cloth it carries kept out of the surface colliders, turning the joint about its head
-                for _ in range(ec.PROBE_ITERATIONS if j.probes else 0):
+                for _ in range(ec.PROBE_ITERATIONS if j.probes and collision > 0.0 else 0):
                     deepest, probe_from, probe_to = 0.0, None, None
                     for local, ignore in j.probes:
                         point = head + j.basis @ local
@@ -433,7 +495,10 @@ class ClothSim:
                                 probe_to = nearest + off * ((depth + dist) / dist) - head
                     if probe_from is None or np.dot(probe_from, probe_from) < 1e-12 or np.dot(probe_to, probe_to) < 1e-12:
                         break
-                    turn = rotation_between(probe_from / np.linalg.norm(probe_from), probe_to / np.linalg.norm(probe_to))
+                    a_, b_ = probe_from / np.linalg.norm(probe_from), probe_to / np.linalg.norm(probe_to)
+                    axis = np.cross(a_, b_)
+                    turn = (axis_angle(axis, math.acos(min(max(float(a_ @ b_), -1.0), 1.0)) * collision)
+                            if np.linalg.norm(axis) > 1e-9 else np.eye(3))
                     j.basis = turn @ j.basis
                     j.tail = head + turn @ (j.tail - head)
                 j.head = head

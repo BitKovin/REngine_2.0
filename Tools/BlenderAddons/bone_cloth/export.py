@@ -43,7 +43,10 @@ def skmm_entry(setup, arm):
         "roots": roots, "forward": [float(v) for v in fwd], "tipLength": m.tipLength,
         "motion": [("followRoot", m.followRoot), ("followTip", m.followTip), ("trail", m.trail),
                    ("maxAngleRoot", m.maxAngleRoot), ("maxAngleTip", m.maxAngleTip), ("radius", m.radius),
-                   ("teleportDistance", m.teleportDistance)],
+                   ("teleportDistance", m.teleportDistance), ("swing", m.swing), ("collision", m.collision),
+                   ("motionWindow", m.motionWindow), ("lagRoot", m.lagRoot), ("lagTip", m.lagTip),
+                   ("physicsFront", m.physicsFront), ("physicsBack", m.physicsBack), ("physicsSides", m.physicsSides),
+                   ("physicsVertical", m.physicsVertical), ("physicsSpin", m.physicsSpin)],
         "colliders": cols,
         "clips": (clip_names + [("windStart", m.windStart), ("windFull", m.windFull)] + turn_names
                   + [("windStrengthFront", m.windStrengthFront), ("windStrengthSides", m.windStrengthSides),

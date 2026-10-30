@@ -4,6 +4,7 @@
 #include "../SkeletalMesh.hpp"
 
 #include <array>
+#include <deque>
 #include <vector>
 
 // Bone cloth: coats, skirts and capes rigged as strips of bones, swinging the way action games of the early 2000s did
@@ -53,11 +54,14 @@ private:
 		                                          // strip's top its skeleton parent
 		glm::vec3 tipLocal = glm::vec3(0.0f);     // its tip in its local frame: the next joint's head, or the strip's end
 		float follow = 0.0f;                      // how fast the tail catches up with where it would hang, 1/s
+		float along = 0.0f;                       // 0 at the strip's top .. 1 at its end
 		float maxAngle = 0.0f;                    // radians
 		glm::vec3 head = glm::vec3(0.0f);         // world
 		glm::vec3 tail = glm::vec3(0.0f);         // world, trailing
 		glm::mat3 basis = glm::mat3(1.0f);        // world, turned to the tail
 		std::vector<Probe> probes;
+		std::deque<glm::vec4> anchors;            // windowed trailing: where the tail would hang (xyz, world) and when (w)
+		glm::vec3 lag = glm::vec3(0.0f);          // windowed trailing: the tail's smoothed offset from there, world
 	};
 
 	struct Strip
@@ -145,6 +149,8 @@ private:
 	std::vector<glm::vec3> colliderEnd;
 
 	glm::vec3 previousOrigin = glm::vec3(0.0f);
+	float clock = 0.0f;                  // seconds the cloth has run (windowed trailing)
+	std::deque<glm::vec4> bodyTrack;     // windowed trailing: the body axis's lowest point (xyz, world) and when (w)
 	bool needsReset = true;
 	bool built = false;
 };

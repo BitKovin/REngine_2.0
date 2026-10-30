@@ -124,6 +124,7 @@ python tests/run_headless.py test_sim.py             # the swing preview: rest, 
 python tests/run_headless.py test_adopt.py           # adopting the original hand-made coat rig with its .skmm
 python tests/run_headless.py test_wind_clips.py <copy of ShooterGame/player_coat.blend>   # clips, mirror, probes, export
 python tests/run_headless.py render_clips.py <copy of ShooterGame/player_coat.blend>     # contact sheets of every clip
+python tests/run_headless.py test_window.py <copy of ShooterGame/player_coat.blend>      # a walk's sway cancels, a run trails
 set BC_NO_PREPARE=1                                  # for scenes that are not the coat copy:
 python tests/run_headless.py test_jacket.py          # the jacket scene: Follow-the-spine layout and a 60 degree spine bend
 ```

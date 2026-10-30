@@ -23,6 +23,11 @@ sc.frame_set(1)
 poses.set_bases(arm, {}, {})
 names = poses.cloth_bone_names(s, arm)
 mw = arm.matrix_world
+# the scene's own tuning would change what the checks below expect: clips play as made, no spin opening
+m = s.motion
+m.windStrengthFront = m.windStrengthSides = m.windStrengthBack = m.spinStrength = 1.0
+m.swing = m.collision = 1.0
+m.spinOpen = 0.0
 
 
 def tails(bones):
@@ -146,6 +151,24 @@ print("spinning left (clips %s): the cloth's probes reach %.2f cm into the torso
     [(ec.CLIP_SLOTS[k], round(w, 2)) for k, _, w in shares], depth_with, depth_without))
 assert shares and ec.CLIP_SLOTS[shares[0][0]] == "turnLeft"
 assert depth_without > 1.0 and depth_with < 0.5
+
+# 6b. Swing and Collision at 0: the cloth is the clips' pose exactly, even running in a side wind
+s.motion.swing, s.motion.collision = 0.0, 0.0
+s.preview.motion, s.preview.wind_speed, s.preview.wind_from, s.preview.gust = 'RUN', 8.0, math.radians(60.0), 0.0
+sc.frame_set(1)
+sim = sim_mod.start(s, arm, sc)
+for f in range(1, 31):
+    sc.frame_set(f)
+air = ec.spin_air(sim.wind_air[0], sim.wind_air[1], s.motion.spinOpen, sim.spin_weight, s.motion.windFull, sim.wind_speed)
+layers = ec.clip_layers(air[0], air[1], sim_mod.ramp(s.motion.windStart, s.motion.windFull, float(np.hypot(*air))),
+                        sim.turn_amount, poses.strengths(s))
+expected = poses.blend_layers(poses.clip_sample_sets(s), layers)
+worst = max((arm.pose.bones[b].rotation_quaternion.rotation_difference(q).angle for b, (q, _) in expected.items()
+             if b in arm.pose.bones), default=0.0)
+sim_mod.stop(arm)
+print("swing 0, collision 0: the cloth differs from the clips' pose by at most %.3f deg" % math.degrees(worst))
+assert worst < math.radians(0.05)
+s.motion.swing, s.motion.collision = 1.0, 1.0
 
 # 7. the check step
 issues = doctor.run(s, arm)

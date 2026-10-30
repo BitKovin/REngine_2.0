@@ -276,6 +276,29 @@ class BCMotion(PropertyGroup):
                                     "clip", default=1.0, min=0.0, soft_max=2.0)
     spinStrength: FloatProperty(name="Spin", description="spinStrength: how far the turn clips play for the same turn",
                                 default=1.0, min=0.0, soft_max=2.0)
+    swing: FloatProperty(name="Swing", description="swing: how much the cloth trails and swings behind the pose (0: it "
+                         "holds the clips' pose exactly)", default=1.0, min=0.0, max=1.0)
+    motionWindow: FloatProperty(name="Motion window", subtype='TIME', unit='TIME_ABSOLUTE', description="motionWindow: "
+                                "the cloth trails the body's average movement over this many seconds, so a sway back and "
+                                "forth within it cancels out (0: the classic trailing, by Lag behind movement)",
+                                default=0.0, min=0.0, soft_max=2.0)
+    lagRoot: FloatProperty(name="Trail at top", subtype='TIME', unit='TIME_ABSOLUTE', description="lagRoot: seconds of "
+                           "that average movement the top trails behind", default=0.0, min=0.0, soft_max=0.5)
+    lagTip: FloatProperty(name="Trail at hem", subtype='TIME', unit='TIME_ABSOLUTE', description="lagTip: the same at "
+                          "the hem", default=0.02, min=0.0, soft_max=0.5)
+    physicsFront: FloatProperty(name="Physics front", description="physicsFront: how much the cloth trails when the "
+                                "body moves forward", default=1.0, min=0.0, soft_max=2.0)
+    physicsBack: FloatProperty(name="Physics back", description="physicsBack: the same moving backward",
+                               default=1.0, min=0.0, soft_max=2.0)
+    physicsSides: FloatProperty(name="Physics sides", description="physicsSides: the same moving sideways",
+                                default=1.0, min=0.0, soft_max=2.0)
+    physicsVertical: FloatProperty(name="Physics vertical", description="physicsVertical: the same moving up or down",
+                                   default=1.0, min=0.0, soft_max=2.0)
+    physicsSpin: FloatProperty(name="Physics spin", description="physicsSpin: the same for the body turning",
+                               default=1.0, min=0.0, soft_max=2.0)
+    collision: FloatProperty(name="Collision", description="collision: how hard the leg and torso capsules push the "
+                             "cloth (0: not at all). Swing and Collision at 0: the cloth is driven by the clips alone",
+                             default=1.0, min=0.0, max=1.0)
     openWindStart: FloatProperty(name="Wind opens from", description="openWindStart (m/s)", default=2.0, min=0.0)
     openWindFull: FloatProperty(name="Fully open at", description="openWindFull (m/s)", default=8.0, min=0.0)
     windwardBias: FloatProperty(name="Windward side bias", default=0.5, min=0.0, max=1.0)
