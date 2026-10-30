@@ -3,6 +3,8 @@
 Pure numpy, no bpy: everything here is unit-tested outside Blender. All positions are in one consistent space (the add-on
 uses Blender world space, Z up); `up` is passed in. Bone matrices are 4x4, column-vector convention, bone axis = local +Y.
 """
+import math
+
 import numpy as np
 
 ENGINE_COMMIT = "bdacf806f"
@@ -19,6 +21,7 @@ PROBE_WEIGHT = 0.5           # a joint's probes are among the vertices it carrie
 MAX_PROBES = 6               # per joint
 PROBE_ITERATIONS = 3         # turns a frame that bring a joint's deepest probe out of the surface colliders
 MAX_SURFACE_COLLIDERS = 32   # a probe's ignore mask has a bit per collider
+LEG_ITERATIONS = 8           # turns a frame that bring a strip's probes over the legs (each one, the deepest)
 CLIP_SAMPLE_COUNT = 17       # samples the engine takes evenly over each wind and turn clip
 # BoneClothData's clip fields in the engine's slot order (the wind ones by angle: front, left, back, right)
 CLIP_SLOTS = ("windFront", "windLeft", "windBack", "windRight", "turnLeft", "turnRight")
@@ -299,6 +302,62 @@ def probe_ignore(position, capsules):
         if surface and capsule_depth(position, start, end, r0, r1)[0] > 0.0:
             mask |= 1 << c
     return mask
+
+
+def leg_push(point, start, end, r0, r1, axis_low, axis_dir, allowance=0.0):
+    """A leg capsule's push on a probe: where it goes (None: no push). A probe inside the leg, or between the leg and
+    the body (in its shadow, seen from the body's axis axis_low, axis_dir), goes to the leg's surface on its outer side:
+    straight out from the leg's axis, mirrored to the outside when it is on the inner side. So cloth a leg has passed (a
+    thigh coming up through the jacket in a crouch) goes back over it. Past the hip end (start) the pelvis is the torso
+    colliders' job: no push. allowance: how deep inside the leg it may be (as deep as it rests)."""
+    leg = end - start
+    length = float(np.linalg.norm(leg))
+    out = point - axis_low
+    out = out - axis_dir * float(out @ axis_dir)
+    if float(out @ out) < 1e-10 or length < 1e-6:
+        return None
+    out = out / np.linalg.norm(out)
+    leg = leg / length
+    along = float((point - start) @ leg)
+    if along < 0.0:
+        return None
+    t = min(along / length, 1.0)
+    radius = r0 + (r1 - r0) * t - allowance
+    if radius <= 1e-4:
+        return None
+    nearest = start + leg * length * t
+    off = point - nearest
+    dist = float(np.linalg.norm(off))
+    if dist >= radius:
+        # outside: pushed only when in the leg's shadow - the line out through it meets the leg's side further out
+        w = (point - start) - leg * along
+        d = out - leg * float(out @ leg)
+        a, b, c = float(d @ d), 2.0 * float(w @ d), float(w @ w) - radius * radius
+        disc = b * b - 4.0 * a * c
+        if a < 1e-10 or disc <= 0.0:
+            return None
+        s0, s1 = (-b - math.sqrt(disc)) / (2.0 * a), (-b + math.sqrt(disc)) / (2.0 * a)
+        if s0 <= 0.0 or not 0.0 <= float((point + out * s1 - start) @ leg) <= length:
+            return None
+    normal = off / dist if dist > 1e-6 else out
+    if float(normal @ out) < 0.0:
+        normal = normal - 2.0 * float(normal @ out) * out    # on the inner side: to the outer one
+    return nearest + normal * radius
+
+
+def leg_allowance(point, capsules, axis_low, axis_dir):
+    """A leg probe at rest, per capsule (start, end, r0, r1, surface): how deep it may go into that leg - as deep as it
+    rests there, so the cloth keeps the shape it was made with (0 for a leg it clears). None: the capsule leaves it
+    alone - a surface capsule, or a leg it rests in the shadow of."""
+    out = []
+    for start, end, r0, r1, surface in capsules:
+        if surface:
+            out.append(None)
+            continue
+        allowance = max(capsule_depth(point, start, end, r0, r1)[0], 0.0)
+        out.append(None if leg_push(point, start, end, r0, r1, axis_low, axis_dir, allowance + 1e-4) is not None
+                   else allowance)
+    return out
 
 
 def spin_air(air_forward, air_left, spin_open, spin_weight, wind_full, wind_speed):

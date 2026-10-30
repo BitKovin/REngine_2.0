@@ -27,6 +27,7 @@ namespace
 	constexpr float ProbeWeight = 0.5f;      // a joint's probes are among the vertices it carries this much of
 	constexpr size_t MaxProbes = 6;          // per joint, spread over the cloth it carries
 	constexpr int ProbeIterations = 3;       // turns a frame that bring a joint's deepest probe out of the surface colliders
+	constexpr int LegIterations = 8;         // turns a frame that bring a strip's probes over the legs (each, the deepest)
 	constexpr uint32_t MaxSurfaceColliders = 32;   // a probe's `ignore` has a bit per collider
 	constexpr int ClipSampleCount = 17;      // samples taken evenly over each wind and turn clip
 	constexpr float MaxDeltaTime = 1.0f / 15.0f;   // longer frames (hitches) swing this much
@@ -56,6 +57,56 @@ namespace
 		const glm::vec3 axis = b - a;
 		const float length2 = glm::dot(axis, axis);
 		return length2 > 1e-12f ? glm::clamp(glm::dot(p - a, axis) / length2, 0.0f, 1.0f) : 0.0f;
+	}
+
+	// A leg capsule's push on a probe: whether it is pushed, and where to. A probe inside the leg, or between the leg and
+	// the body (in its shadow, seen from the body's axis), goes to the leg's surface on its outer side: straight out from
+	// the leg's axis, mirrored to the outside when it is on the inner side. So cloth a leg has passed (a thigh coming up
+	// through the jacket in a crouch) goes back over it. Past the hip end (start) the pelvis is the surface colliders'
+	// job: no push. allowance: how deep inside the leg it may be.
+	bool LegPush(const glm::vec3& point, const glm::vec3& start, const glm::vec3& end, float startRadius, float endRadius,
+		const glm::vec3& axisLow, const glm::vec3& axisDirection, float allowance, glm::vec3& to)
+	{
+		glm::vec3 out = point - axisLow;
+		out -= axisDirection * glm::dot(out, axisDirection);
+		glm::vec3 leg = end - start;
+		const float length = glm::length(leg);
+		if (glm::dot(out, out) < 1e-10f || length < 1e-6f)
+			return false;
+		out = glm::normalize(out);
+		leg /= length;
+		const float along = glm::dot(point - start, leg);
+		if (along < 0.0f)
+			return false;
+		const float t = std::min(along / length, 1.0f);
+		const float radius = glm::mix(startRadius, endRadius, t) - allowance;
+		if (radius <= 1e-4f)
+			return false;
+		const glm::vec3 nearest = start + leg * (length * t);
+		const glm::vec3 offset = point - nearest;
+		const float distance = glm::length(offset);
+		if (distance >= radius)
+		{
+			// Outside: pushed only in the leg's shadow - the line out through it meets the leg's side further out.
+			const glm::vec3 w = (point - start) - leg * along;
+			const glm::vec3 d = out - leg * glm::dot(out, leg);
+			const float a = glm::dot(d, d);
+			const float b = 2.0f * glm::dot(w, d);
+			const float c = glm::dot(w, w) - radius * radius;
+			const float disc = b * b - 4.0f * a * c;
+			if (a < 1e-10f || disc <= 0.0f)
+				return false;
+			const float enter = (-b - std::sqrt(disc)) / (2.0f * a);
+			const float leave = (-b + std::sqrt(disc)) / (2.0f * a);
+			const float leaveAlong = glm::dot(point + out * leave - start, leg);
+			if (enter <= 0.0f || leaveAlong < 0.0f || leaveAlong > length)
+				return false;
+		}
+		glm::vec3 normal = distance > 1e-6f ? offset / distance : out;
+		if (glm::dot(normal, out) < 0.0f)
+			normal -= 2.0f * glm::dot(normal, out) * out;   // on the inner side: to the outer one
+		to = nearest + normal * radius;
+		return true;
 	}
 
 	// The clip's first and last frames as poses (local transforms).
@@ -493,6 +544,51 @@ void BoneCloth::BuildProbes(const std::vector<glm::mat4>& restWorld, const std::
 						probe.ignore |= 1u << c;
 				}
 				joint.probes.push_back(probe);
+			}
+		}
+	}
+
+	// The legs push the same probes and each joint's tail (the joint below turns about it). One that rests inside a leg
+	// may go that deep; one resting in a leg's shadow is left alone by it - the cloth keeps the shape it was made with.
+	glm::vec3 axisLow(restWorld[roots.front()][3]), axisHigh = axisLow;
+	for (uint16_t root : roots)
+	{
+		const glm::vec3 h(restWorld[root][3]);
+		axisLow = h.y < axisLow.y ? h : axisLow;
+		axisHigh = h.y > axisHigh.y ? h : axisHigh;
+	}
+	const glm::vec3 axisDirection = glm::distance(axisHigh, axisLow) > 1e-4f ? glm::normalize(axisHigh - axisLow)
+		: glm::vec3(0.0f, 1.0f, 0.0f);
+	for (Strip& strip : strips)
+	{
+		for (Joint& joint : strip.joints)
+		{
+			const glm::mat4 toBone = glm::inverse(restWorld[joint.bone]);
+			std::vector<glm::vec3> points;
+			for (const Probe& probe : joint.probes)
+				points.push_back(glm::vec3(restWorld[joint.bone] * glm::vec4(probe.local, 1.0f)));
+			points.push_back(glm::vec3(restWorld[joint.bone] * glm::vec4(joint.tipLocal, 1.0f)));
+			for (const glm::vec3& position : points)
+			{
+				LegProbe probe;
+				probe.local = glm::vec3(toBone * glm::vec4(position, 1.0f));
+				probe.allowance.assign(colliders.size(), -1.0f);
+				for (size_t c = 0; c < colliders.size(); ++c)
+				{
+					if (colliders[c].surface)
+						continue;
+					const glm::vec3 start(restWorld[colliders[c].bone] * glm::vec4(colliders[c].startLocal, 1.0f));
+					const glm::vec3 end(restWorld[colliders[c].to] * glm::vec4(colliders[c].endLocal, 1.0f));
+					const float t = AxisParameter(position, start, end);
+					const float depth = glm::mix(colliders[c].radius, colliders[c].endRadius, t)
+						- glm::distance(position, glm::mix(start, end, t));
+					const float allowance = std::max(depth, 0.0f);
+					glm::vec3 to;
+					if (!LegPush(position, start, end, colliders[c].radius, colliders[c].endRadius, axisLow, axisDirection,
+						allowance + 1e-4f, to))
+						probe.allowance[c] = allowance;
+				}
+				joint.legProbes.push_back(std::move(probe));
 			}
 		}
 	}
@@ -950,6 +1046,51 @@ void BoneCloth::Swing(const glm::mat4& world, float deltaTime, bool snap)
 			joint.basis = restBasis;
 			if (glm::dot(from, from) > 1e-12f && glm::dot(to, to) > 1e-12f)
 				joint.basis = glm::mat3_cast(glm::rotation(glm::normalize(from), glm::normalize(to))) * restBasis;
+
+			// The legs: the cloth of this joint and of those below it (hanging off it as posed) kept on the legs' outer
+			// side, the joint turned about its head by its share of each push - the joints from here to the probe's own
+			// split it, so the strip bends over a thigh along its length. The swing limit does not hold this back.
+			legPoints.clear();
+			if (collision > 0.0f)
+			{
+				const glm::mat4 toJoint = glm::inverse(modelSpace[joint.bone]);
+				for (size_t m = k; m < strip.joints.size(); ++m)
+					for (const LegProbe& probe : strip.joints[m].legProbes)
+						legPoints.push_back({ glm::vec3(toJoint * (modelSpace[strip.joints[m].bone] * glm::vec4(probe.local, 1.0f))),
+							&probe.allowance, static_cast<float>(m - k + 1) });
+			}
+			for (int iteration = 0; iteration < LegIterations && !legPoints.empty(); ++iteration)
+			{
+				float deepest = 0.0f;
+				float share = 1.0f;
+				glm::vec3 probeFrom(0.0f), probeTo(0.0f);
+				for (const LegPoint& legPoint : legPoints)
+				{
+					const glm::vec3 point = head + joint.basis * legPoint.local;
+					for (size_t c = 0; c < colliders.size(); ++c)
+					{
+						const float allowance = (*legPoint.allowance)[c];
+						glm::vec3 to;
+						if (allowance < 0.0f || !LegPush(point, colliderStart[c], colliderEnd[c], colliders[c].radius,
+							colliders[c].endRadius, axisLow, axisDirection, allowance, to))
+							continue;
+						const float distance = glm::distance(to, point);
+						if (distance > deepest)
+						{
+							deepest = distance;
+							share = collision / legPoint.joints;
+							probeFrom = point - head;
+							probeTo = to - head;
+						}
+					}
+				}
+				if (deepest <= 0.0f || glm::dot(probeFrom, probeFrom) < 1e-12f || glm::dot(probeTo, probeTo) < 1e-12f)
+					break;
+				const glm::mat3 turn = glm::mat3_cast(glm::slerp(glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
+					glm::rotation(glm::normalize(probeFrom), glm::normalize(probeTo)), share));
+				joint.basis = turn * joint.basis;
+				joint.tail = head + turn * (joint.tail - head);
+			}
 
 			// The cloth it carries kept out of the surface colliders: the joint turned about its head, each time just
 			// enough to bring its deepest probe to the capsule's surface. The swing limit does not hold this back.

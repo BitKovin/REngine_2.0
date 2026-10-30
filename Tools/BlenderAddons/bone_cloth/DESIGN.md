@@ -1183,6 +1183,18 @@ the rest, by direction: physicsFront/Back/Sides/Vertical and physicsSpin scale e
 running backward used to push the back panel (bones inside the body, only 2-3 probes) into the torso; now the back hem
 tips stay 13.9 cm out (14.1 standing) with a 0.1 s trail.
 
+Legs on the probes (with surface colliders, i.e. bones inside the body): crouch-walking sideways the thighs came up
+through the jacket's front ~9.5 cm - the animated pose puts it there, and the leg push on tails (swing-limited to
+2-16 degrees) and bone lines (inside the body) can't see the cloth surface. Now the leg capsules push the probes and each
+joint's tail: a probe inside a leg or in its shadow (between leg and body, seen from the body's axis) goes to the leg's
+outer surface (out from the leg's axis, mirrored outward), past the hip end not at all (pelvis = surface colliders).
+Each joint turns for the probes of its own and all joints below it (posed relative to it), by 1/(joints from it to the
+probe's own) of each push, so the strip bends over the thigh along its length; a joint alone can't (its head is often
+inside the thigh). Probes may stay as deep as they rest; ones resting in a leg's shadow are ignored by it. 3 iterations
+didn't converge (one probe each, ~20 per strip): 8 (LEG_ITERATIONS). tests/test_crouch.py: deepest 9.4 -> 7.0 cm
+(crouch_l), 9.6 -> 7.7 (crouch_r); renders show the front and sides lying over the thighs. What's left is between
+probes (12 probes per joint did not change it).
+
 Turns follow the user's hand-made turn (moderate): the whole jacket turns about 16 degrees with the body, the trailing
 front panel opens 0.8 of the Open pose and flares out, the back flares 0.4; frame 2 is half of frame 3. A hand-made left
 clip is kept and its right clip mirrored from it. Still open on the jacket: in the Open pose the front panels swing

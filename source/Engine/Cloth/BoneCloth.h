@@ -46,6 +46,22 @@ private:
 		uint32_t ignore = 0;                 // per collider: it rests inside that one, so that one leaves it alone
 	};
 
+	// A probe for the legs (the leg colliders, with surface colliders on the cloth): the joint's probes and its tail.
+	struct LegProbe
+	{
+		glm::vec3 local = glm::vec3(0.0f);   // in the joint's bone frame
+		std::vector<float> allowance;        // per collider: how deep it may go into that leg (as deep as it rests);
+		                                     // < 0: that one leaves it alone
+	};
+
+	// A leg probe of a joint at or below the one being turned, in that one's bone frame (Swing scratch).
+	struct LegPoint
+	{
+		glm::vec3 local = glm::vec3(0.0f);
+		const std::vector<float>* allowance = nullptr;
+		float joints = 1.0f;                 // the joints from the one turned to the probe's own: they split its push
+	};
+
 	// One bone of a strip.
 	struct Joint
 	{
@@ -60,6 +76,7 @@ private:
 		glm::vec3 tail = glm::vec3(0.0f);         // world, trailing
 		glm::mat3 basis = glm::mat3(1.0f);        // world, turned to the tail
 		std::vector<Probe> probes;
+		std::vector<LegProbe> legProbes;
 		std::deque<glm::vec4> anchors;            // windowed trailing: where the tail would hang (xyz, world) and when (w)
 		glm::vec3 lag = glm::vec3(0.0f);          // windowed trailing: the tail's smoothed offset from there, world
 	};
@@ -145,6 +162,7 @@ private:
 	AnimationPose clipChange;                   // the blended clips as a Local additive pose (scratch)
 
 	std::vector<glm::mat4> modelSpace;   // the body as animated, the strips and roots at rest (with the wind layers)
+	std::vector<LegPoint> legPoints;        // Swing scratch
 	std::vector<glm::vec3> colliderStart;   // world, this frame
 	std::vector<glm::vec3> colliderEnd;
 

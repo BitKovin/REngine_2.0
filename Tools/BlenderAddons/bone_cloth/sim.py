@@ -149,6 +149,7 @@ class Joint:
         self.tip_local = np.asarray(tip_local, float)
         self.follow, self.max_angle = follow, max_angle
         self.probes = []          # (position in the bone's frame, ignore mask)
+        self.leg_probes = []      # (position in the bone's frame, per collider how deep it may go into that leg)
         self.along = 0.0
         self.anchors = []         # windowed trailing: (time, where the tail would hang)
         self.lag = np.zeros(3)
@@ -221,11 +222,18 @@ class ClothSim:
                                        (np.linalg.inv(skel.rest_world[b]) @ np.append(end, 1.0))[:3]))
                 rest_caps.append((start, end, r0, r1, c.surface))
         if any(c[4] for c in self.colliders):
+            heads = [skel.head(r) for r in self.roots]
+            low, high = min(heads, key=lambda h: h[2]), max(heads, key=lambda h: h[2])
+            axis_dir = (high - low) / np.linalg.norm(high - low) if np.linalg.norm(high - low) > 1e-4 else np.array([0.0, 0.0, 1.0])
             for st in self.strips:
                 for j in st.joints:
                     to_bone = np.linalg.inv(skel.rest_world[j.bone])
-                    j.probes = [((to_bone @ np.append(q, 1.0))[:3], ec.probe_ignore(q, rest_caps))
-                                for q in ec.pick_probes(skel, verts, j.bone)]
+                    picked = ec.pick_probes(skel, verts, j.bone)
+                    j.probes = [((to_bone @ np.append(q, 1.0))[:3], ec.probe_ignore(q, rest_caps)) for q in picked]
+                    # the legs push the same probes and the joint's tail (the joint below turns about it)
+                    tail = (skel.rest_world[j.bone] @ np.append(j.tip_local, 1.0))[:3]
+                    j.leg_probes = [((to_bone @ np.append(q, 1.0))[:3], ec.leg_allowance(q, rest_caps, low, axis_dir))
+                                    for q in list(picked) + [tail]]
         # the body bones the roots hang from and their ancestors: the spin is read from them
         carry = set()
         for root in self.roots:
@@ -479,6 +487,34 @@ class ClothSim:
                 j.basis = rest_basis
                 if np.dot(frm, frm) > 1e-12 and np.dot(to, to) > 1e-12:
                     j.basis = rotation_between(frm / np.linalg.norm(frm), to / np.linalg.norm(to)) @ rest_basis
+                # the legs: the cloth of this joint and of those below it (hanging off it as posed) kept on the legs'
+                # outer side, turning this joint by its share of each push - the joints from here to the probe's own
+                # split it, so the strip bends over a thigh along its length
+                legs = [c for c, cap in enumerate(cs) if not cap[4]]
+                if legs and collision > 0.0 and any(m.leg_probes for m in st.joints[k:]):
+                    to_k = np.linalg.inv(self.M[j.bone])
+                    pts = [((to_k @ (self.M[m.bone] @ np.append(local, 1.0)))[:3], allowance, n + 1)
+                           for n, m in enumerate(st.joints[k:]) for local, allowance in m.leg_probes]
+                    for _ in range(ec.LEG_ITERATIONS):
+                        deepest, probe_from, probe_to, share = 0.0, None, None, 1.0
+                        for local, allowance, joints in pts:
+                            point = head + j.basis @ local
+                            for c in legs:
+                                if allowance[c] is None:
+                                    continue
+                                a, b, r0, r1, _ = cs[c]
+                                to = ec.leg_push(point, a, b, r0, r1, axis_low, axis_dir, allowance[c])
+                                if to is not None and float(np.linalg.norm(to - point)) > deepest:
+                                    deepest, probe_from, probe_to = float(np.linalg.norm(to - point)), point - head, to - head
+                                    share = collision / joints
+                        if probe_from is None or np.dot(probe_from, probe_from) < 1e-12 or np.dot(probe_to, probe_to) < 1e-12:
+                            break
+                        a_, b_ = probe_from / np.linalg.norm(probe_from), probe_to / np.linalg.norm(probe_to)
+                        axis = np.cross(a_, b_)
+                        turn = (axis_angle(axis, math.acos(min(max(float(a_ @ b_), -1.0), 1.0)) * share)
+                                if np.linalg.norm(axis) > 1e-9 else np.eye(3))
+                        j.basis = turn @ j.basis
+                        j.tail = head + turn @ (j.tail - head)
                 # the cloth it carries kept out of the surface colliders, turning the joint about its head
                 for _ in range(ec.PROBE_ITERATIONS if j.probes and collision > 0.0 else 0):
                     deepest, probe_from, probe_to = 0.0, None, None
