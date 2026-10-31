@@ -1201,6 +1201,20 @@ Fitting the artist's frame 3 against the generator (tail positions, 12 bones): t
 the lower panel about the panel's own outward axis AS IT STANDS ONCE OPENED (the rest axis, `-tangent`, tucks the hem in
 or forward: 7 cm worse), growing from 20% down the panel to the hem, about as large as the hem lift (Frame.flare = lift;
 FLARE_FROM). Mean tail error 6.9 -> 1.7 cm (max 13.7 -> 3.3). Only windFront's last frame has it; the others unchanged.
+The flare axis follows the panel's whole swing (the Open yaw plus the blown-round part): with Blown back 3 it kept the
+1x axis and curled the hems in. And a front panel is now never blown further round than MAX_AZIMUTH (110 degrees, 90 =
+straight to the side): at Blown back 3 the panels swung 165 degrees round and folded up behind the back panel. Changes
+nothing at Blown back 1 on the player coat (all six clips, tails within 0.0 cm).
+
+Skin folds at the hem corners ('two strange folds'), front wind last frame: not the weights. The front panels swing
+96 degrees round the body, the side panels beside them 30: the cloth between, 69 degrees of arc at rest, has to squeeze
+into about 3, and linear skinning folds it (tests/skin_metric.py: 18 squeezed triangles / stretched edges in that pose).
+Tried and dropped: other weight settings (smoothing, sharper edges, softer joints: all worse or no better) and a
+pose-aware refit of the vertex weights (projected gradient on the edge lengths over all clip poses): the numbers
+improved, the renders did not (more jagged) - the cloth cannot disappear, only fold somewhere else. Fixed in the pose:
+a front wind carries the side panels round with the front ones (Frame.carry, SIDE_CARRY = 0.5 of the front's swing,
+strongest straight to the side, none at the back): 18 -> 5 in that pose, the hem now flows out as one flare. Side
+wind (windLeft frame 2: 8) and the rest are unchanged.
 
 Only colliders the cloth covers (collider `covers`, set on the auto leg capsules) do this. Arm capsules first got it
 too (every non-surface collider) and the jacket exploded: the arms hang outside the jacket, so the cloth between arm

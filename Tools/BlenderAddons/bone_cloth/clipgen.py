@@ -22,6 +22,8 @@ OPEN_TOP = 0.6                    # ...reaching the full swing this far down the
 MIN_PROFILE = math.radians(5.0)   # a panel that turns less than this in the reference takes its profile from its length
 BEYOND_OPEN = 0.3                 # a front panel blown further than the Open pose: how evenly the extra swing spreads up
                                   # the panel (the reference's own spread is 1; lower takes the chest along)
+SIDE_CARRY = 0.5                  # a front wind carries the side panels round this share of the way the front panels swing
+MAX_AZIMUTH = math.radians(110.0)  # a front panel is never blown further round the body than this (90: straight to the side)
 FLARE_FROM = 0.2                  # a front panel's hem flare starts this far down the panel and grows to the hem
 
 
@@ -114,8 +116,18 @@ def _parametric(setup, arm, frame):
 def reference(setup, arm, frame):
     layer = setup.poses.open
     if layer.action is not None and poses.layer_is_hand(layer):
-        return _measure(setup, arm, frame, poses.read_action(layer.action), poses.read_action_locs(layer.action))
-    return _parametric(setup, arm, frame)
+        ref = _measure(setup, arm, frame, poses.read_action(layer.action), poses.read_action_locs(layer.action))
+    else:
+        ref = _parametric(setup, arm, frame)
+    # how far the front panels swing round the body at most: the side panels beside them follow part of the way
+    peak = 0.0
+    for info in bones_mod.strips(setup, arm):
+        r = ref.get(info["bones"][0])
+        if r is not None and abs(info["theta"]) < math.pi / 2.0 and r["parts"]:
+            peak = max(peak, max(abs(part[0]) for part in r["parts"]))
+    for r in ref.values():
+        r["front_peak"] = peak
+    return ref
 
 
 class Frame:
@@ -127,17 +139,18 @@ class Frame:
     outward axis as it stands once opened (the lower panel fanning out wide instead of tucking in at the sides)."""
 
     def __init__(self, open=1.0, back=1.0, lift_front=0.0, lift_back=0.0, lift_to=None, push=0.0, spin=0.0,
-                 blow_back=1.0, roll=None, flare=0.0):
+                 blow_back=1.0, roll=None, flare=0.0, carry=0.0):
         self.open, self.back, self.lift_front, self.lift_back = open, back, lift_front, lift_back
         self.lift_to, self.push, self.spin = lift_to, push, spin
         self.blow_back = blow_back      # the furthest a front panel may swing round, as a share of the Open pose
         self.roll = roll                # the share of the Open pose's roll; None: as the opening (at most 1)
         self.flare = flare
+        self.carry = carry              # the side panels' turn round the body with the front ones, as a share of theirs
 
     def mirrored(self):
         to = None if self.lift_to is None else (self.lift_to[0], -self.lift_to[1])
         return Frame(self.open, self.back, self.lift_front, self.lift_back, to, -self.push, -self.spin, self.blow_back,
-                     self.roll, self.flare)
+                     self.roll, self.flare, self.carry)
 
 
 BACKWARD, FORWARD, RIGHTWARD = (-1.0, 0.0), (1.0, 0.0), (0.0, -1.0)
@@ -150,8 +163,8 @@ def frame_params(gen, key, step, side):
     if key in ("windRight", "turnRight"):           # the left ones mirrored
         return frame_params(gen, key.replace("Right", "Left"), step, -side).mirrored()
     if key == "windFront":                          # opens, then the whole jacket lifts back as one: front and back alike
-        return (Frame(gen.blow_back, 1.0, 1.6 * lift, 1.6 * lift, BACKWARD, flare=lift) if full
-                else Frame(1.0, 1.0))
+        return (Frame(gen.blow_back, 1.0, 1.6 * lift, 1.6 * lift, BACKWARD, flare=lift, carry=SIDE_CARRY) if full
+                else Frame(1.0, 1.0, carry=0.7 * SIDE_CARRY))
     if key == "windBack":                           # subtle (after a hand-made one): the back is pressed on, the front
         k = 1.0 if full else 0.5                    # panels close a little and their hems tilt out
         return Frame(-0.15 * k, 0.0, 0.42 * lift * k, 0.0, None, roll=-0.34 * k)
@@ -189,6 +202,10 @@ def strip_turns(ref, frame, theta, f):
     # the windward front panel (on the side the air comes from) is only pressed shut, it would cross the opening
     windward_front = front and f.push * math.sin(theta) < 0.0
     around = f.spin + (0.0 if windward_front else f.push * math.cos(theta))
+    if f.carry and not front:
+        # the cloth between a front panel swung round and a side panel left behind has to squeeze into the gap, and the
+        # skin folds it: the side panels follow (strongest straight to the side, none at the back)
+        around += _side(theta) * f.carry * ref.get("front_peak", 0.0) * max(0.0, 1.0 - abs(abs(theta) - math.pi / 2.0) / (math.pi / 3.0))
     up, radial, tangent = frame.up, frame.radial(theta), frame.around(theta)
     if f.lift_to is None:
         lift_axis = -tangent                        # straight out from the body
@@ -207,6 +224,8 @@ def strip_turns(ref, frame, theta, f):
             # a front panel never swings round further than Blown back allows: past that it crosses the side seam,
             # where the skin mixes front and back panels, and the hem corner collapses
             room = max(gen_blow_back(f), 1.0) * abs(peak) * c ** BEYOND_OPEN - min(shape, 1.0) * abs(yaw)
+            # ...nor round behind the body (cloth blown further than the side only folds up behind the back panel)
+            room = min(room, max(MAX_AZIMUTH - abs(theta) - min(shape, 1.0) * abs(peak), 0.0) * c ** BEYOND_OPEN)
             sign = 1.0 if peak > 0.0 else -1.0
             further = sign * min(sign * further, max(room, 0.0))
         # the lift spreads down every panel alike (h: how far down the panel), so panels lift together at their seams
@@ -214,8 +233,9 @@ def strip_turns(ref, frame, theta, f):
                 @ _rotation(up, min(shape, 1.0) * yaw))
         if front and f.flare:
             # the hem fans out: tilted away from the body about the panel's own outward axis once it has swung open
-            # (its rest axis would tuck the hem in or push it forward, the panel stands turned by now)
-            axis = _rotation(up, min(shape, 1.0) * yaw) @ -tangent
+            # and been blown round (its rest axis would tuck the hem in or push it forward, the panel stands turned
+            # by now - as far as Blown back takes it)
+            axis = _rotation(up, min(shape, 1.0) * yaw + further) @ -tangent
             turn = _rotation(axis, f.flare * max(0.0, (h - FLARE_FROM) / (1.0 - FLARE_FROM))) @ turn
         turns.append(turn)
     return turns, shape
