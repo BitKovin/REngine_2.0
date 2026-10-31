@@ -109,27 +109,80 @@ class BONECLOTH_OT_remove_setup(_Op):
 class BONECLOTH_OT_start_over(_Op):
     bl_idname = "bone_cloth.start_over"
     bl_label = "Start over"
-    bl_description = "Deletes the bones, clips and weights this setup made and puts the mesh back as it was"
+    bl_description = ("Deletes the bones, clips and weights this setup made, puts the cloth mesh back as it was and sets up "
+                      "again: the same questions as the first time (name, what it is, which mesh is the cloth)")
+    name: StringProperty(name="Name", default="coat")
+    preset: EnumProperty(name="What is it?", items=[
+        ('LONG_COAT', "Long coat", "Open front, chest and skirt parts"), ('JACKET', "Jacket", "Short, open front"),
+        ('SKIRT', "Skirt", "Closed ring from the hips"), ('ROBE', "Robe", "Closed ring from the chest")],
+        default='LONG_COAT')
+    mesh: EnumProperty(name="Which mesh is the cloth?", items=_mesh_items)
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_confirm(self, event)
+        # asked with this setup's answers; a mesh selected now that is not the cloth yet is most likely the new one
+        setup = props.get_setup(find_armature(context))
+        self.name = setup.name or "coat"
+        if setup.preset in ('LONG_COAT', 'JACKET', 'SKIRT', 'ROBE'):
+            self.preset = setup.preset
+        have = mesh_prep.cloth_objects(setup)
+        if have:
+            self.mesh = have[0].name
+        for o in context.selected_objects:
+            if o.type == 'MESH' and o not in have and "bone_cloth_source_of" not in o:
+                self.mesh = o.name
+                break
+        return context.window_manager.invoke_props_dialog(self, width=360)
 
     def run(self, context, arm, setup):
         if setup.rest.applied:
             rest_shape.reset(setup, arm)
         bones_mod.remove_generated(setup, arm)
-        for o in mesh_prep.cloth_objects(setup):
-            mesh_prep.restore_from_source(o)
-            mesh_prep.restore_weights_from_source(o)
+        old = mesh_prep.cloth_objects(setup)
+        new = bpy.data.objects.get(self.mesh)
+        for o in old:
+            # a mesh edited since the setup (other vertex count) cannot be put back: it is taken as it is now
+            if not mesh_prep.restore_from_source(o):
+                mesh_prep.forget_source(o)
+            else:
+                mesh_prep.restore_weights_from_source(o)
         for layer in (setup.poses.open, setup.poses.volume):
             if layer.action:
                 layer.action.use_fake_user = False
                 bpy.data.actions.remove(layer.action)
-            layer.mode = 'GENERATED'
-        for st in setup.stages:
-            st.input_hash = st.output_hash = ""
-        setup.rest.applied = False
-        return "Started over. The original mesh is back."
+        # the clips the add-on generated belong to the bones just deleted; hand-made ones are the artist's and move to the
+        # new setup
+        kept, dropped = {}, 0
+        for key in ec.CLIP_SLOTS:
+            act = poses.clip_slot(setup, key).action
+            if act is None:
+                continue
+            if poses.clip_is_hand(act):
+                kept[key] = act
+            else:
+                poses.clip_slot(setup, key).action = None
+                act.use_fake_user = False
+                if act.users == 0:
+                    bpy.data.actions.remove(act)
+                dropped += 1
+        for o in old:                                       # a mesh that is not the cloth any more: its hidden copy goes
+            if o is not new:
+                mesh_prep.forget_source(o)
+        if new is not None and new not in old:              # a copy left from an earlier setup is of an older mesh
+            mesh_prep.forget_source(new)
+        arm.bone_cloth.setups.remove(arm.bone_cloth.active)
+        s = props.new_setup(arm, self.name or "coat")
+        presets.apply(s, self.preset)
+        if new is not None and new.type == 'MESH':
+            s.cloth_objects.add().obj = new
+        for key, act in kept.items():
+            poses.clip_slot(s, key).action = act
+        missing = pipeline.detect_character(s, arm)
+        s.motion.feel = 'CUSTOM'
+        msg = "Started over: the mesh is back as it was. "
+        if missing:
+            return msg + "Pick the bones that were not found in the Character step: " + ", ".join(missing)
+        return msg + "Ready. Press Auto Setup, or go through the steps." + (
+            " %d generated clip(s) removed." % dropped if dropped else "")
 
 
 class BONECLOTH_OT_detect_character(_Op):

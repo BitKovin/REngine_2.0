@@ -219,6 +219,7 @@ The first time a cloth mesh is processed, the add-on duplicates it as `<name>.bc
 The visible object stays the one that is exported; its data is regenerated from the copy (weights) and then deformed (rest shape).
 Two extra actions:
 - **Start over**: restores the visible mesh from the copy and removes generated bones, groups, constraints and actions.
+  It asks what Set up cloth asked (name, preset, cloth mesh) and makes the setup again. A hidden copy that no longer fits its mesh (edited since: other vertex count, or left from an earlier setup of a mesh picked now) cannot be restored and would fail the first weights build ('was edited after the setup was made'): it is forgotten (`mesh_prep.forget_source`) and the mesh taken as it is.
 - **Use my edited mesh as the source**: when the user has edited the visible mesh, for example fixed a modelling issue. It un-bakes the
   rest shape by applying, per vertex, the inverse of its blended skin matrix, then replaces the copy (same check as §8.5). A vertex-count
   mismatch between the copy and the visible mesh triggers a banner offering this.
@@ -1245,6 +1246,23 @@ fit_hand all load the scene as it is). (2) With the chain on, the generator's li
 hem) is what the artist wants: swung out by hand, the back bones' world turns were 9.3, 17.4, 29.1, 38.9, 40.8, 42.4 degrees,
 which the generator produces to 0.1 degrees (tails 0.0 cm). A uniform tilt of the whole back (tried: BACK_SPINE 0.35-0.6,
 'the hem curls up' read off the muted pose) was wrong and is gone.
+
+Back line, side view ('you are rotating only middle bone... Red is current incorrect shape, blue the desired'): the centre
+back hugged the body down to the hip and swung out only below it. Two causes. (1) Two centre-back vertices of the source mesh
+were weighted 100% to the left upper-arm twist bone (stray paint); 'Keep sleeves on the arms' read them as sleeve and pinned
+them (and, by smoothing, the cloth round them) to the body: the cloth share dropped to 0.15-0.28 at z 120-130 cm. Arm weights
+now count only within STRAY_NEAR..STRAY_FAR (0.10-0.20 m) of the excluded bones (weights.exclude_segments). (2) The lift grew
+with the length down the strip (top bone 9 degrees, then 19, 33, 43): each bone only adds its own small turn, so the upper
+strip stayed vertical. A front wind now lifts the back from the top: the top bone turns BACK_TOP (0.5) of the hem's turn and the
+rest grows from there (Frame.back_top). Centre back, cm out at z 150/140/130/120/110/100: 3 / 7 / 12 / 18 / 26 / 32 - a
+straight line, about the 29 degree lean of the blue line (before: 1 / 3 / 1 / 4 / 18 / 24). Needs the weights rebuilt.
+
+Back line, the artist's own adjustment of the generated front wind ('should be more like I just adjusted, so it makes a slight
+arc'): the back's world turns were 25.4 / 27.9 / 44.3 / 44.9 / 46.0 / 46.9 degrees from the top - two plateaus, the upper 40% of
+the strip leaning about 26 degrees, the lower 60% about 45, bending between - against the generator's 25 / 31 / 39 / 45 (a
+smooth ramp: best 5 degrees off for any a + (1 - a) h^p). The lift now reaches the back as BACK_TOP (0.58) of the hem's turn
+plus the rest through a smoothstep between the strip's length shares BACK_BEND (0.33 .. 0.8): 1.5 degrees and 0.7 cm from the
+adjustment.
 
 Preview speed (Blender 5.1, 36 cloth bones): 33 ms a step, 70% in the thigh push called once per probe and leg. leg_push_many
 does all probes against all legs in one call (checked against leg_push in test_engine_contract): 12 ms, 14 ms a frame with

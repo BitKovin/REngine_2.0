@@ -80,8 +80,27 @@ def read_body_weights(src, bone_names, skip):
     return W, names
 
 
-def cloth_amount(setup, pos, W_body, body_names, exclude, painted=None):
-    """c(v) in 0..1, DESIGN.md 8.4.2."""
+STRAY_NEAR, STRAY_FAR = 0.10, 0.20     # metres from an excluded bone: arm weights count fully / not at all
+
+
+def exclude_segments(arm, exclude):
+    """(head, tail) of every excluded bone (arms, neck, head), world space."""
+    return [(frames.bone_head(arm, n), frames.bone_tail(arm, n)) for n in exclude if n in arm.data.bones]
+
+
+def _distance_to_segments(pos, segments):
+    best = np.full(len(pos), np.inf)
+    for a, b in segments:
+        ab = b - a
+        l2 = float(ab @ ab)
+        t = np.clip(((pos - a) @ ab) / l2, 0.0, 1.0) if l2 > 1e-12 else np.zeros(len(pos))
+        best = np.minimum(best, np.linalg.norm(pos - (a + np.outer(t, ab)), axis=1))
+    return best
+
+
+def cloth_amount(setup, pos, W_body, body_names, exclude, painted=None, segments=None):
+    """c(v) in 0..1, DESIGN.md 8.4.2. segments: where the excluded bones are - arm weights far from them are stray paint
+    (a back vertex weighted to an upper arm in the source mesh) and keep nothing on the body."""
     w = setup.weights
     if w.use_painted_amount and painted is not None:
         return np.clip(painted, 0.0, 1.0)
@@ -96,6 +115,8 @@ def cloth_amount(setup, pos, W_body, body_names, exclude, painted=None):
         cols = [i for i, n in enumerate(body_names) if n in exclude]
         if cols:
             a = W_body[:, cols].sum(axis=1)
+            if segments:
+                a = a * (1.0 - _smooth(STRAY_NEAR, STRAY_FAR, _distance_to_segments(pos, segments)))
             c = c * (1.0 - _smooth(0.5 * w.exclude_threshold, w.exclude_threshold, a))
     return np.clip(c, 0.0, 1.0)
 
@@ -292,7 +313,7 @@ def build_object(setup, arm, frame, obj, strip_infos, stats):
         arc, total = strips[0].arc_param(pos)
         c = _smooth(0.0, max(0.12 * total, 0.03), arc)
     else:
-        c = cloth_amount(setup, pos, W_body, body_names, exclude, painted)
+        c = cloth_amount(setup, pos, W_body, body_names, exclude, painted, exclude_segments(arm, exclude))
     theta = frame.angle(pos)
     h = pos[:, 2]
     closed = setup.guides.layout == 'CLOSED_RING'
@@ -448,7 +469,8 @@ def write_amount_group(setup, arm, frame, obj):
     W_body, names = read_body_weights(src, set(b.name for b in arm.data.bones), set(bones_mod.generated(setup)))
     was = setup.weights.use_painted_amount
     setup.weights.use_painted_amount = False
-    c = cloth_amount(setup, pos, W_body, names, landmarks.exclude_bones(arm, setup.character))
+    excl = landmarks.exclude_bones(arm, setup.character)
+    c = cloth_amount(setup, pos, W_body, names, excl, None, exclude_segments(arm, excl))
     setup.weights.use_painted_amount = was
     vg = obj.vertex_groups.get(AMOUNT_GROUP) or obj.vertex_groups.new(name=AMOUNT_GROUP)
     vg.remove(range(n))

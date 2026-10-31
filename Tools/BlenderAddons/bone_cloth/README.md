@@ -103,7 +103,7 @@ tips as before.
 **9 Preview** plays the timeline with a port of the engine's `BoneCloth::Step` running on the cloth bones, with the test
 motion and wind you choose. Nothing is keyed; Stop puts the pose back. The yellow lines are the strips as the game sees them.
 
-**Start over** (bottom of the main panel) deletes everything the setup made and puts the mesh back from the hidden copy.
+**Start over** (bottom of the main panel) deletes everything the setup made, puts the cloth mesh back from the hidden copy and then asks what Set up cloth asked the first time: name, what it is (the preset), which mesh is the cloth (a mesh you had selected is offered first). The setup is made again from those answers, so a different mesh or preset starts clean; clips the add-on generated are removed with the bones, hand-made ones move to the new setup.
 Every button is also one undo step.
 
 ## Tests
@@ -113,6 +113,7 @@ python tests/test_engine_contract.py                 # the engine's rules, plain
 python tests/verify_glb.py <model.glb>               # reads an exported model the way the engine does
 set BC_TEST_BLEND=<a copy of player_coat.blend>
 python tests/run_headless.py test_pipeline.py        # Auto Setup + export on a copy of the coat (removes the old rig first)
+python tests/run_headless.py test_start_over.py      # Start over, keeping the cloth or switching to another mesh
 python tests/run_headless.py test_operators.py       # the same through the buttons' operators, incl. Update all, Start over
 python tests/run_headless.py test_bake_and_ui.py     # rest-shape bake vs Blender's own result, every panel's draw code
 python tests/run_headless.py render_view.py          # renders panel colours (BC_RENDER_DIR; BC_CLOTH, BC_PRESET, BC_BEND)

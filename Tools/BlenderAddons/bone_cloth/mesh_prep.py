@@ -329,6 +329,16 @@ def transfer_weights_from_source(obj, tolerance=0.02):
     return worst
 
 
+def forget_source(obj):
+    """Throws the hidden untouched copy away (and the link to it): the mesh is taken as it is now, the next setup makes a
+    new copy of it."""
+    src = source_of(obj)
+    if src is not None:
+        bpy.data.objects.remove(src, do_unlink=True)
+    if "bc_source" in obj:
+        del obj["bc_source"]
+
+
 def restore_from_source(obj):
     """Puts the cloth object's geometry and weights back from its source copy."""
     src = source_of(obj)
