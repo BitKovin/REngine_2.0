@@ -77,10 +77,11 @@
 #		include <immintrin.h> // FMA3
 #	endif // BX_CPU_X86
 #	if BX_COMPILER_MSVC
-// With /arch:AVX2 MSVC compiles fmaf to a single vfmadd213ss (no CRT call and,
-// unlike _mm_fmadd_ss, no zeroing of the upper lanes); the CRT's own
-// declaration is compatible with this one. On ARM64 it compiles to fmadd.
-extern "C" float fmaf(float, float, float);
+#		if defined(_DLL)
+extern "C" __declspec(dllimport) float __cdecl fmaf(float, float, float);
+#		else
+extern "C" float __cdecl fmaf(float, float, float);
+#		endif // defined(_DLL)
 #		pragma intrinsic(fmaf)
 #	endif // BX_COMPILER_MSVC
 #endif // BX_CONFIG_FMA
@@ -164,6 +165,8 @@ namespace bx
 
 	typedef simd32_ref_t   simd32_t;
 	typedef simd64_ref_t   simd64_t;
+
+	constexpr bool kSimdSupported = 0 != BX_SIMD_SUPPORTED;
 
 	// These deduce register width from the type parameter. Call with
 	// simd128_t for 128-bit, simd256_t for 256-bit, etc.
@@ -402,6 +405,18 @@ namespace bx
 	///
 	template<typename Ty>
 	Ty simd_u8_satadd(Ty _a, Ty _b);
+
+	/// Per-lane i8 compare equal. Lanes set to all-ones if equal.
+	///
+	/// @param[in] _a First operand.
+	/// @param[in] _b Second operand.
+	///
+	/// @returns Per-lane comparison mask.
+	///
+	/// @remark Widths: simd32, simd64, simd128, simd256.
+	///
+	template<typename Ty>
+	Ty simd_i8_cmpeq(Ty _a, Ty _b);
 
 	/// Per-lane unsigned 8-bit saturating subtract: `max(_a - _b, 0)`.
 	///

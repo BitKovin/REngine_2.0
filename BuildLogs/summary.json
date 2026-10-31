@@ -1,9 +1,9 @@
 [
   {
-    "Name": "emscripten",
-    "Success": true,
-    "DurationSeconds": 666.1419169,
-    "LogFilePath": "F:\\Git\\SdlWasmEngine\\BuildLogs\\emscripten.log",
-    "ErrorMessage": null
+    "Name": "windows",
+    "Success": false,
+    "DurationSeconds": 6.435404,
+    "LogFilePath": "F:\\Git\\SdlWasmEngine\\BuildLogs\\windows.log",
+    "ErrorMessage": "Exit code 1 \u2014 see F:\\Git\\SdlWasmEngine\\BuildLogs\\windows.log"
   }
 ]

@@ -458,11 +458,13 @@ namespace bx
 
 	inline BX_CONSTEXPR_FUNC int simd64_x8_signbitsmask(simd64_t _a)
 	{
-		int result = 0;
-		for (int ii = 0; ii < 8; ++ii)
-		{
-			result |= (int((_a.u64 >> (ii * 8 + 7)) & 1) << ii);
-		}
+		const simd64_t lsb      = simd64_splat(uint8_t(1) );
+		const simd64_t gather   = simd64_splat(UINT64_C(0x0102040810204080) );
+		const simd64_t shifted  = simd64_x64_srl(_a, 7);
+		const simd64_t msbs     = simd64_and(shifted, lsb);
+		const simd64_t gathered = simd64_u64_mul(msbs, gather);
+		const simd64_t top      = simd64_x64_srl(gathered, 56);
+		const int      result   = int(top.u64);
 		return result;
 	}
 
@@ -976,6 +978,21 @@ namespace bx
 		{
 			result.u64 |= uint64_t(uint8_t(int8_t(_a.u64 >> (ii * 8)) - int8_t(_b.u64 >> (ii * 8)))) << (ii * 8);
 		}
+		return result;
+	}
+
+	inline BX_CONSTEXPR_FUNC simd64_t simd64_i8_cmpeq(simd64_t _a, simd64_t _b)
+	{
+		const simd64_t mask7   = simd64_splat(uint8_t(0x7f) );
+		const simd64_t diff    = simd64_xor(_a, _b);
+		const simd64_t low7    = simd64_and(diff, mask7);
+		const simd64_t carry   = simd64_u64_add(low7, mask7);
+		const simd64_t tmp0    = simd64_or(carry, diff);
+		const simd64_t nonZero = simd64_or(tmp0, mask7);
+		const simd64_t msbs    = simd64_not(nonZero);
+		const simd64_t lsbs    = simd64_x64_srl(msbs, 7);
+		const simd64_t low7s   = simd64_u64_sub(msbs, lsbs);
+		const simd64_t result  = simd64_or(msbs, low7s);
 		return result;
 	}
 

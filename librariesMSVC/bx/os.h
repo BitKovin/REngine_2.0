@@ -67,6 +67,25 @@ namespace bx
 	/// Yield remainder of the current thread's time slice to another runnable thread.
 	void yield();
 
+	/// Request OS timer resolution, which affects precision of `sleep` and wait timeouts.
+	/// Every call must be matched with `timerResolutionEnd` with the same value.
+	///
+	/// @param[in] _ms Timer resolution in milliseconds, 0 = no request.
+	///
+	void timerResolutionBegin(uint32_t _ms);
+
+	/// End request made with `timerResolutionBegin`.
+	///
+	/// @param[in] _ms Value passed to `timerResolutionBegin`.
+	///
+	void timerResolutionEnd(uint32_t _ms);
+
+	/// Get number of hardware threads available to the process.
+	///
+	/// @returns Number of hardware threads, at least 1.
+	///
+	uint32_t getHardwareThreads();
+
 	/// Get the OS-level identifier of the calling thread.
 	///
 	/// @returns Platform-specific thread id.
@@ -109,7 +128,7 @@ namespace bx
 	template<typename ProtoT>
 	ProtoT dlsym(void* _handle, const StringView& _symbol);
 
-	/// Read an environment variable.
+	/// Read an environment variable. Name and value are UTF-8.
 	///
 	/// @param[out]    _out       Buffer that receives the value (may be NULL to query required size).
 	/// @param[in,out] _inOutSize On input the capacity of `_out`, on output the required size including terminator.
@@ -118,7 +137,7 @@ namespace bx
 	///
 	bool getEnv(char* _out, uint32_t* _inOutSize, const StringView& _name);
 
-	/// Set an environment variable.
+	/// Set an environment variable. Name and value are UTF-8.
 	///
 	/// @param[in] _name  Name of the environment variable.
 	/// @param[in] _value Value to assign.
@@ -127,7 +146,7 @@ namespace bx
 
 	/// Change current working directory of the process.
 	///
-	/// @param[in] _path Target directory path.
+	/// @param[in] _path Target directory path, UTF-8.
 	/// @returns 0 on success, non-zero on failure.
 	///
 	int chdir(const char* _path);
@@ -183,6 +202,13 @@ namespace bx
 	/// @returns Page size in bytes, or 0 when the requested page kind is unsupported.
 	///
 	size_t memoryPageSize(uint32_t _flags = 0);
+
+	/// Query granularity of base address of fresh reservation made by `memoryMap`. It's
+	/// larger than page size on Windows (64 KiB), and equal to page size elsewhere.
+	///
+	/// @returns Allocation granularity in bytes.
+	///
+	size_t memoryAllocationGranularity();
 
 } // namespace bx
 

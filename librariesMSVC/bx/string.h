@@ -70,7 +70,7 @@ namespace bx
 		constexpr StringView(const StringLiteral& _str);
 
 		///
-		constexpr StringView(const StringView& _rhs);
+		constexpr StringView(const StringView& _rhs) = default;
 
 		///
 		constexpr StringView(const StringView& _rhs, int32_t _start, int32_t _len);
@@ -79,7 +79,7 @@ namespace bx
 		constexpr StringView& operator=(const char* _rhs);
 
 		///
-		constexpr StringView& operator=(const StringView& _rhs);
+		constexpr StringView& operator=(const StringView& _rhs) = default;
 
 		///
 		constexpr StringView(const char* _ptr);
@@ -375,13 +375,13 @@ namespace bx
 	void toUpper(char* _inOutStr, int32_t _max = INT32_MAX);
 
 	/// String compare.
-	int32_t strCmp(const StringView& _lhs, const StringView& _rhs, int32_t _max = INT32_MAX);
+	constexpr int32_t strCmp(const StringView& _lhs, const StringView& _rhs, int32_t _max = INT32_MAX);
 
 	/// Case insensitive string compare.
-	int32_t strCmpI(const StringView& _lhs, const StringView& _rhs, int32_t _max = INT32_MAX);
+	constexpr int32_t strCmpI(const StringView& _lhs, const StringView& _rhs, int32_t _max = INT32_MAX);
 
 	// Compare as strings holding indices/version numbers.
-	int32_t strCmpV(const StringView& _lhs, const StringView& _rhs, int32_t _max = INT32_MAX);
+	constexpr int32_t strCmpV(const StringView& _lhs, const StringView& _rhs, int32_t _max = INT32_MAX);
 
 	/// Get string length.
 	constexpr int32_t strLen(const char* _str, int32_t _max = INT32_MAX);
@@ -419,6 +419,9 @@ namespace bx
 
 	/// Returns string view with whitespace characters trimmed from left.
 	StringView strLTrimSpace(const StringView& _str);
+
+	/// Returns string view with horizontal whitespace characters trimmed from left.
+	StringView strLTrimSpaceHoriz(const StringView& _str);
 
 	/// Returns string view with non-whitespace characters trimmed from left.
 	StringView strLTrimNonSpace(const StringView& _str);
@@ -545,6 +548,16 @@ namespace bx
 
 	/// Converts 64-bit unsigned integer value to string.
 	int32_t toString(char* _out, int32_t _max, uint64_t _value, uint32_t _base = 10, char _separator = '\0');
+
+	/// Converts UTF-8 string to NUL terminated UTF-16 string. Returns number of UTF-16 code units
+	/// written including the terminator, or 0 when the input is not valid UTF-8 or the output doesn't
+	/// fit. With `_max` 0 returns the size required.
+	int32_t toUtf16(uint16_t* _out, int32_t _max, const StringView& _str);
+
+	/// Converts NUL terminated UTF-16 string to NUL terminated UTF-8 string. Returns number of bytes
+	/// written including the terminator, or 0 when the input is not valid UTF-16 or the output
+	/// doesn't fit. With `_max` 0 returns the size required.
+	int32_t fromUtf16(char* _out, int32_t _max, const uint16_t* _str);
 
 	/// Converts string to bool value.
 	bool fromString(bool* _out, const StringView& _str);

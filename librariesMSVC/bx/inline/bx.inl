@@ -68,23 +68,10 @@ namespace bx
 	}
 
 	template<typename Ty>
-	inline Ty loadUnaligned(const void* _ptr)
-	{
-		static_assert(isTriviallyCopyable<Ty>(), "Ty must be trivially copyable type.");
-
-#if BX_COMPILER_GCC || BX_COMPILER_CLANG
-		typedef Ty BX_ATTRIBUTE(aligned(1) ) UnalignedTy;
-		return *(UnalignedTy*)_ptr;
-#else
-		Ty value;
-		memCopy(&value, _ptr, sizeof(Ty) );
-
-		return value;
-#endif // BX_COMPILER_*
-	}
+	Ty loadUnalignedRef(const void* _ptr);
 
 	template<>
-	inline uint32_t loadUnaligned(const void* _ptr)
+	inline uint32_t loadUnalignedRef(const void* _ptr)
 	{
 		const uint8_t* data = (const uint8_t*)_ptr;
 
@@ -97,7 +84,7 @@ namespace bx
 	}
 
 	template<>
-	inline uint64_t loadUnaligned(const void* _ptr)
+	inline uint64_t loadUnalignedRef(const void* _ptr)
 	{
 		const uint8_t* data = (const uint8_t*)_ptr;
 
@@ -114,6 +101,23 @@ namespace bx
 	}
 
 	template<typename Ty>
+	inline Ty loadUnaligned(const void* _ptr)
+	{
+		static_assert(isTriviallyCopyable<Ty>(), "Ty must be trivially copyable type.");
+
+#if BX_COMPILER_MSVC
+#	if BX_CPU_X86 && BX_ARCH_32BIT
+		typedef Ty UnalignedTy;
+#	else
+		typedef __unaligned Ty UnalignedTy;
+#	endif // BX_CPU_X86 && BX_ARCH_32BIT
+#else
+		typedef Ty BX_ATTRIBUTE(aligned(1) ) UnalignedTy;
+#endif // BX_COMPILER_MSVC
+		return *(const UnalignedTy*)_ptr;
+	}
+
+	template<typename Ty>
 	inline void storeAligned(void* _ptr, const Ty& _value)
 	{
 		static_assert(isTriviallyCopyable<Ty>(), "Ty must be trivially copyable type.");
@@ -126,12 +130,16 @@ namespace bx
 	{
 		static_assert(isTriviallyCopyable<Ty>(), "Ty must be trivially copyable type.");
 
-#if BX_COMPILER_GCC || BX_COMPILER_CLANG
-		typedef Ty BX_ATTRIBUTE(aligned(1) ) UnalignedTy;
-		*(UnalignedTy*)_ptr = _value;
+#if BX_COMPILER_MSVC
+#	if BX_CPU_X86 && BX_ARCH_32BIT
+		typedef Ty UnalignedTy;
+#	else
+		typedef __unaligned Ty UnalignedTy;
+#	endif // BX_CPU_X86 && BX_ARCH_32BIT
 #else
-		memCopy(_ptr, &_value, sizeof(Ty) );
-#endif // BX_COMPILER_*
+		typedef Ty BX_ATTRIBUTE(aligned(1) ) UnalignedTy;
+#endif // BX_COMPILER_MSVC
+		*(UnalignedTy*)_ptr = _value;
 	}
 
 	template<typename Ty>
@@ -217,6 +225,12 @@ namespace bx
 	}
 
 	template<typename Ty>
+	inline constexpr bool isInRange(const Ty& _a, const TypeIdentityType<Ty>& _min, const TypeIdentityType<Ty>& _max)
+	{
+		return _min <= _a && _a <= _max;
+	}
+
+	template<typename Ty>
 	inline constexpr bool isPowerOf2(Ty _a)
 	{
 		return _a && !(_a & (_a - 1) );
@@ -298,6 +312,8 @@ namespace bx
 		return static_cast<Ty>(_from);
 	}
 
+BX_PRAGMA_DIAGNOSTIC_PUSH()
+BX_PRAGMA_DIAGNOSTIC_IGNORED_MSVC(4702) // warning C4702: unreachable code
 	template<typename Ty, typename FromT>
 	inline constexpr bool narrowCastTest(Ty* _out, const FromT& _from)
 	{
@@ -307,12 +323,10 @@ namespace bx
 			return true;
 		}
 
-BX_PRAGMA_DIAGNOSTIC_PUSH()
-BX_PRAGMA_DIAGNOSTIC_IGNORED_MSVC(4702) // warning C4702: unreachable code
 		*_out = static_cast<Ty>(_from);
 		return static_cast<FromT>(*_out) == _from;
-BX_PRAGMA_DIAGNOSTIC_POP()
 	}
+BX_PRAGMA_DIAGNOSTIC_POP()
 
 	template<typename Ty, typename FromT>
 	inline Ty narrowCast(const FromT& _from, Location _location)

@@ -54,6 +54,12 @@ namespace bx
 	/// Fields are initialized to identity value.
 	BX_DECLARE_TAG(InitIdentity);
 
+	/// Construct in place from arguments.
+	BX_DECLARE_TAG(Emplace);
+
+	/// Reinterpret data.
+	BX_DECLARE_TAG(Reinterpret);
+
 	/// Source location with file path, and file line.
 	///
 	struct Location
@@ -70,10 +76,13 @@ namespace bx
 
 		/// Current source location.
 		///
-		static Location current(
+		static constexpr Location current(
 			  const char* _filePath = __builtin_FILE()
 			, uint32_t _line = __builtin_LINE()
-			);
+			)
+		{
+			return Location(_filePath, _line);
+		}
 
 		const char* filePath; //!< File path.
 		uint32_t    line;     //!< File line.
@@ -98,11 +107,14 @@ namespace bx
 
 		/// Current source location.
 		///
-		static LocationFull current(
+		static constexpr LocationFull current(
 			  const char* _function = __builtin_FUNCTION()
 			, const char* _filePath = __builtin_FILE()
 			, uint32_t _line = __builtin_LINE()
-			);
+			)
+		{
+			return LocationFull(_function, _filePath, _line);
+		}
 
 		const char* function; //!< Function name.
 		const char* filePath; //!< File path.
@@ -245,6 +257,10 @@ namespace bx
 	template<typename Ty>
 	constexpr Ty clamp(const Ty& _a, const TypeIdentityType<Ty>& _min, const TypeIdentityType<Ty>& _max);
 
+	/// Returns true if value `_a` is in inclusive range [`_min`, `_max`].
+	template<typename Ty>
+	constexpr bool isInRange(const Ty& _a, const TypeIdentityType<Ty>& _min, const TypeIdentityType<Ty>& _max);
+
 	/// Returns true if value `_a` is power of 2.
 	template<typename Ty>
 	constexpr bool isPowerOf2(Ty _a);
@@ -350,6 +366,30 @@ namespace bx
 	/// @param _numStrides Number of strides.
 	///
 	void memSet(
+		  void* _dst
+		, uint32_t _dstStride
+		, uint8_t _ch
+		, uint32_t _stride
+		, uint32_t _numStrides
+		);
+
+	/// Fill memory block to specified value `_ch`, the compiler can't remove it as a dead store.
+	///
+	/// @param _dst Destination pointer.
+	/// @param _ch Fill value.
+	/// @param _numBytes Number of bytes to fill.
+	///
+	void memSetSecure(void* _dst, uint8_t _ch, size_t _numBytes);
+
+	/// Fill strided memory block to specified value `_ch`, the compiler can't remove it as a dead store.
+	///
+	/// @param _dst Destination pointer.
+	/// @param _dstStride Destination stride.
+	/// @param _ch Fill value.
+	/// @param _stride Number of bytes per stride to fill.
+	/// @param _numStrides Number of strides.
+	///
+	void memSetSecure(
 		  void* _dst
 		, uint32_t _dstStride
 		, uint8_t _ch
