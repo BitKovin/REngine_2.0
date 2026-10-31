@@ -18,6 +18,7 @@ from . import frames, poses
 
 OPEN_YAW = math.radians(55.0)     # without a hand-made Open pose: how far a front panel swings round the body...
 OPEN_FLARE = math.radians(35.0)   # ...and how far a back panel's hem flares out
+BACK_FROM = math.radians(135.0)   # panels further round than this (the back) do not swing round the body in the hinge
 OPEN_TOP = 0.6                    # ...reaching the full swing this far down the panel
 MIN_PROFILE = math.radians(5.0)   # a panel that turns less than this in the reference takes its profile from its length
 BEYOND_OPEN = 0.3                 # a front panel blown further than the Open pose: how evenly the extra swing spreads up
@@ -25,6 +26,7 @@ BEYOND_OPEN = 0.3                 # a front panel blown further than the Open po
 FLARE_SCALE = 1.0                 # the front wind's hem flare, as a share of the hem lift
 TURN_OPEN = 0.3                   # a turn opens its far front panel this share of the Open pose (a spin brings a front wind too)
 SIDE_CARRY = 1.0                  # a front wind carries the side panels round this share of the way the front panels swing
+CARRY_WIDTH = math.radians(30.0)   # the side carry falls to nothing this far (in angle round the body) from straight to the side
 MAX_AZIMUTH = math.radians(100.0)  # a front panel is never blown further round the body than this (90: straight to the side)
 FLARE_FROM = 0.2                  # a front panel's hem flare starts this far down the panel and grows to the hem
 
@@ -106,7 +108,10 @@ def _parametric(setup, arm, frame):
         cum = _lengths(rig)
         opens = poses.column_mult(setup, theta, "open")
         swing = np.minimum(1.0, cum / OPEN_TOP)
-        parts = [(_side(theta) * OPEN_YAW * opens * c, OPEN_FLARE * (1.0 - opens) * k, 0.0) for c, k in zip(swing, cum)]
+        # a panel straight behind does not swing round: left and right would swing toward each other and cross the
+        # centre line, folding the cloth there (its hem flares out and lifts, below)
+        yaw = 0.0 if abs(theta) > BACK_FROM else OPEN_YAW * opens
+        parts = [(_side(theta) * yaw * c, OPEN_FLARE * (1.0 - opens) * k, 0.0) for c, k in zip(swing, cum)]
         slide = {}
         if layer.slide > 1e-6:
             slide[rig.names[0]] = poses.slide_location(arm, frame, rig, theta, "open", layer.slide * opens)
@@ -122,13 +127,15 @@ def reference(setup, arm, frame):
     else:
         ref = _parametric(setup, arm, frame)
     # how far the front panels swing round the body at most: the side panels beside them follow part of the way
-    peak = 0.0
+    peak, room = 0.0, 0.0
     for info in bones_mod.strips(setup, arm):
         r = ref.get(info["bones"][0])
         if r is not None and abs(info["theta"]) < math.pi / 2.0 and r["parts"]:
-            peak = max(peak, max(abs(part[0]) for part in r["parts"]))
+            top = max(abs(part[0]) for part in r["parts"])
+            peak = max(peak, top)
+            room = max(room, MAX_AZIMUTH - abs(info["theta"]) - top)     # the swing a front panel has left past Open
     for r in ref.values():
-        r["front_peak"] = peak
+        r["front_peak"], r["front_room"] = peak, max(room, 0.0)
     return ref
 
 
@@ -205,9 +212,13 @@ def strip_turns(ref, frame, theta, f):
     windward_front = front and f.push * math.sin(theta) < 0.0
     around = f.spin + (0.0 if windward_front else f.push * math.cos(theta))
     if f.carry and not front:
-        # the cloth between a front panel swung round and a side panel left behind has to squeeze into the gap, and the
-        # skin folds it: the side panels follow (strongest straight to the side, none at the back)
-        around += _side(theta) * f.carry * ref.get("front_peak", 0.0) * max(0.0, 1.0 - abs(abs(theta) - math.pi / 2.0) / (math.pi / 3.0))
+        # blown round past the Open pose, a front panel leaves the cloth between it and the side panel to squeeze into
+        # the gap, and the skin folds it: the side panels follow that extra swing (only the side ones, straight to the
+        # side: the Open pose itself, and the back, are the artist's)
+        room = ref.get("front_room", 0.0)
+        extra = min(1.0, max(f.open - 1.0, 0.0) * ref.get("front_peak", 0.0) / room) if room > 1e-6 else 0.0
+        around += (_side(theta) * f.carry * ref.get("front_peak", 0.0) * extra
+                   * max(0.0, 1.0 - abs(abs(theta) - math.pi / 2.0) / CARRY_WIDTH))
     up, radial, tangent = frame.up, frame.radial(theta), frame.around(theta)
     if f.lift_to is None:
         lift_axis = -tangent                        # straight out from the body

@@ -610,6 +610,7 @@ class ClothSim:
 
 def start(setup, arm, scene):
     stop(arm)
+    unmute_orphans()
     sim = ClothSim(setup, arm)
     sim.mute_follow(True)
     sim.reset()
@@ -623,6 +624,22 @@ def start(setup, arm, scene):
     if _handler not in bpy.app.handlers.frame_change_post:
         bpy.app.handlers.frame_change_post.append(_handler)
     return sim
+
+
+def unmute_orphans(*_):
+    """Puts back the BC Follow constraints a preview muted and never un-muted (the add-on reloaded or the file saved while it
+    ran, a preview that started on muted ones): without them the strips hang from their roots as loose hinges - only the
+    hem bones seem to lift. Nothing muted while a preview runs."""
+    for ob in bpy.data.objects:
+        if ob.type != 'ARMATURE' or ob.name in RUNNING or ob.pose is None:
+            continue
+        for pb in ob.pose.bones:
+            for c in pb.constraints:
+                if c.name == "BC Follow" and c.mute:
+                    c.mute = False
+
+
+unmute_orphans = bpy.app.handlers.persistent(unmute_orphans)
 
 
 def stop(arm):

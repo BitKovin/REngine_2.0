@@ -1224,6 +1224,28 @@ the far front panel 0.3 (TURN_OPEN: the spin brings the wind anyway), the side c
 (SIDE_CARRY 1.0) and MAX_AZIMUTH is 100 degrees: 2 of 81 under, 127 flipped, hems 123 degrees round. Only the front
 panels' far side matters; other clips and the player coat's static tests are unchanged.
 
+Back fold ('jaket wind front isn't wide and has this fold in the middle of back'): the generator's own hinge gave the back
+strips (theta +-172 degrees, Opens 0.8) a yaw of +-44 degrees in the front panels' sense - toward each other. Left and right
+back halves crossed the centre line (rest x -5 -> +1.6 cm, 0.4 -> -5 cm: the cloth flipped over a 12 cm band: the V),
+in every clip that uses the reference, since the first version. Panels beyond BACK_FROM (135 degrees) no longer yaw in the
+hinge; they flare and lift. Back hem across the seam: x unchanged, y +6..10 smoothly. Front wind's last frame at Blown back 3:
+squeezed triangles / stretched edges 18 / 10 -> 1 / 3.
+My earlier side carry (all non-front panels, 60 degree bell) also moved the side hems inward (0.33 -> 0.12 m) and the back
+across the centre, narrowing the pose the artist's hand frame had wide. Now it only follows the front panels' swing PAST the
+Open pose (zero at Blown back 1, so the defaults reproduce the hand frame to 0.0 cm for the sides and 0.3 for the back,
+tests/fit_hand.py), side panels only (CARRY_WIDTH 30 degrees round straight to the side).
+
+'It misses proper lift. It's just tips. Should be whole spine': two causes. (1) The upper strip bones hang from their own
+spine bones; the BC Follow constraints (COPY_LOCATION) pin each to the previous tail so a strip behaves as the engine's chain.
+The preview mutes them while it runs and un-mutes them on stop - a reload or a save while it ran left them muted (and a
+preview started on muted ones never un-muted them), so every pose showed loose hinges: only the short hem bones swung
+(back +7 cm, hem 'curling'). sim.unmute_orphans (on start, on enabling the add-on, after loading a file) puts them back.
+Every scene copy saved while a preview ran was muted: measure on a copy with them on (tests/skin_metric, test_spin,
+fit_hand all load the scene as it is). (2) With the chain on, the generator's lift (1.6 x the hem lift, growing toward the
+hem) is what the artist wants: swung out by hand, the back bones' world turns were 9.3, 17.4, 29.1, 38.9, 40.8, 42.4 degrees,
+which the generator produces to 0.1 degrees (tails 0.0 cm). A uniform tilt of the whole back (tried: BACK_SPINE 0.35-0.6,
+'the hem curls up' read off the muted pose) was wrong and is gone.
+
 Preview speed (Blender 5.1, 36 cloth bones): 33 ms a step, 70% in the thigh push called once per probe and leg. leg_push_many
 does all probes against all legs in one call (checked against leg_push in test_engine_contract): 12 ms, 14 ms a frame with
 Blender's own update. tests/profile_sim.py times and profiles it.
