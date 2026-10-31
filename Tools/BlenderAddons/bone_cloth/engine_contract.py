@@ -345,6 +345,57 @@ def leg_push(point, start, end, r0, r1, axis_low, axis_dir, allowance=0.0):
     return nearest + normal * radius
 
 
+def leg_push_many(points, starts, ends, r0, r1, axis_low, axis_dir, allowance):
+    """leg_push for many probes against several legs at once (the preview's speed): points (M, 3); the legs' starts and
+    ends (L, 3), radii (L,), allowance (L, M) with nan for a probe a leg leaves alone. Returns (pushed (L, M) bool,
+    to (L, M, 3))."""
+    starts, ends = np.atleast_2d(starts), np.atleast_2d(ends)
+    r0, r1 = np.atleast_1d(r0).astype(float), np.atleast_1d(r1).astype(float)
+    L, M = len(starts), len(points)
+    if not L or not M:
+        return np.zeros((L, M), bool), np.zeros((L, M, 3))
+    leg = ends - starts
+    length = np.linalg.norm(leg, axis=1)
+    live = length >= 1e-6
+    leg = leg / np.maximum(length, 1e-12)[:, None]
+    allowance = np.asarray(allowance, float)
+    valid = ~np.isnan(allowance) & live[:, None]
+    allow = np.where(valid, allowance, 0.0)
+    out = points - axis_low
+    out = out - np.outer(out @ axis_dir, axis_dir)
+    n = np.linalg.norm(out, axis=1)
+    out = out / np.maximum(n, 1e-12)[:, None]                              # (M, 3)
+    valid &= (n * n >= 1e-10)[None, :]
+    rel = points[None, :, :] - starts[:, None, :]                           # (L, M, 3)
+    along = np.einsum('lmi,li->lm', rel, leg)
+    valid &= along >= 0.0
+    t = np.minimum(along / np.maximum(length, 1e-12)[:, None], 1.0)
+    radius = r0[:, None] + (r1 - r0)[:, None] * t - allow
+    valid &= radius > 1e-4
+    nearest = starts[:, None, :] + (t * length[:, None])[:, :, None] * leg[:, None, :]
+    off = points[None, :, :] - nearest
+    dist = np.linalg.norm(off, axis=2)
+    outside = dist >= radius
+    w = rel - along[:, :, None] * leg[:, None, :]
+    out_leg = np.einsum('mi,li->lm', out, leg)
+    d = out[None, :, :] - out_leg[:, :, None] * leg[:, None, :]
+    a = np.einsum('lmi,lmi->lm', d, d)
+    b = 2.0 * np.einsum('lmi,lmi->lm', w, d)
+    c = np.einsum('lmi,lmi->lm', w, w) - radius * radius
+    disc = b * b - 4.0 * a * c
+    ok = (a >= 1e-10) & (disc > 0.0)
+    sq = np.sqrt(np.maximum(disc, 0.0))
+    safe_a = np.where(a >= 1e-10, 2.0 * a, 1.0)
+    s0, s1 = (-b - sq) / safe_a, (-b + sq) / safe_a
+    leave = np.einsum('lmi,li->lm', points[None, :, :] + out[None, :, :] * s1[:, :, None] - starts[:, None, :], leg)
+    ok &= (s0 > 0.0) & (leave >= 0.0) & (leave <= length[:, None])
+    valid &= ~outside | ok
+    normal = np.where((dist > 1e-6)[:, :, None], off / np.maximum(dist, 1e-12)[:, :, None], out[None, :, :])
+    side = np.einsum('lmi,mi->lm', normal, out)
+    normal = np.where((side < 0.0)[:, :, None], normal - 2.0 * side[:, :, None] * out[None, :, :], normal)
+    return valid, nearest + normal * radius[:, :, None]
+
+
 def leg_allowance(point, capsules, covers, axis_low, axis_dir):
     """A leg probe at rest, per capsule (start, end, r0, r1, surface): how deep it may go into that leg - as deep as it
     rests there, so the cloth keeps the shape it was made with (0 for a leg it clears). None: the capsule leaves it

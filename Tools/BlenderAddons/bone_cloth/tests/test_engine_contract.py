@@ -175,6 +175,29 @@ def test_clip_layers():
     assert abs(f + 2.0) < 1e-12 and abs(l - 2.0) < 1e-12
 
 
+def test_leg_push_many():
+    rng = np.random.default_rng(3)
+    for _ in range(40):
+        start = rng.normal(size=3) * 0.1
+        end = start + np.array([0.0, 0.1, -0.5]) + rng.normal(size=3) * 0.05
+        low = np.array([0.0, 0.0, 0.0])
+        up = np.array([0.0, 0.0, 1.0])
+        pts = rng.normal(size=(30, 3)) * 0.2
+        allow = rng.uniform(0.0, 0.05, 30)
+        allow[::7] = np.nan
+        start2, end2 = start * np.array([-1.0, 1.0, 1.0]), end * np.array([-1.0, 1.0, 1.0])
+        allow2 = np.where(rng.uniform(size=30) < 0.2, np.nan, allow)
+        pushed, to = ec.leg_push_many(pts, np.array([start, start2]), np.array([end, end2]), [0.12, 0.1], [0.08, 0.07],
+                                      low, up, np.array([allow, allow2]))
+        for k, (s_, e_, a0, a1, al) in enumerate(((start, end, 0.12, 0.08, allow), (start2, end2, 0.1, 0.07, allow2))):
+            for i in range(30):
+                want = None if np.isnan(al[i]) else ec.leg_push(pts[i], s_, e_, a0, a1, low, up, al[i])
+                assert (want is not None) == bool(pushed[k, i]), (k, i, want, pushed[k, i])
+                if want is not None:
+                    assert np.allclose(want, to[k, i], atol=1e-9), (want, to[k, i])
+    print("ok test_leg_push_many")
+
+
 def test_sample_pair():
     assert ec.sample_pair(0.0) == (0, 1, 0.0)
     lower, upper, t = ec.sample_pair(1.0)

@@ -1216,6 +1216,18 @@ a front wind carries the side panels round with the front ones (Frame.carry, SID
 strongest straight to the side, none at the back): 18 -> 5 in that pose, the hem now flows out as one flare. Side
 wind (windLeft frame 2: 8) and the rest are unchanged.
 
+Spinning (preview Spin, spinOpen 1): the layers stack - the front wind (a spin's headwind) blows the front panels round
+to MAX_AZIMUTH, then the turn clip opens the far front panel again (0.8 of the Open pose) and turns everything 16 degrees:
+the front hems ended 138 degrees round the body, behind the side and back cloth (10 of 81 hem vertices under it, 216
+triangles flipped over their rest normal). tests/test_spin.py measures it over a 720 deg/s spin. Changed: the turn opens
+the far front panel 0.3 (TURN_OPEN: the spin brings the wind anyway), the side carry is the front's whole swing
+(SIDE_CARRY 1.0) and MAX_AZIMUTH is 100 degrees: 2 of 81 under, 127 flipped, hems 123 degrees round. Only the front
+panels' far side matters; other clips and the player coat's static tests are unchanged.
+
+Preview speed (Blender 5.1, 36 cloth bones): 33 ms a step, 70% in the thigh push called once per probe and leg. leg_push_many
+does all probes against all legs in one call (checked against leg_push in test_engine_contract): 12 ms, 14 ms a frame with
+Blender's own update. tests/profile_sim.py times and profiles it.
+
 Only colliders the cloth covers (collider `covers`, set on the auto leg capsules) do this. Arm capsules first got it
 too (every non-surface collider) and the jacket exploded: the arms hang outside the jacket, so the cloth between arm
 and body was thrown across them. Other colliders keep the plain tip push. With bones inside the body that push does

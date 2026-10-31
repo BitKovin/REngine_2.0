@@ -22,8 +22,10 @@ OPEN_TOP = 0.6                    # ...reaching the full swing this far down the
 MIN_PROFILE = math.radians(5.0)   # a panel that turns less than this in the reference takes its profile from its length
 BEYOND_OPEN = 0.3                 # a front panel blown further than the Open pose: how evenly the extra swing spreads up
                                   # the panel (the reference's own spread is 1; lower takes the chest along)
-SIDE_CARRY = 0.5                  # a front wind carries the side panels round this share of the way the front panels swing
-MAX_AZIMUTH = math.radians(110.0)  # a front panel is never blown further round the body than this (90: straight to the side)
+FLARE_SCALE = 1.0                 # the front wind's hem flare, as a share of the hem lift
+TURN_OPEN = 0.3                   # a turn opens its far front panel this share of the Open pose (a spin brings a front wind too)
+SIDE_CARRY = 1.0                  # a front wind carries the side panels round this share of the way the front panels swing
+MAX_AZIMUTH = math.radians(100.0)  # a front panel is never blown further round the body than this (90: straight to the side)
 FLARE_FROM = 0.2                  # a front panel's hem flare starts this far down the panel and grows to the hem
 
 
@@ -163,7 +165,7 @@ def frame_params(gen, key, step, side):
     if key in ("windRight", "turnRight"):           # the left ones mirrored
         return frame_params(gen, key.replace("Right", "Left"), step, -side).mirrored()
     if key == "windFront":                          # opens, then the whole jacket lifts back as one: front and back alike
-        return (Frame(gen.blow_back, 1.0, 1.6 * lift, 1.6 * lift, BACKWARD, flare=lift, carry=SIDE_CARRY) if full
+        return (Frame(gen.blow_back, 1.0, 1.6 * lift, 1.6 * lift, BACKWARD, flare=lift * FLARE_SCALE, carry=SIDE_CARRY) if full
                 else Frame(1.0, 1.0, carry=0.7 * SIDE_CARRY))
     if key == "windBack":                           # subtle (after a hand-made one): the back is pressed on, the front
         k = 1.0 if full else 0.5                    # panels close a little and their hems tilt out
@@ -177,7 +179,7 @@ def frame_params(gen, key, step, side):
         k = 1.0 if full else 0.5                    # with the body, the right front panel opens and flies out
         if side > 0:
             return Frame(0.0, 0.4 * k, 0.0, 0.0, None, 0.0, 0.45 * sweep * k)
-        return Frame(0.8 * k, 0.4 * k, 1.3 * turn * k, 0.0, None, 0.0, 0.45 * sweep * k)
+        return Frame(TURN_OPEN * k, 0.4 * k, 1.3 * turn * k, 0.0, None, 0.0, 0.45 * sweep * k)
     raise KeyError(key)
 
 

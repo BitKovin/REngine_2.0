@@ -150,6 +150,8 @@ class Joint:
         self.follow, self.max_angle = follow, max_angle
         self.probes = []          # (position in the bone's frame, ignore mask)
         self.leg_probes = []      # (position in the bone's frame, per collider how deep it may go into that leg)
+        self.leg_local = np.zeros((0, 3))     # the same as arrays: positions (K, 3) and depths (K, colliders), nan: left alone
+        self.leg_allow = np.zeros((0, 0))
         self.along = 0.0
         self.anchors = []         # windowed trailing: (time, where the tail would hang)
         self.lag = np.zeros(3)
@@ -237,6 +239,9 @@ class ClothSim:
                     j.leg_probes = ([((to_bone @ np.append(q, 1.0))[:3],
                                      ec.leg_allowance(q, rest_caps, self.covers, low, axis_dir))
                                     for q in list(picked) + [tail]] if any(self.covers) else [])
+                    if j.leg_probes:
+                        j.leg_local = np.array([p_[0] for p_ in j.leg_probes])
+                        j.leg_allow = np.array([[np.nan if a_ is None else a_ for a_ in p_[1]] for p_ in j.leg_probes])
         # the body bones the roots hang from and their ancestors: the spin is read from them
         carry = set()
         for root in self.roots:
@@ -494,23 +499,29 @@ class ClothSim:
                 # posed) kept on the legs' outer side, turning this joint by its share of each push - the joints from
                 # here to the probe's own split it, so the strip bends over a thigh along its length
                 legs = [c for c in range(len(cs)) if self.covers[c]]
-                if legs and collision > 0.0 and any(m.leg_probes for m in st.joints[k:]):
+                if legs and collision > 0.0 and any(len(m.leg_local) for m in st.joints[k:]):
                     to_k = np.linalg.inv(self.M[j.bone])
-                    pts = [((to_k @ (self.M[m.bone] @ np.append(local, 1.0)))[:3], allowance, n + 1)
-                           for n, m in enumerate(st.joints[k:]) for local, allowance in m.leg_probes]
+                    below = [(n + 1, m) for n, m in enumerate(st.joints[k:]) if len(m.leg_local)]
+                    local_all = np.concatenate([m.leg_local @ (to_k @ self.M[m.bone])[:3, :3].T
+                                                + (to_k @ self.M[m.bone])[:3, 3] for _, m in below])
+                    allow_all = np.concatenate([m.leg_allow for _, m in below])
+                    joints_all = np.concatenate([np.full(len(m.leg_local), float(n)) for n, m in below])
+                    leg_a = np.array([cs[c][0] for c in legs])
+                    leg_b = np.array([cs[c][1] for c in legs])
+                    leg_r0 = np.array([cs[c][2] for c in legs])
+                    leg_r1 = np.array([cs[c][3] for c in legs])
+                    allow_legs = allow_all[:, legs].T
                     for _ in range(ec.LEG_ITERATIONS):
-                        deepest, probe_from, probe_to, share = 0.0, None, None, 1.0
-                        for local, allowance, joints in pts:
-                            point = head + j.basis @ local
-                            for c in legs:
-                                if allowance[c] is None:
-                                    continue
-                                a, b, r0, r1, _ = cs[c]
-                                to = ec.leg_push(point, a, b, r0, r1, axis_low, axis_dir, allowance[c])
-                                if to is not None and float(np.linalg.norm(to - point)) > deepest:
-                                    deepest, probe_from, probe_to = float(np.linalg.norm(to - point)), point - head, to - head
-                                    share = collision / joints
-                        if probe_from is None or np.dot(probe_from, probe_from) < 1e-12 or np.dot(probe_to, probe_to) < 1e-12:
+                        points = head + local_all @ j.basis.T
+                        pushed, to = ec.leg_push_many(points, leg_a, leg_b, leg_r0, leg_r1, axis_low, axis_dir, allow_legs)
+                        if not pushed.any():
+                            break
+                        dist = np.where(pushed, np.linalg.norm(to - points[None], axis=2), -1.0)
+                        li, i = np.unravel_index(int(np.argmax(dist)), dist.shape)
+                        if dist[li, i] <= 0.0:
+                            break
+                        probe_from, probe_to, share = points[i] - head, to[li, i] - head, collision / joints_all[i]
+                        if np.dot(probe_from, probe_from) < 1e-12 or np.dot(probe_to, probe_to) < 1e-12:
                             break
                         a_, b_ = probe_from / np.linalg.norm(probe_from), probe_to / np.linalg.norm(probe_to)
                         axis = np.cross(a_, b_)
