@@ -38,7 +38,7 @@ bool UiBilboardAtlas::TryAllocate(ivec2 reqSize, BillboardAllocation& outAlloc)
 {
     for (size_t i = 0; i < freeRects.size(); ++i)
     {
-        FreeRect& fr = freeRects[i];
+        const FreeRect fr = freeRects[i];   // by value: the push_backs below can reallocate freeRects
         if (reqSize.x <= fr.w && reqSize.y <= fr.h)
         {
             int x = fr.x;

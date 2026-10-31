@@ -56,7 +56,13 @@ public:
 
     static void DestroyAllObstacles()
     {
-        for (auto obstacle : obstacles)
+        // RemoveObstacle erases from obstacles, so walk a copy
+        std::vector<dtObstacleRef> toRemove;
+        {
+            std::lock_guard<std::recursive_mutex> lock(mainLock);
+            toRemove = obstacles;
+        }
+        for (auto obstacle : toRemove)
         {
             RemoveObstacle(obstacle);
         }
