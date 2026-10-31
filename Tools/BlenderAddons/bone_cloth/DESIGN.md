@@ -1195,6 +1195,13 @@ didn't converge (one probe each, ~20 per strip): 8 (LEG_ITERATIONS). tests/test_
 (crouch_l), 9.6 -> 7.7 (crouch_r); renders show the front and sides lying over the thighs. What's left is between
 probes (12 probes per joint did not change it).
 
+Front wind, last frame (new jacket 'jaket', no hand-made Open pose, so the generator's own hinge): the hems of the front
+panels curled in at the sides (cloth bunched at x=0.30 m) where the artist's edit fans them out (0.42 m, 6 cm higher).
+Fitting the artist's frame 3 against the generator (tail positions, 12 bones): the missing part is an outward tilt of
+the lower panel about the panel's own outward axis AS IT STANDS ONCE OPENED (the rest axis, `-tangent`, tucks the hem in
+or forward: 7 cm worse), growing from 20% down the panel to the hem, about as large as the hem lift (Frame.flare = lift;
+FLARE_FROM). Mean tail error 6.9 -> 1.7 cm (max 13.7 -> 3.3). Only windFront's last frame has it; the others unchanged.
+
 Only colliders the cloth covers (collider `covers`, set on the auto leg capsules) do this. Arm capsules first got it
 too (every non-surface collider) and the jacket exploded: the arms hang outside the jacket, so the cloth between arm
 and body was thrown across them. Other colliders keep the plain tip push. With bones inside the body that push does

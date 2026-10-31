@@ -22,6 +22,7 @@ OPEN_TOP = 0.6                    # ...reaching the full swing this far down the
 MIN_PROFILE = math.radians(5.0)   # a panel that turns less than this in the reference takes its profile from its length
 BEYOND_OPEN = 0.3                 # a front panel blown further than the Open pose: how evenly the extra swing spreads up
                                   # the panel (the reference's own spread is 1; lower takes the chest along)
+FLARE_FROM = 0.2                  # a front panel's hem flare starts this far down the panel and grows to the hem
 
 
 def _rotation(axis, angle):
@@ -122,19 +123,21 @@ class Frame:
     panels' flare as shares of the reference Open pose. lift_front / lift_back: radians the hems lift, toward `lift_to`
     (forward, left) in the body - where the air goes - or straight out from the body when it is None (a turn). push:
     radians every panel moves round the body toward the left (the air's way); spin: radians they all turn round it
-    (the cloth trailing a turn)."""
+    (the cloth trailing a turn). flare: radians the front panels' hems tilt out from the body, about the panel's own
+    outward axis as it stands once opened (the lower panel fanning out wide instead of tucking in at the sides)."""
 
     def __init__(self, open=1.0, back=1.0, lift_front=0.0, lift_back=0.0, lift_to=None, push=0.0, spin=0.0,
-                 blow_back=1.0, roll=None):
+                 blow_back=1.0, roll=None, flare=0.0):
         self.open, self.back, self.lift_front, self.lift_back = open, back, lift_front, lift_back
         self.lift_to, self.push, self.spin = lift_to, push, spin
         self.blow_back = blow_back      # the furthest a front panel may swing round, as a share of the Open pose
         self.roll = roll                # the share of the Open pose's roll; None: as the opening (at most 1)
+        self.flare = flare
 
     def mirrored(self):
         to = None if self.lift_to is None else (self.lift_to[0], -self.lift_to[1])
         return Frame(self.open, self.back, self.lift_front, self.lift_back, to, -self.push, -self.spin, self.blow_back,
-                     self.roll)
+                     self.roll, self.flare)
 
 
 BACKWARD, FORWARD, RIGHTWARD = (-1.0, 0.0), (1.0, 0.0), (0.0, -1.0)
@@ -147,7 +150,8 @@ def frame_params(gen, key, step, side):
     if key in ("windRight", "turnRight"):           # the left ones mirrored
         return frame_params(gen, key.replace("Right", "Left"), step, -side).mirrored()
     if key == "windFront":                          # opens, then the whole jacket lifts back as one: front and back alike
-        return Frame(gen.blow_back, 1.0, 1.6 * lift, 1.6 * lift, BACKWARD) if full else Frame(1.0, 1.0)
+        return (Frame(gen.blow_back, 1.0, 1.6 * lift, 1.6 * lift, BACKWARD, flare=lift) if full
+                else Frame(1.0, 1.0))
     if key == "windBack":                           # subtle (after a hand-made one): the back is pressed on, the front
         k = 1.0 if full else 0.5                    # panels close a little and their hems tilt out
         return Frame(-0.15 * k, 0.0, 0.42 * lift * k, 0.0, None, roll=-0.34 * k)
@@ -206,8 +210,14 @@ def strip_turns(ref, frame, theta, f):
             sign = 1.0 if peak > 0.0 else -1.0
             further = sign * min(sign * further, max(room, 0.0))
         # the lift spreads down every panel alike (h: how far down the panel), so panels lift together at their seams
-        turns.append(_rotation(lift_axis, lift * h) @ _rotation(up, further) @ _from_vector(swing)
-                     @ _rotation(up, min(shape, 1.0) * yaw))
+        turn = (_rotation(lift_axis, lift * h) @ _rotation(up, further) @ _from_vector(swing)
+                @ _rotation(up, min(shape, 1.0) * yaw))
+        if front and f.flare:
+            # the hem fans out: tilted away from the body about the panel's own outward axis once it has swung open
+            # (its rest axis would tuck the hem in or push it forward, the panel stands turned by now)
+            axis = _rotation(up, min(shape, 1.0) * yaw) @ -tangent
+            turn = _rotation(axis, f.flare * max(0.0, (h - FLARE_FROM) / (1.0 - FLARE_FROM))) @ turn
+        turns.append(turn)
     return turns, shape
 
 
