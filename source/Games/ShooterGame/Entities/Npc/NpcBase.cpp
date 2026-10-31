@@ -2161,7 +2161,7 @@ void NpcBase::UpdateAnimations(bool forceFullUpdate)
 
 		auto pose = animator->GetResultPose();
 
-		mesh->PasteAnimationPose(pose);
+		mesh->PasteAnimationPoseWithCloth(pose, Time::DeltaTime);
 	}
 	//if (forceFullUpdate == false)
 		//animator->UsePrecomputedFrames = true;
@@ -2179,7 +2179,7 @@ void NpcBase::LoadAssets()
 	mesh->Masked = true;
 	//mesh->Transparent = true;
 
-	mesh->LoadMetaFromFile("GameData/models/npc/base.glb.skmm");
+	//mesh->LoadMetaFromFile("GameData/models/npc/base.glb.skmm");
 	mesh->CreateHitboxes(this);
 
 	weaponMesh->LoadFromFile("GameData/models/weapons/glock.glb");
