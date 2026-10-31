@@ -113,6 +113,15 @@ public:
 
 	static void CloseLevel();
 
+	// Engine shutdown: retire the current level the way OpenLevel retires the previous one (call after CloseLevel)
+	static void DestroyCurrent()
+	{
+		if (Current == nullptr) return;
+		Current->Dispose();
+		delete(Current);
+		Current = nullptr;
+	}
+
 	static Level* OpenLevel(string filePath);
 
 	static void LoadLevelFromFile(string filePath)

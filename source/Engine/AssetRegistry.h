@@ -106,7 +106,8 @@ public:
     // hardware for a fixed byte budget to be portable.
     static inline float UploadBudgetMs = 0.5f;
 
-    static void ClearMemory();
+    // restartLoader = false for engine shutdown: free everything without starting a new loader thread
+    static void ClearMemory(bool restartLoader = true);
     static void ClearUnusedMemory();
     static bool IsAssetUsed(std::string filename);
 

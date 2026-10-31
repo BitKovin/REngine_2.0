@@ -79,6 +79,12 @@ EngineMain::~EngineMain()
     ParticleEmitter::DestroyBillboardVao();
     delete(RmlUiContext::Main);
     RmlUiContext::Main = nullptr;
+
+    // The last level (its BSP data, entities' resources) and every cached asset are still alive after CloseLevel;
+    // free them here, while bgfx is still up, the same way OpenLevel retires the previous level.
+    Level::DestroyCurrent();
+    AssetRegistry::ClearMemory(false);
+
     ShaderManager::Shutdown();
 
     delete GameUpdateSingleThreadPool;

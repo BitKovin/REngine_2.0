@@ -18,13 +18,14 @@ std::mutex AssetRegistry::uploadQueueMutex;
 std::deque<AssetRegistry::PendingUpload> AssetRegistry::uploadQueue;
 std::atomic<uint64_t> AssetRegistry::frameCounter{ 0 };
 
-void AssetRegistry::ClearMemory()
+void AssetRegistry::ClearMemory(bool restartLoader)
 {
 	std::lock_guard<std::recursive_mutex> lock(cacheMutex);
 
 
 	StopLoaderThread();
-	StartLoaderThread();
+	if (restartLoader)
+		StartLoaderThread();
 
 	// Anything the Loader thread already finished but hadn't been applied
 	// yet is now stale too - same reason.
