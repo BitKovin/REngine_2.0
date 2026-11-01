@@ -1,5 +1,6 @@
 #include "Bullet.h"
 
+#include <algorithm>
 #include <Physics.h>
 
 #include <Particle/GlobalParticleSystem.hpp>
@@ -9,6 +10,9 @@
 #include "../../Player.hpp"
 
 #include "../../../Enemy/IEnemy.h"
+#include "../../../Npc/NpcBase.h"
+#include "../../../Npc/Combat/CombatBehaviorBase.h"
+#include "../../../Npc/Combat/CombatTuning.h"
 REGISTER_ENTITY(Bullet, "bullet")
 
 Bullet::Bullet()
@@ -79,11 +83,44 @@ void Bullet::AsyncUpdate() {
 	}
 }
 
+// A bullet that passes close to an NPC without hitting it pins that NPC down
+// (COMBAT_AI_DESIGN.md §13.1). Runs on the main thread: it writes other NPCs.
+void Bullet::SuppressNearbyNpcs()
+{
+	constexpr float NearMissRadius = 1.5f;
+
+	const vec3 segment = Position - oldPos;
+	const float lengthSquared = glm::dot(segment, segment);
+	if (lengthSquared < 0.000001f) return;
+
+	const vec3 middle = (oldPos + Position) * 0.5f;
+	const float reach = std::sqrt(lengthSquared) * 0.5f + NearMissRadius;
+
+	for (const auto& observer : AiPerceptionSystem::GetObserversInRadius(middle, reach))
+	{
+		NpcBase* npc = dynamic_cast<NpcBase*>(observer->ownerPtr);
+
+		if (!npc || npc == owner || npc->GetFractionTag() == OwnerTag) continue;
+		if (asyncHit.hasHit && asyncHit.entity == npc) continue; // a hit is the damage code's business
+
+		if (std::find(suppressedNpcIds.begin(), suppressedNpcIds.end(), npc->Id) != suppressedNpcIds.end()) continue;
+
+		const float along = glm::clamp(glm::dot(npc->Position - oldPos, segment) / lengthSquared, 0.0f, 1.0f);
+		const vec3 closest = oldPos + segment * along;
+
+		if (glm::distance(closest, npc->Position) >= NearMissRadius) continue;
+
+		npc->OnNearMiss(owner);
+		suppressedNpcIds.push_back(npc->Id);
+	}
+}
+
 void Bullet::LateUpdate()
 {
 
 	if (isOwned)
 	{
+		SuppressNearbyNpcs();
 
 		if (asyncHit.hasHit)
 		{

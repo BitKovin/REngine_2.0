@@ -1,5 +1,8 @@
 #include "NpcAnimatorBase.h"
 
+#include <cmath>
+#include <limits>
+
 // ── Asset loading ───────────────────────────────────────────────────────────
 
 void NpcAnimatorBase::LoadAssets()
@@ -48,14 +51,87 @@ void NpcAnimatorBase::Update()
 	}
 
 	// ── Locomotion layer state ──────────────────────────────────────────────
-	std::string desiredLocoAnim = scared ? "scared" : "idle";
-	if (movementSpeed > 1) desiredLocoAnim = "walk";
-	if (movementSpeed > 3) desiredLocoAnim = "run";
+	const std::string desiredLocoAnim = PickLocomotionAnimation(false);
 
 	if (locomotion->currentAnimationData->animationName != desiredLocoAnim)
 		locomotion->PlayAnimation(desiredLocoAnim, true, 0.2f);
 
 	Animator::Update();
+}
+
+// ── Locomotion clip selection ───────────────────────────────────────────────
+
+// The sector the body is moving in relative to its facing. The current sector
+// is kept until the movement angle leaves it by SectorStickiness, so a
+// strafe that wobbles around 45 degrees doesn't flicker between clips.
+void NpcAnimatorBase::UpdateMoveSector()
+{
+	constexpr float SectorStickiness = 10.0f; // degrees
+	constexpr float MinDirectionSpeed = 0.5f; // below this the sector is kept
+
+	if (std::abs(moveForward) + std::abs(moveRight) < MinDirectionSpeed) return;
+
+	const float angle = glm::degrees(std::atan2(moveRight, moveForward)); // 0 forward, +90 right
+
+	constexpr float centers[4] = { 0.0f, 90.0f, 180.0f, -90.0f }; // Forward, Right, Back, Left
+
+	MoveSector best = moveSector;
+	float bestDistance = std::numeric_limits<float>::max();
+
+	for (int i = 0; i < 4; ++i)
+	{
+		float distance = std::abs(angle - centers[i]);
+		if (distance > 180.0f) distance = 360.0f - distance;
+
+		if (static_cast<MoveSector>(i) == moveSector) distance -= SectorStickiness;
+
+		if (distance < bestDistance)
+		{
+			bestDistance = distance;
+			best = static_cast<MoveSector>(i);
+		}
+	}
+
+	moveSector = best;
+}
+
+std::string NpcAnimatorBase::PickLocomotionAnimation(bool swordVariants)
+{
+	UpdateMoveSector();
+
+	const bool moving = movementSpeed > 1;
+	const bool running = movementSpeed > 3;
+
+	if (crouched)
+	{
+		if (!moving) return "crouch_idle";
+
+		switch (moveSector)
+		{
+		case MoveSector::Right: return "crouch_r";
+		case MoveSector::Left:  return "crouch_l";
+		case MoveSector::Back:  return "crouch_b";
+		default:                return "crouch_f";
+		}
+	}
+
+	if (!moving)
+	{
+		if (scared) return "scared";
+		return swordVariants ? "sword_idle" : "idle";
+	}
+
+	if (swordVariants && !running) return "sword_walk";
+
+	const char* gait = running ? "run" : "walk";
+
+	switch (moveSector)
+	{
+	case MoveSector::Right: return std::string(gait) + "_r";
+	case MoveSector::Left:  return std::string(gait) + "_l";
+	case MoveSector::Back:  return std::string(gait) + "_b";
+	default:                return gait;
+	}
 }
 
 // ── Task animation ──────────────────────────────────────────────────────────

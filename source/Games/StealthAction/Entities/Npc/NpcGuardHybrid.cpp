@@ -1,5 +1,7 @@
 #include "NpcGuardHybrid.h"
 
+#include "Combat/CombatBehaviors.h"
+
 // ── Constructor / lifecycle ──────────────────────────────────────────────────
 
 NpcGuardHybrid::NpcGuardHybrid()
@@ -42,6 +44,18 @@ void NpcGuardHybrid::UpdateCombatMode()
 	if (rangedDisabled)
 	{
 		SwitchToMode(CombatMode::Melee);
+		return;
+	}
+
+	if (forcedMode == ForcedMode::Melee)
+	{
+		SwitchToMode(CombatMode::Melee);
+		return;
+	}
+
+	if (forcedMode == ForcedMode::Ranged)
+	{
+		SwitchToMode(CombatMode::Ranged);
 		return;
 	}
 
@@ -119,21 +133,9 @@ void NpcGuardHybrid::LoadAssets()
 
 // ── Entity overrides ──────────────────────────────────────────────────────────
 
-void NpcGuardHybrid::UpdateTargetAttack()
+std::shared_ptr<CombatBehaviorBase> NpcGuardHybrid::CreateCombatBehavior()
 {
-	// Evaluate distance and flip mode before running the active combat logic
-	UpdateCombatMode();
-
-	if (currentMode == CombatMode::Melee)
-	{
-		// Full melee state machine (blocking, parry, feint, etc.)
-		NpcGuardMelee::UpdateTargetAttack();
-	}
-	else
-	{
-		// Standard ranged attack logic from NpcBase (strafing, projectiles)
-		NpcBase::UpdateTargetAttack();
-	}
+	return std::make_shared<HybridCombatBehavior>(this);
 }
 
 vec3 NpcGuardHybrid::FindAttackLocation()

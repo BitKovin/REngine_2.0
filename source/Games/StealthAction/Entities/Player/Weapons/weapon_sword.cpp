@@ -10,6 +10,8 @@ class weapon_sword : public Weapon
 {
 public:
 
+	bool CanBlockOrParry() const override { return true; }
+
 	SkeletalMesh* viewmodel = nullptr;
 	SkeletalMesh* arms = nullptr;
 

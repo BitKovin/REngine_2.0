@@ -587,11 +587,11 @@ mat4 SkeletalMesh::GetWorldMatrixNoOffsets()
 
 mat4 SkeletalMesh::GetBoneMatrix(const string& boneName)
 {
-	if (model == nullptr) return mat4();
+	if (model == nullptr) return glm::identity<mat4>();
 
 	auto res = model->boneInfoMap.find(boneName);
 
-	if(res == model->boneInfoMap.end()) return mat4();
+	if(res == model->boneInfoMap.end()) return glm::identity<mat4>();
 
 	int id = res->second.id;
 

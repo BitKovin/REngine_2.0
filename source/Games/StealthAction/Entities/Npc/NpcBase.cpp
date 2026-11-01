@@ -36,6 +36,11 @@
 #include "Investigations/WeaponFireInvestigation.h"
 #include "Investigations/LookAtInvestigation.h"
 #include "Investigations/AttackedInvestigation.h"
+#include "Combat/CombatBehaviors.h"
+#include "Combat/CombatCoordinator.h"
+#include "Combat/CombatThreat.h"
+#include "../Enemy/Enemies/NpcHelper.h"
+#include "Combat/CombatTuning.h"
 
 #include <tracy/tracy/Tracy.hpp>
 
@@ -46,7 +51,7 @@ float NpcBase::GetDetectionSpeed(Crime crime) const
 	case Crime::NearBody:
 		return 5.0f;
 	case Crime::WeaponFireAttack:
-		return 3.0f; 
+		return 3.0f;
 	case Crime::WeaponFireSound:
 		return 1.5f;
 	case Crime::WeaponHolding:
@@ -115,13 +120,12 @@ NpcBase::NpcBase()
 
 NpcBase::~NpcBase()
 {
-	if(controller)
+	if (controller)
 		delete controller;
 }
 
 void NpcBase::DoInterpolatedAnimationUpdate()
-{
-}
+{}
 
 void NpcBase::ProcessAnimationEvent(AnimationEvent& event)
 {
@@ -171,7 +175,7 @@ void NpcBase::Start()
 	observer = AiPerceptionSystem::CreateObserver(Position + vec3(0, 0.7, 0), movingDirection, 90);
 	observer->owner = Id;
 	observer->ownerPtr = this;
-
+	observer->maxDistance = 150;
 	pathFollow.reachedTarget = true;
 
 	StartTask(defaultTask);
@@ -180,13 +184,23 @@ void NpcBase::Start()
 
 	controller = new CharacterController();
 	controller->movementQuality = CharacterControllerMovementQuality::NpcGeneric;
-	controller->Init(this, Position, 0.45f,1.8f, 90);
+	controller->Init(this, Position, 0.45f, 1.8f, 90);
 
 	mesh->Position = Position - vec3(0, controller->height / 2.0f, 0);
 	mesh->Rotation = Rotation;
 
 	pathFollow.allowPartialPath = true;
 
+	if (!combatBehavior)
+		combatBehavior = CreateCombatBehavior();
+
+}
+
+std::shared_ptr<CombatBehaviorBase> NpcBase::CreateCombatBehavior()
+{
+	if (npcType != NpcType::Guard) return nullptr;
+
+	return std::make_shared<RangedCombatBehavior>(this);
 }
 
 
@@ -236,6 +250,24 @@ void NpcBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bon
 	Damage *= mesh->GetHitboxDamageMultiplier(bone);
 	Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
 
+	if (DamageCauser)
+	{
+		lastAttackerId = DamageCauser->Id;
+		lastAttackedTime = Time::GameTime;
+	}
+
+	if (combatBehavior)
+		combatBehavior->OnDamaged(Damage);
+
+	// Shot by the target it is fighting: it knows where that came from.
+	if (DamageCauser && DamageCauser->Id == target_id)
+	{
+		ReceiveSquadSighting(target_id, DamageCauser->Position, true);
+
+		if (combatBehavior)
+			combatBehavior->OnHitByTarget();
+	}
+
 	if (mesh->GetHitboxDamageMultiplier(bone) > 1.1f && false)
 	{
 		Time::AddTimeScaleEffect(0.3f, 0.15f, true, "hit_slow");
@@ -251,7 +283,7 @@ void NpcBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bon
 	if (dead || isStunned()) return;
 
 	std::string causerId = DamageCauser ? DamageCauser->Id : "";
-	
+
 
 	if (target_follow && target_id == causerId)
 	{
@@ -259,7 +291,7 @@ void NpcBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bon
 	}
 
 	TryStartInvestigation(InvestigationReason::Attacked, DamageCauser ? DamageCauser->Position : Point + Direction * 1.0f, causerId);
-	
+
 
 
 	auto causerObserver = AiPerceptionSystem::GetObserverFromEntityId(causerId);
@@ -283,7 +315,7 @@ void NpcBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bon
 			}
 		}
 	}
-	
+
 
 }
 
@@ -388,7 +420,7 @@ void NpcBase::StartReturnFromRagdoll()
 		Logger::Error("GetFromRagdoll animation not found!");
 		assert(false);
 	}
-		
+
 
 	auto pelvisTransformWorld = MathHelper::DecomposeMatrix(mesh->GetBoneMatrixWorld("pelvis"));
 
@@ -477,7 +509,7 @@ void NpcBase::UpdateReturnFromRagdoll()
 
 		mesh->Position += targetPelvisWorldPos - animPelvisWorldPos;
 	}
-	
+
 
 }
 
@@ -519,6 +551,8 @@ void NpcBase::PlayPhrace(std::string name)
 void NpcBase::Update()
 {
 	Entity::Update();
+
+	CombatCoordinator::Step();
 
 	UpdateTask();
 
@@ -624,13 +658,29 @@ void NpcBase::AsyncUpdate()
 
 	vec3 curMove = MathHelper::XZ(controller->GetVelocity());
 
-	float distanceToTarget = length(target_lastSeenPosition - Position);
+	// What the NPC keeps looking at instead of its walking direction (combat only).
+	bool lockAtTarget = false;
+	vec3 lockLookVector = vec3();
 
-	bool lockAtTarget =
-		((target_attack && target_sees && target_attackInRange && npcType == NpcType::Guard)
-			|| (target_follow && target_sees && length(curMove) < 1) || (target_follow && distanceToTarget < 2.5f));
+	if (combatMoveOrder.active)
+	{
+		if (combatMoveOrder.facing == NpcFacing::Point)
+		{
+			lockAtTarget = true;
+			lockLookVector = ResolveCombatLook(combatMoveOrder.lookAt) - Position;
+		}
+	}
 
-	if(DoingTask)
+	if (combatMoveOrder.active ? combatMoveOrder.facing == NpcFacing::Target : ShouldFaceTargetInCombat())
+	{
+		if (Level::Current->FindEntityWithId(target_id))
+		{
+			lockAtTarget = true;
+			lockLookVector = ResolveCombatLook(GetCombatLookPoint()) - Position;
+		}
+	}
+
+	if (DoingTask)
 		lockAtTarget = false;
 
 	if (isStunned() || mesh->InRagdoll)
@@ -654,9 +704,7 @@ void NpcBase::AsyncUpdate()
 		{
 			ZoneScopedN("RootMotion LockAtTarget");
 
-			auto targetRef = Level::Current->FindEntityWithId(target_id);
-
-			desiredLookVector = targetRef->Position - Position;
+			desiredLookVector = lockLookVector;
 
 			movingDirection = MathHelper::Interp(
 				movingDirection,
@@ -758,9 +806,7 @@ void NpcBase::AsyncUpdate()
 		{
 			ZoneScopedN("LockAtTarget");
 
-			auto targetRef = Level::Current->FindEntityWithId(target_id);
-
-			desiredLookVector = targetRef->Position - Position;
+			desiredLookVector = lockLookVector;
 
 			movingDirection = MathHelper::Interp(
 				movingDirection,
@@ -881,6 +927,9 @@ void NpcBase::UpdateWeaponMesh()
 }
 void NpcBase::LateUpdate()
 {
+	ApplyCombatStance();
+	ApplyPendingNpcMeleeEvents();
+
 	UpdateObservationTarget();
 
 	for (auto npc : shareKnowlageWith)
@@ -982,11 +1031,16 @@ void NpcBase::UpdateBT()
 	behaviorTree.GetBlackboard().SetValue("target_follow", target_follow);
 	behaviorTree.GetBlackboard().SetValue("target_id", target_id);
 	behaviorTree.GetBlackboard().SetValue("target_sees", target_sees);
+	behaviorTree.GetBlackboard().SetValue("target_inContact", IsTargetInContact());
 	behaviorTree.GetBlackboard().SetValue("target_knowsLocation", target_sees || target_stopUpdateLastSeenPositionDelay.Wait());
 	behaviorTree.GetBlackboard().SetValue("target_lastSeenPosition", target_lastSeenPosition);
 	behaviorTree.GetBlackboard().SetValue("target_underArrest", target_underArrest);
 	behaviorTree.GetBlackboard().SetValue("target_attack", target_attack);
 	behaviorTree.GetBlackboard().SetValue("target_attackInRange", target_attackInRange);
+
+	// The tree walks an out-of-range NPC straight at the target's last position;
+	// while the combat brain steers (attackPosition) it must not.
+	behaviorTree.GetBlackboard().SetValue("attack_skipApproach", target_attackInRange || CombatBrainSteers());
 
 	behaviorTree.GetBlackboard().SetValue("attackPosition", attackPosition);
 
@@ -1074,12 +1128,14 @@ void NpcBase::UpdateObserver()
 			auto& info = knownTargets[target->ownerId];
 			info.id = target->ownerId;
 
-			
+
 			info.sees = true;
-			
+
 
 			info.lastSeenPosition = target->position;
 			info.lastSeenTime = Time::GameTime;
+			info.lastLOSPosition = target->position;
+			info.lastLOSTime = Time::GameTime;
 		}
 
 		// skip targets we don't react to
@@ -1237,6 +1293,16 @@ void NpcBase::UpdateObserver()
 		}
 	}
 
+	// Its own ears: a target it is after that it can't see gives itself away by
+	// a sound (a shot): that is where it is now.
+	for (const HeardSound& sound : observer->heardSounds)
+	{
+		const auto it = knownTargets.find(sound.causerId);
+		if (it == knownTargets.end() || it->second.sees) continue;
+
+		ReceiveHeardTarget(sound.causerId, sound.position, true); // the mutex is recursive
+	}
+
 	// Per-target passive increases / decreases and forgetting
 	for (auto it = knownTargets.begin(); it != knownTargets.end(); )
 	{
@@ -1259,7 +1325,7 @@ void NpcBase::UpdateObserver()
 		{
 			float passive_speed = 0.65f;
 
-			if(currentInvestigation && currentInvestigation->reason == InvestigationReason::TargetSeen)
+			if (currentInvestigation && currentInvestigation->reason == InvestigationReason::TargetSeen)
 				passive_speed = 1.0f;
 
 			info.detection_progress = std::min(1.0f, info.detection_progress + passive_speed * Time::DeltaTimeF);
@@ -1271,8 +1337,8 @@ void NpcBase::UpdateObserver()
 				report_to_guard = true;
 			}
 		}
-		else if(
-			info.sees == false  
+		else if (
+			info.sees == false
 			|| (info.underArrest == false && info.lastMinCrime == Crime::None) //when we can forget a crime
 			)
 		{
@@ -1291,12 +1357,16 @@ void NpcBase::UpdateObserver()
 					shouldDecrease = !info.follow || (info.lastMinCrime == Crime::None && pathFollow.reachedTarget == true); //if not following or sees
 				}
 
-				
+
 			}
 			else
 			{
 				shouldDecrease = !info.follow && !info.sees;
 			}
+
+			// A target the squad is hunting behind cover must not be forgotten on its own.
+			if (shouldDecrease && HoldsCombatContactWith(info.id))
+				shouldDecrease = false;
 
 			if (shouldDecrease)
 			{
@@ -1345,12 +1415,13 @@ void NpcBase::UpdateObserver()
 
 void NpcBase::SelectPrimaryAndCopy()
 {
-	
+
 
 	std::string bestId = "";
 	Crime bestCrime = Crime::None;
 	float bestDist = std::numeric_limits<float>::max();
 	int bestPriority = -1; // Higher = more important
+	float bestThreat = 0.0f;
 
 
 	// Find the best target based on priority
@@ -1388,19 +1459,33 @@ void NpcBase::SelectPrimaryAndCopy()
 
 		float dist = distance(Position, info.lastSeenPosition);
 
+		// Between attackers a fighting NPC picks the biggest threat, not the nearest.
+		// The current target is favoured so it isn't swapped for a marginal difference.
+		const bool rankByThreat = combatBehavior && priority == 3;
+		float threat = 0.0f;
+
+		if (rankByThreat)
+		{
+			threat = CombatThreat::Score(this, info.id);
+
+			if (info.id == target_id && target_follow)
+				threat *= CombatThreat::SwitchFactor;
+		}
+
 		// Priority comparison: higher priority wins
 		if (priority > bestPriority ||
 			(priority == bestPriority && info.currentCrime < bestCrime) ||
-			(priority == bestPriority && info.currentCrime == bestCrime && dist < bestDist) ||
+			(priority == bestPriority && info.currentCrime == bestCrime && (rankByThreat ? threat > bestThreat : dist < bestDist)) ||
 			bestId.empty())
 		{
 			bestPriority = priority;
 			bestCrime = info.currentCrime;
 			bestId = pair.first;
 			bestDist = dist;
+			bestThreat = threat;
 		}
 	}
-	
+
 
 
 	if (bestId.empty())
@@ -1411,6 +1496,8 @@ void NpcBase::SelectPrimaryAndCopy()
 		target_lastSeenPosition = vec3();
 		target_stopUpdateLastSeenPositionDelay = Delay();
 		target_lastSeenTime = -1;
+		target_lastLOSPosition = vec3();
+		target_lastLOSTime = -1;
 		target_sees = false;
 		target_underArrest = false;
 		target_attack = false;
@@ -1427,6 +1514,8 @@ void NpcBase::SelectPrimaryAndCopy()
 		target_lastSeenPosition = info.lastSeenPosition;
 		target_stopUpdateLastSeenPositionDelay = info.stopUpdateLastSeenPositionDelay;
 		target_lastSeenTime = info.lastSeenTime;
+		target_lastLOSPosition = info.lastLOSTime >= 0 ? info.lastLOSPosition : info.lastSeenPosition;
+		target_lastLOSTime = info.lastLOSTime;
 		target_sees = info.seesAndDetected;
 		target_underArrest = info.underArrest;
 		target_attack = info.attack;
@@ -1435,7 +1524,7 @@ void NpcBase::SelectPrimaryAndCopy()
 		currentCrime = info.currentCrime;
 		detection_progress = info.detection_progress;
 	}
-	
+
 }
 
 bool NpcBase::IsNeutral(const std::shared_ptr<ObservationTarget>& target) const
@@ -1553,6 +1642,11 @@ void NpcBase::UpdateObservationTarget()
 
 void NpcBase::UpdateTargetFollow()
 {
+	// The combat brain writes a fresh order later this frame if it has a target.
+	combatMoveOrder = CombatMoveOrder();
+	weaponLowered = false;
+	weaponForcedAim = false;
+	aimOverrideActive = false;
 
 
 	if (observer)
@@ -1610,7 +1704,7 @@ void NpcBase::UpdateTargetFollow()
 		}
 
 	}
-	else if(target_attack == false && currentCrime == Crime::Trespassing)
+	else if (target_attack == false && currentCrime == Crime::Trespassing)
 	{
 
 	}
@@ -1659,6 +1753,188 @@ void NpcBase::UpdateTargetFollow()
 
 }
 
+vec3 NpcBase::GetCombatLookPoint() const
+{
+	if (combatBehavior && combatBehavior->IsEngaged())
+		return combatBehavior->BelievedTargetPosition();
+
+	if (target_sees)
+	{
+		if (Entity* targetRef = Level::Current->FindEntityWithId(target_id))
+			return targetRef->Position;
+	}
+
+	return target_lastLOSTime >= 0 ? target_lastLOSPosition : target_lastSeenPosition;
+}
+
+vec3 NpcBase::ResolveCombatLook(const vec3& point) const
+{
+	return combatBehavior && combatBehavior->IsEngaged() ? combatBehavior->LookPointFor(point) : point;
+}
+
+bool NpcBase::CombatBrainSteers() const
+{
+	return combatBehavior && combatBehavior->IsEngaged() && target_attack && IsTargetInContact();
+}
+
+bool NpcBase::IsTargetInContact() const
+{
+	return target_sees || (combatBehavior && combatBehavior->HoldsContact());
+}
+
+void NpcBase::AddSuppression(float amount)
+{
+	if (combatBehavior)
+		combatBehavior->AddSuppression(amount);
+}
+
+bool NpcBase::ShouldFaceTargetInCombat() const
+{
+	const vec3 curMove = controller ? MathHelper::XZ(controller->GetVelocity()) : vec3();
+	const float distanceToTarget = length(target_lastSeenPosition - Position);
+
+	// In contact, not just in sight: a moment without line of sight must not turn the NPC
+	// to face its walking direction while it shuffles around at its firing position.
+	return (target_attack && IsTargetInContact() && target_attackInRange && npcType == NpcType::Guard)
+		|| (target_follow && target_sees && length(curMove) < 1)
+		|| (target_follow && distanceToTarget < 2.5f);
+}
+
+CombatMoveOrder NpcBase::MakeDefaultCombatMoveOrder() const
+{
+	CombatMoveOrder order;
+	order.active = true;
+	order.speed = IsInAttackPosition() ? CombatTuning::Get().movement.strafeSpeed : CombatTuning::Get().movement.runSpeed;
+	order.facing = ShouldFaceTargetInCombat() ? NpcFacing::Target : NpcFacing::Movement;
+	return order;
+}
+
+void NpcBase::SetCombatMoveOrder(const CombatMoveOrder& order)
+{
+	combatMoveOrder = order;
+
+	if (order.active)
+		speed = order.speed;
+}
+
+// Stance changes rebuild the physics body, so they are applied here on the
+// main thread rather than from the brain's worker thread.
+void NpcBase::ApplyCombatStance()
+{
+	if (dead || !controller) return;
+	if (isStunned() || mesh->InRagdoll || returningFromRagdoll || stunnedRagdoll) return;
+
+	if (combatMoveOrder.stance == NpcStance::Crouched)
+		controller->Crouch();
+	else
+		controller->UnCrouch();
+}
+
+bool NpcBase::CanShove() const
+{
+	return !IsPlayingActionAnimation() && Time::GameTime >= nextShoveTime;
+}
+
+void NpcBase::PerformShove()
+{
+	PlayActionAnimation("sword_kick", false, 0.1f, 0.25f);
+
+	nextShoveTime = Time::GameTime + CombatTuning::Get().shove.cooldown;
+	attackDelay.AddDelay(GetActionAnimationRemainingTime());
+
+	// An NPC on the receiving end gets the same chance to block as against a sword.
+	if (dynamic_cast<NpcBase*>(Level::Current->FindEntityWithId(target_id)))
+		QueueMeleeWarning(target_id);
+}
+
+void NpcBase::HandleAnimationEvent(const AnimationEvent& event)
+{
+	if (event.eventName == "attack_kick")
+		DoShoveHit();
+}
+
+void NpcBase::DoShoveHit()
+{
+	const vec3 forward = MathHelper::GetForwardVector(mesh->Rotation);
+	const vec3 start = Position + vec3(0, 0.5f, 0);
+
+	const auto hit = Physics::SphereTrace(start, start + forward * 1.2f, 0.35f, BodyType::GroupHitTest, {}, { this });
+	if (!hit.hasHit || !hit.entity) return;
+
+	const vec3 direction = MathHelper::FastNormalize(hit.shapePosition - Position);
+
+	if (hit.entity == Player::Instance)
+	{
+		if (NpcHelper::CheckBlock(forward, hit.entity) || NpcHelper::CheckParry(forward, hit.entity)) return;
+
+		const vec3 away = MathHelper::Normalized(MathHelper::XZ(hit.entity->Position - Position));
+		QueueMeleeHit(hit.entity->Id, CombatTuning::Get().shove.damage, hit.shapePosition, direction, hit.hitboxName,
+			away * CombatTuning::Get().shove.knockback + vec3(0, CombatTuning::Get().shove.lift, 0));
+		return;
+	}
+
+	if (const NpcBase* npc = dynamic_cast<const NpcBase*>(hit.entity))
+	{
+		if (IsHostileEntity(npc) && !npc->IsBlockingStance())
+			QueueMeleeHit(npc->Id, CombatTuning::Get().shove.damage, hit.shapePosition, direction, hit.hitboxName);
+	}
+}
+
+bool NpcBase::IsHostileEntity(const Entity* entity) const
+{
+	if (!entity) return false;
+
+	if (entity->Id == target_id) return true;
+
+	if (const NpcBase* npc = dynamic_cast<const NpcBase*>(entity))
+		return hostileTags.count(npc->fractionTag.c_str()) > 0;
+
+	return false;
+}
+
+void NpcBase::QueueMeleeWarning(const std::string& targetId)
+{
+	PendingNpcMeleeEvent event;
+	event.targetId = targetId;
+	pendingNpcMeleeEvents.push_back(std::move(event));
+}
+
+void NpcBase::QueueMeleeHit(const std::string& targetId, float damage, vec3 point, vec3 direction, const std::string& bone, vec3 knockback)
+{
+	PendingNpcMeleeEvent event;
+	event.targetId = targetId;
+	event.isHit = true;
+	event.damage = damage;
+	event.point = point;
+	event.direction = direction;
+	event.bone = bone;
+	event.knockback = knockback;
+	pendingNpcMeleeEvents.push_back(std::move(event));
+}
+
+void NpcBase::ApplyPendingNpcMeleeEvents()
+{
+	for (const PendingNpcMeleeEvent& event : pendingNpcMeleeEvents)
+	{
+		Entity* target = Level::Current->FindEntityWithId(event.targetId);
+		if (!target) continue;
+
+		if (event.isHit)
+		{
+			target->OnPointDamage(event.damage, event.point, event.direction, event.bone, this, this);
+
+			if (target == Player::Instance && glm::length(event.knockback) > 0.0f)
+				Player::Instance->controller.SetVelocity(event.knockback);
+		}
+		else if (NpcBase* npc = dynamic_cast<NpcBase*>(target))
+		{
+			npc->WarnAboutAttack(this);
+		}
+	}
+
+	pendingNpcMeleeEvents.clear();
+}
+
 bool NpcBase::IsPlayingRootMotionAnimation()
 {
 	return false;
@@ -1671,24 +1947,57 @@ bool NpcBase::IsRotationAllowedDuringRootMotion()
 
 void NpcBase::UpdateTargetAttack()
 {
+	if (combatBehavior)
+		combatBehavior->Update(Time::DeltaTimeF);
+	else
+		RunRangedAttack();
+}
 
+// Turns the spine toward the target and refreshes the attack position.
+void NpcBase::UpdateAimAndAttackPosition(bool refreshAttackPosition)
+{
 	vec3 desiredSpineRotation = vec3();
 
-	if (target_follow)
+	vec3 aimAt{};
+	bool haveAim = false;
+
+	if (aimOverrideActive)
 	{
-		auto targetRef = Level::Current->FindEntityWithId(target_id);
-
-		vec3 lookAtTargetVector = normalize(targetRef->Position - Position);
-
-		vec3 localVector = MathHelper::RotateVector(lookAtTargetVector, mesh->Rotation * -1.0f);
-
-		desiredSpineRotation = MathHelper::FindLookAtRotation(vec3(), localVector);
-
-		if (glm::isnan(desiredSpineRotation.x) || glm::isnan(desiredSpineRotation.y) || glm::isnan(desiredSpineRotation.z))
+		aimAt = aimOverridePoint;
+		haveAim = true;
+	}
+	else if (target_follow)
+	{
+		if (Level::Current->FindEntityWithId(target_id))
 		{
-			desiredSpineRotation = spineRotation;
+			aimAt = GetCombatLookPoint();
+			haveAim = true;
 		}
+	}
 
+	if (haveAim)
+	{
+		aimAt = ResolveCombatLook(aimAt);
+
+		{
+			vec3 lookAtTargetVector = normalize(aimAt - Position);
+
+			vec3 localVector = MathHelper::RotateVector(lookAtTargetVector, mesh->Rotation * -1.0f);
+
+			desiredSpineRotation = MathHelper::FindLookAtRotation(vec3(), localVector);
+
+			if (glm::isnan(desiredSpineRotation.x) || glm::isnan(desiredSpineRotation.y) || glm::isnan(desiredSpineRotation.z))
+			{
+				desiredSpineRotation = spineRotation;
+			}
+
+			// Not aiming at a target it can see: keep the gun level-ish.
+			const auto& tune = CombatTuning::Get().brain;
+			if (length(MathHelper::XZ(aimAt - Position)) < tune.closeAimFlatDistance)
+				desiredSpineRotation.x = 0.0f;
+			else if (!target_sees)
+				desiredSpineRotation.x = glm::clamp(desiredSpineRotation.x, -tune.blindAimMaxPitch, tune.blindAimMaxPitch);
+		}
 	}
 
 	spineRotation = mix(spineRotation, desiredSpineRotation, Time::DeltaTimeF * 10);
@@ -1697,89 +2006,131 @@ void NpcBase::UpdateTargetAttack()
 		spineRotation = vec3();
 	}
 
-
-
-	if (target_attack && target_follow && target_sees)
+	if (refreshAttackPosition && target_attack && target_follow && target_sees)
 	{
 		if (attackPositionUpdateDelay.Wait() == false)
 		{
-
 			attackPosition = FindAttackLocation();
 
 			attackPositionUpdateDelay.AddDelay(1.5f + RandomHelper::RandomFloat() * 2);
 		}
 	}
+}
 
+bool NpcBase::ReadyToFireAtPoint(const vec3& point)
+{
+	if (isStunned() || DoingTask)
+	{
+		attackDelay.AddDelay(0.8f);
+		return false;
+	}
 
+	if (attackDelay.Wait()) return false;
+
+	if (length(controller->GetVelocity()) > CombatTuning::Get().shot.maxFireSpeed)
+	{
+		attackDelay.AddDelay(0.25f + RandomHelper::RandomFloat() * 0.1f);
+		return false;
+	}
+
+	// Shooting at the cover a hidden target is behind is the point; shooting at a wall
+	// metres in front of it is a waste.
+	const vec3 muzzle = Position + vec3(0, 0.6f, 0);
+	const auto hit = Physics::LineTrace(muzzle, point, BodyType::World);
+
+	if (hit.hasHit && distance(hit.position, point) > CombatTuning::Get().shot.suppressMaxBlockDistance)
+	{
+		attackDelay.AddDelay(0.3f + RandomHelper::RandomFloat() * 0.1f);
+		return false;
+	}
+
+	return true;
+}
+
+bool NpcBase::HoldsCombatContactWith(const std::string& id) const
+{
+	return combatBehavior && id == target_id && combatBehavior->HoldsContact();
+}
+
+// The gate every ranged shot passes: attack conditions, cooldown, standing
+// still enough, and a clear line to the target. Adds the retry delays itself.
+bool NpcBase::ReadyToFireRanged()
+{
 	if (target_follow == false || target_sees == false || target_attack == false || target_attackInRange == false || isStunned() || DoingTask)
 	{
 		attackDelay.AddDelay(0.8f);
-		return;
+		return false;
 	}
 
-	if (attackDelay.Wait()) return;
+	if (attackDelay.Wait()) return false;
 
-	if (length(controller->GetVelocity()) > 2.2f)
+	if (length(controller->GetVelocity()) > CombatTuning::Get().shot.maxFireSpeed)
 	{
-
 		attackDelay.AddDelay(0.25f + RandomHelper::RandomFloat() * 0.1f);
-
-		return;
+		return false;
 	}
 
-	vec3 targetLocation = Level::Current->FindEntityWithId(target_id)->Position;
+	Entity* targetRef = Level::Current->FindEntityWithId(target_id);
+	if (!targetRef) return false;
 
-	if (CheckAttackLOS(Position, targetLocation) == false)
+	if (CheckAttackLOS(Position, targetRef->Position) == false)
 	{
 		attackDelay.AddDelay(0.15f + RandomHelper::RandomFloat() * 0.1f);
-		return;
+		return false;
 	}
 
-	animator->weapon_pendingAttack = true;
-	attackDelay.AddDelay(0.5f + RandomHelper::RandomFloat() * 0.1f);
+	return true;
+}
 
-	auto targetRef = Level::Current->FindEntityWithId(target_id);
+// Where a perfect shot would go: the target's body, led by its velocity.
+vec3 NpcBase::ComputeRangedAimPoint() const
+{
+	Entity* targetRef = Level::Current->FindEntityWithId(target_id);
+	if (!targetRef) return Position + MathHelper::GetForwardVector(mesh->Rotation);
 
 	vec3 predictedTargetPosition = targetRef->Position;
 
-	const float bulletSpeed = 50;
-
-	if (targetRef)
+	if (Player* playerRef = dynamic_cast<Player*>(targetRef))
 	{
+		predictedTargetPosition = playerRef->controller.GetSmoothPosition() - (vec3(0, 1.0f, 0) * playerRef->controller.height * 0.5f) + vec3(0, 1.0f, 0) * playerRef->controller.GetCameraHeight() - vec3(0, 0.6f, 0);
 
-		Player* playerRef = dynamic_cast<Player*>(targetRef);
-
-
-
-		if (playerRef)
-		{
-			predictedTargetPosition = playerRef->controller.GetSmoothPosition() - (vec3(0,1.0f,0) * playerRef->controller.height * 0.5f) + vec3(0, 1.0f, 0) * playerRef->controller.GetCameraHeight() - vec3(0,0.6f,0);
-
-			predictedTargetPosition += playerRef->controller.GetVelocity() * distance(Position, targetRef->Position) / bulletSpeed;
-		}
-		else
-		{
-			if (targetRef->LeadBody)
-			{
-				predictedTargetPosition += FromPhysics(targetRef->LeadBody->GetLinearVelocity()) * distance(Position, targetRef->Position) / bulletSpeed;
-			}
-		}
-
-		
+		predictedTargetPosition += playerRef->controller.GetVelocity() * distance(Position, targetRef->Position) / CombatTuning::Get().shot.bulletSpeed;
+	}
+	else if (targetRef->LeadBody)
+	{
+		predictedTargetPosition += FromPhysics(targetRef->LeadBody->GetLinearVelocity()) * distance(Position, targetRef->Position) / CombatTuning::Get().shot.bulletSpeed;
 	}
 
-	vec3 bulletRotation = MathHelper::FindLookAtRotation(vec3(), predictedTargetPosition - Position);
+	return predictedTargetPosition;
+}
+
+// Fires one bullet at aimPoint and starts the fire animation and cooldown.
+void NpcBase::FireShot(const vec3& aimPoint)
+{
+	animator->weapon_pendingAttack = true;
+	attackDelay.AddDelay(0.5f + RandomHelper::RandomFloat() * 0.1f);
+
+	vec3 bulletRotation = MathHelper::FindLookAtRotation(vec3(), aimPoint - Position);
 
 	Bullet* bullet = (Bullet*)Spawn("bullet");
 	bullet->LoadAssets();
 	bullet->Position = weaponMesh->Position;
 	bullet->Rotation = bulletRotation;
-	bullet->Speed = bulletSpeed;
+	bullet->Speed = CombatTuning::Get().shot.bulletSpeed;
 	bullet->OwnerTag = fractionTag;
-	bullet->Damage = 5;
+	bullet->Damage = CombatTuning::Get().shot.bulletDamage;
 	bullet->owner = this;
 	bullet->Start();
+}
 
+// Plain ranged attack for NPCs without a combat brain.
+void NpcBase::RunRangedAttack()
+{
+	UpdateAimAndAttackPosition();
+
+	if (!ReadyToFireRanged()) return;
+
+	FireShot(ComputeRangedAimPoint());
 }
 
 NpcSimulationState* NpcBase::GetSimulationStateRef()
@@ -1799,7 +2150,7 @@ bool NpcBase::CheckAttackLOS(vec3 location, vec3 targetLocation)
 
 	vec3 attackPos = location + vec3(0, 0.6f, 0) + attackDir;
 
-	auto hit = Physics::SphereTrace(attackPos, targetLocation + vec3(0, 0.65, 0), 0.1f, BodyType::GroupHitTest, {}, {this});
+	auto hit = Physics::SphereTrace(attackPos, targetLocation + vec3(0, 0.65, 0), 0.1f, BodyType::GroupHitTest, {}, { this });
 
 	if (hit.hasHit && hit.entity->Id != target_id)
 	{
@@ -1819,12 +2170,7 @@ bool NpcBase::CheckAttackLocation(vec3 location, vec3 targetLocation)
 		return false;
 	}
 
-	if (CheckAttackLOS(location, targetLocation))
-		return true;
-
-
-
-	return true;
+	return CheckAttackLOS(location, targetLocation);
 }
 
 vec3 NpcBase::FindAttackLocation()
@@ -1846,9 +2192,9 @@ vec3 NpcBase::FindAttackLocation()
 		float maxMult;
 	};
 	const std::vector<Ring> rings = {
-		{0.85f, 1.15f}, // Primary: optimal range
-		{0.65f, 0.85f}, // Secondary: closer
-		{0.40f, 0.65f}  // Tertiary: evasive close
+		{ 0.85f, 1.15f }, // Primary: optimal range
+		{ 0.65f, 0.85f }, // Secondary: closer
+		{ 0.40f, 0.65f }  // Tertiary: evasive close
 	};
 
 	// Normal mode angle biases (probabilities cumulative)
@@ -2130,6 +2476,35 @@ void NpcBase::UpdateAnimations(bool forceFullUpdate)
 		animator->weapon_ready = target_follow && target_underArrest;
 		animator->weapon_aims = target_attack && animator->weapon_ready && target_attackInRange && target_sees;
 
+		if (weaponForcedAim)
+		{
+			animator->weapon_holds = true;
+			animator->weapon_ready = true;
+			animator->weapon_aims = true;
+		}
+
+		if (weaponLowered)
+		{
+			animator->weapon_ready = false;
+			animator->weapon_aims = false;
+		}
+
+		// Hunting for a target it was fighting: gun at the ready, not at the hip.
+		if (target_attack && currentInvestigation && currentInvestigation->Alerted())
+		{
+			animator->weapon_holds = true;
+			animator->weapon_ready = true;
+		}
+
+		// In a fight the brain decides how the gun is carried (never down mid-fight
+		// except to reload), whatever the legacy arrest flags say.
+		if (combatMoveOrder.active && combatMoveOrder.posture != NpcWeaponPosture::Default)
+		{
+			animator->weapon_holds = true;
+			animator->weapon_ready = combatMoveOrder.posture != NpcWeaponPosture::Lowered;
+			animator->weapon_aims = combatMoveOrder.posture == NpcWeaponPosture::Aimed;
+		}
+
 		if (mesh->InRagdoll || returningFromRagdoll || stunnedRagdoll)
 		{
 			animator->weapon_holds = false;
@@ -2154,14 +2529,28 @@ void NpcBase::UpdateAnimations(bool forceFullUpdate)
 
 		if (controller != nullptr)
 		{
-			animator->movementSpeed = length(controller->GetVelocity());
+			const vec3 velocity = controller->GetVelocity();
+			const vec3 flatVelocity = MathHelper::XZ(velocity);
+
+			animator->movementSpeed = length(velocity);
+			animator->moveForward = glm::dot(flatVelocity, MathHelper::GetForwardVector(mesh->Rotation));
+			animator->moveRight = glm::dot(flatVelocity, MathHelper::GetRightVector(mesh->Rotation));
+			animator->crouched = controller->isCrouched;
 		}
 
 		animator->Update();
 
 		auto pose = animator->GetResultPose();
 
-		mesh->PasteAnimationPose(pose);
+		mesh->PasteAnimationPoseWithCloth(pose, Time::DeltaTime);
+	}
+
+	// Always drained so they don't pile up; a dead NPC's clips trigger nothing.
+	const auto events = animator->PullAnimationEvents();
+	if (!dead)
+	{
+		for (const AnimationEvent& event : events)
+			HandleAnimationEvent(event);
 	}
 	//if (forceFullUpdate == false)
 		//animator->UsePrecomputedFrames = true;
@@ -2179,7 +2568,7 @@ void NpcBase::LoadAssets()
 	mesh->Masked = true;
 	//mesh->Transparent = true;
 
-	mesh->LoadMetaFromFile("GameData/models/npc/base.glb.skmm");
+	//mesh->LoadMetaFromFile("GameData/models/npc/base.glb.skmm");
 	mesh->CreateHitboxes(this);
 
 	weaponMesh->LoadFromFile("GameData/models/weapons/glock.glb");
@@ -2255,6 +2644,58 @@ void NpcBase::ShareTargetKnowlageWith(NpcBase* anotherNpc)
 	}
 }
 
+void NpcBase::ReceiveSquadSighting(const std::string& targetId, const vec3& position, bool lineOfSight)
+{
+	std::unique_lock lock(targetsMutex);
+
+	const auto it = knownTargets.find(targetId);
+	if (it == knownTargets.end()) return;
+
+	TargetInfo& info = it->second;
+	info.lastSeenPosition = position;
+	info.lastSeenTime = Time::GameTime;
+
+	if (lineOfSight)
+	{
+		info.lastLOSPosition = position;
+		info.lastLOSTime = Time::GameTime;
+	}
+}
+
+// A sound from a target it is after (a shot above all) further than
+// belief.heardUpdateDistance from where it last saw it: that is where the
+// target is now, as far as this NPC is concerned (last sight and last seen).
+void NpcBase::ReceiveHeardTarget(const std::string& targetId, const vec3& position, bool ownSenses)
+{
+	std::unique_lock lock(targetsMutex);
+
+	const auto it = knownTargets.find(targetId);
+	if (it == knownTargets.end() || !it->second.follow) return;
+
+	TargetInfo& info = it->second;
+
+	// It turns to the sound, and its squad hears of it (CombatCoordinator picks
+	// it up next step), every time.
+	if (ownSenses && combatBehavior && targetId == target_id)
+		combatBehavior->NoteTargetHeard(position);
+
+	if (info.lastLOSTime >= 0 && distance(info.lastLOSPosition, position) <= CombatTuning::Get().belief.heardUpdateDistance)
+		return;
+
+	info.lastLOSPosition = position;
+	info.lastLOSTime = Time::GameTime;
+	info.lastSeenPosition = position;
+	info.lastSeenTime = Time::GameTime;
+}
+
+void NpcBase::OnNearMiss(Entity* shooter)
+{
+	AddSuppression(CombatTuning::Get().brain.nearMissSuppression);
+
+	if (shooter && shooter->Id == target_id)
+		ReceiveHeardTarget(target_id, shooter->Position, true);
+}
+
 void NpcBase::UpdateTargetLocation(std::string target, vec3 location)
 {
 
@@ -2319,6 +2760,12 @@ void NpcBase::ShareTargetKnowlageWithFinal(NpcBase* anotherNpc)
 			otherInfo.lastSeenPosition = myInfo.lastSeenPosition;
 			otherInfo.lastSeenTime = myInfo.lastSeenTime - 0.15f;
 			//otherInfo.stopUpdateLastSeenPositionDelay.AddDelay(0.5);
+		}
+
+		if (myInfo.lastLOSTime > otherInfo.lastLOSTime)
+		{
+			otherInfo.lastLOSPosition = myInfo.lastLOSPosition;
+			otherInfo.lastLOSTime = myInfo.lastLOSTime;
 		}
 
 		if (myInfo.currentCrime < otherInfo.currentCrime)
@@ -2501,7 +2948,13 @@ void NpcBase::TargetLost()
 	target_follow = false;
 	target_sees = false;
 
-	TryStartInvestigation(InvestigationReason::TargetSeen, location, targetId);
+	// A fight that loses its target always becomes a search. TryStartInvestigation
+	// refuses while target_attack is set, and it is (the NPC was fighting), which
+	// left the NPC standing where it lost the target. target_attack stays, so the
+	// NPC fights again the moment it sees the target.
+	investigation_changed = 3;
+	currentInvestigation = CreateInvestigationFromReason(InvestigationReason::TargetSeen);
+	currentInvestigation->Start(InvestigationReason::TargetSeen, location, targetId, false, false);
 
 }
 
@@ -2602,6 +3055,9 @@ void NpcBase::Serialize(json& target)
 
 	}
 	SERIALIZE_FIELD(target, investigationReason);
+
+	if (combatBehavior)
+		target["combatBehavior"] = combatBehavior->Serialize();
 
 
 	//SERIALIZE_FIELD(target, currentInvestigation);
@@ -2721,6 +3177,12 @@ void NpcBase::Deserialize(json& source)
 
 	}
 
+	if (!combatBehavior)
+		combatBehavior = CreateCombatBehavior();
+
+	if (combatBehavior && source.contains("combatBehavior"))
+		combatBehavior->Deserialize(source["combatBehavior"]);
+
 	DESERIALIZE_FIELD(source, investigation_changed);
 	DESERIALIZE_FIELD(source, needToInvestigateBody);
 
@@ -2751,7 +3213,7 @@ void NpcBase::Deserialize(json& source)
 		}
 	}
 
-	if(HasTag("npc") == false)
+	if (HasTag("npc") == false)
 		Tags.push_back("npc");
 
 	if (HasTag(fractionTag) == false)
@@ -2763,7 +3225,7 @@ void NpcBase::Deserialize(json& source)
 
 	if (dead)
 	{
-		
+
 		if (controller)
 		{
 			delete controller;
@@ -2811,7 +3273,7 @@ void NpcBase::Deserialize(json& source)
 	AnimationState taskAnimationState;
 	DESERIALIZE_FIELD(source, taskAnimationState);
 
-	if(animator->taskAnimation)
+	if (animator->taskAnimation)
 		animator->taskAnimation->SetAnimationState(taskAnimationState);
 
 	DESERIALIZE_FIELD(source, DoingTask);
@@ -2914,8 +3376,7 @@ void NpcBase::Task_NotDoing()
 }
 
 void NpcBase::Task_DoStationaryJob()
-{
-}
+{}
 
 TaskState& NpcBase::GetTaskStateRef()
 {
@@ -3049,7 +3510,7 @@ void NpcBase::UpdateTask()
 			StartTask(DesiredTask);
 		}
 	}
-	
+
 
 }
 
@@ -3072,10 +3533,13 @@ void NpcBase::UpdateDebugUI()
 
 	ImGui::Checkbox("bt editor", &btEditorEnabled);
 
+	if (combatBehavior)
+		combatBehavior->DrawDebugUI();
+
 	ImGui::End();
 
 
-	auto hit = Physics::LineTrace(Camera::position, Camera::position + Camera::Forward() * 500.0f, BodyType::CharacterCapsule, {}, {Player::Instance});
+	auto hit = Physics::LineTrace(Camera::position, Camera::position + Camera::Forward() * 500.0f, BodyType::CharacterCapsule, {}, { Player::Instance });
 
 	if (hit.entity == this)
 	{
@@ -3136,7 +3600,7 @@ void NpcBase::FindClosestGuard()
 	if (report_to_guard)
 		npcsInRadius = AiPerceptionSystem::GetTargetsInRadiusWithTagOrdered(Position, 150, "guard_safe");
 
-	
+
 
 	for (auto& npc : npcsInRadius)
 	{
@@ -3155,7 +3619,7 @@ void NpcBase::FindClosestGuard()
 	}
 
 
-	if(found_guard == false)
+	if (found_guard == false)
 	{
 
 		if (target_follow == false && currentInvestigation && currentInvestigation->reason == InvestigationReason::Body)
@@ -3236,7 +3700,7 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 	if (target_follow && reason == InvestigationReason::WeaponFire && causer == target_id)
 	{
 		target_stopUpdateLastSeenPositionDelay.AddDelay(0.5f);
-		
+
 		auto& targetInfo = knownTargets[target_id];
 		targetInfo.lastSeenPosition = target;
 
@@ -3283,7 +3747,7 @@ void NpcBase::TryStartInvestigation(InvestigationReason reason, vec3 target, str
 	{
 		currentInvestigation->orientTimer = oldRotationTime;
 	}
-	
+
 }
 
 void NpcBase::InvestigationReachedDestination()
@@ -3291,7 +3755,7 @@ void NpcBase::InvestigationReachedDestination()
 
 	if (currentInvestigation)
 		currentInvestigation->ReachedTarget();
-	
+
 }
 
 void NpcBase::PlayActionAnimation(const std::string& name, bool loop,
@@ -3299,6 +3763,12 @@ void NpcBase::PlayActionAnimation(const std::string& name, bool loop,
 {
 	if (animator)
 		animator->PlayActionAnimation(name, loop, blendIn, blendOut);
+}
+
+void NpcBase::StopActionAnimation()
+{
+	if (animator)
+		animator->StopActionAnimation();
 }
 
 bool NpcBase::IsPlayingActionAnimation() const

@@ -44,6 +44,12 @@ To make a func_group into a terrain entity, refer to the Terrain Construction do
         <real key="acceptanceRadius" name="Acceptance Radius" value = "0.3"/>
     </point>
 
+    <point name="cover_point" color="0.2 0.4 0.8" box="-8 -8 0 8 8 32">
+        <string key="targetname" name="Name" value=""/>
+        <string key="type" name="Cover type: auto, low (crouch behind, stand to shoot) or corner (step out sideways)" value="auto"/>
+        <real key="priority" name="Priority (0 to 1): score bonus when NPCs choose cover" value="0"/>
+    </point>
+
     <point name="task_smoke" color="0.7 0.3 0.1" box="-8 -8 -16 8 8 32">
         <angle key="angle" name="Yaw Angle" value="0"/>
         <string key="targetname" name="Name" value=""/>

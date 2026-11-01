@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstring>
 #include <iostream>
+#include <unordered_map>
 #include "Navigation.hpp"
 
 #include "../DebugDraw.hpp"
@@ -791,6 +792,126 @@ bool NavigationSystem::ProjectPointToNavMesh(const glm::vec3 & sample, const glm
     dtFreeNavMeshQuery(navQuery);
 
     return bSuccess;
+}
+
+namespace
+{
+    glm::vec3 PolyCenter(const dtMeshTile* tile, const dtPoly* poly)
+    {
+        glm::vec3 sum(0.0f);
+        for (int i = 0; i < poly->vertCount; ++i)
+        {
+            const float* v = &tile->verts[poly->verts[i] * 3];
+            sum += glm::vec3(v[0], v[1], v[2]);
+        }
+        return poly->vertCount > 0 ? sum / static_cast<float>(poly->vertCount) : sum;
+    }
+
+    // Midpoint of the edge `poly` shares with `neighbour` (its link to it); the
+    // polygon's centre when they don't share one.
+    glm::vec3 SharedEdgeMidpoint(const dtMeshTile* tile, const dtPoly* poly, dtPolyRef neighbour)
+    {
+        for (unsigned int link = poly->firstLink; link != DT_NULL_LINK; link = tile->links[link].next)
+        {
+            const dtLink& l = tile->links[link];
+            if (l.ref != neighbour) continue;
+
+            const int a = l.edge;
+            const int b = (l.edge + 1) % poly->vertCount;
+            const float* va = &tile->verts[poly->verts[a] * 3];
+            const float* vb = &tile->verts[poly->verts[b] * 3];
+            return glm::vec3((va[0] + vb[0]) * 0.5f, (va[1] + vb[1]) * 0.5f, (va[2] + vb[2]) * 0.5f);
+        }
+
+        return PolyCenter(tile, poly);
+    }
+}
+
+bool NavigationSystem::BuildReachTree(const glm::vec3& origin, float radius, int maxNodes, std::vector<NavReachNode>& out)
+{
+    out.clear();
+    if (!navMesh || maxNodes <= 0) return false;
+
+    std::lock_guard<std::recursive_mutex> _lock(mainLock);
+
+    dtNavMeshQuery* navQuery = dtAllocNavMeshQuery();
+    if (!navQuery) return false;
+
+    if (dtStatusFailed(navQuery->init(navMesh, std::max(2048, maxNodes * 2))))
+    {
+        dtFreeNavMeshQuery(navQuery);
+        return false;
+    }
+
+    CustomFilter filter;
+    filter.setIncludeFlags(0xffff);
+    filter.setExcludeFlags(0);
+
+    glm::vec3 sample = origin;
+    const auto hit = Physics::LineTrace(sample, sample - glm::vec3(0, 5, 0), BodyType::World);
+    if (hit.hasHit)
+        sample = hit.position + glm::vec3(0, 0.3f, 0);
+
+    const float pos[3] = { sample.x, sample.y, sample.z };
+    const float extents[3] = { 1.5f, 2.0f, 1.5f };
+
+    dtPolyRef startRef = 0;
+    float startPos[3];
+    if (dtStatusFailed(navQuery->findNearestPoly(pos, extents, &filter, &startRef, startPos)) || startRef == 0)
+    {
+        dtFreeNavMeshQuery(navQuery);
+        return false;
+    }
+
+    std::vector<dtPolyRef> refs(maxNodes);
+    std::vector<dtPolyRef> parents(maxNodes);
+    std::vector<float> costs(maxNodes);
+    int count = 0;
+
+    // DT_BUFFER_TOO_SMALL still returns the nodes that fit.
+    if (dtStatusFailed(navQuery->findPolysAroundCircle(startRef, startPos, radius, &filter,
+        refs.data(), parents.data(), costs.data(), &count, maxNodes)) || count == 0)
+    {
+        dtFreeNavMeshQuery(navQuery);
+        return false;
+    }
+
+    std::unordered_map<dtPolyRef, int> indexOf;
+    indexOf.reserve(count);
+    for (int i = 0; i < count; ++i)
+        indexOf[refs[i]] = i;
+
+    out.resize(count);
+    for (int i = 0; i < count; ++i)
+    {
+        const dtMeshTile* tile = nullptr;
+        const dtPoly* poly = nullptr;
+        NavReachNode& node = out[i];
+        node.cost = costs[i];
+
+        if (dtStatusFailed(navMesh->getTileAndPolyByRef(refs[i], &tile, &poly)))
+        {
+            node.center = node.portal = sample;
+            continue;
+        }
+
+        node.center = PolyCenter(tile, poly);
+
+        const auto parent = indexOf.find(parents[i]);
+        if (refs[i] == startRef || parents[i] == 0 || parent == indexOf.end())
+        {
+            node.parent = -1;
+            node.center = node.portal = glm::vec3(startPos[0], startPos[1], startPos[2]);
+        }
+        else
+        {
+            node.parent = parent->second;
+            node.portal = SharedEdgeMidpoint(tile, poly, parents[i]);
+        }
+    }
+
+    dtFreeNavMeshQuery(navQuery);
+    return true;
 }
 
 // Returns a path (list of waypoints) that attempts to make the NPC run AWAY from player.

@@ -13,6 +13,8 @@ class weapon_cane : public WeaponOffhand
 {
 public:
 
+	bool CanBlockOrParry() const override { return true; }
+
 	SkeletalMesh* viewmodel;
 	SkeletalMesh* arms;
 

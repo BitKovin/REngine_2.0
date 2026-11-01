@@ -1,0 +1,21 @@
+{
+  "hideGroups": [
+    "trigger_*",
+    "editor_playable_area",
+    "func_detail"
+  ],
+  "lighting": {
+    "blockLight": [],
+    "receiveBakedLight": []
+  },
+  "modelExtensions": [
+    ".glb"
+  ],
+  "name": "shooter game",
+  "textureExtensions": [
+    ".tga",
+    ".jpg",
+    ".png"
+  ],
+  "textureRoot": "textures"
+}

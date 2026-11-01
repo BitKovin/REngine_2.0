@@ -51,9 +51,29 @@ protected:
 
 	int   timesParriedThisFight = 0;
 
+	// Against NPC defenders: a swing within WarnRange tells the defender to
+	// consider blocking; a blocking defender facing the attacker (dot product
+	// above BlockFacingDot) takes no damage.
+	static constexpr float WarnRange = 3.0f;
+	static constexpr float BlockFacingDot = 0.5f;
+
+	// Against a target that cannot block or parry (empty hands, a gun) there is nothing to be
+	// careful about: the NPC closes in straight, attacks as soon as it is in range
+	// (after MinPressureBeforeAttack) and recovers quickly. The probing, baiting and
+	// retreating only happen while the target can actually counter.
+	static constexpr double MinPressureBeforeAttack = 0.15; // seconds in range before an open target is attacked
+	static constexpr float OpenRecoveryMin = 0.35f;         // recovery after a swing against an open target
+	static constexpr float OpenRecoveryJitter = 0.25f;
+	static constexpr float OpenApproachRadius = 1.4f;       // metres from the target when closing in straight
+
+	static constexpr float GuardedApproachRadius = 1.7f;    // where a straight run stops against a target that can block
+
+	double stateEnteredTime = 0.0;
+
 	// ── State transition helpers ──────────────────────────────────────────────
 	inline void EnterState(MeleeState next, float duration = 0.0f)
 	{
+		stateEnteredTime = Time::GameTime;
 		meleeState = next;
 		if (duration > 0.0f) stateTimer.AddDelay(duration);
 	}
@@ -73,6 +93,8 @@ protected:
 	void Stun();
 	void DoNormalAttackDamage();
 	void DoBreakAttackDamage();
+	void HitNpcTarget(const Physics::HitResult& hit, float damage);
+	void WarnTargetAboutAttack();
 	void PerformMeleeAttack();
 	void PerformBaitingMeleeAttack();
 	void PerformBreakingAttack();
@@ -91,8 +113,13 @@ protected:
 
 	bool IsTargetBlocking() const;
 
+	// The target holds something that can block or parry (a blade, a cane, a melee
+	// NPC): the only reason to hold back. Whether it is doing so right now doesn't
+	// matter; IsTargetBlocking covers that.
+	bool IsTargetCountering() const;
+
 	// ── Animation ─────────────────────────────────────────────────────────────
-	void ProcessAnimationEvent(const AnimationEvent& event);
+	void HandleAnimationEvent(const AnimationEvent& event) override;
 	void UpdateAnimations(bool forceFullUpdate = false) override;
 
 	// Convenience accessor – safe to call from derived classes that also use
@@ -104,6 +131,10 @@ protected:
 
 public:
 
+	// Further than this from the target the NPC is not in the exchange yet: it runs
+	// straight at the target. Inside it the footwork (circling, flanking) starts.
+	static constexpr float EngageDistance = 3.5f;
+
 	NpcGuardMelee();
 
 	bool isStunned()                        override;
@@ -111,6 +142,14 @@ public:
 	bool IsRotationAllowedDuringRootMotion() override;
 
 	void WarnAboutAttack(Entity* from)      override;
-	void UpdateTargetAttack()               override;
 	vec3 FindAttackLocation()               override;
+	bool IsBlockingStance() const           override { return isCurrentlyBlocking; }
+
+	// The melee attack body: the duel state machine and spine tracking. Run by
+	// the melee duel tactic every frame.
+	void RunMeleeAttack();
+
+protected:
+
+	std::shared_ptr<CombatBehaviorBase> CreateCombatBehavior() override;
 };

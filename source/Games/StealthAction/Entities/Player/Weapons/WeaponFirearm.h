@@ -91,6 +91,10 @@ struct FirearmParams
 
 class WeaponFirearm : public Weapon {
 public:
+
+	bool IsRanged() const override { return true; }
+
+public:
 	FirearmParams params;
 
 	// Right-hand

@@ -2,6 +2,8 @@
 
 #include <Entities/Player/Weapons/Projectiles/Bullet.h>
 
+#include "Combat/CombatBehaviors.h"
+
 // ── Constructor ─────────────────────────────────────────────────────────────
 
 NpcGuardMelee::NpcGuardMelee()
@@ -87,6 +89,7 @@ void NpcGuardMelee::UpdateMeleeStateMachine()
 
 	const bool inRange = InMeleeAttackRange();
 	const bool blocking = IsTargetBlocking();
+	const bool countering = IsTargetCountering();
 
 	// ── Passive-block detection ───────────────────────────────────────────────
 	{
@@ -135,16 +138,20 @@ void NpcGuardMelee::UpdateMeleeStateMachine()
 			attackPositionUpdateDelay.AddDelay(0.30f + RandomHelper::RandomFloat() * 0.25f);
 		}
 		if (pendingCounterAttack) { pendingCounterAttack = false; EnterState(MeleeState::PUNISHING, 0.12f); break; }
+		// Nothing to fear from an open target: attack as soon as it is in reach.
+		if (inRange && !countering && Time::GameTime - stateEnteredTime > MinPressureBeforeAttack)
+		{
+			EnterState(MeleeState::WIND_UP, 0.12f + RandomHelper::RandomFloat() * 0.12f);
+			break;
+		}
 		if (!stateTimer.Wait())
 		{
-			if (RandomHelper::RandomFloat() < 0.25f)
+			if (countering && RandomHelper::RandomFloat() < 0.25f)
 				EnterState(MeleeState::BAITING, 0.38f + RandomHelper::RandomFloat() * 0.55f);
 			else
 				EnterState(MeleeState::WIND_UP, 0.18f + RandomHelper::RandomFloat() * 0.32f);
 			break;
 		}
-		if (inRange && !blocking && RandomHelper::RandomFloat() < 0.011f)
-			EnterState(MeleeState::WIND_UP, 0.12f + RandomHelper::RandomFloat() * 0.18f);
 		break;
 
 	case MeleeState::WIND_UP:
@@ -152,7 +159,9 @@ void NpcGuardMelee::UpdateMeleeStateMachine()
 		if (!stateTimer.Wait())
 		{
 			if (inRange) CommitAttack();
-			EnterState(MeleeState::RECOVERING, 0.55f + RandomHelper::RandomFloat() * 0.75f);
+			EnterState(MeleeState::RECOVERING, countering
+				? 0.55f + RandomHelper::RandomFloat() * 0.75f
+				: OpenRecoveryMin + RandomHelper::RandomFloat() * OpenRecoveryJitter);
 		}
 		break;
 
@@ -160,8 +169,9 @@ void NpcGuardMelee::UpdateMeleeStateMachine()
 		attackPosition = Position;
 		if (!stateTimer.Wait())
 		{
-			float retreatChance = std::min(
-				0.38f + playerBlockCount * 0.12f + timesParriedThisFight * 0.08f, 0.78f);
+			// Only a target that can block or parry makes the NPC back off.
+			float retreatChance = countering ? std::min(
+				0.38f + playerBlockCount * 0.12f + timesParriedThisFight * 0.08f, 0.78f) : 0.0f;
 			if (RandomHelper::RandomFloat() < retreatChance)
 				EnterState(MeleeState::RETREATING, 0.70f + RandomHelper::RandomFloat() * 0.55f);
 			else
@@ -220,6 +230,7 @@ void NpcGuardMelee::Stun()
 void NpcGuardMelee::PerformMeleeAttack()
 {
 	Logger::Log("PerformMeleeAttack");
+	WarnTargetAboutAttack();
 	PlayActionAnimation("sword_attack_main", false);
 	attackDelay.AddDelay(GetActionAnimationRemainingTime());
 }
@@ -227,6 +238,7 @@ void NpcGuardMelee::PerformMeleeAttack()
 void NpcGuardMelee::PerformBaitingMeleeAttack()
 {
 	Logger::Log("PerformBaitingMeleeAttack");
+	WarnTargetAboutAttack();
 	PlayActionAnimation("sword_attack_break", false);
 	attackDelay.AddDelay(GetActionAnimationRemainingTime());
 }
@@ -234,6 +246,7 @@ void NpcGuardMelee::PerformBaitingMeleeAttack()
 void NpcGuardMelee::PerformBreakingAttack()
 {
 	Logger::Log("PerformBreakingAttack");
+	WarnTargetAboutAttack();
 	PlayActionAnimation("sword_kick", false);
 	attackDelay.AddDelay(GetActionAnimationRemainingTime());
 }
@@ -286,6 +299,10 @@ void NpcGuardMelee::DoNormalAttackDamage()
 				hit.hitboxName, this, this);
 		}
 	}
+	else if (hit.hasHit)
+	{
+		HitNpcTarget(hit, 15);
+	}
 }
 
 void NpcGuardMelee::DoBreakAttackDamage()
@@ -300,11 +317,45 @@ void NpcGuardMelee::DoBreakAttackDamage()
 			MathHelper::FastNormalize(hit.shapePosition - Position),
 			hit.hitboxName, this, this);
 	}
+	else if (hit.hasHit)
+	{
+		HitNpcTarget(hit, 10);
+	}
+}
+
+// A swing that lands on another NPC. Only hostile NPCs are hurt, a defender
+// that is blocking and faces the attacker takes nothing, and the damage is
+// queued for LateUpdate (it writes another NPC).
+void NpcGuardMelee::HitNpcTarget(const Physics::HitResult& hit, float damage)
+{
+	const NpcBase* defender = dynamic_cast<const NpcBase*>(hit.entity);
+	if (!defender || !IsHostileEntity(defender)) return;
+
+	if (defender->IsBlockingStance())
+	{
+		const vec3 defenderForward = MathHelper::GetForwardVector(defender->mesh->Rotation);
+		const vec3 toAttacker = MathHelper::Normalized(MathHelper::XZ(Position - defender->Position));
+
+		if (glm::dot(defenderForward, toAttacker) > BlockFacingDot) return;
+	}
+
+	QueueMeleeHit(defender->Id, damage, hit.shapePosition,
+		MathHelper::FastNormalize(hit.shapePosition - Position), hit.hitboxName);
+}
+
+// Lets an NPC defender decide whether to raise its guard, like the player's
+// twin swords do for NPCs they swing at.
+void NpcGuardMelee::WarnTargetAboutAttack()
+{
+	Entity* target = Level::Current->FindEntityWithId(target_id);
+
+	if (dynamic_cast<NpcBase*>(target) && glm::distance(Position, target->Position) < WarnRange)
+		QueueMeleeWarning(target_id);
 }
 
 // ── Animation ─────────────────────────────────────────────────────────────────
 
-void NpcGuardMelee::ProcessAnimationEvent(const AnimationEvent& event)
+void NpcGuardMelee::HandleAnimationEvent(const AnimationEvent& event)
 {
 	if (event.eventName == "attack_sword_normal") DoNormalAttackDamage();
 	else if (event.eventName == "attack_sword_break")  DoBreakAttackDamage();
@@ -328,8 +379,7 @@ void NpcGuardMelee::UpdateAnimations(bool forceFullUpdate)
 	auto rootMotion = meleeAnimator->actionAnimation->PullRootMotion();
 	controller->SetPosition(currPos + rootMotion.Position);
 
-	auto events = meleeAnimator->PullAnimationEvents();
-	for (auto& event : events) ProcessAnimationEvent(event);
+	// Attack events reach HandleAnimationEvent through NpcBase::UpdateAnimations.
 }
 
 // ── WarnAboutAttack ───────────────────────────────────────────────────────────
@@ -339,7 +389,9 @@ void NpcGuardMelee::WarnAboutAttack(Entity* from)
 	if (from->Id != target_id) return;
 
 	vec3 forward = MathHelper::GetForwardVector(mesh->Rotation);
-	vec3 attackerForward = MathHelper::GetForwardVector(from->Rotation);
+	// An NPC attacker faces where its mesh points; Entity::Rotation is not kept in sync.
+	const NpcBase* attackerNpc = dynamic_cast<const NpcBase*>(from);
+	vec3 attackerForward = MathHelper::GetForwardVector(attackerNpc ? attackerNpc->mesh->Rotation : from->Rotation);
 
 
 	float dotOF = glm::dot(forward, attackerForward);
@@ -371,9 +423,14 @@ void NpcGuardMelee::WarnAboutAttack(Entity* from)
 
 }
 
-// ── UpdateTargetAttack ────────────────────────────────────────────────────────
+// ── Combat behavior / RunMeleeAttack ──────────────────────────────────────────
 
-void NpcGuardMelee::UpdateTargetAttack()
+std::shared_ptr<CombatBehaviorBase> NpcGuardMelee::CreateCombatBehavior()
+{
+	return std::make_shared<MeleeCombatBehavior>(this);
+}
+
+void NpcGuardMelee::RunMeleeAttack()
 {
 	vec3 desiredSpineRotation = vec3();
 	if (target_follow)
@@ -460,6 +517,23 @@ vec3 NpcGuardMelee::FindAttackLocation()
 		meleeState == MeleeState::BAITING)
 		return Position;
 
+	// ── PRESSURE / APPROACHING: straight in ───────────────────────────────────
+	// Out of the exchange the NPC runs straight at the target; against a target that
+	// can't block or parry it never bothers circling at all.
+	{
+		vec3 radial = MathHelper::Normalized(MathHelper::XZ(Position - targetPos));
+		if (glm::length(radial) < 0.001f) radial = vec3(0, 0, 1);
+
+		const bool countering = IsTargetCountering();
+		const float distance = glm::length(MathHelper::XZ(Position - targetPos));
+
+		if (!countering)
+			return targetPos + radial * OpenApproachRadius;
+
+		if (distance > EngageDistance)
+			return targetPos + radial * GuardedApproachRadius;
+	}
+
 	// ── PRESSURE / APPROACHING: flanking positions ────────────────────────────
 	const float meleeRadius = 1.70f;
 	vec3 targetFwd = MathHelper::Normalized(MathHelper::GetForwardVector(targetEntity->Rotation));
@@ -522,6 +596,31 @@ vec3 NpcGuardMelee::FindAttackLocation()
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+bool NpcGuardMelee::IsTargetCountering() const
+{
+	Entity* t = Level::Current->FindEntityWithId(target_id);
+	if (!t) return false;
+
+	if (t == Player::Instance)
+	{
+		for (Weapon* weapon : { Player::Instance->currentWeapon, Player::Instance->currentOffhandWeapon })
+		{
+			if (weapon && weapon->CanBlockOrParry()) return true;
+		}
+
+		return false;
+	}
+
+	// A melee NPC with its sword out can block.
+	if (const NpcBase* npc = dynamic_cast<const NpcBase*>(t))
+	{
+		const CombatBehaviorBase* brain = npc->GetCombatBehavior();
+		return brain && brain->IsMeleeMode();
+	}
+
+	return false;
+}
 
 bool NpcGuardMelee::IsTargetBlocking() const
 {

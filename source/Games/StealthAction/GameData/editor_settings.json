@@ -1,0 +1,9 @@
+{
+  "editor": {},
+  "game": {
+    "args": "--map {mapname}.bsp",
+    "exe": "F:\\Git\\SdlWasmEngine\\source\\Release\\StealthAction.exe",
+    "workingDir": "F:\\Git\\SdlWasmEngine\\source\\Games\\ShooterGame"
+  },
+  "lastMap": "maps/aitest.map.json"
+}

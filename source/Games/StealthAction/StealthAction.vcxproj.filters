@@ -342,6 +342,39 @@
     <ClCompile Include="Entities\Npc\NpcGuardHybrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CombatTargetView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CombatBehaviorBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CombatBehaviors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CombatCoordinator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\ApproachMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CoverPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CoverPlanner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CoverFinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CoverMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CombatThreat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\RangedFireControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Entities\Npc\Animators\NpcHybridAnimator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -621,6 +654,96 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Npc\NpcGuardHybrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatTargetView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatTacticBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatBehaviorBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatBehaviors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatCoordinator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticPress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatTuning.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\ApproachMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\CombatMoves.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticKite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticRush.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticWaitForSlot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticAdvance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticCheckLastKnown.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticRegainSight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticSuppressLastKnown.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticHoldAngle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\TargetBelief.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticCoverFight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticCoverFire.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticTakeCover.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CoverPlanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CoverFinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CoverMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CoverTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatThreat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\RangedFireControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticStrafe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticMeleeDuel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Npc\Animators\NpcHybridAnimator.h">

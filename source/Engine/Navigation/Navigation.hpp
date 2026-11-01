@@ -28,6 +28,15 @@ class CustomFilter : public dtQueryFilter
     }
 };
 
+// One navmesh polygon reached by NavigationSystem::BuildReachTree.
+struct NavReachNode
+{
+    glm::vec3 center{};  // average of the polygon's vertices (the origin itself for the root)
+    glm::vec3 portal{};  // midpoint of the edge shared with `parent`: where a path toward the origin leaves this polygon
+    float cost = 0.0f;   // path length from the origin, along polygon edges
+    int parent = -1;     // index of the next polygon toward the origin; -1 for the root
+};
+
 class NavigationSystem
 {
 
@@ -102,6 +111,14 @@ public:
         float playerSpeed = 5.0f);
 
     static bool ProjectPointToNavMesh(const glm::vec3& sample, const glm::vec3& navSnapTolerance, glm::vec3& navPos);
+
+    // Shortest-path tree over the navmesh rooted at `origin` (Dijkstra,
+    // dtNavMeshQuery::findPolysAroundCircle): every polygon reachable without
+    // leaving a circle of `radius`, at most `maxNodes`. Following `parent` from
+    // any node walks the shortest route to the origin, so the tree tells which
+    // way (which doorway, which corridor) each place reaches the origin by.
+    // out[0] is the root. Thread safe (same lock as the path queries).
+    static bool BuildReachTree(const glm::vec3& origin, float radius, int maxNodes, std::vector<NavReachNode>& out);
 
 
 };

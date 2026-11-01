@@ -150,6 +150,21 @@ public:
 		return false;
 	}
 
+	// Whether this weapon can block or parry at all (not whether it is doing so
+	// right now: that is Blocking / Parrying). NPCs fight an opponent holding such
+	// a weapon more carefully.
+	virtual bool CanBlockOrParry() const
+	{
+		return false;
+	}
+
+	// Whether this weapon shoots. NPCs pick their tactics from it: they take cover
+	// from a ranged weapon, and keep their distance from anyone without one.
+	virtual bool IsRanged() const
+	{
+		return false;
+	}
+
 	virtual void SetData(WeaponSlotData data)
 	{
 		Data = data;

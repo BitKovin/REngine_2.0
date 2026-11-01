@@ -46,11 +46,20 @@ public:
 	bool IsRangedWeaponDisabled() const { return rangedDisabled; }
 
 	// ── Entity overrides ──────────────────────────────────────────────────────
-	void UpdateTargetAttack()                          override;
 	vec3 FindAttackLocation()                          override;
 	void UpdateAnimations(bool forceFullUpdate = false) override;
 
 	void UpdateWeaponMesh() override;
+
+	// ── Mode management (driven by the hybrid combat behavior) ────────────────
+	// Evaluates the target distance and flips the weapon mode with hysteresis.
+	void UpdateCombatMode();
+	CombatMode GetCombatMode() const { return currentMode; }
+
+	// The combat behavior can override the distance rule: sword out for a charge,
+	// a corner or a rescue; gun out against a target that can't shoot back.
+	enum class ForcedMode { None, Melee, Ranged };
+	void SetForcedMode(ForcedMode mode) { forcedMode = mode; }
 
 protected:
 
@@ -58,14 +67,15 @@ protected:
 	// weaponMesh (from NpcBase) is used for the ranged weapon
 
 	bool       rangedDisabled = false;
+	ForcedMode forcedMode     = ForcedMode::None;
 	CombatMode currentMode    = CombatMode::Ranged;
 
-	// ── Mode management ───────────────────────────────────────────────────────
-	void UpdateCombatMode();
 	void SwitchToMode(CombatMode mode);
 	void UpdateWeaponMeshVisibility();
 
 	void LoadAssets() override;
+
+	std::shared_ptr<CombatBehaviorBase> CreateCombatBehavior() override;
 
 	// ── Typed animator accessor ───────────────────────────────────────────────
 	inline NpcHybridAnimator* GetHybridAnimator() const

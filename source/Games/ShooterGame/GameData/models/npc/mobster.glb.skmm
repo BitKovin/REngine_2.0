@@ -455,7 +455,7 @@
                 { "bone": "calf_l", "to": "foot_l", "radius": 0.0, "endRadius": 0.0, "covers": true },
                 { "bone": "thigh_r", "to": "calf_r", "radius": 0.0, "endRadius": 0.0, "covers": true },
                 { "bone": "calf_r", "to": "foot_r", "radius": 0.0, "endRadius": 0.0, "covers": true },
-                { "bone": "pelvis", "to": "spine_03", "radius": 0.1182, "endRadius": 0.1445, "surface": true }
+                { "bone": "pelvis", "to": "spine_03", "radius": 0.1135, "endRadius": 0.1208, "surface": true }
             ],
 
             "windFront": "jaket_wind_front",

@@ -319,7 +319,7 @@ public:
             else
             {
                 if (NetworkManager::IsServer())
-                    Level::LoadLevelFromFile("GameData/maps/lvl2.bsp");
+                    Level::LoadLevelFromFile("GameData/maps/aitest.bsp");
             }
 
         }

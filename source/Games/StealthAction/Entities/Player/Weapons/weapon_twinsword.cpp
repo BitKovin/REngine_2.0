@@ -12,6 +12,8 @@ class weapon_twinsword : public Weapon
 {
 public:
 
+	bool CanBlockOrParry() const override { return true; }
+
 	// Right-hand sword + corresponding arms
 	SkeletalMesh* viewmodel_r = nullptr;
 	SkeletalMesh* arms_r = nullptr;

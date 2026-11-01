@@ -1,6 +1,6 @@
 {
   "RepoRoot": ".",
-  "GameName": "SlasherGame",
+  "GameName": "StealthAction",
   "LogDirectory": "BuildLogs",
   "Parallel": false,
   "MaxParallelism": 2,

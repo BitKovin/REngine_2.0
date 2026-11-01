@@ -1,10 +1,11 @@
 {
     "blackboard": {
         "attackPosition": [
-            -0.9602737426757813,
+            -0.9602737426757812,
             1.4305051565170288,
             10.480264663696289
         ],
+        "attack_skipApproach": false,
         "closestGuard": "",
         "flee_target": [
             0.0,
@@ -32,9 +33,10 @@
         "target_attackInRange": true,
         "target_follow": true,
         "target_id": "$player_0",
+        "target_inContact": true,
         "target_knowsLocation": true,
         "target_lastSeenPosition": [
-            -0.9602737426757813,
+            -0.9602737426757812,
             1.4305051565170288,
             10.480264663696289
         ],
@@ -409,7 +411,7 @@
                                                                                                                     }
                                                                                                                 ],
                                                                                                                 "condition": {
-                                                                                                                    "blackboardKey": "target_attackInRange",
+                                                                                                                    "blackboardKey": "attack_skipApproach",
                                                                                                                     "sourceType": 1
                                                                                                                 },
                                                                                                                 "finish before stop": {
@@ -425,7 +427,7 @@
                                                                                                             {
                                                                                                                 "acceptance radius": {
                                                                                                                     "sourceType": 0,
-                                                                                                                    "value": 1.0
+                                                                                                                    "value": 0.35
                                                                                                                 },
                                                                                                                 "children": [],
                                                                                                                 "id": "node_65f6a3829f57ce0c",
@@ -447,7 +449,7 @@
                                                                                                     }
                                                                                                 ],
                                                                                                 "condition": {
-                                                                                                    "blackboardKey": "target_sees",
+                                                                                                    "blackboardKey": "target_inContact",
                                                                                                     "sourceType": 1
                                                                                                 },
                                                                                                 "finish before stop": {

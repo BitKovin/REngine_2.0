@@ -62,9 +62,6 @@ vec3 CalculateSimplePointLight(int i, vec3 pixelPosition, vec3 normal)
     return lightCol * intense * dirFactor;
 }
 
-vec3 LinearFromSrgb(vec3 c) { return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3_splat(2.4)), step(vec3_splat(0.04045), c)); }
-vec3 SrgbFromLinear(vec3 c) { c = clamp(c, 0.0, 1.0); return mix(c * 12.92, 1.055 * pow(c, vec3_splat(1.0 / 2.4)) - 0.055, step(vec3_splat(0.0031308), c)); }
-
 // rBSP v2 (level editor): bicubic B-spline lookup from 4 bilinear fetches, as the editor's views do. Bilinear's slope jumps at every texel
 // border, which shows soft shadows as creases on the texel grid. Reads up to 2 texels around a chart's edge (the editor pads charts by 2).
 vec3 LightmapBicubic(sampler2D s, vec2 uv)
@@ -113,7 +110,17 @@ void main()
     if(isRBSP.x > 0.0)
     {
 
-        vec3 vertexLightFactor = (useVertexLight.x > 0.0) ? v_color0.rgb : vec3_splat(1.0);
+        // Vertex colour = light scale (core/light_scale.h): rgb is the mantissa (linear, 0..1), A the shared exponent, multiplier 2^(5 * (1 - A)) = 1 .. 32.
+        // A chart's texels are stored divided by this colour, so the lightmap times it is the baked light (HDR, and the darks use the page's whole 8 bits).
+        // A vertex lit surface has no lightmap (the engine binds a white one) and all its light is in this colour. Opaque white (every older file) = no scale.
+        // The surfaces of one smooth group share the exponent, so interpolating rgb and A separately and decoding after equals interpolating the light.
+        // rBSP v2: the scale is part of the stored light (the pages are normalised by it), so it is ALWAYS applied, whatever useVertexLight says.
+        // Older rBSP keeps the old switch (its vertex colour is plain white or a vertex light).
+        vec3 vertexLightFactor = vec3_splat(1.0);
+        if (isRBSP.x > 1.5)
+            vertexLightFactor = v_color0.rgb * exp2(5.0 * (1.0 - v_color0.a));
+        else if (useVertexLight.x > 0.0)
+            vertexLightFactor = v_color0.rgb;
 
         // All slots share the same UV — they live in separate atlas textures
         int  slots     = int(numLightmapSlots.x);
@@ -157,17 +164,8 @@ void main()
     for (int i = 0; i < numLights; i++)
         dynamicLight += CalculateSimplePointLight(i, v_world.xyz, normal);
 
-    vec3 lit;
-    if (isRBSP.x > 1.5)
-    {
-        // rBSP v2 (level editor): the baked light is linear HDR and the albedo is sRGB, so they are multiplied in linear light and
-        // encoded back to sRGB, as the editor's Lit view does. The game's dynamic lights keep their gamma-space look.
-        lit = SrgbFromLinear(LinearFromSrgb(o_texture.rgb) * o_lightmap) + o_texture.rgb * dynamicLight;
-    }
-    else
-    {
-        lit = o_texture.rgb * (o_lightmap + dynamicLight);
-    }
+    // albedo and light are multiplied as they are, in the texture's own space (rBSP v2 included: no sRGB conversion)
+    vec3 lit = o_texture.rgb * (o_lightmap + dynamicLight);
 
     gl_FragColor = ApplyFog(vec4(lit * brightness.x, o_texture.a), v_world.xyz);
 }
