@@ -17,7 +17,7 @@ These files tell an implementer exactly what to build, in what order, and how to
 | 0 | `P0_RENDERER_CORE.md`: test harness, base shader, draw lists, legacy routing, painter | nothing | done on StealthAction (see its Implementation notes) |
 | 1 | `P1_MARKUP_CORE.md`: XML, CSS, cascade, flow layout, SDF text, basic elements, components; establish UIDB model/serializer early (Task 1.2a), then publish the first complete launch snapshot with `UiSystem` (Task 1.14) | 0 | done on StealthAction (not run on the other three games) |
 | 2 | `P2_MENUS_AND_INPUT.md`: menu stack (any element), host options, events/actions/input metadata and preview scenarios, prompts, pilot pause menu | 1 | done on StealthAction, pilot look awaiting owner approval (see its Implementation notes) |
-| 3 | `P3_PAINTING_AND_MOTION.md`: full CSS painting, image atlas, transforms, transitions, keyframes and paint/animation preview metadata | 1 (2 recommended) | not started |
+| 3 | `P3_PAINTING_AND_MOTION.md`: full CSS painting, image atlas, transforms, transitions, keyframes and paint/animation preview metadata | 1 (2 recommended) | done |
 | 4 | `P4_WIDGETS_AND_KIT.md`: wrapped widgets, settings/localisation metadata and fixtures, engine kit, port all games, delete RmlUi | 2, 3 | not started |
 | 5 | `P5_HUD_AND_WORLD.md`: layers/HUD/host preview metadata, world panels, `UiContext`, world surfaces, loading screens | 2, 3 | not started |
 | 6 | `P6_UI_STUDIO.md`: game-independent Qt Studio discovered from `GameData` + `uidb.json`; delete the ImGui editor and JSON `.ui` layouts | 1 (better after 4) | not started |

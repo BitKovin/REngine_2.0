@@ -232,4 +232,24 @@ A provider's visual fixture must use the actual engine style resolver, animation
 
 ## Implementation notes
 
-(implementer writes here)
+**What exists.** Painting: `Render/UiBoxPainter` (box, shadows, gradients, border-image, outline, filter matrix, mask, clip-path, blend, pixelated), `UiGradientRamps` (256x256 ramp texture, LRU rows), `UiImageAtlas` (2048 pages, skyline packing, 4 px padding, CPU mips), `UiDrawList` with per-item geometry and batch merging (`merged N` in `ui_stats`), shaders `fs_ui2.sc`, `fs_ui2_shadow.sc`, `ui2_common.sh`. Style: `UiFxStyle`, `UiFxParse`, `UiLength`, `@keyframes` in `UiCssParser`. Motion: `Style/UiAnimation` (transitions, keyframe animations, transform interpolation, reduced motion, pause and seek), transforms in `UiFlowLayout` (`PatchTransforms`), leaving pages in `UiMenuStack`. New element `Arc`. UIDB: registries `paintEffects`, `animations`, `easings`; capabilities `painting` and `motion` true, `layers` false; previews `engine.effects.element` and `engine.animation.timeline`.
+
+**Deviations from the plan.**
+- Shaders return premultiplied colour; the colour matrix un-premultiplies, applies, and premultiplies again in `uiFinish`.
+- Arc angles are in T13, not T12. The clip shape lives in aux (T15.w). The gradient header is (type, ramp row, period, start).
+- Outer shadows are knocked out under the element box (CSS-correct).
+- `image-rendering: pixelated` is done in the shader (nearest via `floor(uv*size)+0.5`), not through a sampler flag, because `Shader::SetTexture` has no sampler flags.
+- Image minification differs slightly from phase 2 because images now go through the atlas.
+
+**Known limits.** Gradient `background-size` tiling is at most 64 tiles (per-tile clips). An ellipse clip-path is inaccurate under rotation. `border-image` repeat supports stretch and round only. There is no `background` shorthand. `background-size` is not animatable. `blur()`, `drop-shadow()`, `backdrop-filter` and group opacity need offscreen layers and are listed unavailable (`requiresLayer`).
+
+**Shader rules kept.** The anti-aliasing width comes from the CPU (T2.z); implicit-LOD `texture2D` only at the top of `main`, branches use `texture2DLod`; `SAMPLER2D` declarations are in each `.sc` file because the engine parses the slots from the `.sc` text.
+
+**Test commands added.** `anim_pause`, `anim_seek <id> <s>`, console `ui_reduced_motion`, `expect` props `opacity_now` and `animating`, `expect_uidb` keys `nocap:`, `unavailable:`, `preview:`. Scripts `Scripts/Common/p3_{paint,text_fx,motion,pages,design,uidb,timeline}.uitest` plus `p3_paint.probes`; pages in `ui/kit/tests/p3_*.xml`; `p3_design_theme.css` is the design doc 3.1 theme verbatim.
+
+**Diagnostics.** `ui_stats` also prints the CPU time of UI update, finalize and submit in microseconds. In Release the whole UI costs about 10-20 us for update plus finalize and 30-120 us for GPU submit per frame, also while the pause menu animates.
+
+**Pause menu.** Reworked beyond the plan at the owner's request: text-only items on the left, retro look, hover/focus slide, glow and a red underline filling left to right, all in `theme.css` (transitions on `transform`, `color`, `text-shadow`; the underline is a `scaleX` bar). Test runs (`-ui_test`) skip the network connect and host socket in `GameStart.cpp`; `NetworkManager` still runs as a lone server on a socket-less transport, because the player spawns through it.
+
+**Results (StealthAction, run `fin`/`m4`).** All earlier regression scripts and all seven `p3_*` scripts PASS on dx11, dx12, vk, gl (85 of 85 runs in `m4`). `p3_paint` probes OK. Cross vs dx11: dx12 EQUAL everywhere; vk EQUAL for paint, text fx and timeline (design frames differ by 123 px, max 10, legacy HUD text; `p3_design_enter` is mid-animation); gl differs by the same 666 px (max 82) in every capture, including ones with no new UI, so it is the legacy HUD, as in phase 1. `p3_motion_mid` is captured mid-transition on real time and is not compared across backends.
+Shaders for ShooterGame, SimGame and SlasherGame compile with 0 failed (not run).
