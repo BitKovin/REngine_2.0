@@ -1,6 +1,6 @@
 # UI rework: implementation plan
 
-These files tell an implementer exactly what to build, in what order, and how to check it. The design and the reasons behind it are in `source/Engine/UI/UI_REWORK_PLAN.md` ("the design"). Read the design once for context. When a detail here and the design disagree, **this plan wins**. When neither answers a question, **stop and ask the owner**. Do not invent an answer.
+These files tell an implementer exactly what to build, in what order, and how to check it. The design and the reasons behind it are in `Docs/UI/UI_REWORK_PLAN.md` ("the design"). Read the design once for context. When a detail here and the design disagree, **this plan wins**. When neither answers a question, **stop and ask the owner**. Do not invent an answer.
 
 ## How to use these files
 

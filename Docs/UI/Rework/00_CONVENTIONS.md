@@ -92,7 +92,7 @@ Every phase repeats which rule applies where.
 | Folder | Contents | Phase |
 |---|---|---|
 | `source/Engine/UI/Render/` | draw list, primitive buffer, GPU submit, painter, fonts (SDF), image atlas | 0, 1, 3 |
-| `source/Engine/UI/Test/` | UI test runner | 0 |
+| `Tools/ui/` | UI test runner | 0 |
 | `source/Engine/UI/Markup/` | XML documents, components, variables, element registry for tags | 1 |
 | `source/Engine/UI/Style/` | CSS tokenizer, parser, selectors, cascade, computed style | 1, 3 |
 | `source/Engine/UI/Flow/` | flow layout (named `Flow` so it doesn't clash with the existing `UI/Layout/` JSON code) | 1 |
@@ -102,8 +102,8 @@ Every phase repeats which rule applies where.
 | `source/Engine/UI/World/` | `UiContext`, `UiWorldSurface` | 5 |
 | `source/Engine/UI/Kit/` | engine kit C++ (settings model, kit screens' code-behind) | 4 |
 | `source/Engine/UI/Preview/` | generated UI database, preview descriptors/providers, preview fixtures and host adapters | 1–8 |
-| `source/Engine/UI/Assets/GameData/` | **canonical** engine UI assets: `shaders/source/ui2/…`, `ui/kit/…`, `fonts/ui/…`. Synced into games (§7) | 0+ |
-| `source/Engine/UI/Docs/Rework/` | these plan files | – |
+| `Tools/ui/assets/GameData/` | **canonical** engine UI assets: `shaders/source/ui2/…`, `ui/kit/…`, `fonts/ui/…`. Synced into games (§7) | 0+ |
+| `Docs/UI/Rework/` | these plan files | – |
 | `Tools/ui/` | Python tools: asset sync, image diff, image probe | 0 |
 
 ---
@@ -126,7 +126,7 @@ When a phase adds files to a **game** (for example `source/Games/StealthAction/U
 
 UI shaders and engine kit markup must exist inside each game's `GameData` (each game ships its own `GameData`, and shaders are compiled per game). To avoid four drifting copies:
 
-- The **only** place to edit engine UI assets is `source/Engine/UI/Assets/GameData/`, which mirrors the `GameData` layout.
+- The **only** place to edit engine UI assets is `Tools/ui/assets/GameData/`, which mirrors the `GameData` layout.
 - `Tools/ui/sync_ui_assets.py` (created in phase 0, task 0.5) mirrors the **managed folders** from there into each in-scope game:
 
   | Managed folder | Added in phase |
@@ -174,7 +174,7 @@ Same for `ui_shooter` (`ShooterGame`), `ui_simgame` (`SimGame`) and `ui_slasher`
 
 **Running the game:**
 
-- **Always pass `-headless`.** Without it a window flashes on the owner's desktop. Example from `Build/StealthAction/windows`: `bin\StealthAction.exe -headless -ui_test F:/Git/SdlWasmEngine/source/Engine/UI/Test/Scripts/StealthAction/legacy_menus.uitest`.
+- **Always pass `-headless`.** Without it a window flashes on the owner's desktop. Example from `Build/StealthAction/windows`: `bin\StealthAction.exe -headless -ui_test F:/Git/SdlWasmEngine/Tools/ui/scripts/StealthAction/legacy_menus.uitest`.
 - The process exit code is always 0. Results come from the files the test runner writes (phase 0).
 - A crash writes `CrashDump_*.dmp` next to `GameData`, and the crash handler then blocks. If a run doesn't finish within its expected time, look for a dump. Read it with `"C:\Program Files\WindowsApps\Microsoft.WinDbg_*\amd64\cdb.exe" -z <dmp> -y Build/<Game>/windows/bin -lines -c ".ecxr; kpn 8; q"`.
 - The owner approved building and headless runs for this work by handing over this plan. Never run a game without `-headless`, and never commit unless the owner asks.
@@ -198,7 +198,7 @@ Same for `ui_shooter` (`ShooterGame`), `ui_simgame` (`SimGame`) and `ui_slasher`
 
 ## 10. Tests and definition of done
 
-- Phase 0 builds the test runner (`-ui_test <script>`), UI-only screenshots, an image diff tool and an image probe tool. Every later phase adds `.uitest` scripts under `source/Engine/UI/Test/Scripts/`.
+- Phase 0 builds the test runner (`-ui_test <script>`), UI-only screenshots, an image diff tool and an image probe tool. Every later phase adds `.uitest` scripts under `Tools/ui/scripts/`.
 - A task is **done** when:
   1. the code builds for StealthAction (the pilot game) with no new warnings in the files you touched
   2. its Check step passes

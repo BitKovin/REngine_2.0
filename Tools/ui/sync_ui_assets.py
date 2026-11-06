@@ -1,11 +1,11 @@
-"""Mirror engine UI assets into every in-scope game's GameData (see Docs/Rework/00_CONVENTIONS.md §7)."""
+"""Mirror engine UI assets into every in-scope game's GameData (see Docs/UI/Rework/00_CONVENTIONS.md §7)."""
 import filecmp
 import shutil
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-SRC = REPO / "source" / "Engine" / "UI" / "Assets" / "GameData"
+SRC = REPO / "Tools" / "ui" / "assets" / "GameData"
 GAMES = ["ShooterGame", "SimGame", "SlasherGame", "StealthAction"]   # never HorrorGame
 MANAGED = ["shaders/source/ui2", "ui/kit", "fonts/ui"]
 

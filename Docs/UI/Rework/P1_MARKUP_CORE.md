@@ -55,8 +55,8 @@ source/Engine/UI/Elements/UiElemLabel.h/.cpp
 source/Engine/UI/Elements/UiElemImage.h/.cpp
 source/Engine/UI/Elements/UiElemButton.h/.cpp        Button and TextButton
 source/Engine/UI/UiSystem.h/.cpp                     per-frame driver, roots, hot reload, console commands
-source/Engine/UI/Assets/GameData/ui/kit/tests/       test layouts (synced to every game)
-source/Engine/UI/Test/Scripts/Common/p1_*.uitest     test scripts (game-independent)
+Tools/ui/assets/GameData/ui/kit/tests/       test layouts (synced to every game)
+Tools/ui/scripts/Common/p1_*.uitest     test scripts (game-independent)
 ```
 
 Edited: `UiDrawList` (prim modes), `UiPainter` (glyph runs), `fs_ui2.sc` (SDF glyph kind), `UiRenderer.cpp` (fallback fonts forward), `EngineMain.cpp` (UiSystem hooks), `UiTestRunner` (new commands), `ConsoleDefaultCommands.cpp`.
@@ -1220,7 +1220,7 @@ On failure, the message includes the actual value: `FAIL 12 expect #b w == 140: 
 
 ## Task 1.16: test layouts
 
-All of these go into `source/Engine/UI/Assets/GameData/ui/kit/tests/`. Sync them to all games.
+All of these go into `Tools/ui/assets/GameData/ui/kit/tests/`. Sync them to all games.
 
 ### `p1_layout.xml` (expected rects are exact; they were computed by hand from the rules above)
 
@@ -1261,7 +1261,7 @@ All of these go into `source/Engine/UI/Assets/GameData/ui/kit/tests/`. Sync them
 </root>
 ```
 
-`source/Engine/UI/Test/Scripts/Common/p1_layout.uitest`:
+`Tools/ui/scripts/Common/p1_layout.uitest`:
 
 ```
 wait 6
@@ -1617,7 +1617,7 @@ What exists (all under `source/Engine/UI/`, new unless noted):
 - `Elements/`: `UiElem`, `UiElemPanel`, `UiElemLabel`, `UiElemImage`, `UiElemButton`.
 - `UiSystem`: init, hot reload poll (500 ms), per-frame style/layout, `Finalize` (record, atlas upload, UIDB flush), console and test commands.
 - `Preview/`: `UiDatabase` (`SaveData/UIStudio/uidb.json`, atomic write) and `UiPreviewRegistry`.
-- Tests: `Test/Scripts/Common/p1_*.uitest` and assets in `Assets/GameData/ui/kit/tests/`.
+- Tests: `Tools/ui/scripts/Common/p1_*.uitest` and assets in `Tools/ui/assets/GameData/ui/kit/tests/`.
 
 Gotchas found while verifying (keep for later phases):
 - A bgfx texture created with initial data is immutable: `updateTexture2D` is silently ignored. The glyph atlas pages are created without data and the first flush uploads the zeroed page. The first version showed no text at all because of this.

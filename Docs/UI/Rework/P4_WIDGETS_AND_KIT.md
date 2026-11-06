@@ -111,7 +111,7 @@ namespace UiSettings
 
 ## Task 4.5: kit markup
 
-Canonical files under `source/Engine/UI/Assets/GameData/ui/kit/`, synced to all games:
+Canonical files under `Tools/ui/assets/GameData/ui/kit/`, synced to all games:
 
 ```
 kit/components/   SettingRow.xml Card.xml StyledButton.xml DialogFrame.xml TabBar.xml KeyBindSlot.xml Toast.xml

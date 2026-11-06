@@ -333,7 +333,7 @@ The application opens a project by selecting only its `GameData/` directory. It 
 - a dependency view: which documents import/use a component, which stylesheets are imported, and which assets a document references;
 - a search-results view with clickable file/line locations and a replace preview before applying multi-file edits.
 
-Never rename/delete a file outside the selected game's UI/assets roots through a normal project-tree action. Never edit canonical engine-managed assets in a game's mirrored folders; display a clear read-only/managed-asset indicator and direct edits to `source/Engine/UI/Assets/GameData/` instead.
+Never rename/delete a file outside the selected game's UI/assets roots through a normal project-tree action. Never edit canonical engine-managed assets in a game's mirrored folders; display a clear read-only/managed-asset indicator and direct edits to `Tools/ui/assets/GameData/` instead.
 
 Persist workspace state separately from game assets. A workspace file may remember window geometry, dock placement, open tabs and the last preview selection, but it must not become a second source of layout truth.
 
@@ -664,7 +664,7 @@ A test must not start against an executable that is still building or whose last
 
 Provide a Test Runner panel that:
 
-- discovers `*.uitest` scripts under `source/Engine/UI/Test/Scripts/` and the selected game's test folders;
+- discovers `*.uitest` scripts under `Tools/ui/scripts/` and the selected game's test folders;
 - groups tests by game, phase, feature and script name; shows last result and last run date for each;
 - opens `.uitest` scripts in a syntax-highlighted editor with command/argument completion based on the commands registered by the current engine;
 - shows inline help for `wait`, `wait_frames`, `action`, `console`, `screenshot`, `ui_screenshot`, `mouse_move`, `mouse_down`, `mouse_up`, `click`, `mouse_off`, `expect*`, `set_var`, `set_class` and any later registered command;

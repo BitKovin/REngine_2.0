@@ -18,11 +18,11 @@
 ## Overview of what you build
 
 ```
-source/Engine/UI/Test/UiTestRunner.h/.cpp            -ui_test <script> runner
+Tools/ui/UiTestRunner.h/.cpp            -ui_test <script> runner
 source/Engine/Screenshot.h/.cpp                      + RequestTarget() for UI-only screenshots with alpha
 Tools/ui/ui_png.py, ui_image_diff.py, ui_image_probe.py, sync_ui_assets.py
-source/Engine/UI/Test/Scripts/<Game>/legacy_menus.uitest
-source/Engine/UI/Assets/GameData/shaders/source/ui2/{varying.def.sc, vs_ui2.sc, fs_ui2.sc}
+Tools/ui/scripts/<Game>/legacy_menus.uitest
+Tools/ui/assets/GameData/shaders/source/ui2/{varying.def.sc, vs_ui2.sc, fs_ui2.sc}
 source/Engine/UI/Render/UiRenderTypes.h              plain structs and constants
 source/Engine/UI/Render/UiPrimBuffer.h/.cpp          primitive data texture
 source/Engine/UI/Render/UiDrawList.h/.cpp            recorded geometry + external commands
@@ -39,7 +39,7 @@ source/Engine/LoadingScreen/LoadingScreenSystem.cpp  pass begin/end, EndFrame, f
 
 ## Task 0.1: UI test runner
 
-**Files:** create `source/Engine/UI/Test/UiTestRunner.h` and `.cpp`. Edit `source/Engine/EngineMain.cpp`. Register both new files (conventions §6).
+**Files:** create `Tools/ui/UiTestRunner.h` and `.cpp`. Edit `source/Engine/EngineMain.cpp`. Register both new files (conventions §6).
 
 ### Script format
 
@@ -129,7 +129,7 @@ Reading the script: the `-ui_test` value is a path as given (absolute paths work
 - In `EngineMain::Init` (or wherever `ConsoleDefaultCommands::RegisterAll()` is called), after the arguments are parsed, call `UiTestRunner::InitFromArguments();`.
 - In `EngineMain::MainLoop`, find the line `Input::Update();` that sits just before `UiNavigation::Update(&Viewport);`. Insert `UiTestRunner::Tick();` directly after `Input::Update();`. Ticking there means simulated actions are visible to UI navigation and to the game update of the same frame. `InputAction::Update()` (called inside `Input::Update`) clears `pressed`, so the press must happen after it.
 
-**Check 0.1:** write `source/Engine/UI/Test/Scripts/StealthAction/smoke.uitest`:
+**Check 0.1:** write `Tools/ui/scripts/StealthAction/smoke.uitest`:
 
 ```
 wait 5
@@ -593,7 +593,7 @@ if __name__ == "__main__":
 
 Do this **before** task 0.6. The baselines must come from unchanged rendering code.
 
-1. For each in-scope game, write `source/Engine/UI/Test/Scripts/<Game>/legacy_menus.uitest`.
+1. For each in-scope game, write `Tools/ui/scripts/<Game>/legacy_menus.uitest`.
    - Read the game's `GameStart.cpp` (pause flow) and `UI/Pause/UiPauseMenu.h` / `UiSettingsMenu.h` to learn button order. Navigation uses the `ui_up`, `ui_down`, `ui_left`, `ui_right`, `ui_confirm` and `ui_cancel` actions.
    - Required captures, in this order, each followed by `wait 0.5` before the next action:
      1. `ui_screenshot 01_hud`: after `wait 8`, so the start level is loaded
@@ -618,11 +618,11 @@ Do this **before** task 0.6. The baselines must come from unchanged rendering co
 
 ## Task 0.5: canonical assets folder and sync script
 
-1. Create `source/Engine/UI/Assets/GameData/shaders/source/ui2/` (empty for now; task 0.6 fills it).
+1. Create `Tools/ui/assets/GameData/shaders/source/ui2/` (empty for now; task 0.6 fills it).
 2. Create `Tools/ui/sync_ui_assets.py` exactly as below:
 
 ```python
-"""Mirror engine UI assets into every in-scope game's GameData (see Docs/Rework/00_CONVENTIONS.md §7)."""
+"""Mirror engine UI assets into every in-scope game's GameData (see Docs/UI/Rework/00_CONVENTIONS.md §7)."""
 import filecmp
 import shutil
 import sys
@@ -684,7 +684,7 @@ if __name__ == "__main__":
 
 ## Task 0.6: the base shader
 
-**Files:** create in `source/Engine/UI/Assets/GameData/shaders/source/ui2/`: `varying.def.sc`, `vs_ui2.sc`, `fs_ui2.sc`. Use exactly this content. Later phases extend `fs_ui2.sc` in marked places.
+**Files:** create in `Tools/ui/assets/GameData/shaders/source/ui2/`: `varying.def.sc`, `vs_ui2.sc`, `fs_ui2.sc`. Use exactly this content. Later phases extend `fs_ui2.sc` in marked places.
 
 `varying.def.sc`:
 
@@ -1442,7 +1442,7 @@ Items (UI units, identity transform unless stated):
 
 Where `T(x,y)` = `UiElement::Mat3Translate` and `R(a)` = `UiElement::Mat3Rotate(glm::radians(a))`.
 
-**Probe file:** write the table into `source/Engine/UI/Test/Scripts/StealthAction/painter_card.probes` (one line per probe: `X Y R G B A TOL LABEL`, TOL 1 unless stated). Write the script `painter_card.uitest`:
+**Probe file:** write the table into `Tools/ui/scripts/StealthAction/painter_card.probes` (one line per probe: `X Y R G B A TOL LABEL`, TOL 1 unless stated). Write the script `painter_card.uitest`:
 
 ```
 wait 6
@@ -1458,7 +1458,7 @@ The probes assume the UI target is 1080 tall (`UiManager::UiScale == 1`). If the
 **Check 0.12:**
 
 1. `run_ui_tests.py run --game StealthAction --script …/painter_card.uitest --label card`, which covers all four backends.
-2. For **each** backend: `python -I Tools/ui/ui_image_probe.py Build/ui_runs/StealthAction/painter_card/card/<backend>/card.png --probes source/Engine/UI/Test/Scripts/StealthAction/painter_card.probes`. Every line must print `OK`, with exit code 0.
+2. For **each** backend: `python -I Tools/ui/ui_image_probe.py Build/ui_runs/StealthAction/painter_card/card/<backend>/card.png --probes Tools/ui/scripts/StealthAction/painter_card.probes`. Every line must print `OK`, with exit code 0.
 3. Then `run_ui_tests.py cross --game StealthAction --stem painter_card --label card` must print `EQUAL` for every backend. New drawing must produce the same pixels everywhere (conventions §11). A backend that differs is a bug in the new code. Typical causes:
    - a y-flip of the render target on OpenGL
    - a texel-centre offset
@@ -1524,7 +1524,7 @@ built or run in this phase). All checks below ran on dx11, dx12, vk and gl.
 ### New files and tools
 
 `UI/Render/{UiRenderTypes.h,UiPrimBuffer.*,UiDrawList.*,UiGpu.*,UiPainter.*,UiPainterTestCard.*}`, `UI/Test/UiTestRunner.*`,
-`UI/Test/Scripts/StealthAction/{legacy_menus,smoke,painter_card,stats}.uitest` and `painter_card.probes`,
+`Tools/ui/scripts/StealthAction/{legacy_menus,smoke,painter_card,stats}.uitest` and `painter_card.probes`,
 `Tools/ui/{ui_png,ui_image_diff,ui_image_probe,run_ui_tests,sync_ui_assets,make_cross_mask}.py`, `Build/ui_build.cmd`.
 Console commands: `ui_painter_test 1|0`, `ui_stats`; launch argument `-ui_test <script>`.
 
