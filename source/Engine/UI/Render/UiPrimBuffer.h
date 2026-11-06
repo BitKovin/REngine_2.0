@@ -9,17 +9,24 @@ public:
     void Shutdown();
     // Returns the frame-global primitive index, or -1 when the frame is full (logs once per frame).
     int  Add(const UiRender::PrimBlock& block);
+    // Appends `count` auxiliary texels (colour matrices, mask and clip-shape geometry) and returns the frame-wide index
+    // of the first one, or -1 when the aux area is full (logs once per frame).
+    int  AddAux(const glm::vec4* texels, int count);
     // Uploads every row touched since the last upload. Call right before submitting draws that use them.
     void UploadPending();
     // Starts a new frame. Only UiRenderer::OnBeforeBgfxFrame() may call this (conventions §3).
     void ResetFrame();
     bgfx::TextureHandle Texture() const { return m_texture; }
     int Count() const { return m_count; }
+    int AuxCount() const { return m_auxCount; }
 
 private:
     bgfx::TextureHandle m_texture = BGFX_INVALID_HANDLE;
     std::vector<glm::vec4> m_cpu;   // kDataWidth * kDataHeight texels, mirror of the whole texture
     int m_count = 0;                // primitives added this frame
     int m_uploadedCount = 0;        // primitives already covered by an upload this frame
+    int m_auxCount = 0;             // auxiliary texels added this frame
+    int m_auxUploaded = 0;
+    bool m_loggedAuxFull = false;
     bool m_loggedFull = false;
 };

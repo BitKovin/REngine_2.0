@@ -1,0 +1,72 @@
+<root>
+  <styles>
+    <style>
+      .b { horizontal-align: left; vertical-align: top; }
+
+      /* gradients */
+      #g1 { x: 100px; y: 100px; width: 256px; height: 60px; background-image: linear-gradient(to right, #ff0000, #0000ff); }
+      #g2 { x: 400px; y: 100px; width: 128px; height: 128px; background-image: radial-gradient(circle closest-side at 50% 50%, #00ff00, #ff0000); }
+      #g3 { x: 600px; y: 100px; width: 128px; height: 128px;
+            background-image: conic-gradient(#ff0000 0%, #ff0000 25%, #0000ff 25%, #0000ff 50%, #00ff00 50%, #00ff00 100%); }
+      #g4 { x: 800px; y: 100px; width: 80px; height: 20px;
+            background-image: repeating-linear-gradient(to right, #ff0000 0px, #ff0000 10px, #0000ff 10px, #0000ff 20px); }
+
+      /* shadows, outline, filter, blend */
+      #s1 { x: 100px; y: 300px; width: 100px; height: 60px; background-color: #ffffff; box-shadow: 0 0 16px 0 #000000; }
+      #s2 { x: 300px; y: 300px; width: 100px; height: 60px; background-color: #ffffff; box-shadow: inset 0 0 12px 0 #ff0000; }
+      #o1 { x: 500px; y: 300px; width: 80px; height: 50px; background-color: #000080; outline: 4px solid #ffff00; outline-offset: 6px; }
+      #f1 { x: 700px; y: 300px; width: 60px; height: 60px; background-color: #ff0000; filter: grayscale(1); }
+      #w1 { x: 800px; y: 300px; width: 60px; height: 60px; background-color: #ff0000; wash-color: rgba(0, 0, 255, 0.5); }
+      #b1 { x: 900px; y: 300px; width: 100px; height: 60px; background-color: #404040; }
+      #b1c { width: 50px; height: 60px; background-color: #303030; mix-blend-mode: plus-lighter; }
+      #b2 { x: 1050px; y: 300px; width: 100px; height: 60px; background-color: #808080; }
+      #b2c { width: 50px; height: 60px; background-color: #ff8040; mix-blend-mode: multiply; }
+      #b3 { x: 1200px; y: 300px; width: 100px; height: 60px; background-color: #808080; }
+      #b3c { width: 50px; height: 60px; background-color: #404040; mix-blend-mode: screen; }
+
+      /* transform, arc, mask, clip-path */
+      #t1 { x: 100px; y: 500px; width: 100px; height: 100px; background-color: #00ff00; transform: rotate(30deg); }
+      #a1 { x: 300px; y: 500px; width: 100px; height: 100px; color: #ff0000; }
+      #m1 { x: 500px; y: 500px; width: 100px; height: 100px; background-color: #ffffff; mask-image: linear-gradient(to bottom, #000000, transparent); }
+      #c1 { x: 700px; y: 500px; width: 100px; height: 100px; background-color: #ffffff; clip-path: circle(30px at 50% 50%); }
+      #c2 { x: 850px; y: 500px; width: 100px; height: 100px; background-color: #ffffff; clip-path: inset(20px 10px); }
+
+      /* images: atlas, tiling, border image */
+      #i1 { x: 1000px; y: 500px; width: 64px; height: 32px; background-image: url(GameData/ui/kit/tests/p3_tile.png); background-repeat: repeat; }
+      #i2 { x: 1150px; y: 500px; width: 80px; height: 60px; border: 8px solid transparent; border-image: url(GameData/ui/kit/tests/p3_border.png) 8; }
+      #i3 { x: 1300px; y: 500px; width: 64px; height: 64px; background-image: url(GameData/ui/kit/tests/p3_tile.png);
+            background-repeat: no-repeat; background-size: 32px 32px; background-position: right bottom; }
+      #i2f { x: 100px; y: 700px; width: 80px; height: 60px; border: 8px solid transparent; border-image: url(GameData/ui/kit/tests/p3_border.png) 8 fill; }
+      #px { x: 300px; y: 700px; width: 64px; height: 64px; background-image: url(GameData/ui/kit/tests/p3_tile.png); background-size: 64px 64px;
+            image-rendering: pixelated; }
+      #sm { x: 500px; y: 700px; width: 64px; height: 64px; background-image: url(GameData/ui/kit/tests/p3_tile.png); background-size: 64px 64px; }
+      #ls { x: 700px; y: 700px; width: 100px; height: 60px; background-color: #ff0000; border-radius: 20px; box-shadow: 0 6px 12px 2px #0000ff; }
+    </style>
+  </styles>
+  <Panel id="proot" class="b">
+    <Panel id="g1" class="b"/>
+    <Panel id="g2" class="b"/>
+    <Panel id="g3" class="b"/>
+    <Panel id="g4" class="b"/>
+    <Panel id="s1" class="b"/>
+    <Panel id="s2" class="b"/>
+    <Panel id="o1" class="b"/>
+    <Panel id="f1" class="b"/>
+    <Panel id="w1" class="b"/>
+    <Panel id="b1" class="b"><Panel id="b1c"/></Panel>
+    <Panel id="b2" class="b"><Panel id="b2c"/></Panel>
+    <Panel id="b3" class="b"><Panel id="b3c"/></Panel>
+    <Button id="t1" class="b"/>
+    <Arc id="a1" class="b" start="0" sweep="90" thickness="10"/>
+    <Panel id="m1" class="b"/>
+    <Panel id="c1" class="b"/>
+    <Panel id="c2" class="b"/>
+    <Panel id="i1" class="b"/>
+    <Panel id="i2" class="b"/>
+    <Panel id="i3" class="b"/>
+    <Panel id="i2f" class="b"/>
+    <Panel id="px" class="b"/>
+    <Panel id="sm" class="b"/>
+    <Panel id="ls" class="b"/>
+  </Panel>
+</root>

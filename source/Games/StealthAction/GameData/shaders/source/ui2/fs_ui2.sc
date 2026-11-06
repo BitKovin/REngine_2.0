@@ -1,50 +1,60 @@
 $input v_texcoord0, v_local, v_misc
 
 #include <../bgfx_shader.sh>
-
-// Primitive data texture: 16 RGBA32F texels per primitive (layout in UiRenderTypes.h).
+// Declared here, not in ui2_common.sh: the engine reads the sampler slots from this file's text.
 SAMPLER2D(s_uiData, 0);
-// Texture of the current batch (white 1x1 when the batch has none).
 SAMPLER2D(s_uiTex0, 1);
-// [P3] gradient ramp sampler goes here as slot 3.
-
-// x = data texture width in texels, y = texels per primitive, z = time (seconds), w = unused
+SAMPLER2D(s_uiRamp, 2);
 uniform vec4 u_uiParams;
+#include <ui2_common.sh>
 
-// Reads one texel of the primitive data texture. This uses texture2DLod at the texel centre (point sampling, so exact)
-// and not texelFetch: shaderc drops a sampler that is only used through texelFetch, and the engine then cannot bind it.
-// The height of the data texture is 256 (UiRender::kDataHeight); the width comes from u_uiParams.x.
-vec4 uiFetch(int prim, int t)
+// Anti-aliasing width comes from the CPU (texel 2 .z, local units per target pixel), never from dFdx/dFdy:
+// derivatives differ between backends, and every backend must produce the same pixels.
+
+// Gradient colour for a Box or Arc. Header T11 = (type, rampRow, period, start); geometry T12.
+// type 1 linear (p0, p1), 2 radial (centre, radii), 3 conic (centre, start angle). Straight colour.
+// A repeating gradient has period > 0 and repeats the part of the line from `start` on; otherwise the position is clamped to 0..1.
+vec4 uiGradientColor(int prim, vec4 gh, vec2 local)
 {
-    float width = u_uiParams.x;
-    float texel = float(prim * int(u_uiParams.y) + t);
-    float row = floor(texel / width);
-    float col = texel - row * width;
-    return texture2DLod(s_uiData, vec2((col + 0.5) / width, (row + 0.5) / 256.0), 0.0);
+    vec4 g = uiFetch(prim, 12);
+    float t;
+    if (gh.x < 1.5)
+    {
+        vec2 d = g.zw - g.xy;
+        t = dot(local - g.xy, d) / max(dot(d, d), 0.000001);
+    }
+    else if (gh.x < 2.5)
+        t = length((local - g.xy) / max(g.zw, vec2(0.0001, 0.0001)));
+    else
+    {
+        // clockwise from 12 o'clock, as in CSS
+        vec2 d = local - g.xy;
+        t = fract((atan2(d.x, -d.y) - g.z) / 6.2831853 + 1.0);
+    }
+    t = (gh.z > 0.0) ? fract((t - gh.w) / gh.z) : clamp(t, 0.0, 1.0);
+    return uiRamp(gh.y, t);
 }
 
-bool uiFlag(float flags, float bit)
+// Tiled image fill: v_texcoord0 carries the tile coordinate, T12 the sub-rectangle in the texture. T11.z bit 0 = repeat x, bit 1 = repeat y.
+// Sampled in a branch, so with an explicit level (this loses mips for tiled images). Returns the colour and zero outside a non-repeating tile.
+vec4 uiTiledSample(int prim, vec4 gh, vec2 tile, float flags)
 {
-    return mod(floor(flags / bit), 2.0) > 0.5;
-}
-
-float uiCoverage(float d, float px)
-{
-    return clamp(0.5 - d / px, 0.0, 1.0);
-}
-
-// p relative to the box centre, y down; r = (top-left, top-right, bottom-right, bottom-left)
-float uiRoundBoxSdf(vec2 p, vec2 halfSize, vec4 r)
-{
-    float rad = (p.x < 0.0) ? ((p.y < 0.0) ? r.x : r.w) : ((p.y < 0.0) ? r.y : r.z);
-    rad = min(rad, min(halfSize.x, halfSize.y));
-    vec2 q = abs(p) - halfSize + vec2(rad, rad);
-    return min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0, 0.0))) - rad;
-}
-
-vec4 uiPremul(vec4 c)
-{
-    return vec4(c.rgb * c.a, c.a);
+    vec4 r = uiFetch(prim, 12);
+    bool repX = mod(gh.z, 2.0) > 0.5;
+    bool repY = gh.z > 1.5;
+    vec2 f = vec2(repX ? fract(tile.x) : clamp(tile.x, 0.0, 1.0), repY ? fract(tile.y) : clamp(tile.y, 0.0, 1.0));
+    float inside = 1.0;
+    if (!repX && (tile.x < 0.0 || tile.x > 1.0))
+        inside = 0.0;
+    if (!repY && (tile.y < 0.0 || tile.y > 1.0))
+        inside = 0.0;
+    vec2 uv = mix(r.xy, r.zw, f);
+    if (uiFlag(flags, 16.0))
+    {
+        vec2 size = max(uiFetch(prim, 13).xy, vec2(1.0, 1.0));
+        uv = (floor(uv * size) + 0.5) / size;
+    }
+    return texture2DLod(s_uiTex0, uv, 0.0) * inside;
 }
 
 vec4 uiShadeImage(int prim, vec4 tex)
@@ -53,7 +63,7 @@ vec4 uiShadeImage(int prim, vec4 tex)
     return uiPremul(tex * uiFetch(prim, 1));
 }
 
-vec4 uiShadeBox(int prim, vec2 local, vec4 tex, float flags, float px)
+vec4 uiShadeBox(int prim, vec2 local, vec2 tile, vec4 tex, float flags, float px)
 {
     vec4 fill   = uiFetch(prim, 1);
     vec2 size   = uiFetch(prim, 2).xy;
@@ -75,9 +85,16 @@ vec4 uiShadeBox(int prim, vec2 local, vec4 tex, float flags, float px)
         inner = min(uiCoverage(uiRoundBoxSdf(local - innerCentre, innerHalf, innerRadii), px), outer);
     }
 
+    vec4 gh = uiFetch(prim, 11);
+    vec4 fillTex = tex;
+    if (gh.x > 0.5)
+        fill = uiGradientColor(prim, gh, local) * fill;   // replaces the fill colour; the tint (white, with the opacity as alpha) scales it
+    else if (gh.w > 0.5)
+        fillTex = uiTiledSample(prim, gh, tile, flags);
+
     vec4 fillColor = fill;
     if (uiFlag(flags, 2.0))
-        fillColor *= tex;
+        fillColor *= fillTex;
     vec4 result = uiPremul(fillColor) * inner;
 
     if (outer - inner > 0.0)
@@ -102,21 +119,54 @@ vec4 uiShadeBox(int prim, vec2 local, vec4 tex, float flags, float px)
 vec4 uiShadeSdfGlyph(int prim, vec4 tex, float px)
 {
     vec4 color = uiFetch(prim, 1);
-    vec4 g = uiFetch(prim, 13);        // x = UI units per atlas pixel (glyph scale), y = dilation in UI units
+    // x = UI units per atlas pixel (glyph scale), y = dilation in UI units, z = softness (text-shadow blur / 2), w = stroke width
+    vec4 g = uiFetch(prim, 13);
     // Atlas encodes distance as 128 + 16 * (distance in atlas pixels), inside > 128 (stbtt_GetCodepointSDF settings).
     float d = (tex.r * 255.0 - 128.0) / 16.0 * g.x + g.y;
-    float cov = clamp(0.5 + d / px, 0.0, 1.0);
-    return uiPremul(color) * cov;
+    float cov = (g.z > 0.0) ? smoothstep(-g.z, g.z, d) : clamp(0.5 + d / px, 0.0, 1.0);
+    vec4 result = uiPremul(color) * cov;
+    if (g.w > 0.0)
+    {
+        // The stroke is composited under the fill and grows outwards.
+        float strokeCov = clamp(0.5 + (d + g.w) / px, 0.0, 1.0);
+        result += uiPremul(uiFetch(prim, 14)) * strokeCov * (1.0 - result.a);
+    }
+    return result;
 }
 
-float uiClip(int prim, vec2 screenPos, float flags, float pxScreen)
+// Arc: T1 colour, T2 (w, h, aa, thickness), T13 (start rad, sweep rad, 0, round caps). Angles clockwise from 12 o'clock.
+vec4 uiShadeArc(int prim, vec2 local, float px)
 {
-    if (!uiFlag(flags, 1.0))
-        return 1.0;
-    vec4 rect  = uiFetch(prim, 9);
-    vec4 radii = uiFetch(prim, 10);
-    vec2 halfSize = (rect.zw - rect.xy) * 0.5;
-    return uiCoverage(uiRoundBoxSdf(screenPos - (rect.xy + halfSize), halfSize, radii), pxScreen);
+    vec4 fill = uiFetch(prim, 1);
+    vec4 sz = uiFetch(prim, 2);
+    vec4 a = uiFetch(prim, 13);
+    vec4 gh = uiFetch(prim, 11);
+    vec2 p = local - sz.xy * 0.5;
+    float radius = min(sz.x, sz.y) * 0.5;
+    float thickness = sz.w;
+    float mid = radius - thickness * 0.5;
+    float d = abs(length(p) - mid) - thickness * 0.5;
+    if (a.y < 6.2831)
+    {
+        float centre = a.x + a.y * 0.5;
+        float halfAngle = a.y * 0.5;
+        vec2 axis = vec2(sin(centre), -cos(centre));
+        vec2 side = vec2(-axis.y, axis.x);
+        vec2 q = vec2(abs(dot(p, side)), dot(p, axis));
+        vec2 e = vec2(sin(halfAngle), cos(halfAngle));
+        float m = length(q - e * max(dot(q, e), 0.0));
+        float wedge = m * sign(e.y * q.x - e.x * q.y);
+        d = max(d, wedge);
+        if (a.w > 0.5)
+        {
+            float c0 = length(p - mid * vec2(sin(a.x), -cos(a.x))) - thickness * 0.5;
+            float c1 = length(p - mid * vec2(sin(a.x + a.y), -cos(a.x + a.y))) - thickness * 0.5;
+            d = min(d, min(c0, c1));
+        }
+    }
+    if (gh.x > 0.5)
+        fill = uiGradientColor(prim, gh, local) * fill;
+    return uiPremul(fill) * uiCoverage(d, px);
 }
 
 void main()
@@ -130,22 +180,28 @@ void main()
     vec4 header = uiFetch(prim, 0);
     float kind = header.x;
     float flags = header.y;
-    // Anti-aliasing width comes from the CPU (local units per target pixel), not from dFdx/dFdy:
-    // derivatives differ between backends, and every backend must produce the same pixels.
     float px = max(uiFetch(prim, 2).z, 0.0001);
-    float pxScreen = 1.0;   // screen positions are in target pixels already
+
+    // image-rendering: pixelated. The texture size is in T13.xy; tiled fills snap inside uiTiledSample.
+    if (uiFlag(flags, 16.0) && kind < 1.5)
+    {
+        vec2 size = max(uiFetch(prim, 13).xy, vec2(1.0, 1.0));
+        tex = texture2DLod(s_uiTex0, (floor(v_texcoord0 * size) + 0.5) / size, 0.0);
+    }
 
     vec4 color;
     if (kind < 0.5)
         color = uiShadeImage(prim, tex);
     else if (kind < 1.5)
-        color = uiShadeBox(prim, v_local, tex, flags, px);
+        color = uiShadeBox(prim, v_local, v_texcoord0, tex, flags, px);
     else if (kind < 2.5)
         color = uiShadeSdfGlyph(prim, tex, px);
-    // [P3] kinds 3..5 go here.
+    else if (kind > 3.5 && kind < 4.5)
+        color = uiShadeArc(prim, v_local, px);
+    else if (kind > 4.5 && kind < 5.5)
+        color = uiPremul(uiFetch(prim, 1)) * v_local.x;   // tessellated path: the fringe vertices carry the coverage in v_local.x
     else
-        color = vec4(1.0, 0.0, 1.0, 1.0);   // unknown kind: loud magenta
+        color = vec4(1.0, 0.0, 1.0, 1.0);   // unknown kind (or a shadow in the wrong program): loud magenta
 
-    color *= uiClip(prim, screenPos, flags, pxScreen);
-    gl_FragColor = color;
+    gl_FragColor = uiFinish(color, prim, header, screenPos);
 }

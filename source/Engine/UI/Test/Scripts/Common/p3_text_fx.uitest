@@ -1,0 +1,7 @@
+# Phase 3 text effects: stroke and shadow (visual check and cross-backend comparison).
+wait 6
+console ui_load GameData/ui/kit/tests/p3_text_fx.xml
+wait_frames 12
+expect_ui_errors 0
+ui_screenshot p3_text_fx
+quit

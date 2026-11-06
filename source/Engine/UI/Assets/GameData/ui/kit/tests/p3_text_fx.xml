@@ -1,0 +1,21 @@
+<root>
+  <styles>
+    <style>
+      .t { horizontal-align: left; vertical-align: top; font-size: 72px; color: #ffffff; }
+      #tx1 { x: 100px; y: 100px; }
+      #tx2 { x: 100px; y: 220px; text-stroke: 4px #ff0000; }
+      #tx3 { x: 100px; y: 340px; text-shadow: 6px 6px 0 #000000; }
+      #tx4 { x: 100px; y: 460px; text-shadow: 0 0 12px #00ffff, 6px 6px 8px rgba(0, 0, 0, 0.8); }
+      #tx5 { x: 100px; y: 580px; text-stroke: 3px #0000ff; text-shadow: 5px 5px 4px #000000; color: #ffff00; }
+      #bg  { x: 0px; y: 0px; width: 1000px; height: 720px; background-color: #404040; }
+    </style>
+  </styles>
+  <Panel id="txroot" class="t">
+    <Panel id="bg"/>
+    <Label id="tx1" class="t" text="Plain Text"/>
+    <Label id="tx2" class="t" text="Stroke"/>
+    <Label id="tx3" class="t" text="Hard shadow"/>
+    <Label id="tx4" class="t" text="Glow and soft"/>
+    <Label id="tx5" class="t" text="Both"/>
+  </Panel>
+</root>

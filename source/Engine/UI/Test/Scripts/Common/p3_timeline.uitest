@@ -1,0 +1,20 @@
+# Deterministic animation timeline: pause the motion clock, scrub a keyframe animation to its start, middle and end.
+wait 6
+console ui_load GameData/ui/kit/tests/p3_motion.xml
+wait_frames 6
+anim_pause 1
+anim_seek pulse 0
+expect pulse opacity_now == 1
+ui_screenshot p3_timeline_start
+anim_seek pulse 2
+expect pulse opacity_now > 0.45
+expect pulse opacity_now < 0.55
+ui_screenshot p3_timeline_mid
+anim_seek pulse 3.99
+expect pulse opacity_now < 0.05
+ui_screenshot p3_timeline_end
+# paused: real time does not move it
+wait 0.5
+expect pulse opacity_now < 0.05
+anim_pause 0
+quit

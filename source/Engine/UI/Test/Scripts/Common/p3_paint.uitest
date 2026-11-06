@@ -1,0 +1,13 @@
+# Phase 3 painting: gradients, shadows, outline, filter, blend modes, transform, arc, mask, clip-path, images. Probes are in p3_paint.probes.
+wait 6
+console ui_load GameData/ui/kit/tests/p3_paint.xml
+wait_frames 12
+expect_ui_errors 0
+ui_screenshot p3_paint
+# the rotated button is hit-tested through its transform: the centre activates it, an unrotated corner does not
+click 150 550
+expect t1 activations == 1
+click 103 503
+expect t1 activations == 1
+mouse_off
+quit

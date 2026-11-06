@@ -1,0 +1,35 @@
+# Phase 3 motion: transitions, keyframes, reduced motion.
+wait 6
+console ui_load GameData/ui/kit/tests/p3_motion.xml
+wait_frames 5
+expect_ui_errors 0
+expect box opacity_now == 1
+# the infinite keyframe animation has started
+expect pulse animating == 1
+expect pulse opacity_now > 0.7
+set_class box hot 1
+set_class grow big 1
+set_class spin turn 1
+wait 0.25
+expect box opacity_now > 0.2
+expect box opacity_now < 0.8
+expect box animating == 1
+expect grow w > 150
+expect grow w < 250
+ui_screenshot p3_motion_mid
+wait 0.5
+expect box opacity_now == 0
+expect box animating == 0
+expect grow w == 300
+# the animation is still running and has moved on
+wait 1.5
+expect pulse opacity_now < 0.7
+expect pulse animating == 1
+# reduced motion: the next change is instant, and the infinite animation stops
+console ui_reduced_motion 1
+set_class box2 hot 1
+wait_frames 3
+expect box2 opacity_now == 0
+expect pulse opacity_now == 1
+console ui_reduced_motion 0
+quit

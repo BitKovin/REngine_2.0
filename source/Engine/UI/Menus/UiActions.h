@@ -32,6 +32,8 @@ namespace UiActions
     // Runs one call for `sender`. The handler search starts at `searchFrom` (the sender when null) and walks up the UiElem ancestors;
     // the first element with a handler of that name runs it, else a built-in runs, else a warning is logged once per element and name.
     void Dispatch(UiElem& sender, UiElem* searchFrom, const UiActionCall& call);
+    // Plays a 2D UI sound (the PlaySound action; also the sound / sound-hover style properties).
+    void PlaySoundPath(const std::string& path);
 
     bool IsBuiltin(const std::string& name);
     const std::vector<UiActionInfo>& Builtins();   // sorted by name

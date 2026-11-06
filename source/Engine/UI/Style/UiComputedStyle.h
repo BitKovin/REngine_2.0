@@ -2,24 +2,11 @@
 #include <glm.h>
 #include <UI/Render/UiTextLayout.h>
 #include <UI/Style/UiCssParser.h>
+#include <UI/Style/UiFxStyle.h>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-enum class UiLenKind { Px, Percent, Calc, FitChildren, FillParentFlow, HeightPercentage, WidthPercentage, Auto };
-
-struct UiLength
-{
-    UiLenKind Kind = UiLenKind::Px;
-    float Px = 0.f;        // Px, Calc (pixel part)
-    float Percent = 0.f;   // Percent, Calc (percent part), Height/WidthPercentage (0..100)
-    float Weight = 1.f;    // FillParentFlow
-    float Resolve(float basis) const { return Px + Percent * 0.01f * basis; }   // Px, Percent, Calc only
-    bool IsResolvable() const { return Kind == UiLenKind::Px || Kind == UiLenKind::Percent || Kind == UiLenKind::Calc; }
-    bool HasPercent() const { return (Kind == UiLenKind::Percent || Kind == UiLenKind::Calc) && Percent != 0.f; }
-    bool operator==(const UiLength&) const = default;
-};
 
 enum class UiFlow { None, Down, Right, DownWrap, RightWrap };
 enum class UiHAlign { Left, Center, Right };
@@ -65,6 +52,8 @@ struct UiComputedStyle
     UiTextTransform TextTransform = UiTextTransform::None;
     // ── image (Image element)
     UiObjectFit ObjectFit = UiObjectFit::Fill;
+    // ── painting and motion (phase 3)
+    UiFxStyle Fx;
     // ── custom properties (inherited): name (with "--") -> raw tokens
     std::unordered_map<std::string, std::vector<UiCssToken>> Custom;
 

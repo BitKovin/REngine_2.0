@@ -155,11 +155,11 @@ void UICMD_Stats(const std::vector<std::string>& args)
 	const UiGpu::Stats& s = UiGpu::LastFrameStats();
 	char line[256];
 	std::snprintf(line, sizeof(line),
-		"[UiStats] passes %u prims %u vertices %u draws %u externals %u breaks: texture %u state %u stencil %u external %u capacity %u",
+		"[UiStats] passes %u prims %u vertices %u draws %u externals %u breaks: texture %u state %u stencil %u external %u capacity %u merged %u cpu-us update %u finalize %u submit %u",
 		s.Passes, s.Prims, s.Vertices, s.GeometryDraws, s.Externals,
 		s.Breaks[static_cast<int>(UiDrawList::BreakReason::Texture)], s.Breaks[static_cast<int>(UiDrawList::BreakReason::State)],
 		s.Breaks[static_cast<int>(UiDrawList::BreakReason::Stencil)], s.Breaks[static_cast<int>(UiDrawList::BreakReason::External)],
-		s.Breaks[static_cast<int>(UiDrawList::BreakReason::Capacity)]);
+		s.Breaks[static_cast<int>(UiDrawList::BreakReason::Capacity)], s.Merged, s.CpuUs[0], s.CpuUs[1], s.CpuUs[2]);
 	Logger::Log(line);
 }
 

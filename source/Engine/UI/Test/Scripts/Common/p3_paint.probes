@@ -1,0 +1,77 @@
+# X Y R G B A TOL LABEL   (RGBA in the UI target, premultiplied)
+# linear gradient #ff0000 -> #0000ff over 256 px
+228 130 128 0 127 255 3 g1 middle
+101 130 254 0 1 255 3 g1 start
+354 130 1 0 254 255 3 g1 end
+# radial gradient: the centre is the first stop, the edge the last
+464 164 2 253 0 255 6 g2 centre
+496 164 128 127 0 255 6 g2 half
+524 164 240 15 0 255 10 g2 near edge
+# conic gradient, clockwise from 12 o'clock
+694 134 255 0 0 255 2 g3 upper right red
+694 194 0 0 255 255 2 g3 lower right blue
+634 194 0 255 0 255 2 g3 lower left green
+634 134 0 255 0 255 2 g3 upper left green
+# repeating linear gradient with a 20 px period
+805 110 255 0 0 255 2 g4 red 1
+815 110 0 0 255 255 2 g4 blue 1
+825 110 255 0 0 255 2 g4 red 2
+835 110 0 0 255 255 2 g4 blue 2
+# outer shadow: soft near the box, none far away
+94 330 0 0 0 63 12 s1 6px outside
+60 330 0 0 0 0 1 s1 40px outside
+150 330 255 255 255 255 1 s1 box
+# inset shadow darkens the edge only
+302 330 255 168 168 255 18 s2 inner edge
+350 330 255 255 255 255 3 s2 centre
+# outline ring, the gap from outline-offset, the box
+492 325 255 255 0 255 2 o1 ring
+497 325 0 0 0 0 1 o1 gap
+540 325 0 0 128 255 1 o1 box
+# filter: grayscale(1) on red -> luminance
+730 330 54 54 54 255 2 f1 grayscale
+# wash-color rgba(0,0,255,.5) over red
+830 330 128 0 128 255 3 w1 wash
+# blend modes over grey
+925 330 112 112 112 255 3 b1 plus-lighter
+975 330 64 64 64 255 1 b1 outside child
+1075 330 128 64 32 255 3 b2 multiply
+1125 330 128 128 128 255 1 b2 outside child
+1225 330 160 160 160 255 3 b3 screen
+# transform: rotate(30deg)
+150 550 0 255 0 255 1 t1 centre
+103 503 0 0 0 0 1 t1 unrotated corner
+# arc 0..90 degrees
+382 518 255 0 0 255 2 a1 45 degrees
+382 582 0 0 0 0 1 a1 135 degrees
+318 518 0 0 0 0 1 a1 315 degrees
+350 550 0 0 0 0 1 a1 hole
+# gradient mask fading to nothing at the bottom
+550 503 247 247 247 247 8 m1 top
+550 550 126 126 126 126 6 m1 middle
+550 597 6 6 6 6 8 m1 bottom
+# clip-path
+750 550 255 255 255 255 1 c1 circle centre
+790 550 0 0 0 0 1 c1 circle outside
+900 550 255 255 255 255 1 c2 inset inside
+855 550 0 0 0 0 1 c2 inset left cut
+900 505 0 0 0 0 1 c2 inset top cut
+# atlas image tiled 4 x 2: tile 2 equals tile 1
+1004 508 255 0 0 255 2 i1 tile 1 left
+1012 508 0 0 255 255 2 i1 tile 1 right
+1020 508 255 0 0 255 2 i1 tile 2 left
+1028 508 0 0 255 255 2 i1 tile 2 right
+1004 524 255 0 0 255 2 i1 second row
+1004 500 255 255 255 255 2 i1 white row
+# border image (corners red, edges green, centre not drawn)
+1153 503 255 0 0 255 2 i2 corner
+1190 503 0 255 0 255 2 i2 top edge
+1153 530 0 255 0 255 2 i2 left edge
+1190 530 0 0 0 0 1 i2 centre empty
+# no-repeat, size 32 px, bottom right
+1340 550 255 0 0 255 2 i3 red half
+1356 550 0 0 255 255 2 i3 blue half
+1310 510 0 0 0 0 1 i3 elsewhere
+# border image with fill
+140 730 0 0 255 255 2 i2f centre
+103 703 255 0 0 255 2 i2f corner

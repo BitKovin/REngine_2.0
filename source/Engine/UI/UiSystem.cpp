@@ -1,4 +1,5 @@
 #include "UiSystem.h"
+#include <UI/Render/UiGpu.h>
 
 #include <Console/Console.h>
 #include <FileSystem/FileSystem.h>
@@ -6,6 +7,7 @@
 #include <Input.h>
 #include <Logger.hpp>
 #include <UI/Elements/UiElem.h>
+#include <UI/Elements/UiElemArc.h>
 #include <UI/Elements/UiElemActionBar.h>
 #include <UI/Elements/UiElemButton.h>
 #include <UI/Elements/UiElemInputPrompt.h>
@@ -24,7 +26,10 @@
 #include <UI/Preview/UiMenuPreviews.h>
 #include <UI/Preview/UiPreviewRegistry.h>
 #include <UI/Reflection/UiElementRegistry.h>
+#include <UI/Render/UiBoxPainter.h>
 #include <UI/Render/UiFontLibrary.h>
+#include <UI/Render/UiImageAtlas.h>
+#include <UI/Style/UiAnimation.h>
 #include <UI/Style/UiStyleResolver.h>
 #include <UI/Test/UiTestRunner.h>
 #include <UI/UiNavigation.h>
@@ -90,6 +95,11 @@ namespace
         UiTagRegistry::RegisterBuiltin("Label", &UiElemLabel::Create, TagInfo{ "Label", "text", "Text",
             { AttributeInfo{ "text", "text", "", false, "Text to show; the element's text content is used when the attribute is absent" },
               AttributeInfo{ "html", "bool", "false", false, "true interprets <b> <i> <color=#rrggbb> <size=NN> <icon=action:NAME> <icon=img:PATH>" } } });
+        UiTagRegistry::RegisterBuiltin("Arc", &UiElemArc::Create, TagInfo{ "Arc", "paint", "Ring segment (progress, cooldown); the colour is the text colour",
+            { AttributeInfo{ "start", "number", "0", false, "Start angle in degrees, clockwise from 12 o'clock" },
+              AttributeInfo{ "sweep", "number", "360", false, "Sweep in degrees (negative = counter-clockwise)" },
+              AttributeInfo{ "thickness", "number", "6", false, "Ring thickness in px" },
+              AttributeInfo{ "round-caps", "bool", "false", false, "Round ends" } } });
         UiTagRegistry::RegisterBuiltin("InputPrompt", &UiElemInputPrompt::Create, TagInfo{ "InputPrompt", "input", "Image of the key or button that triggers an action on the device used last",
             { AttributeInfo{ "action", "string", "", true, "Input action name" } } });
         UiTagRegistry::RegisterBuiltin("ActionBar", &UiElemActionBar::Create, TagInfo{ "ActionBar", "input", "Prompt and label of every hotkey button of the top menu page, plus back", {} });
@@ -242,23 +252,8 @@ namespace
             radii = UiCorners{ r[0], r[1], r[2], r[3] };
         }
 
-        bool anyBorder = false;
-        for (int i = 0; i < 4; ++i)
-            anyBorder = anyBorder || s.EffectiveBorder(i) > 0.f;
-        if (s.BackgroundColor.a > 0.f || anyBorder)
-        {
-            UiBoxPaint paint;
-            paint.Fill = s.BackgroundColor;
-            paint.Fill.a *= op;
-            paint.Radii = radii;
-            paint.BorderWidth = UiEdges{ s.EffectiveBorder(0), s.EffectiveBorder(1), s.EffectiveBorder(2), s.EffectiveBorder(3) };
-            for (int i = 0; i < 4; ++i)
-            {
-                paint.BorderColor[i] = s.BorderColor[i];
-                paint.BorderColor[i].a *= op;
-            }
-            p.Box(UiRect{ 0.f, 0.f, W, H }, paint);
-        }
+        const UiBoxPainter::Scope effects = UiBoxPainter::Begin(e, p);   // filter, mask, clip-path, blend mode for this subtree
+        UiBoxPainter::PaintBox(e, p, op, radii);
 
         e.m_paintOpacity = op;
         e.PaintContent(p, e.ContentRectLocal());
@@ -292,6 +287,9 @@ namespace
         }
         if (clips)
             p.PopClip();
+        p.SetTransform(e.AbsoluteTransform);
+        UiBoxPainter::PaintOutline(e, p, op, radii);
+        UiBoxPainter::End(p, effects);
     }
 
     void Record(UiElem& root)
@@ -497,6 +495,12 @@ namespace
     void CmdPop(const std::vector<std::string>&) { UiMenus::Pop(); }
     void CmdBack(const std::vector<std::string>&) { UiMenus::Stack().Back(); }
 
+    void CmdReducedMotion(const std::vector<std::string>& args)
+    {
+        UiAnimation::SetReducedMotion(args.empty() || args[0] != "0");
+        Logger::Log(std::string("ui_reduced_motion: ") + (UiAnimation::ReducedMotion() ? "on" : "off"));
+    }
+
     void CmdStack(const std::vector<std::string>&)
     {
         std::ostringstream out;
@@ -619,6 +623,8 @@ namespace
         else if (prop == "selected") number = (e->States & kStateSelected) ? 1 : 0;
         else if (prop == "visible") number = e->Computed().Visibility == UiVisibility::Visible ? 1 : 0;
         else if (prop == "activations") number = e->ActivateCount;
+        else if (prop == "opacity_now") number = e->Computed().Opacity;                          // the displayed value, also while it animates
+        else if (prop == "animating") number = UiAnimation::IsAnimating(*e) ? 1 : 0;
         else if (prop == "font_size") number = e->Computed().FontSize;
         else if (prop == "line_width") { if (!label) { error = "line_width needs a Label"; return false; } number = label->TextWidth(); }
         else if (prop == "downs" || prop == "moves" || prop == "ups")
@@ -854,6 +860,24 @@ namespace
         return true;
     }
 
+    bool TestAnimPause(const std::string& args, std::string&)
+    {
+        UiAnimation::SetPaused(args != "0");
+        return true;
+    }
+
+    // anim_seek <id> <seconds>: moves the transitions and animations of the element and everything below it to that time.
+    bool TestAnimSeek(const std::string& args, std::string& error)
+    {
+        const auto w = Words(args);
+        if (w.size() < 2) { error = "usage: anim_seek <id> <seconds>"; return false; }
+        UiElem* e = Lookup(w[0]);
+        if (!e) { error = "no element '" + w[0] + "'"; return false; }
+        UiAnimation::Seek(*e, static_cast<float>(std::atof(w[1].c_str())));
+        UiTestRunner::WaitFrames(2);
+        return true;
+    }
+
     // Makes an element a legacy focus trap, so a test menu is not competing with menus of the running game. Phase 2 replaces this.
     bool TestFocusTrap(const std::string& args, std::string& error)
     {
@@ -880,6 +904,33 @@ namespace
             if (key == "cap")
             {
                 if (!j["capabilities"].value(value, false)) { error = "capability '" + value + "' is false"; return false; }
+                continue;
+            }
+            if (key == "nocap")
+            {
+                if (!j["capabilities"].contains(value) || j["capabilities"].value(value, true)) { error = "capability '" + value + "' is not reported as false"; return false; }
+                continue;
+            }
+            if (key == "unavailable")
+            {
+                // "unavailable:blur()" -> a paint effect that is listed, flagged unavailable and tied to the layers capability
+                bool listed = false;
+                for (const auto& entry : j["registries"]["paintEffects"])
+                    if (entry.value("name", "") == value)
+                    {
+                        listed = true;
+                        if (entry.value("available", true) || !entry.value("requiresLayer", false)) { error = "effect '" + value + "' is not flagged unavailable"; return false; }
+                    }
+                if (!listed) { error = "effect '" + value + "' is not listed"; return false; }
+                continue;
+            }
+            if (key == "preview")
+            {
+                bool listed = false;
+                for (const auto& entry : j["previewTargets"])
+                    if (entry.value("id", "") == value)
+                        listed = true;
+                if (!listed) { error = "no preview target '" + value + "'"; return false; }
                 continue;
             }
             bool found = false;
@@ -915,10 +966,13 @@ void UiSystem::Init()
     console.RegisterCommand({ "ui_pop", "Pops the top page of the main menu stack", CmdPop });
     console.RegisterCommand({ "ui_back", "Runs back on the main menu stack", CmdBack });
     console.RegisterCommand({ "ui_stack", "Prints the main menu stack", CmdStack });
+    console.RegisterCommand({ "ui_reduced_motion", "ui_reduced_motion [0|1] - transitions are instant and infinite animations stop", CmdReducedMotion });
     console.RegisterCommand({ "ui_gamethread_test", "ui_gamethread_test <layout> - uses the UI API from the game thread", CmdGameThreadTest });
     console.RegisterCommand({ "ui_db_info", "Prints the UI database state", CmdDbInfo });
     console.RegisterCommand({ "ui_db_path", "ui_db_path <file> - changes the UI database output file", CmdDbPath });
 
+    UiTestRunner::RegisterCommand("anim_pause", TestAnimPause);
+    UiTestRunner::RegisterCommand("anim_seek", TestAnimSeek);
     UiTestRunner::RegisterCommand("expect_rect", TestExpectRect);
     UiTestRunner::RegisterCommand("expect", TestExpect);
     UiTestRunner::RegisterCommand("expect_exists", TestExpectExists);
@@ -955,6 +1009,9 @@ void UiSystem::Init()
     UiDatabase::SetCapability("events", true);
     UiDatabase::SetCapability("menus", true);
     UiDatabase::SetCapability("inputPrompts", true);
+    UiDatabase::SetCapability("painting", true);
+    UiDatabase::SetCapability("motion", true);
+    UiDatabase::SetCapability("layers", false);   // blur, drop-shadow, backdrop and group opacity need offscreen layers
     UiDatabase::RefreshFromRegistries();
 }
 
@@ -1049,6 +1106,7 @@ int UiSystem::FrameIndex() { return g_frameCounter; }
 
 void UiSystem::ResetViewport()
 {
+    UiMenus::Stack().ClearLeaving();
     EngineMain::Viewport.ClearChildren();
     g_captures.clear();
     g_queuedEvents.clear();
@@ -1081,6 +1139,9 @@ UiElem* UiSystem::FindById(const std::string& id)
             for (int i = stack->Depth() - 1; i >= 0; --i)
                 if (UiElem* found = inInstance(*stack->PageAt(i)))
                     return found;
+            for (int i = 0; i < stack->LeavingCount(); ++i)
+                if (UiElem* found = inInstance(*stack->LeavingAt(i)))
+                    return found;
             continue;
         }
         if (UiElem* found = inInstance(*root))
@@ -1093,6 +1154,7 @@ void UiSystem::Update()
 {
     if (!g_initialised)
         return;
+    UiGpu::CpuTimer cpuTimer(UiGpu::kCpuUpdate);
     ++g_frameCounter;
 
     if (!g_previewPath.empty() && !g_previewLoaded && g_frameCounter >= 10)
@@ -1110,12 +1172,15 @@ void UiSystem::Update()
     {
         static size_t lastActionCount = 0;
         static bool lastProvider = false;
+        static size_t lastDocuments = 0;
         const size_t actionCount = Input::GetActionNames().size();
         const bool provider = UiInputPrompts::HasProvider();
-        if (actionCount != lastActionCount || provider != lastProvider)
+        const size_t documents = UiDocumentCache_Paths().size();   // newly loaded documents bring @keyframes with them
+        if (actionCount != lastActionCount || provider != lastProvider || documents != lastDocuments)
         {
             lastActionCount = actionCount;
             lastProvider = provider;
+            lastDocuments = documents;
             UiDatabase::RefreshFromRegistries();
         }
     }
@@ -1132,6 +1197,15 @@ void UiSystem::Update()
 
     ProcessPointers();
     UiMenus::Update();
+
+    // Motion runs on real time, also while the game is paused; a long frame never jumps an animation by more than 0.1 s.
+    {
+        static uint64_t lastTicks = 0;
+        const uint64_t now = SDL_GetTicks64();
+        const float dt = lastTicks == 0 ? 0.f : std::min(static_cast<float>(now - lastTicks) * 0.001f, 0.1f);
+        lastTicks = now;
+        UiAnimation::Tick(dt);
+    }
 
     // Focus is read by selectors, so a change of focus restyles every root.
     UiElement* const focusNow = UiNavigation::Focused;
@@ -1197,6 +1271,12 @@ void UiSystem::Update()
             UiFlowLayout::LayoutRoot(*root, size, base);
             root->m_paintDirty = true;
         }
+        else if (root->m_transformDirty)
+        {
+            UiFlowLayout::PatchTransforms(*root, base);   // only a transform changed: no measuring
+            root->m_paintDirty = true;
+        }
+        root->m_transformDirty = false;
         if (root->m_needsScan)
         {
             root->m_needsScan = false;
@@ -1204,12 +1284,14 @@ void UiSystem::Update()
             FireLoadEvents(*root);
         }
     }
+    UiImageAtlas::Update();
 }
 
 void UiSystem::Finalize()
 {
     if (!g_initialised)
         return;
+    UiGpu::CpuTimer cpuTimer(UiGpu::kCpuFinalize);
     for (auto& w : g_roots)
     {
         auto root = w.lock();

@@ -191,6 +191,15 @@ namespace
 
     void Arrange(UiElem& e, const UiRect& rect, const glm::mat3& parentAbs);
 
+    // transform: T(origin) * f1 * f2 ... * T(-origin), origin in border-box units. Layout itself ignores transforms.
+    glm::mat3 LocalTransform(const UiComputedStyle& s, float w, float h)
+    {
+        if (s.Fx.Transform.empty())
+            return glm::mat3(1.f);
+        const glm::vec2 origin(s.Fx.OriginX.Resolve(w), s.Fx.OriginY.Resolve(h));
+        return UiElement::Mat3Translate(origin) * UiTransformListMatrix(s.Fx.Transform, w, h) * UiElement::Mat3Translate(-origin);
+    }
+
     float AlignOffset(int mode, float contentStart, float contentSize, float outer, float marginStart)
     {
         if (mode == 1) return contentStart + (contentSize - outer) * 0.5f + marginStart;
@@ -202,7 +211,7 @@ namespace
     {
         const UiComputedStyle& s = e.Computed();
         e.BorderRect = rect;
-        e.AbsoluteTransform = parentAbs * UiElement::Mat3Translate(glm::vec2(rect.X, rect.Y));
+        e.AbsoluteTransform = parentAbs * UiElement::Mat3Translate(glm::vec2(rect.X, rect.Y)) * LocalTransform(s, rect.W, rect.H);
 
         // Percentages inside this element resolve against its own content size; padding % against the parent's width (approximated by own).
         const Boxes b = ResolveBoxes(s, rect.W);
@@ -366,6 +375,15 @@ namespace
         }
     }
 
+    void PatchRecursive(UiElem& e, const glm::mat3& parentAbs)
+    {
+        const UiRect& r = e.BorderRect;
+        e.AbsoluteTransform = parentAbs * UiElement::Mat3Translate(glm::vec2(r.X, r.Y)) * LocalTransform(e.Computed(), r.W, r.H);
+        for (auto& c : e.children)
+            if (UiElem::IsElem(c.get()))
+                PatchRecursive(static_cast<UiElem&>(*c), e.AbsoluteTransform);
+    }
+
     void UpdateOffsetsRecursive(UiElem& e)
     {
         e.UpdateOffsets();
@@ -373,6 +391,12 @@ namespace
             if (UiElem::IsElem(c.get()))
                 UpdateOffsetsRecursive(static_cast<UiElem&>(*c));
     }
+}
+
+void UiFlowLayout::PatchTransforms(UiElem& root, const glm::mat3& base)
+{
+    PatchRecursive(root, base);
+    UpdateOffsetsRecursive(root);
 }
 
 void UiFlowLayout::LayoutRoot(UiElem& root, glm::vec2 containerSize, const glm::mat3& base)

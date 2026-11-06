@@ -1,4 +1,5 @@
 #include "UiComputedStyle.h"
+#include "UiFxParse.h"
 
 #include <algorithm>
 #include <cmath>
@@ -333,6 +334,16 @@ namespace
     }
 }
 
+bool UiParseColorComponent(const std::vector<UiCssToken>& comp, const UiStyleParseContext& ctx, glm::vec4& out, std::string& err)
+{
+    return ParseColor(comp, ctx, out, err);
+}
+
+bool UiParseLengthComponent(const std::vector<UiCssToken>& comp, const UiStyleParseContext& ctx, UiLength& out, std::string& err, bool allowPercent)
+{
+    return ParseLengthPct(comp, ctx, out, err, allowPercent);
+}
+
 std::vector<std::vector<UiCssToken>> UiSplitComponents(const std::vector<UiCssToken>& value)
 {
     std::vector<std::vector<UiCssToken>> out;
@@ -421,7 +432,13 @@ const std::vector<UiPropertyInfo>& UiStyleProperties()
         { "text-transform", "none | uppercase | lowercase", true, "none", "layout", true },
         { "object-fit", "fill | contain | cover | none | scale-down", false, "fill", "paint", true },
     };
-    return props;
+    static const std::vector<UiPropertyInfo> all = [] {
+        std::vector<UiPropertyInfo> v = props;
+        const std::vector<UiPropertyInfo>& fx = UiFxProperties();
+        v.insert(v.end(), fx.begin(), fx.end());
+        return v;
+    }();
+    return all;
 }
 
 bool UiIsKnownProperty(const std::string& name)
@@ -572,6 +589,12 @@ bool UiApplyLonghand(UiComputedStyle& s, const std::string& name, const std::vec
     {
         s.Custom[name] = value;
         return true;
+    }
+    {
+        bool handled = false;
+        const bool ok = UiFxApplyProperty(s, name, value, ctx, error, handled);
+        if (handled)
+            return ok;
     }
     if (comps.size() != 1 && name != "font-family")
     {

@@ -490,6 +490,8 @@ void UiElem::Activate()
 {
     ++ActivateCount;
     OnActivate();
+    if (!m_computed.Fx.Sound.empty())
+        UiActions::PlaySoundPath(m_computed.Fx.Sound);
     UiSystem::QueueEvent(*this, "activate");
 }
 
@@ -522,6 +524,17 @@ void UiElem::ResolveNavOverrides()
 
 void UiElem::ApplyPointerStates()
 {
+    // a page that is animating out does not react to the pointer any more
+    for (const UiElem* p = this; p != nullptr; p = p->AsParentElem())
+        if (p->States & kStateLeaving)
+        {
+            if (States & (kStateHover | kStateActive))
+            {
+                States &= ~(kStateHover | kStateActive);
+                MarkStyleDirty();
+            }
+            return;
+        }
     const uint32_t before = States;
     if (TouchEvents.empty())
     {
@@ -552,7 +565,11 @@ void UiElem::ApplyPointerStates()
         }
     }
     if ((States ^ before) & kStateHover)
+    {
         UiSystem::QueueEvent(*this, (States & kStateHover) ? "mouseover" : "mouseout");
+        if ((States & kStateHover) && !m_computed.Fx.SoundHover.empty())
+            UiActions::PlaySoundPath(m_computed.Fx.SoundHover);
+    }
     if (States != before)
         MarkStyleDirty();
 }

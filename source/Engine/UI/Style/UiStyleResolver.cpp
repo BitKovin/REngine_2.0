@@ -4,6 +4,7 @@
 #include <UI/Elements/UiElem.h>
 #include <UI/Markup/UiDocument.h>
 #include <UI/Markup/UiMarkupLog.h>
+#include <UI/Style/UiAnimation.h>
 #include <UI/Style/UiComputedStyle.h>
 
 #include <algorithm>
@@ -187,6 +188,10 @@ namespace
             s.WhiteSpace = parent->WhiteSpace;
             s.TextTransform = parent->TextTransform;
             s.Custom = parent->Custom;
+            s.Fx.TextShadow = parent->Fx.TextShadow;
+            s.Fx.TextStrokeWidth = parent->Fx.TextStrokeWidth;
+            s.Fx.TextStrokeColor = parent->Fx.TextStrokeColor;
+            s.Fx.ImageRendering = parent->Fx.ImageRendering;
         }
         UiStyleParseContext ctx = base;
         ctx.ParentFontSize = parent != nullptr ? parent->FontSize : 24.f;
@@ -218,6 +223,7 @@ namespace
         ApplyOverrides(s, e.m_overrides);
         if (e.m_visibleOverrideCollapse)
             s.Visibility = UiVisibility::Collapse;
+        UiAnimation::OnStyleResolved(e, s);   // transitions and animations replace animated values by their current ones
         e.m_computed = std::move(s);
 
         for (auto& c : e.children)
@@ -252,9 +258,40 @@ void UiStyleResolver::ResolveRoot(UiElem& root)
         rc.ComponentSheets[file] = std::move(list);
     }
 
+    // @keyframes of every sheet in scope; the document's own sheets win over components'.
+    auto keyframes = std::make_shared<UiKeyframeMap>();
+    for (const auto& [file, sheets] : rc.ComponentSheets)
+        for (const SheetRef& ref : sheets)
+            for (const UiKeyframes& k : ref.Sheet->Keyframes)
+                (*keyframes)[k.Name] = k;
+    for (const SheetRef& ref : rc.DocumentSheets)
+        for (const UiKeyframes& k : ref.Sheet->Keyframes)
+            (*keyframes)[k.Name] = k;
+    root.m_keyframes = keyframes;
+
     UiStyleParseContext base;
     base.Viewport = EngineMain::Viewport.GetSize();
     ResolveElement(root, nullptr, rc, base);
+    ++root.m_styleGen;
+}
+
+bool UiStyleResolver::ApplyDeclaration(UiComputedStyle& style, const UiCssDeclaration& decl, const UiStyleParseContext& ctx, std::string& error)
+{
+    if (!UiIsKnownProperty(decl.Name))
+    {
+        error = "unknown property '" + decl.Name + "'";
+        return false;
+    }
+    std::vector<UiCssToken> tokens;
+    if (!UiSubstituteVars(decl.Value, style.Custom, tokens, error))
+        return false;
+    UiLonghandList longhands;
+    if (!UiExpandProperty(decl.Name, tokens, longhands, error))
+        return false;
+    for (const auto& [name, value] : longhands)
+        if (!UiApplyLonghand(style, name, value, ctx, error))
+            return false;
+    return true;
 }
 
 void UiStyleResolver::ResetWarnings()

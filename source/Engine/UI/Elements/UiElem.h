@@ -2,6 +2,7 @@
 #include <UI/UiElement.h>
 #include <UI/Render/UiDrawList.h>
 #include <UI/Render/UiPainter.h>
+#include <UI/Style/UiAnimation.h>
 #include <UI/Style/UiComputedStyle.h>
 #include <UI/Menus/UiActions.h>
 #include <functional>
@@ -159,6 +160,11 @@ public:
     bool m_loadFired = false;
     bool m_validated = false;
     bool m_navResolved = false;
+    // Phase 3: motion state of this element (transitions and animations), the @keyframes in scope (root only), transform patch flag (root only)
+    std::unique_ptr<UiAnimState, UiAnimStateDeleter> m_anim;
+    std::shared_ptr<const UiKeyframeMap> m_keyframes;
+    bool m_transformDirty = false;
+    uint32_t m_styleGen = 0;                      // root only: counts completed style passes (a pushed page's entering state lasts one)
     void ResolveNavOverrides();                   // nav-up/down/left/right -> NavUp/... (once, after the tree is built)
 
     bool IsRoot() const;                 // parent is not a UiElem

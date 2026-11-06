@@ -27,7 +27,9 @@ void UiPrimBuffer::Init()
 
     m_cpu.assign(static_cast<size_t>(kDataWidth) * kDataHeight, glm::vec4(0.f));
     m_count = m_uploadedCount = 0;
+    m_auxCount = m_auxUploaded = 0;
     m_loggedFull = false;
+    m_loggedAuxFull = false;
 }
 
 void UiPrimBuffer::Shutdown()
@@ -41,6 +43,28 @@ void UiPrimBuffer::Shutdown()
     m_cpu.clear();
     m_cpu.shrink_to_fit();
     m_count = m_uploadedCount = 0;
+    m_auxCount = m_auxUploaded = 0;
+}
+
+int UiPrimBuffer::AddAux(const glm::vec4* texels, int count)
+{
+    if (!bgfx::isValid(m_texture) || count <= 0)
+        return -1;
+    if (m_auxCount + count > kAuxTexels)
+    {
+        if (!m_loggedAuxFull)
+        {
+            Logger::Error("[UiRenderer] auxiliary data area full (%d texels this frame); filters, masks and clip shapes are skipped", kAuxTexels);
+            m_loggedAuxFull = true;
+        }
+        return -1;
+    }
+    const size_t base = static_cast<size_t>(kAuxFirstRow) * kDataWidth + m_auxCount;
+    for (int i = 0; i < count; ++i)
+        m_cpu[base + i] = texels[i];
+    const int first = m_auxCount;
+    m_auxCount += count;
+    return first;
 }
 
 int UiPrimBuffer::Add(const PrimBlock& block)
@@ -63,20 +87,36 @@ int UiPrimBuffer::Add(const PrimBlock& block)
 
 void UiPrimBuffer::UploadPending()
 {
-    if (!bgfx::isValid(m_texture) || m_uploadedCount == m_count)
+    if (!bgfx::isValid(m_texture))
         return;
-    const int firstRow = (m_uploadedCount * kPrimTexels) / kDataWidth;
-    const int lastRow = ((m_count * kPrimTexels) - 1) / kDataWidth;
-    const int rows = lastRow - firstRow + 1;
-    bgfx::updateTexture2D(
-        m_texture, 0, 0, 0, static_cast<uint16_t>(firstRow),
-        static_cast<uint16_t>(kDataWidth), static_cast<uint16_t>(rows),
-        bgfx::copy(&m_cpu[static_cast<size_t>(firstRow) * kDataWidth], static_cast<uint32_t>(rows) * kDataWidth * sizeof(glm::vec4)));
-    m_uploadedCount = m_count;
+    if (m_uploadedCount != m_count)
+    {
+        const int firstRow = (m_uploadedCount * kPrimTexels) / kDataWidth;
+        const int lastRow = ((m_count * kPrimTexels) - 1) / kDataWidth;
+        const int rows = lastRow - firstRow + 1;
+        bgfx::updateTexture2D(
+            m_texture, 0, 0, 0, static_cast<uint16_t>(firstRow),
+            static_cast<uint16_t>(kDataWidth), static_cast<uint16_t>(rows),
+            bgfx::copy(&m_cpu[static_cast<size_t>(firstRow) * kDataWidth], static_cast<uint32_t>(rows) * kDataWidth * sizeof(glm::vec4)));
+        m_uploadedCount = m_count;
+    }
+    if (m_auxUploaded != m_auxCount)
+    {
+        const int firstRow = kAuxFirstRow + m_auxUploaded / kDataWidth;
+        const int lastRow = kAuxFirstRow + (m_auxCount - 1) / kDataWidth;
+        const int rows = lastRow - firstRow + 1;
+        bgfx::updateTexture2D(
+            m_texture, 0, 0, 0, static_cast<uint16_t>(firstRow),
+            static_cast<uint16_t>(kDataWidth), static_cast<uint16_t>(rows),
+            bgfx::copy(&m_cpu[static_cast<size_t>(firstRow) * kDataWidth], static_cast<uint32_t>(rows) * kDataWidth * sizeof(glm::vec4)));
+        m_auxUploaded = m_auxCount;
+    }
 }
 
 void UiPrimBuffer::ResetFrame()
 {
     m_count = m_uploadedCount = 0;
+    m_auxCount = m_auxUploaded = 0;
     m_loggedFull = false;
+    m_loggedAuxFull = false;
 }

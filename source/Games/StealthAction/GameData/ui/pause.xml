@@ -4,11 +4,26 @@
   </styles>
   <Panel id="pause" class="screen pause" pauses-game="true" hides-hud="true">
     <Panel class="menu-column">
-      <TextButton id="presume" class="menu-button" text="${PAUSE_MENU_RESUME}" default-focus="true" onactivate="Back()"/>
-      <TextButton id="psave" class="menu-button" text="${PAUSE_MENU_SAVE}" onactivate="OpenSave()"/>
-      <TextButton id="pload" class="menu-button" text="${PAUSE_MENU_LOAD}" onactivate="OpenLoad()"/>
-      <TextButton id="psettings" class="menu-button" text="${PAUSE_MENU_SETTINGS}" onactivate="OpenSettings()"/>
-      <TextButton id="pquit" class="menu-button" text="${PAUSE_MENU_QUIT}" onactivate="Push('ui/confirm_quit.xml')"/>
+      <Button id="presume" class="menu-item" default-focus="true" onactivate="Back()">
+        <Label class="item-text" text="${PAUSE_MENU_RESUME}"/>
+        <Panel class="item-line"/>
+      </Button>
+      <Button id="psave" class="menu-item" onactivate="OpenSave()">
+        <Label class="item-text" text="${PAUSE_MENU_SAVE}"/>
+        <Panel class="item-line"/>
+      </Button>
+      <Button id="pload" class="menu-item" onactivate="OpenLoad()">
+        <Label class="item-text" text="${PAUSE_MENU_LOAD}"/>
+        <Panel class="item-line"/>
+      </Button>
+      <Button id="psettings" class="menu-item" onactivate="OpenSettings()">
+        <Label class="item-text" text="${PAUSE_MENU_SETTINGS}"/>
+        <Panel class="item-line"/>
+      </Button>
+      <Button id="pquit" class="menu-item" onactivate="Push('ui/confirm_quit.xml')">
+        <Label class="item-text" text="${PAUSE_MENU_QUIT}"/>
+        <Panel class="item-line"/>
+      </Button>
     </Panel>
     <ActionBar class="action-bar"/>
   </Panel>

@@ -2,6 +2,7 @@
 
 #include <AssetRegistry.h>
 #include <Texture.hpp>
+#include <UI/Render/UiImageAtlas.h>
 
 #include <algorithm>
 
@@ -10,32 +11,57 @@ bool UiElemImage::ApplyAttribute(const std::string& name, const std::string& val
     if (name == "src")
     {
         m_src = value;
-        m_texture = value.empty() ? nullptr : AssetRegistry::GetTextureFromFile(value);
+        m_texture = nullptr;
+        m_standalone = false;
         MarkLayoutDirty();
         return true;
     }
     return false;
 }
 
+bool UiElemImage::Fetch(UiAtlasImage& out)
+{
+    if (m_src.empty())
+        return false;
+    if (!m_standalone)
+    {
+        out = UiImageAtlas::Get(m_src);
+        if (out.Valid || out.Pending)
+            return out.Valid;
+        // decoding failed (a missing file): the asset registry's own handling, as before
+        m_standalone = true;
+        m_texture = AssetRegistry::GetTextureFromFile(m_src);
+    }
+    if (m_texture == nullptr || !m_texture->valid)
+        return false;
+    out = UiAtlasImage();
+    out.Texture = m_texture->getHandle();
+    out.Width = out.TextureWidth = m_texture->width;
+    out.Height = out.TextureHeight = m_texture->height;
+    out.Valid = true;
+    return true;
+}
+
 glm::vec2 UiElemImage::MeasureContent(float, float)
 {
-    if (m_texture != nullptr && m_texture->valid)
-        return glm::vec2((float)m_texture->width, (float)m_texture->height);
-    if (m_texture != nullptr)
+    UiAtlasImage image;
+    if (Fetch(image))
+        return glm::vec2((float)image.Width, (float)image.Height);
+    if (!m_src.empty())
         MarkLayoutDirty();   // measure again next frame until the texture has loaded
     return glm::vec2(0.f);
 }
 
 void UiElemImage::PaintContent(UiPainter& painter, const UiRect& c)
 {
-    if (m_texture == nullptr)
-        return;
-    if (!m_texture->valid)
+    UiAtlasImage image;
+    if (!Fetch(image))
     {
-        MarkPaintDirty();
+        if (!m_src.empty())
+            MarkPaintDirty();
         return;
     }
-    const float iw = (float)m_texture->width, ih = (float)m_texture->height;
+    const float iw = (float)image.Width, ih = (float)image.Height;
     if (iw <= 0.f || ih <= 0.f || c.W <= 0.f || c.H <= 0.f)
         return;
 
@@ -54,11 +80,24 @@ void UiElemImage::PaintContent(UiPainter& painter, const UiRect& c)
         break;
     }
     }
-    const float ix = c.X + (c.W - sw) * 0.5f, iy = c.Y + (c.H - sh) * 0.5f;
+    const UiBgPos& position = Computed().Fx.ObjectPosition;
+    const float ix = c.X + position.X.Px + position.X.Percent * 0.01f * (c.W - sw);
+    const float iy = c.Y + position.Y.Px + position.Y.Percent * 0.01f * (c.H - sh);
     const float x0 = std::max(ix, c.X), y0 = std::max(iy, c.Y);
     const float x1 = std::min(ix + sw, c.X + c.W), y1 = std::min(iy + sh, c.Y + c.H);
     if (x1 <= x0 || y1 <= y0)
         return;
-    const glm::vec4 uv((x0 - ix) / sw, (y0 - iy) / sh, (x1 - ix) / sw, (y1 - iy) / sh);
-    painter.Image(UiRect{ x0, y0, x1 - x0, y1 - y0 }, m_texture->getHandle(), uv, glm::vec4(1.f, 1.f, 1.f, m_paintOpacity));
+    glm::vec4 uv((x0 - ix) / sw, (y0 - iy) / sh, (x1 - ix) / sw, (y1 - iy) / sh);
+    // the image may be a part of an atlas page
+    const glm::vec2 uvSize(image.Uv.z - image.Uv.x, image.Uv.w - image.Uv.y);
+    uv = glm::vec4(image.Uv.x + uv.x * uvSize.x, image.Uv.y + uv.y * uvSize.y, image.Uv.x + uv.z * uvSize.x, image.Uv.y + uv.w * uvSize.y);
+    const UiPainterFx saved = painter.Fx();
+    if (saved.Pixelated)
+    {
+        UiPainterFx fx = saved;
+        fx.PixelatedSize = glm::vec2((float)std::max(image.TextureWidth, 1), (float)std::max(image.TextureHeight, 1));
+        painter.SetFx(fx);
+    }
+    painter.Image(UiRect{ x0, y0, x1 - x0, y1 - y0 }, image.Texture, uv, glm::vec4(1.f, 1.f, 1.f, m_paintOpacity));
+    painter.SetFx(saved);
 }

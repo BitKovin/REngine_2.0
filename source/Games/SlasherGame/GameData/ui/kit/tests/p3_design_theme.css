@@ -1,0 +1,39 @@
+/* The theme.css of the design document (section 3.1), verbatim. */
+:root {
+    --accent: #c84a3a;
+    --panel: rgba(18, 9, 9, 0.95);
+}
+
+.scrim { width: 100%; height: 100%; background-color: rgba(10, 2, 2, 0.8); }
+
+.menu {
+    flow-children: down;
+    horizontal-align: center;
+    vertical-align: center;
+    gap: 12px;
+    padding: 32px;
+    background-color: var(--panel);
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+.title { font-size: 56px; color: #f0d8c8; horizontal-align: center; margin-bottom: 16px; }
+
+TextButton {
+    width: 400px;
+    height: 70px;
+    border-radius: 10px;
+    background-color: #2a1512;
+    border: 2px solid rgba(200, 74, 58, 0.4);
+    sound: "ui_click";
+    transition: background-color 0.12s ease-out, border-color 0.12s, transform 0.08s ease-out;
+}
+TextButton:hover  { background-color: #3a1a16; border-color: var(--accent); }
+TextButton:active { transform: scale(0.97); }
+TextButton:focus  { outline: 3px solid var(--accent); }
+TextButton Label  { horizontal-align: center; vertical-align: center; font-size: 34px; }
+.danger           { background-color: #731f1f; }
+
+.page          { transition: opacity 0.18s ease-out, transform 0.18s ease-out; }   /* the stack adds "page" to what it pushes */
+.page:entering { opacity: 0; transform: translateY(24px); }
+.page:leaving  { opacity: 0; }

@@ -4,6 +4,7 @@
 #include <UI/Markup/UiMarkupLog.h>
 #include <UI/Render/UiFontLibrary.h>
 
+#include <algorithm>
 #include <map>
 
 namespace
@@ -172,6 +173,64 @@ std::shared_ptr<UiStyleSheet> UiParseStyleSheet(const std::string& source, const
                 else
                     sheet->Imports.push_back(target);
             }
+            else if (head.Text == "keyframes")
+            {
+                p.SkipWs();
+                UiKeyframes frames;
+                frames.Path = path;
+                frames.Line = p.Line(head);
+                if (p.Cur().Type == UiCssTok::Ident || p.Cur().Type == UiCssTok::String)
+                {
+                    frames.Name = p.Cur().Text;
+                    ++p.Pos;
+                }
+                while (!p.AtEnd() && p.Cur().Type != UiCssTok::LBrace) ++p.Pos;
+                if (p.AtEnd()) break;
+                ++p.Pos;   // '{'
+                while (!p.AtEnd())
+                {
+                    p.SkipWs();
+                    if (p.Cur().Type == UiCssTok::RBrace) { ++p.Pos; break; }
+                    std::vector<UiCssToken> prelude;
+                    while (!p.AtEnd() && p.Cur().Type != UiCssTok::LBrace && p.Cur().Type != UiCssTok::RBrace)
+                    {
+                        prelude.push_back(p.Cur());
+                        ++p.Pos;
+                    }
+                    if (p.Cur().Type != UiCssTok::LBrace)
+                        continue;
+                    const int selectorLine = prelude.empty() ? p.Line(head) : p.Line(prelude.front());
+                    const int selectorCol = prelude.empty() ? head.Col : prelude.front().Col;
+                    ++p.Pos;
+                    std::vector<UiCssDeclaration> decls = ParseBlock(p, true);
+                    // "from", "to" and percentages, comma separated
+                    std::vector<float> offsets;
+                    bool ok = true;
+                    for (const UiCssToken& t : prelude)
+                    {
+                        if (t.Type == UiCssTok::Whitespace || t.Type == UiCssTok::Comma) continue;
+                        if (t.Type == UiCssTok::Ident && t.Text == "from") offsets.push_back(0.f);
+                        else if (t.Type == UiCssTok::Ident && t.Text == "to") offsets.push_back(1.f);
+                        else if (t.Type == UiCssTok::Percentage && t.Number >= 0.0 && t.Number <= 100.0) offsets.push_back(static_cast<float>(t.Number) * 0.01f);
+                        else ok = false;
+                    }
+                    if (!ok || offsets.empty())
+                    {
+                        UiMarkupLog::Error(path, selectorLine, selectorCol, "invalid keyframe selector (use from, to or a percentage)");
+                        continue;
+                    }
+                    for (float offset : offsets)
+                        frames.Stops.push_back({ offset, decls });
+                }
+                std::stable_sort(frames.Stops.begin(), frames.Stops.end(), [](const UiKeyframeStop& a, const UiKeyframeStop& b) { return a.Offset < b.Offset; });
+                if (frames.Name.empty())
+                    UiMarkupLog::Error(path, frames.Line, head.Col, "@keyframes needs a name");
+                else if (frames.Stops.empty())
+                    UiMarkupLog::Warning(path, frames.Line, head.Col, "@keyframes " + frames.Name + " has no keyframes");
+                else
+                    sheet->Keyframes.push_back(std::move(frames));
+                seenRule = true;
+            }
             else if (head.Text == "font-face")
             {
                 while (!p.AtEnd() && p.Cur().Type != UiCssTok::LBrace) ++p.Pos;
@@ -262,6 +321,14 @@ std::shared_ptr<UiStyleSheet> UiStyleSheetCache::Get(const std::string& path)
     cache[path] = sheet;
     ModTimes()[path] = FileSystemEngine::GetFileModificationTime(path);
     return sheet;
+}
+
+std::vector<std::shared_ptr<UiStyleSheet>> UiStyleSheetCache::Cached()
+{
+    std::vector<std::shared_ptr<UiStyleSheet>> out;
+    for (const auto& [path, sheet] : Cache())
+        out.push_back(sheet);
+    return out;
 }
 
 void UiStyleSheetCache::Invalidate(const std::string& path)

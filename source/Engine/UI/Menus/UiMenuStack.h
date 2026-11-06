@@ -23,6 +23,8 @@ public:
 
     UiElem* Top() const;
     UiElem* PageAt(int index) const;               // 0 = bottom
+    int LeavingCount() const { return (int)m_leaving.size(); }
+    UiElem* LeavingAt(int index) const { return m_leaving[index].Page.get(); }
     bool IsEmpty() const { return m_entries.empty(); }
     int Depth() const { return (int)m_entries.size(); }
     bool Contains(const UiElem* page) const;
@@ -34,6 +36,7 @@ public:
     // UiSystem hooks
     void Tick() override;                          // applies a focus change that had to wait for layout
     void ClearEntering();                          // the entering state lasts for one style pass
+    void ClearLeaving();                           // drops the pages that are still animating out (level change)
     void SwapPage(UiElem* old, const std::shared_ptr<UiElem>& fresh);   // hot reload
 
 private:
@@ -42,8 +45,13 @@ private:
         std::shared_ptr<UiElem> Page;
         std::weak_ptr<UiElement> SavedFocus;       // focus before this page was pushed
         HostOptions Options;
+        uint32_t PushedGen = 0;                    // style passes done when the page was pushed
     };
     std::vector<Entry> m_entries;
+    // Popped pages whose leave transition or animation is still running; they stay children of the stack, inert, for 2 s at most.
+    struct Leaving { std::shared_ptr<UiElem> Page; uint64_t PoppedAt = 0; int Frames = 0; };
+    std::vector<Leaving> m_leaving;
+    void TickLeaving();
     bool m_paused = false;
     bool m_hidesHud = false;
     bool m_focusPending = false;

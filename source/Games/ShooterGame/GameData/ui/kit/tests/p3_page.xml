@@ -1,0 +1,8 @@
+<root>
+  <styles><style>
+    .page { width: 400px; height: 300px; horizontal-align: center; vertical-align: center; background-color: #202020; transition: opacity 0.2s linear; }
+    .page:entering { opacity: 0; }
+    .page:leaving { opacity: 0; }
+  </style></styles>
+  <Panel id="pg" close-on-back="true"/>
+</root>

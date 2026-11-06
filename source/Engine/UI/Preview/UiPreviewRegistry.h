@@ -48,6 +48,7 @@ struct UiPreviewDescriptor
     std::vector<std::string> RequiredCapabilities;
     std::vector<UiPreviewParameter> Parameters;
     std::vector<UiPreviewScenario> Scenarios;
+    std::vector<UiPreviewScenario> AnimationScenarios;   // start, mid-point, end, interrupted, re-targeted
     bool SupportsLiveCapture = false;
 };
 

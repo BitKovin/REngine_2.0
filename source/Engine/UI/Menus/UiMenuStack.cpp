@@ -6,6 +6,7 @@
 #include <UI/UiNavigation.h>
 #include <UI/UiSystem.h>
 
+#include <SDL2/SDL.h>
 #include <algorithm>
 
 namespace
@@ -53,6 +54,21 @@ bool UiMenuStack::Contains(const UiElem* page) const
     return false;
 }
 
+namespace
+{
+    // True when some element of the page has a transition or an animation defined, so popping it may need to wait.
+    bool HasMotionDefined(const UiElem& e)
+    {
+        const UiFxStyle& fx = e.Computed().Fx;
+        if (!fx.Transitions.empty() || !fx.Animations.empty() || e.m_anim != nullptr)
+            return true;
+        for (const auto& c : e.children)
+            if (UiElem::IsElem(c.get()) && HasMotionDefined(static_cast<const UiElem&>(*c)))
+                return true;
+        return false;
+    }
+}
+
 void UiMenuStack::BringToFront()
 {
     // Menus draw above whatever the game added to the viewport since the stack was created.
@@ -89,6 +105,7 @@ UiElem* UiMenuStack::Push(std::shared_ptr<UiElem> page)
     }
     entry.Page = page;
     entry.Options = page->ReadHostOptions();
+    entry.PushedGen = m_styleGen;
 
     if (m_entries.empty())
         BringToFront();
@@ -115,7 +132,7 @@ void UiMenuStack::PopInternal()
     Entry entry = std::move(m_entries.back());
     m_entries.pop_back();
     UiElem& page = *entry.Page;
-    page.States |= kStateLeaving;   // phase 3 keeps the page until its leave transition ends
+    page.States |= kStateLeaving;   // the page stays while its leave transition or animation runs
 
     UiElement* focused = UiNavigation::Focused;
     if (focused != nullptr)
@@ -128,8 +145,19 @@ void UiMenuStack::PopInternal()
             }
     }
     page.FocusTrap = false;
-    RemoveChild(entry.Page);
-    page.parent = nullptr;
+    if (HasMotionDefined(page))
+    {
+        page.DisableFocus = true;   // the legacy navigation skips the whole page
+        Leaving leaving;
+        leaving.Page = entry.Page;
+        leaving.PoppedAt = SDL_GetTicks64();
+        m_leaving.push_back(std::move(leaving));
+    }
+    else
+    {
+        RemoveChild(entry.Page);
+        page.parent = nullptr;
+    }
     page.OnPopped();
 
     Relayer();
@@ -252,8 +280,41 @@ void UiMenuStack::RestoreFocus(const std::weak_ptr<UiElement>& saved, UiElem& pa
     FocusPage(page);
 }
 
+void UiMenuStack::TickLeaving()
+{
+    for (size_t i = 0; i < m_leaving.size();)
+    {
+        Leaving& l = m_leaving[i];
+        ++l.Frames;
+        // the first style pass starts the transition, so the page is judged from the second frame on
+        const bool done = SDL_GetTicks64() - l.PoppedAt > 2000 || (l.Frames >= 3 && !UiAnimation::IsAnimating(*l.Page));
+        if (!done)
+        {
+            ++i;
+            continue;
+        }
+        std::shared_ptr<UiElem> page = l.Page;
+        m_leaving.erase(m_leaving.begin() + static_cast<long>(i));
+        RemoveChild(page);
+        page->parent = nullptr;
+        MarkStyleDirty();
+    }
+}
+
+void UiMenuStack::ClearLeaving()
+{
+    for (Leaving& l : m_leaving)
+    {
+        RemoveChild(l.Page);
+        l.Page->parent = nullptr;
+    }
+    m_leaving.clear();
+}
+
 void UiMenuStack::Tick()
 {
+    if (!m_leaving.empty())
+        TickLeaving();
     if (!m_focusPending)
         return;
     if (m_focusDelay > 0)
@@ -285,8 +346,9 @@ void UiMenuStack::Tick()
 void UiMenuStack::ClearEntering()
 {
     bool any = false;
+    // A page keeps its entering state until a style pass has seen it, so its transitions start from the entering values.
     for (Entry& e : m_entries)
-        if (e.Page->States & kStateEntering)
+        if ((e.Page->States & kStateEntering) && m_styleGen > e.PushedGen)
         {
             e.Page->States &= ~kStateEntering;
             any = true;

@@ -115,6 +115,10 @@ nlohmann::json UiPreviewRegistry::ToJson(const UiPreviewDescriptor& d)
     for (const auto& s : d.Scenarios)
         scenarios.push_back({ { "id", s.Id }, { "label", s.Label }, { "values", s.Values } });
     j["scenarios"] = scenarios;
+    json animationScenarios = json::array();
+    for (const auto& s : d.AnimationScenarios)
+        animationScenarios.push_back({ { "id", s.Id }, { "label", s.Label }, { "values", s.Values } });
+    j["animationScenarios"] = animationScenarios;
     j["supportsLiveCapture"] = d.SupportsLiveCapture;
     return j;
 }

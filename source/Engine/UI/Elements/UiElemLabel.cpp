@@ -87,11 +87,32 @@ void UiElemLabel::PaintContent(UiPainter& painter, const UiRect& content)
         q.X += ox;
         q.Y += oy;
     }
+    const UiFxStyle& fx = Computed().Fx;
+    // text shadows first (the first one listed ends up on top), each a copy of the glyph runs moved by the offset and blurred
+    std::vector<UiGlyphQuad> shifted;
+    for (size_t i = fx.TextShadow.size(); i-- > 0;)
+    {
+        const UiShadow& shadow = fx.TextShadow[i];
+        glm::vec4 color = shadow.Color;
+        color.a *= m_paintOpacity;
+        if (color.a <= 0.f)
+            continue;
+        shifted = quads;
+        for (UiGlyphQuad& q : shifted)
+        {
+            q.X += shadow.X;
+            q.Y += shadow.Y;
+        }
+        for (const UiTextRun& run : m_layout.Runs)
+            painter.GlyphRun(shifted.data() + run.First, run.Count, color, run.GlyphScale, run.Dilation, shadow.Blur * 0.5f);
+    }
     for (const UiTextRun& run : m_layout.Runs)
     {
         glm::vec4 color = run.HasColor ? run.Color : Computed().Color;
         color.a *= m_paintOpacity;
-        painter.GlyphRun(quads.data() + run.First, run.Count, color, run.GlyphScale, run.Dilation);
+        glm::vec4 strokeColor = fx.TextStrokeColor;
+        strokeColor.a *= m_paintOpacity;
+        painter.GlyphRun(quads.data() + run.First, run.Count, color, run.GlyphScale, run.Dilation, 0.f, fx.TextStrokeWidth, strokeColor);
     }
     for (const UiTextIcon& icon : m_layout.Icons)
     {

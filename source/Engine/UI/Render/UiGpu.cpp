@@ -1,4 +1,5 @@
 #include "UiGpu.h"
+#include <chrono>
 
 #include <BgfxStateManager.h>
 #include <Camera.h>
@@ -8,6 +9,7 @@
 #include <Time.hpp>
 #include <UI/UiManager.h>
 #include <UI/UiRenderer.h>
+#include <UI/Render/UiGradientRamps.h>
 
 #include <cstring>
 
@@ -22,6 +24,8 @@ namespace
     uint64_t s_statePremul = 0;
     uint64_t s_stateAlpha = 0;
     uint64_t s_stateText = 0;
+    uint64_t s_stateBlend[4] = {};
+    uint8_t s_programShadow = 0;
 
     UiGpu::Stats s_running = {};
     UiGpu::Stats s_lastFrame = {};
@@ -53,6 +57,8 @@ namespace UiGpu
         s_white = bgfx::createTexture2D(1, 1, false, 1, bgfx::TextureFormat::RGBA8, 0, bgfx::copy(white, 4));
 
         s_prims.Init();
+        UiGradientRamps::Init();
+        s_programShadow = RegisterProgram("ui2/vs_ui2", "ui2/fs_ui2_shadow");
 
         // Legacy states, computed once exactly as the legacy code computes them.
         const uint64_t saved = BgfxStateManager::GetState();
@@ -65,6 +71,13 @@ namespace UiGpu
         BgfxStateManager::SetBlend(BgfxStateManager::Blend::Alpha);
         s_stateAlpha = BgfxStateManager::GetState() | BGFX_STATE_MSAA;
         BgfxStateManager::SetState(saved);
+        {
+            const uint64_t common = s_statePremul & ~BGFX_STATE_BLEND_MASK;
+            s_stateBlend[0] = s_statePremul;
+            s_stateBlend[1] = common | BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE);                       // plus-lighter
+            s_stateBlend[2] = common | BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_DST_COLOR, BGFX_STATE_BLEND_INV_SRC_ALPHA);        // multiply
+            s_stateBlend[3] = common | BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_INV_SRC_COLOR);             // screen
+        }
         s_stateText = BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_DEPTH_TEST_ALWAYS |
                       BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA);
 
@@ -77,6 +90,7 @@ namespace UiGpu
     {
         if (!s_initialised)
             return;
+        UiGradientRamps::Shutdown();
         s_prims.Shutdown();
         if (bgfx::isValid(s_white))
         {
@@ -105,6 +119,8 @@ namespace UiGpu
     uint64_t StateLegacyPremultiplied() { return s_statePremul; }
     uint64_t StateLegacyAlpha() { return s_stateAlpha; }
     uint64_t StateLegacyText() { return s_stateText; }
+    uint64_t StateForBlend(int blendMode) { return s_stateBlend[blendMode >= 0 && blendMode < 4 ? blendMode : 0]; }
+    uint8_t ProgramShadow() { return s_programShadow; }
 
     Projection CurrentProjection()
     {
@@ -126,12 +142,15 @@ namespace UiGpu
             list.Clear();
             return;
         }
+        CpuTimer timer(kCpuSubmit);
 
         s_prims.UploadPending();
+        UiGradientRamps::UploadPending();
 
         const auto& items = list.Items();
-        const uint32_t totalVertices = static_cast<uint32_t>(list.Vertices().size());
-        const uint32_t totalIndices = static_cast<uint32_t>(list.Indices().size());
+        const uint32_t totalVertices = list.TotalVertices();
+        const uint32_t totalIndices = list.TotalIndices();
+        std::vector<uint32_t> firstVertex(items.size(), 0), firstIndex(items.size(), 0);
 
         bgfx::TransientVertexBuffer tvb = {};
         bgfx::TransientIndexBuffer tib = {};
@@ -143,8 +162,21 @@ namespace UiGpu
             {
                 bgfx::allocTransientVertexBuffer(&tvb, totalVertices, s_layout);
                 bgfx::allocTransientIndexBuffer(&tib, totalIndices);
-                std::memcpy(tvb.data, list.Vertices().data(), static_cast<size_t>(totalVertices) * sizeof(UiRender::Vertex));
-                std::memcpy(tib.data, list.Indices().data(), static_cast<size_t>(totalIndices) * sizeof(uint16_t));
+                // Items own their vertices (later geometry may have joined an earlier item), so they are packed here.
+                uint32_t v = 0, i = 0;
+                for (size_t n = 0; n < items.size(); ++n)
+                {
+                    if (items[n].External)
+                        continue;
+                    firstVertex[n] = v;
+                    firstIndex[n] = i;
+                    std::memcpy(static_cast<UiRender::Vertex*>(static_cast<void*>(tvb.data)) + v, items[n].Verts.data(),
+                                items[n].Verts.size() * sizeof(UiRender::Vertex));
+                    std::memcpy(static_cast<uint16_t*>(static_cast<void*>(tib.data)) + i, items[n].Indices.data(),
+                                items[n].Indices.size() * sizeof(uint16_t));
+                    v += static_cast<uint32_t>(items[n].Verts.size());
+                    i += static_cast<uint32_t>(items[n].Indices.size());
+                }
                 geometryOk = true;
             }
             else if (!s_loggedTransientFull)
@@ -158,8 +190,9 @@ namespace UiGpu
 
         uint32_t geometryDraws = 0;
         uint32_t externals = 0;
-        for (const UiDrawList::Item& item : items)
+        for (size_t n = 0; n < items.size(); ++n)
         {
+            const UiDrawList::Item& item = items[n];
             if (item.External)
             {
                 list.Externals()[item.ExternalIndex](viewId);
@@ -185,14 +218,15 @@ namespace UiGpu
             shader->SetUniform("u_uiParams", glm::vec4(static_cast<float>(UiRender::kDataWidth), static_cast<float>(UiRender::kPrimTexels),
                                                       static_cast<float>(Time::GameTimeNoPause), 0.f));
             shader->SetTexture("s_uiData", s_prims.Texture());
+            shader->SetTexture("s_uiRamp", UiGradientRamps::Texture());
             bgfx::TextureHandle tex = { item.Key.TextureIdx };
             shader->SetTexture("s_uiTex0", bgfx::isValid(tex) ? tex : s_white);
             bgfx::setState(item.Key.State);
             if (item.Key.StencilRef > 0)
                 bgfx::setStencil(BGFX_STENCIL_TEST_EQUAL | BGFX_STENCIL_FUNC_REF(item.Key.StencilRef) | BGFX_STENCIL_FUNC_RMASK(0xFF) |
                                  BGFX_STENCIL_OP_FAIL_S_KEEP | BGFX_STENCIL_OP_FAIL_Z_KEEP | BGFX_STENCIL_OP_PASS_Z_KEEP);
-            bgfx::setVertexBuffer(0, &tvb, item.FirstVertex, item.VertexCount);
-            bgfx::setIndexBuffer(&tib, item.FirstIndex, item.IndexCount);
+            bgfx::setVertexBuffer(0, &tvb, firstVertex[n], static_cast<uint32_t>(item.Verts.size()));
+            bgfx::setIndexBuffer(&tib, firstIndex[n], static_cast<uint32_t>(item.Indices.size()));
             shader->Submit(viewId);
             ++geometryDraws;
         }
@@ -201,6 +235,7 @@ namespace UiGpu
         s_running.GeometryDraws += geometryDraws;
         s_running.Externals += externals;
         s_running.Vertices += totalVertices;
+        s_running.Merged += list.MergedCount();
         const uint32_t* breaks = list.BreakCounts();
         for (int i = 0; i < static_cast<int>(UiDrawList::BreakReason::Count); ++i)
             s_running.Breaks[i] += breaks[i];
@@ -210,6 +245,13 @@ namespace UiGpu
 
     const Stats& LastFrameStats() { return s_lastFrame; }
 
+    namespace
+    {
+        long long NowUs() { return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count(); }
+    }
+    CpuTimer::CpuTimer(CpuSlot slot) : m_slot(slot), m_start(NowUs()) {}
+    CpuTimer::~CpuTimer() { s_running.CpuUs[m_slot] += static_cast<uint32_t>(NowUs() - m_start); }
+
     void OnBeforeBgfxFrame()
     {
         s_lastFrame = s_running;
@@ -218,5 +260,6 @@ namespace UiGpu
         s_loggedTransientFull = false;
         s_loggedBadProgram = false;
         s_prims.ResetFrame();
+        UiGradientRamps::OnBeforeBgfxFrame();
     }
 }

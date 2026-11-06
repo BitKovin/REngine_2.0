@@ -1,0 +1,14 @@
+# The pause menu example of the design document (its theme.css, verbatim) with the engine's menu stack, transitions and effects.
+wait 6
+console ui_push GameData/ui/kit/tests/p3_design.xml
+wait 0.1
+ui_screenshot p3_design_enter
+wait 0.8
+expect dpause opacity_now == 1
+expect dresume focus == 1
+expect_ui_errors 0
+ui_screenshot p3_design
+action ui_down
+wait 0.4
+ui_screenshot p3_design_focus
+quit

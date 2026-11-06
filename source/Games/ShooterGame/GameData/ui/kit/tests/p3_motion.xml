@@ -1,0 +1,24 @@
+<root>
+  <styles>
+    <style>
+      .m { horizontal-align: left; vertical-align: top; width: 100px; height: 100px; }
+      #box  { x: 100px; y: 100px; background-color: #ff0000; transition: opacity 0.5s linear; }
+      #box.hot { opacity: 0; }
+      #box2 { x: 300px; y: 100px; background-color: #00ff00; transition: opacity 0.5s linear; }
+      #box2.hot { opacity: 0; }
+      #pulse { x: 500px; y: 100px; background-color: #0000ff; animation: pulse 4s linear infinite; }
+      #grow { x: 700px; y: 100px; background-color: #ffff00; transition: width 0.4s linear, background-color 0.4s linear; }
+      #grow.big { width: 300px; background-color: #ff00ff; }
+      #spin { x: 100px; y: 300px; background-color: #00ffff; transition: transform 0.4s linear; }
+      #spin.turn { transform: rotate(90deg); }
+      @keyframes pulse { from { opacity: 1; } to { opacity: 0; } }
+    </style>
+  </styles>
+  <Panel id="mroot">
+    <Panel id="box" class="m"/>
+    <Panel id="box2" class="m"/>
+    <Panel id="pulse" class="m"/>
+    <Panel id="grow" class="m"/>
+    <Panel id="spin" class="m"/>
+  </Panel>
+</root>

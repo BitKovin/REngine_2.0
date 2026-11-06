@@ -75,15 +75,7 @@ namespace
         if (n == "PlaySound")
         {
             if (NeedArgs(from, call, 1))
-            {
-                auto sound = SoundManager::GetSoundFromPath(Arg(call, 0));
-                if (sound)
-                {
-                    sound->Type = SoundType::UI;
-                    sound->Is2D = true;
-                    sound->Play();
-                }
-            }
+                UiActions::PlaySoundPath(Arg(call, 0));
             return true;
         }
         if (n == "AddClass" || n == "RemoveClass" || n == "ToggleClass")
@@ -245,6 +237,17 @@ const std::vector<UiActionInfo>& UiActions::Builtins()
         { "ToggleClass", "selector, class", "Toggles a class on the element found by #id or id path" },
     };
     return list;
+}
+
+void UiActions::PlaySoundPath(const std::string& path)
+{
+    auto sound = SoundManager::GetSoundFromPath(path);
+    if (sound)
+    {
+        sound->Type = SoundType::UI;
+        sound->Is2D = true;
+        sound->Play();
+    }
 }
 
 bool UiActions::IsBuiltin(const std::string& name)

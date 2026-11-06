@@ -1,0 +1,16 @@
+# Phase 3 pages: a pushed page starts from its :entering style, a popped page stays until its :leaving transition has run.
+wait 6
+console ui_push GameData/ui/kit/tests/p3_page.xml
+wait_frames 1
+expect pg opacity_now < 1
+wait 0.5
+expect pg opacity_now == 1
+expect_stack depth == 1
+console ui_pop
+wait 0.1
+expect_stack depth == 0
+expect_exists pg
+expect pg opacity_now < 1
+wait 0.5
+expect_missing pg
+quit

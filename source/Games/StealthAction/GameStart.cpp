@@ -94,8 +94,16 @@ public:
         LoadingScreenSystem::SetLoadingCanvas(std::make_shared<UiDefaultLoadingScreen>());
 
         bool isServer = true;
+
+        // Automated test runs (-ui_test) stay off the network: no connect, no host socket. The manager still runs as a lone server
+        // (the player spawns through it) on a transport that has no socket, so nothing is sent or received.
+        const bool testRun = EngineMain::MainInstance != nullptr && EngineMain::MainInstance->Arguments.count("ui_test") > 0;
         
-        if (false)
+        if (testRun)
+        {
+            transport = make_unique<ENetTransport>();
+        }
+        else if (false)
         {
 #ifdef __EMSCRIPTEN__
             transport = std::make_unique<RelayTransport>("127.0.0.1", /*wsPort=*/5080, 0);

@@ -1,21 +1,91 @@
 #include "UiDrawList.h"
 
 #include <UI/Render/UiGpu.h>
+#include <UI/Render/UiGradientRamps.h>
 
+#include <algorithm>
 #include <utility>
+
+namespace
+{
+    bool Intersects(const glm::vec4& a, const glm::vec4& b)
+    {
+        return a.x < b.z && b.x < a.z && a.y < b.w && b.y < a.w;
+    }
+
+    glm::vec4 BoundsOf(const UiRender::Vertex* verts, uint32_t count)
+    {
+        glm::vec4 b(verts[0].X, verts[0].Y, verts[0].X, verts[0].Y);
+        for (uint32_t i = 1; i < count; ++i)
+        {
+            b.x = std::min(b.x, verts[i].X);
+            b.y = std::min(b.y, verts[i].Y);
+            b.z = std::max(b.z, verts[i].X);
+            b.w = std::max(b.w, verts[i].Y);
+        }
+        return b;
+    }
+
+    // Local ramp ids / aux indices become frame-global ones. Returns false when a ramp row could not be found.
+    bool Resolve(UiRender::PrimBlock& block, int auxBase)
+    {
+        if (auxBase != 0)
+        {
+            if (block.T[0].w >= 0.f)
+                block.T[0].w += static_cast<float>(auxBase);
+            if (static_cast<int>(block.T[0].y) & UiRender::kFlagMask)
+                block.T[15].z += static_cast<float>(auxBase);
+            if (static_cast<int>(block.T[0].y) & UiRender::kFlagClipShape)
+                block.T[15].w += static_cast<float>(auxBase);
+        }
+        if (block.T[11].x > 0.5f)
+        {
+            const int row = UiGradientRamps::Resolve(static_cast<int>(block.T[11].y + 0.5f));
+            if (row < 0)
+                return false;
+            block.T[11].y = static_cast<float>(row);
+        }
+        if (static_cast<int>(block.T[0].y) & UiRender::kFlagMask)
+        {
+            const int row = UiGradientRamps::Resolve(static_cast<int>(block.T[15].y + 0.5f));
+            if (row < 0)
+                return false;
+            block.T[15].y = static_cast<float>(row);
+        }
+        return true;
+    }
+}
 
 void UiDrawList::Clear()
 {
     m_items.clear();
-    m_vertices.clear();
-    m_indices.clear();
     m_externals.clear();
     m_localPrims.clear();
+    m_localAux.clear();
     m_barrier = false;
+    m_fence = 0;
     m_resolvedFrom = nullptr;
     m_resolvedBase = -1;
+    m_resolvedAuxBase = 0;
+    m_merged = 0;
     for (uint32_t& count : m_breaks)
         count = 0;
+}
+
+uint32_t UiDrawList::TotalVertices() const
+{
+    uint32_t total = 0;
+    for (const Item& item : m_items)
+        total += static_cast<uint32_t>(item.Verts.size());
+    return total;
+}
+
+uint32_t UiDrawList::TotalIndices() const
+{
+    uint32_t total = 0;
+    for (const Item& item : m_items)
+        total += static_cast<uint32_t>(item.Indices.size());
+    return total;
 }
 
 void UiDrawList::AddTriangles(const UiRender::BatchKey& key, const UiRender::Vertex* verts, uint32_t vertCount,
@@ -24,32 +94,52 @@ void UiDrawList::AddTriangles(const UiRender::BatchKey& key, const UiRender::Ver
     if (vertCount == 0 || indexCount == 0)
         return;
 
+    const glm::vec4 bounds = BoundsOf(verts, vertCount);
+
+    auto append = [&](Item& item) {
+        const uint16_t base = static_cast<uint16_t>(item.Verts.size());
+        for (uint32_t i = 0; i < indexCount; ++i)
+            item.Indices.push_back(static_cast<uint16_t>(indices[i] + base));
+        item.Verts.insert(item.Verts.end(), verts, verts + vertCount);
+        item.Bounds.x = std::min(item.Bounds.x, bounds.x);
+        item.Bounds.y = std::min(item.Bounds.y, bounds.y);
+        item.Bounds.z = std::max(item.Bounds.z, bounds.z);
+        item.Bounds.w = std::max(item.Bounds.w, bounds.w);
+    };
+
     if (m_barrier)
     {
         m_barrier = false;
     }
     else if (!m_items.empty())
     {
-        Item& last = m_items.back();
-        if (!last.External && last.Key == key && last.VertexCount + vertCount <= 65535)
+        // Join an item with an equal key: the last one, or one of the 7 before it that no later item overlaps.
+        const size_t last = m_items.size() - 1;
+        for (size_t i = last;; --i)
         {
-            const uint16_t base = static_cast<uint16_t>(last.VertexCount);
-            for (uint32_t i = 0; i < indexCount; ++i)
-                m_indices.push_back(static_cast<uint16_t>(indices[i] + base));
-            m_vertices.insert(m_vertices.end(), verts, verts + vertCount);
-            last.VertexCount += vertCount;
-            last.IndexCount += indexCount;
-            return;
+            Item& candidate = m_items[i];
+            if (!candidate.External && candidate.Key == key && candidate.Verts.size() + vertCount <= 65535)
+            {
+                append(candidate);
+                if (i != last)
+                    ++m_merged;
+                return;
+            }
+            if (candidate.External || Intersects(candidate.Bounds, bounds))
+                break;
+            if (i == 0 || i <= m_fence || last - i >= 7)
+                break;
         }
 
+        const Item& previous = m_items.back();
         BreakReason reason;
-        if (last.External)
+        if (previous.External)
             reason = BreakReason::External;
-        else if (last.Key == key)
+        else if (previous.Key == key)
             reason = BreakReason::Capacity;
-        else if (last.Key.TextureIdx != key.TextureIdx)
+        else if (previous.Key.TextureIdx != key.TextureIdx)
             reason = BreakReason::Texture;
-        else if (last.Key.StencilRef != key.StencilRef)
+        else if (previous.Key.StencilRef != key.StencilRef)
             reason = BreakReason::Stencil;
         else
             reason = BreakReason::State;
@@ -58,13 +148,10 @@ void UiDrawList::AddTriangles(const UiRender::BatchKey& key, const UiRender::Ver
 
     Item item;
     item.Key = key;
-    item.FirstVertex = static_cast<uint32_t>(m_vertices.size());
-    item.FirstIndex = static_cast<uint32_t>(m_indices.size());
-    item.VertexCount = vertCount;
-    item.IndexCount = indexCount;
-    m_indices.insert(m_indices.end(), indices, indices + indexCount);
-    m_vertices.insert(m_vertices.end(), verts, verts + vertCount);
-    m_items.push_back(item);
+    item.Bounds = bounds;
+    item.Indices.assign(indices, indices + indexCount);
+    item.Verts.assign(verts, verts + vertCount);
+    m_items.push_back(std::move(item));
 }
 
 void UiDrawList::AddQuad(const UiRender::BatchKey& key, const UiRender::Vertex corners[4])
@@ -79,7 +166,7 @@ void UiDrawList::AddExternal(ExternalFn fn)
     item.External = true;
     item.ExternalIndex = static_cast<uint32_t>(m_externals.size());
     m_externals.push_back(std::move(fn));
-    m_items.push_back(item);
+    m_items.push_back(std::move(item));
 }
 
 int UiDrawList::AddPrim(const UiRender::PrimBlock& block)
@@ -89,7 +176,21 @@ int UiDrawList::AddPrim(const UiRender::PrimBlock& block)
         m_localPrims.push_back(block);
         return static_cast<int>(m_localPrims.size()) - 1;
     }
-    return UiGpu::Prims().Add(block);
+    UiRender::PrimBlock resolved = block;
+    if (!Resolve(resolved, 0))
+        return -1;
+    return UiGpu::Prims().Add(resolved);
+}
+
+int UiDrawList::AddAux(const glm::vec4* texels, int count)
+{
+    if (m_local)
+    {
+        const int first = static_cast<int>(m_localAux.size());
+        m_localAux.insert(m_localAux.end(), texels, texels + count);
+        return first;
+    }
+    return UiGpu::Prims().AddAux(texels, count);
 }
 
 void UiDrawList::AppendResolved(const UiDrawList& local, size_t firstItem, size_t lastItem, uint8_t minStencilRef)
@@ -98,19 +199,42 @@ void UiDrawList::AppendResolved(const UiDrawList& local, size_t firstItem, size_
     {
         m_resolvedFrom = &local;
         m_resolvedBase = -2;
-        for (size_t i = 0; i < local.m_localPrims.size(); ++i)
+        m_resolvedAuxBase = 0;
+        if (!local.m_localAux.empty())
         {
-            const int index = UiGpu::Prims().Add(local.m_localPrims[i]);
-            if (i == 0)
-                m_resolvedBase = index;
-            if (index < 0)
+            m_resolvedAuxBase = UiGpu::Prims().AddAux(local.m_localAux.data(), static_cast<int>(local.m_localAux.size()));
+            if (m_resolvedAuxBase < 0)
             {
+                m_resolvedAuxBase = 0;
                 m_resolvedBase = -1;
-                break;
             }
         }
-        if (local.m_localPrims.empty())
-            m_resolvedBase = 0;
+        if (m_resolvedBase != -1)
+        {
+            for (size_t i = 0; i < local.m_localPrims.size(); ++i)
+            {
+                UiRender::PrimBlock block = local.m_localPrims[i];
+                int index;
+                if (!Resolve(block, m_resolvedAuxBase))
+                {
+                    // A prim whose ramp row is missing is drawn as a transparent box instead of leaving a hole in the numbering.
+                    block.T[0].x = static_cast<float>(UiRender::PrimKind::Image);
+                    block.T[0].y = 0.f;
+                    block.T[0].w = -1.f;
+                    block.T[1] = glm::vec4(0.f);
+                }
+                index = UiGpu::Prims().Add(block);
+                if (i == 0)
+                    m_resolvedBase = index;
+                if (index < 0)
+                {
+                    m_resolvedBase = -1;
+                    break;
+                }
+            }
+            if (local.m_localPrims.empty())
+                m_resolvedBase = 0;
+        }
     }
     if (m_resolvedBase < 0)
         return;
@@ -126,34 +250,24 @@ void UiDrawList::AppendResolved(const UiDrawList& local, size_t firstItem, size_
             AddExternal(local.m_externals[item.ExternalIndex]);
             continue;
         }
-        verts.assign(local.m_vertices.begin() + item.FirstVertex, local.m_vertices.begin() + item.FirstVertex + item.VertexCount);
+        verts = item.Verts;
         for (UiRender::Vertex& v : verts)
             v.Prim += static_cast<float>(m_resolvedBase);
         UiRender::BatchKey key = item.Key;
         if (key.StencilRef < minStencilRef)
             key.StencilRef = minStencilRef;
-        AddTriangles(key, verts.data(), item.VertexCount, local.m_indices.data() + item.FirstIndex, item.IndexCount);
+        AddTriangles(key, verts.data(), static_cast<uint32_t>(verts.size()), item.Indices.data(), static_cast<uint32_t>(item.Indices.size()));
     }
 }
 
 void UiDrawList::AppendList(const UiDrawList& other)
 {
-    const uint32_t vertexBase = static_cast<uint32_t>(m_vertices.size());
-    const uint32_t indexBase = static_cast<uint32_t>(m_indices.size());
     const uint32_t externalBase = static_cast<uint32_t>(m_externals.size());
-
     for (Item item : other.m_items)
     {
         if (item.External)
             item.ExternalIndex += externalBase;
-        else
-        {
-            item.FirstVertex += vertexBase;
-            item.FirstIndex += indexBase;
-        }
-        m_items.push_back(item);
+        m_items.push_back(std::move(item));
     }
-    m_vertices.insert(m_vertices.end(), other.m_vertices.begin(), other.m_vertices.end());
-    m_indices.insert(m_indices.end(), other.m_indices.begin(), other.m_indices.end());
     m_externals.insert(m_externals.end(), other.m_externals.begin(), other.m_externals.end());
 }

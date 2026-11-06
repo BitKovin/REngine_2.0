@@ -11,10 +11,11 @@ public:
     struct Item
     {
         bool External = false;
-        // geometry
+        // geometry: each item owns its vertices so later geometry can be merged into an earlier item
         UiRender::BatchKey Key;
-        uint32_t FirstVertex = 0, VertexCount = 0;
-        uint32_t FirstIndex = 0, IndexCount = 0;
+        std::vector<UiRender::Vertex> Verts;
+        std::vector<uint16_t> Indices;
+        glm::vec4 Bounds = glm::vec4(0.f);   // screen-space AABB of the vertices: min x, min y, max x, max y
         // external
         uint32_t ExternalIndex = 0;
     };
@@ -22,9 +23,9 @@ public:
     enum class BreakReason { Texture, State, Stencil, External, Capacity, Count };
 
     void Clear();
-    // The next AddTriangles starts a new item, so later geometry can never merge in front of whatever the caller
-    // inserts at this position (UiElem legacy-child markers).
-    void Barrier() { m_barrier = true; }
+    // The next AddTriangles starts a new item, and nothing added later is merged into an item before this point
+    // (UiElem legacy-child markers).
+    void Barrier() { m_barrier = true; m_fence = m_items.size(); }
     bool Empty() const { return m_items.empty(); }
 
     // Lists are "global" by default (vertex Prim = index in UiGpu::Prims(), as phase 0 does).
@@ -33,12 +34,17 @@ public:
     bool IsLocal() const { return m_local; }
     // Local lists append to m_localPrims and return that index; global lists call UiGpu::Prims().Add (-1 when full).
     int AddPrim(const UiRender::PrimBlock& block);
+    // Auxiliary texels (colour matrices, mask and clip-shape geometry). Same local / global split as AddPrim; -1 when full.
+    int AddAux(const glm::vec4* texels, int count);
     const std::vector<UiRender::PrimBlock>& LocalPrims() const { return m_localPrims; }
     // Appends items [firstItem, lastItem) of a LOCAL list into this GLOBAL list: adds the local blocks to
-    // UiGpu::Prims() once per source, rewrites vertex Prim fields, and raises every StencilRef to at least minStencilRef.
+    // UiGpu::Prims() once per source (aux indices and ramp ids rebased), rewrites vertex Prim fields, and raises every
+    // StencilRef to at least minStencilRef.
     void AppendResolved(const UiDrawList& local, size_t firstItem, size_t lastItem, uint8_t minStencilRef);
 
     // Appends triangles. `indices` are relative to `verts` (0..vertCount-1).
+    // Geometry joins the last item with an equal key; failing that, it joins one of the 7 items before it with an equal key
+    // when its bounds overlap none of the items after that one (and none is external), which keeps the painter's order.
     void AddTriangles(const UiRender::BatchKey& key, const UiRender::Vertex* verts, uint32_t vertCount,
                       const uint16_t* indices, uint32_t indexCount);
     // Convenience: one quad, corners in order top-left, top-right, bottom-right, bottom-left.
@@ -49,20 +55,23 @@ public:
     void AppendList(const UiDrawList& other);
 
     const std::vector<Item>& Items() const { return m_items; }
-    const std::vector<UiRender::Vertex>& Vertices() const { return m_vertices; }
-    const std::vector<uint16_t>& Indices() const { return m_indices; }
     const std::vector<ExternalFn>& Externals() const { return m_externals; }
     const uint32_t* BreakCounts() const { return m_breaks; }
+    uint32_t MergedCount() const { return m_merged; }
+    uint32_t TotalVertices() const;
+    uint32_t TotalIndices() const;
 
 private:
     std::vector<Item> m_items;
-    std::vector<UiRender::Vertex> m_vertices;
-    std::vector<uint16_t> m_indices;
     std::vector<ExternalFn> m_externals;
     uint32_t m_breaks[static_cast<int>(BreakReason::Count)] = {};
+    uint32_t m_merged = 0;
     bool m_local = false;
     bool m_barrier = false;
+    size_t m_fence = 0;
     std::vector<UiRender::PrimBlock> m_localPrims;
+    std::vector<glm::vec4> m_localAux;
     const UiDrawList* m_resolvedFrom = nullptr;
     int m_resolvedBase = -1;
+    int m_resolvedAuxBase = 0;
 };

@@ -2,6 +2,7 @@
 #include <UI/Elements/UiElem.h>
 
 class Texture;
+struct UiAtlasImage;
 
 class UiElemImage : public UiElem
 {
@@ -16,6 +17,8 @@ public:
     const std::string& Src() const { return m_src; }
 
 private:
-    Texture* m_texture = nullptr;
+    bool Fetch(UiAtlasImage& out);   // atlas image, or the standalone texture when decoding failed; false while not usable
+    Texture* m_texture = nullptr;    // only for the fallback
+    bool m_standalone = false;
     std::string m_src;
 };

@@ -1,0 +1,16 @@
+<root>
+  <styles>
+    <include src="GameData/ui/kit/tests/p3_design_theme.css"/>
+  </styles>
+
+  <Panel id="dpause" class="pause" pauses-game="true" hides-hud="true">
+    <Panel class="scrim"/>
+    <Panel class="menu">
+      <Label class="title" text="Paused"/>
+      <TextButton id="dresume" text="Resume" default-focus="true"/>
+      <TextButton id="dsettings" text="Settings"/>
+      <TextButton id="drestart" text="Restart"/>
+      <TextButton id="dquit" text="Quit" class="danger"/>
+    </Panel>
+  </Panel>
+</root>

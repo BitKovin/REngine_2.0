@@ -7,6 +7,7 @@
 #include <UI/Menus/UiActions.h>
 #include <UI/Menus/UiInputPrompts.h>
 #include <UI/Preview/UiMenuPreviews.h>
+#include <UI/Preview/UiPaintPreviews.h>
 #include <UI/Markup/UiTagRegistry.h>
 #include <UI/Preview/UiPreviewRegistry.h>
 #include <UI/Reflection/UiElementRegistry.h>
@@ -54,7 +55,8 @@ namespace
         return s;
     }
 
-    const char* kRegistryNames[] = { "documents", "components", "tags", "cssProperties", "pseudoClasses", "actions", "inputActions", "hosts", "locales", "testCommands" };
+    const char* kRegistryNames[] = { "documents", "components", "tags", "cssProperties", "pseudoClasses", "actions", "inputActions", "hosts", "locales", "testCommands",
+                                      "paintEffects", "animations", "easings" };
 
     std::string ExecutableName()
     {
@@ -268,6 +270,52 @@ namespace
         s.Registries["hosts"]["viewport"] = json{ { "name", "viewport" }, { "description", "Plain parent: no lifecycle, no host options" } };
     }
 
+    // Phase 3: paint effects, easing functions, animatable properties, and the @keyframes of every sheet that has been loaded.
+    void FillPaint(State& s)
+    {
+        UiPaintPreviews::FillRegistries(s.Registries);
+
+        std::vector<std::shared_ptr<UiStyleSheet>> sheets = UiStyleSheetCache::Cached();
+        for (const std::string& full : UiDocumentCache_Paths())
+            if (const auto doc = UiDocumentCache_Get(full))
+                for (const auto& sheet : doc->Sheets)
+                    sheets.push_back(sheet);
+        for (const auto& sheet : sheets)
+        {
+            if (!sheet)
+                continue;
+            for (const UiKeyframes& k : sheet->Keyframes)
+            {
+                std::string path, error;
+                std::string file = sheet->Path.rfind("<inline:", 0) == 0 ? "" : sheet->Path;
+                json j = json::object();
+                j["name"] = k.Name;
+                j["kind"] = "keyframes";
+                if (!file.empty() && UiDatabase::NormalizePath(file, path, error))
+                    j["path"] = path;
+                j["line"] = k.Line;
+                json stops = json::array();
+                std::map<std::string, std::vector<float>> tracks;
+                for (const UiKeyframeStop& stop : k.Stops)
+                {
+                    json props = json::array();
+                    for (const UiCssDeclaration& d : stop.Declarations)
+                    {
+                        props.push_back(d.Name);
+                        tracks[d.Name].push_back(stop.Offset);
+                    }
+                    stops.push_back({ { "offset", stop.Offset }, { "properties", props } });
+                }
+                j["stops"] = stops;
+                json trackList = json::array();
+                for (const auto& [property, offsets] : tracks)
+                    trackList.push_back({ { "property", property }, { "offsets", offsets } });
+                j["tracks"] = trackList;
+                s.Registries["animations"]["keyframes:" + k.Name] = j;
+            }
+        }
+    }
+
     void FillTestCommands(State& s)
     {
         for (const std::string& name : UiTestRunner::CommandNames())
@@ -308,6 +356,7 @@ namespace
             UiPreviewRegistry::RegisterRecipe(d);
         }
         UiMenuPreviews::AddRecipes();
+        UiPaintPreviews::AddRecipes();
         for (const auto& [key, entry] : s.Registries["tags"])
         {
             UiPreviewDescriptor d;
@@ -331,6 +380,7 @@ namespace
         {
             FillMarkup(s);
             FillMenus(s);
+            FillPaint(s);
         }
         for (const auto& [registry, entries] : s.Extra)
             for (const auto& [id, entry] : entries)
