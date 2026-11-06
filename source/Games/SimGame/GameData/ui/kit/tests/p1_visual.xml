@@ -1,0 +1,27 @@
+<root>
+  <styles>
+    <style>
+      .v  { horizontal-align: left; vertical-align: top; }
+      #v1 { x: 100px; y: 100px; width: 200px; height: 100px; background-color: #ff0000; }
+      #v2 { x: 350px; y: 100px; width: 200px; height: 100px; background-color: lime; border-radius: 40px; }
+      #v3 { x: 600px; y: 100px; width: 200px; height: 100px; border: 4px solid white;
+            border-top-color: red; border-right-color: lime; border-bottom-color: blue; }
+      #v4 { x: 850px; y: 100px; width: 200px; height: 100px; opacity: 0.5; }
+      #v4c { width: 100%; height: 100%; background-color: white; }
+      #v5 { x: 100px; y: 250px; width: 200px; height: 100px; border-radius: 30px; overflow: clip; }
+      #v5c { x: -50px; y: -50px; width: 400px; height: 250px; background-color: blue; }
+      #v6 { x: 100px; y: 450px; width: 64px; height: 64px; }
+      #v7 { x: 350px; y: 250px; width: 100px; height: 100px; background-color: var(--accent, #00ffff); }
+      :root { --accent: #ffff00; }
+    </style>
+  </styles>
+  <Panel id="vroot" class="v">
+    <Panel id="v1" class="v"/>
+    <Panel id="v2" class="v"/>
+    <Panel id="v3" class="v"/>
+    <Panel id="v4" class="v"><Panel id="v4c"/></Panel>
+    <Panel id="v5" class="v"><Panel id="v5c"/></Panel>
+    <Image id="v6" class="v" src="GameData/textures/generic/white.png"/>
+    <Panel id="v7" class="v"/>
+  </Panel>
+</root>

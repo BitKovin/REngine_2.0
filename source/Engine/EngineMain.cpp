@@ -8,6 +8,10 @@
 #include <Particle/ParticleEmitter.h>
 #include <DebugDraw.hpp>
 #include <UI/UiRenderer.h>
+#include <UI/Test/UiTestRunner.h>
+#include <UI/UiSystem.h>
+#include <UI/Preview/UiDatabase.h>
+#include <UI/Render/UiPainterTestCard.h>
 #include <LoadingScreen/LoadingScreenSystem.h>
 #include <FileSystem/FileSystem.h>
 #include <BehaviourTree/BehaviorTree.h>
@@ -75,6 +79,7 @@ EngineMain::~EngineMain()
     NetworkManager::Shutdown();
     FileSystemEngine::Shutdown();
     Level::Current->CloseLevel();
+	UiSystem::Shutdown();
 	UiRenderer::Shutdown();
     ParticleEmitter::DestroyBillboardVao();
     delete(RmlUiContext::Main);
@@ -212,6 +217,9 @@ void EngineMain::Init(std::vector<std::string> args)
 
 	Localisation::Initialize("GameData/localisation", "en");
 
+    UiDatabase::InitBootstrap();
+    UiSystem::Init();
+
     UpdateScreenSize();
 
     // ParallelSafe systems split their loops over the level's async-update pool (Ecs.h). Without a pool every
@@ -236,6 +244,8 @@ void EngineMain::Init(std::vector<std::string> args)
     Time::Init();
 
     ConsoleDefaultCommands::RegisterAll();
+
+    UiTestRunner::InitFromArguments();
 
     Logger::Info("initPhys");
     Physics::Init();
@@ -507,7 +517,11 @@ void EngineMain::MainLoop()
 
     Input::Update();
 
+    UiTestRunner::Tick();
+
     UiNavigation::Update(&Viewport);
+
+    UiSystem::Update();
 
     Viewport.Update();
 
@@ -516,6 +530,7 @@ void EngineMain::MainLoop()
 
     Viewport.UpdateChildrenOffsetRecursive();
     Viewport.FinalizeChildren();
+    UiSystem::Finalize();
 
     Input::UpdateMouse();
 
@@ -732,6 +747,8 @@ void EngineMain::GameUpdate()
 {
     ZoneScopedN("GameUpdate");
 
+    UiSystem::NoteGameThread();
+
     {
         ZoneScopedN("Physics");
         if (Paused == false)
@@ -889,6 +906,7 @@ void EngineMain::Render()
         BgfxStateManager::SetBlend(BgfxStateManager::Blend::Premultiplied);
 
         bgfx::touch(ViewIdManager::GetCurrentId());
+        UiRenderer::BeginPass();
         {
             ZoneScopedN("Viewport Draw");
             Viewport.Draw();
@@ -905,6 +923,10 @@ void EngineMain::Render()
         UiElement::DrawingLate = false;
         UiElement::pendingLateDrawElements.clear();
 
+        if (UiPainterTestCard::Enabled())
+            UiPainterTestCard::Draw();
+
+        UiRenderer::EndPass(ViewIdManager::GetCurrentId());
         UiRenderer::EndFrame();
 
         UiFrameBuffer->unbind();
@@ -1028,7 +1050,8 @@ void EngineMain::Render()
 		ZoneScopedN("Present");
 
         Screenshot::BeforePresent(Time::GameTimeNoPause, Arguments);
-        bgfx::frame();
+        UiRenderer::OnBeforeBgfxFrame();
+        Screenshot::AfterPresent(bgfx::frame());
         ViewIdManager::Reset();
     }
 }

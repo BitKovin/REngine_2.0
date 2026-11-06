@@ -1,0 +1,19 @@
+# Simulated mouse: click activates, a press keeps receiving move and release outside the element.
+wait 6
+console ui_push GameData/ui/kit/tests/p2_capture.xml
+wait_frames 10
+expect m1 activations == 0
+click 150 120
+expect m1 activations == 1
+mouse_move 400 350
+mouse_down
+mouse_move 900 700
+mouse_move 950 720
+mouse_up
+expect cap downs == 1
+expect cap moves >= 1
+expect cap ups == 1
+ui_screenshot p2_mouse
+mouse_off
+expect_ui_errors 0
+quit

@@ -1,0 +1,12 @@
+<root>
+  <imports><import src="GameData/ui/kit/tests/CycleA.xml"/></imports>
+  <styles><style>
+    .bad { width: banana; }
+    .ok  { width: 10px; height: 10px; }
+  </style></styles>
+  <Panel id="eroot">
+    <CycleA/>
+    <NoSuchTag/>
+    <Panel class="bad ok" unknown-attr="1"/>
+  </Panel>
+</root>

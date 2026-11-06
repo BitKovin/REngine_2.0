@@ -14,15 +14,15 @@ These files tell an implementer exactly what to build, in what order, and how to
 
 | Phase | File | Depends on | Status |
 |---|---|---|---|
-| 0 | `P0_RENDERER_CORE.md`: test harness, base shader, draw lists, legacy routing, painter | nothing | not started |
-| 1 | `P1_MARKUP_CORE.md`: XML, CSS, cascade, flow layout, SDF text, basic elements, components | 0 | not started |
-| 2 | `P2_MENUS_AND_INPUT.md`: menu stack (any element), host options, events and actions, prompts, pilot pause menu | 1 | not started |
-| 3 | `P3_PAINTING_AND_MOTION.md`: full CSS painting, image atlas, transforms, transitions, keyframes | 1 (2 recommended) | not started |
-| 4 | `P4_WIDGETS_AND_KIT.md`: wrapped widgets, settings binding, engine kit, port all games, delete RmlUi | 2, 3 | not started |
-| 5 | `P5_HUD_AND_WORLD.md`: layers, HUD, world panels, `UiContext`, world surfaces, loading screens | 2, 3 | not started |
-| 6 | `P6_UI_STUDIO.md`: separate Qt editor; delete the ImGui editor and the JSON `.ui` layouts | 1 (better after 4) | not started |
-| 7 | `P7_LAYERS_AND_EXTRAS.md`: layer atlas, blur, backdrop, group opacity, SVG, drag and drop, context menus | 3, 5 | not started |
-| 8 | `P8_SCENE_VIEWS.md`: 3D scenes drawn into viewports inside UI (character preview, item inspect) | 5, 7 | not started |
+| 0 | `P0_RENDERER_CORE.md`: test harness, base shader, draw lists, legacy routing, painter | nothing | done on StealthAction (see its Implementation notes) |
+| 1 | `P1_MARKUP_CORE.md`: XML, CSS, cascade, flow layout, SDF text, basic elements, components; establish UIDB model/serializer early (Task 1.2a), then publish the first complete launch snapshot with `UiSystem` (Task 1.14) | 0 | done on StealthAction (not run on the other three games) |
+| 2 | `P2_MENUS_AND_INPUT.md`: menu stack (any element), host options, events/actions/input metadata and preview scenarios, prompts, pilot pause menu | 1 | done on StealthAction, pilot look awaiting owner approval (see its Implementation notes) |
+| 3 | `P3_PAINTING_AND_MOTION.md`: full CSS painting, image atlas, transforms, transitions, keyframes and paint/animation preview metadata | 1 (2 recommended) | not started |
+| 4 | `P4_WIDGETS_AND_KIT.md`: wrapped widgets, settings/localisation metadata and fixtures, engine kit, port all games, delete RmlUi | 2, 3 | not started |
+| 5 | `P5_HUD_AND_WORLD.md`: layers/HUD/host preview metadata, world panels, `UiContext`, world surfaces, loading screens | 2, 3 | not started |
+| 6 | `P6_UI_STUDIO.md`: game-independent Qt Studio discovered from `GameData` + `uidb.json`; delete the ImGui editor and JSON `.ui` layouts | 1 (better after 4) | not started |
+| 7 | `P7_LAYERS_AND_EXTRAS.md`: layer atlas/effect preview metadata, blur, backdrop, group opacity, SVG, drag/drop, context menus | 3, 5 | not started |
+| 8 | `P8_SCENE_VIEWS.md`: scene-view preview recipes and 3D scenes drawn into UI (character preview, item inspect) | 5, 7 | not started |
 
 ## Constraints that keep phase 8 possible (apply in every earlier phase)
 
@@ -42,7 +42,7 @@ The design left open questions. These are the answers. Do not change them withou
 | # | Decision |
 |---|---|
 | D1 | Layout vocabulary is **Panorama's**: `flow-children`, `fit-children`, `fill-parent-flow()`, `horizontal-align`, `vertical-align`. No `display: flex`. |
-| D2 | UI Studio is built **per game**, like `source/QtEditor` (CMake variable `GAME_NAME`), so game tags render for real. |
+| D2 | UI Studio is **one game-independent build**. The developer selects a `GameData` directory; Studio reads the game's generated `uidb.json` and connects to that game's compatible runtime preview host. No per-game `GAME_NAME`/`GAME_DIR` build of Studio and no hard-coded game allowlist. |
 | D3 | The **main** screen stack pauses the game. It calls a hook, `UiMenus::OnPauseChanged`, and each game connects that hook to its own `PauseGameManager`. |
 | D4 | SDF text is used by the **new `Label` only**. Legacy `UiText` keeps the bitmap atlas path unchanged. |
 | D5 | The ImGui `UiEditor` is deleted in phase 6. A small in-game inspector remains: the console commands `ui_pick` and `ui_dump`. |
@@ -53,6 +53,9 @@ The design left open questions. These are the answers. Do not change them withou
 | D10 | The UI render target stays **1080p-tall** (`UiManager::GetScaledUiHeight()` tall, width by aspect), exactly as today. One UI unit is one target pixel. Never change the render target resolution. |
 | D11 | The pilot game, and the default game for every test script, is **StealthAction**. |
 | D12 | **No special root element types.** There is no `<Screen>` and no `<Hud>` tag. The menu stack, the HUD layer and world surfaces are hosts that show **any** element: a loaded layout or a C++ `UiElem`. Host options (`pauses-game`, `close-on-back`, `shows-below`, `hides-hud`) are optional attributes on the root element, read only by the host that understands them. Lifecycle hooks (`OnPushed`, `OnBack`…) and `Tick()` are ordinary `UiElem` virtuals. The world-space "screen" entity is `UiWorldSurface`, which draws whatever element is put into it. |
+| D13 | Every game generates a deterministic, versioned `uidb.json` from its live UI registries on launch. The model/serializer is established early in Phase 1; the first complete snapshot is published after Phase 1 registries initialize, and each later phase extends the same database as its features are implemented. Canonical writable location: `SaveData/UIStudio/uidb.json`; Studio discovers it from the selected `GameData` directory. It is metadata, not source of truth. |
+| D14 | A preview target may be a document, component, built-in/legacy element or **game-owned runtime UI**. Runtime previews are registered through `UiPreviewRegistry` providers with explicit host requirements, typed fixture parameters and named scenarios. Studio never guesses or mocks a HUD. |
+| D15 | Game-specific live previews use the selected game's compatible `-ui_studio` runtime bridge. Studio itself remains generic. If the executable/bridge is unavailable, file editing and static metadata browsing remain available, but runtime-only targets are clearly marked unavailable. |
 
 ## Glossary
 
@@ -72,4 +75,7 @@ The design left open questions. These are the answers. Do not change them withou
 | Context | `UiContext` (phase 5): focus, hover, menu stack and variables for one host (the main screen, each world surface, the loading screen). |
 | Host | What shows an element and gives it behaviour: the menu stack (menus), the HUD layer, a world surface (`UiWorldSurface`), or a plain parent. There are no special root element types. |
 | Page | An element pushed on a menu stack. Any element can be a page. |
+| UIDB | The generated `SaveData/UIStudio/uidb.json` game UI database. Its model/serializer is established early in Phase 1; all feature phases publish registered UI APIs, capabilities, source references and preview targets into the same database. |
+| Preview target | A named Studio-previewable UI target. It may be a document/component or a runtime-provided HUD/widget/hosted element. |
+| Preview provider | Game/engine code registered in `UiPreviewRegistry` that creates and drives a real-engine preview fixture for a runtime preview target. |
 | Golden | A reference screenshot that output must match. |

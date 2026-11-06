@@ -1,0 +1,22 @@
+wait 6
+# the game locks the cursor while unpaused, which makes the legacy focus pointer drop focus
+action pause
+wait_frames 3
+console ui_load GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+focus_trap menu
+console ui_focus b1
+wait_frames 3
+expect b1 focus == 1
+action ui_down
+wait_frames 3
+expect b2 focus == 1
+action ui_down
+wait_frames 3
+expect b2 focus == 1
+action ui_confirm
+wait_frames 3
+expect b2 activations == 1
+expect b3 activations == 0
+ui_screenshot buttons
+quit

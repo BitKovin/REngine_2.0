@@ -1,0 +1,6 @@
+wait 5
+log hello
+action does_not_exist
+ui_screenshot test
+wait 1
+quit

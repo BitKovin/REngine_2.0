@@ -1,0 +1,31 @@
+wait 6
+console ui_load GameData/ui/kit/tests/p1_layout.xml
+wait_frames 3
+expect_rect root 0 0 1000 1000
+expect_rect col 0 0 300 120
+expect_rect a 10 10 100 40
+expect_rect b 10 55 140 20
+expect_rect c 10 80 280 30
+expect_rect row 400 0 400 100
+expect_rect r1 400 25 100 50
+expect_rect r2 510 0 70 100
+expect_rect r3 590 80 210 20
+expect_rect wrap 0 400 250 110
+expect_rect w1 0 400 100 30
+expect_rect w2 110 400 100 30
+expect_rect w3 0 440 100 30
+expect_rect w4 110 440 100 30
+expect_rect w5 0 480 100 30
+expect_rect abs 400 400 200 200
+expect_rect tr 550 400 50 50
+expect_rect ctr 470 480 60 40
+expect_rect bl 405 565 30 30
+expect_rect fit 700 400 84 26
+expect_rect f1 708 408 20 10
+expect_rect f2 732 408 20 10
+expect_rect f3 756 408 20 10
+expect_rect marg 0 700 200 55
+expect_rect m1 20 710 100 20
+expect_rect m2 100 735 100 20
+expect_ui_errors 0
+quit

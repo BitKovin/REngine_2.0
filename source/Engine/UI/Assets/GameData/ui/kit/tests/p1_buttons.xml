@@ -1,0 +1,13 @@
+<root>
+  <styles><style>
+    #menu { flow-children: down; gap: 10px; x: 800px; y: 100px; }
+    TextButton { width: 300px; height: 60px; background-color: #303030; border-radius: 8px; }
+    TextButton:focus { background-color: #a04030; }
+    TextButton Label { horizontal-align: center; vertical-align: center; }
+  </style></styles>
+  <Panel id="menu">
+    <TextButton id="b1" text="One"/>
+    <TextButton id="b2" text="Two"/>
+    <TextButton id="b3" text="Three" enabled="false"/>
+  </Panel>
+</root>

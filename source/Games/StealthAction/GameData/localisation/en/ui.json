@@ -1,0 +1,5 @@
+{
+    "entries": [
+        { "key": "UI_BACK", "value": "Back", "description": "Label of the back entry in a menu action bar" }
+    ]
+}

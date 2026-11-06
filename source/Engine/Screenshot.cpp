@@ -6,6 +6,7 @@
 
 #include <includedLibraries/stb_image_write.h>
 
+#include <algorithm>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -15,6 +16,19 @@ namespace
 {
 	std::mutex requestMutex;
 	std::string pendingPath;
+	std::string pendingTargetPath;
+	bgfx::TextureHandle pendingSource = BGFX_INVALID_HANDLE;
+	uint16_t pendingWidth = 0;
+	uint16_t pendingHeight = 0;
+
+	// A target capture in flight: blit queued, read queued, waiting for the data to land.
+	bgfx::TextureHandle readback = BGFX_INVALID_HANDLE;
+	std::string readbackPath;
+	std::vector<uint8_t> readbackPixels;
+	uint16_t readbackWidth = 0;
+	uint16_t readbackHeight = 0;
+	uint32_t readbackReadyFrame = 0;
+	const bgfx::ViewId kBlitView = 254;
 	bool launchShotTaken = false;
 
 	std::string PathFor(const std::string& name)
@@ -117,6 +131,38 @@ namespace Screenshot
 		pendingPath = PathFor(name);
 	}
 
+	void RequestTarget(bgfx::TextureHandle source, uint16_t width, uint16_t height, const std::string& name)
+	{
+		std::lock_guard<std::mutex> lock(requestMutex);
+		pendingTargetPath = PathFor(name);
+		pendingSource = source;
+		pendingWidth = width;
+		pendingHeight = height;
+	}
+
+	void AfterPresent(uint32_t frameNumber)
+	{
+		if (!bgfx::isValid(readback) || frameNumber < readbackReadyFrame)
+			return;
+		if (bgfx::getCaps()->originBottomLeft)
+		{
+			// OpenGL reads texture rows bottom-up; the PNG (and every other backend) is top row first.
+			const size_t rowBytes = static_cast<size_t>(readbackWidth) * 4;
+			for (uint32_t y = 0; y < readbackHeight / 2u; ++y)
+				std::swap_ranges(readbackPixels.begin() + y * rowBytes, readbackPixels.begin() + (y + 1) * rowBytes, readbackPixels.begin() + (readbackHeight - 1 - y) * rowBytes);
+		}
+		std::vector<uint8_t> png;
+		if (!stbi_write_png_to_func(AppendToVector, &png, readbackWidth, readbackHeight, 4, readbackPixels.data(), readbackWidth * 4))
+			Logger::Error("screenshot: could not encode %s", readbackPath.c_str());
+		else if (FileSystemEngine::WriteFileBinary(readbackPath, png))
+			Logger::Log("screenshot saved: %s (%ux%u)", readbackPath.c_str(), static_cast<unsigned>(readbackWidth), static_cast<unsigned>(readbackHeight));
+		else
+			Logger::Error("screenshot: could not write %s", readbackPath.c_str());
+		bgfx::destroy(readback);
+		readback = BGFX_INVALID_HANDLE;
+		readbackPixels.clear();
+	}
+
 	void BeforePresent(double gameSeconds, const std::map<std::string, std::vector<std::string>>& arguments)
 	{
 		if (!launchShotTaken)
@@ -137,6 +183,35 @@ namespace Screenshot
 		}
 		if (!path.empty())
 			bgfx::requestScreenShot(BGFX_INVALID_HANDLE, path.c_str());
+
+		std::string targetPath;
+		bgfx::TextureHandle source = BGFX_INVALID_HANDLE;
+		uint16_t width = 0;
+		uint16_t height = 0;
+		{
+			std::lock_guard<std::mutex> lock(requestMutex);
+			if (bgfx::isValid(readback))
+				return;   // one capture at a time; the request stays pending
+			targetPath.swap(pendingTargetPath);
+			source = pendingSource;
+			width = pendingWidth;
+			height = pendingHeight;
+			pendingSource = BGFX_INVALID_HANDLE;
+		}
+		if (targetPath.empty() || !bgfx::isValid(source))
+			return;
+		// bgfx cannot screenshot an off-screen framebuffer, so blit its colour texture into a CPU-readable one and read that back.
+		readback = bgfx::createTexture2D(width, height, false, 1, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_BLIT_DST | BGFX_TEXTURE_READ_BACK);
+		readbackPath = targetPath;
+		readbackWidth = width;
+		readbackHeight = height;
+		readbackPixels.assign(static_cast<size_t>(width) * height * 4, 0);
+		bgfx::TextureRegion dstRegion;
+		dstRegion.init(readback, 0, 0, width, height);
+		bgfx::TextureRegion srcRegion;
+		srcRegion.init(source, 0, 0, width, height);
+		bgfx::blit(kBlitView, dstRegion, srcRegion);
+		readbackReadyFrame = bgfx::read(dstRegion, readbackPixels.data());
 	}
 }
 

@@ -1,0 +1,7 @@
+# UiPainter test card: draws the card over the HUD and captures the UI target. Probes are in painter_card.probes.
+wait 6
+console ui_painter_test 1
+wait_frames 3
+ui_screenshot card
+console ui_painter_test 0
+quit

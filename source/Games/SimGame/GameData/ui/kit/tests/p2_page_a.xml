@@ -1,0 +1,12 @@
+<root>
+  <styles><style>
+    #pa { flow-children: down; gap: 10px; x: 100px; y: 100px; padding: 10px; background-color: #203040; }
+    TextButton { width: 240px; height: 50px; background-color: #303030; border-radius: 8px; }
+    TextButton:focus { background-color: #a04030; }
+    TextButton Label { horizontal-align: center; vertical-align: center; }
+  </style></styles>
+  <Panel id="pa" close-on-back="true" pauses-game="true">
+    <TextButton id="aa1" text="A1"/>
+    <TextButton id="aa2" text="A2"/>
+  </Panel>
+</root>

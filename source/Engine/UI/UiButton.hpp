@@ -20,7 +20,7 @@ private:
     int m_pressedTouchId = -1;
 
 public:
-    std::string ImagePath = "GameData/texture/ui/white.png";
+    std::string ImagePath = "GameData/textures/ui/white.png";
 
     vec4 Color = vec4(.15f, 0.15f, 0.15f, 1);
     vec4 HoverColor = vec4(.2f, 0.2f, 0.2f, 1);

@@ -1,0 +1,17 @@
+<root>
+  <imports>
+    <import src="GameData/ui/kit/tests/TestRow.xml"/>
+  </imports>
+  <styles>
+    <style>
+      #page { flow-children: down; gap: 4px; x: 50px; y: 50px; }
+      .tag  { background-color: #00ff00; }   /* page rule: reaches into the component on purpose */
+      .slotted { width: 30px; height: 30px; background-color: #0000ff; }
+      .label { color: red; }                 /* page rule also matches the component's label */
+    </style>
+  </styles>
+  <Panel id="page">
+    <TestRow id="row1" label="First"><Panel id="s1" class="slotted"/></TestRow>
+    <TestRow id="row2" label="Second" hint="yes" class="extra"/>
+  </Panel>
+</root>

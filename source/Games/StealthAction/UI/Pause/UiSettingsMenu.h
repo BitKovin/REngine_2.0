@@ -8,6 +8,8 @@
 
 #include <PauseGameManager.hpp>
 
+#include <functional>
+
 #include "UiVideoSettings.h"
 #include "UiInputSettings.h"
 #include "UiGameSettings.h"
@@ -17,14 +19,15 @@ class UiSettingsMenu : public UiCanvas
 {
 public:
 
-	std::shared_ptr<UiElement> parentMenu;
+	// Called when the menu closes, so the screen that opened it can show itself again.
+	std::function<void()> onClosed;
 
-	UiSettingsMenu(std::shared_ptr<UiElement> parentMenu_)
+	UiSettingsMenu(std::function<void()> onClosed_)
 	{
 
 		FocusTrap = true;
 
-		this->parentMenu = parentMenu_;
+		this->onClosed = std::move(onClosed_);
 
 		LoadLayoutFromFile("GameData/ui/layout/settingsMenu.ui");
 
@@ -68,7 +71,7 @@ public:
 
 		backButton->onClick = [&]()
 			{
-				parentMenu->visible = true;
+				if (onClosed) onClosed();
 				GameSettings::Instance().Video.FromCurrentState();
 				GameSettings::Instance().ApplyAll();
 				GameSettings::Instance().SaveToFile();

@@ -10,6 +10,7 @@
 using namespace std;
 
 class Texture;
+class UiDrawList;
 
 // The UI canvas is always exactly the render target's resolution — 1 UI unit
 // == 1 output pixel, no separate DPI/UI-scale factor anywhere in this system.
@@ -216,6 +217,17 @@ namespace UiRenderer {
 
     // ── Frame boundary ────────────────────────────────────────────────────────
     void EndFrame();
+
+    // ── Passes ───────────────────────────────────────────────────────────────
+    // A pass collects every UiRenderer draw between BeginPass and EndPass and submits it in order.
+    void BeginPass();
+    void EndPass(uint16_t viewId);
+    bool InPass();
+    UiDrawList& CurrentList();
+    // Resets per-frame renderer data. Call only right before the two bgfx::frame() calls named in conventions §3.
+    void OnBeforeBgfxFrame();
+    // Number of legacy stencil masks currently pushed; the stencil reference new geometry must test against.
+    uint8_t CurrentMaskDepth();
 
     inline bool  customViewport = false;
     inline ivec2 customViewportSize = ivec2(800, 600);

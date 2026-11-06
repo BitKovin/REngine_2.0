@@ -76,21 +76,21 @@ public:
 		settingsButton->onClick = [&]()
 			{
 
-				EngineMain::MainInstance->Viewport.AddChild(std::make_shared<UiSettingsMenu>(shared_from_this()));
+				EngineMain::MainInstance->Viewport.AddChild(std::make_shared<UiSettingsMenu>([this]() { visible = true; }));
 				visible = false;
 			};
 
 		saveButton->onClick = [&]()
 			{
 				EngineMain::MainInstance->Viewport.AddChild(
-					std::make_shared<UiSaveLoadMenu>(shared_from_this(), UiSaveLoadMenu::Mode::Save));
+					std::make_shared<UiSaveLoadMenu>([this]() { visible = true; }, UiSaveLoadMenu::Mode::Save));
 				visible = false;
 			};
 
 		loadButton->onClick = [&]()
 			{
 				EngineMain::MainInstance->Viewport.AddChild(
-					std::make_shared<UiSaveLoadMenu>(shared_from_this(), UiSaveLoadMenu::Mode::Load));
+					std::make_shared<UiSaveLoadMenu>([this]() { visible = true; }, UiSaveLoadMenu::Mode::Load));
 				visible = false;
 			};
 

@@ -590,6 +590,9 @@
     <ClInclude Include="UI\Player\ScoreIndicator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UI\Pause\StealthPauseMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="UI\Pause\UiPauseMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>

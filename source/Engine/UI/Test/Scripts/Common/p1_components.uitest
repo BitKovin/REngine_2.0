@@ -1,0 +1,13 @@
+wait 6
+console ui_load GameData/ui/kit/tests/p1_components.xml
+wait_frames 3
+expect_exists row1
+expect_exists s1
+expect_missing label
+expect row1 w == 400
+expect s1 w == 30
+expect row1/label text == First (none)
+expect row2/label text == Second (yes)
+ui_screenshot components
+expect_ui_errors 0
+quit

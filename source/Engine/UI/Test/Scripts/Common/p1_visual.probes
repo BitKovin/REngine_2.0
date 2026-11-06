@@ -1,0 +1,14 @@
+150 150 255 0 0 255 1 v1 fill
+99 150 0 0 0 0 1 v1 outside left
+450 150 0 255 0 255 1 v2 fill
+351 101 0 0 0 0 1 v2 rounded corner outside
+700 101 255 0 0 255 1 v3 top border
+797 150 0 255 0 255 1 v3 right border
+700 198 0 0 255 255 1 v3 bottom border
+602 150 255 255 255 255 1 v3 left border
+700 150 0 0 0 0 1 v3 inside
+950 150 128 128 128 128 2 v4 half opacity child
+200 300 0 0 255 255 1 v5 clipped child inside
+101 251 0 0 0 0 1 v5 clip corner
+132 482 255 255 255 255 1 v6 image
+400 300 255 255 0 255 1 v7 var from root

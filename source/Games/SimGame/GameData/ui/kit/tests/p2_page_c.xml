@@ -1,0 +1,11 @@
+<root>
+  <styles><style>
+    #pc { flow-children: down; gap: 10px; x: 700px; y: 220px; padding: 10px; background-color: #402030; }
+    TextButton { width: 240px; height: 50px; background-color: #303030; border-radius: 8px; }
+    TextButton:focus { background-color: #a03070; }
+    TextButton Label { horizontal-align: center; vertical-align: center; }
+  </style></styles>
+  <Panel id="pc">
+    <TextButton id="cc1" text="C1"/>
+  </Panel>
+</root>

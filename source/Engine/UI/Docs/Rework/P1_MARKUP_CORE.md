@@ -1,6 +1,6 @@
 # Phase 1: markup core
 
-**Goal:** load `.xml` layouts and `.css` styles into a tree of new `UiElem` elements, resolve styles with a CSS cascade, lay them out with Panorama-style flow layout, draw them through the phase 0 painter (boxes, images and SDF text), and make buttons focusable and activatable through the existing navigation. It includes components (layouts that include each other), snippets, imports, variables, localisation and hot reload. Every behaviour is proven by `.uitest` scripts on all backends.
+**Goal:** load `.xml` layouts and `.css` styles into a tree of new `UiElem` elements, resolve styles with a CSS cascade, lay them out with Panorama-style flow layout, draw them through the phase 0 painter (boxes, images and SDF text), and make buttons focusable and activatable through the existing navigation. It includes components (layouts that include each other), snippets, imports, variables, localisation and hot reload. It also establishes the UIDB registry/publication foundation early: feature registries publish metadata as they are implemented, and the first complete `uidb.json` is generated on normal game launch when `UiSystem` initialization is complete. Every behaviour is proven by `.uitest` scripts on all backends.
 
 **Prerequisites:** phase 0 complete; `00_CONVENTIONS.md` read again. Phase 0's `run_ui_tests.py`, `ui_image_probe.py`, `UiPainter` and `UiDrawList` are used throughout.
 
@@ -37,6 +37,8 @@ source/Engine/UI/Markup/UiVariables.h/.cpp           {var} substitution, formatt
 source/Engine/UI/Markup/UiDocument.h/.cpp            parsed .xml definitions + cache
 source/Engine/UI/Markup/UiComponentRegistry.h/.cpp   global component tags, discovery, imports
 source/Engine/UI/Markup/UiTagRegistry.h/.cpp         tag -> element factory (built-in + legacy + code-behind)
+source/Engine/UI/Preview/UiPreviewRegistry.h/.cpp   typed preview descriptors/providers; introduced early, populated as features arrive
+source/Engine/UI/Preview/UiDatabase.h/.cpp           UIDB model, registry publication, deterministic atomic serializer (`SaveData/UIStudio/uidb.json`)
 source/Engine/UI/Markup/UiBuilder.h/.cpp             instantiates element trees from definitions
 source/Engine/UI/Style/UiCssTokenizer.h/.cpp
 source/Engine/UI/Style/UiCssParser.h/.cpp            stylesheet AST
@@ -101,6 +103,49 @@ namespace UiMarkupLog
 
 ---
 
+
+## Task 1.2a: UIDB foundation (do this early, before markup registries)
+
+**Purpose:** establish the metadata contract before implementing tags, CSS properties, components and previewable elements. Later tasks must publish into this system as they create their registries; do not bolt UIDB on after the UI runtime is complete.
+
+**Files:**
+
+- `source/Engine/UI/Preview/UiDatabase.h/.cpp`
+- `source/Engine/UI/Preview/UiPreviewRegistry.h/.cpp` (descriptor/API skeleton; concrete recipes are added when their runtime types exist)
+- engine startup/build registration needed for the UIDB bootstrap, limited to the files already permitted by this phase
+
+### `UiDatabase` foundation
+
+Create the single owner of UIDB state and serialization. It must provide:
+
+- the versioned top-level envelope and typed structures from conventions §13;
+- stable game identity, engine/build/protocol identity and GameData/UI roots;
+- capability flags that default to false until the corresponding runtime feature is actually registered;
+- typed publication/removal/update methods for registry entries and preview descriptors (or a small typed registry API with equivalent responsibilities);
+- `MarkDirty(reason)` / registry revision tracking; reasons are diagnostic only and must not introduce nondeterministic JSON fields;
+- deterministic ordering and stable IDs;
+- UTF-8 JSON serialization, temporary-file write and atomic rename to `SaveData/UIStudio/uidb.json`;
+- path normalization and validation: database paths are GameData-relative, use `/`, preserve case and never contain absolute machine paths or traversal;
+- a non-fatal write-failure path that logs a warning but leaves the in-memory metadata available to the runtime bridge;
+- an explicit registry-completeness state internally. Publish a snapshot only after every registry expected in the current build/startup stage has finished registering; capabilities absent from that build remain false and their registries remain empty.
+
+Do not duplicate the source registries. `UiDatabase` stores serializable metadata snapshots/handles only; XML/CSS, game code, parser registries, localisation files and preview providers remain authoritative. Do not serialize callbacks, object pointers, player state, translation text, current settings or runtime entity IDs.
+
+### `UiPreviewRegistry` foundation
+
+Define the stable preview descriptor and provider registration interfaces now, even though some host kinds arrive in later phases. The descriptor contract includes stable ID, label/category/description, kind, source refs, host/capability requirements, typed parameters, scenarios and provider version. Provider callbacks remain compiled C++ code and are never serialized. Keep host-specific implementation capability-gated until its phase is complete.
+
+### Bootstrap and publication rules
+
+- Initialize the UIDB service once the game root, GameData root, stable game ID and engine build identity are known. This creates the in-memory model and serializer early; it must not require `UiSystem`, Qt or Studio.
+- Hook `UiDatabase::InitBootstrap()` into the existing `EngineMain::Init` sequence after `UiElementRegistry::RegisterBuiltinTypes()` and `Localisation::Initialize(...)`. It writes a valid baseline snapshot from the registries actually available in the current build (including legacy/reflection UI metadata where enumerable); categories whose registries do not exist yet are empty and their capabilities remain false. Do not invent future-phase entries.
+- When Task 1.14 adds `UiSystem` and the new markup registries, it calls `UiDatabase::RefreshFromRegistries()` after registration and component discovery, atomically replacing the baseline with the complete Phase 1 snapshot before accepting a Studio connection.
+- As Tasks 1.6–1.13 create CSS, tag, component, document and preview registries, each registry publishes its descriptor through the common API and calls `MarkDirty()` when its contents change. The first complete snapshot includes every Phase 1 feature that is available at that point.
+- Later phases add their own descriptors in their own implementation tasks. They must never create `uidb_p2.json`, `studio_schema.json` or another sidecar.
+
+**Check 1.2a:** build the early UIDB service without depending on Qt. Launch the game and confirm a valid baseline `SaveData/UIStudio/uidb.json` is emitted from registrations available at this point. Unit-test the serializer using a minimal game identity and empty registries: parse its output with Python's `json` module, verify stable ordering/content across repeated serializations, verify path validation rejects traversal/absolute paths, and simulate an unwritable destination without failing startup. Verify `UiPreviewRegistry` can register/enumerate a test descriptor without serializing a callback or pointer.
+
+---
 ## Task 1.3: draw list primitive modes and painter text support
 
 ### 1.3a: `UiDrawList` local primitives
@@ -339,6 +384,8 @@ Algorithm, exactly:
 
 ## Task 1.6: CSS tokenizer
 
+The tokenizer itself contributes no public runtime capability entry, but this is where the metadata contract starts being used: subsequent CSS grammar/property registration must publish the supported syntax into `UiDatabase` as it is introduced. Never infer support from a property name found in a source file.
+
 `UiCssTokenizer.h`:
 
 ```cpp
@@ -489,6 +536,8 @@ A compound matches element E when all of these hold:
 ---
 
 ## Task 1.9: computed style
+
+As computed-style properties and value grammars are registered, publish their canonical name, grammar, initial/inherited values and invalidation class through the UIDB CSS-property registry. Unknown/unsupported properties must not appear as supported completion entries.
 
 `UiComputedStyle.h` holds the full list of phase 1 properties. Later phases add fields here **and** to the property table.
 
@@ -647,6 +696,8 @@ Resolution runs on the whole root when it is style-dirty (P1-D8). Cache matched 
 ---
 
 ## Task 1.11: elements
+
+Every built-in and legacy tag registration must publish a UIDB tag descriptor at registration time: stable tag ID/name, category, source/documentation reference where available, attributes, types/defaults/ranges, required flags and capability requirements. Registration calls `UiDatabase::MarkDirty()`; a startup snapshot is written once registries are complete in Task 1.14.
 
 ### `UiElem` (base)
 
@@ -830,6 +881,8 @@ public:
 ---
 
 ## Task 1.12: documents, components, builder, variables
+
+Document discovery, component discovery and component parameter/slot registration publish their source paths and schemas into the existing UIDB model. Component/document hot reload updates the registry revision and marks the database dirty; the next safe main-thread flush rewrites the same file atomically. Do not copy XML/CSS source contents into UIDB.
 
 ### Definitions (`UiDocument.h`)
 
@@ -1086,7 +1139,7 @@ Content measure for `FitChildren` on an axis:
 
 ---
 
-## Task 1.14: `UiSystem`
+## Task 1.14: `UiSystem` and first complete UIDB publication
 
 ```cpp
 class UiSystem
@@ -1110,6 +1163,7 @@ public:
 - `UiFontLibrary::Init()`.
 - Register built-in tags: Panel, Label, Image, Button, TextButton.
 - `UiComponentRegistry::Discover()`.
+- After all game/engine UI registrations and component discovery, initialise `UiPreviewRegistry` built-in recipes for every safely instantiable document, component, built-in tag and legacy tag. Call `UiDatabase::RefreshFromRegistries()` and flush the complete deterministic Phase 1 snapshot to `SaveData/UIStudio/uidb.json` before accepting a Studio runtime connection. This atomically refreshes the baseline generated by Task 1.2a; it is not a second database or writer. Later phases extend this same database.
 - Register the console commands:
   - `ui_load <path>`: `auto e = UiElem::Load(path); EngineMain::Viewport.AddChild(e);`
   - `ui_unload_all`: removes every registered root from its parent
@@ -1139,7 +1193,7 @@ public:
 
 ### `EngineMain.cpp`
 
-- In `Init`, after `Localisation::Initialize(...)`: `UiSystem::Init();`.
+- In `Init`, after `Localisation::Initialize(...)`: `UiDatabase::InitBootstrap(...)` is already called by Task 1.2a; once the new UI subsystem exists, call `UiSystem::Init();`. `UiSystem::Init` completes UI registry discovery and refreshes the UIDB snapshot as specified above. Keep the bootstrap before `UiSystem::Init` so intermediate builds still generate a truthful baseline.
 - In `MainLoop`, directly before `Viewport.Update();`: `UiSystem::Update();`.
 - In `MainLoop`, directly after `Viewport.FinalizeChildren();`: `UiSystem::Finalize();`.
 - At the top of `EngineMain::GameUpdate()`: `UiSystem::NoteGameThread();`.
@@ -1527,7 +1581,24 @@ Then run the phase 0 regression for all four games (the legacy goldens and the p
 
 **Check 1.17:** all of the above. Also run each `p1_*` script once on ShooterGame, SimGame and SlasherGame (dx11 only). They must pass there too, which proves the synced assets and the absence of game assumptions.
 
+## Task 1.18: verify the completed Phase 1 UIDB snapshot
+
+This task is verification only. Do not first implement `UiDatabase`, the serializer, the preview registry or launch generation here; those foundations belong to Task 1.2a and publication is integrated in Task 1.14.
+
+1. Launch the pilot game normally and confirm `SaveData/UIStudio/uidb.json` appears before Studio accepts a runtime connection. It must be valid UTF-8 JSON and contain deterministic Phase 1 registry entries.
+2. Launch twice without changing registries; semantic JSON content must be identical.
+3. Verify paths are GameData-relative and no absolute machine path, runtime object pointer, live player value or localisation translation is present.
+4. Point a temporary Studio discovery test at the game's `GameData` directory and confirm it finds the sibling `SaveData/UIStudio/uidb.json` without a `GAME_NAME` argument.
+5. Confirm the database lists discovered documents, CSS dependencies/properties, built-in and legacy tags, component definitions/parameters/slots, and safely instantiable document/component/element preview recipes.
+6. Register a temporary custom preview provider for a test `Panel`; confirm the database lists its descriptor but not its callback/pointer.
+7. Change a component and trigger hot reload; confirm the registry revision changes and the same UIDB file is atomically refreshed.
+8. Make the database destination unwritable; game startup and UI rendering must still succeed, the logger must report the metadata write failure, and a connected runtime must retain its in-memory database.
+
+**Check 1.18:** every item above passes on the pilot game. Confirm the early baseline comes from Task 1.2a and is refreshed by Task 1.14 after the new markup registries are ready; there is still only one writer and one canonical metadata file.
+
 ## Phase wrap-up
+
+The UIDB contract, serializer and baseline launch generation were established in Task 1.2a; Task 1.14 adds the full Phase 1 registry refresh, and Task 1.18 verifies it. Later phases publish their own registries/preview descriptors into this same database; do not create `uidb_p2.json`, separate Studio schemas or phase-specific sidecars.
 
 1. All tasks' checks pass.
 2. All four games build.
@@ -1536,4 +1607,28 @@ Then run the phase 0 regression for all four games (the legacy goldens and the p
 
 ## Implementation notes
 
-(implementer writes here)
+Status: done and verified on StealthAction (pilot game) on dx11, dx12, vk and gl. ShooterGame, SimGame and SlasherGame were deliberately not run: the user confirmed the engine behaves the same there (two share code, the third is almost identical). Nothing is committed.
+
+What exists (all under `source/Engine/UI/`, new unless noted):
+- `Markup/`: `UiMarkupLog`, `UiDocument` (pugixml v1.14 in `includedLibraries/pugixml`, document cache, `UiComponentRegistry`), `UiTagRegistry`, `UiVariables` (`{{`/`}}`, `${KEY}`, number formats), `UiBuilder` (components with params/slots, cycle check, legacy tags through `UiLayoutSerializer`).
+- `Style/`: tokenizer, parser, selectors, computed style, resolver (component layer, document layer, specificity, source order, `style=""`, C++ `Style()`).
+- `Flow/UiFlowLayout`: Measure/Arrange, fill axes, fit-children, wrapping text.
+- `Render/`: `UiFontLibrary` (SDF atlas, R8 2048x2048, up to 4 pages), `UiTextLayout`, glyph runs in `UiPainter`, `UiDrawList` local prims and `AppendResolved`/`Barrier`, `uiShadeSdfGlyph` (kind 2) in `fs_ui2.sc`.
+- `Elements/`: `UiElem`, `UiElemPanel`, `UiElemLabel`, `UiElemImage`, `UiElemButton`.
+- `UiSystem`: init, hot reload poll (500 ms), per-frame style/layout, `Finalize` (record, atlas upload, UIDB flush), console and test commands.
+- `Preview/`: `UiDatabase` (`SaveData/UIStudio/uidb.json`, atomic write) and `UiPreviewRegistry`.
+- Tests: `Test/Scripts/Common/p1_*.uitest` and assets in `Assets/GameData/ui/kit/tests/`.
+
+Gotchas found while verifying (keep for later phases):
+- A bgfx texture created with initial data is immutable: `updateTexture2D` is silently ignored. The glyph atlas pages are created without data and the first flush uploads the zeroed page. The first version showed no text at all because of this.
+- The game sets `Input::LockCursor = !paused` every frame and the legacy `UiFocusPointer` clears focus while the cursor is locked. Tests that use focus must pause the game first (`action pause`). The pause menu then holds a legacy focus trap, so `p1_buttons` calls the test-only `focus_trap <id>` command; Phase 2 replaces it with real focus handling.
+- The run folder (`Build/StealthAction/windows/GameData`) only receives changed assets when the game re-links. Shaders are not compiled by the build: run `ShaderCompilationAutomation.exe` and copy `compiled/windows` into the run folder by hand.
+- `UiComponentRegistry::Discover` only scans `ui/kit/components/` and `ui/components/`. Components that come in through `<imports>` are listed in `uidb.json` from the loaded document cache.
+- Static registries that elements touch from destructors (the live-element set) are leaked on purpose, otherwise shutdown crashes.
+
+Verification results:
+- p1_layout, p1_visual (probes), p1_text, p1_components, p1_errors, p1_buttons, p1_gamethread (22 loads, no crash) and p1_uidb: RESULT PASS on all four backends.
+- Cross-backend: dx12 and vk equal dx11 (buttons.png max difference 2 on dx12). vk buttons.png differs by 118 px (max 10) and gl differs by about 666 px (max 82) in every capture, including pages with no markup text, so it comes from legacy HUD text and not from the new UI. The user accepted these as float/sampling differences between backends.
+- Phase 0 regression: `legacy_menus` (9 shots x 4 backends) and `painter_card` (4 backends) are pixel-equal to their baselines.
+- UIDB (task 1.18): file appears at launch, two launches are byte-identical, no absolute paths or pointers, lists documents, CSS properties, tags, components (parameters and slots), pseudo classes and test commands; the preview-provider, hot-reload refresh and unwritable-destination checks run in `uidb_selftest`.
+- Shaders: 228 compiled, 0 failed for StealthAction; synced to all four games with `Tools/ui/sync_ui_assets.py`. The other three games' shaders were not recompiled.

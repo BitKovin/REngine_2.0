@@ -1490,4 +1490,41 @@ Add the console command `ui_stats` (same registration place as `ui_reload`). It 
 
 ## Implementation notes
 
-(implementer writes here)
+### Result (2026-11-06)
+
+Phase 0 is implemented and verified on **StealthAction only** (the owner limited testing to that game; the other three games were not
+built or run in this phase). All checks below ran on dx11, dx12, vk and gl.
+
+| Check | Result |
+|---|---|
+| Shaders (`ui2/*`) compile for every target | 228 jobs, 0 `[FAILED]` (StealthAction); synced to all four games with `Tools/ui/sync_ui_assets.py` |
+| 0.2/0.3 UI screenshots and PNG tools | smoke script writes a 1440x1080 PNG, corner alpha 0, diff of a file with itself `EQUAL` |
+| 0.4 baselines | base1/base2 stable (0 unstable pixels) on all four backends |
+| 0.10b, 0.10c-e and 0.11 golden regression (`legacy_menus`, 9 captures x 4 backends) | every capture `EQUAL` against the same backend's base1 |
+| 0.12 `painter_card` probes | all 22 probes `OK` on dx11, dx12, vk, gl |
+| 0.12 `cross` on `painter_card` | `EQUAL` for dx12, vk and gl against dx11 (GL max diff 2, tolerance 2), with the legacy-HUD mask described below |
+| 0.13 `ui_stats` | `[UiStats] passes 1 prims 6 vertices 26 draws 5 externals 26 breaks: texture 1 state 0 stencil 0 external 3 capacity 0` |
+
+### Decisions and deviations
+
+- **Shader include:** `#include <../bgfx_shader.sh>` instead of `<bgfx_shader.sh>`, as every shader in a subfolder of this repo does.
+- **Web GLES precision:** `compiled/web/gles/ui2/fs_ui2.bin` declares the default `precision mediump float` like every other engine shader, but it also has explicit `highp` on 68 declarations. Judged sufficient. Not run on a web build.
+- **UI-only screenshots (task 0.2):** the plan's `bgfx::requestScreenShot(frameBufferHandle)` does not work: bgfx only supports screenshots of the swap chain (the D3D11 renderer returns early for other frame buffers). STOP was reported to the owner. Solution: `Screenshot::RequestTarget` blits the UI colour texture into a `BLIT_DST | READ_BACK` texture on view 254 and reads it back with `bgfx::read`; the PNG is written when `bgfx::frame()` reports that frame (`Screenshot::AfterPresent`). OpenGL returns the rows bottom-up, so rows are flipped when `caps->originBottomLeft` is set. `ui_screenshot` therefore waits 8 frames.
+- **`texelFetch` removed from `fs_ui2.sc`:** shaderc drops a sampler that is only used through `texelFetch`, so the engine's `Shader` class never bound `s_uiData` and every primitive read as zeros. `uiFetch` now uses `texture2DLod` at the texel centre with the point-sampled data texture (exact). **Rule for later phases:** never rely on `texelFetch` alone for a sampler; use `texture2DLod`.
+- **Border corner ties:** on the corner diagonals of a border the winning side was decided by interpolation rounding, so GL and dx11 disagreed. `fs_ui2.sc` now only lets a side win when it is closer by more than 0.001, with the order top, right, bottom, left.
+- **`UiButton.hpp` default image path** was `GameData/texture/ui/white.png` (missing `s`), a file that does not exist. A missing texture draws differently per backend. Fixed to `textures/`. This changed the golden baselines, which were captured after the fix.
+- **Legacy UI differs between backends (not caused by this work):** against dx11, vk differs by up to 12 (of 255) on 118 to 1,830 pixels (the 24x24 cursor icon: texture filtering), and gl on about 666 px (HUD progress-bar underlines drawn from `GameData/cat.png`, `UiProgressBar` default image: a different texel is sampled) up to about 12,900 px on the Input Settings page. These are baked into each backend's own baseline, so the golden regression is per backend. `painter_card` cross-checks use `Tools/ui/make_cross_mask.py` to mask the pixels that differ between backends in the legacy HUD alone (2,034 pixels), so only the new drawing is compared.
+- **Legacy menu navigation:** the legacy menus are cursor-driven. `ui_down, ui_down, ui_up` reaches Settings in StealthAction's pause menu; the page names in the comments of `legacy_menus.uitest` for the later captures are therefore not exact (for example `06_video` shows Input Settings). The captures are deterministic, which is all the regression needs.
+- **Timeouts:** the in-game runner stops a script after 75 s, `run_ui_tests.py` kills a run after 90 s (a run takes about 25 s; GL is slower than the others).
+- **`UiDrawList::AddExternal`** does not count a break (the plan only counts breaks when a new geometry item starts); `External` breaks are counted when a geometry item follows an external one.
+- **`uidb.json` (decision D13):** nothing in Phase 0 produces or consumes it; the model/serializer starts in Phase 1.
+- **Windows `-renderapi gles`** was considered for a smaller feature set but windows has no compiled gles shaders; not added.
+- **CRLF:** new engine files were converted to CRLF; `UiTestRunner.*`, `Screenshot.*` and `EngineMain.cpp` keep the line endings they already had.
+
+### New files and tools
+
+`UI/Render/{UiRenderTypes.h,UiPrimBuffer.*,UiDrawList.*,UiGpu.*,UiPainter.*,UiPainterTestCard.*}`, `UI/Test/UiTestRunner.*`,
+`UI/Test/Scripts/StealthAction/{legacy_menus,smoke,painter_card,stats}.uitest` and `painter_card.probes`,
+`Tools/ui/{ui_png,ui_image_diff,ui_image_probe,run_ui_tests,sync_ui_assets,make_cross_mask}.py`, `Build/ui_build.cmd`.
+Console commands: `ui_painter_test 1|0`, `ui_stats`; launch argument `-ui_test <script>`.
+

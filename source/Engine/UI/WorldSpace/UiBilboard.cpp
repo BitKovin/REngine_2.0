@@ -226,6 +226,7 @@ void UiBilboard::DrawUi()
     BgfxStateManager::Reset();
     BgfxStateManager::SetDepthTest(BgfxStateManager::DepthTest::Always);
     BgfxStateManager::SetBlend(BgfxStateManager::Blend::Premultiplied);
+    UiRenderer::BeginPass();
 
     Canvas.Draw();
     UiElement::DrawingLate = true;
@@ -235,6 +236,7 @@ void UiBilboard::DrawUi()
     }
     UiElement::DrawingLate = false;
     UiElement::pendingLateDrawElements.clear();
+    UiRenderer::EndPass(ViewIdManager::GetCurrentId());
 
     UiRenderer::EndFrame();
 

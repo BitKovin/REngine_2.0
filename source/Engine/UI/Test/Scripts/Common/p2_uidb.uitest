@@ -1,0 +1,5 @@
+# Phase 2 metadata in the UI database: actions, events, hosts, input actions.
+wait 6
+expect_uidb cap:events cap:menus cap:inputPrompts actions:Push actions:Raise actions:activate hosts:menu-stack inputActions:ui_confirm inputActions:pause tags:InputPrompt tags:ActionBar
+expect_ui_errors 0
+quit

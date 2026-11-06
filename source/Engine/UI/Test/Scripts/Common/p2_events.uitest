@@ -1,0 +1,30 @@
+# Event attributes, built-in actions, Raise() from a component, unknown action warning.
+wait 6
+console ui_push GameData/ui/kit/tests/p2_events.xml
+wait_frames 10
+console ui_focus e1
+wait_frames 3
+expect e1 focus == 1
+action ui_confirm
+wait_frames 5
+expect_class target on 1
+expect_stack depth == 2
+expect_stack top contains p2_page_a
+action ui_cancel
+wait_frames 8
+expect_stack top contains p2_events
+expect e1 focus == 1
+action ui_down
+wait_frames 3
+expect e2 focus == 1
+action ui_confirm
+wait_frames 3
+action ui_down
+wait_frames 3
+action ui_confirm
+wait_frames 3
+expect_class target picked 1
+expect_ui_warnings 1
+expect_ui_errors 0
+ui_screenshot p2_events
+quit

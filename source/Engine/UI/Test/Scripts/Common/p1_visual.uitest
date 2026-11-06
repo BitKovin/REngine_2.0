@@ -1,0 +1,6 @@
+wait 6
+console ui_load GameData/ui/kit/tests/p1_visual.xml
+wait_frames 3
+ui_screenshot visual
+expect_ui_errors 0
+quit

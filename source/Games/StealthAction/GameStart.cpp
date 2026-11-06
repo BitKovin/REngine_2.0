@@ -16,7 +16,10 @@
 
 #include <ItemsDataBase.h>
 
-#include <UI/Pause/UiPauseMenu.h>
+#include "UI/Pause/StealthPauseMenu.h"
+#include <UI/Menus/UiInputPrompts.h>
+#include <UI/Menus/UiMenuStack.h>
+#include "UI/Pause/UI/InputIconLibrary.h"
 
 #include "Entities/Enemy/DebuffFactory.h"
 
@@ -344,10 +347,6 @@ public:
 
     }
 
-	bool wasPaused = false;
-
-    std::shared_ptr<UiPauseMenu> pauseMenu;
-
     void UpdatePaused()
     {
 
@@ -355,33 +354,44 @@ public:
 
 		EngineMain::MainInstance->Paused = PauseGameManager::isGameAnyPaused();
 
-        if (PauseGameManager::GetGamePaused())
-        {
-            if (wasPaused == false)
-            {
-
-                pauseMenu = std::make_shared<UiPauseMenu>();
-
-                EngineMain::MainInstance->Viewport.AddChild(pauseMenu);
-
-				//RmlUiContext::Main->PushModal(pauseMenuDoc);
-            }
-        }
-        else
-        {
-            if (pauseMenu != nullptr)
-            {
-
-                pauseMenu->RemoveFromParent();
-                pauseMenu = nullptr;
-
-				//RmlUiContext::Main->RemoveFromModalFromStack(pauseMenuDoc);
-            }
-        }
-
-		wasPaused = PauseGameManager::GetGamePaused();
-
 	}
+
+    // The pause menu is a markup page on the main menu stack (ui/pause.xml); the stack tells us when the game should pause.
+    static void SetupMenus()
+    {
+        UiMenus::PauseMenu = "ui/pause.xml";
+        UiMenus::OnPauseChanged = [](bool paused)
+        {
+            PauseGameManager::SetGamePaused(paused);
+            if (!paused)
+            {
+                Input::GetAction("pause")->CleanPressed();
+                Input::ReleaseAllActions();
+            }
+        };
+        UiMenus::Stack().OnEmptyBack = nullptr;
+
+        UiInputPrompts::SetProvider([](const std::string& actionName, UiInputDevice device) -> std::string
+        {
+            InputAction* action = Input::GetAction(actionName);
+            if (action == nullptr || action == &InputAction::NullAction)
+                return "";
+            if (device == UiInputDevice::Gamepad)
+            {
+                if (action->buttons.empty())
+                    return "";
+                return InputIconLibrary::GetGamepadIcon(InputBindingSlotGP::FromButton(action->buttons[0]));
+            }
+            if (device == UiInputDevice::KeyboardMouse)
+            {
+                if (!action->keys.empty())
+                    return InputIconLibrary::GetKeyboardIcon(InputBindingSlotKB::FromKey(action->keys[0]));
+                if (!action->mouseButtons.empty())
+                    return InputIconLibrary::GetKeyboardIcon(InputBindingSlotKB::FromMouseButton(action->mouseButtons[0]));
+            }
+            return "";
+        });
+    }
 
     void LoadConstantAssets()
     {
@@ -428,6 +438,8 @@ GameStart::GameStart()
 
 	PauseGameManager::SetGamePaused(false);
 	PauseGameManager::SetGamePausedGameplay(false);
+
+    SetupMenus();
 
     NpcBase::globalPhraceDelay = Delay();
 

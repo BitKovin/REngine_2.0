@@ -12,6 +12,7 @@
 
 #include "EngineMain.h"
 #include <Logger.hpp>
+#include <UI/Menus/UiInputPrompts.h>
 
 // Static member definitions for Input.
 glm::vec2 Input::MousePos;
@@ -270,12 +271,24 @@ void Input::StartEventsFrame()
     mouseTouchEvent.pressed = GetAction("click")->Pressed();
     mouseTouchEvent.released = GetAction("click")->Released();
 
+    if (SimulatedMouse.has_value())
+    {
+        mouseTouchEvent = *SimulatedMouse;
+        mouseTouchEvent.id = 1;
+        MousePos = mouseTouchEvent.position * screenToViewportRatio;
+        SimulatedMouse->pressed = false;   // one frame each; the position stays
+        SimulatedMouse->released = false;
+        SimulatedMouse->delta = vec2();
+    }
+
     TouchActions[1] = mouseTouchEvent;
 
 }
 
 void Input::ReceiveSdlEvent(SDL_Event event)
 {
+
+    UiInputPrompts::OnSdlEvent(event);
 
 	EngineMain::MainInstance->RmlContext->ProcessEvent(event);
 
@@ -555,6 +568,14 @@ InputAction* Input::GetAction(const std::string& actionName) {
     if (actions.find(actionName) == actions.end())
         return &InputAction::NullAction;
     return actions[actionName];
+}
+
+std::vector<std::string> Input::GetActionNames() {
+    std::vector<std::string> names;
+    for (auto& pair : actions)
+        names.push_back(pair.first);
+    std::sort(names.begin(), names.end());
+    return names;
 }
 
 InputAction* Input::AddAction(const std::string& actionName) {

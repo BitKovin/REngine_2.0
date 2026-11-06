@@ -1,0 +1,29 @@
+# Input prompts follow the last used device; rich text icons add to the line width.
+wait 6
+console ui_push GameData/ui/kit/tests/p2_prompts.xml
+wait_frames 10
+prompt_provider_test
+sim_device mouse
+wait_frames 3
+expect_class @stack input-mouse 1
+expect_class @stack input-gamepad 0
+expect ip src contains white.png
+expect ipnone visible == 0
+sim_device gamepad
+wait_frames 3
+expect_class @stack input-gamepad 1
+expect_class @stack input-mouse 0
+expect ip src contains cat.jpg
+ui_screenshot p2_prompts_gamepad
+sim_device touch
+wait_frames 3
+expect_class @stack input-touch 1
+expect ip visible == 0
+sim_device mouse
+wait_frames 3
+expect ip visible == 1
+expect icononly line_width == 24
+expect lit text == a<b
+ui_screenshot p2_prompts_mouse
+expect_ui_errors 0
+quit

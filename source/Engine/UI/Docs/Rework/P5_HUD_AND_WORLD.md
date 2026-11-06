@@ -123,6 +123,21 @@ public:
   3. `Draw()` as today: `BeginPass`, `viewport.Draw()`, `EndPass`, `EndFrame`, `OnBeforeBgfxFrame`, `bgfx::frame`
 - The C++ `UiLoadingScreenBase` path keeps working.
 
+## UIDB and hosted-HUD preview integration
+
+Phase 5 extends the UIDB preview model so it can describe UI that is not a document opened as an ordinary viewport root. The UIDB service and launch generation already exist from Phase 1. Register host/capability descriptors and each HUD/world preview provider alongside their runtime implementation; call `UiDatabase::MarkDirty()` and refresh the same file at the next safe main-thread point.
+
+- Export the actual host registry: HUD/menu/overlay layer IDs, draw order, visibility rules, host options, `UiContext` capabilities and supported interactions. Host names must be stable IDs, not raw pointers.
+- Export `UiWorldSurface` capabilities and defaults: facing, interaction mode, pixels-per-metre, max distance/angle, target mode and supported `UiContext` features.
+- Every game-owned HUD composition that should appear in Studio's Preview Gallery registers a `UiPreviewRegistry` provider. Examples: player crosshair, health/armour bar, ammo counter, ability cooldowns, damage vignette, objective marker, hit indicator, compass and world-anchored marker.
+- A HUD provider must define the exact host/layer and viewport requirements, source refs, typed fixture fields, default values and named scenarios. Example health-bar scenarios: full health, half health, critical, shield-only, recent damage and healing. Example crosshair scenarios: idle, moving, hip-fire spread, aiming, target acquired and hit marker.
+- Synthetic fixtures should model the data consumed by the HUD, not instantiate a real Player or query `Level::Current`. If the UI can only be previewed with a live entity, provide both a safe synthetic fixture (preferred) and optional read-only live capture.
+- WorldPanel previews use a deterministic camera/target fixture with known distance, behind-camera, edge-clamp and fade states. World-surface previews declare a test surface size, pixels-per-metre, facing and interaction mode.
+- Multiple preview targets must use isolated `UiContext`s when the runtime supports them. No focus, capture, hover, menu stack or state may leak between preview tiles or into the live game's main context.
+- Studio can switch between normal viewport, HUD layer, overlay, loading-screen and world-surface hosts. The selected host must be visible in the preview toolbar and in the UIDB descriptor.
+
+**Check:** verify `uidb.json` contains at least one test HUD runtime target (crosshair or health bar) and one world-surface target. Open each from Studio with deterministic fixture scenarios, change a fixture field, and confirm the real engine output changes without spawning gameplay entities or mutating live game state.
+
 ## Tests
 
 1. **`p5_layers`:** a HUD element under a pushed `hides-hud` page gets `hud-hidden`. An overlay element draws above a legacy element added later (probe).

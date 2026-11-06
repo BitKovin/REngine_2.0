@@ -17,6 +17,8 @@
 
 #include <UI/Editor/UiEditor.h>
 #include <UI/Layout/UiHotReload.h>
+#include <UI/Render/UiGpu.h>
+#include <UI/Render/UiPainterTestCard.h>
 
 void CMD_Help(const std::vector<std::string>& args)
 {
@@ -141,6 +143,26 @@ void UICMD_Reload(const std::vector<std::string>& args)
 	Logger::Log("ui_reload: rebuilt " + std::to_string(count) + " layout instance(s)");
 }
 
+void UICMD_PainterTest(const std::vector<std::string>& args)
+{
+	const bool enable = args.empty() || args[0] != "0";
+	UiPainterTestCard::SetEnabled(enable);
+	Logger::Log(std::string("ui_painter_test: ") + (enable ? "on" : "off"));
+}
+
+void UICMD_Stats(const std::vector<std::string>& args)
+{
+	const UiGpu::Stats& s = UiGpu::LastFrameStats();
+	char line[256];
+	std::snprintf(line, sizeof(line),
+		"[UiStats] passes %u prims %u vertices %u draws %u externals %u breaks: texture %u state %u stencil %u external %u capacity %u",
+		s.Passes, s.Prims, s.Vertices, s.GeometryDraws, s.Externals,
+		s.Breaks[static_cast<int>(UiDrawList::BreakReason::Texture)], s.Breaks[static_cast<int>(UiDrawList::BreakReason::State)],
+		s.Breaks[static_cast<int>(UiDrawList::BreakReason::Stencil)], s.Breaks[static_cast<int>(UiDrawList::BreakReason::External)],
+		s.Breaks[static_cast<int>(UiDrawList::BreakReason::Capacity)]);
+	Logger::Log(line);
+}
+
 void ConsoleDefaultCommands::RegisterAll()
 {
 
@@ -160,5 +182,7 @@ void ConsoleDefaultCommands::RegisterAll()
 	REGISTER_CONSOLE_CMD("ui_editor_toggle", "Toggles the UI editor", UICMD_EditorToggle);
 	REGISTER_CONSOLE_CMD("ui_editor_open", "Opens the UI editor with a specific layout", UICMD_EditorOpen);
 	REGISTER_CONSOLE_CMD("ui_reload", "Reloads UI layouts. If no path is provided, reloads all.", UICMD_Reload);
+	REGISTER_CONSOLE_CMD("ui_painter_test", "ui_painter_test 1|0 - draws the UiPainter test card", UICMD_PainterTest);
+	REGISTER_CONSOLE_CMD("ui_stats", "Logs the UI renderer statistics of the last frame", UICMD_Stats);
 
 }

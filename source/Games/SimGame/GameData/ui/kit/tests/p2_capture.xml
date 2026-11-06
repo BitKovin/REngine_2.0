@@ -1,0 +1,11 @@
+<root>
+  <styles><style>
+    #cap { x: 100px; y: 100px; width: 400px; height: 300px; background-color: #204020; }
+    TextButton { width: 120px; height: 60px; background-color: #303030; border-radius: 8px; }
+    TextButton:hover { background-color: #605030; }
+    TextButton Label { horizontal-align: center; vertical-align: center; }
+  </style></styles>
+  <Panel id="cap" hittest="true" pauses-game="true">
+    <TextButton id="m1" text="Click"/>
+  </Panel>
+</root>

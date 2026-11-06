@@ -140,6 +140,20 @@ kit/styles/       kit.css (structure only: layout, sizes; uses var(--…) for ev
 - **`-ui_pseudoloc`:** `UiSubstitute`, after localisation, maps every Latin letter to an accented form (a table of 52 mappings: a→á, e→é, …) and pads the string by 35% with `~`, wrapped in `[` `]`.
 - **`ui_overflow_report`** console command: logs every Label whose text layout is wider than its box (when not wrapping) or taller (when wrapping). Run it with pseudo-loc on the kit pages and fix the kit layout until it reports nothing.
 
+## UIDB, widget fixtures and localisation metadata
+
+Extend `uidb.json` from the live widget/settings/localisation registries. Each widget, settings and locale/key registry publishes metadata as it is registered or discovered and calls `UiDatabase::MarkDirty()`; Phase 1's engine-owned generator remains the only serializer:
+
+- Every native and wrapped widget publishes tag name, attributes, value type, accepted range/options, default value, emitted events, setting-binding support and natural-size behaviour.
+- `UiSettings` entries publish key, value type, bounds/step, choice labels as localisation keys and read/write capability. Do not include current user setting values in the persistent database.
+- Publish registered kit page/component names, source paths, theme token names and any game-registered settings tabs.
+- Publish configured locale IDs, source/fallback locale and localisation key names/locale-availability only. Translation text remains in the original localisation files and must never be copied into UIDB.
+- Built-in widget preview recipes must include useful representative values and states: slider min/mid/max, dropdown options, text entry empty/filled/invalid, toggle checked/unchecked, radio groups, progress 0/half/full, circular progress and ListView empty/short/long.
+- Add preview fixtures for settings pages that use isolated test settings. They must never write to the user's persistent settings file or call real graphics/audio device changes. Any action that would alter a device or save config is stubbed and visibly labelled.
+- Localisation picker/completion reads the actual locale files. UIDB only advertises locale/key metadata so edits remain source-safe and do not create a second translation database.
+
+**Check:** open the widget gallery and each declared fixture, change values, and verify the real wrapped/native widget updates. Open the settings kit in preview mode and confirm changes are discarded on close. Verify UIDB lists locale/key names but contains no translated phrases or user setting values.
+
 ## Tests
 
 1. **`p4_widgets`** (StealthAction, all backends):

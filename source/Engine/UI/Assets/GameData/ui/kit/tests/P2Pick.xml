@@ -1,0 +1,5 @@
+<root>
+  <Component tag="P2Pick">
+    <TextButton id="pickbtn" text="Pick" onactivate="Raise('picked')"/>
+  </Component>
+</root>

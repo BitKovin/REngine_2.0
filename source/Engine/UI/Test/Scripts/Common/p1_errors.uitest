@@ -1,0 +1,7 @@
+wait 6
+console ui_load GameData/ui/kit/tests/p1_errors.xml
+wait_frames 3
+expect_ui_errors 2
+expect_ui_warnings 2
+console ui_dump
+quit

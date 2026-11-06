@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <optional>
 #include <string>
 #include <cstdint>
 #include <SDL2/SDL_scancode.h>
@@ -131,6 +132,9 @@ public:
 
     static inline float MouseScrollDelta = 0;
 
+    // UI tests: when set, replaces the real mouse touch event (position in UI units). pressed/released last one frame.
+    static inline std::optional<TouchEvent> SimulatedMouse;
+
     // Input actions mapped by a string name
     static std::unordered_map<std::string, InputAction*> actions;
 
@@ -239,6 +243,9 @@ public:
     static void RemoveAction(const std::string& actionName);
 
     static void ReleaseAllActions();
+
+    // Names of all registered actions, sorted.
+    static std::vector<std::string> GetActionNames();
 
 };
 

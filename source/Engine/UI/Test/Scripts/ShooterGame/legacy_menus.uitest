@@ -1,0 +1,66 @@
+# Legacy UI golden capture for ShooterGame (pause menu, settings menu, every settings page).
+wait 8
+# 01: in-game HUD, no menu open
+ui_screenshot 01_hud
+wait 0.5
+action pause
+wait 1
+# 02: pause menu, resume button focused
+ui_screenshot 02_pause
+wait 0.5
+action ui_down
+wait 0.5
+action ui_down
+wait 0.5
+action ui_down
+wait 0.5
+action ui_confirm
+wait 1
+# 03: settings menu (game, input, video, sound, back)
+ui_screenshot 03_settings
+wait 0.5
+action ui_confirm
+wait 1
+# 04: game settings page
+ui_screenshot 04_game
+wait 0.5
+action ui_cancel
+wait 0.5
+action ui_down
+wait 0.5
+action ui_confirm
+wait 1
+# 05: input settings page
+ui_screenshot 05_input
+wait 0.5
+action ui_cancel
+wait 0.5
+action ui_down
+wait 0.5
+action ui_confirm
+wait 1
+# 06: video settings page
+ui_screenshot 06_video
+wait 0.5
+action ui_cancel
+wait 0.5
+action ui_down
+wait 0.5
+action ui_confirm
+wait 1
+# 07: sound settings page
+ui_screenshot 07_sound
+wait 0.5
+action ui_cancel
+wait 0.5
+action ui_cancel
+wait 1
+# 09: pause menu again after leaving settings
+ui_screenshot 09_pause_again
+wait 0.5
+action ui_cancel
+wait 3
+# 10: HUD after resuming
+ui_screenshot 10_after_resume
+wait 0.5
+quit

@@ -71,7 +71,22 @@ Layer bounds = the element's border box, inflated by the effect reach (3σ + |of
 
 - The game writes `SaveData/ui_pick.json` (`{ "path": "…", "line": N, "id": "…" }`) when `ui_pick` resolves.
 - UiStudio watches that file and selects the node.
-- Studio sends commands to the game it embeds through the existing console (`Console::Get().Execute`), in-process.
+- Studio communicates with the selected game's compatible `-ui_studio` runtime bridge using the versioned protocol from Phase 6. It must not call `Console::Get().Execute` in-process or assume that Studio embeds/links the selected game's C++ code. The lightweight `ui_pick` file remains a source-navigation fallback when the runtime bridge is unavailable.
+
+## UIDB and advanced preview integration
+
+Extend the shared `uidb.json` with. Publish each capability/descriptor from the same registration code that introduces it and call `UiDatabase::MarkDirty()`; the Phase 1 serializer and canonical file remain the only database implementation:
+
+- layer/effect capability metadata: available filters, blend modes, isolation/group-opacity rules, backdrop modes, cache support, atlas limits and unsupported combinations;
+- SVG support, raster-size buckets and source asset references;
+- drag/drop event names, payload restrictions, context-menu host/action support and required input capabilities;
+- preview target requirements for offscreen layer rendering and scene backdrop access.
+
+Built-in preview fixtures should cover blur, drop-shadow, group opacity, backdrop, SVG, drag/drop and context menu. Runtime providers may describe notification stacks, contextual HUD menus or drag-enabled inventory widgets. Their descriptors specify a real overlay/menu host, a safe fixture payload and supported interaction scenarios. Drag/drop fixture payloads must be test data, never live inventory/game objects.
+
+For `ui_pick`, add a stable target/source reference to the runtime-to-Studio message where possible; keep the existing `SaveData/ui_pick.json` fallback for the lightweight editor link. The UIDB path and pick-file path are distinct: UIDB describes the project, pick data identifies the current source selection.
+
+**Check:** verify phase 7 features/capabilities and preview scenarios are in UIDB; open each fixture through the real runtime, including a drag/drop target, and confirm the visual output matches existing all-backend test goldens.
 
 ## Tests (all backends, `cross` `EQUAL`)
 

@@ -10,6 +10,7 @@
 #include "Physics.h"
 
 #include "EngineMain.h"
+#include "UI/UiSystem.h"
 
 #include "LightSystem/LightManager.h"
 
@@ -148,7 +149,7 @@ Level* Level::OpenLevel(string filePath)
 
 	bool isNewLevel = true;
 
-	EngineMain::Viewport.ClearChildren();
+	UiSystem::ResetViewport();
 
 	LoadingScreenSystem::Update(0);
 

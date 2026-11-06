@@ -1,0 +1,263 @@
+#include "UiStyleResolver.h"
+
+#include <EngineMain.h>
+#include <UI/Elements/UiElem.h>
+#include <UI/Markup/UiDocument.h>
+#include <UI/Markup/UiMarkupLog.h>
+#include <UI/Style/UiComputedStyle.h>
+
+#include <algorithm>
+#include <map>
+#include <set>
+
+namespace
+{
+    struct SheetRef
+    {
+        std::shared_ptr<UiStyleSheet> Sheet;
+        int Order = 0;
+        std::string ReportPath;   // file named in messages (inline <style> blocks report their .xml)
+    };
+
+    struct Match
+    {
+        int Layer, Specificity, SheetOrder, RuleOrder;
+        const UiCssRule* Rule;
+        const std::string* Path;
+    };
+
+    std::set<std::string>& Warned()
+    {
+        static std::set<std::string> warned;
+        return warned;
+    }
+
+    void WarnOnce(const std::string& path, int line, int col, const std::string& message)
+    {
+        const std::string key = path + ":" + std::to_string(line) + ":" + std::to_string(col) + ":" + message;
+        if (Warned().insert(key).second)
+            UiMarkupLog::Warning(path, line, col, message);
+    }
+
+    // Appends the sheet and its @imports (imports first) to `out`.
+    void Expand(const std::shared_ptr<UiStyleSheet>& sheet, const std::string& ownerFile, std::vector<SheetRef>& out, int depth)
+    {
+        if (!sheet || depth > 8)
+            return;
+        for (const std::string& import : sheet->Imports)
+            Expand(UiStyleSheetCache::Get(import), import, out, depth + 1);
+        SheetRef ref;
+        ref.Sheet = sheet;
+        ref.Order = (int)out.size();
+        ref.ReportPath = sheet->Path.rfind("<inline:", 0) == 0 ? ownerFile : sheet->Path;
+        out.push_back(ref);
+    }
+
+    struct RootContext
+    {
+        std::string RootFile;
+        std::vector<SheetRef> DocumentSheets;
+        std::map<std::string, std::vector<SheetRef>> ComponentSheets;   // by component file
+    };
+
+    void CollectFiles(UiElem& e, std::set<std::string>& files)
+    {
+        files.insert(e.ScopeFile);
+        for (auto& c : e.children)
+            if (UiElem::IsElem(c.get()))
+                CollectFiles(static_cast<UiElem&>(*c), files);
+    }
+
+    // Fields that differ from a default-constructed style win over CSS (C++ overrides).
+    void ApplyOverrides(UiComputedStyle& s, const UiComputedStyle& o)
+    {
+        const UiComputedStyle d;
+#define UI_OVR(field) if (!(o.field == d.field)) s.field = o.field;
+        UI_OVR(Width) UI_OVR(Height) UI_OVR(MinWidth) UI_OVR(MaxWidth) UI_OVR(MinHeight) UI_OVR(MaxHeight)
+        UI_OVR(Flow) UI_OVR(HAlign) UI_OVR(VAlign) UI_OVR(X) UI_OVR(Y)
+        UI_OVR(MarginTop) UI_OVR(MarginRight) UI_OVR(MarginBottom) UI_OVR(MarginLeft)
+        UI_OVR(PaddingTop) UI_OVR(PaddingRight) UI_OVR(PaddingBottom) UI_OVR(PaddingLeft)
+        UI_OVR(Gap) UI_OVR(Overflow) UI_OVR(Visibility) UI_OVR(ZIndex) UI_OVR(BackgroundColor)
+        UI_OVR(Opacity) UI_OVR(Color) UI_OVR(FontFamily) UI_OVR(FontSize) UI_OVR(FontWeight) UI_OVR(FontItalic)
+        UI_OVR(LetterSpacing) UI_OVR(LineHeight) UI_OVR(TextAlign) UI_OVR(WhiteSpace) UI_OVR(TextOverflow)
+        UI_OVR(TextTransform) UI_OVR(ObjectFit)
+#undef UI_OVR
+        for (int i = 0; i < 4; ++i)
+        {
+            if (o.BorderWidth[i] != d.BorderWidth[i]) s.BorderWidth[i] = o.BorderWidth[i];
+            if (o.BorderColor[i] != d.BorderColor[i]) s.BorderColor[i] = o.BorderColor[i];
+            if (o.BorderSolid[i] != d.BorderSolid[i]) s.BorderSolid[i] = o.BorderSolid[i];
+            if (!(o.Radius[i] == d.Radius[i])) s.Radius[i] = o.Radius[i];
+        }
+        for (const auto& [name, value] : o.Custom)
+            s.Custom[name] = value;
+    }
+
+    struct Applier
+    {
+        UiComputedStyle& S;
+        UiStyleParseContext Ctx;
+        const std::string& DefaultPath;
+        std::string CurrentPath;
+
+        void Apply(const UiCssDeclaration& decl, const std::string& path)
+        {
+            if (!UiIsKnownProperty(decl.Name))
+            {
+                WarnOnce(path, decl.Line, decl.Col, "unknown property '" + decl.Name + "'");
+                return;
+            }
+            std::vector<UiCssToken> tokens;
+            std::string error;
+            if (!UiSubstituteVars(decl.Value, S.Custom, tokens, error))
+            {
+                WarnOnce(path, decl.Line, decl.Col, "invalid value for '" + decl.Name + "': " + error);
+                return;
+            }
+            UiLonghandList longhands;
+            if (!UiExpandProperty(decl.Name, tokens, longhands, error))
+            {
+                WarnOnce(path, decl.Line, decl.Col, "invalid value for '" + decl.Name + "': " + error);
+                return;
+            }
+            for (const auto& [name, value] : longhands)
+            {
+                if (!UiApplyLonghand(S, name, value, Ctx, error))
+                    WarnOnce(path, decl.Line, decl.Col, "invalid value for '" + decl.Name + "': " + error);
+            }
+        }
+    };
+
+    void ResolveElement(UiElem& e, const UiComputedStyle* parent, const RootContext& rc, const UiStyleParseContext& base)
+    {
+        // 1-2. matching rules, component layer then document layer
+        std::vector<Match> matches;
+        auto collect = [&](const std::vector<SheetRef>& sheets, int layer) {
+            for (const SheetRef& ref : sheets)
+                for (const UiCssRule& rule : ref.Sheet->Rules)
+                {
+                    int best = -1;
+                    for (const UiSelector& sel : rule.Selectors)
+                        if (sel.Specificity > best && UiSelectorMatches(sel, e))
+                            best = sel.Specificity;
+                    if (best >= 0)
+                        matches.push_back({ layer, best, ref.Order, rule.SourceOrder, &rule, &ref.ReportPath });
+                }
+        };
+        if (e.ScopeFile != rc.RootFile)
+        {
+            const auto it = rc.ComponentSheets.find(e.ScopeFile);
+            if (it != rc.ComponentSheets.end())
+                collect(it->second, 0);
+        }
+        collect(rc.DocumentSheets, 1);
+        std::stable_sort(matches.begin(), matches.end(), [](const Match& a, const Match& b) {
+            if (a.Layer != b.Layer) return a.Layer < b.Layer;
+            if (a.Specificity != b.Specificity) return a.Specificity < b.Specificity;
+            if (a.SheetOrder != b.SheetOrder) return a.SheetOrder < b.SheetOrder;
+            return a.RuleOrder < b.RuleOrder;
+        });
+
+        struct Source { const UiCssDeclaration* Decl; std::string Path; };
+        std::vector<Source> decls;
+        for (const Match& m : matches)
+            for (const UiCssDeclaration& d : m.Rule->Declarations)
+                decls.push_back({ &d, *m.Path });
+
+        // 4. style="" attribute
+        std::vector<UiCssDeclaration> inlineDecls;
+        if (!e.m_styleAttr.empty())
+            inlineDecls = UiParseDeclarationList(e.m_styleAttr, e.ScopeFile, 1, 1);
+        for (const UiCssDeclaration& d : inlineDecls)
+            decls.push_back({ &d, e.ScopeFile });
+
+        // 6. compute
+        UiComputedStyle s;
+        if (parent != nullptr)
+        {
+            s.Visibility = parent->Visibility;
+            s.Color = parent->Color;
+            s.FontFamily = parent->FontFamily;
+            s.FontSize = parent->FontSize;
+            s.FontWeight = parent->FontWeight;
+            s.FontItalic = parent->FontItalic;
+            s.LetterSpacing = parent->LetterSpacing;
+            s.LineHeight = parent->LineHeight;
+            s.TextAlign = parent->TextAlign;
+            s.WhiteSpace = parent->WhiteSpace;
+            s.TextTransform = parent->TextTransform;
+            s.Custom = parent->Custom;
+        }
+        UiStyleParseContext ctx = base;
+        ctx.ParentFontSize = parent != nullptr ? parent->FontSize : 24.f;
+        ctx.FontSize = s.FontSize;
+        Applier ap{ s, ctx, e.ScopeFile, e.ScopeFile };
+
+        for (const Source& src : decls)
+            if (src.Decl->Name.rfind("--", 0) == 0)
+                s.Custom[src.Decl->Name] = src.Decl->Value;
+        for (const Source& src : decls)
+            if (src.Decl->Name == "font-size")
+                ap.Apply(*src.Decl, src.Path);
+        ap.Ctx.FontSize = s.FontSize;
+        for (const Source& src : decls)
+            if (src.Decl->Name == "color")
+                ap.Apply(*src.Decl, src.Path);
+        ap.Ctx.CurrentColor = s.Color;
+        for (int i = 0; i < 4; ++i)
+            s.BorderColor[i] = s.Color;
+        for (const Source& src : decls)
+        {
+            const std::string& n = src.Decl->Name;
+            if (n.rfind("--", 0) == 0 || n == "font-size" || n == "color")
+                continue;
+            ap.Apply(*src.Decl, src.Path);
+        }
+
+        // 5. C++ overrides
+        ApplyOverrides(s, e.m_overrides);
+        if (e.m_visibleOverrideCollapse)
+            s.Visibility = UiVisibility::Collapse;
+        e.m_computed = std::move(s);
+
+        for (auto& c : e.children)
+            if (UiElem::IsElem(c.get()))
+                ResolveElement(static_cast<UiElem&>(*c), &e.m_computed, rc, base);
+    }
+}
+
+void UiStyleResolver::ResolveRoot(UiElem& root)
+{
+    RootContext rc;
+    rc.RootFile = root.ScopeFile;
+
+    // Document layer: the root document's own sheets.
+    if (root.OwnedInstance && root.OwnedInstance->Def)
+        for (const auto& sheet : root.OwnedInstance->Def->Sheets)
+            Expand(sheet, rc.RootFile, rc.DocumentSheets, 0);
+
+    // Component layer: sheets of every other file used inside the root.
+    std::set<std::string> files;
+    CollectFiles(root, files);
+    for (const std::string& file : files)
+    {
+        if (file.empty() || file == rc.RootFile)
+            continue;
+        const auto def = UiDocumentCache_Get(file);
+        if (!def)
+            continue;
+        std::vector<SheetRef> list;
+        for (const auto& sheet : def->Sheets)
+            Expand(sheet, file, list, 0);
+        rc.ComponentSheets[file] = std::move(list);
+    }
+
+    UiStyleParseContext base;
+    base.Viewport = EngineMain::Viewport.GetSize();
+    ResolveElement(root, nullptr, rc, base);
+}
+
+void UiStyleResolver::ResetWarnings()
+{
+    Warned().clear();
+}

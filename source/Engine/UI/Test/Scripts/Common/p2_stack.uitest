@@ -1,0 +1,37 @@
+# Menu stack: push order, shows-below, default focus, back and focus restore.
+wait 6
+console ui_push GameData/ui/kit/tests/p2_page_a.xml
+wait_frames 10
+expect_stack depth == 1
+expect aa1 focus == 1
+console ui_push GameData/ui/kit/tests/p2_page_b.xml
+wait_frames 4
+expect_stack depth == 2
+expect bb2 focus == 1
+expect pa visible == 1
+ui_screenshot p2_stack_b
+action ui_cancel
+wait_frames 4
+expect_stack depth == 1
+expect_missing pb
+expect aa1 focus == 1
+action ui_down
+wait_frames 3
+expect aa2 focus == 1
+console ui_push GameData/ui/kit/tests/p2_page_c.xml
+wait_frames 4
+expect_stack depth == 2
+expect pa visible == 0
+expect cc1 focus == 1
+ui_screenshot p2_stack_c
+action ui_cancel
+wait_frames 6
+expect pa visible == 1
+expect aa2 focus == 1
+action ui_cancel
+wait_frames 10
+expect_stack depth == 0
+expect_engine paused == 0
+expect_ui_errors 0
+expect_ui_warnings 0
+quit

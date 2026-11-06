@@ -1,0 +1,14 @@
+<root>
+  <styles>
+    <include src="GameData/ui/styles/theme.css"/>
+  </styles>
+  <Panel id="confirm" class="screen confirm" shows-below="true">
+    <Panel class="dialog">
+      <Label class="dialog-text" text="${PAUSE_QUIT_CONFIRM}"/>
+      <Panel class="dialog-row">
+        <TextButton id="cyes" class="menu-button" text="${PAUSE_QUIT_YES}" onactivate="Quit()"/>
+        <TextButton id="cno" class="menu-button" text="${PAUSE_QUIT_NO}" default-focus="true" onactivate="Back()"/>
+      </Panel>
+    </Panel>
+  </Panel>
+</root>

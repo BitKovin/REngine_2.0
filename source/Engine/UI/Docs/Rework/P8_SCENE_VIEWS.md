@@ -40,6 +40,19 @@ Rules for the API:
 - Its render-target size is its content rect in target pixels (`ContentRectScreen()`), rounded up to a multiple of 8.
 - No other 3D tags exist: `Model`, `Light` and `SceneView` only.
 
+## UIDB and SceneView preview descriptors
+
+Extend the same `uidb.json` with. SceneView/Model/Light schemas and scene preview descriptors are published by their runtime registrations as they are implemented, with `UiDatabase::MarkDirty()`; do not add a Phase 8-specific schema file or serializer:
+
+- `SceneView`, `Model` and `Light` tag schemas, including all attributes, defaults, accepted asset types and runtime capabilities;
+- available preview model assets (GameData-relative paths), animation names where discoverable, supported light types and camera controls;
+- scene-view preview target recipes with default camera, background, model list, transforms, lights, target dimensions and interaction mode;
+- optional game-owned character/item preview providers for compositions that assemble models dynamically. Each provider supplies a safe default asset set and named scenarios; it must not spawn a gameplay entity or mutate the active level.
+
+Studio displays the SceneView as part of the actual engine preview and exposes the declared camera/model/light fixture controls. It must not implement a Qt 3D viewport. If a referenced model or runtime provider is unavailable, show the source diagnostic and do not silently substitute an unrelated asset.
+
+**Check:** UIDB lists the built-in `SceneView`/`Model`/`Light` schemas and a sample scene-view preview target. Open it by selecting only the game's GameData directory, then change camera/model/light parameters and verify the engine-rendered target updates.
+
 ## Task 8.0: investigation (STOP after it)
 
 Read and write down in the notes:

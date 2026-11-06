@@ -225,6 +225,19 @@ Built-ins (selector `sel` is `#id` or an id path, resolved with `Find` from the 
    - keep `Input::LockCursor` and `EngineMain::MainInstance->Paused` updated from `PauseGameManager` exactly as before
 6. Keep StealthAction's C++ `UiPauseMenu.h` in the project but unused. Phase 4 deletes it.
 
+## UIDB and preview integration
+
+Extend the existing `uidb.json` (conventions §13); do not write a phase-specific database. Add each event/action/input/host descriptor to its typed UIDB registry in the same task that registers the runtime feature, and call `UiDatabase::MarkDirty()`. The common launch generator already exists from early Phase 1; this phase adds metadata, not a new serializer. Flush changes on the main thread at a safe point.
+
+- Export event names, event attributes, action names/argument signatures, built-in action descriptions, handler resolution rules, menu lifecycle hooks and host-option metadata from the actual registries.
+- Export registered input actions and prompt metadata: action ID, display label/localisation key, keyboard/mouse/gamepad glyph bindings where known, device-specific variants and whether a prompt can be resolved for the current device.
+- Export host capabilities for menu-stack preview: back/cancel behaviour, focus trap, `shows-below`, pause and HUD visibility options.
+- Add built-in preview scenarios for `Button`, pointer capture and keyboard/gamepad activation: idle, hovered, pressed, focused, disabled, navigation focus and activation. Scenarios are synthetic and must not trigger Quit, PlaySound, PushMenu or any gameplay handler unless the test explicitly opts into a sandboxed handler fixture.
+- A game may register a runtime provider for a game-specific action bar, input prompt, radial selector or contextual interaction UI. Its descriptor declares host, expected input-device fixture, source refs, supported states and safe simulated actions.
+- Provider fixtures use the actual `UiMenuStack`/event/input paths but replace irreversible built-in actions with test-safe stubs. Studio must visibly indicate when handlers are stubbed.
+
+**Check:** confirm the P2 metadata appears in `uidb.json`; load a document preview and replay hover/focus/activate scenarios through engine input simulation; confirm no gameplay side effect occurs. Register a sample runtime action-bar preview and verify its provider metadata is discoverable from GameData alone.
+
 ## Tests (StealthAction, all backends; layouts in `ui/kit/tests/`)
 
 1. **`p2_stack`:** push `p2_page_a.xml` (`close-on-back`), push `p2_page_b.xml` (`shows-below="true"`, `default-focus` on `#bb2`), then:
@@ -252,4 +265,35 @@ Built-ins (selector `sel` is `#id` or an id path, resolved with `Find` from the 
 
 ## Implementation notes
 
-(implementer writes here)
+Status: done on StealthAction (dx11, dx12, vk, gl). Not run on the other three games (owner: they share the code). Nothing is committed.
+The pilot look still needs the owner's approval (screenshots in `Build/ui_runs/StealthAction/stealth_pause/p2/<backend>/`).
+
+**Files added:** `Menus/UiActions`, `Menus/UiMenuStack` (also `UiMenus`), `Menus/UiInputPrompts`, `Elements/UiElemInputPrompt`, `Elements/UiElemActionBar`, `Preview/UiMenuPreviews`.
+**Edited:** `UiElem` (lifecycle, events, `On`, `Fire`, `Activate`, pointer virtuals, nav overrides), `UiSystem` (see below), `UiBuilder`, `UiTagRegistry`, `UiTextLayout` + `UiElemLabel` (rich text), `UiElemButton` (hotkeys), `UiElemImage` (`Src()`), `UiDatabase`, `Input.h/.cpp`, `Level.cpp`.
+**StealthAction:** `GameData/ui/pause.xml`, `confirm_quit.xml`, `styles/theme.css`, `UI/Pause/StealthPauseMenu.h`, `GameStart.cpp`, `UiSettingsMenu.h` / `UiSaveLoadMenu.h` (take `onClosed`), localisation (`UI_BACK` in `en/ui.json` of all four games; quit keys in StealthAction `pauseMenu.json`).
+
+**Where things are, and differences from the plan text**
+- Mouse touch event: `Input::StartEventsFrame`, at the line that sets `TouchActions[1]`. `SimulatedMouse` replaces it and also sets `MousePos`.
+- `Level.cpp` called `Viewport.ClearChildren()` on level load, which would have dropped the stack. Owner decision: replaced with `UiSystem::ResetViewport()` (clears the viewport, then re-attaches the menu stack).
+- The plan's pause menu lists Restart; the C++ menu has no restart code. The markup menu keeps what the C++ menu had: Resume, Save (hidden when the player is dead), Load, Settings, and a Quit button (new key `PAUSE_MENU_QUIT`) that pushes `confirm_quit.xml`. The old "Main Menu" button did nothing.
+- `UiSaveLoadMenu` also takes `onClosed` now (not in the plan), because the pause page is no longer a legacy parent. Loading a save calls `UiMenus::Clear()`.
+- Layout paths: `Push('ui/pause.xml')`, `UiMenus::PauseMenu` and code-behind registration accept paths with or without the `GameData/` prefix (`UiActions::NormalizeLayoutPath`).
+- Pages are children of the stack root, not separate roots: `Push(path)` unregisters the page from `UiSystem`. `FindById`, hot reload (`SwapPage`) and tests look inside the stack.
+- Events are queued: `Activate()` and hover changes queue the event, `UiSystem::Update` runs it at its start. This keeps handlers (Pop, Back) from removing elements while the viewport is iterating them. `focus`/`blur`/`load` run directly in `Update`.
+- A focus change that needs layout (restoring focus to a page that was collapsed) is retried one frame later in `UiMenuStack::Tick`.
+- Validation of unhandled actions runs at the first `Update` after a root is registered or children are added (not at registration), so handlers added right after `Load` are not warned about. Validation and dispatch share the once-per-element-and-name warning.
+- The pause key is ignored for one frame after a back, so Esc (both `ui_cancel` and `pause`) does not close and reopen the menu.
+- `hides-hud` is only tracked (`UiMenuStack::HidesHud()`); the HUD layer comes in phase 5, so the action bar and HUD overlap in the pause screenshot.
+- Exceptions are off in this build: `shared_from_this()` in a constructor aborts instead of throwing. `ApplyAttributeValue("id")` now uses `weak_from_this()`.
+- `expect_roots` ignores the main menu stack.
+- Legacy `UiNavigation` skips the whole subtree of a `DisableFocus` element. `UiElem` containers therefore keep `DisableFocus = false` (they are not candidates because `HitCheck` is false); only disabled elements and pointer-only (`hittest`) surfaces set it. Before this fix, buttons nested in a Panel could not be reached by navigation.
+- `UiSystem::Finalize` resolves style and layout again when a root is dirty, so changes made after `Update` in the same frame (a legacy menu closing, a pointer handler) are in that frame's render.
+- A small cat texture next to the focused button in some screenshots is the legacy focus pointer, not new UI.
+
+**Test commands added:** `mouse_move`, `mouse_down`, `mouse_up`, `click`, `mouse_off`, `sim_device`, `prompt_provider_test` (installs a provider that needs no game code), `expect_engine paused`, `expect_stack depth|top`, `expect_class` (`@stack` = the main stack root), `expect` props `src`, `line_width`, `downs`, `moves`, `ups`. Console: `ui_push`, `ui_pop`, `ui_back`, `ui_stack`.
+Test pages and scripts: `ui/kit/tests/p2_*.xml`, `P2Pick.xml`; `Scripts/Common/p2_{stack,events,mouse,prompts,uidb}.uitest`, `Scripts/StealthAction/stealth_pause.uitest`. Page A, the events page and the capture/prompt pages set `pauses-game` so the game unlocks the cursor (the legacy focus pointer drops focus while it is locked). `legacy_menus.uitest` now focuses `psettings` instead of pressing keys blindly.
+
+**UIDB:** actions (built-ins, events, resolution rules), input actions (bindings and per-device prompt availability), hosts (`menu-stack`, `viewport`), capabilities `events`, `menus`, `inputPrompts`, tags `InputPrompt`/`ActionBar`, standard attributes (events, host options, nav). Preview: recipe `engine.button.states` (idle, hovered, pressed, pointer-capture, focused, disabled, navigation-focus, keyboard and gamepad activation, handlers stubbed) and the sample runtime provider `engine.ui.preview.action-bar`. Input actions and the prompt provider are registered by the game after `UiSystem::Init`, so `UiSystem::Update` refreshes the database when their count or the provider changes. The file was byte-identical across two launches.
+
+**Results (StealthAction):** p2_stack, p2_events, p2_mouse, p2_prompts, p2_uidb, stealth_pause and all p1 scripts: PASS on dx11, dx12, vk, gl. `painter_card`: EQUAL to `after_p1` on all four. `legacy_menus`: HUD and every settings page EQUAL to `after_p1` (max 2); the two pause-menu frames differ on purpose (new menu).
+Cross-backend: dx12 equals dx11 everywhere. vk and gl show the same legacy-HUD-text differences as in phase 1 (vk ~118 px max 10, gl 666 px max 82), also in captures with no new text; `p2_prompts_gamepad` vk differs by 32 px (max 4).

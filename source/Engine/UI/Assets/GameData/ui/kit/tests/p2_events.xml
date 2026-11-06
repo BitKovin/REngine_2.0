@@ -1,0 +1,20 @@
+<root>
+  <imports>
+    <import src="GameData/ui/kit/tests/P2Pick.xml"/>
+  </imports>
+  <styles><style>
+    #events { flow-children: down; gap: 10px; x: 100px; y: 100px; padding: 10px; background-color: #203040; }
+    TextButton { width: 240px; height: 50px; background-color: #303030; border-radius: 8px; }
+    TextButton:focus { background-color: #a04030; }
+    TextButton Label { horizontal-align: center; vertical-align: center; }
+    #target { width: 60px; height: 20px; background-color: #606060; }
+    #target.on { background-color: #20c020; }
+    #target.picked { height: 40px; }
+  </style></styles>
+  <Panel id="events" pauses-game="true">
+    <Panel id="target"/>
+    <TextButton id="e1" text="Go" onactivate="AddClass('#target','on'); Push('GameData/ui/kit/tests/p2_page_a.xml')"/>
+    <TextButton id="e2" text="Unknown" onactivate="NoSuchAction()"/>
+    <P2Pick id="pick" onpicked="AddClass('#target','picked')"/>
+  </Panel>
+</root>

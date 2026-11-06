@@ -21,6 +21,13 @@ namespace Screenshot
 	// Asks for a PNG of the next presented frame. "name" becomes SaveData/screenshots/name.png; a name with a folder or an extension is used as given.
 	void Request(const std::string& name);
 
+	// Asks for a PNG (alpha kept) of an off-screen colour texture as it is at the end of the next frame. Done by blit + readback,
+	// so the file appears a few frames later; AfterPresent() must be fed the frame number bgfx::frame() returned.
+	void RequestTarget(bgfx::TextureHandle source, uint16_t width, uint16_t height, const std::string& name);
+
+	// Once per frame, right after bgfx::frame(): writes a finished target capture.
+	void AfterPresent(uint32_t frameNumber);
+
 	// Once per frame, just before bgfx::frame(): fires a pending request and the -screenshot launch argument.
 	void BeforePresent(double gameSeconds, const std::map<std::string, std::vector<std::string>>& arguments);
 }

@@ -1,0 +1,17 @@
+wait 6
+console ui_load GameData/ui/kit/tests/p1_text.xml
+wait_frames 2
+set_var troot name World
+wait_frames 3
+expect t1 text == Hello World
+expect t1 lines == 1
+expect t2 lines >= 3
+expect t2 w <= 200
+expect t3 lines == 1
+expect t3 w <= 150
+expect t3 text contains This
+expect t4 text == SHOUT
+expect t5 text == Centered{braces}
+ui_screenshot text
+expect_ui_errors 0
+quit

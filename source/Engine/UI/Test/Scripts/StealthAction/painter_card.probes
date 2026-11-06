@@ -1,0 +1,23 @@
+# X Y R G B A TOL LABEL   (RGBA in the UI target, premultiplied)
+150 150 255 0 0 255 1 A_inside
+100 150 255 0 0 255 1 A_left_edge
+299 150 255 0 0 255 1 A_right_edge
+99 150 0 0 0 0 1 A_outside_left
+300 150 0 0 0 0 1 A_outside_right
+450 150 0 255 0 255 1 B_centre
+351 101 0 0 0 0 1 B_corner_cut
+390 104 0 255 0 255 1 B_inside_round
+700 101 255 0 0 255 1 C_top
+797 150 0 255 0 255 1 C_right
+700 198 0 0 255 255 1 C_bottom
+602 150 255 255 255 255 1 C_left
+700 150 0 0 0 0 1 C_hollow
+950 100 128 128 128 128 2 D_thin
+950 150 128 128 128 128 2 E_thin_border
+950 170 0 0 0 0 1 E_hollow
+200 300 0 0 255 255 1 F_inside
+101 251 0 0 0 0 1 F_clipped_corner
+350 300 0 0 0 0 1 F_outside_clip
+700 350 255 255 0 255 1 G_rotated_centre
+640 290 0 0 0 0 1 G_outside
+132 482 255 0 255 255 1 H_image

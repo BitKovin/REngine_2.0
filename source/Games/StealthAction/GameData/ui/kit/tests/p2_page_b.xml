@@ -1,0 +1,12 @@
+<root>
+  <styles><style>
+    #pb { flow-children: down; gap: 10px; x: 400px; y: 160px; padding: 10px; background-color: #304020; }
+    TextButton { width: 240px; height: 50px; background-color: #303030; border-radius: 8px; }
+    TextButton:focus { background-color: #40a030; }
+    TextButton Label { horizontal-align: center; vertical-align: center; }
+  </style></styles>
+  <Panel id="pb" shows-below="true">
+    <TextButton id="bb1" text="B1"/>
+    <TextButton id="bb2" text="B2" default-focus="true"/>
+  </Panel>
+</root>

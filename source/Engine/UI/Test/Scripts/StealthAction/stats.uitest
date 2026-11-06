@@ -1,0 +1,4 @@
+# Logs the UI renderer statistics of the last frame.
+wait 6
+console ui_stats
+quit

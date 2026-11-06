@@ -1,0 +1,16 @@
+<root>
+  <styles>
+    <style>
+      .row   { flow-children: right; width: 400px; height: 40px; gap: 8px; background-color: #202020; }
+      .label { width: fill-parent-flow(1); vertical-align: center; }
+      .tag   { background-color: #ff00ff; width: 10px; height: 10px; }
+    </style>
+  </styles>
+  <Component tag="TestRow" params="label, hint='none'">
+    <Panel class="row">
+      <Label id="label" class="label" text="{label} ({hint})"/>
+      <Children/>
+      <Panel class="tag"/>
+    </Panel>
+  </Component>
+</root>

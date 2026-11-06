@@ -1,0 +1,19 @@
+<root>
+  <styles>
+    <style>
+      Label { color: #101010; }
+      #t1 { x: 50px; y: 50px; font-size: 32px; }
+      #t2 { x: 50px; y: 150px; width: 200px; font-size: 24px; }
+      #t3 { x: 50px; y: 350px; width: 150px; font-size: 24px; white-space: nowrap; text-overflow: ellipsis; }
+      #t4 { x: 50px; y: 450px; font-size: 24px; text-transform: uppercase; }
+      #t5 { x: 400px; y: 50px; width: 300px; font-size: 20px; text-align: center; }
+    </style>
+  </styles>
+  <Panel id="troot">
+    <Label id="t1" text="Hello {name}"/>
+    <Label id="t2" text="The quick brown fox jumps over the lazy dog again and again"/>
+    <Label id="t3" text="This line is far too long to fit"/>
+    <Label id="t4" text="shout"/>
+    <Label id="t5">Centered{{braces}}</Label>
+  </Panel>
+</root>

@@ -1,0 +1,51 @@
+wait 6
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+console ui_gamethread_test GameData/ui/kit/tests/p1_buttons.xml
+wait_frames 3
+expect_roots 1
+expect_rect b1 800 100 300 60
+expect_missing b3x
+ui_screenshot gamethread
+expect_ui_errors 0
+quit

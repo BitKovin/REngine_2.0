@@ -185,6 +185,21 @@ Rules:
   - `UiMenuStack` gets a `m_leaving` list for pages that are animating out
 - **Sounds:** `sound` plays on `activate`, and `sound-hover` plays when `:hover` turns on (same call as `PlaySound`).
 
+## UIDB and visual-preview integration
+
+Extend the same `uidb.json` with the real computed-style and painter capabilities. Publish each property/effect/animation descriptor when its runtime registry or parser support is added, then call `UiDatabase::MarkDirty()`; do not add a second writer or wait until the whole phase is finished:
+
+- CSS property metadata already registered by phase 1, now including every phase 3 property, grammar, defaults, invalidation category, backend limitations and whether it requires an offscreen layer.
+- Paint primitives/effects available to markup (`Arc`, gradients, background images, shadows, outline, stroke, filters, masks, blend modes and transforms) with accepted parameters.
+- Registered keyframe names, keyframe property tracks, transitionable property names and easing functions. Do not serialize a runtime animation instance.
+- Add preview states for each effect-bearing element: baseline, transformed, shadowed, filtered, clipped and animated. Include a deterministic animation timeline fixture with pause/scrub controls in Studio; the actual interpolation remains in `UiAnimation`.
+- Runtime preview providers may declare `animationScenarios` (start, mid-point, end, interrupted/re-targeted) so Studio can preview a game HUD's animated crosshair expansion, damage flash, cooldown ring or notification entrance.
+- Include required capabilities/backends for effects that differ by renderer. Studio displays unsupported backend/effect combinations rather than silently removing the effect.
+
+A provider's visual fixture must use the actual engine style resolver, animation engine, painter and shaders. Qt may draw timeline/curve controls outside the game viewport, but not the animated UI itself.
+
+**Check:** `uidb.json` lists the phase 3 properties/functions and a sample effect preview. Use a preview scenario to capture baseline/mid/end screenshots, and verify a target lacking the required layer capability is reported unavailable rather than approximated.
+
 ## Tests (StealthAction, all backends; layouts in `ui/kit/tests/p3_*.xml`)
 
 1. **`p3_paint`**, probes at fixed points (premultiplied):

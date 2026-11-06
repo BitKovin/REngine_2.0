@@ -18,6 +18,10 @@
 #include <Profiling/ResourceStatistics.hpp>
 
 #include <includedLibraries/stb_truetype.h>
+#include <UI/Render/UiFontLibrary.h>
+#include <UI/Render/UiGpu.h>
+#include <algorithm>
+#include <cstring>
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Quad vertex layout & static GPU resources
@@ -598,6 +602,8 @@ namespace UiRenderer {
 
         s_texturedShader = ShaderManager::GetShaderProgram("vs_ui", "fs_ui_textured");
         s_flatColorShader = ShaderManager::GetShaderProgram("vs_ui", "fs_ui_flatcolor");
+
+        UiGpu::Init();
     }
 
 
@@ -605,6 +611,8 @@ namespace UiRenderer {
 
     void Shutdown()
     {
+        UiGpu::Shutdown();
+
         if (bgfx::isValid(s_quadVB)) {
             ResourceStatistics::Instance().unregisterResource(ResourceType::VertexBuffer, s_quadVB.idx);
             bgfx::destroy(s_quadVB);
@@ -748,6 +756,7 @@ namespace UiRenderer {
                 return true; // already registered — not an error, just a no-op
         }
         s_fallbackFonts.push_back(std::move(fb));
+        UiFontLibrary::AddFallback(std::string(path));
         return true;
     }
 
@@ -781,15 +790,52 @@ namespace UiRenderer {
 
     // ── Projection helper ─────────────────────────────────────────────────────────
 
-    static void SetShaderProjection(Shader* shader)
-    {
-        float screenHeight = static_cast<float>(UiManager::GetScaledUiHeight());
-        float screenWidth = screenHeight * Camera::AspectRatio;
+    // ── Pass: every draw between BeginPass and EndPass is recorded and submitted in order ──
 
-        if (customViewport) {
-            screenWidth = static_cast<float>(customViewportSize.x);
-            screenHeight = static_cast<float>(customViewportSize.y);
+    static UiDrawList s_list;
+    static bool       s_inPass = false;
+    static bool       s_loggedOutsidePass = false;
+
+    void BeginPass()
+    {
+        if (s_inPass)
+            std::cerr << "[UiRenderer] BeginPass called while a pass is already open\n";
+        s_list.Clear();
+        s_inPass = true;
+    }
+
+    void EndPass(uint16_t viewId)
+    {
+        UiGpu::Submit(s_list, viewId, UiGpu::CurrentProjection());
+        s_inPass = false;
+    }
+
+    bool InPass() { return s_inPass; }
+    UiDrawList& CurrentList() { return s_list; }
+
+    void OnBeforeBgfxFrame()
+    {
+        UiGpu::OnBeforeBgfxFrame();
+        s_loggedOutsidePass = false;
+    }
+
+    // Every legacy draw starts with this: outside a pass nothing can be recorded.
+    static bool PassGuard()
+    {
+        if (s_inPass)
+            return true;
+        if (!s_loggedOutsidePass)
+        {
+            std::cerr << "[UiRenderer] a UI draw was issued outside BeginPass/EndPass and is dropped\n";
+            s_loggedOutsidePass = true;
         }
+        return false;
+    }
+
+    static void SetShaderProjection(Shader* shader, const UiGpu::Projection& projection)
+    {
+        const float screenHeight = projection.Height;
+        const float screenWidth = projection.Width;
 
         const glm::mat4 uiProjection = glm::ortho(
             0.0f, screenWidth,
@@ -835,10 +881,10 @@ namespace UiRenderer {
     struct MaskEntry { glm::mat4 model; };
     static std::vector<MaskEntry> s_maskStack;
 
-    static void DrawStencilRect_Internal(const glm::mat4& model, uint8_t ref)
+    static void DrawStencilRect_Internal(const glm::mat4& model, uint8_t ref, const UiGpu::Projection& projection, uint16_t viewId)
     {
         s_flatColorShader->UseProgram();
-        SetShaderProjection(s_flatColorShader);
+        SetShaderProjection(s_flatColorShader, projection);
 
         s_flatColorShader->SetUniform("u_Model", model);
         s_flatColorShader->SetUniform("u_Color", glm::vec4(0.f));
@@ -862,17 +908,19 @@ namespace UiRenderer {
         );
 
         bgfx::setVertexBuffer(0, s_quadVB);
-        s_flatColorShader->Submit(ViewIdManager::GetCurrentId());
+        s_flatColorShader->Submit(viewId);
     }
 
-    // ── Internal: apply the active stencil test before a normal draw call ─────────
-    // Called by SubmitQuad and DrawText's submit path.
+    // The mask depth at record time; the stencil reference every normal draw tests against.
+    static uint8_t MaskDepth() { return static_cast<uint8_t>(s_maskStack.size()); }
 
-    static void ApplyStencilTest()
+    // ── Internal: apply the stencil test before a normal draw call ────────────────
+    // `ref` is the mask depth captured when the draw was recorded; 0 means no mask.
+
+    static void ApplyStencilTest(uint8_t ref)
     {
-        if (s_maskStack.empty()) return;
+        if (ref == 0) return;
 
-        const uint8_t ref = static_cast<uint8_t>(s_maskStack.size());
         bgfx::setStencil(
             BGFX_STENCIL_TEST_EQUAL |  // only draw where stencil == ref
             BGFX_STENCIL_FUNC_REF(ref) |
@@ -885,17 +933,78 @@ namespace UiRenderer {
 
     // ── Shared submit: bind the unit quad VB and dispatch ────────────────────────
 
-    static void SubmitQuad(Shader* shader)
+    static void SubmitQuad(Shader* shader, uint8_t stencilRef, uint16_t viewId)
     {
         BgfxStateManager::Reset();
         BgfxStateManager::SetDepthTest(BgfxStateManager::DepthTest::Always);
         BgfxStateManager::SetBlend(BgfxStateManager::Blend::Premultiplied);
         BgfxStateManager::Apply();
 
-        ApplyStencilTest();
+        ApplyStencilTest(stencilRef);
 
         bgfx::setVertexBuffer(0, s_quadVB);
-        shader->Submit(ViewIdManager::GetCurrentId());
+        shader->Submit(viewId);
+    }
+
+    uint8_t CurrentMaskDepth() { return MaskDepth(); }
+
+    // ── Geometry helpers: draws without a custom shader are batched through UiDrawList ──
+
+    // One unit-quad rect (corners TL, TR, BR, BL), transformed by `model`.
+    static void AddLegacyQuad(const glm::mat4& model, const glm::vec2& size,
+        bgfx::TextureHandle texture, const glm::vec4& color, uint64_t state)
+    {
+        UiRender::PrimBlock block;
+        block.SetKind(UiRender::PrimKind::Image);
+        block.T[1] = color;
+        const int prim = UiGpu::Prims().Add(block);
+        if (prim < 0) return;
+        const glm::vec2 unit[4] = { {0.f, 0.f}, {1.f, 0.f}, {1.f, 1.f}, {0.f, 1.f} };   // TL, TR, BR, BL
+        UiRender::Vertex v[4];
+        for (int i = 0; i < 4; ++i)
+        {
+            const glm::vec4 p = model * glm::vec4(unit[i], 0.f, 1.f);
+            v[i] = { p.x, p.y, unit[i].x, unit[i].y, unit[i].x * size.x, unit[i].y * size.y, static_cast<float>(prim), 0.f };
+        }
+        UiRender::BatchKey key;
+        key.State = state;
+        key.TextureIdx = texture.idx;
+        key.StencilRef = MaskDepth();
+        s_list.AddQuad(key, v);
+    }
+
+    // A triangle list in the legacy normalised space (6 vertices per quad), transformed by `model`.
+    static void AddLegacyTriangles(const QuadVertex* verts, uint32_t count, const glm::mat4& model, const glm::vec2& size,
+        bgfx::TextureHandle texture, const glm::vec4& color, uint64_t state)
+    {
+        UiRender::PrimBlock block;
+        block.SetKind(UiRender::PrimKind::Image);
+        block.T[1] = color;
+        const int prim = UiGpu::Prims().Add(block);
+        if (prim < 0) return;
+        UiRender::BatchKey key;
+        key.State = state;
+        key.TextureIdx = texture.idx;
+        key.StencilRef = MaskDepth();
+
+        // A string can have more than 10 922 glyphs; split into chunks of at most 65 532 vertices (a multiple of 6).
+        constexpr uint32_t kChunk = 65532;
+        std::vector<UiRender::Vertex> out;
+        std::vector<uint16_t> idx;
+        for (uint32_t first = 0; first < count; first += kChunk)
+        {
+            const uint32_t n = std::min(kChunk, count - first);
+            out.resize(n);
+            idx.resize(n);
+            for (uint32_t i = 0; i < n; ++i)
+            {
+                const QuadVertex& q = verts[first + i];
+                const glm::vec4 p = model * glm::vec4(q.x, q.y, 0.f, 1.f);
+                out[i] = { p.x, p.y, q.u, q.v, q.x * size.x, q.y * size.y, static_cast<float>(prim), 0.f };
+                idx[i] = static_cast<uint16_t>(i);
+            }
+            s_list.AddTriangles(key, out.data(), n, idx.data(), n);
+        }
     }
 
     // ── DrawTexturedRect ──────────────────────────────────────────────────────────
@@ -904,15 +1013,8 @@ namespace UiRenderer {
         float rotation, vec2 pivot,
         bgfx::TextureHandle texture, const glm::vec4& color)
     {
-        s_texturedShader->UseProgram();
-        SetShaderProjection(s_texturedShader);
-
-        s_texturedShader->SetUniform("u_Model", BuildQuadModel(pos, size, rotation, pivot));
-        s_texturedShader->SetUniform("u_Color", color);
-        s_texturedShader->SetTexture("u_Texture", texture);
-        s_texturedShader->SetUniform("bilboard", customViewport);
-
-        SubmitQuad(s_texturedShader);
+        if (!PassGuard()) return;
+        AddLegacyQuad(BuildQuadModel(pos, size, rotation, pivot), size, texture, color, UiGpu::StateLegacyPremultiplied());
     }
 
     // ── DrawTexturedRectShader ────────────────────────────────────────────────────
@@ -922,16 +1024,20 @@ namespace UiRenderer {
         bgfx::TextureHandle texture, const glm::vec4& color,
         const string& shader)
     {
-        auto* sp = ShaderManager::GetShaderProgram("ui", shader);
-        sp->UseProgram();
-        SetShaderProjection(sp);
-
-        sp->SetUniform("u_Model", BuildQuadModel(pos, size, rotation, pivot));
-        sp->SetUniform("u_Color", color);
-        sp->SetTexture("u_Texture", texture);
-        sp->SetUniform("u_TextureSize", size);
-
-        SubmitQuad(sp);
+        if (!PassGuard()) return;
+        Shader* sp = ShaderManager::GetShaderProgram("ui", shader);
+        const UiGpu::Projection proj = UiGpu::CurrentProjection();
+        const uint8_t sref = MaskDepth();
+        const glm::mat4 model = BuildQuadModel(pos, size, rotation, pivot);
+        s_list.AddExternal([=](uint16_t viewId) {
+            sp->UseProgram();
+            SetShaderProjection(sp, proj);
+            sp->SetUniform("u_Model", model);
+            sp->SetUniform("u_Color", color);
+            sp->SetTexture("u_Texture", texture);
+            sp->SetUniform("u_TextureSize", size);
+            SubmitQuad(sp, sref, viewId);
+        });
     }
 
     // ── DrawTexturedRectShaderParams ──────────────────────────────────────────────
@@ -942,33 +1048,38 @@ namespace UiRenderer {
         std::unordered_map<std::string, vec4>& vec4s,
         const glm::vec4& color, const string& shader)
     {
-        auto* sp = ShaderManager::GetShaderProgram("vs_ui", shader);
-        sp->UseProgram();
-        SetShaderProjection(sp);
-
-        sp->SetUniform("u_Model", BuildQuadModel(pos, size, rotation, pivot));
-        sp->SetUniform("u_Color", color);
-
-        for (auto& [name, tex] : textures) sp->SetTexture(name, tex);
-        for (auto& [name, v4] : vec4s)    sp->SetUniform(name, v4);
-
-        SubmitQuad(sp);
+        if (!PassGuard()) return;
+        Shader* sp = ShaderManager::GetShaderProgram("vs_ui", shader);
+        const UiGpu::Projection proj = UiGpu::CurrentProjection();
+        const uint8_t sref = MaskDepth();
+        const glm::mat4 model = BuildQuadModel(pos, size, rotation, pivot);
+        s_list.AddExternal([=, textures = textures, vec4s = vec4s](uint16_t viewId) {
+            sp->UseProgram();
+            SetShaderProjection(sp, proj);
+            sp->SetUniform("u_Model", model);
+            sp->SetUniform("u_Color", color);
+            for (auto& [name, tex] : textures) sp->SetTexture(name, tex);
+            for (auto& [name, v4] : vec4s)    sp->SetUniform(name, v4);
+            SubmitQuad(sp, sref, viewId);
+        });
     }
 
     // ── DrawBorderRect ────────────────────────────────────────────────────────────
 
     void DrawBorderRect(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color)
     {
-        s_flatColorShader->UseProgram();
-        SetShaderProjection(s_flatColorShader);
-
-        s_flatColorShader->SetUniform("u_Model", BuildQuadModel(pos, size, 0.0f, glm::vec2(0.0f)));
-        s_flatColorShader->SetUniform("u_Color", color);
-
-        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_PT_LINESTRIP | BGFX_STATE_BLEND_ALPHA);
-
-        bgfx::setVertexBuffer(0, s_quadVB);
-        s_flatColorShader->Submit(ViewIdManager::GetCurrentId());
+        if (!PassGuard()) return;
+        const UiGpu::Projection proj = UiGpu::CurrentProjection();
+        const glm::mat4 model = BuildQuadModel(pos, size, 0.0f, glm::vec2(0.0f));
+        s_list.AddExternal([=](uint16_t viewId) {
+            s_flatColorShader->UseProgram();
+            SetShaderProjection(s_flatColorShader, proj);
+            s_flatColorShader->SetUniform("u_Model", model);
+            s_flatColorShader->SetUniform("u_Color", color);
+            bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_PT_LINESTRIP | BGFX_STATE_BLEND_ALPHA);
+            bgfx::setVertexBuffer(0, s_quadVB);
+            s_flatColorShader->Submit(viewId);
+        });
     }
 
 
@@ -1073,43 +1184,49 @@ namespace UiRenderer {
 // All subsequent draw calls will be clipped to this region until PopMask().
 // Masks nest: each level intersects with all outer masks.
 
+    static void RecordStencilRect(const glm::mat4& model, uint8_t ref)
+    {
+        const UiGpu::Projection proj = UiGpu::CurrentProjection();
+        s_list.AddExternal([=](uint16_t viewId) {
+            DrawStencilRect_Internal(model, ref, proj, viewId);
+        });
+    }
+
     void PushMask(const glm::vec2& pos, const glm::vec2& size,
         float rotation, glm::vec2 pivot)
     {
+        if (!PassGuard()) return;
         const uint8_t   newDepth = static_cast<uint8_t>(s_maskStack.size() + 1);
         const glm::mat4 model = BuildQuadModel(pos, size, rotation, pivot);
         s_maskStack.push_back({ model });
-        DrawStencilRect_Internal(model, newDepth);
+        RecordStencilRect(model, newDepth);
     }
 
     void PushMask(const glm::mat3& transform, const glm::vec2& size)
     {
+        if (!PassGuard()) return;
         const uint8_t   newDepth = static_cast<uint8_t>(s_maskStack.size() + 1);
         const glm::mat4 model = BuildQuadModelFromMat3(transform, size);
         s_maskStack.push_back({ model });
-        DrawStencilRect_Internal(model, newDepth);
+        RecordStencilRect(model, newDepth);
     }
 
     void PopMask()
     {
+        if (!PassGuard()) return;
         if (s_maskStack.empty()) return;
         const MaskEntry& e = s_maskStack.back();
         const uint8_t    prevDepth = static_cast<uint8_t>(s_maskStack.size() - 1);
-        DrawStencilRect_Internal(e.model, prevDepth);
+        RecordStencilRect(e.model, prevDepth);
         s_maskStack.pop_back();
     }
 
     void ClearStencil()
     {
+        if (!PassGuard()) return;
         s_maskStack.clear();
-        float screenH = static_cast<float>(UiManager::GetScaledUiHeight());
-        float screenW = screenH * Camera::AspectRatio;
-        if (customViewport) {
-            screenW = static_cast<float>(customViewportSize.x);
-            screenH = static_cast<float>(customViewportSize.y);
-        }
-        DrawStencilRect_Internal(
-            BuildQuadModel({ 0.f, 0.f }, { screenW, screenH }, 0.f, { 0.f, 0.f }), 0);
+        const UiGpu::Projection proj = UiGpu::CurrentProjection();
+        RecordStencilRect(BuildQuadModel({ 0.f, 0.f }, { proj.Width, proj.Height }, 0.f, { 0.f, 0.f }), 0);
     }
 
     // ── Matrix-based draw overloads ───────────────────────────────────────────
@@ -1117,33 +1234,32 @@ namespace UiRenderer {
     void DrawTexturedRect(const glm::mat3& transform, const glm::vec2& size,
         bgfx::TextureHandle texture, const glm::vec4& color)
     {
-        s_texturedShader->UseProgram();
-        SetShaderProjection(s_texturedShader);
-        s_texturedShader->SetUniform("u_Model", BuildQuadModelFromMat3(transform, size));
-        s_texturedShader->SetUniform("u_Color", color);
-        s_texturedShader->SetTexture("u_Texture", texture);
-        s_texturedShader->SetUniform("bilboard", customViewport);
-        SubmitQuad(s_texturedShader);
+        if (!PassGuard()) return;
+        AddLegacyQuad(BuildQuadModelFromMat3(transform, size), size, texture, color, UiGpu::StateLegacyPremultiplied());
     }
 
     void DrawTexturedRectShader(const glm::mat3& transform, const glm::vec2& size,
         bgfx::TextureHandle texture, const glm::vec4& color, const string& shader, float textureHeight, float textureWidth)
     {
-        auto* sp = ShaderManager::GetShaderProgram("vs_ui", shader);
-        sp->UseProgram();
-        SetShaderProjection(sp);
-        sp->SetUniform("u_Model", BuildQuadModelFromMat3(transform, size));
-        sp->SetUniform("u_Color", color);
-        sp->SetTexture("u_Texture", texture);
-        sp->SetUniform("u_ElementSize", glm::vec4(size.x, size.y, 0.f, 0.f));
-
-        vec4 textureSize = {
+        if (!PassGuard()) return;
+        Shader* sp = ShaderManager::GetShaderProgram("vs_ui", shader);
+        const UiGpu::Projection proj = UiGpu::CurrentProjection();
+        const uint8_t sref = MaskDepth();
+        const glm::mat4 model = BuildQuadModelFromMat3(transform, size);
+        const vec4 textureSize = {
             (float)textureWidth, (float)textureHeight,
             1.0f / textureWidth, 1.0f / textureHeight
         };
-
-        sp->SetUniform("u_TextureSize", textureSize);
-        SubmitQuad(sp);
+        s_list.AddExternal([=](uint16_t viewId) {
+            sp->UseProgram();
+            SetShaderProjection(sp, proj);
+            sp->SetUniform("u_Model", model);
+            sp->SetUniform("u_Color", color);
+            sp->SetTexture("u_Texture", texture);
+            sp->SetUniform("u_ElementSize", glm::vec4(size.x, size.y, 0.f, 0.f));
+            sp->SetUniform("u_TextureSize", textureSize);
+            SubmitQuad(sp, sref, viewId);
+        });
     }
 
     void DrawTexturedRectShaderParams(const glm::mat3& transform, const glm::vec2& size,
@@ -1151,28 +1267,39 @@ namespace UiRenderer {
         std::unordered_map<std::string, vec4>& vec4s,
         const glm::vec4& color, const string& shader)
     {
-        auto* sp = ShaderManager::GetShaderProgram("vs_ui", shader);
-        sp->UseProgram();
-        SetShaderProjection(sp);
-        sp->SetUniform("u_Model", BuildQuadModelFromMat3(transform, size));
-        sp->SetUniform("u_Color", color);
-        sp->SetUniform("u_ElementSize", glm::vec4(size.x, size.y, 0.f, 0.f));
-        for (auto& [name, tex] : textures) sp->SetTexture(name, tex);
-        for (auto& [name, v4] : vec4s)    sp->SetUniform(name, v4);
-        SubmitQuad(sp);
+        if (!PassGuard()) return;
+        Shader* sp = ShaderManager::GetShaderProgram("vs_ui", shader);
+        const UiGpu::Projection proj = UiGpu::CurrentProjection();
+        const uint8_t sref = MaskDepth();
+        const glm::mat4 model = BuildQuadModelFromMat3(transform, size);
+        s_list.AddExternal([=, textures = textures, vec4s = vec4s](uint16_t viewId) {
+            sp->UseProgram();
+            SetShaderProjection(sp, proj);
+            sp->SetUniform("u_Model", model);
+            sp->SetUniform("u_Color", color);
+            sp->SetUniform("u_ElementSize", glm::vec4(size.x, size.y, 0.f, 0.f));
+            for (auto& [name, tex] : textures) sp->SetTexture(name, tex);
+            for (auto& [name, v4] : vec4s)    sp->SetUniform(name, v4);
+            SubmitQuad(sp, sref, viewId);
+        });
     }
 
 
     void DrawBorderRect(const glm::mat3& transform, const glm::vec2& size,
         const glm::vec4& color)
     {
-        s_flatColorShader->UseProgram();
-        SetShaderProjection(s_flatColorShader);
-        s_flatColorShader->SetUniform("u_Model", BuildQuadModelFromMat3(transform, size));
-        s_flatColorShader->SetUniform("u_Color", color);
-        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_PT_LINESTRIP | BGFX_STATE_BLEND_ALPHA);
-        bgfx::setVertexBuffer(0, s_quadVB);
-        s_flatColorShader->Submit(ViewIdManager::GetCurrentId());
+        if (!PassGuard()) return;
+        const UiGpu::Projection proj = UiGpu::CurrentProjection();
+        const glm::mat4 model = BuildQuadModelFromMat3(transform, size);
+        s_list.AddExternal([=](uint16_t viewId) {
+            s_flatColorShader->UseProgram();
+            SetShaderProjection(s_flatColorShader, proj);
+            s_flatColorShader->SetUniform("u_Model", model);
+            s_flatColorShader->SetUniform("u_Color", color);
+            bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_PT_LINESTRIP | BGFX_STATE_BLEND_ALPHA);
+            bgfx::setVertexBuffer(0, s_quadVB);
+            s_flatColorShader->Submit(viewId);
+        });
     }
 
     void DrawText(std::string text, FontHandle fontHandle,
@@ -1180,6 +1307,7 @@ namespace UiRenderer {
         const glm::vec4& color, const glm::vec2& scale,
         const string& shader, std::unordered_map<std::string, vec4> shaderUniforms, float effectPadding)   // extra bleed, in VIEWPORT PIXELS, needed by outline/glow/shadow
     {
+        if (!PassGuard()) return;
         if (text.empty() || fontHandle == INVALID_FONT) return;
 
         FontAtlas* atlas = nullptr;
@@ -1282,13 +1410,24 @@ namespace UiRenderer {
 
         // Pass 3: build TVB
         const uint32_t vertexCount = static_cast<uint32_t>(numGlyphs * 6);
-        if (bgfx::getAvailTransientVertexBuffer(vertexCount, s_quadLayout) < vertexCount) {
-            std::cerr << "[UiRenderer] DrawText(mat3): not enough transient VB\n";
-            return;
-        }
+        // Without effects the glyphs become draw-list geometry (CPU vector); with effects they keep a transient buffer.
+        std::vector<QuadVertex> glyphVerts;
         bgfx::TransientVertexBuffer tvb;
-        bgfx::allocTransientVertexBuffer(&tvb, vertexCount, s_quadLayout);
-        auto* v = reinterpret_cast<QuadVertex*>(tvb.data);
+        QuadVertex* v = nullptr;
+        if (shader.empty())
+        {
+            glyphVerts.resize(vertexCount);
+            v = glyphVerts.data();
+        }
+        else
+        {
+            if (bgfx::getAvailTransientVertexBuffer(vertexCount, s_quadLayout) < vertexCount) {
+                std::cerr << "[UiRenderer] DrawText(mat3): not enough transient VB\n";
+                return;
+            }
+            bgfx::allocTransientVertexBuffer(&tvb, vertexCount, s_quadLayout);
+            v = reinterpret_cast<QuadVertex*>(tvb.data);
+        }
 
         const float padU = atlasPadX / atlasW;
         const float padV = atlasPadY / atlasH;
@@ -1362,26 +1501,14 @@ namespace UiRenderer {
             atlas->FlushToGPU();
         }
 
+        const UiGpu::Projection proj = UiGpu::CurrentProjection();
+        const uint8_t sref = MaskDepth();
+        const bgfx::TextureHandle atlasTexture = atlas->texture;
+
         if (shader.empty())
         {
-            // No effects: exactly the original single-draw-call path, whole
-            // string in one submit. u_ClampRect doesn't exist in the plain
-            // textured shader, so there's nothing to set per glyph here.
-            sp->UseProgram();
-            SetShaderProjection(sp);
-            sp->SetUniform("u_Model", model);
-            sp->SetUniform("u_Color", color);
-            sp->SetTexture("u_Texture", atlas->texture);
-
-            bgfx::setState(
-                BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A |
-                BGFX_STATE_DEPTH_TEST_ALWAYS |
-                BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA,
-                    BGFX_STATE_BLEND_INV_SRC_ALPHA)
-            );
-            ApplyStencilTest();
-            bgfx::setVertexBuffer(0, &tvb);
-            sp->Submit(ViewIdManager::GetCurrentId());
+            // No effects: the whole string becomes geometry in the draw list.
+            AddLegacyTriangles(glyphVerts.data(), vertexCount, model, drawSize, atlasTexture, color, UiGpu::StateLegacyText());
             return;
         }
 
@@ -1395,30 +1522,33 @@ namespace UiRenderer {
         // shadowed/glowing strings.
         for (int i = 0; i < numGlyphs; ++i)
         {
-            sp->UseProgram();
-            SetShaderProjection(sp);
-            sp->SetUniform("u_Model", model);
-            sp->SetUniform("u_Color", color);
-            sp->SetTexture("u_Texture", atlas->texture);
-            sp->SetUniform("u_ElementSize", glm::vec4(drawSize.x, drawSize.y, 0.f, 0.f));
+            const glm::vec4 clampRect = glyphClampRects[i];
+            s_list.AddExternal([=, uniforms = shaderUniforms](uint16_t viewId) {
+                sp->UseProgram();
+                SetShaderProjection(sp, proj);
+                sp->SetUniform("u_Model", model);
+                sp->SetUniform("u_Color", color);
+                sp->SetTexture("u_Texture", atlasTexture);
+                sp->SetUniform("u_ElementSize", glm::vec4(drawSize.x, drawSize.y, 0.f, 0.f));
 
-            for (const auto& pair : shaderUniforms)
-                sp->SetUniform(pair.first, pair.second);
+                for (const auto& pair : uniforms)
+                    sp->SetUniform(pair.first, pair.second);
 
-            // Overrides the u_ClampRect that came in via shaderUniforms
-            // (GetEffectsUniforms()'s default is (0,0,1,1), the whole
-            // atlas — wrong for text specifically) with this glyph's own.
-            sp->SetUniform("u_ClampRect", glyphClampRects[i]);
+                // Overrides the u_ClampRect that came in via shaderUniforms
+                // (GetEffectsUniforms()'s default is (0,0,1,1), the whole
+                // atlas — wrong for text specifically) with this glyph's own.
+                sp->SetUniform("u_ClampRect", clampRect);
 
-            bgfx::setState(
-                BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A |
-                BGFX_STATE_DEPTH_TEST_ALWAYS |
-                BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA,
-                    BGFX_STATE_BLEND_INV_SRC_ALPHA)
-            );
-            ApplyStencilTest();
-            bgfx::setVertexBuffer(0, &tvb, i * 6, 6);
-            sp->Submit(ViewIdManager::GetCurrentId());
+                bgfx::setState(
+                    BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A |
+                    BGFX_STATE_DEPTH_TEST_ALWAYS |
+                    BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA,
+                        BGFX_STATE_BLEND_INV_SRC_ALPHA)
+                );
+                ApplyStencilTest(sref);
+                bgfx::setVertexBuffer(0, &tvb, i * 6, 6);
+                sp->Submit(viewId);
+            });
         }
     }
 
@@ -1432,6 +1562,7 @@ namespace UiRenderer {
         const string& shader, std::unordered_map<std::string, vec4> shaderUniforms,
         float effectPadding, float textureWidth, float textureHeight)
     {
+        if (!PassGuard()) return;
         if (rectSize.x <= 0.f || rectSize.y <= 0.f) return;
 
         // effectPadding arrives in VIEWPORT PIXELS (see UiElement::GetEffectsPadding)
@@ -1447,25 +1578,11 @@ namespace UiRenderer {
         const float y0 = rectPos.y - padV, y1 = rectPos.y + rectSize.y + padV;
 
         Shader* sp = shader.empty() ? s_texturedShader : ShaderManager::GetShaderProgram("vs_ui", shader);
-        sp->UseProgram();
-        SetShaderProjection(sp);
-        sp->SetUniform("u_Model", BuildQuadModelFromMat3(transform, size));
-        sp->SetUniform("u_Color", color);
-        sp->SetTexture("u_Texture", texture);
-        sp->SetUniform("u_ElementSize", glm::vec4(size.x, size.y, 0.f, 0.f));
         (void)textureWidth;
         (void)textureHeight;
 
-        for (const auto& pair : shaderUniforms)
-            sp->SetUniform(pair.first, pair.second);
-
-        if (bgfx::getAvailTransientVertexBuffer(6, s_quadLayout) < 6) {
-            std::cerr << "[UiRenderer] DrawTexturedRectRegion: not enough transient VB\n";
-            return;
-        }
-        bgfx::TransientVertexBuffer tvb;
-        bgfx::allocTransientVertexBuffer(&tvb, 6, s_quadLayout);
-        auto* v = reinterpret_cast<QuadVertex*>(tvb.data);
+        QuadVertex quad[6];
+        QuadVertex* v = quad;
 
         // u_Model already maps this element's local [0,1] space to its full
         // screen-space rect, so submitting geometry for a sub-range (here,
@@ -1478,14 +1595,43 @@ namespace UiRenderer {
         v[4] = { x1, y1, x1, y1 };
         v[5] = { x1, y0, x1, y0 };
 
-        BgfxStateManager::Reset();
-        BgfxStateManager::SetDepthTest(BgfxStateManager::DepthTest::Always);
-        BgfxStateManager::SetBlend(BgfxStateManager::Blend::Alpha);
-        BgfxStateManager::Apply();
+        if (shader.empty())
+        {
+            AddLegacyTriangles(quad, 6, BuildQuadModelFromMat3(transform, size), size, texture, color, UiGpu::StateLegacyAlpha());
+            return;
+        }
 
-        ApplyStencilTest();
-        bgfx::setVertexBuffer(0, &tvb);
-        sp->Submit(ViewIdManager::GetCurrentId());
+        if (bgfx::getAvailTransientVertexBuffer(6, s_quadLayout) < 6) {
+            std::cerr << "[UiRenderer] DrawTexturedRectRegion: not enough transient VB\n";
+            return;
+        }
+        bgfx::TransientVertexBuffer tvb;
+        bgfx::allocTransientVertexBuffer(&tvb, 6, s_quadLayout);
+        std::memcpy(tvb.data, quad, sizeof(quad));
+
+        const UiGpu::Projection proj = UiGpu::CurrentProjection();
+        const uint8_t sref = MaskDepth();
+        const glm::mat4 model = BuildQuadModelFromMat3(transform, size);
+        s_list.AddExternal([=, uniforms = shaderUniforms](uint16_t viewId) {
+            sp->UseProgram();
+            SetShaderProjection(sp, proj);
+            sp->SetUniform("u_Model", model);
+            sp->SetUniform("u_Color", color);
+            sp->SetTexture("u_Texture", texture);
+            sp->SetUniform("u_ElementSize", glm::vec4(size.x, size.y, 0.f, 0.f));
+
+            for (const auto& pair : uniforms)
+                sp->SetUniform(pair.first, pair.second);
+
+            BgfxStateManager::Reset();
+            BgfxStateManager::SetDepthTest(BgfxStateManager::DepthTest::Always);
+            BgfxStateManager::SetBlend(BgfxStateManager::Blend::Alpha);
+            BgfxStateManager::Apply();
+
+            ApplyStencilTest(sref);
+            bgfx::setVertexBuffer(0, &tvb);
+            sp->Submit(viewId);
+        });
     }
 
     // ── DrawTexturedRect9Slice ────────────────────────────────────────────────
@@ -1495,6 +1641,7 @@ namespace UiRenderer {
         const string& shader, std::unordered_map<std::string, vec4> shaderUniforms,
         float effectPadding, float textureWidth, float textureHeight)
     {
+        if (!PassGuard()) return;
         if (size.x <= 0.f || size.y <= 0.f) return;
 
         // effectPadding (viewport pixels) extends only the OUTER boundary of the
@@ -1547,24 +1694,10 @@ namespace UiRenderer {
         const float uy[4] = { -padUY, uy1, uy2, 1.f + padUY };
 
         Shader* sp = shader.empty() ? s_texturedShader : ShaderManager::GetShaderProgram("vs_ui", shader);
-        sp->UseProgram();
-        SetShaderProjection(sp);
-        sp->SetUniform("u_Model", BuildQuadModelFromMat3(transform, size));
-        sp->SetUniform("u_Color", color);
-        sp->SetTexture("u_Texture", texture);
-        sp->SetUniform("u_ElementSize", glm::vec4(size.x, size.y, 0.f, 0.f));
-
-        for (const auto& pair : shaderUniforms)
-            sp->SetUniform(pair.first, pair.second);
 
         constexpr uint32_t vertexCount = 9 * 6;
-        if (bgfx::getAvailTransientVertexBuffer(vertexCount, s_quadLayout) < vertexCount) {
-            std::cerr << "[UiRenderer] DrawTexturedRect9Slice: not enough transient VB\n";
-            return;
-        }
-        bgfx::TransientVertexBuffer tvb;
-        bgfx::allocTransientVertexBuffer(&tvb, vertexCount, s_quadLayout);
-        auto* v = reinterpret_cast<QuadVertex*>(tvb.data);
+        QuadVertex slices[vertexCount];
+        QuadVertex* v = slices;
 
         for (int cy = 0; cy < 3; ++cy)
         {
@@ -1585,14 +1718,43 @@ namespace UiRenderer {
             }
         }
 
-        BgfxStateManager::Reset();
-        BgfxStateManager::SetDepthTest(BgfxStateManager::DepthTest::Always);
-        BgfxStateManager::SetBlend(BgfxStateManager::Blend::Alpha);
-        BgfxStateManager::Apply();
+        if (shader.empty())
+        {
+            AddLegacyTriangles(slices, vertexCount, BuildQuadModelFromMat3(transform, size), size, texture, color, UiGpu::StateLegacyAlpha());
+            return;
+        }
 
-        ApplyStencilTest();
-        bgfx::setVertexBuffer(0, &tvb);
-        sp->Submit(ViewIdManager::GetCurrentId());
+        if (bgfx::getAvailTransientVertexBuffer(vertexCount, s_quadLayout) < vertexCount) {
+            std::cerr << "[UiRenderer] DrawTexturedRect9Slice: not enough transient VB\n";
+            return;
+        }
+        bgfx::TransientVertexBuffer tvb;
+        bgfx::allocTransientVertexBuffer(&tvb, vertexCount, s_quadLayout);
+        std::memcpy(tvb.data, slices, sizeof(slices));
+
+        const UiGpu::Projection proj = UiGpu::CurrentProjection();
+        const uint8_t sref = MaskDepth();
+        const glm::mat4 model = BuildQuadModelFromMat3(transform, size);
+        s_list.AddExternal([=, uniforms = shaderUniforms](uint16_t viewId) {
+            sp->UseProgram();
+            SetShaderProjection(sp, proj);
+            sp->SetUniform("u_Model", model);
+            sp->SetUniform("u_Color", color);
+            sp->SetTexture("u_Texture", texture);
+            sp->SetUniform("u_ElementSize", glm::vec4(size.x, size.y, 0.f, 0.f));
+
+            for (const auto& pair : uniforms)
+                sp->SetUniform(pair.first, pair.second);
+
+            BgfxStateManager::Reset();
+            BgfxStateManager::SetDepthTest(BgfxStateManager::DepthTest::Always);
+            BgfxStateManager::SetBlend(BgfxStateManager::Blend::Alpha);
+            BgfxStateManager::Apply();
+
+            ApplyStencilTest(sref);
+            bgfx::setVertexBuffer(0, &tvb);
+            sp->Submit(viewId);
+        });
     }
 
 } // namespace UiRenderer

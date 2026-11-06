@@ -1,0 +1,6 @@
+<root>
+  <imports><import src="GameData/ui/kit/tests/CycleB.xml"/></imports>
+  <Component tag="CycleA">
+    <Panel><CycleB/></Panel>
+  </Component>
+</root>

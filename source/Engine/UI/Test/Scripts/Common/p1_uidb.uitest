@@ -1,0 +1,9 @@
+wait 6
+expect_uidb cap:markup tags:Panel tags:Label tags:Image tags:Button tags:TextButton cssProperties:width cssProperties:border-radius pseudoClasses:hover
+console ui_load GameData/ui/kit/tests/p1_components.xml
+wait_frames 3
+uidb_selftest
+expect_uidb documents:ui/kit/tests/p1_components.xml
+expect_uidb components:TestRow
+console ui_db_info
+quit

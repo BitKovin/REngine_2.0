@@ -63,12 +63,16 @@ void LoadingScreenSystem::Draw()
     // Update and draw UI
     viewport.Update();
     viewport.FinalizeChildren();
+    UiRenderer::BeginPass();
     viewport.Draw(); // must submit bgfx draw calls internally
+    UiRenderer::EndPass(viewId);
 
     // Process events (still needed for SDL)
     SDL_PollEvent(nullptr);
 
     // Present frame
+    UiRenderer::EndFrame();
+    UiRenderer::OnBeforeBgfxFrame();
     bgfx::frame();
 
 #ifdef emscripten_sleep

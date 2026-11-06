@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+#include <UI/Menus/UiMenuStack.h>
 #include <UI/UiButton.hpp>
 #include <UI/UiVerticalBox.hpp>
 #include <UI/UiText.hpp>
@@ -87,13 +89,14 @@ public:
 
     static inline const float OptionsWidth = 650;
 
-    std::shared_ptr<UiElement> parentMenu;
+    // Called when the menu closes without loading, so the screen that opened it can show itself again.
+    std::function<void()> onClosed;
 
-    UiSaveLoadMenu(std::shared_ptr<UiElement> parentMenu_, Mode mode)
+    UiSaveLoadMenu(std::function<void()> onClosed_, Mode mode)
         : m_mode(mode)
     {
         FocusTrap = true;
-        parentMenu = parentMenu_;
+        onClosed = std::move(onClosed_);
 
         background = std::make_shared<UiImage>();
         background->color = SettingsStyle::Scrim;
@@ -123,7 +126,7 @@ public:
 
         backButton->onClick = [this]()
         {
-            parentMenu->visible = true;
+            if (onClosed) onClosed();
             RemoveFromParent();
         };
 
@@ -385,7 +388,7 @@ private:
         PauseGameManager::SetGamePaused(false);
         Input::GetAction("pause")->CleanPressed();
 
-        if (parentMenu) parentMenu->RemoveFromParent();
+        UiMenus::Clear();   // closes the pause menu page; the stack unpauses through UiMenus::OnPauseChanged
         RemoveFromParent();
     }
 

@@ -17,6 +17,10 @@
 
         { "key": "PAUSE_SAVE_CONFIRM_OVERWRITE",   "value": "Overwrite this save? This can't be undone.", "description": "Confirmation prompt shown before saving over a slot that already has a save in it" },
         { "key": "PAUSE_LOAD_CONFIRM",             "value": "Load this save? Any unsaved progress will be lost.", "description": "Confirmation prompt shown before loading a save" },
-        { "key": "PAUSE_LOAD_NO_SAVES",            "value": "No saved games found.", "description": "Shown on the Load screen when there are no saves to load" }
+        { "key": "PAUSE_LOAD_NO_SAVES",            "value": "No saved games found.", "description": "Shown on the Load screen when there are no saves to load" },
+        { "key": "PAUSE_MENU_QUIT", "value": "Quit Game", "description": "Button that opens the quit confirmation" },
+        { "key": "PAUSE_QUIT_CONFIRM", "value": "Quit the game? Unsaved progress will be lost.", "description": "Question of the quit confirmation" },
+        { "key": "PAUSE_QUIT_YES", "value": "Yes", "description": "Confirms quitting" },
+        { "key": "PAUSE_QUIT_NO", "value": "No", "description": "Cancels quitting" }
     ]
 }

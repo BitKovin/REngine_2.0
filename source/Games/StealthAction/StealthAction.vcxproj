@@ -630,6 +630,7 @@
     <ClInclude Include="UI\MobileControls\UiTouchMoveArea.h" />
     <ClInclude Include="UI\Pause\UiGameSettings.h" />
     <ClInclude Include="UI\Pause\UiInputSettings.h" />
+    <ClInclude Include="UI\Pause\StealthPauseMenu.h" />
     <ClInclude Include="UI\Pause\UiPauseMenu.h" />
     <ClInclude Include="UI\Pause\UiSaveLoadMenu.h" />
     <ClInclude Include="UI\Pause\UiSaveSlotRow.hpp" />

@@ -1,0 +1,15 @@
+<root>
+  <styles>
+    <include src="GameData/ui/styles/theme.css"/>
+  </styles>
+  <Panel id="pause" class="screen pause" pauses-game="true" hides-hud="true">
+    <Panel class="menu-column">
+      <TextButton id="presume" class="menu-button" text="${PAUSE_MENU_RESUME}" default-focus="true" onactivate="Back()"/>
+      <TextButton id="psave" class="menu-button" text="${PAUSE_MENU_SAVE}" onactivate="OpenSave()"/>
+      <TextButton id="pload" class="menu-button" text="${PAUSE_MENU_LOAD}" onactivate="OpenLoad()"/>
+      <TextButton id="psettings" class="menu-button" text="${PAUSE_MENU_SETTINGS}" onactivate="OpenSettings()"/>
+      <TextButton id="pquit" class="menu-button" text="${PAUSE_MENU_QUIT}" onactivate="Push('ui/confirm_quit.xml')"/>
+    </Panel>
+    <ActionBar class="action-bar"/>
+  </Panel>
+</root>

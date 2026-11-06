@@ -1,0 +1,14 @@
+<root>
+  <styles><style>
+    #pp { flow-children: down; gap: 10px; x: 100px; y: 100px; padding: 10px; background-color: #203040; }
+    InputPrompt { width: 64px; height: 64px; }
+    Label { color: #ffffff; }
+  </style></styles>
+  <Panel id="pp" pauses-game="true">
+    <InputPrompt id="ip" action="ui_confirm"/>
+    <InputPrompt id="ipnone" action="none_x"/>
+    <Label id="icononly" html="true" style="font-size: 20px" text="&lt;icon=img:GameData/textures/generic/white.png&gt;"/>
+    <Label id="rich" html="true" text="Plain &lt;b&gt;bold&lt;/b&gt; &lt;color=#ff0000&gt;red&lt;/color&gt; &lt;icon=action:ui_confirm&gt; end"/>
+    <Label id="lit" text="a&lt;b"/>
+  </Panel>
+</root>
