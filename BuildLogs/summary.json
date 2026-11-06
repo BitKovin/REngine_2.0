@@ -2,7 +2,7 @@
   {
     "Name": "windows",
     "Success": true,
-    "DurationSeconds": 335.2471265,
+    "DurationSeconds": 98.7671517,
     "LogFilePath": "F:\\Git\\SdlWasmEngine\\BuildLogs\\windows.log",
     "ErrorMessage": null
   }

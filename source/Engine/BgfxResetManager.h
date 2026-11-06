@@ -10,7 +10,19 @@ class BgfxResetManager
 public:
     BgfxResetManager() = delete;
 
-	static inline bgfx::SwapChain* swapChainPtr = nullptr;
+    // Low latency mode (NVIDIA Reflex).
+    // Values match the 2-bit reset field: (value << BGFX_RESET_LOW_LATENCY_SHIFT)
+    //   Off   -> 0
+    //   On    -> BGFX_RESET_LOW_LATENCY_ON
+    //   Boost -> BGFX_RESET_LOW_LATENCY_BOOST
+    enum class LowLatencyMode : uint8_t
+    {
+        Off = 0,
+        On = 1,
+        Boost = 2
+    };
+
+    static inline bgfx::SwapChain* swapChainPtr = nullptr;
 
     // ---------------------------------------------------------------------
     // Reset to defaults
@@ -21,7 +33,7 @@ public:
         s_resolution = { 1280, 720 };
         s_format = bgfx::TextureFormat::Count;
 
-        if(bgfx::getRendererType() == bgfx::RendererType::Vulkan)
+        if (bgfx::getRendererType() == bgfx::RendererType::Vulkan)
         {
             s_format = bgfx::TextureFormat::RGBA8;
         }
@@ -249,6 +261,48 @@ public:
     }
 
     // ---------------------------------------------------------------------
+    // Low latency (NVIDIA Reflex)
+    // ---------------------------------------------------------------------
+    static void SetLowLatency(LowLatencyMode mode)
+    {
+        // 2-bit field: clear the whole mask first, never OR into it,
+        // otherwise switching ON -> BOOST would leave both bits set.
+        SetFlags((s_flags & ~BGFX_RESET_LOW_LATENCY_MASK) | LowLatencyToFlags(mode));
+    }
+
+    static LowLatencyMode GetLowLatency()
+    {
+        switch ((s_flags & BGFX_RESET_LOW_LATENCY_MASK) >> BGFX_RESET_LOW_LATENCY_SHIFT)
+        {
+        case 1:  return LowLatencyMode::On;
+        case 2:  return LowLatencyMode::Boost;
+        default: return LowLatencyMode::Off; // 0, or the undefined value 3
+        }
+    }
+
+    // Highest level the current device/driver supports.
+    //   Off   -> BGFX_CAPS_LOW_LATENCY not available (non-NVIDIA GPU, old
+    //            driver, unsupported renderer, or masked out through
+    //            Init::capabilities)
+    //   Boost -> available; both ON and BOOST are gated by the same cap, so
+    //            if the cap is present the full range is usable.
+    // Requires bgfx::init() to have been called.
+    static LowLatencyMode GetLowLatencySupport()
+    {
+        const bgfx::Caps* caps = bgfx::getCaps();
+        if (caps == nullptr || (caps->supported & BGFX_CAPS_LOW_LATENCY) == 0)
+        {
+            return LowLatencyMode::Off;
+        }
+        return LowLatencyMode::Boost;
+    }
+
+    static bool IsLowLatencySupported(LowLatencyMode mode)
+    {
+        return static_cast<uint8_t>(mode) <= static_cast<uint8_t>(GetLowLatencySupport());
+    }
+
+    // ---------------------------------------------------------------------
     // Apply
     // ---------------------------------------------------------------------
     static bool ApplyIfNeeded()
@@ -264,13 +318,16 @@ public:
 
     static void Apply()
     {
+        // Low latency is clamped to what the device supports, while s_flags
+        // keeps the user's requested value (so UI/settings stay intact).
+        const uint32_t flags = EffectiveFlags();
 
-		swapChainPtr->flags = s_flags;
-		swapChainPtr->width = s_resolution.x;
-		swapChainPtr->height = s_resolution.y;
-		swapChainPtr->formatColor = s_format;
+        swapChainPtr->flags = flags;
+        swapChainPtr->width = s_resolution.x;
+        swapChainPtr->height = s_resolution.y;
+        swapChainPtr->formatColor = s_format;
 
-        bgfx::reset(s_flags, swapChainPtr);
+        bgfx::reset(flags, swapChainPtr);
 
         s_dirty = false;
 
@@ -299,6 +356,26 @@ private:
     // line (bgfx::getStats()->gpuMemoryUsed) for the real ground truth.
     static constexpr uint64_t kBackbufferColorId = ResourceStatistics::kSyntheticIdBase;
     static constexpr uint64_t kBackbufferDepthId = ResourceStatistics::kSyntheticIdBase + 1;
+
+    static uint32_t LowLatencyToFlags(LowLatencyMode mode)
+    {
+        return (static_cast<uint32_t>(mode) << BGFX_RESET_LOW_LATENCY_SHIFT)
+            & BGFX_RESET_LOW_LATENCY_MASK;
+    }
+
+    // Requested flags with low latency clamped to the supported level, so
+    // bgfx only ever receives a mode it can actually honor.
+    static uint32_t EffectiveFlags()
+    {
+        const LowLatencyMode requested = GetLowLatency();
+        const LowLatencyMode supported = GetLowLatencySupport();
+
+        if (static_cast<uint8_t>(requested) <= static_cast<uint8_t>(supported))
+        {
+            return s_flags;
+        }
+        return (s_flags & ~BGFX_RESET_LOW_LATENCY_MASK) | LowLatencyToFlags(supported);
+    }
 
     static uint32_t BytesPerPixelForFormat(bgfx::TextureFormat::Enum format)
     {

@@ -29,6 +29,8 @@
 #include <Console/Console.h>
 #include <Console/ConsoleRegister.h>
 
+#include <BgfxResetManager.h>
+
 REGISTER_ENTITY(Player, "player")
 
 Player* Player::Instance = nullptr;
@@ -2019,9 +2021,10 @@ void Player::UpdateDebugUI()
 	ImGui::DragFloat3("weaponRotation", &weaponRunRotation.x, 0.01);
 	ImGui::End();
 
-	ImGui::Begin("graphic");
+	ImGui::Begin("graphics");
 	ImGui::SliderInt("multisample count", &EngineMain::MainInstance->MainRenderer->MultiSampleCount, 0, 8);
 	ImGui::SliderFloat("resolution scale", &EngineMain::MainInstance->MainRenderer->ResolutionScale, 0, 10);
+
 	ImGui::End();
 
 	ImGui::Begin("debug");
