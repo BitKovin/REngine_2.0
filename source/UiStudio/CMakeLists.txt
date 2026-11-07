@@ -19,6 +19,7 @@ qt_add_executable(UiStudio
     GameSession.h GameSession.cpp
     PreviewView.h PreviewView.cpp
     Templates.h Templates.cpp
+    TestPanel.h TestPanel.cpp
     MainWindow.h MainWindow.cpp
 )
 

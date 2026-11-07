@@ -33,7 +33,8 @@ CodeEditor::CodeEditor(const QString& filePath, QWidget* parent)
     setUndoRedoEnabled(true);
 
     const bool css = filePath.endsWith(".css", Qt::CaseInsensitive);
-    m_highlighter = new Highlighter(document(), css ? Highlighter::Language::Css : Highlighter::Language::Xml);
+    const bool script = filePath.endsWith(".uitest", Qt::CaseInsensitive);
+    m_highlighter = new Highlighter(document(), css ? Highlighter::Language::Css : script ? Highlighter::Language::Script : Highlighter::Language::Xml);
 
     connect(this, &QPlainTextEdit::blockCountChanged, this, [this] { UpdateGutterWidth(); });
     connect(this, &QPlainTextEdit::updateRequest, this, &CodeEditor::UpdateGutterScroll);

@@ -9,7 +9,7 @@
 class Highlighter : public QSyntaxHighlighter
 {
 public:
-    enum class Language { Xml, Css };
+    enum class Language { Xml, Css, Script };
 
     Highlighter(QTextDocument* doc, Language language);
 
@@ -21,6 +21,7 @@ private:
 
     void HighlightXml(const QString& text);
     void HighlightCss(const QString& text);
+    void HighlightScript(const QString& text);
 
     Language m_language;
     QVector<Rule> m_rules;

@@ -4,6 +4,7 @@
 #include "GameSession.h"
 #include "PreviewView.h"
 #include "Templates.h"
+#include "TestPanel.h"
 
 #include <QAction>
 #include <QApplication>
@@ -513,6 +514,22 @@ void MainWindow::BuildWorkspace()
     connect(m_console, &QLineEdit::returnPressed, this, &MainWindow::RunConsoleCommand);
     cl->addWidget(m_console);
     m_bottom->addTab(consolePage, tr("Game log and console"));
+
+    m_tests = new TestPanel;
+    m_bottom->addTab(m_tests, tr("Tests"));
+    connect(m_tests, &TestPanel::OpenScript, this, [this](const QString& file, int line) { OpenFile(file, line); });
+    connect(m_tests, &TestPanel::RunStarting, this, [this] {
+        // A test uses the same game program and save folder as the preview game, so the preview steps aside.
+        m_gameWasRunning = m_session->IsRunning();
+        if (m_gameWasRunning)
+            StopGame();
+        m_preview->SetMessage(tr("A test is running. The preview comes back when it is done."));
+    });
+    connect(m_tests, &TestPanel::RunFinished, this, [this] {
+        if (m_gameWasRunning)
+            StartGame();
+        m_gameWasRunning = false;
+    });
     MakeDock(this, tr("Output"), m_bottom, Qt::BottomDockWidgetArea, "output");
 
     for (QDockWidget* d : findChildren<QDockWidget*>())
@@ -599,6 +616,7 @@ bool MainWindow::OpenProject(const QString& gameDataDir, const QString& exe)
     if (exe.isEmpty() || !QFileInfo::exists(exe))
         m_preview->SetMessage(tr("No game program was found, so the live preview is off.\nYou can still edit files. Use File > Open project to choose the program."));
     m_actRun->setEnabled(!exe.isEmpty() && QFileInfo::exists(exe));
+    m_tests->SetProject(exe);
     statusBar()->showMessage(tr("Project opened. Double-click a page to edit it."), 6000);
     return true;
 }
@@ -649,7 +667,7 @@ void MainWindow::UpdateTabTitle(CodeEditor* editor)
 
 void MainWindow::CopyToGame(const QString& file)
 {
-    if (m_exe.isEmpty())
+    if (m_exe.isEmpty() || !file.startsWith(m_projectDir + "/"))
         return;
     // The game reads its own GameData folder (next to the program's "bin"), not the source folder we edit.
     const QDir work = QFileInfo(m_exe).dir();
@@ -675,7 +693,8 @@ bool MainWindow::SaveEditor(CodeEditor* editor)
     }
     CopyToGame(editor->FilePath());
     statusBar()->showMessage(tr("Saved %1").arg(QFileInfo(editor->FilePath()).fileName()), 3000);
-    if (m_session->IsReady() && !m_previewPage.isEmpty())
+    const bool pageFile = editor->FilePath().endsWith(".xml", Qt::CaseInsensitive) || editor->FilePath().endsWith(".css", Qt::CaseInsensitive);
+    if (pageFile && m_session->IsReady() && !m_previewPage.isEmpty())
     {
         RefreshPreview(1200);          // the game reloads changed files by itself, then we look again
         m_lintTimer.start(1400);

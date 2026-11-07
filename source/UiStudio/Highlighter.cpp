@@ -24,6 +24,14 @@ Highlighter::Highlighter(QTextDocument* doc, Language language)
         m_rules.append({ QRegularExpression(R"("[^"]*"|'[^']*')"), Fmt("#98c379") });
         m_rules.append({ QRegularExpression(R"(\$\{[^}]*\}|\{[^}]*\})"), Fmt("#56b6c2", true) });
     }
+    else if (language == Language::Script)
+    {
+        // .uitest: "command arguments", '#' starts a comment.
+        m_rules.append({ QRegularExpression(R"(^\s*[A-Za-z_]\w*)"), Fmt("#e0788a", true) });
+        m_rules.append({ QRegularExpression(R"(-?\d+(\.\d+)?)"), Fmt("#d19a66") });
+        m_rules.append({ QRegularExpression(R"(==|!=|<=|>=|<|>)"), Fmt("#c678dd") });
+        m_rules.append({ QRegularExpression(R"("[^"]*")"), Fmt("#98c379") });
+    }
     else
     {
         m_rules.append({ QRegularExpression(R"([.#]?[A-Za-z_][\w\-]*(?=[^{}]*\{))"), Fmt("#e0788a") });
@@ -49,6 +57,8 @@ void Highlighter::highlightBlock(const QString& text)
     }
     if (m_language == Language::Xml)
         HighlightXml(text);
+    else if (m_language == Language::Script)
+        HighlightScript(text);
     else
         HighlightCss(text);
 }
@@ -82,4 +92,12 @@ void Highlighter::HighlightCss(const QString& text)
         setFormat(start, length, m_comment);
         start = text.indexOf("/*", start + length);
     }
+}
+
+void Highlighter::HighlightScript(const QString& text)
+{
+    setCurrentBlockState(0);
+    const int hash = text.indexOf('#');
+    if (hash >= 0)
+        setFormat(hash, text.length() - hash, m_comment);
 }

@@ -22,6 +22,7 @@ class QTableWidget;
 class QTreeView;
 class QTreeWidget;
 class QTreeWidgetItem;
+class TestPanel;
 
 class MainWindow : public QMainWindow
 {
@@ -112,6 +113,8 @@ private:
     QLabel* m_stateLabel = nullptr;
     QLabel* m_hintLabel = nullptr;
     QTabWidget* m_bottom = nullptr;
+    TestPanel* m_tests = nullptr;
+    bool m_gameWasRunning = false;
 
     GameSession* m_session = nullptr;
     QTimer m_refreshTimer;
