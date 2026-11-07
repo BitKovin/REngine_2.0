@@ -66,6 +66,13 @@ static uint8_t SdlButtonToIndex(Uint8 sdlButton)
 
 void Input::Update() {
 
+    // -free_cursor: tools that show the interface on an empty world (UI Studio) want a normal cursor even though the
+    // game would lock it while it is not paused. Done before anything reads LockCursor this frame.
+    static const bool freeCursor = EngineMain::MainInstance != nullptr &&
+        EngineMain::MainInstance->Arguments.find("free_cursor") != EngineMain::MainInstance->Arguments.end();
+    if (freeCursor)
+        LockCursor = false;
+
     UpdateMousePosition();
 
     // Calculate delta time. 

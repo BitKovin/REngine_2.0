@@ -437,6 +437,11 @@ int main(int argc, char* args[])
 		}
     }
 
+    // -lock_window: a tool (UI Studio) has put the window inside its own; the click that gives the window focus must still
+    // reach the game, otherwise the first click after using another panel is lost.
+    if (std::find(args_s.begin(), args_s.end(), "-lock_window") != args_s.end())
+        SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
         fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 1;

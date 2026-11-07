@@ -19,7 +19,9 @@ namespace Screenshot
 	bgfx::CallbackI* Callback();
 
 	// Asks for a PNG of the next presented frame. "name" becomes SaveData/screenshots/name.png; a name with a folder or an extension is used as given.
-	void Request(const std::string& name);
+	// A name ending in .bmp is written as an uncompressed BMP, which is much faster than a PNG; `downscale` (1, 2, 4, ...) shrinks it by
+	// that factor first. Tools that stream previews use this: `screenshot <name>.bmp [downscale]`.
+	void Request(const std::string& name, int downscale = 1);
 
 	// Asks for a PNG (alpha kept) of an off-screen colour texture as it is at the end of the next frame. Done by blit + readback,
 	// so the file appears a few frames later; AfterPresent() must be fed the frame number bgfx::frame() returned.

@@ -165,6 +165,17 @@ namespace
                         UiTextIcon icon;
                         icon.IsAction = isAction;
                         icon.Ref = tag.substr(isAction ? 12 : 9);
+                        // Options after the reference: <icon=action:jump,valign=middle>
+                        const size_t comma = icon.Ref.find(',');
+                        if (comma != std::string::npos)
+                        {
+                            const std::string opt = icon.Ref.substr(comma + 1);
+                            icon.Ref.resize(comma);
+                            if (opt == "valign=middle") icon.VAlign = 1;
+                            else if (opt == "valign=top") icon.VAlign = 2;
+                            else if (opt == "valign=bottom") icon.VAlign = 3;
+                            else if (opt != "valign=baseline") ok = false;
+                        }
                         if (icon.Ref.empty())
                             ok = false;
                         else
@@ -409,6 +420,11 @@ namespace
                     icon.H = icon.W = ctxs[item.Style].Size * 1.1f;
                     icon.X = offset + pen;
                     icon.Y = top + baseline - icon.H;
+                    // valign is measured against the label's own size: a capital is ~0.7 em tall, a descender ~0.2 em
+                    const float em = ctxs[0].Size;
+                    if (icon.VAlign == 1) icon.Y = top + baseline - em * 0.35f - icon.H * 0.5f;
+                    else if (icon.VAlign == 2) icon.Y = top + baseline - em * 0.7f;
+                    else if (icon.VAlign == 3) icon.Y = top + baseline + em * 0.2f - icon.H;
                     result.Icons.push_back(icon);
                     pen += item.Advance;
                     continue;

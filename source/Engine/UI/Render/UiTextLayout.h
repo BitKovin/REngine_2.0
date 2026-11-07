@@ -30,7 +30,7 @@ struct UiTextParams
 // Consecutive quads that share a style (colour, size, weight). HasColor false = the element's colour.
 struct UiTextRun { size_t First = 0, Count = 0; bool HasColor = false; glm::vec4 Color = glm::vec4(1.f); float GlyphScale = 0.f; float Dilation = 0.f; };
 // An inline image; the label resolves action prompts through UiInputPrompts and paints it with UiPainter::Image.
-struct UiTextIcon { float X = 0.f, Y = 0.f, W = 0.f, H = 0.f; bool IsAction = false; std::string Ref; };
+struct UiTextIcon { float X = 0.f, Y = 0.f, W = 0.f, H = 0.f; bool IsAction = false; std::string Ref; int VAlign = 0; /* 0 baseline, 1 middle, 2 top, 3 bottom (layout input only) */ };
 
 struct UiTextLayoutResult
 {

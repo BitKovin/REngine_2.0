@@ -10,6 +10,20 @@
 
 namespace
 {
+    // The sheet and every sheet it @imports: a change to any of them has to reload the pages that use it.
+    void AddSheetFiles(UiDocumentDef& def, const std::string& file, const std::shared_ptr<UiStyleSheet>& sheet, int depth)
+    {
+        if (std::find(def.SheetFiles.begin(), def.SheetFiles.end(), file) == def.SheetFiles.end())
+            def.SheetFiles.push_back(file);
+        if (!sheet || depth > 8)
+            return;
+        for (const std::string& import : sheet->Imports)
+            AddSheetFiles(def, import, UiStyleSheetCache::Get(import), depth + 1);
+    }
+}
+
+namespace
+{
     std::map<std::string, std::shared_ptr<UiDocumentDef>>& Cache()
     {
         static std::map<std::string, std::shared_ptr<UiDocumentDef>> cache;
@@ -182,7 +196,7 @@ namespace
                         if (auto sheet = UiStyleSheetCache::Get(src))
                         {
                             def->Sheets.push_back(sheet);
-                            def->SheetFiles.push_back(src);
+                            AddSheetFiles(*def, src, sheet, 0);
                         }
                     }
                     else if (itemName == "style")

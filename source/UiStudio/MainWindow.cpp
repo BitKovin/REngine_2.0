@@ -4,9 +4,14 @@
 #include "GameSession.h"
 #include "PreviewView.h"
 #include "Templates.h"
+#include "EmbeddedGameView.h"
+#include "PageTree.h"
+#include "PropertiesPanel.h"
 #include "TestPanel.h"
+#include "TreeRoles.h"
 
 #include <QAction>
+#include <QActionGroup>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QComboBox>
@@ -47,12 +52,6 @@
 
 namespace
 {
-    constexpr int RolePath = Qt::UserRole;
-    constexpr int RoleRect = Qt::UserRole + 1;
-    constexpr int RoleFile = Qt::UserRole + 2;
-    constexpr int RoleLine = Qt::UserRole + 3;
-    constexpr int RoleCol = Qt::UserRole + 4;
-
     QDockWidget* MakeDock(QMainWindow* w, const QString& title, QWidget* content, Qt::DockWidgetArea area, const QString& name)
     {
         auto* dock = new QDockWidget(title, w);
@@ -141,12 +140,32 @@ MainWindow::MainWindow()
         SetGameState(crashed ? tr("Game crashed (code %1)").arg(code) : tr("Game is not running"), crashed ? "#e0788a" : "#8f97aa");
         m_actRun->setText(tr("▶  Start game"));
         m_actPreview->setEnabled(false);
+        m_embed->Detach();
+        if (m_embedded)
+        {
+            m_embedded = false;
+            m_previewStack->setCurrentWidget(m_preview);
+        }
+        if (m_play)
+            SetPlayMode(false);
         if (crashed)
             m_preview->SetMessage(tr("The game closed unexpectedly. Check the Log tab for the reason, then press Start game."));
     });
-    connect(m_session, &GameSession::ScreenshotReady, this, [this](const QImage& image) { m_preview->SetImage(image); m_preview->SetMessage(QString()); });
+    connect(m_session, &GameSession::ScreenshotReady, this, [this](const QImage& image) {
+        if (m_play)
+            return;                                                   // Play mode shows the shared live frames instead
+        m_preview->SetImage(image);
+        m_preview->SetMessage(QString());
+    });
+    connect(m_session, &GameSession::FrameReady, this, [this](const QImage& image) {
+        if (!m_play)
+            return;
+        m_preview->SetImage(image);
+        m_preview->SetMessage(QString());
+    });
     connect(m_session, &GameSession::JsonReady, this, &MainWindow::OnJson);
     connect(m_session, &GameSession::RequestFailed, this, [this](const QString& what) {
+
         statusBar()->showMessage(tr("The game did not answer (%1). It may still be loading.").arg(what), 5000);
     });
 
@@ -335,6 +354,18 @@ void MainWindow::BuildActions()
     m_actCloseTab = make(tr("Close tab"), QKeySequence("Ctrl+W"), [this] { if (m_tabs->count()) CloseTab(m_tabs->currentIndex()); });
     m_actRun = make(tr("▶  Start game"), QKeySequence("F5"), [this] { m_session->IsRunning() ? StopGame() : StartGame(); });
     m_actPreview = make(tr("Show this page in preview"), QKeySequence("F6"), [this] { ShowInPreview(); });
+    m_actEditMode = make(tr("✎  Edit mode"), QKeySequence("F7"), [this] { SetPlayMode(false); });
+    m_actPlayMode = make(tr("▶  Play mode"), QKeySequence("F8"), [this] { SetPlayMode(true); });
+    for (QAction* a : { m_actEditMode, m_actPlayMode })
+        a->setCheckable(true);
+    m_actEditMode->setChecked(true);
+    m_actEditMode->setToolTip(tr("Edit mode: click elements in the preview to select and change them (F7)"));
+    m_actPlayMode->setToolTip(tr("Play mode: use the page like a player would. Mouse, arrow keys, Enter and Esc go to the game (F8)"));
+    {
+        auto* group = new QActionGroup(this);
+        group->addAction(m_actEditMode);
+        group->addAction(m_actPlayMode);
+    }
     m_actLint = make(tr("Check for problems"), QKeySequence("F7"), [this] { RunLint(); });
     m_actPalette = make(tr("Command palette…"), QKeySequence("Ctrl+K"), [this] { ShowPalette(); });
     m_actHelp = make(tr("Getting started"), QKeySequence::HelpContents, [this] {
@@ -414,6 +445,9 @@ void MainWindow::BuildWorkspace()
     tb->addAction(m_actRun);
     tb->addAction(m_actPreview);
     tb->addAction(m_actLint);
+    tb->addSeparator();
+    tb->addAction(m_actEditMode);
+    tb->addAction(m_actPlayMode);
     auto* spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     tb->addWidget(spacer);
@@ -425,6 +459,10 @@ void MainWindow::BuildWorkspace()
     m_actSave->setText(tr("Save"));
     m_actNew->setText(tr("＋  New file"));
     m_actPreview->setEnabled(false);
+
+    // The side docks run the full height; the Output dock sits under the editor only.
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
     // Left: project tree + hierarchy.
     m_model = new QFileSystemModel(this);
@@ -444,7 +482,7 @@ void MainWindow::BuildWorkspace()
     });
     QDockWidget* projectDock = MakeDock(this, tr("Project"), m_tree, Qt::LeftDockWidgetArea, "project");
 
-    m_hierarchy = new QTreeWidget;
+    m_hierarchy = new PageTree;
     m_hierarchy->setHeaderHidden(true);
     m_hierarchy->setAnimated(true);
     connect(m_hierarchy, &QTreeWidget::currentItemChanged, this, [this](QTreeWidgetItem* item, QTreeWidgetItem*) {
@@ -460,7 +498,12 @@ void MainWindow::BuildWorkspace()
         if (!m_session->IsReady()) return;
         m_session->RequestJson(QString("ui_pick_at %1 %2").arg(qRound(x)).arg(qRound(y)), "SaveData/ui_inspect/pick.json", "pick");
     });
-    QDockWidget* previewDock = MakeDock(this, tr("Live preview"), m_preview, Qt::RightDockWidgetArea, "preview");
+    // Edit mode shows a still picture of the game (so elements can be picked); Play mode shows the game window itself.
+    m_embed = new EmbeddedGameView;
+    m_previewStack = new QStackedWidget;
+    m_previewStack->addWidget(m_preview);
+    m_previewStack->addWidget(m_embed);
+    QDockWidget* previewDock = MakeDock(this, tr("Live preview"), m_previewStack, Qt::RightDockWidgetArea, "preview");
 
     m_inspector = new QTableWidget(0, 2);
     m_inspector->setHorizontalHeaderLabels({ tr("Property"), tr("Value") });
@@ -472,6 +515,7 @@ void MainWindow::BuildWorkspace()
     m_inspector->setShowGrid(false);
     QDockWidget* inspectDock = MakeDock(this, tr("Inspector"), m_inspector, Qt::RightDockWidgetArea, "inspector");
     splitDockWidget(previewDock, inspectDock, Qt::Vertical);
+    BuildVisualEditing(projectDock, inspectDock);
 
     // Bottom: problems, log, console.
     m_bottom = new QTabWidget;
@@ -617,6 +661,21 @@ bool MainWindow::OpenProject(const QString& gameDataDir, const QString& exe)
         m_preview->SetMessage(tr("No game program was found, so the live preview is off.\nYou can still edit files. Use File > Open project to choose the program."));
     m_actRun->setEnabled(!exe.isEmpty() && QFileInfo::exists(exe));
     m_tests->SetProject(exe);
+    {
+        QStringList where;
+        if (!exe.isEmpty())
+        {
+            QDir bin = QFileInfo(exe).dir();
+            where << bin.absolutePath();
+            if (bin.cdUp())
+                where << bin.absolutePath();
+        }
+        where << QFileInfo(m_projectDir).dir().absolutePath();
+        m_db.Load(where);
+        FillPalette(QString());
+        m_properties->ShowNothing(tr("Click an element in the preview or in the page structure to edit it here."));
+        m_propertiesDock->raise();
+    }
     statusBar()->showMessage(tr("Project opened. Double-click a page to edit it."), 6000);
     return true;
 }
@@ -887,8 +946,9 @@ void MainWindow::ShowInPreview()
         m_pendingShow = true;
         return;
     }
-    m_session->Send("ui_unload_all");
-    m_session->Send("ui_load " + m_previewPage);
+    // Pushing on the menu stack (like the game does) runs the page's own code, so tabs, lists and titles get filled.
+    m_session->Send("ui_clear_stack");
+    m_session->Send("ui_push " + m_previewPage);
     m_selectedPath.clear();
     m_preview->SetSelection(QRectF());
     RefreshPreview(700);
@@ -923,6 +983,16 @@ void MainWindow::OnJson(const QString& tag, const QJsonDocument& doc)
         if (!doc.object()["hit"].toBool() || element["path"].toString().isEmpty())
         {
             statusBar()->showMessage(tr("Nothing there."), 2000);
+            return;
+        }
+        if (!m_dropTag.isEmpty())
+        {
+            const QString dropped = m_dropTag;
+            m_dropTag.clear();
+            if (QTreeWidgetItem* target = ItemByPath(element["path"].toString()))
+                InsertTag(dropped, target, 0);
+            else
+                statusBar()->showMessage(tr("That element is not part of an editable page."), 4000);
             return;
         }
         SelectByPath(element["path"].toString());
@@ -1020,6 +1090,7 @@ void MainWindow::SelectItem(QTreeWidgetItem* item, bool jumpToSource)
         if (QFileInfo::exists(local))
             OpenFile(local, line, item->data(0, RoleCol).toInt());
     }
+    UpdateProperties();
 }
 
 void MainWindow::FillInspector(const QJsonObject& o)
@@ -1279,4 +1350,56 @@ void MainWindow::closeEvent(QCloseEvent* event)
     }
     m_session->Stop();
     event->accept();
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+void MainWindow::SetPlayMode(bool play)
+{
+    if (play == m_play)
+        return;
+    if (play && !m_session->IsReady())
+    {
+        statusBar()->showMessage(tr("Start the game and show a page first, then switch to Play mode."), 6000);
+        m_actEditMode->setChecked(true);
+        return;
+    }
+    m_play = play;
+    m_actEditMode->setChecked(!play);
+    m_actPlayMode->setChecked(play);
+    m_preview->SetPlayMode(play);
+    m_paletteDock->setEnabled(!play);
+    m_propertiesDock->setEnabled(!play);
+    m_hierarchy->setEnabled(!play);
+    if (play)
+    {
+        m_preview->SetSelection(QRectF());
+        statusBar()->showMessage(tr("Play mode: use the page like a player. Click Edit mode in the toolbar to go back to editing (F7 only works while Studio has the keyboard, not the game)."), 8000);
+        // Best: the game's own window, no copying. Fallback: shared frames shown in the preview, input sent as commands.
+        m_embedded = m_session->IsReady() && m_embed->Attach(m_session->ProcessId());
+        if (m_embedded)
+        {
+            m_session->Send("ui_mouse off");           // the real mouse and keyboard now reach the game directly
+            m_previewStack->setCurrentWidget(m_embed);
+            m_embed->SetActive(true);
+        }
+        else
+            m_session->SetFrameSharing(true, 2);
+    }
+    else
+    {
+        if (m_embedded)
+        {
+            m_embed->SetActive(false);
+            m_previewStack->setCurrentWidget(m_preview);
+            m_embedded = false;
+        }
+        m_session->SetFrameSharing(false);
+        if (m_session->IsReady())
+        {
+            m_session->Send("ui_mouse off");
+            m_session->Send("ui_dump_json 64");        // the page may have changed while playing
+            RefreshPreview(300);
+        }
+        statusBar()->showMessage(tr("Edit mode: click elements to select them."), 5000);
+    }
 }

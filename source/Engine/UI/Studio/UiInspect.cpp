@@ -3,6 +3,7 @@
 #include <Console/Console.h>
 #include <EngineMain.h>
 #include <FileSystem/FileSystem.h>
+#include <Input.h>
 #include <Logger.hpp>
 #include <UI/Elements/UiElem.h>
 #include <UI/Reflection/UiElementRegistry.h>
@@ -194,6 +195,44 @@ namespace
             Logger::Log("[UiPick] nothing at %s,%s", args[0].c_str(), args[1].c_str());
     }
 
+    // Lets a remote tool play the page: pointer and named actions, one frame each, exactly like the scripted tests do.
+    void CmdMouse(const std::vector<std::string>& args)
+    {
+        const std::string verb = args.empty() ? std::string() : args[0];
+        if (verb == "off")
+        {
+            Input::SimulatedMouse.reset();
+            return;
+        }
+        if ((verb == "move" || verb == "down") && args.size() >= 3)
+        {
+            TouchEvent t;
+            t.position = glm::vec2(static_cast<float>(std::atof(args[1].c_str())), static_cast<float>(std::atof(args[2].c_str())));
+            if (Input::SimulatedMouse.has_value())
+                t.delta = t.position - Input::SimulatedMouse->position;
+            Input::SimulatedMouse = t;
+            Input::SimulatedMouse->pressed = verb == "down";
+            return;
+        }
+        if (verb == "up" && Input::SimulatedMouse.has_value())
+        {
+            Input::SimulatedMouse->released = true;
+            return;
+        }
+        Logger::Log("usage: ui_mouse move <x> <y> | down <x> <y> | up | off   (UI units)");
+    }
+
+    void CmdAction(const std::vector<std::string>& args)
+    {
+        InputAction* action = args.empty() ? nullptr : Input::GetAction(args[0]);
+        if (action == nullptr || action == &InputAction::NullAction)
+        {
+            Logger::Log("usage: ui_action <input action name>");
+            return;
+        }
+        action->SimulatePressed();
+    }
+
     void CmdComputed(const std::vector<std::string>& args)
     {
         if (args.empty())
@@ -347,5 +386,7 @@ void UiInspect::RegisterConsoleCommands()
     Console& console = Console::Get();
     console.RegisterCommand({ "ui_dump_json", "ui_dump_json [depth] - logs the markup trees as one JSON document", CmdDumpJson });
     console.RegisterCommand({ "ui_pick_at", "ui_pick_at <x> <y> - logs the element under a UI-unit point with its source position", CmdPickAt });
+    console.RegisterCommand({ "ui_mouse", "ui_mouse move|down <x> <y> | up | off - plays the pointer in UI units (used by remote tools)", CmdMouse });
+    console.RegisterCommand({ "ui_action", "ui_action <name> - presses a named input action for one frame (used by remote tools)", CmdAction });
     console.RegisterCommand({ "ui_computed", "ui_computed <id-or-path> - logs rectangles, states and computed values of one element as JSON", CmdComputed });
 }

@@ -10,7 +10,7 @@
     "painting": true
   },
   "engine": {
-    "buildId": "Nov  7 2026 03:49:37",
+    "buildId": "Nov  7 2026 21:34:38",
     "previewProtocol": 1,
     "version": "1"
   },
@@ -362,27 +362,6 @@
         {
           "kind": "document",
           "path": "ui/kit/focus_pointer.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/confirm.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/confirm.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/confirm.xml"
         }
       ],
       "supportsLiveCapture": false
@@ -3294,15 +3273,8 @@
         "imports": [],
         "path": "ui/kit/focus_pointer.xml",
         "styleSheets": [
-          "ui/theme.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/confirm.xml",
-        "styleSheets": [
-          "ui/theme.css"
+          "ui/theme.css",
+          "ui/kit/styles/kit.css"
         ]
       },
       {
@@ -3310,7 +3282,8 @@
         "imports": [],
         "path": "ui/kit/pages/input.xml",
         "styleSheets": [
-          "ui/theme.css"
+          "ui/theme.css",
+          "ui/kit/styles/kit.css"
         ]
       },
       {
@@ -3318,7 +3291,8 @@
         "imports": [],
         "path": "ui/kit/pages/pause.xml",
         "styleSheets": [
-          "ui/theme.css"
+          "ui/theme.css",
+          "ui/kit/styles/kit.css"
         ]
       },
       {
@@ -3326,7 +3300,8 @@
         "imports": [],
         "path": "ui/kit/pages/settings.xml",
         "styleSheets": [
-          "ui/theme.css"
+          "ui/theme.css",
+          "ui/kit/styles/kit.css"
         ]
       },
       {
@@ -3334,7 +3309,8 @@
         "imports": [],
         "path": "ui/kit/pages/sound.xml",
         "styleSheets": [
-          "ui/theme.css"
+          "ui/theme.css",
+          "ui/kit/styles/kit.css"
         ]
       },
       {
@@ -3342,7 +3318,8 @@
         "imports": [],
         "path": "ui/kit/pages/video.xml",
         "styleSheets": [
-          "ui/theme.css"
+          "ui/theme.css",
+          "ui/kit/styles/kit.css"
         ]
       },
       {
@@ -6143,6 +6120,22 @@
           },
           {
             "default": "",
+            "description": "Shown while nothing is selected",
+            "name": "placeholder",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "6",
+            "description": "Rows shown before the list scrolls",
+            "name": "max-visible",
+            "required": false,
+            "type": "number",
+            "variables": false
+          },
+          {
+            "default": "",
             "description": "setting:<key>: the widget edits that engine setting and follows it",
             "name": "bind",
             "required": false,
@@ -6151,7 +6144,7 @@
           }
         ],
         "category": "input",
-        "description": "Drop-down list (wraps the legacy drop-down); events: valuechanged; variable: value (the index)",
+        "description": "Drop-down list: a header and a list that opens above everything else (classes .dropdown-text, .dropdown-arrow, .dropdown-list, .dropdown-item; states :open via .open, :selected on the row); events: valuechanged; variable: value (the index)",
         "legacy": false,
         "name": "DropDown"
       },

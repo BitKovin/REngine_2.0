@@ -393,6 +393,10 @@ if(NOT ENGINE_AS_LIBRARY)
 
     message(STATUS "Game source directory: ${GAME_DIR}")
 
+    # Development builds hot reload UI files from the game's source folder (not from the copy the build made).
+    set_source_files_properties("${ENGINE_ROOT}/source/Engine/UI/Markup/UiSourceSync.cpp"
+        PROPERTIES COMPILE_DEFINITIONS "ENGINE_GAME_SOURCE_DATA=\"${GAME_DIR}/GameData\"")
+
     # ——————————————————————————————————————————————————————————
     # Output directory layout:  Build/<GAME_NAME>/<PLATFORM_DIR>/
     # ——————————————————————————————————————————————————————————

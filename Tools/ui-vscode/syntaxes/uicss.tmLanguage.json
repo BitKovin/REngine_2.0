@@ -1,0 +1,113 @@
+{
+  "name": "Engine UI CSS",
+  "scopeName": "source.uicss",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#atRule" },
+    { "include": "#rule" }
+  ],
+  "repository": {
+    "comment": { "name": "comment.block.uicss", "begin": "/\\*", "end": "\\*/" },
+    "atRule": {
+      "patterns": [
+        {
+          "name": "meta.at-rule.import.uicss",
+          "begin": "(@import)\\b", "end": ";",
+          "beginCaptures": { "1": { "name": "keyword.control.at-rule.import.uicss" } },
+          "patterns": [ { "include": "#string" }, { "include": "#comment" } ]
+        },
+        {
+          "name": "meta.at-rule.keyframes.uicss",
+          "begin": "(@keyframes)\\s+([\\w-]+)", "end": "(?<=\\})",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.at-rule.keyframes.uicss" },
+            "2": { "name": "entity.name.function.keyframes.uicss" }
+          },
+          "patterns": [
+            { "include": "#comment" },
+            {
+              "begin": "\\{", "end": "\\}",
+              "patterns": [
+                { "include": "#comment" },
+                { "match": "\\b(from|to)\\b|[\\d.]+%", "name": "entity.other.keyframe-offset.uicss" },
+                { "begin": "\\{", "end": "\\}", "patterns": [ { "include": "#declarations" } ] }
+              ]
+            }
+          ]
+        },
+        { "match": "@[\\w-]+", "name": "keyword.control.at-rule.uicss" }
+      ]
+    },
+    "rule": {
+      "begin": "(?=[^\\s@}/])", "end": "(?<=\\})",
+      "patterns": [
+        { "include": "#comment" },
+        {
+          "begin": "\\{", "end": "\\}",
+          "beginCaptures": { "0": { "name": "punctuation.section.property-list.begin.uicss" } },
+          "endCaptures": { "0": { "name": "punctuation.section.property-list.end.uicss" } },
+          "name": "meta.property-list.uicss",
+          "patterns": [ { "include": "#declarations" } ]
+        },
+        { "include": "#selector" }
+      ]
+    },
+    "selector": {
+      "patterns": [
+        { "match": "::?(?:hover|focus|focus-within|active|checked|disabled|selected|entering|leaving|root)\\b", "name": "entity.other.attribute-name.pseudo-class.uicss" },
+        { "match": "::?[\\w-]+", "name": "entity.other.attribute-name.pseudo-class.unknown.uicss" },
+        { "match": "\\.[A-Za-z_][\\w-]*", "name": "entity.other.attribute-name.class.uicss" },
+        { "match": "#[A-Za-z_][\\w-]*", "name": "entity.other.attribute-name.id.uicss" },
+        { "match": "\\b[A-Z][A-Za-z0-9]*\\b", "name": "entity.name.tag.uicss" },
+        { "match": "\\*", "name": "entity.name.tag.wildcard.uicss" },
+        { "match": "[>+~,]", "name": "keyword.operator.combinator.uicss" },
+        { "begin": "\\[", "end": "\\]", "name": "meta.attribute-selector.uicss", "patterns": [ { "include": "#string" } ] }
+      ]
+    },
+    "declarations": {
+      "patterns": [
+        { "include": "#comment" },
+        {
+          "match": "(--[\\w-]+)\\s*(:)",
+          "captures": {
+            "1": { "name": "variable.other.custom-property.uicss" },
+            "2": { "name": "punctuation.separator.key-value.uicss" }
+          }
+        },
+        {
+          "match": "(-?[a-z][\\w-]*)\\s*(:)",
+          "captures": {
+            "1": { "name": "support.type.property-name.uicss" },
+            "2": { "name": "punctuation.separator.key-value.uicss" }
+          }
+        },
+        { "include": "#value" },
+        { "match": ";", "name": "punctuation.terminator.rule.uicss" }
+      ]
+    },
+    "value": {
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#string" },
+        { "match": "#[0-9a-fA-F]{3,8}\\b", "name": "constant.other.color.rgb-value.uicss" },
+        { "match": "!important", "name": "keyword.other.important.uicss" },
+        {
+          "match": "(?<![\\w.-])-?(?:\\d+\\.?\\d*|\\.\\d+)(px|%|s|ms|deg|vw|vh|rem|em|fr)?(?![\\w.])",
+          "name": "constant.numeric.uicss",
+          "captures": { "1": { "name": "keyword.other.unit.uicss" } }
+        },
+        { "match": "var(?=\\()", "name": "support.function.var.uicss" },
+        { "match": "\\b(?:rgba?|hsla?|linear-gradient|repeating-linear-gradient|radial-gradient|translate[XY]?|scale[XY]?|rotate|url|cubic-bezier|steps|fill-parent-flow|calc|min|max|clamp)(?=\\()", "name": "support.function.uicss" },
+        { "match": "--[\\w-]+", "name": "variable.other.custom-property.uicss" },
+        { "match": "\\b(?:ease|ease-in|ease-out|ease-in-out|linear|step-start|step-end)\\b", "name": "support.constant.easing.uicss" },
+        { "match": "[a-zA-Z_][\\w-]*", "name": "support.constant.property-value.uicss" }
+      ]
+    },
+    "string": {
+      "patterns": [
+        { "name": "string.quoted.double.uicss", "begin": "\"", "end": "\"" },
+        { "name": "string.quoted.single.uicss", "begin": "'", "end": "'" }
+      ]
+    }
+  }
+}

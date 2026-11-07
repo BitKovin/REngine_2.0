@@ -222,6 +222,11 @@ UiComputedStyle& UiElem::Style()
 void UiElem::SetAttribute(const std::string& name, const std::string& value)
 {
     UiSystem::AssertUiThread();
+    if (m_runtimeAttrs.find(name) == m_runtimeAttrs.end())
+    {
+        const auto markup = Attributes.find(name);
+        m_runtimeAttrs[name] = { markup != Attributes.end(), markup != Attributes.end() ? markup->second : std::string() };
+    }
     Attributes[name] = value;
     ApplyAttributeValue(name, value, false);
     MarkStyleDirty();
@@ -230,6 +235,7 @@ void UiElem::SetAttribute(const std::string& name, const std::string& value)
 void UiElem::SetVar(const std::string& name, const std::string& value)
 {
     UiSystem::AssertUiThread();
+    m_runtimeVars.insert(name);
     m_vars[name] = value;
     m_numVars.erase(name);
     std::vector<UiElem*> all;
@@ -245,6 +251,7 @@ void UiElem::SetVar(const std::string& name, double value)
     UiSystem::AssertUiThread();
     char buffer[64];
     std::snprintf(buffer, sizeof(buffer), "%.6g", value);
+    m_runtimeVars.insert(name);
     m_vars[name] = std::string(buffer);
     m_numVars[name] = value;   // before the attributes are re-applied, so format specs see the number
     std::vector<UiElem*> all;
@@ -705,6 +712,60 @@ void UiElem::OnPointerDown(glm::vec2 local)
     m_dragStart = m_dragLast = screen;
     m_dragTarget->m_dragVelocity = glm::vec2(0.f);
     m_dragMoved = false;
+    m_barDrag = false;
+    float grab = 0.f;
+    if (BarHit(*m_dragTarget, screen, grab))
+    {
+        // a press on the scrollbar moves the thumb, not the content under it
+        m_barDrag = true;
+        m_barGrab = grab;
+        m_dragMoved = true;
+        SuppressActivate = true;
+        m_dragTarget->m_dragging = true;
+        BarDragTo(*m_dragTarget, screen);
+    }
+}
+
+// Is the point on the visible scrollbar track of `container`? `grab` is where inside the thumb it is held
+// (the middle of the thumb when the press is on the track beside it, so the thumb jumps under the pointer).
+bool UiElem::BarHit(UiElem& container, glm::vec2 screen, float& grab) const
+{
+    UiElem* bar = container.ScrollbarElem();
+    if (bar == nullptr || container.MaxScroll().y <= 0.5f || bar->BorderRect.W <= 0.f || bar->BorderRect.H <= 0.f)
+        return false;
+    const glm::vec2 p = TransformPoint(glm::inverse(container.AbsoluteTransform), screen);
+    const float slop = 4.f;   // the bar is thin: a few pixels either side still count
+    if (p.x < bar->BorderRect.X - slop || p.x > bar->BorderRect.X + bar->BorderRect.W + slop ||
+        p.y < bar->BorderRect.Y || p.y > bar->BorderRect.Y + bar->BorderRect.H)
+        return false;
+    grab = 0.f;
+    for (auto& c : bar->children)
+        if (IsElem(c.get()))
+        {
+            const UiRect& t = static_cast<UiElem&>(*c).BorderRect;
+            const float y = p.y - bar->BorderRect.Y;
+            grab = (y >= t.Y && y <= t.Y + t.H) ? y - t.Y : t.H * 0.5f;
+        }
+    return true;
+}
+
+void UiElem::BarDragTo(UiElem& container, glm::vec2 screen)
+{
+    UiElem* bar = container.ScrollbarElem();
+    if (bar == nullptr)
+        return;
+    float thumbH = 0.f;
+    for (auto& c : bar->children)
+        if (IsElem(c.get()))
+            thumbH = static_cast<UiElem&>(*c).BorderRect.H;
+    const float range = bar->BorderRect.H - thumbH;
+    const float maxY = container.MaxScroll().y;
+    if (range <= 0.f || maxY <= 0.f)
+        return;
+    const glm::vec2 p = TransformPoint(glm::inverse(container.AbsoluteTransform), screen);
+    const float t = std::clamp((p.y - bar->BorderRect.Y - m_barGrab) / range, 0.f, 1.f);
+    container.ScrollTarget.y = t * maxY;
+    container.m_dragVelocity = glm::vec2(0.f);
 }
 
 void UiElem::OnPointerMove(glm::vec2 local)
@@ -713,6 +774,11 @@ void UiElem::OnPointerMove(glm::vec2 local)
     if (c == nullptr || !IsElem(c))
         return;
     const glm::vec2 screen = TransformPoint(AbsoluteTransform, local);
+    if (m_barDrag)
+    {
+        BarDragTo(*c, screen);
+        return;
+    }
     if (!m_dragMoved)
     {
         if (glm::length(screen - m_dragStart) < 8.f)
@@ -735,6 +801,7 @@ void UiElem::OnPointerUp(glm::vec2)
 {
     UiElem* c = m_dragTarget;
     m_dragTarget = nullptr;
+    m_barDrag = false;
     if (c != nullptr && IsElem(c))
         c->m_dragging = false;
     if (!m_dragMoved)

@@ -5,7 +5,10 @@
 #include <QMainWindow>
 #include <QMap>
 #include <QRectF>
+#include <QElapsedTimer>
 #include <QTimer>
+
+#include "UiDatabase.h"
 
 class CodeEditor;
 class GameSession;
@@ -23,6 +26,14 @@ class QTreeView;
 class QTreeWidget;
 class QTreeWidgetItem;
 class TestPanel;
+class EmbeddedGameView;
+class QStackedWidget;
+class PageTree;
+class PaletteList;
+class PropertiesPanel;
+class XmlModel;
+struct XmlNode;
+struct TextEdit;
 
 class MainWindow : public QMainWindow
 {
@@ -87,6 +98,19 @@ private:
     // command palette
     void ShowPalette();
 
+    // visual editing (VisualEdit.cpp): every change is a small splice of the page source
+    void BuildVisualEditing(QDockWidget* leftTabsWith, QDockWidget* rightTabsWith);
+    CodeEditor* EditorForItem(QTreeWidgetItem* item);
+    bool ParseItem(QTreeWidgetItem* item, CodeEditor*& editor, XmlModel& model, XmlNode*& node);
+    bool ApplyEdits(CodeEditor* editor, const QVector<TextEdit>& edits, const QString& what);
+    void UpdateProperties();
+    void InsertTag(const QString& tag, QTreeWidgetItem* target, int where);
+    void MoveElement(QTreeWidgetItem* source, QTreeWidgetItem* target, int where);
+    QTreeWidgetItem* ItemByPath(const QString& path) const;
+    void ClearSelection();
+    void FillPalette(const QString& filter);
+    void SetPlayMode(bool play);
+
     QStackedWidget* m_stack = nullptr;
     QStackedWidget* m_centerStack = nullptr;
     QWidget* m_welcome = nullptr;
@@ -103,7 +127,18 @@ private:
     QFileSystemModel* m_model = nullptr;
 
     PreviewView* m_preview = nullptr;
-    QTreeWidget* m_hierarchy = nullptr;
+    EmbeddedGameView* m_embed = nullptr;
+    QStackedWidget* m_previewStack = nullptr;
+    bool m_embedded = false;          // Play mode shows the game window itself
+    PageTree* m_hierarchy = nullptr;
+    PropertiesPanel* m_properties = nullptr;
+    PaletteList* m_palette = nullptr;
+    QDockWidget* m_propertiesDock = nullptr;
+    QDockWidget* m_paletteDock = nullptr;
+    UiDatabase m_db;
+    bool m_play = false;
+    QElapsedTimer m_lastMove;
+    QString m_dropTag;          // widget dropped on the preview, waiting for the element under the mouse
     QTableWidget* m_inspector = nullptr;
     QTableWidget* m_problems = nullptr;
     QPlainTextEdit* m_log = nullptr;
@@ -132,6 +167,8 @@ private:
     QAction* m_actPalette = nullptr;
     QAction* m_actOpen = nullptr;
     QAction* m_actHelp = nullptr;
+    QAction* m_actEditMode = nullptr;
+    QAction* m_actPlayMode = nullptr;
     QAction* m_actCloseTab = nullptr;
     QList<QAction*> m_paletteActions;
 };

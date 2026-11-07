@@ -20,7 +20,21 @@ qt_add_executable(UiStudio
     PreviewView.h PreviewView.cpp
     Templates.h Templates.cpp
     TestPanel.h TestPanel.cpp
+    XmlModel.h XmlModel.cpp
+    UiDatabase.h UiDatabase.cpp
+    PageTree.h PageTree.cpp
+    PropertiesPanel.h PropertiesPanel.cpp
+    EmbeddedGameView.h EmbeddedGameView.cpp
+    VisualEdit.cpp
     MainWindow.h MainWindow.cpp
 )
 
 target_link_libraries(UiStudio PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
+
+# Copy the Qt runtime next to the program after every build, for the configuration being built.
+if(WIN32 AND TARGET Qt6::windeployqt)
+    add_custom_command(TARGET UiStudio POST_BUILD
+        COMMAND Qt6::windeployqt --no-translations --no-system-d3d-compiler --no-opengl-sw
+                $<IF:$<CONFIG:Debug>,--debug,--release> $<TARGET_FILE:UiStudio>
+        COMMENT "Deploying the Qt runtime")
+endif()

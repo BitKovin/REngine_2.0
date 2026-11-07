@@ -17,8 +17,15 @@ void VideoSettingsData::ApplyToEngine() const
 
 
 
+    // -lock_window: a tool owns the window (UI Studio embeds it), so the game must not change its size or mode.
+    const auto& launchArguments = EngineMain::MainInstance->Arguments;
+    const bool windowLocked = launchArguments.find("lock_window") != launchArguments.end();
+
     // Window mode first, same three-way switch UiVideoSettings::UpdateWindowMode uses.
-    if (WindowMode == "fullscreen")
+    if (windowLocked)
+    {
+    }
+    else if (WindowMode == "fullscreen")
         SDL_SetWindowFullscreen(gWindow, SDL_WINDOW_FULLSCREEN);
     else if (WindowMode == "borderless")
         SDL_SetWindowFullscreen(gWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
@@ -26,7 +33,10 @@ void VideoSettingsData::ApplyToEngine() const
         SDL_SetWindowFullscreen(gWindow, 0);
 
     Uint32 flags = SDL_GetWindowFlags(gWindow);
-    if (flags & SDL_WINDOW_FULLSCREEN)
+    if (windowLocked)
+    {
+    }
+    else if (flags & SDL_WINDOW_FULLSCREEN)
     {
         SDL_DisplayMode mode;
         mode.format = SDL_PIXELFORMAT_UNKNOWN;

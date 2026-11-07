@@ -135,6 +135,13 @@ public:
     std::vector<std::string> Classes;    // classes from markup (class="")
     std::vector<std::string> CodeClasses;// classes from SetClass
     std::map<std::string, std::string> Attributes;   // raw values, as written
+    // Set from code with SetAttribute / SetVar: name -> the markup value it replaced (attributes), or just the name (vars).
+    // Hot reload carries these over to the rebuilt page; what the markup itself says is taken from the new file.
+    std::map<std::string, std::pair<bool, std::string>> m_runtimeAttrs;
+    std::set<std::string> m_runtimeVars;
+    // Widgets that hold a value of their own (slider, drop down, text entry) report it here so a reload can put it back.
+    virtual bool CaptureValue(double& number, std::string& text) const { return false; }
+    virtual void RestoreValue(double number, const std::string& text) {}
     float m_paintOpacity = 1.f;          // effective opacity while painting (elements read it in PaintContent)
 
     // dirty flags live on the root: setting any marks the whole root dirty
@@ -207,7 +214,11 @@ private:
     UiElem* m_scrollbar = nullptr;
     glm::vec2 m_dragLast = glm::vec2(0.f), m_dragStart = glm::vec2(0.f), m_dragVelocity = glm::vec2(0.f);
     bool m_dragging = false, m_dragMoved = false;
-    UiElem* m_dragTarget = nullptr;              // the scroll container a drag that started on a descendant scrolls
+    bool m_barDrag = false;                      // this press is on the scrollbar of m_dragTarget: the pointer moves the thumb
+    float m_barGrab = 0.f;                       // pointer offset inside the thumb at the press
+    bool BarHit(UiElem& container, glm::vec2 screen, float& grab) const;
+    void BarDragTo(UiElem& container, glm::vec2 screen);
+    UiElem* m_dragTarget = nullptr;             // the scroll container a drag that started on a descendant scrolls
     void ApplyPointerStates();
     int m_pressedTouchId = -1;
 };

@@ -4,7 +4,6 @@
 #include <Time.hpp>
 #include <UI/Markup/UiVariables.h>
 #include <UI/UiCustomShaderImage.hpp>
-#include <UI/UiDropdown.hpp>
 #include <UI/UiSlider.hpp>
 #include <UI/UiTextBox.hpp>
 #include <UI/UiVideo.hpp>
@@ -18,18 +17,6 @@ namespace
 {
     bool IsTrue(const std::string& v) { return !(v.empty() || v == "0" || v == "false" || v == "False"); }
 
-    std::vector<std::string> SplitBars(const std::string& s)
-    {
-        std::vector<std::string> out;
-        std::string cur;
-        for (char c : s)
-        {
-            if (c == '|') { out.push_back(cur); cur.clear(); }
-            else cur += c;
-        }
-        out.push_back(cur);
-        return out;
-    }
 }
 
 // ── wrapper base
@@ -92,95 +79,6 @@ void UiElemSlider::Tick()
 }
 
 void UiElemSlider::Update()
-{
-    UiElem::Update();
-    m_binding.Poll();
-}
-
-// ── DropDown
-
-UiElemDropDown::UiElemDropDown()
-{
-    TagName = "DropDown";
-    m_natural = glm::vec2(360.f, 56.f);
-    m_drop = std::make_shared<UiDropdown>();
-    m_drop->Placeholder = "";
-    Attach(m_drop);
-    m_binding.ReadWidget = [this]() { return static_cast<double>(Selected()); };
-    m_binding.WriteWidget = [this](double v) { SetSelected(static_cast<int>(v)); };
-}
-
-int UiElemDropDown::Selected() const { return m_drop->SelectedIndex; }
-
-void UiElemDropDown::SetSelected(int index)
-{
-    const int count = static_cast<int>(m_drop->GetOptions().size());
-    m_drop->SelectedIndex = count == 0 ? -1 : std::clamp(index, 0, count - 1);
-}
-
-void UiElemDropDown::SetOptions(const std::vector<std::string>& options)
-{
-    m_drop->SetOptions(options);
-    SetSelected(m_drop->SelectedIndex);
-}
-
-void UiElemDropDown::RefreshBoundOptions()
-{
-    if (m_optionsFromAttribute || !m_binding.IsBound() || m_binding.Entry()->Type != UiSettings::Kind::Choice)
-        return;
-    std::vector<std::string> localised;
-    for (const std::string& c : UiSettings::ChoicesOf(*m_binding.Entry()))
-        localised.push_back(UiSubstitute(*this, c, nullptr));
-    if (localised != m_drop->GetOptions())
-    {
-        SetOptions(localised);
-        // the list arrives after the value was bound (or changes at run time): show the setting's value again, never the clamped
-        // index the new list produced, or opening the page would write that index back into the setting
-        if (m_binding.Entry()->Get)
-            SetSelected(static_cast<int>(m_binding.Entry()->Get()));
-        m_binding.Resync();
-    }
-}
-
-bool UiElemDropDown::ApplyAttribute(const std::string& name, const std::string& value)
-{
-    if (name == "options")
-    {
-        m_optionsFromAttribute = true;
-        SetOptions(SplitBars(value));
-        return true;
-    }
-    if (name == "selected-index")
-    {
-        SetSelected(std::atoi(value.c_str()));
-        m_binding.Resync();
-        return true;
-    }
-    if (name == "bind")
-    {
-        m_binding.SetBind(value);
-        RefreshBoundOptions();
-        return true;
-    }
-    return false;
-}
-
-void UiElemDropDown::Tick()
-{
-    const UiComputedStyle& s = Computed();
-    m_drop->TextColor = s.Color;
-    m_drop->ArrowColor = s.Color;
-    m_drop->FontSize = s.FontSize;
-    if (m_drop->Font == 0)
-        m_drop->Font = UiRenderer::LoadFont("GameData/fonts/NotoSans.ttf", StaticFontSize);
-    m_drop->ArrowFontSize = s.FontSize;
-    m_drop->HeaderColor = UiCustomColor(s, "--header-color", glm::vec4(0.20f, 0.20f, 0.20f, 1.f));
-    m_drop->HeaderHoverColor = UiCustomColor(s, "--header-hover-color", glm::vec4(0.30f, 0.30f, 0.30f, 1.f));
-    m_drop->ItemColor = UiCustomColor(s, "--item-color", glm::vec4(0.15f, 0.15f, 0.15f, 1.f));
-    m_drop->ItemHoverColor = UiCustomColor(s, "--item-hover-color", glm::vec4(0.28f, 0.28f, 0.28f, 1.f));
-}
-
-void UiElemDropDown::Update()
 {
     UiElem::Update();
     m_binding.Poll();

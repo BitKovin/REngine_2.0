@@ -1,0 +1,951 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>UI System Reference</title><style>
+:root{--bg:#fbfaf8;--fg:#1d1b19;--dim:#6f6a64;--line:#e3dfd8;--panel:#f3f0ea;--code:#1e1d1b;--codefg:#ece7de;--core:#2f6f8f;--kit:#a8501c;--ok:#2e7d4f;--warn:#a2631a;--link:#245f9a}
+@media (prefers-color-scheme:dark){:root{--bg:#171614;--fg:#ece8e1;--dim:#9b958c;--line:#33302b;--panel:#201e1b;--code:#0f0e0d;--codefg:#e6e0d6;--core:#6bb0d1;--kit:#e49a64;--ok:#6cc08c;--warn:#e0aa5c;--link:#7fb3ea}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,Segoe UI,Roboto,sans-serif}
+.wrap{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1280px;margin:0 auto}
+nav{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:24px 16px;border-right:1px solid var(--line);font-size:14px}
+nav b{display:block;margin:14px 0 4px;color:var(--dim);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+nav a{display:block;color:var(--fg);text-decoration:none;padding:3px 8px;border-radius:6px}nav a:hover{background:var(--panel)}
+main{padding:32px 40px 80px;min-width:0}
+h1{font-size:2.1rem;margin:0 0 8px}h1.part{margin-top:64px;padding-top:24px;border-top:3px solid var(--line)}
+h2{font-size:1.5rem;margin:48px 0 12px;padding-top:12px;border-top:1px solid var(--line)}h3{font-size:1.2rem;margin:28px 0 8px}h4{font-size:1rem;margin:20px 0 6px}
+p,li{max-width:78ch}a{color:var(--link)}.dim{color:var(--dim)}.lead{font-size:1.1rem}
+code{font:13px/1.4 ui-monospace,Consolas,Menlo,monospace;background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+pre{background:var(--code);color:var(--codefg);border-radius:10px;padding:14px 16px;overflow:auto;margin:12px 0}
+pre code{background:none;border:0;padding:0;color:inherit;font-size:13px;line-height:1.5}
+.tw{overflow:auto;margin:10px 0}table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{background:var(--panel);font-weight:600;position:sticky;top:0}
+table.plain{width:auto}
+.badge{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:20px;padding:2px 9px;vertical-align:middle;margin-left:8px;color:#fff}
+.badge.core{background:var(--core)}.badge.kit{background:var(--kit)}
+.legend{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.chip{font-size:.7rem;font-weight:600;border:1px solid var(--line);border-radius:12px;padding:1px 8px;color:var(--dim)}.chip.ok{color:var(--ok);border-color:var(--ok)}.chip.warn{color:var(--warn);border-color:var(--warn)}
+.callout{border-left:4px solid var(--warn);background:var(--panel);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0;max-width:78ch}
+.tag{border:1px solid var(--line);border-radius:12px;padding:6px 18px 14px;margin:16px 0}.tag h4{margin:12px 0 4px;font-size:1.1rem}
+footer{margin-top:60px;color:var(--dim);font-size:13px}
+@media(max-width:860px){.wrap{display:block}nav{position:static;height:auto;border:0;border-bottom:1px solid var(--line)}main{padding:20px 16px}}
+</style></head><body><div class="wrap"><nav><b>Core</b><a href="#overview">Overview</a><a href="#structure">File structure</a><a href="#elements">Elements</a><a href="#richtext">Text and rich text</a><a href="#vars">Variables, localisation</a><a href="#styles">Styles</a><a href="#layout">Layout, scrolling</a><a href="#painting">Painting</a><a href="#motion">Motion</a><a href="#events">Events, code-behind</a><a href="#components">Components</a><a href="#menus">Menu stack, input</a><a href="#binding">Settings binding</a><a href="#hot">Hot reload</a><a href="#tooling">Tools</a><b>Kit</b><a href="#kit-use">Using the kit</a><a href="#kit-components">Components</a><a href="#kit-pages">Pages</a><a href="#kit-settings">Settings</a><b>Appendix</b><a href="#tags-ref">CSS properties</a></nav><main>
+<header class="hero">
+  <h1>UI System Reference</h1>
+  <p>Markup (XML), styles (a CSS dialect), text, motion, menus and tooling of the engine's UI. Built from the game's <code>uidb.json</code> (engine build Nov  7 2026 20:28:12, game StealthAction): the tables are what the engine registered.</p>
+  <p class="legend"><span class="badge core">Core</span> engine functionality, the same for every game.
+     <span class="badge kit">Kit</span> the shared menu kit built <em>on top of</em> the core: pages, components and a theme. A game can use the core without the kit.</p>
+</header>
+
+<section id="overview"><h2>1. Overview <span class="badge core">Core</span></h2>
+<p>A screen is an <b>XML file</b> (structure and events) plus <b>CSS files</b> (look). C++ is only needed for logic: a class registered for a layout (<em>code-behind</em>) can set variables and classes, handle actions and react to menu events. Data flows one way: the game sets variables and classes, the markup shows them.</p>
+<table class="plain"><tr><th>You write</th><th>Where</th></tr>
+<tr><td>Layouts, components</td><td><code>GameData/ui/**/*.xml</code></td></tr>
+<tr><td>Styles</td><td><code>GameData/ui/**/*.css</code>, or a <code>&lt;style&gt;</code> block in the XML</td></tr>
+<tr><td>Text</td><td><code>${KEY}</code> in the markup, strings in the game's localisation files</td></tr>
+<tr><td>Logic</td><td>C++ code-behind (optional), registered with <code>UI_REGISTER_CODE_BEHIND</code></td></tr></table>
+<p>Smallest useful page:</p><pre><code>&lt;root&gt;
+  &lt;styles&gt;
+    &lt;include src="GameData/ui/theme.css"/&gt;      &lt;!-- shared look, a separate .css file --&gt;
+    &lt;style&gt;                                     &lt;!-- and/or styles only this file needs --&gt;
+      .menu { flow-children: down; gap: 12px; padding: 24px; }
+    &lt;/style&gt;
+  &lt;/styles&gt;
+  &lt;Panel class="menu"&gt;
+    &lt;Label text="Hello {name}"/&gt;
+    &lt;TextButton text="${MENU_PLAY}" onactivate="Push('GameData/ui/play.xml')"/&gt;
+  &lt;/Panel&gt;
+&lt;/root&gt;</code></pre>
+<p>Errors never pass silently: an unknown tag, attribute or malformed value is reported with <code>file:line</code> when the page loads. The <a href="#tooling">VS Code extension</a> shows the same problems while you type.</p>
+<p><b>Coordinates.</b> The UI is always 1080 units tall (width follows the aspect ratio). One UI unit (<code>px</code>) is one pixel of that target, whatever the window size. Legacy <code>Ui*</code> widgets can sit inside markup, but new work should use the tags below.</p>
+</section>
+
+<section id="structure"><h2>2. File structure <span class="badge core">Core</span></h2><pre><code>&lt;root&gt;
+  &lt;imports&gt;                                         &lt;!-- optional: component files this file uses from elsewhere --&gt;
+    &lt;import src="GameData/ui/shared/Fancy.xml"/&gt;
+  &lt;/imports&gt;
+  &lt;styles&gt;                                          &lt;!-- optional, applied in the order written --&gt;
+    &lt;include src="GameData/ui/theme.css"/&gt;
+    &lt;style&gt; .row { height: 40px; } &lt;/style&gt;
+  &lt;/styles&gt;
+  &lt;snippets&gt;                                        &lt;!-- optional: file-local templates (list rows, built from code) --&gt;
+    &lt;snippet name="Row" params="index=0"&gt;
+      &lt;Label text="Item {index}"/&gt;
+    &lt;/snippet&gt;
+  &lt;/snippets&gt;
+  &lt;Panel id="page"&gt;                                 &lt;!-- exactly one top element: any tag, or &lt;Component&gt; --&gt;
+    ...
+  &lt;/Panel&gt;
+&lt;/root&gt;</code></pre>
+<ul>
+<li><b>Exactly one top element</b> inside <code>&lt;root&gt;</code>: any tag, or a <code>&lt;Component&gt;</code> (<a href="#components">Components</a>).</li>
+<li><b>Styles</b> from <code>&lt;include&gt;</code> and <code>&lt;style&gt;</code> are applied in the order written, as one cascade. CSS files can <code>@import</code> each other (imports must come first in the file).</li>
+<li><b>Escaping.</b> XML rules apply: write <code>&amp;lt;</code>, <code>&amp;gt;</code>, <code>&amp;amp;</code> in attribute values and text. This matters for <a href="#richtext">rich text</a>, whose tags must be escaped.</li>
+<li><b>Braces.</b> <code>{name}</code> is a variable; write <code>{{</code> and <code>}}</code> for literal braces.</li>
+<li>A page gets the class <code>page</code> when it is pushed on a menu stack, and the root gets <code>:root</code>.</li>
+</ul></section>
+
+<section id="elements"><h2>3. Elements <span class="badge core">Core</span></h2>
+<p>These tags are built into the engine. Every element accepts the common attributes first, then its own.</p>
+<h3>Common attributes</h3><div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>id</code></td><td>string</td><td></td><td>Element id, unique inside its document instance</td></tr>
+<tr><td><code>class</code></td><td>string</td><td></td><td>Space separated style classes</td></tr>
+<tr><td><code>style</code></td><td>string</td><td></td><td>Inline declarations, e.g. width: 100px; height: 20px</td></tr>
+<tr><td><code>visible</code></td><td>bool</td><td><code>true</code></td><td>false collapses the element</td></tr>
+<tr><td><code>enabled</code></td><td>bool</td><td><code>true</code></td><td>false disables focus and activation</td></tr>
+<tr><td><code>selected</code></td><td>bool</td><td><code>false</code></td><td>Sets the :selected state</td></tr>
+<tr><td><code>hittest</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take pointer hits</td></tr>
+<tr><td><code>default-focus</code></td><td>bool</td><td><code>false</code></td><td>The element a menu page focuses first (first in document order)</td></tr>
+<tr><td><code>close-on-back</code></td><td>bool</td><td><code>true</code></td><td>Host option of a menu page: back pops it</td></tr>
+<tr><td><code>shows-below</code></td><td>bool</td><td><code>false</code></td><td>Host option of a menu page: pages under it stay visible</td></tr>
+<tr><td><code>pauses-game</code></td><td>bool</td><td><code>false</code></td><td>Host option of a menu page: the game is paused while it is on the stack</td></tr>
+<tr><td><code>hides-hud</code></td><td>bool</td><td><code>false</code></td><td>Host option of a menu page: the HUD is hidden while it is on the stack</td></tr>
+<tr><td><code>confirm-changes</code></td><td>bool</td><td><code>false</code></td><td>Menu page: back with changed bound settings asks to apply or discard them first</td></tr>
+<tr><td><code>nav-up</code></td><td>string</td><td></td><td>#id of the element focus moves to on up (overrides spatial navigation)</td></tr>
+<tr><td><code>nav-down</code></td><td>string</td><td></td><td>#id of the element focus moves to on down</td></tr>
+<tr><td><code>nav-left</code></td><td>string</td><td></td><td>#id of the element focus moves to on left</td></tr>
+<tr><td><code>nav-right</code></td><td>string</td><td></td><td>#id of the element focus moves to on right</td></tr>
+<tr><td><code>onactivate</code></td><td>actions</td><td></td><td>Calls run when the element is activated, e.g. Push('ui/a.xml'); PlaySound('x.wav')</td></tr>
+<tr><td><code>onmouseover</code></td><td>actions</td><td></td><td>Calls run when the pointer enters the element</td></tr>
+<tr><td><code>onmouseout</code></td><td>actions</td><td></td><td>Calls run when the pointer leaves the element</td></tr>
+<tr><td><code>onfocus</code></td><td>actions</td><td></td><td>Calls run when the element receives navigation focus</td></tr>
+<tr><td><code>onblur</code></td><td>actions</td><td></td><td>Calls run when the element loses navigation focus</td></tr>
+<tr><td><code>oncancel</code></td><td>actions</td><td></td><td>Calls run when back is requested on this page</td></tr>
+<tr><td><code>onload</code></td><td>actions</td><td></td><td>Calls run once after the element's first layout</td></tr>
+</tbody></table></div>
+<p class="dim"><code>on…</code> attributes hold a list of calls separated by <code>;</code> (see <a href="#events">Events and actions</a>). <code>close-on-back</code>, <code>shows-below</code>, <code>pauses-game</code>, <code>hides-hud</code>, <code>confirm-changes</code> are <em>host options</em>: only a menu stack reads them, on the page's top element.</p>
+<h3>Tags</h3><div class="tag" id="tag-ActionBar"><h4><code>&lt;ActionBar&gt;</code> <span class="chip">input</span></h4><p>A footer that lists one prompt and label per hotkey button of the top page, plus a Back entry when the page closes on back.</p>
+<p class="dim">No attributes of its own (only the common ones).</p>
+<pre><code>&lt;ActionBar class="action-bar"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-Arc"><h4><code>&lt;Arc&gt;</code> <span class="chip">paint</span></h4><p>A ring segment for cooldowns and radial gauges; the colour is the text colour.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>start</code></td><td>number</td><td><code>0</code></td><td>Start angle in degrees, clockwise from 12 o'clock</td></tr>
+<tr><td><code>sweep</code></td><td>number</td><td><code>360</code></td><td>Sweep in degrees (negative = counter-clockwise)</td></tr>
+<tr><td><code>thickness</code></td><td>number</td><td><code>6</code></td><td>Ring thickness in px</td></tr>
+<tr><td><code>round-caps</code></td><td>bool</td><td><code>false</code></td><td>Round ends</td></tr>
+</tbody></table></div>
+<pre><code>&lt;Arc start="0" sweep="270" thickness="6" round-caps="true"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-Button"><h4><code>&lt;Button&gt;</code> <span class="chip">input</span></h4><p>Focusable, clickable container: it can hold any children. States <code>:hover :active :focus :disabled</code>.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>hotkey</code></td><td>string</td><td></td><td>Input action that activates the button while its page is on top</td></tr>
+<tr><td><code>hotkey-label</code></td><td>text</td><td></td><td>Text shown for the hotkey in an ActionBar (default: the button text)</td></tr>
+</tbody></table></div>
+<pre><code>&lt;Button onactivate="Back()"&gt;&lt;Label text="Resume"/&gt;&lt;/Button&gt;</code></pre>
+</div>
+<div class="tag" id="tag-CircularProgress"><h4><code>&lt;CircularProgress&gt;</code> <span class="chip">paint</span></h4><p>A ring: <code>background-color</code> is the track, <code>color</code> the fill.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>value</code></td><td>number</td><td><code>0</code></td><td>0..1</td></tr>
+<tr><td><code>start-angle</code></td><td>number</td><td><code>0</code></td><td>Degrees clockwise from 12 o'clock</td></tr>
+<tr><td><code>thickness</code></td><td>number</td><td><code>8</code></td><td>Ring thickness in px</td></tr>
+</tbody></table></div>
+<pre><code>&lt;CircularProgress value="0.25" thickness="12"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-DropDown"><h4><code>&lt;DropDown&gt;</code> <span class="chip">input</span></h4><p>A list of choices. Event <code>onvaluechanged</code>; variable <code>value</code> (the index).</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>options</code></td><td>text</td><td></td><td>Items separated by |, localised</td></tr>
+<tr><td><code>selected-index</code></td><td>number</td><td><code>-1</code></td><td>Index of the selected item</td></tr>
+<tr><td><code>bind</code></td><td>string</td><td></td><td>setting:&lt;key&gt;: the widget edits that engine setting and follows it</td></tr>
+</tbody></table></div>
+<pre><code>&lt;DropDown options="Low|Medium|High" selected-index="1"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-Frame"><h4><code>&lt;Frame&gt;</code> <span class="chip">layout</span></h4><p>Builds another layout (<code>src</code>) or a snippet (<code>snippet</code>) inside itself. Changing <code>src</code> rebuilds the content: this is how tab pages work.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>src</code></td><td>path</td><td></td><td>Layout file; changing it rebuilds the content</td></tr>
+<tr><td><code>snippet</code></td><td>string</td><td></td><td>Snippet or component tag of this file</td></tr>
+</tbody></table></div>
+<pre><code>&lt;Frame id="content" src="GameData/ui/kit/pages/sound.xml"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-Image"><h4><code>&lt;Image&gt;</code> <span class="chip">image</span></h4><p>A texture drawn with <code>object-fit</code> / <code>object-position</code>.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>src</code></td><td>path</td><td></td><td>GameData-relative texture path</td></tr>
+</tbody></table></div>
+<pre><code>&lt;Image src="GameData/textures/ui/logo.png" style="object-fit: contain"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-InputPrompt"><h4><code>&lt;InputPrompt&gt;</code> <span class="chip">input</span></h4><p>The image of the key or button that triggers an input action, for the device used last. It collapses when no image exists.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>action</code></td><td>string</td><td></td><td>Input action name</td></tr>
+</tbody></table></div>
+<pre><code>&lt;InputPrompt action="interact"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-Label"><h4><code>&lt;Label&gt;</code> <span class="chip">text</span></h4><p>Text. Content comes from the <code>text</code> attribute or from the element's own text. Wraps, aligns, ellipsizes, and with <code>html="true"</code> understands rich text (see <a href="#richtext">Rich text</a>).</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>text</code></td><td>text</td><td></td><td>Text to show; the element's text content is used when the attribute is absent</td></tr>
+<tr><td><code>html</code></td><td>bool</td><td><code>false</code></td><td>true interprets &lt;b&gt; &lt;i&gt; &lt;color=#rrggbb&gt; &lt;size=NN&gt; &lt;icon=action:NAME&gt; &lt;icon=img:PATH&gt;</td></tr>
+</tbody></table></div>
+<pre><code>&lt;Label text="Score {score:%06d}" style="font-size: 32px"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-ListView"><h4><code>&lt;ListView&gt;</code> <span class="chip">layout</span></h4><p>A virtualised list or grid: only visible rows are built from the snippet and recycled. Needs <code>overflow: scroll</code>; rows get the variable <code>index</code>.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>snippet</code></td><td>string</td><td></td><td>Row snippet; rows get the variable index</td></tr>
+<tr><td><code>count</code></td><td>number</td><td><code>0</code></td><td>Number of items</td></tr>
+<tr><td><code>layout</code></td><td>string</td><td><code>list</code></td><td>list or grid</td></tr>
+<tr><td><code>item-height</code></td><td>number</td><td></td><td>Row height in px</td></tr>
+<tr><td><code>columns</code></td><td>number</td><td><code>1</code></td><td>Columns of a grid</td></tr>
+</tbody></table></div>
+<pre><code>&lt;ListView snippet="Row" count="1000" item-height="40"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-Movie"><h4><code>&lt;Movie&gt;</code> <span class="chip">image</span></h4><p>A video.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>src</code></td><td>path</td><td></td><td>GameData-relative video path</td></tr>
+<tr><td><code>loop</code></td><td>bool</td><td><code>false</code></td><td>Restart at the end</td></tr>
+<tr><td><code>autoplay</code></td><td>bool</td><td><code>true</code></td><td>Accepted; the video starts when first drawn</td></tr>
+<tr><td><code>muted</code></td><td>bool</td><td><code>false</code></td><td>Accepted; the legacy video has no mute field</td></tr>
+</tbody></table></div>
+<pre><code>&lt;Movie src="GameData/videos/intro.mp4" loop="true"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-Panel"><h4><code>&lt;Panel&gt;</code> <span class="chip">layout</span></h4><p>The box: background, border, radius, shadow and the container of other elements. Its <code>flow-children</code> decides how children are placed.</p>
+<p class="dim">No attributes of its own (only the common ones).</p>
+<pre><code>&lt;Panel class="menu"&gt; ... &lt;/Panel&gt;</code></pre>
+</div>
+<div class="tag" id="tag-ProgressBar"><h4><code>&lt;ProgressBar&gt;</code> <span class="chip">paint</span></h4><p>A track with a <code>.fill</code> child whose size is value × content.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>value</code></td><td>number</td><td><code>0</code></td><td>0..1</td></tr>
+<tr><td><code>direction</code></td><td>string</td><td><code>horizontal</code></td><td>horizontal or vertical</td></tr>
+</tbody></table></div>
+<pre><code>&lt;ProgressBar value="0.3"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-RadioButton"><h4><code>&lt;RadioButton&gt;</code> <span class="chip">input</span></h4><p>One of a group. Radios with the same <code>group</code> inside one root exclude each other.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>group</code></td><td>string</td><td></td><td>Radios with the same group exclude each other inside one root</td></tr>
+<tr><td><code>checked</code></td><td>bool</td><td><code>false</code></td><td>Initial state</td></tr>
+<tr><td><code>option</code></td><td>number</td><td></td><td>With bind: the setting value this radio selects</td></tr>
+<tr><td><code>bind</code></td><td>string</td><td></td><td>setting:&lt;key&gt;: the widget edits that engine setting and follows it</td></tr>
+</tbody></table></div>
+<pre><code>&lt;RadioButton group="aa" checked="true"&gt;&lt;Label text="Off"/&gt;&lt;/RadioButton&gt;</code></pre>
+</div>
+<div class="tag" id="tag-ShaderPanel"><h4><code>&lt;ShaderPanel&gt;</code> <span class="chip">image</span></h4><p>A panel drawn by a custom pixel shader. Uniforms are <code>param-NAME="x y z w"</code>.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>shader</code></td><td>path</td><td></td><td>Shader name</td></tr>
+<tr><td><code>param-&lt;name&gt;</code></td><td>text</td><td></td><td>vec4 uniform as 'x y z w'</td></tr>
+</tbody></table></div>
+<pre><code>&lt;ShaderPanel shader="ui/fs_noise" param-tint="1 0.5 0 1"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-Slider"><h4><code>&lt;Slider&gt;</code> <span class="chip">input</span></h4><p>Draggable value. Event <code>onvaluechanged</code>; variable <code>value</code>. Colours come from <code>color</code>, <code>--track-color</code>, <code>--handle-color</code>.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>min</code></td><td>number</td><td><code>0</code></td><td>Smallest value</td></tr>
+<tr><td><code>max</code></td><td>number</td><td><code>1</code></td><td>Largest value</td></tr>
+<tr><td><code>step</code></td><td>number</td><td><code>0</code></td><td>Snap increment (0 = continuous)</td></tr>
+<tr><td><code>value</code></td><td>number</td><td><code>0</code></td><td>Initial value</td></tr>
+<tr><td><code>bind</code></td><td>string</td><td></td><td>setting:&lt;key&gt;: the widget edits that engine setting and follows it</td></tr>
+</tbody></table></div>
+<pre><code>&lt;Slider min="0" max="1" step="0.05" value="0.5"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-TextButton"><h4><code>&lt;TextButton&gt;</code> <span class="chip">input</span></h4><p>A Button with a label made from <code>text</code>.</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>text</code></td><td>text</td><td></td><td>Button text</td></tr>
+<tr><td><code>hotkey</code></td><td>string</td><td></td><td>Input action that activates the button while its page is on top</td></tr>
+<tr><td><code>hotkey-label</code></td><td>text</td><td></td><td>Text shown for the hotkey in an ActionBar (default: the button text)</td></tr>
+</tbody></table></div>
+<pre><code>&lt;TextButton text="Play" onactivate="Push('GameData/ui/play.xml')"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-TextEntry"><h4><code>&lt;TextEntry&gt;</code> <span class="chip">input</span></h4><p>Single-line text field with caret and IME. Event <code>onvaluechanged</code>; variable <code>value</code> (the text).</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>text</code></td><td>text</td><td></td><td>Initial text</td></tr>
+<tr><td><code>placeholder</code></td><td>text</td><td></td><td>Shown while empty</td></tr>
+<tr><td><code>max-length</code></td><td>number</td><td><code>0</code></td><td>0 = unlimited</td></tr>
+<tr><td><code>password</code></td><td>bool</td><td><code>false</code></td><td>Mask the characters</td></tr>
+<tr><td><code>numeric</code></td><td>bool</td><td><code>false</code></td><td>Digits, '-' and '.' only</td></tr>
+</tbody></table></div>
+<pre><code>&lt;TextEntry placeholder="Name" max-length="16"/&gt;</code></pre>
+</div>
+<div class="tag" id="tag-ToggleButton"><h4><code>&lt;ToggleButton&gt;</code> <span class="chip">input</span></h4><p>A Button that toggles <code>:checked</code>. Event <code>onvaluechanged</code>; variable <code>value</code> (0/1).</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>checked</code></td><td>bool</td><td><code>false</code></td><td>Initial state</td></tr>
+<tr><td><code>bind</code></td><td>string</td><td></td><td>setting:&lt;key&gt;: the widget edits that engine setting and follows it</td></tr>
+<tr><td><code>hotkey</code></td><td>string</td><td></td><td>Input action that activates the button while its page is on top</td></tr>
+<tr><td><code>hotkey-label</code></td><td>text</td><td></td><td>Text shown for the hotkey in an ActionBar (default: the button text)</td></tr>
+</tbody></table></div>
+<pre><code>&lt;ToggleButton bind="setting:video.vsync"&gt;&lt;Label text="VSync"/&gt;&lt;/ToggleButton&gt;</code></pre>
+</div>
+<h3>Widgets in practice</h3><pre><code>&lt;Slider id="sl" min="0" max="1" step="0.1" value="0.5" style="width: 300px; height: 28px; --track-color: #262626; --handle-color: #e0a030"/&gt;
+&lt;DropDown id="dd" options="Low|Medium|High" selected-index="0"/&gt;
+&lt;TextEntry id="te" placeholder="name" max-length="16"/&gt;
+&lt;TextEntry password="true"/&gt;      &lt;TextEntry numeric="true"/&gt;
+&lt;ToggleButton id="tg" class="tog"&gt;&lt;Label text="Toggle"/&gt;&lt;/ToggleButton&gt;
+&lt;RadioButton id="r1" group="g" checked="true"&gt;&lt;Label text="A"/&gt;&lt;/RadioButton&gt;
+&lt;RadioButton id="r2" group="g"&gt;&lt;Label text="B"/&gt;&lt;/RadioButton&gt;
+
+&lt;styles&gt;&lt;style&gt;
+  .tog:checked  { background-color: #2c8040; }       /* :checked on toggles and radios */
+  .tog:focus    { border: 2px solid #ffffff; }
+&lt;/style&gt;&lt;/styles&gt;
+&lt;!-- events: onvaluechanged (slider, drop-down, text entry, toggle, radio) --&gt;</code></pre>
+<h3>Progress and gauges</h3><pre><code>&lt;styles&gt;&lt;style&gt;
+  #bar  { width: 400px; height: 20px; background-color: #222; }      /* the track */
+  #bar .fill { background-color: #d04030; }                           /* the fill: a child, sized by value */
+  #ring { width: 100px; height: 100px; color: #40c0ff; background-color: #223344; }   /* color = fill, background = track */
+  #cd   { width: 64px; height: 64px; color: #fff; }
+&lt;/style&gt;&lt;/styles&gt;
+&lt;ProgressBar id="bar" value="0.3"/&gt;                          &lt;ProgressBar value="0.5" direction="vertical"/&gt;
+&lt;CircularProgress id="ring" value="0.25" thickness="12"/&gt;
+&lt;Arc id="cd" start="0" sweep="270" thickness="6" round-caps="true"/&gt;     &lt;!-- a cooldown ring: sweep it from code --&gt;
+&lt;!-- code: bar-&gt;SetVar / SetAttribute("value", "0.6");  with a transition on .fill { width } the bar eases --&gt;</code></pre>
+<h3>Media</h3><pre><code>&lt;Image src="GameData/textures/ui/logo.png" style="object-fit: contain; width: 300px; height: 120px"/&gt;
+&lt;Movie src="GameData/videos/intro.mp4" loop="true"/&gt;
+&lt;ShaderPanel shader="ui/fs_noise" param-tint="1 0.5 0 1" style="width: 200px; height: 200px"/&gt;   &lt;!-- vec4 uniforms as 'x y z w' --&gt;</code></pre>
+<h3>Legacy elements</h3>
+<p>The older <code>Ui*</code> classes (<code>UiImage</code>, <code>UiText</code>, <code>UiButton</code>, <code>UiVerticalBox</code>…) can be placed in markup with their own anchor attributes (<code>Position</code>, <code>Size</code>, <code>Origin</code>…). They are positioned in the parent's content box, and styled only by size and position. Use them only for code that already exists.</p>
+</section>
+
+<section id="richtext"><h2>4. Text and rich text <span class="badge core">Core</span></h2>
+<p>All text is drawn by <code>&lt;Label&gt;</code>. It uses signed-distance-field glyphs, so one font works at every size, and stroke, shadow and glow come from the same glyphs. A line is shaped and wrapped once and reused until its text, font, size, width or variables change.</p>
+<h3>Plain text</h3>
+<p>Text comes from <code>text="…"</code> or from the element's own text. Variables <code>{x}</code> and localisation keys <code>${KEY}</code> are expanded first (see <a href="#vars">Variables</a>). Without <code>html="true"</code> a <code>&lt;</code> is just a character.</p>
+<h3 id="rich">Rich text: <code>html="true"</code></h3>
+<p>With <code>html="true"</code> the text may contain these tags. Tags nest, and an unclosed tag lasts to the end.</p>
+<div class="tw"><table class=""><thead><tr><th>Tag</th><th>Effect</th><th>Example</th></tr></thead><tbody>
+<tr><td><code>&lt;b&gt;…&lt;/b&gt;</code></td><td>bold</td><td><code>&amp;lt;b&amp;gt;Warning&amp;lt;/b&amp;gt;</code></td></tr>
+<tr><td><code>&lt;i&gt;…&lt;/i&gt;</code></td><td>italic</td><td><code>&amp;lt;i&amp;gt;whisper&amp;lt;/i&amp;gt;</code></td></tr>
+<tr><td><code>&lt;color=#rrggbb&gt;…&lt;/color&gt;</code></td><td>text colour (<code>#rrggbbaa</code> adds alpha)</td><td><code>&amp;lt;color=#ff4040&amp;gt;red&amp;lt;/color&amp;gt;</code></td></tr>
+<tr><td><code>&lt;size=NN&gt;…&lt;/size&gt;</code></td><td>font size in UI pixels for this run</td><td><code>&amp;lt;size=40&amp;gt;BIG&amp;lt;/size&amp;gt;</code></td></tr>
+<tr><td><code>&lt;icon=action:NAME&gt;</code></td><td>the key / button image of an input action, for the last-used device</td><td><code>&amp;lt;icon=action:interact&amp;gt;</code></td></tr>
+<tr><td><code>&lt;icon=img:PATH&gt;</code></td><td>an image from GameData, sized to the text</td><td><code>&amp;lt;icon=img:GameData/textures/ui/coin.png&amp;gt;</code></td></tr>
+<tr><td><code>&lt;icon=…,valign=middle&gt;</code></td><td>vertical placement of either icon form: <code>baseline</code> (default, bottom on the baseline), <code>middle</code> (centred on the capital letters), <code>top</code>, <code>bottom</code></td><td><code>&amp;lt;icon=action:jump,valign=middle&amp;gt;</code></td></tr>
+</tbody></table></div>
+<pre><code>&lt;Label html="true"
+       text="Plain &amp;lt;b&amp;gt;bold&amp;lt;/b&amp;gt; &amp;lt;i&amp;gt;italic&amp;lt;/i&amp;gt; &amp;lt;color=#ff4040&amp;gt;red&amp;lt;/color&amp;gt; &amp;lt;size=40&amp;gt;big&amp;lt;/size&amp;gt;"/&gt;</code></pre>
+<div class="callout"><b>You must escape the angle brackets in XML.</b> Inside an attribute, write <code>&amp;lt;b&amp;gt;</code> for <code>&lt;b&gt;</code>. A literal <code>&lt;b&gt;</code> in the element's body would be read as a child element, not as text.</div>
+<h4>Colour, size and style together</h4><pre><code>&lt;Label html="true" style="font-size: 28px; width: 420px"
+       text="&amp;lt;color=#ffd24a&amp;gt;&amp;lt;b&amp;gt;Critical!&amp;lt;/b&amp;gt;&amp;lt;/color&amp;gt; Hit for
+             &amp;lt;size=44&amp;gt;&amp;lt;color=#ff5030&amp;gt;{damage}&amp;lt;/color&amp;gt;&amp;lt;/size&amp;gt; damage.
+             Press &amp;lt;icon=action:block&amp;gt; to block."/&gt;</code></pre>
+<h4>Input icons that follow the player's device</h4>
+<p><code>&lt;icon=action:NAME&gt;</code> asks the game's icon provider for the image of the key or button bound to the input action <code>NAME</code>, for the <em>last used</em> device (keyboard and mouse, gamepad, touch). When the player picks up a gamepad, every such icon in every label changes by itself. The same works as a separate element, <code>&lt;InputPrompt action="…"/&gt;</code>.</p>
+<pre><code>&lt;!-- the key or button that triggers the action, for the device the player used last --&gt;
+&lt;Label html="true" text="Press &amp;lt;icon=action:interact&amp;gt; to open, &amp;lt;icon=action:attack&amp;gt; to strike"/&gt;
+
+&lt;!-- an image from GameData, sized to the text --&gt;
+&lt;Label html="true" text="&amp;lt;icon=img:GameData/textures/ui/coin.png&amp;gt; x {coins}"/&gt;</code></pre>
+<h4>Rich text with variables</h4><pre><code>&lt;!-- code: label-&gt;SetVar("hp", 42); label-&gt;SetVar("max", 100); --&gt;
+&lt;Label html="true" text="&amp;lt;color=#ff6060&amp;gt;{hp}&amp;lt;/color&amp;gt; / {max}"/&gt;</code></pre>
+<h4>Details worth knowing</h4>
+<ul>
+<li><b>Icons</b> are squares of 1.1 × the current font size on the baseline, with a gap of 0.1 em; they scale with <code>&lt;size&gt;</code>. For line breaking an icon is an unbreakable word.</li>
+<li><b>Bold and italic</b> use the font's own faces when they exist (see <code>@font-face</code>), otherwise the engine thickens or skews the glyphs.</li>
+<li><b>Colours</b> are <code>#rrggbb</code> or <code>#rrggbbaa</code>. Anything else is an error for that tag.</li>
+<li><b>Size</b> is in UI pixels and replaces the label's <code>font-size</code> for that run. It shrinks together with the label when <code>text-overflow: shrink</code> is used.</li>
+<li><b>Unknown or malformed tags</b> (<code>&lt;foo&gt;</code>, <code>&lt;color=red&gt;</code>) are drawn literally and logged once as a warning.</li>
+<li>Rich text composes with every text style below: stroke, shadows, transform, alignment, wrapping, ellipsis.</li>
+</ul>
+<h3>Text styling</h3><pre><code>&lt;styles&gt;&lt;style&gt;
+  .big    { font-size: 72px; color: #ffffff; }
+  .stroke { text-stroke: 4px #ff0000; }
+  .hard   { text-shadow: 6px 6px 0 #000000; }
+  .glow   { text-shadow: 0 0 12px #00ffff, 6px 6px 8px rgba(0, 0, 0, 0.8); }   /* several shadows, with blur */
+  .both   { text-stroke: 3px #0000ff; text-shadow: 5px 5px 4px #000000; color: #ffff00; }
+&lt;/style&gt;&lt;/styles&gt;
+&lt;Label class="big stroke" text="Stroke"/&gt;
+&lt;Label class="big glow"   text="Glow and soft"/&gt;</code></pre>
+<h4>Layout of text</h4><pre><code>&lt;styles&gt;&lt;style&gt;
+  #wrap  { width: 200px; font-size: 24px; }                                   /* wraps at 200px */
+  #dots  { width: 150px; white-space: nowrap; text-overflow: ellipsis; }     /* "This line is far…" */
+  #fit   { width: 150px; height: 40px; text-overflow: shrink; }               /* font shrinks until it fits */
+  #shout { text-transform: uppercase; letter-spacing: 2px; }
+  #mid   { width: 300px; text-align: center; line-height: 1.4; }
+  #log   { white-space: pre; }                                                /* keeps line breaks and tabs */
+&lt;/style&gt;&lt;/styles&gt;</code></pre>
+<h4>Fonts</h4><pre><code>@font-face {
+  font-family: "Display";
+  src: url("GameData/fonts/Display-Bold.ttf");
+  font-weight: 700;                 /* one face per weight (and per italic) */
+}
+.title { font-family: "Display"; font-weight: bold; }</code></pre>
+<p>A global fallback chain handles missing glyphs (for example CJK). Text breaks at spaces, hyphens and between CJK characters. An <code>text-align</code> value applies to wrapped lines.</p>
+<h4>Not available</h4>
+<p class="dim">Underline and strike-through, <code>font-variant-numeric</code>, justified text and right-to-left shaping are not implemented.</p>
+</section>
+
+<section id="vars"><h2>5. Variables and localisation <span class="badge core">Core</span></h2><pre><code>&lt;Label text="Hello {name}"/&gt;                         &lt;!-- {name}: variable from the nearest ancestor that set it --&gt;
+&lt;Label text="{value:%.2f}"/&gt;                           &lt;!-- number formatting: %f, %d, %i with width/precision --&gt;
+&lt;Label text="Score {score:%06d}"/&gt;                     &lt;!-- 000042 --&gt;
+&lt;Label text="${PAUSE_MENU_RESUME}"/&gt;                   &lt;!-- localisation key --&gt;
+&lt;Label text="${HINT_PRESS}"/&gt;                          &lt;!-- a translated string may itself contain {key} variables --&gt;
+&lt;Label&gt;Centered{{braces}}&lt;/Label&gt;                      &lt;!-- {{ and }} are literal braces --&gt;
+&lt;Panel visible="{hint}"/&gt;                              &lt;!-- attributes can use variables too --&gt;</code></pre>
+<pre><code>label-&gt;SetVar("name", "Ann");          // text
+label-&gt;SetVar("score", 42.0);              // numbers keep their value, so {score:%06d} works
+page-&gt;SetVar("hp", hp);                    // inherited down the tree: every element below sees it
+// setting a variable to the value it already has costs one compare</code></pre>
+<ul>
+<li>A variable is looked up on the element, then up the tree. Components turn their parameters into variables of the instance.</li>
+<li>Number formats: <code>%f</code>, <code>%d</code>, <code>%i</code> with flags, width and precision (<code>%.1f</code>, <code>%06d</code>). A format on a non-number logs a warning.</li>
+<li>Localisation runs first, so <code>"Press {key} to open"</code> can be a translated string. <code>ui_pseudoloc</code> makes every string about 35% longer to expose overflow.</li>
+<li>Elements re-evaluate only the attributes that mention the changed variable.</li>
+</ul></section>
+
+<section id="styles"><h2>6. Styles <span class="badge core">Core</span></h2>
+<p>A CSS dialect with its own parser. It reports <code>file:line</code> for every bad declaration.</p>
+<h3>Selectors</h3><pre><code>Label            { color: white; }              /* type */
+.menu-item       { height: 60px; }              /* class */
+#resume          { width: 300px; }              /* id */
+.menu .item      { gap: 4px; }                  /* descendant */
+.menu &gt; .item    { gap: 4px; }                  /* child */
+Button:hover, Button:focus { background-color: #333; }   /* list + states */
+.row:focus-within { background-color: var(--kit-row-alt); }
+.page:entering { opacity: 0; }                  /* a page that is being pushed */
+:root { --accent: #ffcc00; }                    /* custom properties */
+.btn { border: 2px solid var(--accent); }</code></pre>
+<p>Supported: type, class, id, descendant, child, selector lists. Not supported: sibling and attribute selectors, <code>@media</code> (an unsupported at-rule is skipped with a warning). At-rules that work: <code>@import</code>, <code>@keyframes</code>, <code>@font-face</code>.</p>
+<h3>Pseudo-classes</h3><div class="tw"><table class=""><thead><tr><th>Pseudo-class</th><th>Matches</th></tr></thead><tbody>
+<tr><td><code>:active</code></td><td>being pressed</td></tr>
+<tr><td><code>:checked</code></td><td>toggle / radio is on</td></tr>
+<tr><td><code>:disabled</code></td><td>enabled="false"</td></tr>
+<tr><td><code>:entering</code></td><td>page being pushed (first style pass)</td></tr>
+<tr><td><code>:focus</code></td><td>has navigation focus</td></tr>
+<tr><td><code>:focus-within</code></td><td>it or a descendant has focus</td></tr>
+<tr><td><code>:hover</code></td><td>pointer over the element</td></tr>
+<tr><td><code>:leaving</code></td><td>page being popped (until the transition ends, 2 s at most)</td></tr>
+<tr><td><code>:root</code></td><td>the top element of a document instance</td></tr>
+<tr><td><code>:selected</code></td><td>selected="true"</td></tr>
+</tbody></table></div>
+<h3>Values and units</h3><pre><code>width: 300px;            /* px: one UI unit = one pixel of the 1080-tall UI target */
+width: 50%;               /* of the parent's content box */
+font-size: 1.2rem;        /* rem follows the player's text-size setting */
+font-size: 2em;           /* em: this element's font size */
+height: 10vh; width: 20vw;
+width: calc(100% - 48px); /* + - * / on lengths, numbers divide and multiply */
+color: #ff8800;           color: #f80;   color: #ff880080;
+color: rgb(255, 136, 0);  color: rgba(255, 136, 0, 0.5);   color: hsl(30, 100%, 50%);</code></pre>
+<h3>Precedence</h3>
+<ol><li>Values set from C++ on the element (<code>elem-&gt;Style()</code>)</li><li>The <code>style="…"</code> attribute</li><li>Stylesheet rules by specificity, then source order</li><li>Inherited values (<code>color</code>, <code>font-*</code>, <code>text-*</code>, <code>letter-spacing</code>, <code>line-height</code>, <code>visibility</code>, <code>image-rendering</code>; <code>opacity</code> multiplies down)</li><li>Defaults</li></ol>
+<p>Custom properties (<code>--name</code>) inherit and are used with <code>var(--name)</code>. They are how a theme works.</p>
+<h3>Component style scope</h3>
+<p>Rules in a component file are rewritten to match only inside that component, so they never leak. A page can still restyle a component on purpose.</p>
+</section>
+
+<section id="layout"><h2>7. Layout <span class="badge core">Core</span></h2>
+<p>Layout is Panorama-style, not flexbox: <code>flow-children</code> chooses how children are placed, sizes are <code>fit-children</code> by default, and <code>fill-parent-flow(n)</code> shares free space.</p>
+<pre><code>.column { flow-children: down;  gap: 12px; }          /* children stacked top to bottom */
+.row    { flow-children: right; gap: 8px; }           /* left to right */
+.grid   { flow-children: right-wrap; gap: 8px; }      /* wraps to the next line */
+.stack  { flow-children: none; }                      /* default: children overlay each other */
+
+.fill   { width: fill-parent-flow(1); }               /* takes the free space left in the flow, by weight */
+.half   { width: fill-parent-flow(1); }  .rest { width: fill-parent-flow(2); }   /* 1 : 2 */
+.fit    { width: fit-children; }                      /* default: as big as the content */
+.square { height: 200px; width: height-percentage(100%); }   /* aspect lock */
+
+.centered { horizontal-align: center; vertical-align: center; }
+.corner   { horizontal-align: right; vertical-align: bottom; x: -24px; y: -24px; }
+.card     { margin: 8px 16px; padding: 12px; min-width: 200px; max-width: 600px; }
+.list     { overflow: scroll; height: 400px; }        /* clip + wheel, drag and gamepad scrolling */</code></pre>
+<h3 id="scrolling">Scrolling</h3>
+<p><code>overflow: scroll</code> clips the content and scrolls it with the mouse wheel, by dragging the content (touch style, with a little momentum), with gamepad focus (the focused child is scrolled into view), and by the scrollbar. Add <code>scrollbar="true"</code> to get a track and thumb that you style with <code>.scrollbar</code> and <code>.scrollbar .thumb</code>. Drag the thumb, or press the track to jump there. Nothing is drawn when the content fits.</p>
+<pre><code>&lt;styles&gt;&lt;style&gt;
+  #list      { width: 360px; height: 220px; overflow: scroll; flow-children: down; gap: 6px; }
+  .scrollbar { width: 8px; background-color: #333333; }                       /* the track */
+  .scrollbar .thumb { background-color: #aaaaaa; border-radius: 4px; }          /* the handle: drag it with the mouse */
+&lt;/style&gt;&lt;/styles&gt;
+&lt;Panel id="list" scrollbar="true"&gt;
+  &lt;Button class="row"&gt;&lt;Label text="Row 0"/&gt;&lt;/Button&gt;
+  ...
+&lt;/Panel&gt;</code></pre>
+<h3>Lists</h3><pre><code>&lt;snippets&gt;
+  &lt;snippet name="SaveRow" params="index=0"&gt;
+    &lt;Panel class="lrow"&gt;&lt;Label text="Save {index}"/&gt;&lt;/Panel&gt;
+  &lt;/snippet&gt;
+&lt;/snippets&gt;
+&lt;ListView id="list" snippet="SaveRow" count="1000" item-height="40"/&gt;     &lt;!-- only the visible rows exist; rows are recycled --&gt;
+&lt;ListView snippet="Cell" count="200" layout="grid" columns="4" item-height="120"/&gt;</code></pre>
+</section>
+
+<section id="painting"><h2>8. Painting <span class="badge core">Core</span></h2><pre><code>.panel {
+  background-color: #14100c;
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.08), rgba(255,255,255,0)),
+                    url("GameData/textures/ui/grain.png");
+  background-size: auto, 128px;                          /* one value per layer */
+  background-repeat: no-repeat, repeat;
+  border: 2px solid #8c2929;
+  border-radius: 12px 12px 0 0;                         /* per corner */
+  box-shadow: 0 8px 24px 0 rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.08);
+  outline: 2px solid #ffd24a;  outline-offset: 4px;
+}
+.ring   { background-image: conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); border-radius: 50%; }
+.stripe { background-image: repeating-linear-gradient(45deg, #000 0 10px, #222 10px 20px); }
+.frame  { border-image: url("GameData/textures/ui/frame.png") 24 / 24px round; }   /* nine-slice */</code></pre>
+<h3>Effects, blending, transforms</h3><pre><code>.dim      { filter: brightness(0.6) saturate(0.8); }        /* colour matrix filters */
+.ghost    { opacity: 0.5; }
+.tint     { wash-color: rgba(255, 0, 0, 0.25); }            /* tint over everything, images included */
+.glowfx   { mix-blend-mode: plus-lighter; }                  /* additive: sparks, energy bars */
+.fade     { mask-image: linear-gradient(to bottom, #000, transparent); }
+.round    { clip-path: circle(50%); }
+.tilt     { transform: rotate(-3deg) scale(1.1); transform-origin: 50% 100%; }   /* layout ignores it, clicks follow it */
+.pix      { image-rendering: pixelated; }
+.cover    { object-fit: cover; object-position: 50% 20%; }   /* on &lt;Image&gt; */</code></pre>
+<h3>Every paint feature and its status</h3><div class="tw"><table class=""><thead><tr><th>Effect</th><th>Kind</th><th>What it does</th><th>Syntax</th><th>Status</th></tr></thead><tbody>
+<tr><td><code>animation</code></td><td>motion</td><td>Plays @keyframes</td><td><code>&lt;name&gt; &lt;duration&gt; &lt;timing-function&gt; &lt;delay&gt; &lt;iteration-count&gt; &lt;direction&gt; &lt;fill-mode&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>backdrop-filter</code></td><td>filter</td><td>Filters what is behind the element</td><td><code>&lt;filter-list&gt;</code></td><td><span class="chip warn">needs offscreen layers (planned)</span></td></tr>
+<tr><td><code>background-image</code></td><td>image</td><td>Image layers (atlas images and gradients), tiled, sized and positioned</td><td><code>url() | gradient, per layer</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>blur()</code></td><td>filter</td><td>Gaussian blur filter</td><td><code>&lt;length&gt;</code></td><td><span class="chip warn">needs offscreen layers (planned)</span></td></tr>
+<tr><td><code>border-image</code></td><td>image</td><td>Nine-slice border from an atlas image (stretch or round)</td><td><code>&lt;source&gt; &lt;slice&gt; [/ &lt;width&gt;] &lt;repeat&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>box-shadow</code></td><td>shadow</td><td>Outer and inset shadows with blur and spread (own shader program)</td><td><code>[inset] &lt;x&gt; &lt;y&gt; [blur] [spread] &lt;color&gt;, ...</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>brightness()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>clip-path</code></td><td>clip</td><td>inset(), circle() and ellipse() clip shapes</td><td><code>inset() | circle() | ellipse()</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>conic-gradient()</code></td><td>gradient</td><td>Colour ramp around a centre, clockwise from 12 o'clock</td><td><code>[from &lt;angle&gt;] [at &lt;position&gt;], &lt;color-stop&gt;#</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>contrast()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>drop-shadow()</code></td><td>filter</td><td>Shadow that follows the alpha of the content</td><td><code>&lt;x&gt; &lt;y&gt; [blur] &lt;color&gt;</code></td><td><span class="chip warn">needs offscreen layers (planned)</span></td></tr>
+<tr><td><code>grayscale()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>hue-rotate()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>image-rendering: pixelated</code></td><td>image</td><td>Nearest-neighbour sampling of images</td><td><code>auto | pixelated</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>invert()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>linear-gradient()</code></td><td>gradient</td><td>Linear colour ramp</td><td><code>[&lt;angle&gt; | to &lt;side-or-corner&gt;,] &lt;color-stop&gt;#</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>mask-image</code></td><td>mask</td><td>Linear or radial gradient mask (alpha), evaluated per pixel</td><td><code>linear-gradient() | radial-gradient()</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>mix-blend-mode: multiply</code></td><td>blend</td><td>Blend function of the element's primitives with what is behind</td><td><code>multiply</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>mix-blend-mode: plus-lighter</code></td><td>blend</td><td>Blend function of the element's primitives with what is behind</td><td><code>plus-lighter</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>mix-blend-mode: screen</code></td><td>blend</td><td>Blend function of the element's primitives with what is behind</td><td><code>screen</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>object-position</code></td><td>image</td><td>Position of an Image's content inside its box</td><td><code>&lt;position&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>opacity (group)</code></td><td>layer</td><td>Opacity of an element as a whole (overlapping children do not show through)</td><td><code>&lt;number&gt;</code></td><td><span class="chip warn">needs offscreen layers (planned)</span></td></tr>
+<tr><td><code>outline</code></td><td>shadow</td><td>Outline outside the border box with an offset</td><td><code>&lt;width&gt; || &lt;style&gt; || &lt;color&gt;; outline-offset</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>radial-gradient()</code></td><td>gradient</td><td>Radial colour ramp</td><td><code>[circle | ellipse] [&lt;size&gt;] [at &lt;position&gt;], &lt;color-stop&gt;#</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>repeating-conic-gradient()</code></td><td>gradient</td><td>Repeating conic gradient</td><td><code>same as conic-gradient()</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>repeating-linear-gradient()</code></td><td>gradient</td><td>Repeating linear gradient</td><td><code>same as linear-gradient()</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>repeating-radial-gradient()</code></td><td>gradient</td><td>Repeating radial gradient</td><td><code>same as radial-gradient()</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>saturate()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>sepia()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>text-shadow</code></td><td>text</td><td>Shadow behind text, optionally blurred</td><td><code>&lt;x&gt; &lt;y&gt; [blur] &lt;color&gt;, ...</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>text-stroke</code></td><td>text</td><td>Outline around glyphs, drawn under the fill</td><td><code>&lt;width&gt; &lt;color&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>transform</code></td><td>transform</td><td>2D transform of the element and its subtree; layout ignores it, hit testing follows it</td><td><code>translate() | rotate() | scale() | skew() list; transform-origin</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>transition</code></td><td>motion</td><td>Interpolates changed properties over time</td><td><code>&lt;property&gt; &lt;duration&gt; &lt;timing-function&gt; &lt;delay&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>wash-color</code></td><td>filter</td><td>Tint over everything: the colour matrix lerps to the colour by its alpha</td><td><code>&lt;color&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+</tbody></table></div>
+<p class="dim">Effects marked <i>needs offscreen layers</i> are designed (blur, backdrop filter, drop shadow, group opacity) but depend on the layer atlas, which is not built yet. Using them today does nothing.</p>
+</section>
+
+<section id="motion"><h2>9. Motion <span class="badge core">Core</span></h2><pre><code>.card         { transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.card:hover   { transform: scale(1.05); }
+.page:entering { opacity: 0; transform: translateY(24px); }       /* a pushed page starts here and animates to normal */
+.page:leaving  { opacity: 0; }                                      /* a popped page animates to this, then is removed */
+
+.pulse { animation: pulse 1.2s ease-in-out infinite alternate; }
+@keyframes pulse {
+  from { opacity: 1; }
+  50%  { opacity: 0.4; }
+  to   { opacity: 1; }
+}
+.steps { transition: width 0.5s steps(5); }</code></pre>
+<ul>
+<li>Time is real time: UI motion also runs while the game is paused.</li>
+<li>A page pushed on a stack starts in <code>:entering</code> and animates to normal. A popped page animates to <code>:leaving</code> and is removed when the transition ends (2 seconds at most).</li>
+<li>With the setting <code>ui.reduced_motion</code> (or <code>ui_reduced_motion</code>) transitions are instant and infinite animations do not run.</li>
+<li>Easings: <code>cubic-bezier()</code>, <code>ease</code>, <code>ease-in</code>, <code>ease-in-out</code>, <code>ease-out</code>, <code>linear</code>, <code>step-end</code>, <code>step-start</code>, <code>steps()</code>.</li>
+</ul>
+<h4>Properties that can be transitioned or animated</h4><p><code>background-color</code> <code>border-bottom-color</code> <code>border-bottom-left-radius</code> <code>border-bottom-right-radius</code> <code>border-bottom-width</code> <code>border-left-color</code> <code>border-left-width</code> <code>border-right-color</code> <code>border-right-width</code> <code>border-top-color</code> <code>border-top-left-radius</code> <code>border-top-right-radius</code> <code>border-top-width</code> <code>box-shadow</code> <code>color</code> <code>filter</code> <code>gap</code> <code>height</code> <code>margin-bottom</code> <code>margin-left</code> <code>margin-right</code> <code>margin-top</code> <code>max-height</code> <code>max-width</code> <code>min-height</code> <code>min-width</code> <code>opacity</code> <code>outline-color</code> <code>outline-offset</code> <code>outline-width</code> <code>padding-bottom</code> <code>padding-left</code> <code>padding-right</code> <code>padding-top</code> <code>text-shadow</code> <code>transform</code> <code>wash-color</code> <code>width</code> <code>x</code> <code>y</code></p>
+</section>
+
+<section id="events"><h2>10. Events, actions and code-behind <span class="badge core">Core</span></h2>
+<p>Event attributes hold calls separated by <code>;</code>. A call is a name with literal arguments. There is no expression language or scripting.</p>
+<pre><code>&lt;TextButton text="Play"
+            onactivate="PlaySound('GameData/sounds/ui/confirm.wav'); Push('GameData/ui/play.xml')"
+            onmouseover="AddClass('#hint', 'show')"
+            onmouseout="RemoveClass('#hint', 'show')"/&gt;
+
+&lt;Panel id="page" default-focus="false" oncancel="PlaySound('x.wav')" onload="SetFocus('#play')"&gt;</code></pre>
+<div class="tw"><table class=""><thead><tr><th>Event attribute</th><th>Fires when</th></tr></thead><tbody>
+<tr><td><code>onactivate</code></td><td>The element was activated by confirm, a click or a touch</td></tr>
+<tr><td><code>onblur</code></td><td>The element lost navigation focus</td></tr>
+<tr><td><code>oncancel</code></td><td>Back was requested on this page, before the stack handles it</td></tr>
+<tr><td><code>onfocus</code></td><td>The element received navigation focus</td></tr>
+<tr><td><code>onload</code></td><td>Once, after the element's first layout</td></tr>
+<tr><td><code>onmouseout</code></td><td>The pointer left the element</td></tr>
+<tr><td><code>onmouseover</code></td><td>The pointer entered the element</td></tr>
+</tbody></table></div>
+<p>A name resolves in this order: a handler registered with <code>On(name)</code> on the element or the nearest ancestor that has one, then a built-in action, otherwise an "unhandled action" warning (once). Unknown names are reported when the page loads, not only on click.</p>
+<h3>Built-in actions</h3><div class="tw"><table class=""><thead><tr><th>Action</th><th>What it does</th></tr></thead><tbody>
+<tr><td><code>AddClass(selector, class)</code></td><td>Adds a class to the element found by #id or id path</td></tr>
+<tr><td><code>ApplyChanges()</code></td><td>On the confirm-changes page: keeps the changed settings and closes it and the page under it</td></tr>
+<tr><td><code>Back()</code></td><td>Runs back on the element's menu stack (the main stack when it is on none)</td></tr>
+<tr><td><code>Clear()</code></td><td>Pops every page of the element's menu stack</td></tr>
+<tr><td><code>DiscardChanges()</code></td><td>On the confirm-changes page: restores the settings the page changed and closes it and the page under it</td></tr>
+<tr><td><code>PlaySound(path)</code></td><td>Plays a 2D UI sound</td></tr>
+<tr><td><code>Pop()</code></td><td>Pops the top page of the element's menu stack</td></tr>
+<tr><td><code>Push(path)</code></td><td>Pushes a layout on the element's menu stack (the main stack when it is on none)</td></tr>
+<tr><td><code>PushMenu(path)</code></td><td>Pushes a layout on the main menu stack</td></tr>
+<tr><td><code>Quit()</code></td><td>Asks the engine to quit</td></tr>
+<tr><td><code>Raise(event)</code></td><td>Fires the on&lt;event&gt; attribute of the enclosing component instance, handled from its parent</td></tr>
+<tr><td><code>RemoveClass(selector, class)</code></td><td>Removes a class from the element found by #id or id path</td></tr>
+<tr><td><code>Replace(path)</code></td><td>Replaces the top page of the element's menu stack with a layout</td></tr>
+<tr><td><code>SetFocus(selector)</code></td><td>Moves navigation focus to the element found by #id or id path</td></tr>
+<tr><td><code>ToggleClass(selector, class)</code></td><td>Toggles a class on the element found by #id or id path</td></tr>
+</tbody></table></div>
+<p>Selectors in actions are <code>#id</code> or an id path (<code>#row/label</code>). <code>Push</code>, <code>Back</code>, <code>Replace</code>, <code>Pop</code>, <code>Clear</code> act on <em>the stack the element is on</em>; <code>PushMenu</code> always uses the main stack.</p>
+<h3>Code-behind</h3><pre><code>class MyPage : public UiElemPanel
+{
+public:
+    MyPage()
+    {
+        LoadLayout("GameData/ui/mypage.xml");                       // builds the markup onto this element
+
+        On("Play", [this] { StartGame(); });                         // onactivate="Play()" finds this handler
+        On("Pick", [this](UiElem&amp; sender, const std::vector&lt;std::string&gt;&amp; args) {
+            // onactivate="Pick('sword')": args[0] == "sword"
+        });
+        if (auto* name = Find&lt;UiElemLabel&gt;("title")) name-&gt;SetVar("name", "Ann");
+    }
+    void OnPushed() override { SetClass("fresh", true); }            // menu lifecycle hooks
+    bool OnBack() override   { return false; }                        // true = swallow back (e.g. "discard changes?")
+    void Tick() override     { SetVar("hp", Player::Hp()); }          // every frame, before layout
+};
+UI_REGISTER_CODE_BEHIND("GameData/ui/mypage.xml", MyPage);           // Push("GameData/ui/mypage.xml") now builds MyPage</code></pre>
+<pre><code>// Handler lifetime: a handler registered from an entity or component should be guarded,
+// so it is skipped after the owner is destroyed:
+elem-&gt;On("Buy", owner /* std::weak_ptr&lt;void&gt; */, [this] { Buy(); });
+
+// Created from code:
+UiElem* row = page-&gt;AddSnippet("Row", ...);               // a &lt;snippet&gt; of this file
+auto root = UiElem::Load("GameData/ui/hud.xml");            // a layout as a root (hosted by you)
+// Hosting a root yourself (a HUD, for instance): add it to the viewport, e.g. viewport.AddChild(root);</code></pre>
+</section>
+
+<section id="components"><h2>11. Components and snippets <span class="badge core">Core</span></h2>
+<p>Any XML file whose top element is <code>&lt;Component&gt;</code> defines a new tag. It works like a built-in tag, and components can use components.</p>
+<pre><code>&lt;!-- GameData/ui/components/SettingRow.xml --&gt;
+&lt;root&gt;
+  &lt;Component tag="SettingRow" params="label, hint=''"&gt;      &lt;!-- parameters; hint has a default, label is required --&gt;
+    &lt;Panel class="row"&gt;
+      &lt;Label class="label" text="{label}"/&gt;
+      &lt;Label class="hint"  text="{hint}" visible="{hint}"/&gt;
+      &lt;Children/&gt;                                             &lt;!-- the instance's children go here --&gt;
+      &lt;Children slot="footer"/&gt;                               &lt;!-- named slot --&gt;
+    &lt;/Panel&gt;
+  &lt;/Component&gt;
+&lt;/root&gt;</code></pre>
+<pre><code>&lt;SettingRow label="${VIDEO_VSYNC}" class="advanced" onchanged="Apply()"&gt;
+  &lt;ToggleButton id="vsync"/&gt;                                  &lt;!-- slotted children belong to the using file: Find("vsync") works --&gt;
+  &lt;Panel slot="footer"&gt;&lt;Label text="Needs a restart"/&gt;&lt;/Panel&gt;
+&lt;/SettingRow&gt;
+
+&lt;!-- inside the component:  &lt;Raise&gt;  fires the instance's own event:  onactivate="Raise('changed')" --&gt;</code></pre>
+<ul>
+<li><b>Parameters</b> (<code>params</code>) become variables of the instance. A missing required parameter or an undeclared attribute is a <code>file:line</code> error.</li>
+<li><b>Standard attributes</b> on the instance (<code>id</code>, <code>class</code>, <code>style</code>, <code>visible</code>, events) apply to the component's root; classes merge with its own.</li>
+<li><b>Ids are scoped per instance</b>, so two instances can both contain a <code>label</code>. Slotted children belong to the using file. Reach inside an instance with a path: <code>Find("fov_row/label")</code>.</li>
+<li><b>Discovery.</b> Components under the engine kit and under the game's <code>GameData/ui/</code> are found at start, no import needed. Elsewhere, add <code>&lt;import&gt;</code>. Two components with one tag, or a component that includes itself, is an error naming both files.</li>
+<li><b>Snippets</b> (<code>&lt;snippet&gt;</code>) are file-local components, mainly for rows a page builds from code or a <code>ListView</code>.</li>
+<li><b>Frame</b> embeds a whole layout with no parameters; its <code>src</code> can change at run time.</li>
+</ul><pre><code>&lt;Frame id="content" src="GameData/ui/kit/pages/sound.xml"/&gt;     &lt;!-- builds a whole layout inside; the page changes with src --&gt;
+&lt;Frame snippet="Row"/&gt;                                                &lt;!-- or a snippet / component of this file --&gt;
+&lt;!-- code: frame-&gt;SetAttribute("src", "GameData/ui/kit/pages/video.xml");  rebuilds the content --&gt;</code></pre>
+</section>
+
+<section id="menus"><h2>12. Menu stack, focus and input <span class="badge core">Core</span></h2>
+<p>There is no special page type: <b>any element can be pushed</b>. The stack gives it input, focus, back handling, animation and the host options.</p>
+<pre><code>&lt;Panel id="pause" pauses-game="true" hides-hud="true"&gt;         &lt;!-- host options: read by the menu stack --&gt;
+  &lt;Button id="resume" default-focus="true" onactivate="Back()"&gt;...&lt;/Button&gt;
+  &lt;TextButton text="Settings" onactivate="Push('GameData/ui/kit/pages/settings.xml')"/&gt;
+&lt;/Panel&gt;
+
+&lt;Panel id="confirm" shows-below="true" close-on-back="true"&gt;   &lt;!-- a dialog: the page below stays visible --&gt;
+  ...
+&lt;/Panel&gt;</code></pre>
+<pre><code>UiMenus::Push("GameData/ui/kit/pages/pause.xml");     // the main stack; any element can be a page
+UiMenus::Stack().Replace("GameData/ui/other.xml");
+UiMenus::Pop();   UiMenus::Clear();   bool open = UiMenus::IsOpen();
+
+UiMenus::OnPauseChanged = [](bool paused) { ... };    // the game connects its own pause here</code></pre>
+<ul>
+<li><b>Input and focus</b>: only the top page is interactive. Pushing remembers the focused element and popping restores it. <code>default-focus</code> chooses the first focus (for gamepad).</li>
+<li><b>Back</b> (<code>ui_cancel</code>, Esc, gamepad B) calls <code>OnBack()</code>, then pops if <code>close-on-back</code> is true.</li>
+<li><b>Pages below</b> are hidden unless the page has <code>shows-below="true"</code> (dialogs).</li>
+<li><b>Main stack only</b>: <code>pauses-game</code> pauses the game through one hook (<code>UiMenus::OnPauseChanged</code>); <code>hides-hud</code> fades the HUD.</li>
+<li>Lifecycle hooks on any <code>UiElem</code>: <code>OnPushed</code>, <code>OnShown</code>, <code>OnHidden</code>, <code>OnPopped</code>, <code>OnBack</code>, <code>Tick</code>.</li>
+</ul>
+<h3>Navigation, hotkeys, prompts</h3><pre><code>&lt;Button id="apply" nav-up="#slider" nav-left="#cancel"/&gt;      &lt;!-- override spatial navigation where it guesses wrong --&gt;
+&lt;Button id="play"  default-focus="true"/&gt;                   &lt;!-- first focus of a page --&gt;
+&lt;TextButton text="Reset" hotkey="ui_reset" hotkey-label="${UI_RESET}"/&gt;   &lt;!-- an input action activates it while its page is on top --&gt;
+&lt;ActionBar class="action-bar"/&gt;                              &lt;!-- footer: one prompt + label per hotkey button of the top page, plus Back --&gt;
+&lt;InputPrompt action="ui_confirm"/&gt;                           &lt;!-- image of the key/button for the last-used device --&gt;
+
+&lt;styles&gt;&lt;style&gt;
+  .input-gamepad .mouse-hint { visibility: collapse; }     /* the root gets input-mouse | input-gamepad | input-touch */
+&lt;/style&gt;&lt;/styles&gt;</code></pre>
+<p>Input actions the engine knows: <p><code>attack</code> <code>attack2</code> <code>backward</code> <code>block</code> <code>cameraView</code> <code>click</code> <code>crouch</code> <code>dash</code> <code>debug_ui_toggle</code> <code>forward</code> <code>fullscreen</code> <code>interact</code> <code>inventory</code> <code>jump</code> <code>lastSlot</code> <code>left</code> <code>pause</code> <code>qLoad</code> <code>qSave</code> <code>reload</code> <code>reload_shaders</code> <code>right</code> <code>slot1</code> <code>slot2</code> <code>slot3</code> <code>slot4</code> <code>slot5</code> <code>slot6</code> <code>slotMelee</code> <code>slotTest</code> <code>test</code> <code>ui_cancel</code> <code>ui_confirm</code> <code>ui_down</code> <code>ui_left</code> <code>ui_right</code> <code>ui_tab_next</code> <code>ui_tab_prev</code> <code>ui_up</code></p></p>
+</section>
+
+<section id="binding"><h2>13. Settings binding <span class="badge core">Core</span></h2>
+<p>Variables are one-way. Controls bind <em>both ways</em> to a settings registry with <code>bind="setting:KEY"</code>. A page with <code>confirm-changes="true"</code> asks to apply or discard the changes made through bound controls when it is left. A new setting is one registry entry plus one line of markup.</p>
+<pre><code>&lt;Slider id="vol" min="0" max="1" step="0.05" bind="setting:audio.master"/&gt;
+&lt;ToggleButton id="vsync" bind="setting:video.vsync"/&gt;
+&lt;DropDown id="mode" bind="setting:video.window_mode"/&gt;             &lt;!-- items come from the setting --&gt;
+&lt;RadioButton group="aa" option="0" bind="setting:video.msaa"/&gt;     &lt;!-- this radio selects value 0 --&gt;
+&lt;Label text="{value:%.2f}"/&gt;                                         &lt;!-- sliders expose their value as the variable {value} --&gt;
+
+&lt;!-- page option: leaving with changed bound settings asks "apply or discard?" --&gt;
+&lt;Panel confirm-changes="true"&gt; ... &lt;/Panel&gt;</code></pre>
+<pre><code>UiSettings::Entry e;
+e.Key = "game.fov";   e.Type = UiSettings::Kind::Float;   e.Min = 60;  e.Max = 120;  e.Step = 1;
+e.Label = "${SETTINGS_FOV}";
+e.Get = [] { return Camera::Fov(); };
+e.Set = [](double v) { Camera::SetFov((float)v); };
+UiSettings::Register(e);          // now bind="setting:game.fov" works in any page</code></pre>
+<p class="dim">The settings the kit registers are listed in <a href="#kit-settings">the kit part</a>.</p>
+</section>
+
+<section id="hot"><h2>14. Hot reload <span class="badge core">Core</span></h2>
+<p>In builds without <code>DISTRIBUTION</code>, saving a UI file updates the running game. The game runs from a copy of <code>GameData</code> made by the build, so the engine also watches the <em>source</em> files (<code>source/Games/&lt;Game&gt;/GameData</code>), copies changed ones over the running copy and rebuilds every page that depends on them: its XML, imported components, style sheets and their <code>@import</code>s. Structure changes and <code>on…</code> logic count as well as styles.</p>
+<pre><code># Run any non-DISTRIBUTION build, edit a .xml / .css / component file under source/Games/&lt;Game&gt;/GameData/ui and save.
+# Within about a second the page on screen is rebuilt from the new files. Kept: slider/drop-down/text values, toggles,
+# scroll positions, focus, classes and variables set from code, and attributes the page's code set (the open tab, a Frame's src).</code></pre>
+<ul>
+<li><b>Kept</b>: slider, drop-down and text values, toggles and radios, scroll, focus, classes and variables set from code, attributes set from code.</li>
+<li><b>Matching after an edit</b>: elements are matched by <code>id</code>, or by position among siblings of the same tag. If you edit an attribute in the file, the file's value wins.</li>
+<li><b>Not kept</b>: private fields of code-behind classes and anything built in <code>OnPushed</code> (it is not run again).</li>
+<li>A broken file keeps the old version on screen and logs the error. A component file that is new since the game started needs a restart. Everything is compiled out of <code>DISTRIBUTION</code> builds.</li>
+</ul></section>
+
+<section id="tooling"><h2>15. Tools <span class="badge core">Core</span></h2>
+<ul>
+<li><b>UI Studio</b> (<code>source/UiStudio</code>): a Qt editor that runs the real game inside it. Page tree, properties, visual edits that write back to the XML, preview with the game's own renderer, test runner.</li>
+<li><b>VS Code extension</b> (<code>Tools/ui-vscode</code>): colouring, completion, hover, diagnostics, go-to-definition for the XML and the CSS dialect. It reads the game's <code>SaveData/UIStudio/uidb.json</code>, the catalogue this page is made from.</li>
+<li><b>Console</b>: <pre><code>ui_push GameData/ui/kit/pages/settings.xml     ui_pop     ui_back     ui_clear_stack     ui_stack
+ui_load &lt;layout&gt;        ui_unload_all          ui_focus &lt;id&gt;      ui_dump [depth]    (prints the element tree)
+ui_pseudoloc            (every string about 35% longer, to find overflow)       ui_reduced_motion
+ui_overflow_report      ui_db_info    ui_db_path   (the uidb.json catalogue)</code></pre></li>
+<li><b>Test scripts</b> (<code>.uitest</code>, run with <code>-ui_test</code> or <code>Tools/ui/run_ui_tests.py</code> on each graphics backend):</li></ul>
+<pre><code># StealthAction: pause menu
+wait 8
+action pause                              # an input action
+wait_frames 10
+expect_stack depth == 1
+expect_stack top contains pause.xml
+expect presume focus == 1                 # id, property, comparison
+action ui_down
+wait_frames 3
+expect psave focus == 1
+console ui_focus psettings                # any console command
+ui_screenshot 02_pause
+set_var name Ann    set_class #box hot    sim_device gamepad    mouse_down 662 65    mouse_up    wheel -3</code></pre>
+<p>Commands: <p><code>action</code> <code>anim_pause</code> <code>anim_seek</code> <code>click</code> <code>console</code> <code>expect</code> <code>expect_class</code> <code>expect_engine</code> <code>expect_exists</code> <code>expect_missing</code> <code>expect_no_overflow</code> <code>expect_rect</code> <code>expect_roots</code> <code>expect_setting</code> <code>expect_stack</code> <code>expect_ui_errors</code> <code>expect_ui_warnings</code> <code>expect_uidb</code> <code>focus_trap</code> <code>log</code> <code>mouse_down</code> <code>mouse_move</code> <code>mouse_off</code> <code>mouse_up</code> <code>prompt_provider_test</code> <code>quit</code> <code>screenshot</code> <code>set_class</code> <code>set_setting</code> <code>set_var</code> <code>sim_device</code> <code>test_settings</code> <code>type</code> <code>ui_screenshot</code> <code>uidb_selftest</code> <code>wait</code> <code>wait_frames</code> <code>wheel</code></p></p>
+<p><code>-ui_lint</code> reports problems without running the game. Always add <code>-headless</code> for automated runs.</p>
+</section>
+
+<h1 class="part" id="kit">Part II: The kit <span class="badge kit">Kit</span></h1>
+<p class="lead">The kit is a set of ready-made pages and components in <code>GameData/ui/kit/</code>, built only from the core above: pause menu, settings, controls and rebinding, save and load, dialogs. A game gets a complete menu by supplying a <b>theme</b> and a few hooks. Nothing in the core depends on it.</p>
+
+<section id="kit-use"><h2>K1. Using the kit <span class="badge kit">Kit</span></h2><pre><code>// Game start: the kit pages need the game's pause hook, and the game supplies the look in GameData/ui/theme.css.
+KitSetupMenus([](bool paused) { PauseGameManager::SetPaused(paused); });
+
+KitPauseMenu::CanSave  = [] { return !Player::InCutscene(); };
+KitPauseMenu::OnRestart = [] { Level::Restart(); };             // shows Restart (after a confirmation)
+KitSettingsMenu::RegisterTab("${SETTINGS_GAMEPLAY}", "GameData/ui/gameplay_tab.xml");
+
+KitConfirm::Ask("${QUIT_ASK}", [] { Quit(); });                 // yes/no on the main stack
+KitSaveLoad::Open(KitSaveLoad::Mode::Save);
+KitRebind::Open(request);                                        // key / button capture page</code></pre>
+<h3>Theme</h3>
+<p><code>kit.css</code> only lays things out and reads variables; the game's <code>GameData/ui/theme.css</code> sets them. Change the tokens and every kit page changes.</p><pre><code>/* GameData/ui/theme.css: the game's look. kit.css only lays things out and reads these variables. */
+@import "GameData/ui/kit/styles/kit.css";
+:root {
+  --kit-accent: #99c7ff;
+  --kit-panel: rgba(18, 9, 9, 0.95);
+  --kit-radius: 3px;
+  --kit-title-size: 1.6rem;
+  --kit-menu-glow: 0 0 14px rgba(255, 70, 40, 0.95);     /* a whole text-shadow value */
+}
+/* a page: &lt;styles&gt;&lt;include src="GameData/ui/theme.css"/&gt;&lt;/styles&gt; */</code></pre>
+<p>Tokens: <p><code>--kit-accent</code> <code>--kit-action-size</code> <code>--kit-button</code> <code>--kit-button-border</code> <code>--kit-button-hover</code> <code>--kit-button-size</code> <code>--kit-caption</code> <code>--kit-caption-size</code> <code>--kit-confirm-accent</code> <code>--kit-confirm-border</code> <code>--kit-confirm-panel</code> <code>--kit-danger</code> <code>--kit-danger-hover</code> <code>--kit-dialog-button-size</code> <code>--kit-dialog-size</code> <code>--kit-divider</code> <code>--kit-focus</code> <code>--kit-header-size</code> <code>--kit-label-size</code> <code>--kit-menu-glow</code> <code>--kit-menu-item</code> <code>--kit-menu-line</code> <code>--kit-menu-scrim</code> <code>--kit-menu-size</code> <code>--kit-panel</code> <code>--kit-panel-border</code> <code>--kit-pointer</code> <code>--kit-pointer-glow</code> <code>--kit-radius</code> <code>--kit-row-alt</code> <code>--kit-scrim</code> <code>--kit-slot</code> <code>--kit-slot-listening</code> <code>--kit-status-size</code> <code>--kit-tab-size</code> <code>--kit-text</code> <code>--kit-title-size</code> <code>--kit-toggle-off</code> <code>--kit-toggle-on</code></p></p>
+<p>The kit's layout classes (<code>kit-screen</code>, <code>kit-column</code>, <code>kit-card</code>, <code>kit-dialog</code>, <code>kit-button</code>, <code>kit-toggle</code>, <code>setting-row</code>, <code>menu-item</code>…) are in <code>kit/styles/kit.css</code>. Your own pages can use them or ignore them.</p>
+</section>
+
+<section id="kit-components"><h2>K2. Kit components <span class="badge kit">Kit</span></h2><div class="tw"><table class=""><thead><tr><th>Tag</th><th>Purpose</th><th>Parameters</th><th>Children slot</th><th>File</th></tr></thead><tbody>
+<tr><td><code>&lt;Card&gt;</code></td><td>A titled card: header, divider, then your children.</td><td><code>title</code></td><td>yes</td><td><code>ui/kit/components/Card.xml</code></td></tr>
+<tr><td><code>&lt;DialogFrame&gt;</code></td><td>The frame of a dialog: title, accent line and your children.</td><td><code>title</code> (optional)</td><td>yes</td><td><code>ui/kit/components/DialogFrame.xml</code></td></tr>
+<tr><td><code>&lt;KeyBindSlot&gt;</code></td><td>One key/button slot of the controls page (icon + name). Used by the input page's code.</td><td>none</td><td>no</td><td><code>ui/kit/components/KeyBindSlot.xml</code></td></tr>
+<tr><td><code>&lt;SettingRow&gt;</code></td><td>A settings row: the label on the left, your controls on the right.</td><td><code>label</code></td><td>yes</td><td><code>ui/kit/components/SettingRow.xml</code></td></tr>
+<tr><td><code>&lt;StyledButton&gt;</code></td><td>A TextButton with the kit's button look.</td><td><code>text</code></td><td>no</td><td><code>ui/kit/components/StyledButton.xml</code></td></tr>
+<tr><td><code>&lt;TabBar&gt;</code></td><td>The row of tab buttons of the settings page.</td><td>none</td><td>yes</td><td><code>ui/kit/components/TabBar.xml</code></td></tr>
+<tr><td><code>&lt;Toast&gt;</code></td><td>A short message box.</td><td><code>text</code></td><td>no</td><td><code>ui/kit/components/Toast.xml</code></td></tr>
+</tbody></table></div><pre><code>&lt;Card title="Controls"&gt;
+  &lt;Label text="Move with WASD"/&gt;
+  &lt;StyledButton text="Rebind" onactivate="Push('GameData/ui/kit/pages/input.xml')"/&gt;
+&lt;/Card&gt;
+
+&lt;DialogFrame title="Quit?"&gt;
+  &lt;Label text="Unsaved progress is lost."/&gt;
+  &lt;Panel class="dialog-row"&gt;
+    &lt;TextButton class="dialog-button" text="Yes" onactivate="Quit()"/&gt;
+    &lt;TextButton class="dialog-button" text="No" default-focus="true" onactivate="Back()"/&gt;
+  &lt;/Panel&gt;
+&lt;/DialogFrame&gt;
+
+&lt;TabBar&gt; &lt;TextButton text="Video"/&gt; &lt;TextButton text="Sound"/&gt; &lt;/TabBar&gt;
+&lt;Toast text="Game saved"/&gt;</code></pre></section>
+
+<section id="kit-pages"><h2>K3. Kit pages <span class="badge kit">Kit</span></h2><div class="tw"><table class=""><thead><tr><th>Page</th><th>What it is</th><th>File</th></tr></thead><tbody>
+<tr><td><code>confirm</code></td><td>Yes / no dialog. Open with <code>KitConfirm::Ask</code>.</td><td><code>GameData/ui/kit/pages/confirm.xml</code></td></tr>
+<tr><td><code>confirm_changes</code></td><td>"Apply or discard changed settings?" prompt shown by pages with <code>confirm-changes="true"</code>.</td><td><code>GameData/ui/kit/pages/confirm_changes.xml</code></td></tr>
+<tr><td><code>input</code></td><td>Controls tab: one row per input action with keyboard and gamepad slots. Code-behind <code>KitInputPage</code>.</td><td><code>GameData/ui/kit/pages/input.xml</code></td></tr>
+<tr><td><code>pause</code></td><td>Pause menu: Resume, Save, Load, Restart (if the game sets it), Settings, Quit. Pauses the game, hides the HUD. Code-behind <code>KitPauseMenu</code>.</td><td><code>GameData/ui/kit/pages/pause.xml</code></td></tr>
+<tr><td><code>rebind</code></td><td>Modal that listens for the next key, mouse button or gamepad button. Opened with <code>KitRebind::Open</code>.</td><td><code>GameData/ui/kit/pages/rebind.xml</code></td></tr>
+<tr><td><code>saveload</code></td><td>Save / load slot list. Open with <code>KitSaveLoad::Open</code>.</td><td><code>GameData/ui/kit/pages/saveload.xml</code></td></tr>
+<tr><td><code>settings</code></td><td>Tabbed settings (Video, Sound, Input, plus tabs the game registers). Code-behind <code>KitSettingsMenu</code>.</td><td><code>GameData/ui/kit/pages/settings.xml</code></td></tr>
+<tr><td><code>sound</code></td><td>Sound tab: master, music and effects volume.</td><td><code>GameData/ui/kit/pages/sound.xml</code></td></tr>
+<tr><td><code>video</code></td><td>Video tab: resolution, window mode, VSync, MSAA, FXAA, shadows. Bound to the <code>video.*</code> settings.</td><td><code>GameData/ui/kit/pages/video.xml</code></td></tr>
+</tbody></table></div>
+<p>The code-behind classes (<code>KitPauseMenu</code>, <code>KitSettingsMenu</code>, <code>KitInputPage</code>, <code>KitSaveLoad</code>) are registered by <code>KitInit()</code>. Hooks a game may set: <code>KitPauseMenu::ShowSaveLoad</code>, <code>CanSave</code>, <code>OnRestart</code>; <code>KitSettingsMenu::RegisterTab</code> adds a tab; <code>KitConfirm::Ask</code>, <code>KitSaveLoad::Open</code> and <code>KitRebind::Open</code> open the modal pages.</p>
+<h3>Building your own page from kit pieces</h3><pre><code>&lt;!-- A page built from kit pieces --&gt;
+&lt;root&gt;
+  &lt;styles&gt;&lt;include src="GameData/ui/theme.css"/&gt;&lt;/styles&gt;
+  &lt;Panel class="kit-screen" confirm-changes="true"&gt;
+    &lt;Panel class="kit-column"&gt;
+      &lt;SettingRow label="Volume"&gt;
+        &lt;Slider min="0" max="1" step="0.05" bind="setting:audio.master"/&gt;
+        &lt;Label class="setting-value" text="{value:%.2f}"/&gt;
+      &lt;/SettingRow&gt;
+      &lt;SettingRow label="Invert Y"&gt;
+        &lt;ToggleButton class="kit-toggle" bind="setting:input.invert_y"&gt;&lt;Label class="on" text="On"/&gt;&lt;Label class="off" text="Off"/&gt;&lt;/ToggleButton&gt;
+      &lt;/SettingRow&gt;
+      &lt;StyledButton text="Back" onactivate="Back()"/&gt;
+    &lt;/Panel&gt;
+  &lt;/Panel&gt;
+&lt;/root&gt;</code></pre>
+</section>
+
+<section id="kit-settings"><h2>K4. Kit settings <span class="badge kit">Kit</span></h2>
+<p>Registered by the kit (<code>bind="setting:KEY"</code>); games add their own with <code>UiSettings::Register</code>.</p><div class="tw"><table class=""><thead><tr><th>Key (bind="setting:…")</th><th>Type</th><th>Range</th><th>Label key</th></tr></thead><tbody>
+<tr><td><code>audio.master</code></td><td>float</td><td>0 .. 1 step 0.01</td><td><code>${SETTINGS_SOUND_MASTER_VOLUME}</code></td></tr>
+<tr><td><code>audio.music</code></td><td>float</td><td>0 .. 1 step 0.01</td><td><code>${SETTINGS_SOUND_MUSIC_VOLUME}</code></td></tr>
+<tr><td><code>audio.sfx</code></td><td>float</td><td>0 .. 1 step 0.01</td><td><code>${SETTINGS_SOUND_SFX_VOLUME}</code></td></tr>
+<tr><td><code>input.gamepad_sensitivity</code></td><td>float</td><td>0.1 .. 3 step 0.05</td><td><code>${SETTINGS_INPUT_GAMEPAD_SENSITIVITY}</code></td></tr>
+<tr><td><code>input.invert_y</code></td><td>bool</td><td></td><td><code>${SETTINGS_INPUT_INVERT_LOOK_Y}</code></td></tr>
+<tr><td><code>input.mouse_sensitivity</code></td><td>float</td><td>0.01 .. 2 step 0.01</td><td><code>${SETTINGS_INPUT_MOUSE_SENSITIVITY}</code></td></tr>
+<tr><td><code>ui.reduced_motion</code></td><td>bool</td><td></td><td><code>${SETTINGS_UI_REDUCED_MOTION}</code></td></tr>
+<tr><td><code>ui.scale</code></td><td>float</td><td>0.75 .. 1.5 step 0.05</td><td><code>${SETTINGS_UI_SCALE}</code></td></tr>
+<tr><td><code>ui.text_scale</code></td><td>float</td><td>0.75 .. 1.5 step 0.05</td><td><code>${SETTINGS_UI_TEXT_SCALE}</code></td></tr>
+<tr><td><code>video.dynamic_shadows</code></td><td>bool</td><td></td><td><code>${SETTINGS_VIDEO_DYNAMIC_SHADOWS}</code></td></tr>
+<tr><td><code>video.fxaa</code></td><td>bool</td><td></td><td><code>${SETTINGS_VIDEO_FXAA}</code></td></tr>
+<tr><td><code>video.msaa</code></td><td>choice</td><td></td><td><code>${SETTINGS_VIDEO_MSAA}</code></td></tr>
+<tr><td><code>video.resolution</code></td><td>choice</td><td></td><td><code>${SETTINGS_VIDEO_RESOLUTION}</code></td></tr>
+<tr><td><code>video.vsync</code></td><td>bool</td><td></td><td><code>${SETTINGS_VIDEO_VSYNC}</code></td></tr>
+<tr><td><code>video.window_mode</code></td><td>choice</td><td></td><td><code>${SETTINGS_VIDEO_WINDOW_MODE}</code></td></tr>
+</tbody></table></div></section>
+
+<h1 class="part" id="appendix">Appendix</h1>
+<section id="tags-ref"><h2>A. CSS property reference <span class="badge core">Core</span></h2><h4>Layout</h4>
+<div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
+<tr><td><code>flow-children</code></td><td><code>none | down | right | down-wrap | right-wrap</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>gap</code></td><td><code>&lt;length&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>height</code></td><td><code>&lt;length-percentage&gt; | fit-children | fill-parent-flow(&lt;number&gt;) | width-percentage(&lt;percentage&gt;) | calc()</code></td><td><code>fit-children</code></td><td></td></tr>
+<tr><td><code>horizontal-align</code></td><td><code>left | center | right</code></td><td><code>left</code></td><td></td></tr>
+<tr><td><code>margin</code></td><td><code>&lt;length-percentage&gt;{1,4}</code></td><td><code>0</code></td><td>shorthand</td></tr>
+<tr><td><code>margin-bottom</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>margin-left</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>margin-right</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>margin-top</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>max-height</code></td><td><code>&lt;length-percentage&gt; | none</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>max-width</code></td><td><code>&lt;length-percentage&gt; | none</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>min-height</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>min-width</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>overflow</code></td><td><code>visible | clip | scroll</code></td><td><code>visible</code></td><td></td></tr>
+<tr><td><code>padding</code></td><td><code>&lt;length-percentage&gt;{1,4}</code></td><td><code>0</code></td><td>shorthand</td></tr>
+<tr><td><code>padding-bottom</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>padding-left</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>padding-right</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>padding-top</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>vertical-align</code></td><td><code>top | center | bottom</code></td><td><code>top</code></td><td></td></tr>
+<tr><td><code>visibility</code></td><td><code>visible | hidden | collapse</code></td><td><code>visible</code></td><td>inherited</td></tr>
+<tr><td><code>width</code></td><td><code>&lt;length-percentage&gt; | fit-children | fill-parent-flow(&lt;number&gt;) | height-percentage(&lt;percentage&gt;) | calc()</code></td><td><code>fit-children</code></td><td></td></tr>
+<tr><td><code>x</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>y</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>z-index</code></td><td><code>&lt;integer&gt;</code></td><td><code>0</code></td><td></td></tr>
+</tbody></table></div>
+<h4>Background and images</h4>
+<div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
+<tr><td><code>background-color</code></td><td><code>&lt;color&gt;</code></td><td><code>transparent</code></td><td></td></tr>
+<tr><td><code>background-image</code></td><td><code>none | [url() | linear-gradient() | radial-gradient() | conic-gradient() | repeating-*()]#</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>background-position</code></td><td><code>[&lt;position&gt;]#</code></td><td><code>0% 0%</code></td><td></td></tr>
+<tr><td><code>background-repeat</code></td><td><code>[repeat | no-repeat | repeat-x | repeat-y]#</code></td><td><code>repeat</code></td><td></td></tr>
+<tr><td><code>background-size</code></td><td><code>[auto | cover | contain | &lt;length-percentage&gt;{1,2}]#</code></td><td><code>auto</code></td><td></td></tr>
+<tr><td><code>image-rendering</code></td><td><code>auto | pixelated</code></td><td><code>auto</code></td><td>inherited</td></tr>
+<tr><td><code>mask-image</code></td><td><code>none | linear-gradient() | radial-gradient()</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>object-fit</code></td><td><code>fill | contain | cover | none | scale-down</code></td><td><code>fill</code></td><td></td></tr>
+<tr><td><code>object-position</code></td><td><code>&lt;position&gt;</code></td><td><code>50% 50%</code></td><td></td></tr>
+</tbody></table></div>
+<h4>Border, outline, shadow</h4>
+<div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
+<tr><td><code>border</code></td><td><code>&lt;width&gt; || &lt;style&gt; || &lt;color&gt;</code></td><td><code>0 none black</code></td><td>shorthand</td></tr>
+<tr><td><code>border-bottom</code></td><td><code>&lt;width&gt; || &lt;style&gt; || &lt;color&gt;</code></td><td><code></code></td><td>shorthand</td></tr>
+<tr><td><code>border-bottom-color</code></td><td><code>&lt;color&gt;</code></td><td><code>currentcolor</code></td><td></td></tr>
+<tr><td><code>border-bottom-left-radius</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>border-bottom-right-radius</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>border-bottom-style</code></td><td><code>none | solid</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>border-bottom-width</code></td><td><code>&lt;length&gt; | thin | medium | thick</code></td><td><code>medium</code></td><td></td></tr>
+<tr><td><code>border-color</code></td><td><code>&lt;color&gt;, 1-4 values</code></td><td><code>currentcolor</code></td><td>shorthand</td></tr>
+<tr><td><code>border-image</code></td><td><code>&lt;source&gt; &lt;slice&gt; [/ &lt;width&gt;] &lt;repeat&gt;</code></td><td><code>none</code></td><td>shorthand</td></tr>
+<tr><td><code>border-image-repeat</code></td><td><code>stretch | round</code></td><td><code>stretch</code></td><td></td></tr>
+<tr><td><code>border-image-slice</code></td><td><code>[&lt;number&gt; | &lt;percentage&gt;]{1,4} &amp;&amp; fill?</code></td><td><code>100%</code></td><td></td></tr>
+<tr><td><code>border-image-source</code></td><td><code>none | url()</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>border-image-width</code></td><td><code>&lt;number&gt;{1,4}</code></td><td><code>1</code></td><td></td></tr>
+<tr><td><code>border-left</code></td><td><code>&lt;width&gt; || &lt;style&gt; || &lt;color&gt;</code></td><td><code></code></td><td>shorthand</td></tr>
+<tr><td><code>border-left-color</code></td><td><code>&lt;color&gt;</code></td><td><code>currentcolor</code></td><td></td></tr>
+<tr><td><code>border-left-style</code></td><td><code>none | solid</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>border-left-width</code></td><td><code>&lt;length&gt; | thin | medium | thick</code></td><td><code>medium</code></td><td></td></tr>
+<tr><td><code>border-radius</code></td><td><code>&lt;length-percentage&gt;{1,4}</code></td><td><code>0</code></td><td>shorthand</td></tr>
+<tr><td><code>border-right</code></td><td><code>&lt;width&gt; || &lt;style&gt; || &lt;color&gt;</code></td><td><code></code></td><td>shorthand</td></tr>
+<tr><td><code>border-right-color</code></td><td><code>&lt;color&gt;</code></td><td><code>currentcolor</code></td><td></td></tr>
+<tr><td><code>border-right-style</code></td><td><code>none | solid</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>border-right-width</code></td><td><code>&lt;length&gt; | thin | medium | thick</code></td><td><code>medium</code></td><td></td></tr>
+<tr><td><code>border-style</code></td><td><code>none | solid, 1-4 values</code></td><td><code>none</code></td><td>shorthand</td></tr>
+<tr><td><code>border-top</code></td><td><code>&lt;width&gt; || &lt;style&gt; || &lt;color&gt;</code></td><td><code></code></td><td>shorthand</td></tr>
+<tr><td><code>border-top-color</code></td><td><code>&lt;color&gt;</code></td><td><code>currentcolor</code></td><td></td></tr>
+<tr><td><code>border-top-left-radius</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>border-top-right-radius</code></td><td><code>&lt;length-percentage&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>border-top-style</code></td><td><code>none | solid</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>border-top-width</code></td><td><code>&lt;length&gt; | thin | medium | thick</code></td><td><code>medium</code></td><td></td></tr>
+<tr><td><code>border-width</code></td><td><code>&lt;length&gt; | thin | medium | thick, 1-4 values</code></td><td><code>medium</code></td><td>shorthand</td></tr>
+<tr><td><code>box-shadow</code></td><td><code>none | [inset? &amp;&amp; &lt;length&gt;{2,4} &amp;&amp; &lt;color&gt;?]#</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>clip-path</code></td><td><code>none | inset() | circle() | ellipse()</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>outline</code></td><td><code>&lt;width&gt; || &lt;style&gt; || &lt;color&gt;</code></td><td><code>medium none currentcolor</code></td><td>shorthand</td></tr>
+<tr><td><code>outline-color</code></td><td><code>&lt;color&gt;</code></td><td><code>currentcolor</code></td><td></td></tr>
+<tr><td><code>outline-offset</code></td><td><code>&lt;length&gt;</code></td><td><code>0</code></td><td></td></tr>
+<tr><td><code>outline-style</code></td><td><code>none | solid</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>outline-width</code></td><td><code>&lt;length&gt; | thin | medium | thick</code></td><td><code>medium</code></td><td></td></tr>
+</tbody></table></div>
+<h4>Text</h4>
+<div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
+<tr><td><code>-webkit-text-stroke</code></td><td><code>&lt;width&gt; &lt;color&gt;</code></td><td><code>0</code></td><td>inherited, shorthand</td></tr>
+<tr><td><code>color</code></td><td><code>&lt;color&gt;</code></td><td><code>white</code></td><td>inherited</td></tr>
+<tr><td><code>font-family</code></td><td><code>&lt;ident | string&gt;#</code></td><td><code>default</code></td><td>inherited</td></tr>
+<tr><td><code>font-size</code></td><td><code>&lt;length&gt;</code></td><td><code>24px</code></td><td>inherited</td></tr>
+<tr><td><code>font-style</code></td><td><code>normal | italic</code></td><td><code>normal</code></td><td>inherited</td></tr>
+<tr><td><code>font-weight</code></td><td><code>normal | bold | 100..900</code></td><td><code>400</code></td><td>inherited</td></tr>
+<tr><td><code>letter-spacing</code></td><td><code>normal | &lt;length&gt;</code></td><td><code>0</code></td><td>inherited</td></tr>
+<tr><td><code>line-height</code></td><td><code>normal | &lt;number&gt; | &lt;length&gt;</code></td><td><code>normal</code></td><td>inherited</td></tr>
+<tr><td><code>text-align</code></td><td><code>left | center | right</code></td><td><code>left</code></td><td>inherited</td></tr>
+<tr><td><code>text-overflow</code></td><td><code>clip | ellipsis | shrink</code></td><td><code>clip</code></td><td></td></tr>
+<tr><td><code>text-shadow</code></td><td><code>none | [&lt;length&gt;{2,3} &amp;&amp; &lt;color&gt;?]#</code></td><td><code>none</code></td><td>inherited</td></tr>
+<tr><td><code>text-stroke</code></td><td><code>&lt;width&gt; &lt;color&gt;</code></td><td><code>0</code></td><td>inherited, shorthand</td></tr>
+<tr><td><code>text-stroke-color</code></td><td><code>&lt;color&gt;</code></td><td><code>currentcolor</code></td><td>inherited</td></tr>
+<tr><td><code>text-stroke-width</code></td><td><code>&lt;length&gt;</code></td><td><code>0</code></td><td>inherited</td></tr>
+<tr><td><code>text-transform</code></td><td><code>none | uppercase | lowercase</code></td><td><code>none</code></td><td>inherited</td></tr>
+<tr><td><code>white-space</code></td><td><code>normal | nowrap | pre</code></td><td><code>normal</code></td><td>inherited</td></tr>
+</tbody></table></div>
+<h4>Effects and transforms</h4>
+<div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
+<tr><td><code>filter</code></td><td><code>none | [brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert()]+</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>mix-blend-mode</code></td><td><code>normal | plus-lighter | multiply | screen</code></td><td><code>normal</code></td><td></td></tr>
+<tr><td><code>opacity</code></td><td><code>&lt;number&gt; | &lt;percentage&gt;</code></td><td><code>1</code></td><td></td></tr>
+<tr><td><code>transform</code></td><td><code>none | [translate() | translateX() | translateY() | rotate() | scale() | scaleX() | scaleY() | skew() | skewX() | skewY()]+</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>transform-origin</code></td><td><code>&lt;position&gt;</code></td><td><code>50% 50%</code></td><td></td></tr>
+<tr><td><code>wash-color</code></td><td><code>&lt;color&gt;</code></td><td><code>transparent</code></td><td></td></tr>
+</tbody></table></div>
+<h4>Motion</h4>
+<div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
+<tr><td><code>animation</code></td><td><code>none | [&lt;name&gt; || &lt;time&gt; || &lt;timing-function&gt; || &lt;time&gt; || &lt;iteration-count&gt; || &lt;direction&gt; || &lt;fill-mode&gt;]#</code></td><td><code>none</code></td><td>shorthand</td></tr>
+<tr><td><code>animation-delay</code></td><td><code>&lt;time&gt;#</code></td><td><code>0s</code></td><td></td></tr>
+<tr><td><code>animation-direction</code></td><td><code>[normal | reverse | alternate | alternate-reverse]#</code></td><td><code>normal</code></td><td></td></tr>
+<tr><td><code>animation-duration</code></td><td><code>&lt;time&gt;#</code></td><td><code>0s</code></td><td></td></tr>
+<tr><td><code>animation-fill-mode</code></td><td><code>[none | forwards | backwards | both]#</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>animation-iteration-count</code></td><td><code>[&lt;number&gt; | infinite]#</code></td><td><code>1</code></td><td></td></tr>
+<tr><td><code>animation-name</code></td><td><code>none | &lt;name&gt;#</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>animation-timing-function</code></td><td><code>&lt;timing-function&gt;#</code></td><td><code>ease</code></td><td></td></tr>
+<tr><td><code>transition</code></td><td><code>none | [&lt;property&gt; || &lt;time&gt; || &lt;timing-function&gt; || &lt;time&gt;]#</code></td><td><code>none</code></td><td>shorthand</td></tr>
+<tr><td><code>transition-delay</code></td><td><code>&lt;time&gt;#</code></td><td><code>0s</code></td><td></td></tr>
+<tr><td><code>transition-duration</code></td><td><code>&lt;time&gt;#</code></td><td><code>0s</code></td><td></td></tr>
+<tr><td><code>transition-property</code></td><td><code>none | [all | &lt;property&gt;]#</code></td><td><code>all</code></td><td></td></tr>
+<tr><td><code>transition-timing-function</code></td><td><code>&lt;timing-function&gt;#</code></td><td><code>ease</code></td><td></td></tr>
+</tbody></table></div>
+<h4>Sound</h4>
+<div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
+<tr><td><code>sound</code></td><td><code>none | &lt;string&gt;</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>sound-hover</code></td><td><code>none | &lt;string&gt;</code></td><td><code>none</code></td><td></td></tr>
+</tbody></table></div></section>
+<footer>Generated by <code>Tools/ui/make_ui_reference.py</code> from <code>uidb.json</code>. Regenerate it after the engine's UI registries change.</footer>
+</main></div></body></html>

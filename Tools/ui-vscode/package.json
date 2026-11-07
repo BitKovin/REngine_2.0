@@ -1,0 +1,57 @@
+{
+  "name": "engine-ui-language",
+  "displayName": "Engine UI Language",
+  "description": "Auto complete, hover, diagnostics and colouring for the engine's UI markup (XML) and its CSS flavour.",
+  "version": "0.1.0",
+  "publisher": "engine",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Programming Languages"],
+  "main": "./dist/client.js",
+  "activationEvents": [],
+  "contributes": {
+    "languages": [
+      { "id": "uixml", "aliases": ["Engine UI XML"], "extensions": [".uixml"], "configuration": "./language-configuration-xml.json" },
+      { "id": "uicss", "aliases": ["Engine UI CSS"], "extensions": [".uicss"], "configuration": "./language-configuration-css.json" }
+    ],
+    "grammars": [
+      { "language": "uixml", "scopeName": "source.uixml", "path": "./syntaxes/uixml.tmLanguage.json", "embeddedLanguages": { "meta.embedded.css": "uicss" } },
+      { "language": "uicss", "scopeName": "source.uicss", "path": "./syntaxes/uicss.tmLanguage.json" }
+    ],
+    "configurationDefaults": {
+      "files.associations": {
+        "**/GameData/ui/**/*.xml": "uixml",
+        "**/GameData/ui/**/*.css": "uicss",
+        "**/Docs/UI/**/*.xml": "uixml"
+      },
+      "[uixml]": { "editor.quickSuggestions": { "other": true, "comments": false, "strings": true }, "editor.autoClosingBrackets": "always" },
+      "[uicss]": { "editor.quickSuggestions": { "other": true, "comments": false, "strings": true } }
+    },
+    "configuration": {
+      "title": "Engine UI",
+      "properties": {
+        "engineUi.databasePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to a uidb.json to use instead of the one found next to the game (SaveData/UIStudio/uidb.json). Empty = find it automatically, falling back to the copy bundled with the extension."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "check": "tsc -p server --noEmit && tsc -p client --noEmit",
+    "test": "node build.mjs && node test/run.mjs",
+    "install-local": "node install-local.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.21.5",
+    "typescript": "^5.4.5",
+    "vscode-languageclient": "^9.0.1",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.11",
+    "vscode-uri": "^3.0.8"
+  }
+}

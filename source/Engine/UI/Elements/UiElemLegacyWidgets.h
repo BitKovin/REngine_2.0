@@ -2,7 +2,6 @@
 #include <UI/Elements/UiElemValue.h>
 
 class UiSlider;
-class UiDropdown;
 class UiTextBox;
 class UiVideo;
 class UiCustomShaderImage;
@@ -32,29 +31,12 @@ public:
     void Update() override;
     double Value() const;
     void SetValue(double v);
+    bool CaptureValue(double& number, std::string&) const override { number = Value(); return true; }
+    void RestoreValue(double number, const std::string&) override { SetValue(number); }
 
 private:
     std::shared_ptr<UiSlider> m_slider;
     UiValueBinding m_binding{ *this };
-};
-
-class UiElemDropDown : public UiElemLegacyWrapper
-{
-public:
-    UiElemDropDown();
-    static std::shared_ptr<UiElem> Create() { return std::make_shared<UiElemDropDown>(); }
-    bool ApplyAttribute(const std::string& name, const std::string& value) override;
-    void Tick() override;
-    void Update() override;
-    void SetOptions(const std::vector<std::string>& options);   // already localised
-    int Selected() const;
-    void SetSelected(int index);
-
-private:
-    void RefreshBoundOptions();
-    std::shared_ptr<UiDropdown> m_drop;
-    UiValueBinding m_binding{ *this };
-    bool m_optionsFromAttribute = false;
 };
 
 class UiElemTextEntry : public UiElemLegacyWrapper
@@ -67,6 +49,8 @@ public:
     void Update() override;
     const std::string& Text() const;
     void SetText(const std::string& text);
+    bool CaptureValue(double&, std::string& text) const override { text = Text(); return true; }
+    void RestoreValue(double, const std::string& text) override { SetText(text); }
 
 private:
     std::shared_ptr<UiTextBox> m_box;

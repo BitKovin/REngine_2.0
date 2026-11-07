@@ -1,0 +1,9 @@
+**/*.ts
+**/*.map
+client/**
+server/**
+test/**
+node_modules/**
+build.mjs
+install-local.mjs
+tsconfig*.json

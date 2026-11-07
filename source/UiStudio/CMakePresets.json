@@ -1,0 +1,24 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "studio",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/../../Build/ui_studio_vs",
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "$env{UISTUDIO_QT_DIR}"
+      },
+      "environment": {
+        "UISTUDIO_QT_DIR": "D:/Qt/6.11.1/msvc2022_64"
+      }
+    },
+    { "name": "windows", "displayName": "UI Studio (Visual Studio 2022, Qt 6.11.1)", "inherits": "studio" }
+  ],
+  "buildPresets": [
+    { "name": "debug", "displayName": "Debug", "configurePreset": "windows", "configuration": "Debug" },
+    { "name": "release", "displayName": "Release", "configurePreset": "windows", "configuration": "Release" }
+  ]
+}

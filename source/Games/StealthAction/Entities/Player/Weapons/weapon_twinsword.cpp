@@ -75,7 +75,7 @@ public:
 
 	// -----------------------------------------------------------------------
 
-	weapon_twinsword()
+	weapon_twinsword() 
 	{
 		LateUpdateWhenPaused = true;
 		startTrailDelay.AddDelay(100000000.0f); // inert until StartAttack arms it

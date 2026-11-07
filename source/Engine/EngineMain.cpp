@@ -125,6 +125,8 @@ void EngineMain::UpdateScreenSize()
 
 void EngineMain::ToggleFullscreen()
 {
+    if (Arguments.find("lock_window") != Arguments.end())
+        return;   // a tool owns the window (UI Studio embeds it)
 
 
     Uint32 FullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP;

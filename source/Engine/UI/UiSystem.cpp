@@ -12,6 +12,7 @@
 #include <UI/Elements/UiElemActionBar.h>
 #include <UI/Elements/UiElemButton.h>
 #include <UI/Elements/UiElemControls.h>
+#include <UI/Elements/UiElemDropDown.h>
 #include <UI/Elements/UiElemFrame.h>
 #include <UI/Elements/UiElemLegacyWidgets.h>
 #include <UI/Elements/UiElemInputPrompt.h>
@@ -24,6 +25,8 @@
 #include <UI/Markup/UiBuilder.h>
 #include <UI/Markup/UiDocument.h>
 #include <UI/Markup/UiMarkupLog.h>
+#include <UI/Markup/UiSourceSync.h>
+#include <UI/Markup/UiStateSnapshot.h>
 #include <UI/Markup/UiTagRegistry.h>
 #include <UI/Menus/UiActions.h>
 #include <UI/Menus/UiInputPrompts.h>
@@ -62,8 +65,10 @@ namespace
     std::thread::id g_gameThread;
     bool g_initialised = false;
     std::vector<std::weak_ptr<UiElem>> g_roots;
-    std::map<std::string, uint32_t> g_modTimes;
+#ifndef DISTRIBUTION
+    std::map<std::string, uint32_t> g_modTimes;   // development builds: files the live pages were built from
     uint64_t g_lastPollMs = 0;
+#endif
     int g_frameCounter = 0;
     std::string g_previewPath;
     bool g_previewLoaded = false;
@@ -122,8 +127,9 @@ namespace
         UiTagRegistry::RegisterBuiltin("Slider", &UiElemSlider::Create, TagInfo{ "Slider", "input", "Draggable value slider (wraps the legacy slider); events: valuechanged; variable: value",
             { AttributeInfo{ "min", "number", "0", false, "Smallest value" }, AttributeInfo{ "max", "number", "1", false, "Largest value" },
               AttributeInfo{ "step", "number", "0", false, "Snap increment (0 = continuous)" }, value, bind } });
-        UiTagRegistry::RegisterBuiltin("DropDown", &UiElemDropDown::Create, TagInfo{ "DropDown", "input", "Drop-down list (wraps the legacy drop-down); events: valuechanged; variable: value (the index)",
-            { AttributeInfo{ "options", "text", "", false, "Items separated by |, localised" }, AttributeInfo{ "selected-index", "number", "-1", false, "Index of the selected item" }, bind } });
+        UiTagRegistry::RegisterBuiltin("DropDown", &UiElemDropDown::Create, TagInfo{ "DropDown", "input", "Drop-down list: a header and a list that opens above everything else (classes .dropdown-text, .dropdown-arrow, .dropdown-list, .dropdown-item; states :open via .open, :selected on the row); events: valuechanged; variable: value (the index)",
+            { AttributeInfo{ "options", "text", "", false, "Items separated by |, localised" }, AttributeInfo{ "selected-index", "number", "-1", false, "Index of the selected item" },
+              AttributeInfo{ "placeholder", "text", "", false, "Shown while nothing is selected" }, AttributeInfo{ "max-visible", "number", "6", false, "Rows shown before the list scrolls" }, bind } });
         UiTagRegistry::RegisterBuiltin("TextEntry", &UiElemTextEntry::Create, TagInfo{ "TextEntry", "input", "Single-line text field (wraps the legacy text box); events: valuechanged; variable: value (the text)",
             { AttributeInfo{ "text", "text", "", false, "Initial text" }, AttributeInfo{ "placeholder", "text", "", false, "Shown while empty" },
               AttributeInfo{ "max-length", "number", "0", false, "0 = unlimited" }, AttributeInfo{ "password", "bool", "false", false, "Mask the characters" },
@@ -319,12 +325,16 @@ namespace
         return out;
     }
 
+#ifndef DISTRIBUTION
     void RememberModTimes(const UiElem& root)
     {
         for (const std::string& path : root.m_dependencies)
             if (!g_modTimes.count(path))
                 g_modTimes[path] = FileSystemEngine::GetFileModificationTime(path);
     }
+#else
+    void RememberModTimes(const UiElem&) {}
+#endif
 
     // ── paint recording (task 1.13)
     struct ClipInfo { bool Valid = false; glm::mat3 Matrix = glm::mat3(1.f); glm::vec2 Size = glm::vec2(0.f); };
@@ -399,12 +409,14 @@ namespace
         root.m_frame = std::make_shared<const UiElem::UiFrameData>(std::move(data));
     }
 
-    // ── hot reload (task 1.14)
+    // ── hot reload (task 1.14). Development builds only: a shipped game does not watch its files.
+#ifndef DISTRIBUTION
     void ReloadRoot(const std::shared_ptr<UiElem>& old)
     {
         UiElement* parent = old->parent;
         UiMenuStack* stack = UiElem::IsElem(parent) ? static_cast<UiElem*>(parent)->AsMenuStack() : nullptr;
         const std::string path = old->m_layoutPath;
+        const UiStateSnapshot state = UiStateSnapshot::Capture(*old);      // what the user did on the page, put back below
         auto fresh = UiElem::Load(path);
         if (!fresh)
         {
@@ -413,21 +425,17 @@ namespace
         }
         if (stack != nullptr)
             UiSystem::UnregisterRoot(fresh);
-        for (const auto& [name, value] : old->m_vars)
-        {
-            const auto num = old->m_numVars.find(name);
-            if (num != old->m_numVars.end()) fresh->SetVar(name, num->second);
-            else fresh->SetVar(name, value);
-        }
-        for (const std::string& cls : old->CodeClasses)
-            fresh->SetClass(cls, true);
         if (stack != nullptr)
             stack->SwapPage(old.get(), fresh);
         else if (parent != nullptr)
         {
             parent->AddChild(fresh);
             parent->RemoveChild(old);
+            // Roots are painted from the registry, not from the parent: an old page that the game still holds
+            // would keep drawing under the new one, and every reload would add another copy (glows get brighter).
+            UiSystem::UnregisterRoot(old);
         }
+        state.Restore(*fresh);
         RememberModTimes(*fresh);
         Logger::Log("[UI] reloaded %s", path.c_str());
     }
@@ -439,9 +447,18 @@ namespace
             return;
         g_lastPollMs = now;
 
-        std::vector<std::string> changed;
+        // The running copy of GameData is made by the build: bring edits of the source files over first.
+        std::vector<std::string> tracked;
+        for (const auto& entry : g_modTimes)
+            tracked.push_back(entry.first);
+        std::vector<std::string> changed = UiSourceSync::Poll(tracked);
         for (auto& [path, stamp] : g_modTimes)
         {
+            if (std::find(changed.begin(), changed.end(), path) != changed.end())
+            {
+                stamp = FileSystemEngine::GetFileModificationTime(path);
+                continue;
+            }
             const uint32_t current = FileSystemEngine::GetFileModificationTime(path);
             if (current != 0 && current != stamp)
             {
@@ -483,8 +500,14 @@ namespace
         for (int i = 0; i < UiMenus::Stack().Depth(); ++i)
             if (UiElem* page = UiMenus::Stack().PageAt(i))
                 try { reloadable.push_back(std::static_pointer_cast<UiElem>(page->shared_from_this())); } catch (...) {}
-        for (auto& root : reloadable)
+        for (size_t i = 0; i < reloadable.size(); ++i)
         {
+            const std::shared_ptr<UiElem>& root = reloadable[i];
+            bool duplicate = false;
+            for (size_t j = 0; j < i; ++j)
+                duplicate = duplicate || reloadable[j] == root;
+            if (duplicate)
+                continue;
             bool affected = false;
             for (const std::string& dep : root->m_dependencies)
                 if (std::find(changed.begin(), changed.end(), dep) != changed.end())
@@ -495,6 +518,9 @@ namespace
         UiDatabase::MarkDirty("hot reload");
         UiDatabase::RefreshFromRegistries();
     }
+#else
+    void PollHotReload() {}
+#endif
 
     // ── console commands
     void CmdLoad(const std::vector<std::string>& args)
@@ -605,6 +631,7 @@ namespace
     }
 
     void CmdPop(const std::vector<std::string>&) { UiMenus::Pop(); }
+    void CmdClearStack(const std::vector<std::string>&) { UiMenus::Clear(); }
     void CmdBack(const std::vector<std::string>&) { UiMenus::Stack().Back(); }
 
     void CmdReducedMotion(const std::vector<std::string>& args)
@@ -1254,6 +1281,7 @@ void UiSystem::Init()
     console.RegisterCommand({ "ui_overflow_report", "Logs every Label whose text overflows its box (run with -ui_pseudoloc)", CmdOverflowReport });
     console.RegisterCommand({ "ui_focus", "ui_focus <id> - focuses a markup element", CmdFocus });
     console.RegisterCommand({ "ui_push", "ui_push <layout> - pushes a page on the main menu stack", CmdPush });
+    console.RegisterCommand({ "ui_clear_stack", "Pops every page of the main menu stack", CmdClearStack });
     console.RegisterCommand({ "ui_pop", "Pops the top page of the main menu stack", CmdPop });
     console.RegisterCommand({ "ui_back", "Runs back on the main menu stack", CmdBack });
     console.RegisterCommand({ "ui_stack", "Prints the main menu stack", CmdStack });

@@ -5,6 +5,7 @@
 #include <UI/Markup/UiDocument.h>
 #include <UI/Markup/UiMarkupLog.h>
 #include <UI/Style/UiAnimation.h>
+#include <UI/Style/UiCssParser.h>
 #include <UI/Style/UiComputedStyle.h>
 #include <UI/UiSystem.h>
 
@@ -27,6 +28,37 @@ namespace
         const UiCssRule* Rule;
         const std::string* Path;
     };
+
+    // The engine's own look for elements that build parts of themselves (the drop-down). It sits below every sheet of the page, so
+    // any rule of the page wins whatever its specificity.
+    const std::vector<SheetRef>& EngineDefaultSheets()
+    {
+        static const std::vector<SheetRef> sheets = [] {
+            static const char* text =
+                "DropDown { width: 300px; height: 44px; flow-children: right; gap: 8px; padding: 0 12px; vertical-align: center;"
+                " background-color: #333333; border: 2px solid #5a5a5a; border-radius: 4px; color: #ffffff; }\n"
+                "DropDown:hover, DropDown.open { background-color: #444444; }\n"
+                "DropDown:focus { border-color: #ffffff; }\n"
+                "DropDown:disabled { opacity: 0.45; }\n"
+                "DropDown .dropdown-text { width: fill-parent-flow(1); vertical-align: center; text-overflow: ellipsis; }\n"
+                "DropDown .dropdown-arrow { width: 14px; height: 14px; vertical-align: center; }\n"
+                ".dropdown-list { flow-children: down; overflow: scroll; background-color: #262626; border: 2px solid #5a5a5a; border-radius: 4px; }\n"
+                ".dropdown-list .scrollbar { width: 8px; background-color: #1a1a1a; }\n"
+                ".dropdown-list .scrollbar .thumb { background-color: #8a8a8a; border-radius: 4px; }\n"
+                ".dropdown-item { width: 100%; height: 44px; padding: 0 12px; }\n"
+                ".dropdown-item .dropdown-item-text { vertical-align: center; }\n"
+                ".dropdown-item:hover, .dropdown-item:focus { background-color: #444444; }\n"
+                ".dropdown-item:selected { background-color: #3d4b66; }\n";
+            std::vector<SheetRef> list;
+            SheetRef ref;
+            ref.Sheet = UiParseStyleSheet(text, "<engine default sheet>", 0);
+            ref.Order = 0;
+            ref.ReportPath = "<engine default sheet>";
+            list.push_back(ref);
+            return list;
+        }();
+        return sheets;
+    }
 
     std::set<std::string>& Warned()
     {
@@ -151,6 +183,7 @@ namespace
                         matches.push_back({ layer, best, ref.Order, rule.SourceOrder, &rule, &ref.ReportPath });
                 }
         };
+        collect(EngineDefaultSheets(), -1);
         if (e.ScopeFile != rc.RootFile)
         {
             const auto it = rc.ComponentSheets.find(e.ScopeFile);

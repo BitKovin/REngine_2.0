@@ -324,6 +324,10 @@ public:
 
                 Level::LoadLevelFromFile(std::string("GameData/maps/") + mapArg->second[0]);
             }
+            else if (EngineMain::MainInstance->Arguments.find("no_map") != EngineMain::MainInstance->Arguments.end())
+            {
+                Logger::Log("-no_map: not opening any map");   // UI tools (UI Studio) want the interface on an empty world
+            }
             else
             {
                 if (NetworkManager::IsServer())

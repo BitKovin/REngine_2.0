@@ -1,0 +1,55 @@
+# Phase 6: the native DropDown. The list is a root of its own: attached roots are 2 with the list closed (the page and the HUD
+# root of the game), 3 while it is open.
+wait 6
+action pause
+wait_frames 3
+console ui_load GameData/ui/kit/tests/p4_widgets.xml
+wait_frames 6
+focus_trap page
+expect_ui_errors 0
+expect_roots 2
+expect dd value == 0
+
+# keyboard: confirm opens, down moves, confirm selects and closes
+console ui_focus dd
+wait_frames 3
+action ui_confirm
+wait_frames 6
+expect_roots 3
+ui_screenshot p6_dropdown_open
+action ui_down
+wait_frames 3
+action ui_confirm
+wait_frames 6
+expect_roots 2
+expect dd value == 1
+
+# keyboard: cancel closes without a change
+action ui_confirm
+wait_frames 6
+expect_roots 3
+action ui_cancel
+wait_frames 6
+expect_roots 2
+expect dd value == 1
+
+# pointer: click the header, click the third row
+click 190 102
+wait_frames 6
+expect_roots 3
+click 190 236
+wait_frames 6
+expect_roots 2
+expect dd value == 2
+ui_screenshot p6_dropdown_picked
+
+# pointer: a press outside closes the list and leaves the value
+click 190 102
+wait_frames 6
+expect_roots 3
+click 900 600
+wait_frames 6
+expect_roots 2
+expect dd value == 2
+
+quit

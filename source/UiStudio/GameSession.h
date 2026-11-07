@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDateTime>
+#include <QFile>
 #include <QImage>
 #include <QJsonDocument>
 #include <QObject>
@@ -21,14 +22,21 @@ public:
     // exe: path to the game executable. workDir: the folder the game expects as its working directory (holds GameData and SaveData).
     bool Start(const QString& exe, const QString& workDir, QString* error);
     void Stop();
+    qint64 ProcessId() const { return qint64(m_process.processId()); }
     bool IsRunning() const { return m_process.state() == QProcess::Running; }
     bool IsReady() const { return m_ready; }
 
     void Send(const QString& command);
 
     // Each request deletes the old result file, sends the command, then waits for the new file.
-    void RequestScreenshot();
+    // fast: a half-size uncompressed copy for live (Play mode) previews; otherwise a full-size PNG.
+    void RequestScreenshot(bool fast = false);
     void RequestJson(const QString& command, const QString& relFile, const QString& tag);
+
+    // Live view: the game copies every frame into SaveData/ui_frame.bin and Studio reads that file through a memory map.
+    // No files per frame, no PNG, no polling of commands. FrameReady fires for each new frame.
+    void SetFrameSharing(bool on, int downscale = 2);
+    bool FrameSharing() const { return m_sharing; }
 
     QString WorkDir() const { return m_workDir; }
 
@@ -38,12 +46,14 @@ signals:
     void Stopped(int exitCode, bool crashed);
     void LogLine(const QString& line);
     void ScreenshotReady(const QImage& image);
+    void FrameReady(const QImage& image);
     void JsonReady(const QString& tag, const QJsonDocument& doc);
     void RequestFailed(const QString& what);
 
 private slots:
     void OnStdout();
     void Poll();
+    void ReadFrame();
 
 private:
     struct Pending
@@ -55,6 +65,7 @@ private:
     };
 
     void Enqueue(const Pending& p);
+    void CloseFrameFile();
 
     QProcess m_process;
     QTimer m_poll;
@@ -64,4 +75,11 @@ private:
     QVector<Pending> m_pending;
     bool m_ready = false;
     bool m_stopping = false;
+
+    bool m_sharing = false;
+    QTimer m_frameTimer;
+    QFile m_frameFile;
+    uchar* m_frameMap = nullptr;
+    qint64 m_frameMapSize = 0;
+    quint32 m_lastSequence = 0;
 };

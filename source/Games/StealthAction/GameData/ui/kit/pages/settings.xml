@@ -3,6 +3,7 @@
     <include src="GameData/ui/theme.css"/>
   </styles>
   <Panel id="settings" class="kit-screen">
+  <Panel class="kit-menu">
     <Panel class="kit-column">
       <TabBar id="tabs">
         <TextButton id="tabinput" class="kit-tab" text="${SETTINGS_MENU_INPUT}" onactivate="SelectTab('ui/kit/pages/input.xml')"/>
@@ -13,6 +14,7 @@
       <Panel class="kit-buttons">
         <StyledButton id="back" text="${SETTINGS_BACK}" onactivate="Back()"/>
       </Panel>
+    </Panel>
     </Panel>
   </Panel>
 </root>

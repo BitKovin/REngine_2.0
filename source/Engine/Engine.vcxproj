@@ -538,6 +538,8 @@
     <ClCompile Include="UI\Layout\LoadedLayoutInstance.cpp" />
     <ClCompile Include="UI\Layout\UiHotReload.cpp" />
     <ClCompile Include="UI\Layout\UiLayoutSerializer.cpp" />
+    <ClCompile Include="UI\Markup\UiSourceSync.cpp" />
+    <ClCompile Include="UI\Markup\UiStateSnapshot.cpp" />
     <ClCompile Include="UI\Reflection\UiBuiltinReflection.cpp" />
     <ClCompile Include="UI\Reflection\UiElementRegistry.cpp" />
     <ClCompile Include="UI\UiElement.cpp" />
@@ -557,6 +559,7 @@
     <ClCompile Include="UI\Elements\UiElemValue.cpp" />
     <ClCompile Include="UI\Elements\UiElemLegacyWidgets.cpp" />
     <ClCompile Include="UI\Elements\UiElemControls.cpp" />
+    <ClCompile Include="UI\Elements\UiElemDropDown.cpp" />
     <ClCompile Include="UI\Elements\UiElemFrame.cpp" />
     <ClCompile Include="UI\Kit\UiSettings.cpp" />
     <ClCompile Include="UI\Kit\KitPages.cpp" />
@@ -868,6 +871,8 @@
     <ClInclude Include="UI\Layout\LoadedLayoutInstance.h" />
     <ClInclude Include="UI\Layout\UiHotReload.h" />
     <ClInclude Include="UI\Layout\UiLayoutSerializer.h" />
+    <ClInclude Include="UI\Markup\UiSourceSync.h" />
+    <ClInclude Include="UI\Markup\UiStateSnapshot.h" />
     <ClInclude Include="UI\Reflection\PropertyReflection.h" />
     <ClInclude Include="UI\Reflection\UiElementRegistry.h" />
     <ClInclude Include="UI\UiButton.hpp" />
@@ -895,6 +900,7 @@
     <ClInclude Include="UI\Elements\UiElemValue.h" />
     <ClInclude Include="UI\Elements\UiElemLegacyWidgets.h" />
     <ClInclude Include="UI\Elements\UiElemControls.h" />
+    <ClInclude Include="UI\Elements\UiElemDropDown.h" />
     <ClInclude Include="UI\Elements\UiElemFrame.h" />
     <ClInclude Include="UI\Kit\UiSettings.h" />
     <ClInclude Include="UI\Kit\KitPages.h" />
