@@ -3,7 +3,9 @@
 #include <EngineMain.h>
 #include <Input.h>
 #include <UI/Kit/UiSettings.h>
+#include <UI/Markup/UiDocument.h>
 #include <UI/Markup/UiMarkupLog.h>
+#include <UI/Style/UiCssParser.h>
 #include <UI/UiNavigation.h>
 #include <UI/UiSystem.h>
 
@@ -57,14 +59,29 @@ bool UiMenuStack::Contains(const UiElem* page) const
 
 namespace
 {
-    // True when some element of the page has a transition or an animation defined, so popping it may need to wait.
-    bool HasMotionDefined(const UiElem& e)
+    bool SheetHasLeavingRule(const std::shared_ptr<UiStyleSheet>& sheet, int depth)
     {
-        const UiFxStyle& fx = e.Computed().Fx;
-        if (!fx.Transitions.empty() || !fx.Animations.empty() || e.m_anim != nullptr)
-            return true;
-        for (const auto& c : e.children)
-            if (UiElem::IsElem(c.get()) && HasMotionDefined(static_cast<const UiElem&>(*c)))
+        if (!sheet || depth > 8)
+            return false;
+        for (const UiCssRule& rule : sheet->Rules)
+            for (const UiSelector& sel : rule.Selectors)
+                for (const UiCompound& part : sel.Parts)
+                    if (std::find(part.Pseudos.begin(), part.Pseudos.end(), UiPseudo::Leaving) != part.Pseudos.end())
+                        return true;
+        for (const std::string& import : sheet->Imports)
+            if (SheetHasLeavingRule(UiStyleSheetCache::Get(import), depth + 1))
+                return true;
+        return false;
+    }
+
+    // True when the page's style sheets have a :leaving rule, so popping it has a leave effect worth waiting for. The hover and
+    // focus fades of its buttons do not count: they would only keep a closed menu on screen for their duration.
+    bool HasLeaveMotion(const UiElem& page)
+    {
+        if (!page.OwnedInstance || !page.OwnedInstance->Def)
+            return false;
+        for (const auto& sheet : page.OwnedInstance->Def->Sheets)
+            if (SheetHasLeavingRule(sheet, 0))
                 return true;
         return false;
     }
@@ -153,7 +170,7 @@ void UiMenuStack::PopInternal()
             }
     }
     page.FocusTrap = false;
-    if (HasMotionDefined(page))
+    if (HasLeaveMotion(page))
     {
         page.DisableFocus = true;   // the legacy navigation skips the whole page
         Leaving leaving;
