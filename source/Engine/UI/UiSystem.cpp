@@ -215,6 +215,20 @@ namespace
         return best;
     }
 
+    // Position in the viewport's child list of the root that holds `e` (later = drawn and hit above); -1 when it is not under the viewport.
+    int ViewportIndexOf(const UiElement* e)
+    {
+        while (e != nullptr && e->parent != &EngineMain::Viewport)
+            e = e->parent;
+        if (e == nullptr)
+            return -1;
+        const auto& kids = EngineMain::Viewport.children;
+        for (size_t i = 0; i < kids.size(); ++i)
+            if (kids[i].get() == e)
+                return static_cast<int>(i);
+        return -1;
+    }
+
     // Pointer events with capture: the element that got the press keeps receiving move and release.
     void ProcessPointers()
     {
@@ -230,9 +244,14 @@ namespace
                     g_captures[id] = Capture{ element, touch.position };
                     element->OnPointerDown(ToLocal(*element, touch.position));
                 }
-                else if (!hit)
+                else
                 {
-                    if (UiElem* container = ScrollContainerAt(touch.position))
+                    // A press on nothing, or on a legacy element (a HUD touch area) that lies below the menu holding the container:
+                    // the scroll container gets it (the scrollbar and the empty parts of a list).
+                    UiElem* container = ScrollContainerAt(touch.position);
+                    if (container != nullptr && hit && ViewportIndexOf(container) <= ViewportIndexOf(hit.get()))
+                        container = nullptr;
+                    if (container != nullptr)
                         if (auto self = container->weak_from_this().lock())
                         {
                             const auto element = std::static_pointer_cast<UiElem>(self);

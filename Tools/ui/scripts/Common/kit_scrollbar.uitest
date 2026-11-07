@@ -1,0 +1,28 @@
+# The settings scrollbar can be dragged with the mouse (the press lands on the HUD's legacy touch area below the menu).
+wait 8
+action pause
+wait_frames 10
+console ui_focus psettings
+wait_frames 3
+action ui_confirm
+wait_frames 15
+console ui_focus tabinput
+wait_frames 3
+action ui_confirm
+wait_frames 15
+ui_screenshot sb_input
+expect content scroll_max_y > 0
+expect content scroll_y == 0
+mouse_move 1307 250
+wait_frames 3
+mouse_down
+wait_frames 3
+mouse_move 1307 400
+wait_frames 3
+mouse_move 1307 550
+wait_frames 10
+mouse_up
+wait_frames 10
+ui_screenshot sb_after
+expect content scroll_y > 100
+quit
