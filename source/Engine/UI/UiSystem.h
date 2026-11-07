@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <vector>
 
 class UiElem;
 
@@ -18,6 +19,7 @@ public:
     static void UnregisterRoot(const std::shared_ptr<UiElem>& root);   // pages owned by a menu stack are not roots
     static void QueueEvent(UiElem& element, const std::string& event); // runs the element's on<event> calls at the start of the next Update
     static int FrameIndex();             // counts UiSystem::Update calls
+    static std::vector<std::shared_ptr<UiElem>> Roots();   // live roots in registration order (inspection, lint)
     static UiElem* FindById(const std::string& id);   // first match over all live roots, document order (tests)
     static std::thread::id MainThread();
     static bool IsInitialised();

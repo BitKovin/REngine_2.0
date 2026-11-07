@@ -9,6 +9,8 @@
 #include <DebugDraw.hpp>
 #include <UI/UiRenderer.h>
 #include <UI/Test/UiTestRunner.h>
+#include <UI/Studio/UiLint.h>
+#include <Console/ConsoleStdin.h>
 #include <UI/UiSystem.h>
 #include <UI/Preview/UiDatabase.h>
 #include <UI/Render/UiPainterTestCard.h>
@@ -240,6 +242,8 @@ void EngineMain::Init(std::vector<std::string> args)
     ConsoleDefaultCommands::RegisterAll();
 
     UiTestRunner::InitFromArguments();
+    UiLint::HandleLaunchArguments();
+    ConsoleStdin::InitFromArguments();
 
     Logger::Info("initPhys");
     Physics::Init();
@@ -509,6 +513,7 @@ void EngineMain::MainLoop()
     Input::Update();
 
     UiTestRunner::Tick();
+    ConsoleStdin::Poll();
 
     UiNavigation::Update(&Viewport);
 

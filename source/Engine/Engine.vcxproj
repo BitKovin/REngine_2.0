@@ -593,6 +593,9 @@
     <ClCompile Include="UI\Render\UiPainter.cpp" />
     <ClCompile Include="UI\Render\UiPainterTestCard.cpp" />
     <ClCompile Include="UI\Render\UiPrimBuffer.cpp" />
+    <ClCompile Include="Console\ConsoleStdin.cpp" />
+    <ClCompile Include="UI\Studio\UiInspect.cpp" />
+    <ClCompile Include="UI\Studio\UiLint.cpp" />
     <ClCompile Include="UI\Test\UiTestRunner.cpp" />
     <ClCompile Include="UI\UiRenderer.cpp" />
     <ClCompile Include="UI\UiVideo.hpp" />
@@ -934,6 +937,9 @@
     <ClInclude Include="UI\Render\UiPainterTestCard.h" />
     <ClInclude Include="UI\Render\UiPrimBuffer.h" />
     <ClInclude Include="UI\Render\UiRenderTypes.h" />
+    <ClInclude Include="Console\ConsoleStdin.h" />
+    <ClInclude Include="UI\Studio\UiInspect.h" />
+    <ClInclude Include="UI\Studio\UiLint.h" />
     <ClInclude Include="UI\Test\UiTestRunner.h" />
     <ClInclude Include="UI\UiRenderer.h" />
     <ClInclude Include="UI\UiScrollRegion.hpp" />

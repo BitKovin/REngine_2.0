@@ -20,7 +20,7 @@ These files tell an implementer exactly what to build, in what order, and how to
 | 3 | `P3_PAINTING_AND_MOTION.md`: full CSS painting, image atlas, transforms, transitions, keyframes and paint/animation preview metadata | 1 (2 recommended) | done |
 | 4 | `P4_WIDGETS_AND_KIT.md`: wrapped widgets, settings/localisation metadata and fixtures, engine kit, port all games, delete RmlUi | 2, 3 | done |
 | 5 | `P5_HUD_AND_WORLD.md`: layers/HUD/host preview metadata, world panels, `UiContext`, world surfaces, loading screens | 2, 3 | not started |
-| 6 | `P6_UI_STUDIO.md`: game-independent Qt Studio discovered from `GameData` + `uidb.json`; delete the ImGui editor and JSON `.ui` layouts | 1 (better after 4) | not started |
+| 6 | `P6_UI_STUDIO.md`: game-independent Qt Studio discovered from `GameData` + `uidb.json`; delete the ImGui editor and JSON `.ui` layouts | 1 (better after 4) | in progress: lint, stdin console, Qt Studio first slice (see P6 notes) |
 | 7 | `P7_LAYERS_AND_EXTRAS.md`: layer atlas/effect preview metadata, blur, backdrop, group opacity, SVG, drag/drop, context menus | 3, 5 | not started |
 | 8 | `P8_SCENE_VIEWS.md`: scene-view preview recipes and 3D scenes drawn into UI (character preview, item inspect) | 5, 7 | not started |
 

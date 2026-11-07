@@ -29,6 +29,8 @@
 #include <UI/Menus/UiInputPrompts.h>
 #include <UI/Menus/UiMenuStack.h>
 #include <UI/Preview/UiDatabase.h>
+#include <UI/Studio/UiInspect.h>
+#include <UI/Studio/UiLint.h>
 #include <UI/Preview/UiMenuPreviews.h>
 #include <UI/Preview/UiPreviewRegistry.h>
 #include <UI/Reflection/UiElementRegistry.h>
@@ -1247,6 +1249,8 @@ void UiSystem::Init()
     console.RegisterCommand({ "ui_load", "ui_load <layout> - loads a markup layout into the viewport", CmdLoad });
     console.RegisterCommand({ "ui_unload_all", "Removes every markup root", CmdUnloadAll });
     console.RegisterCommand({ "ui_dump", "ui_dump [depth] - prints the markup trees", CmdDump });
+    UiInspect::RegisterConsoleCommands();
+    UiLint::RegisterConsoleCommands();
     console.RegisterCommand({ "ui_overflow_report", "Logs every Label whose text overflows its box (run with -ui_pseudoloc)", CmdOverflowReport });
     console.RegisterCommand({ "ui_focus", "ui_focus <id> - focuses a markup element", CmdFocus });
     console.RegisterCommand({ "ui_push", "ui_push <layout> - pushes a page on the main menu stack", CmdPush });
@@ -1481,6 +1485,8 @@ void UiSystem::ResetViewport()
         try { EngineMain::Viewport.AddChild(std::static_pointer_cast<UiElement>(stack.shared_from_this())); } catch (...) {}
     }
 }
+
+std::vector<std::shared_ptr<UiElem>> UiSystem::Roots() { return LiveRoots(); }
 
 UiElem* UiSystem::FindById(const std::string& id)
 {

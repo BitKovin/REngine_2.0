@@ -1,8 +1,13 @@
 #pragma once
+#include <functional>
 #include <string>
 
 namespace UiMarkupLog
 {
+    // Receives every message too (lint and Studio collect them). Pass an empty function to remove it.
+    using Sink = std::function<void(bool isError, const std::string& path, int line, int col, const std::string& message)>;
+    void SetSink(Sink sink);
+
     // "[UI] <path>:<line>:<col>: error: <message>" (conventions §9). line/col 0 when unknown.
     void Error(const std::string& path, int line, int col, const std::string& message);
     void Warning(const std::string& path, int line, int col, const std::string& message);

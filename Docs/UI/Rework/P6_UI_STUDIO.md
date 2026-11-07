@@ -979,3 +979,26 @@ Record:
 - localisation source format discovered, shared parser/API used, fallback rules, source-preserving edit behaviour and locale coverage tests;
 - test scripts, games and backends run, with pass/fail and baseline references;
 - any issue that required an owner decision. A task marked **STOP** still requires owner review before proceeding.
+
+### Status: first slice done, phase NOT complete (2026-11-07)
+
+Only a vertical slice of P6 is implemented. Verified on StealthAction only (dx11, headless). The rest of the phase is open and listed at the end.
+
+**Studio/runtime protocol (decided by the owner: Studio is a separate Qt executable, no Studio-only code in the engine)**
+- Studio starts the game as a child process with `-headless -console_stdin` and the game's folder as working directory. It writes console commands to the game's stdin and reads the game's stdout as the log.
+- The engine side is generic, not Studio-specific: `Console/ConsoleStdin.*` (`-console_stdin`: non-blocking stdin polled once per frame on the main thread, no thread started) and the console commands `ui_dump_json [depth]`, `ui_pick_at <x> <y>`, `ui_computed <id-or-path>`, `ui_lint`, plus the launch arguments `-ui_lint` and `-ui_schema <file>`.
+- Results larger than the logger line (1024 bytes) are written to `SaveData/ui_inspect/{tree,pick,computed}.json` and `SaveData/ui_lint.json`; Studio deletes the file, sends the command and polls for the new file.
+- The preview is the game's own `screenshot <name>` (works headless). It is a still image, refreshed after a save; it is not a hosted native window and has no input. Click-to-pick maps the click to game coordinates and calls `ui_pick_at`.
+- Studio never links engine or game code. `uidb.json` stays the offline catalogue (owner decision: "continue as it is"); the live connection carries only dynamic data.
+- Saved files are copied into the game's own `GameData` folder (next to `bin`) so the existing 0.5 s hot reload picks them up. Files created by Studio are not added to the game's `manifest.json` (untested whether new files are found without it).
+
+**Engine code added** (all CRLF, in `source/Engine`): `UI/Studio/UiInspect.*`, `UI/Studio/UiLint.*`, `Console/ConsoleStdin.*`, `UiMarkupLog::SetSink`, `UiSystem::Roots()`.
+
+**Lint (6.1, partial)**: parser/builder messages with file, line and column (unknown tag/attribute, import cycle, bad nesting), CSS unknown property and invalid value, missing font, missing `Image src`, `${KEY}` not in localisation, duplicate ids, unresolved `nav-*` targets. Output `SaveData/ui_lint.txt|json`, ends with `LINT PASS` or `LINT FAIL <n>`. Real kit pages lint clean; errors reported are the intentional broken fixtures (`p1_errors.xml`, `CycleB.xml`); warnings are fixture variables and `test.*` settings.
+
+**Studio (`source/UiStudio`, Qt 6.11.1 MSVC, Core/Gui/Widgets, own CMake project, no engine link)**
+Build: `Build/studio_build.cmd` (cmake + ninja into `Build/ui_studio`), then `windeployqt UiStudio.exe`. Run: `UiStudio.exe [GameData folder] [game exe] [page]`.
+Done: welcome page with recent projects and automatic game-exe discovery; project tree (xml/css); tabbed editor with XML/CSS highlighting, line numbers, auto-indent, undo/redo, problem markers; New file from templates; save that writes exactly the edited text (no reformat); external-change reload/conflict prompt; start/stop game; live preview with click-to-pick; page structure tree (click jumps to the source line); inspector (computed style, attributes, rect, state); Problems panel (from `ui_lint`, double-click opens the line); game log and console with history; command palette and file quick-open (Ctrl+K / Ctrl+P); dark theme; Getting started help.
+Verified end to end: Studio opened `pause.xml`, started the game, showed it in the preview, filled the page structure and listed lint problems; closing Studio stopped the game.
+
+**Not done (open)**: structured source-safe edit operations and the document model (6.3: edits are plain text only, no inspector editing, no canvas, no property drag), XML-aware completion/UIDB-driven suggestions, provenance of the winning CSS declaration (resolver does not record it; the inspector says so), embedded native window and input in the preview, test runner panel and `result.json` (6.6), asset/localisation/theme tools (6.7), preview catalog/hosts/responsive matrix (6.8), keyboard/crash-recovery polish (6.9), removal of the ImGui editor and JSON `.ui` (6.10), fixture checks for 6.1c beyond what lint already reports, running on the other three games and backends. None of these were attempted. Nothing is committed.

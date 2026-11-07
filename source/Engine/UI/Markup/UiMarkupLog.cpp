@@ -6,17 +6,24 @@ namespace
 {
     int g_errors = 0;
     int g_warnings = 0;
+    UiMarkupLog::Sink g_sink;
 }
+
+void UiMarkupLog::SetSink(Sink sink) { g_sink = std::move(sink); }
 
 void UiMarkupLog::Error(const std::string& path, int line, int col, const std::string& message)
 {
     ++g_errors;
+    if (g_sink)
+        g_sink(true, path, line, col, message);
     Logger::Error("[UI] %s:%d:%d: error: %s", path.c_str(), line, col, message.c_str());
 }
 
 void UiMarkupLog::Warning(const std::string& path, int line, int col, const std::string& message)
 {
     ++g_warnings;
+    if (g_sink)
+        g_sink(false, path, line, col, message);
     Logger::Warning("[UI] %s:%d:%d: warning: %s", path.c_str(), line, col, message.c_str());
 }
 
