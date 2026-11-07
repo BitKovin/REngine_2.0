@@ -1,0 +1,11 @@
+<root>
+  <styles>
+    <include src="GameData/ui/theme.css"/>
+  </styles>
+  <Panel id="gameplay" class="kit-page">
+    <Card title="${SETTINGS_GAME_CAMERA_HEADER}">
+      <SettingRow label="${SETTINGS_GAME_CAMERA_SHAKE}"><Slider id="shake" min="0" max="1" step="0.01" bind="setting:gameplay.camera_shake"/><Label class="setting-value" text="{value:%.2f}"/></SettingRow>
+      <Label class="bind-caption" text="${SETTINGS_GAME_CAMERA_SHAKE_NOTE}"/>
+    </Card>
+  </Panel>
+</root>

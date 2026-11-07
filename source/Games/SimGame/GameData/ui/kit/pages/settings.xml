@@ -1,0 +1,18 @@
+<root>
+  <styles>
+    <include src="GameData/ui/theme.css"/>
+  </styles>
+  <Panel id="settings" class="kit-screen">
+    <Panel class="kit-column">
+      <TabBar id="tabs">
+        <TextButton id="tabinput" class="kit-tab" text="${SETTINGS_MENU_INPUT}" onactivate="SelectTab('ui/kit/pages/input.xml')"/>
+        <TextButton id="tabvideo" class="kit-tab" text="${SETTINGS_MENU_VIDEO}" default-focus="true" onactivate="SelectTab('ui/kit/pages/video.xml')"/>
+        <TextButton id="tabsound" class="kit-tab" text="${SETTINGS_MENU_SOUND}" onactivate="SelectTab('ui/kit/pages/sound.xml')"/>
+      </TabBar>
+      <Frame id="content" class="kit-frame" scrollbar="true"/>
+      <Panel class="kit-buttons">
+        <StyledButton id="back" text="${SETTINGS_BACK}" onactivate="Back()"/>
+      </Panel>
+    </Panel>
+  </Panel>
+</root>

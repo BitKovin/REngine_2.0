@@ -18,7 +18,6 @@
 #include <AiPerception/AiPerceptionSystem.h>
 #include <Console/Console.h>
 #include <Console/ConsoleDefaultCommands.h>
-#include <UI/RmlUi/RmlUiContext.h>
 #include <LevelTraversalSystem.h>
 #include <AssetRegistry.h>
 
@@ -82,8 +81,6 @@ EngineMain::~EngineMain()
 	UiSystem::Shutdown();
 	UiRenderer::Shutdown();
     ParticleEmitter::DestroyBillboardVao();
-    delete(RmlUiContext::Main);
-    RmlUiContext::Main = nullptr;
 
     // The last level (its BSP data, entities' resources) and every cached asset are still alive after CloseLevel;
     // free them here, while bgfx is still up, the same way OpenLevel retires the previous level.
@@ -120,9 +117,6 @@ void EngineMain::UpdateScreenSize()
 
     if (ScreenSize != oldScreenSize)
     {
-        if (RmlContext)
-            RmlContext->OnResize(ScreenSize.x, ScreenSize.y);
-
         BgfxResetManager::SetResolution(ScreenSize);
     }
 }
@@ -256,10 +250,6 @@ void EngineMain::Init(std::vector<std::string> args)
     MainRenderer = new Renderer();
 
     UiRenderer::Init();
-
-	RmlContext = new RmlUiContext(Window, 800, 600, true);
-	RmlContext->Initialize();
-	RmlUiContext::Main = RmlContext;
 
     ParticleEmitter::InitBilboardVaoIfNeeded();
 
@@ -450,6 +440,7 @@ void EngineMain::MainLoop()
         pointer->ImagePath = "GameData/cat.png";
         pointer->PointerSize = vec2(24.f, 24.f);
         pointer->PointerOffset = 10.f;
+        pointer->Document = "GameData/ui/kit/focus_pointer.xml";
         Viewport.AddChild(pointer);
     }
 
@@ -566,9 +557,6 @@ void EngineMain::MainLoop()
 
         FinishFrame();
     }
-
-
-	RmlContext->Update(Time::DeltaTimeFNoTimeScale);
 
 
     Time::Update();
@@ -991,14 +979,6 @@ void EngineMain::Render()
 
     {
 
-        ZoneScopedN("RML UI Pass");
-
-        //RmlContext->Render();
-    }
-
-
-    {
-
 		ZoneScopedN("Debug UI");
 
         if (DebugUiEnabled)
@@ -1086,8 +1066,6 @@ void EngineMain::ForceUpdateScreenSize()
 #endif // __EMSCRIPTEN__
 
 
-	if (RmlContext)
-		RmlContext->OnResize(ScreenSize.x, ScreenSize.y);
     
 }
 

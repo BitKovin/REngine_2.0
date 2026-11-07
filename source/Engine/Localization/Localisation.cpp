@@ -196,6 +196,28 @@ bool Localisation::ReloadCurrentLanguage()
     return ok;
 }
 
+std::vector<std::string> Localisation::LoadedLanguages()
+{
+    std::shared_lock<std::shared_mutex> lock(s_dataMutex);
+    std::vector<std::string> out;
+    for (const auto& [code, data] : s_languages)
+        out.push_back(code);
+    std::sort(out.begin(), out.end());
+    return out;
+}
+
+std::vector<std::string> Localisation::KeysOf(const std::string& languageCode)
+{
+    std::shared_lock<std::shared_mutex> lock(s_dataMutex);
+    std::vector<std::string> out;
+    const auto it = s_languages.find(languageCode);
+    if (it != s_languages.end())
+        for (const auto& [key, entry] : it->second.entries)
+            out.push_back(key);
+    std::sort(out.begin(), out.end());
+    return out;
+}
+
 std::string Localisation::GetCurrentLanguage()
 {
     std::shared_lock<std::shared_mutex> lock(s_dataMutex);

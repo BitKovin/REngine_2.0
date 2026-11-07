@@ -3,6 +3,8 @@
 #include "UiElement.h"
 #include "UiImage.hpp"
 #include "UiNavigation.h"
+#include <FileSystem/FileSystem.h>
+#include <UI/Elements/UiElem.h>
 
 // ---------------------------------------------------------------------------
 // UiFocusPointer
@@ -35,6 +37,7 @@ public:
     vec2        PointerSize = vec2(20.f, 20.f);
     float       PointerOffset = 8.f;
     vec4        Color = vec4(1.f, 1.f, 1.f, 1.f);
+    std::string Document;   // optional markup pointer (an element with id "pointer"); the image is used when it is empty or missing
 
     UiFocusPointer()
     {
@@ -49,6 +52,16 @@ public:
 
     void Update() override
     {
+        if (!Document.empty() && !m_markupTried)
+        {
+            m_markupTried = true;
+            if (!FileSystemEngine::ReadFile(Document).empty())
+            {
+                m_markup = UiElem::Load(Document);
+                if (m_markup)
+                    UiElement::AddChild(m_markup);
+            }
+        }
         UiElement* focused = UiNavigation::Focused;
 
         if (!focused || !focused->visible)
@@ -130,11 +143,29 @@ public:
         position = attachPoint;
         rotation = 0.f;
 
-        m_image->ImagePath = ImagePath;
-        m_image->color = Color;
-        m_image->size = PointerSize;
-        m_image->position = offsetDir * PointerOffset + m_image->size*0.5f * offsetDir;  // gap from attachment
-        m_image->rotation = imageAngle;
+        if (m_markup)
+        {
+            // upright crucifix of the markup file (about 22 x 34, centred at 3 x 17), centred a little away from the attachment point
+            m_image->visible = false;
+            const vec2 c = offsetDir * (PointerOffset + 17.f);
+            char style[96];
+            std::snprintf(style, sizeof(style), "transform: translate(%.1fpx, %.1fpx)", c.x - 3.f, c.y - 17.f);
+            if (m_markupStyle != style)
+            {
+                m_markupStyle = style;
+                m_markup->SetAttribute("style", m_markupStyle);
+            }
+            m_markup->visible = visible;
+        }
+        else
+        {
+            m_image->visible = true;
+            m_image->ImagePath = ImagePath;
+            m_image->color = Color;
+            m_image->size = PointerSize;
+            m_image->position = offsetDir * PointerOffset + m_image->size*0.5f * offsetDir;  // gap from attachment
+            m_image->rotation = imageAngle;
+        }
 
         UiElement::Update();
     }
@@ -147,4 +178,7 @@ public:
 
 private:
     std::shared_ptr<UiImage> m_image;
+    std::shared_ptr<UiElem> m_markup;
+    std::string m_markupStyle;
+    bool m_markupTried = false;
 };

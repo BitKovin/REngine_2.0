@@ -1,0 +1,9 @@
+<root>
+  <Component tag="Card" params="title">
+    <Panel class="kit-card">
+      <Label class="kit-header" text="{title}"/>
+      <Panel class="kit-divider"/>
+      <Children/>
+    </Panel>
+  </Component>
+</root>

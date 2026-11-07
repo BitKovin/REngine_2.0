@@ -567,7 +567,7 @@ void UiBoxPainter::PaintBox(UiElem& e, UiPainter& p, float op, const UiCorners& 
             paint.BorderColor[i].a *= op;
         }
     }
-    if (s.BackgroundColor.a > 0.f || (anyBorder && !hasBorderImage))
+    if ((s.BackgroundColor.a > 0.f && e.DrawsBoxBackground()) || (anyBorder && !hasBorderImage))
         p.Box(UiRect{ 0.f, 0.f, W, H }, paint);
 
     // background layers: the first one listed is on top

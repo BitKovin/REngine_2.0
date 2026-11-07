@@ -3,6 +3,7 @@
 #include <Localization/Localisation.h>
 #include <UI/Elements/UiElem.h>
 #include <UI/Markup/UiMarkupLog.h>
+#include <UI/UiSystem.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -127,6 +128,8 @@ std::string UiSubstitute(const UiElem& element, const std::string& raw, std::vec
     if (text.find("${") != std::string::npos)
     {
         text = Localisation::LocalizeString(text);
+        if (UiSystem::PseudoLoc())
+            text = UiSystem::PseudoLocalise(text);
         text = Expand(element, text, usedNames, 0);
     }
     for (char& c : text)

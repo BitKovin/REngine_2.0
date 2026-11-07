@@ -7,14 +7,20 @@
 #include <Input.h>
 #include <Logger.hpp>
 #include <UI/Elements/UiElem.h>
+#include <UI/UiScrollRegion.hpp>
 #include <UI/Elements/UiElemArc.h>
 #include <UI/Elements/UiElemActionBar.h>
 #include <UI/Elements/UiElemButton.h>
+#include <UI/Elements/UiElemControls.h>
+#include <UI/Elements/UiElemFrame.h>
+#include <UI/Elements/UiElemLegacyWidgets.h>
 #include <UI/Elements/UiElemInputPrompt.h>
 #include <UI/Elements/UiElemImage.h>
 #include <UI/Elements/UiElemLabel.h>
 #include <UI/Elements/UiElemPanel.h>
 #include <UI/Flow/UiFlowLayout.h>
+#include <UI/Kit/KitPages.h>
+#include <UI/Kit/UiSettings.h>
 #include <UI/Markup/UiBuilder.h>
 #include <UI/Markup/UiDocument.h>
 #include <UI/Markup/UiMarkupLog.h>
@@ -31,6 +37,7 @@
 #include <UI/Render/UiImageAtlas.h>
 #include <UI/Style/UiAnimation.h>
 #include <UI/Style/UiStyleResolver.h>
+#include <UI/UiManager.h>
 #include <UI/Test/UiTestRunner.h>
 #include <UI/UiNavigation.h>
 
@@ -108,9 +115,44 @@ namespace
         const AttributeInfo hotkey{ "hotkey", "string", "", false, "Input action that activates the button while its page is on top" };
         const AttributeInfo hotkeyLabel{ "hotkey-label", "text", "", false, "Text shown for the hotkey in an ActionBar (default: the button text)" };
         UiTagRegistry::RegisterBuiltin("Button", &UiElemButton::Create, TagInfo{ "Button", "input", "Focusable, activatable container", { hotkey, hotkeyLabel } });
+        const AttributeInfo bind{ "bind", "string", "", false, "setting:<key>: the widget edits that engine setting and follows it" };
+        const AttributeInfo value{ "value", "number", "0", false, "Initial value" };
+        UiTagRegistry::RegisterBuiltin("Slider", &UiElemSlider::Create, TagInfo{ "Slider", "input", "Draggable value slider (wraps the legacy slider); events: valuechanged; variable: value",
+            { AttributeInfo{ "min", "number", "0", false, "Smallest value" }, AttributeInfo{ "max", "number", "1", false, "Largest value" },
+              AttributeInfo{ "step", "number", "0", false, "Snap increment (0 = continuous)" }, value, bind } });
+        UiTagRegistry::RegisterBuiltin("DropDown", &UiElemDropDown::Create, TagInfo{ "DropDown", "input", "Drop-down list (wraps the legacy drop-down); events: valuechanged; variable: value (the index)",
+            { AttributeInfo{ "options", "text", "", false, "Items separated by |, localised" }, AttributeInfo{ "selected-index", "number", "-1", false, "Index of the selected item" }, bind } });
+        UiTagRegistry::RegisterBuiltin("TextEntry", &UiElemTextEntry::Create, TagInfo{ "TextEntry", "input", "Single-line text field (wraps the legacy text box); events: valuechanged; variable: value (the text)",
+            { AttributeInfo{ "text", "text", "", false, "Initial text" }, AttributeInfo{ "placeholder", "text", "", false, "Shown while empty" },
+              AttributeInfo{ "max-length", "number", "0", false, "0 = unlimited" }, AttributeInfo{ "password", "bool", "false", false, "Mask the characters" },
+              AttributeInfo{ "numeric", "bool", "false", false, "Digits, '-' and '.' only" } } });
+        UiTagRegistry::RegisterBuiltin("Movie", &UiElemMovie::Create, TagInfo{ "Movie", "image", "Video (wraps the legacy video)",
+            { AttributeInfo{ "src", "path", "", true, "GameData-relative video path" }, AttributeInfo{ "loop", "bool", "false", false, "Restart at the end" },
+              AttributeInfo{ "autoplay", "bool", "true", false, "Accepted; the video starts when first drawn" }, AttributeInfo{ "muted", "bool", "false", false, "Accepted; the legacy video has no mute field" } } });
+        UiTagRegistry::RegisterBuiltin("ShaderPanel", &UiElemShaderPanel::Create, TagInfo{ "ShaderPanel", "image", "Panel drawn by a custom pixel shader (wraps the legacy shader image)",
+            { AttributeInfo{ "shader", "path", "", true, "Shader name" }, AttributeInfo{ "param-<name>", "text", "", false, "vec4 uniform as 'x y z w'" } } });
+        UiTagRegistry::RegisterBuiltin("ToggleButton", &UiElemToggleButton::Create, TagInfo{ "ToggleButton", "input", "Button that toggles :checked; events: valuechanged; variable: value (0/1)",
+            { AttributeInfo{ "checked", "bool", "false", false, "Initial state" }, bind, hotkey, hotkeyLabel } });
+        UiTagRegistry::RegisterBuiltin("RadioButton", &UiElemRadioButton::Create, TagInfo{ "RadioButton", "input", "One of a group; checking it unchecks the others of the group; events: valuechanged",
+            { AttributeInfo{ "group", "string", "", false, "Radios with the same group exclude each other inside one root" }, AttributeInfo{ "checked", "bool", "false", false, "Initial state" },
+              AttributeInfo{ "option", "number", "", false, "With bind: the setting value this radio selects" }, bind } });
+        UiTagRegistry::RegisterBuiltin("ProgressBar", &UiElemProgressBar::Create, TagInfo{ "ProgressBar", "paint", "Track with a .fill child whose size is value x content",
+            { AttributeInfo{ "value", "number", "0", false, "0..1" }, AttributeInfo{ "direction", "string", "horizontal", false, "horizontal or vertical" } } });
+        UiTagRegistry::RegisterBuiltin("CircularProgress", &UiElemCircularProgress::Create, TagInfo{ "CircularProgress", "paint", "Ring: background-color is the track, color the fill",
+            { AttributeInfo{ "value", "number", "0", false, "0..1" }, AttributeInfo{ "start-angle", "number", "0", false, "Degrees clockwise from 12 o'clock" },
+              AttributeInfo{ "thickness", "number", "8", false, "Ring thickness in px" } } });
+        UiTagRegistry::RegisterBuiltin("Frame", &UiElemFrame::Create, TagInfo{ "Frame", "layout", "Builds another layout (src) or a snippet of this file (snippet) inside itself",
+            { AttributeInfo{ "src", "path", "", false, "Layout file; changing it rebuilds the content" }, AttributeInfo{ "snippet", "string", "", false, "Snippet or component tag of this file" } } });
+        UiTagRegistry::RegisterBuiltin("ListView", &UiElemListView::Create, TagInfo{ "ListView", "layout", "Scrolling virtualised list: only the visible rows are built from the snippet and recycled; needs overflow: scroll",
+            { AttributeInfo{ "snippet", "string", "", true, "Row snippet; rows get the variable index" }, AttributeInfo{ "count", "number", "0", false, "Number of items" },
+              AttributeInfo{ "layout", "string", "list", false, "list or grid" }, AttributeInfo{ "item-height", "number", "", true, "Row height in px" },
+              AttributeInfo{ "columns", "number", "1", false, "Columns of a grid" } } });
         UiTagRegistry::RegisterBuiltin("TextButton", &UiElemTextButton::Create, TagInfo{ "TextButton", "input", "Button with a text label",
             { AttributeInfo{ "text", "text", "", false, "Button text" }, hotkey, hotkeyLabel } });
     }
+
+    bool g_pseudoLoc = false;
+    float g_lastUiScale = 1.f;
 
     // ── helpers
     bool IsUnderViewport(const UiElement* e)
@@ -121,11 +163,14 @@ namespace
         return false;
     }
 
+    float g_frameDt = 0.f;   // real seconds of the last frame (at most 0.1)
+
     void TickAll(UiElem& e)
     {
         if (!e.m_navResolved)
             e.ResolveNavOverrides();
         e.Tick();
+        e.TickScroll(g_frameDt);
         // Tick may rebuild the children (ActionBar), so the list is read afterwards.
         const auto children = e.children;
         for (auto& c : children)
@@ -136,6 +181,30 @@ namespace
     glm::vec2 ToLocal(const UiElem& e, glm::vec2 p)
     {
         return UiElement::TransformPoint(glm::inverse(e.AbsoluteTransform), p);
+    }
+
+    // The deepest scroll container under a point, for pointers over areas without a hit-testable element (the empty
+    // parts of a list). Lists that are covered by a hit-testable element of another page are not reached through this.
+    UiElem* ScrollContainerAt(glm::vec2 point)
+    {
+        UiElem* best = nullptr;
+        for (auto& w : g_roots)
+        {
+            auto root = w.lock();
+            if (!root || !IsUnderViewport(root.get()) || root->Computed().Visibility != UiVisibility::Visible)
+                continue;
+            std::vector<UiElem*> all;
+            root->CollectElems(all);
+            for (UiElem* e : all)
+            {
+                if (!e->IsScrollContainer() || e->Computed().Visibility != UiVisibility::Visible || !e->IsVisible())
+                    continue;
+                const glm::vec2 local = ToLocal(*e, point);
+                if (local.x >= 0.f && local.y >= 0.f && local.x <= e->BorderRect.W && local.y <= e->BorderRect.H)
+                    best = e;   // pre-order: deeper containers come later
+            }
+        }
+        return best;
     }
 
     // Pointer events with capture: the element that got the press keeps receiving move and release.
@@ -152,6 +221,16 @@ namespace
                     const auto element = std::static_pointer_cast<UiElem>(hit);
                     g_captures[id] = Capture{ element, touch.position };
                     element->OnPointerDown(ToLocal(*element, touch.position));
+                }
+                else if (!hit)
+                {
+                    if (UiElem* container = ScrollContainerAt(touch.position))
+                        if (auto self = container->weak_from_this().lock())
+                        {
+                            const auto element = std::static_pointer_cast<UiElem>(self);
+                            g_captures[id] = Capture{ element, touch.position };
+                            element->OnPointerDown(ToLocal(*element, touch.position));
+                        }
                 }
                 continue;
             }
@@ -180,9 +259,23 @@ namespace
             const auto mouse = Input::TouchActions.find(1);
             if (mouse != Input::TouchActions.end())
             {
-                const std::shared_ptr<UiElement> hit = EngineMain::Viewport.GetHitElementUnderPosition(mouse->second.position);
-                if (hit && UiElem::IsElem(hit.get()))
-                    static_cast<UiElem&>(*hit).OnScroll(Input::MouseScrollDelta);
+                // A legacy child inside a scroll container passes the wheel to the markup element that holds it.
+                std::shared_ptr<UiElement> hit = EngineMain::Viewport.GetHitElementUnderPosition(mouse->second.position);
+                UiElement* target = hit.get();
+                bool ownsWheel = false;   // an open drop-down list (a legacy scroll region) scrolls itself, never the page behind it
+                while (target != nullptr && !UiElem::IsElem(target))
+                {
+                    if (dynamic_cast<UiScrollRegion*>(target) != nullptr)
+                        ownsWheel = true;
+                    target = target->parent;
+                }
+                UiElem* nearest = target != nullptr ? static_cast<UiElem&>(*target).NearestScrollContainer() : nullptr;
+                if (nearest == nullptr)
+                    nearest = ScrollContainerAt(mouse->second.position);
+                if (ownsWheel)
+                    nearest = nullptr;
+                if (nearest != nullptr)
+                    nearest->OnScroll(Input::MouseScrollDelta);
             }
         }
     }
@@ -259,7 +352,7 @@ namespace
         e.PaintContent(p, e.ContentRectLocal());
 
         ClipInfo childClip = clip;
-        const bool clips = s.Overflow == UiOverflow::Clip;
+        const bool clips = s.Overflow != UiOverflow::Visible;
         if (clips)
         {
             p.SetTransform(e.AbsoluteTransform);
@@ -273,7 +366,7 @@ namespace
         struct Entry { int Z; UiElement* Child; std::shared_ptr<UiElement> Owner; };
         std::vector<Entry> order;
         for (auto& c : e.children)
-            order.push_back({ UiElem::IsElem(c.get()) ? static_cast<UiElem*>(c.get())->Computed().ZIndex : 0, c.get(), c });
+            order.push_back({ UiElem::IsElem(c.get()) ? (static_cast<UiElem*>(c.get())->InternalOverlay ? (1 << 20) : static_cast<UiElem*>(c.get())->Computed().ZIndex) : 0, c.get(), c });
         std::stable_sort(order.begin(), order.end(), [](const Entry& a, const Entry& b) { return a.Z < b.Z; });
         for (const Entry& entry : order)
         {
@@ -481,7 +574,24 @@ namespace
         if (args.empty()) { Logger::Log("usage: ui_focus <id>"); return; }
         UiElem* e = UiSystem::FindById(args[0]);
         if (e == nullptr) { Logger::Warning("[UI] ui_focus: no element '%s'", args[0].c_str()); return; }
-        UiNavigation::SetFocus(e);
+        // A wrapper (Slider, DropDown, ...) is not a focus target itself: its first focusable descendant is.
+        UiElement* target = e;
+        if (!target->HitCheck || target->DisableFocus)
+        {
+            std::vector<UiElement*> queue{ e };
+            for (size_t i = 0; i < queue.size(); ++i)
+            {
+                for (auto& c : queue[i]->children)
+                    queue.push_back(c.get());
+                if (i > 0 && queue[i]->HitCheck && !queue[i]->DisableFocus && queue[i]->IsVisible())
+                {
+                    target = queue[i];
+                    break;
+                }
+            }
+        }
+        UiNavigation::MouseNavigation = false;   // a script's focus is a navigation focus
+        UiNavigation::SetFocus(target);
         Logger::Log("[UI] ui_focus %s: focused=%d visible=%d hit=%d disableFocus=%d", args[0].c_str(), UiNavigation::Focused == e ? 1 : 0,
                     e->IsVisible() ? 1 : 0, e->HitCheck ? 1 : 0, e->DisableFocus ? 1 : 0);
     }
@@ -616,7 +726,14 @@ namespace
         else if (prop == "w") number = e->BorderRect.W;
         else if (prop == "h") number = e->BorderRect.H;
         else if (prop == "lines") { if (!label) { error = "lines needs a Label"; return false; } number = label->Lines(); }
-        else if (prop == "focus") number = UiNavigation::Focused == e ? 1 : 0;
+        else if (prop == "focus")
+        {
+            // a wrapper (Slider, DropDown, ...) counts as focused while its legacy widget is
+            number = 0;
+            for (UiElement* f = UiNavigation::Focused; f != nullptr && !UiElem::IsElem(f); f = f->parent)
+                if (f->parent == e) number = 1;
+            if (UiNavigation::Focused == e) number = 1;
+        }
         else if (prop == "hover") number = (e->States & kStateHover) ? 1 : 0;
         else if (prop == "active") number = (e->States & kStateActive) ? 1 : 0;
         else if (prop == "disabled") number = (e->States & kStateDisabled) ? 1 : 0;
@@ -632,6 +749,46 @@ namespace
             auto* capture = dynamic_cast<UiTestCapturePanel*>(e);
             if (!capture) { error = prop + " needs the capture panel"; return false; }
             number = prop == "downs" ? capture->Downs : (prop == "moves" ? capture->Moves : capture->Ups);
+        }
+        else if (prop == "value")
+        {
+            if (auto* sl = dynamic_cast<UiElemSlider*>(e)) number = sl->Value();
+            else if (auto* dd = dynamic_cast<UiElemDropDown*>(e)) number = dd->Selected();
+            else if (auto* tg = dynamic_cast<UiElemToggleButton*>(e)) number = tg->Checked() ? 1 : 0;
+            else if (auto* rb = dynamic_cast<UiElemRadioButton*>(e)) number = rb->Checked() ? 1 : 0;
+            else if (auto* pb = dynamic_cast<UiElemProgressBar*>(e)) number = pb->Value();
+            else if (auto* cp = dynamic_cast<UiElemCircularProgress*>(e)) number = cp->Value();
+            else { error = "value needs a Slider, DropDown, ToggleButton, RadioButton, ProgressBar or CircularProgress"; return false; }
+        }
+        else if (prop == "checked")
+        {
+            if (auto* tg = dynamic_cast<UiElemToggleButton*>(e)) number = tg->Checked() ? 1 : 0;
+            else if (auto* rb = dynamic_cast<UiElemRadioButton*>(e)) number = rb->Checked() ? 1 : 0;
+            else number = (e->States & kStateChecked) ? 1 : 0;
+        }
+        else if (prop == "fill_w" || prop == "fill_h")
+        {
+            auto* pb = dynamic_cast<UiElemProgressBar*>(e);
+            if (!pb || pb->Fill() == nullptr) { error = prop + " needs a ProgressBar"; return false; }
+            number = prop == "fill_w" ? pb->Fill()->BorderRect.W : pb->Fill()->BorderRect.H;
+        }
+        else if (prop == "scroll_x") number = e->ScrollOffset.x;
+        else if (prop == "scroll_y") number = e->ScrollOffset.y;
+        else if (prop == "scroll_max_y") number = e->MaxScroll().y;
+        else if (prop == "children")
+        {
+            size_t n = 0;
+            for (auto& c : e->children)
+                if (UiElem::IsElem(c.get()) && !static_cast<UiElem&>(*c).InternalOverlay) ++n;
+            number = static_cast<double>(n);
+        }
+        else if (prop == "rows") { auto* lv = dynamic_cast<UiElemListView*>(e); if (!lv) { error = "rows needs a ListView"; return false; } number = lv->RowCount(); }
+        else if (prop == "entry_text")
+        {
+            auto* te = dynamic_cast<UiElemTextEntry*>(e);
+            if (!te) { error = "entry_text needs a TextEntry"; return false; }
+            isNumber = false;
+            text = te->Text();
         }
         else if (prop == "src")
         {
@@ -890,6 +1047,135 @@ namespace
     }
 
     // Reads SaveData/UIStudio/uidb.json and checks it is valid JSON of the expected format.
+    // ui_overflow_report: every Label whose text does not fit its box (not wrapping: wider; wrapping: taller), or sticks out of a
+    // fixed-size parent. Run it with -ui_pseudoloc on the kit pages.
+    int RunOverflowReport()
+    {
+        int found = 0, checked = 0;
+        for (auto& w : g_roots)
+        {
+            auto root = w.lock();
+            if (!root || !IsUnderViewport(root.get()))
+                continue;
+            std::vector<UiElem*> all;
+            root->CollectElems(all);
+            for (UiElem* e : all)
+            {
+                UiElemLabel* label = dynamic_cast<UiElemLabel*>(e);
+                if (label == nullptr || !e->IsVisible() || e->Computed().Visibility != UiVisibility::Visible || label->Text().empty())
+                    continue;
+                bool hidden = false;
+                for (UiElem* p = e; p != nullptr; p = p->AsParentElem())
+                    if (p->Computed().Visibility != UiVisibility::Visible) hidden = true;
+                if (hidden)
+                    continue;
+                ++checked;
+                const UiRect box = e->ContentRectLocal();
+                const bool wraps = e->Computed().WhiteSpace == UiWhiteSpace::Normal;
+                std::string why;
+                char buffer[200];
+                if (!wraps && label->TextWidth() > box.W + 0.5f)
+                {
+                    std::snprintf(buffer, sizeof(buffer), "text %.0f px wide, box %.0f px", label->TextWidth(), box.W);
+                    why = buffer;
+                }
+                else if (wraps && label->TextHeight() > box.H + 0.5f && e->Computed().Height.Kind != UiLenKind::FitChildren)
+                {
+                    std::snprintf(buffer, sizeof(buffer), "text %.0f px tall over %d lines, box %.0f px", label->TextHeight(), label->Lines(), box.H);
+                    why = buffer;
+                }
+                else if (UiElem* parent = e->AsParentElem())
+                {
+                    const UiRect pc = parent->ContentRectLocal();
+                    const bool fixedW = parent->Computed().Width.Kind != UiLenKind::FitChildren;
+                    const bool fixedH = parent->Computed().Height.Kind != UiLenKind::FitChildren;
+                    if (fixedW && e->BorderRect.X + e->BorderRect.W > pc.X + pc.W + 0.5f)
+                        why = "sticks out of its parent on the right";
+                    else if (fixedH && e->BorderRect.Y + e->BorderRect.H > pc.Y + pc.H + 0.5f)
+                        why = "sticks out of its parent at the bottom";
+                }
+                if (!why.empty())
+                {
+                    ++found;
+                    Logger::Warning("[UI] %s:%d:%d: warning: overflow: label '%s' %s", e->ScopeFile.c_str(), e->SrcLine, e->SrcCol, label->DisplayText().c_str(), why.c_str());
+                }
+            }
+        }
+        Logger::Log("[UI] ui_overflow_report: %d overflowing of %d labels", found, checked);
+        return found;
+    }
+
+    void CmdOverflowReport(const std::vector<std::string>&) { RunOverflowReport(); }
+
+    bool TestExpectNoOverflow(const std::string&, std::string& error)
+    {
+        const int found = RunOverflowReport();
+        if (found != 0)
+        {
+            error = "expect_no_overflow: " + std::to_string(found) + " label(s) overflow (see the log)";
+            return false;
+        }
+        return true;
+    }
+
+    // type <text>: writes into the text input buffer, as typing would.
+    bool TestType(const std::string& args, std::string&)
+    {
+        Input::TextInputBuffer += RestAfter("x " + args, 1);
+        UiTestRunner::WaitFrames(2);
+        return true;
+    }
+
+    // wheel <delta>: one mouse wheel event at the simulated mouse position (positive = up).
+    bool TestWheel(const std::string& args, std::string& error)
+    {
+        const auto w = Words(args);
+        if (w.empty()) { error = "usage: wheel <delta>"; return false; }
+        Input::MouseScrollDelta = static_cast<float>(std::atof(w[0].c_str()));
+        UiTestRunner::WaitFrames(2);
+        return true;
+    }
+
+    // test_settings: registers isolated settings (test.slider, test.toggle, test.choice, test.radio) backed by plain variables.
+    double g_testSettingValues[4] = { 0.5, 0.0, 1.0, 0.0 };
+    bool TestRegisterSettings(const std::string&, std::string&)
+    {
+        auto reg = [](const char* key, UiSettings::Kind kind, int slot, double min, double max, double step, std::vector<std::string> choices) {
+            UiSettings::Entry e;
+            e.Key = key;
+            e.Type = kind;
+            e.Min = min; e.Max = max; e.Step = step;
+            e.Choices = std::move(choices);
+            e.Get = [slot]() { return g_testSettingValues[slot]; };
+            e.Set = [slot](double v) { g_testSettingValues[slot] = v; };
+            UiSettings::Register(e);
+        };
+        reg("test.slider", UiSettings::Kind::Float, 0, 0.0, 1.0, 0.1, {});
+        reg("test.toggle", UiSettings::Kind::Bool, 1, 0.0, 1.0, 1.0, {});
+        reg("test.choice", UiSettings::Kind::Choice, 2, 0.0, 2.0, 1.0, { "Low", "Medium", "High" });
+        reg("test.radio", UiSettings::Kind::Choice, 3, 0.0, 2.0, 1.0, { "A", "B", "C" });
+        return true;
+    }
+
+    bool TestSetSetting(const std::string& args, std::string& error)
+    {
+        const auto w = Words(args);
+        if (w.size() < 2) { error = "usage: set_setting <key> <value>"; return false; }
+        const UiSettings::Entry* e = UiSettings::Find(w[0]);
+        if (!e || !e->Set) { error = "no setting '" + w[0] + "'"; return false; }
+        e->Set(std::atof(w[1].c_str()));
+        return true;
+    }
+
+    bool TestExpectSetting(const std::string& args, std::string& error)
+    {
+        const auto w = Words(args);
+        if (w.size() < 3) { error = "usage: expect_setting <key> <op> <value>"; return false; }
+        const UiSettings::Entry* e = UiSettings::Find(w[0]);
+        if (!e || !e->Get) { error = "no setting '" + w[0] + "'"; return false; }
+        return CompareNumber(e->Get(), w[1], w[2], "setting " + w[0], error);
+    }
+
     bool TestUidbFile(const std::string& args, std::string& error)
     {
         const std::string text = FileSystemEngine::ReadFile(UiDatabase::OutputPath());
@@ -961,6 +1247,7 @@ void UiSystem::Init()
     console.RegisterCommand({ "ui_load", "ui_load <layout> - loads a markup layout into the viewport", CmdLoad });
     console.RegisterCommand({ "ui_unload_all", "Removes every markup root", CmdUnloadAll });
     console.RegisterCommand({ "ui_dump", "ui_dump [depth] - prints the markup trees", CmdDump });
+    console.RegisterCommand({ "ui_overflow_report", "Logs every Label whose text overflows its box (run with -ui_pseudoloc)", CmdOverflowReport });
     console.RegisterCommand({ "ui_focus", "ui_focus <id> - focuses a markup element", CmdFocus });
     console.RegisterCommand({ "ui_push", "ui_push <layout> - pushes a page on the main menu stack", CmdPush });
     console.RegisterCommand({ "ui_pop", "Pops the top page of the main menu stack", CmdPop });
@@ -973,6 +1260,12 @@ void UiSystem::Init()
 
     UiTestRunner::RegisterCommand("anim_pause", TestAnimPause);
     UiTestRunner::RegisterCommand("anim_seek", TestAnimSeek);
+    UiTestRunner::RegisterCommand("expect_no_overflow", TestExpectNoOverflow);
+    UiTestRunner::RegisterCommand("type", TestType);
+    UiTestRunner::RegisterCommand("wheel", TestWheel);
+    UiTestRunner::RegisterCommand("test_settings", TestRegisterSettings);
+    UiTestRunner::RegisterCommand("set_setting", TestSetSetting);
+    UiTestRunner::RegisterCommand("expect_setting", TestExpectSetting);
     UiTestRunner::RegisterCommand("expect_rect", TestExpectRect);
     UiTestRunner::RegisterCommand("expect", TestExpect);
     UiTestRunner::RegisterCommand("expect_exists", TestExpectExists);
@@ -1003,6 +1296,33 @@ void UiSystem::Init()
             g_previewPath = found->second[0];
     }
 
+    if (EngineMain::MainInstance != nullptr && EngineMain::MainInstance->Arguments.find("ui_pseudoloc") != EngineMain::MainInstance->Arguments.end())
+        g_pseudoLoc = true;
+
+    // Settings of the UI itself (bound by the kit pages, saved with the other settings by the games).
+    {
+        UiSettings::Entry scale;
+        scale.Key = "ui.text_scale"; scale.Type = UiSettings::Kind::Float; scale.Min = 0.75; scale.Max = 1.5; scale.Step = 0.05;
+        scale.Label = "${SETTINGS_UI_TEXT_SCALE}";
+        scale.Get = []() { return static_cast<double>(UiSystem::TextScale); };
+        scale.Set = [](double v) { UiSystem::SetTextScale(static_cast<float>(v)); };
+        UiSettings::Register(scale);
+        UiSettings::Entry uiScale;
+        uiScale.Key = "ui.scale"; uiScale.Type = UiSettings::Kind::Float; uiScale.Min = 0.75; uiScale.Max = 1.5; uiScale.Step = 0.05;
+        uiScale.Label = "${SETTINGS_UI_SCALE}";
+        uiScale.Get = []() { return static_cast<double>(UiManager::UiScale); };
+        uiScale.Set = [](double v) { UiManager::UiScale = static_cast<float>(std::clamp(v, 0.5, 2.0)); };
+        UiSettings::Register(uiScale);
+        UiSettings::Entry motion;
+        motion.Key = "ui.reduced_motion"; motion.Type = UiSettings::Kind::Bool;
+        motion.Label = "${SETTINGS_UI_REDUCED_MOTION}";
+        motion.Get = []() { return UiSystem::ReducedMotion() ? 1.0 : 0.0; };
+        motion.Set = [](double v) { UiSystem::SetReducedMotion(v != 0.0); };
+        UiSettings::Register(motion);
+    }
+
+    KitInit();
+
     g_initialised = true;
     UiMenuPreviews::RegisterProviders();
     UiDatabase::SetCapability("markup", true);
@@ -1013,6 +1333,50 @@ void UiSystem::Init()
     UiDatabase::SetCapability("motion", true);
     UiDatabase::SetCapability("layers", false);   // blur, drop-shadow, backdrop and group opacity need offscreen layers
     UiDatabase::RefreshFromRegistries();
+}
+
+void UiSystem::SetTextScale(float scale)
+{
+    scale = std::clamp(scale, 0.75f, 1.5f);
+    if (scale == TextScale)
+        return;
+    TextScale = scale;
+    for (auto& w : g_roots)
+        if (auto root = w.lock())
+            root->MarkStyleDirty();
+}
+
+bool UiSystem::ReducedMotion() { return UiAnimation::ReducedMotion(); }
+void UiSystem::SetReducedMotion(bool reduced) { UiAnimation::SetReducedMotion(reduced); }
+bool UiSystem::PseudoLoc() { return g_pseudoLoc; }
+
+std::string UiSystem::PseudoLocalise(const std::string& text)
+{
+    // a..z and A..Z mapped to accented Latin letters (52 mappings)
+    static const uint32_t lower[26] = { 0x00e1, 0x0180, 0x010b, 0x010f, 0x00e9, 0x0192, 0x0121, 0x0127, 0x00ed, 0x0135, 0x0137, 0x0142, 0x1e3f,
+                                          0x0144, 0x00f3, 0x1e57, 0x024b, 0x0155, 0x015b, 0x0165, 0x00fa, 0x1e7d, 0x1e83, 0x1e8b, 0x00fd, 0x017e };
+    static const uint32_t upper[26] = { 0x00c1, 0x1e02, 0x010a, 0x010e, 0x00c9, 0x1e1e, 0x0120, 0x0126, 0x00cd, 0x0134, 0x0136, 0x0139, 0x1e3e,
+                                          0x0143, 0x00d3, 0x1e56, 0x024a, 0x0154, 0x015a, 0x0164, 0x00da, 0x1e7c, 0x1e82, 0x1e8a, 0x00dd, 0x0179 };
+    std::string out = "[";
+    int braces = 0, tags = 0, letters = 0;
+    for (char c : text)
+    {
+        if (c == '{') ++braces;
+        if (c == '<') ++tags;
+        const bool skip = braces > 0 || tags > 0;   // {variables} and <tags> stay as they are
+        if (!skip && c >= 'a' && c <= 'z') { out += UiEncodeUtf8({ lower[c - 'a'] }); ++letters; }
+        else if (!skip && c >= 'A' && c <= 'Z') { out += UiEncodeUtf8({ upper[c - 'A'] }); ++letters; }
+        else
+        {
+            out += c;
+            if (!skip && (static_cast<unsigned char>(c) & 0xC0) != 0x80) ++letters;
+        }
+        if (c == '}' && braces > 0) --braces;
+        if (c == '>' && tags > 0) --tags;
+    }
+    out.append(static_cast<size_t>(std::ceil(static_cast<float>(letters) * 0.35f)), '~');
+    out += "]";
+    return out;
 }
 
 void UiSystem::Shutdown()
@@ -1147,6 +1511,31 @@ UiElem* UiSystem::FindById(const std::string& id)
         if (UiElem* found = inInstance(*root))
             return found;
     }
+    // Documents loaded into a Frame have their own scope: look through the elements of every root and page.
+    auto nested = [&](UiElem& scope) -> UiElem* {
+        std::vector<UiElem*> all;
+        scope.CollectElems(all);
+        for (UiElem* e : all)
+            if (e != &scope && dynamic_cast<UiElemFrame*>(e->AsParentElem()) != nullptr)
+                if (UiElem* found = inInstance(*e))
+                    return found;
+        return nullptr;
+    };
+    for (auto& w : g_roots)
+    {
+        auto root = w.lock();
+        if (!root)
+            continue;
+        if (UiMenuStack* stack = root->AsMenuStack())
+        {
+            for (int i = stack->Depth() - 1; i >= 0; --i)
+                if (UiElem* found = nested(*stack->PageAt(i)))
+                    return found;
+            continue;
+        }
+        if (UiElem* found = nested(*root))
+            return found;
+    }
     return nullptr;
 }
 
@@ -1204,6 +1593,7 @@ void UiSystem::Update()
         const uint64_t now = SDL_GetTicks64();
         const float dt = lastTicks == 0 ? 0.f : std::min(static_cast<float>(now - lastTicks) * 0.001f, 0.1f);
         lastTicks = now;
+        g_frameDt = dt;
         UiAnimation::Tick(dt);
     }
 
@@ -1284,6 +1674,11 @@ void UiSystem::Update()
             FireLoadEvents(*root);
         }
     }
+    // Focus moved by gamepad or keyboard: every scroll container above it brings it into view.
+    if (focusChanged && focusNow != nullptr && focusNow == UiNavigation::Focused)
+        for (UiElement* p = focusNow->parent; p != nullptr; p = p->parent)
+            if (UiElem::IsElem(p) && static_cast<UiElem*>(p)->IsScrollContainer())
+                static_cast<UiElem*>(p)->ScrollIntoView(*focusNow, 16.f);
     UiImageAtlas::Update();
 }
 

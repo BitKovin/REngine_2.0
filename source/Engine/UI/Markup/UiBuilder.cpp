@@ -15,7 +15,7 @@ namespace
     using UiBuilder::Context;
 
     const char* kStandardAttributes[] = { "id", "class", "style", "visible", "enabled", "selected", "hittest", "default-focus",
-                                          "close-on-back", "shows-below", "pauses-game", "hides-hud", "nav-up", "nav-down", "nav-left", "nav-right" };
+                                          "close-on-back", "shows-below", "pauses-game", "hides-hud", "confirm-changes", "nav-up", "nav-down", "nav-left", "nav-right" };
 
     bool IsStandard(const std::string& name)
     {
@@ -358,6 +358,57 @@ bool UiElem::LoadLayout(const std::string& path)
     UiBuilder::BuildLayout(*this, def, instance);
     MarkStyleDirty();
     return true;
+}
+
+std::shared_ptr<UiElem> UiBuilder::BuildSnippet(UiElem& owner, UiElem& parent, const std::string& name)
+{
+    UiSystem::AssertUiThread();
+    UiBuilder::Context c;
+    c.Instance = owner.OwnedInstance ? owner.OwnedInstance.get() : owner.Instance;
+    c.File = owner.ScopeFile;
+    c.Def = c.Instance != nullptr ? c.Instance->Def : nullptr;
+    if (!c.Def)
+        c.Def = UiDocumentCache_Get(owner.ScopeFile);
+    std::vector<std::string> stack;
+    c.Stack = &stack;
+    UiNodeDef node;
+    node.Tag = name;
+    node.Line = owner.SrcLine;
+    node.Col = owner.SrcCol;
+    return BuildNodeReturning(parent, node, c, nullptr);
+}
+
+std::shared_ptr<UiElem> UiElem::LoadNested(const std::string& path)
+{
+    UiSystem::AssertUiThread();
+    std::shared_ptr<UiElem> element;
+    if (UiTagRegistry::Factory behind = UiTagRegistry::FindCodeBehind(path))
+    {
+        element = behind();
+    }
+    else
+    {
+        std::shared_ptr<UiDocumentDef> def = UiDocumentCache_Get(path);
+        if (!def)
+            return nullptr;
+        if (def->Component)
+        {
+            UiMarkupLog::Error(path, 0, 0, "cannot load a component file as a layout");
+            return nullptr;
+        }
+        UiTagRegistry::Factory factory = UiTagRegistry::FindBuiltin(def->Top.Tag);
+        if (!factory)
+        {
+            UiMarkupLog::Error(path, def->Top.Line, def->Top.Col, "the top element <" + def->Top.Tag + "> cannot be a layout root");
+            return nullptr;
+        }
+        element = factory();
+        if (!element->LoadLayout(path))
+            return nullptr;
+    }
+    if (element && !element->Id.empty() && element->Instance != nullptr)
+        element->Instance->Ids[element->Id] = element;
+    return element;
 }
 
 std::shared_ptr<UiElem> UiElem::Load(const std::string& path)

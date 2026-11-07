@@ -1,0 +1,23 @@
+<root>
+  <styles>
+    <include src="GameData/ui/theme.css"/>
+  </styles>
+  <Panel id="video" class="kit-page">
+    <Card title="${SETTINGS_VIDEO_DISPLAY_HEADER}">
+      <SettingRow label="${SETTINGS_VIDEO_RESOLUTION}"><DropDown id="resolution" bind="setting:video.resolution"/></SettingRow>
+      <SettingRow label="${SETTINGS_VIDEO_WINDOW_MODE}"><DropDown id="windowmode" bind="setting:video.window_mode"/></SettingRow>
+      <SettingRow label="${SETTINGS_VIDEO_VSYNC}">
+        <ToggleButton id="vsync" class="kit-toggle setting-control" bind="setting:video.vsync"><Label class="on" text="${SETTINGS_TOGGLE_ON}"/><Label class="off" text="${SETTINGS_TOGGLE_OFF}"/></ToggleButton>
+      </SettingRow>
+    </Card>
+    <Card title="${SETTINGS_VIDEO_GRAPHICS_HEADER}">
+      <SettingRow label="${SETTINGS_VIDEO_MSAA}"><DropDown id="msaa" bind="setting:video.msaa"/></SettingRow>
+      <SettingRow label="${SETTINGS_VIDEO_FXAA}">
+        <ToggleButton id="fxaa" class="kit-toggle setting-control" bind="setting:video.fxaa"><Label class="on" text="${SETTINGS_TOGGLE_ON}"/><Label class="off" text="${SETTINGS_TOGGLE_OFF}"/></ToggleButton>
+      </SettingRow>
+      <SettingRow label="${SETTINGS_VIDEO_DYNAMIC_SHADOWS}">
+        <ToggleButton id="shadows" class="kit-toggle setting-control" bind="setting:video.dynamic_shadows"><Label class="on" text="${SETTINGS_TOGGLE_ON}"/><Label class="off" text="${SETTINGS_TOGGLE_OFF}"/></ToggleButton>
+      </SettingRow>
+    </Card>
+  </Panel>
+</root>

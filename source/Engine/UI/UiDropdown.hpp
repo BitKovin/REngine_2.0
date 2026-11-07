@@ -40,6 +40,7 @@ public:
     vec4 ScrollThumbHover = vec4(0.60f, 0.60f, 0.60f, 1.f);
 
     float FontSize = 32.f;
+    UiRenderer::FontHandle Font = 0;   // 0: the UiText default; markup dropdowns pass the UI font
     float ArrowFontSize = 28.f;
     float ItemHeight = 48.f;
     float ScrollBarWidth = 14.f;
@@ -131,6 +132,11 @@ public:
         m_header->Color = m_isOpen ? HeaderHoverColor : HeaderColor;
         m_header->HoverColor = HeaderHoverColor;
 
+        if (Font != 0)
+        {
+            m_headerLabel->font = Font;
+            m_headerArrow->font = Font;
+        }
         m_headerLabel->text = CurrentLabel();
         m_headerLabel->fontSize = FontSize;
         m_headerLabel->textColor = TextColor;
@@ -152,7 +158,12 @@ public:
         m_panel->ScrollBarImage = BackgroundImage;
 
         for (auto& child : m_panel->m_content->children)
+        {
             child->size.x = headerSize.x;
+            if (Font != 0 && !child->children.empty())
+                if (auto* label = dynamic_cast<UiText*>(child->children[0].get()))
+                    label->font = Font;
+        }
 
         UiElement::Update();
     }

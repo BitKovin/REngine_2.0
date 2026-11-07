@@ -60,6 +60,8 @@ namespace
         const std::string& n = call.Name;
         if (n == "Back") { StackOf(from).Back(); return true; }
         if (n == "Pop") { StackOf(from).Pop(); return true; }
+        if (n == "ApplyChanges") { StackOf(from).ResolveChanges(true); return true; }
+        if (n == "DiscardChanges") { StackOf(from).ResolveChanges(false); return true; }
         if (n == "Clear") { StackOf(from).Clear(); return true; }
         if (n == "Push") { if (NeedArgs(from, call, 1)) StackOf(from).Push(UiActions::NormalizeLayoutPath(Arg(call, 0))); return true; }
         if (n == "Replace") { if (NeedArgs(from, call, 1)) StackOf(from).Replace(UiActions::NormalizeLayoutPath(Arg(call, 0))); return true; }
@@ -223,8 +225,10 @@ const std::vector<UiActionInfo>& UiActions::Builtins()
 {
     static const std::vector<UiActionInfo> list = {
         { "AddClass", "selector, class", "Adds a class to the element found by #id or id path" },
+        { "ApplyChanges", "", "On the confirm-changes page: keeps the changed settings and closes it and the page under it" },
         { "Back", "", "Runs back on the element's menu stack (the main stack when it is on none)" },
         { "Clear", "", "Pops every page of the element's menu stack" },
+        { "DiscardChanges", "", "On the confirm-changes page: restores the settings the page changed and closes it and the page under it" },
         { "Pop", "", "Pops the top page of the element's menu stack" },
         { "PlaySound", "path", "Plays a 2D UI sound" },
         { "Push", "path", "Pushes a layout on the element's menu stack (the main stack when it is on none)" },

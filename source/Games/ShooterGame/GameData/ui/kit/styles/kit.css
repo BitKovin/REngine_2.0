@@ -1,0 +1,112 @@
+/* Engine kit: structure only (layout and sizes). Every colour, radius and font size comes from a variable the game's
+   GameData/ui/theme.css defines on :root; the kit never hard-codes a look. Variables used:
+     --kit-scrim --kit-panel --kit-panel-border --kit-divider --kit-row-alt --kit-text --kit-caption --kit-accent
+     --kit-toggle-on --kit-toggle-off --kit-danger --kit-danger-hover --kit-button --kit-button-hover --kit-button-border
+     --kit-focus --kit-radius --kit-confirm-panel --kit-confirm-border --kit-confirm-accent --kit-slot --kit-slot-listening
+     --kit-menu-item --kit-menu-item-hover --kit-menu-glow --kit-menu-line --kit-menu-scrim
+     --kit-title-size --kit-header-size --kit-label-size --kit-caption-size --kit-button-size --kit-menu-size
+     --kit-tab-size --kit-dialog-size --kit-dialog-button-size --kit-action-size --kit-status-size */
+
+.kit-screen { width: 100%; height: 100%; background-color: var(--kit-scrim); }
+.kit-modal { width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.45); }
+
+/* ── pause menu */
+.kit-pause { width: 100%; height: 100%; background-image: var(--kit-menu-scrim); }
+.kit-page { flow-children: down; gap: 18px; width: 100%; }
+.menu-column { flow-children: down; gap: 10px; horizontal-align: left; vertical-align: center; margin-left: 110px; }
+.menu-item { flow-children: down; horizontal-align: left; padding: 2px 0 4px 0; transition: transform 0.2s ease-out; }
+.menu-item:hover, .menu-item:focus { transform: translateX(18px); }
+.menu-item:active { transform: translateX(26px); }
+.item-text { font-size: var(--kit-menu-size); color: var(--kit-menu-item); text-shadow: 0 0 0 rgba(0, 0, 0, 0); transition: color 0.2s ease-out, text-shadow 0.25s ease-out; }
+.menu-item:hover .item-text, .menu-item:focus .item-text { color: var(--kit-text); text-shadow: var(--kit-menu-glow); }
+.item-line { width: fill-parent-flow(1); height: 3px; background-color: var(--kit-menu-line); transform-origin: 0% 50%; transform: scaleX(0); transition: transform 0.3s ease-out; }
+.menu-item:hover .item-line, .menu-item:focus .item-line { transform: scaleX(1); }
+.action-bar { horizontal-align: center; vertical-align: bottom; margin-bottom: 40px; }
+.action-label { font-size: 26px; color: var(--kit-caption); }
+
+/* ── settings screens */
+.kit-column { flow-children: down; gap: 18px; width: 100%; height: 100%; padding: 40px 56px; }
+.kit-title { font-size: var(--kit-title-size); color: var(--kit-text); horizontal-align: center; }
+.kit-card { flow-children: down; gap: 12px; width: 100%; padding: 22px 28px; background-color: var(--kit-panel); border: 2px solid var(--kit-panel-border); border-radius: var(--kit-radius); }
+.kit-header { font-size: var(--kit-header-size); color: var(--kit-text); }
+.kit-divider { width: fill-parent-flow(1); height: 2px; background-color: var(--kit-divider); }
+.kit-frame { width: 100%; max-width: 1500px; height: fill-parent-flow(1); horizontal-align: center; overflow: scroll; }
+.kit-tabs { flow-children: right; gap: 12px; horizontal-align: center; }
+.kit-tab { min-width: 200px; height: 50px; padding: 0 20px; background-color: var(--kit-button); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); }
+.kit-tab Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-tab-size); color: var(--kit-text); }
+.kit-tab:selected { background-color: var(--kit-button-hover); }
+.kit-tab:focus { background-color: var(--kit-focus); }
+.kit-buttons { flow-children: right; gap: 16px; horizontal-align: center; }
+.kit-button { width: 320px; height: 56px; background-color: var(--kit-button); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); }
+.kit-button:hover { background-color: var(--kit-button-hover); }
+.kit-button:focus { background-color: var(--kit-focus); border-color: var(--kit-text); }
+.kit-button:active { background-color: var(--kit-button-hover); }
+.kit-button Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-button-size); color: var(--kit-text); }
+.kit-small-button { vertical-align: center; min-width: 96px; height: 40px; padding: 0 12px; background-color: var(--kit-button); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); }
+.kit-small-button:focus { background-color: var(--kit-focus); }
+.kit-small-button Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-caption-size); color: var(--kit-text); }
+.kit-danger { background-color: var(--kit-danger); }
+.kit-danger:focus, .kit-danger:hover { background-color: var(--kit-danger-hover); }
+
+.setting-row { flow-children: right; gap: 20px; min-height: 52px; width: 100%; }
+.setting-label { width: 360px; vertical-align: center; font-size: var(--kit-label-size); color: var(--kit-text); }
+.setting-control { vertical-align: center; }
+.setting-value { width: 70px; vertical-align: center; font-size: var(--kit-label-size); color: var(--kit-caption); }
+.kit-toggle { width: 140px; height: 38px; background-color: var(--kit-toggle-off); border-radius: 6px; }
+.kit-toggle:checked { background-color: var(--kit-toggle-on); }
+.kit-toggle:focus { border: 2px solid var(--kit-text); }
+.kit-toggle Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-label-size); color: var(--kit-text); }
+.kit-toggle .on { visibility: collapse; }
+.kit-toggle:checked .on { visibility: visible; }
+.kit-toggle:checked .off { visibility: collapse; }
+Slider { width: 340px; height: 26px; vertical-align: center; color: var(--kit-focus); --track-color: var(--kit-toggle-off); --handle-color: var(--kit-accent); }
+DropDown { width: 340px; height: 46px; vertical-align: center; font-size: var(--kit-dialog-size); color: var(--kit-text); --header-color: var(--kit-button); --header-hover-color: var(--kit-button-hover); --item-color: var(--kit-panel); --item-hover-color: var(--kit-button-hover); }
+.scrollbar { width: 10px; background-color: var(--kit-divider); }
+.scrollbar .thumb { background-color: var(--kit-accent); border-radius: 4px; }
+
+/* ── input settings */
+.bind-list { width: 100%; flow-children: down; gap: 6px; }
+.bind-caption-row { flow-children: right; gap: 14px; }
+.bind-caption { width: 166px; margin-right: 24px; font-size: var(--kit-caption-size); color: var(--kit-caption); }
+.bind-category { flow-children: right; gap: 10px; margin-top: 12px; }
+.bind-accent { width: 4px; height: 26px; background-color: var(--kit-accent); vertical-align: center; }
+.bind-category-text { font-size: var(--kit-header-size); color: var(--kit-accent); }
+.bind-row { flow-children: right; gap: 14px; height: 76px; padding-left: 16px; width: 100%; }
+.bind-row.alt { background-color: var(--kit-row-alt); }
+.bind-label { width: 300px; vertical-align: center; font-size: var(--kit-action-size); color: var(--kit-text); }
+.slot-group { flow-children: right; gap: 6px; vertical-align: center; margin-right: 24px; }
+.bind-slot { width: 80px; height: 66px; background-color: var(--kit-slot); border: 2px solid var(--kit-panel-border); border-radius: 6px; }
+.bind-slot:hover { background-color: var(--kit-button-hover); }
+.bind-slot:focus { border-color: var(--kit-text); }
+.bind-slot.listening { background-color: var(--kit-slot-listening); }
+.bind-slot.unbound .bind-icon { opacity: 0; }
+.bind-icon { width: 44px; height: 44px; horizontal-align: center; vertical-align: center; }
+.bind-name { horizontal-align: center; vertical-align: bottom; font-size: 12px; color: var(--kit-text); background-color: rgba(0, 0, 0, 0.55); width: 100%; }
+
+/* ── focus pointer: the crucifix next to the focused element (focus_pointer.xml, driven by the engine's UiFocusPointer) */
+.kit-pointer { width: 6px; height: 34px; flow-children: down; }
+.pointer-v { width: 6px; height: 34px; background-image: linear-gradient(to bottom, #fff2c4, var(--kit-pointer)); border-radius: 2px; box-shadow: 0 0 10px 2px var(--kit-pointer-glow); }
+.pointer-h { width: 22px; height: 6px; background-image: linear-gradient(to right, var(--kit-pointer), #fff2c4 50%, var(--kit-pointer)); border-radius: 2px; box-shadow: 0 0 10px 2px var(--kit-pointer-glow); transform: translate(-8px, -25px); }
+
+/* ── dialogs */
+.kit-dialog { flow-children: down; gap: 16px; padding: 28px; horizontal-align: center; vertical-align: center; background-color: var(--kit-confirm-panel); border: 2px solid var(--kit-confirm-border); border-radius: var(--kit-radius); min-width: 460px; }
+.dialog-title { font-size: var(--kit-header-size); color: var(--kit-text); horizontal-align: center; }
+.dialog-accent { width: 360px; height: 2px; background-color: var(--kit-confirm-accent); horizontal-align: center; }
+.dialog-text { font-size: var(--kit-dialog-size); color: var(--kit-text); horizontal-align: center; }
+.dialog-hint { font-size: var(--kit-dialog-size); color: var(--kit-caption); horizontal-align: center; }
+.dialog-row { flow-children: right; gap: 16px; horizontal-align: center; }
+.dialog-button { width: 190px; height: 60px; background-color: var(--kit-button); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); }
+.dialog-button:focus { background-color: var(--kit-focus); border-color: var(--kit-text); }
+.dialog-button Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-dialog-button-size); color: var(--kit-text); }
+
+/* ── save and load */
+.slot-list { width: 100%; height: fill-parent-flow(1); overflow: scroll; }
+.slot-row { width: 100%; height: 72px; background-color: var(--kit-button); border-radius: 4px; }
+.slot-row:hover, .slot-row:focus { background-color: var(--kit-button-hover); }
+.slot-row.locked { opacity: 0.55; }
+.slot-label { horizontal-align: left; vertical-align: center; margin-left: 14px; font-size: var(--kit-button-size); color: var(--kit-text); }
+.slot-status { horizontal-align: right; vertical-align: center; margin-right: 14px; font-size: var(--kit-status-size); color: var(--kit-caption); }
+.kit-empty { font-size: var(--kit-label-size); color: var(--kit-caption); horizontal-align: center; }
+
+.kit-toast { padding: 12px 20px; background-color: var(--kit-panel); border: 2px solid var(--kit-panel-border); border-radius: var(--kit-radius); horizontal-align: center; vertical-align: bottom; margin-bottom: 120px; }
+.kit-toast Label { font-size: var(--kit-label-size); color: var(--kit-text); }

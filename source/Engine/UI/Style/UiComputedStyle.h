@@ -11,7 +11,7 @@
 enum class UiFlow { None, Down, Right, DownWrap, RightWrap };
 enum class UiHAlign { Left, Center, Right };
 enum class UiVAlign { Top, Center, Bottom };
-enum class UiOverflow { Visible, Clip };
+enum class UiOverflow { Visible, Clip, Scroll };
 enum class UiVisibility { Visible, Hidden, Collapse };
 enum class UiObjectFit { Fill, Contain, Cover, None, ScaleDown };
 

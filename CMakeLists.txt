@@ -294,19 +294,6 @@ if(PLATFORM_HAS_OPENAL)
     target_link_libraries(engine PUBLIC OpenAL)
 endif()
 
-# --- RmlUi (vendored) ---
-set(RMLUI_BUILD_SAMPLES   OFF CACHE BOOL "" FORCE)
-set(RMLUI_BUILD_TESTS     OFF CACHE BOOL "" FORCE)
-set(RMLUI_BUILD_LUA       OFF CACHE BOOL "" FORCE)
-set(RMLUI_ENABLE_DEBUGGER ON  CACHE BOOL "" FORCE)
-
-add_subdirectory(${LIB_DIR}/RmlUi-6.1/Dependencies/freetype)
-add_library(Freetype::Freetype ALIAS freetype)
-target_link_libraries(engine PUBLIC Freetype::Freetype)
-
-add_subdirectory("${LIB_DIR}/RmlUi-6.1")
-target_link_libraries(engine PUBLIC RmlUi::RmlUi RmlUi::Debugger)
-
 if(PLATFORM_CUSTOM_SDL)
 
     message("using custom SDL for this platform")

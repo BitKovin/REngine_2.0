@@ -6,17 +6,16 @@
 #include "Entities/TestBsp.h"
 #include <LoadingScreen/LoadingScreenSystem.h>
 #include "UI/LoadingScreen/UiDefaultLoadingScreen.h"
-#include <UI/RmlUi/RmlUiContext.h>
-#include <UI/RmlUi/RmlUiEvents.h>
 #include <EngineMain.h>
 
-#include <Settings/VideoSettings.h>
+#include <UI/Kit/KitPages.h>
+#include <UI/Kit/Settings/KitSettings.h>
+#include "Entities/Player/Player.hpp"
 
 #include <PauseGameManager.hpp>
 
 #include <ItemsDataBase.h>
 
-#include <UI/Pause/UiPauseMenu.h>
 
 #include "Entities/Enemy/DebuffFactory.h"
 
@@ -165,8 +164,8 @@ public:
         UiRenderer::AddFallbackFont("GameData/fonts/NotoSerifJP.ttf");
         UiRenderer::AddFallbackFont("GameData/fonts/NotoSansSC.ttf");
 
-        GameSettings::Instance().LoadFromFile();
-        GameSettings::Instance().ApplyAll();
+        KitSettings::Instance().LoadFromFile();
+        KitSettings::Instance().ApplyAll();
 
         startedGame = true;
 
@@ -281,8 +280,6 @@ public:
         {
             AssetRegistry::ReloadShaders();
 
-			EngineMain::MainInstance->RmlContext->ReloadAllSttyles();
-
         }
     }
 
@@ -344,42 +341,12 @@ public:
 
     }
 
-	bool wasPaused = false;
-
-    std::shared_ptr<UiPauseMenu> pauseMenu;
-
     void UpdatePaused()
     {
 
         Input::LockCursor = PauseGameManager::GetGamePaused() == false;
 
 		EngineMain::MainInstance->Paused = PauseGameManager::isGameAnyPaused();
-
-        if (PauseGameManager::GetGamePaused())
-        {
-            if (wasPaused == false)
-            {
-
-                pauseMenu = std::make_shared<UiPauseMenu>();
-
-                EngineMain::MainInstance->Viewport.AddChild(pauseMenu);
-
-				//RmlUiContext::Main->PushModal(pauseMenuDoc);
-            }
-        }
-        else
-        {
-            if (pauseMenu != nullptr)
-            {
-
-                pauseMenu->RemoveFromParent();
-                pauseMenu = nullptr;
-
-				//RmlUiContext::Main->RemoveFromModalFromStack(pauseMenuDoc);
-            }
-        }
-
-		wasPaused = PauseGameManager::GetGamePaused();
 
 	}
 
@@ -428,6 +395,18 @@ GameStart::GameStart()
 
 	PauseGameManager::SetGamePaused(false);
 	PauseGameManager::SetGamePausedGameplay(false);
+
+    // the pause menu is the engine kit page on the main menu stack; saving needs a living player
+    KitSetupMenus([](bool paused)
+		{
+			PauseGameManager::SetGamePaused(paused);
+			if (!paused)
+			{
+				Input::GetAction("pause")->CleanPressed();
+				Input::ReleaseAllActions();
+			}
+		});
+    KitPauseMenu::CanSave = []() { return Player::Instance && Player::Instance->dead == false; };
 
     NpcBase::globalPhraceDelay = Delay();
 

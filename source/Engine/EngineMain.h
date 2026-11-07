@@ -26,7 +26,6 @@
 
 #include <FileSystem/FileSystem.h>
 
-class RmlUiContext;
 
 class EngineMain
 {
@@ -67,7 +66,6 @@ public:
 
 	RenderTexture* FinalFrameRenderTexture = nullptr;
 
-	RmlUiContext* RmlContext = nullptr;
 
 	EngineMain(SDL_Window* window)
 	{

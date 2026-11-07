@@ -58,6 +58,7 @@ public:
 
         if (Focused)
         {
+            s_lastFocused = Focused;
             Focused->IsFocused = true;
             Focused->OnFocused();
         }
@@ -87,15 +88,16 @@ public:
 
         if (Input::IsScrenTouched || length(Input::MouseDelta) > 0)
         {
+            // the last input decides how focus is shown: the pointer moved, so only what is under it has focus
+            MouseNavigation = true;
             UpdateHoverFocus();
-
-            if(Focused)
-                MouseNavigation = true;
-
         }
 
+        // pages and scripts that set a focus while the pointer is in charge leave nothing focused
+        if (MouseNavigation && Focused && Focused != s_hoverFocus)
+            ClearFocus();
 
-        if (!Focused)
+        if (!Focused && !MouseNavigation)
             FocusFirst(root);
 
         if (Input::GetAction("ui_up")->Pressed())    Navigate(UiNavDir::Up);
@@ -121,6 +123,8 @@ public:
 
 private:
     static inline UiElement* s_root = nullptr;
+    static inline UiElement* s_hoverFocus = nullptr;
+    static inline UiElement* s_lastFocused = nullptr;
 
     // ── Hover → focus ─────────────────────────────────────────────────────────
     // DisableFocus is intentionally ignored — it only gates navigation controls,
@@ -135,15 +139,31 @@ private:
             if (!el->TouchEvents.empty() && el->DisableFocus == false)
             {
                 SetFocus(el);
+                s_hoverFocus = el;
                 return;
             }
         }
+
+        // the pointer is over nothing focusable: nothing is focused
+        s_hoverFocus = nullptr;
+        ClearFocus();
     }
 
     // ── Navigation ────────────────────────────────────────────────────────────
     static void Navigate(UiNavDir dir)
     {
-        if (!Focused) return;
+        if (!Focused)
+        {
+            // directional input takes over from the pointer: bring the focus back where it was, or to the first element
+            MouseNavigation = false;
+            std::vector<UiElement*> candidates;
+            Collect(candidates);
+            if (std::find(candidates.begin(), candidates.end(), s_lastFocused) != candidates.end())
+                SetFocus(s_lastFocused);
+            else if (!candidates.empty())
+                SetFocus(candidates[0]);
+            return;
+        }
 
         MouseNavigation = false;
 
@@ -232,31 +252,34 @@ private:
 
         if (candidates.empty()) return nullptr;
 
-        const vec2 fc = Center(from);
+        // Axis-aligned boxes: a candidate is in the direction when its centre is; the gap between the facing edges is the
+        // primary cost, and the perpendicular distance between the two extents (zero when they overlap) the secondary one, so a
+        // wide control straight below is preferred over a narrow one that is merely closer to the centre.
+        const Box fb = BoxOf(from);
+        const vec2 fc((fb.x0 + fb.x1) * 0.5f, (fb.y0 + fb.y1) * 0.5f);
         UiElement* best = nullptr;
         float      bestScore = FLT_MAX;
 
         for (UiElement* c : candidates)
         {
-            const vec2  cc = Center(c);
-            const float dx = cc.x - fc.x;
-            const float dy = cc.y - fc.y;
+            const Box cb = BoxOf(c);
+            const float dx = (cb.x0 + cb.x1) * 0.5f - fc.x;
+            const float dy = (cb.y0 + cb.y1) * 0.5f - fc.y;
 
             bool  valid = false;
-            float primary = 0.f;
-            float secondary = 0.f;
+            float gap = 0.f, offset = 0.f, centreOffset = 0.f;
 
             switch (dir)
             {
-            case UiNavDir::Up:    valid = dy < 0.f; primary = -dy; secondary = std::abs(dx); break;
-            case UiNavDir::Down:  valid = dy > 0.f; primary = dy; secondary = std::abs(dx); break;
-            case UiNavDir::Left:  valid = dx < 0.f; primary = -dx; secondary = std::abs(dy); break;
-            case UiNavDir::Right: valid = dx > 0.f; primary = dx; secondary = std::abs(dy); break;
+            case UiNavDir::Up:    valid = dy < 0.f; gap = fb.y0 - cb.y1; offset = Separation(fb.x0, fb.x1, cb.x0, cb.x1); centreOffset = std::abs(dx); break;
+            case UiNavDir::Down:  valid = dy > 0.f; gap = cb.y0 - fb.y1; offset = Separation(fb.x0, fb.x1, cb.x0, cb.x1); centreOffset = std::abs(dx); break;
+            case UiNavDir::Left:  valid = dx < 0.f; gap = fb.x0 - cb.x1; offset = Separation(fb.y0, fb.y1, cb.y0, cb.y1); centreOffset = std::abs(dy); break;
+            case UiNavDir::Right: valid = dx > 0.f; gap = cb.x0 - fb.x1; offset = Separation(fb.y0, fb.y1, cb.y0, cb.y1); centreOffset = std::abs(dy); break;
             }
 
             if (!valid) continue;
 
-            const float score = primary + secondary * 2.f;
+            const float score = std::max(gap, 0.f) + offset * 3.f + centreOffset * 0.02f;
             if (score < bestScore) { bestScore = score; best = c; }
         }
 
@@ -296,6 +319,28 @@ private:
         auto locked = field->lock();
         return (locked && locked->visible && locked->HitCheck && !locked->DisableFocus)
             ? locked.get() : nullptr;
+    }
+
+    struct Box { float x0, y0, x1, y1; };
+
+    static Box BoxOf(UiElement* el)
+    {
+        const vec2 s = el->GetSize();
+        const vec2 p[4] = { UiElement::TransformPoint(el->worldMatrix, vec2(0.f, 0.f)), UiElement::TransformPoint(el->worldMatrix, vec2(s.x, 0.f)),
+                            UiElement::TransformPoint(el->worldMatrix, vec2(0.f, s.y)), UiElement::TransformPoint(el->worldMatrix, s) };
+        Box b{ p[0].x, p[0].y, p[0].x, p[0].y };
+        for (const vec2& v : p)
+        {
+            b.x0 = std::min(b.x0, v.x); b.x1 = std::max(b.x1, v.x);
+            b.y0 = std::min(b.y0, v.y); b.y1 = std::max(b.y1, v.y);
+        }
+        return b;
+    }
+
+    // Distance between two intervals; zero when they overlap.
+    static float Separation(float a0, float a1, float b0, float b1)
+    {
+        return std::max(0.f, std::max(a0 - b1, b0 - a1));
     }
 
     // Returns the world-space centre of an element using its worldMatrix.

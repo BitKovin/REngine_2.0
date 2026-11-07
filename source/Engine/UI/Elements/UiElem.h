@@ -36,6 +36,7 @@ public:
 
     // ── API usable from code: main thread or game thread (R3). Calls only change state and set dirty flags.
     static std::shared_ptr<UiElem> Load(const std::string& path);   // creates a root from a layout file
+    static std::shared_ptr<UiElem> LoadNested(const std::string& path);   // the same, but not registered as a root (Frame content)
     bool LoadLayout(const std::string& path);                       // applies a layout file onto this element (code-behind)
     UiElem* FindElem(const std::string& idPath) const;              // "id" or "a/b" path; logs on miss
     template <class T = UiElem> T* Find(const std::string& idPath) const
@@ -76,6 +77,8 @@ public:
     virtual void Tick() {}               // per frame, main thread, before style/layout (used from phase 5)
     virtual bool IsFocusable() const { return false; }
     virtual bool HasContent() const { return false; }   // true: MeasureContent contributes to fit-children
+    virtual bool DrawsBoxBackground() const { return true; }   // false: the element paints background-color itself (CircularProgress)
+    virtual glm::vec2 VirtualContentSize() const { return glm::vec2(0.f); }   // content size beyond the built children (ListView)
 
     // ── menu lifecycle (a page is any element pushed on a UiMenuStack; hosts that are not stacks ignore these)
     virtual void OnPushed() {}
@@ -104,10 +107,27 @@ public:
     bool WarnedAction(const std::string& name) { return !m_warnedActions.insert(name).second; }
 
     // ── pointer events (the element that got the press keeps receiving move and release, even outside its rect)
-    virtual void OnPointerDown(glm::vec2 localPoint) {}
-    virtual void OnPointerMove(glm::vec2 localPoint) {}
-    virtual void OnPointerUp(glm::vec2 localPoint) {}
-    virtual void OnScroll(float delta) {}
+    virtual void OnPointerDown(glm::vec2 localPoint);
+    virtual void OnPointerMove(glm::vec2 localPoint);
+    virtual void OnPointerUp(glm::vec2 localPoint);
+    virtual void OnScroll(float delta);  // wheel: scrolls the nearest scroll container (this element or an ancestor)
+
+    // ── scrolling (overflow: scroll). The layout applies ScrollOffset as a translation of the children.
+    glm::vec2 ScrollOffset = glm::vec2(0.f);     // what is drawn
+    glm::vec2 ScrollTarget = glm::vec2(0.f);     // where smooth scrolling is heading
+    glm::vec2 ScrollExtent = glm::vec2(0.f);     // size of the content (valid after layout)
+    glm::vec2 ScrollViewport = glm::vec2(0.f);   // size of the visible window (valid after layout)
+    bool InternalOverlay = false;                // created by the element itself (scrollbar): not laid out by the flow, not scrolled
+    bool IsScrollContainer() const { return m_computed.Overflow == UiOverflow::Scroll; }
+    glm::vec2 MaxScroll() const;
+    void ScrollBy(glm::vec2 delta, bool smooth = true);
+    void ScrollTo(glm::vec2 offset, bool smooth = true);
+    void ScrollIntoView(const UiElement& target, float margin = 16.f);   // smallest scroll that shows `target` (screen rects)
+    void TickScroll(float dt);                   // exponential approach / kinetic decay; called by UiSystem
+    UiElem* NearestScrollContainer();            // this or an ancestor
+    UiElem* ScrollbarElem() const { return m_scrollbar; }
+    void EnsureScrollbar();                      // creates Panel.scrollbar > Panel.thumb when the attribute scrollbar="true"
+    static inline bool SuppressActivate = false; // a scroll drag moved far enough: the release does not activate buttons
 
     // ── state
     uint32_t States = 0;
@@ -184,6 +204,10 @@ public:
 
 private:
     void LogFindTypeMismatch(const std::string& idPath) const;
+    UiElem* m_scrollbar = nullptr;
+    glm::vec2 m_dragLast = glm::vec2(0.f), m_dragStart = glm::vec2(0.f), m_dragVelocity = glm::vec2(0.f);
+    bool m_dragging = false, m_dragMoved = false;
+    UiElem* m_dragTarget = nullptr;              // the scroll container a drag that started on a descendant scrolls
     void ApplyPointerStates();
     int m_pressedTouchId = -1;
 };

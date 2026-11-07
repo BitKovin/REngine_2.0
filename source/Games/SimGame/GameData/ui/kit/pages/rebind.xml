@@ -1,0 +1,15 @@
+<root>
+  <styles>
+    <include src="GameData/ui/theme.css"/>
+  </styles>
+  <Panel id="rebind" class="kit-modal" shows-below="true" close-on-back="false">
+    <DialogFrame>
+      <Label id="title" class="dialog-title" text=""/>
+      <Label id="hint" class="dialog-hint" text=""/>
+      <Panel id="buttons" class="dialog-row" visible="false">
+        <TextButton id="rcancel" class="dialog-button" text="${SETTINGS_CANCEL}" default-focus="true" onactivate="Cancel()"/>
+        <TextButton id="runbind" class="dialog-button kit-danger" text="${SETTINGS_INPUT_REBIND_UNBIND_BUTTON}" onactivate="Unbind()"/>
+      </Panel>
+    </DialogFrame>
+  </Panel>
+</root>

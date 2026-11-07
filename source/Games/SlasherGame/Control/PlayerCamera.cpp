@@ -1,7 +1,7 @@
 #include "PlayerCamera.h"
 
 #include <Characters/CombatCharacter.h>
-#include <Settings/GameSettings.h>
+#include <Settings/GameplaySettings.h>
 
 #include <Camera.h>
 #include <Physics.h>
@@ -75,7 +75,7 @@ void PlayerCamera::Update(const CombatCharacter& body, float deltaTime)
 	// Impact response on top of the framed view, scaled by the player's Camera Shake setting (0 = none): +pitch looks
 	// down and +yaw turns left, both move the image toward +y / +x on screen; the offset slides the camera along its
 	// own right / up.
-	const float intensity = std::clamp(GameSettings::Instance().Gameplay.CameraShake, GameplaySettingsData::MinCameraShake,
+	const float intensity = std::clamp(GameplaySettings::Data().CameraShake, GameplaySettingsData::MinCameraShake,
 		GameplaySettingsData::MaxCameraShake);
 	impact.Update(deltaTime);
 	const glm::vec2 turn = impact.GetRotation() * intensity;

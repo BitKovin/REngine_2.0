@@ -33,6 +33,11 @@ public:
 
     std::function<void()> OnEmptyBack;             // host: what back does when the stack is empty
 
+    // Pages with confirm-changes="true" journal the setting changes made through bound widgets. Back with changes pushes
+    // `ConfirmChangesPage`; these resolve it from there (the confirm page is on top, the settings page under it).
+    inline static std::string ConfirmChangesPage = "GameData/ui/kit/pages/confirm_changes.xml";
+    void ResolveChanges(bool apply);
+
     // UiSystem hooks
     void Tick() override;                          // applies a focus change that had to wait for layout
     void ClearEntering();                          // the entering state lasts for one style pass
@@ -46,6 +51,7 @@ private:
         std::weak_ptr<UiElement> SavedFocus;       // focus before this page was pushed
         HostOptions Options;
         uint32_t PushedGen = 0;                    // style passes done when the page was pushed
+        int Session = -1;                          // UiSettings journal of a confirm-changes page
     };
     std::vector<Entry> m_entries;
     // Popped pages whose leave transition or animation is still running; they stay children of the stack, inert, for 2 s at most.

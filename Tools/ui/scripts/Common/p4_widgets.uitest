@@ -1,0 +1,100 @@
+# Phase 4 widgets: wrapped legacy widgets, native widgets, scrolling and the virtual list.
+wait 6
+action pause
+wait_frames 3
+console ui_load GameData/ui/kit/tests/p4_widgets.xml
+wait_frames 6
+focus_trap page
+expect_ui_errors 0
+ui_screenshot p4_widgets_start
+
+# Slider: three presses to the right on the focused slider move the value by 3 steps
+console ui_focus sl
+wait_frames 3
+action ui_right
+wait_frames 3
+action ui_right
+wait_frames 3
+action ui_right
+wait_frames 3
+expect sl value > 0.75
+expect sl value < 0.85
+
+# DropDown: confirm opens it, down moves, confirm selects
+console ui_focus dd
+wait_frames 3
+action ui_confirm
+wait_frames 4
+action ui_down
+wait_frames 3
+action ui_confirm
+wait_frames 4
+expect dd value >= 1
+
+# TextEntry: confirm starts editing, type writes into the buffer
+console ui_focus te
+wait_frames 3
+action ui_confirm
+wait_frames 3
+type hello
+wait_frames 3
+action ui_confirm
+wait_frames 3
+expect te entry_text == hello
+
+# Toggle and radio groups
+console ui_focus tg
+wait_frames 3
+action ui_confirm
+wait_frames 3
+expect tg checked == 1
+action ui_confirm
+wait_frames 3
+expect tg checked == 0
+console ui_focus r2
+wait_frames 3
+action ui_confirm
+wait_frames 3
+expect r2 checked == 1
+expect r1 checked == 0
+console ui_focus r3
+wait_frames 3
+action ui_confirm
+wait_frames 3
+expect r3 checked == 1
+expect r2 checked == 0
+
+# Progress at 0.3: the fill is 30% of the track (400 px) = 120 px
+expect bar fill_w == 120
+expect bar value == 0.3
+ui_screenshot p4_widgets_set
+
+# Scroll container: the wheel moves the content in 60 px steps
+mouse_move 600 150
+wait_frames 3
+wheel -1
+wait 0.6
+expect scroll scroll_y == 60
+wheel -1
+wait 0.6
+expect scroll scroll_y == 120
+wheel 1
+wait 0.6
+expect scroll scroll_y == 60
+# gamepad focus on a hidden child scrolls it into view
+console ui_focus sb9
+wait 1.2
+expect scroll scroll_y > 300
+ui_screenshot p4_widgets_scrolled
+
+# ListView: 1000 items, only the window is built
+expect list rows <= 12
+expect list rows >= 5
+mouse_move 600 400
+wait_frames 3
+wheel -3
+wait 0.8
+expect list scroll_y == 180
+expect list rows <= 12
+expect list scroll_max_y == 39780
+quit

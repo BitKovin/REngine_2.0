@@ -6,20 +6,19 @@
 #include "Entities/TestBsp.h"
 #include <LoadingScreen/LoadingScreenSystem.h>
 #include "UI/LoadingScreen/UiDefaultLoadingScreen.h"
-#include <UI/RmlUi/RmlUiContext.h>
-#include <UI/RmlUi/RmlUiEvents.h>
 #include <EngineMain.h>
 
-#include <Settings/VideoSettings.h>
+#include <UI/Kit/KitPages.h>
+#include <UI/Kit/Settings/InputIconLibrary.h>
+#include <UI/Kit/Settings/KitSettings.h>
 
 #include <PauseGameManager.hpp>
 
 #include <ItemsDataBase.h>
 
-#include "UI/Pause/StealthPauseMenu.h"
+#include "Entities/Player/Player.hpp"
 #include <UI/Menus/UiInputPrompts.h>
 #include <UI/Menus/UiMenuStack.h>
-#include "UI/Pause/UI/InputIconLibrary.h"
 
 #include "Entities/Enemy/DebuffFactory.h"
 
@@ -176,8 +175,8 @@ public:
         UiRenderer::AddFallbackFont("GameData/fonts/NotoSerifJP.ttf");
         UiRenderer::AddFallbackFont("GameData/fonts/NotoSansSC.ttf");
 
-        GameSettings::Instance().LoadFromFile();
-        GameSettings::Instance().ApplyAll();
+        KitSettings::Instance().LoadFromFile();
+        KitSettings::Instance().ApplyAll();
 
         startedGame = true;
 
@@ -292,8 +291,6 @@ public:
         {
             AssetRegistry::ReloadShaders();
 
-			EngineMain::MainInstance->RmlContext->ReloadAllSttyles();
-
         }
     }
 
@@ -364,10 +361,12 @@ public:
 
 	}
 
-    // The pause menu is a markup page on the main menu stack (ui/pause.xml); the stack tells us when the game should pause.
+    // The pause menu is the engine kit page on the main menu stack (ui/kit/pages/pause.xml); the stack tells us when the game should pause.
     static void SetupMenus()
     {
-        UiMenus::PauseMenu = "ui/pause.xml";
+        UiMenus::PauseMenu = "ui/kit/pages/pause.xml";
+        // saving is only possible while the player is alive
+        KitPauseMenu::CanSave = []() { return Player::Instance && Player::Instance->dead == false; };
         UiMenus::OnPauseChanged = [](bool paused)
         {
             PauseGameManager::SetGamePaused(paused);

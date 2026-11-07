@@ -175,18 +175,6 @@
       <Filter>Effects</Filter>
     </ClCompile>
     <ClCompile Include="GameStart.cpp" />
-    <ClCompile Include="Settings\GameSettings.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
-    <ClCompile Include="Settings\InputActionRegistry.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
-    <ClCompile Include="Settings\InputSettingsData.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
-    <ClCompile Include="Settings\VideoSettingsData.cpp">
-      <Filter>Settings</Filter>
-    </ClCompile>
     <ClCompile Include="UI\CombatHud.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -304,28 +292,7 @@
       <Filter>Effects</Filter>
     </ClInclude>
     <ClInclude Include="PauseGameManager.hpp" />
-    <ClInclude Include="Settings\AudioSettingsData.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
     <ClInclude Include="Settings\GameplaySettingsData.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\GameSettings.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\InputActionRegistry.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\InputBindingTypes.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\InputSettingsData.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\VideoSettings.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\VideoSettingsData.h">
       <Filter>Settings</Filter>
     </ClInclude>
     <ClInclude Include="UI\CombatHud.h">
@@ -333,39 +300,6 @@
     </ClInclude>
     <ClInclude Include="UI\LoadingScreen\UiDefaultLoadingScreen.h">
       <Filter>UI\LoadingScreen</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UI\InputIconLibrary.h">
-      <Filter>UI\Pause\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UI\UiBindSlotButton.hpp">
-      <Filter>UI\Pause\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UI\UiConfirmDialog.hpp">
-      <Filter>UI\Pause\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UI\UiRebindCaptureModal.hpp">
-      <Filter>UI\Pause\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiGameSettings.h">
-      <Filter>UI\Pause</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiInputSettings.h">
-      <Filter>UI\Pause</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiPauseMenu.h">
-      <Filter>UI\Pause</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiSettingsMenu.h">
-      <Filter>UI\Pause</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiSettingsStyle.hpp">
-      <Filter>UI\Pause</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiSoundSettings.h">
-      <Filter>UI\Pause</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiVideoSettings.h">
-      <Filter>UI\Pause</Filter>
     </ClInclude>
     <ClInclude Include="Weapons\Projectile.h">
       <Filter>Weapons</Filter>

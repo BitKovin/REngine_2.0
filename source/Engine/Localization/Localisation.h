@@ -143,6 +143,11 @@ public:
 
     static std::string GetCurrentLanguage();
 
+    // Tooling metadata (the UI database): the language codes loaded so far, and the sorted key names of one of them.
+    // Never returns translated text.
+    static std::vector<std::string> LoadedLanguages();
+    static std::vector<std::string> KeysOf(const std::string& languageCode);
+
     // Bumped once on every Initialize/SetLanguage/ReloadCurrentLanguage
     // call. Lock-free (an atomic counter), so CachedText's steady-state
     // check - and any caching you build yourself on top of LocalizeString -

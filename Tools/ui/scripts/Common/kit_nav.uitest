@@ -1,0 +1,65 @@
+# Directional navigation of the kit settings: the tabs lead to the first control below them, controls follow each other by row.
+wait 8
+action pause
+wait_frames 10
+console ui_focus psettings
+wait_frames 3
+action ui_confirm
+wait_frames 15
+console ui_focus tabinput
+wait_frames 3
+action ui_confirm
+wait_frames 15
+console ui_focus tabinput
+wait_frames 3
+action ui_down
+wait_frames 3
+expect mouse focus == 1
+action ui_down
+wait_frames 3
+expect pad focus == 1
+action ui_down
+wait_frames 3
+expect invert focus == 1
+action ui_up
+wait_frames 3
+expect pad focus == 1
+action ui_up
+wait_frames 3
+action ui_up
+wait_frames 3
+expect tabinput focus == 1
+console ui_focus tabvideo
+wait_frames 3
+action ui_confirm
+wait_frames 15
+action ui_down
+wait_frames 3
+expect resolution focus == 1
+action ui_down
+wait_frames 3
+expect windowmode focus == 1
+action ui_down
+wait_frames 3
+expect vsync focus == 1
+action ui_down
+wait_frames 3
+expect msaa focus == 1
+action ui_down
+wait_frames 3
+expect fxaa focus == 1
+action ui_down
+wait_frames 3
+expect shadows focus == 1
+action ui_up
+wait_frames 3
+action ui_up
+wait_frames 3
+action ui_up
+wait_frames 3
+expect vsync focus == 1
+action ui_cancel
+wait_frames 12
+action ui_cancel
+wait_frames 12
+quit

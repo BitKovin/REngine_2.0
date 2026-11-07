@@ -234,9 +234,6 @@
     <ClCompile Include="Systems\ScoreSystem\ScoreSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UI\Pause\UiVideoSettings.h">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Entities\Player\Player_Mantle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -417,18 +414,6 @@
     <ClCompile Include="Entities\Player\PlayerCloneArea\PlayerMirrorCloneArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Settings\GameSettings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Settings\InputActionRegistry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Settings\InputSettingsData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Settings\VideoSettingsData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleSystems\CannonBulletTrail.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -588,15 +573,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UI\Player\ScoreIndicator.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\StealthPauseMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiPauseMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiSettingsMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSystems\particle_system_meleeTrail.hpp">
@@ -767,61 +743,10 @@
     <ClInclude Include="Entities\Player\PlayerCloneArea\PlayerCloneAreaBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Settings\AudioSettingsData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\GameSettings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\InputActionRegistry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\InputBindingTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\InputSettingsData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\VideoSettingsData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiInputSettings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UI\InputIconLibrary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UI\UiBindSlotButton.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UI\UiConfirmDialog.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UI\UiRebindCaptureModal.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiSettingsStyle.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\VideoSettings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiGameSettings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiSoundSettings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="UI\Player\HudStatusBar.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UI\Player\HudStatElement.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiSaveSlotRow.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Pause\UiSaveLoadMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Systems\PowerUpSystem\PowerUpManager.hpp">
@@ -835,6 +760,5 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="UI\Pause\UiVideoSettings.zip" />
   </ItemGroup>
 </Project>

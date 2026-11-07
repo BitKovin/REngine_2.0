@@ -6,7 +6,6 @@
 #include "glm.h"
 #include "Camera.h"
 #include "UI/UiManager.h"
-#include "UI/RmlUi/RmlUiContext.h"
 
 #include "Time.hpp"
 
@@ -289,8 +288,6 @@ void Input::ReceiveSdlEvent(SDL_Event event)
 {
 
     UiInputPrompts::OnSdlEvent(event);
-
-	EngineMain::MainInstance->RmlContext->ProcessEvent(event);
 
     vec2 UiScreenSize = EngineMain::Viewport.GetSize();
 

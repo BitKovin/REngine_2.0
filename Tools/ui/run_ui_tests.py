@@ -62,7 +62,7 @@ def cmd_run(a):
             shutil.rmtree(produced)
         print(f"[{backend}] running {script.stem}", flush=True)
         try:
-            subprocess.run([str(exe), "-headless", "-renderapi", backend, "-ui_test", str(script)],
+            subprocess.run([str(exe), "-headless", "-renderapi", backend, "-ui_test", str(script)] + a.extra.split(),
                            cwd=str(exe_dir), timeout=TIMEOUT_S)
         except subprocess.TimeoutExpired:
             print(f"[{backend}] TIMEOUT after {TIMEOUT_S}s - look for CrashDump_*.dmp in {exe_dir}")
@@ -160,6 +160,7 @@ def main():
     r.add_argument("--script", required=True)
     r.add_argument("--label", required=True)
     r.add_argument("--backends", default=BACKENDS)
+    r.add_argument("--extra", default="", help="extra game arguments, e.g. \"-ui_pseudoloc\"")
     m = sp.add_parser("mask")
     for k in ("--game", "--stem", "--a", "--b", "--out"):
         m.add_argument(k, required=True)

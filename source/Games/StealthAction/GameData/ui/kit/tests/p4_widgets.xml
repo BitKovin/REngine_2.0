@@ -1,0 +1,70 @@
+<root>
+  <styles>
+    <style>
+      #page { flow-children: right; gap: 40px; x: 40px; y: 40px; }
+      .col { flow-children: down; gap: 12px; width: 420px; }
+      Label { font-size: 22px; color: #ffffff; }
+      Slider { width: 300px; height: 28px; color: #c04020; --track-color: #262626; --handle-color: #e0a030; }
+      DropDown { width: 300px; height: 44px; font-size: 22px; }
+      TextEntry { width: 300px; height: 40px; font-size: 22px; }
+      .tog { width: 160px; height: 40px; background-color: #303030; border-radius: 6px; }
+      .tog:checked { background-color: #2c8040; }
+      .tog:focus { border: 2px solid #ffffff; }
+      .rad { width: 90px; height: 40px; background-color: #303030; }
+      .rad:checked { background-color: #2c6090; }
+      .rad:focus { border: 2px solid #ffffff; }
+      .row { flow-children: right; gap: 8px; }
+      #bar { width: 400px; height: 20px; background-color: #222222; }
+      #bar .fill { background-color: #d04030; }
+      #bar2 { width: 20px; height: 100px; background-color: #222222; }
+      #bar2 .fill { background-color: #30a0d0; }
+      #ring { width: 100px; height: 100px; color: #40c0ff; background-color: #223344; }
+      #scroll { width: 360px; height: 220px; overflow: scroll; flow-children: down; gap: 6px; background-color: #1a1a1a; }
+      .scrollbar { width: 8px; background-color: #333333; }
+      .scrollbar .thumb { background-color: #aaaaaa; border-radius: 4px; }
+      .sb { width: 330px; height: 56px; background-color: #303030; }
+      .sb:focus { background-color: #7a2418; }
+      #list { width: 360px; height: 220px; overflow: scroll; background-color: #1a1a1a; }
+      .lrow { background-color: #262626; }
+      .lrow Label { font-size: 20px; }
+    </style>
+  </styles>
+  <snippets>
+    <snippet name="Row" params="index=0">
+      <Panel class="lrow"><Label text="Item {index}"/></Panel>
+    </snippet>
+  </snippets>
+  <Panel id="page">
+    <Panel class="col">
+      <Slider id="sl" min="0" max="1" step="0.1" value="0.5"/>
+      <DropDown id="dd" options="Low|Medium|High" selected-index="0"/>
+      <TextEntry id="te" placeholder="name"/>
+      <ToggleButton id="tg" class="tog"><Label text="Toggle"/></ToggleButton>
+      <Panel class="row">
+        <RadioButton id="r1" class="rad" group="g" checked="true"><Label text="A"/></RadioButton>
+        <RadioButton id="r2" class="rad" group="g"><Label text="B"/></RadioButton>
+        <RadioButton id="r3" class="rad" group="g"><Label text="C"/></RadioButton>
+      </Panel>
+      <Panel class="row">
+        <ProgressBar id="bar" value="0.3"/>
+        <ProgressBar id="bar2" value="0.5" direction="vertical"/>
+        <CircularProgress id="ring" value="0.25" thickness="12"/>
+      </Panel>
+    </Panel>
+    <Panel class="col">
+      <Panel id="scroll" scrollbar="true">
+        <Button id="sb0" class="sb"><Label text="Row 0"/></Button>
+        <Button id="sb1" class="sb"><Label text="Row 1"/></Button>
+        <Button id="sb2" class="sb"><Label text="Row 2"/></Button>
+        <Button id="sb3" class="sb"><Label text="Row 3"/></Button>
+        <Button id="sb4" class="sb"><Label text="Row 4"/></Button>
+        <Button id="sb5" class="sb"><Label text="Row 5"/></Button>
+        <Button id="sb6" class="sb"><Label text="Row 6"/></Button>
+        <Button id="sb7" class="sb"><Label text="Row 7"/></Button>
+        <Button id="sb8" class="sb"><Label text="Row 8"/></Button>
+        <Button id="sb9" class="sb"><Label text="Row 9"/></Button>
+      </Panel>
+      <ListView id="list" snippet="Row" count="1000" item-height="40"/>
+    </Panel>
+  </Panel>
+</root>

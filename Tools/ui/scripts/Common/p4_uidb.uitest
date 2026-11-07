@@ -1,0 +1,13 @@
+# The UI database lists the phase 4 widgets, settings, kit pages and component names, theme tokens and locale keys.
+wait 8
+console ui_load GameData/ui/kit/tests/p4_widgets.xml
+wait_frames 10
+expect_uidb tags:Slider tags:DropDown tags:TextEntry tags:ToggleButton tags:RadioButton tags:ProgressBar tags:CircularProgress tags:Frame tags:ListView
+expect_uidb settings:video.vsync settings:audio.master settings:input.mouse_sensitivity settings:ui.text_scale
+expect_uidb kitPages:pause kitPages:settings kitPages:confirm_changes
+expect_uidb kitComponents:SettingRow kitComponents:StyledButton
+expect_uidb themeTokens:--kit-text
+expect_uidb locales:en localeKeys:en
+expect_uidb preview:engine.widgets.gallery preview:engine.kit.settings
+expect_ui_errors 0
+quit

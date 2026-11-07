@@ -22,6 +22,9 @@ namespace UiBuilder
 
     // Applies the top node of a layout onto `element` and builds its children (UiElem::LoadLayout).
     bool BuildLayout(UiElem& element, const std::shared_ptr<UiDocumentDef>& def, const std::shared_ptr<UiDocumentInstance>& instance);
+    // Builds the snippet (or component, or built-in tag) `name` as a child of `parent`, in the document scope `owner` came from.
+    // Returns the new element, or nullptr after logging.
+    std::shared_ptr<UiElem> BuildSnippet(UiElem& owner, UiElem& parent, const std::string& name);
     // Files a loaded layout depends on (the layout, imported components, style sheets), for hot reload.
     void CollectDependencies(const std::shared_ptr<UiDocumentDef>& def, std::vector<std::string>& out);
 }

@@ -1,0 +1,8 @@
+<root>
+  <Component tag="SettingRow" params="label">
+    <Panel class="setting-row">
+      <Label class="setting-label" text="{label}"/>
+      <Children/>
+    </Panel>
+  </Component>
+</root>

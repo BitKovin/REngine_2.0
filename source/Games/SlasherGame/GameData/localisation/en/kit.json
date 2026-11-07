@@ -1,0 +1,54 @@
+{
+    "entries": [
+        {
+            "key": "SETTINGS_APPLY",
+            "value": "Apply",
+            "description": "Engine UI kit"
+        },
+        {
+            "key": "SETTINGS_DISCARD",
+            "value": "Discard",
+            "description": "Engine UI kit"
+        },
+        {
+            "key": "SETTINGS_CONFIRM_CHANGES",
+            "value": "Keep the changed settings?",
+            "description": "Engine UI kit"
+        },
+        {
+            "key": "SETTINGS_UI_TEXT_SCALE",
+            "value": "Text size",
+            "description": "Engine UI kit"
+        },
+        {
+            "key": "SETTINGS_UI_SCALE",
+            "value": "Interface scale",
+            "description": "Engine UI kit"
+        },
+        {
+            "key": "SETTINGS_UI_REDUCED_MOTION",
+            "value": "Reduced motion",
+            "description": "Engine UI kit"
+        },
+        {
+            "key": "PAUSE_RESTART_CONFIRM",
+            "value": "Restart the level? Unsaved progress is lost.",
+            "description": "Engine UI kit"
+        },
+        {
+            "key": "PAUSE_QUIT_CONFIRM",
+            "value": "Quit the game? Unsaved progress will be lost.",
+            "description": "Engine UI kit"
+        },
+        {
+            "key": "PAUSE_MENU_SAVE",
+            "value": "Save Game",
+            "description": "Engine UI kit"
+        },
+        {
+            "key": "PAUSE_MENU_LOAD",
+            "value": "Load Game",
+            "description": "Engine UI kit"
+        }
+    ]
+}

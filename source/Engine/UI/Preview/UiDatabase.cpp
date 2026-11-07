@@ -7,6 +7,7 @@
 #include <UI/Menus/UiActions.h>
 #include <UI/Menus/UiInputPrompts.h>
 #include <UI/Preview/UiMenuPreviews.h>
+#include <UI/Preview/UiKitPreviews.h>
 #include <UI/Preview/UiPaintPreviews.h>
 #include <UI/Markup/UiTagRegistry.h>
 #include <UI/Preview/UiPreviewRegistry.h>
@@ -56,7 +57,7 @@ namespace
     }
 
     const char* kRegistryNames[] = { "documents", "components", "tags", "cssProperties", "pseudoClasses", "actions", "inputActions", "hosts", "locales", "testCommands",
-                                      "paintEffects", "animations", "easings" };
+                                      "paintEffects", "animations", "easings", "settings", "kitPages", "kitComponents", "themeTokens", "localeKeys" };
 
     std::string ExecutableName()
     {
@@ -274,6 +275,7 @@ namespace
     void FillPaint(State& s)
     {
         UiPaintPreviews::FillRegistries(s.Registries);
+        UiKitPreviews::FillRegistries(s.Registries);
 
         std::vector<std::shared_ptr<UiStyleSheet>> sheets = UiStyleSheetCache::Cached();
         for (const std::string& full : UiDocumentCache_Paths())
@@ -357,6 +359,7 @@ namespace
         }
         UiMenuPreviews::AddRecipes();
         UiPaintPreviews::AddRecipes();
+        UiKitPreviews::AddRecipes();
         for (const auto& [key, entry] : s.Registries["tags"])
         {
             UiPreviewDescriptor d;

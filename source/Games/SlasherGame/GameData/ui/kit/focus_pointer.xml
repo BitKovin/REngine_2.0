@@ -1,0 +1,9 @@
+<root>
+  <styles>
+    <include src="GameData/ui/theme.css"/>
+  </styles>
+  <Panel id="pointer" class="kit-pointer">
+    <Panel class="pointer-v"/>
+    <Panel class="pointer-h"/>
+  </Panel>
+</root>

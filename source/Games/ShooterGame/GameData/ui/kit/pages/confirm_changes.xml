@@ -1,0 +1,15 @@
+<root>
+  <styles>
+    <include src="GameData/ui/theme.css"/>
+  </styles>
+  <Panel id="confirmchanges" class="kit-modal" shows-below="true">
+    <DialogFrame>
+      <Label class="dialog-text" text="${SETTINGS_CONFIRM_CHANGES}"/>
+      <Panel class="dialog-row">
+        <TextButton id="capply" class="dialog-button" text="${SETTINGS_APPLY}" default-focus="true" onactivate="ApplyChanges()"/>
+        <TextButton id="cdiscard" class="dialog-button" text="${SETTINGS_DISCARD}" onactivate="DiscardChanges()"/>
+        <TextButton id="ccancel" class="dialog-button" text="${SETTINGS_CANCEL}" onactivate="Back()"/>
+      </Panel>
+    </DialogFrame>
+  </Panel>
+</root>

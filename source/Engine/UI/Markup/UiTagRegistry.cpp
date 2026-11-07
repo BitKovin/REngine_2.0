@@ -63,6 +63,7 @@ const std::vector<UiTagRegistry::AttributeInfo>& UiTagRegistry::StandardAttribut
         { "shows-below", "bool", "false", false, "Host option of a menu page: pages under it stay visible" },
         { "pauses-game", "bool", "false", false, "Host option of a menu page: the game is paused while it is on the stack" },
         { "hides-hud", "bool", "false", false, "Host option of a menu page: the HUD is hidden while it is on the stack" },
+        { "confirm-changes", "bool", "false", false, "Menu page: back with changed bound settings asks to apply or discard them first" },
         { "nav-up", "string", "", false, "#id of the element focus moves to on up (overrides spatial navigation)" },
         { "nav-down", "string", "", false, "#id of the element focus moves to on down" },
         { "nav-left", "string", "", false, "#id of the element focus moves to on left" },

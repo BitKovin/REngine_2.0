@@ -2,6 +2,7 @@
 
 #include <EngineMain.h>
 #include <Input.h>
+#include <UI/Kit/UiSettings.h>
 #include <UI/Markup/UiMarkupLog.h>
 #include <UI/UiNavigation.h>
 #include <UI/UiSystem.h>
@@ -106,6 +107,11 @@ UiElem* UiMenuStack::Push(std::shared_ptr<UiElem> page)
     entry.Page = page;
     entry.Options = page->ReadHostOptions();
     entry.PushedGen = m_styleGen;
+    {
+        const auto confirm = page->Attributes.find("confirm-changes");
+        if (confirm != page->Attributes.end() && (confirm->second == "true" || confirm->second == "1"))
+            entry.Session = UiSettings::BeginSession();
+    }
 
     if (m_entries.empty())
         BringToFront();
@@ -131,6 +137,8 @@ void UiMenuStack::PopInternal()
 {
     Entry entry = std::move(m_entries.back());
     m_entries.pop_back();
+    if (entry.Session >= 0)
+        UiSettings::EndSession(entry.Session);
     UiElem& page = *entry.Page;
     page.States |= kStateLeaving;   // the page stays while its leave transition or animation runs
 
@@ -216,7 +224,26 @@ void UiMenuStack::Back()
     if (top->OnBack())
         return;
     if (m_entries.back().Options.CloseOnBack)
+    {
+        if (m_entries.back().Session >= 0 && UiSettings::SessionChanged(m_entries.back().Session))
+        {
+            Push(ConfirmChangesPage);   // Apply keeps the values, Discard reverts them, Cancel stays
+            return;
+        }
         Pop();
+    }
+}
+
+void UiMenuStack::ResolveChanges(bool apply)
+{
+    if (m_entries.size() < 2)
+        return;
+    const int session = m_entries[m_entries.size() - 2].Session;
+    if (!apply && session >= 0)
+        UiSettings::RevertSession(session);
+    Pop();   // the confirm page
+    if (!m_entries.empty())
+        Pop();   // the page that asked
 }
 
 void UiMenuStack::Relayer()

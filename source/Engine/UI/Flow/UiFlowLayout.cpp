@@ -47,6 +47,8 @@ namespace
             if (UiElem::IsElem(c.get()))
             {
                 UiElem* child = static_cast<UiElem*>(c.get());
+                if (child->InternalOverlay)
+                    continue;   // the scrollbar is placed by FinishScroll
                 if (child->Computed().Visibility != UiVisibility::Collapse)
                     out.push_back(child);
             }
@@ -207,11 +209,93 @@ namespace
         return contentStart + marginStart;
     }
 
+    void Arrange(UiElem& e, const UiRect& rect, const glm::mat3& parentAbs);
+    void PatchRecursive(UiElem& e, const glm::mat3& parentAbs);
+
+    // Children of a scroll container are positioned in content coordinates and moved by the scroll offset.
+    glm::mat3 ChildParent(const UiElem& e)
+    {
+        if (!e.IsScrollContainer())
+            return e.AbsoluteTransform;
+        return e.AbsoluteTransform * UiElement::Mat3Translate(-e.ScrollOffset);
+    }
+
+    // After the children are placed: measure the content, clamp the offset and place the scrollbar.
+    void FinishScroll(UiElem& e, const UiRect& content)
+    {
+        glm::vec2 extent(0.f);
+        for (UiElem* k : LayoutChildren(e))
+        {
+            const Boxes b = ResolveBoxes(k->Computed(), content.W);
+            extent.x = std::max(extent.x, k->BorderRect.X + k->BorderRect.W + b.mr - content.X);
+            extent.y = std::max(extent.y, k->BorderRect.Y + k->BorderRect.H + b.mb - content.Y);
+        }
+        extent = glm::max(extent, e.VirtualContentSize());
+        e.ScrollViewport = glm::vec2(content.W, content.H);
+        e.ScrollExtent = extent;
+        const glm::vec2 max = e.MaxScroll();
+        const glm::vec2 clamped = glm::clamp(e.ScrollOffset, glm::vec2(0.f), max);
+        e.ScrollTarget = glm::clamp(e.ScrollTarget, glm::vec2(0.f), max);
+        if (clamped != e.ScrollOffset)
+        {
+            e.ScrollOffset = clamped;
+            const glm::mat3 parent = ChildParent(e);
+            for (UiElem* k : LayoutChildren(e))
+                PatchRecursive(*k, parent);
+        }
+
+        UiElem* bar = e.ScrollbarElem();
+        if (bar == nullptr)
+            return;
+        const bool show = max.y > 0.5f;
+        if (!show)
+        {
+            bar->BorderRect = UiRect{};   // nothing to scroll: the bar takes no space and paints nothing
+            for (auto& c : bar->children)
+                if (UiElem::IsElem(c.get()))
+                    static_cast<UiElem&>(*c).BorderRect = UiRect{};
+            return;
+        }
+        const UiLength& wl = bar->Computed().Width;
+        const float width = wl.IsResolvable() && wl.Resolve(content.W) > 0.f ? wl.Resolve(content.W) : 8.f;
+        const UiRect rect{ content.X + content.W - width, content.Y, width, content.H };
+        bar->BorderRect = rect;
+        bar->AbsoluteTransform = e.AbsoluteTransform * UiElement::Mat3Translate(glm::vec2(rect.X, rect.Y));
+        for (auto& c : bar->children)
+            if (UiElem::IsElem(c.get()))
+            {
+                UiElem& thumb = static_cast<UiElem&>(*c);
+                const float track = rect.H;
+                const float thumbH = std::clamp(track * content.H / std::max(1.f, extent.y), std::min(24.f, track), track);
+                const float t = max.y > 0.f ? e.ScrollOffset.y / max.y : 0.f;
+                thumb.BorderRect = UiRect{ 0.f, (track - thumbH) * t, width, thumbH };
+                thumb.AbsoluteTransform = bar->AbsoluteTransform * UiElement::Mat3Translate(glm::vec2(0.f, thumb.BorderRect.Y));
+            }
+    }
+
+    void ArrangeCore(UiElem& e, const UiRect& rect, const glm::mat3& parentAbs);
+
     void Arrange(UiElem& e, const UiRect& rect, const glm::mat3& parentAbs)
+    {
+        ArrangeCore(e, rect, parentAbs);
+        if (e.IsScrollContainer())
+        {
+            const Boxes b = ResolveBoxes(e.Computed(), rect.W);
+            UiRect content;
+            content.X = b.bl + b.pl;
+            content.Y = b.bt + b.pt;
+            content.W = std::max(0.f, rect.W - b.bl - b.br - b.pl - b.pr);
+            content.H = std::max(0.f, rect.H - b.bt - b.bb - b.pt - b.pb);
+            FinishScroll(e, content);
+        }
+    }
+
+    void ArrangeCore(UiElem& e, const UiRect& rect, const glm::mat3& parentAbs)
     {
         const UiComputedStyle& s = e.Computed();
         e.BorderRect = rect;
         e.AbsoluteTransform = parentAbs * UiElement::Mat3Translate(glm::vec2(rect.X, rect.Y)) * LocalTransform(s, rect.W, rect.H);
+        const glm::mat3 childParent = ChildParent(e);
 
         // Percentages inside this element resolve against its own content size; padding % against the parent's width (approximated by own).
         const Boxes b = ResolveBoxes(s, rect.W);
@@ -265,7 +349,7 @@ namespace
                 const UiComputedStyle& cs = it.E->Computed();
                 const float x0 = AlignOffset((int)cs.HAlign, content.X, content.W, ow, it.B.ml) + dx;
                 const float y0 = AlignOffset((int)cs.VAlign, content.Y, content.H, oh, it.B.mt) + dy;
-                Arrange(*it.E, UiRect{ x0, y0, w, h }, e.AbsoluteTransform);
+                Arrange(*it.E, UiRect{ x0, y0, w, h }, childParent);
             }
             return;
         }
@@ -287,7 +371,7 @@ namespace
             UiRect r;
             if (horizontal) r = UiRect{ mainPos + dx, crossPos + dy, mainSize, crossSize };
             else r = UiRect{ crossPos + dx, mainPos + dy, crossSize, mainSize };
-            Arrange(*it.E, r, e.AbsoluteTransform);
+            Arrange(*it.E, r, childParent);
         };
         auto crossAlignMode = [&](const Item& it) {
             return horizontal ? (int)it.E->Computed().VAlign : (int)it.E->Computed().HAlign;
@@ -375,13 +459,36 @@ namespace
         }
     }
 
+    // Scrollbar (and thumb) follow the container's transform; the thumb follows the scroll offset.
+    void PatchOverlay(UiElem& owner, UiElem& bar)
+    {
+        bar.AbsoluteTransform = owner.AbsoluteTransform * UiElement::Mat3Translate(glm::vec2(bar.BorderRect.X, bar.BorderRect.Y));
+        const glm::vec2 max = owner.MaxScroll();
+        for (auto& c : bar.children)
+            if (UiElem::IsElem(c.get()))
+            {
+                UiElem& thumb = static_cast<UiElem&>(*c);
+                const float track = bar.BorderRect.H;
+                const float t = max.y > 0.f ? owner.ScrollOffset.y / max.y : 0.f;
+                thumb.BorderRect.Y = (track - thumb.BorderRect.H) * t;
+                thumb.AbsoluteTransform = bar.AbsoluteTransform * UiElement::Mat3Translate(glm::vec2(0.f, thumb.BorderRect.Y));
+            }
+    }
+
     void PatchRecursive(UiElem& e, const glm::mat3& parentAbs)
     {
         const UiRect& r = e.BorderRect;
         e.AbsoluteTransform = parentAbs * UiElement::Mat3Translate(glm::vec2(r.X, r.Y)) * LocalTransform(e.Computed(), r.W, r.H);
+        const glm::mat3 childParent = ChildParent(e);
         for (auto& c : e.children)
             if (UiElem::IsElem(c.get()))
-                PatchRecursive(static_cast<UiElem&>(*c), e.AbsoluteTransform);
+            {
+                UiElem& child = static_cast<UiElem&>(*c);
+                if (child.InternalOverlay)
+                    PatchOverlay(e, child);
+                else
+                    PatchRecursive(child, childParent);
+            }
     }
 
     void UpdateOffsetsRecursive(UiElem& e)

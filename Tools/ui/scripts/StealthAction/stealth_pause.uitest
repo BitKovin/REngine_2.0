@@ -31,7 +31,7 @@ wait_frames 3
 action ui_confirm
 wait_frames 5
 expect_stack depth == 2
-expect_stack top contains confirm_quit.xml
+expect_stack top contains confirm.xml
 expect pause visible == 1
 ui_screenshot 03_confirm
 action ui_cancel

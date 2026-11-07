@@ -5,6 +5,7 @@
 #include <Logger.hpp>
 #include <UI/Markup/UiDocument.h>
 #include <UI/Markup/UiMarkupLog.h>
+#include <UI/Elements/UiElemPanel.h>
 #include <UI/Markup/UiVariables.h>
 #include <UI/Menus/UiMenuStack.h>
 #include <UI/UiNavigation.h>
@@ -241,10 +242,17 @@ void UiElem::SetVar(const std::string& name, const std::string& value)
 
 void UiElem::SetVar(const std::string& name, double value)
 {
+    UiSystem::AssertUiThread();
     char buffer[64];
     std::snprintf(buffer, sizeof(buffer), "%.6g", value);
-    SetVar(name, std::string(buffer));
-    m_numVars[name] = value;
+    m_vars[name] = std::string(buffer);
+    m_numVars[name] = value;   // before the attributes are re-applied, so format specs see the number
+    std::vector<UiElem*> all;
+    CollectElems(all);
+    for (UiElem* e : all)
+        if (std::find(e->m_varRefs.begin(), e->m_varRefs.end(), name) != e->m_varRefs.end())
+            e->ReapplyAttributes();
+    MarkStyleDirty();
 }
 
 void UiElem::ReapplyAttributes()
@@ -300,7 +308,7 @@ bool UiElem::ApplyAttributeValue(const std::string& name, const std::string& raw
             m_eventCalls[name.substr(2)] = std::move(calls);
         return true;
     }
-    if (name == "close-on-back" || name == "shows-below" || name == "pauses-game" || name == "hides-hud")
+    if (name == "close-on-back" || name == "shows-below" || name == "pauses-game" || name == "hides-hud" || name == "confirm-changes")
         return true;
     if (name == "nav-up" || name == "nav-down" || name == "nav-left" || name == "nav-right")
     {
@@ -341,6 +349,12 @@ bool UiElem::ApplyAttributeValue(const std::string& name, const std::string& raw
     }
     if (name == "default-focus")
         return true;
+    if (name == "scrollbar")
+    {
+        if (!IsFalsey(value))
+            EnsureScrollbar();
+        return true;
+    }
     const bool handled = ApplyAttribute(name, value);
     if (handled)
         MarkLayoutDirty();
@@ -382,7 +396,7 @@ void UiElem::UpdateOffsets()
     offset = topLeft;
     position = glm::vec2(0.f);
     visible = m_computed.Visibility == UiVisibility::Visible;
-    LimitHitTestToBounds = m_computed.Overflow == UiOverflow::Clip;
+    LimitHitTestToBounds = m_computed.Overflow != UiOverflow::Visible;
 }
 
 void UiElem::UpdateChildrenOffsets()
@@ -559,7 +573,7 @@ void UiElem::ApplyPointerStates()
             {
                 m_pressedTouchId = -1;
                 States &= ~kStateActive;
-                if (IsFocusable() && !(States & kStateDisabled))
+                if (IsFocusable() && !(States & kStateDisabled) && !SuppressActivate)
                     Activate();
             }
         }
@@ -572,6 +586,181 @@ void UiElem::ApplyPointerStates()
     }
     if (States != before)
         MarkStyleDirty();
+}
+
+// ── scrolling
+
+glm::vec2 UiElem::MaxScroll() const
+{
+    return glm::vec2(std::max(0.f, ScrollExtent.x - ScrollViewport.x), std::max(0.f, ScrollExtent.y - ScrollViewport.y));
+}
+
+void UiElem::ScrollTo(glm::vec2 offset, bool smooth)
+{
+    const glm::vec2 max = MaxScroll();
+    offset = glm::clamp(offset, glm::vec2(0.f), max);
+    ScrollTarget = offset;
+    if (!smooth && ScrollOffset != offset)
+    {
+        ScrollOffset = offset;
+        Root()->m_transformDirty = true;
+        MarkPaintDirty();
+    }
+}
+
+void UiElem::ScrollBy(glm::vec2 delta, bool smooth)
+{
+    ScrollTo((smooth ? ScrollTarget : ScrollOffset) + delta, smooth);
+}
+
+void UiElem::TickScroll(float dt)
+{
+    if (!IsScrollContainer())
+        return;
+    const glm::vec2 max = MaxScroll();
+    ScrollTarget = glm::clamp(ScrollTarget, glm::vec2(0.f), max);
+    glm::vec2 next = ScrollOffset;
+    if (m_dragging)
+    {
+        next = ScrollTarget;   // direct while the pointer holds the content
+    }
+    else
+    {
+        if (glm::length(m_dragVelocity) > 1.f)
+        {
+            // kinetic decay after a drag release: 5/s
+            ScrollTarget = glm::clamp(ScrollTarget + m_dragVelocity * dt, glm::vec2(0.f), max);
+            m_dragVelocity *= std::exp(-5.f * dt);
+            next = ScrollTarget;
+        }
+        else
+        {
+            m_dragVelocity = glm::vec2(0.f);
+            // exponential approach, rate 15/s
+            const float k = 1.f - std::exp(-15.f * dt);
+            next = ScrollOffset + (ScrollTarget - ScrollOffset) * k;
+            if (glm::length(ScrollTarget - next) < 0.25f)
+                next = ScrollTarget;
+        }
+    }
+    if (next != ScrollOffset)
+    {
+        ScrollOffset = next;
+        Root()->m_transformDirty = true;
+        MarkPaintDirty();
+    }
+}
+
+UiElem* UiElem::NearestScrollContainer()
+{
+    for (UiElem* e = this; e != nullptr; e = e->AsParentElem())
+        if (e->IsScrollContainer())
+            return e;
+    return nullptr;
+}
+
+void UiElem::ScrollIntoView(const UiElement& target, float margin)
+{
+    if (!IsScrollContainer())
+        return;
+    const UiRect view = ContentRectScreen();
+    glm::vec2 delta(0.f);
+    const float top = target.topLeft.y, bottom = target.topLeft.y + target.size.y;
+    const float left = target.topLeft.x, right = target.topLeft.x + target.size.x;
+    const float m = std::min(margin, std::max(0.f, view.H * 0.5f - 1.f));
+    if (top < view.Y + m) delta.y = top - (view.Y + m);
+    else if (bottom > view.Y + view.H - m) delta.y = bottom - (view.Y + view.H - m);
+    const float mx = std::min(margin, std::max(0.f, view.W * 0.5f - 1.f));
+    if (left < view.X + mx) delta.x = left - (view.X + mx);
+    else if (right > view.X + view.W - mx) delta.x = right - (view.X + view.W - mx);
+    if (delta != glm::vec2(0.f))
+        ScrollTo(ScrollOffset + delta, true);
+}
+
+void UiElem::OnScroll(float delta)
+{
+    UiElem* c = NearestScrollContainer();
+    if (c == nullptr)
+        return;
+    // Wheel up (positive) moves the content down, i.e. the offset decreases. Containers that cannot scroll that way pass it on.
+    for (; c != nullptr; c = c->AsParentElem() != nullptr ? c->AsParentElem()->NearestScrollContainer() : nullptr)
+    {
+        const glm::vec2 max = c->MaxScroll();
+        const bool vertical = max.y > 0.f || max.x <= 0.f;
+        const glm::vec2 step = vertical ? glm::vec2(0.f, -delta * 60.f) : glm::vec2(-delta * 60.f, 0.f);
+        const glm::vec2 before = c->ScrollTarget;
+        c->ScrollBy(step, true);
+        if (c->ScrollTarget != before)
+            return;
+    }
+}
+
+void UiElem::OnPointerDown(glm::vec2 local)
+{
+    SuppressActivate = false;
+    m_dragTarget = NearestScrollContainer();
+    if (m_dragTarget == nullptr)
+        return;
+    const glm::vec2 screen = TransformPoint(AbsoluteTransform, local);
+    m_dragStart = m_dragLast = screen;
+    m_dragTarget->m_dragVelocity = glm::vec2(0.f);
+    m_dragMoved = false;
+}
+
+void UiElem::OnPointerMove(glm::vec2 local)
+{
+    UiElem* c = m_dragTarget;
+    if (c == nullptr || !IsElem(c))
+        return;
+    const glm::vec2 screen = TransformPoint(AbsoluteTransform, local);
+    if (!m_dragMoved)
+    {
+        if (glm::length(screen - m_dragStart) < 8.f)
+            return;
+        m_dragMoved = true;
+        SuppressActivate = true;
+        c->m_dragging = true;
+    }
+    const glm::vec2 move = m_dragLast - screen;
+    m_dragLast = screen;
+    const glm::vec2 max = c->MaxScroll();
+    glm::vec2 axisMove = move;
+    if (max.y > 0.f && max.x <= 0.f) axisMove.x = 0.f;
+    if (max.x > 0.f && max.y <= 0.f) axisMove.y = 0.f;
+    c->ScrollTarget = glm::clamp(c->ScrollTarget + axisMove, glm::vec2(0.f), max);
+    c->m_dragVelocity = axisMove * 30.f;   // px/s estimate for the kinetic release
+}
+
+void UiElem::OnPointerUp(glm::vec2)
+{
+    UiElem* c = m_dragTarget;
+    m_dragTarget = nullptr;
+    if (c != nullptr && IsElem(c))
+        c->m_dragging = false;
+    if (!m_dragMoved)
+        SuppressActivate = false;
+    m_dragMoved = false;
+}
+
+void UiElem::EnsureScrollbar()
+{
+    if (m_scrollbar != nullptr)
+        return;
+    auto bar = std::make_shared<UiElemPanel>();
+    bar->TagName = "Panel";
+    bar->InternalOverlay = true;
+    bar->Classes = { "scrollbar" };
+    bar->ScopeFile = ScopeFile;
+    bar->Instance = Instance;
+    auto thumb = std::make_shared<UiElemPanel>();
+    thumb->TagName = "Panel";
+    thumb->InternalOverlay = true;
+    thumb->Classes = { "thumb" };
+    thumb->ScopeFile = ScopeFile;
+    thumb->Instance = Instance;
+    bar->AddChild(thumb);
+    m_scrollbar = bar.get();
+    AddChild(bar);
 }
 
 void UiElem::Update()

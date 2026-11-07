@@ -1,0 +1,9 @@
+<root>
+  <Component tag="DialogFrame" params="title=''">
+    <Panel class="kit-dialog">
+      <Label class="dialog-title" text="{title}"/>
+      <Panel class="dialog-accent"/>
+      <Children/>
+    </Panel>
+  </Component>
+</root>

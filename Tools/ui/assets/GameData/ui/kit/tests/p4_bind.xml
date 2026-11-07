@@ -1,0 +1,13 @@
+<root>
+  <styles>
+    <include src="GameData/ui/theme.css"/>
+  </styles>
+  <Panel id="bp" class="kit-screen" confirm-changes="true">
+    <Panel class="kit-column">
+      <SettingRow label="Test slider"><Slider id="s" min="0" max="1" step="0.1" bind="setting:test.slider"/><Label class="setting-value" text="{value:%.2f}"/></SettingRow>
+      <SettingRow label="Test toggle"><ToggleButton id="t" class="kit-toggle" bind="setting:test.toggle"><Label class="on" text="On"/><Label class="off" text="Off"/></ToggleButton></SettingRow>
+      <SettingRow label="Test choice"><DropDown id="c" bind="setting:test.choice"/></SettingRow>
+      <StyledButton id="back" text="Back" onactivate="Back()"/>
+    </Panel>
+  </Panel>
+</root>

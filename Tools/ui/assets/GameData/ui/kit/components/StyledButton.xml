@@ -1,0 +1,5 @@
+<root>
+  <Component tag="StyledButton" params="text">
+    <TextButton class="kit-button" text="{text}"/>
+  </Component>
+</root>

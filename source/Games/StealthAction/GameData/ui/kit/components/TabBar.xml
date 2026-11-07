@@ -1,0 +1,7 @@
+<root>
+  <Component tag="TabBar">
+    <Panel class="kit-tabs">
+      <Children/>
+    </Panel>
+  </Component>
+</root>

@@ -1,0 +1,22 @@
+# Run with -ui_pseudoloc (run_ui_tests.py --extra -ui_pseudoloc): no label of a kit page may overflow its box.
+wait 8
+action pause
+wait_frames 10
+expect_no_overflow
+console ui_focus psettings
+wait_frames 3
+action ui_confirm
+wait_frames 15
+expect_no_overflow
+ui_screenshot pseudo_video
+console ui_focus tabinput
+wait_frames 3
+action ui_confirm
+wait_frames 15
+expect_no_overflow
+console ui_focus tabsound
+wait_frames 3
+action ui_confirm
+wait_frames 15
+expect_no_overflow
+quit

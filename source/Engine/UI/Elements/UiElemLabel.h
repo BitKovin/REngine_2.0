@@ -19,6 +19,7 @@ public:
     const std::string& DisplayText() const { return m_layout.DisplayText; }
     int Lines() const { return m_layout.Lines; }
     float TextWidth() const { return m_layout.Width; }
+    float TextHeight() const { return m_layout.Height; }
     float UsedFontSize() const { return m_layout.UsedFontSize; }
 
 private:

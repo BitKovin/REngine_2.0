@@ -22,7 +22,6 @@
 
 #include "AiPerception/AiPerceptionSystem.h"
 
-#include "UI/RmlUi/RmlUiContext.h"
 
 #include "LevelTraversalSystem.h"
 #include "SaveSystem/GameSaveSystem.h"
@@ -116,8 +115,6 @@ void Level::CloseLevel()
 	MyContactListener::afterSimulation();
 	MyContactListener::beforeSimulation();
 	MyContactListener::afterSimulation();
-
-	EngineMain::MainInstance->RmlContext->UnloadAllDocuments();
 
 	Input::ReleaseAllActions();
 

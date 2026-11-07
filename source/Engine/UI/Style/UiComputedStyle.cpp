@@ -389,7 +389,7 @@ const std::vector<UiPropertyInfo>& UiStyleProperties()
         { "padding-bottom", "<length-percentage>", false, "0", "layout", true },
         { "padding-left", "<length-percentage>", false, "0", "layout", true },
         { "gap", "<length>", false, "0", "layout", true },
-        { "overflow", "visible | clip", false, "visible", "layout+paint", true },
+        { "overflow", "visible | clip | scroll", false, "visible", "layout+paint", true },
         { "visibility", "visible | hidden | collapse", true, "visible", "layout", true },
         { "z-index", "<integer>", false, "0", "paint", true },
         { "background-color", "<color>", false, "transparent", "paint", true },
@@ -658,7 +658,7 @@ bool UiApplyLonghand(UiComputedStyle& s, const std::string& name, const std::vec
     if (name == "gap") return setLen(s.Gap, false);
     if (name == "overflow")
     {
-        static const char* const k[] = { "visible", "clip" };
+        static const char* const k[] = { "visible", "clip", "scroll" };
         int i; if (!ParseKeyword(c, k, i, error)) return false;
         s.Overflow = (UiOverflow)i; return true;
     }

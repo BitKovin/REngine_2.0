@@ -1,0 +1,8 @@
+<root>
+  <Component tag="KeyBindSlot">
+    <Button class="bind-slot">
+      <Image id="icon" class="bind-icon" src="GameData/textures/generic/white.png"/>
+      <Label id="name" class="bind-name" text=""/>
+    </Button>
+  </Component>
+</root>

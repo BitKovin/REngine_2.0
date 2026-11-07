@@ -3,10 +3,10 @@
 #include <Characters/CombatCharacter.h>
 #include <Debug/SelfTests.h>
 #include <PauseGameManager.hpp>
-#include <Settings/GameSettings.h>
-#include <Settings/InputActionRegistry.h>
+#include <Settings/GameplaySettings.h>
+#include <UI/Kit/KitPages.h>
+#include <UI/Kit/Settings/KitSettings.h>
 #include <UI/LoadingScreen/UiDefaultLoadingScreen.h>
-#include <UI/Pause/UiPauseMenu.h>
 
 #include <AssetRegistry.h>
 #include <Console/Console.h>
@@ -17,7 +17,6 @@
 #include <LoadingScreen/LoadingScreenSystem.h>
 #include <Logger.hpp>
 #include <SoundSystem/SoundManager.hpp>
-#include <UI/RmlUi/RmlUiContext.h>
 #include <UI/UiManager.h>
 
 #include <SDL2/SDL.h>
@@ -36,6 +35,22 @@ public:
 		LateUpdateWhenPaused = true;
 		PauseGameManager::SetGamePaused(false);
 		PauseGameManager::SetGamePausedGameplay(false);
+		KitSetupMenus([](bool paused)
+		{
+			PauseGameManager::SetGamePaused(paused);
+			if (!paused)
+			{
+				Input::GetAction("pause")->CleanPressed();
+				Input::ReleaseAllActions();
+			}
+		});
+		KitPauseMenu::ShowSaveLoad = false;
+		KitPauseMenu::OnRestart = []()
+		{
+			if (Level::Current)
+				Level::LoadLevelFromFile(Level::Current->filePath);
+		};
+		GameplaySettings::Register();   // the Gameplay section of the settings file and the gameplay tab
 	}
 
 	void Start() override
@@ -55,8 +70,8 @@ public:
 
 		RegisterInputActions();
 
-		GameSettings::Instance().LoadFromFile();
-		GameSettings::Instance().ApplyAll();
+		KitSettings::Instance().LoadFromFile();
+		KitSettings::Instance().ApplyAll();
 
 		SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/SFX.bank");
 		SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Weapons.bank");
@@ -94,15 +109,12 @@ public:
 		if (InputAction* reload = Input::GetAction("reload_shaders"); reload && reload->Pressed())
 		{
 			AssetRegistry::ReloadShaders();
-			EngineMain::MainInstance->RmlContext->ReloadAllSttyles();
 		}
 	}
 
 private:
 	static inline bool initialized = false;
 	bool pendingStartupMap = false;
-	bool wasPaused = false;
-	std::shared_ptr<UiPauseMenu> pauseMenu;
 
 	static bool HasArgument(const std::string& name)
 	{
@@ -169,24 +181,9 @@ private:
 
 	void UpdatePause()
 	{
-		if (InputAction* pause = Input::GetAction("pause"); pause && pause->Pressed() && !PauseGameManager::GetGamePaused())
-			PauseGameManager::SetGamePaused(true);
-
+		// the pause key is handled by the menu stack (UiMenus), which pauses through KitSetupMenus' hook
 		Input::LockCursor = !PauseGameManager::GetGamePaused();
 		EngineMain::MainInstance->Paused = PauseGameManager::isGameAnyPaused();
-
-		const bool paused = PauseGameManager::GetGamePaused();
-		if (paused && !wasPaused)
-		{
-			pauseMenu = std::make_shared<UiPauseMenu>();
-			EngineMain::MainInstance->Viewport.AddChild(pauseMenu);
-		}
-		else if (!paused && pauseMenu)
-		{
-			pauseMenu->RemoveFromParent();
-			pauseMenu.reset();
-		}
-		wasPaused = paused;
 	}
 
 #ifndef DISTRIBUTION

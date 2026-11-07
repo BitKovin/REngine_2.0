@@ -1,0 +1,41 @@
+# The engine kit menus of a game: pause -> settings -> every tab -> back -> resume, with a screenshot at each step.
+wait 8
+action pause
+wait_frames 10
+expect_stack depth == 1
+expect_stack top contains pause.xml
+expect_engine paused == 1
+ui_screenshot 01_pause
+console ui_focus psettings
+wait_frames 3
+action ui_confirm
+wait_frames 15
+expect_stack depth == 2
+expect_stack top contains settings.xml
+ui_screenshot 02_settings_video
+console ui_focus tabinput
+wait_frames 3
+action ui_confirm
+wait_frames 15
+ui_screenshot 03_settings_input
+console ui_focus tabsound
+wait_frames 3
+action ui_confirm
+wait_frames 15
+ui_screenshot 04_settings_sound
+console ui_focus tabvideo
+wait_frames 3
+action ui_confirm
+wait_frames 15
+ui_screenshot 05_settings_video
+action ui_cancel
+wait_frames 12
+expect_stack depth == 1
+expect_stack top contains pause.xml
+ui_screenshot 06_back_on_pause
+action ui_cancel
+wait_frames 12
+expect_stack depth == 0
+expect_engine paused == 0
+expect_ui_errors 0
+quit

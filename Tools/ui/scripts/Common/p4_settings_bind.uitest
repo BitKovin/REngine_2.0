@@ -1,0 +1,70 @@
+# Phase 4 settings binding: bound widgets call Set, back with changes asks, Discard restores, Apply keeps.
+wait 8
+action pause
+wait_frames 10
+test_settings
+console ui_push GameData/ui/kit/tests/p4_bind.xml
+wait_frames 10
+expect_ui_errors 0
+expect_stack top contains p4_bind.xml
+expect s value == 0.5
+console ui_focus s
+wait_frames 3
+action ui_right
+wait_frames 3
+action ui_right
+wait_frames 3
+expect_setting test.slider > 0.65
+expect_setting test.slider < 0.75
+console ui_focus t
+wait_frames 3
+action ui_confirm
+wait_frames 4
+expect_setting test.toggle == 1
+ui_screenshot p4_bind_changed
+# back with changes: the confirm dialog, then Discard restores both values
+action ui_cancel
+wait_frames 12
+expect_stack depth == 3
+expect_stack top contains confirm_changes.xml
+ui_screenshot p4_bind_confirm
+console ui_focus cdiscard
+wait_frames 3
+action ui_confirm
+wait_frames 12
+expect_stack depth == 1
+expect_setting test.slider == 0.5
+expect_setting test.toggle == 0
+# a second round: Cancel stays, Apply keeps
+console ui_push GameData/ui/kit/tests/p4_bind.xml
+wait_frames 10
+console ui_focus t
+wait_frames 3
+action ui_confirm
+wait_frames 4
+action ui_cancel
+wait_frames 12
+expect_stack depth == 3
+console ui_focus ccancel
+wait_frames 3
+action ui_confirm
+wait_frames 12
+expect_stack depth == 2
+expect_stack top contains p4_bind.xml
+action ui_cancel
+wait_frames 12
+console ui_focus capply
+wait_frames 3
+action ui_confirm
+wait_frames 12
+expect_stack depth == 1
+expect_setting test.toggle == 1
+# an external change shows in the widget
+console ui_push GameData/ui/kit/tests/p4_bind.xml
+wait_frames 10
+set_setting test.slider 0.9
+wait_frames 4
+expect s value > 0.85
+action ui_cancel
+wait_frames 5
+quit

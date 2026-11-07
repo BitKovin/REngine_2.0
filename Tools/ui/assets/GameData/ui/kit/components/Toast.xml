@@ -1,0 +1,7 @@
+<root>
+  <Component tag="Toast" params="text">
+    <Panel class="kit-toast">
+      <Label text="{text}"/>
+    </Panel>
+  </Component>
+</root>

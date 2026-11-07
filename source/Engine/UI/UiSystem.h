@@ -24,4 +24,12 @@ public:
     static int RootCount();
     static void ResetViewport();         // universal UI reset (level change): clears the viewport, then re-attaches the menu stack
     static void RequestGameThreadTest(const std::string& path);   // console command ui_gamethread_test
+
+    // Accessibility. The root font size (rem) is 24 x TextScale; changing it restyles every root.
+    static inline float TextScale = 1.f;            // setting ui.text_scale, 0.75 .. 1.5
+    static void SetTextScale(float scale);
+    static bool ReducedMotion();                    // setting ui.reduced_motion
+    static void SetReducedMotion(bool reduced);
+    static bool PseudoLoc();                        // -ui_pseudoloc: every localised string is accented, padded and bracketed
+    static std::string PseudoLocalise(const std::string& text);
 };

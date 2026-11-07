@@ -1,0 +1,12 @@
+<root>
+  <styles>
+    <include src="GameData/ui/theme.css"/>
+  </styles>
+  <Panel id="sound" class="kit-page">
+    <Card title="${SETTINGS_SOUND_VOLUME_HEADER}">
+      <SettingRow label="${SETTINGS_SOUND_MASTER_VOLUME}"><Slider id="master" min="0" max="1" step="0.01" bind="setting:audio.master"/><Label class="setting-value" text="{value:%.2f}"/></SettingRow>
+      <SettingRow label="${SETTINGS_SOUND_SFX_VOLUME}"><Slider id="sfx" min="0" max="1" step="0.01" bind="setting:audio.sfx"/><Label class="setting-value" text="{value:%.2f}"/></SettingRow>
+      <SettingRow label="${SETTINGS_SOUND_MUSIC_VOLUME}"><Slider id="music" min="0" max="1" step="0.01" bind="setting:audio.music"/><Label class="setting-value" text="{value:%.2f}"/></SettingRow>
+    </Card>
+  </Panel>
+</root>

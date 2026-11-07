@@ -6,6 +6,7 @@
 #include <UI/Markup/UiMarkupLog.h>
 #include <UI/Style/UiAnimation.h>
 #include <UI/Style/UiComputedStyle.h>
+#include <UI/UiSystem.h>
 
 #include <algorithm>
 #include <map>
@@ -129,8 +130,13 @@ namespace
         }
     };
 
-    void ResolveElement(UiElem& e, const UiComputedStyle* parent, const RootContext& rc, const UiStyleParseContext& base)
+    // `docFile` is the layout file of the page (or frame content) the element belongs to: a page pushed on a menu stack is not the
+    // root of the tree, so its own style sheets must still reach the components built inside it.
+    void ResolveElement(UiElem& e, const UiComputedStyle* parent, const RootContext& rc, const UiStyleParseContext& base, const std::string& parentDocFile)
     {
+        std::string docFile = parentDocFile;
+        if (e.InstanceRoot && e.OwnedInstance && e.OwnedInstance->Def && !e.OwnedInstance->Def->Component)
+            docFile = e.ScopeFile;
         // 1-2. matching rules, component layer then document layer
         std::vector<Match> matches;
         auto collect = [&](const std::vector<SheetRef>& sheets, int layer) {
@@ -150,6 +156,12 @@ namespace
             const auto it = rc.ComponentSheets.find(e.ScopeFile);
             if (it != rc.ComponentSheets.end())
                 collect(it->second, 0);
+        }
+        if (!docFile.empty() && docFile != rc.RootFile && docFile != e.ScopeFile)
+        {
+            const auto page = rc.ComponentSheets.find(docFile);
+            if (page != rc.ComponentSheets.end())
+                collect(page->second, 1);
         }
         collect(rc.DocumentSheets, 1);
         std::stable_sort(matches.begin(), matches.end(), [](const Match& a, const Match& b) {
@@ -194,7 +206,9 @@ namespace
             s.Fx.ImageRendering = parent->Fx.ImageRendering;
         }
         UiStyleParseContext ctx = base;
-        ctx.ParentFontSize = parent != nullptr ? parent->FontSize : 24.f;
+        if (parent == nullptr)
+            s.FontSize = base.RootFontSize;   // 24 x the text scale
+        ctx.ParentFontSize = parent != nullptr ? parent->FontSize : base.RootFontSize;
         ctx.FontSize = s.FontSize;
         Applier ap{ s, ctx, e.ScopeFile, e.ScopeFile };
 
@@ -228,7 +242,7 @@ namespace
 
         for (auto& c : e.children)
             if (UiElem::IsElem(c.get()))
-                ResolveElement(static_cast<UiElem&>(*c), &e.m_computed, rc, base);
+                ResolveElement(static_cast<UiElem&>(*c), &e.m_computed, rc, base, docFile);
     }
 }
 
@@ -271,7 +285,8 @@ void UiStyleResolver::ResolveRoot(UiElem& root)
 
     UiStyleParseContext base;
     base.Viewport = EngineMain::Viewport.GetSize();
-    ResolveElement(root, nullptr, rc, base);
+    base.RootFontSize = 24.f * UiSystem::TextScale;
+    ResolveElement(root, nullptr, rc, base, std::string());
     ++root.m_styleGen;
 }
 

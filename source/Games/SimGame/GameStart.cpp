@@ -2,9 +2,8 @@
 #include <Time.hpp>
 
 #include <PauseGameManager.hpp>
-#include <Settings/GameSettings.h>
-#include <Settings/InputActionRegistry.h>
-#include <UI/Pause/UiPauseMenu.h>
+#include <UI/Kit/KitPages.h>
+#include <UI/Kit/Settings/KitSettings.h>
 #include <Sim/Bridge/SimBridge.h>
 #include <Sim/Bridge/SimMapEntities.h>
 #include <Sim/Bridge/SimNavBaker.h>
@@ -22,7 +21,6 @@
 #include <FileSystem/FileSystem.h>
 #include <Input.h>
 #include <Logger.hpp>
-#include <UI/RmlUi/RmlUiContext.h>
 #include <UI/UiManager.h>
 #include <UI/UiRenderer.h>
 
@@ -60,6 +58,15 @@ public:
 		LateUpdateWhenPaused = true;
 		PauseGameManager::SetGamePaused(false);
 		PauseGameManager::SetGamePausedGameplay(false);
+		KitSetupMenus([](bool paused)
+		{
+			PauseGameManager::SetGamePaused(paused);
+			if (!paused)
+			{
+				Input::GetAction("pause")->CleanPressed();
+				Input::ReleaseAllActions();
+			}
+		});
 	}
 
 	void Start() override
@@ -78,8 +85,8 @@ public:
 
 		RegisterInputActions();
 
-		GameSettings::Instance().LoadFromFile();
-		GameSettings::Instance().ApplyAll();
+		KitSettings::Instance().LoadFromFile();
+		KitSettings::Instance().ApplyAll();
 
 		const auto& arguments = EngineMain::MainInstance->Arguments;
 		bool simGame = true; // false for the tool runs that load levels without playing them
@@ -167,15 +174,12 @@ public:
 		if (InputAction* reload = Input::GetAction("reload_shaders"); reload && reload->Pressed())
 		{
 			AssetRegistry::ReloadShaders();
-			EngineMain::MainInstance->RmlContext->ReloadAllSttyles();
 		}
 	}
 
 private:
 	static inline bool initialized = false;
 	bool pendingStartupMap = false;
-	bool wasPaused = false;
-	std::shared_ptr<UiPauseMenu> pauseMenu;
 
 	static std::string GetStartupMap()
 	{
@@ -241,24 +245,9 @@ private:
 
 	void UpdatePause()
 	{
-		if (InputAction* pause = Input::GetAction("pause"); pause && pause->Pressed() && !PauseGameManager::GetGamePaused())
-			PauseGameManager::SetGamePaused(true);
-
+		// the pause key is handled by the menu stack (UiMenus), which pauses through KitSetupMenus' hook
 		Input::LockCursor = !PauseGameManager::GetGamePaused();
 		EngineMain::MainInstance->Paused = PauseGameManager::isGameAnyPaused();
-
-		const bool paused = PauseGameManager::GetGamePaused();
-		if (paused && !wasPaused)
-		{
-			pauseMenu = std::make_shared<UiPauseMenu>();
-			EngineMain::MainInstance->Viewport.AddChild(pauseMenu);
-		}
-		else if (!paused && pauseMenu)
-		{
-			pauseMenu->RemoveFromParent();
-			pauseMenu.reset();
-		}
-		wasPaused = paused;
 	}
 
 #ifndef DISTRIBUTION

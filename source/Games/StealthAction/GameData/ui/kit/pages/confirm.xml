@@ -1,0 +1,14 @@
+<root>
+  <styles>
+    <include src="GameData/ui/theme.css"/>
+  </styles>
+  <Panel id="confirm" class="kit-modal" shows-below="true">
+    <DialogFrame>
+      <Label id="msg" class="dialog-text" text=""/>
+      <Panel class="dialog-row">
+        <TextButton id="cyes" class="dialog-button" text="${SETTINGS_CONFIRM_YES}" onactivate="Yes()"/>
+        <TextButton id="cno" class="dialog-button" text="${SETTINGS_CONFIRM_NO}" default-focus="true" onactivate="No()"/>
+      </Panel>
+    </DialogFrame>
+  </Panel>
+</root>
