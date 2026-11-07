@@ -3,6 +3,7 @@
 #include <UI/Elements/UiElem.h>
 #include <UI/Render/UiGradientRamps.h>
 #include <UI/Render/UiImageAtlas.h>
+#include <UI/Render/UiSvg.h>
 
 #include <algorithm>
 #include <cmath>
@@ -98,6 +99,9 @@ namespace
             Set3x3(m, v);
             break;
         }
+        case UiFilterType::Blur:
+        case UiFilterType::DropShadow:
+            break;   // layer effects (phase 7), not part of the matrix
         case UiFilterType::HueRotate:
         {
             const float c = std::cos(a * kPi / 180.f), s = std::sin(a * kPi / 180.f);
@@ -296,7 +300,7 @@ namespace
     void PaintImageLayer(UiElem& e, UiPainter& p, const UiBoxPaint& base, const std::string& url, const Area& area, const UiBgSize& size,
                          const UiBgPos& position, const UiBgRepeat& repeat, bool pixelated)
     {
-        const UiAtlasImage image = UiImageAtlas::Get(url);
+        UiAtlasImage image = UiImageAtlas::Get(url);
         if (image.Pending)
         {
             e.MarkPaintDirty();
@@ -319,6 +323,8 @@ namespace
         }
         if (tw <= 0.f || th <= 0.f)
             return;
+        if (UiSvg::IsSvgPath(url))
+            image = UiImageAtlas::Get(url, std::max(tw, th) * p.PixelScale());   // rasterised for the size it is drawn at
         const float ox = area.X + position.X.Px + position.X.Percent * 0.01f * (area.W - tw);
         const float oy = area.Y + position.Y.Px + position.Y.Percent * 0.01f * (area.H - th);
 
@@ -342,7 +348,7 @@ namespace
     void PaintBorderImage(UiElem& e, UiPainter& p, float opacity, const UiEdges& bw, float W, float H)
     {
         const UiBorderImage& bi = e.Computed().Fx.BorderImage;
-        const UiAtlasImage image = UiImageAtlas::Get(bi.Src);
+        const UiAtlasImage image = UiImageAtlas::Get(bi.Src, UiSvg::IsSvgPath(bi.Src) ? std::max(W, H) * p.PixelScale() : 0.f);
         if (image.Pending)
         {
             e.MarkPaintDirty();
@@ -406,13 +412,57 @@ namespace
     }
 }
 
+void UiBoxPainter::PaintBackdrop(UiElem& e, UiPainter& p, float opacity, const UiCorners& radii)
+{
+    const UiFxStyle& fx = e.Computed().Fx;
+    if (fx.BackdropFilter.empty() || e.BorderRect.W <= 0.f || e.BorderRect.H <= 0.f)
+        return;
+    float sigma = 0.f;
+    bool colour = false;
+    float own[20];
+    Identity(own);
+    for (const UiFilterFn& f : fx.BackdropFilter)
+    {
+        if (f.Type == UiFilterType::Blur)
+            sigma += f.Amount;
+        else if (!f.IsLayerEffect())
+        {
+            float m[20];
+            FunctionMatrix(f, m);
+            Multiply(m, own, own);
+            colour = true;
+        }
+    }
+    const UiPainterFx saved = p.Fx();
+    if (colour)
+    {
+        UiPainterFx f = saved;
+        float total[20];
+        if (f.HasMatrix)
+            Multiply(f.Matrix, own, total);
+        else
+            for (int i = 0; i < 20; ++i) total[i] = own[i];
+        f.HasMatrix = true;
+        for (int i = 0; i < 20; ++i) f.Matrix[i] = total[i];
+        f.ColorMatrixAux = p.AddColorMatrix(total);
+        p.SetFx(f);
+    }
+    p.Backdrop(UiRect{ 0.f, 0.f, e.BorderRect.W, e.BorderRect.H }, radii, sigma, opacity);
+    p.SetFx(saved);
+}
+
 bool UiBoxPainter::FilterMatrix(const UiFxStyle& fx, float out[20])
 {
-    if (fx.Filter.empty() && fx.WashColor.a <= 0.f)
+    bool colour = false;
+    for (const UiFilterFn& f : fx.Filter)
+        colour = colour || !f.IsLayerEffect();
+    if (!colour && fx.WashColor.a <= 0.f)
         return false;
     Identity(out);
     for (const UiFilterFn& f : fx.Filter)
     {
+        if (f.IsLayerEffect())
+            continue;
         float m[20];
         FunctionMatrix(f, m);
         Multiply(m, out, out);   // later functions act on the result of earlier ones
@@ -432,7 +482,7 @@ bool UiBoxPainter::FilterMatrix(const UiFxStyle& fx, float out[20])
     return true;
 }
 
-UiBoxPainter::Scope UiBoxPainter::Begin(UiElem& e, UiPainter& p)
+UiBoxPainter::Scope UiBoxPainter::Begin(UiElem& e, UiPainter& p, bool leaveBlendToLayer)
 {
     Scope scope;
     scope.Saved = p.Fx();
@@ -454,7 +504,7 @@ UiBoxPainter::Scope UiBoxPainter::Begin(UiElem& e, UiPainter& p)
         f.ColorMatrixAux = p.AddColorMatrix(total);
         changed = true;
     }
-    if (fx.MixBlend != UiBlend::Normal)
+    if (fx.MixBlend != UiBlend::Normal && !leaveBlendToLayer)
     {
         f.Blend = static_cast<UiBlendMode>(static_cast<int>(fx.MixBlend));
         changed = true;

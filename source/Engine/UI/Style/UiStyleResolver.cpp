@@ -319,7 +319,7 @@ void UiStyleResolver::ResolveRoot(UiElem& root)
     UiStyleParseContext base;
     base.Viewport = EngineMain::Viewport.GetSize();
     base.RootFontSize = 24.f * UiSystem::TextScale;
-    ResolveElement(root, nullptr, rc, base, std::string());
+    ResolveElement(root, root.StyleParent != nullptr ? &root.StyleParent->Computed() : nullptr, rc, base, std::string());
     ++root.m_styleGen;
 }
 

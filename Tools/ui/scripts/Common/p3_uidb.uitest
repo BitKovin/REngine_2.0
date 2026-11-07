@@ -2,11 +2,10 @@
 wait 8
 console ui_load GameData/ui/kit/tests/p3_motion.xml
 wait_frames 10
-expect_uidb cap:painting cap:motion nocap:layers
+expect_uidb cap:painting cap:motion cap:layers cap:svg cap:dragDrop cap:contextMenu
 expect_uidb cssProperties:background-image cssProperties:box-shadow cssProperties:transform cssProperties:transition cssProperties:animation cssProperties:mask-image
 expect_uidb paintEffects:Arc paintEffects:linear-gradient() paintEffects:conic-gradient() paintEffects:grayscale() paintEffects:clip-path
-expect_uidb unavailable:blur() unavailable:drop-shadow() unavailable:backdrop-filter
 expect_uidb tags:Arc easings:cubic-bezier() easings:steps() animations:pulse
-expect_uidb preview:engine.effects.element preview:engine.animation.timeline
+expect_uidb preview:engine.effects.element preview:engine.animation.timeline paintEffects:backdrop-filter paintEffects:blur() paintEffects:drop-shadow() paintEffects:svg-images preview:engine.image.svg
 expect_ui_errors 0
 quit

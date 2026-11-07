@@ -1,0 +1,5 @@
+# X Y R G B A TOL LABEL   (RGBA in the UI target, premultiplied)
+# the ghost of the red item follows the pointer at 70%: the item moved by (300,220), clear of the label text
+410 330 178 0 0 178 8 ghost at 70 percent
+# the item itself stays where it was
+110 110 255 0 0 255 4 source stays

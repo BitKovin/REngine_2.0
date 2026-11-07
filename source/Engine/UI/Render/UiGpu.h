@@ -30,7 +30,7 @@ namespace UiGpu
     // Submits the list into `viewId` and clears it.
     void Submit(UiDrawList& list, uint16_t viewId, const Projection& projection);
 
-    struct Stats { uint32_t Passes, Prims, Vertices, GeometryDraws, Externals; uint32_t Breaks[6]; uint32_t Merged; uint32_t CpuUs[3]; };   // CpuUs: update, finalize, submit
+    struct Stats { uint32_t Passes, Prims, Vertices, GeometryDraws, Externals; uint32_t Breaks[6]; uint32_t Merged; uint32_t CpuUs[3]; uint32_t LayersRendered, LayersCached, LayerViews; };   // CpuUs: update, finalize, submit
     enum CpuSlot { kCpuUpdate = 0, kCpuFinalize = 1, kCpuSubmit = 2 };
     struct CpuTimer   // adds the scope's duration to the frame's CPU statistics (ui_stats)
     {

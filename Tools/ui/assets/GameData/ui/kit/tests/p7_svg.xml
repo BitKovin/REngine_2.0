@@ -1,0 +1,16 @@
+<root>
+  <styles>
+    <style>
+      .b { horizontal-align: left; vertical-align: top; }
+      /* the same 100 x 100 drawing (a red circle, radius 40) at three sizes: each is rasterised for the size it is shown at */
+      #big { x: 100px; y: 100px; width: 128px; height: 128px; }
+      #small { x: 300px; y: 100px; width: 16px; height: 16px; }
+      #bg { x: 400px; y: 100px; width: 64px; height: 64px; background-image: url(GameData/ui/kit/tests/p7_icon.svg); background-size: 64px 64px; }
+    </style>
+  </styles>
+  <Panel id="proot" class="b">
+    <Image id="big" class="b" src="GameData/ui/kit/tests/p7_icon.svg"/>
+    <Image id="small" class="b" src="GameData/ui/kit/tests/p7_icon.svg"/>
+    <Panel id="bg" class="b"/>
+  </Panel>
+</root>

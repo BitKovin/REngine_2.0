@@ -59,6 +59,8 @@ namespace
 void UiDrawList::Clear()
 {
     m_items.clear();
+    m_layers.clear();
+    m_openLayers.clear();
     m_externals.clear();
     m_localPrims.clear();
     m_localAux.clear();
@@ -118,6 +120,8 @@ void UiDrawList::AddTriangles(const UiRender::BatchKey& key, const UiRender::Ver
         for (size_t i = last;; --i)
         {
             Item& candidate = m_items[i];
+            if (candidate.Kind != Role::Geometry)
+                break;
             if (!candidate.External && candidate.Key == key && candidate.Verts.size() + vertCount <= 65535)
             {
                 append(candidate);
@@ -158,6 +162,101 @@ void UiDrawList::AddQuad(const UiRender::BatchKey& key, const UiRender::Vertex c
 {
     static const uint16_t kQuadIndices[6] = { 0, 1, 2, 0, 2, 3 };
     AddTriangles(key, corners, 4, kQuadIndices, 6);
+}
+
+int UiDrawList::BeginLayer(const UiRender::LayerSpec& spec)
+{
+    Item marker;
+    marker.Kind = Role::LayerBegin;
+    marker.Layer = static_cast<int>(m_layers.size());
+    m_openLayers.push_back(marker.Layer);
+    m_layers.push_back(spec);
+    m_items.push_back(std::move(marker));
+    Barrier();   // sets the fence after the marker
+    return static_cast<int>(m_items.size()) - 1;
+}
+
+glm::vec4 UiDrawList::LayerContentBounds(int beginItem) const
+{
+    glm::vec4 b(1.f, 1.f, -1.f, -1.f);
+    bool any = false;
+    for (size_t i = static_cast<size_t>(beginItem) + 1; i < m_items.size(); ++i)
+    {
+        const Item& item = m_items[i];
+        if (item.External || item.Verts.empty())
+            continue;
+        if (!any)
+            b = item.Bounds;
+        else
+        {
+            b.x = std::min(b.x, item.Bounds.x);
+            b.y = std::min(b.y, item.Bounds.y);
+            b.z = std::max(b.z, item.Bounds.z);
+            b.w = std::max(b.w, item.Bounds.w);
+        }
+        any = true;
+    }
+    return b;
+}
+
+void UiDrawList::AbandonLayer(int beginItem)
+{
+    if (beginItem >= 0 && static_cast<size_t>(beginItem) < m_items.size() && !m_openLayers.empty() &&
+        m_openLayers.back() == m_items[beginItem].Layer)
+        m_openLayers.pop_back();
+}
+
+bool UiDrawList::EndLayer(int beginItem, const UiRender::BatchKey& key, const UiRender::Vertex corners[4])
+{
+    if (beginItem < 0 || static_cast<size_t>(beginItem) >= m_items.size() || m_items[beginItem].Kind != Role::LayerBegin)
+        return false;
+    const glm::vec4 bounds = LayerContentBounds(beginItem);
+    const int layer = m_items[beginItem].Layer;
+    if (!m_openLayers.empty() && m_openLayers.back() == layer)
+        m_openLayers.pop_back();
+    if (bounds.x >= bounds.z || bounds.y >= bounds.w)
+        return false;   // nothing was recorded: the marker stays without a composite (legacy markers index items, so none is erased)
+    m_layers[layer].Content = bounds;
+
+    static const uint16_t kQuadIndices[6] = { 0, 1, 2, 0, 2, 3 };
+    Item composite;
+    composite.Kind = Role::LayerComposite;
+    composite.Layer = layer;
+    composite.Key = key;
+    composite.Bounds = bounds;
+    composite.Verts.assign(corners, corners + 4);
+    composite.Indices.assign(kQuadIndices, kQuadIndices + 6);
+    m_items.push_back(std::move(composite));
+    Barrier();
+    return true;
+}
+
+void UiDrawList::AddBackdrop(const UiRender::LayerSpec& spec, const UiRender::BatchKey& key, const UiRender::Vertex corners[4])
+{
+    float x0 = corners[0].X, y0 = corners[0].Y, x1 = x0, y1 = y0;
+    for (int i = 1; i < 4; ++i)
+    {
+        x0 = std::min(x0, corners[i].X);
+        y0 = std::min(y0, corners[i].Y);
+        x1 = std::max(x1, corners[i].X);
+        y1 = std::max(y1, corners[i].Y);
+    }
+    const int begin = BeginLayer(spec);
+    const int layer = m_items[begin].Layer;
+    if (!m_openLayers.empty() && m_openLayers.back() == layer)
+        m_openLayers.pop_back();
+    m_layers[layer].Content = glm::vec4(x0, y0, x1, y1);
+
+    static const uint16_t kQuadIndices[6] = { 0, 1, 2, 0, 2, 3 };
+    Item composite;
+    composite.Kind = Role::LayerComposite;
+    composite.Layer = layer;
+    composite.Key = key;
+    composite.Bounds = glm::vec4(x0, y0, x1, y1);
+    composite.Verts.assign(corners, corners + 4);
+    composite.Indices.assign(kQuadIndices, kQuadIndices + 6);
+    m_items.push_back(std::move(composite));
+    Barrier();
 }
 
 void UiDrawList::AddExternal(ExternalFn fn)
@@ -250,6 +349,30 @@ void UiDrawList::AppendResolved(const UiDrawList& local, size_t firstItem, size_
             AddExternal(local.m_externals[item.ExternalIndex]);
             continue;
         }
+        if (item.Kind == Role::LayerBegin)
+        {
+            BeginLayer(local.m_layers[item.Layer]);
+            continue;
+        }
+        if (item.Kind == Role::LayerComposite)
+        {
+            Item composite;
+            composite.Kind = Role::LayerComposite;
+            composite.Layer = m_openLayers.empty() ? -1 : m_openLayers.back();   // the layer opened by the matching begin
+            if (composite.Layer < 0)
+                continue;
+            m_openLayers.pop_back();
+            composite.Key = item.Key;
+            composite.Bounds = item.Bounds;
+            composite.Verts = item.Verts;
+            for (UiRender::Vertex& v : composite.Verts)
+                v.Prim += static_cast<float>(m_resolvedBase);
+            composite.Indices = item.Indices;
+            m_layers[composite.Layer].Content = local.m_layers[item.Layer].Content;
+            m_items.push_back(std::move(composite));
+            Barrier();
+            continue;
+        }
         verts = item.Verts;
         for (UiRender::Vertex& v : verts)
             v.Prim += static_cast<float>(m_resolvedBase);
@@ -263,10 +386,14 @@ void UiDrawList::AppendResolved(const UiDrawList& local, size_t firstItem, size_
 void UiDrawList::AppendList(const UiDrawList& other)
 {
     const uint32_t externalBase = static_cast<uint32_t>(m_externals.size());
+    const int layerBase = static_cast<int>(m_layers.size());
+    m_layers.insert(m_layers.end(), other.m_layers.begin(), other.m_layers.end());
     for (Item item : other.m_items)
     {
         if (item.External)
             item.ExternalIndex += externalBase;
+        if (item.Layer >= 0)
+            item.Layer += layerBase;
         m_items.push_back(std::move(item));
     }
     m_externals.insert(m_externals.end(), other.m_externals.begin(), other.m_externals.end());

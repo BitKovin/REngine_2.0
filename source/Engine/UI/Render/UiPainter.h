@@ -68,6 +68,7 @@ public:
     // Element-local (origin top-left, y down) to UI units. Default identity.
     void SetTransform(const glm::mat3& m) { m_transform = m; }
     const glm::mat3& Transform() const { return m_transform; }
+    float PixelScale() const;   // device pixels per UI unit under the current transform (sizes an SVG raster)
 
     void Box(const UiRect& rect, const UiBoxPaint& paint);
     void Image(const UiRect& rect, bgfx::TextureHandle texture, const glm::vec4& uv, const glm::vec4& tint);
@@ -96,6 +97,14 @@ public:
     void PushClip(const UiRect& rect, const UiCorners& radii);
     void PopClip();
 
+    // ── layers: everything recorded between PushLayer and PopLayer is rendered offscreen (with the effects of the spec) and drawn
+    // back as one quad. Inside, the painter starts with no effects and no clip; PopLayer restores them for the composite quad,
+    // which takes `opacity` and the blend mode `blend` (the element's mix-blend-mode, applied to the group as a whole).
+    void PushLayer(const UiRender::LayerSpec& spec);
+    void PopLayer(float opacity, UiBlendMode blend);
+    // The blurred scene behind `rect` (backdrop-filter), clipped to the rounded shape. The texture is chosen and patched at submit.
+    void Backdrop(const UiRect& rect, const UiCorners& radii, float sigma, float opacity);
+
     // ── effects
     const UiPainterFx& Fx() const { return m_fx; }
     void SetFx(const UiPainterFx& fx) { m_fx = fx; }
@@ -106,9 +115,11 @@ public:
 
 private:
     struct Clip { glm::vec4 Rect; glm::vec4 Radii; bool Stencil; };
+    struct LayerFrame { int Begin; struct UiPainterFx Fx; std::vector<Clip> Clips; };
     UiDrawList& m_list;
     glm::mat3 m_transform = glm::mat3(1.f);
     std::vector<Clip> m_clips;
+    std::vector<LayerFrame> m_layerStack;
     UiPainterFx m_fx;
     bool IsTranslationOnly() const;
     void ApplyClip(UiRender::PrimBlock& block) const;

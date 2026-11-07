@@ -1,0 +1,11 @@
+# X Y R G B A TOL LABEL   (RGBA in the UI target, premultiplied)
+# blur(16px) over a hard black | white edge at x = 720: 16 px either side of the edge is about 16% and 84% grey, never the sharp 0 and 255
+704 400 41 41 41 255 32 left of the edge, blurred
+736 400 214 214 214 255 32 right of the edge, blurred
+720 400 128 128 128 255 24 on the edge
+# the panel is opaque inside and empty outside, rounded at the corners
+540 320 0 0 0 255 6 inside the panel (the scene is black there)
+700 250 0 0 0 0 1 above the panel
+522 302 0 0 0 0 2 rounded corner
+# brightness(0.5) alone over the white side
+1100 650 128 128 128 255 10 half brightness

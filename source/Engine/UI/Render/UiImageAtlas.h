@@ -18,7 +18,10 @@ struct UiAtlasImage
 namespace UiImageAtlas
 {
     // Decodes and packs the image on first use (cached afterwards, also when it failed).
-    UiAtlasImage Get(const std::string& path);
+    // An .svg is rasterised at the smallest power-of-two size (16 .. 512 texels, longer side) that covers `displayLongSidePx`, the size it
+    // is drawn at in screen pixels; each size is its own cached entry. Width/Height stay the drawing's own size, so layout does not change
+    // with the raster. Pass 0 for the drawing's own size.
+    UiAtlasImage Get(const std::string& path, float displayLongSidePx = 0.f);
     // Uploads the new image regions and rebuilds the affected mip levels. Called at the end of UiSystem::Update.
     void Update();
     void Shutdown();

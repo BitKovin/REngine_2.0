@@ -1,7 +1,10 @@
 #pragma once
 #include <glm.h>
 #include <bgfx/bgfx.h>
+#include <algorithm>
+#include <cmath>
 #include <cstdint>
+#include <vector>
 
 namespace UiRender
 {
@@ -32,6 +35,7 @@ namespace UiRender
     constexpr int kFlagMask       = 4;   // T15 = (type, ramp, aux index, ...): linear or radial mask
     constexpr int kFlagClipShape  = 8;   // T15.w = aux index of a circle / ellipse clip-path
     constexpr int kFlagPixelated  = 16;  // Image / Box: nearest sampling; T13.xy = texture size in texels
+    constexpr int kFlagPremulTexture = 32;   // Image: the texture is already premultiplied (a layer); result = texture * tint
 
     // One primitive's data. Texel meaning:
     //  T0  kind, flags, unused, colour-matrix aux index (-1 = none)
@@ -79,4 +83,32 @@ namespace UiRender
         float Pad;      // keep 32 bytes
     };
     static_assert(sizeof(Vertex) == 32, "UiRender::Vertex must stay 32 bytes");
+
+    // One multi-pass effect of a layer, applied in order to the layer's content.
+    struct LayerEffect
+    {
+        enum class Kind { Blur, DropShadow } K = Kind::Blur;
+        float Sigma = 0.f;                       // blur: standard deviation; drop-shadow: of the shadow's blur (0 = hard)
+        glm::vec2 Offset = glm::vec2(0.f);       // drop-shadow only
+        glm::vec4 Color = glm::vec4(0.f);        // drop-shadow only, straight RGBA
+        float Reach() const { return 3.f * Sigma + (K == Kind::DropShadow ? std::max(std::abs(Offset.x), std::abs(Offset.y)) : 0.f); }
+    };
+
+    // What the painter records for UiPainter::PushLayer. The layer is rendered offscreen and composited back as one quad.
+    struct LayerSpec
+    {
+        uint64_t Id = 0;                         // stable identity of the layer across frames (cache: layer)
+        bool Cache = false;                      // keep the rendered region until the recorded content changes
+        bool Backdrop = false;                   // not a layer: one quad that shows the blurred scene behind it (backdrop-filter)
+        float BackdropSigma = 0.f;               // the blur the element asked for, in UI units
+        std::vector<LayerEffect> Effects;
+        glm::vec4 Content = glm::vec4(0.f);      // x0, y0, x1, y1 of the recorded content, UI units (filled by PopLayer)
+        float Reach() const
+        {
+            float r = 0.f;
+            for (const LayerEffect& e : Effects)
+                r += e.Reach();
+            return r;
+        }
+    };
 }

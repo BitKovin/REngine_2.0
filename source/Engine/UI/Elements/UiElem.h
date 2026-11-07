@@ -5,6 +5,7 @@
 #include <UI/Style/UiAnimation.h>
 #include <UI/Style/UiComputedStyle.h>
 #include <UI/Menus/UiActions.h>
+#include <any>
 #include <functional>
 #include <map>
 #include <memory>
@@ -17,7 +18,7 @@ class UiDocumentInstance;
 class UiMenuStack;
 struct UiDocumentDef;
 
-enum UiElemState : uint32_t { kStateHover = 1, kStateActive = 2, kStateDisabled = 4, kStateSelected = 8, kStateEntering = 16, kStateLeaving = 32, kStateChecked = 64 };
+enum UiElemState : uint32_t { kStateHover = 1, kStateActive = 2, kStateDisabled = 4, kStateSelected = 8, kStateEntering = 16, kStateLeaving = 32, kStateChecked = 64, kStateDragging = 128 };
 
 class UiElem : public UiElement
 {
@@ -31,6 +32,7 @@ public:
     std::string Id;
     std::string ScopeFile;               // .xml that created this element
     UiDocumentInstance* Instance = nullptr;              // id scope this element belongs to
+    UiElem* StyleParent = nullptr;                       // a root that lives outside its logical parent (a drop-down list) inherits text style and variables from it
     std::shared_ptr<UiDocumentInstance> OwnedInstance;   // set on document roots and component instance tops
     bool InstanceRoot = false;           // top element of a document instance (:root)
 
@@ -132,6 +134,7 @@ public:
     // ── state
     uint32_t States = 0;
     int ActivateCount = 0;               // tests read this
+    std::any DragPayload;                // C++ payload of a drag that starts on this element (set it in dragstart; read it via UiDragDrop::Source())
     std::vector<std::string> Classes;    // classes from markup (class="")
     std::vector<std::string> CodeClasses;// classes from SetClass
     std::map<std::string, std::string> Attributes;   // raw values, as written

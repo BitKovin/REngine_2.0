@@ -7,6 +7,7 @@
 #include <UI/Markup/UiVariables.h>
 #include <UI/UiNavigation.h>
 #include <UI/UiSystem.h>
+#include <Logger.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -206,11 +207,17 @@ void UiElemDropDown::Open()
 {
     if (m_open || m_options.empty() || (States & kStateDisabled))
         return;
+    // The page that holds this drop-down (the outermost document up the tree; the menu stack above it has no sheets): its style
+    // sheets, theme variables and file scope style the list, which lives in a root of its own.
     UiElem* root = Root();
+    for (UiElem* p = this; p != nullptr; p = p->AsParentElem())
+        if (p->OwnedInstance)
+            root = p;
     auto list = std::make_shared<UiElemDropList>(this);
     list->Classes = { "dropdown-list" };
     list->ScopeFile = root->ScopeFile;
     list->OwnedInstance = root->OwnedInstance;   // the page's sheets style the list
+    list->StyleParent = this;                    // text style and theme variables come from the header
     list->Instance = Instance;
     list->HitCheck = true;                       // the list swallows presses: nothing behind it reacts
     list->DisableFocus = true;
@@ -232,13 +239,6 @@ void UiElemDropDown::Open()
         m_rows.push_back(row.get());
         list->AddChild(row);
     }
-
-    // The list lives outside this element's tree, so it takes the text look from here.
-    UiComputedStyle& s = list->Style();
-    s.FontSize = Computed().FontSize;
-    s.Color = Computed().Color;
-    s.FontFamily = Computed().FontFamily;
-    s.FontWeight = Computed().FontWeight;
 
     m_list = list;
     m_open = true;

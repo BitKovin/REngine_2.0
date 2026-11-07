@@ -513,7 +513,7 @@ namespace
 
     // ── per-property parsers ──────────────────────────────────────────────────
 
-    bool ParseFilter(const Tokens& value, std::vector<UiFilterFn>& out, std::string& err)
+    bool ParseFilter(const Tokens& value, const UiStyleParseContext& ctx, bool allowShadow, std::vector<UiFilterFn>& out, std::string& err)
     {
         out.clear();
         if (IsNone(value))
@@ -540,10 +540,40 @@ namespace
                 out.push_back(f);
                 continue;
             }
-            if (fn == "blur" || fn == "drop-shadow")
+            if (fn == "blur")
             {
-                err = fn + "() needs offscreen layers, which are not available yet";
-                return false;
+                f.Type = UiFilterType::Blur;
+                f.Amount = 0.f;
+                UiLength len;
+                if (!args.empty() && (!UiParseLengthComponent(args, ctx, len, err, false) || len.Kind != UiLenKind::Px || len.Px < 0.f))
+                {
+                    err = "blur() needs a non-negative length in px";
+                    return false;
+                }
+                if (!args.empty())
+                    f.Amount = len.Px;
+                out.push_back(f);
+                continue;
+            }
+            if (fn == "drop-shadow")
+            {
+                if (!allowShadow)
+                {
+                    err = "drop-shadow() is not supported in backdrop-filter";
+                    return false;
+                }
+                std::vector<UiShadow> shadows;
+                if (!ParseShadowList(args, ctx, false, false, shadows, err))
+                    return false;
+                if (shadows.size() != 1)
+                {
+                    err = "drop-shadow() takes one shadow: <offset-x> <offset-y> <blur-radius>? <color>?";
+                    return false;
+                }
+                f.Type = UiFilterType::DropShadow;
+                f.Shadow = shadows[0];
+                out.push_back(f);
+                continue;
             }
             if (fn == "brightness") f.Type = UiFilterType::Brightness;
             else if (fn == "contrast") f.Type = UiFilterType::Contrast;
@@ -958,7 +988,10 @@ const std::vector<UiPropertyInfo>& UiFxProperties()
         { "-webkit-text-stroke", "<width> <color>", true, "0", "paint", false },
         { "text-stroke-width", "<length>", true, "0", "paint", true },
         { "text-stroke-color", "<color>", true, "currentcolor", "paint", true },
-        { "filter", "none | [brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert()]+", false, "none", "paint", true },
+        { "filter", "none | [brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert() | blur() | drop-shadow()]+", false, "none", "paint", true },
+        { "backdrop-filter", "none | [blur() | brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert()]+", false, "none", "paint", true },
+        { "isolation", "auto | isolate", false, "auto", "paint", true },
+        { "cache", "none | layer", false, "none", "paint", true },
         { "mask-image", "none | linear-gradient() | radial-gradient()", false, "none", "paint", true },
         { "clip-path", "none | inset() | circle() | ellipse()", false, "none", "paint", true },
         { "mix-blend-mode", "normal | plus-lighter | multiply | screen", false, "normal", "paint", true },
@@ -1229,7 +1262,27 @@ bool UiFxApplyProperty(UiComputedStyle& s, const std::string& name, const std::v
     }
 
     // ── effects
-    if (name == "filter") return ParseFilter(value, fx.Filter, error);
+    if (name == "filter") return ParseFilter(value, ctx, true, fx.Filter, error);
+    if (name == "backdrop-filter")
+    {
+        if (!ParseFilter(value, ctx, false, fx.BackdropFilter, error))
+            return false;
+        return true;
+    }
+    if (name == "isolation")
+    {
+        if (value.size() == 1 && IsIdent(value[0], "auto")) { fx.Isolate = false; return true; }
+        if (value.size() == 1 && IsIdent(value[0], "isolate")) { fx.Isolate = true; return true; }
+        error = "isolation supports auto and isolate";
+        return false;
+    }
+    if (name == "cache")
+    {
+        if (none || (value.size() == 1 && IsIdent(value[0], "auto"))) { fx.CacheLayer = false; return true; }
+        if (value.size() == 1 && IsIdent(value[0], "layer")) { fx.CacheLayer = true; return true; }
+        error = "cache supports none and layer";
+        return false;
+    }
     if (name == "wash-color") return ParseColour(value, ctx, fx.WashColor, error);
     if (name == "mask-image")
     {

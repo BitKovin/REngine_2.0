@@ -25,10 +25,10 @@ table.plain{width:auto}
 .tag{border:1px solid var(--line);border-radius:12px;padding:6px 18px 14px;margin:16px 0}.tag h4{margin:12px 0 4px;font-size:1.1rem}
 footer{margin-top:60px;color:var(--dim);font-size:13px}
 @media(max-width:860px){.wrap{display:block}nav{position:static;height:auto;border:0;border-bottom:1px solid var(--line)}main{padding:20px 16px}}
-</style></head><body><div class="wrap"><nav><b>Core</b><a href="#overview">Overview</a><a href="#structure">File structure</a><a href="#elements">Elements</a><a href="#richtext">Text and rich text</a><a href="#vars">Variables, localisation</a><a href="#styles">Styles</a><a href="#layout">Layout, scrolling</a><a href="#painting">Painting</a><a href="#motion">Motion</a><a href="#events">Events, code-behind</a><a href="#components">Components</a><a href="#menus">Menu stack, input</a><a href="#binding">Settings binding</a><a href="#hot">Hot reload</a><a href="#tooling">Tools</a><b>Kit</b><a href="#kit-use">Using the kit</a><a href="#kit-components">Components</a><a href="#kit-pages">Pages</a><a href="#kit-settings">Settings</a><b>Appendix</b><a href="#tags-ref">CSS properties</a></nav><main>
+</style></head><body><div class="wrap"><nav><b>Core</b><a href="#overview">Overview</a><a href="#structure">File structure</a><a href="#elements">Elements</a><a href="#richtext">Text and rich text</a><a href="#vars">Variables, localisation</a><a href="#styles">Styles</a><a href="#layout">Layout, scrolling</a><a href="#painting">Painting</a><a href="#svg">SVG icons</a><a href="#layers">Layers, effects</a><a href="#motion">Motion</a><a href="#events">Events, code-behind</a><a href="#components">Components</a><a href="#menus">Menu stack, input</a><a href="#binding">Settings binding</a><a href="#hot">Hot reload</a><a href="#tooling">Tools</a><b>Kit</b><a href="#kit-use">Using the kit</a><a href="#kit-components">Components</a><a href="#kit-pages">Pages</a><a href="#kit-settings">Settings</a><b>Appendix</b><a href="#tags-ref">CSS properties</a></nav><main>
 <header class="hero">
   <h1>UI System Reference</h1>
-  <p>Markup (XML), styles (a CSS dialect), text, motion, menus and tooling of the engine's UI. Built from the game's <code>uidb.json</code> (engine build Nov  7 2026 20:28:12, game StealthAction): the tables are what the engine registered.</p>
+  <p>Markup (XML), styles (a CSS dialect), text, motion, menus and tooling of the engine's UI. Built from the game's <code>uidb.json</code> (engine build Nov  7 2026 23:36:30, game StealthAction): the tables are what the engine registered.</p>
   <p class="legend"><span class="badge core">Core</span> engine functionality, the same for every game.
      <span class="badge kit">Kit</span> the shared menu kit built <em>on top of</em> the core: pages, components and a theme. A game can use the core without the kit.</p>
 </header>
@@ -111,11 +111,26 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </tbody></table></div>
 <p class="dim"><code>on…</code> attributes hold a list of calls separated by <code>;</code> (see <a href="#events">Events and actions</a>). <code>close-on-back</code>, <code>shows-below</code>, <code>pauses-game</code>, <code>hides-hud</code>, <code>confirm-changes</code> are <em>host options</em>: only a menu stack reads them, on the page's top element.</p>
 <h3>Tags</h3><div class="tag" id="tag-ActionBar"><h4><code>&lt;ActionBar&gt;</code> <span class="chip">input</span></h4><p>A footer that lists one prompt and label per hotkey button of the top page, plus a Back entry when the page closes on back.</p>
-<p class="dim">No attributes of its own (only the common ones).</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
+</tbody></table></div>
 <pre><code>&lt;ActionBar class="action-bar"/&gt;</code></pre>
 </div>
 <div class="tag" id="tag-Arc"><h4><code>&lt;Arc&gt;</code> <span class="chip">paint</span></h4><p>A ring segment for cooldowns and radial gauges; the colour is the text colour.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>start</code></td><td>number</td><td><code>0</code></td><td>Start angle in degrees, clockwise from 12 o'clock</td></tr>
 <tr><td><code>sweep</code></td><td>number</td><td><code>360</code></td><td>Sweep in degrees (negative = counter-clockwise)</td></tr>
 <tr><td><code>thickness</code></td><td>number</td><td><code>6</code></td><td>Ring thickness in px</td></tr>
@@ -125,6 +140,13 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-Button"><h4><code>&lt;Button&gt;</code> <span class="chip">input</span></h4><p>Focusable, clickable container: it can hold any children. States <code>:hover :active :focus :disabled</code>.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>hotkey</code></td><td>string</td><td></td><td>Input action that activates the button while its page is on top</td></tr>
 <tr><td><code>hotkey-label</code></td><td>text</td><td></td><td>Text shown for the hotkey in an ActionBar (default: the button text)</td></tr>
 </tbody></table></div>
@@ -132,6 +154,13 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-CircularProgress"><h4><code>&lt;CircularProgress&gt;</code> <span class="chip">paint</span></h4><p>A ring: <code>background-color</code> is the track, <code>color</code> the fill.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>value</code></td><td>number</td><td><code>0</code></td><td>0..1</td></tr>
 <tr><td><code>start-angle</code></td><td>number</td><td><code>0</code></td><td>Degrees clockwise from 12 o'clock</td></tr>
 <tr><td><code>thickness</code></td><td>number</td><td><code>8</code></td><td>Ring thickness in px</td></tr>
@@ -140,14 +169,30 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-DropDown"><h4><code>&lt;DropDown&gt;</code> <span class="chip">input</span></h4><p>A list of choices. Event <code>onvaluechanged</code>; variable <code>value</code> (the index).</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>options</code></td><td>text</td><td></td><td>Items separated by |, localised</td></tr>
 <tr><td><code>selected-index</code></td><td>number</td><td><code>-1</code></td><td>Index of the selected item</td></tr>
+<tr><td><code>placeholder</code></td><td>text</td><td></td><td>Shown while nothing is selected</td></tr>
+<tr><td><code>max-visible</code></td><td>number</td><td><code>6</code></td><td>Rows shown before the list scrolls</td></tr>
 <tr><td><code>bind</code></td><td>string</td><td></td><td>setting:&lt;key&gt;: the widget edits that engine setting and follows it</td></tr>
 </tbody></table></div>
 <pre><code>&lt;DropDown options="Low|Medium|High" selected-index="1"/&gt;</code></pre>
 </div>
 <div class="tag" id="tag-Frame"><h4><code>&lt;Frame&gt;</code> <span class="chip">layout</span></h4><p>Builds another layout (<code>src</code>) or a snippet (<code>snippet</code>) inside itself. Changing <code>src</code> rebuilds the content: this is how tab pages work.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>src</code></td><td>path</td><td></td><td>Layout file; changing it rebuilds the content</td></tr>
 <tr><td><code>snippet</code></td><td>string</td><td></td><td>Snippet or component tag of this file</td></tr>
 </tbody></table></div>
@@ -155,18 +200,39 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-Image"><h4><code>&lt;Image&gt;</code> <span class="chip">image</span></h4><p>A texture drawn with <code>object-fit</code> / <code>object-position</code>.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>src</code></td><td>path</td><td></td><td>GameData-relative texture path</td></tr>
 </tbody></table></div>
 <pre><code>&lt;Image src="GameData/textures/ui/logo.png" style="object-fit: contain"/&gt;</code></pre>
 </div>
 <div class="tag" id="tag-InputPrompt"><h4><code>&lt;InputPrompt&gt;</code> <span class="chip">input</span></h4><p>The image of the key or button that triggers an input action, for the device used last. It collapses when no image exists.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>action</code></td><td>string</td><td></td><td>Input action name</td></tr>
 </tbody></table></div>
 <pre><code>&lt;InputPrompt action="interact"/&gt;</code></pre>
 </div>
 <div class="tag" id="tag-Label"><h4><code>&lt;Label&gt;</code> <span class="chip">text</span></h4><p>Text. Content comes from the <code>text</code> attribute or from the element's own text. Wraps, aligns, ellipsizes, and with <code>html="true"</code> understands rich text (see <a href="#richtext">Rich text</a>).</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>text</code></td><td>text</td><td></td><td>Text to show; the element's text content is used when the attribute is absent</td></tr>
 <tr><td><code>html</code></td><td>bool</td><td><code>false</code></td><td>true interprets &lt;b&gt; &lt;i&gt; &lt;color=#rrggbb&gt; &lt;size=NN&gt; &lt;icon=action:NAME&gt; &lt;icon=img:PATH&gt;</td></tr>
 </tbody></table></div>
@@ -174,6 +240,13 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-ListView"><h4><code>&lt;ListView&gt;</code> <span class="chip">layout</span></h4><p>A virtualised list or grid: only visible rows are built from the snippet and recycled. Needs <code>overflow: scroll</code>; rows get the variable <code>index</code>.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>snippet</code></td><td>string</td><td></td><td>Row snippet; rows get the variable index</td></tr>
 <tr><td><code>count</code></td><td>number</td><td><code>0</code></td><td>Number of items</td></tr>
 <tr><td><code>layout</code></td><td>string</td><td><code>list</code></td><td>list or grid</td></tr>
@@ -184,6 +257,13 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-Movie"><h4><code>&lt;Movie&gt;</code> <span class="chip">image</span></h4><p>A video.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>src</code></td><td>path</td><td></td><td>GameData-relative video path</td></tr>
 <tr><td><code>loop</code></td><td>bool</td><td><code>false</code></td><td>Restart at the end</td></tr>
 <tr><td><code>autoplay</code></td><td>bool</td><td><code>true</code></td><td>Accepted; the video starts when first drawn</td></tr>
@@ -192,11 +272,26 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 <pre><code>&lt;Movie src="GameData/videos/intro.mp4" loop="true"/&gt;</code></pre>
 </div>
 <div class="tag" id="tag-Panel"><h4><code>&lt;Panel&gt;</code> <span class="chip">layout</span></h4><p>The box: background, border, radius, shadow and the container of other elements. Its <code>flow-children</code> decides how children are placed.</p>
-<p class="dim">No attributes of its own (only the common ones).</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
+</tbody></table></div>
 <pre><code>&lt;Panel class="menu"&gt; ... &lt;/Panel&gt;</code></pre>
 </div>
 <div class="tag" id="tag-ProgressBar"><h4><code>&lt;ProgressBar&gt;</code> <span class="chip">paint</span></h4><p>A track with a <code>.fill</code> child whose size is value × content.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>value</code></td><td>number</td><td><code>0</code></td><td>0..1</td></tr>
 <tr><td><code>direction</code></td><td>string</td><td><code>horizontal</code></td><td>horizontal or vertical</td></tr>
 </tbody></table></div>
@@ -204,6 +299,13 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-RadioButton"><h4><code>&lt;RadioButton&gt;</code> <span class="chip">input</span></h4><p>One of a group. Radios with the same <code>group</code> inside one root exclude each other.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>group</code></td><td>string</td><td></td><td>Radios with the same group exclude each other inside one root</td></tr>
 <tr><td><code>checked</code></td><td>bool</td><td><code>false</code></td><td>Initial state</td></tr>
 <tr><td><code>option</code></td><td>number</td><td></td><td>With bind: the setting value this radio selects</td></tr>
@@ -213,6 +315,13 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-ShaderPanel"><h4><code>&lt;ShaderPanel&gt;</code> <span class="chip">image</span></h4><p>A panel drawn by a custom pixel shader. Uniforms are <code>param-NAME="x y z w"</code>.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>shader</code></td><td>path</td><td></td><td>Shader name</td></tr>
 <tr><td><code>param-&lt;name&gt;</code></td><td>text</td><td></td><td>vec4 uniform as 'x y z w'</td></tr>
 </tbody></table></div>
@@ -220,6 +329,13 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-Slider"><h4><code>&lt;Slider&gt;</code> <span class="chip">input</span></h4><p>Draggable value. Event <code>onvaluechanged</code>; variable <code>value</code>. Colours come from <code>color</code>, <code>--track-color</code>, <code>--handle-color</code>.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>min</code></td><td>number</td><td><code>0</code></td><td>Smallest value</td></tr>
 <tr><td><code>max</code></td><td>number</td><td><code>1</code></td><td>Largest value</td></tr>
 <tr><td><code>step</code></td><td>number</td><td><code>0</code></td><td>Snap increment (0 = continuous)</td></tr>
@@ -230,6 +346,13 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-TextButton"><h4><code>&lt;TextButton&gt;</code> <span class="chip">input</span></h4><p>A Button with a label made from <code>text</code>.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>text</code></td><td>text</td><td></td><td>Button text</td></tr>
 <tr><td><code>hotkey</code></td><td>string</td><td></td><td>Input action that activates the button while its page is on top</td></tr>
 <tr><td><code>hotkey-label</code></td><td>text</td><td></td><td>Text shown for the hotkey in an ActionBar (default: the button text)</td></tr>
@@ -238,6 +361,13 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-TextEntry"><h4><code>&lt;TextEntry&gt;</code> <span class="chip">input</span></h4><p>Single-line text field with caret and IME. Event <code>onvaluechanged</code>; variable <code>value</code> (the text).</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>text</code></td><td>text</td><td></td><td>Initial text</td></tr>
 <tr><td><code>placeholder</code></td><td>text</td><td></td><td>Shown while empty</td></tr>
 <tr><td><code>max-length</code></td><td>number</td><td><code>0</code></td><td>0 = unlimited</td></tr>
@@ -248,6 +378,13 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </div>
 <div class="tag" id="tag-ToggleButton"><h4><code>&lt;ToggleButton&gt;</code> <span class="chip">input</span></h4><p>A Button that toggles <code>:checked</code>. Event <code>onvaluechanged</code>; variable <code>value</code> (0/1).</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>checked</code></td><td>bool</td><td><code>false</code></td><td>Initial state</td></tr>
 <tr><td><code>bind</code></td><td>string</td><td></td><td>setting:&lt;key&gt;: the widget edits that engine setting and follows it</td></tr>
 <tr><td><code>hotkey</code></td><td>string</td><td></td><td>Input action that activates the button while its page is on top</td></tr>
@@ -388,6 +525,7 @@ Button:hover, Button:focus { background-color: #333; }   /* list + states */
 <tr><td><code>:active</code></td><td>being pressed</td></tr>
 <tr><td><code>:checked</code></td><td>toggle / radio is on</td></tr>
 <tr><td><code>:disabled</code></td><td>enabled="false"</td></tr>
+<tr><td><code>:dragging</code></td><td></td></tr>
 <tr><td><code>:entering</code></td><td>page being pushed (first style pass)</td></tr>
 <tr><td><code>:focus</code></td><td>has navigation focus</td></tr>
 <tr><td><code>:focus-within</code></td><td>it or a descendant has focus</td></tr>
@@ -472,27 +610,30 @@ color: rgb(255, 136, 0);  color: rgba(255, 136, 0, 0.5);   color: hsl(30, 100%, 
 .cover    { object-fit: cover; object-position: 50% 20%; }   /* on &lt;Image&gt; */</code></pre>
 <h3>Every paint feature and its status</h3><div class="tw"><table class=""><thead><tr><th>Effect</th><th>Kind</th><th>What it does</th><th>Syntax</th><th>Status</th></tr></thead><tbody>
 <tr><td><code>animation</code></td><td>motion</td><td>Plays @keyframes</td><td><code>&lt;name&gt; &lt;duration&gt; &lt;timing-function&gt; &lt;delay&gt; &lt;iteration-count&gt; &lt;direction&gt; &lt;fill-mode&gt;</code></td><td><span class="chip ok">available</span></td></tr>
-<tr><td><code>backdrop-filter</code></td><td>filter</td><td>Filters what is behind the element</td><td><code>&lt;filter-list&gt;</code></td><td><span class="chip warn">needs offscreen layers (planned)</span></td></tr>
+<tr><td><code>backdrop-filter</code></td><td>filter</td><td>Blurs the scene colour behind the element (levels of sigma 4, 8 and 16; the nearest one is used) and applies the colour functions; the UI under it is not blurred</td><td><code>blur(&lt;length&gt;) | brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert()</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>background-image</code></td><td>image</td><td>Image layers (atlas images and gradients), tiled, sized and positioned</td><td><code>url() | gradient, per layer</code></td><td><span class="chip ok">available</span></td></tr>
-<tr><td><code>blur()</code></td><td>filter</td><td>Gaussian blur filter</td><td><code>&lt;length&gt;</code></td><td><span class="chip warn">needs offscreen layers (planned)</span></td></tr>
+<tr><td><code>blur()</code></td><td>filter</td><td>Gaussian blur of the element and everything inside it (9 taps, downsampled above sigma 4)</td><td><code>&lt;length&gt;</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>border-image</code></td><td>image</td><td>Nine-slice border from an atlas image (stretch or round)</td><td><code>&lt;source&gt; &lt;slice&gt; [/ &lt;width&gt;] &lt;repeat&gt;</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>box-shadow</code></td><td>shadow</td><td>Outer and inset shadows with blur and spread (own shader program)</td><td><code>[inset] &lt;x&gt; &lt;y&gt; [blur] [spread] &lt;color&gt;, ...</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>brightness()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>cache: layer</code></td><td>layer</td><td>Keeps the rendered layer until its content changes (static content only; texture contents are not watched)</td><td><code>none | layer</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>clip-path</code></td><td>clip</td><td>inset(), circle() and ellipse() clip shapes</td><td><code>inset() | circle() | ellipse()</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>conic-gradient()</code></td><td>gradient</td><td>Colour ramp around a centre, clockwise from 12 o'clock</td><td><code>[from &lt;angle&gt;] [at &lt;position&gt;], &lt;color-stop&gt;#</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>contrast()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
-<tr><td><code>drop-shadow()</code></td><td>filter</td><td>Shadow that follows the alpha of the content</td><td><code>&lt;x&gt; &lt;y&gt; [blur] &lt;color&gt;</code></td><td><span class="chip warn">needs offscreen layers (planned)</span></td></tr>
+<tr><td><code>drop-shadow()</code></td><td>filter</td><td>Shadow that follows the alpha of the content; offset 0 is a glow</td><td><code>&lt;x&gt; &lt;y&gt; [blur] &lt;color&gt;</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>grayscale()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>hue-rotate()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>image-rendering: pixelated</code></td><td>image</td><td>Nearest-neighbour sampling of images</td><td><code>auto | pixelated</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>invert()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>isolation: isolate</code></td><td>layer</td><td>Renders the element and its subtree as one picture, so opacity and blend apply to the group</td><td><code>auto | isolate</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>layer-limits</code></td><td>layer</td><td>Layer atlas limits and unsupported combinations</td><td><code></code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>linear-gradient()</code></td><td>gradient</td><td>Linear colour ramp</td><td><code>[&lt;angle&gt; | to &lt;side-or-corner&gt;,] &lt;color-stop&gt;#</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>mask-image</code></td><td>mask</td><td>Linear or radial gradient mask (alpha), evaluated per pixel</td><td><code>linear-gradient() | radial-gradient()</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>mix-blend-mode: multiply</code></td><td>blend</td><td>Blend function of the element's primitives with what is behind</td><td><code>multiply</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>mix-blend-mode: plus-lighter</code></td><td>blend</td><td>Blend function of the element's primitives with what is behind</td><td><code>plus-lighter</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>mix-blend-mode: screen</code></td><td>blend</td><td>Blend function of the element's primitives with what is behind</td><td><code>screen</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>object-position</code></td><td>image</td><td>Position of an Image's content inside its box</td><td><code>&lt;position&gt;</code></td><td><span class="chip ok">available</span></td></tr>
-<tr><td><code>opacity (group)</code></td><td>layer</td><td>Opacity of an element as a whole (overlapping children do not show through)</td><td><code>&lt;number&gt;</code></td><td><span class="chip warn">needs offscreen layers (planned)</span></td></tr>
+<tr><td><code>opacity (group)</code></td><td>layer</td><td>Opacity below 1 with isolation: isolate, and on every fading page: overlapping children do not show through</td><td><code>&lt;number&gt;</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>outline</code></td><td>shadow</td><td>Outline outside the border box with an offset</td><td><code>&lt;width&gt; || &lt;style&gt; || &lt;color&gt;; outline-offset</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>radial-gradient()</code></td><td>gradient</td><td>Radial colour ramp</td><td><code>[circle | ellipse] [&lt;size&gt;] [at &lt;position&gt;], &lt;color-stop&gt;#</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>repeating-conic-gradient()</code></td><td>gradient</td><td>Repeating conic gradient</td><td><code>same as conic-gradient()</code></td><td><span class="chip ok">available</span></td></tr>
@@ -500,13 +641,34 @@ color: rgb(255, 136, 0);  color: rgba(255, 136, 0, 0.5);   color: hsl(30, 100%, 
 <tr><td><code>repeating-radial-gradient()</code></td><td>gradient</td><td>Repeating radial gradient</td><td><code>same as radial-gradient()</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>saturate()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>sepia()</code></td><td>filter</td><td>Colour matrix filter (applied to the element and everything below it)</td><td><code>&lt;number | percentage&gt;</code></td><td><span class="chip ok">available</span></td></tr>
+<tr><td><code>svg-images</code></td><td>image</td><td>SVG files are rasterised by nanosvg for the size they are drawn at (Image, background-image, border-image)</td><td><code></code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>text-shadow</code></td><td>text</td><td>Shadow behind text, optionally blurred</td><td><code>&lt;x&gt; &lt;y&gt; [blur] &lt;color&gt;, ...</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>text-stroke</code></td><td>text</td><td>Outline around glyphs, drawn under the fill</td><td><code>&lt;width&gt; &lt;color&gt;</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>transform</code></td><td>transform</td><td>2D transform of the element and its subtree; layout ignores it, hit testing follows it</td><td><code>translate() | rotate() | scale() | skew() list; transform-origin</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>transition</code></td><td>motion</td><td>Interpolates changed properties over time</td><td><code>&lt;property&gt; &lt;duration&gt; &lt;timing-function&gt; &lt;delay&gt;</code></td><td><span class="chip ok">available</span></td></tr>
 <tr><td><code>wash-color</code></td><td>filter</td><td>Tint over everything: the colour matrix lerps to the colour by its alpha</td><td><code>&lt;color&gt;</code></td><td><span class="chip ok">available</span></td></tr>
 </tbody></table></div>
-<p class="dim">Effects marked <i>needs offscreen layers</i> are designed (blur, backdrop filter, drop shadow, group opacity) but depend on the layer atlas, which is not built yet. Using them today does nothing.</p>
+<h3 id="svg">SVG icons</h3>
+<p>An <code>.svg</code> file works wherever an image does: <code>&lt;Image src&gt;</code>, <code>background-image: url()</code> and <code>border-image</code>. The engine rasterises it for the size it is drawn at (the longer side rounded up to 16, 32, 64, 128, 256 or 512 device pixels; larger shows the 512 raster scaled) and caches each size, so an icon is as crisp at 16 px as at 128 px and costs one raster per size, once. Layout uses the drawing's own <code>width</code> and <code>height</code> (96 dpi px); the raster size never changes layout.</p>
+<p>Supported: paths, basic shapes, solid and gradient fills, strokes, transforms and groups. Not supported: text, filters, masks, CSS styling inside the file, animation and external images; convert text to outlines before exporting. A <code>fill</code> in the file is the colour you get; <code>wash-color</code> tints the result like any image.</p>
+<pre><code>&lt;Image src="GameData/ui/icons/sword.svg" style="width: 32px; height: 32px"/&gt;      &lt;!-- crisp at any size --&gt;
+.badge { background-image: url("GameData/ui/icons/star.svg"); background-size: 24px 24px; }</code></pre>
+<h3 id="layers">Layers: blur, drop-shadow, group opacity, backdrop</h3>
+<p>Some effects need the element drawn as one picture first. The engine renders such an element and its children into an offscreen layer (a rectangle of a 4096 px atlas page), applies the effect, and draws the result in place. You never create a layer yourself; these properties do:</p>
+<ul>
+<li><code>filter: blur()</code> and <code>filter: drop-shadow()</code> (combine them with the colour functions; the colour functions run first, inside the layer).</li>
+<li><code>isolation: isolate</code>, and <code>opacity</code> below 1 together with it: the group fades as one picture.</li>
+<li>A page that is entering or leaving a menu stack with <code>opacity</code> below 1 is isolated automatically, so a fading page never shows its overlapping children through each other.</li>
+<li><code>cache: layer</code>: the layer is rendered once and reused until its recorded content changes, and freed after 3 seconds without use. Use it for static, expensive panels (many shadows, gradients, text). It does not notice an image whose pixels change.</li>
+<li><code>backdrop-filter: blur(R)</code> plus colour functions: the element's box shows the blurred scene behind it, clipped to its rounded shape. The blur picks the nearest of three levels (sigma 4, 8 and 16 UI units). Only the scene is blurred, never the UI below.</li>
+</ul>
+<pre><code>.glass   { backdrop-filter: blur(8px) brightness(0.8); border-radius: 12px; }   /* the scene behind the panel, blurred */
+.soft    { filter: blur(3px); }                                          /* the element and everything in it */
+.glow    { filter: drop-shadow(0px 0px 16px #00ff00); }                  /* follows the alpha of the content: offset 0 is a glow */
+.lift    { filter: drop-shadow(6px 8px 6px rgba(0, 0, 0, 0.6)); }
+.group   { opacity: 0.5; isolation: isolate; }                           /* overlapping children fade as one picture */
+.static  { cache: layer; }                                               /* rendered once, reused until its content changes */</code></pre>
+<p>Limits: <code>clip-path</code> stencil clips inside a layer are ignored, legacy (external) elements inside a layer are skipped, and a layer needs bgfx views (96 per frame) and atlas room; when it cannot be built the element is drawn without the effect and a warning is logged once. <code>backdrop-filter</code> needs the scene colour, which only the main UI pass has (loading screens and world-space UI draw nothing for it). Each 4096 px page is about 64 MB and is created the first time it is needed.</p>
 </section>
 
 <section id="motion"><h2>9. Motion <span class="badge core">Core</span></h2><pre><code>.card         { transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -542,6 +704,11 @@ color: rgb(255, 136, 0);  color: rgba(255, 136, 0, 0.5);   color: hsl(30, 100%, 
 <tr><td><code>onactivate</code></td><td>The element was activated by confirm, a click or a touch</td></tr>
 <tr><td><code>onblur</code></td><td>The element lost navigation focus</td></tr>
 <tr><td><code>oncancel</code></td><td>Back was requested on this page, before the stack handles it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>A right click, a 0.5 s touch hold or the ui_context action on the element (UiDragDrop::PointerPos() is where)</td></tr>
+<tr><td><code>ondragenter</code></td><td>A dragged element entered this drop target</td></tr>
+<tr><td><code>ondragleave</code></td><td>A dragged element left this drop target</td></tr>
+<tr><td><code>ondragstart</code></td><td>This draggable element was picked up; set UiElem::DragPayload here</td></tr>
+<tr><td><code>ondrop</code></td><td>A dragged element was dropped on this drop target</td></tr>
 <tr><td><code>onfocus</code></td><td>The element received navigation focus</td></tr>
 <tr><td><code>onload</code></td><td>Once, after the element's first layout</td></tr>
 <tr><td><code>onmouseout</code></td><td>The pointer left the element</td></tr>
@@ -553,6 +720,7 @@ color: rgb(255, 136, 0);  color: rgba(255, 136, 0, 0.5);   color: hsl(30, 100%, 
 <tr><td><code>ApplyChanges()</code></td><td>On the confirm-changes page: keeps the changed settings and closes it and the page under it</td></tr>
 <tr><td><code>Back()</code></td><td>Runs back on the element's menu stack (the main stack when it is on none)</td></tr>
 <tr><td><code>Clear()</code></td><td>Pops every page of the element's menu stack</td></tr>
+<tr><td><code>ContextMenu(path)</code></td><td>Pushes a context menu page on the element's menu stack, placed where the context menu was requested</td></tr>
 <tr><td><code>DiscardChanges()</code></td><td>On the confirm-changes page: restores the settings the page changed and closes it and the page under it</td></tr>
 <tr><td><code>PlaySound(path)</code></td><td>Plays a 2D UI sound</td></tr>
 <tr><td><code>Pop()</code></td><td>Pops the top page of the element's menu stack</td></tr>
@@ -565,6 +733,31 @@ color: rgb(255, 136, 0);  color: rgba(255, 136, 0, 0.5);   color: hsl(30, 100%, 
 <tr><td><code>SetFocus(selector)</code></td><td>Moves navigation focus to the element found by #id or id path</td></tr>
 <tr><td><code>ToggleClass(selector, class)</code></td><td>Toggles a class on the element found by #id or id path</td></tr>
 </tbody></table></div>
+<h3 id="dragdrop">Drag and drop</h3>
+<p>Mark an element <code>draggable="true"</code> and the places it can land <code>droptarget="true"</code>. The pointer starts a drag after moving 6 px (a press that moves less is still a click); a translucent ghost of the element follows the pointer, and the source has the <code>:dragging</code> state. With a gamepad, confirm on a draggable picks it up (the ghost follows focus), confirm on a drop target drops it, and cancel aborts. A drag over a scroll container does not scroll it.</p>
+<p>Events: <code>ondragstart</code> on the source; <code>ondragenter</code>, <code>ondragleave</code> and <code>ondrop</code> on the target (<code>dragleave</code> also fires just before <code>drop</code>, so a style that marks the hovered target is cleared before the drop runs).</p>
+<pre><code>&lt;Panel id="inventory"&gt;
+  &lt;TextButton id="sword" text="Sword" draggable="true" ondragstart="AddClass('#sword','held')"/&gt;
+  &lt;Panel id="slot1" class="slot" droptarget="true"
+         ondragenter="AddClass('#slot1','over')" ondragleave="RemoveClass('#slot1','over')" ondrop="AddClass('#slot1','full')"/&gt;
+&lt;/Panel&gt;
+&lt;!-- .slot.over { border-color: #00ff00; }   #sword:dragging { opacity: 0.4; } --&gt;</code></pre>
+<pre><code>// Code-behind: the payload is C++ only, set when the drag starts and read where it ends.
+sword-&gt;On("dragstart", [sword] { sword-&gt;DragPayload = ItemId{ 42 }; });
+slot-&gt;On("drop", [slot] {
+    UiElem* from = UiDragDrop::Source();
+    if (from) if (auto* item = std::any_cast&lt;ItemId&gt;(&amp;from-&gt;DragPayload)) MoveItem(*item, slot);
+});</code></pre>
+<h3 id="contextmenu">Context menus</h3>
+<p><code>oncontextmenu</code> fires on the element under the pointer (or its nearest ancestor that has the event) for a right mouse click, a 0.5 s touch hold, or the <code>ui_context</code> action (gamepad: the focused element). A game binds <code>ui_context</code> to the right mouse button and a gamepad button. The built-in action <code>ContextMenu('page.xml')</code> pushes a page on the stack and moves its element with class <code>context-menu</code> to where the request happened. Make the page <code>shows-below</code> so the screen stays visible.</p>
+<pre><code>&lt;Panel id="row" hittest="true" oncontextmenu="ContextMenu('GameData/ui/my_menu.xml')"/&gt;
+
+&lt;!-- my_menu.xml: the element with class context-menu is placed at the pointer; the page itself covers the screen --&gt;
+&lt;root&gt;
+  &lt;Panel id="menu_page" shows-below="true" close-on-back="true"&gt;
+    &lt;Panel class="context-menu"&gt;&lt;TextButton text="Drop" onactivate="Back()"/&gt;&lt;/Panel&gt;
+  &lt;/Panel&gt;
+&lt;/root&gt;</code></pre>
 <p>Selectors in actions are <code>#id</code> or an id path (<code>#row/label</code>). <code>Push</code>, <code>Back</code>, <code>Replace</code>, <code>Pop</code>, <code>Clear</code> act on <em>the stack the element is on</em>; <code>PushMenu</code> always uses the main stack.</p>
 <h3>Code-behind</h3><pre><code>class MyPage : public UiElemPanel
 {
@@ -656,7 +849,7 @@ UiMenus::OnPauseChanged = [](bool paused) { ... };    // the game connects its o
 &lt;styles&gt;&lt;style&gt;
   .input-gamepad .mouse-hint { visibility: collapse; }     /* the root gets input-mouse | input-gamepad | input-touch */
 &lt;/style&gt;&lt;/styles&gt;</code></pre>
-<p>Input actions the engine knows: <p><code>attack</code> <code>attack2</code> <code>backward</code> <code>block</code> <code>cameraView</code> <code>click</code> <code>crouch</code> <code>dash</code> <code>debug_ui_toggle</code> <code>forward</code> <code>fullscreen</code> <code>interact</code> <code>inventory</code> <code>jump</code> <code>lastSlot</code> <code>left</code> <code>pause</code> <code>qLoad</code> <code>qSave</code> <code>reload</code> <code>reload_shaders</code> <code>right</code> <code>slot1</code> <code>slot2</code> <code>slot3</code> <code>slot4</code> <code>slot5</code> <code>slot6</code> <code>slotMelee</code> <code>slotTest</code> <code>test</code> <code>ui_cancel</code> <code>ui_confirm</code> <code>ui_down</code> <code>ui_left</code> <code>ui_right</code> <code>ui_tab_next</code> <code>ui_tab_prev</code> <code>ui_up</code></p></p>
+<p>Input actions the engine knows: <p><code>attack</code> <code>attack2</code> <code>backward</code> <code>block</code> <code>cameraView</code> <code>click</code> <code>crouch</code> <code>dash</code> <code>debug_ui_toggle</code> <code>forward</code> <code>fullscreen</code> <code>interact</code> <code>inventory</code> <code>jump</code> <code>lastSlot</code> <code>left</code> <code>pause</code> <code>qLoad</code> <code>qSave</code> <code>reload</code> <code>reload_shaders</code> <code>right</code> <code>slot1</code> <code>slot2</code> <code>slot3</code> <code>slot4</code> <code>slot5</code> <code>slot6</code> <code>slotMelee</code> <code>slotTest</code> <code>test</code> <code>ui_cancel</code> <code>ui_confirm</code> <code>ui_context</code> <code>ui_down</code> <code>ui_left</code> <code>ui_right</code> <code>ui_tab_next</code> <code>ui_tab_prev</code> <code>ui_up</code></p></p>
 </section>
 
 <section id="binding"><h2>13. Settings binding <span class="badge core">Core</span></h2>
@@ -698,6 +891,7 @@ UiSettings::Register(e);          // now bind="setting:game.fov" works in any pa
 ui_load &lt;layout&gt;        ui_unload_all          ui_focus &lt;id&gt;      ui_dump [depth]    (prints the element tree)
 ui_pseudoloc            (every string about 35% longer, to find overflow)       ui_reduced_motion
 ui_overflow_report      ui_db_info    ui_db_path   (the uidb.json catalogue)</code></pre></li>
+<li><b>Picking</b>: <code>ui_pick</code> in a running game writes the element under the pointer to <code>SaveData/ui_pick.json</code> (<code>path</code>, <code>file</code>, <code>line</code>, <code>col</code>, <code>id</code>, <code>ref</code>); UI Studio watches the file and selects the node. <code>ui_pick_at x y</code> does the same for a point, and is what the Studio runtime bridge uses.</li>
 <li><b>Test scripts</b> (<code>.uitest</code>, run with <code>-ui_test</code> or <code>Tools/ui/run_ui_tests.py</code> on each graphics backend):</li></ul>
 <pre><code># StealthAction: pause menu
 wait 8
@@ -712,7 +906,7 @@ expect psave focus == 1
 console ui_focus psettings                # any console command
 ui_screenshot 02_pause
 set_var name Ann    set_class #box hot    sim_device gamepad    mouse_down 662 65    mouse_up    wheel -3</code></pre>
-<p>Commands: <p><code>action</code> <code>anim_pause</code> <code>anim_seek</code> <code>click</code> <code>console</code> <code>expect</code> <code>expect_class</code> <code>expect_engine</code> <code>expect_exists</code> <code>expect_missing</code> <code>expect_no_overflow</code> <code>expect_rect</code> <code>expect_roots</code> <code>expect_setting</code> <code>expect_stack</code> <code>expect_ui_errors</code> <code>expect_ui_warnings</code> <code>expect_uidb</code> <code>focus_trap</code> <code>log</code> <code>mouse_down</code> <code>mouse_move</code> <code>mouse_off</code> <code>mouse_up</code> <code>prompt_provider_test</code> <code>quit</code> <code>screenshot</code> <code>set_class</code> <code>set_setting</code> <code>set_var</code> <code>sim_device</code> <code>test_settings</code> <code>type</code> <code>ui_screenshot</code> <code>uidb_selftest</code> <code>wait</code> <code>wait_frames</code> <code>wheel</code></p></p>
+<p>Commands: <p><code>action</code> <code>anim_pause</code> <code>anim_seek</code> <code>backdrop_scene</code> <code>click</code> <code>console</code> <code>expect</code> <code>expect_class</code> <code>expect_engine</code> <code>expect_exists</code> <code>expect_layers</code> <code>expect_missing</code> <code>expect_no_overflow</code> <code>expect_rect</code> <code>expect_roots</code> <code>expect_setting</code> <code>expect_stack</code> <code>expect_ui_errors</code> <code>expect_ui_warnings</code> <code>expect_uidb</code> <code>focus_trap</code> <code>layer_mark</code> <code>log</code> <code>mouse_down</code> <code>mouse_move</code> <code>mouse_off</code> <code>mouse_up</code> <code>prompt_provider_test</code> <code>quit</code> <code>screenshot</code> <code>set_class</code> <code>set_setting</code> <code>set_var</code> <code>sim_device</code> <code>test_settings</code> <code>type</code> <code>ui_screenshot</code> <code>uidb_selftest</code> <code>wait</code> <code>wait_frames</code> <code>wheel</code></p></p>
 <p><code>-ui_lint</code> reports problems without running the game. Always add <code>-headless</code> for automated runs.</p>
 </section>
 
@@ -919,7 +1113,7 @@ KitRebind::Open(request);                                        // key / button
 </tbody></table></div>
 <h4>Effects and transforms</h4>
 <div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
-<tr><td><code>filter</code></td><td><code>none | [brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert()]+</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>filter</code></td><td><code>none | [brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert() | blur() | drop-shadow()]+</code></td><td><code>none</code></td><td></td></tr>
 <tr><td><code>mix-blend-mode</code></td><td><code>normal | plus-lighter | multiply | screen</code></td><td><code>normal</code></td><td></td></tr>
 <tr><td><code>opacity</code></td><td><code>&lt;number&gt; | &lt;percentage&gt;</code></td><td><code>1</code></td><td></td></tr>
 <tr><td><code>transform</code></td><td><code>none | [translate() | translateX() | translateY() | rotate() | scale() | scaleX() | scaleY() | skew() | skewX() | skewY()]+</code></td><td><code>none</code></td><td></td></tr>
@@ -946,6 +1140,11 @@ KitRebind::Open(request);                                        // key / button
 <div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
 <tr><td><code>sound</code></td><td><code>none | &lt;string&gt;</code></td><td><code>none</code></td><td></td></tr>
 <tr><td><code>sound-hover</code></td><td><code>none | &lt;string&gt;</code></td><td><code>none</code></td><td></td></tr>
+</tbody></table></div>
+<h4>Other</h4><div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
+<tr><td><code>backdrop-filter</code></td><td><code>none | [blur() | brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert()]+</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>cache</code></td><td><code>none | layer</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>isolation</code></td><td><code>auto | isolate</code></td><td><code>auto</code></td><td></td></tr>
 </tbody></table></div></section>
 <footer>Generated by <code>Tools/ui/make_ui_reference.py</code> from <code>uidb.json</code>. Regenerate it after the engine's UI registries change.</footer>
 </main></div></body></html>

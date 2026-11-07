@@ -3,33 +3,34 @@
 @import "GameData/ui/kit/styles/kit.css";
 
 :root {
-    --kit-text: #ffffff;
+    --kit-text: #f0e4d0;
     --kit-scrim: rgba(26, 5, 5, 0.82);
-    --kit-panel: rgba(18, 9, 9, 0.95);
-    --kit-panel-border: rgba(140, 41, 41, 0.55);
+    --kit-panel: rgba(12, 5, 5, 0.97);
+    --kit-panel-border: #5c1d19;
     --kit-divider: rgba(217, 89, 89, 0.3);
-    --kit-row-alt: rgba(255, 255, 255, 0.035);
-    --kit-accent: #99c7ff;
-    --kit-caption: rgba(199, 204, 219, 0.85);
-    --kit-toggle-on: rgba(61, 133, 77, 0.92);
-    --kit-toggle-off: rgba(61, 61, 69, 0.92);
+    --kit-row-alt: rgba(217, 89, 89, 0.05);
+    --kit-accent: #c9a24a;
+    --kit-caption: rgba(196, 170, 142, 0.85);
+    --kit-toggle-on: #7a5a1c;
+    --kit-toggle-off: #2a0e0d;
     --kit-danger: #731f1f;
     --kit-danger-hover: #9e2929;
-    --kit-button: #1c1c1c;
-    --kit-button-hover: #2e2e2e;
-    --kit-button-border: #180505;
-    --kit-focus: #7a2418;
-    --kit-radius: 3px;
+    --kit-button: #2a0e0d;
+    --kit-button-hover: #3d1412;
+    --kit-button-border: #5c1d19;
+    --kit-focus-border: #d9a84d;
+    --kit-focus: #6b1d16;
+    --kit-radius: 0px;
     --kit-confirm-panel: rgba(18, 14, 8, 0.97);
     --kit-confirm-border: rgba(204, 153, 61, 0.55);
     --kit-confirm-accent: rgba(217, 168, 77, 0.9);
     --kit-pointer: #e8b84a;
     --kit-pointer-glow: rgba(255, 190, 60, 0.55);
-    --kit-slot: #292929;
-    --kit-slot-listening: #4d73a6;
+    --kit-slot: #1c0909;
+    --kit-slot-listening: #8f2a1c;
 
     --kit-menu-item: #b9a595;
-    --kit-menu-glow: 0 0 14px rgba(255, 70, 40, 0.95), 0 0 3px rgba(255, 120, 90, 0.8);
+    --kit-menu-glow: 0 0 0 rgba(0, 0, 0, 0);
     --kit-menu-line: #d6291c;
     --kit-menu-scrim: linear-gradient(to right, rgba(24, 2, 2, 0.92), rgba(24, 2, 2, 0.55) 55%, rgba(24, 2, 2, 0.4)),
                       repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0px, rgba(0, 0, 0, 0.1) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 4px);

@@ -57,8 +57,11 @@ vec4 uiTiledSample(int prim, vec4 gh, vec2 tile, float flags)
     return texture2DLod(s_uiTex0, uv, 0.0) * inside;
 }
 
-vec4 uiShadeImage(int prim, vec4 tex)
+vec4 uiShadeImage(int prim, vec4 tex, float flags)
 {
+    // A layer texture is premultiplied already: texture * tint (the tint carries the opacity).
+    if (uiFlag(flags, 32.0))
+        return tex * uiFetch(prim, 1);
     // Identical to the legacy fs_ui_textured: texture * colour, then premultiply.
     return uiPremul(tex * uiFetch(prim, 1));
 }
@@ -191,7 +194,7 @@ void main()
 
     vec4 color;
     if (kind < 0.5)
-        color = uiShadeImage(prim, tex);
+        color = uiShadeImage(prim, tex, flags);
     else if (kind < 1.5)
         color = uiShadeBox(prim, v_local, v_texcoord0, tex, flags, px);
     else if (kind < 2.5)

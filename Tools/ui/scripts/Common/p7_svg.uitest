@@ -1,0 +1,7 @@
+# Phase 7.4: an .svg is rasterised by nanosvg for the size it is drawn at (Image and background-image).
+wait 6
+console ui_load GameData/ui/kit/tests/p7_svg.xml
+wait_frames 20
+expect_ui_errors 0
+ui_screenshot p7_svg
+quit

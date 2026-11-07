@@ -4,6 +4,8 @@
 #include <thread>
 #include <vector>
 
+#include <glm/glm.hpp>
+
 class UiElem;
 
 class UiSystem
@@ -21,6 +23,7 @@ public:
     static int FrameIndex();             // counts UiSystem::Update calls
     static std::vector<std::shared_ptr<UiElem>> Roots();   // live roots in registration order (inspection, lint)
     static UiElem* FindById(const std::string& id);   // first match over all live roots, document order (tests)
+    static void RecordSubtree(UiElem& source, UiElem& host, float opacity, glm::vec2 offset);   // paints `source` and its children into `host` (an unattached root), shifted and faded as one picture (the drag ghost)
     static std::thread::id MainThread();
     static bool IsInitialised();
     static int RootCount();

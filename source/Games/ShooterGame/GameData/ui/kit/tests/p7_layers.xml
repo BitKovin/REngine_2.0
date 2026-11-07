@@ -1,0 +1,39 @@
+<root>
+  <styles>
+    <style>
+      .b { horizontal-align: left; vertical-align: top; }
+
+      /* blur: a 1 px white line, blurred with sigma 4 */
+      #bl { x: 100px; y: 100px; width: 120px; height: 120px; filter: blur(4px); }
+      #bl_line { x: 60px; y: 10px; width: 1px; height: 100px; background-color: #ffffff; }
+
+      /* drop-shadow follows the alpha shape of the icon, not its box */
+      #ic { x: 300px; y: 100px; width: 64px; height: 64px; background-image: url(GameData/ui/kit/tests/p7_icon.png); background-size: 64px 64px;
+            filter: drop-shadow(12px 12px 0px #ff0000); }
+
+      /* group opacity: the overlap is as transparent as the rest */
+      #go { x: 500px; y: 100px; width: 200px; height: 100px; opacity: 0.5; isolation: isolate; }
+      #goa { x: 0px; y: 0px; width: 120px; height: 100px; background-color: #ff0000; }
+      #gob { x: 60px; y: 0px; width: 120px; height: 100px; background-color: #ff0000; }
+
+      /* glow: drop-shadow with no offset */
+      #gl { x: 800px; y: 100px; width: 60px; height: 60px; background-color: #ffffff; filter: drop-shadow(0px 0px 16px #00ff00); }
+
+      /* a blurred group inside a clipped, rounded parent, and a nested layer */
+      #nest { x: 100px; y: 400px; width: 200px; height: 120px; filter: blur(2px); }
+      #nest_in { x: 20px; y: 20px; width: 100px; height: 60px; background-color: #0000ff; opacity: 0.5; isolation: isolate; }
+
+      /* a large sigma goes through the downsample chain */
+      #big { x: 500px; y: 400px; width: 120px; height: 120px; filter: blur(16px); }
+      #big_box { x: 30px; y: 30px; width: 60px; height: 60px; background-color: #ffff00; }
+    </style>
+  </styles>
+  <Panel id="proot" class="b">
+    <Panel id="bl" class="b"><Panel id="bl_line" class="b"/></Panel>
+    <Panel id="ic" class="b"/>
+    <Panel id="go" class="b"><Panel id="goa" class="b"/><Panel id="gob" class="b"/></Panel>
+    <Panel id="gl" class="b"/>
+    <Panel id="nest" class="b"><Panel id="nest_in" class="b"/></Panel>
+    <Panel id="big" class="b"><Panel id="big_box" class="b"/></Panel>
+  </Panel>
+</root>

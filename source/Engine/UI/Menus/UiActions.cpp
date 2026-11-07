@@ -5,6 +5,7 @@
 #include <UI/Elements/UiElem.h>
 #include <UI/Markup/UiMarkupLog.h>
 #include <UI/Menus/UiMenuStack.h>
+#include <UI/UiDragDrop.h>
 #include <UI/UiNavigation.h>
 
 #include <SDL2/SDL.h>
@@ -63,6 +64,12 @@ namespace
         if (n == "ApplyChanges") { StackOf(from).ResolveChanges(true); return true; }
         if (n == "DiscardChanges") { StackOf(from).ResolveChanges(false); return true; }
         if (n == "Clear") { StackOf(from).Clear(); return true; }
+        if (n == "ContextMenu")
+        {
+            if (NeedArgs(from, call, 1))
+                UiDragDrop::PushContextMenu(StackOf(from), UiActions::NormalizeLayoutPath(Arg(call, 0)));
+            return true;
+        }
         if (n == "Push") { if (NeedArgs(from, call, 1)) StackOf(from).Push(UiActions::NormalizeLayoutPath(Arg(call, 0))); return true; }
         if (n == "Replace") { if (NeedArgs(from, call, 1)) StackOf(from).Replace(UiActions::NormalizeLayoutPath(Arg(call, 0))); return true; }
         if (n == "PushMenu") { if (NeedArgs(from, call, 1)) UiMenus::Stack().Push(UiActions::NormalizeLayoutPath(Arg(call, 0))); return true; }
@@ -228,6 +235,7 @@ const std::vector<UiActionInfo>& UiActions::Builtins()
         { "ApplyChanges", "", "On the confirm-changes page: keeps the changed settings and closes it and the page under it" },
         { "Back", "", "Runs back on the element's menu stack (the main stack when it is on none)" },
         { "Clear", "", "Pops every page of the element's menu stack" },
+        { "ContextMenu", "path", "Pushes a context menu page on the element's menu stack, placed where the context menu was requested" },
         { "DiscardChanges", "", "On the confirm-changes page: restores the settings the page changed and closes it and the page under it" },
         { "Pop", "", "Pops the top page of the element's menu stack" },
         { "PlaySound", "path", "Plays a 2D UI sound" },
@@ -268,6 +276,11 @@ const std::vector<UiEventInfo>& UiActions::Events()
         { "activate", "The element was activated by confirm, a click or a touch" },
         { "blur", "The element lost navigation focus" },
         { "cancel", "Back was requested on this page, before the stack handles it" },
+        { "contextmenu", "A right click, a 0.5 s touch hold or the ui_context action on the element (UiDragDrop::PointerPos() is where)" },
+        { "dragenter", "A dragged element entered this drop target" },
+        { "dragleave", "A dragged element left this drop target" },
+        { "dragstart", "This draggable element was picked up; set UiElem::DragPayload here" },
+        { "drop", "A dragged element was dropped on this drop target" },
         { "focus", "The element received navigation focus" },
         { "load", "Once, after the element's first layout" },
         { "mouseout", "The pointer left the element" },

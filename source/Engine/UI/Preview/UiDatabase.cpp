@@ -268,6 +268,16 @@ namespace
             { "options", options }, { "lifecycle", json::array({ "OnPushed", "OnShown", "OnHidden", "OnPopped", "OnBack" }) },
             { "back", json{ { "cancelAction", "ui_cancel" }, { "event", "cancel" }, { "emptyStack", "OnEmptyBack" } } },
             { "focusTrap", true }, { "topPageOnlyInteractive", true }, { "pauseHook", "OnPauseChanged" } };
+        s.Registries["hosts"]["drag-drop"] = json{ { "name", "drag-drop" }, { "description", "Pointer and gamepad drag and drop between elements" },
+            { "attributes", json::array({ "draggable", "droptarget" }) }, { "events", json::array({ "dragstart", "dragenter", "dragleave", "drop" }) },
+            { "pseudoClass", "dragging" }, { "dragThresholdPx", 6 }, { "ghostOpacity", 0.7 },
+            { "gamepad", json{ { "pickUp", "ui_confirm on a draggable" }, { "drop", "ui_confirm on a drop target" }, { "abort", "ui_cancel" } } },
+            { "payload", "C++ only: UiElem::DragPayload (std::any), set in dragstart; never serialized, previews use test data" },
+            { "requiresInput", json::array({ "pointer or gamepad focus" }) } };
+        s.Registries["hosts"]["context-menu"] = json{ { "name", "context-menu" }, { "description", "oncontextmenu fires where the pointer is; the ContextMenu action pushes a page there" },
+            { "event", "contextmenu" }, { "action", "ContextMenu" }, { "page", json{ { "host", "menu-stack" }, { "shows-below", true }, { "placedElementClass", "context-menu" } } },
+            { "triggers", json::array({ "right mouse button (ui_context)", "touch hold 0.5 s", "ui_context action (gamepad focus)" }) },
+            { "requiresInput", json::array({ "ui_context" }) } };
         s.Registries["hosts"]["viewport"] = json{ { "name", "viewport" }, { "description", "Plain parent: no lifecycle, no host options" } };
     }
 

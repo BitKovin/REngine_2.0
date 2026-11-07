@@ -184,6 +184,36 @@ EX["effects"] = """.dim      { filter: brightness(0.6) saturate(0.8); }        /
 .pix      { image-rendering: pixelated; }
 .cover    { object-fit: cover; object-position: 50% 20%; }   /* on <Image> */"""
 
+EX["layers"] = """.glass   { backdrop-filter: blur(8px) brightness(0.8); border-radius: 12px; }   /* the scene behind the panel, blurred */
+.soft    { filter: blur(3px); }                                          /* the element and everything in it */
+.glow    { filter: drop-shadow(0px 0px 16px #00ff00); }                  /* follows the alpha of the content: offset 0 is a glow */
+.lift    { filter: drop-shadow(6px 8px 6px rgba(0, 0, 0, 0.6)); }
+.group   { opacity: 0.5; isolation: isolate; }                           /* overlapping children fade as one picture */
+.static  { cache: layer; }                                               /* rendered once, reused until its content changes */"""
+
+EX["dragdrop"] = """<Panel id="inventory">
+  <TextButton id="sword" text="Sword" draggable="true" ondragstart="AddClass('#sword','held')"/>
+  <Panel id="slot1" class="slot" droptarget="true"
+         ondragenter="AddClass('#slot1','over')" ondragleave="RemoveClass('#slot1','over')" ondrop="AddClass('#slot1','full')"/>
+</Panel>
+<!-- .slot.over { border-color: #00ff00; }   #sword:dragging { opacity: 0.4; } -->"""
+
+EX["dragcode"] = """// Code-behind: the payload is C++ only, set when the drag starts and read where it ends.
+sword->On("dragstart", [sword] { sword->DragPayload = ItemId{ 42 }; });
+slot->On("drop", [slot] {
+    UiElem* from = UiDragDrop::Source();
+    if (from) if (auto* item = std::any_cast<ItemId>(&from->DragPayload)) MoveItem(*item, slot);
+});"""
+
+EX["context"] = """<Panel id="row" hittest="true" oncontextmenu="ContextMenu('GameData/ui/my_menu.xml')"/>
+
+<!-- my_menu.xml: the element with class context-menu is placed at the pointer; the page itself covers the screen -->
+<root>
+  <Panel id="menu_page" shows-below="true" close-on-back="true">
+    <Panel class="context-menu"><TextButton text="Drop" onactivate="Back()"/></Panel>
+  </Panel>
+</root>"""
+
 EX["motion"] = """.card         { transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .card:hover   { transform: scale(1.05); }
 .page:entering { opacity: 0; transform: translateY(24px); }       /* a pushed page starts here and animates to normal */
@@ -328,6 +358,9 @@ EX["listview"] = """<snippets>
 </snippets>
 <ListView id="list" snippet="SaveRow" count="1000" item-height="40"/>     <!-- only the visible rows exist; rows are recycled -->
 <ListView snippet="Cell" count="200" layout="grid" columns="4" item-height="120"/>"""
+
+EX["svg"] = """<Image src="GameData/ui/icons/sword.svg" style="width: 32px; height: 32px"/>      <!-- crisp at any size -->
+.badge { background-image: url("GameData/ui/icons/star.svg"); background-size: 24px 24px; }"""
 
 EX["media"] = """<Image src="GameData/textures/ui/logo.png" style="object-fit: contain; width: 300px; height: 120px"/>
 <Movie src="GameData/videos/intro.mp4" loop="true"/>
@@ -530,7 +563,7 @@ def paint_reference():
     for p in reg["paintEffects"]:
         if p.get("kind") == "element":
             continue
-        req = "needs offscreen layers (planned)" if p.get("requiresLayer") else ""
+        req = p.get("unavailableReason", "not available") if not p.get("available", True) else ""
         rows.append(["<code>%s</code>" % esc(p["name"]), esc(p.get("category", "")), esc(p.get("description", "")), "<code>%s</code>" % esc(p.get("parameters", "")),
                      '<span class="chip warn">%s</span>' % req if req else '<span class="chip ok">available</span>'])
     return table(["Effect", "Kind", "What it does", "Syntax", "Status"], rows)
@@ -723,7 +756,21 @@ BODY = """
 <section id="painting"><h2>8. Painting <span class="badge core">Core</span></h2>%(paint)s
 <h3>Effects, blending, transforms</h3>%(effects)s
 <h3>Every paint feature and its status</h3>%(painttable)s
-<p class="dim">Effects marked <i>needs offscreen layers</i> are designed (blur, backdrop filter, drop shadow, group opacity) but depend on the layer atlas, which is not built yet. Using them today does nothing.</p>
+<h3 id="svg">SVG icons</h3>
+<p>An <code>.svg</code> file works wherever an image does: <code>&lt;Image src&gt;</code>, <code>background-image: url()</code> and <code>border-image</code>. The engine rasterises it for the size it is drawn at (the longer side rounded up to 16, 32, 64, 128, 256 or 512 device pixels; larger shows the 512 raster scaled) and caches each size, so an icon is as crisp at 16 px as at 128 px and costs one raster per size, once. Layout uses the drawing's own <code>width</code> and <code>height</code> (96 dpi px); the raster size never changes layout.</p>
+<p>Supported: paths, basic shapes, solid and gradient fills, strokes, transforms and groups. Not supported: text, filters, masks, CSS styling inside the file, animation and external images; convert text to outlines before exporting. A <code>fill</code> in the file is the colour you get; <code>wash-color</code> tints the result like any image.</p>
+%(svg)s
+<h3 id="layers">Layers: blur, drop-shadow, group opacity, backdrop</h3>
+<p>Some effects need the element drawn as one picture first. The engine renders such an element and its children into an offscreen layer (a rectangle of a 4096 px atlas page), applies the effect, and draws the result in place. You never create a layer yourself; these properties do:</p>
+<ul>
+<li><code>filter: blur()</code> and <code>filter: drop-shadow()</code> (combine them with the colour functions; the colour functions run first, inside the layer).</li>
+<li><code>isolation: isolate</code>, and <code>opacity</code> below 1 together with it: the group fades as one picture.</li>
+<li>A page that is entering or leaving a menu stack with <code>opacity</code> below 1 is isolated automatically, so a fading page never shows its overlapping children through each other.</li>
+<li><code>cache: layer</code>: the layer is rendered once and reused until its recorded content changes, and freed after 3 seconds without use. Use it for static, expensive panels (many shadows, gradients, text). It does not notice an image whose pixels change.</li>
+<li><code>backdrop-filter: blur(R)</code> plus colour functions: the element's box shows the blurred scene behind it, clipped to its rounded shape. The blur picks the nearest of three levels (sigma 4, 8 and 16 UI units). Only the scene is blurred, never the UI below.</li>
+</ul>
+%(layers)s
+<p>Limits: <code>clip-path</code> stencil clips inside a layer are ignored, legacy (external) elements inside a layer are skipped, and a layer needs bgfx views (96 per frame) and atlas room; when it cannot be built the element is drawn without the effect and a warning is logged once. <code>backdrop-filter</code> needs the scene colour, which only the main UI pass has (loading screens and world-space UI draw nothing for it). Each 4096 px page is about 64 MB and is created the first time it is needed.</p>
 </section>
 
 <section id="motion"><h2>9. Motion <span class="badge core">Core</span></h2>%(motion)s
@@ -742,6 +789,14 @@ BODY = """
 %(events_t)s
 <p>A name resolves in this order: a handler registered with <code>On(name)</code> on the element or the nearest ancestor that has one, then a built-in action, otherwise an "unhandled action" warning (once). Unknown names are reported when the page loads, not only on click.</p>
 <h3>Built-in actions</h3>%(actions_t)s
+<h3 id="dragdrop">Drag and drop</h3>
+<p>Mark an element <code>draggable="true"</code> and the places it can land <code>droptarget="true"</code>. The pointer starts a drag after moving 6 px (a press that moves less is still a click); a translucent ghost of the element follows the pointer, and the source has the <code>:dragging</code> state. With a gamepad, confirm on a draggable picks it up (the ghost follows focus), confirm on a drop target drops it, and cancel aborts. A drag over a scroll container does not scroll it.</p>
+<p>Events: <code>ondragstart</code> on the source; <code>ondragenter</code>, <code>ondragleave</code> and <code>ondrop</code> on the target (<code>dragleave</code> also fires just before <code>drop</code>, so a style that marks the hovered target is cleared before the drop runs).</p>
+%(dragdrop)s
+%(dragcode)s
+<h3 id="contextmenu">Context menus</h3>
+<p><code>oncontextmenu</code> fires on the element under the pointer (or its nearest ancestor that has the event) for a right mouse click, a 0.5 s touch hold, or the <code>ui_context</code> action (gamepad: the focused element). A game binds <code>ui_context</code> to the right mouse button and a gamepad button. The built-in action <code>ContextMenu('page.xml')</code> pushes a page on the stack and moves its element with class <code>context-menu</code> to where the request happened. Make the page <code>shows-below</code> so the screen stays visible.</p>
+%(context)s
 <p>Selectors in actions are <code>#id</code> or an id path (<code>#row/label</code>). <code>Push</code>, <code>Back</code>, <code>Replace</code>, <code>Pop</code>, <code>Clear</code> act on <em>the stack the element is on</em>; <code>PushMenu</code> always uses the main stack.</p>
 <h3>Code-behind</h3>%(codebehind)s
 %(tagreg)s
@@ -798,6 +853,7 @@ BODY = """
 <li><b>UI Studio</b> (<code>source/UiStudio</code>): a Qt editor that runs the real game inside it. Page tree, properties, visual edits that write back to the XML, preview with the game's own renderer, test runner.</li>
 <li><b>VS Code extension</b> (<code>Tools/ui-vscode</code>): colouring, completion, hover, diagnostics, go-to-definition for the XML and the CSS dialect. It reads the game's <code>SaveData/UIStudio/uidb.json</code>, the catalogue this page is made from.</li>
 <li><b>Console</b>: %(console)s</li>
+<li><b>Picking</b>: <code>ui_pick</code> in a running game writes the element under the pointer to <code>SaveData/ui_pick.json</code> (<code>path</code>, <code>file</code>, <code>line</code>, <code>col</code>, <code>id</code>, <code>ref</code>); UI Studio watches the file and selects the node. <code>ui_pick_at x y</code> does the same for a point, and is what the Studio runtime bridge uses.</li>
 <li><b>Test scripts</b> (<code>.uitest</code>, run with <code>-ui_test</code> or <code>Tools/ui/run_ui_tests.py</code> on each graphics backend):</li></ul>
 %(uitest)s
 <p>Commands: %(testcmds)s</p>
@@ -869,7 +925,7 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 """
 
 NAV = [("Core", [("overview", "Overview"), ("structure", "File structure"), ("elements", "Elements"), ("richtext", "Text and rich text"), ("vars", "Variables, localisation"), ("styles", "Styles"), ("layout", "Layout, scrolling"),
-                 ("painting", "Painting"), ("motion", "Motion"), ("events", "Events, code-behind"), ("components", "Components"), ("menus", "Menu stack, input"), ("binding", "Settings binding"), ("hot", "Hot reload"), ("tooling", "Tools")]),
+                 ("painting", "Painting"), ("svg", "SVG icons"), ("layers", "Layers, effects"), ("motion", "Motion"), ("events", "Events, code-behind"), ("components", "Components"), ("menus", "Menu stack, input"), ("binding", "Settings binding"), ("hot", "Hot reload"), ("tooling", "Tools")]),
        ("Kit", [("kit-use", "Using the kit"), ("kit-components", "Components"), ("kit-pages", "Pages"), ("kit-settings", "Settings")]),
        ("Appendix", [("tags-ref", "CSS properties")])]
 

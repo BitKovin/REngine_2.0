@@ -118,6 +118,113 @@ uint64_t UiPainter::StateFor(const UiPainterFx& fx) const
     return UiGpu::StateForBlend(static_cast<int>(fx.Blend));
 }
 
+void UiPainter::PushLayer(const UiRender::LayerSpec& spec)
+{
+    LayerFrame frame;
+    frame.Begin = m_list.BeginLayer(spec);
+    frame.Fx = m_fx;
+    frame.Clips = m_clips;
+    m_layerStack.push_back(std::move(frame));
+    m_fx = UiPainterFx();
+    m_clips.clear();
+}
+
+void UiPainter::PopLayer(float opacity, UiBlendMode blend)
+{
+    if (m_layerStack.empty())
+        return;
+    LayerFrame frame = std::move(m_layerStack.back());
+    m_layerStack.pop_back();
+    m_fx = frame.Fx;
+    m_clips = frame.Clips;
+
+    const int layerIndex = m_list.Items()[frame.Begin].Layer;
+    const float reach = m_list.Layers()[layerIndex].Reach();
+    const glm::vec4 b = m_list.LayerContentBounds(frame.Begin);
+    if (b.x >= b.z || b.y >= b.w)
+    {
+        Vertex none[4] = {};
+        m_list.EndLayer(frame.Begin, BatchKey(), none);   // nothing was recorded: drops the marker
+        return;
+    }
+    const float x0 = b.x - reach, y0 = b.y - reach, x1 = b.z + reach, y1 = b.w + reach;
+
+    UiPainterFx composite = m_fx;
+    composite.Pixelated = false;
+    if (blend != UiBlendMode::Normal)
+        composite.Blend = blend;
+    const UiPainterFx outer = m_fx;
+    m_fx = composite;
+
+    PrimBlock block;
+    block.SetKind(PrimKind::Image);
+    block.AddFlag(kFlagPremulTexture);
+    block.T[1] = glm::vec4(opacity);
+    block.T[2] = glm::vec4(x1 - x0, y1 - y0, 1.f, 0.f);
+    ApplyClip(block);
+    ApplyFx(block, false);
+    const int prim = m_list.AddPrim(block);
+
+    BatchKey key;
+    key.State = StateFor(m_fx);
+    key.StencilRef = UiRenderer::CurrentMaskDepth();
+    m_fx = outer;
+
+    const float xs[4] = { x0, x1, x1, x0 };
+    const float ys[4] = { y0, y0, y1, y1 };
+    Vertex v[4];
+    for (int i = 0; i < 4; ++i)
+        v[i] = { xs[i], ys[i], 0.f, 0.f, 0.f, 0.f, static_cast<float>(prim < 0 ? 0 : prim), 0.f };
+    if (prim < 0)
+        m_list.AbandonLayer(frame.Begin);
+    else
+        m_list.EndLayer(frame.Begin, key, v);
+}
+
+void UiPainter::Backdrop(const UiRect& rectIn, const UiCorners& radii, float sigma, float opacity)
+{
+    UiRect rect = rectIn;
+    if (rect.W <= 0.f || rect.H <= 0.f)
+        return;
+    glm::mat3 m = m_transform;
+    if (IsTranslationOnly())
+    {
+        SnapRect(rect.X + m[2][0], rect.Y + m[2][1], rect.X + rect.W + m[2][0], rect.Y + rect.H + m[2][1], rect.X, rect.Y, rect.W, rect.H);
+        m = glm::mat3(1.f);
+    }
+    const float aa = 1.f / TransformScale(m);
+
+    PrimBlock block;
+    block.SetKind(PrimKind::Box);
+    block.AddFlag(kFlagHasTexture);
+    block.T[1] = glm::vec4(1.f, 1.f, 1.f, opacity);
+    block.T[2] = glm::vec4(rect.W, rect.H, aa, 0.f);
+    block.T[3] = glm::vec4(radii.TopLeft, radii.TopRight, radii.BottomRight, radii.BottomLeft);
+    ApplyClip(block);
+    ApplyFx(block, true);
+    const int prim = m_list.AddPrim(block);
+    if (prim < 0)
+        return;
+
+    const float cx[4] = { -aa, rect.W + aa, rect.W + aa, -aa };
+    const float cy[4] = { -aa, -aa, rect.H + aa, rect.H + aa };
+    Vertex v[4];
+    for (int i = 0; i < 4; ++i)
+    {
+        const glm::vec2 p = Apply(m, rect.X + cx[i], rect.Y + cy[i]);
+        v[i] = { p.x, p.y, 0.f, 0.f, cx[i], cy[i], static_cast<float>(prim), 0.f };
+    }
+    BatchKey key;
+    key.State = StateFor(m_fx);
+    key.StencilRef = UiRenderer::CurrentMaskDepth();
+    UiRender::LayerSpec spec;
+    spec.Backdrop = true;
+    spec.BackdropSigma = sigma;
+    m_list.AddBackdrop(spec, key, v);
+}
+
+float UiPainter::PixelScale() const { return TransformScale(m_transform); }
+
 int UiPainter::AddColorMatrix(const float m[20])
 {
     // texels 0..3: the columns for r, g, b, a (each holds the four output rows); texel 4: the offsets

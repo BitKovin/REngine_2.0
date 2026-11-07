@@ -1,0 +1,21 @@
+# Screenshots of the kit pages for judging the theme: input settings and video settings with a focused control.
+wait 8
+action pause
+wait_frames 10
+console ui_focus psettings
+wait_frames 3
+action ui_confirm
+wait_frames 15
+console ui_focus tabinput
+wait_frames 3
+action ui_confirm
+wait_frames 15
+ui_screenshot look_input
+console ui_focus tabvideo
+wait_frames 3
+action ui_confirm
+wait_frames 15
+console ui_focus windowmode
+wait_frames 10
+ui_screenshot look_video
+quit

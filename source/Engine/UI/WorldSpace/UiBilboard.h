@@ -4,6 +4,7 @@
 #include "../../Renderer/Abstractions/RenderTexture.h"
 #include "../UiContentBox.hpp"
 #include "../UiCanvas.hpp"
+#include "../Render/UiRectAllocator.h"
 
 #include <vector>
 #include <memory>
@@ -31,10 +32,8 @@ public:
 	RenderTexture* GetTexture() const { return texture; }
 
 private:
-	struct FreeRect { int x, y, w, h; };
-
 	RenderTexture* texture = nullptr;
-	std::vector<FreeRect> freeRects;
+	UiRectAllocator allocator;
 };
 
 class UiBillboardAtlasManager

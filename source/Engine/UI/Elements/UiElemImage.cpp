@@ -3,6 +3,7 @@
 #include <AssetRegistry.h>
 #include <Texture.hpp>
 #include <UI/Render/UiImageAtlas.h>
+#include <UI/Render/UiSvg.h>
 
 #include <algorithm>
 
@@ -80,6 +81,8 @@ void UiElemImage::PaintContent(UiPainter& painter, const UiRect& c)
         break;
     }
     }
+    if (!m_standalone && UiSvg::IsSvgPath(m_src))
+        image = UiImageAtlas::Get(m_src, std::max(sw, sh) * painter.PixelScale());   // a drawing is rasterised for the size it is shown at
     const UiBgPos& position = Computed().Fx.ObjectPosition;
     const float ix = c.X + position.X.Px + position.X.Percent * 0.01f * (c.W - sw);
     const float iy = c.Y + position.Y.Px + position.Y.Percent * 0.01f * (c.H - sh);

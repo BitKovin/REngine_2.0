@@ -1,16 +1,19 @@
 {
   "capabilities": {
+    "contextMenu": true,
+    "dragDrop": true,
     "events": true,
     "hudLayers": false,
     "inputPrompts": true,
-    "layers": false,
+    "layers": true,
     "markup": true,
     "menus": true,
     "motion": true,
-    "painting": true
+    "painting": true,
+    "svg": true
   },
   "engine": {
-    "buildId": "Nov  7 2026 21:34:38",
+    "buildId": "Nov  8 2026 00:39:34",
     "previewProtocol": 1,
     "version": "1"
   },
@@ -362,6 +365,27 @@
         {
           "kind": "document",
           "path": "ui/kit/focus_pointer.xml"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Documents",
+      "description": "Layout document",
+      "host": {
+        "kind": "viewport"
+      },
+      "id": "document:ui/kit/pages/confirm.xml",
+      "kind": "document",
+      "name": "ui/kit/pages/confirm.xml",
+      "parameters": [],
+      "requiredCapabilities": [],
+      "scenarios": [],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "ui/kit/pages/confirm.xml"
         }
       ],
       "supportsLiveCapture": false
@@ -950,6 +974,132 @@
         {
           "kind": "document",
           "path": "ui/kit/tests/p4_widgets.xml"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Documents",
+      "description": "Layout document",
+      "host": {
+        "kind": "viewport"
+      },
+      "id": "document:ui/kit/tests/p7_backdrop.xml",
+      "kind": "document",
+      "name": "ui/kit/tests/p7_backdrop.xml",
+      "parameters": [],
+      "requiredCapabilities": [],
+      "scenarios": [],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "ui/kit/tests/p7_backdrop.xml"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Documents",
+      "description": "Layout document",
+      "host": {
+        "kind": "viewport"
+      },
+      "id": "document:ui/kit/tests/p7_cache.xml",
+      "kind": "document",
+      "name": "ui/kit/tests/p7_cache.xml",
+      "parameters": [],
+      "requiredCapabilities": [],
+      "scenarios": [],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "ui/kit/tests/p7_cache.xml"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Documents",
+      "description": "Layout document",
+      "host": {
+        "kind": "viewport"
+      },
+      "id": "document:ui/kit/tests/p7_ctx.xml",
+      "kind": "document",
+      "name": "ui/kit/tests/p7_ctx.xml",
+      "parameters": [],
+      "requiredCapabilities": [],
+      "scenarios": [],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "ui/kit/tests/p7_ctx.xml"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Documents",
+      "description": "Layout document",
+      "host": {
+        "kind": "viewport"
+      },
+      "id": "document:ui/kit/tests/p7_dragdrop.xml",
+      "kind": "document",
+      "name": "ui/kit/tests/p7_dragdrop.xml",
+      "parameters": [],
+      "requiredCapabilities": [],
+      "scenarios": [],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "ui/kit/tests/p7_dragdrop.xml"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Documents",
+      "description": "Layout document",
+      "host": {
+        "kind": "viewport"
+      },
+      "id": "document:ui/kit/tests/p7_layers.xml",
+      "kind": "document",
+      "name": "ui/kit/tests/p7_layers.xml",
+      "parameters": [],
+      "requiredCapabilities": [],
+      "scenarios": [],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "ui/kit/tests/p7_layers.xml"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Documents",
+      "description": "Layout document",
+      "host": {
+        "kind": "viewport"
+      },
+      "id": "document:ui/kit/tests/p7_svg.xml",
+      "kind": "document",
+      "name": "ui/kit/tests/p7_svg.xml",
+      "parameters": [],
+      "requiredCapabilities": [],
+      "scenarios": [],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "ui/kit/tests/p7_svg.xml"
         }
       ],
       "supportsLiveCapture": false
@@ -1603,7 +1753,8 @@
       "name": "Effect-bearing element",
       "parameters": [],
       "requiredCapabilities": [
-        "painting"
+        "painting",
+        "layers"
       ],
       "scenarios": [
         {
@@ -1655,12 +1806,232 @@
             "style": "transition: transform 0.4s ease",
             "timeline": "enter"
           }
+        },
+        {
+          "id": "blurred",
+          "label": "Blurred",
+          "values": {
+            "style": "filter: blur(4px)"
+          }
+        },
+        {
+          "id": "drop-shadow",
+          "label": "Drop shadow",
+          "values": {
+            "style": "filter: drop-shadow(8px 8px 4px rgba(0,0,0,0.7))"
+          }
+        },
+        {
+          "id": "glow",
+          "label": "Glow",
+          "values": {
+            "style": "filter: drop-shadow(0px 0px 16px #00ff00)"
+          }
+        },
+        {
+          "id": "group-opacity",
+          "label": "Group opacity",
+          "values": {
+            "style": "opacity: 0.5; isolation: isolate"
+          }
+        },
+        {
+          "id": "backdrop",
+          "label": "Backdrop blur",
+          "values": {
+            "needsScene": true,
+            "style": "backdrop-filter: blur(8px)"
+          }
+        },
+        {
+          "id": "cached",
+          "label": "Cached layer",
+          "values": {
+            "style": "cache: layer; box-shadow: 0 4px 12px 0 #000000"
+          }
         }
       ],
       "sourceRefs": [
         {
           "kind": "code",
           "path": "source/Engine/UI/Render/UiBoxPainter.cpp"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Painting",
+      "description": "The same drawing as an Image and as a background-image at several sizes; each is rasterised for the size it is shown at.",
+      "host": {
+        "kind": "viewport"
+      },
+      "id": "engine.image.svg",
+      "kind": "element",
+      "name": "SVG icon",
+      "parameters": [],
+      "requiredCapabilities": [
+        "painting",
+        "svg"
+      ],
+      "scenarios": [
+        {
+          "id": "sizes",
+          "label": "Three sizes",
+          "values": {
+            "style": ""
+          }
+        }
+      ],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "GameData/ui/kit/tests/p7_svg.xml"
+        },
+        {
+          "kind": "asset",
+          "path": "GameData/ui/kit/tests/p7_icon.svg"
+        },
+        {
+          "kind": "code",
+          "path": "source/Engine/UI/Render/UiSvg.cpp"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Menus/Input",
+      "description": "A page pushed on the menu stack at the pointer by oncontextmenu (right click, touch hold or ui_context).",
+      "host": {
+        "kind": "menu-stack"
+      },
+      "id": "engine.interaction.context-menu",
+      "kind": "element",
+      "name": "Context menu",
+      "parameters": [],
+      "requiredCapabilities": [
+        "events",
+        "menus",
+        "contextMenu"
+      ],
+      "scenarios": [
+        {
+          "id": "closed",
+          "label": "Closed",
+          "values": {
+            "state": "idle"
+          }
+        },
+        {
+          "id": "at-pointer",
+          "label": "At the pointer",
+          "values": {
+            "input": [
+              "mouse_move",
+              "ui_context"
+            ],
+            "state": "open"
+          }
+        }
+      ],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "GameData/ui/kit/tests/p7_ctx.xml"
+        },
+        {
+          "kind": "code",
+          "path": "source/Engine/UI/UiDragDrop.cpp"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Menus/Input",
+      "description": "An item dragged between two slots by pointer and by gamepad (pick up, move focus, drop, abort); the handlers only change classes.",
+      "host": {
+        "kind": "viewport"
+      },
+      "id": "engine.interaction.drag-drop",
+      "kind": "element",
+      "name": "Drag and drop",
+      "parameters": [],
+      "requiredCapabilities": [
+        "events",
+        "dragDrop"
+      ],
+      "scenarios": [
+        {
+          "id": "idle",
+          "label": "Idle",
+          "values": {
+            "state": "idle"
+          }
+        },
+        {
+          "id": "pointer-drag",
+          "label": "Pointer drag over a slot",
+          "values": {
+            "input": [
+              "mouse_move",
+              "mouse_down",
+              "mouse_move",
+              "mouse_move"
+            ],
+            "state": "dragging"
+          }
+        },
+        {
+          "id": "pointer-drop",
+          "label": "Pointer drop",
+          "values": {
+            "input": [
+              "mouse_move",
+              "mouse_down",
+              "mouse_move",
+              "mouse_move",
+              "mouse_up"
+            ],
+            "state": "dropped"
+          }
+        },
+        {
+          "id": "gamepad-drop",
+          "label": "Gamepad pick up and drop",
+          "values": {
+            "device": "gamepad",
+            "input": [
+              "ui_confirm",
+              "ui_right",
+              "ui_confirm"
+            ],
+            "state": "dropped"
+          }
+        },
+        {
+          "id": "gamepad-abort",
+          "label": "Gamepad abort",
+          "values": {
+            "device": "gamepad",
+            "input": [
+              "ui_confirm",
+              "ui_right",
+              "ui_cancel"
+            ],
+            "state": "idle"
+          }
+        }
+      ],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "GameData/ui/kit/tests/p7_dragdrop.xml"
+        },
+        {
+          "kind": "code",
+          "path": "source/Engine/UI/UiDragDrop.cpp"
         }
       ],
       "supportsLiveCapture": false
@@ -1987,6 +2358,13 @@
         "name": "Clear"
       },
       {
+        "arguments": "path",
+        "builtin": true,
+        "description": "Pushes a context menu page on the element's menu stack, placed where the context menu was requested",
+        "kind": "action",
+        "name": "ContextMenu"
+      },
+      {
         "arguments": "",
         "builtin": true,
         "description": "On the confirm-changes page: restores the settings the page changed and closes it and the page under it",
@@ -2082,6 +2460,36 @@
         "name": "cancel"
       },
       {
+        "attribute": "oncontextmenu",
+        "description": "A right click, a 0.5 s touch hold or the ui_context action on the element (UiDragDrop::PointerPos() is where)",
+        "kind": "event",
+        "name": "contextmenu"
+      },
+      {
+        "attribute": "ondragenter",
+        "description": "A dragged element entered this drop target",
+        "kind": "event",
+        "name": "dragenter"
+      },
+      {
+        "attribute": "ondragleave",
+        "description": "A dragged element left this drop target",
+        "kind": "event",
+        "name": "dragleave"
+      },
+      {
+        "attribute": "ondragstart",
+        "description": "This draggable element was picked up; set UiElem::DragPayload here",
+        "kind": "event",
+        "name": "dragstart"
+      },
+      {
+        "attribute": "ondrop",
+        "description": "A dragged element was dropped on this drop target",
+        "kind": "event",
+        "name": "drop"
+      },
+      {
         "attribute": "onfocus",
         "description": "The element received navigation focus",
         "kind": "event",
@@ -2115,6 +2523,44 @@
           "reducedMotion": "transitions are instant and infinite animations do not run",
           "time": "real time; also runs while the game is paused"
         }
+      },
+      {
+        "kind": "keyframes",
+        "line": 85,
+        "name": "kit-dropdown-open",
+        "path": "ui/kit/styles/kit.css",
+        "stops": [
+          {
+            "offset": 0.0,
+            "properties": [
+              "opacity",
+              "transform"
+            ]
+          },
+          {
+            "offset": 1.0,
+            "properties": [
+              "opacity",
+              "transform"
+            ]
+          }
+        ],
+        "tracks": [
+          {
+            "offsets": [
+              0.0,
+              1.0
+            ],
+            "property": "opacity"
+          },
+          {
+            "offsets": [
+              0.0,
+              1.0
+            ],
+            "property": "transform"
+          }
+        ]
       },
       {
         "kind": "animatable-property",
@@ -2433,6 +2879,14 @@
         "shorthand": false
       },
       {
+        "grammar": "none | [blur() | brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert()]+",
+        "inherited": false,
+        "initial": "none",
+        "invalidates": "paint",
+        "name": "backdrop-filter",
+        "shorthand": false
+      },
+      {
         "grammar": "<color>",
         "inherited": false,
         "initial": "transparent",
@@ -2721,6 +3175,14 @@
         "shorthand": false
       },
       {
+        "grammar": "none | layer",
+        "inherited": false,
+        "initial": "none",
+        "invalidates": "paint",
+        "name": "cache",
+        "shorthand": false
+      },
+      {
         "grammar": "none | inset() | circle() | ellipse()",
         "inherited": false,
         "initial": "none",
@@ -2737,7 +3199,7 @@
         "shorthand": false
       },
       {
-        "grammar": "none | [brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert()]+",
+        "grammar": "none | [brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert() | blur() | drop-shadow()]+",
         "inherited": false,
         "initial": "none",
         "invalidates": "paint",
@@ -2814,6 +3276,14 @@
         "initial": "auto",
         "invalidates": "paint",
         "name": "image-rendering",
+        "shorthand": false
+      },
+      {
+        "grammar": "auto | isolate",
+        "inherited": false,
+        "initial": "auto",
+        "invalidates": "paint",
+        "name": "isolation",
         "shorthand": false
       },
       {
@@ -3280,6 +3750,15 @@
       {
         "component": false,
         "imports": [],
+        "path": "ui/kit/pages/confirm.xml",
+        "styleSheets": [
+          "ui/theme.css",
+          "ui/kit/styles/kit.css"
+        ]
+      },
+      {
+        "component": false,
+        "imports": [],
         "path": "ui/kit/pages/input.xml",
         "styleSheets": [
           "ui/theme.css",
@@ -3390,6 +3869,24 @@
       },
       {
         "path": "ui/kit/tests/p4_widgets.xml"
+      },
+      {
+        "path": "ui/kit/tests/p7_backdrop.xml"
+      },
+      {
+        "path": "ui/kit/tests/p7_cache.xml"
+      },
+      {
+        "path": "ui/kit/tests/p7_ctx.xml"
+      },
+      {
+        "path": "ui/kit/tests/p7_dragdrop.xml"
+      },
+      {
+        "path": "ui/kit/tests/p7_layers.xml"
+      },
+      {
+        "path": "ui/kit/tests/p7_svg.xml"
       }
     ],
     "easings": [
@@ -3431,6 +3928,51 @@
       }
     ],
     "hosts": [
+      {
+        "action": "ContextMenu",
+        "description": "oncontextmenu fires where the pointer is; the ContextMenu action pushes a page there",
+        "event": "contextmenu",
+        "name": "context-menu",
+        "page": {
+          "host": "menu-stack",
+          "placedElementClass": "context-menu",
+          "shows-below": true
+        },
+        "requiresInput": [
+          "ui_context"
+        ],
+        "triggers": [
+          "right mouse button (ui_context)",
+          "touch hold 0.5 s",
+          "ui_context action (gamepad focus)"
+        ]
+      },
+      {
+        "attributes": [
+          "draggable",
+          "droptarget"
+        ],
+        "description": "Pointer and gamepad drag and drop between elements",
+        "dragThresholdPx": 6,
+        "events": [
+          "dragstart",
+          "dragenter",
+          "dragleave",
+          "drop"
+        ],
+        "gamepad": {
+          "abort": "ui_cancel",
+          "drop": "ui_confirm on a drop target",
+          "pickUp": "ui_confirm on a draggable"
+        },
+        "ghostOpacity": 0.7,
+        "name": "drag-drop",
+        "payload": "C++ only: UiElem::DragPayload (std::any), set in dragstart; never serialized, previews use test data",
+        "pseudoClass": "dragging",
+        "requiresInput": [
+          "pointer or gamepad focus"
+        ]
+      },
       {
         "back": {
           "cancelAction": "ui_cancel",
@@ -3960,6 +4502,22 @@
       },
       {
         "gamepadButtons": [
+          3
+        ],
+        "keys": [],
+        "label": "ui_context",
+        "mouseButtons": [
+          1
+        ],
+        "name": "ui_context",
+        "promptResolvable": {
+          "input-gamepad": true,
+          "input-mouse": true,
+          "input-touch": false
+        }
+      },
+      {
+        "gamepadButtons": [
           12
         ],
         "keys": [
@@ -4292,7 +4850,7 @@
         "requiresLayer": false
       },
       {
-        "available": false,
+        "available": true,
         "backends": [
           "dx11",
           "dx12",
@@ -4301,15 +4859,13 @@
           "gles300"
         ],
         "category": "filter",
-        "description": "Filters what is behind the element",
+        "description": "Blurs the scene colour behind the element (levels of sigma 4, 8 and 16; the nearest one is used) and applies the colour functions; the UI under it is not blurred",
         "kind": "property",
         "name": "backdrop-filter",
-        "parameters": "<filter-list>",
-        "requires": [
-          "layers"
-        ],
-        "requiresLayer": true,
-        "unavailableReason": "needs an offscreen layer pass (not available until layers are implemented); the engine does not approximate it"
+        "parameters": "blur(<length>) | brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert()",
+        "requires": [],
+        "requiresLayer": false,
+        "requiresScene": true
       },
       {
         "available": true,
@@ -4329,7 +4885,7 @@
         "requiresLayer": false
       },
       {
-        "available": false,
+        "available": true,
         "backends": [
           "dx11",
           "dx12",
@@ -4338,15 +4894,12 @@
           "gles300"
         ],
         "category": "filter",
-        "description": "Gaussian blur filter",
+        "description": "Gaussian blur of the element and everything inside it (9 taps, downsampled above sigma 4)",
         "kind": "function",
         "name": "blur()",
         "parameters": "<length>",
-        "requires": [
-          "layers"
-        ],
-        "requiresLayer": true,
-        "unavailableReason": "needs an offscreen layer pass (not available until layers are implemented); the engine does not approximate it"
+        "requires": [],
+        "requiresLayer": false
       },
       {
         "available": true,
@@ -4408,6 +4961,23 @@
           "opengl",
           "gles300"
         ],
+        "category": "layer",
+        "description": "Keeps the rendered layer until its content changes (static content only; texture contents are not watched)",
+        "kind": "property",
+        "name": "cache: layer",
+        "parameters": "none | layer",
+        "requires": [],
+        "requiresLayer": false
+      },
+      {
+        "available": true,
+        "backends": [
+          "dx11",
+          "dx12",
+          "vulkan",
+          "opengl",
+          "gles300"
+        ],
         "category": "clip",
         "description": "inset(), circle() and ellipse() clip shapes",
         "kind": "property",
@@ -4451,7 +5021,7 @@
         "requiresLayer": false
       },
       {
-        "available": false,
+        "available": true,
         "backends": [
           "dx11",
           "dx12",
@@ -4460,15 +5030,12 @@
           "gles300"
         ],
         "category": "filter",
-        "description": "Shadow that follows the alpha of the content",
+        "description": "Shadow that follows the alpha of the content; offset 0 is a glow",
         "kind": "function",
         "name": "drop-shadow()",
         "parameters": "<x> <y> [blur] <color>",
-        "requires": [
-          "layers"
-        ],
-        "requiresLayer": true,
-        "unavailableReason": "needs an offscreen layer pass (not available until layers are implemented); the engine does not approximate it"
+        "requires": [],
+        "requiresLayer": false
       },
       {
         "available": true,
@@ -4537,6 +5104,39 @@
         "parameters": "<number | percentage>",
         "requires": [],
         "requiresLayer": false
+      },
+      {
+        "available": true,
+        "backends": [
+          "dx11",
+          "dx12",
+          "vulkan",
+          "opengl",
+          "gles300"
+        ],
+        "category": "layer",
+        "description": "Renders the element and its subtree as one picture, so opacity and blend apply to the group",
+        "kind": "value",
+        "name": "isolation: isolate",
+        "parameters": "auto | isolate",
+        "requires": [],
+        "requiresLayer": false
+      },
+      {
+        "atlasPageSize": 4096,
+        "cacheFreeAfterSeconds": 3,
+        "category": "layer",
+        "description": "Layer atlas limits and unsupported combinations",
+        "kind": "limits",
+        "maxPages": 4,
+        "name": "layer-limits",
+        "requiresPreviewTarget": "offscreen render targets; backdrop-filter also needs the scene colour (scene views and the main UI pass have it, loading screens and world-space UI do not)",
+        "unsupported": [
+          "stencil clips inside a layer are ignored",
+          "external (legacy) elements inside a layer are skipped",
+          "cache: layer does not notice a texture whose pixels change"
+        ],
+        "viewBudgetPerFrame": 96
       },
       {
         "available": true,
@@ -4641,7 +5241,7 @@
         "requiresLayer": false
       },
       {
-        "available": false,
+        "available": true,
         "backends": [
           "dx11",
           "dx12",
@@ -4650,15 +5250,12 @@
           "gles300"
         ],
         "category": "layer",
-        "description": "Opacity of an element as a whole (overlapping children do not show through)",
+        "description": "Opacity below 1 with isolation: isolate, and on every fading page: overlapping children do not show through",
         "kind": "property",
         "name": "opacity (group)",
         "parameters": "<number>",
-        "requires": [
-          "layers"
-        ],
-        "requiresLayer": true,
-        "unavailableReason": "needs an offscreen layer pass (not available until layers are implemented); the engine does not approximate it"
+        "requires": [],
+        "requiresLayer": false
       },
       {
         "available": true,
@@ -4780,6 +5377,28 @@
         "requiresLayer": false
       },
       {
+        "category": "image",
+        "description": "SVG files are rasterised by nanosvg for the size they are drawn at (Image, background-image, border-image)",
+        "kind": "limits",
+        "layoutSize": "the drawing's own width and height (96 dpi px); the raster size never changes layout",
+        "name": "svg-images",
+        "rasterBuckets": [
+          16,
+          32,
+          64,
+          128,
+          256,
+          512
+        ],
+        "supported": [
+          "paths, shapes, solid and gradient fills, strokes, transforms, groups"
+        ],
+        "unit": "longer side in device pixels; each bucket is cached separately",
+        "unsupported": [
+          "text, filters, masks, CSS styling, animation, external images"
+        ]
+      },
+      {
         "available": true,
         "backends": [
           "dx11",
@@ -4874,6 +5493,9 @@
       },
       {
         "name": "disabled"
+      },
+      {
+        "name": "dragging"
       },
       {
         "name": "entering"
@@ -5229,6 +5851,62 @@
             "required": false,
             "type": "actions",
             "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
+            "required": false,
+            "type": "actions",
+            "variables": false
           }
         ],
         "category": "input",
@@ -5426,6 +6104,62 @@
             "default": "",
             "description": "Calls run once after the element's first layout",
             "name": "onload",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
             "required": false,
             "type": "actions",
             "variables": false
@@ -5663,6 +6397,62 @@
             "variables": false
           },
           {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
             "default": "",
             "description": "Input action that activates the button while its page is on top",
             "name": "hotkey",
@@ -5874,6 +6664,62 @@
             "default": "",
             "description": "Calls run once after the element's first layout",
             "name": "onload",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
             "required": false,
             "type": "actions",
             "variables": false
@@ -6098,6 +6944,62 @@
             "default": "",
             "description": "Calls run once after the element's first layout",
             "name": "onload",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
             "required": false,
             "type": "actions",
             "variables": false
@@ -6343,6 +7245,62 @@
             "variables": false
           },
           {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
             "default": "",
             "description": "Layout file; changing it rebuilds the content",
             "name": "src",
@@ -6559,6 +7517,62 @@
             "variables": false
           },
           {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
             "default": "",
             "description": "GameData-relative texture path",
             "name": "src",
@@ -6767,6 +7781,62 @@
             "variables": false
           },
           {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
             "default": "",
             "description": "Input action name",
             "name": "action",
@@ -6970,6 +8040,62 @@
             "default": "",
             "description": "Calls run once after the element's first layout",
             "name": "onload",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
             "required": false,
             "type": "actions",
             "variables": false
@@ -7186,6 +8312,62 @@
             "default": "",
             "description": "Calls run once after the element's first layout",
             "name": "onload",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
             "required": false,
             "type": "actions",
             "variables": false
@@ -7431,6 +8613,62 @@
             "variables": false
           },
           {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
             "default": "",
             "description": "GameData-relative video path",
             "name": "src",
@@ -7661,6 +8899,62 @@
             "required": false,
             "type": "actions",
             "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
+            "required": false,
+            "type": "actions",
+            "variables": false
           }
         ],
         "category": "layout",
@@ -7858,6 +9152,62 @@
             "default": "",
             "description": "Calls run once after the element's first layout",
             "name": "onload",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
             "required": false,
             "type": "actions",
             "variables": false
@@ -8074,6 +9424,62 @@
             "default": "",
             "description": "Calls run once after the element's first layout",
             "name": "onload",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
             "required": false,
             "type": "actions",
             "variables": false
@@ -8311,6 +9717,62 @@
             "variables": false
           },
           {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
             "default": "",
             "description": "Shader name",
             "name": "shader",
@@ -8522,6 +9984,62 @@
             "default": "",
             "description": "Calls run once after the element's first layout",
             "name": "onload",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
             "required": false,
             "type": "actions",
             "variables": false
@@ -8767,6 +10285,62 @@
             "variables": false
           },
           {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
             "default": "",
             "description": "Button text",
             "name": "text",
@@ -8986,6 +10560,62 @@
             "default": "",
             "description": "Calls run once after the element's first layout",
             "name": "onload",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
             "required": false,
             "type": "actions",
             "variables": false
@@ -9226,6 +10856,62 @@
             "default": "",
             "description": "Calls run once after the element's first layout",
             "name": "onload",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
             "required": false,
             "type": "actions",
             "variables": false
@@ -10280,6 +11966,9 @@
         "name": "anim_seek"
       },
       {
+        "name": "backdrop_scene"
+      },
+      {
         "name": "click"
       },
       {
@@ -10296,6 +11985,9 @@
       },
       {
         "name": "expect_exists"
+      },
+      {
+        "name": "expect_layers"
       },
       {
         "name": "expect_missing"
@@ -10326,6 +12018,9 @@
       },
       {
         "name": "focus_trap"
+      },
+      {
+        "name": "layer_mark"
       },
       {
         "name": "log"
@@ -10453,6 +12148,10 @@
       {
         "kind": "custom-property",
         "name": "--kit-focus"
+      },
+      {
+        "kind": "custom-property",
+        "name": "--kit-focus-border"
       },
       {
         "kind": "custom-property",

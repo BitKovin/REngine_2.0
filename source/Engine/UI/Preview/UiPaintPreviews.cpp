@@ -64,11 +64,29 @@ void UiPaintPreviews::FillRegistries(Registries& r)
     Effect(r, "transition", "motion", "property", "Interpolates changed properties over time", "<property> <duration> <timing-function> <delay>");
     Effect(r, "animation", "motion", "property", "Plays @keyframes", "<name> <duration> <timing-function> <delay> <iteration-count> <direction> <fill-mode>");
 
-    const char* layers = "needs an offscreen layer pass (not available until layers are implemented); the engine does not approximate it";
-    Effect(r, "blur()", "filter", "function", "Gaussian blur filter", "<length>", false, layers);
-    Effect(r, "drop-shadow()", "filter", "function", "Shadow that follows the alpha of the content", "<x> <y> [blur] <color>", false, layers);
-    Effect(r, "backdrop-filter", "filter", "property", "Filters what is behind the element", "<filter-list>", false, layers);
-    Effect(r, "opacity (group)", "layer", "property", "Opacity of an element as a whole (overlapping children do not show through)", "<number>", false, layers);
+    // Offscreen layers (phase 7): a layer is a rectangle of a 4096 px RGBA8 atlas page; the effects run as passes before the UI pass.
+    Effect(r, "blur()", "filter", "function", "Gaussian blur of the element and everything inside it (9 taps, downsampled above sigma 4)", "<length>");
+    Effect(r, "drop-shadow()", "filter", "function", "Shadow that follows the alpha of the content; offset 0 is a glow", "<x> <y> [blur] <color>");
+    Effect(r, "isolation: isolate", "layer", "value", "Renders the element and its subtree as one picture, so opacity and blend apply to the group", "auto | isolate");
+    Effect(r, "opacity (group)", "layer", "property", "Opacity below 1 with isolation: isolate, and on every fading page: overlapping children do not show through", "<number>");
+    Effect(r, "cache: layer", "layer", "property", "Keeps the rendered layer until its content changes (static content only; texture contents are not watched)", "none | layer");
+    Effect(r, "backdrop-filter", "filter", "property",
+           "Blurs the scene colour behind the element (levels of sigma 4, 8 and 16; the nearest one is used) and applies the colour functions; the UI under it is not blurred",
+           "blur(<length>) | brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert()");
+    r["paintEffects"]["backdrop-filter"]["requiresScene"] = true;
+    r["paintEffects"]["layer-limits"] = json{ { "name", "layer-limits" }, { "kind", "limits" }, { "category", "layer" },
+        { "description", "Layer atlas limits and unsupported combinations" },
+        { "atlasPageSize", 4096 }, { "maxPages", 4 }, { "cacheFreeAfterSeconds", 3 }, { "viewBudgetPerFrame", 96 },
+        { "unsupported", json::array({ "stencil clips inside a layer are ignored", "external (legacy) elements inside a layer are skipped",
+                                       "cache: layer does not notice a texture whose pixels change" }) },
+        { "requiresPreviewTarget", "offscreen render targets; backdrop-filter also needs the scene colour (scene views and the main UI pass have it, loading screens and world-space UI do not)" } };
+
+    r["paintEffects"]["svg-images"] = json{ { "name", "svg-images" }, { "kind", "limits" }, { "category", "image" },
+        { "description", "SVG files are rasterised by nanosvg for the size they are drawn at (Image, background-image, border-image)" },
+        { "rasterBuckets", json::array({ 16, 32, 64, 128, 256, 512 }) }, { "unit", "longer side in device pixels; each bucket is cached separately" },
+        { "supported", json::array({ "paths, shapes, solid and gradient fills, strokes, transforms, groups" }) },
+        { "unsupported", json::array({ "text, filters, masks, CSS styling, animation, external images" }) },
+        { "layoutSize", "the drawing's own width and height (96 dpi px); the raster size never changes layout" } };
 
     // easing functions and animatable properties
     for (const char* e : UiAnimation::EasingFunctions())
@@ -92,7 +110,7 @@ void UiPaintPreviews::AddRecipes()
     effects.Description = "A box with the style of each effect family applied, drawn by the engine painter and shaders.";
     effects.Kind = "element";
     effects.HostKind = "viewport";
-    effects.RequiredCapabilities = { "painting" };
+    effects.RequiredCapabilities = { "painting", "layers" };
     effects.SourceRefs.push_back({ "code", "source/Engine/UI/Render/UiBoxPainter.cpp" });
     effects.Scenarios.push_back(Scenario("baseline", "Baseline", { { "style", "" } }));
     effects.Scenarios.push_back(Scenario("transformed", "Transformed", { { "style", "transform: rotate(15deg) scale(1.1)" } }));
@@ -101,6 +119,12 @@ void UiPaintPreviews::AddRecipes()
     effects.Scenarios.push_back(Scenario("clipped", "Clipped", { { "style", "clip-path: circle(40% at 50% 50%)" } }));
     effects.Scenarios.push_back(Scenario("masked", "Masked", { { "style", "mask-image: linear-gradient(to bottom, #000, transparent)" } }));
     effects.Scenarios.push_back(Scenario("animated", "Animated", { { "style", "transition: transform 0.4s ease" }, { "timeline", "enter" } }));
+    effects.Scenarios.push_back(Scenario("blurred", "Blurred", { { "style", "filter: blur(4px)" } }));
+    effects.Scenarios.push_back(Scenario("drop-shadow", "Drop shadow", { { "style", "filter: drop-shadow(8px 8px 4px rgba(0,0,0,0.7))" } }));
+    effects.Scenarios.push_back(Scenario("glow", "Glow", { { "style", "filter: drop-shadow(0px 0px 16px #00ff00)" } }));
+    effects.Scenarios.push_back(Scenario("group-opacity", "Group opacity", { { "style", "opacity: 0.5; isolation: isolate" } }));
+    effects.Scenarios.push_back(Scenario("backdrop", "Backdrop blur", { { "style", "backdrop-filter: blur(8px)" }, { "needsScene", true } }));
+    effects.Scenarios.push_back(Scenario("cached", "Cached layer", { { "style", "cache: layer; box-shadow: 0 4px 12px 0 #000000" } }));
     UiPreviewRegistry::RegisterRecipe(effects);
 
     // A deterministic animation timeline: Studio pauses the motion clock (anim_pause) and scrubs it (anim_seek); the interpolation is UiAnimation's.
@@ -136,4 +160,50 @@ void UiPaintPreviews::AddRecipes()
     timeline.AnimationScenarios.push_back(Scenario("interrupted", "Interrupted at mid-point", { { "time", 0.5 }, { "relative", true }, { "interrupt", true } }));
     timeline.AnimationScenarios.push_back(Scenario("retargeted", "Re-targeted while running", { { "time", 0.5 }, { "relative", true }, { "retarget", true } }));
     UiPreviewRegistry::RegisterRecipe(timeline);
+
+    UiPreviewDescriptor svg;
+    svg.Id = "engine.image.svg";
+    svg.Name = "SVG icon";
+    svg.Category = "Painting";
+    svg.Description = "The same drawing as an Image and as a background-image at several sizes; each is rasterised for the size it is shown at.";
+    svg.Kind = "element";
+    svg.HostKind = "viewport";
+    svg.RequiredCapabilities = { "painting", "svg" };
+    svg.SourceRefs.push_back({ "document", "GameData/ui/kit/tests/p7_svg.xml" });
+    svg.SourceRefs.push_back({ "asset", "GameData/ui/kit/tests/p7_icon.svg" });
+    svg.SourceRefs.push_back({ "code", "source/Engine/UI/Render/UiSvg.cpp" });
+    svg.Scenarios.push_back(Scenario("sizes", "Three sizes", { { "style", "" } }));
+    UiPreviewRegistry::RegisterRecipe(svg);
+
+    // Drag and drop and context menus. The fixture documents carry test data only; no inventory or game object is ever the payload.
+    UiPreviewDescriptor drag;
+    drag.Id = "engine.interaction.drag-drop";
+    drag.Name = "Drag and drop";
+    drag.Category = "Menus/Input";
+    drag.Description = "An item dragged between two slots by pointer and by gamepad (pick up, move focus, drop, abort); the handlers only change classes.";
+    drag.Kind = "element";
+    drag.HostKind = "viewport";
+    drag.RequiredCapabilities = { "events", "dragDrop" };
+    drag.SourceRefs.push_back({ "document", "GameData/ui/kit/tests/p7_dragdrop.xml" });
+    drag.SourceRefs.push_back({ "code", "source/Engine/UI/UiDragDrop.cpp" });
+    drag.Scenarios.push_back(Scenario("idle", "Idle", { { "state", "idle" } }));
+    drag.Scenarios.push_back(Scenario("pointer-drag", "Pointer drag over a slot", { { "state", "dragging" }, { "input", json::array({ "mouse_move", "mouse_down", "mouse_move", "mouse_move" }) } }));
+    drag.Scenarios.push_back(Scenario("pointer-drop", "Pointer drop", { { "state", "dropped" }, { "input", json::array({ "mouse_move", "mouse_down", "mouse_move", "mouse_move", "mouse_up" }) } }));
+    drag.Scenarios.push_back(Scenario("gamepad-drop", "Gamepad pick up and drop", { { "state", "dropped" }, { "device", "gamepad" }, { "input", json::array({ "ui_confirm", "ui_right", "ui_confirm" }) } }));
+    drag.Scenarios.push_back(Scenario("gamepad-abort", "Gamepad abort", { { "state", "idle" }, { "device", "gamepad" }, { "input", json::array({ "ui_confirm", "ui_right", "ui_cancel" }) } }));
+    UiPreviewRegistry::RegisterRecipe(drag);
+
+    UiPreviewDescriptor context;
+    context.Id = "engine.interaction.context-menu";
+    context.Name = "Context menu";
+    context.Category = "Menus/Input";
+    context.Description = "A page pushed on the menu stack at the pointer by oncontextmenu (right click, touch hold or ui_context).";
+    context.Kind = "element";
+    context.HostKind = "menu-stack";
+    context.RequiredCapabilities = { "events", "menus", "contextMenu" };
+    context.SourceRefs.push_back({ "document", "GameData/ui/kit/tests/p7_ctx.xml" });
+    context.SourceRefs.push_back({ "code", "source/Engine/UI/UiDragDrop.cpp" });
+    context.Scenarios.push_back(Scenario("closed", "Closed", { { "state", "idle" } }));
+    context.Scenarios.push_back(Scenario("at-pointer", "At the pointer", { { "state", "open" }, { "input", json::array({ "mouse_move", "ui_context" }) } }));
+    UiPreviewRegistry::RegisterRecipe(context);
 }

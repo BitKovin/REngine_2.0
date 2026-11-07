@@ -179,6 +179,33 @@ namespace
         Emit("UiDumpJson", "tree", UiInspect::TreeJson(depth));
     }
 
+    // The lightweight editor link: SaveData/ui_pick.json {path, line, col, id, file, ref} names the picked element's source position, for
+    // an editor that has no runtime bridge. UI Studio watches it too and selects the node.
+    void WritePickFile(const json& result)
+    {
+        if (!result.value("hit", false))
+            return;
+        const json& e = result["element"];
+        json out = { { "path", e["path"] }, { "file", e["file"] }, { "line", e["line"] }, { "col", e["col"] }, { "ref", e["ref"] } };
+        if (e.contains("id"))
+            out["id"] = e["id"];
+        else
+            out["id"] = "";
+        if (!FileSystemEngine::WriteFile("SaveData/ui_pick.json", out.dump()))
+            Logger::Error("[UiPick] cannot write SaveData/ui_pick.json");
+    }
+
+    void ReportPick(const json& result, const std::string& where)
+    {
+        Emit("UiPickFile", "pick", result);
+        WritePickFile(result);
+        if (result.value("hit", false))
+            Logger::Log("[UiPick] %s  %s:%d:%d", result["element"]["path"].get<std::string>().c_str(), result["element"]["file"].get<std::string>().c_str(),
+                        result["element"]["line"].get<int>(), result["element"]["col"].get<int>());
+        else
+            Logger::Log("[UiPick] nothing at %s", where.c_str());
+    }
+
     void CmdPickAt(const std::vector<std::string>& args)
     {
         if (args.size() < 2)
@@ -186,13 +213,20 @@ namespace
             Logger::Log("usage: ui_pick_at <x> <y>   (UI units)");
             return;
         }
-        const json result = UiInspect::PickAt(static_cast<float>(std::atof(args[0].c_str())), static_cast<float>(std::atof(args[1].c_str())));
-        Emit("UiPickFile", "pick", result);
-        if (result.value("hit", false))
-            Logger::Log("[UiPick] %s  %s:%d:%d", result["element"]["path"].get<std::string>().c_str(), result["element"]["file"].get<std::string>().c_str(),
-                        result["element"]["line"].get<int>(), result["element"]["col"].get<int>());
-        else
-            Logger::Log("[UiPick] nothing at %s,%s", args[0].c_str(), args[1].c_str());
+        ReportPick(UiInspect::PickAt(static_cast<float>(std::atof(args[0].c_str())), static_cast<float>(std::atof(args[1].c_str()))), args[0] + "," + args[1]);
+    }
+
+    // ui_pick: the element under the pointer right now (a bound key or the console), written to SaveData/ui_pick.json.
+    void CmdPick(const std::vector<std::string>&)
+    {
+        const auto mouse = Input::TouchActions.find(1);
+        if (mouse == Input::TouchActions.end())
+        {
+            Logger::Log("[UiPick] no pointer");
+            return;
+        }
+        const glm::vec2 p = mouse->second.position;
+        ReportPick(UiInspect::PickAt(p.x, p.y), std::to_string(static_cast<int>(p.x)) + "," + std::to_string(static_cast<int>(p.y)));
     }
 
     // Lets a remote tool play the page: pointer and named actions, one frame each, exactly like the scripted tests do.
@@ -262,6 +296,7 @@ nlohmann::json UiInspect::ElementRef(const UiElem& e)
     j["file"] = e.ScopeFile;
     j["line"] = e.SrcLine;
     j["col"] = e.SrcCol;
+    j["ref"] = e.ScopeFile + ":" + std::to_string(e.SrcLine) + ":" + std::to_string(e.SrcCol);   // the stable source reference
     return j;
 }
 
@@ -385,6 +420,7 @@ void UiInspect::RegisterConsoleCommands()
 {
     Console& console = Console::Get();
     console.RegisterCommand({ "ui_dump_json", "ui_dump_json [depth] - logs the markup trees as one JSON document", CmdDumpJson });
+    console.RegisterCommand({ "ui_pick", "ui_pick - writes the element under the pointer to SaveData/ui_pick.json {path, line, col, id, file, ref} (UI Studio follows it)", CmdPick });
     console.RegisterCommand({ "ui_pick_at", "ui_pick_at <x> <y> - logs the element under a UI-unit point with its source position", CmdPickAt });
     console.RegisterCommand({ "ui_mouse", "ui_mouse move|down <x> <y> | up | off - plays the pointer in UI units (used by remote tools)", CmdMouse });
     console.RegisterCommand({ "ui_action", "ui_action <name> - presses a named input action for one frame (used by remote tools)", CmdAction });

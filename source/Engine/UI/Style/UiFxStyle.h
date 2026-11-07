@@ -100,11 +100,14 @@ struct UiShadow
 };
 
 // ── filters (colour matrices)
-enum class UiFilterType { Brightness, Contrast, Saturate, Grayscale, Sepia, HueRotate, Invert };
+// Blur and DropShadow are not colour matrices: they need an offscreen layer (phase 7).
+enum class UiFilterType { Brightness, Contrast, Saturate, Grayscale, Sepia, HueRotate, Invert, Blur, DropShadow };
 struct UiFilterFn
 {
     UiFilterType Type = UiFilterType::Brightness;
-    float Amount = 1.f;                 // factor; degrees for hue-rotate
+    float Amount = 1.f;                 // factor; degrees for hue-rotate; blur: standard deviation in px
+    UiShadow Shadow;                    // drop-shadow: offset, blur radius (sigma = radius / 2) and colour
+    bool IsLayerEffect() const { return Type == UiFilterType::Blur || Type == UiFilterType::DropShadow; }
     bool operator==(const UiFilterFn&) const = default;
 };
 
@@ -189,6 +192,9 @@ struct UiFxStyle
     glm::vec4 TextStrokeColor = glm::vec4(1.f);
     // effects
     std::vector<UiFilterFn> Filter;
+    std::vector<UiFilterFn> BackdropFilter;   // backdrop-filter: blur() and the colour functions, applied to the scene behind the element
+    bool Isolate = false;                     // isolation: isolate (a group: opacity and blend modes act on the whole subtree)
+    bool CacheLayer = false;                  // cache: layer (the group is rendered once and reused until its content changes)
     glm::vec4 WashColor = glm::vec4(0.f);
     UiGradient MaskImage;
     UiClipPath ClipPath;

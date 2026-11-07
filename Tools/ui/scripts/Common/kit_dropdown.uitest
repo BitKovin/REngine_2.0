@@ -1,0 +1,16 @@
+# The kit's DropDown in the settings page: closed, then opened (header, list, rows and shadow use the kit styles).
+wait 8
+action pause
+wait_frames 10
+console ui_focus psettings
+wait_frames 3
+action ui_confirm
+wait_frames 15
+ui_screenshot dd_closed
+console ui_focus windowmode
+wait_frames 3
+ui_screenshot dd_focus
+action ui_confirm
+wait 1
+ui_screenshot dd_open
+quit

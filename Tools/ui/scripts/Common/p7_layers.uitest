@@ -1,0 +1,17 @@
+# Phase 7 layers: blur, drop-shadow, group opacity, glow, nested layers, the downsample chain. Probes are in p7_layers.probes.
+wait 6
+console ui_load GameData/ui/kit/tests/p7_layers.xml
+wait_frames 12
+expect_ui_errors 0
+ui_screenshot p7_layers
+# cache: layer renders once, then every frame is a cache hit
+console ui_unload_all
+console ui_load GameData/ui/kit/tests/p7_cache.xml
+wait_frames 12
+expect_ui_errors 0
+ui_screenshot p7_cache
+layer_mark
+wait_frames 30
+expect_layers rendered == 0
+expect_layers cached >= 30
+quit

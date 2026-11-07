@@ -24,6 +24,19 @@ public:
         return static_cast<bgfx::ViewId>(id);
     }
 
+    // A view that is not "the current one": the UI layer passes take theirs this way and order them before the UI pass.
+    static bgfx::ViewId Reserve()
+    {
+        uint16_t id = s_nextViewId++;
+        assert(id < 256 && "Exceeded maximum bgfx view count");
+        return static_cast<bgfx::ViewId>(id);
+    }
+
+    static int Remaining()
+    {
+        return 255 - static_cast<int>(s_nextViewId);
+    }
+
     static bgfx::ViewId GetCurrentId()
     {
         return s_currentViewId;

@@ -15,7 +15,7 @@ namespace
     using UiBuilder::Context;
 
     const char* kStandardAttributes[] = { "id", "class", "style", "visible", "enabled", "selected", "hittest", "default-focus",
-                                          "close-on-back", "shows-below", "pauses-game", "hides-hud", "confirm-changes", "nav-up", "nav-down", "nav-left", "nav-right" };
+                                          "close-on-back", "shows-below", "pauses-game", "hides-hud", "confirm-changes", "nav-up", "nav-down", "nav-left", "nav-right", "draggable", "droptarget" };
 
     bool IsStandard(const std::string& name)
     {

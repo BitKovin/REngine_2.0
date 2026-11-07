@@ -22,11 +22,7 @@ UiBilboardAtlas::UiBilboardAtlas(ivec2 size)
 
     texture->SetName("UiBillboardAtlas " + to_string(size.x) + "x" + to_string(size.y));
 
-    // initial free space = whole atlas
-    freeRects.push_back({ 0, 0, size.x, size.y });
-
-    
-
+    allocator.Init(size.x, size.y);
 }
 
 UiBilboardAtlas::~UiBilboardAtlas()
@@ -36,69 +32,46 @@ UiBilboardAtlas::~UiBilboardAtlas()
 
 bool UiBilboardAtlas::TryAllocate(ivec2 reqSize, BillboardAllocation& outAlloc)
 {
-    for (size_t i = 0; i < freeRects.size(); ++i)
+    UiAtlasRect rect;
+    if (!allocator.Allocate(reqSize.x, reqSize.y, rect))
+        return false;
+
+    const int x = rect.X, y = rect.Y, w = rect.W, h = rect.H;
+    outAlloc.atlas = this;
+    outAlloc.rect = ivec4(x, y, w, h);
+
+    float tw = (float)texture->width();
+    float th = (float)texture->height();
+
+    float minU = (float)x / tw;
+    float maxU = (float)(x + w) / tw;
+    float minV, maxV;
+
+    const bgfx::RendererType::Enum renderer = bgfx::getRendererType();
+    if (renderer == bgfx::RendererType::OpenGL ||
+        renderer == bgfx::RendererType::OpenGLES)
     {
-        const FreeRect fr = freeRects[i];   // by value: the push_backs below can reallocate freeRects
-        if (reqSize.x <= fr.w && reqSize.y <= fr.h)
-        {
-            int x = fr.x;
-            int y = fr.y;
-            int w = reqSize.x;
-            int h = reqSize.y;
-
-            // split remaining space (classic guillotine split)
-            if (fr.w > w)
-                freeRects.push_back({ x + w, y, fr.w - w, fr.h });      // right strip
-            if (fr.h > h)
-                freeRects.push_back({ x, y + h, w, fr.h - h });         // bottom strip
-
-            // remove used free rect
-            freeRects[i] = freeRects.back();
-            freeRects.pop_back();
-
-            // fill allocation
-            outAlloc.atlas = this;
-            outAlloc.rect = ivec4(x, y, w, h);
-
-            float tw = (float)texture->width();
-            float th = (float)texture->height();
-
-            float minU = (float)x / tw;
-            float maxU = (float)(x + w) / tw;
-            float minV, maxV;
-
-            const bgfx::RendererType::Enum renderer = bgfx::getRendererType();
-            if (renderer == bgfx::RendererType::OpenGL ||
-                renderer == bgfx::RendererType::OpenGLES)
-            {
-                // bgfx translates setViewRect into glViewport(x, atlasH-y-h, w, h),
-                // so rendered pixels land at the complementary Y in the texture.
-                minV = 1.0f - (float)(y + h) / th;
-                maxV = 1.0f - (float)y / th;
-            }
-            else
-            {
-                // Non-GL render-to-texture writes content Y-flipped relative to
-                // what the UI renderer emits; read the slot upside-down to cancel it.
-                minV = (float)(y + h) / th;
-                maxV = (float)y / th;
-            }
-
-            outAlloc.uvRect = vec4(minU, minV, maxU, maxV);
-
-            return true;
-        }
+        // bgfx translates setViewRect into glViewport(x, atlasH-y-h, w, h),
+        // so rendered pixels land at the complementary Y in the texture.
+        minV = 1.0f - (float)(y + h) / th;
+        maxV = 1.0f - (float)y / th;
     }
-    return false;
+    else
+    {
+        // Non-GL render-to-texture writes content Y-flipped relative to
+        // what the UI renderer emits; read the slot upside-down to cancel it.
+        minV = (float)(y + h) / th;
+        maxV = (float)y / th;
+    }
+
+    outAlloc.uvRect = vec4(minU, minV, maxU, maxV);
+    return true;
 }
 
 void UiBilboardAtlas::Free(const BillboardAllocation& alloc)
 {
     if (alloc.atlas != this || !alloc.IsValid()) return;
-
-    FreeRect fr{ alloc.rect.x, alloc.rect.y, alloc.rect.z, alloc.rect.w };
-    freeRects.push_back(fr);
-    // (no merging for simplicity – fragmentation is rare with UI billboards)
+    allocator.Free({ alloc.rect.x, alloc.rect.y, alloc.rect.z, alloc.rect.w });
 }
 
 // ---------------------------------------------------------------------------

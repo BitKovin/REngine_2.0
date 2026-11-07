@@ -1,0 +1,15 @@
+<root>
+  <styles>
+    <style>
+      .b { horizontal-align: left; vertical-align: top; }
+      /* the scene behind the UI is black on the left, white on the right, split at x = 720 (the test swaps in an image for it) */
+      #bd { x: 520px; y: 300px; width: 400px; height: 200px; border-radius: 24px; backdrop-filter: blur(16px); }
+      /* a colour function alone: half brightness over the white side */
+      #bc { x: 1000px; y: 600px; width: 200px; height: 100px; backdrop-filter: brightness(0.5); }
+    </style>
+  </styles>
+  <Panel id="proot" class="b">
+    <Panel id="bd" class="b"/>
+    <Panel id="bc" class="b"/>
+  </Panel>
+</root>

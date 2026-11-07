@@ -1,0 +1,13 @@
+<root>
+  <styles>
+    <style>
+      .b { horizontal-align: left; vertical-align: top; }
+      #ctxmenu { x: 0px; y: 0px; width: 160px; height: 60px; background-color: #2060c0; }
+    </style>
+  </styles>
+  <Panel id="ctxpage" class="b" shows-below="true">
+    <Panel id="ctxmenu" class="b context-menu">
+      <TextButton id="ctxitem" class="b" text="Item" default-focus="true"/>
+    </Panel>
+  </Panel>
+</root>

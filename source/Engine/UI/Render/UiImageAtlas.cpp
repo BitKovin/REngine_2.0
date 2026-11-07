@@ -4,8 +4,12 @@
 #include <Logger.hpp>
 #include <Texture.hpp>
 
+#include "UiSvg.h"
+
 #include <algorithm>
+#include <cmath>
 #include <cstring>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -157,9 +161,34 @@ namespace
 
 namespace UiImageAtlas
 {
-    UiAtlasImage Get(const std::string& path)
+    UiAtlasImage Get(const std::string& path, float displayLongSidePx)
     {
-        auto found = s_entries.find(path);
+        float svgW = 0.f, svgH = 0.f;
+        int bucket = 0;
+        std::string key = path;
+        const bool svg = UiSvg::IsSvgPath(path);
+        if (svg)
+        {
+            if (!UiSvg::Load(path, svgW, svgH))
+            {
+                auto failed = s_entries.find(path);
+                if (failed == s_entries.end())
+                {
+                    Entry entry;
+                    entry.Path = path;
+                    entry.Failed = true;
+                    failed = s_entries.emplace(path, std::move(entry)).first;
+                }
+                return failed->second.Image;
+            }
+            const float want = displayLongSidePx > 0.f ? displayLongSidePx : std::max(svgW, svgH);
+            bucket = 16;
+            while (bucket < kMaxImage && static_cast<float>(bucket) < want)
+                bucket *= 2;
+            key += "#" + std::to_string(bucket);
+        }
+
+        auto found = s_entries.find(key);
         if (found != s_entries.end())
         {
             Entry& entry = found->second;
@@ -180,14 +209,18 @@ namespace UiImageAtlas
 
         Entry entry;
         entry.Path = path;
-        Texture::Decoded decoded = Texture::DecodeFromFile(path, false);
+        Texture::Decoded decoded;
+        if (svg)
+            UiSvg::Rasterize(path, bucket, decoded);
+        else
+            decoded = Texture::DecodeFromFile(path, false);
         if (!decoded.valid)
         {
             entry.Failed = true;
-            return s_entries.emplace(path, std::move(entry)).first->second.Image;
+            return s_entries.emplace(key, std::move(entry)).first->second.Image;
         }
-        entry.Image.Width = decoded.width;
-        entry.Image.Height = decoded.height;
+        entry.Image.Width = svg ? std::max(1, static_cast<int>(std::lround(svgW))) : decoded.width;
+        entry.Image.Height = svg ? std::max(1, static_cast<int>(std::lround(svgH))) : decoded.height;
 
         bool packed = false;
         if (decoded.width <= kMaxImage && decoded.height <= kMaxImage)
@@ -216,6 +249,13 @@ namespace UiImageAtlas
                 }
             }
         }
+        if (!packed && svg)
+        {
+            // every page is full: a rasterised drawing has no file to fall back on
+            Logger::Warning("[UiImageAtlas] no room for %s at %d px", path.c_str(), bucket);
+            entry.Failed = true;
+            return s_entries.emplace(key, std::move(entry)).first->second.Image;
+        }
         if (!packed)
         {
             // too large, or every page is full: a standalone texture
@@ -231,7 +271,7 @@ namespace UiImageAtlas
             else
                 entry.Image.Pending = true;
         }
-        return s_entries.emplace(path, std::move(entry)).first->second.Image;
+        return s_entries.emplace(key, std::move(entry)).first->second.Image;
     }
 
     void Update()
@@ -265,6 +305,7 @@ namespace UiImageAtlas
                 bgfx::destroy(page.Texture);
         s_pages.clear();
         s_entries.clear();
+        UiSvg::Shutdown();
     }
 
     int PageCount() { return static_cast<int>(s_pages.size()); }

@@ -11,6 +11,8 @@
 #include <UI/Test/UiTestRunner.h>
 #include <UI/Studio/UiLint.h>
 #include <Console/ConsoleStdin.h>
+#include <UI/UiDragDrop.h>
+#include <UI/Render/UiLayers.h>
 #include <UI/UiSystem.h>
 #include <UI/Preview/UiDatabase.h>
 #include <UI/Render/UiPainterTestCard.h>
@@ -882,9 +884,21 @@ void EngineMain::Render()
 	}
 
     /* ============================================================
-       UI PASS → render to transparent RT
+       WORLD PASS — RenderLevel manages its own view IDs internally
        ============================================================ */
+
     {
+        ZoneScopedN("World Render");
+        MainRenderer->RenderLevel(Level::Current, FinalFrameRenderTexture->frameBufferHandle());
+
+        bgfx::setViewRect(ViewIdManager::GetCurrentId(), 0, 0,
+            (uint16_t)ScreenSize.x,
+            (uint16_t)ScreenSize.y);
+        //bgfx::setViewFrameBuffer(ViewIdManager::GetCurrentId(), FinalFrameRenderTexture->frameBufferHandle());
+
+        /* UI PASS → transparent RT. After the scene, so backdrop-filter can blur the scene colour; the pass takes the next view. */
+        {
+        ViewIdManager::GiveNextId();
 
         ZoneScopedN("UI Pass");
 
@@ -901,6 +915,7 @@ void EngineMain::Render()
         BgfxStateManager::SetBlend(BgfxStateManager::Blend::Premultiplied);
 
         bgfx::touch(ViewIdManager::GetCurrentId());
+        UiLayers::SetScene(FinalFrameRenderTexture->textureHandle(), static_cast<int>(ScreenSize.x), static_cast<int>(ScreenSize.y));
         UiRenderer::BeginPass();
         {
             ZoneScopedN("Viewport Draw");
@@ -915,6 +930,8 @@ void EngineMain::Render()
             }
         }
 
+        UiDragDrop::DrawGhost();   // the dragged element's ghost, over everything
+
         UiElement::DrawingLate = false;
         UiElement::pendingLateDrawElements.clear();
 
@@ -923,22 +940,11 @@ void EngineMain::Render()
 
         UiRenderer::EndPass(ViewIdManager::GetCurrentId());
         UiRenderer::EndFrame();
+        UiLayers::ClearScene();
 
         UiFrameBuffer->unbind();
     }
 
-    /* ============================================================
-       WORLD PASS — RenderLevel manages its own view IDs internally
-       ============================================================ */
-
-    {
-        ZoneScopedN("World Render");
-        MainRenderer->RenderLevel(Level::Current, FinalFrameRenderTexture->frameBufferHandle());
-
-        bgfx::setViewRect(ViewIdManager::GetCurrentId(), 0, 0,
-            (uint16_t)ScreenSize.x,
-            (uint16_t)ScreenSize.y);
-        //bgfx::setViewFrameBuffer(ViewIdManager::GetCurrentId(), FinalFrameRenderTexture->frameBufferHandle());
 
         ViewIdManager::GiveNextId();
 

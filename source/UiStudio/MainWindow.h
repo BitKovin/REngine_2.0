@@ -152,6 +152,9 @@ private:
     bool m_gameWasRunning = false;
 
     GameSession* m_session = nullptr;
+    QTimer m_pickTimer;                    // follows SaveData/ui_pick.json: a game's ui_pick selects the node here
+    qint64 m_pickStamp = 0;
+    void PollPickFile();
     QTimer m_refreshTimer;
     QTimer m_lintTimer;
     bool m_pendingShow = false;

@@ -1,0 +1,20 @@
+<root>
+  <styles>
+    <style>
+      .b { horizontal-align: left; vertical-align: top; }
+      #da { x: 100px; y: 100px; width: 100px; height: 60px; background-color: #ff0000; border-radius: 0px; }
+      #da:hover, #da:active, #da:focus { background-color: #ff0000; }
+      #da:dragging { border-width: 2px; border-color: #ffffff; }
+      #s1 { x: 100px; y: 300px; width: 160px; height: 100px; border-width: 2px; border-color: #808080; }
+      #s2 { x: 400px; y: 300px; width: 160px; height: 100px; border-width: 2px; border-color: #808080; }
+      #s1.entered, #s2.entered { border-color: #00ff00; }
+      #s1.dropped, #s2.dropped { border-color: #0000ff; }
+      TextButton Label { horizontal-align: center; vertical-align: center; }
+    </style>
+  </styles>
+  <Panel id="dd" class="b" pauses-game="true">
+    <TextButton id="da" class="b" text="Item" draggable="true" ondragstart="AddClass('#da','started')" onactivate="AddClass('#da','clicked')"/>
+    <TextButton id="s1" class="b" text="Slot 1" droptarget="true" ondragenter="AddClass('#s1','entered')" ondragleave="RemoveClass('#s1','entered')" ondrop="AddClass('#s1','dropped')" oncontextmenu="ContextMenu('GameData/ui/kit/tests/p7_ctx.xml')"/>
+    <TextButton id="s2" class="b" text="Slot 2" droptarget="true" ondragenter="AddClass('#s2','entered')" ondragleave="RemoveClass('#s2','entered')" ondrop="AddClass('#s2','dropped')"/>
+  </Panel>
+</root>

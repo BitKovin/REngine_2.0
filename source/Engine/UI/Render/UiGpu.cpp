@@ -10,6 +10,7 @@
 #include <UI/UiManager.h>
 #include <UI/UiRenderer.h>
 #include <UI/Render/UiGradientRamps.h>
+#include <UI/Render/UiLayers.h>
 
 #include <cstring>
 
@@ -90,6 +91,7 @@ namespace UiGpu
     {
         if (!s_initialised)
             return;
+        UiLayers::Shutdown();
         UiGradientRamps::Shutdown();
         s_prims.Shutdown();
         if (bgfx::isValid(s_white))
@@ -144,8 +146,13 @@ namespace UiGpu
         }
         CpuTimer timer(kCpuSubmit);
 
+        UiLayers::BeginSubmit();
         s_prims.UploadPending();
         UiGradientRamps::UploadPending();
+
+        // Layers first: their regions, passes and composite quads are decided before the geometry is uploaded.
+        UiLayerPlan plan;
+        const bool layered = list.HasLayers() && plan.Build(list, projection.Width, projection.Height, viewId);
 
         const auto& items = list.Items();
         const uint32_t totalVertices = list.TotalVertices();
@@ -166,7 +173,7 @@ namespace UiGpu
                 uint32_t v = 0, i = 0;
                 for (size_t n = 0; n < items.size(); ++n)
                 {
-                    if (items[n].External)
+                    if (items[n].External || items[n].Verts.empty())
                         continue;
                     firstVertex[n] = v;
                     firstIndex[n] = i;
@@ -186,50 +193,84 @@ namespace UiGpu
             }
         }
 
-        const glm::mat4 proj = glm::ortho(0.f, projection.Width, projection.Height, 0.f, -1.f, 1.f);
-
         uint32_t geometryDraws = 0;
         uint32_t externals = 0;
-        for (size_t n = 0; n < items.size(); ++n)
-        {
-            const UiDrawList::Item& item = items[n];
-            if (item.External)
-            {
-                list.Externals()[item.ExternalIndex](viewId);
-                ++externals;
-                continue;
-            }
-            if (!geometryOk)
-                continue;
 
-            Shader* shader = item.Key.Program < s_programs.size() ? s_programs[item.Key.Program] : nullptr;
-            if (shader == nullptr || !shader->IsValid())
+        // Draws items [first, last) into `view`. A layer that was built is skipped here: its content is in its own passes,
+        // and only its composite quad is drawn. A layer that was not built stays inline.
+        auto drawRange = [&](size_t first, size_t last, uint16_t view, const glm::mat4& proj, bool layerPass) {
+            for (size_t n = first; n < last; ++n)
             {
-                if (!s_loggedBadProgram)
+                const UiDrawList::Item& item = items[n];
+                if (item.Kind == UiDrawList::Role::LayerBegin)
                 {
-                    Logger::Error("[UiRenderer] UI geometry uses program %d which is not valid; skipped", static_cast<int>(item.Key.Program));
-                    s_loggedBadProgram = true;
+                    const int node = layered ? plan.NodeAtBegin(n) : -1;
+                    if (node >= 0)
+                    {
+                        const UiLayerPlan::Node& layer = plan.GetNode(node);
+                        if (layer.S == UiLayerPlan::State::Ok)
+                            n = static_cast<size_t>(layer.End) - 1;       // next: the composite quad
+                        else if (layer.S == UiLayerPlan::State::Hidden)
+                            n = static_cast<size_t>(layer.End);           // off screen: nothing at all
+                    }
+                    continue;
                 }
-                continue;
-            }
+                if (item.Kind == UiDrawList::Role::LayerComposite)
+                {
+                    const int node = layered ? plan.NodeAtComposite(n) : -1;
+                    if (node < 0 || plan.GetNode(node).S != UiLayerPlan::State::Ok)
+                        continue;
+                }
+                if (item.External)
+                {
+                    if (!layerPass)
+                    {
+                        list.Externals()[item.ExternalIndex](view);
+                        ++externals;
+                    }
+                    continue;
+                }
+                if (!geometryOk || item.Verts.empty())
+                    continue;
 
-            shader->UseProgram();
-            shader->SetUniform("u_uiProjection", proj);
-            shader->SetUniform("u_uiParams", glm::vec4(static_cast<float>(UiRender::kDataWidth), static_cast<float>(UiRender::kPrimTexels),
-                                                      static_cast<float>(Time::GameTimeNoPause), 0.f));
-            shader->SetTexture("s_uiData", s_prims.Texture());
-            shader->SetTexture("s_uiRamp", UiGradientRamps::Texture());
-            bgfx::TextureHandle tex = { item.Key.TextureIdx };
-            shader->SetTexture("s_uiTex0", bgfx::isValid(tex) ? tex : s_white);
-            bgfx::setState(item.Key.State);
-            if (item.Key.StencilRef > 0)
-                bgfx::setStencil(BGFX_STENCIL_TEST_EQUAL | BGFX_STENCIL_FUNC_REF(item.Key.StencilRef) | BGFX_STENCIL_FUNC_RMASK(0xFF) |
-                                 BGFX_STENCIL_OP_FAIL_S_KEEP | BGFX_STENCIL_OP_FAIL_Z_KEEP | BGFX_STENCIL_OP_PASS_Z_KEEP);
-            bgfx::setVertexBuffer(0, &tvb, firstVertex[n], static_cast<uint32_t>(item.Verts.size()));
-            bgfx::setIndexBuffer(&tib, firstIndex[n], static_cast<uint32_t>(item.Indices.size()));
-            shader->Submit(viewId);
-            ++geometryDraws;
+                Shader* shader = item.Key.Program < s_programs.size() ? s_programs[item.Key.Program] : nullptr;
+                if (shader == nullptr || !shader->IsValid())
+                {
+                    if (!s_loggedBadProgram)
+                    {
+                        Logger::Error("[UiRenderer] UI geometry uses program %d which is not valid; skipped", static_cast<int>(item.Key.Program));
+                        s_loggedBadProgram = true;
+                    }
+                    continue;
+                }
+
+                shader->UseProgram();
+                shader->SetUniform("u_uiProjection", proj);
+                shader->SetUniform("u_uiParams", glm::vec4(static_cast<float>(UiRender::kDataWidth), static_cast<float>(UiRender::kPrimTexels),
+                                                          static_cast<float>(Time::GameTimeNoPause), 0.f));
+                shader->SetTexture("s_uiData", s_prims.Texture());
+                shader->SetTexture("s_uiRamp", UiGradientRamps::Texture());
+                bgfx::TextureHandle tex = { item.Key.TextureIdx };
+                shader->SetTexture("s_uiTex0", bgfx::isValid(tex) ? tex : s_white);
+                bgfx::setState(item.Key.State);
+                if (item.Key.StencilRef > 0 && !layerPass)   // layer atlas pages have no stencil
+                    bgfx::setStencil(BGFX_STENCIL_TEST_EQUAL | BGFX_STENCIL_FUNC_REF(item.Key.StencilRef) | BGFX_STENCIL_FUNC_RMASK(0xFF) |
+                                     BGFX_STENCIL_OP_FAIL_S_KEEP | BGFX_STENCIL_OP_FAIL_Z_KEEP | BGFX_STENCIL_OP_PASS_Z_KEEP);
+                bgfx::setVertexBuffer(0, &tvb, firstVertex[n], static_cast<uint32_t>(item.Verts.size()));
+                bgfx::setIndexBuffer(&tib, firstIndex[n], static_cast<uint32_t>(item.Indices.size()));
+                shader->Submit(view);
+                ++geometryDraws;
+            }
+        };
+
+        if (layered)
+        {
+            plan.Run([&](size_t first, size_t last, uint16_t view, const glm::mat4& proj) { drawRange(first, last, view, proj, true); }, s_layout);
+            s_running.LayersRendered += plan.Rendered();
+            s_running.LayersCached += plan.CachedHits();
+            s_running.LayerViews += plan.ViewsUsed();
         }
+        drawRange(0, items.size(), viewId, glm::ortho(0.f, projection.Width, projection.Height, 0.f, -1.f, 1.f), false);
 
         s_running.Passes += 1;
         s_running.GeometryDraws += geometryDraws;
@@ -259,6 +300,8 @@ namespace UiGpu
         s_running = {};
         s_loggedTransientFull = false;
         s_loggedBadProgram = false;
+        UiLayers::OnBeforeBgfxFrame();
+        UiLayerAtlas::BeginFrame();
         s_prims.ResetFrame();
         UiGradientRamps::OnBeforeBgfxFrame();
     }

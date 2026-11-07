@@ -1,0 +1,10 @@
+# X Y R G B A TOL LABEL   (RGBA in the UI target, premultiplied)
+# 128 px image: the circle is centred at (164, 164) with radius 51.2
+164 164 255 0 0 255 4 centre of the large icon
+102 102 0 0 0 0 1 outside the circle (transparent corner)
+# the circle edge at x = 215.2 covers about a fifth of the pixel at 215: alpha strictly between 0 and 255
+215 164 51 0 0 51 40 anti-aliased edge of the large icon
+# 16 px image: centre at (308, 108)
+308 108 255 0 0 255 8 centre of the small icon
+# background-image at 64 px: centre at (432, 132)
+432 132 255 0 0 255 4 centre of the background icon

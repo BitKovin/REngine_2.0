@@ -303,7 +303,8 @@ namespace
             auto identity = [](UiFilterType type) {
                 UiFilterFn f;
                 f.Type = type;
-                f.Amount = type == UiFilterType::HueRotate || type == UiFilterType::Grayscale || type == UiFilterType::Sepia || type == UiFilterType::Invert ? 0.f : 1.f;
+                f.Amount = type == UiFilterType::HueRotate || type == UiFilterType::Grayscale || type == UiFilterType::Sepia || type == UiFilterType::Invert ||
+                           type == UiFilterType::Blur || type == UiFilterType::DropShadow ? 0.f : 1.f;
                 return f;
             };
             for (size_t i = fa.size(); i < fb.size(); ++i) fa.push_back(identity(fb[i].Type));
@@ -317,7 +318,17 @@ namespace
             {
                 r.Fl = fa;
                 for (size_t i = 0; i < fa.size(); ++i)
+                {
                     r.Fl[i].Amount = Lerp(fa[i].Amount, fb[i].Amount, t);
+                    if (fa[i].Type == UiFilterType::DropShadow)
+                    {
+                        UiShadow& s = r.Fl[i].Shadow;
+                        s.X = Lerp(fa[i].Shadow.X, fb[i].Shadow.X, t);
+                        s.Y = Lerp(fa[i].Shadow.Y, fb[i].Shadow.Y, t);
+                        s.Blur = Lerp(fa[i].Shadow.Blur, fb[i].Shadow.Blur, t);
+                        s.Color = LerpColor(fa[i].Shadow.Color, fb[i].Shadow.Color, t);
+                    }
+                }
             }
             break;
         }

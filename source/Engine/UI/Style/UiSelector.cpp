@@ -14,7 +14,7 @@ namespace
             { "hover", UiPseudo::Hover }, { "active", UiPseudo::Active }, { "focus", UiPseudo::Focus },
             { "focus-within", UiPseudo::FocusWithin }, { "disabled", UiPseudo::Disabled }, { "selected", UiPseudo::Selected },
             { "root", UiPseudo::Root }, { "entering", UiPseudo::Entering }, { "leaving", UiPseudo::Leaving },
-            { "checked", UiPseudo::Checked } };
+            { "checked", UiPseudo::Checked }, { "dragging", UiPseudo::Dragging } };
         for (const auto& e : kTable)
             if (name == e.Name) { out = e.Value; return true; }
         return false;
@@ -51,6 +51,7 @@ namespace
             case UiPseudo::Entering: if (!(e.States & kStateEntering)) return false; break;
             case UiPseudo::Leaving: if (!(e.States & kStateLeaving)) return false; break;
             case UiPseudo::Checked: if (!(e.States & kStateChecked)) return false; break;
+            case UiPseudo::Dragging: if (!(e.States & kStateDragging)) return false; break;
             }
         }
         return true;
@@ -81,7 +82,7 @@ namespace
 
 const std::vector<std::string>& UiPseudoNames()
 {
-    static const std::vector<std::string> names = { "hover", "active", "focus", "focus-within", "disabled", "selected", "root", "entering", "leaving", "checked" };
+    static const std::vector<std::string> names = { "hover", "active", "focus", "focus-within", "disabled", "selected", "root", "entering", "leaving", "checked", "dragging" };
     return names;
 }
 

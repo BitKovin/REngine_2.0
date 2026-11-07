@@ -8,9 +8,15 @@ class UiDrawList
 public:
     using ExternalFn = std::function<void(uint16_t viewId)>;
 
+    // Geometry is the usual item. A LayerBegin / LayerComposite pair brackets the items of one offscreen layer: the items
+    // between them are rendered into the layer atlas, and the composite item (a quad, patched at submit) draws the result.
+    enum class Role : uint8_t { Geometry, LayerBegin, LayerComposite };
+
     struct Item
     {
         bool External = false;
+        Role Kind = Role::Geometry;
+        int Layer = -1;                       // LayerBegin / LayerComposite: index into Layers()
         // geometry: each item owns its vertices so later geometry can be merged into an earlier item
         UiRender::BatchKey Key;
         std::vector<UiRender::Vertex> Verts;
@@ -47,6 +53,19 @@ public:
     // when its bounds overlap none of the items after that one (and none is external), which keeps the painter's order.
     void AddTriangles(const UiRender::BatchKey& key, const UiRender::Vertex* verts, uint32_t vertCount,
                       const uint16_t* indices, uint32_t indexCount);
+    // Layers. BeginLayer returns the item index of the LayerBegin marker; nothing recorded after it joins an item before it.
+    // EndLayer adds the composite quad (corners as in AddQuad; positions and uv are patched at submit) and returns false
+    // when the layer recorded no geometry (the marker stays without a composite and is ignored at submit).
+    int BeginLayer(const UiRender::LayerSpec& spec);
+    void AbandonLayer(int beginItem);   // the layer cannot be closed (no room for its composite prim): its content stays inline
+    bool EndLayer(int beginItem, const UiRender::BatchKey& key, const UiRender::Vertex corners[4]);
+    // A backdrop: a marker and a composite quad with no content between them. Its texture and uv are patched at submit.
+    void AddBackdrop(const UiRender::LayerSpec& spec, const UiRender::BatchKey& key, const UiRender::Vertex corners[4]);
+    // Union of the bounds of the geometry recorded after the marker; x0 > x1 when there is none.
+    glm::vec4 LayerContentBounds(int beginItem) const;
+    const std::vector<UiRender::LayerSpec>& Layers() const { return m_layers; }
+    std::vector<Item>& MutableItems() { return m_items; }
+    bool HasLayers() const { return !m_layers.empty(); }
     // Convenience: one quad, corners in order top-left, top-right, bottom-right, bottom-left.
     void AddQuad(const UiRender::BatchKey& key, const UiRender::Vertex corners[4]);
     // Runs `fn` at submit time, in order with the geometry around it.
@@ -63,6 +82,8 @@ public:
 
 private:
     std::vector<Item> m_items;
+    std::vector<UiRender::LayerSpec> m_layers;
+    std::vector<int> m_openLayers;   // layer indices whose composite is not recorded yet (innermost last)
     std::vector<ExternalFn> m_externals;
     uint32_t m_breaks[static_cast<int>(BreakReason::Count)] = {};
     uint32_t m_merged = 0;

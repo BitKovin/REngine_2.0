@@ -1,0 +1,9 @@
+# Phase 7.3: backdrop-filter blurs the scene colour behind an element. An image stands in for the scene (black | white, split at x = 720).
+wait 6
+backdrop_scene GameData/ui/kit/tests/p7_edges.png
+console ui_load GameData/ui/kit/tests/p7_backdrop.xml
+wait_frames 20
+expect_ui_errors 0
+ui_screenshot p7_backdrop
+backdrop_scene off
+quit

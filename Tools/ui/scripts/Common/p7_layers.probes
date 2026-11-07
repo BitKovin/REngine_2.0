@@ -1,0 +1,22 @@
+# X Y R G B A TOL LABEL   (RGBA in the UI target, premultiplied)
+# blur(4px) of a 1 px line: the centre is about 25/255, and 4 px away it is about 60% of that, symmetrically
+160 160 25 25 25 25 6 blur centre
+164 160 15 15 15 15 6 blur right 4px
+156 160 15 15 15 15 6 blur left 4px
+180 160 0 0 0 0 2 blur far
+# drop-shadow(12px 12px 0): the icon is blue inside the circle; the shadow is red and follows the circle, not the box
+331 131 0 0 255 255 4 icon centre
+362 143 255 0 0 255 4 shadow only
+302 102 0 0 0 0 1 box corner stays empty
+370 170 0 0 0 0 1 offset box corner stays empty
+# group opacity 0.5: overlap and non-overlap are the same
+530 150 128 0 0 128 4 group one child
+590 150 128 0 0 128 4 group overlap
+660 150 128 0 0 128 4 group other child
+# glow: the shadow of a white square, no offset, is green around it
+830 130 255 255 255 255 2 glow box
+797 130 0 60 0 60 40 glow near
+# nested layer: the inner group is blue at 50%
+170 450 0 0 128 128 6 nested inner
+# blur(16px) of a yellow square: the middle is still yellow, the edge is half
+560 460 255 255 0 255 40 big middle

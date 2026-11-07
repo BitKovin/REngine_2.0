@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-enum class UiPseudo { Hover, Active, Focus, FocusWithin, Disabled, Selected, Root, Entering, Leaving, Checked };
+enum class UiPseudo { Hover, Active, Focus, FocusWithin, Disabled, Selected, Root, Entering, Leaving, Checked, Dragging };
 
 struct UiCompound
 {

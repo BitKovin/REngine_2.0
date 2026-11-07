@@ -245,6 +245,7 @@ public:
         Input::AddAction("ui_up")->AddKeyboardKey(SDL_KeyCode::SDLK_UP)->AddButton(GamepadButton::DPadUp);
         Input::AddAction("ui_left")->AddKeyboardKey(SDL_KeyCode::SDLK_LEFT)->AddButton(GamepadButton::DPadLeft);
         Input::AddAction("ui_right")->AddKeyboardKey(SDL_KeyCode::SDLK_RIGHT)->AddButton(GamepadButton::DPadRight);
+        Input::AddAction("ui_context")->AddMouseButton(MouseButton::Right)->AddButton(GamepadButton::Y);
 
         InputActionRegistry::Register("forward", "${INPUT_ACTION_FORWARD}", "${INPUT_CATEGORY_MOVEMENT}");
         InputActionRegistry::Register("backward", "${INPUT_ACTION_BACKWARD}", "${INPUT_CATEGORY_MOVEMENT}");

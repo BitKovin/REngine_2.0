@@ -8,6 +8,7 @@
 #include <UI/Elements/UiElemPanel.h>
 #include <UI/Markup/UiVariables.h>
 #include <UI/Menus/UiMenuStack.h>
+#include <UI/UiDragDrop.h>
 #include <UI/UiNavigation.h>
 #include <UI/UiSystem.h>
 
@@ -354,8 +355,8 @@ bool UiElem::ApplyAttributeValue(const std::string& name, const std::string& raw
         DisableFocus = (States & kStateDisabled) != 0 || (HitCheck && !IsFocusable());   // a pointer-only surface is not a focus target
         return true;
     }
-    if (name == "default-focus")
-        return true;
+    if (name == "default-focus" || name == "draggable" || name == "droptarget")
+        return true;   // read from Attributes by UiDragDrop
     if (name == "scrollbar")
     {
         if (!IsFalsey(value))
@@ -518,6 +519,8 @@ void UiElem::Activate()
 
 void UiElem::OnNavCancel()
 {
+    if (UiDragDrop::NavCancel())
+        return;
     UiElem* p = AsParentElem();
     if (p != nullptr && p->AsMenuStack() != nullptr)
         p->AsMenuStack()->Back();
@@ -839,6 +842,8 @@ void UiElem::Update()
 
 void UiElem::OnNavConfirm()
 {
+    if (UiDragDrop::NavConfirm(*this))
+        return;
     if (IsFocusable() && !(States & kStateDisabled))
         Activate();
 }

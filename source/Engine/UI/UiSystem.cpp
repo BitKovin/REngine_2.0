@@ -40,10 +40,12 @@
 #include <UI/Render/UiBoxPainter.h>
 #include <UI/Render/UiFontLibrary.h>
 #include <UI/Render/UiImageAtlas.h>
+#include <UI/Render/UiLayers.h>
 #include <UI/Style/UiAnimation.h>
 #include <UI/Style/UiStyleResolver.h>
 #include <UI/UiManager.h>
 #include <UI/Test/UiTestRunner.h>
+#include <UI/UiDragDrop.h>
 #include <UI/UiNavigation.h>
 
 #include <SDL2/SDL.h>
@@ -243,6 +245,7 @@ namespace
                     const auto element = std::static_pointer_cast<UiElem>(hit);
                     g_captures[id] = Capture{ element, touch.position };
                     element->OnPointerDown(ToLocal(*element, touch.position));
+                    UiDragDrop::Press(id, *element, touch.position);
                 }
                 else
                 {
@@ -273,11 +276,14 @@ namespace
             if (touch.position != found->second.Last)
             {
                 found->second.Last = touch.position;
-                element->OnPointerMove(ToLocal(*element, touch.position));
+                if (!UiDragDrop::Move(id, touch.position))   // a drag in progress keeps the move from scrolling the list under it
+                    element->OnPointerMove(ToLocal(*element, touch.position));
             }
             if (touch.released)
             {
                 element->OnPointerUp(ToLocal(*element, touch.position));
+                if (UiDragDrop::Release(id, touch.position))
+                    UiElem::SuppressActivate = true;   // a drop or a long press is not a click
                 g_captures.erase(id);
             }
         }
@@ -358,12 +364,46 @@ namespace
     // ── paint recording (task 1.13)
     struct ClipInfo { bool Valid = false; glm::mat3 Matrix = glm::mat3(1.f); glm::vec2 Size = glm::vec2(0.f); };
 
+    // The offscreen layer an element needs (phase 7): blur() / drop-shadow() filters, isolation: isolate, cache: layer, and a page
+    // that is fading (its children must fade as one picture, not each on its own).
+    bool BuildLayerSpec(UiElem& e, const UiComputedStyle& s, UiRender::LayerSpec& spec)
+    {
+        const UiFxStyle& fx = s.Fx;
+        for (const UiFilterFn& f : fx.Filter)
+        {
+            UiRender::LayerEffect effect;
+            if (f.Type == UiFilterType::Blur && f.Amount > 0.f)
+            {
+                effect.K = UiRender::LayerEffect::Kind::Blur;
+                effect.Sigma = f.Amount;
+            }
+            else if (f.Type == UiFilterType::DropShadow)
+            {
+                effect.K = UiRender::LayerEffect::Kind::DropShadow;
+                effect.Sigma = f.Shadow.Blur * 0.5f;
+                effect.Offset = glm::vec2(f.Shadow.X, f.Shadow.Y);
+                effect.Color = f.Shadow.Color;
+            }
+            else
+                continue;
+            spec.Effects.push_back(effect);
+        }
+        spec.Cache = fx.CacheLayer;
+        spec.Id = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(&e));
+        if (!spec.Effects.empty() || fx.Isolate || fx.CacheLayer)
+            return true;
+        return s.Opacity < 0.999f && e.PageOf() == &e;
+    }
+
     void Paint(UiElem& e, UiPainter& p, UiElem& root, float parentOpacity, const ClipInfo& clip)
     {
         const UiComputedStyle& s = e.Computed();
         if (s.Visibility != UiVisibility::Visible)
             return;
-        const float op = parentOpacity * s.Opacity;
+        UiRender::LayerSpec layerSpec;
+        const bool layer = BuildLayerSpec(e, s, layerSpec);
+        const float groupOpacity = parentOpacity * s.Opacity;   // a layer applies this to its composite; inside, everything starts at 1
+        const float op = layer ? 1.f : groupOpacity;
         const float W = e.BorderRect.W, H = e.BorderRect.H;
         p.SetTransform(e.AbsoluteTransform);
 
@@ -376,7 +416,10 @@ namespace
             radii = UiCorners{ r[0], r[1], r[2], r[3] };
         }
 
-        const UiBoxPainter::Scope effects = UiBoxPainter::Begin(e, p);   // filter, mask, clip-path, blend mode for this subtree
+        if (layer)
+            p.PushLayer(layerSpec);
+        const UiBoxPainter::Scope effects = UiBoxPainter::Begin(e, p, layer);   // filter, mask, clip-path, blend mode for this subtree
+        UiBoxPainter::PaintBackdrop(e, p, op, radii);
         UiBoxPainter::PaintBox(e, p, op, radii);
 
         e.m_paintOpacity = op;
@@ -414,6 +457,8 @@ namespace
         p.SetTransform(e.AbsoluteTransform);
         UiBoxPainter::PaintOutline(e, p, op, radii);
         UiBoxPainter::End(p, effects);
+        if (layer)
+            p.PopLayer(groupOpacity, static_cast<UiBlendMode>(static_cast<int>(s.Fx.MixBlend)));
     }
 
     void Record(UiElem& root)
@@ -1027,6 +1072,40 @@ namespace
         return true;
     }
 
+    // backdrop_scene <image path | off>: an image stands in for the scene colour behind the UI, so a backdrop test does not depend on the level.
+    bool TestBackdropScene(const std::string& args, std::string& error)
+    {
+        std::istringstream in(args);
+        std::string path;
+        in >> path;
+        if (path.empty()) { error = "usage: backdrop_scene <image path | off>"; return false; }
+        UiLayers::SetSceneOverride(path == "off" ? std::string() : UiActions::NormalizeLayoutPath(path));
+        return true;
+    }
+
+    uint32_t g_layerMarkRendered = 0, g_layerMarkCached = 0;
+    bool TestLayerMark(const std::string&, std::string&)
+    {
+        g_layerMarkRendered = UiLayers::TotalRendered();
+        g_layerMarkCached = UiLayers::TotalCached();
+        return true;
+    }
+
+    // expect_layers <rendered|cached> <op> <n>: layer renders (or cache hits) since the last layer_mark
+    bool TestExpectLayers(const std::string& args, std::string& error)
+    {
+        std::istringstream in(args);
+        std::string what, op;
+        long want = 0;
+        in >> what >> op >> want;
+        const long got = what == "cached" ? static_cast<long>(UiLayers::TotalCached() - g_layerMarkCached)
+                                          : static_cast<long>(UiLayers::TotalRendered() - g_layerMarkRendered);
+        bool pass = op == "==" ? got == want : op == ">=" ? got >= want : op == "<=" ? got <= want : op == ">" ? got > want : op == "<" ? got < want : false;
+        if (!pass)
+            error = "expect_layers " + what + " " + op + " " + std::to_string(want) + ": got " + std::to_string(got);
+        return pass;
+    }
+
     bool TestExpectWarnings(const std::string& args, std::string& error)
     {
         const int want = std::atoi(args.c_str());
@@ -1323,6 +1402,9 @@ void UiSystem::Init()
     UiTestRunner::RegisterCommand("expect_missing", TestExpectMissing);
     UiTestRunner::RegisterCommand("expect_ui_errors", TestExpectErrors);
     UiTestRunner::RegisterCommand("expect_ui_warnings", TestExpectWarnings);
+    UiTestRunner::RegisterCommand("layer_mark", TestLayerMark);
+    UiTestRunner::RegisterCommand("backdrop_scene", TestBackdropScene);
+    UiTestRunner::RegisterCommand("expect_layers", TestExpectLayers);
     UiTestRunner::RegisterCommand("expect_roots", TestExpectRoots);
     UiTestRunner::RegisterCommand("set_var", TestSetVar);
     UiTestRunner::RegisterCommand("set_class", TestSetClass);
@@ -1382,7 +1464,10 @@ void UiSystem::Init()
     UiDatabase::SetCapability("inputPrompts", true);
     UiDatabase::SetCapability("painting", true);
     UiDatabase::SetCapability("motion", true);
-    UiDatabase::SetCapability("layers", false);   // blur, drop-shadow, backdrop and group opacity need offscreen layers
+    UiDatabase::SetCapability("layers", true);    // offscreen layers: blur, drop-shadow, group opacity, cache: layer (backdrop-filter is a later step)
+    UiDatabase::SetCapability("svg", true);       // .svg in Image, background-image and border-image, rasterised at power-of-two sizes
+    UiDatabase::SetCapability("dragDrop", true);
+    UiDatabase::SetCapability("contextMenu", true);
     UiDatabase::RefreshFromRegistries();
 }
 
@@ -1523,6 +1608,7 @@ void UiSystem::ResetViewport()
 {
     UiMenus::Stack().ClearLeaving();
     EngineMain::Viewport.ClearChildren();
+    UiDragDrop::Reset();
     g_captures.clear();
     g_queuedEvents.clear();
     UiMenuStack& stack = UiMenus::Stack();
@@ -1648,6 +1734,7 @@ void UiSystem::Update()
         lastTicks = now;
         g_frameDt = dt;
         UiAnimation::Tick(dt);
+        UiDragDrop::Tick(dt);
     }
 
     // Focus is read by selectors, so a change of focus restyles every root.
@@ -1775,6 +1862,39 @@ void UiSystem::Finalize()
         if (root->m_paintDirty)
             Record(*root);
     }
+    UiDragDrop::RecordGhost();
     UiFontLibrary::FlushUploads();
     UiDatabase::Flush();
+}
+
+void UiSystem::RecordSubtree(UiElem& source, UiElem& host, float opacity, glm::vec2 offset)
+{
+    // Every element paints with its AbsoluteTransform, so the subtree is moved for the length of the recording.
+    std::vector<std::pair<UiElem*, glm::mat3>> saved;
+    std::vector<UiElem*> stack{ &source };
+    glm::mat3 shift(1.f);
+    shift[2] = glm::vec3(offset, 1.f);
+    while (!stack.empty())
+    {
+        UiElem* e = stack.back();
+        stack.pop_back();
+        saved.emplace_back(e, e->AbsoluteTransform);
+        e->AbsoluteTransform = shift * e->AbsoluteTransform;
+        for (auto& child : e->children)
+            if (UiElem::IsElem(child.get()))
+                stack.push_back(static_cast<UiElem*>(child.get()));
+    }
+    host.m_chunk.Clear();
+    host.m_chunk.SetLocalPrims(true);
+    host.m_legacyMarkers.clear();
+    UiPainter painter(host.m_chunk);
+    UiRender::LayerSpec spec;
+    spec.Id = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(&host));
+    painter.PushLayer(spec);
+    Paint(source, painter, host, 1.f, ClipInfo());
+    painter.PopLayer(opacity, UiBlendMode::Normal);
+    UiElem::UiFrameData data{ host.m_chunk, host.m_legacyMarkers };
+    host.m_frame = std::make_shared<const UiElem::UiFrameData>(std::move(data));
+    for (auto& [e, m] : saved)
+        e->AbsoluteTransform = m;
 }

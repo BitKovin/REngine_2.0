@@ -1,0 +1,66 @@
+# Phase 7.5: pointer drag, gamepad pick-up and drop, drag events, ghost, context menu. Ghost probe in p7_dragdrop.probes.
+wait 6
+console ui_push GameData/ui/kit/tests/p7_dragdrop.xml
+wait_frames 12
+expect_ui_errors 0
+# a press that moves less than 6 px is no drag: it is a click
+mouse_move 150 130
+mouse_down
+mouse_move 153 132
+mouse_up
+wait_frames 4
+expect da activations == 1
+# pointer drag from the item to slot 2
+mouse_move 150 130
+wait_frames 2
+mouse_down
+mouse_move 160 140
+wait_frames 2
+expect_class da started 1
+mouse_move 450 350
+wait_frames 3
+expect_class s2 entered 1
+ui_screenshot p7_dragdrop
+mouse_up
+wait_frames 4
+expect_class s2 entered 0
+expect_class s2 dropped 1
+expect da activations == 1
+# gamepad: confirm picks up, confirm on the other slot drops
+sim_device gamepad
+console ui_focus da
+wait_frames 3
+action ui_confirm
+wait_frames 3
+console ui_focus s1
+wait_frames 3
+expect_class s1 entered 1
+action ui_confirm
+wait_frames 4
+expect_class s1 dropped 1
+expect_class s1 entered 0
+expect da activations == 1
+# cancel aborts: nothing is dropped, and back does not close the page
+set_class s2 dropped 0
+console ui_focus da
+wait_frames 3
+action ui_confirm
+wait_frames 3
+console ui_focus s2
+wait_frames 3
+action ui_cancel
+wait_frames 4
+expect_stack depth == 1
+expect_class s2 dropped 0
+expect_class s2 entered 0
+# context menu at the pointer
+sim_device mouse
+mouse_move 150 340
+wait_frames 3
+action ui_context
+wait_frames 8
+expect_stack depth == 2
+expect ctxmenu x == 150
+expect ctxmenu y == 340
+expect_uidb hosts:drag-drop hosts:context-menu pseudoClasses:dragging actions:drop actions:contextmenu
+quit

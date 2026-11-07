@@ -17,6 +17,15 @@ public:
     // Starts a new frame. Only UiRenderer::OnBeforeBgfxFrame() may call this (conventions §3).
     void ResetFrame();
     bgfx::TextureHandle Texture() const { return m_texture; }
+    // CPU mirror of a primitive's 16 texels / of auxiliary texels (used to hash a layer's content). nullptr when out of range.
+    const glm::vec4* PrimTexels(int index) const
+    {
+        return index >= 0 && index < m_count ? &m_cpu[static_cast<size_t>(index) * UiRender::kPrimTexels] : nullptr;
+    }
+    const glm::vec4* AuxTexels(int index) const
+    {
+        return index >= 0 && index < m_auxCount ? &m_cpu[static_cast<size_t>(UiRender::kAuxFirstRow) * UiRender::kDataWidth + index] : nullptr;
+    }
     int Count() const { return m_count; }
     int AuxCount() const { return m_auxCount; }
 

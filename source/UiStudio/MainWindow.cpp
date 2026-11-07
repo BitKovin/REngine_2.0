@@ -19,6 +19,7 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QDirIterator>
+#include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFileSystemModel>
@@ -178,6 +179,8 @@ MainWindow::MainWindow()
     });
     m_lintTimer.setSingleShot(true);
     connect(&m_lintTimer, &QTimer::timeout, this, &MainWindow::RunLint);
+    connect(&m_pickTimer, &QTimer::timeout, this, &MainWindow::PollPickFile);
+    m_pickTimer.start(400);
 
     m_stack = new QStackedWidget;
     m_welcome = BuildWelcome();
@@ -1053,6 +1056,35 @@ void MainWindow::FillHierarchy(const QJsonDocument& doc)
     m_hierarchy->expandToDepth(2);
     if (!m_selectedPath.isEmpty())
         SelectByPath(m_selectedPath);
+}
+
+// The lightweight link: a running game's `ui_pick` writes SaveData/ui_pick.json. A newer file than the last one seen selects its node.
+// This is the fallback; the runtime bridge (ui_pick_at over the console) is what the visual editor uses.
+void MainWindow::PollPickFile()
+{
+    if (m_session == nullptr || m_session->WorkDir().isEmpty())
+        return;
+    const QFileInfo info(QDir(m_session->WorkDir()).filePath("SaveData/ui_pick.json"));
+    if (!info.exists())
+        return;
+    const qint64 stamp = info.lastModified().toMSecsSinceEpoch();
+    if (m_pickStamp == 0)
+    {
+        m_pickStamp = stamp;   // what was there before Studio looked is not a request
+        return;
+    }
+    if (stamp == m_pickStamp)
+        return;
+    QFile file(info.filePath());
+    if (!file.open(QIODevice::ReadOnly))
+        return;   // still being written: the next tick tries again
+    const QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    if (!doc.isObject())
+        return;
+    m_pickStamp = stamp;
+    const QString path = doc.object()["path"].toString();
+    if (!path.isEmpty())
+        SelectByPath(path);
 }
 
 void MainWindow::SelectByPath(const QString& path)

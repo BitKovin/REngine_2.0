@@ -75,6 +75,13 @@ const std::vector<UiTagRegistry::AttributeInfo>& UiTagRegistry::StandardAttribut
         { "onblur", "actions", "", false, "Calls run when the element loses navigation focus" },
         { "oncancel", "actions", "", false, "Calls run when back is requested on this page" },
         { "onload", "actions", "", false, "Calls run once after the element's first layout" },
+        { "draggable", "bool", "false", false, "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart" },
+        { "droptarget", "bool", "false", false, "true makes the element take drops of a dragged element" },
+        { "ondragstart", "actions", "", false, "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here" },
+        { "ondragenter", "actions", "", false, "Calls run on a drop target when a drag enters it" },
+        { "ondragleave", "actions", "", false, "Calls run on a drop target when a drag leaves it" },
+        { "ondrop", "actions", "", false, "Calls run on a drop target when the dragged element is dropped on it" },
+        { "oncontextmenu", "actions", "", false, "Calls run on a right click, a 0.5 s touch hold or the ui_context action" },
     };
     return attrs;
 }

@@ -100,4 +100,44 @@ For `ui_pick`, add a stable target/source reference to the runtime-to-Studio mes
 
 ## Implementation notes
 
-(implementer writes here)
+Status: 7.1 to 7.6 are done on StealthAction and verified on dx11 only. 7.4 (SVG) is done too. Other backends and the other three games were not run (the GL v-flip of `UiLayerAtlas::UvRect` and of the scene source is written but untested).
+
+**Layers (7.1, 7.2)**
+- `UiRectAllocator` (guillotine packer) is shared by `UiBilboardAtlas` and `UiLayerAtlas`. Atlas pages are 4096² RGBA8, created lazily (about 64 MB each). Page 0 keeps `cache: layer` regions, pages 1-3 are scratch and are emptied every frame.
+- The painter records `PushLayer` / `PopLayer` as a `LayerBegin` marker and a `LayerComposite` quad (an Image prim with `kFlagPremulTexture`); nothing is ever erased from a list, because legacy markers index items. `UiLayerPlan` (`UiLayers.cpp`) decides at submit which layers are rendered, allocates regions (a pass never reads the page it renders into: D3D11), orders the passes children first and patches the composite quads. A layer that cannot be built stays inline, drawn without its effect.
+- Passes: content, down (4-tap), blur (9 taps as 5 linear samples, downsampled above sigma 4), drop-shadow (blur radius / 2), copy into the cache page. View ids come from `ViewIdManager::Reserve()` and are placed before the UI pass with `bgfx::setViewOrder`; the budget is 96 views per frame.
+- Triggers (`BuildLayerSpec` in `UiSystem.cpp`): `filter: blur() / drop-shadow()`, `isolation: isolate`, `cache: layer`, and any page with `opacity < 1`. A layer applies the group opacity at composite; inside it everything starts at opacity 1.
+- The cache hash covers effects, geometry, keys, prim and aux texels and the child hashes, not texture contents.
+- Limits: stencil clips inside a layer are ignored (the atlas has no stencil); external (legacy) elements inside a layer are skipped; legacy children inside layers get no content bounds.
+- Console `ui_stats` shows layers rendered, cached and views. Test commands: `layer_mark`, `expect_layers rendered|cached <op> <n>`.
+
+**Backdrop (7.3)**
+- `EngineMain::Render()` now runs the world pass first and the UI pass right after `RenderLevel` (UI takes the next view id; the swapchain copy and composite follow). `UiLayers::SetScene` hands the scene colour (`FinalFrameRenderTexture`) to the UI pass and clears it afterwards, so loading screens and world-space UI have no scene.
+- `backdrop-filter` is recorded as a degenerate layer (marker plus one Box quad with a texture, `AddBackdrop`). When one is visible the plan builds the chain once per frame: scene to half, quarter and eighth size (colour only, alpha kept at 1), each blurred with sigma 2 texels = 4, 8, 16 UI units. `blur(R)` uses the nearest level; a colour function alone uses the sigma-4 level. The colour functions of the property are applied to the backdrop quad only. Pages holding the chain are excluded from later scratch allocation.
+- Unsupported: blurring the UI under an element ("full mode"). A pass without a scene logs one warning and draws no backdrop.
+- Test hook: `backdrop_scene <image|off>` stands an image in for the scene (`p7_edges.png`, black | white at x = 720), so the test does not depend on a level. The plan's "test level with a high-contrast quad" was replaced by this.
+
+**Drag and drop, context menus (7.5)** (`UI/UiDragDrop.h/.cpp`)
+- `draggable`, `droptarget`, `ondragstart / ondragenter / ondragleave / ondrop`, `:dragging`, `UiElem::DragPayload` (`std::any`, C++ only). `dragleave` also fires just before `drop`. A drag takes the move away from the pressed element (no list scrolling under it); the release does not activate buttons.
+- The ghost is the source subtree recorded again into an unattached root (`UiSystem::RecordSubtree`, shifted and faded as one layer at 0.7) and drawn after the late UI in `EngineMain`.
+- Gamepad: `UiElem::OnNavConfirm` picks up and drops, `OnNavCancel` aborts (the page is not popped). The ghost follows focus.
+- `oncontextmenu` for a right click, a 0.5 s touch hold (not the mouse) and the `ui_context` action; the built-in action `ContextMenu('page.xml')` pushes the page and sets the style of its `.context-menu` element to the pointer position. **`ui_context` is registered in StealthAction only** (right mouse button, gamepad Y); the other games must add it. The kit has no `ContextMenu` component: a page with a `context-menu` element is the whole contract.
+
+**Studio link (7.6)**
+- `ui_pick` (the element under the pointer) and `ui_pick_at` write `SaveData/ui_pick.json` (`path`, `file`, `line`, `col`, `id`, `ref`); every element ref in the inspect JSON gained `ref` (`file:line:col`). UiStudio polls the file (400 ms) and selects the node; a file that was there before Studio looked is ignored. The runtime bridge (`ui_pick_at`) is unchanged.
+
+**SVG (7.4)**
+- nanosvg is vendored unmodified in `source/Engine/includedLibraries/nanosvg/` (`nanosvg.h`, `nanosvgrast.h`, licence, `README.txt` with the source URL and the pinned commit `239e102ec2c691f2902e20ace2ed36ee4a35cfe6`). The plan said `includedLibraries/nanosvg/` at the repo root; the engine's own third-party folder is `source/Engine/includedLibraries/`, so it went there. The implementation defines live in `UI/Render/UiSvg.cpp` (added to `Engine.vcxproj`).
+- `UiImageAtlas::Get(path, displayLongSidePx = 0)`: an `.svg` is parsed once per path (`UiSvg::Load`), then rasterised at the smallest power-of-two longer side from 16 to 512 that covers the requested device-pixel size, packed like any other image, and cached under `path#bucket`. `Width`/`Height` of the result are the drawing's own size, so layout never changes with the raster. A drawing that cannot be read, parsed or packed is a cached failure with a log line.
+- Callers pass the drawn size times the new `UiPainter::PixelScale()` (device pixels per UI unit under the current transform): `Image` (after object-fit), `background-image` (after background-size) and `border-image` (the border box). Fill-colour bleeding: nanosvg writes straight alpha, transparent texels are black, so a filtered edge may show a slight dark fringe on light backgrounds.
+- Not supported by nanosvg: text, filters, masks, CSS styling, animation, external images.
+
+**UIDB**
+- `layers`, `dragDrop`, `contextMenu` capabilities are true. `paintEffects` lists blur, drop-shadow, isolation, group opacity, `cache: layer`, backdrop-filter and a `layer-limits` entry. `hosts` gained `drag-drop` and `context-menu`. Events and the `dragging` pseudo-class come from their registries. Recipes: effect scenarios (blurred, drop-shadow, glow, group-opacity, backdrop, cached), `engine.interaction.drag-drop`, `engine.interaction.context-menu` (fixtures `p7_dragdrop.xml`, `p7_ctx.xml`; test data only). Backdrop is an effect scenario that needs the scene. SVG: capability `svg`, a `svg-images` limits entry (buckets 16 to 512, supported and unsupported features) and the recipe `engine.image.svg` (fixture `p7_svg.xml`, asset `p7_icon.svg`).
+- `UI_Reference.html` has new sections (layers, drag and drop, context menus, picking).
+
+**Tests** (StealthAction, dx11): `p7_layers` (+ probes), `p7_dragdrop` (+ probes), `p7_backdrop` (+ probes) and `p7_svg` (+ probes: centre of 128 px, 16 px and background icons are solid, the corner is transparent, the circle edge has alpha 41) all pass. Regression on dx11: `p3_paint`, `p1_visual`, `p3_pages`, `p3_motion`, `kit_menus`, `p6_dropdown`, `p2_mouse`, `p2_events`, `kit_scrollbar`, the UIDB tests. `kit_nav` was not re-run (it failed before this phase).
+
+**Gotchas**
+- `Tools/ui/sync_ui_assets.py` overwrites the games' customised `ui/kit` folders (StealthAction's differ from the canonical copy). New shaders and fixtures were copied by hand into each game; do not run the sync without checking.
+- `GameData` is staged into `Build/<game>/windows` by a post-build step that only runs when the exe relinks. After adding a fixture, run `python BuildScripts/finalize_gamedata.py <game GameData> <Build GameData>`.

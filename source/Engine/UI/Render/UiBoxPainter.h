@@ -15,11 +15,14 @@ namespace UiBoxPainter
     };
 
     // Starts the element's effects on top of the painter's current ones. The painter's transform must already be the element's.
-    Scope Begin(UiElem& e, UiPainter& p);
+    // leaveBlendToLayer: the element is a layer, and mix-blend-mode applies to its composite quad instead of to what is inside.
+    Scope Begin(UiElem& e, UiPainter& p, bool leaveBlendToLayer = false);
     void End(UiPainter& p, const Scope& scope);
 
     // Outer shadows, background colour and border, background layers, border image, inset shadows. `opacity` is the effective opacity.
     void PaintBox(UiElem& e, UiPainter& p, float opacity, const UiCorners& radii);
+    // backdrop-filter: the blurred scene behind the box (before its background), with the colour functions of the property applied.
+    void PaintBackdrop(UiElem& e, UiPainter& p, float opacity, const UiCorners& radii);
     // The outline, drawn after the element's content and children.
     void PaintOutline(UiElem& e, UiPainter& p, float opacity, const UiCorners& radii);
 
