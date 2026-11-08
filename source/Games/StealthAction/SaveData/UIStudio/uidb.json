@@ -376,48 +376,6 @@
       "host": {
         "kind": "viewport"
       },
-      "id": "document:ui/kit/pages/confirm.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/confirm.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/confirm.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/input.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/input.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/input.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
       "id": "document:ui/kit/pages/pause.xml",
       "kind": "document",
       "name": "ui/kit/pages/pause.xml",
@@ -428,69 +386,6 @@
         {
           "kind": "document",
           "path": "ui/kit/pages/pause.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/settings.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/settings.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/settings.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/sound.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/sound.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/sound.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/video.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/video.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/video.xml"
         }
       ],
       "supportsLiveCapture": false
@@ -3750,52 +3645,7 @@
       {
         "component": false,
         "imports": [],
-        "path": "ui/kit/pages/confirm.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/input.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
         "path": "ui/kit/pages/pause.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/settings.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/sound.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/video.xml",
         "styleSheets": [
           "ui/theme.css",
           "ui/kit/styles/kit.css"

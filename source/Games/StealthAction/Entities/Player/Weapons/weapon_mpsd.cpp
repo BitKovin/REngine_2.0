@@ -14,6 +14,8 @@ public:
         params.pitchModifier = 1.2f;
         params.fireVolume = 0.4f;
 
+        params.weaponOffset = vec3(0, -0.008, -0.056);
+
         params.baseSpread = 0.02f;
         params.spreadIncreasePerShot = 0.01f;
         params.maxActiveSpread = 0.7f;
@@ -21,7 +23,7 @@ public:
         params.attackDelayTime = 0.13f;
         params.switchDelayTime = 0.35f;
         params.switchDelayOnAttack = 0.09f;
-        params.weaponOffset = vec3(0.0, 0.00, -0.0);
+        //params.weaponOffset = vec3(0.0, 0.00, -0.0);
         params.bulletSpeed = 200.0f;
         params.bulletDamage = 15.0f;
         params.range = 50.0f;

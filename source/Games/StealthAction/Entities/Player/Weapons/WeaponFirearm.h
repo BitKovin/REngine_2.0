@@ -44,7 +44,7 @@ struct FirearmParams
 	float attackDelayTime = 0.3f;
 	float switchDelayTime = 0.35f;
 	float switchDelayOnAttack = 0.2f;
-	vec3 weaponOffset = vec3(0.0f, 0.0f, 0.0f);
+	vec3 weaponOffset = vec3(0.0f, 0.0f, -0.01f);
 	float bulletSpeed = 200.0f;
 	float bulletDamage = 20.0f;
 	int bulletsPerShot = 1;
@@ -189,6 +189,8 @@ public:
 	void Deserialize(json& source) override;
 
 	virtual bool IsInUltimateAkimbo();
+
+	void UpdateDebugUI() override;
 
 protected:
 

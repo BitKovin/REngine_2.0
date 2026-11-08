@@ -514,6 +514,8 @@ public:
 
 		weaponSlots.resize(10);
 
+		Camera::ViewmodelFOV = 70;
+
 		//AddComponent<PlayerTestComponent>();
 
 	}

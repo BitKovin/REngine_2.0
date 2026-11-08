@@ -12,8 +12,8 @@ public:
     {
 		params.ammoType = WeaponAmmoType::PistolBullets;
         params.magazineSize = 16; // matches GetDefaultData().startAmmo below
-        params.modelPath = "GameData/models/player/weapons/pistol/pistol.glb";
-        params.texturesLocation = "GameData/models/player/weapons/pistol/pistol.glb/";
+        params.modelPath = "GameData/models/player/weapons/pistol/pistol1911.glb";
+        params.texturesLocation = "GameData/models/player/weapons/pistol/pistol1911.glb/";
         params.modelPathTp = "GameData/models/player/weapons/pistol/pistol_tp.glb";
         params.texturesLocationTp = "GameData/models/player/weapons/pistol/pistol_tp.glb/";
         params.fireSoundEvent = "event:/Weapons/pistol/pistol_fire";
@@ -24,6 +24,7 @@ public:
         params.maxActiveSpread = 0.8f;
         params.attackDelayTime = 0.35f;
         params.switchDelayTime = 0.3f;
+		params.weaponOffset = vec3(0.0, -0.004, -0.01);
 
         params.switchDelayOnAttack = 0.2f;
         //params.weaponOffset = vec3(0.0, -0.01, -0.0);
@@ -55,7 +56,6 @@ public:
 		//params.debuffStacksOnHit = 55.0f;
 
         thirdPersonAnimator = make_unique<Animator_OneHand>(this);
-
     }
 
     void Update() override 

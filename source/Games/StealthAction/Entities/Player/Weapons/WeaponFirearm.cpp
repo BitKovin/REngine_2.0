@@ -576,7 +576,7 @@ void WeaponFirearm::LateUpdate()
 
 	vec3 offset = params.weaponOffset;
 
-	offset.x += akimboDistanceProgress * -0.012f;
+	offset.x += akimboDistanceProgress * -0.020f;
 
 	viewmodel->Position = Position + (mat3)Camera::GetRotationMatrix() * offset;
 	viewmodel->Rotation = Rotation;
@@ -697,6 +697,16 @@ void WeaponFirearm::Deserialize(json& source)
 bool WeaponFirearm::IsInUltimateAkimbo()
 {
 	return false;
+}
+
+void WeaponFirearm::UpdateDebugUI()
+{
+
+	ImGui::Begin((std::string("WeaponFirearm:") + ClassName).c_str());
+
+	ImGui::DragFloat3("offset", &params.weaponOffset.x, 0.002f, -1.0f, 1.0f);
+
+	ImGui::End();
 }
 
 void WeaponFirearm::SnapTrailPositions()
