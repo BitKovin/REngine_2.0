@@ -32,18 +32,18 @@ public:
         //params.bulletDamage = 19.0f;
         params.bulletDamage = 25.0f;
         params.range = 80.0f;
-        params.fireAnimation = "fire";
-        params.fireAnimInterpInTime = 0.08f;
+        params.fireAnimation = "fire_light";
+        params.fireAnimInterpInTime = 0.04f;
         params.activateViolenceCrime = false;
         params.hasRecoilModelOffset = false;
         params.hasRandomRecoilStrength = false;
         params.recoilShake = CameraShake(
             0.13f,                             // interpIn
-            0.5f,                              // duration
+            0.35f,                              // duration
             vec3(0.0f, 0.0f, -0.1f),           // positionAmplitude
             vec3(0.0f, 0.0f, 3.4f),            // positionFrequency
-            vec3(-3, 0.15f, 0.0f),             // rotationAmplitude
-            vec3(-1.5f, 18.8f, 0.0f),          // rotationFrequency
+            vec3(-1.7, 0.15f, 0.0f),             // rotationAmplitude
+            vec3(-1.f, 18.8f, 0.0f),          // rotationFrequency
             0.5f,                              // falloff
             CameraShake::ShakeType::SingleWave // shakeType
         );

@@ -23,15 +23,15 @@ public:
         params.maxActiveSpread = 0.8f;
         //params.attackDelayTime = 0.35f;
         //params.switchDelayTime = 0.3f;
-        params.attackDelayTime = 0.55f;
-        params.switchDelayTime = 0.5f;
+        params.attackDelayTime = 0.95f;
+        params.switchDelayTime = 0.9f;
         params.switchDelayOnAttack = 0.2f;
-        params.weaponOffset = vec3(0.0, -0.01, -0.0);
+        params.weaponOffset = vec3(0.008, -0.048, 0.01);
         params.bulletSpeed = 200.0f;
         //params.bulletDamage = 19.0f;
         params.bulletDamage = 25.0f;
         params.range = 80.0f;
-        params.fireAnimation = "fire";
+        params.fireAnimation = "fire_heavy";
         params.fireAnimInterpInTime = 0.08f;
         params.activateViolenceCrime = false;
         params.hasRecoilModelOffset = false;
@@ -41,9 +41,9 @@ public:
             0.5f,                              // duration
             vec3(0.0f, 0.0f, -0.1f),           // positionAmplitude
             vec3(0.0f, 0.0f, 3.4f),            // positionFrequency
-            vec3(-3, 0.15f, 0.0f),             // rotationAmplitude
+            vec3(-5, 0.15f, 0.0f),             // rotationAmplitude
             vec3(-1.5f, 18.8f, 0.0f),          // rotationFrequency
-            0.5f,                              // falloff
+            0.75f,                              // falloff
             CameraShake::ShakeType::SingleWave // shakeType
         );
 

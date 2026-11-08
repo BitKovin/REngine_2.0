@@ -1,9 +1,9 @@
 [
   {
-    "Name": "windows",
+    "Name": "emscripten",
     "Success": true,
-    "DurationSeconds": 98.7671517,
-    "LogFilePath": "F:\\Git\\SdlWasmEngine\\BuildLogs\\windows.log",
+    "DurationSeconds": 137.0176403,
+    "LogFilePath": "F:\\Git\\SdlWasmEngine\\BuildLogs\\emscripten.log",
     "ErrorMessage": null
   }
 ]
