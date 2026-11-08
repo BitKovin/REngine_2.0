@@ -76,6 +76,7 @@ public:
     // ── Callbacks ────────────────────────────────────────────────────────────
     std::function<void(float)> onValueChanged = nullptr; // fires as the value moves
     std::function<void(float)> onDragEnd      = nullptr; // fires once, on release
+    bool IsDragging() const { return m_drag.active; }
 
     // ── Construction ─────────────────────────────────────────────────────────
     UiSlider()

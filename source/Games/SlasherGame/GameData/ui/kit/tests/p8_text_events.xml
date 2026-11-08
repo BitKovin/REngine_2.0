@@ -1,0 +1,39 @@
+<root>
+  <styles>
+    <style>
+      #page { x: 100px; y: 60px; }
+      #left { flow-children: down; gap: 12px; }
+      #side { flow-children: down; gap: 12px; x: 500px; }
+      #log { width: 10px; height: 10px; }
+      Label { font-size: 22px; color: #ffffff; }
+      TextEntry, MultilineTextEntry { width: 320px; font-size: 22px; color: #ffffff; background-color: #222222; border: 2px solid #555555; padding: 0 8px; --selection-color: rgba(80, 120, 220, 0.5); }
+      TextEntry { height: 40px; vertical-align: center; }
+      MultilineTextEntry { height: auto; min-height: 40px; max-height: 120px; padding: 6px 8px; line-height: 28px; }
+      TextEntry.editing, MultilineTextEntry.editing { background-color: #203040; border-color: #88aaff; }
+      #te_fit { width: auto; min-width: 60px; }
+      .btn { width: 240px; height: 44px; background-color: #303030; pulse-duration: 0.3s; }
+      .btn:hover { background-color: #404040; sound-enter: "ui_click"; sound-exit: "ui_click"; sound-volume: 0.5; }
+      .btn:click { background-color: #804020; sound-enter: "ui_click"; }
+      .btn:doubleclick { background-color: #208040; }
+      .btn:disabled { opacity: 0.4; }
+    </style>
+  </styles>
+  <Panel id="page">
+  <Panel id="left">
+    <Panel id="log"/>
+    <TextEntry id="te" placeholder="name" oneditstart="AddClass('#log','editstart')" oninput="AddClass('#log','input')" onchange="AddClass('#log','change')"
+               onsubmit="AddClass('#log','submit')" oneditend="AddClass('#log','editend')" oneditcancel="AddClass('#log','editcancel')"/>
+    <TextEntry id="te_num" numeric="true" onfocus="AddClass('#log','focus')" oninputrejected="AddClass('#log','rejected')"/>
+    <TextEntry id="te_len" max-length="5" oninputrejected="AddClass('#log','rej')"/>
+    <TextEntry id="te_fit" placeholder="fit"/>
+    <MultilineTextEntry id="ml" placeholder="notes"/>
+  </Panel>
+  <Panel id="side">
+    <Button id="btn" class="btn" onclick="AddClass('#log','click')" onclickstart="AddClass('#log','clickstart')" onclickend="AddClass('#log','clickend')"
+            ondoubleclick="AddClass('#log','doubleclick')" onactivate="AddClass('#log','activate')" onmouseover="AddClass('#log','over')" onmouseout="AddClass('#log','out')">
+      <Label text="Click me"/>
+    </Button>
+    <Button id="btn_off" class="btn" enabled="false" onclick="AddClass('#log','offclick')" ondenied="AddClass('#log','denied')"><Label text="Disabled"/></Button>
+  </Panel>
+  </Panel>
+</root>

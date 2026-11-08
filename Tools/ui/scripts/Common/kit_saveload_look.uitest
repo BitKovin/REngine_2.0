@@ -1,0 +1,19 @@
+# Screenshots of the save and load pages. Run once with an empty SaveData folder and once with a few .savg files in it.
+wait 8
+action pause
+wait_frames 10
+console ui_focus pload
+wait_frames 3
+action ui_confirm
+wait_frames 20
+console ui_focus slots
+wait_frames 5
+ui_screenshot look_load
+action ui_cancel
+wait_frames 15
+console ui_focus psave
+wait_frames 3
+action ui_confirm
+wait_frames 20
+ui_screenshot look_save
+quit

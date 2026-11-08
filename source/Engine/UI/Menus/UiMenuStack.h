@@ -19,6 +19,9 @@ public:
     void PopTo(UiElem* page);                      // pops until `page` is the top (does nothing when it is not on the stack)
     void Replace(const std::string& layoutPath);
     void Clear();
+    // Forced and silent (level change): every page, also the ones still leaving, is dropped at once. No popped / hidden / shown
+    // events, no leave motion, no back handlers, no confirm-changes page, no pause callback: as if the pages had never been there.
+    void Reset();
     void Back();                                   // what ui_cancel does
 
     UiElem* Top() const;

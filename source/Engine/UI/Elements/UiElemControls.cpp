@@ -1,6 +1,7 @@
 #include "UiElemControls.h"
 
 #include <UI/Elements/UiElemPanel.h>
+#include <UI/UiSystem.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -38,6 +39,7 @@ void UiElemToggleButton::OnActivate()
 {
     SetChecked(!Checked());
     m_binding.Poll();
+    UiSystem::QueueEvent(*this, Checked() ? "checked" : "unchecked");
 }
 
 void UiElemToggleButton::Update()
@@ -89,6 +91,7 @@ void UiElemRadioButton::OnActivate()
                         other->SetChecked(false);
                 }
         }
+        UiSystem::QueueEvent(*this, "checked");
     }
     m_binding.Poll();
 }

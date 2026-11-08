@@ -1,6 +1,7 @@
 #include "UiActions.h"
 
 #include <Logger.hpp>
+#include <Entities/SoundPlayer.h>
 #include <SoundSystem/SoundManager.hpp>
 #include <UI/Elements/UiElem.h>
 #include <UI/Markup/UiMarkupLog.h>
@@ -12,6 +13,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <unordered_map>
 
 namespace
 {
@@ -251,15 +253,22 @@ const std::vector<UiActionInfo>& UiActions::Builtins()
     return list;
 }
 
-void UiActions::PlaySoundPath(const std::string& path)
+void UiActions::PlaySoundPath(const std::string& path, float volume)
 {
-    auto sound = SoundManager::GetSoundFromPath(path);
-    if (sound)
-    {
-        sound->Type = SoundType::UI;
-        sound->Is2D = true;
-        sound->Play();
-    }
+    if (path.empty() || volume <= 0.f)
+        return;
+    static std::unordered_map<std::string, uint64_t> lastPlayed;
+    const uint64_t now = SDL_GetTicks64();
+    uint64_t& last = lastPlayed[path];
+    if (last != 0 && now - last < 40)
+        return;
+    last = now;
+    // The player entity removes itself after `lifetime`: a wav file lasts its length (the buffer is cached by the load the player does
+    // anyway), an FMOD event ("event:/...") has no known length and is removed after 10 seconds.
+    float lifetime = 10.f;
+    if (!path.starts_with("event:"))
+        lifetime = SoundManager::LoadOrGetSoundFileBuffer(path).duration + 0.5f;
+    SoundPlayer::PlayOneshot(path, lifetime, volume, true);
 }
 
 bool UiActions::IsBuiltin(const std::string& name)
@@ -272,19 +281,50 @@ bool UiActions::IsBuiltin(const std::string& name)
 
 const std::vector<UiEventInfo>& UiActions::Events()
 {
+    // "(Name)" in a description marks an event that only that element raises.
     static const std::vector<UiEventInfo> list = {
-        { "activate", "The element was activated by confirm, a click or a touch" },
-        { "blur", "The element lost navigation focus" },
+        { "activate", "The element was activated by confirm, a click, a touch or its hotkey" },
+        { "blur", "The element lost navigation focus (the end of focus)" },
         { "cancel", "Back was requested on this page, before the stack handles it" },
+        { "change", "(TextEntry, MultilineTextEntry) Editing ended with a different text than it began with" },
+        { "checked", "(ToggleButton, RadioButton) The user checked the element" },
+        { "click", "A press and its release both landed on the element (pointer or touch; not confirm)" },
+        { "clickend", "The press that started on the element ended: released, or the pointer left the element" },
+        { "clickstart", "The primary button or a touch went down on the element" },
+        { "close", "(DropDown) The list closed" },
         { "contextmenu", "A right click, a 0.5 s touch hold or the ui_context action on the element (UiDragDrop::PointerPos() is where)" },
+        { "denied", "The user tried to activate, click or edit the element while it is disabled" },
+        { "disabled", "enabled=\"false\" was applied" },
+        { "doubleclick", "A second click within 0.35 s and 8 px of the first" },
+        { "dragend", "A drag that this element started finished, dropped or not" },
         { "dragenter", "A dragged element entered this drop target" },
         { "dragleave", "A dragged element left this drop target" },
         { "dragstart", "This draggable element was picked up; set UiElem::DragPayload here" },
         { "drop", "A dragged element was dropped on this drop target" },
+        { "editcancel", "(TextEntry, MultilineTextEntry) Editing was cancelled and the text reverted" },
+        { "editend", "(TextEntry, MultilineTextEntry) Editing ended, committed or cancelled" },
+        { "editstart", "(TextEntry, MultilineTextEntry) Editing began" },
+        { "enabled", "enabled=\"true\" was applied to a disabled element" },
         { "focus", "The element received navigation focus" },
+        { "focusin", "Focus entered the element or one of its descendants (also raised on every ancestor of the focused element)" },
+        { "focusout", "Focus left the element or one of its descendants (also raised on every ancestor of the element that lost focus)" },
+        { "hidden", "(page) Another page was pushed on top, or the page was popped" },
+        { "input", "(TextEntry, MultilineTextEntry) The text changed by typing, deleting, cutting or pasting" },
+        { "inputrejected", "(TextEntry, MultilineTextEntry) A typed or pasted character was refused by the filter or max-length" },
         { "load", "Once, after the element's first layout" },
         { "mouseout", "The pointer left the element" },
         { "mouseover", "The pointer entered the element" },
+        { "open", "(DropDown) The list opened" },
+        { "popped", "(page) The page was removed from its menu stack" },
+        { "pushed", "(page) The page was pushed on its menu stack" },
+        { "scroll", "A scroll container changed its scroll offset" },
+        { "shown", "(page) The page became the top page" },
+        { "slideend", "(Slider) The handle was released" },
+        { "slidestart", "(Slider) The handle was grabbed" },
+        { "submit", "(TextEntry, MultilineTextEntry) Enter (Ctrl+Enter in a multi-line field) committed the text" },
+        { "unchecked", "(ToggleButton) The user unchecked the element" },
+        { "valuechanged", "(value widgets) The value changed; the variable value holds it" },
+        { "wheel", "The mouse wheel turned over the element (before the scroll container takes it)" },
     };
     return list;
 }

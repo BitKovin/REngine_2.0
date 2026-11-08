@@ -534,6 +534,7 @@
     <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="UI\Editor\UiEditor.cpp" />
+    <ClCompile Include="UI\Elements\UiElemTextInput.cpp" />
     <ClCompile Include="UI\Layout\LayoutBlueprint.cpp" />
     <ClCompile Include="UI\Layout\LoadedLayoutInstance.cpp" />
     <ClCompile Include="UI\Layout\UiHotReload.cpp" />
@@ -872,6 +873,7 @@
     <ClInclude Include="Time.hpp" />
     <ClInclude Include="UI\Editor\UiEditor.h" />
     <ClInclude Include="UI\Editor\UiEditorConfig.h" />
+    <ClInclude Include="UI\Elements\UiElemTextInput.h" />
     <ClInclude Include="UI\Layout\LayoutBlueprint.h" />
     <ClInclude Include="UI\Layout\LoadedLayoutInstance.h" />
     <ClInclude Include="UI\Layout\UiHotReload.h" />

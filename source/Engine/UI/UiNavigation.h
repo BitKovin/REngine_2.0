@@ -94,7 +94,7 @@ public:
         }
 
         // pages and scripts that set a focus while the pointer is in charge leave nothing focused
-        if (MouseNavigation && Focused && Focused != s_hoverFocus)
+        if (MouseNavigation && Focused && Focused != s_hoverFocus && !Focused->HoldsFocus())
             ClearFocus();
 
         if (!Focused && !MouseNavigation)
@@ -131,6 +131,11 @@ private:
     // not pointer-driven focus transfer.
     static void UpdateHoverFocus()
     {
+        if (Focused && Focused->HoldsFocus())
+        {
+            s_hoverFocus = Focused;   // a text field being edited keeps the focus until it ends the edit itself
+            return;
+        }
         std::vector<UiElement*> candidates;
         CollectHover(candidates);
 

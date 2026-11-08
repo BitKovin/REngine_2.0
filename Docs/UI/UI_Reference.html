@@ -28,7 +28,7 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </style></head><body><div class="wrap"><nav><b>Core</b><a href="#overview">Overview</a><a href="#structure">File structure</a><a href="#elements">Elements</a><a href="#richtext">Text and rich text</a><a href="#vars">Variables, localisation</a><a href="#styles">Styles</a><a href="#layout">Layout, scrolling</a><a href="#painting">Painting</a><a href="#svg">SVG icons</a><a href="#layers">Layers, effects</a><a href="#motion">Motion</a><a href="#events">Events, code-behind</a><a href="#components">Components</a><a href="#menus">Menu stack, input</a><a href="#binding">Settings binding</a><a href="#hot">Hot reload</a><a href="#tooling">Tools</a><b>Kit</b><a href="#kit-use">Using the kit</a><a href="#kit-components">Components</a><a href="#kit-pages">Pages</a><a href="#kit-settings">Settings</a><b>Appendix</b><a href="#tags-ref">CSS properties</a></nav><main>
 <header class="hero">
   <h1>UI System Reference</h1>
-  <p>Markup (XML), styles (a CSS dialect), text, motion, menus and tooling of the engine's UI. Built from the game's <code>uidb.json</code> (engine build Nov  7 2026 23:36:30, game StealthAction): the tables are what the engine registered.</p>
+  <p>Markup (XML), styles (a CSS dialect), text, motion, menus and tooling of the engine's UI. Built from the game's <code>uidb.json</code> (engine build Nov  8 2026 18:51:48, game StealthAction): the tables are what the engine registered.</p>
   <p class="legend"><span class="badge core">Core</span> engine functionality, the same for every game.
      <span class="badge kit">Kit</span> the shared menu kit built <em>on top of</em> the core: pages, components and a theme. A game can use the core without the kit.</p>
 </header>
@@ -271,6 +271,31 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 </tbody></table></div>
 <pre><code>&lt;Movie src="GameData/videos/intro.mp4" loop="true"/&gt;</code></pre>
 </div>
+<div class="tag" id="tag-MultilineTextEntry"><h4><code>&lt;MultilineTextEntry&gt;</code> <span class="chip">input</span></h4><p>Multi-line text field: Enter inserts a line break, Ctrl+Enter submits; wraps at the box width, height: auto grows with the text (min-rows, max-rows) and then scrolls. Events and variable as TextEntry</p>
+<div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
+<tr><td><code>droptarget</code></td><td>bool</td><td><code>false</code></td><td>true makes the element take drops of a dragged element</td></tr>
+<tr><td><code>ondragstart</code></td><td>actions</td><td></td><td>Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here</td></tr>
+<tr><td><code>ondragenter</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag enters it</td></tr>
+<tr><td><code>ondragleave</code></td><td>actions</td><td></td><td>Calls run on a drop target when a drag leaves it</td></tr>
+<tr><td><code>ondrop</code></td><td>actions</td><td></td><td>Calls run on a drop target when the dragged element is dropped on it</td></tr>
+<tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
+<tr><td><code>text</code></td><td>text</td><td></td><td>Initial text</td></tr>
+<tr><td><code>placeholder</code></td><td>text</td><td></td><td>Shown while empty</td></tr>
+<tr><td><code>max-length</code></td><td>number</td><td><code>0</code></td><td>Most characters (code points); 0 = unlimited</td></tr>
+<tr><td><code>password</code></td><td>bool</td><td><code>false</code></td><td>Mask the characters (no copy or cut)</td></tr>
+<tr><td><code>numeric</code></td><td>bool</td><td><code>false</code></td><td>Digits, one leading '-' and one '.' only</td></tr>
+<tr><td><code>integer</code></td><td>bool</td><td><code>false</code></td><td>Digits and one leading '-' only</td></tr>
+<tr><td><code>allowed-chars</code></td><td>text</td><td></td><td>Only these characters can be typed or pasted</td></tr>
+<tr><td><code>read-only</code></td><td>bool</td><td><code>false</code></td><td>Shown and focusable, never edited</td></tr>
+<tr><td><code>select-on-focus</code></td><td>bool</td><td><code>false</code></td><td>Starting to edit selects the whole text</td></tr>
+<tr><td><code>blur-on-submit</code></td><td>bool</td><td><code>false</code></td><td>Enter also takes the navigation focus away</td></tr>
+<tr><td><code>min-rows</code></td><td>number</td><td><code>1</code></td><td>Least lines the box grows from (height: auto)</td></tr>
+<tr><td><code>max-rows</code></td><td>number</td><td><code>0</code></td><td>Most lines the box grows to, then it scrolls; 0 = no limit</td></tr>
+<tr><td><code>wrap</code></td><td>bool</td><td><code>true</code></td><td>Wrap long lines (white-space: pre turns it off)</td></tr>
+<tr><td><code>scrollbar</code></td><td>bool</td><td><code>true</code></td><td>Show the scrollbar (class .scrollbar / .thumb)</td></tr>
+</tbody></table></div>
+</div>
 <div class="tag" id="tag-Panel"><h4><code>&lt;Panel&gt;</code> <span class="chip">layout</span></h4><p>The box: background, border, radius, shadow and the container of other elements. Its <code>flow-children</code> decides how children are placed.</p>
 <div class="tw"><table class=""><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
 <tr><td><code>draggable</code></td><td>bool</td><td><code>false</code></td><td>true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart</td></tr>
@@ -370,9 +395,14 @@ footer{margin-top:60px;color:var(--dim);font-size:13px}
 <tr><td><code>oncontextmenu</code></td><td>actions</td><td></td><td>Calls run on a right click, a 0.5 s touch hold or the ui_context action</td></tr>
 <tr><td><code>text</code></td><td>text</td><td></td><td>Initial text</td></tr>
 <tr><td><code>placeholder</code></td><td>text</td><td></td><td>Shown while empty</td></tr>
-<tr><td><code>max-length</code></td><td>number</td><td><code>0</code></td><td>0 = unlimited</td></tr>
-<tr><td><code>password</code></td><td>bool</td><td><code>false</code></td><td>Mask the characters</td></tr>
-<tr><td><code>numeric</code></td><td>bool</td><td><code>false</code></td><td>Digits, '-' and '.' only</td></tr>
+<tr><td><code>max-length</code></td><td>number</td><td><code>0</code></td><td>Most characters (code points); 0 = unlimited</td></tr>
+<tr><td><code>password</code></td><td>bool</td><td><code>false</code></td><td>Mask the characters (no copy or cut)</td></tr>
+<tr><td><code>numeric</code></td><td>bool</td><td><code>false</code></td><td>Digits, one leading '-' and one '.' only</td></tr>
+<tr><td><code>integer</code></td><td>bool</td><td><code>false</code></td><td>Digits and one leading '-' only</td></tr>
+<tr><td><code>allowed-chars</code></td><td>text</td><td></td><td>Only these characters can be typed or pasted</td></tr>
+<tr><td><code>read-only</code></td><td>bool</td><td><code>false</code></td><td>Shown and focusable, never edited</td></tr>
+<tr><td><code>select-on-focus</code></td><td>bool</td><td><code>false</code></td><td>Starting to edit selects the whole text</td></tr>
+<tr><td><code>blur-on-submit</code></td><td>bool</td><td><code>false</code></td><td>Enter also takes the navigation focus away</td></tr>
 </tbody></table></div>
 <pre><code>&lt;TextEntry placeholder="Name" max-length="16"/&gt;</code></pre>
 </div>
@@ -523,16 +553,25 @@ Button:hover, Button:focus { background-color: #333; }   /* list + states */
 <p>Supported: type, class, id, descendant, child, selector lists. Not supported: sibling and attribute selectors, <code>@media</code> (an unsupported at-rule is skipped with a warning). At-rules that work: <code>@import</code>, <code>@keyframes</code>, <code>@font-face</code>.</p>
 <h3>Pseudo-classes</h3><div class="tw"><table class=""><thead><tr><th>Pseudo-class</th><th>Matches</th></tr></thead><tbody>
 <tr><td><code>:active</code></td><td>being pressed</td></tr>
+<tr><td><code>:change</code></td><td></td></tr>
 <tr><td><code>:checked</code></td><td>toggle / radio is on</td></tr>
+<tr><td><code>:click</code></td><td></td></tr>
+<tr><td><code>:contextmenu</code></td><td></td></tr>
+<tr><td><code>:denied</code></td><td></td></tr>
 <tr><td><code>:disabled</code></td><td>enabled="false"</td></tr>
+<tr><td><code>:doubleclick</code></td><td></td></tr>
 <tr><td><code>:dragging</code></td><td></td></tr>
+<tr><td><code>:drop</code></td><td></td></tr>
 <tr><td><code>:entering</code></td><td>page being pushed (first style pass)</td></tr>
 <tr><td><code>:focus</code></td><td>has navigation focus</td></tr>
 <tr><td><code>:focus-within</code></td><td>it or a descendant has focus</td></tr>
 <tr><td><code>:hover</code></td><td>pointer over the element</td></tr>
+<tr><td><code>:input</code></td><td></td></tr>
 <tr><td><code>:leaving</code></td><td>page being popped (until the transition ends, 2 s at most)</td></tr>
+<tr><td><code>:rejected</code></td><td></td></tr>
 <tr><td><code>:root</code></td><td>the top element of a document instance</td></tr>
 <tr><td><code>:selected</code></td><td>selected="true"</td></tr>
+<tr><td><code>:submit</code></td><td></td></tr>
 </tbody></table></div>
 <h3>Values and units</h3><pre><code>width: 300px;            /* px: one UI unit = one pixel of the 1080-tall UI target */
 width: 50%;               /* of the parent's content box */
@@ -689,7 +728,7 @@ color: rgb(255, 136, 0);  color: rgba(255, 136, 0, 0.5);   color: hsl(30, 100%, 
 <li>With the setting <code>ui.reduced_motion</code> (or <code>ui_reduced_motion</code>) transitions are instant and infinite animations do not run.</li>
 <li>Easings: <code>cubic-bezier()</code>, <code>ease</code>, <code>ease-in</code>, <code>ease-in-out</code>, <code>ease-out</code>, <code>linear</code>, <code>step-end</code>, <code>step-start</code>, <code>steps()</code>.</li>
 </ul>
-<h4>Properties that can be transitioned or animated</h4><p><code>background-color</code> <code>border-bottom-color</code> <code>border-bottom-left-radius</code> <code>border-bottom-right-radius</code> <code>border-bottom-width</code> <code>border-left-color</code> <code>border-left-width</code> <code>border-right-color</code> <code>border-right-width</code> <code>border-top-color</code> <code>border-top-left-radius</code> <code>border-top-right-radius</code> <code>border-top-width</code> <code>box-shadow</code> <code>color</code> <code>filter</code> <code>gap</code> <code>height</code> <code>margin-bottom</code> <code>margin-left</code> <code>margin-right</code> <code>margin-top</code> <code>max-height</code> <code>max-width</code> <code>min-height</code> <code>min-width</code> <code>opacity</code> <code>outline-color</code> <code>outline-offset</code> <code>outline-width</code> <code>padding-bottom</code> <code>padding-left</code> <code>padding-right</code> <code>padding-top</code> <code>text-shadow</code> <code>transform</code> <code>wash-color</code> <code>width</code> <code>x</code> <code>y</code></p>
+<h4>Properties that can be transitioned or animated</h4><p><code>kit-dropdown-open</code> <code>background-color</code> <code>border-bottom-color</code> <code>border-bottom-left-radius</code> <code>border-bottom-right-radius</code> <code>border-bottom-width</code> <code>border-left-color</code> <code>border-left-width</code> <code>border-right-color</code> <code>border-right-width</code> <code>border-top-color</code> <code>border-top-left-radius</code> <code>border-top-right-radius</code> <code>border-top-width</code> <code>box-shadow</code> <code>color</code> <code>filter</code> <code>gap</code> <code>height</code> <code>margin-bottom</code> <code>margin-left</code> <code>margin-right</code> <code>margin-top</code> <code>max-height</code> <code>max-width</code> <code>min-height</code> <code>min-width</code> <code>opacity</code> <code>outline-color</code> <code>outline-offset</code> <code>outline-width</code> <code>padding-bottom</code> <code>padding-left</code> <code>padding-right</code> <code>padding-top</code> <code>text-shadow</code> <code>transform</code> <code>wash-color</code> <code>width</code> <code>x</code> <code>y</code></p>
 </section>
 
 <section id="events"><h2>10. Events, actions and code-behind <span class="badge core">Core</span></h2>
@@ -701,19 +740,55 @@ color: rgb(255, 136, 0);  color: rgba(255, 136, 0, 0.5);   color: hsl(30, 100%, 
 
 &lt;Panel id="page" default-focus="false" oncancel="PlaySound('x.wav')" onload="SetFocus('#play')"&gt;</code></pre>
 <div class="tw"><table class=""><thead><tr><th>Event attribute</th><th>Fires when</th></tr></thead><tbody>
-<tr><td><code>onactivate</code></td><td>The element was activated by confirm, a click or a touch</td></tr>
-<tr><td><code>onblur</code></td><td>The element lost navigation focus</td></tr>
+<tr><td><code>onactivate</code></td><td>The element was activated by confirm, a click, a touch or its hotkey</td></tr>
+<tr><td><code>onblur</code></td><td>The element lost navigation focus (the end of focus)</td></tr>
 <tr><td><code>oncancel</code></td><td>Back was requested on this page, before the stack handles it</td></tr>
+<tr><td><code>onchange</code></td><td>(TextEntry, MultilineTextEntry) Editing ended with a different text than it began with</td></tr>
+<tr><td><code>onchecked</code></td><td>(ToggleButton, RadioButton) The user checked the element</td></tr>
+<tr><td><code>onclick</code></td><td>A press and its release both landed on the element (pointer or touch; not confirm)</td></tr>
+<tr><td><code>onclickend</code></td><td>The press that started on the element ended: released, or the pointer left the element</td></tr>
+<tr><td><code>onclickstart</code></td><td>The primary button or a touch went down on the element</td></tr>
+<tr><td><code>onclose</code></td><td>(DropDown) The list closed</td></tr>
 <tr><td><code>oncontextmenu</code></td><td>A right click, a 0.5 s touch hold or the ui_context action on the element (UiDragDrop::PointerPos() is where)</td></tr>
+<tr><td><code>ondenied</code></td><td>The user tried to activate, click or edit the element while it is disabled</td></tr>
+<tr><td><code>ondisabled</code></td><td>enabled="false" was applied</td></tr>
+<tr><td><code>ondoubleclick</code></td><td>A second click within 0.35 s and 8 px of the first</td></tr>
+<tr><td><code>ondragend</code></td><td>A drag that this element started finished, dropped or not</td></tr>
 <tr><td><code>ondragenter</code></td><td>A dragged element entered this drop target</td></tr>
 <tr><td><code>ondragleave</code></td><td>A dragged element left this drop target</td></tr>
 <tr><td><code>ondragstart</code></td><td>This draggable element was picked up; set UiElem::DragPayload here</td></tr>
 <tr><td><code>ondrop</code></td><td>A dragged element was dropped on this drop target</td></tr>
+<tr><td><code>oneditcancel</code></td><td>(TextEntry, MultilineTextEntry) Editing was cancelled and the text reverted</td></tr>
+<tr><td><code>oneditend</code></td><td>(TextEntry, MultilineTextEntry) Editing ended, committed or cancelled</td></tr>
+<tr><td><code>oneditstart</code></td><td>(TextEntry, MultilineTextEntry) Editing began</td></tr>
+<tr><td><code>onenabled</code></td><td>enabled="true" was applied to a disabled element</td></tr>
 <tr><td><code>onfocus</code></td><td>The element received navigation focus</td></tr>
+<tr><td><code>onfocusin</code></td><td>Focus entered the element or one of its descendants (also raised on every ancestor of the focused element)</td></tr>
+<tr><td><code>onfocusout</code></td><td>Focus left the element or one of its descendants (also raised on every ancestor of the element that lost focus)</td></tr>
+<tr><td><code>onhidden</code></td><td>(page) Another page was pushed on top, or the page was popped</td></tr>
+<tr><td><code>oninput</code></td><td>(TextEntry, MultilineTextEntry) The text changed by typing, deleting, cutting or pasting</td></tr>
+<tr><td><code>oninputrejected</code></td><td>(TextEntry, MultilineTextEntry) A typed or pasted character was refused by the filter or max-length</td></tr>
 <tr><td><code>onload</code></td><td>Once, after the element's first layout</td></tr>
 <tr><td><code>onmouseout</code></td><td>The pointer left the element</td></tr>
 <tr><td><code>onmouseover</code></td><td>The pointer entered the element</td></tr>
+<tr><td><code>onopen</code></td><td>(DropDown) The list opened</td></tr>
+<tr><td><code>onpopped</code></td><td>(page) The page was removed from its menu stack</td></tr>
+<tr><td><code>onpushed</code></td><td>(page) The page was pushed on its menu stack</td></tr>
+<tr><td><code>onscroll</code></td><td>A scroll container changed its scroll offset</td></tr>
+<tr><td><code>onshown</code></td><td>(page) The page became the top page</td></tr>
+<tr><td><code>onslideend</code></td><td>(Slider) The handle was released</td></tr>
+<tr><td><code>onslidestart</code></td><td>(Slider) The handle was grabbed</td></tr>
+<tr><td><code>onsubmit</code></td><td>(TextEntry, MultilineTextEntry) Enter (Ctrl+Enter in a multi-line field) committed the text</td></tr>
+<tr><td><code>onunchecked</code></td><td>(ToggleButton) The user unchecked the element</td></tr>
+<tr><td><code>onvaluechanged</code></td><td>(value widgets) The value changed; the variable value holds it</td></tr>
+<tr><td><code>onwheel</code></td><td>The mouse wheel turned over the element (before the scroll container takes it)</td></tr>
 </tbody></table></div>
+<p>Every element raises the generic events: <code>focus</code> / <code>blur</code> (the element itself gained or lost the focus; <code>focusin</code> / <code>focusout</code> also reach every ancestor), <code>clickstart</code> (press), <code>clickend</code> (the press ended, released or the pointer left), <code>click</code>, <code>doubleclick</code> (two clicks within 350 ms and 8 px), <code>mouseover</code> / <code>mouseout</code>, <code>contextmenu</code>, <code>wheel</code>, <code>scroll</code> and <code>enabled</code> / <code>disabled</code>. A press on a disabled element raises <code>denied</code> and nothing else. Controls add their own: <code>valuechanged</code>, <code>checked</code> / <code>unchecked</code>, <code>open</code> / <code>close</code> (drop-down), <code>slidestart</code> / <code>slideend</code>, the drag events, and for text fields <code>input</code>, <code>change</code>, <code>submit</code>, <code>editstart</code>, <code>editend</code>, <code>editcancel</code>, <code>inputrejected</code>. Pages raise <code>pushed</code>, <code>hidden</code>, <code>shown</code>, <code>popped</code>. C++ can subscribe with <code>element->Listen("click", fn)</code>.</p>
+<h3 id="sounds">Sounds and pulses in styles</h3>
+<p>Sounds belong to the style and follow its states, the way an animation starts when a rule begins to match: <code>sound-enter: url("GameData/sounds/ui/hover.wav")</code> plays when the rule starts to match the element (a pseudo-class or class turns on), <code>sound-exit</code> when it stops matching, and <code>sound-volume</code> of the same rule scales both. They are written per rule, not inherited or cascaded, so <code>Button:hover { sound-enter: ... }</code> and <code>Button:click { sound-enter: ... }</code> each play their own and every button that matches shares them. Building or reloading a page is silent (the first resolve only records the rules). A disabled element plays only the sounds of rules that mention <code>:disabled</code> or <code>:denied</code>. The same file is not restarted within 40 ms.</p>
+<p>The states that exist anyway (<code>:hover</code>, <code>:active</code>, <code>:focus</code>, <code>:checked</code>, <code>:selected</code>, <code>:disabled</code>, <code>:entering</code>, <code>:leaving</code>, <code>:dragging</code>) cover most sounds. For things that happen once, an event puts the element in a <b>pulse</b> pseudo-class for <code>pulse-duration</code> (default 0.2 s): <code>:click</code> (a click or confirm), <code>:doubleclick</code>, <code>:contextmenu</code>, <code>:denied</code> (a press on the disabled element), <code>:change</code> (the user changed the value), <code>:input</code> (a character was typed), <code>:submit</code>, <code>:rejected</code> (typing was refused) and <code>:drop</code>. A rule on a pulse can animate and make a sound: <code>Button:doubleclick { animation: flash 0.3s; sound-enter: "..."; }</code>. A pulse that comes again while it is on only lasts longer, so it does not replay the sound.</p>
+<h3 id="textentry">Text fields</h3>
+<p><code>&lt;TextEntry&gt;</code> and <code>&lt;MultilineTextEntry&gt;</code> are native elements. A click, or confirm on a focused field, starts editing; while editing the field owns the keyboard. Enter commits (in a multi-line field Enter inserts a line break and Ctrl+Enter commits), Escape reverts to the text from before the edit, and leaving the field commits. Supported: caret and selection by keyboard and pointer (double click selects a word, triple click the line), Ctrl+arrows and Ctrl+Backspace/Delete by word, Home/End, PageUp/PageDown, clipboard (Ctrl+C/X/V), undo and redo, <code>max-length</code>, <code>numeric</code>, <code>integer</code>, <code>allowed-chars</code>, <code>password</code>, <code>read-only</code>, <code>select-on-focus</code>, <code>placeholder</code>. A field with <code>width: auto</code> grows with its text; a multi-line field grows between <code>min-rows</code> and <code>max-rows</code>, then scrolls. Style it with the box properties, <code>--caret-color</code>, <code>--selection-color</code>, <code>--placeholder-color</code>, the <code>:focus</code> state and the class <code>.editing</code>. The variable <code>value</code> holds the text.</p>
 <p>A name resolves in this order: a handler registered with <code>On(name)</code> on the element or the nearest ancestor that has one, then a built-in action, otherwise an "unhandled action" warning (once). Unknown names are reported when the page loads, not only on click.</p>
 <h3>Built-in actions</h3><div class="tw"><table class=""><thead><tr><th>Action</th><th>What it does</th></tr></thead><tbody>
 <tr><td><code>AddClass(selector, class)</code></td><td>Adds a class to the element found by #id or id path</td></tr>
@@ -906,7 +981,7 @@ expect psave focus == 1
 console ui_focus psettings                # any console command
 ui_screenshot 02_pause
 set_var name Ann    set_class #box hot    sim_device gamepad    mouse_down 662 65    mouse_up    wheel -3</code></pre>
-<p>Commands: <p><code>action</code> <code>anim_pause</code> <code>anim_seek</code> <code>backdrop_scene</code> <code>click</code> <code>console</code> <code>expect</code> <code>expect_class</code> <code>expect_engine</code> <code>expect_exists</code> <code>expect_layers</code> <code>expect_missing</code> <code>expect_no_overflow</code> <code>expect_rect</code> <code>expect_roots</code> <code>expect_setting</code> <code>expect_stack</code> <code>expect_ui_errors</code> <code>expect_ui_warnings</code> <code>expect_uidb</code> <code>focus_trap</code> <code>layer_mark</code> <code>log</code> <code>mouse_down</code> <code>mouse_move</code> <code>mouse_off</code> <code>mouse_up</code> <code>prompt_provider_test</code> <code>quit</code> <code>screenshot</code> <code>set_class</code> <code>set_setting</code> <code>set_var</code> <code>sim_device</code> <code>test_settings</code> <code>type</code> <code>ui_screenshot</code> <code>uidb_selftest</code> <code>wait</code> <code>wait_frames</code> <code>wheel</code></p></p>
+<p>Commands: <p><code>action</code> <code>anim_pause</code> <code>anim_seek</code> <code>backdrop_scene</code> <code>click</code> <code>clipboard</code> <code>console</code> <code>expect</code> <code>expect_class</code> <code>expect_engine</code> <code>expect_exists</code> <code>expect_layers</code> <code>expect_missing</code> <code>expect_no_overflow</code> <code>expect_rect</code> <code>expect_roots</code> <code>expect_setting</code> <code>expect_stack</code> <code>expect_ui_errors</code> <code>expect_ui_warnings</code> <code>expect_uidb</code> <code>focus_trap</code> <code>key</code> <code>layer_mark</code> <code>log</code> <code>mouse_down</code> <code>mouse_move</code> <code>mouse_off</code> <code>mouse_up</code> <code>prompt_provider_test</code> <code>quit</code> <code>screenshot</code> <code>set_class</code> <code>set_setting</code> <code>set_var</code> <code>sim_device</code> <code>test_settings</code> <code>type</code> <code>ui_screenshot</code> <code>uidb_selftest</code> <code>wait</code> <code>wait_frames</code> <code>wheel</code></p></p>
 <p><code>-ui_lint</code> reports problems without running the game. Always add <code>-headless</code> for automated runs.</p>
 </section>
 
@@ -934,7 +1009,7 @@ KitRebind::Open(request);                                        // key / button
   --kit-menu-glow: 0 0 14px rgba(255, 70, 40, 0.95);     /* a whole text-shadow value */
 }
 /* a page: &lt;styles&gt;&lt;include src="GameData/ui/theme.css"/&gt;&lt;/styles&gt; */</code></pre>
-<p>Tokens: <p><code>--kit-accent</code> <code>--kit-action-size</code> <code>--kit-button</code> <code>--kit-button-border</code> <code>--kit-button-hover</code> <code>--kit-button-size</code> <code>--kit-caption</code> <code>--kit-caption-size</code> <code>--kit-confirm-accent</code> <code>--kit-confirm-border</code> <code>--kit-confirm-panel</code> <code>--kit-danger</code> <code>--kit-danger-hover</code> <code>--kit-dialog-button-size</code> <code>--kit-dialog-size</code> <code>--kit-divider</code> <code>--kit-focus</code> <code>--kit-header-size</code> <code>--kit-label-size</code> <code>--kit-menu-glow</code> <code>--kit-menu-item</code> <code>--kit-menu-line</code> <code>--kit-menu-scrim</code> <code>--kit-menu-size</code> <code>--kit-panel</code> <code>--kit-panel-border</code> <code>--kit-pointer</code> <code>--kit-pointer-glow</code> <code>--kit-radius</code> <code>--kit-row-alt</code> <code>--kit-scrim</code> <code>--kit-slot</code> <code>--kit-slot-listening</code> <code>--kit-status-size</code> <code>--kit-tab-size</code> <code>--kit-text</code> <code>--kit-title-size</code> <code>--kit-toggle-off</code> <code>--kit-toggle-on</code></p></p>
+<p>Tokens: <p><code>--kit-accent</code> <code>--kit-action-size</code> <code>--kit-button</code> <code>--kit-button-border</code> <code>--kit-button-hover</code> <code>--kit-button-size</code> <code>--kit-caption</code> <code>--kit-caption-size</code> <code>--kit-confirm-accent</code> <code>--kit-confirm-border</code> <code>--kit-confirm-panel</code> <code>--kit-danger</code> <code>--kit-danger-hover</code> <code>--kit-dialog-button-size</code> <code>--kit-dialog-size</code> <code>--kit-divider</code> <code>--kit-focus</code> <code>--kit-focus-border</code> <code>--kit-header-size</code> <code>--kit-label-size</code> <code>--kit-menu-glow</code> <code>--kit-menu-item</code> <code>--kit-menu-line</code> <code>--kit-menu-scrim</code> <code>--kit-menu-size</code> <code>--kit-panel</code> <code>--kit-panel-border</code> <code>--kit-pointer</code> <code>--kit-pointer-glow</code> <code>--kit-radius</code> <code>--kit-row-alt</code> <code>--kit-scrim</code> <code>--kit-slot</code> <code>--kit-slot-listening</code> <code>--kit-status-size</code> <code>--kit-tab-size</code> <code>--kit-text</code> <code>--kit-title-size</code> <code>--kit-toggle-off</code> <code>--kit-toggle-on</code></p></p>
 <p>The kit's layout classes (<code>kit-screen</code>, <code>kit-column</code>, <code>kit-card</code>, <code>kit-dialog</code>, <code>kit-button</code>, <code>kit-toggle</code>, <code>setting-row</code>, <code>menu-item</code>…) are in <code>kit/styles/kit.css</code>. Your own pages can use them or ignore them.</p>
 </section>
 
@@ -1109,7 +1184,7 @@ KitRebind::Open(request);                                        // key / button
 <tr><td><code>text-stroke-color</code></td><td><code>&lt;color&gt;</code></td><td><code>currentcolor</code></td><td>inherited</td></tr>
 <tr><td><code>text-stroke-width</code></td><td><code>&lt;length&gt;</code></td><td><code>0</code></td><td>inherited</td></tr>
 <tr><td><code>text-transform</code></td><td><code>none | uppercase | lowercase</code></td><td><code>none</code></td><td>inherited</td></tr>
-<tr><td><code>white-space</code></td><td><code>normal | nowrap | pre</code></td><td><code>normal</code></td><td>inherited</td></tr>
+<tr><td><code>white-space</code></td><td><code>normal | nowrap | pre | pre-wrap</code></td><td><code>normal</code></td><td>inherited</td></tr>
 </tbody></table></div>
 <h4>Effects and transforms</h4>
 <div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
@@ -1138,13 +1213,15 @@ KitRebind::Open(request);                                        // key / button
 </tbody></table></div>
 <h4>Sound</h4>
 <div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
-<tr><td><code>sound</code></td><td><code>none | &lt;string&gt;</code></td><td><code>none</code></td><td></td></tr>
-<tr><td><code>sound-hover</code></td><td><code>none | &lt;string&gt;</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>sound-enter</code></td><td><code>none | &lt;string&gt; | url()</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>sound-exit</code></td><td><code>none | &lt;string&gt; | url()</code></td><td><code>none</code></td><td></td></tr>
+<tr><td><code>sound-volume</code></td><td><code>&lt;number&gt;</code></td><td><code>1</code></td><td></td></tr>
 </tbody></table></div>
 <h4>Other</h4><div class="tw"><table class=""><thead><tr><th>Property</th><th>Values</th><th>Initial</th><th></th></tr></thead><tbody>
 <tr><td><code>backdrop-filter</code></td><td><code>none | [blur() | brightness() | contrast() | saturate() | grayscale() | sepia() | hue-rotate() | invert()]+</code></td><td><code>none</code></td><td></td></tr>
 <tr><td><code>cache</code></td><td><code>none | layer</code></td><td><code>none</code></td><td></td></tr>
 <tr><td><code>isolation</code></td><td><code>auto | isolate</code></td><td><code>auto</code></td><td></td></tr>
+<tr><td><code>pulse-duration</code></td><td><code>&lt;time&gt;</code></td><td><code>0.2s</code></td><td></td></tr>
 </tbody></table></div></section>
 <footer>Generated by <code>Tools/ui/make_ui_reference.py</code> from <code>uidb.json</code>. Regenerate it after the engine's UI registries change.</footer>
 </main></div></body></html>

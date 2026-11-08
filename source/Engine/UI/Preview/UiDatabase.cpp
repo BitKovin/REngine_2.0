@@ -409,21 +409,26 @@ namespace
 
     bool WriteFileAtomic(State& s, const std::string& content)
     {
+#if !defined(_WIN32) || defined(DISTRIBUTION)
+        // Only the Studio on a Windows development machine reads the file: other platforms and distribution builds keep it in memory.
+        (void)s;
+        (void)content;
+        return true;
+#else
         const std::string tmp = s.OutputPath + ".tmp";
         if (!FileSystemEngine::WriteFile(tmp, content))
             return false;
-        try
-        {
-            std::filesystem::rename(tmp, s.OutputPath);
+        // The error_code overloads report failure without throwing: the web build does not catch C++ exceptions, and its VFS paths
+        // are not plain file paths, so the rename fails there.
+        std::error_code ec;
+        std::filesystem::rename(tmp, s.OutputPath, ec);
+        if (!ec)
             return true;
-        }
-        catch (...)
-        {
-            // Platforms where the VFS path is not a plain file path: write the final file directly.
-            const bool ok = FileSystemEngine::WriteFile(s.OutputPath, content);
-            try { std::filesystem::remove(tmp); } catch (...) {}
-            return ok;
-        }
+        // Platforms where the VFS path is not a plain file path: write the final file directly.
+        const bool ok = FileSystemEngine::WriteFile(s.OutputPath, content);
+        std::filesystem::remove(tmp, ec);
+        return ok;
+#endif
     }
 }
 

@@ -15,6 +15,8 @@
 #include <UI/Elements/UiElemDropDown.h>
 #include <UI/Elements/UiElemFrame.h>
 #include <UI/Elements/UiElemLegacyWidgets.h>
+#include <UI/Elements/UiElemTextInput.h>
+#include <UI/Style/UiSelector.h>
 #include <UI/Elements/UiElemInputPrompt.h>
 #include <UI/Elements/UiElemImage.h>
 #include <UI/Elements/UiElemLabel.h>
@@ -74,7 +76,8 @@ namespace
     int g_frameCounter = 0;
     std::string g_previewPath;
     bool g_previewLoaded = false;
-    UiElement* g_lastFocus = nullptr;
+    UiElement* g_lastFocus = nullptr;          // compared only, never dereferenced (the element may be gone)
+    std::weak_ptr<UiElem> g_lastFocusElem;     // the markup element that held the focus at the last change
 
     std::vector<std::pair<std::weak_ptr<UiElem>, std::string>> g_queuedEvents;
     struct Capture { std::weak_ptr<UiElem> Elem; glm::vec2 Last = glm::vec2(0.f); };
@@ -132,10 +135,29 @@ namespace
         UiTagRegistry::RegisterBuiltin("DropDown", &UiElemDropDown::Create, TagInfo{ "DropDown", "input", "Drop-down list: a header and a list that opens above everything else (classes .dropdown-text, .dropdown-arrow, .dropdown-list, .dropdown-item; states :open via .open, :selected on the row); events: valuechanged; variable: value (the index)",
             { AttributeInfo{ "options", "text", "", false, "Items separated by |, localised" }, AttributeInfo{ "selected-index", "number", "-1", false, "Index of the selected item" },
               AttributeInfo{ "placeholder", "text", "", false, "Shown while nothing is selected" }, AttributeInfo{ "max-visible", "number", "6", false, "Rows shown before the list scrolls" }, bind } });
-        UiTagRegistry::RegisterBuiltin("TextEntry", &UiElemTextEntry::Create, TagInfo{ "TextEntry", "input", "Single-line text field (wraps the legacy text box); events: valuechanged; variable: value (the text)",
-            { AttributeInfo{ "text", "text", "", false, "Initial text" }, AttributeInfo{ "placeholder", "text", "", false, "Shown while empty" },
-              AttributeInfo{ "max-length", "number", "0", false, "0 = unlimited" }, AttributeInfo{ "password", "bool", "false", false, "Mask the characters" },
-              AttributeInfo{ "numeric", "bool", "false", false, "Digits, '-' and '.' only" } } });
+        const AttributeInfo textAttr{ "text", "text", "", false, "Initial text" };
+        const AttributeInfo placeholderAttr{ "placeholder", "text", "", false, "Shown while empty" };
+        const std::vector<AttributeInfo> textInputAttrs = {
+            textAttr, placeholderAttr,
+            AttributeInfo{ "max-length", "number", "0", false, "Most characters (code points); 0 = unlimited" },
+            AttributeInfo{ "password", "bool", "false", false, "Mask the characters (no copy or cut)" },
+            AttributeInfo{ "numeric", "bool", "false", false, "Digits, one leading '-' and one '.' only" },
+            AttributeInfo{ "integer", "bool", "false", false, "Digits and one leading '-' only" },
+            AttributeInfo{ "allowed-chars", "text", "", false, "Only these characters can be typed or pasted" },
+            AttributeInfo{ "read-only", "bool", "false", false, "Shown and focusable, never edited" },
+            AttributeInfo{ "select-on-focus", "bool", "false", false, "Starting to edit selects the whole text" },
+            AttributeInfo{ "blur-on-submit", "bool", "false", false, "Enter also takes the navigation focus away" } };
+        std::vector<AttributeInfo> entryAttrs = textInputAttrs;
+        entryAttrs.push_back(AttributeInfo{ "min-rows", "number", "1", false, "Least lines the box grows from" });
+        UiTagRegistry::RegisterBuiltin("TextEntry", &UiElemTextEntry::Create, TagInfo{ "TextEntry", "input", "Single-line text field: caret, selection, clipboard, undo, scrolls with the caret; width: auto grows with the text. States: :focus, class .editing. Events: input, valuechanged, change, submit, editstart, editend, editcancel, inputrejected; variable: value (the text); custom properties --caret-color, --selection-color, --placeholder-color",
+            textInputAttrs });
+        std::vector<AttributeInfo> multilineAttrs = textInputAttrs;
+        multilineAttrs.push_back(AttributeInfo{ "min-rows", "number", "1", false, "Least lines the box grows from (height: auto)" });
+        multilineAttrs.push_back(AttributeInfo{ "max-rows", "number", "0", false, "Most lines the box grows to, then it scrolls; 0 = no limit" });
+        multilineAttrs.push_back(AttributeInfo{ "wrap", "bool", "true", false, "Wrap long lines (white-space: pre turns it off)" });
+        multilineAttrs.push_back(AttributeInfo{ "scrollbar", "bool", "true", false, "Show the scrollbar (class .scrollbar / .thumb)" });
+        UiTagRegistry::RegisterBuiltin("MultilineTextEntry", &UiElemMultilineTextEntry::Create, TagInfo{ "MultilineTextEntry", "input", "Multi-line text field: Enter inserts a line break, Ctrl+Enter submits; wraps at the box width, height: auto grows with the text (min-rows, max-rows) and then scrolls. Events and variable as TextEntry",
+            multilineAttrs });
         UiTagRegistry::RegisterBuiltin("Movie", &UiElemMovie::Create, TagInfo{ "Movie", "image", "Video (wraps the legacy video)",
             { AttributeInfo{ "src", "path", "", true, "GameData-relative video path" }, AttributeInfo{ "loop", "bool", "false", false, "Restart at the end" },
               AttributeInfo{ "autoplay", "bool", "true", false, "Accepted; the video starts when first drawn" }, AttributeInfo{ "muted", "bool", "false", false, "Accepted; the legacy video has no mute field" } } });
@@ -307,6 +329,8 @@ namespace
                     nearest = ScrollContainerAt(mouse->second.position);
                 if (ownsWheel)
                     nearest = nullptr;
+                if (target != nullptr)
+                    static_cast<UiElem&>(*target).Fire("wheel");
                 if (nearest != nullptr)
                     nearest->OnScroll(Input::MouseScrollDelta);
             }
@@ -321,7 +345,7 @@ namespace
         g_queuedEvents.clear();
         for (auto& [weak, event] : queued)
             if (auto element = weak.lock())
-                element->Fire(event);
+                element->FireSilent(event);
     }
 
     // Fires "load" for elements that were laid out for the first time.
@@ -833,6 +857,13 @@ namespace
         else if (prop == "selected") number = (e->States & kStateSelected) ? 1 : 0;
         else if (prop == "visible") number = e->Computed().Visibility == UiVisibility::Visible ? 1 : 0;
         else if (prop == "activations") number = e->ActivateCount;
+        else if (prop.rfind("pulse_", 0) == 0)   // pulse_<name>: 1 while the pulse pseudo-class (:click, :denied, ...) matches
+        {
+            const std::vector<UiPulseInfo>& pulses = UiPulses();
+            const auto found = std::find_if(pulses.begin(), pulses.end(), [&](const UiPulseInfo& p) { return prop == std::string("pulse_") + p.Name; });
+            if (found == pulses.end()) { error = "unknown pulse '" + prop + "'"; return false; }
+            number = e->PulseActive(static_cast<int>(found - pulses.begin())) ? 1 : 0;
+        }
         else if (prop == "opacity_now") number = e->Computed().Opacity;                          // the displayed value, also while it animates
         else if (prop == "animating") number = UiAnimation::IsAnimating(*e) ? 1 : 0;
         else if (prop == "font_size") number = e->Computed().FontSize;
@@ -876,10 +907,26 @@ namespace
             number = static_cast<double>(n);
         }
         else if (prop == "rows") { auto* lv = dynamic_cast<UiElemListView*>(e); if (!lv) { error = "rows needs a ListView"; return false; } number = lv->RowCount(); }
+        else if (prop == "entry_caret" || prop == "entry_selection" || prop == "entry_lines" || prop == "entry_editing")
+        {
+            auto* te = dynamic_cast<UiElemTextInput*>(e);
+            if (!te) { error = prop + " needs a TextEntry or MultilineTextEntry"; return false; }
+            if (prop == "entry_caret") number = static_cast<double>(te->Caret());
+            else if (prop == "entry_selection") number = static_cast<double>(te->SelectionEnd() - te->SelectionStart());
+            else if (prop == "entry_lines") number = te->LineCount();
+            else number = te->IsEditing() ? 1 : 0;
+        }
+        else if (prop == "entry_selected")
+        {
+            auto* te = dynamic_cast<UiElemTextInput*>(e);
+            if (!te) { error = "entry_selected needs a TextEntry or MultilineTextEntry"; return false; }
+            isNumber = false;
+            text = te->SelectedText();
+        }
         else if (prop == "entry_text")
         {
-            auto* te = dynamic_cast<UiElemTextEntry*>(e);
-            if (!te) { error = "entry_text needs a TextEntry"; return false; }
+            auto* te = dynamic_cast<UiElemTextInput*>(e);
+            if (!te) { error = "entry_text needs a TextEntry or MultilineTextEntry"; return false; }
             isNumber = false;
             text = te->Text();
         }
@@ -1198,7 +1245,7 @@ namespace
                     continue;
                 ++checked;
                 const UiRect box = e->ContentRectLocal();
-                const bool wraps = e->Computed().WhiteSpace == UiWhiteSpace::Normal;
+                const bool wraps = e->Computed().WhiteSpace == UiWhiteSpace::Normal || e->Computed().WhiteSpace == UiWhiteSpace::PreWrap;
                 std::string why;
                 char buffer[200];
                 if (!wraps && label->TextWidth() > box.W + 0.5f)
@@ -1250,6 +1297,41 @@ namespace
     {
         Input::TextInputBuffer += RestAfter("x " + args, 1);
         UiTestRunner::WaitFrames(2);
+        return true;
+    }
+
+    // key <combo>: one key press for the text field that is being edited, e.g. key ctrl+a, key shift+left, key backspace.
+    bool TestKey(const std::string& args, std::string& error)
+    {
+        const auto w = Words(args);
+        if (w.empty()) { error = "usage: key <[ctrl+][shift+]name>"; return false; }
+        Input::TextKeyEvent k{ SDL_SCANCODE_UNKNOWN, false, false, false };
+        std::string rest = w[0];
+        for (;;)
+        {
+            if (rest.rfind("ctrl+", 0) == 0) { k.Ctrl = true; rest.erase(0, 5); }
+            else if (rest.rfind("shift+", 0) == 0) { k.Shift = true; rest.erase(0, 6); }
+            else if (rest.rfind("alt+", 0) == 0) { k.Alt = true; rest.erase(0, 4); }
+            else break;
+        }
+        static const std::pair<const char*, SDL_Scancode> names[] = {
+            { "left", SDL_SCANCODE_LEFT }, { "right", SDL_SCANCODE_RIGHT }, { "up", SDL_SCANCODE_UP }, { "down", SDL_SCANCODE_DOWN },
+            { "home", SDL_SCANCODE_HOME }, { "end", SDL_SCANCODE_END }, { "pageup", SDL_SCANCODE_PAGEUP }, { "pagedown", SDL_SCANCODE_PAGEDOWN },
+            { "backspace", SDL_SCANCODE_BACKSPACE }, { "delete", SDL_SCANCODE_DELETE }, { "insert", SDL_SCANCODE_INSERT },
+            { "a", SDL_SCANCODE_A }, { "c", SDL_SCANCODE_C }, { "x", SDL_SCANCODE_X }, { "v", SDL_SCANCODE_V }, { "y", SDL_SCANCODE_Y }, { "z", SDL_SCANCODE_Z } };
+        for (const auto& n : names)
+            if (rest == n.first)
+                k.Scancode = n.second;
+        if (k.Scancode == SDL_SCANCODE_UNKNOWN) { error = "key: unknown key '" + rest + "'"; return false; }
+        Input::TextKeyEvents.push_back(k);
+        UiTestRunner::WaitFrames(2);
+        return true;
+    }
+
+    // clipboard <text>: puts text on the system clipboard.
+    bool TestClipboard(const std::string& args, std::string&)
+    {
+        SDL_SetClipboardText(RestAfter("x " + args, 1).c_str());
         return true;
     }
 
@@ -1392,6 +1474,8 @@ void UiSystem::Init()
     UiTestRunner::RegisterCommand("anim_seek", TestAnimSeek);
     UiTestRunner::RegisterCommand("expect_no_overflow", TestExpectNoOverflow);
     UiTestRunner::RegisterCommand("type", TestType);
+    UiTestRunner::RegisterCommand("key", TestKey);
+    UiTestRunner::RegisterCommand("clipboard", TestClipboard);
     UiTestRunner::RegisterCommand("wheel", TestWheel);
     UiTestRunner::RegisterCommand("test_settings", TestRegisterSettings);
     UiTestRunner::RegisterCommand("set_setting", TestSetSetting);
@@ -1597,7 +1681,8 @@ void UiSystem::UnregisterRoot(const std::shared_ptr<UiElem>& root)
 
 void UiSystem::QueueEvent(UiElem& element, const std::string& event)
 {
-    if (element.EventCalls(event) == nullptr)
+    element.TriggerPulse(event);   // at once, so the reaction does not wait for the next frame
+    if (!element.HasSubscribers(event))
         return;
     try { g_queuedEvents.emplace_back(std::static_pointer_cast<UiElem>(element.shared_from_this()), event); } catch (...) {}
 }
@@ -1606,11 +1691,14 @@ int UiSystem::FrameIndex() { return g_frameCounter; }
 
 void UiSystem::ResetViewport()
 {
-    UiMenus::Stack().ClearLeaving();
+    UiMenus::Stack().Reset();   // forced and silent: the pause menu and every page above it go with the level
     EngineMain::Viewport.ClearChildren();
     UiDragDrop::Reset();
     g_captures.clear();
     g_queuedEvents.clear();
+    UiNavigation::Focused = nullptr;   // dropped, not moved: the elements are gone, nothing is told (no OnUnfocused, no blur / focusout)
+    g_lastFocus = nullptr;
+    g_lastFocusElem.reset();
     UiMenuStack& stack = UiMenus::Stack();
     if (stack.parent != &EngineMain::Viewport || std::find_if(EngineMain::Viewport.children.begin(), EngineMain::Viewport.children.end(),
             [&](const std::shared_ptr<UiElement>& c) { return c.get() == &stack; }) == EngineMain::Viewport.children.end())
@@ -1742,10 +1830,32 @@ void UiSystem::Update()
     const bool focusChanged = focusNow != g_lastFocus;
     if (focusChanged)
     {
-        UiElement* const before = g_lastFocus;
         g_lastFocus = focusNow;
-        if (UiElem::IsElem(before)) static_cast<UiElem*>(before)->Fire("blur");
-        if (UiElem::IsElem(focusNow) && focusNow == UiNavigation::Focused) static_cast<UiElem*>(focusNow)->Fire("focus");
+        // a legacy widget inside a markup widget (the slider handle) reports to the markup element that holds it
+        auto elemOf = [](UiElement* e) -> UiElem* {
+            while (e != nullptr && !UiElem::IsElem(e))
+                e = e->parent;
+            return static_cast<UiElem*>(e);
+        };
+        const std::shared_ptr<UiElem> lostHold = g_lastFocusElem.lock();   // null when the old element was destroyed with its page
+        UiElem* const lost = lostHold.get();
+        UiElem* const gained = elemOf(focusNow);
+        g_lastFocusElem.reset();
+        if (gained != nullptr)
+            if (auto self = gained->weak_from_this().lock())
+                g_lastFocusElem = std::static_pointer_cast<UiElem>(self);
+        if (lost != nullptr && lost != gained)
+        {
+            lost->Fire("blur");
+            for (UiElem* p = lost; p != nullptr; p = p->AsParentElem())
+                p->Fire("focusout");
+        }
+        if (gained != nullptr && gained != lost && focusNow == UiNavigation::Focused)
+        {
+            gained->Fire("focus");
+            for (UiElem* p = gained; p != nullptr; p = p->AsParentElem())
+                p->Fire("focusin");
+        }
     }
 
     std::vector<std::shared_ptr<UiElem>> roots = LiveRoots();

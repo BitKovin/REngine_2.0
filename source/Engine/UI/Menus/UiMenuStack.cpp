@@ -144,8 +144,12 @@ UiElem* UiMenuStack::Push(std::shared_ptr<UiElem> page)
         m_focusPending = false;
     FocusPage(*page);
     page->OnPushed();
+    page->Fire("pushed");
     if (previous != nullptr)
+    {
         previous->OnHidden();
+        previous->Fire("hidden");
+    }
     RecomputeHostState();
     return page.get();
 }
@@ -184,11 +188,13 @@ void UiMenuStack::PopInternal()
         page.parent = nullptr;
     }
     page.OnPopped();
+    page.Fire("popped");
 
     Relayer();
     if (UiElem* top = Top())
     {
         top->OnShown();
+        top->Fire("shown");
         RestoreFocus(entry.SavedFocus, *top);
     }
     RecomputeHostState();
@@ -222,6 +228,25 @@ void UiMenuStack::Clear()
 {
     while (!m_entries.empty())
         Pop();
+}
+
+void UiMenuStack::Reset()
+{
+    UiSystem::AssertUiThread();
+    for (Entry& e : m_entries)
+    {
+        if (e.Session >= 0)
+            UiSettings::EndSession(e.Session);
+        RemoveChild(e.Page);
+        e.Page->parent = nullptr;
+    }
+    m_entries.clear();
+    ClearLeaving();
+    m_focusPending = false;
+    m_focusPendingRestore = false;
+    m_focusTarget.reset();
+    m_paused = false;   // no OnPauseChanged: nothing is announced, the level change sets the game state itself
+    m_hidesHud = false;
 }
 
 void UiMenuStack::Back()

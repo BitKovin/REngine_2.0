@@ -204,6 +204,8 @@ public:
     virtual void OnNavConfirm() {}
     virtual void OnNavCancel() {}
     virtual bool OnNav(UiNavDir dir) { return false; }
+    // True while the element needs the focus to stay put (a text field being edited): hovering other elements does not take it away.
+    virtual bool HoldsFocus() const { return false; }
 
     // ── World-space transform matrices ────────────────────────────────────────
     //

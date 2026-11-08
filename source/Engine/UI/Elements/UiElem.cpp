@@ -12,6 +12,8 @@
 #include <UI/UiNavigation.h>
 #include <UI/UiSystem.h>
 
+#include <SDL2/SDL.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -338,9 +340,12 @@ bool UiElem::ApplyAttributeValue(const std::string& name, const std::string& raw
     }
     if (name == "enabled")
     {
+        const bool wasDisabled = (States & kStateDisabled) != 0;
         if (IsFalsey(value)) States |= kStateDisabled; else States &= ~kStateDisabled;
         DisableFocus = (States & kStateDisabled) != 0 || (HitCheck && !IsFocusable());
         MarkStyleDirty();
+        if (wasDisabled != ((States & kStateDisabled) != 0) && m_loadFired)
+            UiSystem::QueueEvent(*this, wasDisabled ? "enabled" : "disabled");
         return true;
     }
     if (name == "selected")
@@ -495,30 +500,117 @@ const std::vector<UiActionCall>* UiElem::EventCalls(const std::string& event) co
     return it == m_eventCalls.end() ? nullptr : &it->second;
 }
 
+void UiElem::Listen(const std::string& event, EventFn fn)
+{
+    UiSystem::AssertUiThread();
+    Listener l;
+    l.Fn = std::move(fn);
+    m_listeners[event].push_back(std::move(l));
+}
+
+void UiElem::Listen(const std::string& event, std::weak_ptr<void> guard, EventFn fn)
+{
+    UiSystem::AssertUiThread();
+    Listener l;
+    l.Fn = std::move(fn);
+    l.Guard = std::move(guard);
+    l.Guarded = true;
+    m_listeners[event].push_back(std::move(l));
+}
+
+bool UiElem::HasSubscribers(const std::string& event) const
+{
+    return m_eventCalls.find(event) != m_eventCalls.end() || m_listeners.find(event) != m_listeners.end();
+}
+
+void UiElem::TriggerPulse(const std::string& event)
+{
+    const std::vector<UiPulseInfo>& pulses = UiPulses();
+    for (size_t i = 0; i < pulses.size(); ++i)
+    {
+        if (event != pulses[i].Event && !(pulses[i].AltEvent != nullptr && event == pulses[i].AltEvent))
+            continue;
+        const uint64_t expire = SDL_GetTicks64() + static_cast<uint64_t>(std::max(0.f, m_computed.Fx.PulseDuration) * 1000.f);
+        for (ActivePulse& p : m_pulses)
+            if (p.Index == static_cast<int>(i))
+            {
+                p.Expire = expire;   // already on: it just lasts longer
+                return;
+            }
+        m_pulses.push_back({ static_cast<int>(i), expire, false });
+        MarkStyleDirty();
+        return;
+    }
+}
+
+bool UiElem::PulseActive(int index) const
+{
+    for (const ActivePulse& p : m_pulses)
+        if (p.Index == index)
+            return true;
+    return false;
+}
+
+void UiElem::UpdateSoundRules(std::vector<RuleSound>&& now)
+{
+    if (m_soundsSeeded)
+    {
+        const bool disabled = (States & kStateDisabled) != 0;
+        auto has = [](const std::vector<RuleSound>& list, const std::string& key) {
+            return std::any_of(list.begin(), list.end(), [&](const RuleSound& r) { return r.Key == key; });
+        };
+        auto play = [&](const RuleSound& r, const std::string& path) {
+            if (!path.empty() && (!disabled || r.WhileDisabled))
+                UiActions::PlaySoundPath(path, r.Volume);
+        };
+        for (const RuleSound& r : m_soundRules)
+            if (!has(now, r.Key))
+                play(r, r.Exit);
+        for (const RuleSound& r : now)
+            if (!has(m_soundRules, r.Key))
+                play(r, r.Enter);
+    }
+    m_soundRules = std::move(now);
+    m_soundsSeeded = true;
+    for (ActivePulse& p : m_pulses)
+        p.Resolved = true;
+}
+
 void UiElem::Fire(const std::string& event)
 {
-    const auto it = m_eventCalls.find(event);
-    if (it == m_eventCalls.end())
+    TriggerPulse(event);
+    FireSilent(event);
+}
+
+void UiElem::FireSilent(const std::string& event)
+{
+    const auto calls = m_eventCalls.find(event);
+    const auto listeners = m_listeners.find(event);
+    if (calls == m_eventCalls.end() && listeners == m_listeners.end())
         return;
-    // A handler may remove this element (Back, Pop); the copy and the keep-alive make that safe.
-    const std::vector<UiActionCall> calls = it->second;
+    // A handler may remove this element (Back, Pop); the copies and the keep-alive make that safe.
+    const std::vector<UiActionCall> callsCopy = calls != m_eventCalls.end() ? calls->second : std::vector<UiActionCall>();
+    const std::vector<Listener> listenersCopy = listeners != m_listeners.end() ? listeners->second : std::vector<Listener>();
     std::shared_ptr<UiElement> keep;
     try { keep = shared_from_this(); } catch (...) {}
-    for (const UiActionCall& call : calls)
+    for (const UiActionCall& call : callsCopy)
         UiActions::Dispatch(*this, nullptr, call);
+    for (const Listener& l : listenersCopy)
+        if (!l.Guarded || !l.Guard.expired())
+            l.Fn(*this);
 }
 
 void UiElem::Activate()
 {
     ++ActivateCount;
     OnActivate();
-    if (!m_computed.Fx.Sound.empty())
-        UiActions::PlaySoundPath(m_computed.Fx.Sound);
     UiSystem::QueueEvent(*this, "activate");
 }
 
 void UiElem::OnNavCancel()
 {
+    if (IsElem(UiNavigation::Focused) && static_cast<UiElem*>(UiNavigation::Focused)->OnFocusedCancel())
+        return;
     if (UiDragDrop::NavCancel())
         return;
     UiElem* p = AsParentElem();
@@ -560,13 +652,16 @@ void UiElem::ApplyPointerStates()
             return;
         }
     const uint32_t before = States;
+    const bool disabled = (States & kStateDisabled) != 0;
     if (TouchEvents.empty())
     {
         States &= ~kStateHover;
         if (m_pressedTouchId != -1)
         {
+            // the pointer left while held: the press is over, and it is no click
             m_pressedTouchId = -1;
             States &= ~kStateActive;
+            UiSystem::QueueEvent(*this, "clickend");
         }
     }
     else
@@ -578,22 +673,35 @@ void UiElem::ApplyPointerStates()
             {
                 m_pressedTouchId = touch.id;
                 States |= kStateActive;
+                UiSystem::QueueEvent(*this, disabled ? "denied" : "clickstart");
             }
             else if (touch.released && touch.id == m_pressedTouchId)
             {
                 m_pressedTouchId = -1;
                 States &= ~kStateActive;
-                if (IsFocusable() && !(States & kStateDisabled) && !SuppressActivate)
+                UiSystem::QueueEvent(*this, "clickend");
+                if (!SuppressActivate && !disabled)
+                {
+                    UiSystem::QueueEvent(*this, "click");
+                    const uint64_t now = SDL_GetTicks64();
+                    if (m_lastClickTicks != 0 && now - m_lastClickTicks <= 350 && glm::length(touch.position - m_lastClickPos) <= 8.f)
+                    {
+                        m_lastClickTicks = 0;
+                        UiSystem::QueueEvent(*this, "doubleclick");
+                    }
+                    else
+                    {
+                        m_lastClickTicks = now;
+                        m_lastClickPos = touch.position;
+                    }
+                }
+                if (IsFocusable() && !disabled && !SuppressActivate)
                     Activate();
             }
         }
     }
     if ((States ^ before) & kStateHover)
-    {
         UiSystem::QueueEvent(*this, (States & kStateHover) ? "mouseover" : "mouseout");
-        if ((States & kStateHover) && !m_computed.Fx.SoundHover.empty())
-            UiActions::PlaySoundPath(m_computed.Fx.SoundHover);
-    }
     if (States != before)
         MarkStyleDirty();
 }
@@ -658,6 +766,7 @@ void UiElem::TickScroll(float dt)
         ScrollOffset = next;
         Root()->m_transformDirty = true;
         MarkPaintDirty();
+        UiSystem::QueueEvent(*this, "scroll");
     }
 }
 
@@ -837,6 +946,14 @@ void UiElem::Update()
 {
     if (!(UiElement::EditModeActive && EngineMain::MainInstance != nullptr && EngineMain::MainInstance->DebugUiEnabled))
         ApplyPointerStates();
+    if (!m_pulses.empty())
+    {
+        const uint64_t now = SDL_GetTicks64();
+        const size_t before = m_pulses.size();
+        m_pulses.erase(std::remove_if(m_pulses.begin(), m_pulses.end(), [&](const ActivePulse& p) { return p.Resolved && now >= p.Expire; }), m_pulses.end());
+        if (m_pulses.size() != before)
+            MarkStyleDirty();
+    }
     UiElement::Update();
 }
 
@@ -844,7 +961,11 @@ void UiElem::OnNavConfirm()
 {
     if (UiDragDrop::NavConfirm(*this))
         return;
-    if (IsFocusable() && !(States & kStateDisabled))
+    if (!IsFocusable())
+        return;
+    if (States & kStateDisabled)
+        UiSystem::QueueEvent(*this, "denied");
+    else
         Activate();
 }
 

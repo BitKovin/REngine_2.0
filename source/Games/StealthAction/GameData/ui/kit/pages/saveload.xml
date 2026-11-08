@@ -11,14 +11,16 @@
     </snippet>
   </snippets>
   <Panel id="saveload" class="kit-screen">
-    <Panel class="kit-column">
-      <Label id="title" class="kit-title" text=""/>
-      <Panel class="kit-card" style="width: 650px">
-        <Label id="empty" class="kit-empty" text="${PAUSE_LOAD_NO_SAVES}" visible="false"/>
-        <ListView id="slots" class="slot-list" snippet="Slot" item-height="96" scrollbar="true"/>
-      </Panel>
-      <Panel class="kit-buttons">
-        <StyledButton id="back" text="${SETTINGS_BACK}" onactivate="Back()"/>
+    <Panel class="kit-menu">
+      <Panel class="kit-column">
+        <Label id="title" class="kit-title" text=""/>
+        <Panel class="kit-card slot-card">
+          <Label id="empty" class="kit-empty" text="${PAUSE_LOAD_NO_SAVES}" visible="false"/>
+          <ListView id="slots" class="slot-list" snippet="Slot" item-height="96" scrollbar="true"/>
+        </Panel>
+        <Panel class="kit-buttons">
+          <StyledButton id="back" text="${SETTINGS_BACK}" onactivate="Back()"/>
+        </Panel>
       </Panel>
     </Panel>
   </Panel>

@@ -1,0 +1,126 @@
+# Phase 8: pointer and focus events, disabled feedback, and the text fields (selection, clipboard, undo, filters, growth).
+wait 6
+action pause
+wait_frames 3
+console ui_load GameData/ui/kit/tests/p8_text_events.xml
+wait_frames 6
+focus_trap page
+expect_ui_errors 0
+expect_ui_warnings 0
+
+# pointer events on a button
+click 700 80
+expect_class log clickstart 1
+expect_class log clickend 1
+expect_class log click 1
+expect_class log activate 1
+expect btn pulse_click == 1
+expect btn pulse_doubleclick == 0
+expect_class log over 1
+expect_class log doubleclick 0
+click 700 80
+expect_class log doubleclick 1
+expect btn pulse_doubleclick == 1
+mouse_move 900 500
+wait_frames 3
+expect_class log out 1
+wait 1
+expect btn pulse_click == 0
+expect btn pulse_doubleclick == 0
+
+# a disabled button reports the attempt and nothing else
+click 700 140
+expect_class log denied 1
+expect btn_off pulse_denied == 1
+expect_class log offclick 0
+
+# TextEntry: a click starts editing, typing, selection, undo
+click 200 102
+expect te entry_editing == 1
+expect_class log editstart 1
+type hello world
+expect te entry_text == hello world
+expect_class log input 1
+key home
+key shift+right
+key shift+right
+expect te entry_selection == 2
+key backspace
+expect te entry_text == llo world
+key ctrl+z
+expect te entry_text == hello world
+key ctrl+a
+expect te entry_selection == 11
+type X
+expect te entry_text == X
+key ctrl+z
+expect te entry_text == hello world
+key end
+key ctrl+shift+left
+expect te entry_selection == 5
+key ctrl+c
+key end
+key ctrl+v
+expect te entry_text == hello worldworld
+clipboard 123
+key ctrl+a
+key ctrl+v
+expect te entry_text == 123
+key ctrl+z
+expect te entry_text == hello worldworld
+
+# commit with confirm, then cancel with back
+action ui_confirm
+wait_frames 3
+expect te entry_editing == 0
+expect_class log submit 1
+expect_class log change 1
+expect_class log editend 1
+click 200 102
+type abc
+action ui_cancel
+wait_frames 3
+expect te entry_text == hello worldworld
+expect_class log editcancel 1
+expect te w > 0
+
+# numeric filter and max length
+click 200 154
+expect_class log focus 1
+type a1b2-3.4.5
+expect te_num entry_text == 123.45
+expect_class log rejected 1
+click 200 206
+type abcdefgh
+expect te_len entry_text == abcde
+expect_class log rej 1
+
+# a field with width auto grows with its text
+click 120 258
+type a longer piece of text
+wait_frames 3
+expect te_fit entry_text == a longer piece of text
+expect te_fit w > 150
+
+# MultilineTextEntry: lines, caret movement, growth up to max-height, then scrolling
+click 200 312
+type line1
+action ui_confirm
+type line2
+expect ml entry_lines == 2
+expect ml h > 60
+key up
+expect ml entry_caret == 5
+action ui_confirm
+action ui_confirm
+action ui_confirm
+action ui_confirm
+action ui_confirm
+action ui_confirm
+wait_frames 6
+expect ml h < 125
+expect ml scroll_max_y > 0
+ui_screenshot p8_text_events
+mouse_off
+expect_ui_errors 0
+quit

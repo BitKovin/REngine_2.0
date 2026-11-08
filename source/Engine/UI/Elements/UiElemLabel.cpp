@@ -51,7 +51,7 @@ glm::vec2 UiElemLabel::MeasureContent(float availableWidth, float availableHeigh
     p.Overflow = s.TextOverflow;
     p.Transform = s.TextTransform;
     const bool widthKnown = s.Width.Kind != UiLenKind::FitChildren && !std::isnan(availableWidth);
-    if (widthKnown && s.WhiteSpace == UiWhiteSpace::Normal)
+    if (widthKnown && (s.WhiteSpace == UiWhiteSpace::Normal || s.WhiteSpace == UiWhiteSpace::PreWrap))
         p.WrapWidth = availableWidth;
     if (s.TextOverflow != UiTextOverflow::Clip && !std::isnan(availableWidth))
     {

@@ -46,6 +46,8 @@
 .kit-tab Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-tab-size); color: var(--kit-text); }
 .kit-tab:selected { background-color: var(--kit-button-hover); }
 .kit-tab:focus { background-color: var(--kit-focus); }
+.kit-tab { pulse-duration: 0.5s; }
+.kit-tab:doubleclick { animation: kit-tab-spin 0.5s ease-in-out; sound-enter: "GameData/sounds/mew.wav"; }
 .kit-buttons { flow-children: right; gap: 16px; horizontal-align: center; }
 .kit-button { width: 320px; height: 56px; background-color: var(--kit-button); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); }
 .kit-button:hover { background-color: var(--kit-button-hover); }
@@ -76,12 +78,23 @@ DropDown:active { background-color: var(--kit-focus); }
 DropDown:focus { background-color: var(--kit-focus); border-color: var(--kit-focus-border); }
 DropDown:disabled { opacity: 0.45; }
 DropDown .dropdown-arrow { margin-left: 10px; }
+/* Text fields: the box is the field, :focus is a field the pointer or the arrows are on, .editing one that is taking keys. */
+TextEntry, MultilineTextEntry { width: 340px; padding: 0 14px; font-size: var(--kit-dialog-size); color: var(--kit-text); background-color: var(--kit-slot); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); --caret-color: var(--kit-accent); --selection-color: rgba(120, 140, 200, 0.45); --placeholder-color: var(--kit-caption); transition: background-color 0.15s ease-out, border-color 0.15s ease-out; }
+TextEntry { height: 46px; vertical-align: center; }
+MultilineTextEntry { height: auto; min-height: 46px; max-height: 240px; padding: 10px 14px; line-height: 1.25em; }
+TextEntry:hover, MultilineTextEntry:hover { background-color: var(--kit-button-hover); }
+TextEntry:focus, MultilineTextEntry:focus { border-color: var(--kit-focus-border); }
+TextEntry.editing, MultilineTextEntry.editing { background-color: var(--kit-focus); border-color: var(--kit-focus-border); }
+TextEntry:disabled, MultilineTextEntry:disabled { opacity: 0.45; }
+MultilineTextEntry .scrollbar { width: 6px; margin: 4px; }
+
 .dropdown-list { background-color: var(--kit-panel); border: 2px solid var(--kit-panel-border); border-radius: var(--kit-radius); animation: kit-dropdown-open 0.14s ease-out; }
 .dropdown-item { height: 46px; padding: 0 14px; transition: background-color 0.1s ease-out; }
 .dropdown-item:hover, .dropdown-item:focus { background-color: var(--kit-button-hover); }
 .dropdown-item:active { background-color: var(--kit-focus); }
 .dropdown-item:selected { background-color: var(--kit-focus); }
 .dropdown-item:disabled { opacity: 0.45; }
+@keyframes kit-tab-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes kit-dropdown-open { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0px); } }
 .scrollbar { width: 10px; background-color: var(--kit-divider); }
 .scrollbar .thumb { background-color: var(--kit-accent); border-radius: 0px; }
@@ -122,12 +135,14 @@ DropDown .dropdown-arrow { margin-left: 10px; }
 .dialog-button Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-dialog-button-size); color: var(--kit-text); }
 
 /* ── save and load */
+.slot-card { height: fill-parent-flow(1); }
 .slot-list { width: 100%; height: fill-parent-flow(1); overflow: scroll; }
-.slot-row { width: 100%; height: 72px; background-color: var(--kit-button); border-radius: 0px; }
-.slot-row:hover, .slot-row:focus { background-color: var(--kit-button-hover); }
+.slot-row { width: 100%; height: 72px; background-color: var(--kit-button); border: 2px solid var(--kit-panel-border); border-radius: 0px; }
+.slot-row:hover { background-color: var(--kit-button-hover); }
+.slot-row:focus { background-color: var(--kit-focus); border-color: var(--kit-focus-border); }
 .slot-row.locked { opacity: 0.55; }
 .slot-label { horizontal-align: left; vertical-align: center; margin-left: 14px; font-size: var(--kit-button-size); color: var(--kit-text); }
-.slot-status { horizontal-align: right; vertical-align: center; margin-right: 14px; font-size: var(--kit-status-size); color: var(--kit-caption); }
+.slot-status { horizontal-align: right; vertical-align: center; margin-right: 28px; font-size: var(--kit-status-size); color: var(--kit-caption); }
 .kit-empty { font-size: var(--kit-label-size); color: var(--kit-caption); horizontal-align: center; }
 
 .kit-toast { padding: 12px 20px; background-color: var(--kit-panel); border: 2px solid var(--kit-panel-border); border-radius: var(--kit-radius); horizontal-align: center; vertical-align: bottom; margin-bottom: 120px; }

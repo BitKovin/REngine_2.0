@@ -1013,8 +1013,10 @@ const std::vector<UiPropertyInfo>& UiFxProperties()
         { "animation-iteration-count", "[<number> | infinite]#", false, "1", "none", true },
         { "animation-direction", "[normal | reverse | alternate | alternate-reverse]#", false, "normal", "none", true },
         { "animation-fill-mode", "[none | forwards | backwards | both]#", false, "none", "none", true },
-        { "sound", "none | <string>", false, "none", "none", true },
-        { "sound-hover", "none | <string>", false, "none", "none", true },
+        { "sound-enter", "none | <string> | url()", false, "none", "none", true },
+        { "sound-exit", "none | <string> | url()", false, "none", "none", true },
+        { "sound-volume", "<number>", false, "1", "none", true },
+        { "pulse-duration", "<time>", false, "0.2s", "none", true },
     };
     return props;
 }
@@ -1492,17 +1494,43 @@ bool UiFxApplyProperty(UiComputedStyle& s, const std::string& name, const std::v
         return true;
     }
 
-    // ── sounds
-    if (name == "sound" || name == "sound-hover")
+    // ── sounds and pulses
+    if (UiFxIsRuleSoundProperty(name))
     {
-        std::string path;
-        if (none) path.clear();
-        else if (value.size() == 1 && value[0].Type == UiCssTok::String) path = value[0].Text;
-        else if (!ParseUrl(value, path)) { error = "expected a string path"; return false; }
-        (name == "sound" ? fx.Sound : fx.SoundHover) = path;
+        UiRuleSounds ignored;   // the resolver reads these from the rules, see UiElem::UpdateSoundRules; here the value is only checked
+        return UiFxParseRuleSound(name, value, ignored, error);
+    }
+    if (name == "pulse-duration")
+    {
+        float t;
+        if (!ParseTime(value, t) || t < 0.f) { error = "expected a time >= 0"; return false; }
+        fx.PulseDuration = t;
         return true;
     }
 
     handled = false;
     return false;
+}
+
+bool UiFxIsRuleSoundProperty(const std::string& name)
+{
+    return name == "sound-enter" || name == "sound-exit" || name == "sound-volume";
+}
+
+bool UiFxParseRuleSound(const std::string& property, const std::vector<UiCssToken>& valueIn, UiRuleSounds& into, std::string& error)
+{
+    const Tokens value = Trim(valueIn);
+    if (property == "sound-volume")
+    {
+        float v = 1.f;
+        if (value.size() != 1 || !ParseNumberComp(value, v) || v < 0.f) { error = "expected a number >= 0"; return false; }
+        into.Volume = v;
+        return true;
+    }
+    std::string path;
+    if (IsNone(value)) path.clear();
+    else if (value.size() == 1 && value[0].Type == UiCssTok::String) path = value[0].Text;
+    else if (!ParseUrl(value, path)) { error = "expected a sound path as a string or url()"; return false; }
+    (property == "sound-enter" ? into.Enter : into.Exit) = path;
+    return true;
 }

@@ -66,6 +66,16 @@ DropDown:active { background-color: var(--kit-focus); }
 DropDown:focus { background-color: var(--kit-focus); border-color: var(--kit-text); }
 DropDown:disabled { opacity: 0.45; }
 DropDown .dropdown-arrow { margin-left: 10px; }
+/* Text fields: the box is the field, :focus is a field the pointer or the arrows are on, .editing one that is taking keys. */
+TextEntry, MultilineTextEntry { width: 340px; padding: 0 14px; font-size: var(--kit-dialog-size); color: var(--kit-text); background-color: var(--kit-slot); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); --caret-color: var(--kit-accent); --selection-color: rgba(120, 140, 200, 0.45); --placeholder-color: var(--kit-caption); transition: background-color 0.15s ease-out, border-color 0.15s ease-out; }
+TextEntry { height: 46px; vertical-align: center; }
+MultilineTextEntry { height: auto; min-height: 46px; max-height: 240px; padding: 10px 14px; line-height: 1.25em; }
+TextEntry:hover, MultilineTextEntry:hover { background-color: var(--kit-button-hover); }
+TextEntry:focus, MultilineTextEntry:focus { border-color: var(--kit-focus-border); }
+TextEntry.editing, MultilineTextEntry.editing { background-color: var(--kit-focus); border-color: var(--kit-focus-border); }
+TextEntry:disabled, MultilineTextEntry:disabled { opacity: 0.45; }
+MultilineTextEntry .scrollbar { width: 6px; margin: 4px; }
+
 .dropdown-list { background-color: var(--kit-panel); border: 2px solid var(--kit-panel-border); border-radius: var(--kit-radius); box-shadow: 0 10px 24px 0 rgba(0, 0, 0, 0.5); animation: kit-dropdown-open 0.14s ease-out; }
 .dropdown-item { height: 46px; padding: 0 14px; transition: background-color 0.1s ease-out; }
 .dropdown-item:hover, .dropdown-item:focus { background-color: var(--kit-button-hover); }

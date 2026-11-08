@@ -239,6 +239,7 @@ void Input::StartEventsFrame()
     MouseScrollDelta = 0;
 
     TextInputBuffer = "";
+    TextKeyEvents.clear();
 
     for (auto& action : TouchActions)
     {
@@ -314,6 +315,9 @@ void Input::ReceiveSdlEvent(SDL_Event event)
             activeKeys.insert(event.key.keysym.scancode);
         }
         // repeat != 0 → key-repeat spam, ignore entirely (for nav purposes).
+
+        TextKeyEvents.push_back(TextKeyEvent{ event.key.keysym.scancode, (event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI)) != 0,
+                                              (event.key.keysym.mod & KMOD_SHIFT) != 0, (event.key.keysym.mod & KMOD_ALT) != 0 });
 
         // Text-erase keys ride along in TextInputBuffer, using the same
         // control-byte convention UiTextBox::DrainTextInput() already parses.

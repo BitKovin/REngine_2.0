@@ -2,7 +2,6 @@
 #include <UI/Elements/UiElemValue.h>
 
 class UiSlider;
-class UiTextBox;
 class UiVideo;
 class UiCustomShaderImage;
 
@@ -37,24 +36,7 @@ public:
 private:
     std::shared_ptr<UiSlider> m_slider;
     UiValueBinding m_binding{ *this };
-};
-
-class UiElemTextEntry : public UiElemLegacyWrapper
-{
-public:
-    UiElemTextEntry();
-    static std::shared_ptr<UiElem> Create() { return std::make_shared<UiElemTextEntry>(); }
-    bool ApplyAttribute(const std::string& name, const std::string& value) override;
-    void Tick() override;
-    void Update() override;
-    const std::string& Text() const;
-    void SetText(const std::string& text);
-    bool CaptureValue(double&, std::string& text) const override { text = Text(); return true; }
-    void RestoreValue(double, const std::string& text) override { SetText(text); }
-
-private:
-    std::shared_ptr<UiTextBox> m_box;
-    std::string m_lastText;
+    bool m_wasDragging = false;
 };
 
 class UiElemMovie : public UiElemLegacyWrapper

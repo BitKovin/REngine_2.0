@@ -250,6 +250,7 @@ void UiElemDropDown::Open()
     SetClass("open", true);
     if (m_arrow != nullptr)
         m_arrow->SetOpen(true);
+    UiSystem::QueueEvent(*this, "open");
 }
 
 void UiElemDropDown::DestroyList()
@@ -281,6 +282,7 @@ void UiElemDropDown::Close()
         m_arrow->SetOpen(false);
     if (focusInside)
         UiNavigation::SetFocus(this);
+    UiSystem::QueueEvent(*this, "close");
 }
 
 // Below the header when it fits (above when that has more room), as wide as the header, at most max-visible rows tall.

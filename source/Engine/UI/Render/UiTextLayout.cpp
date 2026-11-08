@@ -43,6 +43,7 @@ namespace
         float Pre = 0.f;       // kerning against the previous item (UI units)
         int Style = 0;
         int Icon = -1;         // index into the icon list, or -1
+        int Src = -1;          // index into the text this item came from
     };
 
     struct LayoutContext
@@ -75,7 +76,7 @@ namespace
         return w;
     }
 
-    struct Line { std::vector<Item> Items; float Width = 0.f; };
+    struct Line { std::vector<Item> Items; float Width = 0.f; int SrcFirst = 0, SrcEnd = 0; /* boundaries of the text the line covers */ };
 
     // Rich text (html="true"): <b> <i> <color=#rrggbb> <size=NN> <icon=action:NAME> <icon=img:PATH>
     struct StyleDef
@@ -226,7 +227,7 @@ namespace
             else if (params.Transform == UiTextTransform::Lowercase) a.Cp = ToLower(a.Cp);
         }
         std::vector<Atom> text;
-        const bool pre = params.WhiteSpace == UiWhiteSpace::Pre;
+        const bool pre = params.WhiteSpace == UiWhiteSpace::Pre || params.WhiteSpace == UiWhiteSpace::PreWrap;
         for (Atom a : atoms)
         {
             if (a.Cp == '\r' && a.Icon < 0)
@@ -286,7 +287,7 @@ namespace
         };
 
         // 6-7. advances and wrapping
-        const bool wrap = params.WrapWidth >= 0.f && params.WhiteSpace == UiWhiteSpace::Normal;
+        const bool wrap = params.WrapWidth >= 0.f && (params.WhiteSpace == UiWhiteSpace::Normal || params.WhiteSpace == UiWhiteSpace::PreWrap);
         std::vector<Line> lines;
         size_t pos = 0;
         bool anyText = !text.empty();
@@ -298,11 +299,18 @@ namespace
             std::vector<Item> items;
             items.reserve(end - pos);
             for (size_t i = pos; i < end; ++i)
+            {
                 items.push_back(makeItem(text[i], items.empty() ? nullptr : &items.back()));
+                items.back().Src = (int)i;
+            }
 
             size_t start = 0;
             if (items.empty())
-                lines.push_back(Line{});
+            {
+                Line empty;
+                empty.SrcFirst = empty.SrcEnd = (int)pos;
+                lines.push_back(empty);
+            }
             while (start < items.size())
             {
                 size_t i = start, lastBreak = 0;
@@ -357,6 +365,8 @@ namespace
                 }
                 Line line;
                 line.Items.assign(items.begin() + a, items.begin() + b);
+                line.SrcFirst = (int)(pos + a);
+                line.SrcEnd = (int)(pos + b);
                 line.Width = RangeWidth(line.Items, 0, line.Items.size());
                 lines.push_back(std::move(line));
                 // skip leading spaces of the next line
@@ -392,6 +402,9 @@ namespace
         }
 
         // 9-10. emit
+        if (params.WantCarets)
+            result.Carets.assign(text.size() + 1, UiCaretStop{});
+        result.LineHeight = lineHeight;
         std::vector<UiTextIcon> sourceIcons;
         sourceIcons.swap(result.Icons);
         float widest = 0.f;
@@ -414,6 +427,8 @@ namespace
                 const Item& item = line.Items[i];
                 if (i > 0)
                     pen += item.Pre;
+                if (params.WantCarets && line.SrcFirst + (int)i < (int)result.Carets.size())
+                    result.Carets[line.SrcFirst + i] = UiCaretStop{ offset + pen, top, (int)li };
                 if (item.Icon >= 0)
                 {
                     UiTextIcon icon = sourceIcons[item.Icon];
@@ -456,6 +471,12 @@ namespace
                     result.Quads.push_back(q);
                 }
                 pen += item.Advance;
+            }
+            if (params.WantCarets)
+            {
+                if (line.SrcEnd < (int)result.Carets.size())
+                    result.Carets[line.SrcEnd] = UiCaretStop{ offset + pen, top, (int)li };
+                result.LineInfo.push_back(UiLineInfo{ line.SrcFirst, line.SrcEnd, top, offset + pen });
             }
             if (li > 0)
                 result.DisplayText += '\n';
@@ -522,7 +543,7 @@ UiTextLayoutResult UiLayoutText(const UiTextParams& params)
     if (params.Overflow != UiTextOverflow::Shrink)
         return result;
 
-    const bool wraps = params.WhiteSpace == UiWhiteSpace::Normal && params.WrapWidth >= 0.f;
+    const bool wraps = (params.WhiteSpace == UiWhiteSpace::Normal || params.WhiteSpace == UiWhiteSpace::PreWrap) && params.WrapWidth >= 0.f;
     auto fits = [&](const UiTextLayoutResult& r) {
         if (params.WrapWidth >= 0.f && !wraps && r.Width > params.WrapWidth + 0.001f)
             return false;

@@ -3,7 +3,9 @@
 #include <string>
 #include <vector>
 
-enum class UiPseudo { Hover, Active, Focus, FocusWithin, Disabled, Selected, Root, Entering, Leaving, Checked, Dragging };
+// Pulse pseudo-classes (PulseFirst..) are not states: an event puts the element in them for pulse-duration (see UiPulses()).
+enum class UiPseudo { Hover, Active, Focus, FocusWithin, Disabled, Selected, Root, Entering, Leaving, Checked, Dragging,
+                      PulseFirst };
 
 struct UiCompound
 {
@@ -28,6 +30,21 @@ bool UiParseSelectorList(const std::vector<UiCssToken>& prelude, const std::stri
 
 class UiElem;
 bool UiSelectorMatches(const UiSelector& selector, const UiElem& element);
+
+// The events that start a pulse. A pulse is the element's reaction to something that happened to it (a click, a double click, a
+// refused press, an edit): the pseudo-class named here matches for pulse-duration, so a rule can animate it and play sound-enter.
+// The pseudo-class of entry i is UiPseudo(int(UiPseudo::PulseFirst) + i).
+struct UiPulseInfo
+{
+    const char* Name;          // :click
+    const char* Event;         // the UI event that starts it
+    const char* AltEvent;      // a second event with the same meaning, or nullptr
+    const char* Description;
+};
+const std::vector<UiPulseInfo>& UiPulses();
+
+// True when the selector is about the disabled state (:disabled or :denied): its sounds still play on a disabled element.
+bool UiSelectorMatchesDisabledState(const UiSelector& selector);
 
 // Names of all supported pseudo-classes, in declaration order (used by the UI database).
 const std::vector<std::string>& UiPseudoNames();

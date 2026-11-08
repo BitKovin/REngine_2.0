@@ -5,7 +5,7 @@
 #include <UI/Markup/UiVariables.h>
 #include <UI/UiCustomShaderImage.hpp>
 #include <UI/UiSlider.hpp>
-#include <UI/UiTextBox.hpp>
+#include <UI/UiSystem.h>
 #include <UI/UiVideo.hpp>
 
 #include <algorithm>
@@ -82,52 +82,11 @@ void UiElemSlider::Update()
 {
     UiElem::Update();
     m_binding.Poll();
-}
-
-// ── TextEntry
-
-UiElemTextEntry::UiElemTextEntry()
-{
-    TagName = "TextEntry";
-    m_natural = glm::vec2(300.f, 40.f);
-    m_box = std::make_shared<UiTextBox>();
-    Attach(m_box);
-}
-
-const std::string& UiElemTextEntry::Text() const { return m_box->Text; }
-void UiElemTextEntry::SetText(const std::string& text) { m_box->SetText(text); }
-
-bool UiElemTextEntry::ApplyAttribute(const std::string& name, const std::string& value)
-{
-    if (name == "text") { m_box->SetText(value); m_lastText = m_box->Text; SetVar("value", m_lastText); return true; }
-    if (name == "placeholder") { m_box->Placeholder = value; return true; }
-    if (name == "max-length") { m_box->MaxLength = std::atoi(value.c_str()); return true; }
-    if (name == "password") { m_box->PasswordMode = IsTrue(value); return true; }
-    if (name == "numeric") { m_box->NumericOnly = IsTrue(value); return true; }
-    return false;
-}
-
-void UiElemTextEntry::Tick()
-{
-    const UiComputedStyle& s = Computed();
-    m_box->TextColor = s.Color;
-    m_box->CaretColor = s.Color;
-    m_box->PlaceholderColor = glm::vec4(s.Color.r, s.Color.g, s.Color.b, s.Color.a * 0.4f);
-    m_box->FontSize = s.FontSize;
-    m_box->Color = UiCustomColor(s, "--field-color", glm::vec4(0.12f, 0.12f, 0.12f, 1.f));
-    m_box->HoverColor = UiCustomColor(s, "--field-hover-color", glm::vec4(0.16f, 0.16f, 0.16f, 1.f));
-    m_box->FocusColor = UiCustomColor(s, "--field-focus-color", glm::vec4(0.20f, 0.20f, 0.26f, 1.f));
-    m_box->EditingColor = UiCustomColor(s, "--field-editing-color", glm::vec4(0.16f, 0.24f, 0.32f, 1.f));
-}
-
-void UiElemTextEntry::Update()
-{
-    UiElem::Update();
-    if (m_box->Text != m_lastText)
+    const bool dragging = m_slider->IsDragging();
+    if (dragging != m_wasDragging)
     {
-        m_lastText = m_box->Text;
-        SetVar("value", m_lastText);
-        Fire("valuechanged");
+        m_wasDragging = dragging;
+        UiSystem::QueueEvent(*this, dragging ? "slidestart" : "slideend");
     }
 }
 

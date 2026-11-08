@@ -15,6 +15,13 @@ namespace
             { "focus-within", UiPseudo::FocusWithin }, { "disabled", UiPseudo::Disabled }, { "selected", UiPseudo::Selected },
             { "root", UiPseudo::Root }, { "entering", UiPseudo::Entering }, { "leaving", UiPseudo::Leaving },
             { "checked", UiPseudo::Checked }, { "dragging", UiPseudo::Dragging } };
+        const std::vector<UiPulseInfo>& pulses = UiPulses();
+        for (size_t i = 0; i < pulses.size(); ++i)
+            if (name == pulses[i].Name)
+            {
+                out = static_cast<UiPseudo>(static_cast<int>(UiPseudo::PulseFirst) + static_cast<int>(i));
+                return true;
+            }
         for (const auto& e : kTable)
             if (name == e.Name) { out = e.Value; return true; }
         return false;
@@ -52,6 +59,9 @@ namespace
             case UiPseudo::Leaving: if (!(e.States & kStateLeaving)) return false; break;
             case UiPseudo::Checked: if (!(e.States & kStateChecked)) return false; break;
             case UiPseudo::Dragging: if (!(e.States & kStateDragging)) return false; break;
+            default:   // a pulse
+                if (!e.PulseActive(static_cast<int>(p) - static_cast<int>(UiPseudo::PulseFirst))) return false;
+                break;
             }
         }
         return true;
@@ -82,8 +92,29 @@ namespace
 
 const std::vector<std::string>& UiPseudoNames()
 {
-    static const std::vector<std::string> names = { "hover", "active", "focus", "focus-within", "disabled", "selected", "root", "entering", "leaving", "checked", "dragging" };
+    static const std::vector<std::string> names = [] {
+        std::vector<std::string> list = { "hover", "active", "focus", "focus-within", "disabled", "selected", "root", "entering", "leaving", "checked", "dragging" };
+        for (const UiPulseInfo& p : UiPulses())
+            list.push_back(p.Name);
+        return list;
+    }();
     return names;
+}
+
+const std::vector<UiPulseInfo>& UiPulses()
+{
+    static const std::vector<UiPulseInfo> list = {
+        { "click", "click", "activate", "a click or a confirm (activate) just happened" },
+        { "doubleclick", "doubleclick", nullptr, "a double click just happened" },
+        { "contextmenu", "contextmenu", nullptr, "a context menu was requested" },
+        { "denied", "denied", nullptr, "a press or confirm on the disabled element was refused" },
+        { "change", "valuechanged", nullptr, "the value was changed by the user" },
+        { "input", "input", nullptr, "a character was typed or pasted into a text field" },
+        { "submit", "submit", nullptr, "a text field was submitted" },
+        { "rejected", "inputrejected", nullptr, "a text field refused typed or pasted characters" },
+        { "drop", "drop", nullptr, "something was dropped on the element" },
+    };
+    return list;
 }
 
 bool UiParseSelectorList(const std::vector<UiCssToken>& prelude, const std::string& path, std::vector<UiSelector>& out)
@@ -223,4 +254,20 @@ bool UiSelectorMatches(const UiSelector& selector, const UiElem& element)
     if (selector.Parts.empty())
         return false;
     return MatchFrom(selector, (int)selector.Parts.size() - 1, element);
+}
+
+bool UiSelectorMatchesDisabledState(const UiSelector& selector)
+{
+    const UiPseudo denied = [] {
+        const std::vector<UiPulseInfo>& pulses = UiPulses();
+        for (size_t i = 0; i < pulses.size(); ++i)
+            if (std::string(pulses[i].Name) == "denied")
+                return static_cast<UiPseudo>(static_cast<int>(UiPseudo::PulseFirst) + static_cast<int>(i));
+        return UiPseudo::Disabled;
+    }();
+    for (const UiCompound& c : selector.Parts)
+        for (UiPseudo p : c.Pseudos)
+            if (p == UiPseudo::Disabled || p == denied)
+                return true;
+    return false;
 }

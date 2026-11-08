@@ -183,6 +183,11 @@ public:
 	static inline bool TextInputActive = false;
 	static inline std::string TextInputBuffer;
 
+	// Every key press of this frame, OS key repeat included, with the modifiers held at the time. Text fields read their editing
+	// keys (arrows, Home/End, Backspace, Ctrl+C ...) here; printable text arrives through TextInputBuffer.
+	struct TextKeyEvent { SDL_Scancode Scancode; bool Ctrl; bool Shift; bool Alt; };
+	static inline std::vector<TextKeyEvent> TextKeyEvents;
+
     // Joystick buttons currently held (by raw SDL button index).
     static std::unordered_set<int> activeJoystickButtons;
 

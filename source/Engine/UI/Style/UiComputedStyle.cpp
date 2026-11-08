@@ -427,7 +427,7 @@ const std::vector<UiPropertyInfo>& UiStyleProperties()
         { "letter-spacing", "normal | <length>", true, "0", "layout", true },
         { "line-height", "normal | <number> | <length>", true, "normal", "layout", true },
         { "text-align", "left | center | right", true, "left", "paint", true },
-        { "white-space", "normal | nowrap | pre", true, "normal", "layout", true },
+        { "white-space", "normal | nowrap | pre | pre-wrap", true, "normal", "layout", true },
         { "text-overflow", "clip | ellipsis | shrink", false, "clip", "layout", true },
         { "text-transform", "none | uppercase | lowercase", true, "none", "layout", true },
         { "object-fit", "fill | contain | cover | none | scale-down", false, "fill", "paint", true },
@@ -764,7 +764,7 @@ bool UiApplyLonghand(UiComputedStyle& s, const std::string& name, const std::vec
     }
     if (name == "white-space")
     {
-        static const char* const k[] = { "normal", "nowrap", "pre" };
+        static const char* const k[] = { "normal", "nowrap", "pre", "pre-wrap" };
         int i; if (!ParseKeyword(c, k, i, error)) return false;
         s.WhiteSpace = (UiWhiteSpace)i; return true;
     }

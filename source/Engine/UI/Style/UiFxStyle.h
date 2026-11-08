@@ -1,6 +1,7 @@
 #pragma once
 #include <UI/Style/UiLength.h>
 #include <glm.h>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -206,7 +207,8 @@ struct UiFxStyle
     // motion
     std::vector<UiTransitionDef> Transitions;
     std::vector<UiAnimationDef> Animations;
-    std::string Sound, SoundHover;
+    // pulse-duration: how long an event (click, doubleclick, denied, ...) keeps the element in its pulse pseudo-class
+    float PulseDuration = 0.2f;
 
     UiFxStyle()
     {

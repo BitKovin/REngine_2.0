@@ -95,6 +95,7 @@ namespace
         if (auto source = g_s.Source.lock())
         {
             SetDragging(*source, false);
+            source->Fire("dragend");   // the payload is still there for the handler
             source->DragPayload.reset();
         }
         g_s.Active = false;

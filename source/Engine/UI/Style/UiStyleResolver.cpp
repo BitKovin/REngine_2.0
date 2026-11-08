@@ -7,6 +7,8 @@
 #include <UI/Style/UiAnimation.h>
 #include <UI/Style/UiCssParser.h>
 #include <UI/Style/UiComputedStyle.h>
+#include <UI/Style/UiFxParse.h>
+#include <UI/Style/UiSelector.h>
 #include <UI/UiSystem.h>
 
 #include <algorithm>
@@ -270,6 +272,32 @@ namespace
         ApplyOverrides(s, e.m_overrides);
         if (e.m_visibleOverrideCollapse)
             s.Visibility = UiVisibility::Collapse;
+        {
+            // sound-enter / sound-exit belong to the rules: the rules that match now are compared with the ones of the last resolve
+            std::vector<UiElem::RuleSound> sounds;
+            for (const Match& m : matches)
+            {
+                UiRuleSounds rs;
+                for (const UiCssDeclaration& d : m.Rule->Declarations)
+                {
+                    std::string ignored;   // an invalid value was already reported by the Applier
+                    if (UiFxIsRuleSoundProperty(d.Name))
+                        UiFxParseRuleSound(d.Name, d.Value, rs, ignored);
+                }
+                if (rs.Enter.empty() && rs.Exit.empty())
+                    continue;
+                UiElem::RuleSound sound;
+                sound.Key = std::to_string(m.Layer) + ":" + std::to_string(m.SheetOrder) + ":" + std::to_string(m.RuleOrder) + ":" + *m.Path;
+                sound.Enter = rs.Enter;
+                sound.Exit = rs.Exit;
+                sound.Volume = rs.Volume;
+                for (const UiSelector& sel : m.Rule->Selectors)
+                    if (UiSelectorMatchesDisabledState(sel))
+                        sound.WhileDisabled = true;
+                sounds.push_back(std::move(sound));
+            }
+            e.UpdateSoundRules(std::move(sounds));
+        }
         UiAnimation::OnStyleResolved(e, s);   // transitions and animations replace animated values by their current ones
         e.m_computed = std::move(s);
 

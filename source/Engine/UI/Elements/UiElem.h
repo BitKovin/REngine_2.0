@@ -78,6 +78,7 @@ public:
     virtual void OnActivate() {}         // runs before the "activate" event is queued
     virtual void Tick() {}               // per frame, main thread, before style/layout (used from phase 5)
     virtual bool IsFocusable() const { return false; }
+    virtual bool OnFocusedCancel() { return false; }   // true = this focused element took the cancel (a text field ends editing); its page does not go back
     virtual bool HasContent() const { return false; }   // true: MeasureContent contributes to fit-children
     virtual bool DrawsBoxBackground() const { return true; }   // false: the element paints background-color itself (CircularProgress)
     virtual glm::vec2 VirtualContentSize() const { return glm::vec2(0.f); }   // content size beyond the built children (ListView)
@@ -103,7 +104,23 @@ public:
     void On(const std::string& name, std::weak_ptr<void> guard, std::function<void()> fn);
     void On(const std::string& name, std::weak_ptr<void> guard, ActionFn fn);
     const Handler* FindHandler(const std::string& name) const;
-    void Fire(const std::string& event);         // runs the calls of the on<event> attribute
+    // C++ side of an event: runs after the calls of the on<event> attribute. Skipped once `guard` has expired.
+    using EventFn = std::function<void(UiElem& sender)>;
+    struct Listener { EventFn Fn; std::weak_ptr<void> Guard; bool Guarded = false; };
+    void Listen(const std::string& event, EventFn fn);
+    void Listen(const std::string& event, std::weak_ptr<void> guard, EventFn fn);
+    bool HasSubscribers(const std::string& event) const;   // an on<event> attribute or a listener
+    void Fire(const std::string& event);         // starts the event's pulse, runs the calls of the on<event> attribute, then the listeners
+    void FireSilent(const std::string& event);   // the same without the pulse (UiSystem::QueueEvent starts it at once and fires later)
+
+    // ── pulses: an event (click, doubleclick, denied, ...) puts the element in a pseudo-class of the same name for pulse-duration,
+    // so a style can animate the reaction and play its sound-enter (see UiPulses() in UiSelector.h). Real time, like motion.
+    void TriggerPulse(const std::string& event);   // does nothing for an event that has no pulse
+    bool PulseActive(int index) const;             // index into UiPulses()
+    // ── sounds of style rules: the resolver hands over the rules that declare sound-enter / sound-exit and match the element now;
+    // the ones that appeared since the last resolve play their enter sound, the ones that went away their exit sound.
+    struct RuleSound { std::string Key, Enter, Exit; float Volume = 1.f; bool WhileDisabled = false; };
+    void UpdateSoundRules(std::vector<RuleSound>&& now);
     void Activate();                             // counts, OnActivate(), queues the "activate" event
     const std::vector<UiActionCall>* EventCalls(const std::string& event) const;
     bool WarnedAction(const std::string& name) { return !m_warnedActions.insert(name).second; }
@@ -130,6 +147,7 @@ public:
     UiElem* ScrollbarElem() const { return m_scrollbar; }
     void EnsureScrollbar();                      // creates Panel.scrollbar > Panel.thumb when the attribute scrollbar="true"
     static inline bool SuppressActivate = false; // a scroll drag moved far enough: the release does not activate buttons
+    bool ScrollbarPressActive() const { return m_barDrag; }   // the press that is going on holds the scrollbar thumb of the nearest container
 
     // ── state
     uint32_t States = 0;
@@ -185,7 +203,12 @@ public:
     int SrcLine = 0, SrcCol = 0;                  // position of the markup node this element came from
     std::map<std::string, std::vector<UiActionCall>> m_eventCalls;   // event name (without "on") -> parsed calls
     std::map<std::string, Handler> m_handlers;
+    std::map<std::string, std::vector<Listener>> m_listeners;
     std::set<std::string> m_warnedActions;
+    struct ActivePulse { int Index; uint64_t Expire; bool Resolved; };   // Resolved: a style pass has seen it (a 0 s pulse still gets one)
+    std::vector<ActivePulse> m_pulses;
+    std::vector<RuleSound> m_soundRules;
+    bool m_soundsSeeded = false;                  // the first resolve only records the rules: building a page is silent
     bool m_needsScan = true;                      // root only: validate actions and fire load events after the next layout
     bool m_loadFired = false;
     bool m_validated = false;
@@ -224,4 +247,6 @@ private:
     UiElem* m_dragTarget = nullptr;             // the scroll container a drag that started on a descendant scrolls
     void ApplyPointerStates();
     int m_pressedTouchId = -1;
+    uint64_t m_lastClickTicks = 0;               // for doubleclick
+    glm::vec2 m_lastClickPos = glm::vec2(0.f);
 };
