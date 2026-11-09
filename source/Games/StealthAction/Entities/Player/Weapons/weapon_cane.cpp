@@ -47,7 +47,7 @@ public:
 
 	weapon_cane()
 	{
-
+		AltBob = true;
 		LateUpdateWhenPaused = true;
 
 		thirdPersonModelPath = "GameData/models/player/weapons/cane/cane_tp.glb";

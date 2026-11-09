@@ -82,6 +82,8 @@ public:
 	bool Parrying = false;
 	bool Blocking = false;
 
+	bool AltBob = false;
+
 	bool SupportsOffhandWeapon = true;
 
 	// ── Offhand / two-handed left-hand ownership ────────────────────────────────
@@ -126,8 +128,8 @@ public:
 	// Hiding is slightly faster than drawing, per design: 0.15s to hide, 0.2s to
 	// draw. Both the main weapon (hiding its hand) and the offhand weapon (drawing
 	// itself) use these same two timings.
-	static constexpr float LeftHandHideTime = 0.05f;
-	static constexpr float LeftHandDrawTime = 0.1f;
+	static constexpr float LeftHandHideTime = 0.1f;
+	static constexpr float LeftHandDrawTime = 0.2f;
 
 	// Advances LeftHandBlend toward 1 (show/engage) or 0 (hide), at the rate above.
 	// Call once per frame.

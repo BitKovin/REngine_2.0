@@ -473,6 +473,7 @@
     <ClCompile Include="Entities\Player\Weapons\WeaponFirearm.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_cane.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_cannon.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\weapon_crucifix.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_lefthand_empty.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_mpsd.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_pistol.cpp" />

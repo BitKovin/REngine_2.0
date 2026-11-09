@@ -1959,7 +1959,14 @@ void Player::UpdateWeapon()
 		// otherwise the same handoff condition used for the main weapon above.
 		currentOffhandWeapon->UpdateLeftHandBlend(mainNeedsLeftHand ? handoffToOffhand : true, Time::DeltaTimeF);
 
-		currentOffhandWeapon->Position = Camera::position + MathHelper::TransformVector(vec3(0, -bob.y + 0.001, bob.x) * 1.0f, Camera::GetRotationMatrix());
+		if(currentOffhandWeapon->AltBob)
+		{
+			currentOffhandWeapon->Position = Camera::position + MathHelper::TransformVector(vec3(0, -bob.y + 0.001, bob.x) * 1.0f, Camera::GetRotationMatrix());
+		}
+		else
+		{
+			currentOffhandWeapon->Position = Camera::position + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix());
+		}
 		currentOffhandWeapon->Rotation = lerp(cameraRotation, Camera::rotation , 0.3f) + runHideRotation;
 		if (dead)
 			currentOffhandWeapon->Rotation.x += std::min(deathAnimDelay.GetProgress(), 1.0f) * 30.0f;
@@ -3415,6 +3422,32 @@ CONSOLE_FUNC("kit.weapons", "kit.weapons gives all weapons")
 {
 
 	Player::Instance->AddWeaponByName("weapon_cane");
+
+	Player::Instance->AddWeaponByName("weapon_twinsword");
+
+
+	Player::Instance->AddWeaponByName("weapon_pistol");
+	Player::Instance->AddWeaponByName("weapon_pistol");
+	Player::Instance->AddWeaponByName("weapon_pistol");
+
+	Player::Instance->AddWeaponByName("weapon_shotgun");
+	Player::Instance->AddWeaponByName("weapon_shotgun");
+	Player::Instance->AddWeaponByName("weapon_shotgun");
+
+	Player::Instance->AddWeaponByName("weapon_mpsd");
+	Player::Instance->AddWeaponByName("weapon_mpsd");
+	Player::Instance->AddWeaponByName("weapon_mpsd");
+
+	Player::Instance->AddWeaponByName("weapon_cannon");
+	Player::Instance->AddWeaponByName("weapon_cannon");
+	Player::Instance->AddWeaponByName("weapon_cannon");
+	Player::Instance->AddWeaponByName("weapon_cannon");
+}
+
+CONSOLE_FUNC("kit.hunter", "kit.weapons gives all weapons")
+{
+
+	Player::Instance->AddWeaponByName("weapon_crucifix");
 
 	Player::Instance->AddWeaponByName("weapon_twinsword");
 
