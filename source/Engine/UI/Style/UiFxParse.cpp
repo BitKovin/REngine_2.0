@@ -1502,14 +1502,18 @@ bool UiFxApplyProperty(UiComputedStyle& s, const std::string& name, const std::v
     }
     if (name == "pulse-duration")
     {
-        float t;
-        if (!ParseTime(value, t) || t < 0.f) { error = "expected a time >= 0"; return false; }
-        fx.PulseDuration = t;
-        return true;
+        float ignored;   // the resolver reads it from the rules, see UiElem::m_pulseSeconds; here the value is only checked
+        return UiFxParsePulseDuration(value, ignored, error);
     }
 
     handled = false;
     return false;
+}
+
+bool UiFxParsePulseDuration(const std::vector<UiCssToken>& value, float& seconds, std::string& error)
+{
+    if (!ParseTime(Trim(value), seconds) || seconds < 0.f) { error = "expected a time >= 0"; return false; }
+    return true;
 }
 
 bool UiFxIsRuleSoundProperty(const std::string& name)

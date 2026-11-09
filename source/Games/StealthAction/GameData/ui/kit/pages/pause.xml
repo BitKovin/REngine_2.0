@@ -24,6 +24,7 @@
         <Label class="item-text" html="true" text="${PAUSE_MENU_SETTINGS} <size=60><icon=action:attack,valign=middle></size>"/>
         <Panel class="item-line"/>
       </Button>
+   
       <Button id="pquit" class="menu-item" onactivate="AskQuit()">
         <Label class="item-text" text="${PAUSE_MENU_QUIT}"/>
         <Panel class="item-line"/>

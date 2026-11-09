@@ -16,7 +16,7 @@ public:
 
         Transparent = true;
 
-		PixelShader = "fs_decal";
+		//PixelShader = "fs_decal";
 
         isDecal = true;
         DepthSorting = false;

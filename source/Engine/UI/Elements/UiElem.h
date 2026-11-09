@@ -115,6 +115,7 @@ public:
 
     // ── pulses: an event (click, doubleclick, denied, ...) puts the element in a pseudo-class of the same name for pulse-duration,
     // so a style can animate the reaction and play its sound-enter (see UiPulses() in UiSelector.h). Real time, like motion.
+    static constexpr float kDefaultPulseSeconds = 0.2f;
     void TriggerPulse(const std::string& event);   // does nothing for an event that has no pulse
     bool PulseActive(int index) const;             // index into UiPulses()
     // ── sounds of style rules: the resolver hands over the rules that declare sound-enter / sound-exit and match the element now;
@@ -207,6 +208,7 @@ public:
     std::set<std::string> m_warnedActions;
     struct ActivePulse { int Index; uint64_t Expire; bool Resolved; };   // Resolved: a style pass has seen it (a 0 s pulse still gets one)
     std::vector<ActivePulse> m_pulses;
+    std::vector<float> m_pulseSeconds;            // per pulse (UiPulses() order): its pulse-duration, found by the last style pass
     std::vector<RuleSound> m_soundRules;
     bool m_soundsSeeded = false;                  // the first resolve only records the rules: building a page is silent
     bool m_needsScan = true;                      // root only: validate actions and fire load events after the next layout

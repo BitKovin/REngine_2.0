@@ -286,6 +286,9 @@ std::shared_ptr<UiStyleSheet> UiParseStyleSheet(const std::string& source, const
         if (rule.Selectors.empty())
             continue;
         rule.Declarations = std::move(decls);
+        for (const UiCssDeclaration& d : rule.Declarations)
+            if (d.Name == "pulse-duration")
+                rule.SetsPulseDuration = true;
         rule.SourceOrder = order++;
         sheet->Rules.push_back(std::move(rule));
     }

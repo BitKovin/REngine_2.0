@@ -43,6 +43,10 @@ struct UiPulseInfo
 };
 const std::vector<UiPulseInfo>& UiPulses();
 
+// While set (index into UiPulses(), -1 = none), that pulse counts as active for every element. The resolver uses it to find out which
+// pulse-duration a pulse would have if it started now. Returns the previous value.
+int UiSelectorAssumePulse(int index);
+
 // True when the selector is about the disabled state (:disabled or :denied): its sounds still play on a disabled element.
 bool UiSelectorMatchesDisabledState(const UiSelector& selector);
 

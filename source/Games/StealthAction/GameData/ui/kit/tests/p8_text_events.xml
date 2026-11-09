@@ -11,10 +11,10 @@
       MultilineTextEntry { height: auto; min-height: 40px; max-height: 120px; padding: 6px 8px; line-height: 28px; }
       TextEntry.editing, MultilineTextEntry.editing { background-color: #203040; border-color: #88aaff; }
       #te_fit { width: auto; min-width: 60px; }
-      .btn { width: 240px; height: 44px; background-color: #303030; pulse-duration: 0.3s; }
+      .btn { width: 240px; height: 44px; background-color: #303030; }
       .btn:hover { background-color: #404040; sound-enter: "ui_click"; sound-exit: "ui_click"; sound-volume: 0.5; }
       .btn:click { background-color: #804020; sound-enter: "ui_click"; }
-      .btn:doubleclick { background-color: #208040; }
+      .btn:doubleclick { background-color: #208040; pulse-duration: 0.3s; }
       .btn:disabled { opacity: 0.4; }
     </style>
   </styles>

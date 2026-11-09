@@ -173,6 +173,9 @@ namespace
             docFile = e.ScopeFile;
         // 1-2. matching rules, component layer then document layer
         std::vector<Match> matches;
+        // pulse-duration of each pulse: the rules that declare it and would match the element while that pulse is on
+        const std::vector<UiPulseInfo>& pulses = UiPulses();
+        std::vector<std::vector<Match>> pulseMatches(pulses.size());
         auto collect = [&](const std::vector<SheetRef>& sheets, int layer) {
             for (const SheetRef& ref : sheets)
                 for (const UiCssRule& rule : ref.Sheet->Rules)
@@ -183,6 +186,18 @@ namespace
                             best = sel.Specificity;
                     if (best >= 0)
                         matches.push_back({ layer, best, ref.Order, rule.SourceOrder, &rule, &ref.ReportPath });
+                    if (rule.SetsPulseDuration)
+                        for (size_t i = 0; i < pulses.size(); ++i)
+                        {
+                            const int previous = UiSelectorAssumePulse(static_cast<int>(i));
+                            int bestPulse = -1;
+                            for (const UiSelector& sel : rule.Selectors)
+                                if (sel.Specificity > bestPulse && UiSelectorMatches(sel, e))
+                                    bestPulse = sel.Specificity;
+                            UiSelectorAssumePulse(previous);
+                            if (bestPulse >= 0)
+                                pulseMatches[i].push_back({ layer, bestPulse, ref.Order, rule.SourceOrder, &rule, &ref.ReportPath });
+                        }
                 }
         };
         collect(EngineDefaultSheets(), -1);
@@ -199,12 +214,26 @@ namespace
                 collect(page->second, 1);
         }
         collect(rc.DocumentSheets, 1);
-        std::stable_sort(matches.begin(), matches.end(), [](const Match& a, const Match& b) {
+        const auto byCascade = [](const Match& a, const Match& b) {
             if (a.Layer != b.Layer) return a.Layer < b.Layer;
             if (a.Specificity != b.Specificity) return a.Specificity < b.Specificity;
             if (a.SheetOrder != b.SheetOrder) return a.SheetOrder < b.SheetOrder;
             return a.RuleOrder < b.RuleOrder;
-        });
+        };
+        std::stable_sort(matches.begin(), matches.end(), byCascade);
+        e.m_pulseSeconds.assign(pulses.size(), UiElem::kDefaultPulseSeconds);
+        for (size_t i = 0; i < pulses.size(); ++i)
+        {
+            std::stable_sort(pulseMatches[i].begin(), pulseMatches[i].end(), byCascade);
+            for (const Match& m : pulseMatches[i])   // the last declaration of the last rule wins
+                for (const UiCssDeclaration& d : m.Rule->Declarations)
+                {
+                    float seconds;
+                    std::string ignored;   // an invalid value was already reported by the Applier
+                    if (d.Name == "pulse-duration" && UiFxParsePulseDuration(d.Value, seconds, ignored))
+                        e.m_pulseSeconds[i] = seconds;
+                }
+        }
 
         struct Source { const UiCssDeclaration* Decl; std::string Path; };
         std::vector<Source> decls;

@@ -530,7 +530,7 @@ void UiElem::TriggerPulse(const std::string& event)
     {
         if (event != pulses[i].Event && !(pulses[i].AltEvent != nullptr && event == pulses[i].AltEvent))
             continue;
-        const uint64_t expire = SDL_GetTicks64() + static_cast<uint64_t>(std::max(0.f, m_computed.Fx.PulseDuration) * 1000.f);
+        const uint64_t expire = SDL_GetTicks64() + static_cast<uint64_t>(std::max(0.f, i < m_pulseSeconds.size() ? m_pulseSeconds[i] : kDefaultPulseSeconds) * 1000.f);
         for (ActivePulse& p : m_pulses)
             if (p.Index == static_cast<int>(i))
             {

@@ -376,69 +376,6 @@
       "host": {
         "kind": "viewport"
       },
-      "id": "document:ui/kit/pages/confirm.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/confirm.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/confirm.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/pause.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/pause.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/pause.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/saveload.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/saveload.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/saveload.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
       "id": "document:ui/kit/tests/CycleA.xml",
       "kind": "document",
       "name": "ui/kit/tests/CycleA.xml",
@@ -2680,7 +2617,7 @@
       },
       {
         "kind": "keyframes",
-        "line": 98,
+        "line": 97,
         "name": "kit-dropdown-open",
         "path": "ui/kit/styles/kit.css",
         "stops": [
@@ -2718,7 +2655,7 @@
       },
       {
         "kind": "keyframes",
-        "line": 97,
+        "line": 96,
         "name": "kit-tab-spin",
         "path": "ui/kit/styles/kit.css",
         "stops": [
@@ -3947,33 +3884,6 @@
         ]
       },
       {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/confirm.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/pause.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/saveload.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
         "path": "ui/kit/tests/CycleA.xml"
       },
       {
@@ -4330,7 +4240,8 @@
       {
         "gamepadButtons": [],
         "keys": [
-          "W"
+          "W",
+          "Y"
         ],
         "label": "forward",
         "mouseButtons": [],

@@ -183,7 +183,7 @@ Rules:
   - `kStateEntering` is set on push and cleared one frame later, so transitions run from `:entering` values
   - `Pop` sets `kStateLeaving` and removes the page when no transition or animation is running on it, or after 2 s at most
   - `UiMenuStack` gets a `m_leaving` list for pages that are animating out
-- **Sounds:** `sound-enter` plays when the rule that declares it starts to match the element (a pseudo-class turns on), `sound-exit` when it stops; events such as click, doubleclick or denied put the element in a pulse pseudo-class (`:click`, `:doubleclick`, `:denied`, ... for `pulse-duration`), so they can play sounds and animations the same way.
+- **Sounds:** `sound-enter` plays when the rule that declares it starts to match the element (a pseudo-class turns on), `sound-exit` when it stops; events such as click, doubleclick or denied put the element in a pulse pseudo-class (`:click`, `:doubleclick`, `:denied`, ... for the `pulse-duration` declared in the rule of that pseudo-class), so they can play sounds and animations the same way.
 
 ## UIDB and visual-preview integration
 

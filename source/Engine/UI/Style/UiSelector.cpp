@@ -27,6 +27,8 @@ namespace
         return false;
     }
 
+    int g_assumedPulse = -1;
+
     bool HasFocusWithin(const UiElement* e)
     {
         for (const UiElement* f = UiNavigation::Focused; f; f = f->parent)
@@ -60,7 +62,10 @@ namespace
             case UiPseudo::Checked: if (!(e.States & kStateChecked)) return false; break;
             case UiPseudo::Dragging: if (!(e.States & kStateDragging)) return false; break;
             default:   // a pulse
-                if (!e.PulseActive(static_cast<int>(p) - static_cast<int>(UiPseudo::PulseFirst))) return false;
+            {
+                const int index = static_cast<int>(p) - static_cast<int>(UiPseudo::PulseFirst);
+                if (index != g_assumedPulse && !e.PulseActive(index)) return false;
+            }
                 break;
             }
         }
@@ -270,4 +275,11 @@ bool UiSelectorMatchesDisabledState(const UiSelector& selector)
             if (p == UiPseudo::Disabled || p == denied)
                 return true;
     return false;
+}
+
+int UiSelectorAssumePulse(int index)
+{
+    const int previous = g_assumedPulse;
+    g_assumedPulse = index;
+    return previous;
 }

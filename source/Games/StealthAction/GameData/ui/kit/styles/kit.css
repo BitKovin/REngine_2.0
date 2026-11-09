@@ -46,8 +46,7 @@
 .kit-tab Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-tab-size); color: var(--kit-text); }
 .kit-tab:selected { background-color: var(--kit-button-hover); }
 .kit-tab:focus { background-color: var(--kit-focus); }
-.kit-tab { pulse-duration: 0.5s; }
-.kit-tab:doubleclick { animation: kit-tab-spin 0.5s ease-in-out; sound-enter: "GameData/sounds/mew.wav"; }
+.kit-tab:doubleclick { pulse-duration: 0.5s; animation: kit-tab-spin 0.5s ease-in-out; sound-enter: "GameData/sounds/mew.wav"; }
 .kit-buttons { flow-children: right; gap: 16px; horizontal-align: center; }
 .kit-button { width: 320px; height: 56px; background-color: var(--kit-button); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); }
 .kit-button:hover { background-color: var(--kit-button-hover); }

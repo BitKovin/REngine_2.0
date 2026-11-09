@@ -22,6 +22,9 @@ struct UiRuleSounds
     std::string Enter, Exit;
     float Volume = 1.f;
 };
+// pulse-duration: how long the pulse of the pseudo-class the rule is about lasts (Button:doubleclick { pulse-duration: 0.5s }); a rule
+// without a pulse pseudo-class sets it for every pulse of the element.
+bool UiFxParsePulseDuration(const std::vector<UiCssToken>& value, float& seconds, std::string& error);
 bool UiFxIsRuleSoundProperty(const std::string& name);
 // Reads sound-enter, sound-exit or sound-volume into `into`; false with `error` when the value is not valid.
 bool UiFxParseRuleSound(const std::string& property, const std::vector<UiCssToken>& value, UiRuleSounds& into, std::string& error);

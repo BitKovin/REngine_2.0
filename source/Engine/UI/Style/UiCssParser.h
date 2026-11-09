@@ -19,6 +19,7 @@ struct UiCssRule
     std::vector<UiSelector> Selectors;       // selector list
     std::vector<UiCssDeclaration> Declarations;
     int SourceOrder = 0;                     // increasing across a sheet
+    bool SetsPulseDuration = false;          // declares pulse-duration (the resolver reads those rules for the pulses)
 };
 
 struct UiFontFaceRule { std::string Family; std::string Src; int Weight = 400; bool Italic = false; int Line = 0; };

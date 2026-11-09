@@ -207,8 +207,6 @@ struct UiFxStyle
     // motion
     std::vector<UiTransitionDef> Transitions;
     std::vector<UiAnimationDef> Animations;
-    // pulse-duration: how long an event (click, doubleclick, denied, ...) keeps the element in its pulse pseudo-class
-    float PulseDuration = 0.2f;
 
     UiFxStyle()
     {
