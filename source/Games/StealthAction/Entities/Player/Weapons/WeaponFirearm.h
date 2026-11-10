@@ -133,16 +133,27 @@ public:
 	// could drift out of sync with what actually gets saved. See SetData().
 	bool reloading = false;
 
-	// If true, completing a reload actually removes the loaded rounds from the
-	// shared ammo pool (traditional "separate reserve vs magazine" model) - once
-	// loaded, this weapon's magazine is its own and unaffected by other weapons
-	// of the same ammo type firing. If false (the default), reload only tops the
-	// magazine up to whatever's still in the pool without removing anything from
-	// it - the magazine is just a capped *view* into the shared pool, so weapons
-	// genuinely share one ammo count. This is a per-instance flag rather than a
-	// FirearmParams entry because it's a behavioural switch a subclass (or
-	// something else) may want to flip directly, not fixed construction data.
+	// Two ammo models, selected by this flag:
+	//
+	// true (default) - "clip" model. The player's pool (GetAmmo) is pure
+	//   RESERVE. Reloading moves min(spaceInMagazine, reserve) rounds out of the
+	//   pool into Data.magazineAmmo. Firing only drains the magazine. A magazine
+	//   is its own thing: it is never clamped to the pool, since the pool can
+	//   legitimately be 0 while the magazine is full.
+	//
+	// false - "visual reload" model. The pool IS the ammo; every shot is taken
+	//   straight from it. Data.magazineAmmo is only a capped view of the pool
+	//   (always <= min(magazineSize, pool)) and reloading just refills that view
+	//   - nothing is moved or removed.
+	//
+	// Per-instance flag rather than a FirearmParams entry because it's a
+	// behavioural switch a subclass may want to flip directly.
 	bool reloadConsumesAmmo = true;
+
+	// Input buffer for the reload key (seconds remaining). A press that lands
+	// while CanAttack() is briefly false (e.g. right after a shot) is kept for a
+	// moment instead of being thrown away.
+	float reloadBuffer = 0.0f;
 
 	WeaponFirearm(const FirearmParams& initialParams = FirearmParams());
 
@@ -163,10 +174,14 @@ public:
 	// re-clamped in case the shared pool has dropped since it was last equipped.
 	void SetData(WeaponSlotData data) override;
 
-	// Whether StartReload() may currently succeed (not already reloading, magazine
-	// not already as full as the pool allows, pool has ammo, offhand weapon isn't
-	// currently mid-action, player is free to act).
+	// Whether StartReload() may currently succeed (not already reloading, a reload
+	// would actually add at least one round under the active ammo model, offhand
+	// weapon isn't currently mid-action, player is free to act).
 	virtual bool CanReload();
+
+	// How many rounds a reload would add to the magazine right now, for whichever
+	// ammo model is active (see reloadConsumesAmmo). 0 means "nothing to reload".
+	int GetRoundsToLoad();
 
 	// Begins the reload: plays the reload animation and marks the weapon as
 	// reloading. Firing is blocked until the reload animation reports ~0.2s
