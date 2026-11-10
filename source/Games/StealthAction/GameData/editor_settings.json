@@ -3,7 +3,7 @@
   "game": {
     "args": "--map {mapname}.bsp",
     "exe": "F:\\Git\\SdlWasmEngine\\source\\Release\\StealthAction.exe",
-    "workingDir": "F:\\Git\\SdlWasmEngine\\source\\Games\\ShooterGame"
+    "workingDir": "F:\\Git\\SdlWasmEngine\\source\\Games\\StealthAction"
   },
   "lastMap": "maps/lvl2.map.json"
 }

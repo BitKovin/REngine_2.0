@@ -479,6 +479,7 @@
     <ClCompile Include="Entities\Player\Weapons\weapon_pistol.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_pistol_silent.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_revolver.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\weapon_sawed.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_shotgun.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_sniper.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_sword.cpp" />
