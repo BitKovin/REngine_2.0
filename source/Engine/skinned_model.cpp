@@ -8,6 +8,7 @@
 #include <Profiling/ResourceStatistics.hpp>
 
 #include <Helpers/Mesh/shadow_volume.hpp>
+#include <Helpers/Mesh/bone_partition.hpp>
 
 #include <unordered_set>
 #include <cassert>
@@ -1035,6 +1036,34 @@ namespace roj
         return BoundingBox::FromPoints(corners);
     }
 
+    BoundingBox SkinnedModel::ComputeAnimatedBounds(
+        const glm::mat4& worldMatrix,
+        std::span<const glm::mat4>  skinMatrices,
+        std::span<const uint8_t>    skinMask) const
+    {
+        if (boneBounds.empty()) return boundingBox;
+
+        glm::vec3 bmin(std::numeric_limits<float>::max());
+        glm::vec3 bmax(-std::numeric_limits<float>::max());
+        bool      any = false;
+
+        const int count = static_cast<int>(
+            std::min(std::min(skinMatrices.size(), boneBounds.size()), skinMask.size()));
+
+        for (int s = 0; s < count; ++s)
+        {
+            if (!skinMask[s]) continue;
+            if (!boneBounds[s].hasData) continue;
+            expandAABBWithBoneBound(bmin, bmax, worldMatrix * skinMatrices[s], boneBounds[s]);
+            any = true;
+        }
+
+        if (!any) return boundingBox;
+
+        const std::vector<glm::vec3> corners{ bmin, bmax };
+        return BoundingBox::FromPoints(corners);
+    }
+
     // ─────────────────────────────────────────────────────────────────────────────
     // ComputeAnimatedSphere  —  derived from the animated AABB (same pass)
     // Center = AABB midpoint; radius = half-diagonal (sphere contains the AABB).
@@ -1156,13 +1185,11 @@ namespace roj
 
         skinMesh.layout = VertexData::Declaration();
 
-        if (!DeferGPUUpload)
-            UploadSkinnedMeshGPUBuffers(skinMesh);
-
+        // The GPU upload happens at the end of load(): it needs the skeleton (bone partition) and that is built later.
         return skinMesh;
     }
 
-    void UploadSkinnedMeshGPUBuffers(SkinnedMesh& skinMesh)
+    void UploadSkinnedMeshGPUBuffers(SkinnedMesh& skinMesh, const BonePartitionContext* ctx)
     {
         const bgfx::Memory* vbMem = bgfx::copy(skinMesh.vertices.data(), sizeof(VertexData) * skinMesh.vertices.size());
         skinMesh.vbh = bgfx::createVertexBuffer(vbMem, skinMesh.layout);
@@ -1188,7 +1215,7 @@ namespace roj
                 skinMesh.name.empty() ? "SkinnedMesh IB" : (skinMesh.name + " (IB)"));
         }
 
-        skinMesh.shadowVolumePrecomp = BuildShadowVolumePrecomp(skinMesh);
+        skinMesh.shadowVolumePrecomp = BuildShadowVolumePrecomp(skinMesh, ctx);
     }
 
     template<>
@@ -1370,6 +1397,15 @@ namespace roj
         {
             for (size_t i = 0; i < m_scene->mNumTextures; ++i)
                 LoadTextureFromScene(m_scene->mTextures[i]);
+
+            // Sort every submesh's triangles by bone (needs the skeleton), then upload. With DeferGPUUpload the
+            // caller uploads later (AssetRegistry re-partitions with the live skeleton first).
+            const BonePartitionContext partitionCtx = BuildBonePartitionContext(m_model.skeleton);
+            for (auto& mesh : m_model.meshes)
+            {
+                if (partitionCtx.valid) PartitionMeshByBone(mesh, partitionCtx);
+                if (!DeferGPUUpload) UploadSkinnedMeshGPUBuffers(mesh, partitionCtx.valid ? &partitionCtx : nullptr);
+            }
         }
 
 

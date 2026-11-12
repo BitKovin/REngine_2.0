@@ -3,6 +3,7 @@
 #include "shadow_volume.hpp"
 #include "skinned_model.hpp"
 #include "model.hpp"
+#include "bone_partition.hpp"
 
 #include <unordered_map>
 #include <cstring>
@@ -274,7 +275,7 @@ static void writeEdgeVert(
 } // anonymous namespace
 
 // ─────────────────────────────────────────────────────────────────────────────
-ShadowVolumePrecomp BuildShadowVolumePrecomp(const SkinnedMesh& mesh)
+ShadowVolumePrecomp BuildShadowVolumePrecomp(const SkinnedMesh& mesh, const BonePartitionContext* ctx)
 {
     ShadowVolumePrecomp result;
     if (mesh.indices.size() < 3 || mesh.vertices.empty()) return result;
@@ -305,8 +306,58 @@ ShadowVolumePrecomp BuildShadowVolumePrecomp(const SkinnedMesh& mesh)
 
     const uint32_t triCount=(uint32_t)tri.size()/3;
 
+    // Stitch bones are skin indices; the partition works on skel indices.
+    const bool partition = ctx && ctx->valid;
+    auto skelOf=[&](uint32_t vert)->uint16_t{
+        const uint32_t skin=cv[vert].stitchBone;
+        return skin<ctx->skinToSkel.size() ? ctx->skinToSkel[skin] : INVALID_BONE_IDX; };
+    auto lcaOf=[&](std::initializer_list<uint32_t> verts)->uint16_t{
+        uint16_t k=INVALID_BONE_IDX;
+        for (uint32_t v:verts) {
+            const uint16_t s=skelOf(v);
+            if (s==INVALID_BONE_IDX) continue;
+            k=(k==INVALID_BONE_IDX)?s:BoneLCA(*ctx,k,s);
+        }
+        return k==INVALID_BONE_IDX?(uint16_t)0:k; };
+
+    if (partition)
+    {
+        const size_t n=ctx->parent.size();
+        std::vector<uint16_t> key(triCount);
+        for (uint32_t t=0;t<triCount;++t) key[t]=lcaOf({tri[t*3+0],tri[t*3+1],tri[t*3+2]});
+        std::vector<uint32_t> order(triCount);
+        for (uint32_t t=0;t<triCount;++t) order[t]=t;
+        std::stable_sort(order.begin(),order.end(),[&](uint32_t a,uint32_t b){return key[a]<key[b];});
+        std::vector<uint32_t> sorted(tri.size());
+        for (uint32_t i=0;i<triCount;++i)
+            for (int c=0;c<3;++c) sorted[i*3+c]=tri[order[i]*3+c];
+        tri=std::move(sorted);
+
+        result.capBoneFirst.assign(n+1,0);
+        for (uint32_t t=0;t<triCount;++t) result.capBoneFirst[key[t]+1]+=6;
+        for (size_t b=0;b<n;++b) result.capBoneFirst[b+1]+=result.capBoneFirst[b];
+    }
+
     // ── 2. Edge adjacency ─────────────────────────────────────────────────────
     std::vector<EdgeEntry> edges=buildEdges(tri);
+
+    if (partition)
+    {
+        const size_t n=ctx->parent.size();
+        const uint32_t ne=(uint32_t)edges.size();
+        std::vector<uint16_t> key(ne);
+        for (uint32_t e=0;e<ne;++e) key[e]=lcaOf({edges[e].v0,edges[e].v1,edges[e].adj0,edges[e].adj1});
+        std::vector<uint32_t> order(ne);
+        for (uint32_t e=0;e<ne;++e) order[e]=e;
+        std::stable_sort(order.begin(),order.end(),[&](uint32_t a,uint32_t b){return key[a]<key[b];});
+        std::vector<EdgeEntry> sorted(ne);
+        for (uint32_t i=0;i<ne;++i) sorted[i]=edges[order[i]];
+        edges=std::move(sorted);
+
+        result.edgeBoneFirst.assign(n+1,0);
+        for (uint32_t e=0;e<ne;++e) result.edgeBoneFirst[key[e]+1]+=6;
+        for (size_t b=0;b<n;++b) result.edgeBoneFirst[b+1]+=result.edgeBoneFirst[b];
+    }
 
     // ── 3. Cap VB + IB ────────────────────────────────────────────────────────
     {

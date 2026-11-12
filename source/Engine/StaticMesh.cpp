@@ -277,6 +277,7 @@ void StaticMesh::FinalizeFrameData()
 		cmd.Brightness = Brightness;
 		cmd.BlendMode = blendMode;
 		cmd.PixelShader = PixelShader;
+		cmd.VertexShader = VertexShader;
 
 		cmd.LightAmbientColor = finalizedLightAmbient;
 		cmd.LightDirectColor = finalizedLightDirect;

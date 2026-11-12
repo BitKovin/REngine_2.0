@@ -2,6 +2,8 @@
 
 
 #include <vector>
+#include <span>
+#include <unordered_set>
 #include <string>
 
 #include "ShaderManager.h"
@@ -239,6 +241,8 @@ private:
 		TwoBodyConstraint* constraint = nullptr;
 		vec3 linearVelocity = vec3(0.0f);
 		vec3 angularVelocity = vec3(0.0f);
+		bool active = true;              // false: the body is out of the physics world (SetHitboxesActive)
+		bool constraintInWorld = true;   // false: the constraint is out of the physics world
 	};
 	std::vector<HitboxBinding> hitboxBindings;
 	bool hitboxBindingsDirty = true;
@@ -266,6 +270,9 @@ private:
 
 
 	std::unordered_map<hashed_string, TwoBodyConstraint*> hitboxConstraints;
+
+	// Bones whose hitbox is turned off by SetHitboxesActive. Guarded by hitboxMutex.
+	std::unordered_set<hashed_string> inactiveHitboxes;
 	std::unordered_map<hashed_string, vec3> defaultBoneScale;
 
 	std::recursive_mutex hitboxMutex;
@@ -310,7 +317,29 @@ protected:
 	// / RewireForCurrentModel() and the .cpp for why this needs to be idempotent.
 	void OnAssetsReloaded() override;
 
+	// The palette the draw commands read. Default: the finalized gameplay palette. Override to render with a modified one.
+	virtual const std::vector<mat4>* GetRenderPalette() const { return &finalizedBoneTransforms; }
+
+	// Finalized gameplay palette (FinalizeFrameData copy), for subclasses building their own render palette.
+	const std::vector<mat4>& GetFinalizedSkinPalette() const { return finalizedBoneTransforms; }
+
 public:
+
+	// Skin palette (bind space -> model space), indexed by skin index. Game thread; valid after Update/PasteAnimationPose.
+	const std::vector<mat4>& GetSkinPalette() const { return boneTransforms; }
+
+	// Skin index (palette slot) of a bone, -1 if missing.
+	int GetSkinIndex(const hashed_string& bone) const;
+
+	// Skeleton index (position in model->skeleton, DFS pre-order) of a bone, INVALID_BONE_IDX if missing.
+	uint16_t GetSkeletonIndex(const hashed_string& bone) const;
+
+	const roj::SkinnedModel* GetSkinnedModel() const { return model; }
+
+	// Turns the hitboxes of these bones off (out of the physics world, so they are neither hit nor simulated; their
+	// constraints too) or back on. Works while animating and in ragdoll.
+	void SetHitboxesActive(std::span<const hashed_string> bones, bool active);
+	bool IsHitboxActive(const hashed_string& bone) const;
 
 	string filePath = "";
 

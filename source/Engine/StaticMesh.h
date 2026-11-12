@@ -80,6 +80,7 @@ protected:
 	}
 
 	string PixelShader = "fs_default";
+	string VertexShader = "vs_default";
 
 	int numInstances = -1;
 
@@ -166,6 +167,8 @@ public:
 	}
 
 	virtual ~StaticMesh() = default;
+
+	void SetVertexShader(string name) { VertexShader = name; }
 
 	void SetPixelShader(string name)
 	{

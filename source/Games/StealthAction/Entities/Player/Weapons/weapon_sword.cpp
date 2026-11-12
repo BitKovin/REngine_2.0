@@ -1,5 +1,6 @@
 #pragma once
 #include "WeaponBase.h"
+#include "../../../Gore/StealthGoreAdapter.h"
 #include "../Player.hpp"
 #include <Animation.h>
 #include <SoundSystem/FmodEventInstance.h>
@@ -223,6 +224,7 @@ public:
 
 		if (hit.entity != nullptr)
 		{
+			StealthGore::SetNextMeleeSweep(hit.entity, MathHelper::GetUpVector(Camera::rotation));
 			hit.entity->OnPointDamage(Damage, hit.position, MathHelper::GetForwardVector(Camera::rotation), hit.hitboxName, Player::Instance, this);
 			hadHit = true;
 			pendingAttack = false; // stop re-tracing once an entity is hit

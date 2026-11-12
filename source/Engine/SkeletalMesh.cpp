@@ -51,8 +51,21 @@ void SkeletalMesh::OnAssetsReloaded()
 	// while the Visual tier hasn't landed yet (GetSubMeshCount() == 0).
 	for (size_t i = 0; i < GetSubMeshCount(); i++)
 	{
-		static_cast<SkeletalMeshDrawCommand&>(GetDrawCommandAt(i)).BoneMatrices = &finalizedBoneTransforms;
+		static_cast<SkeletalMeshDrawCommand&>(GetDrawCommandAt(i)).BoneMatrices = GetRenderPalette();
 	}
+}
+
+int SkeletalMesh::GetSkinIndex(const hashed_string& bone) const
+{
+	if (model == nullptr) return -1;
+	auto it = model->boneInfoMap.find(bone);
+	return it != model->boneInfoMap.end() ? it->second.id : -1;
+}
+
+uint16_t SkeletalMesh::GetSkeletonIndex(const hashed_string& bone) const
+{
+	if (model == nullptr) return INVALID_BONE_IDX;
+	return model->skeleton.findBone(bone);
 }
 
 
@@ -268,6 +281,7 @@ bool SkeletalMesh::IsCameraVisible()
 
 	for (auto hitboxBody : hitboxBodies)
 	{
+		if (!inactiveHitboxes.empty() && inactiveHitboxes.contains(Physics::GetBodyData(hitboxBody)->hitboxName)) continue;
 		bonePositions.push_back(FromPhysics(hitboxBody->GetPosition()));
 	}
 
@@ -335,6 +349,7 @@ BoundingBox SkeletalMesh::GetBoundingBox()
 
 	for (auto hitboxBody : hitboxBodies)
 	{
+		if (!inactiveHitboxes.empty() && inactiveHitboxes.contains(Physics::GetBodyData(hitboxBody)->hitboxName)) continue;
 
 		bonePositions.push_back(FromPhysics(hitboxBody->GetPosition()));
 
@@ -364,6 +379,7 @@ bool SkeletalMesh::IsInFrustrum(Frustum frustrum)
 	
 	for (auto hitboxBody : hitboxBodies)
 	{
+		if (!inactiveHitboxes.empty() && inactiveHitboxes.contains(Physics::GetBodyData(hitboxBody)->hitboxName)) continue;
 
 		bonePositions.push_back(FromPhysics(hitboxBody->GetPosition()));
 
@@ -393,6 +409,7 @@ LightVolPointData SkeletalMesh::GetLightVolData()
 
 	for (auto hitboxBody : hitboxBodies)
 	{
+		if (!inactiveHitboxes.empty() && inactiveHitboxes.contains(Physics::GetBodyData(hitboxBody)->hitboxName)) continue;
 
 		bonePositions.push_back(FromPhysics(hitboxBody->GetPosition()));
 
@@ -627,6 +644,8 @@ void SkeletalMesh::StartRagdoll()
 
 	for (const HitboxBinding& binding : hitboxBindings)
 	{
+		if (!binding.active) continue;
+
 		Body* hitbox = binding.body;
 
 		Physics::SetObjectLayer(hitbox, Layers::MOVING);   // simulated: collides with the world
@@ -640,7 +659,7 @@ void SkeletalMesh::StartRagdoll()
 		const vec3 linearVel = binding.linearVelocity;
 		const vec3 angularVel = binding.angularVelocity;
 
-		if (binding.constraint != nullptr)
+		if (binding.constraint != nullptr && binding.constraintInWorld)
 		{
 			binding.constraint->SetEnabled(true);
 		}
@@ -666,20 +685,24 @@ void SkeletalMesh::StopRagdoll()
 {
 	InRagdoll = false;
 
-	for (auto& hitbox : hitboxBodies)
+	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
+	RefreshHitboxBindings();
+
+	// Inactive hitboxes get this state when they are turned back on (SetHitboxesActive).
+	for (const HitboxBinding& binding : hitboxBindings)
 	{
+		if (!binding.active) continue;
 
-		Physics::SetMotionType(hitbox, JPH::EMotionType::Kinematic);
+		Physics::SetMotionType(binding.body, JPH::EMotionType::Kinematic);
 
-		Physics::SetCollisionMask(hitbox, BodyType::None);
-		Physics::SetObjectLayer(hitbox, Layers::TRACE_ONLY);
-
-
+		Physics::SetCollisionMask(binding.body, BodyType::None);
+		Physics::SetObjectLayer(binding.body, Layers::TRACE_ONLY);
 	}
 
-	for (auto constraint : hitboxConstraints)
+	for (const HitboxBinding& binding : hitboxBindings)
 	{
-		constraint.second->SetEnabled(false);
+		if (binding.constraint != nullptr && binding.constraintInWorld)
+			binding.constraint->SetEnabled(false);
 	}
 
 }
@@ -687,6 +710,13 @@ void SkeletalMesh::StopRagdoll()
 void SkeletalMesh::ClearHitboxes()
 {
 	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
+
+	// Constraints that are out of the physics world must go back in before they are destroyed.
+	if (!inactiveHitboxes.empty())
+	{
+		std::vector<hashed_string> inactive(inactiveHitboxes.begin(), inactiveHitboxes.end());
+		SetHitboxesActive(inactive, true);
+	}
 
 	for (Body* body : hitboxBodies)
 	{
@@ -702,6 +732,7 @@ void SkeletalMesh::ClearHitboxes()
 
 	hitboxBodies.clear();
 	hitboxConstraints.clear();
+	inactiveHitboxes.clear();
 	hitboxBindingsDirty = true;
 }
 
@@ -777,11 +808,13 @@ void SkeletalMesh::CreateHitboxes(Entity* owner)
 
 void SkeletalMesh::ApplyImpulseToAllHitboxes(vec3 impulse, bool scaleWithMass)
 {
+	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
 
 	if (scaleWithMass)
 	{
 		for (Body* body : hitboxBodies)
 		{
+			if (!inactiveHitboxes.empty() && inactiveHitboxes.contains(Physics::GetBodyData(body)->hitboxName)) continue;
 
 			float invMass = body->GetMotionProperties()->GetInverseMass();
 			float mass = (invMass > 0.0f) ? 1.0f / invMass : FLT_MAX;
@@ -793,6 +826,7 @@ void SkeletalMesh::ApplyImpulseToAllHitboxes(vec3 impulse, bool scaleWithMass)
 	{
 		for (Body* body : hitboxBodies)
 		{
+			if (!inactiveHitboxes.empty() && inactiveHitboxes.contains(Physics::GetBodyData(body)->hitboxName)) continue;
 			Physics::AddImpulse(body, impulse);
 		}
 	}
@@ -865,7 +899,13 @@ void SkeletalMesh::RefreshHitboxBindings()
 				binding.linearVelocity = previous.linearVelocity;
 				binding.angularVelocity = previous.angularVelocity;
 			}
+			if (previous.body == binding.body)   // keep SetHitboxesActive's state
+			{
+				binding.active = previous.active;
+				binding.constraintInWorld = previous.constraintInWorld;
+			}
 		}
+		binding.active = binding.active && !inactiveHitboxes.contains(boneName);
 	}
 
 	hitboxBindings = std::move(bindings);
@@ -874,12 +914,111 @@ void SkeletalMesh::RefreshHitboxBindings()
 	bindingModelGeneration = generation;
 }
 
+bool SkeletalMesh::IsHitboxActive(const hashed_string& bone) const
+{
+	std::lock_guard<std::recursive_mutex> lock(const_cast<std::recursive_mutex&>(hitboxMutex));
+	return !inactiveHitboxes.contains(bone);
+}
+
+void SkeletalMesh::SetHitboxesActive(std::span<const hashed_string> bones, bool active)
+{
+	std::lock_guard<std::recursive_mutex> lock(hitboxMutex);
+
+	RefreshHitboxBindings();
+
+	const mat4 world = GetWorldMatrix();
+
+	// 1. Bodies.
+	for (HitboxBinding& binding : hitboxBindings)
+	{
+		const hashed_string name(Physics::GetBodyData(binding.body)->hitboxName);
+
+		if (binding.active == active) continue;
+		if (std::find(bones.begin(), bones.end(), name) == bones.end()) continue;
+
+		if (!active)
+		{
+			Physics::RemoveBodyFromWorld(binding.body);
+			binding.active = false;
+			inactiveHitboxes.insert(name);
+			continue;
+		}
+
+		// On: put the body where the bone is now, then bring it back in the mode the mesh is in.
+		const mat4 boneMatrix = binding.boneId >= 0 ? boneTransforms[binding.boneId] * binding.inverseOffset : mat4();
+		vec3 decomposedScale, decomposedTranslation, decomposedSkew;
+		quat decomposedRotation;
+		vec4 decomposedPerspective;
+		MathHelper::Transform boneTrans;
+		if (glm::detail::decomposeMod(world * boneMatrix, decomposedScale, decomposedRotation, decomposedTranslation, decomposedSkew, decomposedPerspective))
+		{
+			boneTrans.Position = decomposedTranslation;
+			boneTrans.RotationQuaternion = decomposedRotation;
+		}
+
+		Physics::SetBodyPositionAndRotationNoActivation(binding.body, boneTrans.Position, boneTrans.RotationQuaternion);
+		Physics::AddBodyToWorld(binding.body, InRagdoll);
+
+		if (InRagdoll)
+		{
+			Physics::SetObjectLayer(binding.body, Layers::MOVING);
+			Physics::SetMotionType(binding.body, JPH::EMotionType::Dynamic);
+			binding.body->SetMotionType(JPH::EMotionType::Dynamic);
+			Physics::SetCollisionMask(binding.body, (BodyType::GroupCollisionTest | BodyType::HitBox) & ~BodyType::CharacterCapsule);
+		}
+		else
+		{
+			Physics::SetMotionType(binding.body, JPH::EMotionType::Kinematic);
+			Physics::SetCollisionMask(binding.body, BodyType::None);
+			Physics::SetObjectLayer(binding.body, Layers::TRACE_ONLY);
+		}
+
+		binding.active = true;
+		inactiveHitboxes.erase(name);
+	}
+
+	// 2. Constraints: in the world only while both of their bodies are.
+	for (HitboxBinding& binding : hitboxBindings)
+	{
+		if (binding.constraint == nullptr) continue;
+
+		const std::string& name = Physics::GetBodyData(binding.body)->hitboxName;
+
+		bool parentActive = true;
+		for (const HitboxData& data : metaData.hitboxes)
+		{
+			if (data.boneName == name)
+			{
+				parentActive = data.parentBone.empty() || !inactiveHitboxes.contains(data.parentBone);
+				break;
+			}
+		}
+
+		const bool shouldBeInWorld = binding.active && parentActive;
+
+		if (binding.constraintInWorld && !shouldBeInWorld)
+		{
+			binding.constraint->SetEnabled(false);
+			Physics::RemoveConstraintFromWorld(binding.constraint);
+			binding.constraintInWorld = false;
+		}
+		else if (!binding.constraintInWorld && shouldBeInWorld)
+		{
+			Physics::AddConstraintToWorld(binding.constraint);
+			binding.constraint->SetEnabled(InRagdoll);
+			binding.constraintInWorld = true;
+		}
+	}
+}
+
 void SkeletalMesh::UpdateHitboxes()
 {
 
 	if (InRagdoll)
 	{
 
+		// hitboxMutex before animationsMutex, like CreateHitbox.
+		std::lock_guard<std::recursive_mutex> hitboxLock(hitboxMutex);
 		std::lock_guard<std::recursive_mutex> lock(animationsMutex);
 
 		if (hitboxConstraints.size() > 0)
@@ -900,8 +1039,13 @@ void SkeletalMesh::UpdateHitboxes()
 
 				const auto& boneName = data.boneName;
 
-				if (hitboxConstraints.contains(boneName))
-					hitboxConstraints[boneName]->SetEnabled(true);
+				auto constraintIt = hitboxConstraints.find(boneName);
+				if (constraintIt == hitboxConstraints.end() || constraintIt->second == nullptr) continue;
+
+				// A constraint to a body that is not in the world must never be enabled.
+				if (inactiveHitboxes.contains(boneName) || inactiveHitboxes.contains(data.parentBone)) continue;
+
+				constraintIt->second->SetEnabled(true);
 
 				mat4 relativeTransform = mat4();
 
@@ -931,7 +1075,10 @@ void SkeletalMesh::UpdateHitboxes()
 				for (auto relHitboxPos : hitboxRelativePose)
 				{
 
-					Physics::UpdateSwingTwistMotor(hitboxConstraints[relHitboxPos.first], relHitboxPos.second, RagdollPoseFollowStrength);
+					auto constraintIt = hitboxConstraints.find(relHitboxPos.first);
+					if (constraintIt == hitboxConstraints.end() || constraintIt->second == nullptr) continue;
+
+					Physics::UpdateSwingTwistMotor(constraintIt->second, relHitboxPos.second, RagdollPoseFollowStrength);
 				}
 			}
 
@@ -946,10 +1093,12 @@ void SkeletalMesh::UpdateHitboxes()
 		for (Body* body : hitboxBodies)
 		{
 
+			const auto& boneName = Physics::GetBodyData(body)->hitboxName;
+
+			if (inactiveHitboxes.contains(boneName)) continue;
+
 			vec3 pos = FromPhysics(body->GetPosition());
 			quat rot = FromPhysics(body->GetRotation());
-
-			const auto& boneName = Physics::GetBodyData(body)->hitboxName;
 
 			if (RagdollPoseFollowStrength > 0)
 			{
@@ -1000,9 +1149,11 @@ void SkeletalMesh::UpdateHitboxes()
 
 	for (HitboxBinding& binding : hitboxBindings)
 	{
+		if (!binding.active) continue;
+
 		Body* body = binding.body;
 
-		if (binding.constraint)
+		if (binding.constraint && binding.constraintInWorld)
 			binding.constraint->SetEnabled(false);
 
 		// GetBoneMatrix with the bone resolved; the decomposition of MathHelper::DecomposeMatrix without its Euler

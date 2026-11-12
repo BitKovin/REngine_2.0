@@ -44,6 +44,9 @@
 
 #include <tracy/tracy/Tracy.hpp>
 
+#include "../../Gore/GoreSkeletalMesh.h"
+#include "../../Gore/StealthGoreAdapter.h"
+
 float NpcBase::GetDetectionSpeed(Crime crime) const
 {
 	switch (crime) {
@@ -98,7 +101,7 @@ std::shared_ptr<InvestigationBase> NpcBase::CreateInvestigationFromReason(Invest
 NpcBase::NpcBase()
 {
 
-	mesh = new SkeletalMesh(this);
+	mesh = new Gore::GoreSkeletalMesh(this);
 	Drawables.push_back(mesh);
 	weaponMesh = new StaticMesh(this);
 	Drawables.push_back(weaponMesh);
@@ -247,8 +250,12 @@ void NpcBase::Death()
 
 void NpcBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon)
 {
+	const bool wasAliveBeforeHit = !dead && Health > 0;
+
 	Damage *= mesh->GetHitboxDamageMultiplier(bone);
 	Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
+
+	StealthGore::OnNpcPointDamage(this, Damage, Point, Direction, bone, DamageCauser, Weapon, wasAliveBeforeHit);
 
 	if (DamageCauser)
 	{
@@ -2562,6 +2569,8 @@ void NpcBase::LoadAssets()
 
 	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/SFX.bank");
 	SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/VO.bank");
+
+	StealthGore::LoadAssets();
 
 	mesh->LoadFromFile(modelPath);
 	mesh->DepthPrePath = false;

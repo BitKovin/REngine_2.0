@@ -134,6 +134,7 @@ public:
     void SetUniform(const std::string& uname, const std::vector<glm::mat3>&  values);
     void SetUniform(const std::string& uname, const std::vector<glm::mat4>&  values);
     void SetUniform(const std::string& uname, const glm::mat4* values, size_t count);   // a range of a larger array
+    void SetUniform(const std::string& uname, const glm::vec4* values, size_t count);   // first `count` of a vec4 array
 
     // -----------------------------------------------------------------------
     // Texture setters
@@ -147,7 +148,7 @@ public:
     // Draw
     // -----------------------------------------------------------------------
     void UseProgram();
-    void Submit(uint16_t viewId) const;
+    void Submit(uint16_t viewId, uint8_t discardFlags = BGFX_DISCARD_ALL) const;
 
     // -----------------------------------------------------------------------
     // Hot reload

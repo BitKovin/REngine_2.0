@@ -7,8 +7,18 @@
 #include <BgfxStateManager.h>
 #include <string>
 #include <map>
+#include <vector>
+#include "../ShaderManager.h"
 
 class Shader;
+
+// A range of an index buffer drawn as one submit. `param` goes to StaticMeshDrawCommand::RangeParamUniform before it.
+struct DrawIndexRange
+{
+	uint32_t first = 0;   // first index (not triangle)
+	uint32_t count = 0;   // number of indices (multiple of 3)
+	vec4     param = vec4(0.0f);
+};
 
 // One submesh of one StaticMesh instance (one per entry in model->meshes) - each gets its own Material and derived SurfaceType, so opaque and transparent submeshes of the same model land in the correct passes independently.
 class StaticMeshDrawCommand : public IDrawCommand
@@ -30,6 +40,39 @@ public:
 	vec3  LightDirection    = vec3(0, -1, 0);
 
 	std::string PixelShader = "fs_default";
+	std::string VertexShader = "vs_default";
+
+	enum class CullFace : uint8_t { Back, Front, None };
+	CullFace Cull = CullFace::Back;
+
+	// TwoSided wins (old behaviour). Back = what every draw used before (CW).
+	BgfxStateManager::Cull ResolveCull() const
+	{
+		if (TwoSided || Cull == CullFace::None) return BgfxStateManager::Cull::None;
+		return Cull == CullFace::Front ? BgfxStateManager::Cull::CCW : BgfxStateManager::Cull::CW;
+	}
+
+	// Empty = draw the whole buffer. Kept as members so their capacity is reused every frame.
+	std::vector<DrawIndexRange> IndexRanges;
+	std::vector<DrawIndexRange> ShadowCapRanges;
+	std::vector<DrawIndexRange> ShadowEdgeRanges;
+	const char* RangeParamUniform = nullptr;   // vec4 uniform set before each range; nullptr = none
+
+	// Shader hooks. Defaults reproduce the stock vs_default programs; subclasses may swap them.
+	virtual Shader* GetForwardShader() const
+	{ return ShaderManager::GetShaderProgram(VertexShader, PixelShader); }
+
+	virtual Shader* GetDepthShader() const
+	{ return ShaderManager::GetShaderProgram(VertexShader, Material.NeedsAlphaDiscard() ? "fs_mask" : "fs_empty"); }
+
+	virtual Shader* GetCustomIdShader() const
+	{ return ShaderManager::GetShaderProgram(VertexShader, "fs_customId"); }
+
+	virtual void GetShadowVolumeShaders(Shader*& cap, Shader*& edge) const
+	{
+		cap  = ShaderManager::GetShaderProgram("shadowVolume/vs_shadowvolcap",  "shadowVolume/fs_shadowvol");
+		edge = ShaderManager::GetShaderProgram("shadowVolume/vs_shadowvoledge", "shadowVolume/fs_shadowvol");
+	}
 
 	bool DepthWrite  = true;
 	bool DepthPrePass = true;
@@ -68,7 +111,7 @@ public:
 	// Clusters by pixel-shader variant, the thing that actually changes bgfx program state.
 	uint64_t GetSortKey() const override
 	{
-		return reinterpret_cast<uint64_t>(Material.GetForwardShader(PixelShader));
+		return reinterpret_cast<uint64_t>(GetForwardShader());
 	}
 
 	// Base loops CustomShaderParams. SkeletalMeshDrawCommand overrides, calls base, then adds bone matrices.
@@ -83,6 +126,11 @@ public:
 
 	void DrawShadowVolumeStencil(const mat4& view, const mat4& projection) override;
 	vec3 GetShadowColorMult() const override { return ShadowColorMultValue; }
+
+protected:
+
+	// Sets the index buffer and submits once per range. Call AFTER all uniforms/textures/vertex buffer are set.
+	void SubmitIndexed(Shader* shader, bgfx::IndexBufferHandle ib, const std::vector<DrawIndexRange>& ranges, bgfx::ViewId viewId);
 
 };
 

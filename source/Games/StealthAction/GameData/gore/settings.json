@@ -1,0 +1,7 @@
+{
+  "maxGibs": 48,
+  "maxGibSpawnsPerFrame": 6,
+  "maxParticlesPerFrame": 64,
+  "level": "full",
+  "freshBand": 0.05
+}

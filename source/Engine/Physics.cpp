@@ -390,7 +390,9 @@ void Physics::DestroyBody(Body* body)
 		delete props;
 	}
 
-	bodyInterface->RemoveBody(body->GetID());
+	// A body taken out with RemoveBodyFromWorld is not in the system any more.
+	if (bodyInterface->IsAdded(body->GetID()))
+		bodyInterface->RemoveBody(body->GetID());
 
 	bodyInterface->DestroyBody(body->GetID());
 
@@ -415,6 +417,57 @@ void Physics::DestroyConstraint(Constraint* constraint)
 	physicsMainLock.unlock();
 
 
+}
+
+void Physics::RemoveBodyFromWorld(Body* body)
+{
+	if (body == nullptr) return;
+
+	std::lock_guard<std::recursive_mutex> lock(physicsMainLock);
+
+	if (bodyInterface->IsAdded(body->GetID()))
+		bodyInterface->RemoveBody(body->GetID());
+}
+
+void Physics::AddBodyToWorld(Body* body, bool activate)
+{
+	if (body == nullptr) return;
+
+	std::lock_guard<std::recursive_mutex> lock(physicsMainLock);
+
+	if (!bodyInterface->IsAdded(body->GetID()))
+		bodyInterface->AddBody(body->GetID(), activate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
+}
+
+bool Physics::IsBodyInWorld(const Body* body)
+{
+	if (body == nullptr) return false;
+
+	std::lock_guard<std::recursive_mutex> lock(physicsMainLock);
+
+	return bodyInterface->IsAdded(body->GetID());
+}
+
+void Physics::RemoveConstraintFromWorld(Constraint* constraint)
+{
+	if (constraint == nullptr) return;
+
+	std::lock_guard<std::recursive_mutex> lock(physicsMainLock);
+
+	// The physics system holds the only reference to a constraint (CreateRagdollConstraint hands out a raw pointer),
+	// so removing it would delete it. Keep it alive; AddConstraintToWorld drops this reference again.
+	constraint->AddRef();
+	physics_system->RemoveConstraint(constraint);
+}
+
+void Physics::AddConstraintToWorld(Constraint* constraint)
+{
+	if (constraint == nullptr) return;
+
+	std::lock_guard<std::recursive_mutex> lock(physicsMainLock);
+
+	physics_system->AddConstraint(constraint);
+	constraint->Release();   // the reference RemoveConstraintFromWorld kept
 }
 
 void Physics::SetMotionType(Body* body, JPH::EMotionType type)

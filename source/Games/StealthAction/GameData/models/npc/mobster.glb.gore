@@ -1,0 +1,22 @@
+{
+  "textures": {
+    "flesh": "gore/flesh_d.png",
+    "fleshNormal": "gore/flesh_n.png",
+    "blood": "gore/blood_soak.png",
+    "edgeNoise": "gore/edge_noise.png",
+    "bone": "gore/bone_d.png"
+  },
+  "fleshScale": 3.0,
+  "bloodColor": [
+    0.35,
+    0.02,
+    0.02
+  ],
+  "submeshes": {
+    "sleeves": "shell",
+    "jacket": "shell",
+    "suit": "shell",
+    "citizen_man_01_shirt": "shell"
+  },
+  "severable": []
+}

@@ -1,5 +1,6 @@
 #pragma once
 #include "WeaponBase.h"
+#include "../../../Gore/StealthGoreAdapter.h"
 #include "../Player.hpp"
 #include <Animation.h>
 #include <SoundSystem/FmodEventInstance.h>
@@ -391,6 +392,7 @@ public:
 				Player::Instance->Heal(damangeToDeal * 0.10f);
 			}
 
+			StealthGore::SetNextMeleeSweep(hit.entity, MathHelper::GetUpVector(Camera::rotation));
 			hit.entity->OnPointDamage(
 				damangeToDeal,
 				hit.position,

@@ -30,6 +30,8 @@ That allows any number of wound shapes and positions with no wound geometry, and
 | GPU per wounded body | Front pass: one branch per pixel away from wounds. Interior pass: only the triangles of bones near a wound. |
 | Scale | 300 enemies on screen, 50+ damaged in one frame (shotgun crowd / explosion) without a hitch |
 | Look | Ragged torn edges, blood-soaked rims, wet flesh cavities, through-holes you can see through, solid stump caps with bone and marrow, arterial spurts, blood trails |
+| Regeneration | Wounds close, severed parts regrow out of the stump (or the severed piece crawls back and reattaches), all driven by data |
+| Configurable | Every rule is data: which parts can be cut, what each weapon does, what losing a part does, who can be killed by what, how and when things regrow, plus a player gore-level option. Gameplay never depends on the visual gore level. |
 
 ## 2. Decisions taken
 
@@ -39,6 +41,10 @@ That allows any number of wound shapes and positions with no wound geometry, and
 * **Save/load** restores each corpse's wounds, cuts and missing limbs. Loose gibs are not saved.
 * **Network**: every peer builds gore locally from the hit events it already receives. All random choices use a seed
   taken from the hit, so wounds and cuts match between peers; gib physics may differ slightly.
+* **Regeneration and durability are part of the system.** Example: a strong vampire that only a melee hit can kill.
+  Guns and blasts can still blow its parts off for a while, and it stays alive and keeps coming, cut apart. That is
+  the whole "weakening": there is no weakness score, debuff or kill threshold. Missing parts have only their physical
+  consequences (§6.8). Parts regrow after a delay unless something (holy, fire) stops it. §6.11 has the rules.
 
 ## 3. Technique overview
 
@@ -46,9 +52,16 @@ Three primitives, all defined in the model's **bind space** (pre-skinning model 
 
 | Primitive | Data | Used for |
 |---|---|---|
-| **Wound** | ellipsoid (center, 3 axes, 3 radii), anchor bone, edge roughness, rim, seed | bullet entry/exit holes, shotgun craters, through-holes, slash gashes, bites, crushed skull |
-| **Cut** | plane (normal, distance), cut bone, bone-core radius, seed | severing: everything on the positive side is gone from this body |
+| **Wound** | ellipsoid (center, 3 axes, 3 radii), anchor bone, edge roughness, rim, seed, **heal scale** | bullet entry/exit holes, shotgun craters, through-holes, slash gashes, bites, crushed skull |
+| **Cut** | plane (normal, distance), cut bone, bone-core radius, seed, **regrowth sphere** (center on the plane, radius) | severing: everything on the positive side **outside the regrowth sphere** is gone from this body |
 | **Splat** | sphere (center, radius), strength | blood soaked into skin/clothes around hits and below wounds |
+
+Regrowth needs no new primitive. A healing wound is its ellipsoid scaled toward zero, so the hole closes in from the
+rim. A regrowing cut grows a sphere from the stump center: the part inside the sphere is drawn again, so the limb grows
+out of the stump. Branches (hand, fingers, both arms and head of an upper body) come back in order of distance, and
+the sphere's surface shows as raw flesh where the growth front cuts through. Every value is a pure function of the
+stored state and game time (`start`, `delay`, `duration`), so nothing is written per frame, and save/load and network
+peers agree.
 
 Why bind space: a bind-space volume deforms with the skin, so the hole stays glued to the body in every pose. A body
 and its severed piece see the **same** bind-space plane, so their two halves always fit exactly, whatever the two
@@ -101,8 +114,10 @@ light, specular and point lights stay identical, including `MeshCustomShaderPara
 mask = v_goreMask                       // from VS: conservative "any primitive near this vertex"
 if (mask > 0) {
    for each cut   : d = dot(n, bindPos) - dist;  edge = noise(planeUV) * roughness
-                    if (d > -edge) discard;       // ragged severed edge
-   for each wound : q = woundBindInv * bindPos;   r = length(q)
+                    g = regrowRadius - length(bindPos - regrowCenter)       // > 0: already regrown
+                    if (d > -edge && g < noise * roughness) discard;        // ragged severed edge / growth front
+                    fresh = max(fresh, 1 - smoothstep(0, freshBand, g))     // newly grown skin: raw, wet, fading
+   for each wound : q = woundBindInv * bindPos / healScale;   r = length(q)  // healScale 1 → 0 closes the hole
                     edge = noise(q.xy * scale + seed) * roughness   (L4D2's projected texture)
                     if (r < 1 + edge) discard;
                     rim  = max(rim, 1 - smoothstep(1, 1 + rimWidth, r))
@@ -138,6 +153,25 @@ shade P:
 If the ray first hits intact skin, the depth test rejects the interior pixel (the front face wrote a closer depth). If
 the ray crosses a cut plane outside the cross-section, intact skin on the kept side is in front. So the depth buffer
 decides what is visible, and the shader needs no knowledge of the whole silhouette.
+
+**General form (needed for regrowth and overlapping primitives).** Along the ray, every primitive gives at most two
+"removed" intervals: a wound gives `[tIn, tOut]`; a cut gives its half-space interval minus the regrowth sphere's
+interval. The shader keeps these in a small fixed array (≤ 2 per primitive):
+
+```
+if tB is covered by any interval: discard                      // the back wall is removed too
+b = largest interval end < tB; while b is inside another interval: b = that interval's end (if < tB)
+if none: discard                                               // nothing removed in front of B: intact skin hides it
+P = R(b); kind = which primitive's boundary b is (cavity wall, plane cap, or sphere front of the regrowing part)
+```
+
+**Locality guard.** One interior command draws the ranges of several bones. Without a guard, a wound on the arm could
+produce a "cavity" point floating in the air in front of the torso when a torso back face looks through the arm
+wound's ellipsoid. Two checks prevent it:
+1. Each index range is submitted with a `u_goreRangeMask` uniform: the bits of the primitives that touch that bone's
+   own AABB (E3 allows a uniform per range). The torso's ranges never see the arm's wound.
+2. A candidate `b` is only accepted if `tB - b < reach`, where `reach` is the body thickness at that primitive (taken
+   from the anchor bone's bounds when the wound is made).
 
 Clothing/hair submeshes are thin **shells**, not volumes: they clip and bleed like skin, and their interior pass only
 draws the dark cloth back side (no cavity or cap). The role of each submesh comes from the gore profile (§6.1).
@@ -180,6 +214,8 @@ Same skinning as `vs_default` (`finalBonesMatrices[128]`), plus:
   slashes (torn-in look), outward for exit wounds and blasts (flesh pushed out).
 * **Stump pucker**: vertices within ~3 cm on the kept side of a cut pull toward the bone axis by up to ~10%, so the
   skin rolls in around the stump instead of ending as a straight tube.
+* **Growth bulge**: while a cut regrows, vertices just inside the growth front are pulled slightly toward the front
+  and inflated a little. The growing tip looks like swelling flesh, not a clean slice.
 
 ### 4.7 Uniform layout
 
@@ -189,13 +225,16 @@ Fragment-side arrays (vec4), uploaded with **only the active count** (`Shader::S
 |---|---|---|
 | `u_goreWoundBind` (bind → unit sphere, 3 rows) | 3 | 8 |
 | `u_goreWoundWorld` (world → unit sphere, 3 rows) | 3 | 8 |
-| `u_goreWoundParams` (roughness, rim width, rim sign, seed) | 1 | 8 |
+| `u_goreWoundParams` (roughness, rim width + sign, heal scale, seed) | 1 | 8 |
+| `u_goreWoundReach` (interior reach, fresh-scar amount, —, —) | 1 | 8 |
 | `u_goreCutBind` (plane) / `u_goreCutWorld` (plane) | 1 + 1 | 4 |
 | `u_goreCutFrame` (world plane tangent, bitangent, bone center, bone radius) | 2 | 4 |
+| `u_goreRegrowBind` / `u_goreRegrowWorld` (sphere center, radius; radius < 0 = not regrowing) | 1 + 1 | 4 |
 | `u_goreSplats` (bind center, radius) | 1 | 16 |
 | `u_goreCounts` (wounds, cuts, splats, flags) | 1 | 1 |
+| `u_goreRangeMask` (interior pass only, per range) | 1 | 1 |
 
-Worst case 93 vec4, typical (2–3 wounds) about 25. Samplers: `u_goreFlesh`, `u_goreFleshNormal`, `u_goreEdgeNoise`,
+Worst case 110 vec4, typical (2–3 wounds) about 30. Samplers: `u_goreFlesh`, `u_goreFleshNormal`, `u_goreEdgeNoise`,
 `u_goreBlood` (slots 2–5; `fs_default` uses 0–1).
 
 ### 4.8 Shader files (in `GameData/shaders/source/gore/`, compiled by `ShaderCompilationAutomation.exe`)
@@ -227,8 +266,10 @@ Replace the `TwoSided` bool's use in the draw functions with a `Cull` enum field
 `StaticMeshDrawCommand::IndexRanges` (small inline array of `{first, count}`; empty = whole buffer). A shared
 `SubmitGeometry(shader)` sets uniforms once and submits each range (`bgfx::setIndexBuffer(ib, first, num)`, then
 `bgfx::submit` with `BGFX_DISCARD_INDEX_BUFFER` between ranges and `BGFX_DISCARD_ALL` after the last).
-`Shader::Submit` gets an optional discard-flags parameter; buffered uniforms are flushed once. The same goes for the
-shadow-volume cap/edge buffers (`ShadowCapRanges`, `ShadowEdgeRanges`).
+`Shader::Submit` gets an optional discard-flags parameter; buffered uniforms are flushed once. Each range may carry
+one optional vec4 (`IndexRange::param`, bound to a uniform name given on the command) that is set before its submit.
+The interior pass uses it for the per-range primitive mask. The same goes for the shadow-volume cap/edge buffers
+(`ShadowCapRanges`, `ShadowEdgeRanges`).
 
 **E4 — Bone-partitioned index buffers (load time).**
 Skeleton bones are already in DFS pre-order (`FlatSkeleton`, `parentIdx[i] < i`), so the subtree of bone `i` is the
@@ -253,12 +294,17 @@ subclass-overridable way to choose which palette vector the draw commands point 
 `virtual const std::vector<mat4>* GetRenderPalette()` returning `&finalizedBoneTransforms` by default), so a subclass
 can render with a modified palette without copying gameplay bones.
 
-**E6 — Removing hitboxes at runtime.**
-`SkeletalMesh::RemoveHitboxes(std::span<const hashed_string> bones)` destroys the bodies, their constraints and
-constraints whose parent is removed, erases them from this instance's `metaData.hitboxes`, and marks bindings dirty.
+**E6 — Turning hitboxes off and on at runtime (for severing and regrowth).**
+`SkeletalMesh::SetHitboxesActive(std::span<const hashed_string> bones, bool active)`. Turning off takes each body out
+of the physics world but keeps it allocated (new `Physics::RemoveBodyFromWorld` / `AddBodyToWorld`, built on the
+`bodyInterface->RemoveBody/AddBody` that `DestroyBody` and `AddBody` already use). It also disables the body's
+constraint and the constraints of child hitboxes. Inactive bindings are skipped by `UpdateHitboxes` (kinematic and
+ragdoll branches), `StartRagdoll`, `StopRagdoll`, `ApplyImpulseToAllHitboxes` and the ragdoll bounds. Turning on
+places the body at the bone's current world transform (ragdoll: matching the parent body) before adding it back.
+There's no destroy/recreate churn, and a regrown limb gets its exact original hitbox.
 Fix in `UpdateHitboxes` (ragdoll branch): it indexes `hitboxConstraints[...]` with `operator[]` for every hitbox with a
 `parentBone`, which inserts a null constraint and then calls `UpdateSwingTwistMotor(nullptr, ...)` when the parent
-hitbox doesn't exist. Use `find`. That bug would crash any partial ragdoll.
+hitbox doesn't exist (or is now inactive). Use `find` and skip inactive ones. That bug would crash any partial ragdoll.
 
 **E7 — Bounds over a bone subset.**
 `SkinnedModel::ComputeAnimatedBounds(world, palette, std::span<const uint16_t> skinBones)` overload, so a living body
@@ -275,7 +321,9 @@ with a missing arm, or a gib before its ragdoll starts, gets tight frustum bound
 Gore/
   GoreTypes.h            Wound / Cut / Splat PODs, limits, NLOHMANN serialisation
   GoreProfile.{h,cpp}    per-model data (.gore JSON), loaded in LoadAssets via FileSystemEngine
-  GoreSource.h           GoreSourceComponent: what a weapon/projectile/explosion does to flesh
+  GoreBodyRules.{h,cpp}  per-archetype gameplay rules: durability, part consequences, regeneration (§6.11)
+  GoreSettings.{h,cpp}   global settings + player gore level
+  GoreSource.h           GoreSourceComponent: what a weapon/projectile/explosion does to flesh (type + tags)
   GoreComponent.h        per-body gore state (ECS component)
   GoreEvents.h           GoreHitEvent, GoreSeveredEvent, GoreHeadDestroyedEvent
   GoreSystem.cpp         hit batching → wounds / cuts / severs; bleeding + gib lifetime tick
@@ -290,7 +338,22 @@ Gore/
 
 ### 6.1 Data
 
-`GameData/models/npc/<model>.glb.gore` (JSON, next to the model's `.skmm`):
+Four layers, each loaded in `LoadAssets` via `FileSystemEngine` (a dev-only hot reload, compiled out of
+`DISTRIBUTION`, re-reads them all):
+
+| Layer | File | Owns | Keyed by |
+|---|---|---|---|
+| Model profile | `models/<...>/<model>.glb.gore` | what the mesh *can* do: textures, submesh roles, severable bones and cut ranges, bone radii | model path |
+| Body rules | `gore/bodies/<archetype>.json` | what happens to *this kind of enemy*: durability, sever thresholds, part effects, healing, regrowth (§6.11) | NPC class / prefab field `goreBody` |
+| Sources | `gore/sources.json` | what a weapon does: wound type, size, sever power, **tags** | weapon / projectile / explosion id |
+| Settings | `gore/settings.json` + player option | budgets (gibs, spawns per frame, particles, decals) and the **gore level** | global |
+
+One model can serve several archetypes (a human mesh used for a normal guard and for a vampire elder). Player gore
+levels: `Full`; `Reduced` (no blood particles or decals, caps and cavities drawn dark and desaturated, no chunks);
+`Minimal` (cuts and holes are hidden by the clip but drawn as plain dark caps, no blood at all). **Gameplay is the
+same at every level**: parts are lost and regrow identically, because the vampire's rules depend on it.
+
+Model profile example, `GameData/models/enemies/humanAxe/humanAxe.glb.gore`:
 
 ```json
 {
@@ -312,7 +375,8 @@ Gore/
 lean from the bone axis.
 
 `GameData/gore/sources.json`: what each damage source does (type, wound size from damage, sever power, pellet
-clustering, exit wounds). Every weapon, projectile and explosion entity gets a `GoreSourceComponent` filled from it by
+clustering, exit wounds, and free-form **tags** such as `melee`, `ranged`, `holy`, `fire`, `silver`, `blast`, which
+body rules react to). Every weapon, projectile and explosion entity gets a `GoreSourceComponent` filled from it by
 its id (`ECS_COMPONENT` on `WeaponBase`, `Bullet` and `Explosion`; a bullet copies its weapon's source when it is fired).
 
 | Type | Wound | Sever rule |
@@ -332,6 +396,15 @@ hit, because the `Direction` argument of `OnPointDamage` is the camera forward t
 Fixed-size arrays, no heap: `Wound wounds[8]`, `Cut cuts[4]`, `Splat splats[16]`, counts, a `std::bitset<256>` of
 removed skeleton bones, accumulated damage per severable bone (decays), bleed state per cut, a `uint32 version` that
 bumps on every change (the mesh copies render state only when it changed), and the hit counter for RNG seeds.
+
+Time-based state is stored as times, never stepped per frame:
+* Wound: `healStart`, `healDuration` (0 = permanent) → heal scale = `1 - smoothstep(healStart, +duration, now)`.
+* Cut phase: `Severed → Regrowing → (removed)`, with `regrowStart`, `regrowDuration`, `maxRadius` (from the subtree's
+  any-influence bounds) and the gib handle when the regrow mode is `reattach`.
+* Body: `regenSuppressedUntil`, per-tag `noRegrow` flags per cut (a fire-cauterised stump never regrows).
+
+`GoreSystem`'s tick only looks at phase changes (once per change, not per frame): start regrowing, turn a regrown
+part's hitboxes back on, finish, expire heals. Rendering reads the times directly.
 Serialisable with NLOHMANN macros (§6.9). Added on the first gore hit (`AddComponent<GoreComponent>()`), so undamaged
 enemies don't even carry it.
 
@@ -349,7 +422,7 @@ enemies don't even carry it.
    * Accumulate damage per severable region; decide severs from the source's power, lethal flag and region threshold.
 3. Budget overflow: merge with the nearest overlapping wound (bounding ellipsoid) or replace the oldest smallest one;
    splats merge by distance.
-4. Severs go to the cut solver, then: update `GoreComponent`, `RemoveHitboxes` (E6) for the subtree on the body, queue
+4. Severs go to the cut solver, then: update `GoreComponent`, `SetHitboxesActive(subtree, false)` (E6) on the body, queue
    the gib spawn, emit `GoreSeveredEvent { victim, bone, wasLethal }`.
 
 ### 6.4 Cut solver
@@ -391,9 +464,22 @@ Result: no two cuts look the same (angle and position follow the actual hit), an
 * Physics: copy `metaData.hitboxes`, keep the subtree's hitboxes (`gib: rigid` → only S's), clear S's `parentBone`,
   `CreateHitboxes`, `StartRagdoll`. Initial velocities = the body's hitbox velocities at the cut + an impulse from the
   source (slash sweep / pellet direction / blast).
+* The human enemies' `.skmm` files (humanAxe, humanGun, zombie, npc/base) have 12 hitboxes: `pelvis`, `spine_01`,
+  `spine_02`, `upperarm_l/r`, `lowerarm_l/r`, `thigh_l/r`, `calf_l/r`, `neck_01`. There are no hand, foot or separate
+  head hitboxes. A severable bone without a hitbox (`hand_l`, `foot_r`, or a cut below `neck_01` that leaves the head
+  apart) gets a box `HitboxData` made at cut time from the bone subtree's any-influence bind bounds (E4) and added with
+  `CreateHitbox`. The profile may instead ask for real hitboxes to be added to the `.skmm` (better ragdoll mass).
 * Gibs keep hitboxes, so they can be shot again (a severed head can still be blown apart).
 * Pool: `maxGibs` (48 default, data). When full, the oldest gib sinks into the floor over 1 s, then is destroyed.
-  Off-screen gibs older than N seconds go first.
+  Off-screen gibs older than N seconds go first. A gib waiting to `reattach` is never chosen while its owner lives.
+* When the owner's part regrows, the gib does what the body rules say (`onRegrow`):
+  * `keep` — stays as an ordinary gib in the pool.
+  * `dissolve` — burns or crumbles away over ~1 s: ash/blood particles and a dissolve threshold on its clip, made from
+    the same edge noise and the same front shader logic.
+  * `reattach` — instead of regrowing, the gib is pulled back. Its bodies go kinematic and ease to the stump's current
+    transform over `reattachSeconds` (an arc, not a straight line), then the gib is removed and the cut cleared with a
+    short fresh-flesh band. If the gib is destroyed or blown apart first (it has hitboxes, so the player can do this
+    on purpose), or is farther than `reattachMaxDistance`, the part falls back to `regrow`.
 * **Destroyed head** (`canDestroy`): no head gib. Neck cut + burst FX + 3–6 chunk gibs (artist skull/brain/meat chunk
   meshes, single rigid bodies, same pool).
 
@@ -408,29 +494,92 @@ Result: no two cuts look the same (angle and position follow the actual hit), an
 
 ### 6.8 Living enemies (`StealthGoreAdapter` + `NpcBase`)
 
-`GoreSeveredEvent` handler on the NPC:
+The gore module only says which part was lost or got back (`GorePartEvent { victim, bone, lost | regrown }`).
+Losing a part changes nothing else about the enemy: no stat penalties, no debuffs, no "weakened" state. The adapter
+handles only what a body physically can't do without the part, configured per part in the body rules
+(`"consequence"`):
 
-| Lost | Reaction |
+| Consequence | StealthAction behaviour |
 |---|---|
-| Head / upper body | death (ragdoll) |
-| Weapon arm | drop the weapon (physics pickup), switch to melee/unarmed or flee per combat behaviour; a two-handed weapon drops on either arm |
-| Off arm | keeps fighting, worse aim (data) |
-| Leg | stunned ragdoll fall, then **crawl** locomotion until bled out (needs crawl clips, §8) |
-| Any cut | bleed-out: health drains per second per cut (data); AI uses the existing "in trouble" investigation for allies |
+| `none` (default) | nothing; the enemy carries on with the part missing (arms, a vampire's head) |
+| `death` | `Death()` (a human's head or upper body; only when the durability mode allows a kill, §6.11) |
+| `dropWeapon` | the hand holding the weapon is gone: drop it (physics pickup) and fight unarmed / melee per combat behaviour; picks a weapon up again once the arm has regrown |
+| `crawl` | no leg to stand on: fall (stunned ragdoll), then crawl locomotion (needs crawl clips, §8); stands up through the existing return-from-ragdoll path when the leg has regrown |
 
-The invisible subtree keeps animating (its hitboxes are gone and it isn't drawn), so no animation graph changes are
-needed except the crawl state.
+Bleed-out is a body-rule option (`bleedPerSecond` per open cut, default on for `mortal` humans, off for regenerating
+enemies), not a part effect. The invisible subtree keeps animating (its hitboxes are off and it isn't drawn), so the
+animation graph only needs the crawl state.
+
+### 6.11 Durability and regeneration rules (`GoreBodyRules`)
+
+Example `GameData/gore/bodies/vampire_elder.json`:
+
+```json
+{
+  "durability": {
+    "mode": "conditional",                        // "mortal" (health ≤ 0 kills) | "conditional" | "immortal"
+    "minHealth": 1,                               // damage that may not kill stops here
+    "killedBy": ["melee"],                        // source tags whose lethal hit kills (any of them)
+    "finisher": { "sever": "neck_01", "mode": "destroy" },   // gore applied on the killing blow
+    "healthRegenPerSecond": 8, "healthRegenDelay": 3
+  },
+  "severThresholdScale": 0.6,                     // parts come off more easily than on a human
+  "bleedPerSecond": 0,
+  "parts": {                                      // only what differs from the defaults
+    "neck_01":  { "regrowDelay": 6, "regrowSeconds": 5 },          // headless, still alive
+    "lowerarm_r": { "consequence": "dropWeapon" },
+    "upperarm_r": { "consequence": "dropWeapon" },
+    "calf_l":   { "consequence": "crawl" }, "thigh_l": { "consequence": "crawl" },
+    "calf_r":   { "consequence": "crawl" }, "thigh_r": { "consequence": "crawl" },
+    "spine_02": { "consequence": "crawl", "regrowSeconds": 9 }      // upper body crawls on its arms
+  },
+  "regen": {
+    "woundHealDelay": 1.5, "woundHealSeconds": 4,
+    "regrowDelay": 4, "regrowSeconds": 6,          // defaults for parts that don't set their own
+    "onRegrow": "reattach",                         // "keep" | "dissolve" | "reattach"
+    "reattachSeconds": 1.2, "reattachMaxDistance": 6,
+    "hitboxActiveAt": 0.6,                          // regrow progress at which the part can be hit again
+    "suppressedBy": { "holy": 6, "silver": 4 },     // seconds without any healing after a hit with that tag
+    "preventRegrowBy": ["fire"]                     // a stump cut or hit by fire is cauterised and never regrows
+  }
+}
+```
+
+Rules, all in `GoreSystem` / the adapter, all data-driven:
+* **Killing**: in `conditional` mode, `NpcBase::OnDamage` asks the rules whether this hit may kill: only a hit whose
+  source has a tag in `killedBy`. If not, health is clamped at `minHealth`; wounds and severs still happen, so guns and
+  blasts take the vampire apart without killing it. If yes and health reaches 0, the hit kills and the `finisher`
+  gore is applied (the vampire's head comes off in a burst). Missing parts don't change this: there is no weakness
+  score or threshold. `immortal` never dies (boss phases). `mortal` is today's behaviour; it is the default for every
+  existing enemy, with regeneration off.
+* **Part consequences**: only `none` / `death` / `dropWeapon` / `crawl` (§6.8). A part's `death` consequence is
+  ignored when the durability mode doesn't allow this hit to kill (a vampire survives losing its head).
+* **Healing**: wounds close after `woundHealDelay` over `woundHealSeconds`; splats fade with them. Health regenerates
+  after `healthRegenDelay` without damage.
+* **Regrowth**: a cut starts regrowing after its delay (the cut-off piece may first be reattached, see §6.6). The
+  sphere grows over `regrowSeconds`, hitboxes come back at `hitboxActiveAt`, and the part's consequence ends when
+  it's done (stand up, pick a weapon up again). Cutting a regrowing part again restarts it from the new cut.
+* **Suppression**: a hit with a tag in `suppressedBy` pushes `regenSuppressedUntil` forward. All healing and regrowth
+  pauses (regrow times shift by the paused time; still a pure function of stored times). `preventRegrowBy` marks the
+  cut permanently: the cap shader switches to a charred look (its own flag bit, same textures plus a char tint).
+* Normal humans use `mortal` with regeneration off and can lose limbs and bleed out as in §6.8.
 
 ### 6.9 Save/load
 
-`GoreComponent` is NLOHMANN-serialised into the NPC's save record. On load the component is restored before the first
-render, the cuts re-run `RemoveHitboxes`, and the mesh rebuilds its render state from `version`. No gib records.
+`GoreComponent` is NLOHMANN-serialised into the NPC's save record. Times are saved relative to the save's game time
+and rebased on load, so a half-regrown arm continues where it was. On load the component is restored before the first
+render, cuts turn off their subtree hitboxes (`SetHitboxesActive`), and the mesh rebuilds its render state from
+`version`; part consequences (crawling, no weapon) are re-applied from the missing parts. No gib records: a part waiting to `reattach` falls
+back to `regrow` after load.
 
 ### 6.10 Network
 
 `GoreHitEvent` is built from the replicated `OnPointDamage` call on every peer. The seed comes from
 `hash(victim id, per-victim hit counter)`, and pellet clustering and the cut solver are deterministic given the same
-inputs, so wounds and cuts match. Gib spawn and physics are local.
+inputs, so wounds and cuts match. Gib spawn and physics are local. Healing and regrowth are functions of stored times and
+replicated hits (suppression tags come with the hits), so they match too. The kill decision in `conditional` mode stays
+with whoever runs `Death()` today. `reattach` depends on local gib physics, so in multiplayer the body rules can force
+`regrow` (`"network": { "onRegrow": "regrow" }`).
 
 ---
 
@@ -473,9 +622,15 @@ no frame over budget; undamaged-crowd frame time within noise of today.
    `DebugDraw`.
 3. **Severing.** Cut solver, caps, hitbox removal, gibs (rigid then ragdoll), shadow-volume variants, render palette,
    stump FX.
-4. **Gameplay.** Living-enemy reactions, bleed-out, head destroy, blast/chunks, weapon drop.
-5. **Persistence and network.** Save/load and seed determinism (two peers, same hit sequence, compare wound lists).
-6. **Scale and polish.** Stress test + Tracy, data-texture switch only if measured, rim displacement, pucker, decals.
+4. **Gameplay.** Living-enemy consequences (`dropWeapon`, `crawl`, `death`), bleed-out, head destroy, blast/chunks,
+   body rules with `mortal` mode for all existing enemies.
+5. **Regeneration.** Wound healing, regrowth sphere (front + interior + shadow), `SetHitboxesActive` on, durability
+   modes, `killedBy` tags, finisher, suppression/prevent tags, `onRegrow` modes (`dissolve` and `reattach` last).
+   Test enemy: a vampire archetype on an existing human model.
+6. **Persistence and network.** Save/load (including mid-regrowth) and seed determinism (two peers, same hit
+   sequence, compare wound lists).
+7. **Scale and polish.** Stress test + Tracy, data-texture switch only if measured, rim displacement, pucker,
+   growth bulge, decals.
 
 ## 10. Alternatives considered
 
@@ -499,3 +654,13 @@ no frame over budget; undamaged-crowd frame time within noise of today.
 * **E4 reorder**: confirm vertex-cache impact is negligible (GPU timing of the crowd before/after).
 * **Hitbox name match**: the gore profile, hitboxes and skeleton must agree on bone names (UE-style `lowerarm_l`,
   `calf_l`, `neck_01`); the profile loader validates them and logs mismatches.
+* **Hit resolution**: hits only report the 12 hitbox bones, so a hit on a hand reports `lowerarm_*`. The system maps
+  the bind-space hit point to the nearest severable bone by its bounds (so a wrist hit can take the hand, not the
+  forearm). Severing feet and hands depends on that mapping.
+* **Regrowth front shape**: a sphere from the stump grows long straight parts last (fine for arms in the bind
+  T-pose). A foot or a curled hand that sits near the stump in bind space may appear a little early. If that shows,
+  scale the sphere into an ellipsoid stretched along the bone axis (the same math, one more vec4 per cut).
+* **Reattach path**: the gib flies kinematically, so it can pass through walls. Trace the path first and fall back to
+  `regrow` when it's blocked.
+* **Dog enemy** (`enemies/dog`) has a different skeleton (`spine_f`, `leg_fl`, ...). It needs its own `.gore`
+  profile; nothing in the code assumes a human skeleton.

@@ -678,6 +678,16 @@ public:
 
 	static void DestroyConstraint(Constraint* constraint);
 
+	// Takes the body out of the simulation/broadphase but keeps it allocated (re-add with AddBodyToWorld).
+	static void RemoveBodyFromWorld(Body* body);
+	static void AddBodyToWorld(Body* body, bool activate);
+	static bool IsBodyInWorld(const Body* body);
+
+	// Same for constraints: out of the physics system but still allocated. Calls must alternate (remove, add, remove, ...);
+	// a removed constraint must be added back before DestroyConstraint.
+	static void RemoveConstraintFromWorld(Constraint* constraint);
+	static void AddConstraintToWorld(Constraint* constraint);
+
 	static void SetMotionType(Body* body, JPH::EMotionType type);
 
 	static BodyData* GetBodyData(const Body* body)

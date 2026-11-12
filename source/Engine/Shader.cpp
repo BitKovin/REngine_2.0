@@ -621,6 +621,17 @@ void Shader::SetUniform(const std::string& uname, const std::vector<glm::vec4>& 
     m_uniformBuffer[idx].assign(glm::value_ptr(values[0]), static_cast<size_t>(num) * 4, num);
 }
 
+void Shader::SetUniform(const std::string& uname, const glm::vec4* values, size_t count)
+{
+    const uint16_t idx = FindUniformIndex(uname);
+    if (idx == kInvalidIndex || values == nullptr || count == 0) return;
+
+    const uint16_t num = SafeUniformNum(m_uniformList[idx], count, uname);
+    if (num == 0) return;
+
+    m_uniformBuffer[idx].assign(glm::value_ptr(values[0]), static_cast<size_t>(num) * 4, num);
+}
+
 // mat2 array: each mat2 → one Vec4 slot
 void Shader::SetUniform(const std::string& uname, const std::vector<glm::mat2>& values)
 {
@@ -862,7 +873,7 @@ void Shader::UseProgram()
     ApplyTextureBindings();
 }
 
-void Shader::Submit(uint16_t viewId) const
+void Shader::Submit(uint16_t viewId, uint8_t discardFlags) const
 {
 
 #ifndef DISTRIBUTION
@@ -872,7 +883,7 @@ void Shader::Submit(uint16_t viewId) const
 #endif
 
     FlushBuffers();
-    bgfx::submit(viewId, m_program);
+    bgfx::submit(viewId, m_program, 0, discardFlags);
 }
 
 // ---------------------------------------------------------------------------

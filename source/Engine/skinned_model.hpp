@@ -38,6 +38,22 @@ namespace roj
     // SkinnedMesh (unchanged)
     // ─────────────────────────────────────────────────────────────────────────────
 
+    struct BoneBound
+    {
+        // Bind-pose model-space AABB of all vertices influenced by this bone
+        // above the weight threshold.  Both corners are needed: a single
+        // "farthest" point drops all vertices that extend far in other directions
+        // (e.g. a spine bone covers front AND back of the torso).
+        //
+        // At query time all 8 corners are transformed by the skin matrix so the
+        // world AABB is always tight regardless of bone orientation or scale.
+        glm::vec3 bbMin{ std::numeric_limits<float>::max() };
+        glm::vec3 bbMax{ -std::numeric_limits<float>::max() };
+        bool      hasData = false;   // false -> no skinned vertices above threshold
+    };
+
+    struct BonePartitionContext;
+
     struct SkinnedMesh
     {
 
@@ -61,6 +77,13 @@ namespace roj
 
         bool transparentTexture = false;
 
+        // Bone partition (Helpers/Mesh/bone_partition.hpp). Empty = this mesh was not partitioned.
+        // Indices are sorted by the skel-index LCA of each triangle: bone b owns indices
+        // [boneIndexFirst[b], boneIndexFirst[b+1]); its subtree owns [boneIndexFirst[b], boneIndexFirst[subtreeEnd[b]]).
+        std::vector<uint32_t> boneIndexFirst;   // size skeleton.boneCount + 1
+        std::vector<BoneBound> boneOwnBounds;   // per skel bone: bind-space AABB of the triangles it owns
+        std::vector<BoneBound> boneAnyBounds;   // per skel bone: bind-space AABB of every vertex it has weight on
+
         void ProcessDefaultTextures();
 
         void DestroyBuffers()
@@ -82,6 +105,13 @@ namespace roj
 
             shadowVolumePrecomp = ShadowVolumePrecomp();
 
+            boneIndexFirst.clear();
+            boneIndexFirst.shrink_to_fit();
+            boneOwnBounds.clear();
+            boneOwnBounds.shrink_to_fit();
+            boneAnyBounds.clear();
+            boneAnyBounds.shrink_to_fit();
+
             // Clear CPU-side vectors
             vertices.clear();
             vertices.shrink_to_fit();
@@ -102,7 +132,7 @@ namespace roj
     // Main-thread only. Creates vbh/ibh (and the shadow volume precomp) from a
     // mesh's already-populated vertices/indices. Used by the synchronous load
     // path and by AssetRegistry when it applies a deferred Visual-tier upload.
-    void UploadSkinnedMeshGPUBuffers(SkinnedMesh& mesh);
+    void UploadSkinnedMeshGPUBuffers(SkinnedMesh& mesh, const BonePartitionContext* ctx = nullptr);
 
     // ─────────────────────────────────────────────────────────────────────────────
     // Legacy structures — kept for SkeletalMesh.cpp compatibility only.
@@ -298,19 +328,7 @@ namespace roj
     // Indexed by skinIdx (= BoneInfo::id = BlendIndices value).
     // ─────────────────────────────────────────────────────────────────────────────
 
-    struct BoneBound
-    {
-        // Bind-pose model-space AABB of all vertices influenced by this bone
-        // above the weight threshold.  Both corners are needed: a single
-        // "farthest" point drops all vertices that extend far in other directions
-        // (e.g. a spine bone covers front AND back of the torso).
-        //
-        // At query time all 8 corners are transformed by the skin matrix so the
-        // world AABB is always tight regardless of bone orientation or scale.
-        glm::vec3 bbMin{ std::numeric_limits<float>::max() };
-        glm::vec3 bbMax{ -std::numeric_limits<float>::max() };
-        bool      hasData = false;   // false → no skinned vertices above threshold
-    };
+    // BoneBound is declared above SkinnedMesh.
 
     // ─────────────────────────────────────────────────────────────────────────────
     // SkinnedModel
@@ -491,6 +509,11 @@ namespace roj
         // worldMatrix:  model → world transform of this instance.
         BoundingBox    ComputeAnimatedBounds(const glm::mat4& worldMatrix,
             std::span<const glm::mat4> skinMatrices) const;
+
+        // Like ComputeAnimatedBounds, but only skin bones with skinMask[s] != 0 are used (bones beyond
+        // skinMask.size() are skipped). Falls back to the static boundingBox if no masked bone has data.
+        BoundingBox    ComputeAnimatedBounds(const glm::mat4& worldMatrix,
+            std::span<const glm::mat4> skinMatrices, std::span<const uint8_t> skinMask) const;
 
         // Derived sphere from the animated AABB — cheap second pass.
         BoundingSphere ComputeAnimatedSphere(const glm::mat4& worldMatrix,

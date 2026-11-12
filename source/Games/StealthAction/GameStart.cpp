@@ -1,4 +1,5 @@
 #include <Entity.h>
+#include "Gore/GoreDebug.h"
 #include <Input.h>
 
 #include <BSP/Quake3Bsp.h>
@@ -354,6 +355,8 @@ public:
         }
 
         ImGui::End();
+
+        Gore::DrawDebugWindow();
 
     }
 

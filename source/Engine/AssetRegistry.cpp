@@ -1,6 +1,7 @@
 #include "AssetRegistry.h"
 #include "FileSystem/FileSystem.h"
 #include <Logger.hpp>
+#include <Helpers/Mesh/bone_partition.hpp>
 #include <chrono>
 
 std::unordered_map<std::string, Shader*> AssetRegistry::shaderCache;
@@ -755,8 +756,14 @@ void AssetRegistry::QueueVisualTierJob(roj::SkinnedModel* model, std::string pat
 
 					model->AdoptVisualTierGeometry(std::move(*parsed));
 
+					// The live model's skeleton/skin ids may differ from the parse's (AdoptVisualTierGeometry remaps
+					// BlendIndices), so sort the triangles by bone again with the live skeleton before uploading.
+					const roj::BonePartitionContext partitionCtx = roj::BuildBonePartitionContext(model->skeleton);
 					for (auto& mesh : model->meshes)
-						roj::UploadSkinnedMeshGPUBuffers(mesh);
+					{
+						if (partitionCtx.valid) roj::PartitionMeshByBone(mesh, partitionCtx);
+						roj::UploadSkinnedMeshGPUBuffers(mesh, partitionCtx.valid ? &partitionCtx : nullptr);
+					}
 
 					model->loadState.generation.fetch_add(1, std::memory_order_release);
 					model->loadState.currentTier.store(AssetLoadTier::Visual, std::memory_order_release);

@@ -1,4 +1,5 @@
 #include "WeaponFirearm.h"
+#include "../../../Gore/StealthGoreAdapter.h"
 #include <algorithm>
 #include "Animators/WeaponAnimator.h"
 #include <RandomHelper.h>
@@ -550,6 +551,7 @@ void WeaponFirearm::FireSingleBullet(const vec3& startLoc, const vec4& gridOffse
 	bullet->Position = startLoc + offset * 0.002f;
 	bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
 	Level::Current->AddEntity(bullet);
+	StealthGore::TagProjectile(bullet, this);
 	bullet->Start();
 	bullet->LoadAssetsIfNeeded();
 	bullet->Damage = params.bulletDamage;

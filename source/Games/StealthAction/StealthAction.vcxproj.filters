@@ -764,6 +764,69 @@
     <ClInclude Include="Entities\Enemy\EnemyFire.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClCompile Include="Gore\GoreDebug.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreDrawCommands.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreProfile.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreSettings.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreSkeletalMesh.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreSource.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreSystem.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreTypes.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\StealthGoreAdapter.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClInclude Include="Gore\GoreComponent.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreDebug.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreDrawCommands.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreEvents.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreProfile.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreRenderState.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreSettings.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreSkeletalMesh.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreSource.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreSystem.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreTypes.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\StealthGoreAdapter.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

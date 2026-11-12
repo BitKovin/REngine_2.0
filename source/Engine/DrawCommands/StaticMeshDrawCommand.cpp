@@ -31,9 +31,9 @@ void StaticMeshDrawCommand::DrawForward(const mat4& view, const mat4& projection
 	BgfxStateManager::SetWriteDepth(DepthWrite && !isTransparent);
 
 	BgfxStateManager::SetBlend(BlendMode);
-	BgfxStateManager::SetCull(TwoSided ? BgfxStateManager::Cull::None : BgfxStateManager::Cull::CW);
+	BgfxStateManager::SetCull(ResolveCull());
 
-	Shader* shader = Material.GetForwardShader(PixelShader);
+	Shader* shader = GetForwardShader();
 	shader->UseProgram();
 
 	shader->SetUniform("masked", Material.EffectiveSurfaceType() == SurfaceType::Masked);
@@ -65,10 +65,7 @@ void StaticMeshDrawCommand::DrawForward(const mat4& view, const mat4& projection
 	Material.BindEmissiveTexture(shader);
 
 	bgfx::setVertexBuffer(0, VertexBuffer);
-	bgfx::setIndexBuffer(IndexBuffer);
-
-	BgfxStateManager::Apply();
-	shader->Submit(ViewIdManager::GetCurrentId());
+	SubmitIndexed(shader, IndexBuffer, IndexRanges, ViewIdManager::GetCurrentId());
 
 	BgfxStateManager::SetState(startState);
 }
@@ -80,9 +77,9 @@ void StaticMeshDrawCommand::DrawDepth(const mat4& view, const mat4& projection)
 
 	auto startState = BgfxStateManager::GetState();
 
-	BgfxStateManager::SetCull(TwoSided ? BgfxStateManager::Cull::None : BgfxStateManager::Cull::CW);
+	BgfxStateManager::SetCull(ResolveCull());
 
-	Shader* shader = Material.GetDepthShader();
+	Shader* shader = GetDepthShader();
 	shader->UseProgram();
 
 	shader->SetUniform("view", view);
@@ -98,10 +95,7 @@ void StaticMeshDrawCommand::DrawDepth(const mat4& view, const mat4& projection)
 		Material.BindColorTexture(shader);
 
 	bgfx::setVertexBuffer(0, VertexBuffer);
-	bgfx::setIndexBuffer(IndexBuffer);
-
-	BgfxStateManager::Apply();
-	shader->Submit(ViewIdManager::GetCurrentId());
+	SubmitIndexed(shader, IndexBuffer, IndexRanges, ViewIdManager::GetCurrentId());
 
 	BgfxStateManager::SetState(startState);
 }
@@ -113,9 +107,9 @@ void StaticMeshDrawCommand::DrawCustomId(const mat4& view, const mat4& projectio
 
 	auto startState = BgfxStateManager::GetState();
 
-	BgfxStateManager::SetCull(TwoSided ? BgfxStateManager::Cull::None : BgfxStateManager::Cull::CW);
+	BgfxStateManager::SetCull(ResolveCull());
 
-	Shader* shader = ShaderManager::GetShaderProgram("vs_default", "fs_customId");
+	Shader* shader = GetCustomIdShader();
 	shader->UseProgram();
 
 	shader->SetUniform("view", view);
@@ -130,10 +124,7 @@ void StaticMeshDrawCommand::DrawCustomId(const mat4& view, const mat4& projectio
 	Material.BindColorTexture(shader);
 
 	bgfx::setVertexBuffer(0, VertexBuffer);
-	bgfx::setIndexBuffer(IndexBuffer);
-
-	BgfxStateManager::Apply();
-	shader->Submit(ViewIdManager::GetCurrentId());
+	SubmitIndexed(shader, IndexBuffer, IndexRanges, ViewIdManager::GetCurrentId());
 
 	BgfxStateManager::SetState(startState);
 }
@@ -144,9 +135,9 @@ void StaticMeshDrawCommand::DrawShadow(const mat4& view, const mat4& projection)
 
 	auto startState = BgfxStateManager::GetState();
 
-	BgfxStateManager::SetCull(TwoSided ? BgfxStateManager::Cull::None : BgfxStateManager::Cull::CW);
+	BgfxStateManager::SetCull(ResolveCull());
 
-	Shader* shader = Material.GetDepthShader();
+	Shader* shader = GetDepthShader();
 	shader->UseProgram();
 
 	shader->SetUniform("view", view);
@@ -160,10 +151,7 @@ void StaticMeshDrawCommand::DrawShadow(const mat4& view, const mat4& projection)
 		Material.BindColorTexture(shader);
 
 	bgfx::setVertexBuffer(0, VertexBuffer);
-	bgfx::setIndexBuffer(IndexBuffer);
-
-	BgfxStateManager::Apply();
-	shader->Submit(ViewIdManager::GetCurrentId());
+	SubmitIndexed(shader, IndexBuffer, IndexRanges, ViewIdManager::GetCurrentId());
 
 	BgfxStateManager::SetState(startState);
 }
@@ -178,8 +166,9 @@ void StaticMeshDrawCommand::DrawShadowVolumeStencil(const mat4& view, const mat4
 	const vec3 fakeLightPos = normalize(ShadowLightDirection) * 1e6f;
 	const bgfx::ViewId viewId = ViewIdManager::GetCurrentId();
 
-	Shader* capShader  = ShaderManager::GetShaderProgram("shadowVolume/vs_shadowvolcap",  "shadowVolume/fs_shadowvol");
-	Shader* edgeShader = ShaderManager::GetShaderProgram("shadowVolume/vs_shadowvoledge", "shadowVolume/fs_shadowvol");
+	Shader* capShader  = nullptr;
+	Shader* edgeShader = nullptr;
+	GetShadowVolumeShaders(capShader, edgeShader);
 
 	auto setCommonUniforms = [&](Shader* sh)
 		{
@@ -214,9 +203,7 @@ void StaticMeshDrawCommand::DrawShadowVolumeStencil(const mat4& view, const mat4
 		setCommonUniforms(capShader);
 		bgfx::setStencil(frontStencil, backStencil);
 		bgfx::setVertexBuffer(0, ShadowCapVbh);
-		bgfx::setIndexBuffer(ShadowCapIbh);
-		BgfxStateManager::Apply();
-		capShader->Submit(viewId);
+		SubmitIndexed(capShader, ShadowCapIbh, ShadowCapRanges, viewId);
 	}
 
 	if (hasEdge)
@@ -224,9 +211,40 @@ void StaticMeshDrawCommand::DrawShadowVolumeStencil(const mat4& view, const mat4
 		setCommonUniforms(edgeShader);
 		bgfx::setStencil(frontStencil, backStencil);
 		bgfx::setVertexBuffer(0, ShadowEdgeVbh);
-		bgfx::setIndexBuffer(ShadowEdgeIbh);
+		SubmitIndexed(edgeShader, ShadowEdgeIbh, ShadowEdgeRanges, viewId);
+	}
+}
+
+void StaticMeshDrawCommand::SubmitIndexed(Shader* shader, bgfx::IndexBufferHandle ib,
+	const std::vector<DrawIndexRange>& ranges, bgfx::ViewId viewId)
+{
+	if (ranges.empty())
+	{
+		bgfx::setIndexBuffer(ib);
 		BgfxStateManager::Apply();
-		edgeShader->Submit(viewId);
+		shader->Submit(viewId);
+		return;
+	}
+
+	// Find the last non-empty range: it must carry BGFX_DISCARD_ALL.
+	int last = -1;
+	for (int i = 0; i < (int)ranges.size(); ++i)
+		if (ranges[i].count > 0) last = i;
+
+	if (last < 0)
+	{
+		bgfx::discard(BGFX_DISCARD_ALL);   // nothing to draw: drop the vertex buffer/state already set
+		return;
+	}
+
+	BgfxStateManager::Apply();
+	for (int i = 0; i <= last; ++i)
+	{
+		const DrawIndexRange& r = ranges[i];
+		if (r.count == 0) continue;
+		if (RangeParamUniform) shader->SetUniform(RangeParamUniform, r.param);
+		bgfx::setIndexBuffer(ib, r.first, r.count);
+		shader->Submit(viewId, i == last ? BGFX_DISCARD_ALL : BGFX_DISCARD_INDEX_BUFFER);
 	}
 }
 

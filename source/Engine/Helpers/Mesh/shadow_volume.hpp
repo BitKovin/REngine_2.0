@@ -6,7 +6,7 @@
 #include <bgfx/bgfx.h>
 #include <vector>
 
-namespace roj { struct SkinnedMesh; }
+namespace roj { struct SkinnedMesh; struct BonePartitionContext; }
 
 namespace roj
 {
@@ -23,13 +23,19 @@ struct ShadowVolumePrecomp
     bgfx::IndexBufferHandle  edgeIbh        = BGFX_INVALID_HANDLE;
     uint32_t                 edgeIndexCount = 0;
 
+    // Only filled when built with a BonePartitionContext. Index offsets (6 indices per triangle / edge), size
+    // boneCount + 1, sorted like SkinnedMesh::boneIndexFirst: bone b owns [first[b], first[b+1]).
+    std::vector<uint32_t>    capBoneFirst;
+    std::vector<uint32_t>    edgeBoneFirst;
+
     ShadowVolumePrecomp() = default;
     ShadowVolumePrecomp(const ShadowVolumePrecomp&)            = delete;
     ShadowVolumePrecomp& operator=(const ShadowVolumePrecomp&) = delete;
 
     ShadowVolumePrecomp(ShadowVolumePrecomp&& o) noexcept
         : capVbh(o.capVbh),   capIbh(o.capIbh),   capIndexCount(o.capIndexCount),
-          edgeVbh(o.edgeVbh), edgeIbh(o.edgeIbh), edgeIndexCount(o.edgeIndexCount)
+          edgeVbh(o.edgeVbh), edgeIbh(o.edgeIbh), edgeIndexCount(o.edgeIndexCount),
+          capBoneFirst(std::move(o.capBoneFirst)), edgeBoneFirst(std::move(o.edgeBoneFirst))
     {
         o.capVbh = o.edgeVbh = BGFX_INVALID_HANDLE;
         o.capIbh = o.edgeIbh = BGFX_INVALID_HANDLE;
@@ -52,6 +58,8 @@ struct ShadowVolumePrecomp
 };
 
 // Build once at load time while mesh.vertices/indices are still populated.
-ShadowVolumePrecomp BuildShadowVolumePrecomp(const SkinnedMesh& mesh);
+// With a valid ctx the cap triangles and edges are sorted by the skel-index LCA of their stitch bones
+// (capBoneFirst / edgeBoneFirst); without it the behaviour is unchanged.
+ShadowVolumePrecomp BuildShadowVolumePrecomp(const SkinnedMesh& mesh, const BonePartitionContext* ctx = nullptr);
 
 } // namespace roj
