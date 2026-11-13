@@ -31,6 +31,11 @@
 
 #include <BgfxResetManager.h>
 
+#include <WeaponDefs.h>
+#include <set>
+#include <PlayerCharacters.h>
+#include "../../UI/Player/WeaponIconBaker.h"
+
 REGISTER_ENTITY(Player, "player")
 
 Player* Player::Instance = nullptr;
@@ -67,7 +72,14 @@ void Player::Start()
 
 
 
+	ApplyCharacter(characterId);
+
 	Hud.Init(this);
+
+#ifndef DISTRIBUTION
+	// Renders missing or outdated weapon grid icons (development builds only).
+	WeaponIconBaker::StartIfNeeded();
+#endif
 
 
 
@@ -742,7 +754,7 @@ void Player::UpdatePowerUps()
 
 		if (firearm)
 		{
-			firearm->akimbo = powerUpManager.IsPowerUpActive(PowerUpManager::PowerUpType::Akimbo);
+			firearm->akimbo = firearm->pairMode || powerUpManager.IsPowerUpActive(PowerUpManager::PowerUpType::Akimbo);
 		}
 
 	}
@@ -756,7 +768,7 @@ bool Player::CanSwitchSlot(int slot)
 	return currentWeapon->CanChangeSlot();
 }
 
-void Player::SwitchWeapon(const WeaponSlotData& data)
+void Player::SwitchWeapon(const WeaponSlotData& data, bool pair)
 {
 	DestroyWeapon();
 
@@ -776,6 +788,14 @@ void Player::SwitchWeapon(const WeaponSlotData& data)
 		// immediately act on this weapon's state (e.g. offer to reload), so Data
 		// needs to be the real thing by then, not a still-default placeholder.
 		currentWeapon->SetData(resolved);
+
+		// Pair (akimbo) entry of the weapon grid. Set before Start(): its first
+		// Update() sees akimbo != akimboPrev and brings the left gun in.
+		if (WeaponFirearm* firearm = dynamic_cast<WeaponFirearm*>(currentWeapon))
+		{
+			firearm->pairMode = pair;
+			firearm->akimbo = pair;
+		}
 
 		currentWeapon->LoadAssetsIfNeeded();
 		currentWeapon->Start();
@@ -870,8 +890,14 @@ void Player::SwitchToMeleeWeapon(bool forceChange)
 	}
 }
 
-void Player::AddWeapon(const WeaponSlotData& weaponData)
+void Player::AddWeapon(const WeaponSlotData& weaponDataIn)
 {
+	// The weapon table owns grid columns; GetDefaultData().slot is the fallback
+	// for classes without a row.
+	WeaponSlotData weaponData = weaponDataIn;
+	if (const WeaponDef* def = WeaponDefs::Find(weaponData.className))
+		weaponData.slot = def->slot;
+
 	int slot = weaponData.slot;
 
 	if (weaponData.AmmoType != WeaponAmmoType::None)
@@ -885,6 +911,9 @@ void Player::AddWeapon(const WeaponSlotData& weaponData)
 	// later regardless of whether it ends up reachable via a slot/offhand key.
 	WeaponSlotData owned = weaponData;
 	RegisterOwnedWeapon(owned);
+
+	if (!weaponData.offhand)
+		RebuildWeaponGrid();
 
 	if (weaponData.offhand)
 	{
@@ -1004,7 +1033,349 @@ bool Player::RemoveOwnedWeapon(const std::string& uuid, bool offhand)
 		return false;
 
 	ownedWeapons.erase(it);
+	RebuildWeaponGrid();
 	return true;
+}
+
+// ============================================================================
+// WEAPON GRID (Slots mode)
+// ============================================================================
+
+void Player::RebuildWeaponGrid()
+{
+	weaponGrid.clear();
+
+	struct Sortable { WeaponGridEntry entry; int order; };
+	std::vector<Sortable> rows;
+	std::set<std::string> seenClasses;
+
+	for (const WeaponSlotData& owned : ownedWeapons)
+	{
+		if (owned.offhand || owned.className.empty())
+			continue;
+
+		// The player can own several copies of one weapon (every pickup is its own
+		// instance). The grid shows one icon per weapon class: the first copy.
+		if (!seenClasses.insert(owned.className).second)
+			continue;
+
+		const WeaponDef* def = WeaponDefs::Find(owned.className);
+
+		WeaponGridEntry entry;
+		entry.uuid = owned.inventoryUUID;
+		entry.className = owned.className;
+		entry.column = def ? def->slot : std::clamp(owned.slot, 0, 5);
+		const int order = def ? def->slotOrder : 100;
+
+		const bool single = def ? def->HasSingle() : true;
+		const bool pair = def ? def->HasPair(AkimboPerk) : false;
+
+		if (single)
+		{
+			entry.pair = false;
+			rows.push_back({ entry, order });
+		}
+		if (pair)
+		{
+			entry.pair = true;
+			rows.push_back({ entry, order });
+		}
+	}
+
+	std::stable_sort(rows.begin(), rows.end(), [](const Sortable& a, const Sortable& b)
+		{
+			if (a.entry.column != b.entry.column) return a.entry.column < b.entry.column;
+			if (a.order != b.order) return a.order < b.order;
+			if (a.entry.className != b.entry.className) return a.entry.className < b.entry.className;
+			return !a.entry.pair && b.entry.pair;   // single above its pair
+		});
+
+	int lastColumn = -1;
+	int row = 0;
+	for (Sortable& sortable : rows)
+	{
+		if (sortable.entry.column != lastColumn)
+		{
+			lastColumn = sortable.entry.column;
+			row = 0;
+		}
+		sortable.entry.row = row++;
+		weaponGrid.push_back(sortable.entry);
+	}
+
+	// Keep the selection valid (a pair can disappear when the character changes).
+	// Only the selection changes here; Update() equips it when the held weapon allows.
+	if (!currentEntry.Empty() && FindGridEntry(currentEntry.uuid, currentEntry.pair) == nullptr)
+	{
+		const WeaponGridEntry* fallback = FindGridEntry(currentEntry.uuid, !currentEntry.pair);
+		currentEntry = fallback ? *fallback : (weaponGrid.empty() ? WeaponGridEntry() : weaponGrid.front());
+	}
+	else if (currentEntry.Empty() && !weaponGrid.empty())
+	{
+		// First weapon the player gets is taken in hand.
+		currentEntry = weaponGrid.front();
+	}
+	else if (const WeaponGridEntry* same = FindGridEntry(currentEntry.uuid, currentEntry.pair))
+	{
+		currentEntry = *same;   // refresh row/column
+	}
+
+	if (!currentEntry.Empty())
+		currentSlot = currentEntry.column;
+
+	weaponGridRevision++;
+}
+
+const WeaponGridEntry* Player::FindGridEntry(const std::string& uuid, bool pair) const
+{
+	if (uuid.empty())
+		return nullptr;
+
+	for (const WeaponGridEntry& entry : weaponGrid)
+	{
+		if (entry.uuid == uuid && entry.pair == pair)
+			return &entry;
+	}
+	return nullptr;
+}
+
+bool Player::IsGridEntryEmpty(const WeaponGridEntry& entry) const
+{
+	// The held weapon's live Data is the accurate one (ownedWeapons is only
+	// refreshed when a weapon is put away).
+	const WeaponSlotData* data = nullptr;
+	if (currentWeapon && currentWeapon->Data.inventoryUUID == entry.uuid)
+		data = &currentWeapon->Data;
+	else
+	{
+		for (const WeaponSlotData& owned : ownedWeapons)
+		{
+			if (owned.inventoryUUID == entry.uuid && !owned.offhand)
+			{
+				data = &owned;
+				break;
+			}
+		}
+	}
+
+	if (data == nullptr || data->AmmoType == WeaponAmmoType::None)
+		return false;
+
+	auto pool = ammoCounts.find(data->AmmoType);
+	if (pool != ammoCounts.end() && pool->second > 0)
+		return false;
+
+	return data->magazineAmmo <= 0;   // -1 (never loaded) with an empty pool is empty too
+}
+
+bool Player::IsHoldingGridEntry(const WeaponGridEntry& entry) const
+{
+	if (currentWeapon == nullptr || currentWeapon->Data.inventoryUUID != entry.uuid)
+		return false;
+
+	const WeaponFirearm* firearm = dynamic_cast<const WeaponFirearm*>(currentWeapon);
+	const bool holdingPair = firearm != nullptr && firearm->pairMode;
+	return holdingPair == entry.pair;
+}
+
+void Player::EquipGridEntry(const WeaponGridEntry& entry)
+{
+	WeaponSlotData* owned = FindOwnedWeapon(entry.uuid, false);
+	if (owned == nullptr)
+		return;
+
+	SwitchWeapon(*owned, entry.pair);
+	currentSlot = entry.column;
+}
+
+void Player::SelectGridEntry(const WeaponGridEntry& entry, bool forceChange)
+{
+	if (entry.Empty())
+		return;
+
+	if (!currentEntry.Same(entry))
+	{
+		lastEntry = currentEntry;
+		currentEntry = entry;
+		currentSlot = entry.column;
+		weaponGridRevision++;
+	}
+
+	if (forceChange && !weaponSuppressed && !IsHoldingGridEntry(entry))
+		EquipGridEntry(entry);
+}
+
+void Player::PressSlotKey(int column)
+{
+	weaponGridShowRequests++;
+	gridCursorOffhand = false;
+
+	std::vector<const WeaponGridEntry*> entries;
+	for (const WeaponGridEntry& entry : weaponGrid)
+	{
+		if (entry.column == column)
+			entries.push_back(&entry);
+	}
+	if (entries.empty())
+		return;
+
+	// Pressing the key of the column that holds the selection steps down it
+	// (wrapping); another column starts at its top. Empty weapons are skipped.
+	int start = -1;
+	for (int i = 0; i < (int)entries.size(); ++i)
+	{
+		if (entries[i]->Same(currentEntry))
+			start = i;
+	}
+
+	const int count = (int)entries.size();
+	for (int step = 0; step < count; ++step)
+	{
+		const int index = start < 0 ? step : (start + 1 + step) % count;
+		if (!IsGridEntryEmpty(*entries[index]))
+		{
+			SelectGridEntry(*entries[index]);
+			return;
+		}
+	}
+}
+
+void Player::CycleOffhand(int direction)
+{
+	weaponGridShowRequests++;
+	gridCursorOffhand = true;
+
+	const int count = (int)offhandWeapons.size();
+	if (count <= 1)
+		return;   // only the empty hand
+	desiredOffhandWeapon = ((desiredOffhandWeapon + direction) % count + count) % count;
+}
+
+void Player::GridMoveColumn(int direction)
+{
+	weaponGridShowRequests++;
+
+	if (gridCursorOffhand)
+	{
+		if (direction > 0)
+			gridCursorOffhand = false;   // back to the column of the weapon in hand
+		return;
+	}
+
+	auto selectable = [&](int column)
+		{
+			for (const WeaponGridEntry& entry : weaponGrid)
+				if (entry.column == column && !IsGridEntryEmpty(entry))
+					return true;
+			return false;
+		};
+
+	const int from = currentEntry.Empty() ? (direction > 0 ? -1 : 6) : currentEntry.column;
+	for (int column = from + direction; column >= 0 && column < 6; column += direction)
+	{
+		if (selectable(column))
+		{
+			PressSlotKey(column);   // another column: starts at its top
+			return;
+		}
+	}
+
+	// Past the leftmost weapon: the left-hand column, if there is anything to hold.
+	if (direction < 0 && offhandWeapons.size() > 1)
+		gridCursorOffhand = true;
+}
+
+void Player::GridMoveRow(int direction)
+{
+	if (gridCursorOffhand)
+	{
+		CycleOffhand(direction);
+		return;
+	}
+
+	weaponGridShowRequests++;
+	if (currentEntry.Empty())
+		return;
+
+	std::vector<const WeaponGridEntry*> entries;
+	int start = -1;
+	for (const WeaponGridEntry& entry : weaponGrid)
+	{
+		if (entry.column != currentEntry.column)
+			continue;
+		if (entry.Same(currentEntry))
+			start = (int)entries.size();
+		entries.push_back(&entry);
+	}
+
+	const int count = (int)entries.size();
+	for (int step = 1; step < count; ++step)
+	{
+		const int index = ((start + direction * step) % count + count) % count;
+		if (!IsGridEntryEmpty(*entries[index]))
+		{
+			SelectGridEntry(*entries[index]);
+			return;
+		}
+	}
+}
+
+void Player::StepWeapon(int direction)
+{
+	weaponGridShowRequests++;
+	gridCursorOffhand = false;
+
+	const int count = (int)weaponGrid.size();
+	if (count == 0)
+		return;
+
+	int start = -1;
+	for (int i = 0; i < count; ++i)
+	{
+		if (weaponGrid[i].Same(currentEntry))
+			start = i;
+	}
+	if (start < 0)
+		start = direction > 0 ? -1 : 0;
+
+	for (int step = 1; step <= count; ++step)
+	{
+		const int index = ((start + direction * step) % count + count) % count;
+		if (!IsGridEntryEmpty(weaponGrid[index]))
+		{
+			SelectGridEntry(weaponGrid[index]);
+			return;
+		}
+	}
+}
+
+void Player::MigrateOldSlotSelection()
+{
+	if (currentSlot < 0 || currentSlot >= (int)weaponSlots.size())
+		return;
+
+	const WeaponSlotData& old = weaponSlots[currentSlot];
+	for (const WeaponGridEntry& entry : weaponGrid)
+	{
+		if (entry.className == old.className && !entry.pair)
+		{
+			currentEntry = entry;
+			return;
+		}
+	}
+}
+
+void Player::ApplyCharacter(const std::string& id)
+{
+	const PlayerCharacterDef* def = PlayerCharacters::Find(id);
+	if (def == nullptr && id != PlayerCharacters::DefaultId)
+		def = PlayerCharacters::Find(PlayerCharacters::DefaultId);
+
+	characterId = def ? def->id : id;
+	AkimboPerk = def ? def->akimboPerk : false;
+	hudSilhouette = def ? def->hudSilhouette : "";
+
+	RebuildWeaponGrid();
 }
 
 int Player::GetAmmoLimit(WeaponAmmoType type)
@@ -1584,7 +1955,6 @@ void Player::RestoreWeapons()
 		? desiredInventoryUUID
 		: currentMainWeaponUUID;
 	const std::string offhandTarget = currentOffhandWeaponUUID;
-	const int         slotTarget = currentSlot;
 
 	// ── Main slot ─────────────────────────────────────────────────────────────
 	if (mainWasSuppressed)
@@ -1602,9 +1972,9 @@ void Player::RestoreWeapons()
 				SwitchToInventoryItem(mainTarget, /*forceChange=*/true);
 			}
 		}
-		else
+		else if (!currentEntry.Empty())
 		{
-			SwitchToSlot(slotTarget, /*forceChange=*/true);
+			EquipGridEntry(currentEntry);
 		}
 	}
 
@@ -1844,15 +2214,6 @@ void Player::UpdateWeapon()
 
 	if (firearm != nullptr)
 	{
-
-		if (Input::GetAction("slotTest")->Pressed())
-		{
-			if (firearm)
-			{
-				firearm->SetAkimbo(!firearm->akimbo);
-			}
-
-		}
 
 		disableOffhandWeapon = firearm->akimbo
 			|| (currentWeapon && currentWeapon->SupportsOffhandWeapon == false);
@@ -2491,20 +2852,12 @@ void Player::Update()
 		// Weapon switching logic based on current mode
 		if (weaponSystemMode == WeaponSystemMode::Slots && !weaponSuppressed)
 		{
-			// Original slot-based weapon switching with lazy loading
-			if (currentWeapon != nullptr)
+			// Lazy switching: the selection (currentEntry) changes at once, the
+			// weapon follows as soon as the held one allows it.
+			if (!currentEntry.Empty() && !IsHoldingGridEntry(currentEntry))
 			{
-				if (currentWeapon->Data.slot != currentSlot)
-				{
-					if (currentWeapon->CanChangeSlot())
-					{
-						SwitchWeapon(weaponSlots[currentSlot]);
-					}
-				}
-			}
-			else
-			{
-				SwitchToSlot(currentSlot);
+				if (currentWeapon == nullptr || currentWeapon->CanChangeSlot())
+					EquipGridEntry(currentEntry);
 			}
 		}
 		else if (weaponSystemMode == WeaponSystemMode::Inventory)
@@ -2550,33 +2903,44 @@ void Player::Update()
 			}
 		}
 
-		if (Input::GetAction("slotMelee")->Pressed())
-			SwitchToMeleeWeapon();
-
 		// Adaptive input handling - works with both Slots and Inventory modes
 		if (weaponSystemMode == WeaponSystemMode::Slots)
 		{
-			// Slot-based system (original behavior)
-			if (Input::GetAction("slot1")->Pressed())
-				SwitchToSlot(0);
+			// Left-hand column: F steps through the offhand items.
+			if (Input::GetAction("slotMelee")->Pressed())
+				CycleOffhand(1);
 
-			if (Input::GetAction("slot2")->Pressed())
-				SwitchToSlot(1);
+			// Gamepad: the D-pad drives the grid.
+			if (Input::GetAction("gridLeft")->Pressed())
+				GridMoveColumn(-1);
+			if (Input::GetAction("gridRight")->Pressed())
+				GridMoveColumn(1);
+			if (Input::GetAction("gridUp")->Pressed())
+				GridMoveRow(-1);
+			if (Input::GetAction("gridDown")->Pressed())
+				GridMoveRow(1);
 
-			if (Input::GetAction("slot3")->Pressed())
-				SwitchToSlot(2);
-
-			if (Input::GetAction("slot4")->Pressed())
-				SwitchToSlot(3);
-
-			if (Input::GetAction("slot5")->Pressed())
-				SwitchToSlot(4);
-
-			if (Input::GetAction("slot6")->Pressed())
-				SwitchToSlot(5);
+			// Weapon grid: a key picks its column, pressing it again steps down.
+			static const char* kSlotActions[] = { "slot1", "slot2", "slot3", "slot4", "slot5", "slot6" };
+			for (int column = 0; column < 6; ++column)
+			{
+				if (Input::GetAction(kSlotActions[column])->Pressed())
+					PressSlotKey(column);
+			}
 
 			if (Input::GetAction("lastSlot")->Pressed())
-				SwitchToSlot(lastSlot);
+			{
+				weaponGridShowRequests++;
+				gridCursorOffhand = false;
+				if (const WeaponGridEntry* last = FindGridEntry(lastEntry.uuid, lastEntry.pair))
+					SelectGridEntry(*last);
+			}
+
+			// Mouse wheel: up = previous, down = next.
+			if (Input::MouseScrollDelta > 0.0f)
+				StepWeapon(-1);
+			else if (Input::MouseScrollDelta < 0.0f)
+				StepWeapon(1);
 		}
 		else if (weaponSystemMode == WeaponSystemMode::Inventory)
 		{
@@ -2941,6 +3305,9 @@ void Player::Serialize(json& target)
 	SERIALIZE_FIELD(target, velocity);
 	SERIALIZE_FIELD(target, currentSlot);
 	SERIALIZE_FIELD(target, weaponSlots);
+	SERIALIZE_FIELD(target, currentEntry);
+	SERIALIZE_FIELD(target, lastEntry);
+	SERIALIZE_FIELD(target, characterId);
 
 	// The currently-equipped weapon(s) may have fired (or reloaded) since the
 	// last time they were unequipped, which is the only other point their
@@ -3019,6 +3386,19 @@ void Player::Deserialize(json& source)
 	// fresh" default the next time it's equipped (see WeaponFirearm::SetData).
 	DESERIALIZE_FIELD(source, ownedWeapons);
 
+	DESERIALIZE_FIELD(source, characterId);
+	ApplyCharacter(characterId);   // sets AkimboPerk and rebuilds the grid from ownedWeapons
+
+	if (source.contains("currentEntry"))
+	{
+		DESERIALIZE_FIELD(source, currentEntry);
+		DESERIALIZE_FIELD(source, lastEntry);
+	}
+	else
+	{
+		MigrateOldSlotSelection();
+	}
+
 	DESERIALIZE_FIELD(source, RunProgress);
 	DESERIALIZE_FIELD(source, weaponSuppressed);
 	DESERIALIZE_FIELD(source, mainWasSuppressed);
@@ -3056,7 +3436,11 @@ void Player::Deserialize(json& source)
 	// Restore weapon based on mode
 	if (weaponSystemMode == WeaponSystemMode::Slots)
 	{
-		SwitchToSlot(currentSlot, true);
+		DestroyWeapon();
+		if (const WeaponGridEntry* entry = FindGridEntry(currentEntry.uuid, currentEntry.pair))
+			EquipGridEntry(*entry);
+		else if (!weaponGrid.empty())
+			SelectGridEntry(weaponGrid.front(), true);
 		SwitchWeaponOffhand(offhandWeapons[offhandWeapon]);
 	}
 	else if (weaponSystemMode == WeaponSystemMode::Inventory)
@@ -3484,4 +3868,26 @@ CONSOLE_FUNC("weapon.give", "weapon.give <weapon_name>")
 	{
 		Console::Get().AddLog("Usage: weapon.give <weapon_name>");
 	}
+}
+
+CONSOLE_FUNC("player.character", "player.character <id> switches the playable character (weapon grid perks, HUD figure)")
+{
+	std::string id = Console::ArgString(args, 0, "");
+	if (id.empty() || Player::Instance == nullptr)
+	{
+		Console::Get().AddLog("Usage: player.character <id> (ids are in GameData/tables/characters/)");
+		return;
+	}
+
+	Player::Instance->ApplyCharacter(id);
+	Console::Get().AddLog("Character: %s, akimbo perk %s", Player::Instance->characterId.c_str(), Player::Instance->AkimboPerk ? "on" : "off");
+}
+
+CONSOLE_FUNC("player.health", "player.health <percent> sets the player's health (HUD testing)")
+{
+	if (Player::Instance == nullptr)
+		return;
+	const float percent = std::clamp(Console::ArgFloat(args, 0, 100.0f), 1.0f, 100.0f);
+	Player::Instance->Health = Player::Instance->MaxHealth * percent / 100.0f;
+	Console::Get().AddLog("Health: %.0f%%", percent);
 }

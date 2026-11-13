@@ -1,8 +1,26 @@
 {
     "entries": [
-        { "key": "PLAYER_HUD_HEALTH",     "value": "Health",     "description": "Display for player's health" },
-        { "key": "PLAYER_HUD_ARMOR",      "value": "Armor",      "description": "Display for player's armor" },
-        { "key": "PLAYER_HUD_STAMINA",    "value": "Stamina",    "description": "Display for player's stamina" },
-        { "key": "PLAYER_HUD_AMMO",       "value": "Ammo",       "description": "Display for player's ammo" }
+        {"key": "PLAYER_HUD_HEALTH", "value": "Health", "description": "Display for player's health"},
+        {"key": "PLAYER_HUD_ARMOR", "value": "Armor", "description": "Display for player's armor"},
+        {"key": "PLAYER_HUD_STAMINA", "value": "Stamina", "description": "Display for player's stamina"},
+        {"key": "PLAYER_HUD_AMMO", "value": "Ammo", "description": "Display for player's ammo"},
+        {"key": "WEAPON_SWORD", "value": "Sword", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_CANE", "value": "Cane", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_CRUCIFIX", "value": "Crucifix", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_TWINSWORD", "value": "Twin Sword", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SWORDS", "value": "Swords", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_PISTOL", "value": "Pistol", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_PISTOL_SILENT", "value": "Silenced Pistol", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_REVOLVER", "value": "Revolver", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SHOTGUN", "value": "Pump-Action Shotgun", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SAWED", "value": "Sawed-Off", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_TOMMY", "value": "Drum Gun", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_MPSD", "value": "Silenced Carbine", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SNIPER", "value": "Rifle", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_CANNON", "value": "Hand Cannon", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_PAIR", "value": "Twin {name}", "description": "Weapon grid / HUD"},
+        {"key": "CHARACTER_DEFAULT", "value": "Stranger", "description": "Weapon grid / HUD"},
+        {"key": "CHARACTER_DUELIST", "value": "Duelist", "description": "Weapon grid / HUD"},
+        {"key": "PLAYER_HUD_USE", "value": "<icon=action:interact,valign=middle> Use", "description": "Use prompt under the crosshair (rich text)"}
     ]
 }

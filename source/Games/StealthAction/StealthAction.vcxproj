@@ -508,6 +508,10 @@
     <ClCompile Include="Entities\VideoInWorldTest.cpp" />
     <ClCompile Include="GameStart.cpp" />
     <ClCompile Include="ItemsDataBase.cpp" />
+    <ClCompile Include="PlayerCharacters.cpp" />
+    <ClCompile Include="WeaponDefs.cpp" />
+    <ClCompile Include="UI\Player\PlayerHudView.cpp" />
+    <ClCompile Include="UI\Player\WeaponIconBaker.cpp" />
     <ClCompile Include="ParticleSystems\BulletTrail.cpp" />
     <ClCompile Include="ParticleSystems\CaneTrail.cpp" />
     <ClCompile Include="ParticleSystems\CannonBulletTrail.cpp" />
@@ -630,6 +634,10 @@
     <ClInclude Include="Helpers\LightVisibilityHelper.h" />
     <ClInclude Include="InteractionSystem\IInteractive.h" />
     <ClInclude Include="ItemsDataBase.h" />
+    <ClInclude Include="PlayerCharacters.h" />
+    <ClInclude Include="WeaponDefs.h" />
+    <ClInclude Include="UI\Player\PlayerHudView.h" />
+    <ClInclude Include="UI\Player\WeaponIconBaker.h" />
     <ClInclude Include="ParticleSystems\particle_system_meleeTrail.hpp" />
     <ClInclude Include="PauseGameManager.hpp" />
     <ClInclude Include="Systems\PowerUpSystem\PowerUpManager.hpp" />
@@ -640,8 +648,6 @@
     <ClInclude Include="UI\MobileControls\UiJoystick.h" />
     <ClInclude Include="UI\MobileControls\UiTouchMoveArea.h" />
     <ClInclude Include="UI\Player\Crosshair.h" />
-    <ClInclude Include="UI\Player\HudStatElement.hpp" />
-    <ClInclude Include="UI\Player\HudStatusBar.hpp" />
     <ClInclude Include="UI\Player\PlayerHud.hpp" />
     <ClInclude Include="UI\Player\ScoreIndicator.hpp" />
     <ClInclude Include="UI\Player\ScreenMobileControls.h" />

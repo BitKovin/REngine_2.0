@@ -1,0 +1,15 @@
+className;slot;slotOrder;akimbo;displayName;iconModel;iconYaw;iconPitch;iconRoll
+weapon_sword;0;0;None;${WEAPON_SWORD};GameData/models/player/weapons/sword/sword.glb;0;90;0
+weapon_twinsword;0;1;None;${WEAPON_TWINSWORD};GameData/models/player/weapons/twinsword/twinsword.glb;0;12;0
+weapon_swords;0;2;None;${WEAPON_SWORDS};GameData/models/player/weapons/swords/swords_tp.glb;0;0;0
+weapon_pistol;1;0;Always;${WEAPON_PISTOL};GameData/models/player/weapons/pistol/pistol1911.glb;0;0;0
+weapon_pistol_silent;1;1;WithPerk;${WEAPON_PISTOL_SILENT};GameData/models/player/weapons/pistol_silent/pistol_silent.glb;0;0;0
+weapon_revolver;1;2;WithPerk;${WEAPON_REVOLVER};GameData/models/player/weapons/pistol/revolver.glb;0;0;0
+weapon_shotgun;2;0;None;${WEAPON_SHOTGUN};GameData/models/player/weapons/shotgun/shotgun.glb;0;0;0
+weapon_sawed;2;1;None;${WEAPON_SAWED};GameData/models/player/weapons/shotgun/sawed.glb;0;0;0
+weapon_tommy;3;0;None;${WEAPON_TOMMY};GameData/models/player/weapons/tommy/tommy.glb;0;0;0
+weapon_mpsd;3;1;None;${WEAPON_MPSD};GameData/models/player/weapons/stg44/stg44.glb;0;0;0
+weapon_sniper;4;0;None;${WEAPON_SNIPER};GameData/models/player/weapons/sniper/sniper.glb;0;0;0
+weapon_cannon;5;0;None;${WEAPON_CANNON};GameData/models/player/weapons/cannon/cannon.glb;0;0;0
+weapon_cane;-1;0;None;${WEAPON_CANE};GameData/models/player/weapons/cane/cane_tp.glb;0;0;0
+weapon_crucifix;-1;1;None;${WEAPON_CRUCIFIX};GameData/models/player/weapons/crucifix/crucifix.glb;0;0;0

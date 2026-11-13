@@ -80,6 +80,23 @@ struct InventoryItem
 
 };
 
+// One cell of the Slots-mode weapon grid: an owned main-hand weapon held singly
+// or as a pair (one copy per hand). Columns are slot keys 1..6. See
+// Player::RebuildWeaponGrid() and WEAPON_SLOTS_PLAN.md.
+struct WeaponGridEntry
+{
+	std::string uuid;       // WeaponSlotData::inventoryUUID of the owned weapon
+	std::string className;
+	bool pair = false;
+	int column = 0;         // 0..5
+	int row = 0;            // 0 = top of the column
+
+	bool Empty() const { return uuid.empty(); }
+	bool Same(const WeaponGridEntry& other) const { return uuid == other.uuid && pair == other.pair; }
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponGridEntry, uuid, className, pair, column, row)
+};
+
 enum class WeaponSystemMode
 {
 	Slots,      // Traditional slot-based system (1-9 keys)
@@ -344,7 +361,29 @@ private:
 	void UpdatePowerUps();
 
 	bool CanSwitchSlot(int slot);
-	void SwitchWeapon(const WeaponSlotData& data);
+	// pair: hold two copies of the weapon (akimbo). Only firearms can be held as a pair.
+	void SwitchWeapon(const WeaponSlotData& data, bool pair = false);
+
+	// ── Weapon grid (Slots mode) ──────────────────────────────────────────────
+	// Equips the entry's owned weapon right away (no CanChangeSlot check).
+	void EquipGridEntry(const WeaponGridEntry& entry);
+	// Whether the held weapon is the given entry (same instance, same pair state).
+	bool IsHoldingGridEntry(const WeaponGridEntry& entry) const;
+	// Moves the selection; the weapon itself changes in Update() once the held
+	// weapon allows it (CanChangeSlot), or immediately with forceChange.
+	void SelectGridEntry(const WeaponGridEntry& entry, bool forceChange = false);
+	void PressSlotKey(int column);
+	void StepWeapon(int direction);
+
+	// Left-hand column (before column 1, key slotMelee / F): steps through
+	// offhandWeapons (index 0 is the empty hand); the main weapon stays.
+	void CycleOffhand(int direction);
+	// Gamepad D-pad over the grid, as in Max Payne 2 on consoles: left/right
+	// move between columns (the left-hand column is leftmost), up/down within one.
+	void GridMoveColumn(int direction);
+	void GridMoveRow(int direction);
+	// Restores a save written before the grid existed (currentSlot / weaponSlots only).
+	void MigrateOldSlotSelection();
 
 	void SwitchWeaponOffhand(const string& classname);
 	void DestroyWeaponOffhand();
@@ -359,7 +398,8 @@ private:
 	bool startedInteracting = false;
 	float interactionProgress = 0;
 
-	friend class UseIndicator;
+	friend class PlayerHudView;
+	friend class PlayerHud;
 
 	// ── Movement state machine ────────────────────────────────────────────────
 	MoveState moveState = MoveState::Default;
@@ -474,7 +514,29 @@ public:
 	// is the live, accurate source for that specific instance.
 	std::vector<WeaponSlotData> ownedWeapons;
 
-	std::vector<std::string> offhandWeapons = {""}; // "weapon_lefthand_empty" 
+	// ── Weapon grid (Slots mode) ──────────────────────────────────────────────
+	// Built from ownedWeapons + WeaponDefs + the character's AkimboPerk. Sorted by
+	// column, then WeaponDef::slotOrder, then single before pair.
+	std::vector<WeaponGridEntry> weaponGrid;
+	WeaponGridEntry currentEntry;        // selected entry (the held weapon, or the one being switched to)
+	WeaponGridEntry lastEntry;           // previous selection, for the lastSlot key
+	int weaponGridRevision = 0;          // ++ whenever weaponGrid or currentEntry changes
+	int weaponGridShowRequests = 0;      // ++ on every weapon key / wheel press; the HUD shows the grid when it changes
+	bool gridCursorOffhand = false;      // the last grid input went to the left-hand column (the HUD lights it)
+
+	void RebuildWeaponGrid();
+	const WeaponGridEntry* FindGridEntry(const std::string& uuid, bool pair) const;
+	// An owned firearm with an empty magazine and no ammo left in the pool. Melee is never empty.
+	bool IsGridEntryEmpty(const WeaponGridEntry& entry) const;
+
+	// ── Playable character ────────────────────────────────────────────────────
+	std::string characterId = "default";
+	bool AkimboPerk = false;             // from the character table, never saved
+	std::string hudSilhouette;           // from the character table: the health figure
+	// Reads the character row and rebuilds the weapon grid.
+	void ApplyCharacter(const std::string& id);
+
+	std::vector<std::string> offhandWeapons = {""}; // "weapon_lefthand_empty"
 	int offhandWeapon = 0;
 	int desiredOffhandWeapon = 0;
 

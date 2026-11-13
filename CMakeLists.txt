@@ -396,6 +396,11 @@ if(NOT ENGINE_AS_LIBRARY)
     # Development builds hot reload UI files from the game's source folder (not from the copy the build made).
     set_source_files_properties("${ENGINE_ROOT}/source/Engine/UI/Markup/UiSourceSync.cpp"
         PROPERTIES COMPILE_DEFINITIONS "ENGINE_GAME_SOURCE_DATA=\"${GAME_DIR}/GameData\"")
+    # StealthAction's weapon icon baker writes generated icons into the source GameData too.
+    if(EXISTS "${GAME_DIR}/UI/Player/WeaponIconBaker.cpp")
+        set_source_files_properties("${GAME_DIR}/UI/Player/WeaponIconBaker.cpp"
+            PROPERTIES COMPILE_DEFINITIONS "ENGINE_GAME_SOURCE_DATA=\"${GAME_DIR}/GameData\"")
+    endif()
 
     # ——————————————————————————————————————————————————————————
     # Output directory layout:  Build/<GAME_NAME>/<PLATFORM_DIR>/

@@ -1,0 +1,56 @@
+<root>
+  <styles>
+    <include src="GameData/ui/hud/player_hud.css"/>
+  </styles>
+  <!-- Built from code (PlayerHudView): the left-hand column, then one column per slot key, one cell per owned weapon entry.
+       Column labels are set from code: the bound key, or D-pad glyphs on a gamepad. -->
+  <snippets>
+    <snippet name="GridColumn" params="num=''">
+      <Panel class="col"><Label class="num" html="true" text="{num}"/></Panel>
+    </snippet>
+    <snippet name="GridCell">
+      <Panel class="cell"><Image id="icon" class="icon"/></Panel>
+    </snippet>
+    <snippet name="GridPairCell">
+      <Panel class="cell pair"><Image id="back" class="icon back"/><Image id="front" class="icon front"/></Panel>
+    </snippet>
+  </snippets>
+
+  <Panel id="hud" class="hud">
+    <Panel id="gridArea" class="grid-area">
+      <Panel id="grid" class="grid"/>
+    </Panel>
+
+    <Label id="minor" class="minor" text="{minorMessage}"/>
+    <Label id="message" class="message" text="{message}"/>
+
+    <Panel id="use" class="use">
+      <Label class="use-text" html="true" text="${PLAYER_HUD_USE}"/>
+      <ProgressBar id="useBar" class="use-bar" value="0"/>
+    </Panel>
+
+    <!-- bottom left: the character's figure fills with blood from the feet, stamina beside it -->
+    <Panel id="vitals" class="vitals">
+      <Panel id="body" class="body">
+        <Image id="bodyBase" class="body-layer body-base"/>
+        <Panel id="bodyBlood" class="body-blood">
+          <Image id="bodyRed" class="body-layer body-red"/>
+        </Panel>
+      </Panel>
+      <Panel id="stamina" class="stamina">
+        <Panel id="staminaFill" class="stamina-fill"/>
+      </Panel>
+    </Panel>
+
+    <!-- bottom right, on a diagonal: total ammunition up right, the weapon in hand across the middle as the divider,
+         rounds in the magazine down left -->
+    <Panel id="ammo" class="ammo">
+      <Label id="reserve" class="reserve" text="{reserveText}"/>
+      <Panel id="curWeapon" class="cur-weapon">
+        <Image id="curIconBack" class="cur-icon back"/>
+        <Image id="curIcon" class="cur-icon front"/>
+      </Panel>
+      <Label id="magazine" class="magazine" text="{magazineText}"/>
+    </Panel>
+  </Panel>
+</root>

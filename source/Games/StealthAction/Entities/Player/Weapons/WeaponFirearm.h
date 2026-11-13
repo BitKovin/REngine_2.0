@@ -119,6 +119,11 @@ public:
 
 	bool fireLeftNext = false;
 
+	// Held as the pair (akimbo) entry of the weapon grid. Set by
+	// Player::SwitchWeapon before Start(); akimbo follows it (and can also be
+	// turned on for a while by the Akimbo power-up).
+	bool pairMode = false;
+
 	// Runtime akimbo state
 	bool akimbo = false;
 	bool akimboPrev = false;

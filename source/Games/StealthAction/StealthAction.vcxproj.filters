@@ -225,6 +225,18 @@
     <ClCompile Include="ItemsDataBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerCharacters.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponDefs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Player\PlayerHudView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Player\WeaponIconBaker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Entities\Enemy\Enemies\NpcHumanBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -566,6 +578,18 @@
     <ClInclude Include="PauseGameManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PlayerCharacters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponDefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Player\PlayerHudView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Player\WeaponIconBaker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ItemsDataBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -747,12 +771,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Player\PlayerCloneArea\PlayerCloneAreaBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Player\HudStatusBar.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\Player\HudStatElement.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Systems\PowerUpSystem\PowerUpManager.hpp">

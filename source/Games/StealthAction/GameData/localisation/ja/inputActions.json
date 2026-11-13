@@ -27,6 +27,11 @@
         { "key": "INPUT_ACTION_SLOT4",     "value": "スロット4を選択", "description": "Input action to select the fourth slot" },
         { "key": "INPUT_ACTION_SLOT5",     "value": "スロット5を選択", "description": "Input action to select the fifth slot" },
         { "key": "INPUT_ACTION_SLOT6",     "value": "スロット6を選択", "description": "Input action to select the sixth slot" },
-        { "key": "INPUT_ACTION_LAST_SLOT", "value": "直前のスロットを選択", "description": "Input action to select the last selected slot. For example, if you used pistol and switched to shotgun it will switch back to pistol" }
+        { "key": "INPUT_ACTION_LAST_SLOT", "value": "直前のスロットを選択", "description": "Input action to select the last selected slot. For example, if you used pistol and switched to shotgun it will switch back to pistol" },
+        { "key": "INPUT_ACTION_OFFHAND", "value": "左手のアイテムを切り替え", "description": "" },
+        { "key": "INPUT_ACTION_GRID_LEFT", "value": "武器グリッド：前の列", "description": "" },
+        { "key": "INPUT_ACTION_GRID_RIGHT", "value": "武器グリッド：次の列", "description": "" },
+        { "key": "INPUT_ACTION_GRID_UP", "value": "武器グリッド：上", "description": "" },
+        { "key": "INPUT_ACTION_GRID_DOWN", "value": "武器グリッド：下", "description": "" }
     ]
 }

@@ -1,8 +1,26 @@
 {
     "entries": [
-        { "key": "PLAYER_HUD_HEALTH",     "value": "HP",       "description": "Display for player's health" },
-        { "key": "PLAYER_HUD_ARMOR",      "value": "アーマー", "description": "Display for player's armor" },
-        { "key": "PLAYER_HUD_STAMINA",    "value": "スタミナ", "description": "Display for player's stamina" },
-        { "key": "PLAYER_HUD_AMMO",       "value": "弾薬",     "description": "Display for player's ammo" }
+        {"key": "PLAYER_HUD_HEALTH", "value": "HP", "description": "Display for player's health"},
+        {"key": "PLAYER_HUD_ARMOR", "value": "アーマー", "description": "Display for player's armor"},
+        {"key": "PLAYER_HUD_STAMINA", "value": "スタミナ", "description": "Display for player's stamina"},
+        {"key": "PLAYER_HUD_AMMO", "value": "弾薬", "description": "Display for player's ammo"},
+        {"key": "WEAPON_SWORD", "value": "剣", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_CANE", "value": "杖", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_CRUCIFIX", "value": "十字架", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_TWINSWORD", "value": "双刃剣", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SWORDS", "value": "双剣", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_PISTOL", "value": "拳銃", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_PISTOL_SILENT", "value": "消音拳銃", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_REVOLVER", "value": "回転式拳銃", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SHOTGUN", "value": "ポンプ式散弾銃", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SAWED", "value": "ソードオフ", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_TOMMY", "value": "ドラム銃", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_MPSD", "value": "消音カービン", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SNIPER", "value": "小銃", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_CANNON", "value": "ハンドキャノン", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_PAIR", "value": "二挺の{name}", "description": "Weapon grid / HUD"},
+        {"key": "CHARACTER_DEFAULT", "value": "流れ者", "description": "Weapon grid / HUD"},
+        {"key": "CHARACTER_DUELIST", "value": "決闘者", "description": "Weapon grid / HUD"},
+        {"key": "PLAYER_HUD_USE", "value": "<icon=action:interact,valign=middle> 使う", "description": "Use prompt under the crosshair (rich text)"}
     ]
 }

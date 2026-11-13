@@ -16,6 +16,8 @@
 #include <PauseGameManager.hpp>
 
 #include <ItemsDataBase.h>
+#include <WeaponDefs.h>
+#include <PlayerCharacters.h>
 
 #include "Entities/Player/Player.hpp"
 #include <UI/Menus/UiInputPrompts.h>
@@ -203,7 +205,7 @@ public:
         Input::AddAction("qSave")->AddKeyboardKey(SDL_KeyCode::SDLK_F6);
         Input::AddAction("qLoad")->AddKeyboardKey(SDL_KeyCode::SDLK_F7);
 
-        Input::AddAction("interact")->AddKeyboardKey(SDL_KeyCode::SDLK_f);
+        Input::AddAction("interact")->AddKeyboardKey(SDL_KeyCode::SDLK_e);
 
 
 
@@ -235,7 +237,13 @@ public:
 
         Input::AddAction("block")->AddKeyboardKey(SDL_KeyCode::SDLK_LCTRL);
 
-        Input::AddAction("slotMelee");// ->AddKeyboardKey(SDL_KeyCode::SDLK_f);
+        Input::AddAction("slotMelee")->AddKeyboardKey(SDL_KeyCode::SDLK_f);
+        // Weapon grid on a gamepad (Max Payne 2 console style): the D-pad moves over the grid.
+        // D-pad up is also "inventory", which is only read in inventory mode.
+        Input::AddAction("gridLeft")->AddButton(GamepadButton::DPadLeft);
+        Input::AddAction("gridRight")->AddButton(GamepadButton::DPadRight);
+        Input::AddAction("gridUp")->AddButton(GamepadButton::DPadUp);
+        Input::AddAction("gridDown")->AddButton(GamepadButton::DPadDown);
 
 
         Input::AddAction("debug_ui_toggle")->AddKeyboardKey(SDL_KeyCode::SDLK_F2);
@@ -271,11 +279,18 @@ public:
         InputActionRegistry::Register("slot5", "${INPUT_ACTION_SLOT5}", "${INPUT_CATEGORY_INVENTORY}");
         InputActionRegistry::Register("slot6", "${INPUT_ACTION_SLOT6}", "${INPUT_CATEGORY_INVENTORY}");
         InputActionRegistry::Register("lastSlot", "${INPUT_ACTION_LAST_SLOT}", "${INPUT_CATEGORY_INVENTORY}");
+        InputActionRegistry::Register("slotMelee", "${INPUT_ACTION_OFFHAND}", "${INPUT_CATEGORY_INVENTORY}");
+        InputActionRegistry::Register("gridLeft", "${INPUT_ACTION_GRID_LEFT}", "${INPUT_CATEGORY_INVENTORY}");
+        InputActionRegistry::Register("gridRight", "${INPUT_ACTION_GRID_RIGHT}", "${INPUT_CATEGORY_INVENTORY}");
+        InputActionRegistry::Register("gridUp", "${INPUT_ACTION_GRID_UP}", "${INPUT_CATEGORY_INVENTORY}");
+        InputActionRegistry::Register("gridDown", "${INPUT_ACTION_GRID_DOWN}", "${INPUT_CATEGORY_INVENTORY}");
 
 
         //Input::AddAction("dbg_simulate")->AddKeyboardKey(SDL_KeyCode::SDLK_j);
 
         ItemsDataBase::LoadItemsDataBase();
+        WeaponDefs::Load();
+        PlayerCharacters::Load();
 
         //Level::Current->AddEntity(new TestBsp());
 

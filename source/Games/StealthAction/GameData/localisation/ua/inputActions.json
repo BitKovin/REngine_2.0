@@ -30,6 +30,11 @@
         { "key": "INPUT_ACTION_SLOT4",     "value": "Вибір слота 4", "description": "" },
         { "key": "INPUT_ACTION_SLOT5",     "value": "Вибір слота 5", "description": "" },
         { "key": "INPUT_ACTION_SLOT6",     "value": "Вибір слота 6", "description": "" },
-        { "key": "INPUT_ACTION_LAST_SLOT", "value": "Вибір останнього слота", "description": "" }
+        { "key": "INPUT_ACTION_LAST_SLOT", "value": "Вибір останнього слота", "description": "" },
+        { "key": "INPUT_ACTION_OFFHAND", "value": "Змінити предмет у лівій руці", "description": "" },
+        { "key": "INPUT_ACTION_GRID_LEFT", "value": "Сітка зброї: попередній стовпець", "description": "" },
+        { "key": "INPUT_ACTION_GRID_RIGHT", "value": "Сітка зброї: наступний стовпець", "description": "" },
+        { "key": "INPUT_ACTION_GRID_UP", "value": "Сітка зброї: вгору", "description": "" },
+        { "key": "INPUT_ACTION_GRID_DOWN", "value": "Сітка зброї: вниз", "description": "" }
     ]
 }

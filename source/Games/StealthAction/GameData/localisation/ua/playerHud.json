@@ -1,8 +1,26 @@
 {
     "entries": [
-        { "key": "PLAYER_HUD_HEALTH",     "value": "ЗДОРОВ'Я",     "description": "Display for player's health" },
-        { "key": "PLAYER_HUD_ARMOR",      "value": "БРОНЯ",      "description": "Display for player's armor" },
-        { "key": "PLAYER_HUD_STAMINA",    "value": "ВИТРИВАЛІСТЬ",    "description": "Display for player's stamina" },
-        { "key": "PLAYER_HUD_AMMO",       "value": "ПАТРОНИ",       "description": "Display for player's ammo" }
+        {"key": "PLAYER_HUD_HEALTH", "value": "ЗДОРОВ'Я", "description": "Display for player's health"},
+        {"key": "PLAYER_HUD_ARMOR", "value": "БРОНЯ", "description": "Display for player's armor"},
+        {"key": "PLAYER_HUD_STAMINA", "value": "ВИТРИВАЛІСТЬ", "description": "Display for player's stamina"},
+        {"key": "PLAYER_HUD_AMMO", "value": "ПАТРОНИ", "description": "Display for player's ammo"},
+        {"key": "WEAPON_SWORD", "value": "Меч", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_CANE", "value": "Тростина", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_CRUCIFIX", "value": "Розп'яття", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_TWINSWORD", "value": "Подвійний меч", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SWORDS", "value": "Мечі", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_PISTOL", "value": "Пістолет", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_PISTOL_SILENT", "value": "Пістолет з глушником", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_REVOLVER", "value": "Револьвер", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SHOTGUN", "value": "Помповий дробовик", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SAWED", "value": "Обріз", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_TOMMY", "value": "Барабанний автомат", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_MPSD", "value": "Карабін з глушником", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_SNIPER", "value": "Гвинтівка", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_CANNON", "value": "Ручна гармата", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_PAIR", "value": "{name} у парі", "description": "Weapon grid / HUD"},
+        {"key": "CHARACTER_DEFAULT", "value": "Чужинець", "description": "Weapon grid / HUD"},
+        {"key": "CHARACTER_DUELIST", "value": "Дуелянт", "description": "Weapon grid / HUD"},
+        {"key": "PLAYER_HUD_USE", "value": "<icon=action:interact,valign=middle> Використати", "description": "Use prompt under the crosshair (rich text)"}
     ]
 }
