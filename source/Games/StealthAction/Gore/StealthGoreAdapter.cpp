@@ -62,8 +62,7 @@ namespace StealthGore
         hit.sourceIndex = source;
         hit.lethal = wasAliveBefore && npc->Health <= 0.0f;
 
-        std::strncpy(hit.hitBone, bone.c_str(), sizeof(hit.hitBone) - 1);
-        hit.hitBone[sizeof(hit.hitBone) - 1] = 0;
+        Gore::SetHitBone(hit, bone);
 
         if (g_sweep.victimId == npc->Id)
         {

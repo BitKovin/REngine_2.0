@@ -13,5 +13,98 @@
     0.02
   ],
   "submeshes": {},
-  "severable": []
+  "severable": [
+    {
+      "bone": "mixamorig:LeftArm",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.034,
+      "gib": "ragdoll"
+    },
+    {
+      "bone": "mixamorig:RightArm",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.034,
+      "gib": "ragdoll"
+    },
+    {
+      "bone": "mixamorig:LeftForeArm",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.027,
+      "gib": "rigid"
+    },
+    {
+      "bone": "mixamorig:RightForeArm",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.027,
+      "gib": "rigid"
+    },
+    {
+      "bone": "mixamorig:LeftUpLeg",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.052,
+      "gib": "ragdoll"
+    },
+    {
+      "bone": "mixamorig:RightUpLeg",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.052,
+      "gib": "ragdoll"
+    },
+    {
+      "bone": "mixamorig:LeftLeg",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.04,
+      "gib": "rigid"
+    },
+    {
+      "bone": "mixamorig:RightLeg",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.04,
+      "gib": "rigid"
+    },
+    {
+      "bone": "mixamorig:Head",
+      "range": [
+        -0.7,
+        0.65
+      ],
+      "maxTilt": 30,
+      "boneRadius": 0.034,
+      "gib": "rigid",
+      "lethal": true,
+      "canDestroy": true
+    }
+  ]
 }

@@ -14,12 +14,14 @@ namespace Gore
     Shader* GoreDrawCommand::GetForwardShader() const
     {
         if (!goreActive) return SkeletalMeshDrawCommand::GetForwardShader();
+        if (pass == Pass::Cavity) return ShaderManager::GetShaderProgram(kVertex, "gore/fs_gore_cavity");
         return ShaderManager::GetShaderProgram(kVertex, pass == Pass::Front ? "gore/fs_gore" : "gore/fs_gore_interior");
     }
 
     Shader* GoreDrawCommand::GetDepthShader() const
     {
         if (!goreActive) return SkeletalMeshDrawCommand::GetDepthShader();
+        if (pass == Pass::Cavity) return SkeletalMeshDrawCommand::GetDepthShader();
         return ShaderManager::GetShaderProgram(kVertex, pass == Pass::Front ? "gore/fs_gore_depth" : "gore/fs_gore_interior_depth");
     }
 
@@ -36,7 +38,7 @@ namespace Gore
         {
             cap = ShaderManager::GetShaderProgram("gore/vs_shadowvolcap_gore", "shadowVolume/fs_shadowvol");
             edge = ShaderManager::GetShaderProgram("gore/vs_shadowvoledge_gore", "shadowVolume/fs_shadowvol");
-            return;
+            if (cap != nullptr && edge != nullptr) return;   // not compiled yet: the plain volume (the part still casts a shadow)
         }
         SkeletalMeshDrawCommand::GetShadowVolumeShaders(cap, edge);
     }

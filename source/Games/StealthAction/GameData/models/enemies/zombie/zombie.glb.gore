@@ -13,5 +13,98 @@
     0.02
   ],
   "submeshes": {},
-  "severable": []
+  "severable": [
+    {
+      "bone": "upperarm_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.034,
+      "gib": "ragdoll"
+    },
+    {
+      "bone": "upperarm_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.034,
+      "gib": "ragdoll"
+    },
+    {
+      "bone": "lowerarm_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.027,
+      "gib": "rigid"
+    },
+    {
+      "bone": "lowerarm_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.027,
+      "gib": "rigid"
+    },
+    {
+      "bone": "thigh_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.052,
+      "gib": "ragdoll"
+    },
+    {
+      "bone": "thigh_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.052,
+      "gib": "ragdoll"
+    },
+    {
+      "bone": "calf_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.04,
+      "gib": "rigid"
+    },
+    {
+      "bone": "calf_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.04,
+      "gib": "rigid"
+    },
+    {
+      "bone": "neck_01",
+      "range": [
+        -0.7,
+        0.65
+      ],
+      "maxTilt": 30,
+      "boneRadius": 0.034,
+      "gib": "rigid",
+      "lethal": true,
+      "canDestroy": true
+    }
+  ]
 }

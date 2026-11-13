@@ -1,5 +1,6 @@
 #include <Entity.h>
 #include "Gore/GoreDebug.h"
+#include "Gore/GoreGib.h"
 #include <Input.h>
 
 #include <BSP/Quake3Bsp.h>
@@ -316,6 +317,8 @@ public:
 
 
         UpdatePaused();
+        Gore::UpdateLookTest();
+        Gore::GibPool::Tick();   // spawns the queued gibs (outside the ECS tick groups)
 
         if (Input::IsScrenTouched)
         {

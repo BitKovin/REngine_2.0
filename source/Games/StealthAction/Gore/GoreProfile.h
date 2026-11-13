@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <skinned_model.hpp>
 #include <glm.h>
 
@@ -29,11 +31,19 @@ namespace Gore
         float spurtSeconds = 4.0f;
         float pulseHz = 1.6f;
         std::string boneStub;
+
+        // Vertex samples (bind space) that decide where a plane may cut: vertices carried mostly by the bone's
+        // descendants (they leave with the part - all must lie beyond the plane) and mostly by the bone itself.
+        // Bounding boxes are far too coarse for this (a diagonal arm's box reaches past the elbow).
+        std::vector<glm::vec3> partPoints, ownPoints;
     };
 
     // What one model can do: textures, submesh roles, severable bones, and the bind-space data derived from the mesh.
+    struct TriangleGrid;   // GoreWoundMesh.h
+
     struct Profile
     {
+        std::shared_ptr<const TriangleGrid> triGrid;   // spatial index of the skin triangles (wound cavities)
         bool valid = false;
 
         Texture* flesh = nullptr;

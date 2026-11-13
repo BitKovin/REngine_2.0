@@ -5,6 +5,7 @@
 
 #include <SkeletalMesh.hpp>
 
+#include <bgfx/bgfx.h>
 #include <memory>
 #include <vector>
 
@@ -30,6 +31,8 @@ namespace Gore
         void FinalizeFrameData() override;
         void CollectDrawCommands(std::vector<IDrawCommand*>& out) override;
 
+    ~GoreSkeletalMesh() override;
+
     protected:
         std::shared_ptr<StaticMeshDrawCommand> CreateDrawCommand() override { return std::make_shared<GoreDrawCommand>(); }
         void OnAssetsReloaded() override;
@@ -54,7 +57,23 @@ namespace Gore
         std::vector<std::shared_ptr<GoreDrawCommand>> interiorCommands, finalInteriorCommands;
         bool pendingActive = false;
 
+        // Wound cavities: one skinned bowl per wound (see CavityGeometry). The list is filled in PreFinalize (game side)
+        // and turned into GPU buffers and draw commands in FinalizeFrameData.
+        std::vector<std::shared_ptr<const CavityGeometry>> pendingCavities, finalCavities;
+        struct CavityGpu
+        {
+            std::shared_ptr<const CavityGeometry> geometry;
+            bgfx::VertexBufferHandle vbh = BGFX_INVALID_HANDLE;
+            bgfx::IndexBufferHandle ibh = BGFX_INVALID_HANDLE;
+            std::shared_ptr<GoreDrawCommand> command;
+            int idleFrames = 0;
+        };
+        std::vector<CavityGpu> cavityGpu;
+        std::vector<std::shared_ptr<GoreDrawCommand>> visibleCavityCommands;
+        void UpdateCavities();
+
         void BuildRanges();
         void FillGpuData();
+        void BuildRenderPalette(const std::vector<mat4>& palette);
     };
 }

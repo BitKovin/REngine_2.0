@@ -1,4 +1,5 @@
 #include "GoreProfile.h"
+#include "GoreWoundMesh.h"
 #include "GoreTypes.h"
 
 #include <AssetRegistry.h>
@@ -166,6 +167,43 @@ namespace Gore
             }
         }
 
+        // Vertex samples for the cut solver.
+        for (SeverableBone& sev : p.severable)
+        {
+            const uint16_t end = ctx.subtreeEnd[sev.skel];
+            for (const roj::SkinnedMesh& mesh : model.meshes)
+            {
+                for (const VertexData& v : mesh.vertices)
+                {
+                    float below = 0.0f, own = 0.0f;
+                    for (int k = 0; k < MAX_BONE_INFLUENCE; ++k)
+                    {
+                        const float w = v.BlendWeights[k];
+                        if (!(w > 0.0f)) continue;
+                        const int skin = static_cast<int>(v.BlendIndices[k]);
+                        if (skin < 0 || skin >= MAX_SKINNED_BONES) continue;
+                        const uint16_t skel = ctx.skinToSkel[skin];
+                        if (skel == INVALID_BONE_IDX || skel < sev.skel || skel >= end) continue;
+                        if (skel == sev.skel) own += w; else below += w;
+                    }
+                    if (below >= 0.5f) sev.partPoints.push_back(v.Position);
+                    else if (own >= 0.5f) sev.ownPoints.push_back(v.Position);
+                }
+            }
+
+            // Keep it light: at most ~384 samples each (even stride).
+            auto thin = [](std::vector<glm::vec3>& pts)
+            {
+                if (pts.size() <= 384) return;
+                const size_t stride = (pts.size() + 383) / 384;
+                size_t out = 0;
+                for (size_t i = 0; i < pts.size(); i += stride) pts[out++] = pts[i];
+                pts.resize(out);
+            };
+            thin(sev.partPoints);
+            thin(sev.ownPoints);
+        }
+
         // Union of the per-mesh any-influence bounds.
         p.anyBounds.assign(boneCount, roj::BoneBound{});
         for (const roj::SkinnedMesh& mesh : model.meshes)
@@ -184,6 +222,7 @@ namespace Gore
 
         p.parent = ctx.parent;
         p.subtreeEnd = ctx.subtreeEnd;
+        p.triGrid = BuildTriangleGrid(model, p);
         p.valid = true;
 
         return g_profiles[modelPath] = std::move(p);

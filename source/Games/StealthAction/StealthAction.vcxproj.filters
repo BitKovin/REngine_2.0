@@ -782,6 +782,21 @@
     <ClInclude Include="Entities\Enemy\EnemyFire.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClCompile Include="Gore\GoreCutSolver.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreWoundMesh.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreGib.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreFx.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreParticles.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
     <ClCompile Include="Gore\GoreDebug.cpp">
       <Filter>Gore</Filter>
     </ClCompile>
@@ -809,6 +824,15 @@
     <ClCompile Include="Gore\StealthGoreAdapter.cpp">
       <Filter>Gore</Filter>
     </ClCompile>
+    <ClInclude Include="Gore\GoreCutSolver.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreWoundMesh.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreGib.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
     <ClInclude Include="Gore\GoreComponent.h">
       <Filter>Gore</Filter>
     </ClInclude>

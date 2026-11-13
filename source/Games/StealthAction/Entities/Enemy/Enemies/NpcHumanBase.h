@@ -186,6 +186,9 @@ protected:
     void LateUpdate() override;
 
 public:
+    // Testing: the enemy never perceives anything, so it never picks a target (stays idle).
+    bool aiDisabled = false;
+
     NpcHumanBase();
     ~NpcHumanBase();
 

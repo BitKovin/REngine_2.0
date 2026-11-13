@@ -28,10 +28,6 @@ uniform vec4 u_goreCutCenter[4];
 uniform vec4 u_goreCutFrame[8];
 uniform vec4 u_goreSplats[16];
 
-SAMPLER2D(u_goreFlesh,       2);
-SAMPLER2D(u_goreFleshNormal, 3);
-SAMPLER2D(u_goreEdgeNoise,   4);
-SAMPLER2D(u_goreBlood,       5);
 
 bool goreBit(float mask, int i) { return mod(floor(mask / exp2(float(i))), 2.0) >= 1.0; }
 

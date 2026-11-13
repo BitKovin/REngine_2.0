@@ -34,7 +34,7 @@ namespace Gore
     class GoreDrawCommand : public SkeletalMeshDrawCommand
     {
     public:
-        enum class Pass : uint8_t { Front, Interior };
+        enum class Pass : uint8_t { Front, Interior, Cavity };
 
         Pass pass = Pass::Front;
         bool goreActive = false;                // false: behaves exactly like SkeletalMeshDrawCommand

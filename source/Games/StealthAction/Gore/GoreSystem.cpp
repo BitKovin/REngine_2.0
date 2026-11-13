@@ -1,14 +1,18 @@
 #include "GoreSystem.h"
+#include "GoreCutSolver.h"
 #include "GoreEvents.h"
+#include "GoreGib.h"
 #include "GoreProfile.h"
 #include "GoreSkeletalMesh.h"
 #include "GoreSource.h"
+#include "GoreWoundMesh.h"
 
 #include <Ecs/Ecs.h>
 #include <Ecs/ISystem.h>
 #include <Entity.h>
 #include <Physics.h>
 #include <PhysicsConverter.h>
+#include <Time.hpp>
 
 #include <algorithm>
 #include <cfloat>
@@ -185,6 +189,9 @@ namespace Gore
                 t.center = (t.center * v1 + w.center * v2) / (v1 + v2);
                 t.radii = glm::max(t.radii, w.radii);
                 t.reach = std::max(t.reach, w.reach);
+                t.cavity.reset();   // the shape changed: rebuilt after the hits are processed
+                t.cavityTicket.reset();
+                t.cavityFailed = false;
             }
             else
             {
@@ -221,6 +228,133 @@ namespace Gore
         {
             const glm::vec3 center = surfacePoint + dir * (zRadius * 0.35f);
             return MakeWound(a, reach, kind, center, RotateZTo(dir), glm::vec3(r, r, zRadius), roughness, rim, rng);
+        }
+
+
+        // Sever threshold (accumulated damage * severPower within the decay window). Body rules scale it in phase 4.
+        constexpr float kSeverThreshold = 60.0f;
+        constexpr double kSeverDecaySeconds = 3.0;
+
+        bool IsSeverType(SourceType t)
+        {
+            return t == SourceType::Slash || t == SourceType::HeavyBullet || t == SourceType::Pellet || t == SourceType::Blast;
+        }
+
+        bool PointInBound(const roj::BoneBound& b, const glm::vec3& p, float margin)
+        {
+            return b.hasData && p.x >= b.bbMin.x - margin && p.x <= b.bbMax.x + margin
+                && p.y >= b.bbMin.y - margin && p.y <= b.bbMax.y + margin
+                && p.z >= b.bbMin.z - margin && p.z <= b.bbMax.z + margin;
+        }
+
+        bool SubtreeHoldsCut(const GoreComponent& gore, const Profile& profile, uint16_t bone)
+        {
+            for (int i = 0; i < gore.cutCount; ++i)
+                if (gore.cuts[i].boneSkel >= bone && gore.cuts[i].boneSkel < profile.subtreeEnd[bone])
+                    return true;
+            return false;
+        }
+
+        // Severs a part when the blow is strong enough. Returns true when a cut was made (no wound is added for the hit).
+        bool TrySever(Entity* self, GoreSkeletalMesh* mesh, GoreComponent& gore, const Profile& profile, const Source& source,
+                      const Hit& hit, const Anchor& anchor, const glm::vec3& pBind, const glm::mat4& world,
+                      const std::vector<glm::mat4>& palette, Rng& rng)
+        {
+            if (gore.isGib || profile.severable.empty() || gore.cutCount >= kMaxCuts || source.severPower <= 0.0f)
+                return false;
+
+            // Inside an already severed subtree: that is a stump hit, not a new sever.
+            for (int i = 0; i < gore.cutCount; ++i)
+            {
+                const Cut& c = gore.cuts[i];
+                if (c.boneSkel < profile.subtreeEnd.size() && anchor.skel >= c.boneSkel && anchor.skel < profile.subtreeEnd[c.boneSkel])
+                    return false;
+            }
+
+            // Candidate: a severable bone that is the hit bone or below it and whose bounds contain the point (smallest wins).
+            // A bone whose subtree holds an earlier cut is skipped (it would drag the old stump along).
+            int candidate = -1;
+            float candidateVolume = 1.0e9f;
+            const uint16_t first = anchor.skel;
+            const uint16_t last = first < profile.subtreeEnd.size() ? profile.subtreeEnd[first] : static_cast<uint16_t>(first + 1);
+            for (uint16_t b = first; b < last && b < profile.severableBySkel.size(); ++b)
+            {
+                const int idx = profile.severableBySkel[b];
+                if (idx < 0 || SubtreeHoldsCut(gore, profile, b)) continue;
+                if (!PointInBound(profile.anyBounds[b], pBind, 0.02f)) continue;
+                const glm::vec3 e = profile.anyBounds[b].bbMax - profile.anyBounds[b].bbMin;
+                const float v = e.x * e.y * e.z;
+                if (v < candidateVolume) { candidateVolume = v; candidate = idx; }
+            }
+            if (candidate < 0 && first < profile.severableBySkel.size() && profile.severableBySkel[first] >= 0
+                && !SubtreeHoldsCut(gore, profile, first))
+                candidate = profile.severableBySkel[first];
+            if (candidate < 0) return false;
+
+            const SeverableBone& sev = profile.severable[candidate];
+
+            const double now = Time::GameTime;
+            float& damage = gore.severDamage[candidate];
+            double& at = gore.severDamageTime[candidate];
+            damage = damage * static_cast<float>(std::exp(-(now - at) / kSeverDecaySeconds)) + hit.damage * source.severPower;
+            at = now;
+
+            const bool instant = hit.lethal && sev.lethal && source.severPower > 0.5f && IsSeverType(source.type);
+            if (damage < kSeverThreshold && !instant) return false;
+
+            glm::vec3 normal = hit.direction;
+            if (source.type == SourceType::Slash)
+            {
+                if (glm::length(hit.sweepNormal) > 1.0e-4f)
+                    normal = hit.sweepNormal;
+                else
+                    normal = glm::cross(hit.direction, std::abs(hit.direction.y) < 0.99f ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
+            }
+
+            CutRequest request;
+            request.severableIndex = static_cast<uint16_t>(candidate);
+            request.worldPoint = hit.point;
+            request.worldNormal = normal;
+
+            const CutResult result = SolveCut(profile, *mesh->GetSkinnedModel(), world, palette, request, rng);
+            if (!result.ok) return false;
+
+            Cut cut = result.cut;
+            cut.severedAt = now;
+            cut.phase = CutPhase::Severed;
+
+            const uint8_t cutIndex = gore.cutCount;
+            gore.cuts[gore.cutCount++] = cut;
+            damage = 0.0f;
+
+            // The part's hitboxes leave the physics world (the gib gets its own).
+            std::vector<hashed_string> names;
+            for (const HitboxData& h : mesh->metaData.hitboxes)
+            {
+                const uint16_t skel = mesh->GetSkeletonIndex(hashed_string{ h.boneName });
+                if (skel != INVALID_BONE_IDX && skel >= cut.boneSkel && skel < profile.subtreeEnd[cut.boneSkel])
+                    names.push_back(hashed_string{ h.boneName });
+            }
+            if (!names.empty())
+                mesh->SetHitboxesActive(names, false);
+
+            // Blood soaks the skin around the stump.
+            AddSplat(gore, cut.center, 0.14f + cut.boneRadius * 3.0f, 1.0f);
+
+            const glm::vec3 up(0, 1, 0);
+            const float strength = glm::clamp(hit.damage / std::max(source.refDamage, 1.0f), 0.5f, 2.5f);
+            GibRequest gib;
+            gib.body = EntityHandle::FromEntity(self);
+            gib.cutIndex = cutIndex;
+            gib.impulse = hit.direction * (2.0f + 1.5f * strength) + up * 1.2f;
+            GibPool::Request(gib);
+
+            GorePartEvent part;
+            part.victim = EntityHandle::FromEntity(self);
+            part.boneSkel = cut.boneSkel;
+            part.lost = true;
+            EcsScheduler::Emit(part);
+            return true;
         }
 
         struct Cluster
@@ -297,6 +431,9 @@ namespace Gore
             Rng rng(hit.seed);
             const float reach = 2.0f * MaxExtent(profile, anchor.skel);
             const float damage = std::max(hit.damage, 1.0f);
+
+            if (TrySever(self, mesh, gore, profile, source, hit, anchor, pBind, World, palette, rng))
+                continue;
 
             switch (source.type)
             {
@@ -422,6 +559,14 @@ namespace Gore
             AddSplat(gore, c.center, 2.5f * r, 1.0f);
         }
 
+        // Cavity geometry for every wound that has none yet (new or merged): built on a worker thread, drawn when it arrives.
+        for (int i = 0; i < gore.woundCount; ++i)
+        {
+            Wound& w = gore.wounds[i];
+            if (!w.cavity && !w.cavityTicket && !w.cavityFailed)
+                RequestCavity(w, *mesh->GetSkinnedModel(), profile);
+        }
+
         gore.pendingCount = 0;
         gore.version++;
     }
@@ -437,14 +582,18 @@ namespace Gore
 
         RenderState state;
         state.version = gore.version;
-        state.wounds = gore.wounds;
-        state.woundCount = gore.woundCount;
+        // Only wounds whose cavity exists are drawn (the hole alone would show through the body).
+        for (int i = 0; i < gore.woundCount; ++i)
+            if (gore.wounds[i].cavity)
+                state.wounds[state.woundCount++] = gore.wounds[i];
         state.cuts = gore.cuts;
         state.cutCount = gore.cutCount;
         state.splats = gore.splats;
         state.splatCount = gore.splatCount;
         state.frozenClock = gore.frozenClock;
         state.pausedUntil = gore.pausedUntil;
+        state.isGib = gore.isGib;
+        if (gore.isGib) state.gibSeverPalette = gore.gibSeverPalette;
         state.profile = &profile;
 
         mesh->SetGoreState(state);
@@ -473,6 +622,11 @@ TICK_ENTITY(GoreProcessHitsSystem, PostLateUpdate, Gore::GoreComponent, self, go
 {
     if (gore.pendingCount > 0)
         Gore::ProcessPendingHits(self, gore);
+
+    bool cavityArrived = false;
+    for (int i = 0; i < gore.woundCount; ++i)
+        cavityArrived |= Gore::PollCavity(gore.wounds[i]);
+    if (cavityArrived) gore.version++;
 
     Gore::PushRenderStateIfChanged(self, gore);
 }

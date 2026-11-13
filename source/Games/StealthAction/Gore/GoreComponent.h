@@ -4,6 +4,8 @@
 
 #include <Ecs/ComponentRegistry.h>
 
+#include <vector>
+
 namespace Gore
 {
     // Gore state of one body. Added on the first gore hit (undamaged enemies do not carry it).
@@ -27,6 +29,11 @@ namespace Gore
         // Accumulated sever damage per severable bone, indexed like Profile::severable (max 16, checked by the loader).
         std::array<float, 16>  severDamage{};
         std::array<double, 16> severDamageTime{};
+
+        // Severed pieces (GoreGib): the cut 0 keeps its removed side, no further severing, and the body palette at the
+        // moment of the cut fixes the bones outside the piece to it.
+        bool isGib = false;
+        std::vector<glm::mat4> gibSeverPalette;
     };
     REGISTER_COMPONENT(GoreComponent)
 }

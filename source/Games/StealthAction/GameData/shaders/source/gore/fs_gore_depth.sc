@@ -6,6 +6,11 @@ SAMPLER2D(u_texture, 0);
 
 uniform vec4 u_goreAlphaTest;   // x > 0.5: alpha-tested like fs_mask (set by GoreDrawCommand)
 
+// Sampler slots are parsed from this file's own text by the engine (includes are not scanned), so they are declared here.
+SAMPLER2D(u_goreFlesh,       2);
+SAMPLER2D(u_goreFleshNormal, 3);
+SAMPLER2D(u_goreEdgeNoise,   4);
+SAMPLER2D(u_goreBlood,       5);
 #include "gore_common.sh"
 
 void main()

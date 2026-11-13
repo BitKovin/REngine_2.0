@@ -1,4 +1,5 @@
 #include "GoreSkeletalMesh.h"
+#include <EngineMain.h>
 #include "GoreProfile.h"
 #include "GoreSettings.h"
 
@@ -102,6 +103,7 @@ namespace Gore
 
         pendingActive = false;
         pendingUsePalette = false;
+        pendingCavities.clear();
 
         if (!HasGore() || model == nullptr || model->meshes.empty())
             return;
@@ -175,6 +177,15 @@ namespace Gore
                 }
             }
 
+            const roj::ShadowVolumePrecomp& pre = mesh.shadowVolumePrecomp;
+            const bool shadowRanges = CastDetailShadows && !goreState.isGib && goreState.cutCount > 0
+                && pre.capBoneFirst.size() == n + 1 && pre.edgeBoneFirst.size() == n + 1;
+
+            // A gib draws only its own subtree, plus the ancestors that stick out past the cut plane.
+            const bool gibWithCut = goreState.isGib && goreState.cutCount > 0 && goreState.cuts[0].boneSkel < profile.subtreeEnd.size();
+            const uint16_t gibFirst = gibWithCut ? goreState.cuts[0].boneSkel : 0;
+            const uint16_t gibLast = gibWithCut ? profile.subtreeEnd[gibFirst] : 0;
+
             for (size_t b = 0; b < n; ++b)
             {
                 const uint32_t first = mesh.boneIndexFirst[b];
@@ -183,6 +194,13 @@ namespace Gore
                 if (!removed.empty() && removed[b]) continue;
 
                 const roj::BoneBound& own = mesh.boneOwnBounds[b];
+
+                if (goreState.isGib)
+                {
+                    if (!gibWithCut) continue;
+                    const bool inPart = b >= gibFirst && b < gibLast;
+                    if (!inPart) continue;   // (ancestors that stick out past the plane are not drawn: their bounds are too coarse to tell)
+                }
 
                 float woundBits = 0.0f, cutBits = 0.0f, splatBits = 0.0f;
 
@@ -202,6 +220,12 @@ namespace Gore
                     for (int i = 0; i < goreState.cutCount; ++i)
                     {
                         const Cut& c = goreState.cuts[i];
+                        // Only the cut bone itself (body) / its subtree (gib) is clipped by the plane - never neighbours that
+                        // merely lie near it (a diagonal limb's bounding box reaches far into the torso).
+                        if (c.boneSkel >= profile.subtreeEnd.size() || b < c.boneSkel || b >= profile.subtreeEnd[c.boneSkel])
+                            continue;
+                        if (!goreState.isGib && b != c.boneSkel)
+                            continue;
                         if (!SphereOverlapsAabb(c.center, c.influenceRadius, own.bbMin, own.bbMax))
                             continue;
 
@@ -222,9 +246,9 @@ namespace Gore
 
                 const glm::vec4 mask(woundBits, cutBits, splatBits, 0.0f);
 
-                auto append = [&](std::vector<DrawIndexRange>& list)
+                auto append = [&](std::vector<DrawIndexRange>& list, const glm::vec4& m)
                 {
-                    if (!list.empty() && list.back().first + list.back().count == first && list.back().param == mask)
+                    if (!list.empty() && list.back().first + list.back().count == first && list.back().param == m)
                     {
                         list.back().count += count;
                         return;
@@ -232,14 +256,36 @@ namespace Gore
                     DrawIndexRange r;
                     r.first = first;
                     r.count = count;
-                    r.param = mask;
+                    r.param = m;
                     list.push_back(r);
                 };
 
-                append(ranges.front);
+                append(ranges.front, mask);
 
-                if (woundBits > 0.0f || cutBits > 0.0f)
-                    append(ranges.interior);
+                // The inside of a wound is skinned geometry now (cavity commands); the interior pass is for cut caps only.
+                if (cutBits > 0.0f)
+                    append(ranges.interior, glm::vec4(0.0f, cutBits, splatBits, 0.0f));
+
+                // Shadow volumes: the same bones, so a severed part casts no shadow.
+                if (shadowRanges)
+                {
+                    auto appendShadow = [&](std::vector<DrawIndexRange>& list, uint32_t from, uint32_t to)
+                    {
+                        if (to <= from) return;
+                        if (!list.empty() && list.back().first + list.back().count == from && list.back().param == mask)
+                        {
+                            list.back().count += to - from;
+                            return;
+                        }
+                        DrawIndexRange r;
+                        r.first = from;
+                        r.count = to - from;
+                        r.param = mask;
+                        list.push_back(r);
+                    };
+                    appendShadow(ranges.shadowCap, mesh.shadowVolumePrecomp.capBoneFirst[b], mesh.shadowVolumePrecomp.capBoneFirst[b + 1]);
+                    appendShadow(ranges.shadowEdge, mesh.shadowVolumePrecomp.edgeBoneFirst[b], mesh.shadowVolumePrecomp.edgeBoneFirst[b + 1]);
+                }
             }
         }
     }
@@ -293,6 +339,10 @@ namespace Gore
             g.woundExtra[i] = glm::vec4(w.reach * s, MeanRadius(w.radii) * s, static_cast<float>(w.kind), 0.0f);
         }
 
+        pendingCavities.clear();
+        for (int i = 0; i < goreState.woundCount; ++i)
+            if (goreState.wounds[i].cavity) pendingCavities.push_back(goreState.wounds[i].cavity);
+
         for (int i = 0; i < goreState.cutCount; ++i)
         {
             const Cut& c = goreState.cuts[i];
@@ -308,7 +358,7 @@ namespace Gore
             g.cutBindSphere[i] = glm::vec4(c.center, c.influenceRadius);
             g.cutWorld[i] = glm::vec4(nWorld, glm::dot(nWorld, pointWorld));
             g.cutWorldSphere[i] = glm::vec4(centerWorld, c.influenceRadius * s);
-            g.cutCenter[i] = glm::vec4(centerWorld, 0.0f);
+            g.cutCenter[i] = glm::vec4(centerWorld, c.outlineRadius * s);
 
             float regrowRadius = -1.0f;
             if (c.phase == CutPhase::Regrowing && c.regrowDuration > 0.0f)
@@ -336,7 +386,66 @@ namespace Gore
             g.splats[i] = glm::vec4(sp.center, sp.radius * sp.strength);
         }
 
-        pendingUsePalette = false;   // phase 3 builds a modified palette here
+        BuildRenderPalette(palette);
+    }
+
+    // Body: bones below a severed cut take the cut bone's matrix (vertices blended between the bone and its subtree stay
+    // together and are cut by the plane). Gib: the bones outside the part keep the pose they had at the moment of the cut,
+    // rigidly attached to the part.
+    void GoreSkeletalMesh::BuildRenderPalette(const std::vector<mat4>& palette)
+    {
+        pendingUsePalette = false;
+
+        const Profile& profile = *goreState.profile;
+        if (goreState.cutCount == 0 || model == nullptr) return;
+
+        const roj::FlatSkeleton& skeleton = model->skeleton;
+
+        if (goreState.isGib)
+        {
+            const Cut& c = goreState.cuts[0];
+            const std::vector<mat4>& pal0 = goreState.gibSeverPalette;
+            if (c.boneSkel >= profile.subtreeEnd.size() || c.boneSkin < 0 || pal0.empty()
+                || c.boneSkin >= static_cast<int>(palette.size()) || c.boneSkin >= static_cast<int>(pal0.size()))
+                return;
+
+            const uint16_t end = profile.subtreeEnd[c.boneSkel];
+            const mat4 rel = palette[c.boneSkin] * glm::inverse(pal0[c.boneSkin]);
+
+            pendingPalette.assign(palette.begin(), palette.end());
+            for (uint16_t b = 0; b < skeleton.boneCount; ++b)
+            {
+                if (b >= c.boneSkel && b < end) continue;
+                const int skin = skeleton.bones[b].skinIdx;
+                if (skin < 0 || skin >= static_cast<int>(pendingPalette.size()) || skin >= static_cast<int>(pal0.size())) continue;
+                pendingPalette[skin] = rel * pal0[skin];
+            }
+            pendingUsePalette = true;
+            return;
+        }
+
+        bool copied = false;
+        for (int i = 0; i < goreState.cutCount; ++i)
+        {
+            const Cut& c = goreState.cuts[i];
+            if (c.phase != CutPhase::Severed || c.boneSkel >= profile.subtreeEnd.size()) continue;
+            if (c.boneSkin < 0 || c.boneSkin >= static_cast<int>(palette.size())) continue;
+
+            if (!copied)
+            {
+                pendingPalette.assign(palette.begin(), palette.end());
+                copied = true;
+            }
+
+            const uint16_t end = profile.subtreeEnd[c.boneSkel];
+            for (uint16_t b = c.boneSkel + 1; b < end; ++b)
+            {
+                const int skin = skeleton.bones[b].skinIdx;
+                if (skin >= 0 && skin < static_cast<int>(pendingPalette.size()))
+                    pendingPalette[skin] = pendingPalette[c.boneSkin];
+            }
+        }
+        pendingUsePalette = copied;
     }
 
     void GoreSkeletalMesh::FinalizeFrameData()
@@ -345,6 +454,7 @@ namespace Gore
 
         if (pendingActive)
             finalGpu = pendingGpu;
+        finalCavities = pendingCavities;
 
         if (pendingUsePalette)
         {
@@ -368,6 +478,8 @@ namespace Gore
             if (cmd.goreActive)
             {
                 cmd.IndexRanges.assign(pendingRanges[i].front.begin(), pendingRanges[i].front.end());
+                if (cmd.IndexRanges.empty() && goreState.cutCount > 0)
+                    cmd.IndexRanges.push_back(DrawIndexRange());   // nothing of this submesh is left: an empty list would draw all of it
                 cmd.ShadowCapRanges.assign(pendingRanges[i].shadowCap.begin(), pendingRanges[i].shadowCap.end());
                 cmd.ShadowEdgeRanges.assign(pendingRanges[i].shadowEdge.begin(), pendingRanges[i].shadowEdge.end());
                 cmd.RangeParamUniform = "u_goreRangeMask";
@@ -404,14 +516,95 @@ namespace Gore
         }
 
         finalInteriorCommands = interiorCommands;
+
+        UpdateCavities();
+    }
+
+    GoreSkeletalMesh::~GoreSkeletalMesh()
+    {
+        for (CavityGpu& g : cavityGpu)
+        {
+            if (bgfx::isValid(g.vbh)) bgfx::destroy(g.vbh);
+            if (bgfx::isValid(g.ibh)) bgfx::destroy(g.ibh);
+        }
+    }
+
+    // Render side: GPU buffers and one draw command per wound cavity (created on first use, destroyed a few frames after the
+    // wound is gone so a command the renderer still holds never points at a dead buffer).
+    void GoreSkeletalMesh::UpdateCavities()
+    {
+        visibleCavityCommands.clear();
+        for (CavityGpu& g : cavityGpu) ++g.idleFrames;
+
+        if (GetSubMeshCount() > 0 && pendingActive)
+        {
+            const GoreDrawCommand& source = static_cast<GoreDrawCommand&>(GetDrawCommandAt(0));
+
+            for (const auto& geometry : finalCavities)
+            {
+                if (!geometry || geometry->vertices.empty() || geometry->indices.empty()) continue;
+
+                CavityGpu* gpu = nullptr;
+                for (CavityGpu& g : cavityGpu)
+                    if (g.geometry == geometry) { gpu = &g; break; }
+
+                if (gpu == nullptr)
+                {
+                    cavityGpu.emplace_back();
+                    gpu = &cavityGpu.back();
+                    gpu->geometry = geometry;
+                    gpu->vbh = bgfx::createVertexBuffer(bgfx::copy(geometry->vertices.data(), static_cast<uint32_t>(sizeof(VertexData) * geometry->vertices.size())), VertexData::Declaration());
+                    gpu->ibh = bgfx::createIndexBuffer(bgfx::copy(geometry->indices.data(), static_cast<uint32_t>(sizeof(uint32_t) * geometry->indices.size())), BGFX_BUFFER_INDEX32);
+                    gpu->command = std::make_shared<GoreDrawCommand>();
+                    gpu->command->pass = GoreDrawCommand::Pass::Cavity;
+                }
+                gpu->idleFrames = 0;
+
+                GoreDrawCommand& cc = *gpu->command;
+                cc.CopyCommonFrom(source);
+                cc.VertexBuffer = gpu->vbh;
+                cc.IndexBuffer = gpu->ibh;
+                cc.pass = GoreDrawCommand::Pass::Cavity;
+                cc.goreActive = source.goreActive;
+                cc.gore = &finalGpu;
+                cc.IndexRanges.clear();
+                cc.RangeParamUniform = nullptr;
+                cc.Cull = StaticMeshDrawCommand::CullFace::None;
+                cc.DepthPrePass = false;
+                cc.Material.CustomId = 0;
+                cc.OnlyShadows = false;
+                cc.ReceiveDetailShadows = false;
+                cc.ShadowCapVbh = BGFX_INVALID_HANDLE;
+                cc.ShadowCapIbh = BGFX_INVALID_HANDLE;
+                cc.ShadowCapIndexCount = 0;
+                cc.ShadowEdgeVbh = BGFX_INVALID_HANDLE;
+                cc.ShadowEdgeIbh = BGFX_INVALID_HANDLE;
+                cc.ShadowEdgeIndexCount = 0;
+                if (cc.goreActive && !cc.Hidden)
+                    visibleCavityCommands.push_back(gpu->command);
+            }
+        }
+
+        for (size_t i = 0; i < cavityGpu.size();)
+        {
+            if (cavityGpu[i].idleFrames > 4)
+            {
+                if (bgfx::isValid(cavityGpu[i].vbh)) bgfx::destroy(cavityGpu[i].vbh);
+                if (bgfx::isValid(cavityGpu[i].ibh)) bgfx::destroy(cavityGpu[i].ibh);
+                cavityGpu.erase(cavityGpu.begin() + static_cast<std::ptrdiff_t>(i));
+            }
+            else ++i;
+        }
     }
 
     void GoreSkeletalMesh::CollectDrawCommands(std::vector<IDrawCommand*>& out)
     {
         SkeletalMesh::CollectDrawCommands(out);
-
         for (auto& ic : finalInteriorCommands)
             if (ic->goreActive && !ic->Hidden)
                 out.push_back(ic.get());
+
+        for (auto& cc : visibleCavityCommands)
+            out.push_back(cc.get());
     }
 }

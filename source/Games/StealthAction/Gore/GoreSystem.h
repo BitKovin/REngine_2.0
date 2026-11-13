@@ -17,6 +17,10 @@ namespace Gore
     // Turns the pending hits of one body into wounds and splats (bumps gore.version).
     void ProcessPendingHits(Entity* self, GoreComponent& gore);
 
+    // Stump effects (spurt, drips) of one body or gib; FxNewFrame resets the per-frame particle budget.
+    void UpdateStumpFx(Entity* self, GoreComponent& gore);
+    void FxNewFrame();
+
     // Copies the component to the mesh (SetGoreState) when gore.version changed.
     void PushRenderStateIfChanged(Entity* self, GoreComponent& gore);
 }

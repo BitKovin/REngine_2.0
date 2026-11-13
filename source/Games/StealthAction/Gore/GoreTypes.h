@@ -1,9 +1,13 @@
 #pragma once
 
 #include <glm.h>
+#include <VertexData.h>
 #include <cstdint>
 #include <array>
+#include <atomic>
+#include <memory>
 #include <string>
+#include <vector>
 
 // Procedural gore: shared plain data types. See GORE_IMPLEMENTATION.md.
 namespace Gore
@@ -29,8 +33,27 @@ namespace Gore
     enum class WoundKind : uint8_t { Entry, Exit, Crater, Gash, Crush };
     enum class CutPhase  : uint8_t { Severed, Regrowing };
 
+    // The inside of a wound as real skinned geometry: a bowl built against the model faces under the hole. Every vertex
+    // carries bone indices/weights blended from the triangles it sits under, so the cavity bends with the skin and
+    // follows the ragdoll. Positions are bind space, like the model's own vertices.
+    struct CavityGeometry
+    {
+        std::vector<VertexData> vertices;
+        std::vector<uint32_t> indices;
+    };
+
+    // A cavity being built on the worker thread. The game thread polls `state` (0 building, 1 done) once a tick.
+    struct CavityTicket
+    {
+        std::atomic<int> state{ 0 };
+        std::shared_ptr<const CavityGeometry> result;   // written before state becomes 1; null = no skin under the wound
+    };
+
     struct Wound
     {
+        std::shared_ptr<CavityTicket> cavityTicket;     // set while the cavity is being built
+        bool cavityFailed = false;                      // nothing to build against: the wound is not drawn
+        std::shared_ptr<const CavityGeometry> cavity;   // built by BuildCavity after the wound is created / merged
         glm::vec3 center = glm::vec3(0);        // bind space
         glm::quat rotation = glm::quat(1, 0, 0, 0); // bind space, local z = shot direction / blade normal
         glm::vec3 radii = glm::vec3(0.02f);     // bind-space metres
@@ -52,6 +75,7 @@ namespace Gore
         glm::vec3 center = glm::vec3(0);        // bind: bone centre on the plane
         float influenceRadius = 0.5f;           // bind: cut does nothing farther than this from center
         float boneRadius = 0.015f;              // bind metres
+        float outlineRadius = 0.04f;            // bind metres: radius of the cross-section at the plane (cap layers)
         float roughness = 0.012f;               // edge noise amplitude in bind metres
         float seed = 0.0f;
         uint16_t boneSkel = 0;                  // severed bone S (skel index)
@@ -63,6 +87,7 @@ namespace Gore
         float  regrowMaxRadius = 0.0f;          // bind metres, covers the whole removed subtree
         bool   hitboxesBack = false;
         bool   charred = false;                 // fire: never regrows, charred cap look
+        double fxNext = 0.0;                    // stump effects: next spawn time (FX only)
         std::string gibId;                      // entity id of the severed piece (empty if none / not saved)
     };
 
@@ -88,4 +113,12 @@ namespace Gore
         uint32_t seed = 0;
         uint32_t counter = 0;                   // per-victim hit counter (ordering + seeds)
     };
+
+    // Copies a bone name into the fixed buffer (truncates; no strncpy - MSVC rejects it as unsafe).
+    inline void SetHitBone(Hit& hit, const std::string& bone)
+    {
+        const size_t n = bone.size() < sizeof(hit.hitBone) - 1 ? bone.size() : sizeof(hit.hitBone) - 1;
+        for (size_t i = 0; i < n; ++i) hit.hitBone[i] = bone[i];
+        hit.hitBone[n] = 0;
+    }
 }

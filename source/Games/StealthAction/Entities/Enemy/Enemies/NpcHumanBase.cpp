@@ -6,6 +6,8 @@
 #include <Entities/Player/Player.hpp>
 #include <AiPerception/AiPerceptionSystem.h>
 #include <Network/NetworkManager.h>
+#include "../../../Gore/GoreSkeletalMesh.h"
+#include "../../../Gore/StealthGoreAdapter.h"
 
 // ---------------------------------------------------------------------------
 // Constructor / destructor
@@ -13,7 +15,7 @@
 
 NpcHumanBase::NpcHumanBase()
 {
-    mesh = new SkeletalMesh(this);
+    mesh = new Gore::GoreSkeletalMesh(this);
     mesh->CastDetailShadows = true;
     mesh->GravityAlignedRotation = true;
     mesh->MeshCustomShaderParams["rim_color"] = vec4(1.5f, 1.2f, 0.0f, 1.0f);
@@ -103,7 +105,7 @@ void NpcHumanBase::ResolveTarget()
 void NpcHumanBase::UpdatePerception()
 {
 
-    if (IsDead()) return;
+    if (IsDead() || aiDisabled) return;
 
     // Create observer lazily so it works after an ownership transfer.
     if (observer == nullptr)
@@ -326,6 +328,7 @@ void NpcHumanBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction,
 
     OnDamage(Damage, DamageCauser, Weapon);
 
+    StealthGore::OnNpcPointDamage(this, Damage, Point, Direction, bone, DamageCauser, Weapon, true);
 
     // Broadcast to others – post-multiplier damage, bone for ragdoll check.
     NetPacket args(PacketType::RPC);
@@ -746,6 +749,9 @@ void NpcHumanBase::OnRPC(uint8_t rpcId, NetPacket& args)
             }
 
             OnDamage(damage, hasCauser ? this : nullptr);
+
+            // The weapon is not sent over the network: the other peers show the default wound for the hit.
+            StealthGore::OnNpcPointDamage(this, damage, point, direction, bone, nullptr, nullptr, true);
             break;
         }
 
@@ -920,6 +926,7 @@ void NpcHumanBase::UpdateDebugUI()
 void NpcHumanBase::LoadAssets()
 {
     Entity::LoadAssets();
+    StealthGore::LoadAssets();
     getFromRagdollAnimation->LoadFromFile("GameData/animations/npc/standUp.glb");
 }
 
