@@ -160,9 +160,103 @@ namespace Gore
             }
         }
 
+        // Half extents of a wound ellipsoid along the axes of another frame (frameInv = inverse rotation of that frame).
+        glm::vec3 HalfExtentsIn(const glm::mat3& frameInv, const Wound& w)
+        {
+            const glm::mat3 m = frameInv * glm::mat3_cast(w.rotation);   // column j = wound axis j in the frame
+            glm::vec3 e(0.0f);
+            for (int i = 0; i < 3; ++i)
+            {
+                float sum = 0.0f;
+                for (int j = 0; j < 3; ++j) sum += m[j][i] * m[j][i] * w.radii[j] * w.radii[j];
+                e[i] = std::sqrt(sum);
+            }
+            return e;
+        }
+
+        bool CanMerge(const Wound& a, const Wound& b)
+        {
+            if (a.anchorSkin != b.anchorSkin) return false;
+            if (a.kind == WoundKind::Gash || b.kind == WoundKind::Gash) return false;   // a gash is long and thin: it stays its own wound
+            return (a.kind == WoundKind::Exit) == (b.kind == WoundKind::Exit);          // exit wounds dig the other way
+        }
+
+        // Damage stacks: every hit that lands in or on an existing hole eats more of the body, the hole grows by the area of
+        // the new one (capped, so a body is not erased by a machine gun).
+        void GrowWound(Wound& w, float addedMeanRadius, float weight)
+        {
+            const float mean = std::max(MeanRadius(w.radii), 1.0e-4f);
+            const float k = std::sqrt(1.0f + 1.6f * weight * (addedMeanRadius / mean) * (addedMeanRadius / mean));
+            w.radii.x = std::min(w.radii.x * k, 0.4f);
+            w.radii.y = std::min(w.radii.y * k, 0.4f);
+            w.radii.z = std::min(w.radii.z * (1.0f + (k - 1.0f) * 0.7f), 0.25f);
+            w.cavity.reset();
+            w.cavityTicket.reset();
+            w.cavityFailed = false;
+        }
+
+        // Overlapping holes become one: a bigger hole swallows the smaller ones (a new bigger hole replaces the older one,
+        // a bullet into an existing hole changes nothing), otherwise the two grow into one hole that covers both.
         void AddWound(GoreComponent& g, Wound w)
         {
             w.order = g.orderCounter++;
+
+            // Holes close to each other join up (well beyond touching: the flesh between them is gone too). When the table is
+            // full, the nearest compatible hole takes the new one whatever the distance, so the budget makes holes bigger
+            // instead of dropping old ones.
+            const bool full = g.woundCount >= kMaxWounds;
+            int target = -1;
+            float best = FLT_MAX;
+            for (int i = 0; i < g.woundCount; ++i)
+            {
+                if (!CanMerge(g.wounds[i], w)) continue;
+                const float d = glm::distance(g.wounds[i].center, w.center);
+                if ((full || d < 1.8f * (MeanRadius(g.wounds[i].radii) + MeanRadius(w.radii))) && d < best) { best = d; target = i; }
+            }
+
+            if (target >= 0)
+            {
+                Wound& t = g.wounds[target];
+                const float rt = MeanRadius(t.radii), rn = MeanRadius(w.radii);
+
+                if (best + rt <= rn)   // the new hole swallows the old one
+                {
+                    GrowWound(w, rt, 0.6f);
+                    g.wounds[target] = w;
+                    return;
+                }
+                if (best + rn <= rt)   // the new hit lands inside the old hole
+                {
+                    t.order = w.order;
+                    GrowWound(t, rn, 1.0f);
+                    return;
+                }
+
+                // Union in the frame of the bigger wound; depth stays the larger of the two.
+                const bool oldIsBig = t.radii.x * t.radii.y * t.radii.z >= w.radii.x * w.radii.y * w.radii.z;
+                Wound merged = oldIsBig ? t : w;
+                const Wound& other = oldIsBig ? w : t;
+                const glm::mat3 R = glm::mat3_cast(merged.rotation);
+                const glm::mat3 Rinv = glm::transpose(R);
+                const glm::vec3 ea = HalfExtentsIn(Rinv, merged), eb = HalfExtentsIn(Rinv, other);
+                const glm::vec3 cb = Rinv * (other.center - merged.center);
+                const glm::vec3 lo = glm::min(-ea, cb - eb), hi = glm::max(ea, cb + eb);
+                glm::vec3 radii = (hi - lo) * 0.5f;
+                radii = glm::min(radii, glm::max(merged.radii, other.radii) * 4.0f);
+                radii.z = std::max(merged.radii.z, other.radii.z);
+                merged.center += R * ((lo + hi) * 0.5f);
+                merged.radii = radii;
+                merged.roughness = std::max(merged.roughness, other.roughness);
+                merged.rimWidth = std::max(merged.rimWidth, other.rimWidth);
+                merged.reach = std::max(merged.reach, other.reach);
+                merged.order = w.order;
+                GrowWound(merged, std::min(rt, rn), 1.0f);
+                merged.cavity.reset();   // the shape changed: rebuilt after the hits are processed
+                merged.cavityTicket.reset();
+                merged.cavityFailed = false;
+                t = merged;
+                return;
+            }
 
             if (g.woundCount < kMaxWounds)
             {
@@ -170,33 +264,10 @@ namespace Gore
                 return;
             }
 
-            int nearest = 0;
-            float nearestDist = FLT_MAX;
             int oldest = 0;
-            for (int i = 0; i < g.woundCount; ++i)
-            {
-                const float d = glm::distance(g.wounds[i].center, w.center);
-                if (g.wounds[i].anchorSkin == w.anchorSkin && d < nearestDist) { nearestDist = d; nearest = i; }
+            for (int i = 1; i < g.woundCount; ++i)
                 if (g.wounds[i].order < g.wounds[oldest].order) oldest = i;
-            }
-
-            if (nearestDist < FLT_MAX && nearestDist < MeanRadius(g.wounds[nearest].radii) + MeanRadius(w.radii))
-            {
-                // Merge: volume-weighted centre, max radii, keep the older rotation.
-                Wound& t = g.wounds[nearest];
-                const float v1 = t.radii.x * t.radii.y * t.radii.z;
-                const float v2 = w.radii.x * w.radii.y * w.radii.z;
-                t.center = (t.center * v1 + w.center * v2) / (v1 + v2);
-                t.radii = glm::max(t.radii, w.radii);
-                t.reach = std::max(t.reach, w.reach);
-                t.cavity.reset();   // the shape changed: rebuilt after the hits are processed
-                t.cavityTicket.reset();
-                t.cavityFailed = false;
-            }
-            else
-            {
-                g.wounds[oldest] = w;
-            }
+            g.wounds[oldest] = w;
         }
 
         struct BindFrame
@@ -255,6 +326,57 @@ namespace Gore
             return false;
         }
 
+        // Cuts a severable bone at the plane nearest to `point` (leaning towards `normal`), hides its hitboxes, spawns the gib.
+        bool MakeCut(Entity* self, GoreSkeletalMesh* mesh, GoreComponent& gore, const Profile& profile, const Source& source,
+                     const Hit& hit, int candidate, const glm::vec3& point, const glm::vec3& normal, const glm::mat4& world,
+                     const std::vector<glm::mat4>& palette, Rng& rng)
+        {
+            CutRequest request;
+            request.severableIndex = static_cast<uint16_t>(candidate);
+            request.worldPoint = point;
+            request.worldNormal = normal;
+
+            const CutResult result = SolveCut(profile, *mesh->GetSkinnedModel(), world, palette, request, rng);
+            if (!result.ok) return false;
+
+            Cut cut = result.cut;
+            cut.severedAt = Time::GameTime;
+            cut.phase = CutPhase::Severed;
+
+            const uint8_t cutIndex = gore.cutCount;
+            gore.cuts[gore.cutCount++] = cut;
+            gore.severDamage[candidate] = 0.0f;
+
+            // The part's hitboxes leave the physics world (the gib gets its own).
+            std::vector<hashed_string> names;
+            for (const HitboxData& h : mesh->metaData.hitboxes)
+            {
+                const uint16_t skel = mesh->GetSkeletonIndex(hashed_string{ h.boneName });
+                if (skel != INVALID_BONE_IDX && skel >= cut.boneSkel && skel < profile.subtreeEnd[cut.boneSkel])
+                    names.push_back(hashed_string{ h.boneName });
+            }
+            if (!names.empty())
+                mesh->SetHitboxesActive(names, false);
+
+            // Blood soaks the skin around the stump.
+            AddSplat(gore, cut.center, 0.14f + cut.boneRadius * 3.0f, 1.0f);
+
+            const glm::vec3 up(0, 1, 0);
+            const float strength = glm::clamp(hit.damage / std::max(source.refDamage, 1.0f), 0.5f, 2.5f);
+            GibRequest gib;
+            gib.body = EntityHandle::FromEntity(self);
+            gib.cutIndex = cutIndex;
+            gib.impulse = hit.direction * (2.0f + 1.5f * strength) + up * 1.2f;
+            GibPool::Request(gib);
+
+            GorePartEvent part;
+            part.victim = EntityHandle::FromEntity(self);
+            part.boneSkel = cut.boneSkel;
+            part.lost = true;
+            EcsScheduler::Emit(part);
+            return true;
+        }
+
         // Severs a part when the blow is strong enough. Returns true when a cut was made (no wound is added for the hit).
         bool TrySever(Entity* self, GoreSkeletalMesh* mesh, GoreComponent& gore, const Profile& profile, const Source& source,
                       const Hit& hit, const Anchor& anchor, const glm::vec3& pBind, const glm::mat4& world,
@@ -311,50 +433,66 @@ namespace Gore
                     normal = glm::cross(hit.direction, std::abs(hit.direction.y) < 0.99f ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
             }
 
-            CutRequest request;
-            request.severableIndex = static_cast<uint16_t>(candidate);
-            request.worldPoint = hit.point;
-            request.worldNormal = normal;
+            return MakeCut(self, mesh, gore, profile, source, hit, candidate, hit.point, normal, world, palette, rng);
+        }
 
-            const CutResult result = SolveCut(profile, *mesh->GetSkinnedModel(), world, palette, request, rng);
-            if (!result.ok) return false;
+        // An explosion (or a cannon ball) tears off the parts of the body that are close to its centre: the nearest severable
+        // bones first, at most kBlastMaxCuts per blast, nothing below the sever threshold.
+        constexpr int kBlastMaxCuts = 3;
 
-            Cut cut = result.cut;
-            cut.severedAt = now;
-            cut.phase = CutPhase::Severed;
+        void BlastSever(Entity* self, GoreSkeletalMesh* mesh, GoreComponent& gore, const Profile& profile, const Source& source,
+                        const Hit& hit, const glm::mat4& world, const std::vector<glm::mat4>& palette, Rng& rng)
+        {
+            if (gore.isGib || profile.severable.empty()) return;
+            if (hit.damage * source.severPower < kSeverThreshold) return;
 
-            const uint8_t cutIndex = gore.cutCount;
-            gore.cuts[gore.cutCount++] = cut;
-            damage = 0.0f;
+            // An explosion entity brings its own centre and reach; a cannon ball explodes where it hit, slightly inside.
+            const bool entityBlast = hit.blastRadius > 0.0f;
+            const float radius = entityBlast ? hit.blastRadius * 0.5f : source.blastRadius;
+            if (radius <= 0.0f) return;
+            const glm::vec3 centre = entityBlast ? hit.blastCenter : hit.point + hit.direction * 0.1f;
 
-            // The part's hitboxes leave the physics world (the gib gets its own).
-            std::vector<hashed_string> names;
-            for (const HitboxData& h : mesh->metaData.hitboxes)
+            struct Candidate { int index; float distance; glm::vec3 away; };
+            std::vector<Candidate> candidates;
+            for (size_t i = 0; i < profile.severable.size(); ++i)
             {
-                const uint16_t skel = mesh->GetSkeletonIndex(hashed_string{ h.boneName });
-                if (skel != INVALID_BONE_IDX && skel >= cut.boneSkel && skel < profile.subtreeEnd[cut.boneSkel])
-                    names.push_back(hashed_string{ h.boneName });
+                const SeverableBone& sev = profile.severable[i];
+                if (sev.skel >= profile.anyBounds.size() || !profile.anyBounds[sev.skel].hasData) continue;
+                if (SubtreeHoldsCut(gore, profile, sev.skel)) continue;
+
+                bool inCutPart = false;   // already gone with an earlier cut
+                for (int c = 0; c < gore.cutCount; ++c)
+                    if (sev.skel >= gore.cuts[c].boneSkel && sev.skel < profile.subtreeEnd[gore.cuts[c].boneSkel]) { inCutPart = true; break; }
+                if (inCutPart) continue;
+
+                glm::vec3 corners[8];
+                BoundCorners(profile.anyBounds[sev.skel], corners);
+                const glm::mat4 toWorld = BoneBindToWorld(world, palette, sev.skin);
+                glm::vec3 lo(FLT_MAX), hi(-FLT_MAX);
+                for (const glm::vec3& c : corners)
+                {
+                    const glm::vec3 p = glm::vec3(toWorld * glm::vec4(c, 1.0f));
+                    lo = glm::min(lo, p);
+                    hi = glm::max(hi, p);
+                }
+                const glm::vec3 nearest = glm::clamp(centre, lo, hi);
+                const float d = glm::distance(nearest, centre);
+                if (d > radius) continue;
+
+                glm::vec3 away = (lo + hi) * 0.5f - centre;
+                away = glm::length(away) > 1.0e-4f ? glm::normalize(away) : hit.direction;
+                candidates.push_back({ static_cast<int>(i), d, away });
             }
-            if (!names.empty())
-                mesh->SetHitboxesActive(names, false);
 
-            // Blood soaks the skin around the stump.
-            AddSplat(gore, cut.center, 0.14f + cut.boneRadius * 3.0f, 1.0f);
+            std::sort(candidates.begin(), candidates.end(), [](const Candidate& a, const Candidate& b) { return a.distance < b.distance; });
 
-            const glm::vec3 up(0, 1, 0);
-            const float strength = glm::clamp(hit.damage / std::max(source.refDamage, 1.0f), 0.5f, 2.5f);
-            GibRequest gib;
-            gib.body = EntityHandle::FromEntity(self);
-            gib.cutIndex = cutIndex;
-            gib.impulse = hit.direction * (2.0f + 1.5f * strength) + up * 1.2f;
-            GibPool::Request(gib);
-
-            GorePartEvent part;
-            part.victim = EntityHandle::FromEntity(self);
-            part.boneSkel = cut.boneSkel;
-            part.lost = true;
-            EcsScheduler::Emit(part);
-            return true;
+            int cuts = 0;
+            for (const Candidate& c : candidates)
+            {
+                if (cuts >= kBlastMaxCuts || gore.cutCount >= kMaxCuts) break;
+                if (SubtreeHoldsCut(gore, profile, profile.severable[c.index].skel)) continue;   // an earlier blast cut took it
+                if (MakeCut(self, mesh, gore, profile, source, hit, c.index, centre, c.away, world, palette, rng)) ++cuts;
+            }
         }
 
         struct Cluster
@@ -432,7 +570,7 @@ namespace Gore
             const float reach = 2.0f * MaxExtent(profile, anchor.skel);
             const float damage = std::max(hit.damage, 1.0f);
 
-            if (TrySever(self, mesh, gore, profile, source, hit, anchor, pBind, World, palette, rng))
+            if (source.type != SourceType::Blast && TrySever(self, mesh, gore, profile, source, hit, anchor, pBind, World, palette, rng))
                 continue;
 
             switch (source.type)
@@ -441,7 +579,7 @@ namespace Gore
             case SourceType::HeavyBullet:
             {
                 const bool heavy = source.type == SourceType::HeavyBullet;
-                float r = source.woundRadius * std::sqrt(damage / source.refDamage) * rng.Range(0.8f, 1.2f);
+                float r = source.woundRadius * glm::clamp(std::sqrt(damage / source.refDamage), source.minScale, source.maxScale) * rng.Range(0.8f, 1.2f);
                 if (heavy) r *= 1.3f;
                 const float rz = std::max(r * 1.6f, 0.05f);
 
@@ -526,10 +664,11 @@ namespace Gore
 
             case SourceType::Blast:
             {
-                const float r = source.woundRadius * glm::clamp(hit.damage / source.refDamage, 0.5f, 2.0f);
-                const float rz = std::max(r * 0.7f, 0.04f);
+                const float r = source.woundRadius * glm::clamp(std::sqrt(damage / source.refDamage), source.minScale, source.maxScale);
+                const float rz = std::max(r * 0.9f, 0.04f);
                 AddWound(gore, MakeShotWound(anchor, reach, WoundKind::Crater, pBind, dBind, r, rz, 0.5f, 0.6f, rng));
                 AddSplat(gore, pBind, 2.5f * r, 1.0f);
+                BlastSever(self, mesh, gore, profile, source, hit, World, palette, rng);
                 break;
             }
             }
@@ -551,8 +690,10 @@ namespace Gore
 
             Rng rng(c.seed);
             const glm::vec3 dir = glm::length(c.dirSum) > 1.0e-5f ? glm::normalize(c.dirSum) : glm::vec3(0, 0, 1);
-            const float r = source->woundRadius * (1.5f + 0.6f * std::sqrt(static_cast<float>(c.count)));
-            const float rz = std::max(r * 0.8f, 0.035f);
+            // A shotgun blast at close range tears a hole as wide as its spread; every pellet adds to it.
+            const float spread = source->clusterRadius * 1.0f * std::sqrt(std::min(static_cast<float>(c.count), 9.0f) / 5.0f);
+            const float r = std::max(source->woundRadius * (1.5f + 0.6f * std::sqrt(static_cast<float>(c.count))), spread);
+            const float rz = std::max(r * 0.9f, 0.04f);
             const float reach = 2.0f * MaxExtent(profile, anchor.skel);
 
             AddWound(gore, MakeShotWound(anchor, reach, WoundKind::Crater, c.center, dir, r, rz, 0.4f, 0.5f, rng));

@@ -17,6 +17,19 @@ SAMPLER2D(u_goreBlood,       5);
 
 void main()
 {
+    // The bowl is skinned like the body, so where a limb was cut off it must go too (same test as the skin; the draw has no
+    // per-range cut mask, so every cut counts). A gib only holds wounds that lie in its own part.
+    if (u_goreParams.y < 0.5)
+    {
+        int nc = int(u_goreCounts.y + 0.5);
+        for (int i = 0; i < GORE_MAX_CUTS; i++)
+        {
+            if (i >= nc) break;
+            float fr;
+            if (goreCutRemoves(i, v_goreBind.xyz, fr)) discard;
+        }
+    }
+
     vec3 P = v_world.xyz;
     vec3 viewDir = normalize(u_goreCameraPos.xyz - P);
 
@@ -43,6 +56,7 @@ void main()
     float pool = (1.0 - f) * (0.35 + 0.35 * texture2DLod(u_goreBlood, uv * 0.8, 0.0).r);
     albedo = mix(albedo, u_goreBloodColor.rgb * 1.2, pool);
     albedo *= 1.0 - 0.25 * depth;
+    albedo *= 0.62;                                          // raw flesh is darker than lit skin (and the scene light is strong)
 
     if (u_goreParams.w > 0.5) { float l = dot(albedo, vec3(0.3, 0.59, 0.11)); albedo = vec3(l, l, l) * 0.4; }   // reduced/minimal
 

@@ -19,6 +19,9 @@ namespace Gore
         float clusterRadius = 0.07f;
         float gashLength = 0.15f;
         float severPower = 0.0f;
+        float blastRadius = 0.0f;   // blast: limbs/head whose bone is within this distance of the blast centre are blown off (0 = none)
+        float minScale = 0.6f;      // wound size follows sqrt(damage / refDamage), limited to [minScale, maxScale]
+        float maxScale = 2.5f;
         bool exit = false;
         uint32_t tagBits = 0;   // bit per tag, see TagBit()
     };

@@ -83,6 +83,9 @@ namespace Gore
                 s.gashLength = v.value("gashLength", s.gashLength);
                 s.severPower = v.value("severPower", s.severPower);
                 s.exit = v.value("exit", s.exit);
+                s.blastRadius = v.value("blastRadius", s.blastRadius);
+                s.minScale = v.value("minScale", s.minScale);
+                s.maxScale = v.value("maxScale", s.maxScale);
                 if (s.refDamage <= 0.0f) s.refDamage = 20.0f;
 
                 if (v.contains("tags") && v["tags"].is_array())

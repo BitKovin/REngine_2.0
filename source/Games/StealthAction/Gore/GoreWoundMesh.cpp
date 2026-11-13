@@ -195,7 +195,7 @@ namespace Gore
         const float reachXY = std::max(radii.x, radii.y);
         const glm::mat3 R = glm::mat3_cast(wound.rotation);
         const glm::mat3 Rinv = glm::transpose(R);
-        const glm::vec3 X = R[0], Y = R[1];
+        const glm::vec3 X = R[0], Y = R[1], Z = R[2];
 
         Scene scene;
         scene.tris = std::move(triangles);
@@ -283,16 +283,31 @@ namespace Gore
 
                 // Depth: the ellipsoid's depth under this point along the inward direction, never more than 60 % of the body
                 // behind it (a thin part must not be dug through).
-                const glm::vec3 inward = -outward;
+                glm::vec3 inward = -outward;
                 float depth = 0.0f;
                 if (g.rho < 1.0f)
                 {
-                    depth = std::min(ellipsoidDepth(g.position, inward), depthMax);
+                    // Authored normals can point the wrong way (the inner side of a hood, double sided cloth): digging "inward"
+                    // would then stand the bowl up out of the body. A side with a surface right behind it is the inside; when
+                    // inward is open and the opposite side is closed, the normal is flipped.
+                    const float probe = depthMax;
+                    if (scene.Distance(g.position + inward * 0.002f, inward) > probe && scene.Distance(g.position + outward * 0.002f, outward) < probe)
+                    {
+                        inward = outward;
+                        outward = -outward;
+                    }
+                    // Smooth bowl: dig mostly along the wound axis (the authored normals of low-poly cloth jump from face to
+                    // face and make a crumpled bowl), and less where the skin turns away from the axis.
+                    const glm::vec3 axis = glm::dot(Z, inward) >= 0.0f ? Z : -Z;
+                    const float facing = glm::dot(axis, inward);
+                    inward = glm::normalize(glm::mix(inward, axis, 0.7f));
+                    const float taper = glm::smoothstep(0.05f, 0.55f, facing);
+                    depth = std::min(ellipsoidDepth(g.position, inward), depthMax) * taper;
                     if (depth > 0.0f)
                     {
                         const glm::vec3 faceInward = glm::dot(fn, inward) < 0.0f ? -fn : fn;
                         const float thick = scene.Distance(g.position + glm::normalize(faceInward) * 0.002f, inward);
-                        depth = std::min(depth, 0.6f * thick);
+                        depth = thick > 1.0e8f ? 0.0f : std::min(depth, 0.6f * thick);   // nothing behind the skin: nothing to dig into, the bowl stays flat
                     }
                 }
                 depth += 0.003f;   // just under the skin so the rim never z-fights with it

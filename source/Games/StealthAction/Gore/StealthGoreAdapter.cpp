@@ -5,6 +5,7 @@
 #include "GoreSettings.h"
 #include "GoreSource.h"
 
+#include <Entities/Explosion.h>
 #include <Entity.h>
 #include <Ecs/Ecs.h>
 
@@ -61,6 +62,13 @@ namespace StealthGore
         hit.damage = damage;
         hit.sourceIndex = source;
         hit.lethal = wasAliveBefore && npc->Health <= 0.0f;
+
+        // An explosion entity knows where it went off and how far it reaches.
+        if (const Explosion* explosion = dynamic_cast<const Explosion*>(weapon))
+        {
+            hit.blastCenter = explosion->Position;
+            hit.blastRadius = explosion->Radius;
+        }
 
         Gore::SetHitBone(hit, bone);
 

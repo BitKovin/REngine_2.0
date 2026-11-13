@@ -105,6 +105,8 @@ namespace Gore
         glm::vec3 point = glm::vec3(0);         // world
         glm::vec3 direction = glm::vec3(0, 0, 1); // world, normalised, direction the damage travels
         glm::vec3 sweepNormal = glm::vec3(0);   // world, blade sweep plane normal (slash only), 0 = none
+        glm::vec3 blastCenter = glm::vec3(0);   // world, centre of the explosion (only when blastRadius > 0)
+        float blastRadius = 0.0f;               // world, 0 = not an explosion entity (the source decides)
         float damage = 0.0f;
         uint16_t sourceIndex = 0;               // index into the sources table
         char hitBone[32] = {};                  // hitbox bone name (fixed buffer - no heap in the event)

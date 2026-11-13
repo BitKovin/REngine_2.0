@@ -289,6 +289,8 @@ namespace Gore
                 h.direction = args.find("gore_flip") != args.end() ? -dir : dir;   // test: blow towards the camera
                 h.sweepNormal = MathHelper::GetUpVector(Camera::finalizedRotation);
                 h.damage = 25.0f;
+                auto dmg = args.find("gore_damage");
+                if (dmg != args.end() && !dmg->second.empty()) h.damage = static_cast<float>(std::atof(dmg->second[0].c_str()));
                 h.sourceIndex = SourceIndexForClass(srcClass);
                 Gore::SetHitBone(h, hit.hitboxName);
                 h.counter = static_cast<uint32_t>(i + 1);
