@@ -1,110 +1,195 @@
 {
-  "textures": {
-    "flesh": "gore/flesh_d.png",
-    "fleshNormal": "gore/flesh_n.png",
-    "blood": "gore/blood_soak.png",
-    "edgeNoise": "gore/edge_noise.png",
-    "bone": "gore/bone_d.png"
+  "extends": "GameData/gore/humanoid.gore",
+  "boneMap": {
+    "upperarm_l": "mixamorig:LeftArm",
+    "upperarm_r": "mixamorig:RightArm",
+    "lowerarm_l": "mixamorig:LeftForeArm",
+    "lowerarm_r": "mixamorig:RightForeArm",
+    "thigh_l": "mixamorig:LeftUpLeg",
+    "thigh_r": "mixamorig:RightUpLeg",
+    "calf_l": "mixamorig:LeftLeg",
+    "calf_r": "mixamorig:RightLeg",
+    "neck_01": "mixamorig:Head",
+    "spine_02": "mixamorig:Spine1"
   },
-  "fleshScale": 3.0,
-  "bloodColor": [
-    0.35,
-    0.02,
-    0.02
-  ],
-  "submeshes": {},
-  "severable": [
+  "slots": [
     {
-      "bone": "mixamorig:LeftArm",
-      "range": [
-        0.3,
-        0.7
+      "name": "chest_front",
+      "bone": "mixamorig:Spine1",
+      "center": [
+        0,
+        1.38,
+        0.232
       ],
-      "maxTilt": 35,
-      "boneRadius": 0.034,
-      "gib": "ragdoll"
+      "facing": [
+        0,
+        0,
+        1
+      ],
+      "radii": [
+        0.13,
+        0.13,
+        0.12
+      ],
+      "threshold": 100,
+      "cone": 80,
+      "catch": 0.247
     },
     {
-      "bone": "mixamorig:RightArm",
-      "range": [
-        0.3,
-        0.7
+      "name": "chest_back",
+      "bone": "mixamorig:Spine1",
+      "center": [
+        0,
+        1.38,
+        -0.23
       ],
-      "maxTilt": 35,
-      "boneRadius": 0.034,
-      "gib": "ragdoll"
+      "facing": [
+        0,
+        0,
+        -1
+      ],
+      "radii": [
+        0.13,
+        0.13,
+        0.12
+      ],
+      "threshold": 100,
+      "cone": 80,
+      "catch": 0.247
     },
     {
-      "bone": "mixamorig:LeftForeArm",
-      "range": [
-        0.3,
-        0.7
+      "name": "through_l",
+      "bone": "mixamorig:Spine1",
+      "center": [
+        0.11,
+        1.2,
+        0.04
       ],
-      "maxTilt": 35,
-      "boneRadius": 0.027,
-      "gib": "rigid"
+      "facing": [
+        0,
+        0,
+        1
+      ],
+      "radii": [
+        0.095,
+        0.13,
+        0.3
+      ],
+      "threshold": 70,
+      "cone": 80,
+      "catch": 0.09,
+      "through": true
     },
     {
-      "bone": "mixamorig:RightForeArm",
-      "range": [
-        0.3,
-        0.7
+      "name": "through_r",
+      "bone": "mixamorig:Spine1",
+      "center": [
+        -0.11,
+        1.2,
+        0.04
       ],
-      "maxTilt": 35,
-      "boneRadius": 0.027,
-      "gib": "rigid"
+      "facing": [
+        0,
+        0,
+        1
+      ],
+      "radii": [
+        0.095,
+        0.13,
+        0.3
+      ],
+      "threshold": 70,
+      "cone": 80,
+      "catch": 0.09,
+      "through": true
     },
     {
-      "bone": "mixamorig:LeftUpLeg",
-      "range": [
-        0.3,
-        0.7
+      "name": "belly_front",
+      "bone": "mixamorig:Spine1",
+      "center": [
+        0,
+        1.0,
+        0.288
       ],
-      "maxTilt": 35,
-      "boneRadius": 0.052,
-      "gib": "ragdoll"
+      "facing": [
+        0,
+        0,
+        1
+      ],
+      "radii": [
+        0.117,
+        0.117,
+        0.12
+      ],
+      "threshold": 100,
+      "cone": 80,
+      "catch": 0.222
     },
     {
-      "bone": "mixamorig:RightUpLeg",
-      "range": [
-        0.3,
-        0.7
+      "name": "belly_back",
+      "bone": "mixamorig:Spine1",
+      "center": [
+        0,
+        1.0,
+        -0.163
       ],
-      "maxTilt": 35,
-      "boneRadius": 0.052,
-      "gib": "ragdoll"
+      "facing": [
+        0,
+        0,
+        -1
+      ],
+      "radii": [
+        0.117,
+        0.117,
+        0.12
+      ],
+      "threshold": 100,
+      "cone": 80,
+      "catch": 0.222
     },
     {
-      "bone": "mixamorig:LeftLeg",
-      "range": [
-        0.3,
-        0.7
+      "name": "flank_l",
+      "bone": "mixamorig:Spine1",
+      "center": [
+        0.21,
+        1.2,
+        0.04
       ],
-      "maxTilt": 35,
-      "boneRadius": 0.04,
-      "gib": "rigid"
+      "facing": [
+        1,
+        0,
+        0
+      ],
+      "radii": [
+        0.0975,
+        0.0975,
+        0.12
+      ],
+      "threshold": 50,
+      "cone": 70,
+      "catch": 0.185
     },
     {
-      "bone": "mixamorig:RightLeg",
-      "range": [
-        0.3,
-        0.7
+      "name": "flank_r",
+      "bone": "mixamorig:Spine1",
+      "center": [
+        -0.215,
+        1.2,
+        0.04
       ],
-      "maxTilt": 35,
-      "boneRadius": 0.04,
-      "gib": "rigid"
-    },
-    {
-      "bone": "mixamorig:Head",
-      "range": [
-        -0.7,
-        0.65
+      "facing": [
+        -1,
+        0,
+        0
       ],
-      "maxTilt": 30,
-      "boneRadius": 0.034,
-      "gib": "rigid",
-      "lethal": true,
-      "canDestroy": true
+      "radii": [
+        0.0975,
+        0.0975,
+        0.12
+      ],
+      "threshold": 50,
+      "cone": 70,
+      "catch": 0.185
     }
   ]
 }

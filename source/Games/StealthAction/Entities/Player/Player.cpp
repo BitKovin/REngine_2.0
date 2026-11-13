@@ -2059,14 +2059,16 @@ vec3 Player::GetBobForMainWeapon()
 	return bobT * 0.04f;
 }
 
-IInteractive* Player::UpdateInteractionRaycast()
+IInteractive* Player::UpdateInteractionRaycast(Entity*& hitEntity)
 {
+	hitEntity = nullptr;
 
 	auto hit = Physics::LineTrace(Camera::position, Camera::position + Camera::Forward() * 2.0f, BodyType::GroupHitTest, {}, { this, currentWeapon, currentOffhandWeapon });
 
 	if (hit.hasHit == false) return nullptr;
 
 	auto interactive = dynamic_cast<IInteractive*>(hit.entity);
+	if (interactive) hitEntity = hit.entity;
 
 	return interactive;
 
@@ -2075,7 +2077,17 @@ IInteractive* Player::UpdateInteractionRaycast()
 void Player::UpdateInteraction()
 {
 
-	IInteractive* newInteractive = UpdateInteractionRaycast();
+	// The object we were looking at may have been destroyed since the last tick (picked up, killed, removed): drop it
+	// without calling into it.
+	if (currentInteractionObject && currentInteractionHandle.Resolve() == nullptr)
+	{
+		currentInteractionObject = nullptr;
+		interactionProgress = 0;
+		startedInteracting = false;
+	}
+
+	Entity* newEntity = nullptr;
+	IInteractive* newInteractive = UpdateInteractionRaycast(newEntity);
 
 	if (newInteractive != currentInteractionObject)
 	{
@@ -2086,6 +2098,7 @@ void Player::UpdateInteraction()
 
 		interactionProgress = 0;
 		currentInteractionObject = newInteractive;
+		currentInteractionHandle = newEntity ? EntityHandle::FromEntity(newEntity) : EntityHandle();
 
 		startedInteracting = false;
 	}

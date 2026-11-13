@@ -18,7 +18,9 @@ namespace Gore
         float refDamage = 20.0f;
         float clusterRadius = 0.07f;
         float gashLength = 0.15f;
-        float severPower = 0.0f;
+        float severPower = 0.0f;    // weight of this weapon's damage towards removing a part (damage * severPower vs the part's threshold)
+        float holePower = 0.0f;     // weight of this weapon's damage towards opening a torso wound slot
+        float decalRadius = 0.0f;   // bullet hole decal: ring radius in metres (0 = no decal)
         float blastRadius = 0.0f;   // blast: limbs/head whose bone is within this distance of the blast centre are blown off (0 = none)
         float minScale = 0.6f;      // wound size follows sqrt(damage / refDamage), limited to [minScale, maxScale]
         float maxScale = 2.5f;

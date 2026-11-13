@@ -13,6 +13,12 @@ namespace Gore
         uint16_t severableIndex = 0;                 // index into Profile::severable
         glm::vec3 worldPoint = glm::vec3(0);         // where the blow landed
         glm::vec3 worldNormal = glm::vec3(0, 1, 0);  // desired plane normal (any sign)
+        // Remove the whole part at its joint: the plane is square to the bone, at the near end of the bone's range (the
+        // point and normal are ignored). Used for parts that are destroyed rather than cut.
+        bool atJoint = false;
+        // A blade cut: refused when the plane would have to tilt well past the bone's limit (the blade runs along the limb
+        // instead of across it - that is a gash, not a cut).
+        bool strictTilt = false;
     };
 
     struct CutResult

@@ -17,14 +17,16 @@ SAMPLER2D(u_goreBlood,       5);
 
 void main()
 {
-    // The bowl is skinned like the body, so where a limb was cut off it must go too (same test as the skin; the draw has no
-    // per-range cut mask, so every cut counts). A gib only holds wounds that lie in its own part.
+    // The bowl is skinned like the body, so where the part it sits on was cut off it must go too (same test as the skin; the
+    // draw's range mask holds the cuts of that part only: a cut elsewhere must not eat holes into the bowl). A gib only holds
+    // wounds that lie in its own part.
     if (u_goreParams.y < 0.5)
     {
         int nc = int(u_goreCounts.y + 0.5);
         for (int i = 0; i < GORE_MAX_CUTS; i++)
         {
             if (i >= nc) break;
+            if (!goreBit(u_goreRangeMask.y, i)) continue;
             float fr;
             if (goreCutRemoves(i, v_goreBind.xyz, fr)) discard;
         }

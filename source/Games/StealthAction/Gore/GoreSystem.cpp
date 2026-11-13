@@ -3,6 +3,7 @@
 #include "GoreEvents.h"
 #include "GoreGib.h"
 #include "GoreProfile.h"
+#include "GoreSettings.h"
 #include "GoreSkeletalMesh.h"
 #include "GoreSource.h"
 #include "GoreWoundMesh.h"
@@ -12,6 +13,7 @@
 #include <Entity.h>
 #include <Physics.h>
 #include <PhysicsConverter.h>
+#include <Logger.hpp>
 #include <Time.hpp>
 
 #include <algorithm>
@@ -328,13 +330,15 @@ namespace Gore
 
         // Cuts a severable bone at the plane nearest to `point` (leaning towards `normal`), hides its hitboxes, spawns the gib.
         bool MakeCut(Entity* self, GoreSkeletalMesh* mesh, GoreComponent& gore, const Profile& profile, const Source& source,
-                     const Hit& hit, int candidate, const glm::vec3& point, const glm::vec3& normal, const glm::mat4& world,
-                     const std::vector<glm::mat4>& palette, Rng& rng)
+                     const Hit& hit, int candidate, const glm::vec3& point, const glm::vec3& normal, bool atJoint, bool strictTilt,
+                     const glm::mat4& world, const std::vector<glm::mat4>& palette, Rng& rng)
         {
             CutRequest request;
             request.severableIndex = static_cast<uint16_t>(candidate);
             request.worldPoint = point;
             request.worldNormal = normal;
+            request.atJoint = atJoint;
+            request.strictTilt = strictTilt;
 
             const CutResult result = SolveCut(profile, *mesh->GetSkinnedModel(), world, palette, request, rng);
             if (!result.ok) return false;
@@ -433,7 +437,7 @@ namespace Gore
                     normal = glm::cross(hit.direction, std::abs(hit.direction.y) < 0.99f ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
             }
 
-            return MakeCut(self, mesh, gore, profile, source, hit, candidate, hit.point, normal, world, palette, rng);
+            return MakeCut(self, mesh, gore, profile, source, hit, candidate, hit.point, normal, false, false, world, palette, rng);
         }
 
         // An explosion (or a cannon ball) tears off the parts of the body that are close to its centre: the nearest severable
@@ -491,8 +495,169 @@ namespace Gore
             {
                 if (cuts >= kBlastMaxCuts || gore.cutCount >= kMaxCuts) break;
                 if (SubtreeHoldsCut(gore, profile, profile.severable[c.index].skel)) continue;   // an earlier blast cut took it
-                if (MakeCut(self, mesh, gore, profile, source, hit, c.index, centre, c.away, world, palette, rng)) ++cuts;
+                if (MakeCut(self, mesh, gore, profile, source, hit, c.index, centre, c.away, !GoreSettings::Get().freeformWounds, false, world, palette, rng)) ++cuts;
             }
+        }
+
+        // ---- authored mode: decals, profile wound slots, parts removed at their joints ----------------------------------------
+
+        constexpr double kAuthoredDecaySeconds = 20.0;   // damage collected towards a part / slot fades slowly
+        constexpr float kKillingBlowWeight = 2.5f;       // the hit that kills counts extra: overkill tears things off
+
+        float EffectiveDamage(const Hit& hit) { return hit.lethal ? hit.damage * kKillingBlowWeight : hit.damage; }
+
+        void AddDecal(GoreComponent& g, const glm::vec3& center, float radius)
+        {
+            Decal d;
+            d.center = center;
+            d.radius = radius;
+            d.order = g.orderCounter++;
+
+            if (g.decalCount < kMaxDecals)
+            {
+                g.decals[g.decalCount++] = d;
+                return;
+            }
+            int oldest = 0;
+            for (int i = 1; i < g.decalCount; ++i)
+                if (g.decals[i].order < g.decals[oldest].order) oldest = i;
+            g.decals[oldest] = d;
+        }
+
+        // The severable bone a hit on `skel` belongs to: the bone itself or its nearest severable ancestor (a hand counts for
+        // the forearm). -1 for the torso and anything else that is not a removable part.
+        int FindPart(const Profile& profile, uint16_t skel)
+        {
+            uint16_t b = skel;
+            for (;;)
+            {
+                if (b < profile.severableBySkel.size() && profile.severableBySkel[b] >= 0) return profile.severableBySkel[b];
+                if (b >= profile.parent.size() || profile.parent[b] >= b) return -1;
+                b = profile.parent[b];
+            }
+        }
+
+        bool InRemovedPart(const GoreComponent& gore, const Profile& profile, uint16_t skel)
+        {
+            for (int i = 0; i < gore.cutCount; ++i)
+            {
+                const uint16_t c = gore.cuts[i].boneSkel;
+                if (c < profile.subtreeEnd.size() && skel >= c && skel < profile.subtreeEnd[c]) return true;
+            }
+            return false;
+        }
+
+        // Collects the damage of a hit towards removing the part under it; removes the part when it is enough. A blade removes
+        // it with the plane of the swing, and only when that plane really crosses the part; everything else takes the part off
+        // at its joint. Returns true when the part is gone.
+        bool RemovePart(Entity* self, GoreSkeletalMesh* mesh, GoreComponent& gore, const Profile& profile, const Source& source,
+                        const Hit& hit, const Anchor& anchor, const glm::mat4& world, const std::vector<glm::mat4>& palette, Rng& rng)
+        {
+            // Parts only come off a body that is already dead (for now): a live enemy keeps its head and limbs.
+            if (hit.alive || gore.isGib || source.severPower <= 0.0f || gore.cutCount >= kMaxCuts) return false;
+
+            const int part = FindPart(profile, anchor.skel);
+            if (part < 0) return false;
+            const SeverableBone& sev = profile.severable[part];
+            if (InRemovedPart(gore, profile, sev.skel) || SubtreeHoldsCut(gore, profile, sev.skel)) return false;
+
+            const double now = Time::GameTime;
+            float& damage = gore.severDamage[part];
+            double& at = gore.severDamageTime[part];
+            damage = damage * static_cast<float>(std::exp(-(now - at) / kAuthoredDecaySeconds)) + EffectiveDamage(hit) * source.severPower;
+            at = now;
+
+            const bool instant = hit.lethal && sev.lethal && source.severPower > 0.5f && IsSeverType(source.type);
+            if (damage < sev.detachDamage && !instant) return false;
+
+            if (source.type == SourceType::Slash)
+            {
+                glm::vec3 normal = hit.sweepNormal;
+                if (glm::length(normal) < 1.0e-4f)
+                    normal = glm::cross(hit.direction, std::abs(hit.direction.y) < 0.99f ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0));
+                return MakeCut(self, mesh, gore, profile, source, hit, part, hit.point, normal, false, true, world, palette, rng);
+            }
+            return MakeCut(self, mesh, gore, profile, source, hit, part, hit.point, hit.direction, true, false, world, palette, rng);
+        }
+
+        // Opens the torso wound slot that this hit points into once enough damage has come in from the front of it.
+        void OpenSlots(GoreComponent& gore, const Profile& profile, const Source& source, const Hit& hit,
+                       const glm::vec3& pBind, const glm::vec3& dBind, Rng& rng)
+        {
+            if (gore.isGib || source.holePower <= 0.0f) return;
+
+            // Every slot the hit lands in and points into collects its damage (neighbouring slots overlap, and a hit near a
+            // dent must not starve the hole beside it). One hit opens at most one slot: the one furthest past its threshold.
+            const double now = Time::GameTime;
+            int best = -1;
+            float bestRatio = 0.0f;
+            for (size_t i = 0; i < profile.slots.size(); ++i)
+            {
+                if (gore.openSlots & (1u << i)) continue;
+                const WoundSlot& s = profile.slots[i];
+                // A through hole opens from the front and from the back, and counts the distance across the body only.
+                const float facing = s.through ? std::abs(glm::dot(dBind, s.facing)) : glm::dot(-dBind, s.facing);
+                glm::vec3 off = pBind - s.center;
+                if (s.through) off -= s.facing * glm::dot(off, s.facing);
+                if (facing < s.cosCone || glm::length(off) > s.catchRadius) continue;
+
+                float& damage = gore.slotDamage[i];
+                double& at = gore.slotDamageTime[i];
+                damage = damage * static_cast<float>(std::exp(-(now - at) / kAuthoredDecaySeconds)) + EffectiveDamage(hit) * source.holePower;
+                at = now;
+
+                const float ratio = damage / s.threshold;
+                if (ratio >= 1.0f && ratio > bestRatio) { bestRatio = ratio; best = static_cast<int>(i); }
+            }
+            if (best < 0) return;
+
+            const WoundSlot& slot = profile.slots[best];
+
+            Wound w;
+            const glm::vec3 dig = -slot.facing;
+            w.center = slot.through ? slot.center : slot.center + dig * (slot.radii.z * 0.35f);
+            w.rotation = RotateZTo(dig);
+            w.radii = slot.radii;
+            w.anchorSkin = slot.skin;
+            w.anchorSkel = slot.skel;
+            w.slot = static_cast<int8_t>(best);
+            w.through = slot.through;
+            w.kind = WoundKind::Crater;
+            w.roughness = slot.roughness;
+            w.rimWidth = slot.rimWidth;
+            w.seed = rng.Next01();
+            w.reach = 2.0f * MaxExtent(profile, slot.skel);
+            w.order = gore.orderCounter++;
+            w.cavity = slot.cavity;   // already built for an earlier body of this model
+
+            gore.wounds[gore.woundCount++] = w;
+            gore.openSlots |= static_cast<uint8_t>(1u << best);
+            AddSplat(gore, slot.center, 2.2f * std::max(slot.radii.x, slot.radii.y), 1.0f);
+        }
+
+        void ProcessAuthoredHit(Entity* self, GoreSkeletalMesh* mesh, GoreComponent& gore, const Profile& profile, const Source& source,
+                                const Hit& hit, const Anchor& anchor, const glm::vec3& pBind, const glm::vec3& dBind,
+                                const glm::mat4& world, const std::vector<glm::mat4>& palette, Rng& rng)
+        {
+            // Hits on a part that is already gone cannot happen (its hitboxes are off); on a gib they only leave marks.
+            if (!gore.isGib && InRemovedPart(gore, profile, anchor.skel)) return;
+
+            if (source.decalRadius > 0.0f)
+            {
+                AddDecal(gore, pBind, source.decalRadius * rng.Range(0.85f, 1.2f));
+                AddSplat(gore, pBind, 3.0f * source.decalRadius, 0.9f);
+            }
+            else if (source.type == SourceType::Blunt)
+                AddSplat(gore, pBind, std::max(0.08f * hit.damage / source.refDamage, 0.03f), 0.8f);
+            else if (source.type == SourceType::Slash)
+                AddSplat(gore, pBind, 2.5f * source.woundRadius + 0.03f, 1.0f);
+
+            const bool removed = RemovePart(self, mesh, gore, profile, source, hit, anchor, world, palette, rng);
+            if (!removed)
+                OpenSlots(gore, profile, source, hit, pBind, dBind, rng);
+
+            if (source.type == SourceType::Blast && !hit.alive)
+                BlastSever(self, mesh, gore, profile, source, hit, world, palette, rng);
         }
 
         struct Cluster
@@ -522,6 +687,7 @@ namespace Gore
         if (gore.pendingCount == 0) return;
         gore.pending[gore.pendingCount - 1].damage += hit.damage;
         gore.pending[gore.pendingCount - 1].lethal |= hit.lethal;
+        gore.pending[gore.pendingCount - 1].alive |= hit.alive;
     }
 
     void ProcessPendingHits(Entity* self, GoreComponent& gore)
@@ -537,7 +703,7 @@ namespace Gore
         if (!profile.valid)
         {
             // Still loading: keep the hits; no profile for this model: drop them.
-            if (mesh->GetSkinnedModel()->meshes.empty()) return;
+            if (mesh->GetSkinnedModel()->meshes.empty() || profile.loading) return;
             gore.pendingCount = 0;
             return;
         }
@@ -569,6 +735,12 @@ namespace Gore
             Rng rng(hit.seed);
             const float reach = 2.0f * MaxExtent(profile, anchor.skel);
             const float damage = std::max(hit.damage, 1.0f);
+
+            if (!GoreSettings::Get().freeformWounds)
+            {
+                ProcessAuthoredHit(self, mesh, gore, profile, source, hit, anchor, pBind, dBind, World, palette, rng);
+                continue;
+            }
 
             if (source.type != SourceType::Blast && TrySever(self, mesh, gore, profile, source, hit, anchor, pBind, World, palette, rng))
                 continue;
@@ -719,7 +891,7 @@ namespace Gore
         if (mesh->GetGoreVersion() == gore.version) return;
 
         const Profile& profile = GetProfile(mesh->filePath, *mesh->GetSkinnedModel());
-        if (!profile.valid && mesh->GetSkinnedModel()->meshes.empty()) return;   // geometry not loaded yet: retry
+        if (!profile.valid && (mesh->GetSkinnedModel()->meshes.empty() || profile.loading)) return;   // geometry not loaded yet: retry
 
         RenderState state;
         state.version = gore.version;
@@ -731,6 +903,8 @@ namespace Gore
         state.cutCount = gore.cutCount;
         state.splats = gore.splats;
         state.splatCount = gore.splatCount;
+        state.decals = gore.decals;
+        state.decalCount = gore.decalCount;
         state.frozenClock = gore.frozenClock;
         state.pausedUntil = gore.pausedUntil;
         state.isGib = gore.isGib;
@@ -766,7 +940,23 @@ TICK_ENTITY(GoreProcessHitsSystem, PostLateUpdate, Gore::GoreComponent, self, go
 
     bool cavityArrived = false;
     for (int i = 0; i < gore.woundCount; ++i)
-        cavityArrived |= Gore::PollCavity(gore.wounds[i]);
+    {
+        Gore::Wound& w = gore.wounds[i];
+        if (!Gore::PollCavity(w)) continue;
+        cavityArrived = true;
+
+        // A slot's cavity is the same on every body of the model: keep the first one for the next bodies.
+        if (w.slot >= 0 && w.cavity)
+        {
+            Gore::GoreSkeletalMesh* mesh = Gore::FindGoreMesh(self);
+            if (mesh != nullptr && mesh->GetSkinnedModel() != nullptr)
+            {
+                const Gore::Profile& profile = Gore::GetProfile(mesh->filePath, *mesh->GetSkinnedModel());
+                if (profile.valid && w.slot < static_cast<int>(profile.slots.size()) && !profile.slots[w.slot].cavity)
+                    profile.slots[w.slot].cavity = w.cavity;
+            }
+        }
+    }
     if (cavityArrived) gore.version++;
 
     Gore::PushRenderStateIfChanged(self, gore);

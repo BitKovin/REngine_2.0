@@ -128,10 +128,11 @@ namespace Gore
         const glm::mat4 invM = glm::inverse(M);
         const glm::vec3 p = glm::vec3(invM * glm::vec4(req.worldPoint, 1.0f));
 
-        glm::vec3 n = glm::transpose(glm::mat3(M)) * req.worldNormal;
+        glm::vec3 n = req.atJoint ? f.axis : glm::transpose(glm::mat3(M)) * req.worldNormal;
         if (glm::length(n) < 1.0e-5f) n = f.axis;
         n = glm::normalize(n);
         if (glm::dot(n, f.axis) < 0.0f) n = -n;
+        if (req.strictTilt && glm::dot(n, f.axis) < std::cos(glm::radians(sev.maxTiltDeg + 25.0f))) return result;   // a blade 60-70 degrees off the limb's axis still goes across it; nearer 90 it runs along it
 
         // Tilt clamp.
         const float maxTilt = glm::radians(sev.maxTiltDeg);
@@ -143,7 +144,7 @@ namespace Gore
             n = glm::normalize(f.axis * std::cos(maxTilt) + perp * std::sin(maxTilt));
         }
 
-        const float s = glm::clamp(glm::dot(p - f.joint, f.axis) / f.length, sev.range.x, sev.range.y);
+        const float s = req.atJoint ? sev.range.x : glm::clamp(glm::dot(p - f.joint, f.axis) / f.length, sev.range.x, sev.range.y);
         glm::vec3 o = f.joint + f.axis * (s * f.length);
 
         // Search: the wanted plane first, then planes closer to the bone axis and shifted along the allowed range.

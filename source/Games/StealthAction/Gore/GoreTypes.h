@@ -15,6 +15,7 @@ namespace Gore
     constexpr int kMaxWounds = 8;
     constexpr int kMaxCuts = 4;
     constexpr int kMaxSplats = 16;
+    constexpr int kMaxDecals = 32;
     constexpr int kMaxPendingHits = 32;
     constexpr int kMaxSkeletonBones = 512;   // models with more skeleton nodes get no gore (logged)
 
@@ -59,7 +60,9 @@ namespace Gore
         glm::vec3 radii = glm::vec3(0.02f);     // bind-space metres
         int16_t   anchorSkin = -1;              // skin index of the anchor bone (rigid frame for the interior pass)
         uint16_t  anchorSkel = 0;
+        int8_t    slot = -1;                    // profile wound slot this wound was opened from (-1 = free-form wound)
         WoundKind kind = WoundKind::Entry;
+        bool      through = false;              // goes through the whole body: the cavity is a tunnel with an open middle
         float roughness = 0.25f;                // edge noise amplitude in unit-sphere units
         float rimWidth = 0.35f;                 // blood rim width in unit-sphere units
         float seed = 0.0f;                      // 0..1, offsets the noise
@@ -99,6 +102,14 @@ namespace Gore
         uint32_t order = 0;
     };
 
+    // A bullet hole: a small dark mark with a blood ring painted by the body shader (bind space, no geometry).
+    struct Decal
+    {
+        glm::vec3 center = glm::vec3(0);        // bind
+        float radius = 0.02f;                   // bind metres, radius of the blood ring
+        uint32_t order = 0;
+    };
+
     // Per-hit data from the adapter. Plain data, ~100 bytes.
     struct Hit
     {
@@ -111,6 +122,7 @@ namespace Gore
         uint16_t sourceIndex = 0;               // index into the sources table
         char hitBone[32] = {};                  // hitbox bone name (fixed buffer - no heap in the event)
         bool lethal = false;                    // this hit killed
+        bool alive = false;                     // the victim was alive before this hit (limbs and the head stay on for now)
         bool finisher = false;                  // apply the body rules' finisher gore
         uint32_t seed = 0;
         uint32_t counter = 0;                   // per-victim hit counter (ordering + seeds)

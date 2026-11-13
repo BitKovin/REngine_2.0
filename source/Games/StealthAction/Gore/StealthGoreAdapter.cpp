@@ -62,6 +62,7 @@ namespace StealthGore
         hit.damage = damage;
         hit.sourceIndex = source;
         hit.lethal = wasAliveBefore && npc->Health <= 0.0f;
+        hit.alive = wasAliveBefore;
 
         // An explosion entity knows where it went off and how far it reaches.
         if (const Explosion* explosion = dynamic_cast<const Explosion*>(weapon))

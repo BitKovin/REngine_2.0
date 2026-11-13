@@ -263,6 +263,7 @@ namespace Gore
                 append(ranges.front, mask);
 
                 // The inside of a wound is skinned geometry now (cavity commands); the interior pass is for cut caps only.
+                // The inside of a wound is skinned geometry now (cavity commands); the interior pass is for cut caps only.
                 if (cutBits > 0.0f)
                     append(ranges.interior, glm::vec4(0.0f, cutBits, splatBits, 0.0f));
 
@@ -306,7 +307,7 @@ namespace Gore
 
         GpuData& g = pendingGpu;
 
-        g.counts = glm::vec4(goreState.woundCount, goreState.cutCount, goreState.splatCount, 0.0f);
+        g.counts = glm::vec4(goreState.woundCount, goreState.cutCount, goreState.splatCount, goreState.decalCount);
         g.params = glm::vec4(bgfx::getCaps()->homogeneousDepth ? 1.0f : 0.0f,
                              goreState.isGib ? 1.0f : 0.0f,
                              profile.fleshScale,
@@ -341,7 +342,20 @@ namespace Gore
 
         pendingCavities.clear();
         for (int i = 0; i < goreState.woundCount; ++i)
-            if (goreState.wounds[i].cavity) pendingCavities.push_back(goreState.wounds[i].cavity);
+        {
+            const Wound& w = goreState.wounds[i];
+            if (!w.cavity) continue;
+
+            CavityRef ref;
+            ref.geometry = w.cavity;
+            for (int k = 0; k < goreState.cutCount; ++k)
+            {
+                const uint16_t cb = goreState.cuts[k].boneSkel;
+                if (cb < profile.subtreeEnd.size() && w.anchorSkel >= cb && w.anchorSkel < profile.subtreeEnd[cb])
+                    ref.cutBits += Bit(k);
+            }
+            pendingCavities.push_back(ref);
+        }
 
         for (int i = 0; i < goreState.cutCount; ++i)
         {
@@ -384,6 +398,12 @@ namespace Gore
         {
             const Splat& sp = goreState.splats[i];
             g.splats[i] = glm::vec4(sp.center, sp.radius * sp.strength);
+        }
+
+        for (int i = 0; i < goreState.decalCount; ++i)
+        {
+            const Decal& d = goreState.decals[i];
+            g.decals[i] = glm::vec4(d.center, d.radius);
         }
 
         BuildRenderPalette(palette);
@@ -540,8 +560,9 @@ namespace Gore
         {
             const GoreDrawCommand& source = static_cast<GoreDrawCommand&>(GetDrawCommandAt(0));
 
-            for (const auto& geometry : finalCavities)
+            for (const CavityRef& cavityRef : finalCavities)
             {
+                const auto& geometry = cavityRef.geometry;
                 if (!geometry || geometry->vertices.empty() || geometry->indices.empty()) continue;
 
                 CavityGpu* gpu = nullptr;
@@ -567,8 +588,12 @@ namespace Gore
                 cc.pass = GoreDrawCommand::Pass::Cavity;
                 cc.goreActive = source.goreActive;
                 cc.gore = &finalGpu;
-                cc.IndexRanges.clear();
-                cc.RangeParamUniform = nullptr;
+                DrawIndexRange all;   // one range over the whole bowl, carrying the cuts that apply to it
+                all.first = 0;
+                all.count = static_cast<uint32_t>(geometry->indices.size());
+                all.param = glm::vec4(0.0f, cavityRef.cutBits, 0.0f, 0.0f);
+                cc.IndexRanges.assign(1, all);
+                cc.RangeParamUniform = "u_goreRangeMask";
                 cc.Cull = StaticMeshDrawCommand::CullFace::None;
                 cc.DepthPrePass = false;
                 cc.Material.CustomId = 0;

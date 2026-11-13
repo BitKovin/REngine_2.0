@@ -15,7 +15,7 @@ namespace Gore
     // Meaning of every array: GORE_IMPLEMENTATION.md P2.4.
     struct GpuData
     {
-        glm::vec4 counts = glm::vec4(0);       // x wounds, y cuts, z splats, w 0
+        glm::vec4 counts = glm::vec4(0);       // x wounds, y cuts, z splats, w decals
         glm::vec4 params = glm::vec4(0);       // x homogeneousDepth (0/1), y isGib (0/1), z fleshScale, w gore level (0 full, 1 reduced, 2 minimal)
         glm::vec4 bloodColor = glm::vec4(0.35f, 0.02f, 0.02f, 1.0f);
         std::array<glm::vec4, kMaxWounds * 3> woundBind{}, woundWorld{};
@@ -25,6 +25,7 @@ namespace Gore
         std::array<glm::vec4, kMaxCuts> cutWorld{}, cutWorldSphere{}, cutRegrowWorld{}, cutCenter{};
         std::array<glm::vec4, kMaxCuts * 2> cutFrame{};
         std::array<glm::vec4, kMaxSplats> splats{};
+        std::array<glm::vec4, kMaxDecals> decals{};        // xyz bind position, w ring radius
         Texture* flesh = nullptr;
         Texture* fleshNormal = nullptr;
         Texture* edgeNoise = nullptr;

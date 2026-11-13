@@ -1,0 +1,299 @@
+{
+  "textures": {
+    "flesh": "gore/flesh_d.png",
+    "fleshNormal": "gore/flesh_n.png",
+    "blood": "gore/blood_soak.png",
+    "edgeNoise": "gore/edge_noise.png",
+    "bone": "gore/bone_d.png"
+  },
+  "fleshScale": 3.0,
+  "bloodColor": [
+    0.35,
+    0.02,
+    0.02
+  ],
+  "submeshes": {},
+  "severable": [
+    {
+      "bone": "upperarm_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.034,
+      "gib": "ragdoll",
+      "detach": 60
+    },
+    {
+      "bone": "upperarm_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.034,
+      "gib": "ragdoll",
+      "detach": 60
+    },
+    {
+      "bone": "lowerarm_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.027,
+      "gib": "rigid",
+      "detach": 40
+    },
+    {
+      "bone": "lowerarm_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.027,
+      "gib": "rigid",
+      "detach": 40
+    },
+    {
+      "bone": "thigh_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.052,
+      "gib": "ragdoll",
+      "detach": 70
+    },
+    {
+      "bone": "thigh_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.052,
+      "gib": "ragdoll",
+      "detach": 70
+    },
+    {
+      "bone": "calf_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.04,
+      "gib": "rigid",
+      "detach": 45
+    },
+    {
+      "bone": "calf_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.04,
+      "gib": "rigid",
+      "detach": 45
+    },
+    {
+      "bone": "neck_01",
+      "range": [
+        -0.7,
+        0.65
+      ],
+      "maxTilt": 30,
+      "boneRadius": 0.034,
+      "gib": "rigid",
+      "lethal": true,
+      "canDestroy": true,
+      "detach": 80
+    }
+  ],
+  "slots": [
+    {
+      "name": "chest_front",
+      "bone": "spine_02",
+      "center": [
+        0,
+        1.38,
+        0.127
+      ],
+      "facing": [
+        0,
+        0,
+        1
+      ],
+      "radii": [
+        0.11,
+        0.11,
+        0.11
+      ],
+      "threshold": 100,
+      "cone": 80,
+      "catch": 0.209
+    },
+    {
+      "name": "chest_back",
+      "bone": "spine_02",
+      "center": [
+        0,
+        1.38,
+        -0.17
+      ],
+      "facing": [
+        0,
+        0,
+        -1
+      ],
+      "radii": [
+        0.11,
+        0.11,
+        0.11
+      ],
+      "threshold": 100,
+      "cone": 80,
+      "catch": 0.209
+    },
+    {
+      "name": "through_l",
+      "bone": "spine_02",
+      "center": [
+        0.1,
+        1.2,
+        -0.01
+      ],
+      "facing": [
+        0,
+        0,
+        1
+      ],
+      "radii": [
+        0.095,
+        0.13,
+        0.3
+      ],
+      "threshold": 70,
+      "cone": 80,
+      "catch": 0.09,
+      "through": true
+    },
+    {
+      "name": "through_r",
+      "bone": "spine_02",
+      "center": [
+        -0.1,
+        1.2,
+        -0.01
+      ],
+      "facing": [
+        0,
+        0,
+        1
+      ],
+      "radii": [
+        0.095,
+        0.13,
+        0.3
+      ],
+      "threshold": 70,
+      "cone": 80,
+      "catch": 0.09,
+      "through": true
+    },
+    {
+      "name": "belly_front",
+      "bone": "spine_02",
+      "center": [
+        0,
+        1.0,
+        0.135
+      ],
+      "facing": [
+        0,
+        0,
+        1
+      ],
+      "radii": [
+        0.099,
+        0.099,
+        0.11
+      ],
+      "threshold": 100,
+      "cone": 80,
+      "catch": 0.188
+    },
+    {
+      "name": "belly_back",
+      "bone": "spine_02",
+      "center": [
+        0,
+        1.0,
+        -0.154
+      ],
+      "facing": [
+        0,
+        0,
+        -1
+      ],
+      "radii": [
+        0.099,
+        0.099,
+        0.11
+      ],
+      "threshold": 100,
+      "cone": 80,
+      "catch": 0.188
+    },
+    {
+      "name": "flank_l",
+      "bone": "spine_02",
+      "center": [
+        0.175,
+        1.2,
+        0.0
+      ],
+      "facing": [
+        1,
+        0,
+        0
+      ],
+      "radii": [
+        0.0825,
+        0.0825,
+        0.11
+      ],
+      "threshold": 50,
+      "cone": 70,
+      "catch": 0.157
+    },
+    {
+      "name": "flank_r",
+      "bone": "spine_02",
+      "center": [
+        -0.175,
+        1.2,
+        0.0
+      ],
+      "facing": [
+        -1,
+        0,
+        0
+      ],
+      "radii": [
+        0.0825,
+        0.0825,
+        0.11
+      ],
+      "threshold": 50,
+      "cone": 70,
+      "catch": 0.157
+    }
+  ]
+}

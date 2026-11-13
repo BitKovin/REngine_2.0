@@ -304,7 +304,12 @@ void NpcHumanBase::PlaySoundEffect(std::string eventName)
 void NpcHumanBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction,
                                   string bone, Entity* DamageCauser, Entity* Weapon)
 {
-    if (IsDead()) return;
+    if (IsDead())
+    {
+        // A corpse can still be shot to pieces.
+        StealthGore::OnNpcPointDamage(this, Damage * mesh->GetHitboxDamageMultiplier(bone), Point, Direction, bone, DamageCauser, Weapon, false);
+        return;
+    }
 
     Damage *= mesh->GetHitboxDamageMultiplier(bone);
 

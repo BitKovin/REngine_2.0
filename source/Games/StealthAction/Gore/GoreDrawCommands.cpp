@@ -53,6 +53,7 @@ namespace Gore
         const int nw = static_cast<int>(g.counts.x + 0.5f);
         const int nc = static_cast<int>(g.counts.y + 0.5f);
         const int ns = static_cast<int>(g.counts.z + 0.5f);
+        const int nd = static_cast<int>(g.counts.w + 0.5f);
 
         shader->SetUniform("u_goreCounts", g.counts);
         shader->SetUniform("u_goreParams", g.params);
@@ -86,6 +87,9 @@ namespace Gore
 
         if (ns > 0)
             shader->SetUniform("u_goreSplats", g.splats.data(), static_cast<size_t>(ns));
+
+        if (nd > 0)
+            shader->SetUniform("u_goreDecals", g.decals.data(), static_cast<size_t>(nd));
 
         shader->SetTexture(hashed_string("u_goreFlesh"), g.flesh);
         shader->SetTexture(hashed_string("u_goreFleshNormal"), g.fleshNormal);

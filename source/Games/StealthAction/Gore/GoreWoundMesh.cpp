@@ -303,7 +303,15 @@ namespace Gore
                     inward = glm::normalize(glm::mix(inward, axis, 0.7f));
                     const float taper = glm::smoothstep(0.05f, 0.55f, facing);
                     depth = std::min(ellipsoidDepth(g.position, inward), depthMax) * taper;
-                    if (depth > 0.0f)
+                    if (wound.through)
+                    {
+                        // A tunnel: steep walls down to half the body's thickness (the front and the back skin each dig one
+                        // half and meet in the middle); the open centre is left out below.
+                        const glm::vec3 faceInward = glm::dot(fn, inward) < 0.0f ? -fn : fn;
+                        const float thick = scene.Distance(g.position + glm::normalize(faceInward) * 0.002f, inward);
+                        depth = thick > 1.0e8f ? 0.0f : 0.5f * thick * (1.0f - glm::smoothstep(0.82f, 1.0f, g.rho));
+                    }
+                    else if (depth > 0.0f)
                     {
                         const glm::vec3 faceInward = glm::dot(fn, inward) < 0.0f ? -fn : fn;
                         const float thick = scene.Distance(g.position + glm::normalize(faceInward) * 0.002f, inward);
@@ -338,6 +346,7 @@ namespace Gore
             {
                 if (ix.size() / 3 >= kMaxTriangles) return;
                 if (rho(i0, j0) >= 1.0f && rho(i1, j1) >= 1.0f && rho(i2, j2) >= 1.0f) return;
+                if (wound.through && rho(i0, j0) < 0.82f && rho(i1, j1) < 0.82f && rho(i2, j2) < 0.82f) return;   // the open middle of a tunnel
                 const uint32_t a = emit(i0, j0), b = emit(i1, j1), c = emit(i2, j2);
                 ix.push_back(a); ix.push_back(b); ix.push_back(c);
             };

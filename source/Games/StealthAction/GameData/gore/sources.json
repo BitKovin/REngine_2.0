@@ -1,15 +1,15 @@
 {
   "sources": {
-    "default":   { "type": "bullet", "woundRadius": 0.012, "refDamage": 20, "exit": false, "severPower": 0, "tags": ["ranged"] },
-    "pistol":    { "type": "bullet", "woundRadius": 0.012, "refDamage": 20, "exit": true,  "severPower": 0.1, "tags": ["ranged"] },
-    "revolver":  { "type": "heavyBullet", "woundRadius": 0.02, "refDamage": 45, "exit": true, "severPower": 0.6, "tags": ["ranged"] },
-    "sawed":     { "type": "pellet", "woundRadius": 0.01, "refDamage": 8, "clusterRadius": 0.07, "severPower": 0.35, "tags": ["ranged"] },
-    "sword":     { "type": "slash", "woundRadius": 0.03, "gashLength": 0.18, "refDamage": 30, "severPower": 1.0, "tags": ["melee"] },
-    "axe":       { "type": "slash", "woundRadius": 0.04, "gashLength": 0.14, "refDamage": 30, "severPower": 0.8, "tags": ["melee"] },
+    "default":   { "type": "bullet", "woundRadius": 0.012, "refDamage": 20, "exit": false, "severPower": 0.5, "holePower": 1.0, "decalRadius": 0.024, "tags": ["ranged"] },
+    "pistol":    { "type": "bullet", "woundRadius": 0.012, "refDamage": 20, "exit": true,  "severPower": 1.0, "holePower": 2.0, "decalRadius": 0.024, "tags": ["ranged"] },
+    "revolver":  { "type": "heavyBullet", "woundRadius": 0.02, "refDamage": 45, "exit": true, "severPower": 2.5, "holePower": 3.0, "decalRadius": 0.032, "tags": ["ranged"] },
+    "sawed":     { "type": "pellet", "woundRadius": 0.01, "refDamage": 8, "clusterRadius": 0.07, "severPower": 2.0, "holePower": 4.0, "decalRadius": 0.02, "tags": ["ranged"] },
+    "sword":     { "type": "slash", "woundRadius": 0.03, "gashLength": 0.18, "refDamage": 30, "severPower": 2.5, "tags": ["melee"] },
+    "axe":       { "type": "slash", "woundRadius": 0.04, "gashLength": 0.14, "refDamage": 30, "severPower": 2.5, "tags": ["melee"] },
     "cane":      { "type": "blunt", "woundRadius": 0.0, "refDamage": 30, "severPower": 0, "tags": ["melee"] },
     "crucifix":  { "type": "blunt", "woundRadius": 0.0, "refDamage": 30, "severPower": 0, "tags": ["melee", "holy"] },
-    "explosion": { "type": "blast", "woundRadius": 0.12, "refDamage": 60, "severPower": 1.0, "minScale": 0.6, "maxScale": 2.5, "tags": ["blast", "fire"] },
-    "cannon":    { "type": "blast", "woundRadius": 0.25, "refDamage": 200, "severPower": 1.0, "blastRadius": 0.7, "minScale": 0.8, "maxScale": 1.4, "tags": ["blast", "ranged"] }
+    "explosion": { "type": "blast", "woundRadius": 0.12, "refDamage": 60, "severPower": 1.5, "holePower": 2.5, "minScale": 0.6, "maxScale": 2.5, "tags": ["blast", "fire"] },
+    "cannon":    { "type": "blast", "woundRadius": 0.25, "refDamage": 200, "severPower": 1.5, "holePower": 5, "blastRadius": 0.7, "minScale": 0.8, "maxScale": 1.4, "tags": ["blast", "ranged"] }
   },
   "classMap": {
     "weapon_pistol": "pistol", "weapon_pistol_silent": "pistol", "weapon_tommy": "pistol", "weapon_mpsd": "pistol",

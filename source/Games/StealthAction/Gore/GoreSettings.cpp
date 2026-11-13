@@ -35,6 +35,7 @@ namespace Gore
         s.maxGibSpawnsPerFrame = j.value("maxGibSpawnsPerFrame", s.maxGibSpawnsPerFrame);
         s.maxParticlesPerFrame = j.value("maxParticlesPerFrame", s.maxParticlesPerFrame);
         s.freshBand = j.value("freshBand", s.freshBand);
+        s.freeformWounds = j.value("freeformWounds", s.freeformWounds);
 
         const std::string level = j.value("level", std::string("full"));
         if (level == "reduced") s.level = Level::Reduced;

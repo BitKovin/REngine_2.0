@@ -1,5 +1,6 @@
 #pragma once
 
+#include <EntityHandle.h>
 #include <Entity.h>
 
 #include <Input.h>
@@ -395,6 +396,7 @@ private:
 	friend class InventoryMenu;
 
 	IInteractive* currentInteractionObject = nullptr;
+	EntityHandle currentInteractionHandle;   // the entity behind currentInteractionObject: it may be destroyed between ticks
 	bool startedInteracting = false;
 	float interactionProgress = 0;
 
@@ -673,7 +675,7 @@ public:
 
 	vec3 GetBobForMainWeapon();
 
-	IInteractive* UpdateInteractionRaycast();
+	IInteractive* UpdateInteractionRaycast(Entity*& hitEntity);
 	void UpdateInteraction();
 
 	void Destroy()

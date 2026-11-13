@@ -19,6 +19,7 @@ namespace Gore
         std::unordered_map<std::string, Profile> g_profiles;
         std::unordered_map<std::string, bool> g_logged;   // model path -> already reported
         const Profile g_invalid;
+        const Profile g_loading = [] { Profile p; p.loading = true; return p; }();
 
         const Profile& Fail(const std::string& path, const char* why)
         {
@@ -69,6 +70,22 @@ namespace Gore
         if (model.meshes.empty())
             return g_invalid;
 
+        // Geometry is there but not partitioned yet (the load is still finishing on another thread): not a failure, try again
+        // next time. A mesh that stays unpartitioned is reported once and never gets gore.
+        const int meshBones = model.skeleton.boneCount;
+        for (const roj::SkinnedMesh& mesh : model.meshes)
+        {
+            if (mesh.boneIndexFirst.size() != static_cast<size_t>(meshBones) + 1)
+            {
+                if (!g_logged[modelPath])
+                {
+                    g_logged[modelPath] = true;
+                    Logger::Warning("Gore: '%s' is not bone-partitioned (yet); gore starts once it is", modelPath.c_str());
+                }
+                return g_loading;
+            }
+        }
+
         const std::string text = FileSystemEngine::ReadFile(modelPath + ".gore");
         if (text.empty())
             return Fail(modelPath, "no .gore file next to the model");
@@ -76,6 +93,29 @@ namespace Gore
         nlohmann::json j = nlohmann::json::parse(text, nullptr, false);
         if (j.is_discarded() || !j.is_object())
             return Fail(modelPath, ".gore file is not valid JSON");
+
+        // "extends": a shared profile (same body layout on many models). The model's own keys replace the shared ones.
+        if (j.contains("extends") && j["extends"].is_string())
+        {
+            const std::string basePath = j["extends"].get<std::string>();
+            nlohmann::json base = nlohmann::json::parse(FileSystemEngine::ReadFile(basePath), nullptr, false);
+            if (base.is_discarded() || !base.is_object())
+                return Fail(modelPath, "the shared profile it extends is missing or not valid JSON");
+            for (auto it = j.begin(); it != j.end(); ++it)
+                if (it.key() != "extends") base[it.key()] = it.value();
+            j = std::move(base);
+        }
+
+        // "boneMap": the shared profile names bones like the common humanoid rig; a model with another rig maps them.
+        std::unordered_map<std::string, std::string> boneMap;
+        if (j.contains("boneMap") && j["boneMap"].is_object())
+            for (auto it = j["boneMap"].begin(); it != j["boneMap"].end(); ++it)
+                if (it.value().is_string()) boneMap[it.key()] = it.value().get<std::string>();
+        auto mapBone = [&boneMap](const std::string& name)
+        {
+            const auto found = boneMap.find(name);
+            return found == boneMap.end() ? name : found->second;
+        };
 
         const int boneCount = model.skeleton.boneCount;
         if (boneCount == 0 || boneCount > kMaxSkeletonBones)
@@ -133,7 +173,7 @@ namespace Gore
                 }
 
                 SeverableBone b;
-                b.bone = s.value("bone", std::string());
+                b.bone = mapBone(s.value("bone", std::string()));
                 const uint16_t skel = model.skeleton.findBone(b.bone);
                 if (skel == INVALID_BONE_IDX)
                 {
@@ -151,6 +191,7 @@ namespace Gore
                 if (s.contains("range") && s["range"].is_array() && s["range"].size() == 2)
                     b.range = glm::vec2(s["range"][0].get<float>(), s["range"][1].get<float>());
                 b.maxTiltDeg = s.value("maxTilt", b.maxTiltDeg);
+                b.detachDamage = s.value("detach", b.detachDamage);
                 b.boneRadius = s.value("boneRadius", b.boneRadius);
                 b.gib = s.value("gib", std::string("rigid")) == "ragdoll" ? SeverableBone::GibKind::Ragdoll : SeverableBone::GibKind::Rigid;
                 b.canDestroy = s.value("canDestroy", false);
@@ -164,6 +205,54 @@ namespace Gore
 
                 p.severableBySkel[skel] = static_cast<int16_t>(p.severable.size());
                 p.severable.push_back(std::move(b));
+            }
+        }
+
+        // Authored wound slots.
+        if (j.contains("slots") && j["slots"].is_array())
+        {
+            auto vec3Of = [](const nlohmann::json& v, glm::vec3& out)
+            {
+                if (!v.is_array() || v.size() != 3) return false;
+                out = glm::vec3(v[0].get<float>(), v[1].get<float>(), v[2].get<float>());
+                return true;
+            };
+
+            for (const nlohmann::json& s : j["slots"])
+            {
+                if (static_cast<int>(p.slots.size()) >= kMaxWounds)
+                {
+                    Logger::Error("Gore: '%s' has more than %d wound slots, extra ones ignored", modelPath.c_str(), kMaxWounds);
+                    break;
+                }
+
+                WoundSlot w;
+                w.name = s.value("name", std::string("slot"));
+                w.bone = mapBone(s.value("bone", std::string()));
+                const uint16_t skel = model.skeleton.findBone(w.bone);
+                if (skel == INVALID_BONE_IDX || model.skeleton.bones[skel].skinIdx < 0)
+                {
+                    Logger::Error("Gore: '%s' wound slot '%s': bone '%s' is missing or has no skin index", modelPath.c_str(), w.name.c_str(), w.bone.c_str());
+                    continue;
+                }
+                w.skel = skel;
+                w.skin = model.skeleton.bones[skel].skinIdx;
+
+                if (!vec3Of(s.value("center", nlohmann::json()), w.center) || !vec3Of(s.value("facing", nlohmann::json()), w.facing)
+                    || !vec3Of(s.value("radii", nlohmann::json()), w.radii) || glm::length(w.facing) < 1.0e-4f
+                    || w.radii.x <= 0.0f || w.radii.y <= 0.0f || w.radii.z <= 0.0f)
+                {
+                    Logger::Error("Gore: '%s' wound slot '%s' needs center, facing and positive radii", modelPath.c_str(), w.name.c_str());
+                    continue;
+                }
+                w.facing = glm::normalize(w.facing);
+                w.threshold = s.value("threshold", w.threshold);
+                w.cosCone = std::cos(glm::radians(s.value("cone", 60.0f)));
+                w.catchRadius = s.value("catch", std::max(w.radii.x, w.radii.y) * 1.8f);
+                w.roughness = s.value("roughness", w.roughness);
+                w.rimWidth = s.value("rim", w.rimWidth);
+                w.through = s.value("through", false);
+                p.slots.push_back(std::move(w));
             }
         }
 

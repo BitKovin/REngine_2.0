@@ -24,7 +24,7 @@ namespace Gore
 
         bool HasGore() const
         {
-            return goreState.version != 0 && (goreState.woundCount || goreState.cutCount || goreState.splatCount);
+            return goreState.version != 0 && (goreState.woundCount || goreState.cutCount || goreState.splatCount || goreState.decalCount);
         }
 
         void PreFinalize() override;
@@ -59,7 +59,14 @@ namespace Gore
 
         // Wound cavities: one skinned bowl per wound (see CavityGeometry). The list is filled in PreFinalize (game side)
         // and turned into GPU buffers and draw commands in FinalizeFrameData.
-        std::vector<std::shared_ptr<const CavityGeometry>> pendingCavities, finalCavities;
+        // A wound's cavity and the cuts that apply to it: only cuts of the part the wound sits on (a cut elsewhere on the body
+        // must not eat holes into a bowl that merely lies near its plane).
+        struct CavityRef
+        {
+            std::shared_ptr<const CavityGeometry> geometry;
+            float cutBits = 0.0f;
+        };
+        std::vector<CavityRef> pendingCavities, finalCavities;
         struct CavityGpu
         {
             std::shared_ptr<const CavityGeometry> geometry;

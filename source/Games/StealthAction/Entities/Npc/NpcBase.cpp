@@ -620,7 +620,8 @@ void NpcBase::AsyncUpdate()
 		if (currentInvestigation && isStunned() == false)
 		{
 			ZoneScopedN("Investigation Update");
-			currentInvestigation->Update(Time::DeltaTimeF);
+			std::shared_ptr<InvestigationBase> investigation = currentInvestigation;   // the investigation clears itself when it finishes: keep it alive for the rest of its Update
+			investigation->Update(Time::DeltaTimeF);
 		}
 	}
 

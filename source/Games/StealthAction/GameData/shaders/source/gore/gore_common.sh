@@ -4,6 +4,7 @@
 #define GORE_MAX_WOUNDS 8
 #define GORE_MAX_CUTS 4
 #define GORE_MAX_SPLATS 16
+#define GORE_MAX_DECALS 32
 #define GORE_MAX_INTERVALS 16
 #define GORE_FAR 1.0e9
 
@@ -27,6 +28,7 @@ uniform vec4 u_goreCutRegrowWorld[4];
 uniform vec4 u_goreCutCenter[4];
 uniform vec4 u_goreCutFrame[8];
 uniform vec4 u_goreSplats[16];
+uniform vec4 u_goreDecals[32];
 
 
 bool goreBit(float mask, int i) { return mod(floor(mask / exp2(float(i))), 2.0) >= 1.0; }
@@ -106,6 +108,24 @@ bool goreSurface(vec3 p, out float rim, out float soak, out float fresh)
         soak = max(soak, k * (0.6 + 0.4 * texture2DLod(u_goreBlood, p.xy * 7.0 + p.z * 2.0, 0.0).r));
     }
     return false;
+}
+
+// Bullet holes: u_goreDecals[i] = (bind position, ring radius), count in u_goreCounts.w.
+// hole = the dark centre, ring = the blood around it (both 0..1). Needs u_goreEdgeNoise.
+void goreDecals(vec3 p, out float hole, out float ring)
+{
+    hole = 0.0; ring = 0.0;
+    int nd = int(u_goreCounts.w + 0.5);
+    for (int i = 0; i < GORE_MAX_DECALS; i++)
+    {
+        if (i >= nd) break;
+        vec4 d = u_goreDecals[i];
+        float q = length(p - d.xyz) / max(d.w, 0.0001);
+        if (q > 1.2) continue;
+        float n = goreNoise(p.xy * 45.0 + p.z * 23.0 + d.w * 31.0) * 0.18;
+        hole = max(hole, 1.0 - smoothstep(0.36, 0.48, q + n * 0.5));
+        ring = max(ring, 1.0 - smoothstep(0.45, 1.0, q + n));
+    }
 }
 
 // ---- interior ------------------------------------------------------------------------------------------

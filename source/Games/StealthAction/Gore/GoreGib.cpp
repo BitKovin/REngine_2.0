@@ -178,6 +178,8 @@ namespace Gore
         }
         for (int i = 0; i < bodyGore->splatCount && gore->splatCount < kMaxSplats; ++i)
             gore->splats[gore->splatCount++] = bodyGore->splats[i];
+        for (int i = 0; i < bodyGore->decalCount && gore->decalCount < kMaxDecals; ++i)
+            gore->decals[gore->decalCount++] = bodyGore->decals[i];
         gore->orderCounter = bodyGore->orderCounter;
         gore->frozenClock = bodyGore->frozenClock;
         gore->pausedUntil = bodyGore->pausedUntil;

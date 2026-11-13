@@ -34,8 +34,12 @@ void main()
         alpha = 1.0;
     }
 
-    float blood = u_goreParams.w > 1.5 ? 0.0 : max(goreRim, soak);
+    float decalHole = 0.0; float decalRing = 0.0;
+    if (u_goreCounts.w > 0.5) goreDecals(v_goreBind.xyz, decalHole, decalRing);
+
+    float blood = u_goreParams.w > 1.5 ? 0.0 : max(max(goreRim, soak), decalRing);
     color = mix(color, u_goreBloodColor.rgb * (0.6 + 0.4 * soak), blood);
+    color = mix(color, vec3(0.025, 0.004, 0.004), decalHole);
     color = mix(color, u_goreBloodColor.rgb * 1.4, fresh * 0.8);     // raw new skin while regrowing
 
     vec3 N = normalize(v_normal);

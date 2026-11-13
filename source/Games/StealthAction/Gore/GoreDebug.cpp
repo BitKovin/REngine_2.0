@@ -211,6 +211,16 @@ namespace Gore
             if (npc->HasComponent<GoreComponent>())
             {
                 auto g = npc->GetComponent<GoreComponent>();
+                std::string openNames;
+                if (GoreSkeletalMesh* gm0 = FindGoreMesh(npc))
+                {
+                    const Profile& pr0 = GetProfile(gm0->filePath, *gm0->GetSkinnedModel());
+                    for (size_t si = 0; si < pr0.slots.size(); ++si)
+                        if (g->openSlots & (1u << si)) openNames += " " + pr0.slots[si].name;
+                }
+                ProbeLog("gore_look: decals " + std::to_string(g->decalCount) + " openSlots " + std::to_string(g->openSlots) + " [" + openNames + " ]");
+                for (int di = 0; di < g->decalCount; ++di)
+                    ProbeLog("  decal " + std::to_string(di) + " bind " + V3(g->decals[di].center) + " radius " + std::to_string(g->decals[di].radius));
                 ProbeLog("gore_look: wounds " + std::to_string(g->woundCount) + " splats " + std::to_string(g->splatCount) + " pending " + std::to_string(g->pendingCount)
                     + " version " + std::to_string(g->version) + " cuts " + std::to_string(g->cutCount));
             }
@@ -239,6 +249,55 @@ namespace Gore
                 ProbeLog("gore_look: profile valid " + std::to_string(pr.valid) + " flesh " + tex(pr.flesh) + " normal " + tex(pr.fleshNormal)
                     + " edge " + tex(pr.edgeNoise) + " blood " + tex(pr.blood));
             }
+            if (args.find("gore_dump_bounds") != args.end())   // authoring aid: bind-space bounds of every bone that carries vertices
+            {
+                if (GoreSkeletalMesh* gm = FindGoreMesh(npc))
+                {
+                    const Profile& pr = GetProfile(gm->filePath, *gm->GetSkinnedModel());
+                    for (size_t b = 0; b < pr.anyBounds.size(); ++b)
+                        if (pr.anyBounds[b].hasData)
+                            ProbeLog("  bounds " + gm->GetSkinnedModel()->skeleton.bones[b].name.str() + " min " + V3(pr.anyBounds[b].bbMin) + " max " + V3(pr.anyBounds[b].bbMax));
+
+                    // Torso surface in bind space: along z (front = highest z, back = lowest) on an x/y grid, along x (sides) on a y grid.
+                    auto rayAxis = [&](const vec3& origin, int axis, float& lo, float& hi)
+                    {
+                        lo = 1.0e9f; hi = -1.0e9f;
+                        const int a1 = (axis + 1) % 3, a2 = (axis + 2) % 3;
+                        for (const roj::SkinnedMesh& m : gm->GetSkinnedModel()->meshes)
+                        {
+                            for (size_t i = 0; i + 2 < m.indices.size(); i += 3)
+                            {
+                                const vec3& p0 = m.vertices[m.indices[i]].Position;
+                                const vec3& p1 = m.vertices[m.indices[i + 1]].Position;
+                                const vec3& p2 = m.vertices[m.indices[i + 2]].Position;
+                                // Barycentric test in the plane orthogonal to `axis`.
+                                const float d = (p1[a1] - p0[a1]) * (p2[a2] - p0[a2]) - (p2[a1] - p0[a1]) * (p1[a2] - p0[a2]);
+                                if (std::abs(d) < 1.0e-9f) continue;
+                                const float u = ((origin[a1] - p0[a1]) * (p2[a2] - p0[a2]) - (p2[a1] - p0[a1]) * (origin[a2] - p0[a2])) / d;
+                                const float v = ((p1[a1] - p0[a1]) * (origin[a2] - p0[a2]) - (origin[a1] - p0[a1]) * (p1[a2] - p0[a2])) / d;
+                                if (u < 0.0f || v < 0.0f || u + v > 1.0f) continue;
+                                const float t = p0[axis] + u * (p1[axis] - p0[axis]) + v * (p2[axis] - p0[axis]);
+                                if (axis == 0 && std::abs(t) > 0.3f) continue;   // sides: ignore arms
+                                lo = std::min(lo, t);
+                                hi = std::max(hi, t);
+                            }
+                        }
+                    };
+                    for (float y = 0.9f; y <= 1.7f; y += 0.1f)
+                    {
+                        std::string row = "  surface y " + std::to_string(y) + " | x:";
+                        float lo, hi;
+                        rayAxis(vec3(0, y, 0), 0, lo, hi);
+                        row += " " + std::to_string(lo) + ".." + std::to_string(hi) + " | z(back..front) at x";
+                        for (float x = -0.2f; x <= 0.201f; x += 0.1f)
+                        {
+                            rayAxis(vec3(x, y, 0), 2, lo, hi);
+                            row += " " + std::to_string(x).substr(0, 5) + ":" + std::to_string(lo).substr(0, 6) + ".." + std::to_string(hi).substr(0, 6);
+                        }
+                        ProbeLog(row);
+                    }
+                }
+            }
             auto file = args.find("gore_file");
             Screenshot::Request(file != args.end() && !file->second.empty() ? file->second[0] : std::string("gore_look"));
         }
@@ -251,7 +310,19 @@ namespace Gore
             SDL_PushEvent(&quit);
         }
 
+        // Fire once the model has its gore profile (a model streams in tiers; the profile exists when the geometry is partitioned).
+        bool profileReady = true;
         if (npc != nullptr && !fired && ticks > 70)
+        {
+            GoreSkeletalMesh* gm = FindGoreMesh(npc);
+            profileReady = gm != nullptr && gm->GetSkinnedModel() != nullptr && GetProfile(gm->filePath, *gm->GetSkinnedModel()).valid;
+            static int waited = 0;
+            if (!profileReady && waited < 3000) { ++waited; ticks = 71; }   // keep waiting (bounded): the tick counter holds at 71
+            else profileReady = true;
+            if (lastLevel == nullptr) waited = 0;
+        }
+
+        if (npc != nullptr && !fired && ticks > 70 && profileReady)
         {
             fired = true;
             ticks = 71;
@@ -275,9 +346,30 @@ namespace Gore
                 {
                     if (GoreSkeletalMesh* gm = FindGoreMesh(npc))
                         target = MathHelper::DecomposeMatrix(gm->GetBoneMatrixWorld(aim->second[0])).Position + right * (u * 0.02f);
+                    auto dy = args.find("gore_aim_dy");   // shift of the aim point in world metres (the bone origin is rarely the spot to hit)
+                    if (dy != args.end() && !dy->second.empty()) target.y += static_cast<float>(std::atof(dy->second[0].c_str()));
+                    auto dx = args.find("gore_aim_dx");
+                    if (dx != args.end() && !dx->second.empty()) target += right * static_cast<float>(std::atof(dx->second[0].c_str()));
                 }
-                const vec3 dir = glm::normalize(target - eye);
-                Physics::HitResult hit = Physics::LineTrace(eye, eye + dir * 20.0f, BodyType::GroupHitTest, {}, { Player::Instance });
+                vec3 shotEye = eye;
+                auto slotArg = args.find("gore_slot");   // fire at the named wound slot, along its own facing (checks the authored data on any model)
+                if (slotArg != args.end() && !slotArg->second.empty())
+                {
+                    if (GoreSkeletalMesh* gm = FindGoreMesh(npc))
+                    {
+                        const Profile& pr = GetProfile(gm->filePath, *gm->GetSkinnedModel());
+                        for (const WoundSlot& slot : pr.slots)
+                        {
+                            if (slot.name != slotArg->second[0]) continue;
+                            const mat4 M = gm->GetWorldMatrix() * gm->GetSkinPalette()[slot.skin];
+                            target = vec3(M * vec4(slot.center, 1.0f));
+                            const vec3 facing = glm::normalize(vec3(M * vec4(slot.facing, 0.0f)));
+                            shotEye = target + facing * 1.5f + vec3(0.002f * i, 0.0f, 0.0f);
+                        }
+                    }
+                }
+                const vec3 dir = glm::normalize(target - shotEye);
+                Physics::HitResult hit = Physics::LineTrace(shotEye, shotEye + dir * 20.0f, BodyType::GroupHitTest, {}, { Player::Instance });
                 ProbeLog("  trace " + std::to_string(i) + " target " + V3(target) + " hit " + std::to_string(hit.hasHit) + " entity " + (hit.entity ? hit.entity->ClassName : std::string("-")) + " box " + hit.hitboxName);
                 if (!hit.hasHit || hit.entity != npc) continue;
                 ++landed;
@@ -291,6 +383,7 @@ namespace Gore
                 h.damage = 25.0f;
                 auto dmg = args.find("gore_damage");
                 if (dmg != args.end() && !dmg->second.empty()) h.damage = static_cast<float>(std::atof(dmg->second[0].c_str()));
+                h.alive = args.find("gore_alive") != args.end();   // test: the victim counts as alive (parts stay on)
                 h.sourceIndex = SourceIndexForClass(srcClass);
                 Gore::SetHitBone(h, hit.hitboxName);
                 h.counter = static_cast<uint32_t>(i + 1);

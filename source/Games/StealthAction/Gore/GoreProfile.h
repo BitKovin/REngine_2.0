@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "GoreTypes.h"
+
 #include <skinned_model.hpp>
 #include <glm.h>
 
@@ -28,6 +30,7 @@ namespace Gore
         GibKind gib = GibKind::Rigid;
         bool canDestroy = false;
         bool lethal = false;
+        float detachDamage = 60.0f;   // weighted damage (damage * source severPower) that removes the part at its joint
         float spurtSeconds = 4.0f;
         float pulseHz = 1.6f;
         std::string boneStub;
@@ -38,6 +41,30 @@ namespace Gore
         std::vector<glm::vec3> partPoints, ownPoints;
     };
 
+    // An authored torso wound: a fixed half-sphere dent that opens when enough damage arrives from the front of it.
+    // Everything is in model bind space, so the result looks the same on every body of the model and cannot break.
+    struct WoundSlot
+    {
+        std::string name;
+        std::string bone;                       // anchor bone: the rigid frame the wound follows
+        uint16_t skel = 0;
+        int16_t skin = -1;
+        glm::vec3 center = glm::vec3(0);        // on the skin surface
+        glm::vec3 facing = glm::vec3(0, 0, 1);  // outward normal; the wound digs along -facing
+        glm::vec3 radii = glm::vec3(0.1f);      // x, y across the surface, z depth
+        float threshold = 100.0f;               // weighted damage (damage * source holePower) that opens it
+        float cosCone = 0.5f;                   // shots must come from within this cone around facing
+        float catchRadius = 0.2f;               // ... and land this close to the centre
+        float roughness = 0.4f;
+        float rimWidth = 0.5f;
+        // true: complete destruction. The hole goes through the whole body (front to back), opens from either side, and
+        // `center` is the middle of the body. false: a deep dent from one side that leaves the far side intact.
+        bool through = false;
+
+        // The cavity geometry is the same for every body: built once for the first body that opens the slot.
+        mutable std::shared_ptr<const CavityGeometry> cavity;
+    };
+
     // What one model can do: textures, submesh roles, severable bones, and the bind-space data derived from the mesh.
     struct TriangleGrid;   // GoreWoundMesh.h
 
@@ -45,6 +72,7 @@ namespace Gore
     {
         std::shared_ptr<const TriangleGrid> triGrid;   // spatial index of the skin triangles (wound cavities)
         bool valid = false;
+        bool loading = false;   // not valid yet, but the model is still being prepared: ask again later (hits are kept)
 
         Texture* flesh = nullptr;
         Texture* fleshNormal = nullptr;
@@ -57,6 +85,7 @@ namespace Gore
 
         std::vector<SubmeshRole> submeshRoles;   // per model->meshes index
         std::vector<SeverableBone> severable;
+        std::vector<WoundSlot> slots;            // at most kMaxWounds
         std::vector<int16_t> severableBySkel;    // size skeleton.boneCount, index into severable or -1
 
         // Derived at load (skel-indexed, merged over all submeshes):

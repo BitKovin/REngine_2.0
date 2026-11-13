@@ -17,6 +17,7 @@ namespace Gore
         std::array<Wound, kMaxWounds> wounds; uint8_t woundCount = 0;
         std::array<Cut, kMaxCuts> cuts; uint8_t cutCount = 0;
         std::array<Splat, kMaxSplats> splats; uint8_t splatCount = 0;
+        std::array<Decal, kMaxDecals> decals; uint8_t decalCount = 0;
         double frozenClock = 0.0, pausedUntil = 0.0;   // regen clock (phase 5)
         std::vector<glm::mat4> gibSeverPalette; // gib only: body palette at the moment of the sever (phase 3)
         const Profile* profile = nullptr;       // set by the system; profiles live until the level changes

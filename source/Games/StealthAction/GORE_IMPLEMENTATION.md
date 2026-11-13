@@ -1988,3 +1988,62 @@ Cavity building is asynchronous (2026-11-13): the first version scanned every tr
 
 | When | Scene | Frame time before | after | Notes |
 |---|---|---|---|---|
+
+---
+
+## 10. Scaled-down design (current, 2026-11-13) — Fallout-style gore
+
+The free-form approach (ellipsoid wounds dug wherever a hit lands, merged and grown by stacking, cavities built per wound,
+blast cuts at arbitrary planes) produced broken results under heavy damage, so the default is now **authored**. The free-form
+code is still there behind `freeformWounds` in `GameData/gore/settings.json` (default `false`); everything below describes the
+default. Read this section before §2 and §3: where they differ, this section wins.
+
+**Look.** Fallout 3 / New Vegas: bullets leave marks, the torso gets a few fixed holes, and limbs and the head are separate
+parts that come off when they take enough damage, so every hit on an enemy is felt. Nothing is dug freely into the skin.
+
+1. **Bullet holes are decals.** Each bullet / pellet adds a `Decal` (bind position + ring radius, ring buffer of
+   `kMaxDecals` = 32, oldest replaced). No geometry: `fs_gore.sc` calls `goreDecals()` (`gore_common.sh`) and paints a dark
+   hole with a blood ring; `u_goreCounts.w` is the decal count, `u_goreDecals[32]` the data. Size comes from the source's
+   `decalRadius`. A slash that does not cut and a blunt hit leave only a blood splat.
+2. **Torso wounds are authored slots** (`"slots"` in the model's `.gore`, `Profile::slots`, at most `kMaxWounds`). A slot is a
+   fixed half-sphere dent: `bone` (rigid frame), `center` (on the skin, model bind space), `facing` (outward normal; the
+   dent digs along `-facing`), `radii` (x, y across, z depth), `threshold`, `cone` (degrees: shots must come from within it),
+   `catch` (metres: and land this close to `center`). Damage collects per slot (`damage * source.holePower`, fading over
+   20 s); at the threshold the slot opens once as a normal `Wound` (`Wound::slot` set), so rendering, cavity geometry and
+   the hole shader are unchanged. The best slot for a hit is the one it lands closest to among those it points into.
+   Two kinds: a **dent** (orange in the design sketch: deep, does not pierce the body) and a **through** hole (red:
+   complete destruction; `"through": true`, `center` in the middle of the body, a tall depth radius so it pierces both
+   skins, opens from the front or the back, cavity is a tunnel with an open middle, `Wound::through`). Layout per model:
+   a chest dent in the middle (front and back), a through hole on each side of the lower chest, belly dents (front and
+   back) and a dent on each flank. Cones are wide (80 deg) because the enemy torsos are pitched in their idle poses. The cavity of a slot is identical on every body of
+   the model, so the first body to open it stores it in `WoundSlot::cavity` and later bodies reuse it.
+3. **Parts are removed, not cut.** A severable bone (`"severable"`: head, upper/lower arms, thighs, calves) has
+   `detach` (weighted damage, default 60). Every hit on the part or on anything below it (a hand counts for the forearm)
+   adds `damage * source.severPower` (fading over 20 s); at the threshold the part is taken off at its joint with a
+   plane square to the bone at the near end of its `range` (`CutRequest::atJoint`), so the stump is always clean. The
+   existing cap, gib, hitbox removal, stump blood and `GorePartEvent` are used unchanged. A killing hit with a heavy
+   source removes a `lethal` part (head) at once. The torso is never removed. A part whose subtree already holds a cut
+   cannot be removed afterwards (known limit).
+4. **Blades only cut when they slice.** A slash removes a part along the swing plane (`CutRequest::strictTilt`): refused
+   when the plane would have to tilt past the bone's `maxTilt` (the blade runs along the limb), then it is just a splat.
+   The damage threshold is the same `detach` value.
+5. **Blasts** (explosion, cannon): decal-free; open the slot they point into, and remove up to 3 parts within
+   `blastRadius` (`BlastSever`, now also at joints). Cannon `holePower` 5 opens a slot with any hit.
+
+Weapon tuning lives in `GameData/gore/sources.json` (`severPower`, `holePower`, `decalRadius`); part thresholds and slots in
+the `.gore` files. Test: `-gore_look <npc> -gore_src <weapon> -gore_damage <n> -gore_shots <n> -gore_aim <bone>
+-gore_aim_dy/-gore_aim_dx <metres> -gore_dist <m> -gore_dump_bounds` (the last prints bone bounds and the torso surface in bind
+space, the data needed to author slots). Bind space of the enemy models: y up, front = +z, x = the model's left.
+
+Tuning numbers are for the real weapon damage (pistol / revolver 25, shotgun pellet 65/21 = 3.1, tommy 8, sniper 70, sword 30, enemy health 110-210) times the source weights in `sources.json`. Part `detach`: forearm 40, calf 45, upper arm 60, thigh 70, head 80. Slots: dents 100, through holes 200. A pistol takes off an arm in 3 hits to it; a revolver in 1; a close shotgun blast in 1; a sword slice in 1. Dents open after ~4 pistol / 2 revolver / ~11 close pellets; through holes need a sniper hit, a cannon, ~3 revolver hits or a point-blank shotgun.
+
+**Shared profile.** All human enemies have the same body layout, so their `.gore` files are one line: `{ "extends": "GameData/gore/humanoid.gore" }` (axe, gun, zombie). The shared file holds textures, severable parts, thresholds and the slot layout; keys in the model's own file replace the shared ones. A model with another rig adds `"boneMap"` (shared bone name -> that rig's name; the knight maps the humanoid names to its `mixamorig:` bones) and may override `"slots"` (the knight has a thicker breastplate). Authoring a new human enemy = one `extends` line (+ `boneMap` if the bone names differ).
+
+**Why only the zombie seemed to work (fixed).** `NpcHumanBase::OnPointDamage` ignores a dead enemy, and the first tuning needed more hits per slot than most enemies survive (zombie 210 HP, gun 110, axe 160, knight 170). Now: slot damage is collected by every slot a hit lands in; the killing blow counts 2.5x (`kKillingBlowWeight`); corpses still take gore hits; pistol `holePower` 2, shotgun 4. Test any slot on any model with `-gore_slot <name>` (fires along the slot's own facing; waits until the model's profile is ready).
+
+### 10.x Live enemies keep their parts (for now)
+
+`Hit::alive` (the victim was alive before the hit, set by the adapter) switches part removal off: head, arms and legs only
+come off a body that is already dead, and blasts only sever dead bodies. Wound slots still open on live enemies. The
+side holes (`through_*`, threshold 70, catch 0.09 so a hit in the middle of the chest still digs the dent) and flank dents
+(threshold 50) are tuned to open in two or three pistol hits. Test with `-gore_alive` in the `-gore_look` harness.

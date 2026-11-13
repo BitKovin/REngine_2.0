@@ -3,5 +3,6 @@
   "maxGibSpawnsPerFrame": 6,
   "maxParticlesPerFrame": 64,
   "level": "full",
-  "freshBand": 0.05
+  "freshBand": 0.05,
+  "freeformWounds": false
 }
