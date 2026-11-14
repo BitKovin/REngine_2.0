@@ -1,5 +1,5 @@
 #include "GoreProfile.h"
-#include "GoreWoundMesh.h"
+#include "GoreFlesh.h"
 #include "GoreTypes.h"
 
 #include <AssetRegistry.h>
@@ -9,7 +9,9 @@
 #include <Helpers/StringHelper.h>
 #include <json.hpp>
 
+#include <ThreadPool.h>
 #include <algorithm>
+#include <atomic>
 #include <unordered_map>
 
 namespace Gore
@@ -33,18 +35,53 @@ namespace Gore
             return g_profiles[path] = std::move(p);
         }
 
-        Texture* LoadTexture(const nlohmann::json& textures, const char* key)
+        // Registry file name of a texture of the profile's "textures" object, "" when it names none.
+        std::string TexturePath(const nlohmann::json& textures, const char* key)
         {
-            if (!textures.is_object() || !textures.contains(key) || !textures[key].is_string()) return nullptr;
-            return AssetRegistry::GetTextureFromFile("GameData/textures/" + textures[key].get<std::string>());
+            if (!textures.is_object() || !textures.contains(key) || !textures[key].is_string()) return std::string();
+            return "GameData/textures/" + textures[key].get<std::string>();
+        }
+
+        // Asks the registry for the textures of the profile (see Profile::fleshTexture). Game thread.
+        void ResolveTextures(Profile& p)
+        {
+            auto resolve = [](const std::string& path, Texture*& slot)
+            {
+                Texture* texture = path.empty() ? nullptr : AssetRegistry::GetTextureFromFile(path);
+                if (texture != slot) slot = texture;
+            };
+            resolve(p.fleshPath, p.fleshTexture);
+            resolve(p.bloodPath, p.blood);
+            resolve(p.edgeNoisePath, p.edgeNoise);
+            resolve(p.bonePath, p.boneT);
+            resolve(p.gutsPath, p.guts);
         }
 
         SubmeshRole ParseRole(const std::string& role)
         {
             if (role == "shell") return SubmeshRole::Shell;
             if (role == "attachment") return SubmeshRole::Attachment;
+            if (role == "prop") return SubmeshRole::Prop;
             return SubmeshRole::Volume;
         }
+    }
+
+    struct Profile::PendingFlesh
+    {
+        std::atomic<bool> done{ false };
+        std::shared_ptr<ModelFlesh> result;
+    };
+
+    ThreadPool& BuildPool()
+    {
+        static ThreadPool pool("GoreBuild");
+        static bool started = false;
+        if (!started)
+        {
+            started = true;
+            if (ThreadPool::Supported()) pool.Start(1);
+        }
+        return pool;
     }
 
     float MaxExtent(const Profile& profile, uint16_t skel)
@@ -56,6 +93,7 @@ namespace Gore
 
     void ClearProfiles()
     {
+        BuildPool().WaitForFinish();   // a job may hold references into the profiles and the models
         g_profiles.clear();
         g_logged.clear();
     }
@@ -64,7 +102,19 @@ namespace Gore
     {
         auto cached = g_profiles.find(modelPath);
         if (cached != g_profiles.end())
-            return cached->second;
+        {
+            Profile& c = cached->second;
+            if (c.pendingFlesh)
+            {
+                if (!c.pendingFlesh->done.load(std::memory_order_acquire))
+                    return g_loading;   // the flesh is still being built on the worker: hits are kept, gore starts when it is done
+                c.flesh = std::move(c.pendingFlesh->result);
+                c.pendingFlesh.reset();
+                c.valid = true;
+            }
+            ResolveTextures(c);   // the registry may have freed them since (a level change)
+            return c;
+        }
 
         // Geometry has not landed yet: try again next time, do not cache a failure.
         if (model.meshes.empty())
@@ -132,11 +182,12 @@ namespace Gore
         Profile p;
 
         const nlohmann::json textures = j.value("textures", nlohmann::json::object());
-        p.flesh = LoadTexture(textures, "flesh");
-        p.fleshNormal = LoadTexture(textures, "fleshNormal");
-        p.blood = LoadTexture(textures, "blood");
-        p.edgeNoise = LoadTexture(textures, "edgeNoise");
-        p.boneT = LoadTexture(textures, "bone");
+        p.fleshPath = TexturePath(textures, "flesh");
+        p.bloodPath = TexturePath(textures, "blood");
+        p.edgeNoisePath = TexturePath(textures, "edgeNoise");
+        p.bonePath = TexturePath(textures, "bone");
+        p.gutsPath = TexturePath(textures, "guts");
+        ResolveTextures(p);
 
         p.fleshScale = j.value("fleshScale", 12.0f);
         if (j.contains("bloodColor") && j["bloodColor"].is_array() && j["bloodColor"].size() == 3)
@@ -193,6 +244,8 @@ namespace Gore
                 b.maxTiltDeg = s.value("maxTilt", b.maxTiltDeg);
                 b.detachDamage = s.value("detach", b.detachDamage);
                 b.boneRadius = s.value("boneRadius", b.boneRadius);
+                b.coreRadius = s.value("coreRadius", b.coreRadius);
+                b.clipAncestors = s.value("clipAncestors", b.clipAncestors);
                 b.gib = s.value("gib", std::string("rigid")) == "ragdoll" ? SeverableBone::GibKind::Ragdoll : SeverableBone::GibKind::Rigid;
                 b.canDestroy = s.value("canDestroy", false);
                 b.lethal = s.value("lethal", false);
@@ -208,52 +261,67 @@ namespace Gore
             }
         }
 
-        // Authored wound slots.
-        if (j.contains("slots") && j["slots"].is_array())
+        // Bones a living enemy keeps whole (the head): the listed bones and everything below them.
+        p.protectedWhileAlive.assign(boneCount, 0);
+        if (j.contains("protectedWhileAlive") && j["protectedWhileAlive"].is_array())
         {
-            auto vec3Of = [](const nlohmann::json& v, glm::vec3& out)
+            for (const nlohmann::json& n : j["protectedWhileAlive"])
             {
-                if (!v.is_array() || v.size() != 3) return false;
-                out = glm::vec3(v[0].get<float>(), v[1].get<float>(), v[2].get<float>());
-                return true;
-            };
-
-            for (const nlohmann::json& s : j["slots"])
-            {
-                if (static_cast<int>(p.slots.size()) >= kMaxWounds)
+                if (!n.is_string()) continue;
+                const std::string name = mapBone(n.get<std::string>());
+                const uint16_t skel = model.skeleton.findBone(name);
+                if (skel == INVALID_BONE_IDX)
                 {
-                    Logger::Error("Gore: '%s' has more than %d wound slots, extra ones ignored", modelPath.c_str(), kMaxWounds);
-                    break;
+                    Logger::Warning("Gore: '%s' protectedWhileAlive bone '%s' is not in the skeleton", modelPath.c_str(), name.c_str());
+                    continue;
                 }
+                for (uint16_t b = skel; b < ctx.subtreeEnd[skel]; ++b)
+                    p.protectedWhileAlive[b] = 1;
+            }
+        }
+        for (SeverableBone& sev : p.severable)
+            for (uint16_t b = sev.skel; b < ctx.subtreeEnd[sev.skel] && !sev.holdsProtected; ++b)
+                sev.holdsProtected = p.protectedWhileAlive[b] != 0;
 
-                WoundSlot w;
-                w.name = s.value("name", std::string("slot"));
-                w.bone = mapBone(s.value("bone", std::string()));
-                const uint16_t skel = model.skeleton.findBone(w.bone);
+        // Anatomy layout (all optional; missing bones are skipped with a warning).
+        {
+            const nlohmann::json a = j.value("anatomy", nlohmann::json::object());
+            auto readVec3 = [](const nlohmann::json& v, glm::vec3& out)
+            {
+                if (v.is_array() && v.size() == 3) out = glm::vec3(v[0].get<float>(), v[1].get<float>(), v[2].get<float>());
+            };
+            auto boneOf = [&](const std::string& name) -> int
+            {
+                const uint16_t skel = model.skeleton.findBone(mapBone(name));
                 if (skel == INVALID_BONE_IDX || model.skeleton.bones[skel].skinIdx < 0)
                 {
-                    Logger::Error("Gore: '%s' wound slot '%s': bone '%s' is missing or has no skin index", modelPath.c_str(), w.name.c_str(), w.bone.c_str());
-                    continue;
+                    Logger::Warning("Gore: '%s' anatomy bone '%s' is missing or has no skin index", modelPath.c_str(), name.c_str());
+                    return -1;
                 }
-                w.skel = skel;
-                w.skin = model.skeleton.bones[skel].skinIdx;
-
-                if (!vec3Of(s.value("center", nlohmann::json()), w.center) || !vec3Of(s.value("facing", nlohmann::json()), w.facing)
-                    || !vec3Of(s.value("radii", nlohmann::json()), w.radii) || glm::length(w.facing) < 1.0e-4f
-                    || w.radii.x <= 0.0f || w.radii.y <= 0.0f || w.radii.z <= 0.0f)
+                return skel;
+            };
+            auto readList = [&](const char* key, std::vector<uint16_t>& out)
+            {
+                if (!a.contains(key) || !a[key].is_array()) return;
+                for (const nlohmann::json& n : a[key])
                 {
-                    Logger::Error("Gore: '%s' wound slot '%s' needs center, facing and positive radii", modelPath.c_str(), w.name.c_str());
-                    continue;
+                    if (!n.is_string()) continue;
+                    const int skel = boneOf(n.get<std::string>());
+                    if (skel >= 0) out.push_back(static_cast<uint16_t>(skel));
                 }
-                w.facing = glm::normalize(w.facing);
-                w.threshold = s.value("threshold", w.threshold);
-                w.cosCone = std::cos(glm::radians(s.value("cone", 60.0f)));
-                w.catchRadius = s.value("catch", std::max(w.radii.x, w.radii.y) * 1.8f);
-                w.roughness = s.value("roughness", w.roughness);
-                w.rimWidth = s.value("rim", w.rimWidth);
-                w.through = s.value("through", false);
-                p.slots.push_back(std::move(w));
-            }
+            };
+
+            if (a.contains("forward")) readVec3(a["forward"], p.anatomy.forward);
+            if (a.contains("up")) readVec3(a["up"], p.anatomy.up);
+            if (glm::length(p.anatomy.forward) < 1.0e-4f) p.anatomy.forward = glm::vec3(0, 0, 1);
+            if (glm::length(p.anatomy.up) < 1.0e-4f) p.anatomy.up = glm::vec3(0, 1, 0);
+            p.anatomy.forward = glm::normalize(p.anatomy.forward);
+            p.anatomy.up = glm::normalize(p.anatomy.up);
+            readList("torso", p.anatomy.torso);
+            readList("ribs", p.anatomy.ribs);
+            readList("guts", p.anatomy.guts);
+            if (a.contains("head") && a["head"].is_string()) p.anatomy.head = boneOf(a["head"].get<std::string>());
+            p.anatomy.minBoneLength = a.value("minBoneLength", p.anatomy.minBoneLength);
         }
 
         // Vertex samples for the cut solver.
@@ -264,7 +332,8 @@ namespace Gore
             {
                 for (const VertexData& v : mesh.vertices)
                 {
-                    float below = 0.0f, own = 0.0f;
+                    float below = 0.0f, own = 0.0f, bestWeight = 0.0f;
+                    uint16_t bestBone = sev.skel;
                     for (int k = 0; k < MAX_BONE_INFLUENCE; ++k)
                     {
                         const float w = v.BlendWeights[k];
@@ -273,24 +342,30 @@ namespace Gore
                         if (skin < 0 || skin >= MAX_SKINNED_BONES) continue;
                         const uint16_t skel = ctx.skinToSkel[skin];
                         if (skel == INVALID_BONE_IDX || skel < sev.skel || skel >= end) continue;
-                        if (skel == sev.skel) own += w; else below += w;
+                        if (skel == sev.skel) own += w; else { below += w; if (w > bestWeight) { bestWeight = w; bestBone = skel; } }
                     }
-                    if (below >= 0.5f) sev.partPoints.push_back(v.Position);
+                    if (below >= 0.5f) { sev.partPoints.push_back(v.Position); sev.partPointBones.push_back(bestBone); }
                     else if (own >= 0.5f) sev.ownPoints.push_back(v.Position);
                 }
             }
 
             // Keep it light: at most ~384 samples each (even stride).
-            auto thin = [](std::vector<glm::vec3>& pts)
+            auto thin = [](std::vector<glm::vec3>& pts, std::vector<uint16_t>* owners)
             {
                 if (pts.size() <= 384) return;
                 const size_t stride = (pts.size() + 383) / 384;
                 size_t out = 0;
-                for (size_t i = 0; i < pts.size(); i += stride) pts[out++] = pts[i];
+                for (size_t i = 0; i < pts.size(); i += stride)
+                {
+                    pts[out] = pts[i];
+                    if (owners != nullptr) (*owners)[out] = (*owners)[i];
+                    ++out;
+                }
                 pts.resize(out);
+                if (owners != nullptr) owners->resize(out);
             };
-            thin(sev.partPoints);
-            thin(sev.ownPoints);
+            thin(sev.partPoints, &sev.partPointBones);
+            thin(sev.ownPoints, nullptr);
         }
 
         // Union of the per-mesh any-influence bounds.
@@ -311,9 +386,20 @@ namespace Gore
 
         p.parent = ctx.parent;
         p.subtreeEnd = ctx.subtreeEnd;
-        p.triGrid = BuildTriangleGrid(model, p);
-        p.valid = true;
 
-        return g_profiles[modelPath] = std::move(p);
+        // The flesh (shells and anatomy) takes a few milliseconds on a detailed model: build it on the worker. The worker reads
+        // a snapshot of the profile and the model's meshes, which are not modified once the model is loaded and partitioned.
+        auto pending = std::make_shared<Profile::PendingFlesh>();
+        auto snapshot = std::make_shared<const Profile>(p);
+        const roj::SkinnedModel* modelPtr = &model;
+        p.pendingFlesh = pending;
+        BuildPool().QueueJob([pending, snapshot, modelPtr]()
+        {
+            pending->result = BuildModelFlesh(*modelPtr, *snapshot);
+            pending->done.store(true, std::memory_order_release);
+        });
+
+        g_profiles[modelPath] = std::move(p);
+        return g_loading;
     }
 }

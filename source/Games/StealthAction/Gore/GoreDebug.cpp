@@ -4,11 +4,15 @@
 
 #include "GoreComponent.h"
 #include "GoreEvents.h"
+#include "GoreFlesh.h"
+#include "GoreGib.h"
 #include "GoreProfile.h"
 #include "GoreSkeletalMesh.h"
 #include "GoreSource.h"
 #include "GoreSystem.h"
+#include "StealthGoreAdapter.h"
 
+#include <AssetRegistry.h>
 #include <Camera.h>
 #include <DebugDraw.hpp>
 #include <Entity.h>
@@ -27,6 +31,7 @@
 #include <imgui/imgui.h>
 
 #include <SDL2/SDL.h>
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <map>
@@ -146,33 +151,79 @@ namespace Gore
     // Spawns the NPC in front of the player, then shoots it with trace hits (like real fire) so a -screenshot can show the result.
     void UpdateLookTest()
     {
-        static const void* lastLevel = nullptr;
+        static int lastLevel = -1;   // Level::CurrentLevelChangeId: a new level can be allocated where the old one was, so its address says nothing
         static int ticks = 0;
         static Entity* npc = nullptr;
         static bool fired = false;
+        static vec3 startEye = vec3(0);   // where the camera was when the npc was placed (shots start there, whatever -gore_cam_up does)
+        static bool reloaded = false;     // -gore_reload: another level was opened once, this is the second pass
+        static int waited = 0;            // frames spent waiting for the model's gore profile (per level)
 
         auto& args = EngineMain::MainInstance->Arguments;
         auto look = args.find("gore_look");
         if (look == args.end() || look->second.empty()) return;
         if (Player::Instance == nullptr || Level::Current == nullptr) return;
+        const auto reloadArg = args.find("gore_reload");
 
         // Counts frames since the level changed (a freshly loaded level starts again at 0).
-        if (lastLevel != Level::Current)
+        if (lastLevel != static_cast<int>(Level::CurrentLevelChangeId))
         {
-            lastLevel = Level::Current;
+            lastLevel = static_cast<int>(Level::CurrentLevelChangeId);
             ticks = 0;
             npc = nullptr;
             fired = false;
+            waited = 0;
         }
         ++ticks;
 
         Player* player = Player::Instance;
+
+        // Frame times: before the shot (ticks 30-70) and after it (71-130). Logged once at the end.
+        {
+            static std::chrono::steady_clock::time_point last;
+            static double idleSum = 0, idleMax = 0, shotSum = 0, shotMax = 0;
+            static int idleCount = 0, shotCount = 0;
+            const auto now = std::chrono::steady_clock::now();
+            // The frames around the picture stall on the read-back of the image: the window ends when the picture is requested.
+            int windowEnd = 130;
+            auto waitArg = args.find("gore_wait");
+            if (waitArg != args.end() && !waitArg->second.empty()) windowEnd = std::min(windowEnd, std::atoi(waitArg->second[0].c_str()));
+            if (ticks > 1)
+            {
+                const double ms = std::chrono::duration<double, std::milli>(now - last).count();
+                if (ticks >= 30 && ticks <= 70) { idleSum += ms; idleMax = std::max(idleMax, ms); ++idleCount; }
+                else if (ticks > 71 && ticks <= windowEnd) { shotSum += ms; shotMax = std::max(shotMax, ms); ++shotCount; }
+                if (ticks == windowEnd && idleCount > 0 && shotCount > 0)
+                    ProbeLog("gore_look: frame ms before shot avg " + std::to_string(idleSum / idleCount) + " max " + std::to_string(idleMax)
+                        + ", after shot avg " + std::to_string(shotSum / shotCount) + " max " + std::to_string(shotMax));
+            }
+            last = now;
+        }
+
+        if (ticks == 1) GibPool::SetSuppressed(args.find("gore_nogib") != args.end());   // test: no gib, look at the stump
+
+        // Test (-gore_cam_up H): hold the player H metres above the floor spot he started on, to look down at a cut face.
+        {
+            static float baseY = 0.0f;
+            auto camUp = args.find("gore_cam_up");
+            if (camUp != args.end() && !camUp->second.empty() && ticks >= 10)
+            {
+                if (ticks == 10) baseY = player->Position.y;
+                else player->Teleport(vec3(player->Position.x, baseY + static_cast<float>(std::atof(camUp->second[0].c_str())), player->Position.z));
+            }
+
+            // -gore_cam_pitch P: feeds P mouse units of vertical movement spread over ticks 11..20.
+            auto camPitch = args.find("gore_cam_pitch");
+            if (camPitch != args.end() && !camPitch->second.empty() && ticks > 10 && ticks <= 20)
+                Input::MouseDelta.y = static_cast<float>(std::atof(camPitch->second[0].c_str())) * 0.1f;
+        }
 
         if (npc == nullptr && ticks == 10)
         {
             const float yaw = Camera::finalizedRotation.y;
             const vec3 forward = MathHelper::GetForwardVector(vec3(0, yaw, 0));
             const vec3 eye = Camera::finalizedPosition;
+            startEye = eye;
             float dist = 1.8f;
             auto distArg = args.find("gore_dist");
             if (distArg != args.end() && !distArg->second.empty()) dist = static_cast<float>(std::atof(distArg->second[0].c_str()));
@@ -211,18 +262,13 @@ namespace Gore
             if (npc->HasComponent<GoreComponent>())
             {
                 auto g = npc->GetComponent<GoreComponent>();
-                std::string openNames;
-                if (GoreSkeletalMesh* gm0 = FindGoreMesh(npc))
-                {
-                    const Profile& pr0 = GetProfile(gm0->filePath, *gm0->GetSkinnedModel());
-                    for (size_t si = 0; si < pr0.slots.size(); ++si)
-                        if (g->openSlots & (1u << si)) openNames += " " + pr0.slots[si].name;
-                }
-                ProbeLog("gore_look: decals " + std::to_string(g->decalCount) + " openSlots " + std::to_string(g->openSlots) + " [" + openNames + " ]");
-                for (int di = 0; di < g->decalCount; ++di)
-                    ProbeLog("  decal " + std::to_string(di) + " bind " + V3(g->decals[di].center) + " radius " + std::to_string(g->decals[di].radius));
                 ProbeLog("gore_look: wounds " + std::to_string(g->woundCount) + " splats " + std::to_string(g->splatCount) + " pending " + std::to_string(g->pendingCount)
                     + " version " + std::to_string(g->version) + " cuts " + std::to_string(g->cutCount));
+                for (int i = 0; i < g->woundCount; ++i)
+                {
+                    const Wound& w = g->wounds[i];
+                    ProbeLog("  wound " + std::to_string(i) + " center " + V3(w.center) + " radii " + V3(w.radii) + " taper " + std::to_string(w.taper));
+                }
             }
             else ProbeLog("gore_look: npc has no GoreComponent");
             if (npc->HasComponent<GoreComponent>())
@@ -246,8 +292,22 @@ namespace Gore
             {
                 const Profile& pr = GetProfile(gm->filePath, *gm->GetSkinnedModel());
                 auto tex = [](Texture* t) { return t == nullptr ? std::string("null") : (std::string(t->valid ? "valid" : "INVALID") + (bgfx::isValid(t->getHandle()) ? "/handle" : "/NOHANDLE")); };
-                ProbeLog("gore_look: profile valid " + std::to_string(pr.valid) + " flesh " + tex(pr.flesh) + " normal " + tex(pr.fleshNormal)
+                ProbeLog("gore_look: profile valid " + std::to_string(pr.valid) + " flesh " + tex(pr.fleshTexture)
                     + " edge " + tex(pr.edgeNoise) + " blood " + tex(pr.blood));
+                // The registry frees textures that were not requested during a level load; the profile must hold the registry's current ones.
+                auto current = [](const std::string& path, Texture* t) { return path.empty() || AssetRegistry::GetTextureFromFile(path) == t; };
+                ProbeLog("gore_look: profile textures are the registry's current ones: flesh " + std::to_string(current(pr.fleshPath, pr.fleshTexture))
+                    + " edge " + std::to_string(current(pr.edgeNoisePath, pr.edgeNoise)) + " blood " + std::to_string(current(pr.bloodPath, pr.blood))
+                    + " (level change " + std::to_string(static_cast<int>(Level::CurrentLevelChangeId)) + ")");
+                // A pointer says nothing about the object (a new texture can be allocated where the freed one was). So the first pass marks the
+                // object (Texture::transparent is read by nothing of the gore) and the second pass looks for the mark.
+                if (Texture* flesh = pr.fleshTexture; flesh != nullptr && reloadArg != args.end())
+                {
+                    if (!reloaded) flesh->transparent = true;
+                    else ProbeLog(std::string("gore_look: the flesh texture object from before the level change ")
+                        + (AssetRegistry::GetTextureFromFile(pr.fleshPath)->transparent ? "survived it" : "was freed by it and requested again"));
+                }
+                if (pr.flesh) ProbeLog("gore_look: flesh pieces " + std::to_string(pr.flesh->pieces.size()));
             }
             if (args.find("gore_dump_bounds") != args.end())   // authoring aid: bind-space bounds of every bone that carries vertices
             {
@@ -299,10 +359,29 @@ namespace Gore
                 }
             }
             auto file = args.find("gore_file");
-            Screenshot::Request(file != args.end() && !file->second.empty() ? file->second[0] : std::string("gore_look"));
+            Screenshot::Request((file != args.end() && !file->second.empty() ? file->second[0] : std::string("gore_look")) + (reloaded ? "_L2" : ""));
         }
 
-        if (fired && ticks == shotTick + 30)
+        // -gore_anim <name>: the shots are over, the body now plays that animation (looped); the picture comes at -gore_wait, so the
+        // wounds can be looked at on a body that is not in its bind pose.
+        {
+            auto anim = args.find("gore_anim");
+            if (fired && npc != nullptr && anim != args.end() && !anim->second.empty() && ticks == 75)
+                if (GoreSkeletalMesh* gm = FindGoreMesh(npc)) gm->PlayAnimation(anim->second[0], true, 0.0f);
+        }
+
+        // -gore_reload <map>: after the picture another map is opened (a level change: at the end of its load the engine frees every asset
+        // that was not requested while it loaded, and the gore textures are first requested at the first hit) and the whole test runs a
+        // second time there. The second picture is <gore_file>_L2. Reopening the same map would not do: that is no level change.
+        const bool reloadPending = reloadArg != args.end() && !reloadArg->second.empty() && !reloaded;
+        if (fired && reloadPending && ticks == shotTick + 10)
+        {
+            reloaded = true;
+            Level::LoadLevelFromFile("GameData/maps/" + reloadArg->second[0]);
+            ProbeLog("gore_look: changing level to " + reloadArg->second[0]);
+        }
+
+        if (fired && !reloadPending && ticks == shotTick + 30)
         {
             SDL_Event quit;   // the test run ends by itself (stdout is flushed on a normal exit)
             SDL_zero(quit);
@@ -316,10 +395,8 @@ namespace Gore
         {
             GoreSkeletalMesh* gm = FindGoreMesh(npc);
             profileReady = gm != nullptr && gm->GetSkinnedModel() != nullptr && GetProfile(gm->filePath, *gm->GetSkinnedModel()).valid;
-            static int waited = 0;
             if (!profileReady && waited < 3000) { ++waited; ticks = 71; }   // keep waiting (bounded): the tick counter holds at 71
             else profileReady = true;
-            if (lastLevel == nullptr) waited = 0;
         }
 
         if (npc != nullptr && !fired && ticks > 70 && profileReady)
@@ -333,10 +410,11 @@ namespace Gore
             auto sh = args.find("gore_shots");
             if (sh != args.end() && !sh->second.empty()) shots = std::atoi(sh->second[0].c_str());
 
-            const vec3 eye = Camera::finalizedPosition;
+            const vec3 eye = glm::length(startEye) > 0.0f ? startEye : Camera::finalizedPosition;
             const vec3 center = npc->Position + vec3(0, 0.3f, 0);
             const vec3 right = MathHelper::GetRightVector(vec3(0, Camera::finalizedRotation.y, 0));
             int landed = 0;
+            Entity* weaponEntity = nullptr;   // -gore_kill: stands in for the weapon (its class picks the gore source)
             for (int i = 0; i < shots; ++i)
             {
                 const float u = shots > 1 ? (static_cast<float>(i) / (shots - 1) - 0.5f) : 0.0f;
@@ -352,22 +430,6 @@ namespace Gore
                     if (dx != args.end() && !dx->second.empty()) target += right * static_cast<float>(std::atof(dx->second[0].c_str()));
                 }
                 vec3 shotEye = eye;
-                auto slotArg = args.find("gore_slot");   // fire at the named wound slot, along its own facing (checks the authored data on any model)
-                if (slotArg != args.end() && !slotArg->second.empty())
-                {
-                    if (GoreSkeletalMesh* gm = FindGoreMesh(npc))
-                    {
-                        const Profile& pr = GetProfile(gm->filePath, *gm->GetSkinnedModel());
-                        for (const WoundSlot& slot : pr.slots)
-                        {
-                            if (slot.name != slotArg->second[0]) continue;
-                            const mat4 M = gm->GetWorldMatrix() * gm->GetSkinPalette()[slot.skin];
-                            target = vec3(M * vec4(slot.center, 1.0f));
-                            const vec3 facing = glm::normalize(vec3(M * vec4(slot.facing, 0.0f)));
-                            shotEye = target + facing * 1.5f + vec3(0.002f * i, 0.0f, 0.0f);
-                        }
-                    }
-                }
                 const vec3 dir = glm::normalize(target - shotEye);
                 Physics::HitResult hit = Physics::LineTrace(shotEye, shotEye + dir * 20.0f, BodyType::GroupHitTest, {}, { Player::Instance });
                 ProbeLog("  trace " + std::to_string(i) + " target " + V3(target) + " hit " + std::to_string(hit.hasHit) + " entity " + (hit.entity ? hit.entity->ClassName : std::string("-")) + " box " + hit.hitboxName);
@@ -379,15 +441,45 @@ namespace Gore
                 Hit& h = event.hit;
                 h.point = hit.position;
                 h.direction = args.find("gore_flip") != args.end() ? -dir : dir;   // test: blow towards the camera
-                h.sweepNormal = MathHelper::GetUpVector(Camera::finalizedRotation);
+                h.sweepNormal = MathHelper::GetUpVector(vec3(0, Camera::finalizedRotation.y, 0));
+                // Test: tilt the slash plane. roll = about the blow direction (a diagonal cut across the body), pitch = about the
+                // camera's right axis (a rising or falling cut).
+                auto roll = args.find("gore_slash_roll");
+                if (roll != args.end() && !roll->second.empty())
+                    h.sweepNormal = glm::vec3(glm::rotate(glm::radians(static_cast<float>(std::atof(roll->second[0].c_str()))), glm::normalize(h.direction)) * glm::vec4(h.sweepNormal, 0.0f));
+                auto pitch = args.find("gore_slash_pitch");
+                if (pitch != args.end() && !pitch->second.empty())
+                    h.sweepNormal = glm::vec3(glm::rotate(glm::radians(static_cast<float>(std::atof(pitch->second[0].c_str()))), right) * glm::vec4(h.sweepNormal, 0.0f));
                 h.damage = 25.0f;
                 auto dmg = args.find("gore_damage");
                 if (dmg != args.end() && !dmg->second.empty()) h.damage = static_cast<float>(std::atof(dmg->second[0].c_str()));
+                h.lethal = args.find("gore_lethal") != args.end();   // test: this hit is the killing blow
                 h.alive = args.find("gore_alive") != args.end();   // test: the victim counts as alive (parts stay on)
                 h.sourceIndex = SourceIndexForClass(srcClass);
                 Gore::SetHitBone(h, hit.hitboxName);
                 h.counter = static_cast<uint32_t>(i + 1);
                 h.seed = HashSeed(npc->Id, h.counter);
+
+                // -gore_kill <health>: the real game path. The enemy gets that much health and takes the shots as damage, so it
+                // dies and ragdolls like in a game; the hit flags (alive, lethal) come from the damage code, not from the switches.
+                auto kill = args.find("gore_kill");
+                if (kill != args.end() && !kill->second.empty())
+                {
+                    if (i == 0)
+                    {
+                        npc->MaxHealth = static_cast<float>(std::atof(kill->second[0].c_str()));
+                        npc->Health = npc->MaxHealth;
+                    }
+                    if (weaponEntity == nullptr)
+                    {
+                        weaponEntity = new Entity();
+                        weaponEntity->ClassName = srcClass;
+                        Level::Current->AddEntity(weaponEntity);
+                    }
+                    StealthGore::SetNextMeleeSweep(npc, h.sweepNormal);
+                    npc->OnPointDamage(h.damage, h.point, h.direction, hit.hitboxName, nullptr, weaponEntity);
+                    continue;
+                }
                 EcsScheduler::Emit(event);
             }
             ProbeLog("gore_look: npc now at " + V3(npc->Position) + " health " + std::to_string(npc->Health));

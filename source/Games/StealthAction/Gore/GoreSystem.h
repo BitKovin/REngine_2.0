@@ -2,6 +2,8 @@
 
 #include "GoreComponent.h"
 
+#include <glm.h>
+
 class Entity;
 
 namespace Gore
@@ -20,6 +22,9 @@ namespace Gore
     // Stump effects (spurt, drips) of one body or gib; FxNewFrame resets the per-frame particle budget.
     void UpdateStumpFx(Entity* self, GoreComponent& gore);
     void FxNewFrame();
+
+    // A burst of droplets from a fresh wound. batches: 1 = a puff, 6 = a fountain. Shares the per-frame particle budget.
+    void SpawnBloodBurst(const glm::vec3& point, const glm::vec3& direction, int batches, float speed);
 
     // Copies the component to the mesh (SetGoreState) when gore.version changed.
     void PushRenderStateIfChanged(Entity* self, GoreComponent& gore);

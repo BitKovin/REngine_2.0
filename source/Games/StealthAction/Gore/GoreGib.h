@@ -42,5 +42,6 @@ namespace Gore
     {
         void Request(const GibRequest& request);   // queued; spawned by GoreGibSpawnSystem (bounded per frame)
         void Tick();                                // spawn the queue, retire the oldest beyond the budget
+        void SetSuppressed(bool suppressed);        // test only (-gore_nogib): requests are dropped, so the stump can be looked at
     }
 }

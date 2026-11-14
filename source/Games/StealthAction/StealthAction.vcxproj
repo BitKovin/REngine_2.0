@@ -419,7 +419,11 @@
     <ClCompile Include="Entities\Npc\NpcBanditTest.cpp" />
     <ClCompile Include="Entities\Npc\NpcBase.cpp" />
     <ClCompile Include="Gore\GoreCutSolver.cpp" />
-    <ClCompile Include="Gore\GoreWoundMesh.cpp" />
+    <ClCompile Include="Gore\GoreCap.cpp" />
+    <ClCompile Include="Gore\GoreCavity.cpp" />
+    <ClCompile Include="Gore\GoreTriGrid.cpp" />
+    <ClCompile Include="Gore\GoreChunks.cpp" />
+    <ClCompile Include="Gore\GoreFlesh.cpp" />
     <ClCompile Include="Gore\GoreGib.cpp" />
     <ClCompile Include="Gore\GoreFx.cpp" />
     <ClCompile Include="Gore\GoreParticles.cpp" />
@@ -567,7 +571,12 @@
     <ClInclude Include="Entities\Npc\NpcBase.h" />
     <ClInclude Include="Gore\GoreComponent.h" />
     <ClInclude Include="Gore\GoreCutSolver.h" />
-    <ClInclude Include="Gore\GoreWoundMesh.h" />
+    <ClInclude Include="Gore\GoreCap.h" />
+    <ClInclude Include="Gore\GoreCavity.h" />
+    <ClInclude Include="Gore\GoreTriGrid.h" />
+    <ClInclude Include="Gore\GoreChunks.h" />
+    <ClInclude Include="Gore\GoreFlesh.h" />
+    <ClInclude Include="Gore\GoreGpu.h" />
     <ClInclude Include="Gore\GoreGib.h" />
     <ClInclude Include="Gore\GoreDebug.h" />
     <ClInclude Include="Gore\GoreDrawCommands.h" />

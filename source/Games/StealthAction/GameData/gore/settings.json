@@ -1,8 +1,10 @@
 {
   "maxGibs": 48,
   "maxGibSpawnsPerFrame": 6,
-  "maxParticlesPerFrame": 64,
+  "maxChunks": 48,
+  "maxChunkSpawnsPerFrame": 16,
+  "maxParticlesPerFrame": 96,
   "level": "full",
   "freshBand": 0.05,
-  "freeformWounds": false
+  "severAlive": false
 }

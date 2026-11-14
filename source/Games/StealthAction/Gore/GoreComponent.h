@@ -15,11 +15,11 @@ namespace Gore
         std::array<Wound, kMaxWounds> wounds; uint8_t woundCount = 0;
         std::array<Cut,   kMaxCuts>   cuts;   uint8_t cutCount = 0;
         std::array<Splat, kMaxSplats> splats; uint8_t splatCount = 0;
-        std::array<Decal, kMaxDecals> decals; uint8_t decalCount = 0;
 
         std::array<Hit, kMaxPendingHits> pending; uint8_t pendingCount = 0;
 
         uint32_t version = 1;       // ++ on every change of wounds/cuts/splats
+        uint8_t pushedCuts = 0;     // cuts in the last render state: a cut stays out of it until its cap is built (worker thread)
         uint32_t hitCounter = 0;    // per victim, seeds
         uint32_t orderCounter = 0;  // creation order for eviction
 
@@ -30,11 +30,6 @@ namespace Gore
         // Accumulated sever damage per severable bone, indexed like Profile::severable (max 16, checked by the loader).
         std::array<float, 16>  severDamage{};
         std::array<double, 16> severDamageTime{};
-
-        // Authored wound slots (Profile::slots): which ones are open, and the damage collected towards the others.
-        uint8_t openSlots = 0;
-        std::array<float, kMaxWounds>  slotDamage{};
-        std::array<double, kMaxWounds> slotDamageTime{};
 
         // Severed pieces (GoreGib): the cut 0 keeps its removed side, no further severing, and the body palette at the
         // moment of the cut fixes the bones outside the piece to it.

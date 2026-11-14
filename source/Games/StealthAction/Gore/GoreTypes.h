@@ -1,10 +1,8 @@
 #pragma once
 
 #include <glm.h>
-#include <VertexData.h>
 #include <cstdint>
 #include <array>
-#include <atomic>
 #include <memory>
 #include <string>
 #include <vector>
@@ -15,9 +13,14 @@ namespace Gore
     constexpr int kMaxWounds = 8;
     constexpr int kMaxCuts = 4;
     constexpr int kMaxSplats = 16;
-    constexpr int kMaxDecals = 32;
     constexpr int kMaxPendingHits = 32;
     constexpr int kMaxSkeletonBones = 512;   // models with more skeleton nodes get no gore (logged)
+
+    // Flesh layers (GORE_V2_PLAN.md section 0.3). Layer 0 is the skin, 1..kShellLayers are shells, then the anatomy.
+    constexpr int   kShellLayers = 3;
+    constexpr float kShellFraction[kShellLayers] = { 0.30f, 0.60f, 0.88f };   // share of a vertex's max inset
+    constexpr int   kAnatomyLayer = kShellLayers + 1;                          // = 4
+    constexpr float kMinTaper = 0.10f;
 
     // Deterministic RNG (same results on every platform/compiler - never use std:: distributions here).
     struct Rng
@@ -34,35 +37,14 @@ namespace Gore
     enum class WoundKind : uint8_t { Entry, Exit, Crater, Gash, Crush };
     enum class CutPhase  : uint8_t { Severed, Regrowing };
 
-    // The inside of a wound as real skinned geometry: a bowl built against the model faces under the hole. Every vertex
-    // carries bone indices/weights blended from the triangles it sits under, so the cavity bends with the skin and
-    // follows the ragdoll. Positions are bind space, like the model's own vertices.
-    struct CavityGeometry
-    {
-        std::vector<VertexData> vertices;
-        std::vector<uint32_t> indices;
-    };
-
-    // A cavity being built on the worker thread. The game thread polls `state` (0 building, 1 done) once a tick.
-    struct CavityTicket
-    {
-        std::atomic<int> state{ 0 };
-        std::shared_ptr<const CavityGeometry> result;   // written before state becomes 1; null = no skin under the wound
-    };
-
     struct Wound
     {
-        std::shared_ptr<CavityTicket> cavityTicket;     // set while the cavity is being built
-        bool cavityFailed = false;                      // nothing to build against: the wound is not drawn
-        std::shared_ptr<const CavityGeometry> cavity;   // built by BuildCavity after the wound is created / merged
         glm::vec3 center = glm::vec3(0);        // bind space
         glm::quat rotation = glm::quat(1, 0, 0, 0); // bind space, local z = shot direction / blade normal
         glm::vec3 radii = glm::vec3(0.02f);     // bind-space metres
         int16_t   anchorSkin = -1;              // skin index of the anchor bone (rigid frame for the interior pass)
         uint16_t  anchorSkel = 0;
-        int8_t    slot = -1;                    // profile wound slot this wound was opened from (-1 = free-form wound)
         WoundKind kind = WoundKind::Entry;
-        bool      through = false;              // goes through the whole body: the cavity is a tunnel with an open middle
         float roughness = 0.25f;                // edge noise amplitude in unit-sphere units
         float rimWidth = 0.35f;                 // blood rim width in unit-sphere units
         float seed = 0.0f;                      // 0..1, offsets the noise
@@ -70,7 +52,11 @@ namespace Gore
         double healStart = 0.0;                 // regen clock; healDuration 0 = permanent
         float  healDuration = 0.0f;
         uint32_t order = 0;                     // creation order (eviction picks the oldest)
+        float   taper = 0.5f;       // how fast the hole shrinks per layer: scale(layer) = heal * max(0, 1 - layer * taper)
+        int16_t limitSkel = -1;     // >= 0: the wound only touches this skel bone and its subtree (sever wounds)
     };
+
+    struct CapGeometry;   // GoreCap.h
 
     struct Cut
     {
@@ -92,6 +78,11 @@ namespace Gore
         bool   charred = false;                 // fire: never regrows, charred cap look
         double fxNext = 0.0;                    // stump effects: next spawn time (FX only)
         std::string gibId;                      // entity id of the severed piece (empty if none / not saved)
+        bool clean = false;                         // a blade cut (nothing is thrown); false: torn by a bullet or a blast
+        std::shared_ptr<const CapGeometry> cap;     // the face of the cut, shared by the body and the gib; null only for a cut whose plane found no skin (sever wound)
+        // Bit (b - boneSkel) set: part bone b carries cloth that hangs far below the plane (the hem of a robe). The body keeps that
+        // bone's range, clipped by the plane, instead of dropping it with the rest of the part. Trunk cuts only.
+        uint64_t stragglers[2] = { 0, 0 };
     };
 
     struct Splat
@@ -99,14 +90,6 @@ namespace Gore
         glm::vec3 center = glm::vec3(0);        // bind
         float radius = 0.05f;                   // bind metres
         float strength = 1.0f;                  // 0..1
-        uint32_t order = 0;
-    };
-
-    // A bullet hole: a small dark mark with a blood ring painted by the body shader (bind space, no geometry).
-    struct Decal
-    {
-        glm::vec3 center = glm::vec3(0);        // bind
-        float radius = 0.02f;                   // bind metres, radius of the blood ring
         uint32_t order = 0;
     };
 

@@ -9,20 +9,21 @@ namespace Gore
     namespace
     {
         const char* kVertex = "gore/vs_gore";
+        const char* kInnerVertex = "gore/vs_gore_inner";
     }
 
     Shader* GoreDrawCommand::GetForwardShader() const
     {
         if (!goreActive) return SkeletalMeshDrawCommand::GetForwardShader();
-        if (pass == Pass::Cavity) return ShaderManager::GetShaderProgram(kVertex, "gore/fs_gore_cavity");
-        return ShaderManager::GetShaderProgram(kVertex, pass == Pass::Front ? "gore/fs_gore" : "gore/fs_gore_interior");
+        if (pass == Pass::Front) return ShaderManager::GetShaderProgram(kVertex, "gore/fs_gore");
+        return ShaderManager::GetShaderProgram(kInnerVertex, "gore/fs_gore_inner");
     }
 
     Shader* GoreDrawCommand::GetDepthShader() const
     {
         if (!goreActive) return SkeletalMeshDrawCommand::GetDepthShader();
-        if (pass == Pass::Cavity) return SkeletalMeshDrawCommand::GetDepthShader();
-        return ShaderManager::GetShaderProgram(kVertex, pass == Pass::Front ? "gore/fs_gore_depth" : "gore/fs_gore_interior_depth");
+        if (pass == Pass::Front) return ShaderManager::GetShaderProgram(kVertex, "gore/fs_gore_depth");
+        return ShaderManager::GetShaderProgram(kInnerVertex, "gore/fs_gore_inner_depth");
     }
 
     Shader* GoreDrawCommand::GetCustomIdShader() const
@@ -53,24 +54,20 @@ namespace Gore
         const int nw = static_cast<int>(g.counts.x + 0.5f);
         const int nc = static_cast<int>(g.counts.y + 0.5f);
         const int ns = static_cast<int>(g.counts.z + 0.5f);
-        const int nd = static_cast<int>(g.counts.w + 0.5f);
 
         shader->SetUniform("u_goreCounts", g.counts);
         shader->SetUniform("u_goreParams", g.params);
         shader->SetUniform("u_goreBloodColor", g.bloodColor);
-        shader->SetUniform("u_goreViewProj", viewProj);
         shader->SetUniform("u_goreCameraPos", vec4(cameraPos, 1.0f));
-        shader->SetUniform("u_goreShell", vec4(shell ? 1.0f : 0.0f));
         shader->SetUniform("u_goreAlphaTest", vec4(Material.NeedsAlphaDiscard() ? 1.0f : 0.0f));
+        shader->SetUniform("u_goreLayer", vec4(layer, insetFraction, pass == Pass::Anatomy ? 1.0f : 0.0f, cavity ? 2.0f : (cap ? 1.0f : 0.0f)));
 
         if (nw > 0)
         {
             shader->SetUniform("u_goreWoundBind", g.woundBind.data(), static_cast<size_t>(nw) * 3);
-            shader->SetUniform("u_goreWoundWorld", g.woundWorld.data(), static_cast<size_t>(nw) * 3);
             shader->SetUniform("u_goreWoundParams", g.woundParams.data(), static_cast<size_t>(nw));
             shader->SetUniform("u_goreWoundExtra", g.woundExtra.data(), static_cast<size_t>(nw));
         }
-
         if (nc > 0)
         {
             const size_t c = static_cast<size_t>(nc);
@@ -78,23 +75,15 @@ namespace Gore
             shader->SetUniform("u_goreCutBindSphere", g.cutBindSphere.data(), c);
             shader->SetUniform("u_goreCutRegrowBind", g.cutRegrowBind.data(), c);
             shader->SetUniform("u_goreCutParams", g.cutParams.data(), c);
-            shader->SetUniform("u_goreCutWorld", g.cutWorld.data(), c);
-            shader->SetUniform("u_goreCutWorldSphere", g.cutWorldSphere.data(), c);
-            shader->SetUniform("u_goreCutRegrowWorld", g.cutRegrowWorld.data(), c);
-            shader->SetUniform("u_goreCutCenter", g.cutCenter.data(), c);
-            shader->SetUniform("u_goreCutFrame", g.cutFrame.data(), c * 2);
         }
-
         if (ns > 0)
             shader->SetUniform("u_goreSplats", g.splats.data(), static_cast<size_t>(ns));
 
-        if (nd > 0)
-            shader->SetUniform("u_goreDecals", g.decals.data(), static_cast<size_t>(nd));
-
         shader->SetTexture(hashed_string("u_goreFlesh"), g.flesh);
-        shader->SetTexture(hashed_string("u_goreFleshNormal"), g.fleshNormal);
         shader->SetTexture(hashed_string("u_goreEdgeNoise"), g.edgeNoise);
         shader->SetTexture(hashed_string("u_goreBlood"), g.blood);
+        shader->SetTexture(hashed_string("u_goreBone"), g.bone);
+        shader->SetTexture(hashed_string("u_goreGuts"), g.guts);
     }
 
     void GoreDrawCommand::CaptureCamera(const mat4& view, const mat4& projection)

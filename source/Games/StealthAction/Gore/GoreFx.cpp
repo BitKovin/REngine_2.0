@@ -30,6 +30,16 @@ namespace Gore
         g_budget = GoreSettings::Get().maxParticlesPerFrame;
     }
 
+    // A burst of droplets from a fresh wound. batches: 1 = a puff, 6 = a fountain. Shares the per-frame particle budget.
+    void SpawnBloodBurst(const glm::vec3& point, const glm::vec3& direction, int batches, float speed)
+    {
+        if (batches <= 0 || g_budget <= 0 || glm::length(direction) < 1.0e-4f) return;
+        batches = std::min(batches, g_budget);
+        g_budget -= batches;
+        GlobalParticleSystem::SpawnParticleAt("gore_spurt", point, MathHelper::FindLookAtRotation(glm::vec3(0), glm::normalize(direction)),
+                                              glm::vec3(static_cast<float>(batches), speed, 0.0f));
+    }
+
     // Stump effects: a pulsing arterial spurt for a few seconds, then drips ("gore_spurt", GoreParticles.cpp).
     void UpdateStumpFx(Entity* self, GoreComponent& gore)
     {

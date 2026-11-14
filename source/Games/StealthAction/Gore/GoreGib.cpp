@@ -173,13 +173,11 @@ namespace Gore
         for (int i = 0; i < bodyGore->woundCount; ++i)
         {
             const Wound& w = bodyGore->wounds[i];
-            if (w.anchorSkel >= S && w.anchorSkel < end && !w.cavityFailed)
+            if (w.anchorSkel >= S && w.anchorSkel < end)
                 gore->wounds[gore->woundCount++] = w;
         }
         for (int i = 0; i < bodyGore->splatCount && gore->splatCount < kMaxSplats; ++i)
             gore->splats[gore->splatCount++] = bodyGore->splats[i];
-        for (int i = 0; i < bodyGore->decalCount && gore->decalCount < kMaxDecals; ++i)
-            gore->decals[gore->decalCount++] = bodyGore->decals[i];
         gore->orderCounter = bodyGore->orderCounter;
         gore->frozenClock = bodyGore->frozenClock;
         gore->pausedUntil = bodyGore->pausedUntil;
@@ -214,8 +212,16 @@ namespace Gore
 
     namespace GibPool
     {
+        bool g_suppressed = false;
+
+        void SetSuppressed(bool suppressed)
+        {
+            g_suppressed = suppressed;
+        }
+
         void Request(const GibRequest& request)
         {
+            if (g_suppressed) return;
             g_queue.push_back(request);
             g_queuedFrames.push_back(g_frame);
         }

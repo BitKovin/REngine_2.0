@@ -8,7 +8,6 @@ SAMPLER2D(u_textureEmissive, 1);
 #include "../lighting_common.sh"
 // Sampler slots are parsed from this file's own text by the engine (includes are not scanned), so they are declared here.
 SAMPLER2D(u_goreFlesh,       2);
-SAMPLER2D(u_goreFleshNormal, 3);
 SAMPLER2D(u_goreEdgeNoise,   4);
 SAMPLER2D(u_goreBlood,       5);
 #include "gore_common.sh"
@@ -34,12 +33,9 @@ void main()
         alpha = 1.0;
     }
 
-    float decalHole = 0.0; float decalRing = 0.0;
-    if (u_goreCounts.w > 0.5) goreDecals(v_goreBind.xyz, decalHole, decalRing);
-
-    float blood = u_goreParams.w > 1.5 ? 0.0 : max(max(goreRim, soak), decalRing);
-    color = mix(color, u_goreBloodColor.rgb * (0.6 + 0.4 * soak), blood);
-    color = mix(color, vec3(0.025, 0.004, 0.004), decalHole);
+    float blood = u_goreParams.w > 1.5 ? 0.0 : max(goreRim, soak);
+    color = mix(color, u_goreBloodColor.rgb * (0.55 + 0.45 * soak), blood);
+    color = mix(color, u_goreBloodColor.rgb * 0.35, goreRim * goreRim * 0.8);   // the torn edge itself is almost black-red
     color = mix(color, u_goreBloodColor.rgb * 1.4, fresh * 0.8);     // raw new skin while regrowing
 
     vec3 N = normalize(v_normal);
@@ -78,7 +74,7 @@ void main()
 
     float luma = pow(dot(color, vec3(0.299, 0.587, 0.114)), 1.5);
 
-    float specularFactor = mix(luma * 1.0f, 0.2, 0.2) * 2.0 * (1.0 + 2.5 * max(blood, fresh));
+    float specularFactor = mix(luma * 1.0f, 0.2, 0.2) * 2.0;   // the stock mesh shader's; blood adds no extra shine
 
     vec3 dirSpecular = CalculateDirectionalSpecular(normal, lightDir, viewDir) * specularFactor;
     

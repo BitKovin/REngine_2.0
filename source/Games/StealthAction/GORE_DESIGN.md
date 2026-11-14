@@ -1,5 +1,7 @@
 # Real-time Procedural Dismemberment — Implementation Plan
 
+> **Superseded by `GORE_V2_PLAN.md` (2026-11-14)** for wound looks, cuts and chunks. The goals and the rules about data-driven profiles still stand.
+
 Target: **StealthAction** enemies (`NpcBase` / `NpcHumanBase` and subclasses).
 Reuse: all game code lives in one self-contained folder, `source/Games/StealthAction/Gore/`, plus
 `GameData/shaders/source/gore/`. Only one adapter file touches StealthAction classes, so another game can copy the folder,

@@ -1,4 +1,5 @@
 #include <Entity.h>
+#include "Gore/GoreChunks.h"
 #include "Gore/GoreDebug.h"
 #include "Gore/GoreGib.h"
 #include <Input.h>
@@ -319,6 +320,7 @@ public:
         UpdatePaused();
         Gore::UpdateLookTest();
         Gore::GibPool::Tick();   // spawns the queued gibs (outside the ECS tick groups)
+        Gore::ChunkPool::Tick();   // spawns the queued meat chunks (outside the ECS tick groups)
 
         if (Input::IsScrenTouched)
         {

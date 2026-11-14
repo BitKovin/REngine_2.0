@@ -12,35 +12,35 @@ class Texture;
 namespace Gore
 {
     // Everything the gore shaders need for one body, computed in GoreSkeletalMesh::PreFinalize.
-    // Meaning of every array: GORE_IMPLEMENTATION.md P2.4.
     struct GpuData
     {
-        glm::vec4 counts = glm::vec4(0);       // x wounds, y cuts, z splats, w decals
-        glm::vec4 params = glm::vec4(0);       // x homogeneousDepth (0/1), y isGib (0/1), z fleshScale, w gore level (0 full, 1 reduced, 2 minimal)
+        glm::vec4 counts = glm::vec4(0);       // x wounds, y cuts, z splats
+        glm::vec4 params = glm::vec4(0);       // y isGib (0/1), z fleshScale, w gore level (0 full, 1 reduced, 2 minimal)
         glm::vec4 bloodColor = glm::vec4(0.35f, 0.02f, 0.02f, 1.0f);
-        std::array<glm::vec4, kMaxWounds * 3> woundBind{}, woundWorld{};
+        std::array<glm::vec4, kMaxWounds * 3> woundBind{};
         std::array<glm::vec4, kMaxWounds> woundParams{};   // x roughness, y rimWidth, z healScale, w seed
-        std::array<glm::vec4, kMaxWounds> woundExtra{};    // x reach (world m), y mean radius (world m), z kind, w 0
+        std::array<glm::vec4, kMaxWounds> woundExtra{};    // x taper (0 when a cavity closes the hole), y anatomy stays, z layers share the hole edge
         std::array<glm::vec4, kMaxCuts> cutBind{}, cutBindSphere{}, cutRegrowBind{}, cutParams{};
-        std::array<glm::vec4, kMaxCuts> cutWorld{}, cutWorldSphere{}, cutRegrowWorld{}, cutCenter{};
-        std::array<glm::vec4, kMaxCuts * 2> cutFrame{};
         std::array<glm::vec4, kMaxSplats> splats{};
-        std::array<glm::vec4, kMaxDecals> decals{};        // xyz bind position, w ring radius
         Texture* flesh = nullptr;
-        Texture* fleshNormal = nullptr;
         Texture* edgeNoise = nullptr;
         Texture* blood = nullptr;
+        Texture* bone = nullptr;
+        Texture* guts = nullptr;
     };
 
     class GoreDrawCommand : public SkeletalMeshDrawCommand
     {
     public:
-        enum class Pass : uint8_t { Front, Interior, Cavity };
+        enum class Pass : uint8_t { Front, Shell, Anatomy };
 
         Pass pass = Pass::Front;
         bool goreActive = false;                // false: behaves exactly like SkeletalMeshDrawCommand
-        bool shell = false;                     // submesh role Shell (interior draws only the dark back side)
         const GpuData* gore = nullptr;          // points at GoreSkeletalMesh::finalGpu (changes only in FinalizeFrameData)
+        float layer = 0.0f;                     // 0 skin, 1..kShellLayers shells, kAnatomyLayer anatomy
+        float insetFraction = 0.0f;             // shells: share of the max inset
+        bool cap = false;                       // the flat face of a blade cut (pass Anatomy)
+        bool cavity = false;                    // the closing surface of the wounds (pass Anatomy, GoreCavity.h)
 
         Shader* GetForwardShader() const override;
         Shader* GetDepthShader() const override;

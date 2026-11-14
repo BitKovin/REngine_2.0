@@ -4,32 +4,21 @@
 #define GORE_MAX_WOUNDS 8
 #define GORE_MAX_CUTS 4
 #define GORE_MAX_SPLATS 16
-#define GORE_MAX_DECALS 32
-#define GORE_MAX_INTERVALS 16
-#define GORE_FAR 1.0e9
 
-uniform vec4 u_goreCounts;
-uniform vec4 u_goreParams;
-uniform vec4 u_goreRangeMask;
+uniform vec4 u_goreCounts;        // x wounds, y cuts, z splats
+uniform vec4 u_goreParams;        // x unused, y isGib, z fleshScale, w gore level (0 full, 1 reduced, 2 minimal)
+uniform vec4 u_goreRangeMask;     // per index range: x wound bits, y cut bits, z splat bits
+uniform vec4 u_goreLayer;         // x layer index, y inset fraction, z 1 = anatomy / cap / cavity / chunk (no inset), w 1 = cap, 2 = wound cavity
 uniform vec4 u_goreBloodColor;
 uniform vec4 u_goreCameraPos;
-uniform mat4 u_goreViewProj;
 uniform vec4 u_goreWoundBind[24];
-uniform vec4 u_goreWoundWorld[24];
-uniform vec4 u_goreWoundParams[8];
-uniform vec4 u_goreWoundExtra[8];
+uniform vec4 u_goreWoundParams[8];   // x roughness, y rimWidth, z healScale, w seed
+uniform vec4 u_goreWoundExtra[8];    // x taper (0 = a cavity closes the hole), y 1 = the anatomy (bones, organs) stays behind this wound, z 1 = all layers share the hole edge
 uniform vec4 u_goreCutBind[4];
 uniform vec4 u_goreCutBindSphere[4];
 uniform vec4 u_goreCutRegrowBind[4];
 uniform vec4 u_goreCutParams[4];
-uniform vec4 u_goreCutWorld[4];
-uniform vec4 u_goreCutWorldSphere[4];
-uniform vec4 u_goreCutRegrowWorld[4];
-uniform vec4 u_goreCutCenter[4];
-uniform vec4 u_goreCutFrame[8];
 uniform vec4 u_goreSplats[16];
-uniform vec4 u_goreDecals[32];
-
 
 bool goreBit(float mask, int i) { return mod(floor(mask / exp2(float(i))), 2.0) >= 1.0; }
 
@@ -70,11 +59,13 @@ bool goreCutRemoves(int i, vec3 p, out float fresh)
     return true;
 }
 
-// Front surface test in bind space. removed = discard. rim/soak/fresh in 0..1.
+// Surface test in bind space for the layer in u_goreLayer.x. true = discard.
+// rim: 0..1 near a hole edge of this layer. soak: blood soaked in (skin). fresh: regrowing.
 bool goreSurface(vec3 p, out float rim, out float soak, out float fresh)
 {
     rim = 0.0; soak = 0.0; fresh = 0.0;
     bool isGib = u_goreParams.y > 0.5;
+    float layer = u_goreLayer.x;
     int nw = int(u_goreCounts.x + 0.5);
     int nc = int(u_goreCounts.y + 0.5);
     int ns = int(u_goreCounts.z + 0.5);
@@ -93,10 +84,24 @@ bool goreSurface(vec3 p, out float rim, out float soak, out float fresh)
         if (i >= nw) break;
         if (!goreBit(u_goreRangeMask.x, i)) continue;
         vec4 wp = u_goreWoundParams[i];
-        vec3 q = goreWoundLocal(u_goreWoundBind[i*3], u_goreWoundBind[i*3+1], u_goreWoundBind[i*3+2], p) / max(wp.z, 0.001);
+        // Skin and the shells open up with a hole that gets smaller with depth; the inside of the hole is closed by the wound
+        // cavity (GoreCavity.h). The anatomy behind a shot or a gash is not removed (the ribs show in the hole): it only turns
+        // bloody inside the wound. (Cuts and sever wounds still remove everything: the cap closes those.)
+        bool inner = layer > 3.5 && u_goreWoundExtra[i].y > 0.5;
+        float scale = inner ? wp.z * 0.8 : wp.z * max(0.0, 1.0 - layer * u_goreWoundExtra[i].x);   // deeper layers: smaller hole
+        if (scale < 0.02) continue;
+        vec3 q = goreWoundLocal(u_goreWoundBind[i*3], u_goreWoundBind[i*3+1], u_goreWoundBind[i*3+2], p) / scale;
         float r = length(q);
-        float edge = goreNoise(q.xy * 0.5 + 0.5 + wp.w) * wp.x;
-        if (r < 1.0 + edge) return true;
+        // Two octaves. A wound whose hole is closed by a cavity cuts every layer along the same edge (one wall, no stacked layers);
+        // otherwise each layer has its own pattern, so the layer edges never line up.
+        vec2 nuv = q.xy * 0.5 + 0.5 + wp.w + layer * 0.37 * (1.0 - u_goreWoundExtra[i].z);
+        float edge = (goreNoise(nuv) * 0.7 + goreNoise(nuv * 2.7 + 0.31) * 0.3) * wp.x;
+        if (r < 1.0 + edge)
+        {
+            if (!inner) return true;
+            rim = 1.0;   // the inside of a wound is wet red
+            continue;
+        }
         rim = max(rim, (1.0 - smoothstep(1.0 + edge, 1.0 + edge + wp.y, r)) * min(wp.z * 2.0, 1.0));
     }
     for (int i = 0; i < GORE_MAX_SPLATS; i++)
@@ -110,159 +115,34 @@ bool goreSurface(vec3 p, out float rim, out float soak, out float fresh)
     return false;
 }
 
-// Bullet holes: u_goreDecals[i] = (bind position, ring radius), count in u_goreCounts.w.
-// hole = the dark centre, ring = the blood around it (both 0..1). Needs u_goreEdgeNoise.
-void goreDecals(vec3 p, out float hole, out float ring)
+
+// The surface of cavity `own` (the inside of one wound, GoreCavity.h) is removed where a cut or another wound already took the
+// body away: wounds subtract from each other, so only the outline of their union is left. true = discard.
+bool goreCavityRemoved(vec3 p, float own)
 {
-    hole = 0.0; ring = 0.0;
-    int nd = int(u_goreCounts.w + 0.5);
-    for (int i = 0; i < GORE_MAX_DECALS; i++)
-    {
-        if (i >= nd) break;
-        vec4 d = u_goreDecals[i];
-        float q = length(p - d.xyz) / max(d.w, 0.0001);
-        if (q > 1.2) continue;
-        float n = goreNoise(p.xy * 45.0 + p.z * 23.0 + d.w * 31.0) * 0.18;
-        hole = max(hole, 1.0 - smoothstep(0.36, 0.48, q + n * 0.5));
-        ring = max(ring, 1.0 - smoothstep(0.45, 1.0, q + n));
-    }
-}
-
-// ---- interior ------------------------------------------------------------------------------------------
-
-// Ray (world, dir normalised) vs ellipsoid given by world->unit rows. Returns false on miss.
-bool goreRayEllipsoid(int i, vec3 ro, vec3 rd, out vec2 t)
-{
-    float heal = max(u_goreWoundParams[i].z, 0.001);
-    vec4 r0 = u_goreWoundWorld[i*3]; vec4 r1 = u_goreWoundWorld[i*3+1]; vec4 r2 = u_goreWoundWorld[i*3+2];
-    vec3 o = vec3(dot(r0, vec4(ro,1.0)), dot(r1, vec4(ro,1.0)), dot(r2, vec4(ro,1.0))) / heal;
-    vec3 d = vec3(dot(r0.xyz, rd), dot(r1.xyz, rd), dot(r2.xyz, rd)) / heal;
-    float a = dot(d, d);
-    float b = dot(o, d);
-    float c = dot(o, o) - 1.0;
-    float disc = b*b - a*c;
-    if (disc <= 0.0) { t = vec2(0.0, 0.0); return false; }
-    float s = sqrt(disc);
-    t = vec2((-b - s) / a, (-b + s) / a);
-    return true;
-}
-
-bool goreRaySphere(vec3 ro, vec3 rd, vec4 sph, out vec2 t)
-{
-    vec3 oc = ro - sph.xyz;
-    float b = dot(oc, rd);
-    float c = dot(oc, oc) - sph.w * sph.w;
-    float disc = b*b - c;
-    if (sph.w <= 0.0 || disc <= 0.0) { t = vec2(0.0, 0.0); return false; }
-    float s = sqrt(disc);
-    t = vec2(-b - s, -b + s);
-    return true;
-}
-
-// kind: 0 cavity (wound), 1 cap (cut plane), 2 regrow front. prim = wound or cut index.
-// Returns false when the fragment must be discarded.
-bool goreInterior(vec3 worldB, vec3 bindB, out vec3 P, out float kind, out float prim, out float thickness)
-{
-    P = worldB; kind = 0.0; prim = 0.0; thickness = 0.0;
-
-    float rimD; float soakD; float freshD;
-    if (goreSurface(bindB, rimD, soakD, freshD)) return false;      // the back wall itself is removed: through-hole
-
-    vec3 ro = u_goreCameraPos.xyz;
-    vec3 rd = normalize(worldB - ro);
-    float tB = length(worldB - ro);
-
-    vec2  iv[GORE_MAX_INTERVALS];
-    float ivKind[GORE_MAX_INTERVALS];
-    float ivPrim[GORE_MAX_INTERVALS];
-    float ivReach[GORE_MAX_INTERVALS];
-    int count = 0;
-
+    bool isGib = u_goreParams.y > 0.5;
     int nw = int(u_goreCounts.x + 0.5);
     int nc = int(u_goreCounts.y + 0.5);
 
-    for (int i = 0; i < GORE_MAX_WOUNDS; i++)
-    {
-        if (i >= nw) break;
-        if (!goreBit(u_goreRangeMask.x, i)) continue;
-        vec2 t;
-        if (goreRayEllipsoid(i, ro, rd, t) && count < GORE_MAX_INTERVALS)
-        {
-            iv[count] = t; ivKind[count] = 0.0; ivPrim[count] = float(i); ivReach[count] = u_goreWoundExtra[i].x; count++;
-        }
-    }
     for (int i = 0; i < GORE_MAX_CUTS; i++)
     {
         if (i >= nc) break;
-        if (!goreBit(u_goreRangeMask.y, i)) continue;
-        vec2 ts;
-        if (!goreRaySphere(ro, rd, u_goreCutWorldSphere[i], ts)) continue;
-        vec4 pl = u_goreCutWorld[i];
-        if (u_goreParams.y > 0.5) pl = -pl;                    // gib keeps the body's removed side
-        float dn = dot(pl.xyz, rd);
-        float s0 = dot(pl.xyz, ro) - pl.w;
-        vec2 h;
-        if (abs(dn) < 1.0e-5) { if (s0 <= 0.0) continue; h = vec2(-GORE_FAR, GORE_FAR); }
-        else { float tp = -s0 / dn; h = dn > 0.0 ? vec2(tp, GORE_FAR) : vec2(-GORE_FAR, tp); }
-        float a = max(h.x, ts.x);
-        float b = min(h.y, ts.y);
-        if (a >= b) continue;
-        float endKind = 1.0;                                   // ends on the plane (or the influence sphere)
-        vec2 g;
-        if (u_goreCutRegrowWorld[i].w > 0.0 && goreRaySphere(ro, rd, u_goreCutRegrowWorld[i], g))
-        {
-            // removed = [a,b] minus [g.x,g.y]
-            if (g.x > a && count < GORE_MAX_INTERVALS)
-            { iv[count] = vec2(a, min(b, g.x)); ivKind[count] = 2.0; ivPrim[count] = float(i); ivReach[count] = u_goreCutFrame[i*2+1].w; count++; }
-            if (g.y < b && count < GORE_MAX_INTERVALS)
-            { iv[count] = vec2(max(a, g.y), b); ivKind[count] = endKind; ivPrim[count] = float(i); ivReach[count] = u_goreCutFrame[i*2+1].w; count++; }
-        }
-        else if (count < GORE_MAX_INTERVALS)
-        {
-            iv[count] = vec2(a, b); ivKind[count] = endKind; ivPrim[count] = float(i); ivReach[count] = u_goreCutFrame[i*2+1].w; count++;
-        }
+        if (!goreBit(u_goreRangeMask.y, i)) { if (isGib) return true; continue; }
+        float f;
+        bool removedForBody = goreCutRemoves(i, p, f);
+        if (isGib ? !removedForBody : removedForBody) return true;
     }
-
-    // The back face point inside a removed interval = removed back wall (world test agrees with the bind test above;
-    // this catches the rigid-approximation cases).
-    for (int k = 0; k < GORE_MAX_INTERVALS; k++)
+    for (int i = 0; i < GORE_MAX_WOUNDS; i++)
     {
-        if (k >= count) break;
-        if (tB > iv[k].x && tB < iv[k].y) return false;
+        if (i >= nw) break;
+        if (abs(float(i) - own) < 0.5) continue;
+        if (!goreBit(u_goreRangeMask.x, i)) continue;
+        vec4 wp = u_goreWoundParams[i];
+        if (wp.z < 0.02) continue;
+        vec3 q = goreWoundLocal(u_goreWoundBind[i*3], u_goreWoundBind[i*3+1], u_goreWoundBind[i*3+2], p) / wp.z;
+        if (length(q) < 1.0 + wp.x) return true;   // inside the other hole (its surface is the nominal ellipsoid grown by the edge roughness)
     }
-
-    float best = -1.0; int bestK = -1;
-    for (int k = 0; k < GORE_MAX_INTERVALS; k++)
-    {
-        if (k >= count) break;
-        float e = iv[k].y;
-        if (e <= 0.0 || e >= tB) continue;
-        if (tB - e > ivReach[k]) continue;
-        bool inside = false;
-        for (int j = 0; j < GORE_MAX_INTERVALS; j++)
-        {
-            if (j >= count) break;
-            if (j != k && e > iv[j].x && e < iv[j].y) inside = true;
-        }
-        if (inside) continue;
-        if (e > best) { best = e; bestK = k; }
-    }
-    if (bestK < 0) return false;
-
-    P = ro + rd * best;
-    for (int k = 0; k < GORE_MAX_INTERVALS; k++)
-    {
-        if (k == bestK) { kind = ivKind[k]; prim = ivPrim[k]; }
-    }
-    thickness = tB - best;
-    return true;
-}
-
-float goreDepth(vec3 P)
-{
-    vec4 clip = mul(u_goreViewProj, vec4(P, 1.0));
-    float z = clip.z / clip.w;
-    return u_goreParams.x > 0.5 ? z * 0.5 + 0.5 : z;
+    return false;
 }
 
 #endif

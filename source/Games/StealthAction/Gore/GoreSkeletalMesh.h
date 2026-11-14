@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GoreCavity.h"
 #include "GoreDrawCommands.h"
 #include "GoreRenderState.h"
 
@@ -24,14 +25,13 @@ namespace Gore
 
         bool HasGore() const
         {
-            return goreState.version != 0 && (goreState.woundCount || goreState.cutCount || goreState.splatCount || goreState.decalCount);
+            return goreState.version != 0 && (goreState.woundCount || goreState.cutCount || goreState.splatCount);
         }
 
         void PreFinalize() override;
         void FinalizeFrameData() override;
         void CollectDrawCommands(std::vector<IDrawCommand*>& out) override;
 
-    ~GoreSkeletalMesh() override;
 
     protected:
         std::shared_ptr<StaticMeshDrawCommand> CreateDrawCommand() override { return std::make_shared<GoreDrawCommand>(); }
@@ -50,34 +50,31 @@ namespace Gore
         // Per submesh, rebuilt when builtVersion changes:
         struct SubmeshRanges
         {
-            std::vector<DrawIndexRange> front, interior, shadowCap, shadowEdge;
+            std::vector<DrawIndexRange> front, shell, shadowCap, shadowEdge;
+            bool hasHole = false;   // a wound or a cut opens this submesh somewhere: its skin is drawn two-sided
         };
         std::vector<SubmeshRanges> pendingRanges;
 
-        std::vector<std::shared_ptr<GoreDrawCommand>> interiorCommands, finalInteriorCommands;
-        bool pendingActive = false;
+        std::vector<DrawIndexRange> pendingAnatomyRanges;
 
-        // Wound cavities: one skinned bowl per wound (see CavityGeometry). The list is filled in PreFinalize (game side)
-        // and turned into GPU buffers and draw commands in FinalizeFrameData.
-        // A wound's cavity and the cuts that apply to it: only cuts of the part the wound sits on (a cut elsewhere on the body
-        // must not eat holes into a bowl that merely lies near its plane).
-        struct CavityRef
-        {
-            std::shared_ptr<const CavityGeometry> geometry;
-            float cutBits = 0.0f;
-        };
-        std::vector<CavityRef> pendingCavities, finalCavities;
-        struct CavityGpu
-        {
-            std::shared_ptr<const CavityGeometry> geometry;
-            bgfx::VertexBufferHandle vbh = BGFX_INVALID_HANDLE;
-            bgfx::IndexBufferHandle ibh = BGFX_INVALID_HANDLE;
-            std::shared_ptr<GoreDrawCommand> command;
-            int idleFrames = 0;
-        };
-        std::vector<CavityGpu> cavityGpu;
-        std::vector<std::shared_ptr<GoreDrawCommand>> visibleCavityCommands;
-        void UpdateCavities();
+        // The closing surface of the wounds (GoreCavity.h). It is rebuilt on the worker thread when the wounds change: the old one
+        // stays on screen until the new one is ready. cavityWounds is what the newest request was made for.
+        std::shared_ptr<const CavityGeometry> cavityShown, cavityBuilding, pendingCavity, cavityHeld;
+        std::array<Wound, kMaxWounds> cavityWounds;
+        int cavityWoundCount = -1;
+        GpuData pendingCavityGpu, cavityGpu;   // the same as pendingGpu / finalGpu, with the wounds the cavity was built from
+        std::shared_ptr<GoreDrawCommand> cavityCommand, finalCavityCommand;
+        void RefreshCavity();
+
+        // kShellLayers commands per submesh: index = submesh * kShellLayers + layer. The final* copies are what the
+        // renderer may still hold.
+        std::vector<std::shared_ptr<GoreDrawCommand>> shellCommands, finalShellCommands;
+        std::shared_ptr<GoreDrawCommand> anatomyCommand, finalAnatomyCommand;
+        // One command per cut for the flat face of a blade cut. capHeld keeps the geometry (and its GPU buffers) alive
+        // for as long as a command may still point at it.
+        std::array<std::shared_ptr<GoreDrawCommand>, kMaxCuts> capCommands, finalCapCommands;
+        std::array<std::shared_ptr<const CapGeometry>, kMaxCuts> capHeld;
+        bool pendingActive = false;
 
         void BuildRanges();
         void FillGpuData();

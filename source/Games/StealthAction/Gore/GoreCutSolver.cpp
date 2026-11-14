@@ -53,17 +53,42 @@ namespace Gore
             float length;
         };
 
+        // Cloth this far below the plane hangs from the part (the hem of a robe): it is no reason to refuse the plane.
+        constexpr float kStragglerDepth = 0.12f;
+
         // The plane is acceptable when every vertex that leaves with the part lies strictly beyond it and the bone keeps
-        // some of its own vertices. (Bounds are the fallback for a model without vertex data.)
-        bool Valid(const Frame& f, const SeverableBone& sev, const glm::vec3& n, const glm::vec3& o)
+        // some of its own vertices. (Bounds are the fallback for a model without vertex data.) A trunk cut (clipAncestors)
+        // tolerates part vertices that hang far below the plane, up to 45 % of those near the axis: their bones are written to
+        // `stragglers` when given, and stay on the body.
+        bool Valid(const Frame& f, const SeverableBone& sev, const glm::vec3& n, const glm::vec3& o, uint64_t* stragglers = nullptr)
         {
+            if (stragglers != nullptr) stragglers[0] = stragglers[1] = 0;
             if (!sev.partPoints.empty())
             {
-                for (const glm::vec3& p : sev.partPoints)
-                    if (glm::dot(n, p - o) <= 0.003f) return false;
+                int nearCount = 0, hanging = 0;
+                uint64_t bits[2] = { 0, 0 };
+                for (size_t i = 0; i < sev.partPoints.size(); ++i)
+                {
+                    const glm::vec3& p = sev.partPoints[i];
+                    if (sev.coreRadius > 0.0f)
+                    {
+                        const glm::vec3 d = p - f.joint;
+                        if (glm::length(d - f.axis * glm::dot(d, f.axis)) > sev.coreRadius) continue;   // an arm hanging beside the trunk
+                    }
+                    ++nearCount;
+                    const float depth = glm::dot(n, p - o);
+                    if (depth > 0.003f) continue;
+                    if (!sev.clipAncestors || depth > -kStragglerDepth) return false;
+                    ++hanging;
+                    const size_t rel = i < sev.partPointBones.size() && sev.partPointBones[i] > f.S ? sev.partPointBones[i] - f.S : 0;
+                    if (rel > 0 && rel < 128) bits[rel >> 6] |= 1ull << (rel & 63);
+                }
+                if (hanging * 20 > nearCount * 9) return false;
+                if (stragglers != nullptr) { stragglers[0] = bits[0]; stragglers[1] = bits[1]; }
                 for (const glm::vec3& p : sev.ownPoints)
                     if (glm::dot(n, p - o) < -0.003f) return true;
-                return sev.ownPoints.empty();
+                if (!sev.ownPoints.empty()) { if (stragglers != nullptr) stragglers[0] = stragglers[1] = 0; return false; }
+                return true;
             }
 
             const Profile& p = *f.profile;
@@ -172,6 +197,7 @@ namespace Gore
         cut.seed = rng.Next01();
         cut.boneSkel = S;
         cut.boneSkin = sev.skin;
+        Valid(f, sev, n, o, cut.stragglers);
 
         float maxDist = 0.0f;
         for (uint16_t b = S; b < profile.subtreeEnd[S]; ++b)

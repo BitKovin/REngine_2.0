@@ -785,7 +785,19 @@
     <ClCompile Include="Gore\GoreCutSolver.cpp">
       <Filter>Gore</Filter>
     </ClCompile>
-    <ClCompile Include="Gore\GoreWoundMesh.cpp">
+    <ClCompile Include="Gore\GoreCap.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreCavity.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreTriGrid.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreChunks.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreFlesh.cpp">
       <Filter>Gore</Filter>
     </ClCompile>
     <ClCompile Include="Gore\GoreGib.cpp">
@@ -827,7 +839,22 @@
     <ClInclude Include="Gore\GoreCutSolver.h">
       <Filter>Gore</Filter>
     </ClInclude>
-    <ClInclude Include="Gore\GoreWoundMesh.h">
+    <ClInclude Include="Gore\GoreCap.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreCavity.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreTriGrid.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreChunks.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreFlesh.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreGpu.h">
       <Filter>Gore</Filter>
     </ClInclude>
     <ClInclude Include="Gore\GoreGib.h">

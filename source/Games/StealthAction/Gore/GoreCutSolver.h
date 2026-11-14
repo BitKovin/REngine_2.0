@@ -38,4 +38,12 @@ namespace Gore
 
     // Corners of a bone bound.
     void BoundCorners(const roj::BoneBound& b, glm::vec3 (&out)[8]);
+
+    // True when part bone b of the cut keeps its triangles on the body (Cut::stragglers).
+    inline bool IsStraggler(const Cut& c, size_t b)
+    {
+        if (b <= c.boneSkel) return false;
+        const size_t rel = b - c.boneSkel;
+        return rel < 128 && ((c.stragglers[rel >> 6] >> (rel & 63)) & 1ull) != 0;
+    }
 }
