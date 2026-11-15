@@ -3,6 +3,7 @@
 
 #include <BgfxStateManager.h>
 #include <Camera.h>
+#include <EngineMain.h>
 #include <Logger.hpp>
 #include <Shader.hpp>
 #include <ShaderManager.h>
@@ -12,6 +13,7 @@
 #include <UI/Render/UiGradientRamps.h>
 #include <UI/Render/UiLayers.h>
 
+#include <algorithm>
 #include <cstring>
 
 namespace
@@ -123,6 +125,18 @@ namespace UiGpu
     uint64_t StateLegacyText() { return s_stateText; }
     uint64_t StateForBlend(int blendMode) { return s_stateBlend[blendMode >= 0 && blendMode < 4 ? blendMode : 0]; }
     uint8_t ProgramShadow() { return s_programShadow; }
+
+    float MainRenderScale()
+    {
+        constexpr float kMin = 0.25f, kMax = 4.f;
+        const EngineMain* engine = EngineMain::MainInstance;
+        return engine != nullptr ? std::clamp(engine->UiResolutionScale, kMin, kMax) : 1.f;
+    }
+
+    float RenderScale()
+    {
+        return UiRenderer::customViewport ? 1.f : MainRenderScale();
+    }
 
     Projection CurrentProjection()
     {
@@ -246,8 +260,9 @@ namespace UiGpu
 
                 shader->UseProgram();
                 shader->SetUniform("u_uiProjection", proj);
+                // w: UI units per target pixel, the anti-aliasing width of the clip shapes (they are not painted per primitive)
                 shader->SetUniform("u_uiParams", glm::vec4(static_cast<float>(UiRender::kDataWidth), static_cast<float>(UiRender::kPrimTexels),
-                                                          static_cast<float>(Time::GameTimeNoPause), 0.f));
+                                                          static_cast<float>(Time::GameTimeNoPause), 1.f / RenderScale()));
                 shader->SetTexture("s_uiData", s_prims.Texture());
                 shader->SetTexture("s_uiRamp", UiGradientRamps::Texture());
                 bgfx::TextureHandle tex = { item.Key.TextureIdx };

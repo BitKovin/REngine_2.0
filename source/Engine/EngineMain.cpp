@@ -13,6 +13,7 @@
 #include <Console/ConsoleStdin.h>
 #include <UI/UiDragDrop.h>
 #include <UI/Render/UiLayers.h>
+#include <UI/Render/UiGpu.h>
 #include <UI/UiSystem.h>
 #include <UI/Preview/UiDatabase.h>
 #include <UI/Render/UiPainterTestCard.h>
@@ -285,6 +286,7 @@ void EngineMain::Init(std::vector<std::string> args)
 #include <vector>
 #include <cctype>
 #include <algorithm>
+#include <cmath>
 
 std::map<std::string, std::vector<std::string>> EngineMain::ParseCommands(const std::vector<std::string>& args)
 {
@@ -839,9 +841,12 @@ void EngineMain::Render()
     // loaded textures/meshes actually get uploaded.
     AssetRegistry::ProcessPendingUploads(AssetRegistry::UploadBudgetMs);
 
+    // The UI is laid out and recorded in UI units (GetScaledUiHeight tall, whatever UiResolutionScale is). Only the render target
+    // follows the scale: the pass projects UI units onto it, and everything that measures in pixels reads UiGpu::RenderScale().
+    const float uiRenderScale = UiGpu::MainRenderScale();
     ivec2 uiResolution = ivec2(
-        UiManager::GetScaledUiHeight() * Camera::AspectRatio,
-        UiManager::GetScaledUiHeight()
+        std::max(1, (int)std::lround(UiManager::GetScaledUiHeight() * Camera::AspectRatio * uiRenderScale)),
+        std::max(1, (int)std::lround(UiManager::GetScaledUiHeight() * uiRenderScale))
     );
 
     /* ============================================================

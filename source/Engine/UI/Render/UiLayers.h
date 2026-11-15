@@ -23,7 +23,7 @@ public:
         int Parent = -1;
         std::vector<int> Children;
         State S = State::Failed;
-        int X0 = 0, Y0 = 0, W = 0, H = 0;   // the region's rectangle in UI units (whole pixels), content inflated by the effects' reach
+        int X0 = 0, Y0 = 0, W = 0, H = 0;   // the region's rectangle in target pixels, content inflated by the effects' reach
         uint64_t Hash = 0;
         bool Hit = false;
         bool Prepared = false;
@@ -40,7 +40,7 @@ public:
         uint16_t View = 0;
         UiLayerAtlas::Region Src, Dst, Over;
         size_t First = 0, Last = 0;         // Content: item range
-        int Rect[4] = {};                   // Content: UI rect rendered (x0, y0, x1, y1)
+        int Rect[4] = {};                   // Content: region rendered (x0, y0, x1, y1), in target pixels
         bool Vertical = false;              // Blur
         float Sigma = 0.f;                  // Blur
         glm::vec2 Offset = glm::vec2(0.f);  // Shadow
@@ -71,10 +71,11 @@ private:
     std::vector<Pass> m_passes;
     std::vector<uint16_t> m_views;
     int m_chainState = 0;                          // the blurred scene levels: 0 not planned, 1 ready, 2 failed
-    UiLayerAtlas::Region m_chain[3];               // sigma 4, 8, 16 UI units
+    UiLayerAtlas::Region m_chain[3];               // sigma 4, 8, 16 target pixels
     uint32_t m_chainPages = 0;
     std::vector<UiLayerAtlas::Region> m_owned;      // scratch regions of the node being planned (rolled back on failure)
-    float m_width = 0.f, m_height = 0.f;
+    float m_width = 0.f, m_height = 0.f;           // the pass, in UI units
+    float m_scale = 1.f;                           // target pixels per UI unit: layer regions, blur radii and offsets are in target pixels
     bool m_anyCache = false;
     uint32_t m_rendered = 0, m_hits = 0;
 

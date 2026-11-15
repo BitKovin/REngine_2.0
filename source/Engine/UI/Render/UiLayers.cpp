@@ -196,6 +196,7 @@ bool UiLayerPlan::Build(UiDrawList& list, float width, float height, uint16_t pa
     m_rendered = m_hits = 0;
     m_width = width;
     m_height = height;
+    m_scale = UiGpu::RenderScale();
     m_anyCache = false;
     m_chainState = 0;
     m_chainPages = 0;
@@ -266,13 +267,14 @@ void UiLayerPlan::Prepare(int id)
             Prepare(c);
     n.Prepared = true;
 
+    // The region is in target pixels: the layer is rendered at the resolution it is shown at, so the composite is 1:1.
     const UiRender::LayerSpec& spec = m_list->Layers()[n.Layer];
-    const float reach = spec.Reach();
-    const float lo = -reach, hiX = m_width + reach, hiY = m_height + reach;
-    const int x0 = static_cast<int>(std::floor(std::max(spec.Content.x - reach, lo)));
-    const int y0 = static_cast<int>(std::floor(std::max(spec.Content.y - reach, lo)));
-    const int x1 = static_cast<int>(std::ceil(std::min(spec.Content.z + reach, hiX)));
-    const int y1 = static_cast<int>(std::ceil(std::min(spec.Content.w + reach, hiY)));
+    const float reach = spec.Reach() * m_scale;
+    const float lo = -reach, hiX = m_width * m_scale + reach, hiY = m_height * m_scale + reach;
+    const int x0 = static_cast<int>(std::floor(std::max(spec.Content.x * m_scale - reach, lo)));
+    const int y0 = static_cast<int>(std::floor(std::max(spec.Content.y * m_scale - reach, lo)));
+    const int x1 = static_cast<int>(std::ceil(std::min(spec.Content.z * m_scale + reach, hiX)));
+    const int y1 = static_cast<int>(std::ceil(std::min(spec.Content.w * m_scale + reach, hiY)));
     if (x1 <= x0 || y1 <= y0)
     {
         n.S = State::Hidden;   // entirely off screen
@@ -322,6 +324,7 @@ uint64_t UiLayerPlan::HashNode(int id) const
     const Node& n = m_nodes[id];
     const UiRender::LayerSpec& spec = m_list->Layers()[n.Layer];
     uint64_t h = 1469598103934665603ull;
+    h = Mix(h, m_scale);
     h = Mix(h, n.X0); h = Mix(h, n.Y0); h = Mix(h, n.W); h = Mix(h, n.H);
     for (const UiRender::LayerEffect& e : spec.Effects)
     {
@@ -575,9 +578,9 @@ bool UiLayerPlan::PlanRender(int id)
             break;
         if (fx.K == UiRender::LayerEffect::Kind::Blur)
         {
-            if (fx.Sigma < 0.05f)
+            if (fx.Sigma * m_scale < 0.05f)
                 continue;
-            Region out = PlanBlur(cur, fx.Sigma, ok);
+            Region out = PlanBlur(cur, fx.Sigma * m_scale, ok);
             if (ok)
             {
                 FreeScratch(cur);
@@ -588,9 +591,9 @@ bool UiLayerPlan::PlanRender(int id)
         {
             Region shadowSrc = cur;
             bool blurred = false;
-            if (fx.Sigma >= 0.05f)
+            if (fx.Sigma * m_scale >= 0.05f)
             {
-                shadowSrc = PlanBlur(cur, fx.Sigma, ok);
+                shadowSrc = PlanBlur(cur, fx.Sigma * m_scale, ok);
                 blurred = true;
             }
             Region dst;
@@ -605,7 +608,7 @@ bool UiLayerPlan::PlanRender(int id)
                 p.Over = cur;
                 p.HasOver = true;
                 p.Dst = dst;
-                p.Offset = fx.Offset;
+                p.Offset = fx.Offset * m_scale;
                 p.Color = fx.Color;
                 if (ok)
                     m_passes.push_back(p);
@@ -660,7 +663,7 @@ bool UiLayerPlan::PlanRender(int id)
 }
 
 // The blurred scene, planned once per frame when a backdrop needs it: the scene is halved three times and every level is blurred
-// with sigma 2 texels, which is 4, 8 and 16 UI units. The three results stay allocated for the whole pass.
+// with sigma 2 texels, which is 4, 8 and 16 target pixels. The three results stay allocated for the whole pass.
 bool UiLayerPlan::EnsureChain()
 {
     if (m_chainState != 0)
@@ -683,7 +686,7 @@ bool UiLayerPlan::EnsureChain()
     m_owned.clear();
     bool ok = true;
     Region down[3], blurred[3];
-    int w = static_cast<int>(m_width), h = static_cast<int>(m_height);
+    int w = std::max(static_cast<int>(m_width * m_scale), 1), h = std::max(static_cast<int>(m_height * m_scale), 1);
     for (int k = 0; k < 3 && ok; ++k)
     {
         w = std::max((w + 1) / 2, 1);
@@ -739,7 +742,7 @@ void UiLayerPlan::PlanBackdrop(int id)
     Node& n = m_nodes[id];
     if (n.S == State::Hidden)
         return;
-    const float sigma = m_list->Layers()[n.Layer].BackdropSigma;
+    const float sigma = m_list->Layers()[n.Layer].BackdropSigma * m_scale;   // in target pixels, like the levels
     const int level = sigma < 6.f ? 0 : (sigma < 12.f ? 1 : 2);   // the level whose sigma (4, 8, 16) is closest
     if (!EnsureChain())
         return;   // stays Failed: nothing is drawn
@@ -770,8 +773,9 @@ void UiLayerPlan::Patch(int id)
     Node& n = m_nodes[id];
     UiDrawList::Item& item = m_list->MutableItems()[n.End];
     const glm::vec4 uv = UiLayerAtlas::UvRect(n.Final);
-    const float x0 = static_cast<float>(n.X0), y0 = static_cast<float>(n.Y0);
-    const float x1 = static_cast<float>(n.X0 + n.W), y1 = static_cast<float>(n.Y0 + n.H);
+    // The region is in target pixels; the composite quad is in UI units.
+    const float x0 = static_cast<float>(n.X0) / m_scale, y0 = static_cast<float>(n.Y0) / m_scale;
+    const float x1 = static_cast<float>(n.X0 + n.W) / m_scale, y1 = static_cast<float>(n.Y0 + n.H) / m_scale;
     const float xs[4] = { x0, x1, x1, x0 };
     const float ys[4] = { y0, y0, y1, y1 };
     const float us[4] = { uv.x, uv.z, uv.z, uv.x };
@@ -834,8 +838,10 @@ void UiLayerPlan::Run(const DrawRange& draw, const bgfx::VertexLayout& layout)
 
         if (p.T == Pass::Type::Content)
         {
-            const glm::mat4 proj = glm::ortho(static_cast<float>(p.Rect[0]), static_cast<float>(p.Rect[2]),
-                                              static_cast<float>(p.Rect[3]), static_cast<float>(p.Rect[1]), -1.f, 1.f);
+            // p.Rect is the region in target pixels; the recorded geometry is in UI units.
+            const float inv = 1.f / m_scale;
+            const glm::mat4 proj = glm::ortho(static_cast<float>(p.Rect[0]) * inv, static_cast<float>(p.Rect[2]) * inv,
+                                              static_cast<float>(p.Rect[3]) * inv, static_cast<float>(p.Rect[1]) * inv, -1.f, 1.f);
             draw(p.First, p.Last, p.View, proj);
             continue;
         }

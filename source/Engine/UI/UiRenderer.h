@@ -12,13 +12,14 @@ using namespace std;
 class Texture;
 class UiDrawList;
 
-// The UI canvas is always exactly the render target's resolution — 1 UI unit
-// == 1 output pixel, no separate DPI/UI-scale factor anywhere in this system.
-// Worth knowing if you're writing a fragment shader that wants to reason
-// about on-screen pixel size: element->size (and finalizedSize) already *is*
-// that, no conversion needed. This holds equally whether rendering to the
-// real screen or to customViewport (see below) — only the pixel dimensions
-// of "the render target" change, the 1:1 mapping doesn't.
+// The UI canvas is laid out in UI units: UiManager::GetScaledUiHeight() tall,
+// whatever the size of the render target. The main UI target is that canvas times
+// EngineMain::UiResolutionScale (UiGpu::MainRenderScale), so 1 UI unit is
+// UiGpu::RenderScale() target pixels there; on customViewport (a world-space
+// panel) it is always 1:1. Only things measured in pixels depend on the scale
+// (anti-aliasing width, snapping, SVG rasters, layer regions, blur radii);
+// positions and sizes never do. The effect shaders below read the real pixel
+// size from screen-space derivatives, so they are unaffected either way.
 //
 // This is also why every shadow/outline/glow property on UiElement (offset,
 // spread, softness, outline width, glow radius) is authored in the same

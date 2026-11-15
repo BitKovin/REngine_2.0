@@ -5,7 +5,7 @@
 //   SAMPLER2D(s_uiData, 0);   primitive data texture, 16 RGBA32F texels per primitive (layout in UiRenderTypes.h); rows 224..255 hold auxiliary texels
 //   SAMPLER2D(s_uiTex0, 1);   texture of the current batch (white 1x1 when the batch has none)
 //   SAMPLER2D(s_uiRamp, 2);   gradient ramps: 256 x 256 RGBA8, one row per gradient, straight colour; sample only with texture2DLod
-//   uniform vec4 u_uiParams;  x = data texture width in texels, y = texels per primitive, z = time (seconds), w = unused
+//   uniform vec4 u_uiParams;  x = data texture width in texels, y = texels per primitive, z = time (seconds), w = UI units per target pixel
 
 // Reads one texel of the primitive data texture. This uses texture2DLod at the texel centre (point sampling, so exact)
 // and not texelFetch: shaderc drops a sampler that is only used through texelFetch, and the engine then cannot bind it.
@@ -57,6 +57,12 @@ vec4 uiRamp(float rampRow, float t)
     return texture2DLod(s_uiRamp, vec2((t * 255.0 + 0.5) / 256.0, (rampRow + 0.5) / 256.0), 0.0);
 }
 
+// Anti-aliasing width of the clip shapes: one target pixel, in UI units (u_uiParams.w = 1 / render scale; 0 when the CPU does not set it).
+float uiClipPx()
+{
+    return u_uiParams.w > 0.0 ? u_uiParams.w : 1.0;
+}
+
 float uiClip(int prim, vec2 screenPos, float flags)
 {
     if (!uiFlag(flags, 1.0))
@@ -64,8 +70,7 @@ float uiClip(int prim, vec2 screenPos, float flags)
     vec4 rect  = uiFetch(prim, 9);
     vec4 radii = uiFetch(prim, 10);
     vec2 halfSize = (rect.zw - rect.xy) * 0.5;
-    // Screen positions are in target pixels already, so the anti-aliasing width is one unit.
-    return uiCoverage(uiRoundBoxSdf(screenPos - (rect.xy + halfSize), halfSize, radii), 1.0);
+    return uiCoverage(uiRoundBoxSdf(screenPos - (rect.xy + halfSize), halfSize, radii), uiClipPx());
 }
 
 // clip-path circle() / ellipse(): T15.w is the aux index of (shape, cx, cy, r) and, for an ellipse, (rx, ry, 0, 0). UI units.
@@ -87,7 +92,7 @@ float uiClipShape(int prim, vec2 screenPos, float flags)
         float k1 = length(p / (r * r));
         d = (k1 > 0.00001) ? k0 * (k0 - 1.0) / k1 : -min(r.x, r.y);
     }
-    return uiCoverage(d, 1.0);
+    return uiCoverage(d, uiClipPx());
 }
 
 // mask-image: T15 = (type, rampId row, aux index, 0). Aux texel = (x0, y0, x1, y1) for linear, (cx, cy, rx, ry) for radial; UI units.

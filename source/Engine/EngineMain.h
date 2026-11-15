@@ -60,9 +60,12 @@ public:
 	bool SimulatingGameTicks = false;
     bool SimulatingPreciseGameTicks = false;
 
+	float UiResolutionScale = 1.f;
+
 	RenderTexture* UiRenderTexture = nullptr;
     RenderTexture* UiRenderTextureStencil = nullptr;
     Framebuffer* UiFrameBuffer = nullptr;
+
 
 	RenderTexture* FinalFrameRenderTexture = nullptr;
 

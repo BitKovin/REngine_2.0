@@ -1861,8 +1861,17 @@ void UiSystem::Update()
     std::vector<std::shared_ptr<UiElem>> roots = LiveRoots();
     g_roots.erase(std::remove_if(g_roots.begin(), g_roots.end(), [](const std::weak_ptr<UiElem>& w) { return w.expired(); }), g_roots.end());
 
+    // What a root records carries pixel-sized values (anti-aliasing width, hairline strokes, SVG raster size): a new render scale
+    // of the UI target repaints every root. Layout does not depend on it.
+    static float s_paintedRenderScale = 0.f;
+    const float renderScale = UiGpu::MainRenderScale();
+    const bool renderScaleChanged = renderScale != s_paintedRenderScale;
+    s_paintedRenderScale = renderScale;
+
     for (auto& root : roots)
     {
+        if (renderScaleChanged)
+            root->m_paintDirty = true;
         if (!IsUnderViewport(root.get()))
         {
             if (root->parent != nullptr && root->m_attachWarned++ == 0)

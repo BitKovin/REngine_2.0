@@ -25,7 +25,15 @@ namespace UiGpu
     uint64_t StateForBlend(int blendMode);
 
     struct Projection { float Width = 0.f, Height = 0.f; };
-    Projection CurrentProjection();        // same numbers SetShaderProjection uses (customViewport aware)
+    Projection CurrentProjection();        // same numbers SetShaderProjection uses (customViewport aware). Always in UI units.
+
+    // Target pixels per UI unit. The UI is laid out and recorded in UI units (UiManager::GetScaledUiHeight tall) whatever the
+    // render target's size; this is the only place the two meet. MainRenderScale is EngineMain::UiResolutionScale (clamped) and
+    // sizes the main UI target; RenderScale is what the current pass renders at: 1 for a custom viewport (a world-space UI
+    // panel is one unit per pixel). Everything that measures in pixels (anti-aliasing, snapping, SVG rasters, layer regions,
+    // blur radii) multiplies by it; positions never do.
+    float MainRenderScale();
+    float RenderScale();
 
     // Submits the list into `viewId` and clears it.
     void Submit(UiDrawList& list, uint16_t viewId, const Projection& projection);

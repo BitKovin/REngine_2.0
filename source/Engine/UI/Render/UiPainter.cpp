@@ -41,21 +41,25 @@ namespace
         }
     }
 
-    // Rounds a rect already in UI units to whole pixels; a rect that had size never collapses to nothing.
+    // Rounds a rect already in UI units to whole target pixels (not whole UI units: with a render scale other than 1 they differ);
+    // a rect that had size never collapses to nothing.
     void SnapRect(float x0, float y0, float x1, float y1, float& outX, float& outY, float& outW, float& outH)
     {
-        const float rx0 = std::round(x0), ry0 = std::round(y0);
-        float rx1 = std::round(x1), ry1 = std::round(y1);
-        if (rx1 == rx0 && x1 > x0) rx1 = rx0 + 1.f;
-        if (ry1 == ry0 && y1 > y0) ry1 = ry0 + 1.f;
+        const float s = UiGpu::RenderScale();
+        const float rx0 = std::round(x0 * s) / s, ry0 = std::round(y0 * s) / s;
+        float rx1 = std::round(x1 * s) / s, ry1 = std::round(y1 * s) / s;
+        if (rx1 == rx0 && x1 > x0) rx1 = rx0 + 1.f / s;
+        if (ry1 == ry0 && y1 > y0) ry1 = ry0 + 1.f / s;
         outX = rx0; outY = ry0; outW = rx1 - rx0; outH = ry1 - ry0;
     }
 
-    float TransformScale(const glm::mat3& m)
+    // Target pixels per UI unit under the transform: the transform's own scale times the render target's scale.
+    // Everything the painter sizes in pixels (anti-aliasing width, hairline strokes, SVG rasters) goes through this.
+    float PixelsPerUnit(const glm::mat3& m)
     {
         const float det = m[0][0] * m[1][1] - m[1][0] * m[0][1];
         const float scale = std::sqrt(std::fabs(det));
-        return scale > 0.0001f ? scale : 1.f;
+        return (scale > 0.0001f ? scale : 1.f) * UiGpu::RenderScale();
     }
 
     glm::vec2 Apply(const glm::mat3& m, float x, float y)
@@ -192,7 +196,7 @@ void UiPainter::Backdrop(const UiRect& rectIn, const UiCorners& radii, float sig
         SnapRect(rect.X + m[2][0], rect.Y + m[2][1], rect.X + rect.W + m[2][0], rect.Y + rect.H + m[2][1], rect.X, rect.Y, rect.W, rect.H);
         m = glm::mat3(1.f);
     }
-    const float aa = 1.f / TransformScale(m);
+    const float aa = 1.f / PixelsPerUnit(m);
 
     PrimBlock block;
     block.SetKind(PrimKind::Box);
@@ -223,7 +227,7 @@ void UiPainter::Backdrop(const UiRect& rectIn, const UiCorners& radii, float sig
     m_list.AddBackdrop(spec, key, v);
 }
 
-float UiPainter::PixelScale() const { return TransformScale(m_transform); }
+float UiPainter::PixelScale() const { return PixelsPerUnit(m_transform); }
 
 int UiPainter::AddColorMatrix(const float m[20])
 {
@@ -250,7 +254,7 @@ void UiPainter::Box(const UiRect& rectIn, const UiBoxPaint& paintIn)
         m = glm::mat3(1.f);
     }
 
-    const float scale = TransformScale(m);
+    const float scale = PixelsPerUnit(m);
     const float aa = 1.f / scale;
     const float e = aa;   // expand by one target pixel so anti-aliasing is not cut off
 
@@ -313,7 +317,7 @@ void UiPainter::Image(const UiRect& rectIn, bgfx::TextureHandle texture, const g
     PrimBlock block;
     block.SetKind(PrimKind::Image);
     block.T[1] = tint;
-    block.T[2] = glm::vec4(rect.W, rect.H, 1.f / TransformScale(m), 0.f);
+    block.T[2] = glm::vec4(rect.W, rect.H, 1.f / PixelsPerUnit(m), 0.f);
     ApplyClip(block);
     ApplyFx(block, true);
     const int prim = m_list.AddPrim(block);
@@ -343,7 +347,7 @@ void UiPainter::GlyphRun(const UiGlyphQuad* quads, size_t count, const glm::vec4
 {
     if (count == 0 || (color.a <= 0.f && strokeWidth <= 0.f))
         return;
-    const float aa = 1.f / TransformScale(m_transform);
+    const float aa = 1.f / PixelsPerUnit(m_transform);
 
     std::vector<uint16_t> pages;
     for (size_t i = 0; i < count; ++i)
@@ -404,7 +408,7 @@ void UiPainter::Arc(const UiRect& rectIn, float thickness, float startRad, float
         SnapRect(rect.X + m[2][0], rect.Y + m[2][1], rect.X + rect.W + m[2][0], rect.Y + rect.H + m[2][1], rect.X, rect.Y, rect.W, rect.H);
         m = glm::mat3(1.f);
     }
-    const float aa = 1.f / TransformScale(m);
+    const float aa = 1.f / PixelsPerUnit(m);
 
     // A negative sweep runs counter-clockwise: swap the ends so the shader always sees a positive sweep.
     if (sweepRad < 0.f)
@@ -459,7 +463,7 @@ void UiPainter::BoxShadow(const UiRect& elemIn, const UiCorners& radii, const Ui
         SnapRect(elem.X + m[2][0], elem.Y + m[2][1], elem.X + elem.W + m[2][0], elem.Y + elem.H + m[2][1], elem.X, elem.Y, elem.W, elem.H);
         m = glm::mat3(1.f);
     }
-    const float aa = 1.f / TransformScale(m);
+    const float aa = 1.f / PixelsPerUnit(m);
     const float sigma = std::max(sh.Blur * 0.5f, 0.f);
 
     // The shadow box: the element box moved by the offset and grown (outer) or shrunk (inset) by the spread.
@@ -521,7 +525,7 @@ void UiPainter::Solid(const std::vector<PathVertex>& vertices, const std::vector
     PrimBlock block;
     block.SetKind(PrimKind::Solid);
     block.T[1] = color;
-    block.T[2] = glm::vec4(0.f, 0.f, 1.f / TransformScale(m_transform), 0.f);
+    block.T[2] = glm::vec4(0.f, 0.f, 1.f / PixelsPerUnit(m_transform), 0.f);
     ApplyClip(block);
     ApplyFx(block, false);
     const int prim = m_list.AddPrim(block);
@@ -553,7 +557,7 @@ void UiPainter::FillPolygon(const std::vector<glm::vec2>& points, const glm::vec
         area += a.x * b.y - b.x * a.y;
     }
     const float side = area >= 0.f ? 1.f : -1.f;
-    const float half = 0.5f / TransformScale(m_transform);
+    const float half = 0.5f / PixelsPerUnit(m_transform);
 
     std::vector<PathVertex> verts;
     std::vector<uint16_t> idx;
@@ -591,7 +595,7 @@ void UiPainter::StrokePolyline(const std::vector<glm::vec2>& points, float width
     const size_t n = points.size();
     if (n < 2 || width <= 0.f)
         return;
-    const float fringe = 0.5f / TransformScale(m_transform);
+    const float fringe = 0.5f / PixelsPerUnit(m_transform);
     const float hw = std::max(width * 0.5f, fringe);
     const float inner = std::min(1.f, width / (2.f * fringe));   // a stroke thinner than one pixel is drawn one pixel wide, fainter
 
