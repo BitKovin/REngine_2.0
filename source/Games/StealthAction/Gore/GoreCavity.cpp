@@ -59,6 +59,20 @@ namespace Gore
             }
         }
 
+        // How much of their skinning two vertices share (0 = no bone in common, 1 = the same weights). The wall of a cavity is
+        // generated in the bind pose, where an arm lies against the trunk or the legs touch; a triangle between vertices that share
+        // no bone would be stretched by every movement of the body into a slab that flies between the two parts, outside the mesh.
+        float SharedSkinning(const VertexData& a, const VertexData& b)
+        {
+            float shared = 0.0f;
+            for (int i = 0; i < 4; ++i)
+                for (int j = 0; j < 4; ++j)
+                    if (a.BlendWeights[i] > 0.0f && a.BlendIndices[i] == b.BlendIndices[j])
+                        shared += std::min(a.BlendWeights[i], b.BlendWeights[j]);
+            return shared;
+        }
+        constexpr float kMinSharedSkinning = 0.2f;   // a triangle needs at least this much skinning in common between each two of its corners
+
         // One wound as an ellipsoid in bind space.
         struct Shape
         {
@@ -161,7 +175,15 @@ namespace Gore
                     if (curIn != nextIn) polygon[n++] = crossing(cur, next);
                 }
                 for (int k = 1; k + 1 < n; ++k)
+                {
+                    const VertexData& v0 = out.vertices[polygon[0]];
+                    const VertexData& v1 = out.vertices[polygon[k]];
+                    const VertexData& v2 = out.vertices[polygon[k + 1]];
+                    if (SharedSkinning(v0, v1) < kMinSharedSkinning || SharedSkinning(v1, v2) < kMinSharedSkinning ||
+                        SharedSkinning(v0, v2) < kMinSharedSkinning)
+                        continue;   // joins two parts that move apart (see SharedSkinning)
                     out.indices.insert(out.indices.end(), { polygon[0], polygon[k], polygon[k + 1] });
+                }
             };
 
             for (int r = 0; r < rings; ++r)

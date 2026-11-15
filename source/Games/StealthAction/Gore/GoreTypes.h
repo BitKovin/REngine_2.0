@@ -85,12 +85,17 @@ namespace Gore
         uint64_t stragglers[2] = { 0, 0 };
     };
 
+    // A blood decal on the skin. With a direction it is a picture from the decal atlas (GameData/textures/gore/blood_decals.png),
+    // laid on the plane square to that direction like a projected decal: a bullet hole (bulletHole) or a blood splash; without a
+    // direction it is a plain soft soak (a stump, see AddSplat).
     struct Splat
     {
         glm::vec3 center = glm::vec3(0);        // bind
-        float radius = 0.05f;                   // bind metres
+        float radius = 0.05f;                   // bind metres: the whole extent of the decal, drops included
         float strength = 1.0f;                  // 0..1
         uint32_t order = 0;
+        glm::vec3 direction = glm::vec3(0);     // bind, the way the blow travelled (unit), zero = none
+        bool bulletHole = false;                // the picture is a bullet hole with blood around it, not a splash
     };
 
     // Per-hit data from the adapter. Plain data, ~100 bytes.

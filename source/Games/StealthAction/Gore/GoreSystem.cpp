@@ -140,13 +140,17 @@ namespace Gore
             return true;
         }
 
-        void AddSplat(GoreComponent& g, const glm::vec3& center, float radius, float strength)
+        // direction: bind space, the way the blow travelled (see Splat); none = a plain soft soak. bulletHole: draw a bullet hole, not a splash.
+        void AddSplat(GoreComponent& g, const glm::vec3& center, float radius, float strength,
+                      const glm::vec3& direction = glm::vec3(0), bool bulletHole = false)
         {
             Splat s;
             s.center = center;
             s.radius = radius;
             s.strength = strength;
             s.order = g.orderCounter++;
+            s.direction = direction;
+            s.bulletHole = bulletHole;
 
             if (g.splatCount < kMaxSplats)
             {
@@ -322,6 +326,7 @@ namespace Gore
 
         constexpr double kAuthoredDecaySeconds = 20.0;   // damage collected towards a part fades slowly
         constexpr float kKillingBlowWeight = 2.5f;       // the hit that kills counts extra: overkill tears things off
+        constexpr float kBulletHoleDecal = 3.0f;         // extent of a bullet hole decal, in wound radii
 
         float EffectiveDamage(const Hit& hit) { return hit.lethal ? hit.damage * kKillingBlowWeight : hit.damage; }
 
@@ -704,12 +709,22 @@ namespace Gore
                 // The sever damage is still collected (TrySever refuses the cut), so that the killing blow can take the part off.
                 if (source.type != SourceType::Blast)
                     TrySever(self, mesh, gore, profile, source, hit, anchor, pBind, World, palette, rng);
-                AddSplat(gore, pBind, glm::clamp(0.05f * hit.damage / std::max(source.refDamage, 1.0f), 0.03f, 0.1f), 0.8f);
+                AddSplat(gore, pBind, glm::clamp(0.05f * hit.damage / std::max(source.refDamage, 1.0f), 0.03f, 0.1f), 0.8f, dBind);
                 SpawnBloodBurst(hit.point, -hit.direction + glm::vec3(0, 0.4f, 0), 1, 0.7f);
                 continue;
             }
             if (source.type != SourceType::Blast && TrySever(self, mesh, gore, profile, source, hit, anchor, pBind, World, palette, rng))
                 continue;
+
+            // A weapon that makes no holes (sources.json "holes": false; a pistol, a rifle): the hit is a decal of a bullet hole with
+            // blood around it. Nothing is dug, thrown out or sprayed.
+            if (!source.holes && source.type != SourceType::Blunt)
+            {
+                const float r = source.woundRadius * glm::clamp(std::sqrt(damage / source.refDamage), source.minScale, source.maxScale)
+                              * rng.Range(0.8f, 1.2f) * (hit.lethal ? 1.5f : 1.0f);
+                AddSplat(gore, pBind, kBulletHoleDecal * r, 1.0f, dBind, true);
+                continue;
+            }
 
             switch (source.type)
             {
@@ -723,7 +738,7 @@ namespace Gore
                 const float rz = std::max(r * 1.6f, 0.05f);
 
                 AddWound(gore, MakeShotWound(anchor, reach, WoundKind::Entry, pBind, dBind, r, rz, 0.3f, 0.5f, TaperOf(source, WoundKind::Entry), rng));
-                AddSplat(gore, pBind, 2.5f * r, 1.0f);
+                AddSplat(gore, pBind, 2.5f * r, 1.0f, dBind, true);   // the blood around the hole (the hole itself is cut out)
                 SpawnBloodBurst(hit.point, -hit.direction + glm::vec3(0, 0.4f, 0), heavy ? 2 : 1, 0.7f);
                 if (hit.lethal) SpawnChunks(hit.point, -hit.direction, 2, 2.0f, 0.022f);
 
@@ -739,7 +754,7 @@ namespace Gore
                         const glm::vec3 center = exitBind - dBind * (erz * 0.35f);
                         AddWound(gore, MakeWound(anchor, reach, WoundKind::Exit, center, RotateZTo(dBind),
                                                  glm::vec3(er, er, erz), 0.45f, 0.5f, TaperOf(source, WoundKind::Exit), rng));
-                        AddSplat(gore, exitBind, 2.5f * er, 1.0f);
+                        AddSplat(gore, exitBind, 2.5f * er, 1.0f, dBind);
                         SpawnBloodBurst(exitWorld, hit.direction + glm::vec3(0, 0.25f, 0), heavy ? 5 : 3, 1.1f);
                         if (heavy) SpawnChunks(exitWorld, hit.direction, 3, 4.0f, 0.028f);
                         else SpawnChunks(exitWorld, hit.direction, 1, 3.0f, 0.022f);
@@ -797,7 +812,7 @@ namespace Gore
                 const glm::vec3 center = pBind + dBind * (depth * 0.35f);
 
                 AddWound(gore, MakeWound(anchor, reach, WoundKind::Gash, center, rot, radii, 0.25f, 0.4f, TaperOf(source, WoundKind::Gash), rng));
-                AddSplat(gore, pBind, 2.5f * source.woundRadius + 0.03f, 1.0f);
+                AddSplat(gore, pBind, 2.5f * source.woundRadius + 0.03f, 1.0f, dBind);
                 SpawnBloodBurst(hit.point, -hit.direction + glm::vec3(0, 0.6f, 0), 3, 0.9f);
                 SpawnChunks(hit.point, -hit.direction, 1, 2.0f, 0.025f);
                 break;
@@ -805,7 +820,7 @@ namespace Gore
 
             case SourceType::Blunt:
             {
-                AddSplat(gore, pBind, std::max(0.08f * hit.damage / source.refDamage, 0.03f), 0.8f);
+                AddSplat(gore, pBind, std::max(0.08f * hit.damage / source.refDamage, 0.03f), 0.8f, dBind);
                 break;
             }
 
@@ -815,7 +830,7 @@ namespace Gore
                               * (hit.lethal ? 1.5f : 1.0f);
                 const float rz = std::max(r * 0.9f, 0.04f);
                 AddWound(gore, MakeShotWound(anchor, reach, WoundKind::Crater, pBind, dBind, r, rz, 0.5f, 0.6f, TaperOf(source, WoundKind::Crater), rng));
-                AddSplat(gore, pBind, 2.5f * r, 1.0f);
+                AddSplat(gore, pBind, 2.5f * r, 1.0f, dBind);
                 SpawnBloodBurst(hit.point, glm::vec3(0, 1, 0), 6, 1.2f);
                 SpawnChunks(hit.point, glm::vec3(0, 1, 0), 8, 5.0f, 0.04f);
                 BlastSever(self, mesh, gore, profile, source, hit, World, palette, rng);
@@ -848,7 +863,7 @@ namespace Gore
             const float reach = 2.0f * MaxExtent(profile, anchor.skel);
 
             AddWound(gore, MakeShotWound(anchor, reach, WoundKind::Crater, c.center, dir, r, rz, 0.4f, 0.5f, TaperOf(*source, WoundKind::Crater), rng));
-            AddSplat(gore, c.center, 2.5f * r, 1.0f);
+            AddSplat(gore, c.center, 2.5f * r, 1.0f, dir);
 
             if (c.skin >= 0 && c.skin < static_cast<int>(palette.size()))
             {

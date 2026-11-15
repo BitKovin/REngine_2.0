@@ -77,11 +77,15 @@ namespace Gore
             shader->SetUniform("u_goreCutParams", g.cutParams.data(), c);
         }
         if (ns > 0)
+        {
             shader->SetUniform("u_goreSplats", g.splats.data(), static_cast<size_t>(ns));
+            shader->SetUniform("u_goreSplatLook", g.splatLook.data(), static_cast<size_t>(ns));
+        }
 
         shader->SetTexture(hashed_string("u_goreFlesh"), g.flesh);
         shader->SetTexture(hashed_string("u_goreEdgeNoise"), g.edgeNoise);
         shader->SetTexture(hashed_string("u_goreBlood"), g.blood);
+        shader->SetTexture(hashed_string("u_goreDecal"), g.decal);
         shader->SetTexture(hashed_string("u_goreBone"), g.bone);
         shader->SetTexture(hashed_string("u_goreGuts"), g.guts);
     }

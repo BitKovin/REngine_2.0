@@ -78,10 +78,11 @@ namespace Gore
         // pointers anywhere but in a draw that was set up in the same frame.
         Texture* fleshTexture = nullptr;   // the flesh texture (the generated geometry is `flesh`, below)
         Texture* blood = nullptr;
+        Texture* decal = nullptr;          // the blood decal atlas (Tools/gore/make_blood_decals.py)
         Texture* edgeNoise = nullptr;
         Texture* boneT = nullptr;
         Texture* guts = nullptr;
-        std::string fleshPath, bloodPath, edgeNoisePath, bonePath, gutsPath;   // registry file names of the five above ("" = none)
+        std::string fleshPath, bloodPath, decalPath, edgeNoisePath, bonePath, gutsPath;   // registry file names of the six above ("" = none)
         AnatomyConfig anatomy;
         std::shared_ptr<ModelFlesh> flesh;        // shell vertices + anatomy mesh, built once per model (GoreFlesh.cpp)
         struct PendingFlesh;                      // the worker that builds `flesh`; the profile is `loading` until it is done

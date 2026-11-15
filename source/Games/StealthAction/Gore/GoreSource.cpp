@@ -86,6 +86,7 @@ namespace Gore
                 s.decalRadius = v.value("decalRadius", s.decalRadius);
                 s.taper = v.value("taper", s.taper);
                 s.exit = v.value("exit", s.exit);
+                s.holes = v.value("holes", s.holes);
                 s.blastRadius = v.value("blastRadius", s.blastRadius);
                 s.minScale = v.value("minScale", s.minScale);
                 s.maxScale = v.value("maxScale", s.maxScale);

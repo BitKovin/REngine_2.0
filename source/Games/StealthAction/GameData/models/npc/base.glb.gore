@@ -2,6 +2,7 @@
   "textures": {
     "flesh": "gore/flesh_d.png",
     "blood": "gore/blood_soak.png",
+    "decal": "gore/blood_decals.png",
     "edgeNoise": "gore/edge_noise.png",
     "bone": "gore/bone_d.png",
     "guts": "lq_flesh/flesh_gut1.jpg"

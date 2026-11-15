@@ -589,6 +589,8 @@ namespace Gore
         float radius = 0.05f;                  // bind metres
         float strength = 1.0f;                 // 0..1
         uint32_t order = 0;
+        glm::vec3 direction = glm::vec3(0);    // bind, unit, the way the blow travelled; zero = plain soft soak (a stump, a protected body)
+        bool bulletHole = false;               // the picture is a bullet hole with blood around it, not a splash
     };
 
     // Per-hit data from the adapter. Plain data, ~100 bytes.
@@ -679,7 +681,7 @@ Rules for the loader:
 {
   "sources": {
     "default":   { "type": "bullet", "woundRadius": 0.012, "refDamage": 20, "exit": false, "severPower": 0, "tags": ["ranged"] },
-    "pistol":    { "type": "bullet", "woundRadius": 0.012, "refDamage": 20, "exit": true,  "severPower": 0.1, "tags": ["ranged"] },
+    "pistol":    { "type": "bullet", "woundRadius": 0.030, "refDamage": 20, "holes": false, "severPower": 0, "tags": ["ranged"] },
     "revolver":  { "type": "heavyBullet", "woundRadius": 0.02, "refDamage": 45, "exit": true, "severPower": 0.6, "tags": ["ranged"] },
     "sawed":     { "type": "pellet", "woundRadius": 0.01, "refDamage": 8, "clusterRadius": 0.07, "severPower": 0.08, "tags": ["ranged"] },
     "sword":     { "type": "slash", "woundRadius": 0.03, "gashLength": 0.18, "refDamage": 30, "severPower": 1.0, "tags": ["melee"] },
@@ -695,6 +697,16 @@ Rules for the loader:
 Fill `classMap` from the real `ClassName` values (`grep -rn "ClassName = " Games/StealthAction/Entities/Player/Weapons`).
 NPC melee attacks (`NpcHumanAxe.cpp`, `NpcKnight.cpp`, ...) pass the NPC itself as weapon: map their class names too.
 
+**Decal-only weapons.** `"holes": false` makes a source leave no hole: in `ProcessPendingHits` (after the sever check, before the
+per-type switch) such a hit adds one blood splat (the decal, size `2.5 * woundRadius * sqrt(damage / refDamage)`, limited by
+`minScale`/`maxScale`, 1.5x on the killing hit; it is the picture of a bullet hole, see "Decal look") and nothing else:
+no wound, no exit wound, no pellet crater, no meat chunks and no blood burst (a burst here was read as "a bright red dot"). It works for every source type except `blunt` (which never makes holes). Taking a part off is
+a separate switch, `severPower`: a source that must tear nothing has `severPower` 0, and then no cut is made either (the
+`TrySever` call is the same one). In `sources.json` the `pistol` source is decal-only with `severPower` 0, and `classMap` sends
+`weapon_pistol`, `weapon_pistol_silent`, `weapon_tommy`, `weapon_mpsd` (the rifle) and `npc_human_gun` to it; revolver,
+sniper, shotguns, blades and blasts still make holes. To make another weapon decal-only: set `"holes": false` on its source (or
+give it a source of its own in `classMap`).
+
 ```cpp
 namespace Gore
 {
@@ -704,6 +716,7 @@ namespace Gore
         std::string id; SourceType type = SourceType::Bullet;
         float woundRadius = 0.012f, refDamage = 20.0f, clusterRadius = 0.07f, gashLength = 0.15f, severPower = 0.0f;
         bool exit = false;
+        bool holes = true;               // false: a hit leaves a blood decal only (see "Decal-only weapons")
         uint32_t tagBits = 0;            // bit per tag, see TagBit()
     };
     uint32_t TagBit(const std::string& tag);   // stable: index in a static table, max 32 tags, logs when full
@@ -807,7 +820,7 @@ namespace Gore
         std::array<glm::vec4, kMaxCuts> cutBind{}, cutBindSphere{}, cutRegrowBind{}, cutParams{};
         std::array<glm::vec4, kMaxCuts> cutWorld{}, cutWorldSphere{}, cutRegrowWorld{}, cutCenter{};
         std::array<glm::vec4, kMaxCuts * 2> cutFrame{};
-        std::array<glm::vec4, kMaxSplats> splats{};
+        std::array<glm::vec4, kMaxSplats> splats{}, splatLook{};
         Texture* flesh = nullptr; Texture* fleshNormal = nullptr; Texture* edgeNoise = nullptr; Texture* blood = nullptr;
     };
 }
@@ -831,7 +844,23 @@ Wounds (index `i`):
 * `woundParams[i] = (roughness, rimWidth, healScale, seed)`; `healScale = 1` in phase 2.
 * `woundExtra[i] = (reach * s, mean(radii) * s, float(kind), 0)`.
 
-Splats: `splats[i] = (center, radius * strength)`.
+Splats: `splats[i] = (center, radius * strength)`, `splatLook[i] = (direction, bulletHole ? 1 : 0)` (uniform `u_goreSplatLook`).
+
+**Decal look** (`goreSplatLook` in `gore_common.sh`). The decals are pictures, not shader patterns: the atlas
+`GameData/textures/gore/blood_decals.png` (profile key `"textures": {"decal": ...}`, sampler `u_goreDecal`, slot 8 in every gore
+fragment shader that includes `gore_common.sh`) is 4x2 cells, R = coverage, G = thickness times coverage, no alpha. The top row has
+four blood splashes (slash, blunt, blast, exit; arms and drops), the bottom row four bullet holes (a black hole, a dark torn ring,
+blood soaked around it, one with a smear, one with a trickle, one with drops). The atlas is drawn by `Tools/gore/make_blood_decals.py`
+(an offline tool, deterministic seed: change the script, run it, commit the png; nothing is generated in the game). With a direction
+the shader lays the picture on the plane square to the blow like a projected decal (plane coordinates of the fragment, scaled so the
+extent is 1, turned by a hashed angle, one of the four cells chosen by a hash; the hashes come from the decal's centre), `look.w` picks
+the row, and returns `(cover, clot)` with `clot = G / R`; `fs_gore` mixes the blood colour as `mix(0.55 + 0.45 * soak, 0.12, clot)`:
+thin blood bright, the deep middle dark, the hole almost black. The picture stays inside a circle of 0.93 of its cell (the shader
+cuts at the decal's sphere and the mips of neighbouring cells must not bleed in). It is sampled at lod 1 (derivatives are not allowed
+in the loop with `discard`). Without a direction (`direction` zero) the old soft soak is drawn and `clot` stays 0, so stumps and the
+protected-body splats look as before. Hit sites pass the bind-space blow direction to `AddSplat`; `bulletHole = true` for a bullet
+that leaves a decal only (`holes: false`, extent `kBulletHoleDecal` = 2 wound radii) and for the blood around a real bullet entry
+wound (extent 2.5 wound radii, the cut-out hole covers the black middle).
 
 #### `GoreDrawCommand` — `Gore/GoreDrawCommands.h/.cpp`
 
@@ -2038,6 +2067,10 @@ Cavity building is asynchronous (2026-11-13): the first version scanned every tr
   * Fix: `GoreProfile.cpp` `ResolveTextures`: the profile keeps the five registry file names (`fleshPath`, `bloodPath`, ...) and `GetProfile` asks the registry for the textures on every call (the same pointer while they live, a fresh texture after they were freed; a mesh gets its profile through `GetProfile` whenever the gore system pushes new gore data to it (`GoreSystem.cpp`, `mesh->SetGoreState`) and `FillGpuData` copies the pointers into the frame data each frame, so every mesh of a level has pointers that were renewed in that level, after the previous level's cleanup, and a cleanup only runs at a level change). Nobody may keep these pointers elsewhere. `GoreChunks` requests its textures in `LoadAssets` of an entity that belongs to the level, so it is not affected.
   * Also changed (a hardening, not the cause): `GoreGpu.h`, `DestroyBuffersOnMainThread`: the destructors of `CapGeometry` and `CavityGeometry` hand their buffer handles to `AssetRegistry::EnqueuePendingUpload`, which the main thread runs at the start of the next `Render()`, so no bgfx object is destroyed on the game thread, the worker or a pool thread (the rule: GPU commands only on the main thread). The gore code creates no textures; buffers are created only in `FinalizeFrameData` on the main thread.
   * Not looked at: the crash in the user's own level change (the repro uses the test maps); the second-level pictures are dark (proto2 has little light) so the wound textures could not be judged there, only that the hits land, spray and flesh textures bind and nothing crashes. Not gore, seen while looking, engine code, untouched: `StaticMesh::PreloadAssets` (called by `GoreGib::Init` on the game thread) iterates `model->meshes`, which the main thread replaces when the geometry of a lazily loaded model lands (`AdoptVisualTierGeometry`), without a lock; and a cap or cavity job on the worker reads a model that `ClearUnusedMemory` may delete at a level change. Other game code that keeps a registry texture pointer past a level change has the same problem; the gore code was the one checked.
+* Decal-only weapons (2026-11-15, user: "rifle and usual pistol only leaves decals. No holes."): `Source::holes` (`"holes": false` in `sources.json`, see "Decal-only weapons" under Sources). The `pistol` source is decal-only and has `severPower` 0 (before: 1.0, a pistol could take a limb off after a few hits; that is a hole too, so it was switched off with the flag, one number to give back). Checked headless (`axe` enemy, 6 shots at `spine_01`, damage 25, picture `dc_*`): `weapon_pistol`, `weapon_mpsd`, `weapon_tommy` on the axe enemy and `weapon_pistol` on the gun enemy: 0 wounds, 0 cuts, 6 splats (`npc_human_gun` as a source maps to the same entry; not run); a pistol killing hit on the head and 12 pistol hits on the upper arm: 0 wounds, 0 cuts (arm and head stay whole); `weapon_revolver` (2 wounds, ribs visible) and `weapon_shotgun` (1 wound) unchanged. Looked at: the pictures of those runs, the decals read well on the blue gun enemy and are low contrast on the red axe enemy's cloak (a dark red soak on red cloth). NOT looked at: other enemy models, the real game camera, how the decals read from 8 m. Note for the next person: the first test run after this change crashed in every start (`UpdateLookTest`, `std::map::find` of the arguments) because `EngineMain.h` had gained a member in the working tree and the incremental build had compiled only some objects against it; a full rebuild fixed it, it is not a gore bug.
+* Decal look (2026-11-15, user: "decals should look more.. interesting. Right now it's just bright red dot", then "pattern seems too complex. Also better drive it from texture", then "Make it look like a hole and not a splat"): the "dot" was mostly the blood burst particle that the decal-only branch spawned (removed). The decal is now a picture from the atlas `blood_decals.png` drawn by `Tools/gore/make_blood_decals.py` (see "Decal look" under Draw data): bullets leave a bullet-hole picture (black hole, dark ring, blood soaked around it), other hits a splash picture; the shader is a single texture lookup. New: `Splat::direction`, `Splat::bulletHole`, `Profile::decal`/`decalPath` (profile key `decal`, added to the four `.gore` files), `GpuData::decal`, `clot` out value of `goreSurface`, sampler `u_goreDecal` (slot 8), per-splat lines in the `-gore_look` log. See the entry below for what was looked at.
+* Decal look, what was looked at (2026-11-15): bullet hole pictures (pistol and rifle on the gun enemy, 6 and 14 shots; pistol on the axe enemy): a black hole with a dark red patch around it, at 3 wound radii (`kBulletHoleDecal`) it reads as a hole at 1.6 m; revolver: real hole with the bloody halo around it, wound walls intact. NOT looked at: the splash row of the atlas in game (slash, blunt, blast and exit decals use it, the picture was only seen in the atlas preview), the real game camera and lighting, decals on a moving body.
+* Cavity walls outside the mesh (2026-11-15, user report with a real-game screenshot: shotgun on a suit model (mobster/guard), the body in the air, dark flat slabs floating next to the torso and at the shoulder; "tighten the rules of mesh generation"): cause found by reading, not reproduced. `GoreCavity.cpp` builds the wall of a wound in the bind pose from samples 1.5 cm apart, and every vertex takes the bone weights of the closest body face. Where an arm lies against the trunk or the legs touch, a triangle can join two samples that belong to different parts; when the body moves apart (a ragdoll in the air) that triangle is stretched into a slab. New rule `SharedSkinning` / `kMinSharedSkinning` (0.2): a wall triangle is only generated if each two of its corners share at least 20 % of their bone weights (sum of the smaller weight over the bones they have in common), so it never joins parts that move independently. Looked at: revolver wound on the gun enemy and shotgun wounds on the guard (front, side, back, standing, falling, lying), the walls still close; the seams between bones of a hard-weighted mesh were looked at only in the revolver picture, so if a wall shows small gaps along a bone boundary the threshold is too strict. NOT looked at: the in-flight pose of the report (the headless frames are too short for a ragdoll to fly, a shot on the guard gave only the fall and the final lying pose, both clean even before the change).
 * NOT looked at: the real game camera and lighting; a wound on a model with no closed mesh; a gib with cavities while it tumbles (the code path is the same, only the sword gib was seen); the build time of one cavity (estimated at 10-20 ms worst case for eight big wounds, not measured); many bodies with many wounds at once. The test hits are not deterministic (the wound sizes differ between runs of the same command), so two runs are only comparable by looking.
 
 ### 9.2 Measurements

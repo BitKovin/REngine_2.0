@@ -1,7 +1,7 @@
 {
   "sources": {
   "default":   { "type": "bullet",      "woundRadius": 0.026, "refDamage": 20,  "exit": false, "severPower": 0.5, "tags": ["ranged"] },
-  "pistol":    { "type": "bullet",      "woundRadius": 0.030, "refDamage": 20,  "exit": true,  "severPower": 1.0, "tags": ["ranged"] },
+  "pistol":    { "type": "bullet",      "woundRadius": 0.030, "refDamage": 20,  "holes": false, "severPower": 0,   "tags": ["ranged"] },
   "revolver":  { "type": "heavyBullet", "woundRadius": 0.045, "refDamage": 45,  "exit": true,  "severPower": 2.5, "tags": ["ranged"] },
   "sawed":     { "type": "pellet",      "woundRadius": 0.022, "refDamage": 8,   "clusterRadius": 0.09, "severPower": 2.0, "tags": ["ranged"] },
   "sword":     { "type": "slash",       "woundRadius": 0.035, "gashLength": 0.20, "refDamage": 30, "severPower": 2.5, "tags": ["melee"] },

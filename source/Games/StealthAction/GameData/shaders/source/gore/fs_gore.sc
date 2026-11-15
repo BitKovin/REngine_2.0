@@ -10,6 +10,7 @@ SAMPLER2D(u_textureEmissive, 1);
 SAMPLER2D(u_goreFlesh,       2);
 SAMPLER2D(u_goreEdgeNoise,   4);
 SAMPLER2D(u_goreBlood,       5);
+SAMPLER2D(u_goreDecal,       8);
 #include "gore_common.sh"
 
 // ==========================================
@@ -18,9 +19,9 @@ SAMPLER2D(u_goreBlood,       5);
 
 void main()
 {
-    float goreRim = 0.0; float soak = 0.0; float fresh = 0.0;
+    float goreRim = 0.0; float soak = 0.0; float clot = 0.0; float fresh = 0.0;
     bool anyBits = (u_goreRangeMask.x + u_goreRangeMask.y + u_goreRangeMask.z) > 0.0;
-    if (anyBits && goreSurface(v_goreBind.xyz, goreRim, soak, fresh)) discard;
+    if (anyBits && goreSurface(v_goreBind.xyz, goreRim, soak, clot, fresh)) discard;
 
     vec4  texColor = texture2D(u_texture, v_texcoord0) * v_color0 * modelColor;
     vec3  color    = texColor.rgb;
@@ -34,7 +35,8 @@ void main()
     }
 
     float blood = u_goreParams.w > 1.5 ? 0.0 : max(goreRim, soak);
-    color = mix(color, u_goreBloodColor.rgb * (0.55 + 0.45 * soak), blood);
+    // Thin fresh blood is the bright red; where it lies thick (the middle of a decal) it is dark, in the puncture almost black.
+    color = mix(color, u_goreBloodColor.rgb * mix(0.55 + 0.45 * soak, 0.12, clot), blood);
     color = mix(color, u_goreBloodColor.rgb * 0.35, goreRim * goreRim * 0.8);   // the torn edge itself is almost black-red
     color = mix(color, u_goreBloodColor.rgb * 1.4, fresh * 0.8);     // raw new skin while regrowing
 

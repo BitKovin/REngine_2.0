@@ -10,13 +10,14 @@ uniform vec4 u_goreAlphaTest;   // x > 0.5: alpha-tested like fs_mask (set by Go
 SAMPLER2D(u_goreFlesh,       2);
 SAMPLER2D(u_goreEdgeNoise,   4);
 SAMPLER2D(u_goreBlood,       5);
+SAMPLER2D(u_goreDecal,       8);
 #include "gore_common.sh"
 
 void main()
 {
-    float rim = 0.0; float soak = 0.0; float fresh = 0.0;
+    float rim = 0.0; float soak = 0.0; float clot = 0.0; float fresh = 0.0;
     bool anyBits = (u_goreRangeMask.x + u_goreRangeMask.y + u_goreRangeMask.z) > 0.0;
-    if (anyBits && goreSurface(v_goreBind.xyz, rim, soak, fresh)) discard;
+    if (anyBits && goreSurface(v_goreBind.xyz, rim, soak, clot, fresh)) discard;
 
     if (u_goreAlphaTest.x > 0.5)
     {

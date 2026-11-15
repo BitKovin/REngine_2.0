@@ -465,6 +465,7 @@ namespace Gore
         g.flesh = profile.fleshTexture;
         g.edgeNoise = profile.edgeNoise;
         g.blood = profile.blood;
+        g.decal = profile.decal;
         g.bone = profile.boneT;
         g.guts = profile.guts;
 
@@ -493,6 +494,7 @@ namespace Gore
         {
             const Splat& sp = goreState.splats[i];
             g.splats[i] = glm::vec4(sp.center, sp.radius * sp.strength);
+            g.splatLook[i] = glm::vec4(sp.direction, sp.bulletHole ? 1.0f : 0.0f);
         }
 
         BuildRenderPalette(palette);

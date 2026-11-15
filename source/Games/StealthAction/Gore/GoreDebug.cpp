@@ -269,6 +269,12 @@ namespace Gore
                     const Wound& w = g->wounds[i];
                     ProbeLog("  wound " + std::to_string(i) + " center " + V3(w.center) + " radii " + V3(w.radii) + " taper " + std::to_string(w.taper));
                 }
+                for (int i = 0; i < g->splatCount; ++i)
+                {
+                    const Splat& s = g->splats[i];
+                    ProbeLog("  splat " + std::to_string(i) + " center " + V3(s.center) + " radius " + std::to_string(s.radius) + " direction " + V3(s.direction)
+                        + " bulletHole " + std::to_string(s.bulletHole));
+                }
             }
             else ProbeLog("gore_look: npc has no GoreComponent");
             if (npc->HasComponent<GoreComponent>())

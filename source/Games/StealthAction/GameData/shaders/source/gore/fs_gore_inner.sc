@@ -10,6 +10,7 @@ SAMPLER2D(u_textureEmissive, 1);
 SAMPLER2D(u_goreFlesh,       2);
 SAMPLER2D(u_goreEdgeNoise,   4);
 SAMPLER2D(u_goreBlood,       5);
+SAMPLER2D(u_goreDecal,       8);
 SAMPLER2D(u_goreBone,        6);
 SAMPLER2D(u_goreGuts,        7);
 #include "gore_common.sh"
@@ -22,10 +23,10 @@ void main()
     bool cap = u_goreLayer.w > 0.5 && !cavity;
     if (!anatomy && v_goreBind.w < 0.004) discard;          // a thin sheet has no flesh behind it
 
-    float rim = 0.0; float soak = 0.0; float fresh = 0.0;
+    float rim = 0.0; float soak = 0.0; float clot = 0.0; float fresh = 0.0;
     bool anyBits = (u_goreRangeMask.x + u_goreRangeMask.y) > 0.0;
     if (cavity) { if (goreCavityRemoved(v_goreBind.xyz, v_color0.r)) discard; }
-    else if (anyBits && goreSurface(v_goreBind.xyz, rim, soak, fresh)) discard;
+    else if (anyBits && goreSurface(v_goreBind.xyz, rim, soak, clot, fresh)) discard;
 
     vec3 P = v_world.xyz;
     vec3 viewDir = normalize(u_goreCameraPos.xyz - P);

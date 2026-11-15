@@ -304,6 +304,7 @@ namespace Gore
                 g.flesh = AssetRegistry::GetTextureFromFile("GameData/textures/gore/flesh_d.png");
                 g.edgeNoise = AssetRegistry::GetTextureFromFile("GameData/textures/gore/edge_noise.png");
                 g.blood = AssetRegistry::GetTextureFromFile("GameData/textures/gore/blood_soak.png");
+                g.decal = AssetRegistry::GetTextureFromFile("GameData/textures/gore/blood_decals.png");
                 g.bone = AssetRegistry::GetTextureFromFile("GameData/textures/gore/bone_d.png");
                 g.guts = AssetRegistry::GetTextureFromFile("GameData/textures/lq_flesh/flesh_gut1.jpg");
                 g.counts = glm::vec4(0.0f);                  // no wounds, cuts or splats on a chunk

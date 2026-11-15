@@ -21,10 +21,12 @@ namespace Gore
         std::array<glm::vec4, kMaxWounds> woundParams{};   // x roughness, y rimWidth, z healScale, w seed
         std::array<glm::vec4, kMaxWounds> woundExtra{};    // x taper (0 when a cavity closes the hole), y anatomy stays, z layers share the hole edge
         std::array<glm::vec4, kMaxCuts> cutBind{}, cutBindSphere{}, cutRegrowBind{}, cutParams{};
-        std::array<glm::vec4, kMaxSplats> splats{};
+        std::array<glm::vec4, kMaxSplats> splats{};        // xyz centre, w extent
+        std::array<glm::vec4, kMaxSplats> splatLook{};     // xyz direction (zero = a plain soft soak), w 1 = a bullet hole picture, 0 = a splash
         Texture* flesh = nullptr;
         Texture* edgeNoise = nullptr;
         Texture* blood = nullptr;
+        Texture* decal = nullptr;
         Texture* bone = nullptr;
         Texture* guts = nullptr;
     };

@@ -52,6 +52,7 @@ namespace Gore
             };
             resolve(p.fleshPath, p.fleshTexture);
             resolve(p.bloodPath, p.blood);
+            resolve(p.decalPath, p.decal);
             resolve(p.edgeNoisePath, p.edgeNoise);
             resolve(p.bonePath, p.boneT);
             resolve(p.gutsPath, p.guts);
@@ -184,6 +185,7 @@ namespace Gore
         const nlohmann::json textures = j.value("textures", nlohmann::json::object());
         p.fleshPath = TexturePath(textures, "flesh");
         p.bloodPath = TexturePath(textures, "blood");
+        p.decalPath = TexturePath(textures, "decal");
         p.edgeNoisePath = TexturePath(textures, "edgeNoise");
         p.bonePath = TexturePath(textures, "bone");
         p.gutsPath = TexturePath(textures, "guts");

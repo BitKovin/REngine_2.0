@@ -26,6 +26,9 @@ namespace Gore
         float minScale = 0.6f;      // wound size follows sqrt(damage / refDamage), limited to [minScale, maxScale]
         float maxScale = 2.5f;
         bool exit = false;
+        bool holes = true;      // false: a hit leaves a blood decal and a puff of blood only (no wound, no exit wound, no meat). Taking a
+                                // part off is decided by severPower alone, so a source that must not tear anything has severPower 0.
+                                // Ignored by blunt sources (they never make holes).
         uint32_t tagBits = 0;   // bit per tag, see TagBit()
     };
 
