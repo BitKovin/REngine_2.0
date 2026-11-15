@@ -836,6 +836,30 @@ void Shader::FlushBuffers() const
 // ---------------------------------------------------------------------------
 // UseProgram / Submit
 // ---------------------------------------------------------------------------
+// Zero a uniform's buffered value at its full declared size (array uniforms
+// included) and flag it for submission.
+static void ResetUniformEntry(UniformEntry& e, const UniformMeta& u)
+{
+    size_t floatsPerElement = 4; // Vec4
+    if (u.kind == UniformMeta::Kind::Mat3)      floatsPerElement = 12;
+    else if (u.kind == UniformMeta::Kind::Mat4) floatsPerElement = 16;
+
+    const size_t total = floatsPerElement * u.num;
+
+    if (total <= static_cast<size_t>(UniformEntry::kInline))
+    {
+        e.heapData.clear();
+        std::memset(e.inlineData, 0, sizeof(e.inlineData));
+    }
+    else
+    {
+        e.heapData.assign(total, 0.0f); // reuses capacity after the first time
+    }
+
+    e.num = u.num;
+    e.set = true;
+}
+
 void Shader::UseProgram()
 {
     EnsureMissingTexture();
@@ -846,19 +870,16 @@ void Shader::UseProgram()
     for (auto& e : m_uniformBuffer) e.set = false;
     for (auto& e : m_textureBuffer) e.set = false;
 
-	//reset all uniforms to 0
-	for (const auto& u : m_uniformList)
-	{
+    // Reset every uniform of this program to zero AND mark it as set, so that
+    // FlushBuffers really pushes the zeros to bgfx. bgfx keeps uniform values
+    // across draw calls (and uniforms are shared by name between programs), so
+    // a uniform that is not submitted keeps whatever the previous draw left in it.
+    for (const auto& u : m_uniformList)
+    {
+        if (u.kind == UniformMeta::Kind::Sampler) continue; // textures are per-draw state in bgfx
 
-		auto& e = m_uniformBuffer[u.index];
-
-        for (int i = 0; i < 16; ++i)
-        {
-            e.inlineData[i] = 0.0f;
-        }
-
-
-	}
+        ResetUniformEntry(m_uniformBuffer[u.index], u);
+    }
 
     // Apply pre-resolved defaults (no map lookups, no string hashing).
     for (const auto& def : m_resolvedDefaults)

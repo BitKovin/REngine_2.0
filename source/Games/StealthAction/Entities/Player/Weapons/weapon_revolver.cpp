@@ -29,7 +29,7 @@ public:
         params.weaponOffset = vec3(0.008, -0.048, 0.01);
         params.bulletSpeed = 200.0f;
         //params.bulletDamage = 19.0f;
-        params.bulletDamage = 25.0f;
+        params.bulletDamage = 70.0f;
         params.range = 80.0f;
         params.fireAnimation = "fire_heavy";
         params.fireAnimInterpInTime = 0.08f;
