@@ -3,6 +3,7 @@
 #include "GoreCavity.h"
 #include "GoreDrawCommands.h"
 #include "GoreRenderState.h"
+#include "GoreSettings.h"
 
 #include <SkeletalMesh.hpp>
 
@@ -17,6 +18,9 @@ namespace Gore
     {
     public:
         explicit GoreSkeletalMesh(Entity* owner) : SkeletalMesh(owner) {}
+
+        // How this body behaves; the enemy sets it in its initializer, right after creating the mesh.
+        GoreSettings goreSettings;
 
         // Game thread only (gore tick). Copies when state.version differs from the current one.
         void SetGoreState(const RenderState& state);
@@ -50,7 +54,7 @@ namespace Gore
         // Per submesh, rebuilt when builtVersion changes:
         struct SubmeshRanges
         {
-            std::vector<DrawIndexRange> front, shell, shadowCap, shadowEdge;
+            std::vector<DrawIndexRange> front, shell;
             bool hasHole = false;   // a wound or a cut opens this submesh somewhere: its skin is drawn two-sided
         };
         std::vector<SubmeshRanges> pendingRanges;
@@ -75,6 +79,8 @@ namespace Gore
         std::array<std::shared_ptr<GoreDrawCommand>, kMaxCuts> capCommands, finalCapCommands;
         std::array<std::shared_ptr<const CapGeometry>, kMaxCuts> capHeld;
         bool pendingActive = false;
+        bool detailShadowsForcedOff = false;     // a limb is lost: CastDetailShadows is off (see PreFinalize)
+        bool detailShadowsBeforeLoss = true;     // its value before, restored when the limb is back
 
         void BuildRanges();
         void FillGpuData();

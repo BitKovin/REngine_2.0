@@ -27,7 +27,7 @@ namespace Gore
 {
     namespace
     {
-        constexpr int kMaxChunks = 64;             // size of the pool; GoreSettings::maxChunks may use less
+        constexpr int kMaxChunks = 64;             // size of the pool; GoreBudget::kMaxChunks may use less
         constexpr double kFlightSeconds = 8.0;     // a chunk that never lands is removed after this
         constexpr double kRestSeconds = 12.0;      // how long a landed chunk stays
         constexpr float kShrinkSeconds = 0.5f;     // it shrinks to nothing over the last half second
@@ -214,7 +214,7 @@ namespace Gore
                 const double now = Time::GameTime;
                 const glm::vec3 up = WorldOrientationManager::GetUpVector();
                 const glm::vec3 dir = glm::length(r.direction) > 1.0e-4f ? glm::normalize(r.direction) : up;
-                const int limit = glm::clamp(GoreSettings::Get().maxChunks, 1, kMaxChunks);
+                const int limit = glm::clamp(GoreBudget::kMaxChunks, 1, kMaxChunks);
 
                 for (int k = 0; k < r.count; ++k)
                 {
@@ -308,7 +308,7 @@ namespace Gore
                 g.bone = AssetRegistry::GetTextureFromFile("GameData/textures/gore/bone_d.png");
                 g.guts = AssetRegistry::GetTextureFromFile("GameData/textures/lq_flesh/flesh_gut1.jpg");
                 g.counts = glm::vec4(0.0f);                  // no wounds, cuts or splats on a chunk
-                g.params = glm::vec4(0.0f, 0.0f, 5.0f, static_cast<float>(GoreSettings::Get().level));
+                g.params = glm::vec4(0.0f, 0.0f, 5.0f, 0.0f);
             }
 
         private:
@@ -330,8 +330,7 @@ namespace Gore
             g_decalBudget = 4;
             if (g_requests.empty()) return;
 
-            // Chunks are a "full gore" effect only.
-            if (Level::Current == nullptr || GoreSettings::Get().level != GoreSettings::Level::Full)
+            if (Level::Current == nullptr)
             {
                 g_requests.clear();
                 return;
@@ -346,7 +345,7 @@ namespace Gore
                 g_system = EntityHandle::FromEntity(system);
             }
 
-            int budget = GoreSettings::Get().maxChunkSpawnsPerFrame;
+            int budget = GoreBudget::kMaxChunkSpawnsPerFrame;
             for (Request& r : g_requests)
             {
                 r.count = std::min(r.count, budget);

@@ -47,7 +47,6 @@ namespace Gore
         Shader* GetForwardShader() const override;
         Shader* GetDepthShader() const override;
         Shader* GetCustomIdShader() const override;
-        void GetShadowVolumeShaders(Shader*& cap, Shader*& edge) const override;
         void ApplyAdditionalShaderParams(Shader* shader) override;
 
         void DrawForward(const mat4& view, const mat4& projection) override;

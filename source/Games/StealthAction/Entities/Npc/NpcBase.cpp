@@ -101,7 +101,10 @@ std::shared_ptr<InvestigationBase> NpcBase::CreateInvestigationFromReason(Invest
 NpcBase::NpcBase()
 {
 
-	mesh = new Gore::GoreSkeletalMesh(this);
+	Gore::GoreSkeletalMesh* goreMesh = new Gore::GoreSkeletalMesh(this);
+	mesh = goreMesh;
+	goreMesh->goreSettings.level = Gore::GoreSettings::Level::Full;
+	goreMesh->goreSettings.severAlive = false;   // limbs and the head only come off with the killing blow
 	Drawables.push_back(mesh);
 	weaponMesh = new StaticMesh(this);
 	Drawables.push_back(weaponMesh);

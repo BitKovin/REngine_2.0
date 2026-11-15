@@ -32,18 +32,6 @@ namespace Gore
         return ShaderManager::GetShaderProgram(kVertex, "gore/fs_gore_customId");
     }
 
-    void GoreDrawCommand::GetShadowVolumeShaders(Shader*& cap, Shader*& edge) const
-    {
-        // Only a body with cuts needs its own shadow volume shaders (phase 3).
-        if (goreActive && pass == Pass::Front && gore && gore->counts.y > 0.5f)
-        {
-            cap = ShaderManager::GetShaderProgram("gore/vs_shadowvolcap_gore", "shadowVolume/fs_shadowvol");
-            edge = ShaderManager::GetShaderProgram("gore/vs_shadowvoledge_gore", "shadowVolume/fs_shadowvol");
-            if (cap != nullptr && edge != nullptr) return;   // not compiled yet: the plain volume (the part still casts a shadow)
-        }
-        SkeletalMeshDrawCommand::GetShadowVolumeShaders(cap, edge);
-    }
-
     void GoreDrawCommand::ApplyAdditionalShaderParams(Shader* shader)
     {
         SkeletalMeshDrawCommand::ApplyAdditionalShaderParams(shader);   // bones first

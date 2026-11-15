@@ -430,7 +430,6 @@
     <ClCompile Include="Gore\GoreDebug.cpp" />
     <ClCompile Include="Gore\GoreDrawCommands.cpp" />
     <ClCompile Include="Gore\GoreProfile.cpp" />
-    <ClCompile Include="Gore\GoreSettings.cpp" />
     <ClCompile Include="Gore\GoreSkeletalMesh.cpp" />
     <ClCompile Include="Gore\GoreSource.cpp" />
     <ClCompile Include="Gore\GoreSystem.cpp" />

@@ -8,7 +8,7 @@ class Entity;
 // The only door between StealthAction gameplay and the gore module: gameplay calls these, nothing else.
 namespace StealthGore
 {
-    // Loads the sources table and settings. Call from NpcBase::LoadAssets (cheap after the first call).
+    // Loads the sources table. Call from NpcBase::LoadAssets (cheap after the first call).
     void LoadAssets();
 
     // Call right after the damage was applied. wasAliveBefore: the victim was alive before this hit.

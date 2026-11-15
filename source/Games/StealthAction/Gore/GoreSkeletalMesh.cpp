@@ -186,6 +186,22 @@ namespace Gore
         pendingUsePalette = false;
         pendingCavity.reset();
 
+        // Stencil shadows: a body that still has all its limbs casts the usual shadow of the model. A body that lost a limb
+        // casts none (the volume of the whole model would still include the lost part, and cutting a volume per bone is not
+        // reliable): its detail shadows are forced off until the limb is back.
+        const bool lostLimb = goreState.version != 0 && !goreState.isGib && goreState.cutCount > 0;
+        if (lostLimb && !detailShadowsForcedOff)
+        {
+            detailShadowsBeforeLoss = CastDetailShadows;
+            CastDetailShadows = false;
+            detailShadowsForcedOff = true;
+        }
+        else if (!lostLimb && detailShadowsForcedOff)
+        {
+            CastDetailShadows = detailShadowsBeforeLoss;
+            detailShadowsForcedOff = false;
+        }
+
         if (cavityBuilding && cavityBuilding->GetState() == CavityGeometry::State::Ready)
         {
             cavityShown = cavityBuilding;
@@ -301,8 +317,6 @@ namespace Gore
             SubmeshRanges& ranges = pendingRanges[m];
             ranges.front.clear();
             ranges.shell.clear();
-            ranges.shadowCap.clear();
-            ranges.shadowEdge.clear();
             ranges.hasHole = false;
 
             const roj::SkinnedMesh& mesh = model->meshes[m];
@@ -328,10 +342,6 @@ namespace Gore
                         removed[b] = 1;
                 }
             }
-
-            const roj::ShadowVolumePrecomp& pre = mesh.shadowVolumePrecomp;
-            const bool shadowRanges = CastDetailShadows && !goreState.isGib && goreState.cutCount > 0
-                && pre.capBoneFirst.size() == n + 1 && pre.edgeBoneFirst.size() == n + 1;
 
             // A gib draws only its own subtree, plus the ancestors that stick out past the cut plane.
             const bool gibWithCut = goreState.isGib && goreState.cutCount > 0 && goreState.cuts[0].boneSkel < profile.subtreeEnd.size();
@@ -388,27 +398,6 @@ namespace Gore
                 // Flesh shells: only where a wound or a cut can show them, only on Volume submeshes.
                 if (role == SubmeshRole::Volume && (mask.x > 0.0f || mask.y > 0.0f))
                     append(ranges.shell, mask);
-
-                // Shadow volumes: the same bones, so a severed part casts no shadow.
-                if (shadowRanges)
-                {
-                    auto appendShadow = [&](std::vector<DrawIndexRange>& list, uint32_t from, uint32_t to)
-                    {
-                        if (to <= from) return;
-                        if (!list.empty() && list.back().first + list.back().count == from && list.back().param == mask)
-                        {
-                            list.back().count += to - from;
-                            return;
-                        }
-                        DrawIndexRange r;
-                        r.first = from;
-                        r.count = to - from;
-                        r.param = mask;
-                        list.push_back(r);
-                    };
-                    appendShadow(ranges.shadowCap, mesh.shadowVolumePrecomp.capBoneFirst[b], mesh.shadowVolumePrecomp.capBoneFirst[b + 1]);
-                    appendShadow(ranges.shadowEdge, mesh.shadowVolumePrecomp.edgeBoneFirst[b], mesh.shadowVolumePrecomp.edgeBoneFirst[b + 1]);
-                }
             }
         }
 
@@ -460,7 +449,7 @@ namespace Gore
         GpuData& g = pendingGpu;
 
         g.counts = glm::vec4(goreState.woundCount, goreState.cutCount, goreState.splatCount, 0.0f);
-        g.params = glm::vec4(0.0f, goreState.isGib ? 1.0f : 0.0f, profile.fleshScale, static_cast<float>(GoreSettings::Get().level));
+        g.params = glm::vec4(0.0f, goreState.isGib ? 1.0f : 0.0f, profile.fleshScale, static_cast<float>(goreSettings.level));
         g.bloodColor = glm::vec4(profile.bloodColor, 1.0f);
         g.flesh = profile.fleshTexture;
         g.edgeNoise = profile.edgeNoise;
@@ -601,15 +590,11 @@ namespace Gore
                 cmd.IndexRanges.assign(pendingRanges[i].front.begin(), pendingRanges[i].front.end());
                 if (cmd.IndexRanges.empty() && goreState.cutCount > 0)
                     cmd.IndexRanges.push_back(DrawIndexRange());   // nothing of this submesh is left: an empty list would draw all of it
-                cmd.ShadowCapRanges.assign(pendingRanges[i].shadowCap.begin(), pendingRanges[i].shadowCap.end());
-                cmd.ShadowEdgeRanges.assign(pendingRanges[i].shadowEdge.begin(), pendingRanges[i].shadowEdge.end());
                 cmd.RangeParamUniform = "u_goreRangeMask";
             }
             else
             {
                 cmd.IndexRanges.clear();
-                cmd.ShadowCapRanges.clear();
-                cmd.ShadowEdgeRanges.clear();
                 cmd.RangeParamUniform = nullptr;
             }
 

@@ -2,7 +2,6 @@
 
 #include "GoreEvents.h"
 #include "GoreProfile.h"
-#include "GoreSettings.h"
 #include "GoreSource.h"
 
 #include <Entities/Explosion.h>
@@ -36,7 +35,6 @@ namespace StealthGore
     {
         if (g_loaded) return;
         g_loaded = true;
-        Gore::GoreSettings::Load();
         Gore::LoadSources();
     }
 

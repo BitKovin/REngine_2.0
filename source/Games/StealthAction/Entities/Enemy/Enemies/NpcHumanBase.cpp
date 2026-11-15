@@ -15,7 +15,10 @@
 
 NpcHumanBase::NpcHumanBase()
 {
-    mesh = new Gore::GoreSkeletalMesh(this);
+    Gore::GoreSkeletalMesh* goreMesh = new Gore::GoreSkeletalMesh(this);
+    mesh = goreMesh;
+    goreMesh->goreSettings.level = Gore::GoreSettings::Level::Full;
+    goreMesh->goreSettings.severAlive = false;   // limbs and the head only come off with the killing blow
     mesh->CastDetailShadows = true;
     mesh->GravityAlignedRotation = true;
     mesh->MeshCustomShaderParams["rim_color"] = vec4(1.5f, 1.2f, 0.0f, 1.0f);

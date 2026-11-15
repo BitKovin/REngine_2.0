@@ -27,7 +27,7 @@ namespace Gore
 
     void FxNewFrame()
     {
-        g_budget = GoreSettings::Get().maxParticlesPerFrame;
+        g_budget = GoreBudget::kMaxParticlesPerFrame;
     }
 
     // A burst of droplets from a fresh wound. batches: 1 = a puff, 6 = a fountain. Shares the per-frame particle budget.

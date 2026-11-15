@@ -400,6 +400,12 @@ namespace Gore
         }
 
         // Cuts a severable bone at the plane nearest to `point` (leaning towards `normal`), hides its hitboxes, spawns the gib.
+        // Meat chunks are a "full gore" effect: only a body whose gore level is Full throws them.
+        void ThrowChunks(const GoreSkeletalMesh* mesh, const glm::vec3& point, const glm::vec3& direction, int count, float speed, float size)
+        {
+            if (mesh->goreSettings.level == GoreSettings::Level::Full) SpawnChunks(point, direction, count, speed, size);
+        }
+
         bool MakeCut(Entity* self, GoreSkeletalMesh* mesh, GoreComponent& gore, const Profile& profile, const Source& source,
                      const Hit& hit, int candidate, const glm::vec3& point, const glm::vec3& normal, bool atJoint, bool strictTilt,
                      const glm::mat4& world, const std::vector<glm::mat4>& palette, Rng& rng)
@@ -453,7 +459,7 @@ namespace Gore
             gib.impulse = hit.direction * (2.0f + 1.5f * strength) + up * 1.2f;
             GibPool::Request(gib);
             SpawnBloodBurst(point, hit.direction + glm::vec3(0, 0.5f, 0), 6, 1.2f);
-            if (!cut.clean) SpawnChunks(point, hit.direction, 5, 3.5f, 0.035f);   // a blade does not throw meat
+            if (!cut.clean) ThrowChunks(mesh, point, hit.direction, 5, 3.5f, 0.035f);   // a blade does not throw meat
 
             GorePartEvent part;
             part.victim = EntityHandle::FromEntity(self);
@@ -537,7 +543,7 @@ namespace Gore
             at = now;
 
             // A living enemy keeps its limbs and head (it still collects the damage, so the killing blow tears them off).
-            if (hit.alive && !hit.lethal && !GoreSettings::Get().severAlive) return false;
+            if (hit.alive && !hit.lethal && !mesh->goreSettings.severAlive) return false;
             // Whatever the setting, a living enemy never loses a part that holds a protected bone (a waist cut would take the head).
             if (hit.alive && !hit.lethal && sev.holdsProtected) return false;
 
@@ -571,7 +577,7 @@ namespace Gore
         {
             if (gore.isGib || profile.severable.empty()) return;
             if (EffectiveDamage(hit) * source.severPower < 60.0f) return;
-            if (hit.alive && !hit.lethal && !GoreSettings::Get().severAlive) return;
+            if (hit.alive && !hit.lethal && !mesh->goreSettings.severAlive) return;
 
             // An explosion entity brings its own centre and reach; a cannon ball explodes where it hit, slightly inside.
             const bool entityBlast = hit.blastRadius > 0.0f;
@@ -740,7 +746,7 @@ namespace Gore
                 AddWound(gore, MakeShotWound(anchor, reach, WoundKind::Entry, pBind, dBind, r, rz, 0.3f, 0.5f, TaperOf(source, WoundKind::Entry), rng));
                 AddSplat(gore, pBind, 2.5f * r, 1.0f, dBind, true);   // the blood around the hole (the hole itself is cut out)
                 SpawnBloodBurst(hit.point, -hit.direction + glm::vec3(0, 0.4f, 0), heavy ? 2 : 1, 0.7f);
-                if (hit.lethal) SpawnChunks(hit.point, -hit.direction, 2, 2.0f, 0.022f);
+                if (hit.lethal) ThrowChunks(mesh, hit.point, -hit.direction, 2, 2.0f, 0.022f);
 
                 if (source.exit || heavy)
                 {
@@ -756,8 +762,8 @@ namespace Gore
                                                  glm::vec3(er, er, erz), 0.45f, 0.5f, TaperOf(source, WoundKind::Exit), rng));
                         AddSplat(gore, exitBind, 2.5f * er, 1.0f, dBind);
                         SpawnBloodBurst(exitWorld, hit.direction + glm::vec3(0, 0.25f, 0), heavy ? 5 : 3, 1.1f);
-                        if (heavy) SpawnChunks(exitWorld, hit.direction, 3, 4.0f, 0.028f);
-                        else SpawnChunks(exitWorld, hit.direction, 1, 3.0f, 0.022f);
+                        if (heavy) ThrowChunks(mesh, exitWorld, hit.direction, 3, 4.0f, 0.028f);
+                        else ThrowChunks(mesh, exitWorld, hit.direction, 1, 3.0f, 0.022f);
                     }
                 }
                 break;
@@ -814,7 +820,7 @@ namespace Gore
                 AddWound(gore, MakeWound(anchor, reach, WoundKind::Gash, center, rot, radii, 0.25f, 0.4f, TaperOf(source, WoundKind::Gash), rng));
                 AddSplat(gore, pBind, 2.5f * source.woundRadius + 0.03f, 1.0f, dBind);
                 SpawnBloodBurst(hit.point, -hit.direction + glm::vec3(0, 0.6f, 0), 3, 0.9f);
-                SpawnChunks(hit.point, -hit.direction, 1, 2.0f, 0.025f);
+                ThrowChunks(mesh, hit.point, -hit.direction, 1, 2.0f, 0.025f);
                 break;
             }
 
@@ -832,7 +838,7 @@ namespace Gore
                 AddWound(gore, MakeShotWound(anchor, reach, WoundKind::Crater, pBind, dBind, r, rz, 0.5f, 0.6f, TaperOf(source, WoundKind::Crater), rng));
                 AddSplat(gore, pBind, 2.5f * r, 1.0f, dBind);
                 SpawnBloodBurst(hit.point, glm::vec3(0, 1, 0), 6, 1.2f);
-                SpawnChunks(hit.point, glm::vec3(0, 1, 0), 8, 5.0f, 0.04f);
+                ThrowChunks(mesh, hit.point, glm::vec3(0, 1, 0), 8, 5.0f, 0.04f);
                 BlastSever(self, mesh, gore, profile, source, hit, World, palette, rng);
                 break;
             }
@@ -872,8 +878,8 @@ namespace Gore
                 const glm::vec3 d = glm::normalize(glm::vec3(toWorld * glm::vec4(dir, 0.0f)));
                 SpawnBloodBurst(p, -d + glm::vec3(0, 0.4f, 0), 2, 0.8f);
                 SpawnBloodBurst(p + d * 0.2f, d + glm::vec3(0, 0.25f, 0), 4, 1.2f);
-                SpawnChunks(p + d * 0.15f, d, 2 + std::min(c.count, 6) / 2, 4.5f, 0.03f);
-                SpawnChunks(p, -d, 2, 2.0f, 0.025f);
+                ThrowChunks(mesh, p + d * 0.15f, d, 2 + std::min(c.count, 6) / 2, 4.5f, 0.03f);
+                ThrowChunks(mesh, p, -d, 2, 2.0f, 0.025f);
             }
         }
 

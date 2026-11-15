@@ -231,10 +231,10 @@ namespace Gore
             ++g_frame;
             FxNewFrame();
 
-            const GoreSettings& settings = GoreSettings::Get();
+            
 
             int spawned = 0;
-            while (!g_queue.empty() && spawned < settings.maxGibSpawnsPerFrame)
+            while (!g_queue.empty() && spawned < GoreBudget::kMaxGibSpawnsPerFrame)
             {
                 GibRequest r = g_queue.front();
                 const uint32_t madeAt = g_queuedFrames.front();
@@ -268,7 +268,7 @@ namespace Gore
             // one until the budget is exceeded by a margin).
             g_live.erase(std::remove_if(g_live.begin(), g_live.end(), [](EntityHandle& h) { return h.Resolve() == nullptr; }), g_live.end());
 
-            const int over = static_cast<int>(g_live.size()) - settings.maxGibs;
+            const int over = static_cast<int>(g_live.size()) - GoreBudget::kMaxGibs;
             for (int i = 0; i < over; ++i)
             {
                 Entity* e = g_live[i].Resolve();
