@@ -140,9 +140,9 @@ namespace Gore
             return true;
         }
 
-        // direction: bind space, the way the blow travelled (see Splat); none = a plain soft soak. bulletHole: draw a bullet hole, not a splash.
+        // direction: bind space, the way the blow travelled (see Splat); none = a plain soft soak. kind: which picture of the atlas.
         void AddSplat(GoreComponent& g, const glm::vec3& center, float radius, float strength,
-                      const glm::vec3& direction = glm::vec3(0), bool bulletHole = false)
+                      const glm::vec3& direction = glm::vec3(0), DecalKind kind = DecalKind::Splash)
         {
             Splat s;
             s.center = center;
@@ -150,7 +150,7 @@ namespace Gore
             s.strength = strength;
             s.order = g.orderCounter++;
             s.direction = direction;
-            s.bulletHole = bulletHole;
+            s.kind = kind;
 
             if (g.splatCount < kMaxSplats)
             {
@@ -327,6 +327,9 @@ namespace Gore
         constexpr double kAuthoredDecaySeconds = 20.0;   // damage collected towards a part fades slowly
         constexpr float kKillingBlowWeight = 2.5f;       // the hit that kills counts extra: overkill tears things off
         constexpr float kBulletHoleDecal = 3.0f;         // extent of a bullet hole decal, in wound radii
+        constexpr float kSlashDecal = 0.72f;             // extent of a slash decal, in gash lengths (the cut fills 0.7 of the picture)
+        constexpr float kBruiseDecal = 0.14f;            // extent of a bruise: metres per unit of damage / refDamage
+        constexpr float kPelletDecal = 2.2f;             // extent of a shotgun spread decal, in spread radii (the holes fill 0.5 of it)
 
         float EffectiveDamage(const Hit& hit) { return hit.lethal ? hit.damage * kKillingBlowWeight : hit.damage; }
 
@@ -629,6 +632,33 @@ namespace Gore
             }
         }
 
+        // The mark a hit leaves where it digs nothing (a decal of the kind of the blow): bullet hole, slash, bruise, blast splash.
+        // Shotgun pellets are clustered first (see the end of ProcessPendingHits).
+        void AddHitDecal(GoreComponent& gore, const Source& source, const glm::vec3& pBind, const glm::vec3& dBind, float damage,
+                         bool lethal, Rng& rng)
+        {
+            const float scale = glm::clamp(std::sqrt(damage / std::max(source.refDamage, 1.0f)), source.minScale, source.maxScale)
+                              * rng.Range(0.8f, 1.2f) * (lethal ? 1.5f : 1.0f);
+            switch (source.type)
+            {
+            case SourceType::Bullet:
+            case SourceType::HeavyBullet:
+                AddSplat(gore, pBind, kBulletHoleDecal * source.woundRadius * scale, 1.0f, dBind, DecalKind::BulletHole);
+                break;
+            case SourceType::Slash:
+                AddSplat(gore, pBind, kSlashDecal * source.gashLength * (lethal ? 1.2f : 1.0f), 1.0f, dBind, DecalKind::Slash);
+                break;
+            case SourceType::Blunt:
+                AddSplat(gore, pBind, std::max(kBruiseDecal * damage / std::max(source.refDamage, 1.0f), 0.06f), 1.0f, dBind, DecalKind::Bruise);
+                break;
+            case SourceType::Blast:
+                AddSplat(gore, pBind, kBulletHoleDecal * source.woundRadius * scale, 1.0f, dBind, DecalKind::Splash);
+                break;
+            case SourceType::Pellet:
+                break;
+            }
+        }
+
         struct Cluster
         {
             int skin = -1;
@@ -640,6 +670,7 @@ namespace Gore
             float damage = 0.0f;
             uint32_t seed = 0;
             bool lethal = false;
+            bool decalOnly = true;   // every pellet of the cluster leaves a mark only
         };
     }
 
@@ -722,13 +753,15 @@ namespace Gore
             if (source.type != SourceType::Blast && TrySever(self, mesh, gore, profile, source, hit, anchor, pBind, World, palette, rng))
                 continue;
 
-            // A weapon that makes no holes (sources.json "holes": false; a pistol, a rifle): the hit is a decal of a bullet hole with
-            // blood around it. Nothing is dug, thrown out or sprayed.
-            if (!source.holes && source.type != SourceType::Blunt)
+            // A hit that digs nothing: a weapon that makes no holes (sources.json "holes": false; a pistol, a rifle), or a living enemy
+            // whose settings keep it whole (GoreSettings::holesWhileAlive = false) hit by anything but the killing blow. The hit is a
+            // decal of the kind of the blow (a bullet hole, a slash, a spread of pellets, a bruise) with blood around it; nothing is
+            // dug, thrown out or sprayed. Blunt weapons never dig, so they are no exception.
+            const bool decalOnly = source.type != SourceType::Blunt
+                && (!source.holes || (hit.alive && !hit.lethal && !mesh->goreSettings.holesWhileAlive));
+            if (decalOnly && source.type != SourceType::Pellet)
             {
-                const float r = source.woundRadius * glm::clamp(std::sqrt(damage / source.refDamage), source.minScale, source.maxScale)
-                              * rng.Range(0.8f, 1.2f) * (hit.lethal ? 1.5f : 1.0f);
-                AddSplat(gore, pBind, kBulletHoleDecal * r, 1.0f, dBind, true);
+                AddHitDecal(gore, source, pBind, dBind, damage, hit.lethal, rng);
                 continue;
             }
 
@@ -744,7 +777,7 @@ namespace Gore
                 const float rz = std::max(r * 1.6f, 0.05f);
 
                 AddWound(gore, MakeShotWound(anchor, reach, WoundKind::Entry, pBind, dBind, r, rz, 0.3f, 0.5f, TaperOf(source, WoundKind::Entry), rng));
-                AddSplat(gore, pBind, 2.5f * r, 1.0f, dBind, true);   // the blood around the hole (the hole itself is cut out)
+                AddSplat(gore, pBind, 2.5f * r, 1.0f, dBind, DecalKind::BulletHole);   // the blood around the hole (the hole itself is cut out)
                 SpawnBloodBurst(hit.point, -hit.direction + glm::vec3(0, 0.4f, 0), heavy ? 2 : 1, 0.7f);
                 if (hit.lethal) ThrowChunks(mesh, hit.point, -hit.direction, 2, 2.0f, 0.022f);
 
@@ -790,6 +823,7 @@ namespace Gore
                     target->bone = anchor.bone;
                     target->seed = hit.seed;
                 }
+                target->decalOnly = target->decalOnly && decalOnly;
                 target->center = (target->center * static_cast<float>(target->count) + pBind) / static_cast<float>(target->count + 1);
                 target->dirSum += dBind;
                 target->count++;
@@ -826,7 +860,7 @@ namespace Gore
 
             case SourceType::Blunt:
             {
-                AddSplat(gore, pBind, std::max(0.08f * hit.damage / source.refDamage, 0.03f), 0.8f, dBind);
+                AddHitDecal(gore, source, pBind, dBind, damage, hit.lethal, rng);
                 break;
             }
 
@@ -867,6 +901,12 @@ namespace Gore
                           * (c.lethal ? 1.4f : 1.0f);
             const float rz = std::max(r * 0.9f, 0.04f);
             const float reach = 2.0f * MaxExtent(profile, anchor.skel);
+
+            if (c.decalOnly)
+            {
+                AddSplat(gore, c.center, kPelletDecal * spread, 1.0f, dir, DecalKind::Pellets);   // the marks only: no hole, no spray
+                continue;
+            }
 
             AddWound(gore, MakeShotWound(anchor, reach, WoundKind::Crater, c.center, dir, r, rz, 0.4f, 0.5f, TaperOf(*source, WoundKind::Crater), rng));
             AddSplat(gore, c.center, 2.5f * r, 1.0f, dir);

@@ -483,7 +483,7 @@ namespace Gore
         {
             const Splat& sp = goreState.splats[i];
             g.splats[i] = glm::vec4(sp.center, sp.radius * sp.strength);
-            g.splatLook[i] = glm::vec4(sp.direction, sp.bulletHole ? 1.0f : 0.0f);
+            g.splatLook[i] = glm::vec4(sp.direction, static_cast<float>(sp.kind));
         }
 
         BuildRenderPalette(palette);

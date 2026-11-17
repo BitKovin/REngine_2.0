@@ -40,6 +40,10 @@ namespace Gore
         // The Volume submeshes in a grid (bind space), kept for the wound cavities. Null when the model has no Volume submesh.
         std::shared_ptr<const TriGrid> body;
 
+        // The profile's core body fitted to this model's skeleton (GoreCore.h), in this model's bind space with this model's skin
+        // indices. When present the wound cavities are generated against it (and clipped by `body`). Null: against `body`.
+        std::shared_ptr<const TriGrid> fill;
+
         // GPU side. Main thread only (EnsureGpu).
         std::vector<bgfx::VertexBufferHandle> shellVbh;      // parallel to shellVertices, invalid where empty
         bgfx::VertexBufferHandle anatomyVbh = BGFX_INVALID_HANDLE;
@@ -51,7 +55,8 @@ namespace Gore
 
     // Runs on the worker thread (BuildPool): reads the model and the profile, touches no GPU object. Needs
     // profile.submeshRoles, anyBounds, parent, subtreeEnd and anatomy to be filled.
-    std::shared_ptr<ModelFlesh> BuildModelFlesh(const roj::SkinnedModel& model, const Profile& profile);
+    // `core`: the loaded core model of profile.corePath, or null.
+    std::shared_ptr<ModelFlesh> BuildModelFlesh(const roj::SkinnedModel& model, const Profile& profile, const roj::SkinnedModel* core);
 
     // Four small meshes around the origin, about 1 unit in radius (scaled per chunk): variants[0..2] meat lumps,
     // variants[3] a bone splinter. Every vertex follows skin bone 0 (the chunk system gives it an identity matrix).

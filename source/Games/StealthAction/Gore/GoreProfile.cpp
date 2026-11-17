@@ -20,6 +20,8 @@ namespace Gore
     {
         std::unordered_map<std::string, Profile> g_profiles;
         std::unordered_map<std::string, bool> g_logged;   // model path -> already reported
+        std::unordered_map<std::string, int> g_coreWaits;   // model path -> GetProfile calls spent waiting for the core body
+        constexpr int kCoreWaitCalls = 3000;
         const Profile g_invalid;
         const Profile g_loading = [] { Profile p; p.loading = true; return p; }();
 
@@ -190,6 +192,9 @@ namespace Gore
         p.bonePath = TexturePath(textures, "bone");
         p.gutsPath = TexturePath(textures, "guts");
         ResolveTextures(p);
+
+        p.corePath = j.value("core", std::string());
+        p.boneMap = boneMap;
 
         p.fleshScale = j.value("fleshScale", 12.0f);
         if (j.contains("bloodColor") && j["bloodColor"].is_array() && j["bloodColor"].size() == 3)
@@ -389,15 +394,39 @@ namespace Gore
         p.parent = ctx.parent;
         p.subtreeEnd = ctx.subtreeEnd;
 
+        // The core body (Profile::corePath) is a model like any other: it loads on its own thread and is requested here, on the game
+        // thread. Until its geometry is there the profile is not cached (hits are kept). A core that never loads is given up after
+        // a while: the cavities then use the model's own mesh.
+        const roj::SkinnedModel* coreModel = nullptr;
+        if (!p.corePath.empty())
+        {
+            const roj::SkinnedModel* loading = AssetRegistry::GetSkinnedModelFromFile(p.corePath);
+            const bool ready = loading != nullptr && !loading->meshes.empty() && loading->skeleton.boneCount > 0
+                && std::all_of(loading->meshes.begin(), loading->meshes.end(), [&](const roj::SkinnedMesh& m)
+                   { return m.boneIndexFirst.size() == static_cast<size_t>(loading->skeleton.boneCount) + 1; });
+            if (ready)
+            {
+                coreModel = loading;
+            }
+            else if (++g_coreWaits[modelPath] < kCoreWaitCalls)
+            {
+                return g_loading;
+            }
+            else
+            {
+                Logger::Warning("Gore: the core body '%s' did not load, '%s' fills its holes from its own mesh", p.corePath.c_str(), modelPath.c_str());
+            }
+        }
+
         // The flesh (shells and anatomy) takes a few milliseconds on a detailed model: build it on the worker. The worker reads
         // a snapshot of the profile and the model's meshes, which are not modified once the model is loaded and partitioned.
         auto pending = std::make_shared<Profile::PendingFlesh>();
         auto snapshot = std::make_shared<const Profile>(p);
         const roj::SkinnedModel* modelPtr = &model;
         p.pendingFlesh = pending;
-        BuildPool().QueueJob([pending, snapshot, modelPtr]()
+        BuildPool().QueueJob([pending, snapshot, modelPtr, coreModel]()
         {
-            pending->result = BuildModelFlesh(*modelPtr, *snapshot);
+            pending->result = BuildModelFlesh(*modelPtr, *snapshot, coreModel);
             pending->done.store(true, std::memory_order_release);
         });
 

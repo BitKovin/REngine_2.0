@@ -3846,7 +3846,7 @@ CONSOLE_FUNC("kit.weapons", "kit.weapons gives all weapons")
 	Player::Instance->AddWeaponByName("weapon_shotgun");
 	Player::Instance->AddWeaponByName("weapon_shotgun");
 	Player::Instance->AddWeaponByName("weapon_shotgun");
-	Player::Instance->AddWeaponByName("weapon_sawedoff");
+	Player::Instance->AddWeaponByName("weapon_sawed");
 
 	Player::Instance->AddWeaponByName("weapon_mpsd");
 	Player::Instance->AddWeaponByName("weapon_mpsd");
@@ -3873,7 +3873,7 @@ CONSOLE_FUNC("kit.hunter", "kit.weapons gives all weapons")
 	Player::Instance->AddWeaponByName("weapon_shotgun");
 	Player::Instance->AddWeaponByName("weapon_shotgun");
 	Player::Instance->AddWeaponByName("weapon_shotgun");
-	Player::Instance->AddWeaponByName("weapon_sawedoff");
+
 
 	Player::Instance->AddWeaponByName("weapon_mpsd");
 	Player::Instance->AddWeaponByName("weapon_mpsd");

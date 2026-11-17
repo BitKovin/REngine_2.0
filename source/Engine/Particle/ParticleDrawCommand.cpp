@@ -83,6 +83,7 @@ void RibbonDrawCommand::DrawForward(const mat4& view, const mat4& projection)
 	shader->SetUniform("view", view);
 	shader->SetUniform("projection", projection);
 	shader->SetUniform("world", glm::identity<mat4>());
+	shader->SetUniform("modelColor", glm::vec4(1.0f));
 	shader->SetUniform("isViewmodel", IsViewmodel);
 	shader->SetUniform("is_particle", true);
 	shader->SetUniform("is_decal", false);
@@ -147,6 +148,7 @@ void TrailDrawCommand::DrawForward(const mat4& view, const mat4& projection)
 	shader->SetUniform("view", view);
 	shader->SetUniform("projection", projection);
 	shader->SetUniform("world", glm::identity<mat4>());
+	shader->SetUniform("modelColor", glm::vec4(1.0f));
 	shader->SetUniform("isViewmodel", IsViewmodel);
 	shader->SetUniform("is_particle", true);
 	shader->SetUniform("is_decal", false);

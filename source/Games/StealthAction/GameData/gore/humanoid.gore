@@ -1,4 +1,5 @@
 {
+  "core": "GameData/models/npc/goreHumanCore.glb",
   "textures": {
     "flesh": "gore/flesh_d.png",
     "blood": "gore/blood_soak.png",

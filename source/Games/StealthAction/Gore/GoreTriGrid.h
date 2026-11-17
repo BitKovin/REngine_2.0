@@ -44,6 +44,10 @@ namespace Gore
 
         void Build(const roj::SkinnedModel& model, const Profile& profile, Mode mode);
 
+        // The grid of triangles made by the caller (GoreCore.cpp: a body fitted to another skeleton). GridTri::mesh is the closed
+        // surface a face belongs to, as in Build.
+        void BuildFromTriangles(std::vector<GridTri> triangles);
+
         bool Empty() const { return tris.empty(); }
         size_t Size() const { return tris.size(); }
         const GridTri& Tri(uint32_t i) const { return tris[i]; }
@@ -55,6 +59,7 @@ namespace Gore
         BodyQuery Closest(const glm::vec3& p, float maxDist) const;
 
     private:
+        void BuildIndex();   // origin, dims and the cell lists of `tris`
         glm::ivec3 CellOf(const glm::vec3& p) const;
         size_t Index(int x, int y, int z) const { return (static_cast<size_t>(z) * dims.y + y) * dims.x + x; }
 

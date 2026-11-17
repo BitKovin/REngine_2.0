@@ -103,7 +103,6 @@ namespace Gore
 
     void TriGrid::Build(const roj::SkinnedModel& model, const Profile& profile, Mode mode)
     {
-        glm::vec3 lo(1.0e9f), hi(-1.0e9f);
         for (size_t m = 0; m < model.meshes.size(); ++m)
         {
             const SubmeshRole role = m < profile.submeshRoles.size() ? profile.submeshRoles[m] : SubmeshRole::Volume;
@@ -126,11 +125,27 @@ namespace Gore
                     t.weight[k] = corners[k]->BlendWeights;
                 }
                 tris.push_back(t);
-                lo = glm::min(lo, glm::min(t.a, glm::min(t.b, t.c)));
-                hi = glm::max(hi, glm::max(t.a, glm::max(t.b, t.c)));
             }
         }
+        BuildIndex();
+    }
+
+    void TriGrid::BuildFromTriangles(std::vector<GridTri> triangles)
+    {
+        tris = std::move(triangles);
+        BuildIndex();
+    }
+
+    void TriGrid::BuildIndex()
+    {
         if (tris.empty()) return;
+
+        glm::vec3 lo(1.0e9f), hi(-1.0e9f);
+        for (const GridTri& t : tris)
+        {
+            lo = glm::min(lo, glm::min(t.a, glm::min(t.b, t.c)));
+            hi = glm::max(hi, glm::max(t.a, glm::max(t.b, t.c)));
+        }
 
         origin = lo - glm::vec3(0.01f);
         const glm::vec3 size = hi - origin + glm::vec3(0.01f);

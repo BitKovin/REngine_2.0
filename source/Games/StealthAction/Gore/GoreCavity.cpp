@@ -84,8 +84,10 @@ namespace Gore
             glm::vec3 Inward(const glm::vec3& u) const { return -glm::normalize(axes * (u / glm::max(radii, glm::vec3(1.0e-4f)))); }
         };
 
-        // Where the ellipsoid of `w` lies inside the body, as triangles (appended to `out`).
-        void BuildWound(CavityGeometry& out, const TriGrid& body, const Wound& w, int index)
+        // Where the ellipsoid of `w` lies inside `body`, as triangles (appended to `out`). `clip`, when given, is a second body the
+        // surface must also lie inside (the character itself, when `body` is the core fitted to it: where the core reaches past the
+        // character there is no surface, so nothing is generated outside the mesh). The bone weights come from `body`.
+        void BuildWound(CavityGeometry& out, const TriGrid& body, const TriGrid* clip, const Wound& w, int index)
         {
             // The skin hole has a ragged edge that reaches up to `roughness` (of a radius) beyond the nominal ellipsoid. The surface
             // is made that much larger, so it lies behind every part of the hole; where the hole is smaller the skin covers it.
@@ -102,8 +104,15 @@ namespace Gore
             std::vector<float> depth(total);
             auto inside = [&](const glm::vec3& u)
             {
-                const BodyQuery q = body.Closest(shape.Point(u), kSearch);
-                return q.found ? q.signedDistance - kMargin : -kSearch;
+                const glm::vec3 point = shape.Point(u);
+                const BodyQuery q = body.Closest(point, kSearch);
+                float depth = q.found ? q.signedDistance - kMargin : -kSearch;
+                if (clip != nullptr && depth > 0.0f)
+                {
+                    const BodyQuery c = clip->Closest(point, kSearch);
+                    depth = c.found ? std::min(depth, c.signedDistance - kMargin) : -kSearch;
+                }
+                return depth;
             };
             bool any = false;
             for (int r = 0; r <= rings; ++r)
@@ -236,7 +245,7 @@ namespace Gore
 
     std::shared_ptr<const CavityGeometry> RequestCavity(const Profile& profile, const std::array<Wound, kMaxWounds>& wounds, int count)
     {
-        if (!profile.flesh || !profile.flesh->body) return nullptr;
+        if (!profile.flesh || (!profile.flesh->body && !profile.flesh->fill)) return nullptr;
         bool any = false;
         for (int i = 0; i < count; ++i) any = any || HasCavity(wounds[i]);
         if (!any) return nullptr;
@@ -245,14 +254,18 @@ namespace Gore
         cavity->wounds = wounds;
         cavity->woundCount = static_cast<uint8_t>(count);
 
-        // The job holds the body grid (immutable, with its own bone weights) and the wounds: nothing of the model, which the game
-        // thread may release while the worker runs.
+        // The job holds the grids (immutable, with their own bone weights) and the wounds: nothing of the model, which the game
+        // thread may release while the worker runs. With a fitted core (ModelFlesh::fill) the surface is made against the core and
+        // clipped by the character's own body; without one against the body.
+        const std::shared_ptr<const TriGrid> fill = profile.flesh->fill;
         const std::shared_ptr<const TriGrid> body = profile.flesh->body;
-        BuildPool().QueueJob([cavity, body]()
+        BuildPool().QueueJob([cavity, fill, body]()
         {
+            const TriGrid& shape = fill ? *fill : *body;
+            const TriGrid* clip = fill ? body.get() : nullptr;
             for (int i = 0; i < cavity->woundCount; ++i)
                 if (HasCavity(cavity->wounds[i]))
-                    BuildWound(*cavity, *body, cavity->wounds[i], i);
+                    BuildWound(*cavity, shape, clip, cavity->wounds[i], i);
             cavity->state.store(CavityGeometry::State::Ready, std::memory_order_release);
         });
         return cavity;

@@ -10,6 +10,8 @@ namespace Gore
 
         Level level = Level::Full;   // Full: everything; Reduced: dull guts and no chunks; Minimal: no blood tint either
         bool  severAlive = false;    // false: limbs and heads only come off with the killing blow or on a corpse
+        bool  holesWhileAlive = true; // false: a living enemy only gets decals (bullet hole, slash, shotgun spread, bruise) from hits
+                                      // that do not kill it; the wounds, holes and meat come with the killing blow
     };
 
     // Shared pools and per-frame limits: they belong to the whole scene, not to a body.

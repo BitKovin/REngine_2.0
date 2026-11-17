@@ -1,6 +1,7 @@
 #include "GoreFlesh.h"
 
 #include <chrono>
+#include "GoreCore.h"
 #include "GoreProfile.h"
 #include "GoreTriGrid.h"
 
@@ -480,7 +481,7 @@ namespace Gore
         }
     }
 
-    std::shared_ptr<ModelFlesh> BuildModelFlesh(const roj::SkinnedModel& model, const Profile& profile)
+    std::shared_ptr<ModelFlesh> BuildModelFlesh(const roj::SkinnedModel& model, const Profile& profile, const roj::SkinnedModel* core)
     {
         const auto buildStart = std::chrono::steady_clock::now();
         auto flesh = std::make_shared<ModelFlesh>();
@@ -489,6 +490,17 @@ namespace Gore
         auto body = std::make_shared<TriGrid>();
         body->Build(model, profile, TriGrid::Mode::Body);
         if (!body->Empty()) flesh->body = body;
+        if (core != nullptr)
+        {
+            auto fill = BuildFittedCore(*core, model, profile.boneMap);
+            if (fill && !fill->Empty())
+            {
+                flesh->fill = fill;
+                Logger::Log("Gore: the wound cavities are generated against the core body '" + profile.corePath + "' ("
+                            + std::to_string(fill->Size()) + " triangles) fitted to this model");
+            }
+            else Logger::Warning("Gore: the core body '%s' gave no triangles for this model, its cavities use the model's own mesh", profile.corePath.c_str());
+        }
 
         auto grid = std::make_shared<TriGrid>();
         grid->Build(model, profile, TriGrid::Mode::Volume);

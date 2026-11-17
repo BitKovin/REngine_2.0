@@ -19,7 +19,7 @@ uniform vec4 u_goreCutBindSphere[4];
 uniform vec4 u_goreCutRegrowBind[4];
 uniform vec4 u_goreCutParams[4];
 uniform vec4 u_goreSplats[16];       // xyz centre, w extent
-uniform vec4 u_goreSplatLook[16];    // xyz direction of the blow (zero = a plain soft soak), w 1 = a bullet hole picture, 0 = a splash
+uniform vec4 u_goreSplatLook[16];    // xyz direction of the blow (zero = a plain soft soak), w the atlas row (DecalKind: 0 splash, 1 bullet hole, 2 slash, 3 shotgun spread, 4 bruise)
 
 bool goreBit(float mask, int i) { return mod(floor(mask / exp2(float(i))), 2.0) >= 1.0; }
 
@@ -42,8 +42,8 @@ void gorePlaneBasis(vec3 n, out vec3 t, out vec3 b)
 // One blood decal (GoreTypes.h Splat) at bind point p. x = how much of the skin it covers (0..1), y = how thick and dark the blood
 // lies (0 thin fresh blood .. 1 the black puncture).
 //
-// With a direction the decal is a picture of the atlas u_goreDecal (Tools/gore/make_blood_decals.py: 4x2 cells, R coverage, G
-// thickness; the top row has four splashes, the bottom row four bullet holes, look.w picks the row), laid on the plane square to
+// With a direction the decal is a picture of the atlas u_goreDecal (Tools/gore/make_blood_decals.py: 4x5 cells, R coverage, G
+// thickness; a row per kind of decal, four pictures each: look.w picks the row), laid on the plane square to
 // the blow like a projected decal: the plane coordinates of p scaled so the extent is 1, turned by a random angle, with the cell
 // chosen at random; the random numbers come from where the decal is, so no two alike.
 // Without a direction (a stump, a protected body) it is a plain soft soak.
@@ -65,8 +65,8 @@ vec2 goreSplatLook(vec3 p, vec4 s, vec4 look)
     float seed = fract(sin(dot(s.xyz, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
     float turn = seed * 6.2831853;
     uv = vec2(cos(turn) * uv.x - sin(turn) * uv.y, sin(turn) * uv.x + cos(turn) * uv.y);
-    vec2 corner = vec2(floor(fract(seed * 7.31) * 4.0), look.w > 0.5 ? 1.0 : 0.0);
-    vec4 d = texture2DLod(u_goreDecal, (corner + uv * 0.5 + 0.5) * vec2(0.25, 0.5), 1.0);   // lod 1: the decal is a few centimetres, a texel is a fraction of a millimetre
+    vec2 corner = vec2(floor(fract(seed * 7.31) * 4.0), floor(look.w + 0.5));
+    vec4 d = texture2DLod(u_goreDecal, (corner + uv * 0.5 + 0.5) * vec2(0.25, 0.2), 1.0);   // lod 1: the decal is a few centimetres, a texel is a fraction of a millimetre
     return vec2(d.r, min(d.g / max(d.r, 0.05), 1.0));   // the atlas stores the thickness already multiplied by the coverage
 }
 

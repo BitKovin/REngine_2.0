@@ -421,6 +421,7 @@
     <ClCompile Include="Gore\GoreCutSolver.cpp" />
     <ClCompile Include="Gore\GoreCap.cpp" />
     <ClCompile Include="Gore\GoreCavity.cpp" />
+    <ClCompile Include="Gore\GoreCore.cpp" />
     <ClCompile Include="Gore\GoreTriGrid.cpp" />
     <ClCompile Include="Gore\GoreChunks.cpp" />
     <ClCompile Include="Gore\GoreFlesh.cpp" />
@@ -572,6 +573,7 @@
     <ClInclude Include="Gore\GoreCutSolver.h" />
     <ClInclude Include="Gore\GoreCap.h" />
     <ClInclude Include="Gore\GoreCavity.h" />
+    <ClInclude Include="Gore\GoreCore.h" />
     <ClInclude Include="Gore\GoreTriGrid.h" />
     <ClInclude Include="Gore\GoreChunks.h" />
     <ClInclude Include="Gore\GoreFlesh.h" />

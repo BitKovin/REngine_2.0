@@ -85,8 +85,11 @@ namespace Gore
         uint64_t stragglers[2] = { 0, 0 };
     };
 
+    // The picture of a blood decal: the row of the decal atlas (Tools/gore/make_blood_decals.py).
+    enum class DecalKind : uint8_t { Splash = 0, BulletHole = 1, Slash = 2, Pellets = 3, Bruise = 4 };
+
     // A blood decal on the skin. With a direction it is a picture from the decal atlas (GameData/textures/gore/blood_decals.png),
-    // laid on the plane square to that direction like a projected decal: a bullet hole (bulletHole) or a blood splash; without a
+    // laid on the plane square to that direction like a projected decal (the kind picks the row: splash, bullet hole, slash, shotgun spread, bruise); without a
     // direction it is a plain soft soak (a stump, see AddSplat).
     struct Splat
     {
@@ -95,7 +98,7 @@ namespace Gore
         float strength = 1.0f;                  // 0..1
         uint32_t order = 0;
         glm::vec3 direction = glm::vec3(0);     // bind, the way the blow travelled (unit), zero = none
-        bool bulletHole = false;                // the picture is a bullet hole with blood around it, not a splash
+        DecalKind kind = DecalKind::Splash;     // which row of the atlas
     };
 
     // Per-hit data from the adapter. Plain data, ~100 bytes.

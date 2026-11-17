@@ -4,8 +4,10 @@
 
 Default output: source/Games/StealthAction/GameData/textures/gore/blood_decals.png
 
-The atlas is 4x2 cells of CELL texels. The top row holds four blood splashes (slashes, blasts, exits), the bottom row four bullet
-holes (a black hole, a dark torn ring and the blood soaked around it, not star-shaped). Per texel:
+The atlas is 4x5 cells of CELL texels, one row per kind of mark (GoreTypes.h DecalKind is the row):
+    0 splashes (blasts, exits)                  1 bullet holes (a black hole, a dark torn ring, blood soaked around it)
+    2 slashes (a thin cut with a bloody edge)   3 shotgun spreads (a cluster of small holes)   4 bruises (blunt blows)
+Per texel:
     R = coverage (how much of the skin the blood covers, 0..1)
     G = how thick and dark it lies: low = thin fresh blood (drops, tips of the arms), high = the deep pool
     B = 0, A = 255 (no alpha: it is never premultiplied or dropped by a loader)
@@ -192,12 +194,138 @@ def holes():
             lambda rng: bullet_hole(rng, smear=0.25, droplets=9))
 
 
+def edge_noise(rng, sigma, amp):
+    n = ndimage.gaussian_filter(rng.standard_normal((CELL, CELL)).astype(np.float32), sigma)
+    return n / n.std() * amp
+
+
+def finish(cov, thick):
+    cov = cov * (1.0 - smoothstep(0.88, 0.93, np.sqrt(U ** 2 + V ** 2)))   # nothing at the border of the cell
+    return np.clip(cov, 0, 1).astype(np.float32), np.clip(thick, 0.0, 1.0).astype(np.float32)
+
+
+def slash(rng, trickles=0, double=False, droplets=0):
+    """A cut along the horizontal axis (the shader turns the cell): a thin open lens, dark inside, with a narrow band of blood along
+    its edges, thicker in the middle. Trickles run out of it sideways, drops lie beside it."""
+    mottle = edge_noise(rng, 5.0, 0.05)
+    edge = edge_noise(rng, 3.0, 0.010)
+    cov = np.zeros((CELL, CELL), np.float32)
+    thick = np.zeros((CELL, CELL), np.float32)
+    lines = [(0.0, 1.0)] if not double else [(-0.20, 0.9), (0.18, 0.75)]
+    for off, scale in lines:
+        half = rng.uniform(0.62, 0.78) * scale
+        bend = rng.uniform(-0.12, 0.12)
+        tilt = rng.uniform(-0.08, 0.08)
+        t = np.clip(U / half, -1.0, 1.0)
+        centre = off + bend * (1.0 - t ** 2) + tilt * U
+        d = np.abs(V - centre)
+        along = np.sqrt(np.clip(1.0 - t ** 2, 0.0, 1.0))
+        lens = 0.034 * along * (1.0 + 0.25 * np.sin(U * 17.0 + rng.uniform(0, 6.28)))   # the opening
+        band = 0.030 + 0.050 * along ** 0.7                                            # the blood along it
+        cut = 1.0 - smoothstep(lens - 0.012, lens + 0.004, d + edge * 0.25)
+        halo = (1.0 - smoothstep(band * 0.55, band, d + edge)) * (1.0 - smoothstep(0.85, 1.05, np.abs(U) / half))
+        c = np.maximum(halo, cut)
+        th = (0.30 + 0.20 * along + mottle) * (1.0 - cut) + 1.0 * cut
+        cov = np.maximum(cov, c)
+        thick = np.maximum(thick, th * c)
+    extra = Splash(rng)
+    for _ in range(trickles):
+        x = rng.uniform(-0.4, 0.4)
+        down = 1.0 if rng.random() < 0.5 else -1.0
+        extra.arm(x, 0.0, down * np.pi / 2 + rng.uniform(-0.25, 0.25), rng.uniform(0.35, 0.8), 0.030, 0.014, rng.uniform(-0.15, 0.15))
+    extra.drops(0, 0, droplets, 0.2, 0.8, 0, 3.14, 0.05)
+    if trickles or droplets:
+        m = extra.mask()
+        cov = np.maximum(cov, m)
+        thick = np.where(m > 0.5, np.maximum(thick, 0.40 * m), thick)
+    return finish(cov, np.where(cov > 0, thick / np.maximum(cov, 1e-3), 0))
+
+
+def pellets(rng, count, spread, big=False):
+    """The marks of a shotgun blast: small holes scattered over a disc (dense in the middle), each with a dark ring and a little blood
+    around it, the blood of neighbours running together. big: one larger hole in the middle."""
+    cov = np.zeros((CELL, CELL), np.float32)
+    thick = np.zeros((CELL, CELL), np.float32)
+    soak = np.zeros((CELL, CELL), np.float32)
+    mottle = edge_noise(rng, 5.0, 0.05)
+    spots = []
+    if big:
+        spots.append((0.0, 0.0, 0.060))
+    for _ in range(count):
+        a = rng.uniform(0, 6.28)
+        d = spread * np.sqrt(rng.uniform(0, 1)) ** 1.3
+        spots.append((np.cos(a) * d, np.sin(a) * d, rng.uniform(0.020, 0.036)))
+    for cx, cy, r in spots:
+        d = np.sqrt((U - cx) ** 2 + (V - cy) ** 2)
+        hole = 1.0 - smoothstep(r - 0.008, r, d)
+        ring = 1.0 - smoothstep(r + 0.020, r + 0.034, d)
+        halo = 1.0 - smoothstep(r * 2.0, r * 3.6, d)
+        soak = np.maximum(soak, halo)
+        cov = np.maximum(cov, np.maximum(halo, ring))
+        th = (0.30 + mottle) * (1.0 - ring) + 0.88 * ring
+        th = th * (1.0 - hole) + 1.0 * hole
+        thick = np.maximum(thick, th * np.maximum(halo, ring))
+    # Blood that ran together between the holes.
+    blend = ndimage.gaussian_filter(soak, CELL * 0.03)
+    patch = smoothstep(0.35, 0.7, blend) * 0.8
+    cov = np.maximum(cov, patch)
+    thick = np.maximum(thick, (0.26 + mottle) * patch)
+    return finish(cov, np.where(cov > 0, thick / np.maximum(cov, 1e-3), 0))
+
+
+def bruise(rng, stretch=1.0, scrape=False, spatter=0):
+    """A blunt blow: a wide, dull, uneven patch of blood-darkened skin, not a hole. Optional scrape (a short split) and fine spatter."""
+    phi = rng.uniform(0, 6.28)
+    along = U * np.cos(phi) + V * np.sin(phi)
+    across = -U * np.sin(phi) + V * np.cos(phi)
+    d = np.sqrt((along / stretch) ** 2 + across ** 2)
+    rb = 0.55 * (1.0 + wobble(rng, np.arctan2(across, along), 0.18))
+    patch = 1.0 - smoothstep(0.55, 1.0, d / rb + edge_noise(rng, 3.0, 0.06))
+    mottle = edge_noise(rng, 6.0, 0.35) + edge_noise(rng, 2.0, 0.12)
+    cov = np.clip(patch * (0.62 + mottle), 0.0, 0.85)
+    thick = np.clip(0.50 + 0.25 * patch + 0.4 * mottle, 0.25, 0.8)
+    if scrape:
+        t = np.clip(along / 0.4, -1, 1)
+        line = np.abs(across - 0.05 * np.sin(along * 9.0))
+        cut = (1.0 - smoothstep(0.012 * np.sqrt(np.clip(1 - t ** 2, 0, 1)), 0.026, line)) * (np.abs(along) < 0.4)
+        cov = np.maximum(cov, cut)
+        thick = np.where(cut > 0.5, 1.0, thick)
+    if spatter:
+        extra = Splash(rng)
+        extra.drops(0, 0, spatter, 0.35, 0.85, 0, 3.14, 0.045)
+        m = extra.mask()
+        cov = np.maximum(cov, m)
+        thick = np.where(m > 0.5, 0.40, thick)
+    return finish(cov, thick)
+
+
+def slashes():
+    return (lambda rng: slash(rng),
+            lambda rng: slash(rng, trickles=2),
+            lambda rng: slash(rng, double=True),
+            lambda rng: slash(rng, trickles=1, droplets=8))
+
+
+def spreads():
+    return (lambda rng: pellets(rng, 9, 0.50),
+            lambda rng: pellets(rng, 14, 0.62),
+            lambda rng: pellets(rng, 7, 0.38, big=True),
+            lambda rng: pellets(rng, 11, 0.55, big=True))
+
+
+def bruises():
+    return (lambda rng: bruise(rng),
+            lambda rng: bruise(rng, stretch=1.7),
+            lambda rng: bruise(rng, scrape=True),
+            lambda rng: bruise(rng, stretch=1.2, spatter=10))
+
+
 def main():
     out = sys.argv[1] if len(sys.argv) > 1 else OUT
     rng = np.random.default_rng(20261115)
-    atlas = np.zeros((CELL * 2, CELL * 4, 4), np.uint8)
+    atlas = np.zeros((CELL * 5, CELL * 4, 4), np.uint8)
     atlas[..., 3] = 255
-    for row, makers in enumerate(((impact, spray, flecks, splotch), holes())):
+    for row, makers in enumerate(((impact, spray, flecks, splotch), holes(), slashes(), spreads(), bruises())):
         for col, make in enumerate(makers):
             cov, thick = make(rng)
             y, x = row * CELL, col * CELL

@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 class Texture;
@@ -87,6 +88,12 @@ namespace Gore
         std::shared_ptr<ModelFlesh> flesh;        // shell vertices + anatomy mesh, built once per model (GoreFlesh.cpp)
         struct PendingFlesh;                      // the worker that builds `flesh`; the profile is `loading` until it is done
         std::shared_ptr<PendingFlesh> pendingFlesh;
+
+        // "core": a universal human body without clothes (a skinned model with the common humanoid bone names) that closes the holes
+        // of every body of this profile: the wound cavities are generated against it, fitted to the body's own bones (GoreCore.h),
+        // instead of against the body's mesh. "" = the cavities use the body's own mesh.
+        std::string corePath;
+        std::unordered_map<std::string, std::string> boneMap;   // "boneMap" of the .gore: common bone name -> this model's bone name
 
         float fleshScale = 12.0f;   // texture repeats per metre
         glm::vec3 bloodColor = glm::vec3(0.35f, 0.02f, 0.02f);

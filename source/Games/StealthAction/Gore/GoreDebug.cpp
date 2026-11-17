@@ -273,7 +273,7 @@ namespace Gore
                 {
                     const Splat& s = g->splats[i];
                     ProbeLog("  splat " + std::to_string(i) + " center " + V3(s.center) + " radius " + std::to_string(s.radius) + " direction " + V3(s.direction)
-                        + " bulletHole " + std::to_string(s.bulletHole));
+                        + " kind " + std::to_string(static_cast<int>(s.kind)));
                 }
             }
             else ProbeLog("gore_look: npc has no GoreComponent");
@@ -409,6 +409,9 @@ namespace Gore
         {
             fired = true;
             ticks = 71;
+            // -gore_decal_alive: a living enemy that gets decals only (GoreSettings::holesWhileAlive = false)
+            if (args.find("gore_decal_alive") != args.end())
+                if (GoreSkeletalMesh* gm = FindGoreMesh(npc)) gm->goreSettings.holesWhileAlive = false;
             std::string srcClass = "weapon_pistol";
             auto src = args.find("gore_src");
             if (src != args.end() && !src->second.empty()) srcClass = src->second[0];
