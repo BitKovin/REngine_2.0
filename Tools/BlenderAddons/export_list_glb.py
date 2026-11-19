@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Export List GLB",
     "author": "",
-    "version": (1, 0, 0),
+    "version": (1, 1, 0),
     "blender": (4, 2, 0),
     "location": "3D Viewport > Sidebar (N) > Export",
     "description": "Export only the objects in an export list to .glb, with current shape keys baked in and "
@@ -30,10 +30,13 @@ class ELG_Settings(PropertyGroup):
     exclude_names: StringProperty(
         name="Exclude Bones", default="",
         description="Bone names or patterns (* and ?), separated by commas. Matching bones are left out of the "
-                    "exported skeleton, e.g.  ctrl_*, IK_*, root_ctrl")
+                    "exported skeleton, e.g.  ctrl_*, IK_*, root_ctrl. Leave empty to keep the skeleton untouched")
     exclude_collections: StringProperty(
         name="Exclude Bone Collections", default="",
         description="Bone collection names, separated by commas. Every bone in them is left out")
+    deform_bones_only: BoolProperty(
+        name="Deform Bones Only", default=False,
+        description="Same as 'Use Deform Bones' in the glTF exporter (Data > Armature)")
     export_animations: BoolProperty(
         name="Animations", default=False, description="Also export the armature's actions")
 
@@ -73,6 +76,7 @@ def bake_shape_keys(obj):
 
 def strip_bones(arm_obj, remove):
     """delete bones `remove` from the (copied) armature, children go to the nearest kept ancestor.
+    arm_obj must be the only selected object and the active one.
     returns {removed bone name: nearest kept ancestor name or None}"""
     heir = {}
     bones = arm_obj.data.bones
@@ -81,16 +85,20 @@ def strip_bones(arm_obj, remove):
         while p and p.name in remove:
             p = p.parent
         heir[n] = p.name if p else None
-    bpy.context.view_layer.objects.active = arm_obj
     bpy.ops.object.mode_set(mode='EDIT')
-    eb = arm_obj.data.edit_bones
-    for n in remove:                                       # reparent first, so removal never orphans a kept bone
-        for c in list(eb[n].children):
-            if c.name not in remove:
-                c.parent = eb[heir[n]] if heir[n] else None
-    for n in remove:
-        eb.remove(eb[n])
-    bpy.ops.object.mode_set(mode='OBJECT')
+    try:
+        eb = arm_obj.data.edit_bones
+        for n in remove:                                   # reparent first, so removal never orphans a kept bone
+            for c in list(eb[n].children):
+                if c.name not in remove:
+                    # a connected bone would be snapped to its NEW parent's tail when leaving edit mode,
+                    # which moves the joint. Disconnect first so its head stays exactly where it was.
+                    c.use_connect = False
+                    c.parent = eb[heir[n]] if heir[n] else None
+        for n in remove:
+            eb.remove(eb[n])
+    finally:
+        bpy.ops.object.mode_set(mode='OBJECT')
     return heir
 
 
@@ -110,87 +118,171 @@ def merge_groups(mesh_obj, heir):
         vg.remove(g)
 
 
+def _rename(idb, new_name, log):
+    """rename an ID and remember the old name in log (library data can't be renamed)"""
+    if idb.library is not None:
+        return
+    log.append((idb, idb.name))
+    idb.name = new_name
+
+
+def _select_for_export(context, ob, unhidden, skipped):
+    if ob.name not in context.view_layer.objects:
+        skipped.append(ob.name)
+        return False
+    if ob.hide_get():
+        ob.hide_set(False)
+        unhidden.append(ob)
+    ob.select_set(True)
+    if not ob.select_get():
+        skipped.append(ob.name)
+        return False
+    return True
+
+
 # --------------------------------------------------------------------------------------------- export
 def do_export(context, st, report):
-    objs = [i.obj for i in st.items if i.obj]
+    objs = list(dict.fromkeys(i.obj for i in st.items if i.obj))
     if not objs:
         raise RuntimeError("Export list is empty")
     names, cols = _split(st.exclude_names), _split(st.exclude_collections)
-    temp_objs, temp_meshes, temp_arms = [], [], []
-    mapping = {}
+
+    # ---- decide what really has to be touched. Everything else is exported as the ORIGINAL object, so
+    # ---- its name, transform, parent inverse and the whole skeleton are identical to a plain glb export.
+    removals = {}                                          # armature object -> bone names to drop
+    for o in objs:
+        if o.type == 'ARMATURE':
+            r = excluded_bones(o.data, names, cols)
+            if r:
+                removals[o] = r
+
+    copy_set = set(removals)
+    for o in objs:
+        if o.type != 'MESH':
+            continue
+        has_keys = o.data.shape_keys is not None and len(o.data.shape_keys.key_blocks) > 0
+        if (st.bake_shape_keys and has_keys) or \
+                any(m.type == 'ARMATURE' and m.object in removals for m in o.modifiers):
+            copy_set.add(o)
+    grew = True
+    while grew:                                            # children of a copied parent must follow the copy
+        grew = False
+        for o in objs:
+            if o not in copy_set and o.parent in copy_set:
+                copy_set.add(o)
+                grew = True
+
+    temp_objs, temp_data = [], []
+    mapping = {}                                           # original -> copy
+    renamed = []                                           # (id, original name) of originals renamed meanwhile
+    unhidden = []
+    skipped = []
+    data_real = {}
+
     prev_sel = [o for o in context.view_layer.objects if o.select_get()]
     prev_active = context.view_layer.objects.active
-    prev_mode = context.mode
-    if prev_mode != 'OBJECT':
+    if context.mode != 'OBJECT':
         bpy.ops.object.mode_set(mode='OBJECT')
     try:
-        # 1. private copies of everything in the list
-        for o in objs:
+        # 1. private copies, only of what needs changes. The original steps aside by name so the copy
+        #    can carry the exact original name (node names in the glb stay unchanged, no ".001").
+        for idx, o in enumerate(o for o in objs if o in copy_set):
+            real = o.name
+            _rename(o, f"__elg_tmp_{idx}", renamed)
             c = o.copy()
-            if o.data is not None and o.type in {'MESH', 'ARMATURE', 'CURVE'}:
-                c.data = o.data.copy()
-                (temp_meshes if o.type == 'MESH' else temp_arms).append(c.data)
-            if o.type == 'MESH' and c.data.shape_keys is None:
-                pass
+            c.name = real
+            if o.type in {'MESH', 'ARMATURE'} and o.data is not None:
+                od = o.data
+                if od not in data_real:
+                    data_real[od] = od.name
+                    _rename(od, f"__elg_tmp_d{len(data_real)}", renamed)
+                c.data = od.copy()
+                c.data.name = data_real[od]
+                temp_data.append(c.data)
             context.scene.collection.objects.link(c)
-            c.matrix_world = o.matrix_world
             temp_objs.append(c)
             mapping[o] = c
-        # 2. keep parenting / armature modifiers inside the copied set
+
+        # 2. parenting / armature modifiers between copies. Setting .parent from Python resets the parent
+        #    inverse matrix, so it is put back afterwards; no matrix_world juggling at all.
         for o, c in mapping.items():
             if o.parent in mapping:
-                world = c.matrix_world.copy()
+                ptype, pbone = c.parent_type, c.parent_bone
+                mpi = c.matrix_parent_inverse.copy()
                 c.parent = mapping[o.parent]
-                c.matrix_world = world
+                if c.parent_type != ptype:
+                    c.parent_type = ptype
+                if ptype == 'BONE' and c.parent_bone != pbone:
+                    c.parent_bone = pbone
+                c.matrix_parent_inverse = mpi
             for m in c.modifiers:
                 if m.type == 'ARMATURE' and m.object in mapping:
                     m.object = mapping[m.object]
+
         # 3. bake shape keys
         if st.bake_shape_keys:
             for c in temp_objs:
                 if c.type == 'MESH':
-                    for o_ in context.view_layer.objects:
-                        o_.select_set(False)
-                    c.select_set(True)
-                    context.view_layer.objects.active = c
                     bake_shape_keys(c)
-        # 4. exclude bones
+
+        # 4. exclude bones (only armatures that actually lose bones were copied)
         removed_total = 0
-        for o, c in mapping.items():
-            if o.type != 'ARMATURE':
-                continue
-            remove = excluded_bones(c.data, names, cols)
-            if not remove:
-                continue
+        for o, remove in removals.items():
+            c = mapping[o]
+            for o_ in context.view_layer.objects:
+                o_.select_set(False)
+            c.select_set(True)
+            context.view_layer.objects.active = c
             heir = strip_bones(c, remove)
             removed_total += len(remove)
             for m in temp_objs:
-                if m.type != 'MESH':
-                    continue
-                if any(md.type == 'ARMATURE' and md.object is c for md in m.modifiers):
+                if m.type == 'MESH' and any(md.type == 'ARMATURE' and md.object == c for md in m.modifiers):
                     merge_groups(m, heir)
-        # 5. export only the copies
+
+        # 5. export: copies where they exist, originals everywhere else
         for o_ in context.view_layer.objects:
             o_.select_set(False)
-        for c in temp_objs:
-            c.select_set(True)
-        context.view_layer.objects.active = temp_objs[0]
+        chosen = [mapping.get(o, o) for o in objs]
+        picked = [e for e in chosen if _select_for_export(context, e, unhidden, skipped)]
+        if not picked:
+            raise RuntimeError("None of the listed objects could be selected for export")
+        context.view_layer.objects.active = picked[0]
+        context.view_layer.update()
+
         path = bpy.path.abspath(st.filepath)
         if not path.lower().endswith(".glb"):
             path += ".glb"
         bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True,
-                                  export_animations=st.export_animations, export_apply=False)
-        report({'INFO'}, f"Exported {len(temp_objs)} objects to {path} ({removed_total} bones excluded)")
+                                  export_animations=st.export_animations, export_apply=False,
+                                  export_def_bones=st.deform_bones_only)
+        if skipped:
+            report({'WARNING'}, "Not exported (hidden / not in view layer): " + ", ".join(skipped))
+        report({'INFO'}, f"Exported {len(picked)} objects to {path} ({removed_total} bones excluded)")
         return path
     finally:
         for c in temp_objs:
-            bpy.data.objects.remove(c, do_unlink=True)
-        for d in temp_meshes:
-            bpy.data.meshes.remove(d)
-        for d in temp_arms:
-            bpy.data.armatures.remove(d)
+            try:
+                bpy.data.objects.remove(c, do_unlink=True)
+            except ReferenceError:
+                pass
+        for d in temp_data:
+            try:
+                if isinstance(d, bpy.types.Mesh):
+                    bpy.data.meshes.remove(d)
+                else:
+                    bpy.data.armatures.remove(d)
+            except ReferenceError:
+                pass
+        for idb, old in renamed:                           # copies are gone, so the names are free again
+            try:
+                idb.name = old
+            except ReferenceError:
+                pass
         for o_ in context.view_layer.objects:
             o_.select_set(False)
+        for o_ in unhidden:
+            if o_.name in context.view_layer.objects:
+                o_.hide_set(True)
         for o_ in prev_sel:
             if o_.name in context.view_layer.objects:
                 o_.select_set(True)
@@ -275,6 +367,7 @@ class ELG_PT_panel(Panel):
         col.operator("export_list_glb.clear", icon='TRASH', text="")
         lay.prop(st, "bake_shape_keys")
         lay.prop(st, "export_animations")
+        lay.prop(st, "deform_bones_only")
         box = lay.box()
         box.label(text="Bones left out of the skeleton:")
         box.prop(st, "exclude_names", text="Names")
