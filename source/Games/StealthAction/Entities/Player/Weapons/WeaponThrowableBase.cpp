@@ -45,6 +45,8 @@ void WeaponThrowableBase::LoadAssets()
 	arms = new SkeletalMesh(owner);
 
 	viewmodel->GravityAlignedRotation = true;
+	// The flames, the spark and the rag are single cards, and from the camera's side some of them face away: without this they are culled.
+	viewmodel->TwoSided = true;
 	arms->GravityAlignedRotation = true;
 
 	viewmodel->LoadFromFile(params.viewmodelPath);
