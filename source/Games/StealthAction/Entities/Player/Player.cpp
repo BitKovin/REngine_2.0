@@ -1037,6 +1037,81 @@ bool Player::RemoveOwnedWeapon(const std::string& uuid, bool offhand)
 	return true;
 }
 
+int Player::CountOwnedWeapons(const std::string& className) const
+{
+	int count = 0;
+	for (const WeaponSlotData& owned : ownedWeapons)
+	{
+		if (!owned.offhand && owned.className == className)
+			++count;
+	}
+	return count;
+}
+
+void Player::ConsumeHeldWeapon()
+{
+	if (currentWeapon == nullptr)
+		return;
+
+	const std::string uuid = currentWeapon->Data.inventoryUUID;
+	const std::string className = currentWeapon->Data.className;
+	const WeaponGridEntry previous = lastEntry;
+
+	if (!RemoveOwnedWeapon(uuid, false))
+		return;
+
+	// RemoveOwnedWeapon rebuilt the grid, which keeps the selection valid by falling back to
+	// the first entry. What should really come next is decided here.
+	const WeaponGridEntry* next = nullptr;
+
+	// 1. Another copy of the weapon that was just used up.
+	for (const WeaponGridEntry& entry : weaponGrid)
+	{
+		if (entry.className == className && !entry.pair)
+		{
+			next = &entry;
+			break;
+		}
+	}
+
+	// 2. The weapon held before it.
+	if (next == nullptr && !previous.Empty() && previous.className != className)
+	{
+		const WeaponGridEntry* found = FindGridEntry(previous.uuid, previous.pair);
+		if (found != nullptr && !IsGridEntryEmpty(*found))
+			next = found;
+	}
+
+	if (next != nullptr)
+		currentEntry = *next;
+
+	if (lastEntry.className == className)
+		lastEntry = WeaponGridEntry();
+
+	// The legacy slot table must not keep pointing at the instance that is gone.
+	for (WeaponSlotData& slotData : weaponSlots)
+	{
+		if (slotData.inventoryUUID != uuid)
+			continue;
+
+		slotData = WeaponSlotData();
+		for (const WeaponSlotData& owned : ownedWeapons)
+		{
+			if (!owned.offhand && owned.className == className)
+			{
+				slotData = owned;
+				break;
+			}
+		}
+	}
+
+	if (!currentEntry.Empty())
+		currentSlot = currentEntry.column;
+
+	weaponGridShowRequests++;   // show the grid: the HUD reacts to this counter
+	weaponGridRevision++;
+}
+
 // ============================================================================
 // WEAPON GRID (Slots mode)
 // ============================================================================
@@ -3856,6 +3931,13 @@ CONSOLE_FUNC("kit.weapons", "kit.weapons gives all weapons")
 	Player::Instance->AddWeaponByName("weapon_cannon");
 	Player::Instance->AddWeaponByName("weapon_cannon");
 	Player::Instance->AddWeaponByName("weapon_cannon");
+
+	Player::Instance->AddWeaponByName("weapon_dynamite");
+	Player::Instance->AddWeaponByName("weapon_dynamite");
+	Player::Instance->AddWeaponByName("weapon_dynamite");
+	Player::Instance->AddWeaponByName("weapon_molotov");
+	Player::Instance->AddWeaponByName("weapon_molotov");
+	Player::Instance->AddWeaponByName("weapon_molotov");
 }
 
 CONSOLE_FUNC("kit.hunter", "kit.weapons gives all weapons")

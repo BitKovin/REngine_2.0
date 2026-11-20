@@ -261,6 +261,33 @@
     <ClCompile Include="Entities\Player\Weapons\weapon_cannon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Entities\Pickup\Weapons\WeaponPickupDynamite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Pickup\Weapons\WeaponPickupMolotov.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\weapon_dynamite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\weapon_molotov.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\WeaponThrowableBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\ThrownProjectileBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\DynamiteProjectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\MolotovProjectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\MolotovFire.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Entities\Explosion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -531,6 +558,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Player\Weapons\WeaponFirearm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Player\Weapons\WeaponThrowableBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Player\Weapons\Projectiles\ThrownProjectileBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Player\Weapons\Projectiles\MolotovFire.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Entities\Player\Weapons\Animators\WeaponAnimator.h">

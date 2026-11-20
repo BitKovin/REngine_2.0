@@ -2,6 +2,7 @@
 
 #include "../../Entities/Player/Player.hpp"
 #include "../../Entities/Player/Weapons/WeaponFirearm.h"
+#include "../../Entities/Player/Weapons/WeaponThrowableBase.h"
 
 #include <WeaponDefs.h>
 
@@ -462,6 +463,13 @@ void PlayerHudView::RefreshAmmo(Player* player)
 		magazineText = std::to_string(rounds);
 		reserveText = "+ " + std::to_string(player->GetAmmo(firearm->GetAmmoType()));
 		low = rounds * 4 <= firearm->params.magazineSize ? 1 : 0;
+	}
+	else if (const WeaponThrowableBase* throwable = dynamic_cast<WeaponThrowableBase*>(weapon))
+	{
+		// A thrown weapon is its own ammunition: the number shown is what is left in stock.
+		const int stock = throwable->GetStockCount();
+		magazineText = std::to_string(stock);
+		low = stock <= 1 ? 1 : 0;
 	}
 
 	if (magazineText != lastMagazineText)

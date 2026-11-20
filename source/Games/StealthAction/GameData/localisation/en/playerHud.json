@@ -18,6 +18,8 @@
         {"key": "WEAPON_MPSD", "value": "Silenced Carbine", "description": "Weapon grid / HUD"},
         {"key": "WEAPON_SNIPER", "value": "Rifle", "description": "Weapon grid / HUD"},
         {"key": "WEAPON_CANNON", "value": "Hand Cannon", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_DYNAMITE", "value": "Dynamite", "description": "Weapon grid / HUD"},
+        {"key": "WEAPON_MOLOTOV", "value": "Molotov Cocktail", "description": "Weapon grid / HUD"},
         {"key": "WEAPON_PAIR", "value": "Twin {name}", "description": "Weapon grid / HUD"},
         {"key": "CHARACTER_DEFAULT", "value": "Stranger", "description": "Weapon grid / HUD"},
         {"key": "CHARACTER_DUELIST", "value": "Duelist", "description": "Weapon grid / HUD"},

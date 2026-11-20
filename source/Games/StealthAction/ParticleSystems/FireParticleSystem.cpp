@@ -4,6 +4,11 @@
 class particle_fireFlame : public ParticleEmitter
 {
 public:
+    // 1 = the full-size flame (a burning body, a fire pool). Smaller values give a
+    // proportionally smaller flame (size, spawn spread, rise speed) for things like a
+    // rag on a bottle or a burning fuse; see FireSystemSmall / FireSystemTiny.
+    float sizeScale = 1.0f;
+
     particle_fireFlame()
     {
         texture = "GameData/textures/particles/fireSheet5x5.png";
@@ -25,9 +30,9 @@ public:
         particle = ParticleEmitter::UpdateParticle(particle, deltaTime);
 
         // Rising motion with a little turbulence so the flame doesn't look rigid.
-        particle.velocity += WorldOrientationManager::GetUpVector() * 0.2f * deltaTime;
-        particle.velocity.x += (RandomFloat() - 0.5f) * 0.5f * deltaTime;
-        particle.velocity.z += (RandomFloat() - 0.5f) * 0.5f * deltaTime;
+        particle.velocity += WorldOrientationManager::GetUpVector() * 0.2f * sizeScale * deltaTime;
+        particle.velocity.x += (RandomFloat() - 0.5f) * 0.5f * sizeScale * deltaTime;
+        particle.velocity.z += (RandomFloat() - 0.5f) * 0.5f * sizeScale * deltaTime;
 
         float lifeRatio = particle.lifeTime / particle.deathTime;
         lifeRatio = std::min(lifeRatio, 1.0f);
@@ -67,17 +72,17 @@ public:
         Particle particle = ParticleEmitter::GetNewParticle();
 
         // Small random spawn offset so flames don't all stack on one point.
-        particle.position += RandomOffset(0.2f) * vec3(1,0.3,1);
+        particle.position += RandomOffset(0.2f * sizeScale) * vec3(1,0.3,1);
 
         // Gentle upward drift with a bit of sideways randomness.
         glm::vec3 velocity = WorldOrientationManager::GetUpVector() * glm::mix(0.3f, 1.4f, RandomFloat());
         velocity.x += (RandomFloat() - 0.5f) * 0.2f;
         velocity.z += (RandomFloat() - 0.5f) * 0.2f;
-        particle.velocity = velocity;
+        particle.velocity = velocity * sizeScale;
 
         particle.deathTime = glm::mix(0.8f, 1.4f, RandomFloat());
 
-        particle.Size = glm::mix(2.2f, 2.7f, RandomFloat());
+        particle.Size = glm::mix(2.2f, 2.7f, RandomFloat()) * sizeScale;
         particle.UserValue1 = particle.Size; // remember spawn size for the shrink-over-life curve
 
         particle.Transparency = 1.0f;
@@ -143,4 +148,27 @@ public:
     }
 };
 
+// Smaller flames: a patch of burning liquid on the ground (medium), the rag of a molotov (small), the burning
+// fuse of a stick of dynamite (tiny).
+class FireSystemSmall : public FireSystem
+{
+public:
+    FireSystemSmall() { flame->sizeScale = 0.12f; }
+};
+
+class FireSystemMedium : public FireSystem
+{
+public:
+    FireSystemMedium() { flame->sizeScale = 0.4f; }
+};
+
+class FireSystemTiny : public FireSystem
+{
+public:
+    FireSystemTiny() { flame->sizeScale = 0.05f; }
+};
+
 REGISTER_ENTITY(FireSystem, "fire_burning")
+REGISTER_ENTITY(FireSystemMedium, "fire_medium")
+REGISTER_ENTITY(FireSystemSmall, "fire_small")
+REGISTER_ENTITY(FireSystemTiny, "fire_tiny")

@@ -491,6 +491,15 @@
     <ClCompile Include="Entities\Player\Weapons\WeaponFirearm.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_cane.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_cannon.cpp" />
+    <ClCompile Include="Entities\Pickup\Weapons\WeaponPickupDynamite.cpp" />
+    <ClCompile Include="Entities\Pickup\Weapons\WeaponPickupMolotov.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\weapon_dynamite.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\weapon_molotov.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\WeaponThrowableBase.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\ThrownProjectileBase.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\DynamiteProjectile.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\MolotovProjectile.cpp" />
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\MolotovFire.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_crucifix.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_lefthand_empty.cpp" />
     <ClCompile Include="Entities\Player\Weapons\weapon_mpsd.cpp" />
@@ -645,6 +654,9 @@
     <ClInclude Include="Entities\Player\Weapons\Projectiles\CaneProjectile.h" />
     <ClInclude Include="Entities\Player\Weapons\WeaponBase.h" />
     <ClInclude Include="Entities\Player\Weapons\WeaponFirearm.h" />
+    <ClInclude Include="Entities\Player\Weapons\WeaponThrowableBase.h" />
+    <ClInclude Include="Entities\Player\Weapons\Projectiles\ThrownProjectileBase.h" />
+    <ClInclude Include="Entities\Player\Weapons\Projectiles\MolotovFire.h" />
     <ClInclude Include="Entities\Player\Weapons\WeaponFireFlash.h" />
     <ClInclude Include="Entities\TestBsp.h" />
     <ClInclude Include="Entities\Enemy\Enemies\TestNpc.hpp" />

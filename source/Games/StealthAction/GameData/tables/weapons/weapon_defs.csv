@@ -10,6 +10,8 @@ weapon_sawed;2;1;WithPerk;${WEAPON_SAWED};GameData/models/player/weapons/shotgun
 weapon_tommy;3;0;None;${WEAPON_TOMMY};GameData/models/player/weapons/tommy/tommy.glb;0;0;0
 weapon_mpsd;3;1;None;${WEAPON_MPSD};GameData/models/player/weapons/stg44/stg44.glb;0;0;0
 weapon_sniper;4;0;None;${WEAPON_SNIPER};GameData/models/player/weapons/sniper/sniper.glb;0;0;0
+weapon_dynamite;4;1;None;${WEAPON_DYNAMITE};GameData/models/player/weapons/dynamite/dynamite_thrown.glb;0;90;0
+weapon_molotov;4;2;None;${WEAPON_MOLOTOV};GameData/models/player/weapons/molotov/molotov_thrown.glb;0;90;0
 weapon_cannon;5;0;None;${WEAPON_CANNON};GameData/models/player/weapons/cannon/cannon.glb;0;0;0
 weapon_cane;-1;0;None;${WEAPON_CANE};GameData/models/player/weapons/cane/cane_tp.glb;0;0;0
 weapon_crucifix;-1;1;None;${WEAPON_CRUCIFIX};GameData/models/player/weapons/crucifix/crucifix.glb;90;0;0

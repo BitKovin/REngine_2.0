@@ -642,6 +642,15 @@ public:
 	// the owning inventory item is removed entirely). Returns true if found.
 	bool RemoveOwnedWeapon(const std::string& uuid, bool offhand);
 
+	// Number of owned main-hand instances of a weapon class.
+	int CountOwnedWeapons(const std::string& className) const;
+
+	// For weapons that are their own ammunition (dynamite, molotov): removes the held
+	// instance and selects what comes next: another copy of the same weapon, else the
+	// previous selection, else the first weapon of the grid. The swap itself happens in
+	// Update() as soon as the held weapon allows switching.
+	void ConsumeHeldWeapon();
+
 	// Inventory system methods
 	void SetWeaponSystemMode(WeaponSystemMode mode);
 	WeaponSystemMode GetWeaponSystemMode() const { return weaponSystemMode; }
