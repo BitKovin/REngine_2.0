@@ -15,7 +15,7 @@ public:
 		params.minThrowSpeed = 5.0f;
 		params.maxThrowSpeed = 18.0f;
 
-		thirdPersonModelPath = "GameData/models/player/weapons/molotov/molotov_thrown.glb";
+		thirdPersonModelPath = "GameData/models/player/weapons/molotov/molotov_tp.glb";
 	}
 
 	WeaponSlotData GetDefaultData() override

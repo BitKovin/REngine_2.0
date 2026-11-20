@@ -15,7 +15,7 @@ public:
 		params.minThrowSpeed = 6.0f;
 		params.maxThrowSpeed = 20.0f;
 
-		thirdPersonModelPath = "GameData/models/player/weapons/dynamite/dynamite_thrown.glb";
+		thirdPersonModelPath = "GameData/models/player/weapons/dynamite/dynamite_tp.glb";
 	}
 
 	WeaponSlotData GetDefaultData() override
