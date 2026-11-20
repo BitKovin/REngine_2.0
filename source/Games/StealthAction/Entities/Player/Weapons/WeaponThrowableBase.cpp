@@ -65,7 +65,7 @@ void WeaponThrowableBase::LoadAssets()
 
 void WeaponThrowableBase::Start()
 {
-	SwitchDelay.AddDelay(0.35f);
+	SwitchDelay.AddDelay(params.switchDelay);
 	state = ThrowState::Drawing;
 }
 
@@ -104,8 +104,8 @@ void WeaponThrowableBase::Update()
 		break;
 
 	case ThrowState::Idle:
-		// The press is buffered, so one made while the weapon was still being drawn counts.
-		if (Input::GetAction("attack")->PressedBuffered() && CanAttack())
+		// Only the held state counts: holding the button while the weapon is still being drawn starts the sequence as soon as it is ready.
+		if (holding && CanAttack())
 			BeginLighting();
 		break;
 
@@ -153,7 +153,7 @@ void WeaponThrowableBase::AsyncUpdate()
 	if (viewmodel == nullptr)
 		return;
 
-	viewmodel->Update();
+	viewmodel->Update(state == ThrowState::Drawing ? params.drawSpeed : 1.0f);
 	arms->PasteAnimationPose(viewmodel->GetAnimationPose());
 }
 

@@ -9,13 +9,13 @@
 // The weapon item is its own ammunition: every pickup is one owned instance, a throw uses the
 // held instance up, and the next copy of the same weapon is drawn (see Player::ConsumeHeldWeapon).
 //
-// One attack press runs the whole sequence, with the animations of the viewmodel glb:
+// One hold of the attack button runs the whole sequence, with the animations of the viewmodel glb:
 //
 //   draw -> idle (loop)
-//   attack pressed  -> throw_start   the lighter is opened and struck, the wick / rag is lit (lightTime),
+//   attack held     -> throw_start   the lighter is opened and struck, the wick / rag is lit (lightTime),
 //                                    the arm is cocked below the screen
 //   held            -> throw_charge  (loop) strength grows over chargeTime
-//   released        -> throw_end     the throwable leaves the hand at releaseTime
+//   button let go   -> throw_end     the throwable leaves the hand at releaseTime
 //   end of throw_end -> the instance is consumed
 //
 // Releasing the button early does not cancel anything: the sequence finishes with a weak throw.
@@ -32,6 +32,9 @@ public:
 		std::string viewmodelPath;               // glb with the Manny skeleton, the props and the animations
 		std::string projectileClass;             // technical name of the thrown entity
 		vec3 weaponOffset = vec3(0.0f);
+
+		float drawSpeed = 2.0f;                  // playback speed of the draw clip: the weapon is ready sooner
+		float switchDelay = 0.2f;                // seconds after drawing before another weapon can be selected
 
 		// Seconds into the animation, from its frames at 60 fps.
 		float lightTime = 25.0f / 60.0f;         // throw_start: the wick / rag catches fire (frame 26)
