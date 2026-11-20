@@ -159,7 +159,7 @@ public:
 class FireSystemMedium : public FireSystem
 {
 public:
-    FireSystemMedium() { flame->sizeScale = 0.75f; flame->SpawnRate = 90.0f; flame->InitialSpawnCount = 12; }
+    FireSystemMedium() { flame->sizeScale = 0.4f; flame->SpawnRate = 60.0f; flame->InitialSpawnCount = 8; }
 };
 
 class FireSystemTiny : public FireSystem

@@ -40,7 +40,7 @@ public:
 	// Tip of the rag in the model's own space (thrown_info.json, flame_point).
 	vec3 flameTip = vec3(0.0f, 0.198f, 0.0f);
 
-	int blobCount = 9;
+	int blobCount = 14;
 
 	MolotovProjectile()
 	{
@@ -109,7 +109,7 @@ protected:
 			if (glm::length(spread) > 0.0001f)
 				spread = glm::normalize(spread);
 
-			fire->velocity = spread * RandRange(2.5f, 5.5f) + normal * RandRange(0.8f, 2.0f) + velocity * 0.12f;
+			fire->velocity = spread * RandRange(3.0f, 7.5f) + normal * RandRange(1.5f, 3.0f) + velocity * 0.12f;
 			fire->Position = Position + normal * 0.2f;
 			fire->LoadAssetsIfNeeded();
 			fire->Start();
