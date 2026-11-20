@@ -18,6 +18,9 @@ public:
 	// Tip of the fuse in the model's own space (thrown_info.json, spark_point).
 	vec3 fuseTip = vec3(0.0f, 0.153f, 0.0f);
 
+	// It goes off the moment it touches anything with this tag, instead of waiting for the fuse.
+	std::string detonateOnTag = "enemy";
+
 	float explosionRadius = 3.5f;
 	float minDamage = 35.0f;
 	float maxDamage = 110.0f;
@@ -29,7 +32,7 @@ public:
 		ClassName = "dynamiteProjectile";
 
 		modelPath = kModel;
-		modelScale = 1.5f;
+		modelScale = 2.25f;
 		radius = 0.07f * modelScale;
 		restitution = 0.3f;
 		friction = 0.4f;
@@ -66,6 +69,15 @@ public:
 	}
 
 protected:
+
+	bool OnImpact(const Physics::HitResult& hit, float speed) override
+	{
+		if (hit.entity == nullptr || !hit.entity->HasTag(detonateOnTag))
+			return false;
+
+		OnFuseExpired();
+		return true;
+	}
 
 	void UpdateEffects() override
 	{

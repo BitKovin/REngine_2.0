@@ -47,7 +47,7 @@ public:
 		ClassName = "molotovProjectile";
 
 		modelPath = kModel;
-		modelScale = 1.5f;
+		modelScale = 2.25f;
 		radius = 0.06f * modelScale;
 		rollRadius = 0.04f * modelScale;
 		restMeshDrop = 0.02f * modelScale;
