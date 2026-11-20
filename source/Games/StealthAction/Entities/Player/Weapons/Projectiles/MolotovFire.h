@@ -18,7 +18,7 @@ public:
 	vec3 velocity = vec3(0);
 
 	float lifeTime = 7.0f;               // burns this long once it exists
-	float damageRadius = 1.0f;
+	float damageRadius = 1.7f;
 	float playerDamagePerSecond = 12.0f;
 
 	MolotovFire();

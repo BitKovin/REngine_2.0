@@ -29,10 +29,12 @@ public:
 		ClassName = "dynamiteProjectile";
 
 		modelPath = kModel;
-		radius = 0.07f;
+		modelScale = 1.5f;
+		radius = 0.07f * modelScale;
 		restitution = 0.3f;
 		friction = 0.4f;
-		rollRadius = 0.04f;
+		rollRadius = 0.04f * modelScale;
+		restMeshDrop = 0.02f * modelScale;
 	}
 
 	void LoadAssets() override

@@ -13,7 +13,7 @@
 namespace
 {
 	constexpr float kGravity = 12.0f;
-	constexpr float kBlobRadius = 0.12f;       // collision sphere of the falling liquid
+	constexpr float kBlobRadius = 0.2f;       // collision sphere of the falling liquid
 	constexpr float kFloorDot = 0.7f;          // a surface this flat is a floor
 	constexpr float kWallSlideKeep = 0.3f;     // share of the speed kept along a wall
 	constexpr float kTickSeconds = 0.25f;

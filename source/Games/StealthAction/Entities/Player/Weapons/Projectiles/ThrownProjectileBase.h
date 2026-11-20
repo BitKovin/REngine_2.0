@@ -25,6 +25,7 @@ public:
 
 	// Tuning, set in the constructor of the subclass.
 	std::string modelPath;            // glb with its textures inside
+	float modelScale = 1.0f;          // size of the model; points in the model's own space (LocalToWorld) scale with it
 	float radius = 0.06f;             // collision sphere
 	float gravity = 9.81f;
 	float restitution = 0.35f;        // share of the speed into the surface that comes back
@@ -53,7 +54,7 @@ protected:
 	glm::quat orientation = glm::quat(1, 0, 0, 0);
 
 	// World position of a point given in the model's own space.
-	vec3 LocalToWorld(const vec3& local) const { return Position + orientation * local; }
+	vec3 LocalToWorld(const vec3& local) const { return Position + orientation * (local * modelScale); }
 
 	Entity* DamageCauser() const;
 

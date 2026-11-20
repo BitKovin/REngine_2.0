@@ -153,19 +153,19 @@ public:
 class FireSystemSmall : public FireSystem
 {
 public:
-    FireSystemSmall() { flame->sizeScale = 0.12f; }
+    FireSystemSmall() { flame->sizeScale = 0.12f; flame->SpawnRate = 70.0f; flame->InitialSpawnCount = 8; }
 };
 
 class FireSystemMedium : public FireSystem
 {
 public:
-    FireSystemMedium() { flame->sizeScale = 0.4f; }
+    FireSystemMedium() { flame->sizeScale = 0.75f; flame->SpawnRate = 90.0f; flame->InitialSpawnCount = 12; }
 };
 
 class FireSystemTiny : public FireSystem
 {
 public:
-    FireSystemTiny() { flame->sizeScale = 0.05f; }
+    FireSystemTiny() { flame->sizeScale = 0.05f; flame->SpawnRate = 45.0f; flame->InitialSpawnCount = 5; }
 };
 
 REGISTER_ENTITY(FireSystem, "fire_burning")

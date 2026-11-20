@@ -43,6 +43,7 @@ void ThrownProjectileBase::LoadAssets()
 	mesh = new StaticMesh(this);
 	mesh->LoadFromFile(modelPath);
 	mesh->TexturesLocation = modelPath + "/";
+	mesh->Scale = vec3(modelScale);
 	Drawables.push_back(mesh);
 }
 
