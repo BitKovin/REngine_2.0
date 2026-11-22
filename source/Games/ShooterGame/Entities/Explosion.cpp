@@ -9,6 +9,8 @@
 #include <Physics.h>
 
 #include <Entities/Enemy/EnemyFire.h>
+#include <Entities/SoundPlayer.h>
+#include <SoundSystem/FmodEventInstance.h>
 
 // ---------------------------------------------------------------------------
 // Random helpers
@@ -250,6 +252,10 @@ void Explosion::Start()
         p.mesh->Scale = vec3(0.f, 0.f, 0.f);
     }
     DestroyWithDelay(Lifetime);
+
+    // Every explosion makes the same sound, wherever it comes from.
+    SoundManager::LoadBankFromPath("GameData/sounds/banks/Desktop/Weapons.bank");
+    SoundPlayer::PlayOneshot("event:/Weapons/Explosion", Lifetime + 2.0f, 1.0f, false, Position);
 	WeaponFireFlash::CreateAt(Position, Lifetime, Radius * 10, 2.5f);
 
 
@@ -265,26 +271,47 @@ void Explosion::Start()
         hitEntities   // entityIgnoreList – keeps your existing ignore behavior
     );
 
+    // An entity can be touched in several places (hitboxes, compound shapes): the closest contact point decides how hard it is hit.
+    std::vector<const Physics::HitResult*> closestHits;
+
     for (const auto& hit : hits)
     {
         if (!hit.hasHit || hit.entity == nullptr)
             continue;
 
-        // Extra safety in case Jolt returns multiple hits on the same body (e.g. compound shapes)
-        if (std::find(hitEntities.begin(), hitEntities.end(), hit.entity) != hitEntities.end())
-            continue;
+        auto known = std::find_if(closestHits.begin(), closestHits.end(),
+            [&](const Physics::HitResult* other) { return other->entity == hit.entity; });
+
+        if (known == closestHits.end())
+            closestHits.push_back(&hit);
+        else if (length(hit.position - Position) < length((*known)->position - Position))
+            *known = &hit;
+    }
+
+    // Full damage up to half the radius, then a straight line down to the minimum at the edge:
+    // with a radius of 4 m: 2 m and closer = full, 3 m = halfway between max and min, 4 m = min.
+    const auto damageAt = [this](float distance, float fullDamage, float edgeDamage)
+        {
+            const float fullUntil = Radius * 0.5f;
+            if (distance <= fullUntil)
+                return fullDamage;
+
+            const float t = std::min((distance - fullUntil) / std::max(Radius - fullUntil, 0.0001f), 1.0f);
+            return glm::mix(fullDamage, edgeDamage, t);
+        };
+
+    for (const Physics::HitResult* hitPtr : closestHits)
+    {
+        const Physics::HitResult& hit = *hitPtr;
 
         hitEntities.push_back(hit.entity);
 
-        float dist = length(hit.position - Position);
+        const float dist = length(hit.position - Position);
 
-        float damage = MathHelper::MapRange(dist, Radius / 2.0f, Radius, MaxDamage, minDamage);
-
-		if (hit.entity->HasTag("player"))
-        {
-            damage = MathHelper::MapRange(dist, Radius / 2.0f, Radius, MaxPlayerDamage, minPlayerDamage);
-        }
-
+        const bool isPlayer = hit.entity->HasTag("player");
+        const float damage = isPlayer
+            ? damageAt(dist, MaxPlayerDamage, minPlayerDamage)
+            : damageAt(dist, MaxDamage, minDamage);
 
 		NetworkedEntity* netEntity = dynamic_cast<NetworkedEntity*>(hit.entity);
 		if (netEntity && netEntity->isOwned == false)
@@ -302,9 +329,7 @@ void Explosion::Start()
         }
 
 
-        hit.entity->OnPointDamage(damage, hit.position,
-            normalize(hit.position - Position),
-            hit.hitboxName, damageCauser, this);
+        hit.entity->OnRadialDamage(damage, Position, damageCauser, this);
 
         if (hit.hitbody != nullptr)
         {

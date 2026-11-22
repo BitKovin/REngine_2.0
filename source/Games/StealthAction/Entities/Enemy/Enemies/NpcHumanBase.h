@@ -152,6 +152,11 @@ protected:
     void OnPointDamage(float Damage, vec3 Point, vec3 Direction,
                        string bone = "", Entity* DamageCauser = nullptr,
                        Entity* Weapon = nullptr);
+    void OnRadialDamage(float Damage, vec3 Origin,
+                        Entity* DamageCauser = nullptr, Entity* Weapon = nullptr) override;
+    // What a hit does once its damage is final (hit zone multiplier already applied or deliberately left out).
+    void ApplyPointDamage(float Damage, vec3 Point, vec3 Direction,
+                          string bone, Entity* DamageCauser, Entity* Weapon);
     void OnDamage(float Damage, Entity* DamageCauser = nullptr,
                   Entity* Weapon = nullptr);
     void Death();

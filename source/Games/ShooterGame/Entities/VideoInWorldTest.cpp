@@ -14,7 +14,7 @@ public:
 	{
 
 		uiVideo = make_shared<UiVideo>();
-		uiVideo->VideoPath = "GameData/videos/writeshit.mpg";
+		uiVideo->VideoPath = "GameData/videos/meowl.mp4";
 		uiVideo->size = ivec2(512);
 
 		bilboard = new UiBilboard(this);
@@ -22,7 +22,7 @@ public:
 		bilboard->Position = Position;
 		bilboard->ViewportSize = ivec2(512);
 		bilboard->Canvas.AddChild(uiVideo);
-		bilboard->blendMode = BgfxStateManager::Blend::Additive;
+		//bilboard->blendMode = BgfxStateManager::Blend::Additive;
 		bilboard->PixelPerMeter = 256;
 		Drawables.push_back(bilboard);
 

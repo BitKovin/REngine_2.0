@@ -10,6 +10,9 @@ public:
 	{
 		params.viewmodelPath = "GameData/models/player/weapons/molotov/molotov.glb";
 		params.projectileClass = "molotovProjectile";
+		params.drawSound = "event:/Weapons/molotov/draw";
+		params.throwSound = "event:/Weapons/molotov/throw";
+		params.burnSound = "event:/Weapons/molotov/burning";
 
 		params.fuseTime = -1.0f;
 		params.minThrowSpeed = 5.0f;

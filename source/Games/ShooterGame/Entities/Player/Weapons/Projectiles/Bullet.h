@@ -17,6 +17,11 @@ protected:
 	// Result of the trace fired in AsyncUpdate, consumed in LateUpdate.
 	Physics::HitResult asyncHit;
 
+	// NPCs this bullet has already pinned down with a near miss.
+	std::vector<std::string> suppressedNpcIds;
+
+	void SuppressNearbyNpcs();
+
 public:
 
 	Entity* damageCauser = nullptr;

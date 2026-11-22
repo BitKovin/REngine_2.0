@@ -3,6 +3,7 @@
 #include "WeaponBase.h"
 
 #include <SkeletalMesh.hpp>
+#include <Entities/SoundPlayer.h>
 
 // Base of the weapons that are thrown after being lit with a lighter (dynamite, molotov).
 //
@@ -18,7 +19,8 @@
 //   button let go   -> throw_end     the throwable leaves the hand at releaseTime
 //   end of throw_end -> the instance is consumed
 //
-// Releasing the button early does not cancel anything: the sequence finishes with a weak throw.
+// Releasing the button early does not cancel anything: if it is up when throw_start ends, the sequence finishes with a weak throw.
+// Nothing is buffered: only the state of the button at the moment the animation ends decides.
 // There are no animation events, the timings below come from the animation frames (60 fps).
 //
 // A fuse (fuseTime >= 0) starts when the wick is lit and keeps burning in the hand. If it runs
@@ -51,7 +53,9 @@ public:
 		// Where the object leaves the hand, from the camera: right, up, forward (m).
 		vec3 releaseOffset = vec3(0.22f, -0.18f, 0.45f);
 
-		std::string throwSound = "event:/Weapons/knife/knife_attack";   // placeholder whoosh
+		std::string drawSound;                   // played when the weapon is taken out
+		std::string throwSound;                  // played when the object leaves the hand
+		std::string burnSound;                   // looping event: the fuse / rag burning, from lighting until the object leaves the hand
 	};
 
 	Params params;
@@ -63,6 +67,7 @@ public:
 	void Update() override;
 	void AsyncUpdate() override;
 	void LateUpdate() override;
+	void Destroy() override;
 
 	// No switching while a throw is under way (a lit fuse cannot be put back in the pocket).
 	bool CanChangeSlot() override;
@@ -93,7 +98,6 @@ private:
 
 	bool lit = false;
 	bool released = false;
-	bool releaseQueued = false;   // the button went up while the lighting animation was still running
 	float chargeTimer = 0.0f;
 	float fuseRemaining = -1.0f;
 
@@ -105,6 +109,10 @@ private:
 	void FinishThrow();
 	void SpawnProjectile(const vec3& position, const vec3& velocity, float fuse);
 	void UpdateFuse(float dt);
+	void StopBurnSound();
+
+	// Looping sound of the burning fuse / rag while the object is in the hand.
+	SoundPlayer* burnSoundPlayer = nullptr;
 
 	float throwStrength = 0.0f;
 };

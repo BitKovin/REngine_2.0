@@ -1,0 +1,103 @@
+/* Player HUD in the Max Payne 1 style: flat light-grey shapes with crisp dark outlines, tucked into the corners,
+   plain bold sans type with a dark edge, nothing behind anything.
+   Weapon icons and the body figure are plain silhouettes: colour (wash-color) and outline (--hud-outline) are drawn here.
+   Sizes are UI units (the UI is 1080 tall), measured against a Max Payne 1 screenshot at 1080. */
+
+@font-face { font-family: "HudSans"; src: url("GameData/fonts/NotoSans.ttf"); }
+
+.hud {
+    --hud-text: #b5b8b2;
+    --hud-text-hi: #c2c2bd;
+    --hud-edge: rgba(10, 8, 8, 0.8);
+    /* a crisp 2px outline around pictures: four unblurred shadows */
+    --hud-outline: drop-shadow(2px 0 0 rgba(10, 8, 8, 0.8)) drop-shadow(-2px 0 0 rgba(10, 8, 8, 0.8))
+                   drop-shadow(0 2px 0 rgba(10, 8, 8, 0.8)) drop-shadow(0 -2px 0 rgba(10, 8, 8, 0.8));
+
+    width: 100%;
+    height: 100%;
+    font-family: "HudSans";
+    color: var(--hud-text);
+    transition: opacity 0.2s;
+}
+.off { opacity: 0; }
+
+/* ── messages ─────────────────────────────────────────────── */
+.minor { x: 30px; y: 24px; font-size: 24px; font-weight: bold; color: var(--hud-text); text-stroke: 2px var(--hud-edge); }
+.message { horizontal-align: center; vertical-align: center; y: -120px; font-size: 40px; font-weight: bold; color: var(--hud-text);
+           text-stroke: 2px var(--hud-edge); }
+
+/* ── weapon grid, top centre ──────────────────────────────── */
+/* columns 135 apart, rows 45 apart, a long gun ~128 wide, a pistol ~70 x 46.
+   Icons are 8:3 pictures, so their boxes are 8:3 too: a box of another shape would shrink them. */
+.grid-area { width: 100%; height: 260px; transition: opacity 0.3s; }
+.grid-area.hidden { opacity: 0; }
+.grid { horizontal-align: center; y: 12px; flow-children: right; gap: 3px; }
+
+.col { flow-children: down; gap: 13px; width: 132px; }
+.num { horizontal-align: center; height: 40px; font-size: 26px; font-weight: bold; color: #a3a8a0; text-stroke: 2px var(--hud-edge); }
+.col.on .num { color: var(--hud-text-hi); }
+.col.none .num { opacity: 0.55; }
+
+.cell { width: 132px; height: 45px; }
+.icon { horizontal-align: center; vertical-align: center; width: 128px; height: 48px; object-fit: contain;
+        wash-color: #8f978c; opacity: 0.9; filter: var(--hud-outline); }
+.cell.cur .icon { wash-color: #dfe4dc; opacity: 1; }
+.cell.empty .icon { wash-color: #5a5f58; }
+.cell.cur.empty .icon { wash-color: #80857e; }
+
+/* the left-hand column: a cooler grey-blue, as Max Payne 2 sets its first column apart */
+.col.offhand .icon { wash-color: #8696a2; }
+.col.offhand .cell.cur .icon { wash-color: #d6e2ea; }
+/* the weapon in hand leaves no hand free: the item waits, dimmed */
+.col.offhand.blocked .icon { opacity: 0.35; }
+
+/* pair: two full-size copies side by side, just overlapping (each box is 8:3 around a pistol-sized picture) */
+.cell.pair .icon { horizontal-align: left; width: 120px; height: 45px; }
+.cell.pair .front { x: -26px; y:4px; }
+.cell.pair .back { x: 30px; y: -3px; }
+
+/* ── body figure and stamina, bottom left ─────────────────── */
+.vitals { vertical-align: bottom; x: 24px; y: -16px; width: 130px; height: 212px; }
+
+.body { vertical-align: bottom; width: 88px; height: 212px; }
+.body-layer { width: 88px; height: 212px; }
+.body-base { filter: var(--hud-outline); }
+.body-blood { vertical-align: bottom; width: 88px; height: 0px; overflow: clip; }
+/* damage: the same picture turned dried-blood brown (filters keep the dark outline dark) */
+.body-red { vertical-align: bottom; filter: sepia(1) saturate(2.4) hue-rotate(-22deg) brightness(0.38); }
+
+/* stamina: a narrow light bar beside the figure, with a dark edge */
+.stamina { x: 98px; vertical-align: bottom; y: -4px; width: 7px; height: 168px;
+           outline: 2px solid var(--hud-edge); background-color: rgba(185, 193, 204, 0.14); }
+.stamina-fill { vertical-align: bottom; width: 7px; height: 168px; background-color: rgba(188, 196, 208, 0.9); }
+.stamina.low .stamina-fill { background-color: rgba(150, 70, 52, 0.9); }
+
+/* ── ammunition, bottom right ─────────────────────────────── */
+/* A diagonal: "+ total" up right, the weapon in hand level across the middle as the divider,
+   the magazine big down left. Type is condensed by scaling it horizontally. */
+.ammo { horizontal-align: right; vertical-align: bottom; x: -34px; y: -14px; width: 300px; height: 176px; }
+
+
+.reserve { horizontal-align: right; y: 0px; font-size: 32px; font-weight: bold; color: var(--hud-text); text-stroke: 2px var(--hud-edge);
+           transform: scaleX(0.82); transform-origin: 100% 50%; }
+
+.cur-weapon { horizontal-align: right; y: 34px; width: 256px; height: 96px; }
+.cur-icon { horizontal-align: center; vertical-align: center; width: 256px; height: 96px; object-fit: contain;
+            wash-color: #c0c7be; filter: var(--hud-outline); }
+.cur-weapon.empty .cur-icon { wash-color: #5a5f58; }
+/* a pair: the second copy sits up and to the right, behind */
+.cur-weapon.pair .cur-icon { width: 200px; height: 75px; }
+.cur-weapon.pair .front { x: -22px; y: 10px; }
+.cur-weapon.pair .back { x: 30px; y: -14px; wash-color: #a6aca4; }
+.cur-weapon.pair.empty .back { wash-color: #4c5049; }
+
+.magazine { vertical-align: bottom; x: 50px; y: -10px; font-size: 60px; font-weight: bold; color: var(--hud-text-hi); text-stroke: 2px var(--hud-edge);
+            transform: scaleX(0.82); transform-origin: 0% 100%; }
+.magazine.low { color: #b86759; }
+
+/* ── use prompt, under the crosshair ──────────────────────── */
+.use { horizontal-align: center; vertical-align: center; y: 70px; flow-children: down; gap: 8px; }
+.use-text { horizontal-align: center; font-size: 26px; font-weight: bold; color: var(--hud-text); text-stroke: 2px var(--hud-edge); }
+.use-bar { horizontal-align: center; width: 180px; height: 8px; border-radius: 3px; outline: 2px solid var(--hud-edge);
+           background-color: rgba(185, 193, 204, 0.14); }
+.use-bar .fill { background-color: rgba(188, 196, 208, 0.9); }

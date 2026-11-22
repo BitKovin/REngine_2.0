@@ -1,0 +1,3 @@
+id;displayName;akimboPerk;hudSilhouette
+default;${CHARACTER_DEFAULT};FALSE;GameData/textures/ui/hud/silhouettes/default.png
+duelist;${CHARACTER_DUELIST};TRUE;GameData/textures/ui/hud/silhouettes/default.png

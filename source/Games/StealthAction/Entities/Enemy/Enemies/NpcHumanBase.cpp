@@ -307,14 +307,28 @@ void NpcHumanBase::PlaySoundEffect(std::string eventName)
 void NpcHumanBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction,
                                   string bone, Entity* DamageCauser, Entity* Weapon)
 {
+    // The hit zone scales a point hit (headshots and so on).
+    ApplyPointDamage(Damage * mesh->GetHitboxDamageMultiplier(bone), Point, Direction, bone, DamageCauser, Weapon);
+}
+
+void NpcHumanBase::OnRadialDamage(float Damage, vec3 Origin, Entity* DamageCauser, Entity* Weapon)
+{
+    // A blast hurts the whole body the same: the hit zone only tells the effects (blood, gore) where to act,
+    // and that is the part of the body nearest to the blast.
+    vec3 point = Position;
+    const string bone = mesh->GetNearestHitboxBone(Origin, point);
+    ApplyPointDamage(Damage, point, RadialDirection(Origin, point), bone, DamageCauser, Weapon);
+}
+
+void NpcHumanBase::ApplyPointDamage(float Damage, vec3 Point, vec3 Direction,
+                                     string bone, Entity* DamageCauser, Entity* Weapon)
+{
     if (IsDead())
     {
         // A corpse can still be shot to pieces.
-        StealthGore::OnNpcPointDamage(this, Damage * mesh->GetHitboxDamageMultiplier(bone), Point, Direction, bone, DamageCauser, Weapon, false);
+        StealthGore::OnNpcPointDamage(this, Damage, Point, Direction, bone, DamageCauser, Weapon, false);
         return;
     }
-
-    Damage *= mesh->GetHitboxDamageMultiplier(bone);
 
     // Effects – run on every peer.
     GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point,
@@ -368,7 +382,7 @@ void NpcHumanBase::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
         Health = 0;
     }
 
-    if (DamageCauser != nullptr)
+    if (DamageCauser != nullptr && Damage > 10)
     {
         controller.SetVelocity(controller.GetVelocity() / 2.0f);
         speed /= 2.0f;

@@ -1,0 +1,19 @@
+{
+  "extends": "GameData/gore/humanoid.gore",
+  "boneMap": {
+    "upperarm_l": "mixamorig:LeftArm",
+    "upperarm_r": "mixamorig:RightArm",
+    "lowerarm_l": "mixamorig:LeftForeArm",
+    "lowerarm_r": "mixamorig:RightForeArm",
+    "thigh_l": "mixamorig:LeftUpLeg",
+    "thigh_r": "mixamorig:RightUpLeg",
+    "calf_l": "mixamorig:LeftLeg",
+    "calf_r": "mixamorig:RightLeg",
+    "neck_01": "mixamorig:Head",
+    "pelvis": "mixamorig:Hips",
+    "spine_01": "mixamorig:Spine",
+    "spine_02": "mixamorig:Spine1",
+    "spine_03": "mixamorig:Spine2",
+    "head": "mixamorig:Head"
+  }
+}

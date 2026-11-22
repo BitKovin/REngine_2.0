@@ -3334,6 +3334,13 @@ void Player::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
 
 }
 
+void Player::OnRadialDamage(float Damage, vec3 Origin, Entity* DamageCauser, Entity* Weapon)
+{
+	// The player has no hit zone multipliers, so a blast hurts him like any other hit: with the camera shake and the blood.
+	const vec3 point = Position;
+	OnPointDamage(Damage, point, RadialDirection(Origin, point), "", DamageCauser, Weapon);
+}
+
 void Player::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon)
 {
 

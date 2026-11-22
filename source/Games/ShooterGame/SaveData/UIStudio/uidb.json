@@ -13,15 +13,15 @@
     "svg": true
   },
   "engine": {
-    "buildId": "Nov  9 2026 14:47:44",
+    "buildId": "Nov 22 2026 03:03:48",
     "previewProtocol": 1,
     "version": "1"
   },
   "format": "engine-ui-database",
   "formatVersion": 1,
   "game": {
-    "displayName": "StealthAction",
-    "id": "StealthAction"
+    "displayName": "ShooterGame",
+    "id": "ShooterGame"
   },
   "previewTargets": [
     {
@@ -208,6 +208,27 @@
       "host": {
         "kind": "viewport"
       },
+      "id": "document:ui/hud/player_hud.xml",
+      "kind": "document",
+      "name": "ui/hud/player_hud.xml",
+      "parameters": [],
+      "requiredCapabilities": [],
+      "scenarios": [],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "ui/hud/player_hud.xml"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Documents",
+      "description": "Layout document",
+      "host": {
+        "kind": "viewport"
+      },
       "id": "document:ui/kit/components/Card.xml",
       "kind": "document",
       "name": "ui/kit/components/Card.xml",
@@ -365,90 +386,6 @@
         {
           "kind": "document",
           "path": "ui/kit/focus_pointer.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/pause.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/pause.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/pause.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/settings.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/settings.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/settings.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/sound.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/sound.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/sound.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/video.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/video.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/video.xml"
         }
       ],
       "supportsLiveCapture": false
@@ -2701,7 +2638,7 @@
       },
       {
         "kind": "keyframes",
-        "line": 85,
+        "line": 97,
         "name": "kit-dropdown-open",
         "path": "ui/kit/styles/kit.css",
         "stops": [
@@ -2728,6 +2665,35 @@
             ],
             "property": "opacity"
           },
+          {
+            "offsets": [
+              0.0,
+              1.0
+            ],
+            "property": "transform"
+          }
+        ]
+      },
+      {
+        "kind": "keyframes",
+        "line": 96,
+        "name": "kit-tab-spin",
+        "path": "ui/kit/styles/kit.css",
+        "stops": [
+          {
+            "offset": 0.0,
+            "properties": [
+              "transform"
+            ]
+          },
+          {
+            "offset": 1.0,
+            "properties": [
+              "transform"
+            ]
+          }
+        ],
+        "tracks": [
           {
             "offsets": [
               0.0,
@@ -3888,6 +3854,14 @@
     ],
     "documents": [
       {
+        "component": false,
+        "imports": [],
+        "path": "ui/hud/player_hud.xml",
+        "styleSheets": [
+          "ui/hud/player_hud.css"
+        ]
+      },
+      {
         "component": true,
         "imports": [],
         "path": "ui/kit/components/Card.xml",
@@ -3933,42 +3907,6 @@
         "component": false,
         "imports": [],
         "path": "ui/kit/focus_pointer.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/pause.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/settings.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/sound.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/video.xml",
         "styleSheets": [
           "ui/theme.css",
           "ui/kit/styles/kit.css"
@@ -4357,9 +4295,65 @@
         }
       },
       {
+        "gamepadButtons": [
+          12
+        ],
+        "keys": [],
+        "label": "gridDown",
+        "mouseButtons": [],
+        "name": "gridDown",
+        "promptResolvable": {
+          "input-gamepad": true,
+          "input-mouse": false,
+          "input-touch": false
+        }
+      },
+      {
+        "gamepadButtons": [
+          13
+        ],
+        "keys": [],
+        "label": "gridLeft",
+        "mouseButtons": [],
+        "name": "gridLeft",
+        "promptResolvable": {
+          "input-gamepad": true,
+          "input-mouse": false,
+          "input-touch": false
+        }
+      },
+      {
+        "gamepadButtons": [
+          14
+        ],
+        "keys": [],
+        "label": "gridRight",
+        "mouseButtons": [],
+        "name": "gridRight",
+        "promptResolvable": {
+          "input-gamepad": true,
+          "input-mouse": false,
+          "input-touch": false
+        }
+      },
+      {
+        "gamepadButtons": [
+          11
+        ],
+        "keys": [],
+        "label": "gridUp",
+        "mouseButtons": [],
+        "name": "gridUp",
+        "promptResolvable": {
+          "input-gamepad": true,
+          "input-mouse": false,
+          "input-touch": false
+        }
+      },
+      {
         "gamepadButtons": [],
         "keys": [
-          "F"
+          "E"
         ],
         "label": "interact",
         "mouseButtons": [],
@@ -4605,13 +4599,15 @@
       },
       {
         "gamepadButtons": [],
-        "keys": [],
+        "keys": [
+          "F"
+        ],
         "label": "slotMelee",
         "mouseButtons": [],
         "name": "slotMelee",
         "promptResolvable": {
           "input-gamepad": false,
-          "input-mouse": false,
+          "input-mouse": true,
           "input-touch": false
         }
       },
@@ -4857,6 +4853,8 @@
       {
         "id": "en",
         "keys": [
+          "CHARACTER_DEFAULT",
+          "CHARACTER_DUELIST",
           "INPUT_ACTION_ATTACK",
           "INPUT_ACTION_ATTACK2",
           "INPUT_ACTION_ATTACK3",
@@ -4864,10 +4862,15 @@
           "INPUT_ACTION_CROUCH",
           "INPUT_ACTION_DASH",
           "INPUT_ACTION_FORWARD",
+          "INPUT_ACTION_GRID_DOWN",
+          "INPUT_ACTION_GRID_LEFT",
+          "INPUT_ACTION_GRID_RIGHT",
+          "INPUT_ACTION_GRID_UP",
           "INPUT_ACTION_INTERACT",
           "INPUT_ACTION_JUMP",
           "INPUT_ACTION_LAST_SLOT",
           "INPUT_ACTION_LEFT",
+          "INPUT_ACTION_OFFHAND",
           "INPUT_ACTION_QUICK_LOAD",
           "INPUT_ACTION_QUICK_SAVE",
           "INPUT_ACTION_RIGHT",
@@ -4903,6 +4906,8 @@
           "PAUSE_MENU_SAVE",
           "PAUSE_MENU_SETTINGS",
           "PAUSE_QUIT_CONFIRM",
+          "PAUSE_QUIT_NO",
+          "PAUSE_QUIT_YES",
           "PAUSE_RESTART_CONFIRM",
           "PAUSE_SAVE_CONFIRM_OVERWRITE",
           "PAUSE_SAVE_SLOT_AUTOSAVE",
@@ -4915,6 +4920,7 @@
           "PLAYER_HUD_ARMOR",
           "PLAYER_HUD_HEALTH",
           "PLAYER_HUD_STAMINA",
+          "PLAYER_HUD_USE",
           "SETTINGS_APPLY",
           "SETTINGS_BACK",
           "SETTINGS_CANCEL",
@@ -4975,7 +4981,24 @@
           "SETTINGS_VIDEO_VSYNC",
           "SETTINGS_VIDEO_WINDOWED",
           "SETTINGS_VIDEO_WINDOW_MODE",
-          "UI_BACK"
+          "UI_BACK",
+          "WEAPON_CANE",
+          "WEAPON_CANNON",
+          "WEAPON_CRUCIFIX",
+          "WEAPON_DYNAMITE",
+          "WEAPON_MOLOTOV",
+          "WEAPON_MPSD",
+          "WEAPON_PAIR",
+          "WEAPON_PISTOL",
+          "WEAPON_PISTOL_SILENT",
+          "WEAPON_REVOLVER",
+          "WEAPON_SAWED",
+          "WEAPON_SHOTGUN",
+          "WEAPON_SNIPER",
+          "WEAPON_SWORD",
+          "WEAPON_SWORDS",
+          "WEAPON_TOMMY",
+          "WEAPON_TWINSWORD"
         ],
         "name": "en"
       }
@@ -4984,7 +5007,7 @@
       {
         "current": true,
         "id": "en",
-        "keyCount": 119,
+        "keyCount": 146,
         "name": "en"
       }
     ],
@@ -12763,6 +12786,10 @@
       {
         "kind": "custom-property",
         "name": "--kit-focus"
+      },
+      {
+        "kind": "custom-property",
+        "name": "--kit-focus-border"
       },
       {
         "kind": "custom-property",

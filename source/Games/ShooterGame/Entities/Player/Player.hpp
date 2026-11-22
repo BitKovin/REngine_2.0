@@ -1,5 +1,6 @@
 #pragma once
 
+#include <EntityHandle.h>
 #include <Entity.h>
 
 #include <Input.h>
@@ -78,6 +79,23 @@ struct InventoryItem
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(InventoryItem, itemID, uid, mainWeaponData, offhandWeaponData, stackSize)
 
+};
+
+// One cell of the Slots-mode weapon grid: an owned main-hand weapon held singly
+// or as a pair (one copy per hand). Columns are slot keys 1..6. See
+// Player::RebuildWeaponGrid() and WEAPON_SLOTS_PLAN.md.
+struct WeaponGridEntry
+{
+	std::string uuid;       // WeaponSlotData::inventoryUUID of the owned weapon
+	std::string className;
+	bool pair = false;
+	int column = 0;         // 0..5
+	int row = 0;            // 0 = top of the column
+
+	bool Empty() const { return uuid.empty(); }
+	bool Same(const WeaponGridEntry& other) const { return uuid == other.uuid && pair == other.pair; }
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(WeaponGridEntry, uuid, className, pair, column, row)
 };
 
 enum class WeaponSystemMode
@@ -344,7 +362,29 @@ private:
 	void UpdatePowerUps();
 
 	bool CanSwitchSlot(int slot);
-	void SwitchWeapon(const WeaponSlotData& data);
+	// pair: hold two copies of the weapon (akimbo). Only firearms can be held as a pair.
+	void SwitchWeapon(const WeaponSlotData& data, bool pair = false);
+
+	// ── Weapon grid (Slots mode) ──────────────────────────────────────────────
+	// Equips the entry's owned weapon right away (no CanChangeSlot check).
+	void EquipGridEntry(const WeaponGridEntry& entry);
+	// Whether the held weapon is the given entry (same instance, same pair state).
+	bool IsHoldingGridEntry(const WeaponGridEntry& entry) const;
+	// Moves the selection; the weapon itself changes in Update() once the held
+	// weapon allows it (CanChangeSlot), or immediately with forceChange.
+	void SelectGridEntry(const WeaponGridEntry& entry, bool forceChange = false);
+	void PressSlotKey(int column);
+	void StepWeapon(int direction);
+
+	// Left-hand column (before column 1, key slotMelee / F): steps through
+	// offhandWeapons (index 0 is the empty hand); the main weapon stays.
+	void CycleOffhand(int direction);
+	// Gamepad D-pad over the grid, as in Max Payne 2 on consoles: left/right
+	// move between columns (the left-hand column is leftmost), up/down within one.
+	void GridMoveColumn(int direction);
+	void GridMoveRow(int direction);
+	// Restores a save written before the grid existed (currentSlot / weaponSlots only).
+	void MigrateOldSlotSelection();
 
 	void SwitchWeaponOffhand(const string& classname);
 	void DestroyWeaponOffhand();
@@ -356,10 +396,12 @@ private:
 	friend class InventoryMenu;
 
 	IInteractive* currentInteractionObject = nullptr;
+	EntityHandle currentInteractionHandle;   // the entity behind currentInteractionObject: it may be destroyed between ticks
 	bool startedInteracting = false;
 	float interactionProgress = 0;
 
-	friend class UseIndicator;
+	friend class PlayerHudView;
+	friend class PlayerHud;
 
 	// ── Movement state machine ────────────────────────────────────────────────
 	MoveState moveState = MoveState::Default;
@@ -456,7 +498,47 @@ public:
 	int currentSlot = 0;
 	std::vector<WeaponSlotData> weaponSlots;
 
-	std::vector<std::string> offhandWeapons = {""}; // "weapon_lefthand_empty" 
+	// Every distinct weapon instance the player currently owns/carries - main-hand
+	// or offhand, equipped or not, regardless of whether weaponSystemMode is Slots
+	// or Inventory. This is the single source of truth for per-instance state
+	// (currently: magazine ammo) so it survives switching weapons, and gives a
+	// future drop/pickup system one place to read and write regardless of UI mode.
+	// Multiple entries may share the same className (the player can own more than
+	// one of the same weapon, each tracked independently) - entries are uniquely
+	// identified by (inventoryUUID, offhand) together, not inventoryUUID alone,
+	// because a DualWeapon inventory item's main and offhand halves deliberately
+	// share one inventoryUUID (see AddItemToInventory).
+	//
+	// NOTE: this does not yet reflect the currently-equipped weapon(s) in
+	// real time - it's refreshed whenever a weapon is unequipped/destroyed (see
+	// DestroyWeapon/DestroyWeaponOffhand) and right before saving (see Serialize).
+	// While a weapon is actively equipped, currentWeapon->Data / currentOffhandWeapon->Data
+	// is the live, accurate source for that specific instance.
+	std::vector<WeaponSlotData> ownedWeapons;
+
+	// ── Weapon grid (Slots mode) ──────────────────────────────────────────────
+	// Built from ownedWeapons + WeaponDefs + the character's AkimboPerk. Sorted by
+	// column, then WeaponDef::slotOrder, then single before pair.
+	std::vector<WeaponGridEntry> weaponGrid;
+	WeaponGridEntry currentEntry;        // selected entry (the held weapon, or the one being switched to)
+	WeaponGridEntry lastEntry;           // previous selection, for the lastSlot key
+	int weaponGridRevision = 0;          // ++ whenever weaponGrid or currentEntry changes
+	int weaponGridShowRequests = 0;      // ++ on every weapon key / wheel press; the HUD shows the grid when it changes
+	bool gridCursorOffhand = false;      // the last grid input went to the left-hand column (the HUD lights it)
+
+	void RebuildWeaponGrid();
+	const WeaponGridEntry* FindGridEntry(const std::string& uuid, bool pair) const;
+	// An owned firearm with an empty magazine and no ammo left in the pool. Melee is never empty.
+	bool IsGridEntryEmpty(const WeaponGridEntry& entry) const;
+
+	// ── Playable character ────────────────────────────────────────────────────
+	std::string characterId = "default";
+	bool AkimboPerk = false;             // from the character table, never saved
+	std::string hudSilhouette;           // from the character table: the health figure
+	// Reads the character row and rebuilds the weapon grid.
+	void ApplyCharacter(const std::string& id);
+
+	std::vector<std::string> offhandWeapons = {""}; // "weapon_lefthand_empty"
 	int offhandWeapon = 0;
 	int desiredOffhandWeapon = 0;
 
@@ -496,7 +578,7 @@ public:
 
 		weaponSlots.resize(10);
 
-		UseBoundsCenterForLightVol = false;
+		Camera::ViewmodelFOV = 65;
 
 		//AddComponent<PlayerTestComponent>();
 
@@ -531,6 +613,44 @@ public:
 	void AddWeapon(const WeaponSlotData& weaponData);
 	void AddWeaponByName(const string& className);
 
+	// ── Owned-weapon registry (Player::ownedWeapons) ────────────────────────
+	// Registers a new owned weapon instance: generates data.inventoryUUID if it's
+	// empty, stores a copy in ownedWeapons, and returns the (possibly newly
+	// generated) uuid. Used whenever a distinct physical weapon is picked up -
+	// every call creates a new tracked instance, even if the player already owns
+	// one of the same class.
+	std::string RegisterOwnedWeapon(WeaponSlotData& data);
+
+	// Finds an owned weapon instance by (uuid, offhand), or nullptr if there's no
+	// match (including when uuid is empty). offhand disambiguates a DualWeapon
+	// inventory item's main and offhand halves, which share one uuid.
+	WeaponSlotData* FindOwnedWeapon(const std::string& uuid, bool offhand);
+
+	// Convenience wrapper: looks up data.inventoryUUID/data.offhand in
+	// ownedWeapons and returns that entry if found, otherwise returns data
+	// unchanged. Used when equipping a weapon, so per-instance state (magazine
+	// ammo) carries over even if the caller only has a stale copy on hand (e.g.
+	// from weaponSlots).
+	WeaponSlotData ResolveOwnedWeaponData(const WeaponSlotData& data);
+
+	// Writes data back into its matching ownedWeapons entry, if one exists (does
+	// nothing otherwise). Called right before a weapon is unequipped/destroyed so
+	// its final state isn't lost, and again right before saving.
+	void SyncOwnedWeaponData(const WeaponSlotData& data);
+
+	// Removes an owned weapon instance (e.g. once dropping is implemented, or when
+	// the owning inventory item is removed entirely). Returns true if found.
+	bool RemoveOwnedWeapon(const std::string& uuid, bool offhand);
+
+	// Number of owned main-hand instances of a weapon class.
+	int CountOwnedWeapons(const std::string& className) const;
+
+	// For weapons that are their own ammunition (dynamite, molotov): removes the held
+	// instance and selects what comes next: another copy of the same weapon, else the
+	// previous selection, else the first weapon of the grid. The swap itself happens in
+	// Update() as soon as the held weapon allows switching.
+	void ConsumeHeldWeapon();
+
 	// Inventory system methods
 	void SetWeaponSystemMode(WeaponSystemMode mode);
 	WeaponSystemMode GetWeaponSystemMode() const { return weaponSystemMode; }
@@ -564,7 +684,7 @@ public:
 
 	vec3 GetBobForMainWeapon();
 
-	IInteractive* UpdateInteractionRaycast();
+	IInteractive* UpdateInteractionRaycast(Entity*& hitEntity);
 	void UpdateInteraction();
 
 	void Destroy()
@@ -604,6 +724,7 @@ public:
 
 	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
 	void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon);
+	void OnRadialDamage(float Damage, vec3 Origin, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr) override;
 
 	void UpdateCurrentRestrictedArea();
 

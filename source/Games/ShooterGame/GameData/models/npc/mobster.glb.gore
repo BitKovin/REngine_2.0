@@ -1,0 +1,55 @@
+{
+  "core": "GameData/models/npc/goreHumanCore.glb",
+  "textures": {
+    "flesh": "gore/flesh_d.png",
+    "blood": "gore/blood_soak.png",
+    "decal": "gore/blood_decals.png",
+    "edgeNoise": "gore/edge_noise.png",
+    "bone": "gore/bone_d.png",
+    "guts": "lq_flesh/flesh_gut1.jpg"
+  },
+  "fleshScale": 3.0,
+  "bloodColor": [
+    0.35,
+    0.02,
+    0.02
+  ],
+  "submeshes": {
+    "sleeves": "shell",
+    "jacket": "shell",
+    "suit": "shell",
+    "citizen_man_01_shirt": "shell"
+  },
+  "anatomy": {
+    "forward": [
+      0,
+      0,
+      1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "torso": [
+      "pelvis",
+      "spine_01",
+      "spine_02",
+      "spine_03"
+    ],
+    "ribs": [
+      "spine_02",
+      "spine_03"
+    ],
+    "guts": [
+      "pelvis",
+      "spine_01"
+    ],
+    "head": "head",
+    "minBoneLength": 0.06
+  },
+  "protectedWhileAlive": [
+    "head"
+  ],
+  "severable": []
+}

@@ -39,16 +39,6 @@
             "key": "PAUSE_RESTART_CONFIRM",
             "value": "Restart the level? Unsaved progress is lost.",
             "description": "Engine UI kit"
-        },
-        {
-            "key": "PAUSE_MENU_QUIT",
-            "value": "Quit Game",
-            "description": "Engine UI kit"
-        },
-        {
-            "key": "PAUSE_QUIT_CONFIRM",
-            "value": "Quit the game? Unsaved progress will be lost.",
-            "description": "Engine UI kit"
         }
     ]
 }

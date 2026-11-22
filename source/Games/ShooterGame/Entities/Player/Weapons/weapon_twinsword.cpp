@@ -1,5 +1,6 @@
 #pragma once
 #include "WeaponBase.h"
+#include "../../../Gore/StealthGoreAdapter.h"
 #include "../Player.hpp"
 #include <Animation.h>
 #include <SoundSystem/FmodEventInstance.h>
@@ -11,6 +12,8 @@
 class weapon_twinsword : public Weapon
 {
 public:
+
+	bool CanBlockOrParry() const override { return true; }
 
 	// Right-hand sword + corresponding arms
 	SkeletalMesh* viewmodel_r = nullptr;
@@ -73,7 +76,7 @@ public:
 
 	// -----------------------------------------------------------------------
 
-	weapon_twinsword()
+	weapon_twinsword() 
 	{
 		LateUpdateWhenPaused = true;
 		startTrailDelay.AddDelay(100000000.0f); // inert until StartAttack arms it
@@ -389,6 +392,7 @@ public:
 				Player::Instance->Heal(damangeToDeal * 0.10f);
 			}
 
+			StealthGore::SetNextMeleeSweep(hit.entity, MathHelper::GetUpVector(Camera::rotation));
 			hit.entity->OnPointDamage(
 				damangeToDeal,
 				hit.position,

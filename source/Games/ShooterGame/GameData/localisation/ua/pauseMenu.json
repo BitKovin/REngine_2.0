@@ -4,6 +4,10 @@
         { "key": "PAUSE_MENU_SAVE",       "value": "Зберегти гру",  "description": "Button that opens the save game flow" },
         { "key": "PAUSE_MENU_LOAD",       "value": "Завантажити гру",  "description": "Button that opens the load game flow" },
         { "key": "PAUSE_MENU_SETTINGS",   "value": "Налаштування",   "description": "Button that opens the settings menu" },
-        { "key": "PAUSE_MENU_MAIN_MENU",  "value": "Головне меню",  "description": "Button that quits to the main menu" }
+        { "key": "PAUSE_MENU_MAIN_MENU",  "value": "Головне меню",  "description": "Button that quits to the main menu" },
+        { "key": "PAUSE_MENU_QUIT", "value": "Вийти з гри", "description": "Button that opens the quit confirmation" },
+        { "key": "PAUSE_QUIT_CONFIRM", "value": "Вийти з гри? Незбережений прогрес буде втрачено.", "description": "Question of the quit confirmation" },
+        { "key": "PAUSE_QUIT_YES", "value": "Так", "description": "Confirms quitting" },
+        { "key": "PAUSE_QUIT_NO", "value": "Ні", "description": "Cancels quitting" }
     ]
 }

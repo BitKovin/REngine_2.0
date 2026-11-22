@@ -29,6 +29,13 @@
 #include <Console/Console.h>
 #include <Console/ConsoleRegister.h>
 
+#include <BgfxResetManager.h>
+
+#include <WeaponDefs.h>
+#include <set>
+#include <PlayerCharacters.h>
+#include "../../UI/Player/WeaponIconBaker.h"
+
 REGISTER_ENTITY(Player, "player")
 
 Player* Player::Instance = nullptr;
@@ -65,7 +72,14 @@ void Player::Start()
 
 
 
+	ApplyCharacter(characterId);
+
 	Hud.Init(this);
+
+#ifndef DISTRIBUTION
+	// Renders missing or outdated weapon grid icons (development builds only).
+	WeaponIconBaker::StartIfNeeded();
+#endif
 
 
 
@@ -566,7 +580,7 @@ void Player::Death()
 
 	ANALYTICS_SEND_EVENT("player_death", std::unordered_map<std::string, std::string>{
 		{"position", to_string(Position)},
-		{"gameTime", to_string(Time::GameTime)}
+		{ "gameTime", to_string(Time::GameTime) }
 	});
 
 }
@@ -663,7 +677,7 @@ void Player::TryWallJump()
 
 	vec3 verticalOffset = vec3(0.0f, -0.2f, 0.0f);
 
-	auto hit = Physics::SphereTrace(Position + verticalOffset, Position + verticalOffset + velocity*0.01f, 0.6f, BodyType::GroupCharacter & ~BodyType::CharacterCapsule, {}, { this }, true);
+	auto hit = Physics::SphereTrace(Position + verticalOffset, Position + verticalOffset + velocity * 0.01f, 0.6f, BodyType::GroupCharacter & ~BodyType::CharacterCapsule, {}, { this }, true);
 
 	bool weakJump = false;
 
@@ -740,7 +754,7 @@ void Player::UpdatePowerUps()
 
 		if (firearm)
 		{
-			firearm->akimbo = powerUpManager.IsPowerUpActive(PowerUpManager::PowerUpType::Akimbo);
+			firearm->akimbo = firearm->pairMode || powerUpManager.IsPowerUpActive(PowerUpManager::PowerUpType::Akimbo);
 		}
 
 	}
@@ -754,7 +768,7 @@ bool Player::CanSwitchSlot(int slot)
 	return currentWeapon->CanChangeSlot();
 }
 
-void Player::SwitchWeapon(const WeaponSlotData& data)
+void Player::SwitchWeapon(const WeaponSlotData& data, bool pair)
 {
 	DestroyWeapon();
 
@@ -762,13 +776,29 @@ void Player::SwitchWeapon(const WeaponSlotData& data)
 
 	if (!data.className.empty())
 	{
-		currentWeapon = (Weapon*)Spawn(data.className);
+		// data may be a stale copy (e.g. from weaponSlots) - resolve to the
+		// tracked owned-weapon instance, if any, so per-instance state
+		// (magazine ammo) carries over correctly.
+		WeaponSlotData resolved = ResolveOwnedWeaponData(data);
+
+		currentWeapon = (Weapon*)Spawn(resolved.className);
 		currentWeapon->owner = this;
-		
+
+		// SetData before Start: Start() (via its own initial Update() call) may
+		// immediately act on this weapon's state (e.g. offer to reload), so Data
+		// needs to be the real thing by then, not a still-default placeholder.
+		currentWeapon->SetData(resolved);
+
+		// Pair (akimbo) entry of the weapon grid. Set before Start(): its first
+		// Update() sees akimbo != akimboPrev and brings the left gun in.
+		if (WeaponFirearm* firearm = dynamic_cast<WeaponFirearm*>(currentWeapon))
+		{
+			firearm->pairMode = pair;
+			firearm->akimbo = pair;
+		}
+
 		currentWeapon->LoadAssetsIfNeeded();
-		
 		currentWeapon->Start();
-		currentWeapon->SetData(data);
 		//UpdateBody();
 	}
 }
@@ -786,8 +816,19 @@ void Player::SwitchWeaponOffhand(const string& classname)
 	{
 		currentOffhandWeapon = (Weapon*)Spawn(classname);
 		currentOffhandWeapon->owner = this;
-		currentOffhandWeapon->Start();
+
+		// Slots mode only tracks offhand weapons by class name (see
+		// offhandWeapons), so there's no uuid to resolve by here - fall back to
+		// the first owned instance of this class, if any (mirrors AddWeapon,
+		// which registers every offhand pickup into ownedWeapons).
+		auto ownedIt = std::find_if(ownedWeapons.begin(), ownedWeapons.end(),
+			[&classname](const WeaponSlotData& weapon) { return weapon.className == classname; });
+
+		if (ownedIt != ownedWeapons.end())
+			currentOffhandWeapon->SetData(*ownedIt);
+
 		currentOffhandWeapon->LoadAssetsIfNeeded();
+		currentOffhandWeapon->Start();
 	}
 
 }
@@ -797,6 +838,7 @@ void Player::DestroyWeaponOffhand()
 
 	if (currentOffhandWeapon != nullptr)
 	{
+		SyncOwnedWeaponData(currentOffhandWeapon->Data);
 
 		currentOffhandWeapon->Destroy();
 		currentOffhandWeapon = nullptr;
@@ -848,14 +890,30 @@ void Player::SwitchToMeleeWeapon(bool forceChange)
 	}
 }
 
-void Player::AddWeapon(const WeaponSlotData& weaponData)
+void Player::AddWeapon(const WeaponSlotData& weaponDataIn)
 {
+	// The weapon table owns grid columns; GetDefaultData().slot is the fallback
+	// for classes without a row.
+	WeaponSlotData weaponData = weaponDataIn;
+	if (const WeaponDef* def = WeaponDefs::Find(weaponData.className))
+		weaponData.slot = def->slot;
+
 	int slot = weaponData.slot;
 
 	if (weaponData.AmmoType != WeaponAmmoType::None)
 	{
 		AddAmmo((WeaponAmmoType)weaponData.AmmoType, weaponData.startAmmo);
 	}
+
+	// Every pickup is a distinct physical weapon instance, even if the player
+	// already owns one of the same class - track it independently so its state
+	// (magazine ammo) doesn't collide with any other copy, and so it's findable
+	// later regardless of whether it ends up reachable via a slot/offhand key.
+	WeaponSlotData owned = weaponData;
+	RegisterOwnedWeapon(owned);
+
+	if (!weaponData.offhand)
+		RebuildWeaponGrid();
 
 	if (weaponData.offhand)
 	{
@@ -866,7 +924,7 @@ void Player::AddWeapon(const WeaponSlotData& weaponData)
 		if (findRes != offhandWeapons.end()) return;
 
 		offhandWeapons.push_back(weaponData.className);
-		
+
 		desiredOffhandWeapon = offhandWeapons.size() - 1;
 
 	}
@@ -878,11 +936,11 @@ void Player::AddWeapon(const WeaponSlotData& weaponData)
 		if (weaponSlots[slot].className.empty() ||
 			weaponSlots[slot].priority < weaponData.priority)
 		{
-			weaponSlots[slot] = weaponData;
+			weaponSlots[slot] = owned;
 
-			
+
 			//currentSlot = slot;
-			
+
 		}
 	}
 
@@ -896,7 +954,7 @@ void Player::AddWeaponByName(const string& className)
 
 	Weapon* weap = (Weapon*)LevelObjectFactory::instance().create(className);
 
-	if (weap == nullptr) 
+	if (weap == nullptr)
 		return;
 
 	AddWeapon(weap->GetDefaultData());
@@ -921,10 +979,486 @@ void Player::DestroyWeapon()
 {
 	if (currentWeapon)
 	{
+		SyncOwnedWeaponData(currentWeapon->Data);
+
 		currentWeapon->Destroy();
 		currentWeapon = nullptr;
 	}
 	currentMainWeaponUUID = "";
+}
+
+std::string Player::RegisterOwnedWeapon(WeaponSlotData& data)
+{
+	if (data.inventoryUUID.empty())
+		data.inventoryUUID = UUID::generate_uuid();
+
+	ownedWeapons.push_back(data);
+	return data.inventoryUUID;
+}
+
+WeaponSlotData* Player::FindOwnedWeapon(const std::string& uuid, bool offhand)
+{
+	if (uuid.empty())
+		return nullptr;
+
+	for (auto& weapon : ownedWeapons)
+	{
+		if (weapon.inventoryUUID == uuid && weapon.offhand == offhand)
+			return &weapon;
+	}
+
+	return nullptr;
+}
+
+WeaponSlotData Player::ResolveOwnedWeaponData(const WeaponSlotData& data)
+{
+	WeaponSlotData* owned = FindOwnedWeapon(data.inventoryUUID, data.offhand);
+	return owned != nullptr ? *owned : data;
+}
+
+void Player::SyncOwnedWeaponData(const WeaponSlotData& data)
+{
+	WeaponSlotData* owned = FindOwnedWeapon(data.inventoryUUID, data.offhand);
+
+	if (owned != nullptr)
+		*owned = data;
+}
+
+bool Player::RemoveOwnedWeapon(const std::string& uuid, bool offhand)
+{
+	auto it = std::find_if(ownedWeapons.begin(), ownedWeapons.end(),
+		[&uuid, offhand](const WeaponSlotData& weapon) { return weapon.inventoryUUID == uuid && weapon.offhand == offhand; });
+
+	if (it == ownedWeapons.end())
+		return false;
+
+	ownedWeapons.erase(it);
+	RebuildWeaponGrid();
+	return true;
+}
+
+int Player::CountOwnedWeapons(const std::string& className) const
+{
+	int count = 0;
+	for (const WeaponSlotData& owned : ownedWeapons)
+	{
+		if (!owned.offhand && owned.className == className)
+			++count;
+	}
+	return count;
+}
+
+void Player::ConsumeHeldWeapon()
+{
+	if (currentWeapon == nullptr)
+		return;
+
+	const std::string uuid = currentWeapon->Data.inventoryUUID;
+	const std::string className = currentWeapon->Data.className;
+	const WeaponGridEntry previous = lastEntry;
+
+	if (!RemoveOwnedWeapon(uuid, false))
+		return;
+
+	// RemoveOwnedWeapon rebuilt the grid, which keeps the selection valid by falling back to
+	// the first entry. What should really come next is decided here.
+	const WeaponGridEntry* next = nullptr;
+
+	// 1. Another copy of the weapon that was just used up.
+	for (const WeaponGridEntry& entry : weaponGrid)
+	{
+		if (entry.className == className && !entry.pair)
+		{
+			next = &entry;
+			break;
+		}
+	}
+
+	// 2. The weapon held before it.
+	if (next == nullptr && !previous.Empty() && previous.className != className)
+	{
+		const WeaponGridEntry* found = FindGridEntry(previous.uuid, previous.pair);
+		if (found != nullptr && !IsGridEntryEmpty(*found))
+			next = found;
+	}
+
+	if (next != nullptr)
+		currentEntry = *next;
+
+	if (lastEntry.className == className)
+		lastEntry = WeaponGridEntry();
+
+	// The legacy slot table must not keep pointing at the instance that is gone.
+	for (WeaponSlotData& slotData : weaponSlots)
+	{
+		if (slotData.inventoryUUID != uuid)
+			continue;
+
+		slotData = WeaponSlotData();
+		for (const WeaponSlotData& owned : ownedWeapons)
+		{
+			if (!owned.offhand && owned.className == className)
+			{
+				slotData = owned;
+				break;
+			}
+		}
+	}
+
+	if (!currentEntry.Empty())
+		currentSlot = currentEntry.column;
+
+	weaponGridShowRequests++;   // show the grid: the HUD reacts to this counter
+	weaponGridRevision++;
+}
+
+// ============================================================================
+// WEAPON GRID (Slots mode)
+// ============================================================================
+
+void Player::RebuildWeaponGrid()
+{
+	weaponGrid.clear();
+
+	struct Sortable { WeaponGridEntry entry; int order; };
+	std::vector<Sortable> rows;
+	std::set<std::string> seenClasses;
+
+	for (const WeaponSlotData& owned : ownedWeapons)
+	{
+		if (owned.offhand || owned.className.empty())
+			continue;
+
+		// The player can own several copies of one weapon (every pickup is its own
+		// instance). The grid shows one icon per weapon class: the first copy.
+		if (!seenClasses.insert(owned.className).second)
+			continue;
+
+		const WeaponDef* def = WeaponDefs::Find(owned.className);
+
+		WeaponGridEntry entry;
+		entry.uuid = owned.inventoryUUID;
+		entry.className = owned.className;
+		entry.column = def ? def->slot : std::clamp(owned.slot, 0, 5);
+		const int order = def ? def->slotOrder : 100;
+
+		const bool single = def ? def->HasSingle() : true;
+		const bool pair = def ? def->HasPair(AkimboPerk) : false;
+
+		if (single)
+		{
+			entry.pair = false;
+			rows.push_back({ entry, order });
+		}
+		if (pair)
+		{
+			entry.pair = true;
+			rows.push_back({ entry, order });
+		}
+	}
+
+	std::stable_sort(rows.begin(), rows.end(), [](const Sortable& a, const Sortable& b)
+		{
+			if (a.entry.column != b.entry.column) return a.entry.column < b.entry.column;
+			if (a.order != b.order) return a.order < b.order;
+			if (a.entry.className != b.entry.className) return a.entry.className < b.entry.className;
+			return !a.entry.pair && b.entry.pair;   // single above its pair
+		});
+
+	int lastColumn = -1;
+	int row = 0;
+	for (Sortable& sortable : rows)
+	{
+		if (sortable.entry.column != lastColumn)
+		{
+			lastColumn = sortable.entry.column;
+			row = 0;
+		}
+		sortable.entry.row = row++;
+		weaponGrid.push_back(sortable.entry);
+	}
+
+	// Keep the selection valid (a pair can disappear when the character changes).
+	// Only the selection changes here; Update() equips it when the held weapon allows.
+	if (!currentEntry.Empty() && FindGridEntry(currentEntry.uuid, currentEntry.pair) == nullptr)
+	{
+		const WeaponGridEntry* fallback = FindGridEntry(currentEntry.uuid, !currentEntry.pair);
+		currentEntry = fallback ? *fallback : (weaponGrid.empty() ? WeaponGridEntry() : weaponGrid.front());
+	}
+	else if (currentEntry.Empty() && !weaponGrid.empty())
+	{
+		// First weapon the player gets is taken in hand.
+		currentEntry = weaponGrid.front();
+	}
+	else if (const WeaponGridEntry* same = FindGridEntry(currentEntry.uuid, currentEntry.pair))
+	{
+		currentEntry = *same;   // refresh row/column
+	}
+
+	if (!currentEntry.Empty())
+		currentSlot = currentEntry.column;
+
+	weaponGridRevision++;
+}
+
+const WeaponGridEntry* Player::FindGridEntry(const std::string& uuid, bool pair) const
+{
+	if (uuid.empty())
+		return nullptr;
+
+	for (const WeaponGridEntry& entry : weaponGrid)
+	{
+		if (entry.uuid == uuid && entry.pair == pair)
+			return &entry;
+	}
+	return nullptr;
+}
+
+bool Player::IsGridEntryEmpty(const WeaponGridEntry& entry) const
+{
+	// The held weapon's live Data is the accurate one (ownedWeapons is only
+	// refreshed when a weapon is put away).
+	const WeaponSlotData* data = nullptr;
+	if (currentWeapon && currentWeapon->Data.inventoryUUID == entry.uuid)
+		data = &currentWeapon->Data;
+	else
+	{
+		for (const WeaponSlotData& owned : ownedWeapons)
+		{
+			if (owned.inventoryUUID == entry.uuid && !owned.offhand)
+			{
+				data = &owned;
+				break;
+			}
+		}
+	}
+
+	if (data == nullptr || data->AmmoType == WeaponAmmoType::None)
+		return false;
+
+	auto pool = ammoCounts.find(data->AmmoType);
+	if (pool != ammoCounts.end() && pool->second > 0)
+		return false;
+
+	return data->magazineAmmo <= 0;   // -1 (never loaded) with an empty pool is empty too
+}
+
+bool Player::IsHoldingGridEntry(const WeaponGridEntry& entry) const
+{
+	if (currentWeapon == nullptr || currentWeapon->Data.inventoryUUID != entry.uuid)
+		return false;
+
+	const WeaponFirearm* firearm = dynamic_cast<const WeaponFirearm*>(currentWeapon);
+	const bool holdingPair = firearm != nullptr && firearm->pairMode;
+	return holdingPair == entry.pair;
+}
+
+void Player::EquipGridEntry(const WeaponGridEntry& entry)
+{
+	WeaponSlotData* owned = FindOwnedWeapon(entry.uuid, false);
+	if (owned == nullptr)
+		return;
+
+	SwitchWeapon(*owned, entry.pair);
+	currentSlot = entry.column;
+}
+
+void Player::SelectGridEntry(const WeaponGridEntry& entry, bool forceChange)
+{
+	if (entry.Empty())
+		return;
+
+	if (!currentEntry.Same(entry))
+	{
+		lastEntry = currentEntry;
+		currentEntry = entry;
+		currentSlot = entry.column;
+		weaponGridRevision++;
+	}
+
+	if (forceChange && !weaponSuppressed && !IsHoldingGridEntry(entry))
+		EquipGridEntry(entry);
+}
+
+void Player::PressSlotKey(int column)
+{
+	weaponGridShowRequests++;
+	gridCursorOffhand = false;
+
+	std::vector<const WeaponGridEntry*> entries;
+	for (const WeaponGridEntry& entry : weaponGrid)
+	{
+		if (entry.column == column)
+			entries.push_back(&entry);
+	}
+	if (entries.empty())
+		return;
+
+	// Pressing the key of the column that holds the selection steps down it
+	// (wrapping); another column starts at its top. Empty weapons are skipped.
+	int start = -1;
+	for (int i = 0; i < (int)entries.size(); ++i)
+	{
+		if (entries[i]->Same(currentEntry))
+			start = i;
+	}
+
+	const int count = (int)entries.size();
+	for (int step = 0; step < count; ++step)
+	{
+		const int index = start < 0 ? step : (start + 1 + step) % count;
+		if (!IsGridEntryEmpty(*entries[index]))
+		{
+			SelectGridEntry(*entries[index]);
+			return;
+		}
+	}
+}
+
+void Player::CycleOffhand(int direction)
+{
+	weaponGridShowRequests++;
+	gridCursorOffhand = true;
+
+	const int count = (int)offhandWeapons.size();
+	if (count <= 1)
+		return;   // only the empty hand
+
+	// Index 0 is the empty hand and must never be selectable: once there is any
+	// offhand weapon, one of them is always selected. Cycle over 1..count-1 only.
+	const int weaponCount = count - 1;
+	int index = desiredOffhandWeapon - 1;   // 0-based among the real weapons
+	if (index < 0 || index >= weaponCount)
+		index = direction > 0 ? -1 : 0;     // invalid/empty selection: re-enter the cycle
+	index = ((index + direction) % weaponCount + weaponCount) % weaponCount;
+	desiredOffhandWeapon = index + 1;
+}
+
+void Player::GridMoveColumn(int direction)
+{
+	weaponGridShowRequests++;
+
+	if (gridCursorOffhand)
+	{
+		if (direction > 0)
+			gridCursorOffhand = false;   // back to the column of the weapon in hand
+		return;
+	}
+
+	auto selectable = [&](int column)
+		{
+			for (const WeaponGridEntry& entry : weaponGrid)
+				if (entry.column == column && !IsGridEntryEmpty(entry))
+					return true;
+			return false;
+		};
+
+	const int from = currentEntry.Empty() ? (direction > 0 ? -1 : 6) : currentEntry.column;
+	for (int column = from + direction; column >= 0 && column < 6; column += direction)
+	{
+		if (selectable(column))
+		{
+			PressSlotKey(column);   // another column: starts at its top
+			return;
+		}
+	}
+
+	// Past the leftmost weapon: the left-hand column, if there is anything to hold.
+	if (direction < 0 && offhandWeapons.size() > 1)
+		gridCursorOffhand = true;
+}
+
+void Player::GridMoveRow(int direction)
+{
+	if (gridCursorOffhand)
+	{
+		CycleOffhand(direction);
+		return;
+	}
+
+	weaponGridShowRequests++;
+	if (currentEntry.Empty())
+		return;
+
+	std::vector<const WeaponGridEntry*> entries;
+	int start = -1;
+	for (const WeaponGridEntry& entry : weaponGrid)
+	{
+		if (entry.column != currentEntry.column)
+			continue;
+		if (entry.Same(currentEntry))
+			start = (int)entries.size();
+		entries.push_back(&entry);
+	}
+
+	const int count = (int)entries.size();
+	for (int step = 1; step < count; ++step)
+	{
+		const int index = ((start + direction * step) % count + count) % count;
+		if (!IsGridEntryEmpty(*entries[index]))
+		{
+			SelectGridEntry(*entries[index]);
+			return;
+		}
+	}
+}
+
+void Player::StepWeapon(int direction)
+{
+	weaponGridShowRequests++;
+	gridCursorOffhand = false;
+
+	const int count = (int)weaponGrid.size();
+	if (count == 0)
+		return;
+
+	int start = -1;
+	for (int i = 0; i < count; ++i)
+	{
+		if (weaponGrid[i].Same(currentEntry))
+			start = i;
+	}
+	if (start < 0)
+		start = direction > 0 ? -1 : 0;
+
+	for (int step = 1; step <= count; ++step)
+	{
+		const int index = ((start + direction * step) % count + count) % count;
+		if (!IsGridEntryEmpty(weaponGrid[index]))
+		{
+			SelectGridEntry(weaponGrid[index]);
+			return;
+		}
+	}
+}
+
+void Player::MigrateOldSlotSelection()
+{
+	if (currentSlot < 0 || currentSlot >= (int)weaponSlots.size())
+		return;
+
+	const WeaponSlotData& old = weaponSlots[currentSlot];
+	for (const WeaponGridEntry& entry : weaponGrid)
+	{
+		if (entry.className == old.className && !entry.pair)
+		{
+			currentEntry = entry;
+			return;
+		}
+	}
+}
+
+void Player::ApplyCharacter(const std::string& id)
+{
+	const PlayerCharacterDef* def = PlayerCharacters::Find(id);
+	if (def == nullptr && id != PlayerCharacters::DefaultId)
+		def = PlayerCharacters::Find(PlayerCharacters::DefaultId);
+
+	characterId = def ? def->id : id;
+	AkimboPerk = def ? def->akimboPerk : false;
+	hudSilhouette = def ? def->hudSilhouette : "";
+
+	RebuildWeaponGrid();
 }
 
 int Player::GetAmmoLimit(WeaponAmmoType type)
@@ -1038,6 +1572,8 @@ std::string Player::AddItemToInventory(const std::string& itemID, int stackSize)
 		newItem.mainWeaponData = tempWeapon->GetDefaultData();
 		newItem.mainWeaponData.inventoryUUID = newItem.uid; // Link weapon data to inventory item
 		delete tempWeapon;
+
+		RegisterOwnedWeapon(newItem.mainWeaponData); // uuid already set above, so this just tracks it
 	}
 
 	if (itemData.weaponOffhandClassName.empty() == false)
@@ -1046,6 +1582,8 @@ std::string Player::AddItemToInventory(const std::string& itemID, int stackSize)
 		newItem.offhandWeaponData = tempWeapon->GetDefaultData();
 		newItem.offhandWeaponData.inventoryUUID = newItem.uid; // Link weapon data to inventory item
 		delete tempWeapon;
+
+		RegisterOwnedWeapon(newItem.offhandWeaponData); // same uuid as mainWeaponData above, but offhand=true disambiguates
 	}
 
 	inventory.push_back(newItem);
@@ -1072,10 +1610,10 @@ bool Player::RemoveItemFromInventory(const std::string& uuid)
 			currentWeapon->Destroy();
 			currentWeapon = nullptr;
 		}
-		currentMainWeaponUUID  = "";
-		currentInventoryUUID   = "";
-		weaponSuppressed       = false;
-		mainWasSuppressed      = false;
+		currentMainWeaponUUID = "";
+		currentInventoryUUID = "";
+		weaponSuppressed = false;
+		mainWasSuppressed = false;
 	}
 
 	if (uuid == currentOffhandWeaponUUID)
@@ -1086,7 +1624,7 @@ bool Player::RemoveItemFromInventory(const std::string& uuid)
 			currentOffhandWeapon = nullptr;
 		}
 		currentOffhandWeaponUUID = "";
-		offhandWasSuppressed     = false;
+		offhandWasSuppressed = false;
 	}
 
 	// Update pending switch if it was pointing to this item
@@ -1095,6 +1633,12 @@ bool Player::RemoveItemFromInventory(const std::string& uuid)
 		desiredInventoryUUID = "";
 		pendingInventorySwitch = false;
 	}
+
+	// The item (and whatever weapon(s) it represents) is gone entirely - drop the
+	// matching entries from the owned-weapon registry too, so it doesn't keep
+	// listing weapons the player no longer has.
+	RemoveOwnedWeapon(it->mainWeaponData.inventoryUUID, false);
+	RemoveOwnedWeapon(it->offhandWeaponData.inventoryUUID, true);
 
 	// Remove the item
 	inventory.erase(it);
@@ -1312,80 +1856,80 @@ void Player::SwitchToInventoryItem(std::string uuid, bool forceChange)
 		// Handle different item types
 		switch (itemData.itemType)
 		{
-			case InventoryItemType::MainWeapon:
+		case InventoryItemType::MainWeapon:
+		{
+
+			if (itemData.offhandCompatible == false)
 			{
-
-				if(itemData.offhandCompatible == false)
-				{
-					// If new main weapon is not compatible with offhand, destroy current offhand weapon
-					DestroyWeaponOffhand();
-				}
-
-				// Equip main weapon only
-				SwitchWeapon(currentItem->mainWeaponData);
-				currentMainWeaponUUID = uuid;
-				break;
+				// If new main weapon is not compatible with offhand, destroy current offhand weapon
+				DestroyWeaponOffhand();
 			}
 
-			case InventoryItemType::OffhandWeapon:
+			// Equip main weapon only
+			SwitchWeapon(currentItem->mainWeaponData);
+			currentMainWeaponUUID = uuid;
+			break;
+		}
+
+		case InventoryItemType::OffhandWeapon:
+		{
+			// Equip offhand weapon only
+			//DestroyWeapon(); // Clear main weapon
+			if (!currentItem->offhandWeaponData.className.empty())
 			{
-				// Equip offhand weapon only
-				//DestroyWeapon(); // Clear main weapon
-				if (!currentItem->offhandWeaponData.className.empty())
+				SwitchWeaponOffhand(currentItem->offhandWeaponData.className);
+				if (currentOffhandWeapon)
 				{
-					SwitchWeaponOffhand(currentItem->offhandWeaponData.className);
-					if (currentOffhandWeapon)
+					currentOffhandWeapon->SetData(ResolveOwnedWeaponData(currentItem->offhandWeaponData));
+				}
+			}
+
+			currentOffhandWeaponUUID = uuid;
+
+			break;
+		}
+
+		case InventoryItemType::DualWeapon:
+		{
+
+			// Equip both main and offhand weapons
+			SwitchWeapon(currentItem->mainWeaponData);
+			if (!currentItem->offhandWeaponData.className.empty())
+			{
+				SwitchWeaponOffhand(currentItem->offhandWeaponData.className);
+				if (currentOffhandWeapon)
+				{
+					currentOffhandWeapon->SetData(ResolveOwnedWeaponData(currentItem->offhandWeaponData));
+				}
+			}
+
+			currentMainWeaponUUID = uuid;
+			currentOffhandWeaponUUID = uuid;
+
+			break;
+		}
+
+		case InventoryItemType::CustomLogic:
+		{
+
+			if (itemData.interactionEntityClassname.empty() == false)
+			{
+				Spawn(itemData.interactionEntityClassname);
+
+				if (itemData.destroyOnUse)
+				{
+					// Decrease stack size and remove if depleted
+					currentItem->stackSize--;
+					if (currentItem->stackSize <= 0)
 					{
-						currentOffhandWeapon->SetData(currentItem->offhandWeaponData);
+						RemoveItemFromInventory(uuid);
 					}
 				}
 
-				currentOffhandWeaponUUID = uuid;
-
-				break;
 			}
 
-			case InventoryItemType::DualWeapon:
-			{
-
-				// Equip both main and offhand weapons
-				SwitchWeapon(currentItem->mainWeaponData);
-				if (!currentItem->offhandWeaponData.className.empty())
-				{
-					SwitchWeaponOffhand(currentItem->offhandWeaponData.className);
-					if (currentOffhandWeapon)
-					{
-						currentOffhandWeapon->SetData(currentItem->offhandWeaponData);
-					}
-				}
-
-				currentMainWeaponUUID = uuid;
-				currentOffhandWeaponUUID = uuid;
-
-				break;
-			}
-
-			case InventoryItemType::CustomLogic:
-			{
-
-				if (itemData.interactionEntityClassname.empty() == false)
-				{
-					Spawn(itemData.interactionEntityClassname);
-
-					if (itemData.destroyOnUse)
-					{
-						// Decrease stack size and remove if depleted
-						currentItem->stackSize--;
-						if (currentItem->stackSize <= 0)
-						{
-							RemoveItemFromInventory(uuid);
-						}
-					}
-
-				}
-
-				break;
-			}
+			break;
+		}
 		}
 	}
 }
@@ -1494,7 +2038,6 @@ void Player::RestoreWeapons()
 		? desiredInventoryUUID
 		: currentMainWeaponUUID;
 	const std::string offhandTarget = currentOffhandWeaponUUID;
-	const int         slotTarget = currentSlot;
 
 	// ── Main slot ─────────────────────────────────────────────────────────────
 	if (mainWasSuppressed)
@@ -1504,7 +2047,7 @@ void Player::RestoreWeapons()
 			if (!mainTarget.empty())
 			{
 				currentMainWeaponUUID = "";
-				currentInventoryUUID  = "";
+				currentInventoryUUID = "";
 				// Clear offhand UUID too: for DualWeapon items the UUID is shared
 				// between both slots, so leaving it set triggers the toggle-off
 				// branch inside SwitchToInventoryItem instead of recreating the weapon.
@@ -1512,9 +2055,9 @@ void Player::RestoreWeapons()
 				SwitchToInventoryItem(mainTarget, /*forceChange=*/true);
 			}
 		}
-		else
+		else if (!currentEntry.Empty())
 		{
-			SwitchToSlot(slotTarget, /*forceChange=*/true);
+			EquipGridEntry(currentEntry);
 		}
 	}
 
@@ -1599,14 +2142,16 @@ vec3 Player::GetBobForMainWeapon()
 	return bobT * 0.04f;
 }
 
-IInteractive* Player::UpdateInteractionRaycast()
+IInteractive* Player::UpdateInteractionRaycast(Entity*& hitEntity)
 {
+	hitEntity = nullptr;
 
 	auto hit = Physics::LineTrace(Camera::position, Camera::position + Camera::Forward() * 2.0f, BodyType::GroupHitTest, {}, { this, currentWeapon, currentOffhandWeapon });
 
 	if (hit.hasHit == false) return nullptr;
 
 	auto interactive = dynamic_cast<IInteractive*>(hit.entity);
+	if (interactive) hitEntity = hit.entity;
 
 	return interactive;
 
@@ -1615,7 +2160,17 @@ IInteractive* Player::UpdateInteractionRaycast()
 void Player::UpdateInteraction()
 {
 
-	IInteractive* newInteractive = UpdateInteractionRaycast();
+	// The object we were looking at may have been destroyed since the last tick (picked up, killed, removed): drop it
+	// without calling into it.
+	if (currentInteractionObject && currentInteractionHandle.Resolve() == nullptr)
+	{
+		currentInteractionObject = nullptr;
+		interactionProgress = 0;
+		startedInteracting = false;
+	}
+
+	Entity* newEntity = nullptr;
+	IInteractive* newInteractive = UpdateInteractionRaycast(newEntity);
 
 	if (newInteractive != currentInteractionObject)
 	{
@@ -1626,6 +2181,7 @@ void Player::UpdateInteraction()
 
 		interactionProgress = 0;
 		currentInteractionObject = newInteractive;
+		currentInteractionHandle = newEntity ? EntityHandle::FromEntity(newEntity) : EntityHandle();
 
 		startedInteracting = false;
 	}
@@ -1755,15 +2311,6 @@ void Player::UpdateWeapon()
 	if (firearm != nullptr)
 	{
 
-		if (Input::GetAction("slotTest")->Pressed())
-		{
-			if (firearm)
-			{
-				firearm->SetAkimbo(!firearm->akimbo);
-			}
-
-		}
-
 		disableOffhandWeapon = firearm->akimbo
 			|| (currentWeapon && currentWeapon->SupportsOffhandWeapon == false);
 	}
@@ -1791,21 +2338,65 @@ void Player::UpdateWeapon()
 
 	rotatedWeaponPos -= mix(vec3(), vec3(-0.05f, 0.02, 0.05), RunProgress);
 
-	rotatedWeaponPos -= mix(vec3(), vec3(0,0.025,0), slideInterp);
+	rotatedWeaponPos -= mix(vec3(), vec3(0, 0.025, 0), slideInterp);
 
 	float bobBlendIn = length(MathHelper::XZ(velocity)) / WalkSpeed;
 	bobBlendIn = std::clamp(bobBlendIn, 0.0f, 1.0f);
 
 	vec3 scaledBob = bob * mix(vec3(bobBlendIn), vec3(2.5, 2.2f, 2.2f), RunProgress);
 
+	// ── Left-hand ownership between the main weapon and an offhand weapon ──────
+	// See Weapon::UsesLeftHand() for the full explanation. Short version: a
+	// one-handed main weapon (or no main weapon at all) still means the offhand
+	// weapon is always shown (nothing to fight over), and a two-handed one
+	// only gives up its left hand while the offhand weapon is itself mid-action
+	// (its own UsesLeftHand() == true) - but either way, the offhand weapon's
+	// own draw/hide is always smoothed (see the UpdateLeftHandBlend call below),
+	// so switching to a one-handed weapon doesn't snap it in instantly.
+	// SupressOffhandWeapon() is also folded in here: a weapon that's currently
+	// reloading needs both hands for that regardless of how many it normally
+	// uses, so a one-handed weapon reloading should hide the offhand weapon
+	// too, not just refuse to let it act (that refusal alone, in weapon_cane's
+	// IsSuppressedByMainWeapon() check, doesn't touch visibility).
+	bool mainNeedsLeftHand = currentWeapon != nullptr && (currentWeapon->UsesLeftHand() || currentWeapon->SupressOffhandWeapon());
+	bool offhandInUse = currentOffhandWeapon != nullptr && currentOffhandWeapon->UsesLeftHand();
+	bool handoffToOffhand = mainNeedsLeftHand && offhandInUse;
+
 	if (currentWeapon)
 	{
 
-		currentWeapon->HideWeapon = (currentOffhandWeapon != nullptr) ? 1.0f : bike_progress;
+		if (mainNeedsLeftHand)
+		{
+			currentWeapon->UpdateLeftHandBlend(handoffToOffhand, Time::DeltaTimeF);
+			currentWeapon->HideWeapon = currentWeapon->LeftHandBlend;
+		}
+		else if (currentOffhandWeapon != nullptr)
+		{
+			// One-handed weapon (or not currently needing both hands) with an
+			// offhand item equipped: the hand is always free for it, but still
+			// routed through the same smoothing as the branch above. A weapon
+			// that dynamically starts needing both hands sometimes - e.g.
+			// SupressOffhandWeapon() going true mid-reload for an otherwise
+			// one-handed weapon - needs both directions of that transition
+			// smoothed, not just the one into mainNeedsLeftHand.
+			currentWeapon->UpdateLeftHandBlend(true, Time::DeltaTimeF);
+			currentWeapon->HideWeapon = currentWeapon->LeftHandBlend;
+		}
+		else
+		{
+			// No offhand weapon at all - HideWeapon just follows bike_progress,
+			// which does its own smoothing elsewhere. Keep LeftHandBlend
+			// mirroring it so that if an offhand weapon gets equipped next
+			// frame, the branch above picks up from the right starting point
+			// instead of popping from a stale value.
+			currentWeapon->HideWeapon = bike_progress;
+			currentWeapon->LeftHandBlend = currentWeapon->HideWeapon;
+		}
+
 		currentWeapon->Position = MathHelper::TransformVector(rotatedWeaponPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;
 		currentWeapon->Rotation = MathHelper::ToYawPitchRoll(qResult);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 
-		if(dead)
+		if (dead)
 			currentWeapon->Rotation.x += std::min(deathAnimDelay.GetProgress(), 1.0f) * 50.0f;
 
 		if (currentWeapon->Illegal)
@@ -1818,8 +2409,22 @@ void Player::UpdateWeapon()
 	if (currentOffhandWeapon != nullptr)
 	{
 
-		currentOffhandWeapon->Position = Camera::position + MathHelper::TransformVector(vec3(0, -bob.y + 0.001, bob.x) * 1.0f, Camera::GetRotationMatrix());
-		currentOffhandWeapon->Rotation = lerp(cameraRotation, Camera::rotation , 0.3f) + runHideRotation;
+		// Always smooth (never snap the offhand weapon's blend directly) so both
+		// directions - equipping alongside a one-handed weapon, and handing off
+		// to/from a two-handed one - use the same draw/hide timing. Target is
+		// simply "always shown" when the main weapon doesn't need the left hand,
+		// otherwise the same handoff condition used for the main weapon above.
+		currentOffhandWeapon->UpdateLeftHandBlend(mainNeedsLeftHand ? handoffToOffhand : true, Time::DeltaTimeF);
+
+		if (currentOffhandWeapon->AltBob)
+		{
+			currentOffhandWeapon->Position = Camera::position + MathHelper::TransformVector(vec3(0, -bob.y + 0.001, bob.x) * 1.0f, Camera::GetRotationMatrix());
+		}
+		else
+		{
+			currentOffhandWeapon->Position = Camera::position + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix());
+		}
+		currentOffhandWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.3f) + runHideRotation;
 		if (dead)
 			currentOffhandWeapon->Rotation.x += std::min(deathAnimDelay.GetProgress(), 1.0f) * 30.0f;
 
@@ -1880,9 +2485,10 @@ void Player::UpdateDebugUI()
 	ImGui::DragFloat3("weaponRotation", &weaponRunRotation.x, 0.01);
 	ImGui::End();
 
-	ImGui::Begin("graphic");
+	ImGui::Begin("graphics");
 	ImGui::SliderInt("multisample count", &EngineMain::MainInstance->MainRenderer->MultiSampleCount, 0, 8);
 	ImGui::SliderFloat("resolution scale", &EngineMain::MainInstance->MainRenderer->ResolutionScale, 0, 10);
+
 	ImGui::End();
 
 	ImGui::Begin("debug");
@@ -2207,7 +2813,7 @@ void Player::Update()
 
 	//if(powerUpManager.IsPowerUpActive(PowerUpManager::IsPowerUpActive(PowerUpManager::PowerUpType::)))
 
-	if(dead)
+	if (dead)
 		maxSpeed = 0;
 
 	if (on_bike == false)
@@ -2262,8 +2868,8 @@ void Player::Update()
 
 	Camera::rotation.z = -dot(velocity, right) * mix(-0.2f, 0.3f, bike_progress);
 
-	if(dead)
-		Camera::rotation.z = lerp(Camera::rotation.z, 30, std::min(deathAnimDelay.GetProgress(),1.0f));
+	if (dead)
+		Camera::rotation.z = lerp(Camera::rotation.z, 30, std::min(deathAnimDelay.GetProgress(), 1.0f));
 
 	if (InThirdPerson() == false)
 	{
@@ -2342,20 +2948,12 @@ void Player::Update()
 		// Weapon switching logic based on current mode
 		if (weaponSystemMode == WeaponSystemMode::Slots && !weaponSuppressed)
 		{
-			// Original slot-based weapon switching with lazy loading
-			if (currentWeapon != nullptr)
+			// Lazy switching: the selection (currentEntry) changes at once, the
+			// weapon follows as soon as the held one allows it.
+			if (!currentEntry.Empty() && !IsHoldingGridEntry(currentEntry))
 			{
-				if (currentWeapon->Data.slot != currentSlot)
-				{
-					if (currentWeapon->CanChangeSlot())
-					{
-						SwitchWeapon(weaponSlots[currentSlot]);
-					}
-				}
-			}
-			else
-			{
-				SwitchToSlot(currentSlot);
+				if (currentWeapon == nullptr || currentWeapon->CanChangeSlot())
+					EquipGridEntry(currentEntry);
 			}
 		}
 		else if (weaponSystemMode == WeaponSystemMode::Inventory)
@@ -2377,6 +2975,12 @@ void Player::Update()
 			}
 			else
 			{
+				// An owned offhand weapon is always selected - never leave the slot on
+				// the empty hand (index 0), e.g. after loading an older save.
+				if (offhandWeapons.size() > 1
+					&& (desiredOffhandWeapon < 1 || desiredOffhandWeapon >= (int)offhandWeapons.size()))
+					desiredOffhandWeapon = 1;
+
 				offhandWeapon = desiredOffhandWeapon;
 			}
 
@@ -2401,33 +3005,44 @@ void Player::Update()
 			}
 		}
 
-		if (Input::GetAction("slotMelee")->Pressed())
-			SwitchToMeleeWeapon();
-
 		// Adaptive input handling - works with both Slots and Inventory modes
 		if (weaponSystemMode == WeaponSystemMode::Slots)
 		{
-			// Slot-based system (original behavior)
-			if (Input::GetAction("slot1")->Pressed())
-				SwitchToSlot(0);
+			// Left-hand column: F steps through the offhand items.
+			if (Input::GetAction("slotMelee")->Pressed())
+				CycleOffhand(1);
 
-			if (Input::GetAction("slot2")->Pressed())
-				SwitchToSlot(1);
+			// Gamepad: the D-pad drives the grid.
+			if (Input::GetAction("gridLeft")->Pressed())
+				GridMoveColumn(-1);
+			if (Input::GetAction("gridRight")->Pressed())
+				GridMoveColumn(1);
+			if (Input::GetAction("gridUp")->Pressed())
+				GridMoveRow(-1);
+			if (Input::GetAction("gridDown")->Pressed())
+				GridMoveRow(1);
 
-			if (Input::GetAction("slot3")->Pressed())
-				SwitchToSlot(2);
-
-			if (Input::GetAction("slot4")->Pressed())
-				SwitchToSlot(3);
-
-			if (Input::GetAction("slot5")->Pressed())
-				SwitchToSlot(4);
-
-			if (Input::GetAction("slot6")->Pressed())
-				SwitchToSlot(5);
+			// Weapon grid: a key picks its column, pressing it again steps down.
+			static const char* kSlotActions[] = { "slot1", "slot2", "slot3", "slot4", "slot5", "slot6" };
+			for (int column = 0; column < 6; ++column)
+			{
+				if (Input::GetAction(kSlotActions[column])->Pressed())
+					PressSlotKey(column);
+			}
 
 			if (Input::GetAction("lastSlot")->Pressed())
-				SwitchToSlot(lastSlot);
+			{
+				weaponGridShowRequests++;
+				gridCursorOffhand = false;
+				if (const WeaponGridEntry* last = FindGridEntry(lastEntry.uuid, lastEntry.pair))
+					SelectGridEntry(*last);
+			}
+
+			// Mouse wheel: up = previous, down = next.
+			if (Input::MouseScrollDelta > 0.0f)
+				StepWeapon(-1);
+			else if (Input::MouseScrollDelta < 0.0f)
+				StepWeapon(1);
 		}
 		else if (weaponSystemMode == WeaponSystemMode::Inventory)
 		{
@@ -2539,7 +3154,7 @@ void Player::AsyncUpdate()
 		}
 
 
-		bodyMesh->PasteAnimationPoseWithCloth(pose, Time::DeltaTimeF);
+		bodyMesh->PasteAnimationPose(pose);
 	}
 
 	controller.Update(Time::DeltaTimeF);
@@ -2554,7 +3169,7 @@ void Player::AsyncUpdate()
 		//DebugDraw::Path(portal.vertices, 0.01f, 0.1f);
 	}
 
-	Rotation = vec3(0,cameraRotation.y,0);
+	Rotation = vec3(0, cameraRotation.y, 0);
 
 }
 
@@ -2632,7 +3247,7 @@ void Player::UpdateBody()
 
 	vec3 playerForward = MathHelper::GetForwardVector(vec3(0, cameraRotation.y, 0));
 
-	
+
 	bodyMesh->Position = Position - vec3(0, controller.height / 2.0f, 0) - playerForward * 0.2f;
 	bodyMesh->Rotation.y = cameraRotation.y;
 
@@ -2683,7 +3298,7 @@ void Player::UpdateBody()
 	observationTarget->position = Position + vec3(0, 0.65f, 0);
 
 
-	Physics::SetBodyPosition(hitbox, bodyMesh->Position + WorldOrientationManager::TransformDirectionToWorld(playerForward) * 0.1f + WorldOrientationManager::GetUpVector() * cameraHeight - vec3(0,0.3,0));
+	Physics::SetBodyPosition(hitbox, bodyMesh->Position + WorldOrientationManager::TransformDirectionToWorld(playerForward) * 0.1f + WorldOrientationManager::GetUpVector() * cameraHeight - vec3(0, 0.3, 0));
 
 
 }
@@ -2717,6 +3332,13 @@ void Player::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
 		Death();
 	}
 
+}
+
+void Player::OnRadialDamage(float Damage, vec3 Origin, Entity* DamageCauser, Entity* Weapon)
+{
+	// The player has no hit zone multipliers, so a blast hurts him like any other hit: with the camera shake and the blood.
+	const vec3 point = Position;
+	OnPointDamage(Damage, point, RadialDirection(Origin, point), "", DamageCauser, Weapon);
 }
 
 void Player::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon)
@@ -2756,7 +3378,7 @@ void Player::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone
 
 	Camera::AddCameraShake(damageShake);
 
-	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point - vec3(0,0.5f,0), MathHelper::FindLookAtRotation(Direction, vec3(0)), vec3(Damage / 10.0f));
+	GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point - vec3(0, 0.5f, 0), MathHelper::FindLookAtRotation(Direction, vec3(0)), vec3(Damage / 10.0f));
 
 }
 
@@ -2792,6 +3414,20 @@ void Player::Serialize(json& target)
 	SERIALIZE_FIELD(target, velocity);
 	SERIALIZE_FIELD(target, currentSlot);
 	SERIALIZE_FIELD(target, weaponSlots);
+	SERIALIZE_FIELD(target, currentEntry);
+	SERIALIZE_FIELD(target, lastEntry);
+	SERIALIZE_FIELD(target, characterId);
+
+	// The currently-equipped weapon(s) may have fired (or reloaded) since the
+	// last time they were unequipped, which is the only other point their
+	// ownedWeapons entry gets refreshed - bring it up to date now so the save
+	// reflects their real, current magazine count rather than whatever it was
+	// when they were last drawn.
+	if (currentWeapon)
+		SyncOwnedWeaponData(currentWeapon->Data);
+	if (currentOffhandWeapon)
+		SyncOwnedWeaponData(currentOffhandWeapon->Data);
+	SERIALIZE_FIELD(target, ownedWeapons);
 
 	SERIALIZE_FIELD(target, RunProgress);
 	SERIALIZE_FIELD(target, weaponSuppressed);
@@ -2854,6 +3490,24 @@ void Player::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, currentSlot);
 	DESERIALIZE_FIELD(source, weaponSlots);
 
+	// Old saves won't have this field - ownedWeapons just starts empty, and every
+	// weapon in weaponSlots/inventory falls back to its "never persisted, top up
+	// fresh" default the next time it's equipped (see WeaponFirearm::SetData).
+	DESERIALIZE_FIELD(source, ownedWeapons);
+
+	DESERIALIZE_FIELD(source, characterId);
+	ApplyCharacter(characterId);   // sets AkimboPerk and rebuilds the grid from ownedWeapons
+
+	if (source.contains("currentEntry"))
+	{
+		DESERIALIZE_FIELD(source, currentEntry);
+		DESERIALIZE_FIELD(source, lastEntry);
+	}
+	else
+	{
+		MigrateOldSlotSelection();
+	}
+
 	DESERIALIZE_FIELD(source, RunProgress);
 	DESERIALIZE_FIELD(source, weaponSuppressed);
 	DESERIALIZE_FIELD(source, mainWasSuppressed);
@@ -2879,7 +3533,7 @@ void Player::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, lastInventoryUUID);
 
 	if (source.contains("moveState"))
-	    moveState = static_cast<MoveState>(source["moveState"].get<int>());
+		moveState = static_cast<MoveState>(source["moveState"].get<int>());
 	DESERIALIZE_FIELD(source, mantleDelay);
 	DESERIALIZE_FIELD(source, mantleStartPosition);
 	DESERIALIZE_FIELD(source, mantleTargetPosition);
@@ -2891,7 +3545,11 @@ void Player::Deserialize(json& source)
 	// Restore weapon based on mode
 	if (weaponSystemMode == WeaponSystemMode::Slots)
 	{
-		SwitchToSlot(currentSlot, true);
+		DestroyWeapon();
+		if (const WeaponGridEntry* entry = FindGridEntry(currentEntry.uuid, currentEntry.pair))
+			EquipGridEntry(*entry);
+		else if (!weaponGrid.empty())
+			SelectGridEntry(weaponGrid.front(), true);
 		SwitchWeaponOffhand(offhandWeapons[offhandWeapon]);
 	}
 	else if (weaponSystemMode == WeaponSystemMode::Inventory)
@@ -3027,7 +3685,6 @@ void Player::LoadAssets()
 	armsMesh->IsViewmodel = true;
 
 	bodyMesh->LoadFromFile("GameData/models/player/body/player_body.glb");
-
 	bodyMesh->GravityAlignedRotation = true;
 	//bodyMesh->LoadFromFile("GameData/models/npc/guard.glb/");
 	bodyMesh->DepthPrePath = false;
@@ -3035,7 +3692,7 @@ void Player::LoadAssets()
 	//bodyMesh->TexturesLocation = "GameData/models/npc/guard.glb/";
 	bodyMesh->PreloadAssets();
 	bodyMesh->CastDetailShadows = false;
-	bodyMesh->Scale = vec3(0.9f);
+	bodyMesh->Scale = vec3(0.94f);
 
 	bodyAnimator.LoadAssetsIfNeeded();
 
@@ -3258,6 +3915,42 @@ CONSOLE_FUNC("kit.weapons", "kit.weapons gives all weapons")
 {
 
 	Player::Instance->AddWeaponByName("weapon_cane");
+	Player::Instance->AddWeaponByName("weapon_crucifix");
+
+	Player::Instance->AddWeaponByName("weapon_twinsword");
+
+
+	Player::Instance->AddWeaponByName("weapon_pistol");
+	Player::Instance->AddWeaponByName("weapon_pistol");
+	Player::Instance->AddWeaponByName("weapon_pistol");
+	Player::Instance->AddWeaponByName("weapon_revolver");
+
+	Player::Instance->AddWeaponByName("weapon_shotgun");
+	Player::Instance->AddWeaponByName("weapon_shotgun");
+	Player::Instance->AddWeaponByName("weapon_shotgun");
+	Player::Instance->AddWeaponByName("weapon_sawed");
+
+	Player::Instance->AddWeaponByName("weapon_mpsd");
+	Player::Instance->AddWeaponByName("weapon_mpsd");
+	Player::Instance->AddWeaponByName("weapon_mpsd");
+
+	Player::Instance->AddWeaponByName("weapon_cannon");
+	Player::Instance->AddWeaponByName("weapon_cannon");
+	Player::Instance->AddWeaponByName("weapon_cannon");
+	Player::Instance->AddWeaponByName("weapon_cannon");
+
+	Player::Instance->AddWeaponByName("weapon_dynamite");
+	Player::Instance->AddWeaponByName("weapon_dynamite");
+	Player::Instance->AddWeaponByName("weapon_dynamite");
+	Player::Instance->AddWeaponByName("weapon_molotov");
+	Player::Instance->AddWeaponByName("weapon_molotov");
+	Player::Instance->AddWeaponByName("weapon_molotov");
+}
+
+CONSOLE_FUNC("kit.hunter", "kit.weapons gives all weapons")
+{
+
+	Player::Instance->AddWeaponByName("weapon_crucifix");
 
 	Player::Instance->AddWeaponByName("weapon_twinsword");
 
@@ -3269,6 +3962,7 @@ CONSOLE_FUNC("kit.weapons", "kit.weapons gives all weapons")
 	Player::Instance->AddWeaponByName("weapon_shotgun");
 	Player::Instance->AddWeaponByName("weapon_shotgun");
 	Player::Instance->AddWeaponByName("weapon_shotgun");
+
 
 	Player::Instance->AddWeaponByName("weapon_mpsd");
 	Player::Instance->AddWeaponByName("weapon_mpsd");
@@ -3285,7 +3979,7 @@ CONSOLE_FUNC("weapon.give", "weapon.give <weapon_name>")
 	std::string levelName = Console::ArgString(args, 0, "");
 	if (levelName != "")
 	{
-		
+
 		Player::Instance->AddWeaponByName(levelName);
 
 		Console::Get().AddLog("Giving weapon: %s", levelName.c_str());
@@ -3294,4 +3988,26 @@ CONSOLE_FUNC("weapon.give", "weapon.give <weapon_name>")
 	{
 		Console::Get().AddLog("Usage: weapon.give <weapon_name>");
 	}
+}
+
+CONSOLE_FUNC("player.character", "player.character <id> switches the playable character (weapon grid perks, HUD figure)")
+{
+	std::string id = Console::ArgString(args, 0, "");
+	if (id.empty() || Player::Instance == nullptr)
+	{
+		Console::Get().AddLog("Usage: player.character <id> (ids are in GameData/tables/characters/)");
+		return;
+	}
+
+	Player::Instance->ApplyCharacter(id);
+	Console::Get().AddLog("Character: %s, akimbo perk %s", Player::Instance->characterId.c_str(), Player::Instance->AkimboPerk ? "on" : "off");
+}
+
+CONSOLE_FUNC("player.health", "player.health <percent> sets the player's health (HUD testing)")
+{
+	if (Player::Instance == nullptr)
+		return;
+	const float percent = std::clamp(Console::ArgFloat(args, 0, 100.0f), 1.0f, 100.0f);
+	Player::Instance->Health = Player::Instance->MaxHealth * percent / 100.0f;
+	Console::Get().AddLog("Health: %.0f%%", percent);
 }

@@ -724,6 +724,7 @@ public:
 
 	void OnDamage(float Damage, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr);
 	void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon);
+	void OnRadialDamage(float Damage, vec3 Origin, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr) override;
 
 	void UpdateCurrentRestrictedArea();
 

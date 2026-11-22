@@ -1,0 +1,24 @@
+{
+  "sources": {
+  "default":   { "type": "bullet",      "woundRadius": 0.026, "refDamage": 20,  "exit": false, "severPower": 0.5, "tags": ["ranged"] },
+  "pistol":    { "type": "bullet",      "woundRadius": 0.030, "refDamage": 20,  "holes": false, "severPower": 0,   "tags": ["ranged"] },
+  "revolver":  { "type": "heavyBullet", "woundRadius": 0.045, "refDamage": 45,  "exit": true,  "severPower": 2.5, "tags": ["ranged"] },
+  "sawed":     { "type": "pellet",      "woundRadius": 0.022, "refDamage": 8,   "clusterRadius": 0.09, "severPower": 2.0, "tags": ["ranged"] },
+  "sword":     { "type": "slash",       "woundRadius": 0.035, "gashLength": 0.20, "refDamage": 30, "severPower": 2.5, "tags": ["melee"] },
+  "axe":       { "type": "slash",       "woundRadius": 0.045, "gashLength": 0.16, "refDamage": 30, "severPower": 2.5, "tags": ["melee"] },
+  "cane":      { "type": "blunt",       "woundRadius": 0.0,   "refDamage": 30,  "severPower": 0,   "tags": ["melee"] },
+  "crucifix":  { "type": "blunt",       "woundRadius": 0.0,   "refDamage": 30,  "severPower": 0,   "tags": ["melee", "holy"] },
+  "explosion": { "type": "blast",       "woundRadius": 0.13,  "refDamage": 60,  "severPower": 1.5, "minScale": 0.6, "maxScale": 2.2, "tags": ["blast", "fire"] },
+  "cannon":    { "type": "blast",       "woundRadius": 0.22,  "refDamage": 200, "severPower": 1.5, "blastRadius": 0.7, "minScale": 0.8, "maxScale": 1.3, "tags": ["blast", "ranged"] }
+},
+  "classMap": {
+    "weapon_pistol": "pistol", "weapon_pistol_silent": "pistol", "weapon_tommy": "pistol", "weapon_mpsd": "pistol",
+    "weapon_revolver": "revolver", "weapon_sniper": "revolver",
+    "weapon_sawed": "sawed", "weapon_shotgun": "sawed",
+    "weapon_sword": "sword", "weapon_swords": "sword", "weapon_twinsword": "sword",
+    "weapon_cane": "cane", "weapon_crucifix": "crucifix",
+    "weapon_cannon": "cannon", "explosion": "explosion",
+    "caneProjectile": "cane",
+    "npc_human_axe": "axe", "npc_knight": "sword", "npc_zombie": "cane", "npc_human_gun": "pistol"
+  }
+}

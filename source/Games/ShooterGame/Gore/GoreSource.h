@@ -1,0 +1,47 @@
+#pragma once
+
+#include <Ecs/ComponentRegistry.h>
+
+#include <cstdint>
+#include <string>
+
+namespace Gore
+{
+    enum class SourceType : uint8_t { Bullet, HeavyBullet, Pellet, Slash, Blunt, Blast };
+
+    // What one kind of weapon / projectile / explosion does to a body. Loaded from GameData/gore/sources.json.
+    struct Source
+    {
+        std::string id;
+        SourceType type = SourceType::Bullet;
+        float woundRadius = 0.012f;
+        float refDamage = 20.0f;
+        float clusterRadius = 0.07f;
+        float gashLength = 0.15f;
+        float severPower = 0.0f;    // weight of this weapon's damage towards removing a part (damage * severPower vs the part's threshold)
+        float holePower = 0.0f;     // unused
+        float decalRadius = 0.0f;   // unused
+        float taper = -1.0f;        // < 0: the default of the source type (GoreSystem)
+        float blastRadius = 0.0f;   // blast: limbs/head whose bone is within this distance of the blast centre are blown off (0 = none)
+        float minScale = 0.6f;      // wound size follows sqrt(damage / refDamage), limited to [minScale, maxScale]
+        float maxScale = 2.5f;
+        bool exit = false;
+        bool holes = true;      // false: a hit leaves a blood decal and a puff of blood only (no wound, no exit wound, no meat). Taking a
+                                // part off is decided by severPower alone, so a source that must not tear anything has severPower 0.
+                                // Ignored by blunt sources (they never make holes).
+        uint32_t tagBits = 0;   // bit per tag, see TagBit()
+    };
+
+    uint32_t TagBit(const std::string& tag);   // stable: index in a static table, max 32 tags, logs when full
+
+    void LoadSources();   // GameData/gore/sources.json
+    uint16_t SourceIndexForClass(const std::string& className);   // index of "default" if unknown
+    const Source& GetSource(uint16_t index);
+
+    // Attached to projectiles so a bullet carries its weapon's source.
+    struct GoreSourceComponent
+    {
+        uint16_t sourceIndex = 0;
+    };
+    REGISTER_COMPONENT(GoreSourceComponent)
+}

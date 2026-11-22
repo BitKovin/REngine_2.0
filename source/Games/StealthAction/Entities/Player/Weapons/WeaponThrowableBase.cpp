@@ -67,6 +67,9 @@ void WeaponThrowableBase::Start()
 {
 	SwitchDelay.AddDelay(params.switchDelay);
 	state = ThrowState::Drawing;
+
+	if (!params.drawSound.empty())
+		SoundPlayer::PlayOneshot(params.drawSound, 3.0f, 1.0f, true);
 }
 
 bool WeaponThrowableBase::CanChangeSlot()
@@ -113,15 +116,13 @@ void WeaponThrowableBase::Update()
 		if (!lit && viewmodel->GetAnimationTime() >= params.lightTime)
 			Ignite();
 
-		if (!holding)
-			releaseQueued = true;
-
+		// Only the button's state at the end of the animation counts: nothing that happened in between is remembered.
 		if (!viewmodel->IsAnimationPlaying())
 		{
-			if (releaseQueued)
-				BeginThrow(0.0f);
-			else
+			if (holding)
 				BeginCharging();
+			else
+				BeginThrow(0.0f);
 		}
 		break;
 
@@ -165,6 +166,10 @@ void WeaponThrowableBase::LateUpdate()
 	viewmodel->Position = Position + (mat3)Camera::GetRotationMatrix() * params.weaponOffset;
 	viewmodel->Rotation = Rotation;
 
+	// Forward and slightly down from the camera, where the lit object is held.
+	if (burnSoundPlayer != nullptr)
+		burnSoundPlayer->Position = Camera::position + MathHelper::GetForwardVector(Camera::rotation) * 1.0f - MathHelper::GetUpVector(Camera::rotation) * 0.5f;
+
 	arms->Position = viewmodel->Position;
 	arms->Rotation = viewmodel->Rotation;
 
@@ -183,7 +188,6 @@ void WeaponThrowableBase::BeginLighting()
 	state = ThrowState::Lighting;
 	lit = false;
 	released = false;
-	releaseQueued = false;
 	fuseRemaining = -1.0f;
 
 	viewmodel->PlayAnimation(kAnimStart, false, kStartBlend);
@@ -210,6 +214,30 @@ void WeaponThrowableBase::Ignite()
 {
 	lit = true;
 	fuseRemaining = params.fuseTime;
+
+	if (!params.burnSound.empty())
+	{
+		StopBurnSound();
+		burnSoundPlayer = SoundPlayer::Create(params.burnSound);
+		burnSoundPlayer->Position = Camera::position + MathHelper::GetForwardVector(Camera::rotation) * 1.0f - MathHelper::GetUpVector(Camera::rotation) * 0.5f;
+		burnSoundPlayer->Play();
+	}
+}
+
+void WeaponThrowableBase::StopBurnSound()
+{
+	if (burnSoundPlayer == nullptr)
+		return;
+
+	burnSoundPlayer->Stop();
+	burnSoundPlayer->Destroy();
+	burnSoundPlayer = nullptr;
+}
+
+void WeaponThrowableBase::Destroy()
+{
+	StopBurnSound();
+	Weapon::Destroy();
 }
 
 void WeaponThrowableBase::UpdateFuse(float dt)
@@ -224,6 +252,7 @@ void WeaponThrowableBase::UpdateFuse(float dt)
 
 	// Held too long: it goes off in the player's hand.
 	released = true;
+	StopBurnSound();
 
 	const vec3 forward = MathHelper::GetForwardVector(Camera::rotation);
 	const vec3 up = MathHelper::GetUpVector(Camera::rotation);
@@ -235,6 +264,7 @@ void WeaponThrowableBase::UpdateFuse(float dt)
 void WeaponThrowableBase::Release(float strength)
 {
 	released = true;
+	StopBurnSound();
 
 	const vec3 forward = MathHelper::GetForwardVector(Camera::rotation);
 	const vec3 right = MathHelper::GetRightVector(Camera::rotation);
@@ -261,7 +291,8 @@ void WeaponThrowableBase::Release(float strength)
 
 	SpawnProjectile(start, velocity, fuseRemaining);
 
-	SoundPlayer::PlayOneshot(params.throwSound, 1.5f, 1.0f, true);
+	if (!params.throwSound.empty())
+		SoundPlayer::PlayOneshot(params.throwSound, 3.0f, 1.0f, true);
 }
 
 void WeaponThrowableBase::SpawnProjectile(const vec3& position, const vec3& velocity, float fuse)

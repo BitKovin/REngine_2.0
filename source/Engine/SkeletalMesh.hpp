@@ -538,6 +538,9 @@ public:
 
 	float GetHitboxDamageMultiplier(string boneName);
 
+	// The bone with a hitbox that is closest to a world point (empty when the mesh has no hitboxes), and where that bone is.
+	string GetNearestHitboxBone(const vec3& worldPoint, vec3& outBonePosition);
+
 	void StartRagdoll();
 	void StopRagdoll();
 

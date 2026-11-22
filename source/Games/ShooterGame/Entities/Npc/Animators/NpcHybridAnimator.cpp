@@ -17,15 +17,7 @@ void NpcHybridAnimator::Update()
 	                           glm::clamp(Time::DeltaTimeF * combatModeBlendSpeed, 0.0f, 1.0f));
 
 	// ── Locomotion – use sword variants when firmly in melee mode ─────────────
-	std::string desiredLocoAnim = scared ? "scared" : "idle";
-	if (movementSpeed > 1) desiredLocoAnim = "walk";
-	if (movementSpeed > 3) desiredLocoAnim = "run";
-
-	if (combatModeBlend < 0.5f && weapon_ready)
-	{
-		if (desiredLocoAnim == "idle") desiredLocoAnim = "sword_idle";
-		if (desiredLocoAnim == "walk") desiredLocoAnim = "sword_walk";
-	}
+	const std::string desiredLocoAnim = PickLocomotionAnimation(combatModeBlend < 0.5f && weapon_ready);
 
 	if (locomotion->currentAnimationData->animationName != desiredLocoAnim)
 		locomotion->PlayAnimation(desiredLocoAnim, true, 0.3f);

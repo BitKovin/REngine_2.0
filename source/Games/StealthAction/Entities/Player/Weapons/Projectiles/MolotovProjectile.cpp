@@ -34,8 +34,7 @@ class MolotovProjectile : public ThrownProjectileBase
 public:
 
 	static inline const std::string kModel = "GameData/models/player/weapons/molotov/molotov_thrown.glb";
-	// Placeholder until the molotov has an event of its own.
-	static inline const std::string kShatterSound = "event:/Weapons/knife/knife_hit";
+	static inline const std::string kShatterSound = "event:/Weapons/molotov/hit";
 
 	// Tip of the rag in the model's own space (thrown_info.json, flame_point).
 	vec3 flameTip = vec3(0.0f, 0.198f, 0.0f);

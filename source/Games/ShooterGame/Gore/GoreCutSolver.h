@@ -1,0 +1,49 @@
+#pragma once
+
+#include "GoreProfile.h"
+#include "GoreTypes.h"
+
+#include <glm.h>
+#include <vector>
+
+namespace Gore
+{
+    struct CutRequest
+    {
+        uint16_t severableIndex = 0;                 // index into Profile::severable
+        glm::vec3 worldPoint = glm::vec3(0);         // where the blow landed
+        glm::vec3 worldNormal = glm::vec3(0, 1, 0);  // desired plane normal (any sign)
+        // Remove the whole part at its joint: the plane is square to the bone, at the near end of the bone's range (the
+        // point and normal are ignored). Used for parts that are destroyed rather than cut.
+        bool atJoint = false;
+        // A blade cut: refused when the plane would have to tilt well past the bone's limit (the blade runs along the limb
+        // instead of across it - that is a gash, not a cut).
+        bool strictTilt = false;
+    };
+
+    struct CutResult
+    {
+        bool ok = false;
+        Cut cut;
+    };
+
+    // Finds a valid cut plane across a severable bone (bind space). Everything beyond the plane, in the bone's whole
+    // subtree, has to be on the removed side - otherwise the plane is pulled towards the bone axis, and if that still
+    // fails the cut is refused (the caller makes a wound instead).
+    CutResult SolveCut(const Profile& profile, const roj::SkinnedModel& model, const glm::mat4& world,
+                       const std::vector<glm::mat4>& palette, const CutRequest& req, Rng& rng);
+
+    // Bone world-matrix helper shared by the sever code: world * palette[skin] (world when the bone has no skin slot).
+    glm::mat4 BoneBindToWorld(const glm::mat4& world, const std::vector<glm::mat4>& palette, int skin);
+
+    // Corners of a bone bound.
+    void BoundCorners(const roj::BoneBound& b, glm::vec3 (&out)[8]);
+
+    // True when part bone b of the cut keeps its triangles on the body (Cut::stragglers).
+    inline bool IsStraggler(const Cut& c, size_t b)
+    {
+        if (b <= c.boneSkel) return false;
+        const size_t rel = b - c.boneSkel;
+        return rel < 128 && ((c.stragglers[rel >> 6] >> (rel & 63)) & 1ull) != 0;
+    }
+}

@@ -9,14 +9,24 @@
 
 .kit-screen { width: 100%; height: 100%; background-color: var(--kit-scrim); }
 .kit-modal { width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.45); }
-
+.kit-menu { 
+	vertical-align: center;
+	horizontal-align: center;
+	width: 1300px; 
+	height: 95%; 
+	background-color: var(--kit-scrim); 
+	border: 2px solid var(--kit-panel-border); border-radius: var(--kit-radius); 
+  }
 /* ── pause menu */
-.kit-pause { width: 100%; height: 100%; background-image: var(--kit-menu-scrim); }
+.kit-pause { width: 100%; height: 100%; background-image: var(--kit-menu-scrim); transition: opacity 0.2s ease-out; }
+.kit-pause:entering { opacity: 0; }
+.kit-pause .menu-column { transition: transform 0.3s ease-out; }
+.kit-pause:entering .menu-column { transform: translateX(-60px); }
 .kit-page { flow-children: down; gap: 18px; width: 100%; }
-.menu-column { flow-children: down; gap: 10px; horizontal-align: left; vertical-align: center; margin-left: 110px; }
+.menu-column { flow-children: down; gap: 10px; horizontal-align: left; vertical-align: center; margin-left: 110px; margin-top: 100px; }
 .menu-item { flow-children: down; horizontal-align: left; padding: 2px 0 4px 0; transition: transform 0.2s ease-out; }
 .menu-item:hover, .menu-item:focus { transform: translateX(18px); }
-.menu-item:active { transform: translateX(26px); }
+.menu-item:active { transform: translateX(18px) translateY(3px); }
 .item-text { font-size: var(--kit-menu-size); color: var(--kit-menu-item); text-shadow: 0 0 0 rgba(0, 0, 0, 0); transition: color 0.2s ease-out, text-shadow 0.25s ease-out; }
 .menu-item:hover .item-text, .menu-item:focus .item-text { color: var(--kit-text); text-shadow: var(--kit-menu-glow); }
 .item-line { width: fill-parent-flow(1); height: 3px; background-color: var(--kit-menu-line); transform-origin: 0% 50%; transform: scaleX(0); transition: transform 0.3s ease-out; }
@@ -25,7 +35,7 @@
 .action-label { font-size: 26px; color: var(--kit-caption); }
 
 /* ── settings screens */
-.kit-column { flow-children: down; gap: 18px; width: 100%; height: 100%; padding: 40px 56px; }
+.kit-column { flow-children: down; gap: 18px; width: 100%; height: 100%; padding: 40px 56px; outline: 2px }
 .kit-title { font-size: var(--kit-title-size); color: var(--kit-text); horizontal-align: center; }
 .kit-card { flow-children: down; gap: 12px; width: 100%; padding: 22px 28px; background-color: var(--kit-panel); border: 2px solid var(--kit-panel-border); border-radius: var(--kit-radius); }
 .kit-header { font-size: var(--kit-header-size); color: var(--kit-text); }
@@ -36,10 +46,11 @@
 .kit-tab Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-tab-size); color: var(--kit-text); }
 .kit-tab:selected { background-color: var(--kit-button-hover); }
 .kit-tab:focus { background-color: var(--kit-focus); }
+.kit-tab:doubleclick { pulse-duration: 0.5s; animation: kit-tab-spin 0.5s ease-in-out; sound-enter: "GameData/sounds/mew.wav"; }
 .kit-buttons { flow-children: right; gap: 16px; horizontal-align: center; }
 .kit-button { width: 320px; height: 56px; background-color: var(--kit-button); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); }
 .kit-button:hover { background-color: var(--kit-button-hover); }
-.kit-button:focus { background-color: var(--kit-focus); border-color: var(--kit-text); }
+.kit-button:focus { background-color: var(--kit-focus); border-color: var(--kit-focus-border); }
 .kit-button:active { background-color: var(--kit-button-hover); }
 .kit-button Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-button-size); color: var(--kit-text); }
 .kit-small-button { vertical-align: center; min-width: 96px; height: 40px; padding: 0 12px; background-color: var(--kit-button); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); }
@@ -52,9 +63,9 @@
 .setting-label { width: 360px; vertical-align: center; font-size: var(--kit-label-size); color: var(--kit-text); }
 .setting-control { vertical-align: center; }
 .setting-value { width: 70px; vertical-align: center; font-size: var(--kit-label-size); color: var(--kit-caption); }
-.kit-toggle { width: 140px; height: 38px; background-color: var(--kit-toggle-off); border-radius: 6px; }
+.kit-toggle { width: 140px; height: 38px; background-color: var(--kit-toggle-off); border-radius: 0px; }
 .kit-toggle:checked { background-color: var(--kit-toggle-on); }
-.kit-toggle:focus { border: 2px solid var(--kit-text); }
+.kit-toggle:focus { border: 2px solid var(--kit-focus-border); }
 .kit-toggle Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-label-size); color: var(--kit-text); }
 .kit-toggle .on { visibility: collapse; }
 .kit-toggle:checked .on { visibility: visible; }
@@ -63,7 +74,7 @@ Slider { width: 340px; height: 26px; vertical-align: center; color: var(--kit-fo
 DropDown { width: 340px; height: 46px; padding: 0 14px; vertical-align: center; font-size: var(--kit-dialog-size); color: var(--kit-text); background-color: var(--kit-button); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); transition: background-color 0.15s ease-out, border-color 0.15s ease-out; }
 DropDown:hover, DropDown.open { background-color: var(--kit-button-hover); }
 DropDown:active { background-color: var(--kit-focus); }
-DropDown:focus { background-color: var(--kit-focus); border-color: var(--kit-text); }
+DropDown:focus { background-color: var(--kit-focus); border-color: var(--kit-focus-border); }
 DropDown:disabled { opacity: 0.45; }
 DropDown .dropdown-arrow { margin-left: 10px; }
 /* Text fields: the box is the field, :focus is a field the pointer or the arrows are on, .editing one that is taking keys. */
@@ -76,15 +87,16 @@ TextEntry.editing, MultilineTextEntry.editing { background-color: var(--kit-focu
 TextEntry:disabled, MultilineTextEntry:disabled { opacity: 0.45; }
 MultilineTextEntry .scrollbar { width: 6px; margin: 4px; }
 
-.dropdown-list { background-color: var(--kit-panel); border: 2px solid var(--kit-panel-border); border-radius: var(--kit-radius); box-shadow: 0 10px 24px 0 rgba(0, 0, 0, 0.5); animation: kit-dropdown-open 0.14s ease-out; }
+.dropdown-list { background-color: var(--kit-panel); border: 2px solid var(--kit-panel-border); border-radius: var(--kit-radius); animation: kit-dropdown-open 0.14s ease-out; }
 .dropdown-item { height: 46px; padding: 0 14px; transition: background-color 0.1s ease-out; }
 .dropdown-item:hover, .dropdown-item:focus { background-color: var(--kit-button-hover); }
 .dropdown-item:active { background-color: var(--kit-focus); }
 .dropdown-item:selected { background-color: var(--kit-focus); }
 .dropdown-item:disabled { opacity: 0.45; }
+@keyframes kit-tab-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes kit-dropdown-open { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0px); } }
 .scrollbar { width: 10px; background-color: var(--kit-divider); }
-.scrollbar .thumb { background-color: var(--kit-accent); border-radius: 4px; }
+.scrollbar .thumb { background-color: var(--kit-accent); border-radius: 0px; }
 
 /* ── input settings */
 .bind-list { width: 100%; flow-children: down; gap: 6px; }
@@ -97,9 +109,9 @@ MultilineTextEntry .scrollbar { width: 6px; margin: 4px; }
 .bind-row.alt { background-color: var(--kit-row-alt); }
 .bind-label { width: 300px; vertical-align: center; font-size: var(--kit-action-size); color: var(--kit-text); }
 .slot-group { flow-children: right; gap: 6px; vertical-align: center; margin-right: 24px; }
-.bind-slot { width: 80px; height: 66px; background-color: var(--kit-slot); border: 2px solid var(--kit-panel-border); border-radius: 6px; }
+.bind-slot { width: 80px; height: 66px; background-color: var(--kit-slot); border: 2px solid var(--kit-panel-border); border-radius: 0px; }
 .bind-slot:hover { background-color: var(--kit-button-hover); }
-.bind-slot:focus { border-color: var(--kit-text); }
+.bind-slot:focus { border-color: var(--kit-focus-border); }
 .bind-slot.listening { background-color: var(--kit-slot-listening); }
 .bind-slot.unbound .bind-icon { opacity: 0; }
 .bind-icon { width: 44px; height: 44px; horizontal-align: center; vertical-align: center; }
@@ -118,16 +130,18 @@ MultilineTextEntry .scrollbar { width: 6px; margin: 4px; }
 .dialog-hint { font-size: var(--kit-dialog-size); color: var(--kit-caption); horizontal-align: center; }
 .dialog-row { flow-children: right; gap: 16px; horizontal-align: center; }
 .dialog-button { width: 190px; height: 60px; background-color: var(--kit-button); border: 2px solid var(--kit-button-border); border-radius: var(--kit-radius); }
-.dialog-button:focus { background-color: var(--kit-focus); border-color: var(--kit-text); }
+.dialog-button:focus { background-color: var(--kit-focus); border-color: var(--kit-focus-border); }
 .dialog-button Label { horizontal-align: center; vertical-align: center; font-size: var(--kit-dialog-button-size); color: var(--kit-text); }
 
 /* ── save and load */
+.slot-card { height: fill-parent-flow(1); }
 .slot-list { width: 100%; height: fill-parent-flow(1); overflow: scroll; }
-.slot-row { width: 100%; height: 72px; background-color: var(--kit-button); border-radius: 4px; }
-.slot-row:hover, .slot-row:focus { background-color: var(--kit-button-hover); }
+.slot-row { width: 100%; height: 72px; background-color: var(--kit-button); border: 2px solid var(--kit-panel-border); border-radius: 0px; }
+.slot-row:hover { background-color: var(--kit-button-hover); }
+.slot-row:focus { background-color: var(--kit-focus); border-color: var(--kit-focus-border); }
 .slot-row.locked { opacity: 0.55; }
 .slot-label { horizontal-align: left; vertical-align: center; margin-left: 14px; font-size: var(--kit-button-size); color: var(--kit-text); }
-.slot-status { horizontal-align: right; vertical-align: center; margin-right: 14px; font-size: var(--kit-status-size); color: var(--kit-caption); }
+.slot-status { horizontal-align: right; vertical-align: center; margin-right: 28px; font-size: var(--kit-status-size); color: var(--kit-caption); }
 .kit-empty { font-size: var(--kit-label-size); color: var(--kit-caption); horizontal-align: center; }
 
 .kit-toast { padding: 12px 20px; background-color: var(--kit-panel); border: 2px solid var(--kit-panel-border); border-radius: var(--kit-radius); horizontal-align: center; vertical-align: bottom; margin-bottom: 120px; }

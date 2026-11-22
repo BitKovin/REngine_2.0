@@ -1,4 +1,5 @@
 #include "WeaponFirearm.h"
+#include "../../../Gore/StealthGoreAdapter.h"
 #include <algorithm>
 #include "Animators/WeaponAnimator.h"
 #include <RandomHelper.h>
@@ -26,10 +27,51 @@ void WeaponFirearm::Start() {
 	attackDelay.AddDelay(params.switchDelayTime - 0.1f);
 	SwitchDelay.AddDelay(params.switchDelayTime);
 
-
 	Update();
 	AsyncUpdate();
 	LateUpdate();
+}
+
+void WeaponFirearm::SetData(WeaponSlotData data)
+{
+	// magazineAmmo < 0 is the "never persisted a magazine count for this
+	// instance" sentinel (see WeaponSlotData) - a genuinely fresh pickup.
+	// Otherwise this is a previously-owned instance being re-equipped (switched
+	// back to, or restored from a save) and its persisted count is restored.
+	int pool = owner != nullptr ? owner->GetAmmo(params.ammoType) : 0;
+
+	if (reloadConsumesAmmo)
+	{
+		// Clip model: the magazine owns its rounds, so it must NOT be clamped to
+		// the pool on re-equip (the pool can be 0 while the magazine is full -
+		// clamping would silently delete the loaded rounds every weapon switch).
+		if (data.magazineAmmo < 0)
+		{
+			// Fresh weapon is loaded FROM the pool, not conjured on top of it.
+			// (If pickups should start loaded for free, drop the ConsumeAmmo.)
+			int load = std::min(params.magazineSize, pool);
+			if (owner != nullptr && load > 0)
+				owner->ConsumeAmmo(params.ammoType, load);
+			data.magazineAmmo = load;
+		}
+		else
+			data.magazineAmmo = std::min(data.magazineAmmo, params.magazineSize);
+	}
+	else
+	{
+		// Visual-reload model: the magazine is just a view of the pool, so it can
+		// never exceed it (other weapons may have used the pool in the meantime).
+		if (data.magazineAmmo < 0)
+			data.magazineAmmo = std::min(params.magazineSize, pool);
+		else
+			data.magazineAmmo = std::min({ data.magazineAmmo, params.magazineSize, pool });
+	}
+
+	data.magazineAmmo = std::max(0, data.magazineAmmo);
+	reloading = false;
+	reloadBuffer = 0.0f;
+
+	Weapon::SetData(data);
 }
 
 void WeaponFirearm::LoadAssets()
@@ -67,7 +109,7 @@ void WeaponFirearm::LoadAssets()
 	armsLeft = new SkeletalMesh(this);
 
 	if (params.modelPath.empty() == false)
-	viewmodelLeft->LoadFromFile(params.modelPath);
+		viewmodelLeft->LoadFromFile(params.modelPath);
 
 	if (!params.texturesLocation.empty())
 		viewmodelLeft->TexturesLocation = params.texturesLocation;
@@ -89,7 +131,7 @@ void WeaponFirearm::LoadAssets()
 	// Third person model
 	Drawables.push_back(thirdPersonModel = new SkeletalMesh(owner));
 
-	if(params.modelPathTp.empty()== false)
+	if (params.modelPathTp.empty() == false)
 		thirdPersonModel->LoadFromFile(params.modelPathTp);
 
 	thirdPersonModel->TexturesLocation = params.texturesLocationTp;
@@ -150,6 +192,15 @@ void WeaponFirearm::Update()
 {
 	Weapon::Update();
 
+	// When the magazine is just a capped view into the shared pool (rather than
+	// reload having actually moved ammo out of it), it can go stale: another
+	// weapon of the same ammo type may have fired and dropped the pool below
+	// what this magazine currently shows. Keep it honest every frame. Not done
+	// when reloadConsumesAmmo is true, since in that mode the magazine's ammo
+	// has genuinely been removed from the pool and is this weapon's own.
+	if (!reloadConsumesAmmo && owner != nullptr)
+		Data.magazineAmmo = std::min(Data.magazineAmmo, owner->GetAmmo(params.ammoType));
+
 	if (akimbo)
 	{
 		akimboDistanceProgress += Time::DeltaTimeF * 4.0f;
@@ -191,17 +242,90 @@ void WeaponFirearm::Update()
 	if (!firstPerson)
 		Spread *= 0.5f;
 
+	// Snapshot before anything below can start a reload (the key, or the
+	// dry-fire auto-reload inside PerformAttack) - see the completion check.
+	const bool wasReloadingAtFrameStart = reloading;
+
 	if (Input::GetAction("attack")->Holding() && CanAttack() && !attackDelay.Wait())
 		PerformAttack();
+
+	// Buffer the key press: Pressed() is a single-frame event, and CanReload()
+	// can be false on exactly that frame (e.g. CanAttack() is still blocked by
+	// the delay a shot just added), which used to swallow the press entirely.
+	if (Input::GetAction("reload")->Pressed())
+		reloadBuffer = 0.3f;
+
+	if (reloadBuffer > 0.0f)
+	{
+		reloadBuffer -= Time::DeltaTimeF;
+
+		if (GetRoundsToLoad() <= 0)
+			reloadBuffer = 0.0f; // nothing to reload, don't keep a stale request
+		else if (CanReload())
+		{
+			StartReload();
+		}
+	}
+
+	// Skipped on the frame the reload starts: the animation duration/time read
+	// below can still belong to the previous clip (fire/draw) on that frame,
+	// which made the reload "complete" instantly or against the wrong clip.
+	if (reloading && wasReloadingAtFrameStart)
+	{
+		// Detect completion by animation time remaining rather than a fixed
+		// duration, so reload speed always matches whatever clip is playing.
+		float remaining = viewmodel->GetAnimationDuration() - viewmodel->GetAnimationTime();
+
+		if (remaining <= 0.2f)
+		{
+			// Evaluated NOW, not when the reload began - the pool may have changed
+			// during the animation (pickup, another weapon firing).
+			int load = GetRoundsToLoad();
+
+			if (load > 0)
+			{
+				// Clip model: rounds physically leave the pool.
+				// Visual model: nothing leaves the pool, the view just refills.
+				if (reloadConsumesAmmo)
+					owner->ConsumeAmmo(params.ammoType, load);
+
+				Data.magazineAmmo += load;
+			}
+
+			reloading = false;
+		}
+	}
 }
 
 void WeaponFirearm::PerformAttack()
 {
 
-	if (owner->GetAmmo(params.ammoType) <= 0)
+	if (reloading)
 	{
 		return;
 	}
+
+	// Out of rounds in the magazine. Under BOTH ammo models an empty magazine
+	// means "reload first". Start one automatically if it can actually do
+	// something (and silently do nothing if the pool is empty too).
+	if (Data.magazineAmmo <= 0)
+	{
+		if (CanReload())
+			StartReload();
+		return;
+	}
+
+	// Akimbo: the RIGHT (primary) gun owns the magazine and decides when the
+	// weapon needs a reload - an empty magazine blocks BOTH hands (checked above)
+	// and the reload animation plays on both. The LEFT gun has no magazine of its
+	// own: it draws straight from the player's ammo pool and never reloads.
+	// The turn is handed to the other hand before the left-hand ammo gate below,
+	// so a blocked left shot doesn't leave the weapon retrying the same hand.
+	bool fireLeft = akimbo && alternateFire && fireLeftNext;
+	fireLeftNext = !fireLeftNext;
+
+	if (fireLeft && owner->GetAmmo(params.ammoType) <= 0)
+		return;
 
 	if (params.hasActiveSpread)
 		activeSpread += params.spreadIncreasePerShot;
@@ -253,9 +377,6 @@ void WeaponFirearm::PerformAttack()
 	SwitchDelay.AddDelay(params.switchDelayOnAttack * (akimbo ? 0.5f : 1));
 	attackDelay.AddDelay(params.attackDelayTime * (akimbo ? 0.5f : 1.0f));
 
-
-	bool fireLeft = akimbo && alternateFire && fireLeftNext;
-
 	if (akimbo)
 	{
 		if (fireLeft)
@@ -265,8 +386,6 @@ void WeaponFirearm::PerformAttack()
 	}
 	else
 		viewmodel->PlayAnimation(params.fireAnimation, false, params.fireAnimInterpInTime);
-
-	fireLeftNext = !fireLeftNext;
 
 	// muzzle selection
 	mat4 boneMat = (akimbo && fireLeft ? viewmodelLeft : viewmodel)->GetBoneMatrixWorld(params.boneMuzzle);
@@ -278,7 +397,7 @@ void WeaponFirearm::PerformAttack()
 	int c = 0;
 
 	// spread shooting
-	if (params.spreadType == "grid") 
+	if (params.spreadType == "grid")
 	{
 		for (float y = -params.gridSpreadSize; y <= params.gridSpreadSize; y += params.gridStep) {
 			for (float x = -params.gridSpreadSize; x <= params.gridSpreadSize; x += params.gridStep) {
@@ -293,7 +412,24 @@ void WeaponFirearm::PerformAttack()
 			FireSingleBullet(startLoc, vec4(0));
 	}
 
-	owner->ConsumeAmmo(GetAmmoType(), 1);
+	if (fireLeft)
+	{
+		// Left gun: always straight from the pool, in both ammo models. It never
+		// touches Data.magazineAmmo. (In visual-reload mode the magazine is a
+		// capped view of the pool, so Update() shrinks it if this drops the pool
+		// below what it shows - no manual adjustment needed here.)
+		owner->ConsumeAmmo(GetAmmoType(), 1);
+	}
+	else
+	{
+		Data.magazineAmmo = std::max(0, Data.magazineAmmo - 1);
+
+		// Visual-reload model: the pool is the real ammo, so the shot comes out
+		// of it directly. Clip model: the round already left the pool when the
+		// magazine was loaded - charging it again would double-bill the player.
+		if (!reloadConsumesAmmo)
+			owner->ConsumeAmmo(GetAmmoType(), 1);
+	}
 
 	if (fireLeft)
 	{
@@ -329,6 +465,62 @@ void WeaponFirearm::PerformAttack()
 
 }
 
+int WeaponFirearm::GetRoundsToLoad()
+{
+	if (owner == nullptr)
+		return 0;
+
+	int pool = owner->GetAmmo(params.ammoType);
+	int space = params.magazineSize - Data.magazineAmmo;
+
+	if (space <= 0 || pool <= 0)
+		return 0;
+
+	// Clip model: the pool is pure reserve, so take as much as fits, limited by
+	// what's there. (The old code compared the magazine against
+	// min(magazineSize, pool) as if the pool were the magazine's total, so with
+	// e.g. 7/8 loaded and 3 in reserve it computed a target of 3, decided the
+	// magazine was already "full", and refused to reload.)
+	if (reloadConsumesAmmo)
+		return std::min(space, pool);
+
+	// Visual model: the magazine is a view of the pool, capped by it.
+	return std::max(0, std::min(params.magazineSize, pool) - Data.magazineAmmo);
+}
+
+bool WeaponFirearm::CanReload()
+{
+	if (reloading)
+		return false;
+
+	if (owner == nullptr)
+		return false;
+
+	if (!CanAttack())
+		return false;
+
+	// Nothing a reload could add under the active ammo model.
+	if (GetRoundsToLoad() <= 0)
+		return false;
+
+	// Can't reload while the offhand weapon is mid-action (e.g. the cane swinging).
+	if (owner->currentOffhandWeapon != nullptr && owner->currentOffhandWeapon->UsesLeftHand())
+		return false;
+
+	return true;
+}
+
+void WeaponFirearm::StartReload()
+{
+	reloading = true;
+	reloadBuffer = 0.0f;
+
+	viewmodel->PlayAnimation(params.reloadAnimation, false, params.fireAnimInterpInTime);
+
+	if (viewmodelLeft != nullptr)
+		viewmodelLeft->PlayAnimation(params.reloadAnimation, false, params.fireAnimInterpInTime);
+}
+
 void WeaponFirearm::FireSingleBullet(const vec3& startLoc, const vec4& gridOffset)
 {
 	Bullet* bullet = static_cast<Bullet*>(LevelObjectFactory::instance().create(params.bulletClass));
@@ -359,6 +551,7 @@ void WeaponFirearm::FireSingleBullet(const vec3& startLoc, const vec4& gridOffse
 	bullet->Position = startLoc + offset * 0.002f;
 	bullet->Rotation = MathHelper::FindLookAtRotation(startLoc, endLoc);
 	Level::Current->AddEntity(bullet);
+	StealthGore::TagProjectile(bullet, this);
 	bullet->Start();
 	bullet->LoadAssetsIfNeeded();
 	bullet->Damage = params.bulletDamage;
@@ -370,7 +563,7 @@ void WeaponFirearm::FireSingleBullet(const vec3& startLoc, const vec4& gridOffse
 
 }
 
-void WeaponFirearm::NotifyNpcs() 
+void WeaponFirearm::NotifyNpcs()
 {
 
 	AiPerceptionSystem::EmitSoundAt(owner->Position, params.npcNotifyRadius, (int)InvestigationReason::WeaponFire, Player::Instance->Id);
@@ -387,8 +580,13 @@ void WeaponFirearm::NotifyNpcs()
 
 void WeaponFirearm::AsyncUpdate()
 {
-	 
-	float hide = HideWeapon || lastFrameHide;
+
+	// max (not ||): HideWeapon is now a continuous 0..1 blend for two-handed
+	// weapons handing off to an offhand weapon, and this needs to preserve the
+	// fractional value rather than collapsing it to a bool. Keeps the existing
+	// "stay hidden one extra frame" anti-flicker behaviour for everything else,
+	// since it's just max(current, previous) instead of OR(current, previous).
+	float hide = std::max(HideWeapon, lastFrameHide);
 
 	lastFrameHide = HideWeapon;
 
@@ -401,7 +599,7 @@ void WeaponFirearm::AsyncUpdate()
 	viewmodel->Update();
 	auto pose = viewmodel->GetAnimationPose();
 	auto leftHandPose = pose.GetBoneTransform("clavicle_l");
-	leftHandPose.Rotation += vec3(50, 0, 0) * hide;
+	leftHandPose.Rotation += vec3(30, 0, 0) * hide;
 	pose.SetBoneTransformEuler("clavicle_l", leftHandPose);
 	arms->PasteAnimationPose(pose);
 
@@ -411,7 +609,7 @@ void WeaponFirearm::AsyncUpdate()
 		viewmodelLeft->Update();
 		auto poseL = viewmodelLeft->GetAnimationPose();
 		auto leftHandPose = poseL.GetBoneTransform("clavicle_l");
-		leftHandPose.Rotation += vec3(50, 0, 0) * hide;
+		leftHandPose.Rotation += vec3(35, 0, 0) * hide;
 		poseL.SetBoneTransformEuler("clavicle_l", leftHandPose);
 		armsLeft->PasteAnimationPose(poseL);
 	}
@@ -426,7 +624,7 @@ void WeaponFirearm::LateUpdate()
 
 	vec3 offset = params.weaponOffset;
 
-	offset.x += akimboDistanceProgress * -0.012f;
+	offset.x += akimboDistanceProgress * -0.020f;
 
 	viewmodel->Position = Position + (mat3)Camera::GetRotationMatrix() * offset;
 	viewmodel->Rotation = Rotation;
@@ -445,7 +643,7 @@ void WeaponFirearm::LateUpdate()
 
 		viewmodelLeft->Visible = viewmodel->Visible;
 		armsLeft->Visible = arms->Visible;
-		viewmodelLeft->Position = Position + (mat3)Camera::GetRotationMatrix() * (offset * vec3(-1,1,1));
+		viewmodelLeft->Position = Position + (mat3)Camera::GetRotationMatrix() * (offset * vec3(-1, 1, 1));
 		viewmodelLeft->Rotation = Rotation;
 		if (params.hasRecoilModelOffset) viewmodelLeft->Rotation.x += recoilModelOffset;
 		armsLeft->Position = viewmodelLeft->Position;
@@ -493,7 +691,7 @@ void WeaponFirearm::Destroy()
 
 AnimationPose WeaponFirearm::ApplyWeaponAnimation(AnimationPose thirdPersonPose)
 {
-	thirdPersonAnimator->weaponAim = std::clamp(weaponAim,0.0f, 1.0f);
+	thirdPersonAnimator->weaponAim = std::clamp(weaponAim, 0.0f, 1.0f);
 	thirdPersonAnimator->inPose = thirdPersonPose;
 	thirdPersonAnimator->Update();
 	lastAppliedPose = thirdPersonAnimator->GetResultPose();
@@ -509,7 +707,12 @@ void WeaponFirearm::Serialize(json& target)
 	SERIALIZE_FIELD(target, recoilModelOffset);
 	SERIALIZE_FIELD(target, weaponAim);
 	SERIALIZE_FIELD(target, fireLeftNext);
-	
+	// Not SERIALIZE_FIELD: magazineAmmo now lives on Data (Data.magazineAmmo),
+	// not a same-named member, so the macro's implicit field-name lookup can't
+	// reach it.
+	target["magazineAmmo"] = Data.magazineAmmo;
+	SERIALIZE_FIELD(target, reloading);
+
 	auto viewmodelData = viewmodel->GetAnimationState();
 	SERIALIZE_FIELD(target, viewmodelData);
 	auto viewmodelLeftData = viewmodelLeft->GetAnimationState();
@@ -525,6 +728,9 @@ void WeaponFirearm::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, recoilModelOffset);
 	DESERIALIZE_FIELD(source, weaponAim);
 	DESERIALIZE_FIELD(source, fireLeftNext);
+	if (source.contains("magazineAmmo"))
+		Data.magazineAmmo = source["magazineAmmo"].get<int>();
+	DESERIALIZE_FIELD(source, reloading);
 
 	AnimationState viewmodelData;
 	DESERIALIZE_FIELD(source, viewmodelData);
@@ -539,6 +745,16 @@ void WeaponFirearm::Deserialize(json& source)
 bool WeaponFirearm::IsInUltimateAkimbo()
 {
 	return false;
+}
+
+void WeaponFirearm::UpdateDebugUI()
+{
+
+	ImGui::Begin((std::string("WeaponFirearm:") + ClassName).c_str());
+
+	ImGui::DragFloat3("offset", &params.weaponOffset.x, 0.002f, -1.0f, 1.0f);
+
+	ImGui::End();
 }
 
 void WeaponFirearm::SnapTrailPositions()

@@ -13,15 +13,7 @@ void NpcMeleeAnimator::Update()
 	if (!loaded) return;
 
 	// ── Locomotion ────────────────────────────────────────────────────────────
-	std::string desiredLocoAnim = scared ? "scared" : "idle";
-	if (movementSpeed > 1) desiredLocoAnim = "walk";
-	if (movementSpeed > 3) desiredLocoAnim = "run";
-
-	if (weapon_ready)
-	{
-		if (desiredLocoAnim == "idle") desiredLocoAnim = "sword_idle";
-		if (desiredLocoAnim == "walk") desiredLocoAnim = "sword_walk";
-	}
+	const std::string desiredLocoAnim = PickLocomotionAnimation(weapon_ready);
 
 	if (locomotion->currentAnimationData->animationName != desiredLocoAnim)
 		locomotion->PlayAnimation(desiredLocoAnim, true, 0.3f);

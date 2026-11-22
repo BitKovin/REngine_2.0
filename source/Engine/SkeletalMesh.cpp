@@ -623,6 +623,27 @@ mat4 SkeletalMesh::GetBoneMatrixWorld(const string& boneName)
 	return GetWorldMatrix() * GetBoneMatrix(boneName);
 }
 
+string SkeletalMesh::GetNearestHitboxBone(const vec3& worldPoint, vec3& outBonePosition)
+{
+	string nearest;
+	float nearestDistance = FLT_MAX;
+
+	for (auto& hitbox : metaData.hitboxes)
+	{
+		const vec3 bonePosition = vec3(GetBoneMatrixWorld(hitbox.boneName)[3]);
+		const float distance = glm::distance(bonePosition, worldPoint);
+
+		if (distance < nearestDistance)
+		{
+			nearestDistance = distance;
+			nearest = hitbox.boneName;
+			outBonePosition = bonePosition;
+		}
+	}
+
+	return nearest;
+}
+
 float SkeletalMesh::GetHitboxDamageMultiplier(string boneName)
 {
 	for (auto& hitbox : metaData.hitboxes)

@@ -1,0 +1,168 @@
+{
+  "core": "GameData/models/npc/goreHumanCore.glb",
+  "textures": {
+    "flesh": "gore/flesh_d.png",
+    "blood": "gore/blood_soak.png",
+    "decal": "gore/blood_decals.png",
+    "edgeNoise": "gore/edge_noise.png",
+    "bone": "gore/bone_d.png",
+    "guts": "lq_flesh/flesh_gut1.jpg"
+  },
+  "fleshScale": 5.0,
+  "bloodColor": [
+    0.35,
+    0.02,
+    0.02
+  ],
+  "submeshes": {},
+  "anatomy": {
+    "forward": [
+      0,
+      0,
+      1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "torso": [
+      "pelvis",
+      "spine_01",
+      "spine_02",
+      "spine_03"
+    ],
+    "ribs": [
+      "spine_02",
+      "spine_03"
+    ],
+    "guts": [
+      "pelvis",
+      "spine_01"
+    ],
+    "head": "head",
+    "minBoneLength": 0.06
+  },
+  "protectedWhileAlive": [
+    "neck_01",
+    "head"
+  ],
+  "severable": [
+    {
+      "bone": "upperarm_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.034,
+      "gib": "ragdoll",
+      "detach": 60
+    },
+    {
+      "bone": "upperarm_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.034,
+      "gib": "ragdoll",
+      "detach": 60
+    },
+    {
+      "bone": "lowerarm_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.027,
+      "gib": "rigid",
+      "detach": 40
+    },
+    {
+      "bone": "lowerarm_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.027,
+      "gib": "rigid",
+      "detach": 40
+    },
+    {
+      "bone": "thigh_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.052,
+      "gib": "ragdoll",
+      "detach": 70
+    },
+    {
+      "bone": "thigh_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.052,
+      "gib": "ragdoll",
+      "detach": 70
+    },
+    {
+      "bone": "calf_l",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.04,
+      "gib": "rigid",
+      "detach": 45
+    },
+    {
+      "bone": "calf_r",
+      "range": [
+        0.3,
+        0.7
+      ],
+      "maxTilt": 35,
+      "boneRadius": 0.04,
+      "gib": "rigid",
+      "detach": 45
+    },
+    {
+      "bone": "spine_01",
+      "range": [
+        0.1,
+        0.9
+      ],
+      "maxTilt": 30,
+      "boneRadius": 0.05,
+      "coreRadius": 0.2,
+      "clipAncestors": true,
+      "gib": "ragdoll",
+      "lethal": true,
+      "detach": 90
+    },
+    {
+      "bone": "neck_01",
+      "range": [
+        -0.7,
+        0.65
+      ],
+      "maxTilt": 30,
+      "boneRadius": 0.034,
+      "clipAncestors": true,
+      "gib": "rigid",
+      "lethal": true,
+      "canDestroy": true,
+      "detach": 80
+    }
+  ]
+}

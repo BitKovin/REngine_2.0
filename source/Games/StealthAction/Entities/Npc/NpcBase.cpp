@@ -253,9 +253,23 @@ void NpcBase::Death()
 
 void NpcBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon)
 {
+	// The hit zone scales a point hit (headshots and so on).
+	ApplyPointDamage(Damage * mesh->GetHitboxDamageMultiplier(bone), Point, Direction, bone, DamageCauser, Weapon);
+}
+
+void NpcBase::OnRadialDamage(float Damage, vec3 Origin, Entity* DamageCauser, Entity* Weapon)
+{
+	// A blast hurts the whole body the same: the hit zone only tells the effects (blood, gore) where to act,
+	// and that is the part of the body nearest to the blast.
+	vec3 point = Position;
+	const string bone = mesh->GetNearestHitboxBone(Origin, point);
+	ApplyPointDamage(Damage, point, RadialDirection(Origin, point), bone, DamageCauser, Weapon);
+}
+
+void NpcBase::ApplyPointDamage(float Damage, vec3 Point, vec3 Direction, string bone, Entity* DamageCauser, Entity* Weapon)
+{
 	const bool wasAliveBeforeHit = !dead && Health > 0;
 
-	Damage *= mesh->GetHitboxDamageMultiplier(bone);
 	Entity::OnPointDamage(Damage, Point, Direction, bone, DamageCauser, Weapon);
 
 	StealthGore::OnNpcPointDamage(this, Damage, Point, Direction, bone, DamageCauser, Weapon, wasAliveBeforeHit);

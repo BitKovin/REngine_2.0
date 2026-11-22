@@ -25,7 +25,7 @@ public:
         params.attackDelayTime = 1.4f;
         params.switchDelayTime = 0.2f;
         params.switchDelayOnAttack = 2.1f;
-        params.weaponOffset = vec3(0.0, 0.00, -0.0);
+        params.weaponOffset = vec3(-0.008, -0.020, -0.122);
         params.bulletSpeed = 200.0f;
         params.bulletDamage = 200.0f;
         params.range = 80.0f;

@@ -142,9 +142,11 @@ void InvestigationBase::ReachedTarget()
 
 void InvestigationBase::Finish()
 {
-	owner->movementLockDelay.AddDelay(StayInPlaceAfterFinishTime);
-	owner->currentInvestigation = nullptr;
-	owner->report_to_guard = false;
+	// Clearing currentInvestigation destroys this object (when it owns it): nothing of ours may be touched afterwards.
+	NpcBase* npc = owner;
+	npc->movementLockDelay.AddDelay(StayInPlaceAfterFinishTime);
+	npc->report_to_guard = false;
+	npc->currentInvestigation = nullptr;
 }
 
 nlohmann::json InvestigationBase::Serialize()

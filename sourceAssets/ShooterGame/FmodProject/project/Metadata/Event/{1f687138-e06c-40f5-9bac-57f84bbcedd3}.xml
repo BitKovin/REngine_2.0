@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.03.00">
+<objects serializationModel="Studio.02.02.00">
 	<object class="Event" id="{1f687138-e06c-40f5-9bac-57f84bbcedd3}">
 		<property name="note">
 			<value>This is an example of a one-shot event using custom distance attenuation and built-in parameters.
@@ -709,7 +709,7 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<value>50</value>
 		</property>
 		<property name="value">
-			<value>10</value>
+			<value>2.5</value>
 		</property>
 		<property name="curveShape">
 			<value>0.208863854</value>
@@ -720,7 +720,7 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<value>100</value>
 		</property>
 		<property name="value">
-			<value>1.59999847</value>
+			<value>-5.90000153</value>
 		</property>
 	</object>
 	<object class="AutomationPoint" id="{3e7f0630-654a-47a1-8a91-59fd99e6f903}">
@@ -728,7 +728,7 @@ Explosion samples by Michel Baradari available at https://opengameart.org/conten
 			<value>0</value>
 		</property>
 		<property name="value">
-			<value>0</value>
+			<value>-7.96557331</value>
 		</property>
 		<property name="curveShape">
 			<value>-1</value>

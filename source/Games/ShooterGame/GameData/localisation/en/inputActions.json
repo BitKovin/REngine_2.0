@@ -27,6 +27,11 @@
         { "key": "INPUT_ACTION_SLOT4",     "value": "Select Slot 4", "description": "Input action to select the fourth slot" },
         { "key": "INPUT_ACTION_SLOT5",     "value": "Select Slot 5", "description": "Input action to select the fifth slot" },
         { "key": "INPUT_ACTION_SLOT6",     "value": "Select Slot 6", "description": "Input action to select the sixth slot" },
-        { "key": "INPUT_ACTION_LAST_SLOT", "value": "Select Last Slot", "description": "Input action to select the last selected slot. For example, if you used pistol and switched to shotgun it will switch back to pistol" }
+        { "key": "INPUT_ACTION_LAST_SLOT", "value": "Select Last Slot", "description": "Input action to select the last selected slot. For example, if you used pistol and switched to shotgun it will switch back to pistol" },
+        { "key": "INPUT_ACTION_OFFHAND", "value": "Change Left-Hand Item", "description": "Steps through the items held in the left hand (the first column of the weapon grid)" },
+        { "key": "INPUT_ACTION_GRID_LEFT", "value": "Weapon Grid: Previous Column", "description": "Moves the weapon selection one column left (gamepad D-pad)" },
+        { "key": "INPUT_ACTION_GRID_RIGHT", "value": "Weapon Grid: Next Column", "description": "Moves the weapon selection one column right (gamepad D-pad)" },
+        { "key": "INPUT_ACTION_GRID_UP", "value": "Weapon Grid: Up", "description": "Moves the weapon selection up its column (gamepad D-pad)" },
+        { "key": "INPUT_ACTION_GRID_DOWN", "value": "Weapon Grid: Down", "description": "Moves the weapon selection down its column (gamepad D-pad)" }
     ]
 }

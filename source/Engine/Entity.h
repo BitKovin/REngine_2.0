@@ -134,6 +134,22 @@ public:
 		OnDamage(Damage, DamageCauser, Weapon);
 	}
 
+	// An explosion hurts the entity. Damage is final: the falloff with the distance is already applied, and hit zones
+	// (headshot multipliers and the like) must not scale it. Origin = centre of the blast. DamageCauser = who caused it
+	// (the thrower), Weapon = what did it (the explosion): same meaning as in OnDamage.
+	virtual void OnRadialDamage(float Damage, vec3 Origin, Entity* DamageCauser = nullptr, Entity* Weapon = nullptr)
+	{
+		OnDamage(Damage, DamageCauser, Weapon);
+	}
+
+	// Direction of a radial hit: from the blast centre to the point it hit.
+	static vec3 RadialDirection(const vec3& Origin, const vec3& Point)
+	{
+		const vec3 away = Point - Origin;
+		const float length = glm::length(away);
+		return length > 0.0001f ? away / length : vec3(0.0f, 1.0f, 0.0f);
+	}
+
 	const vector<IDrawMesh*>& GetDrawMeshes() override
 	{
 		return Drawables;

@@ -1,4 +1,7 @@
 #include <Entity.h>
+#include "Gore/GoreChunks.h"
+#include "Gore/GoreDebug.h"
+#include "Gore/GoreGib.h"
 #include <Input.h>
 
 #include <BSP/Quake3Bsp.h>
@@ -9,13 +12,18 @@
 #include <EngineMain.h>
 
 #include <UI/Kit/KitPages.h>
+#include <UI/Kit/Settings/InputIconLibrary.h>
 #include <UI/Kit/Settings/KitSettings.h>
-#include "Entities/Player/Player.hpp"
 
 #include <PauseGameManager.hpp>
 
 #include <ItemsDataBase.h>
+#include <WeaponDefs.h>
+#include <PlayerCharacters.h>
 
+#include "Entities/Player/Player.hpp"
+#include <UI/Menus/UiInputPrompts.h>
+#include <UI/Menus/UiMenuStack.h>
 
 #include "Entities/Enemy/DebuffFactory.h"
 
@@ -90,8 +98,16 @@ public:
         LoadingScreenSystem::SetLoadingCanvas(std::make_shared<UiDefaultLoadingScreen>());
 
         bool isServer = true;
+
+        // Automated test runs (-ui_test) stay off the network: no connect, no host socket. The manager still runs as a lone server
+        // (the player spawns through it) on a transport that has no socket, so nothing is sent or received.
+        const bool testRun = EngineMain::MainInstance != nullptr && EngineMain::MainInstance->Arguments.count("ui_test") > 0;
         
-        if (false)
+        if (testRun)
+        {
+            transport = make_unique<ENetTransport>();
+        }
+        else if (false)
         {
 #ifdef __EMSCRIPTEN__
             transport = std::make_unique<RelayTransport>("127.0.0.1", /*wsPort=*/5080, 0);
@@ -185,13 +201,13 @@ public:
         Input::AddAction("attack")->AddButton(GamepadButton::RightTrigger)->AddMouseButton(0);
         Input::AddAction("attack2")->AddButton(GamepadButton::LeftTrigger)->AddMouseButton(1);
 
-        Input::AddAction("attack3")->AddButton(GamepadButton::Y)->AddKeyboardKey(SDL_KeyCode::SDLK_r);
+        Input::AddAction("reload")->AddButton(GamepadButton::Y)->AddKeyboardKey(SDL_KeyCode::SDLK_r);
 
 
         Input::AddAction("qSave")->AddKeyboardKey(SDL_KeyCode::SDLK_F6);
         Input::AddAction("qLoad")->AddKeyboardKey(SDL_KeyCode::SDLK_F7);
 
-        Input::AddAction("interact")->AddKeyboardKey(SDL_KeyCode::SDLK_f);
+        Input::AddAction("interact")->AddKeyboardKey(SDL_KeyCode::SDLK_e);
 
 
 
@@ -223,7 +239,13 @@ public:
 
         Input::AddAction("block")->AddKeyboardKey(SDL_KeyCode::SDLK_LCTRL);
 
-        Input::AddAction("slotMelee");// ->AddKeyboardKey(SDL_KeyCode::SDLK_f);
+        Input::AddAction("slotMelee")->AddKeyboardKey(SDL_KeyCode::SDLK_f);
+        // Weapon grid on a gamepad (Max Payne 2 console style): the D-pad moves over the grid.
+        // D-pad up is also "inventory", which is only read in inventory mode.
+        Input::AddAction("gridLeft")->AddButton(GamepadButton::DPadLeft);
+        Input::AddAction("gridRight")->AddButton(GamepadButton::DPadRight);
+        Input::AddAction("gridUp")->AddButton(GamepadButton::DPadUp);
+        Input::AddAction("gridDown")->AddButton(GamepadButton::DPadDown);
 
 
         Input::AddAction("debug_ui_toggle")->AddKeyboardKey(SDL_KeyCode::SDLK_F2);
@@ -234,6 +256,7 @@ public:
         Input::AddAction("ui_up")->AddKeyboardKey(SDL_KeyCode::SDLK_UP)->AddButton(GamepadButton::DPadUp);
         Input::AddAction("ui_left")->AddKeyboardKey(SDL_KeyCode::SDLK_LEFT)->AddButton(GamepadButton::DPadLeft);
         Input::AddAction("ui_right")->AddKeyboardKey(SDL_KeyCode::SDLK_RIGHT)->AddButton(GamepadButton::DPadRight);
+        Input::AddAction("ui_context")->AddMouseButton(MouseButton::Right)->AddButton(GamepadButton::Y);
 
         InputActionRegistry::Register("forward", "${INPUT_ACTION_FORWARD}", "${INPUT_CATEGORY_MOVEMENT}");
         InputActionRegistry::Register("backward", "${INPUT_ACTION_BACKWARD}", "${INPUT_CATEGORY_MOVEMENT}");
@@ -245,7 +268,7 @@ public:
 
         InputActionRegistry::Register("attack", "${INPUT_ACTION_ATTACK}", "${INPUT_CATEGORY_COMBAT}");
         InputActionRegistry::Register("attack2", "${INPUT_ACTION_ATTACK2}", "${INPUT_CATEGORY_COMBAT}");
-        InputActionRegistry::Register("attack3", "${INPUT_ACTION_ATTACK3}", "${INPUT_CATEGORY_COMBAT}");
+        InputActionRegistry::Register("reload", "${INPUT_ACTION_RELOAD}", "${INPUT_CATEGORY_COMBAT}");
 
         InputActionRegistry::Register("interact", "${INPUT_ACTION_INTERACT}", "${INPUT_CATEGORY_GENERAL}");
         InputActionRegistry::Register("qSave", "${INPUT_ACTION_QUICK_SAVE}", "${INPUT_CATEGORY_GENERAL}");
@@ -258,11 +281,18 @@ public:
         InputActionRegistry::Register("slot5", "${INPUT_ACTION_SLOT5}", "${INPUT_CATEGORY_INVENTORY}");
         InputActionRegistry::Register("slot6", "${INPUT_ACTION_SLOT6}", "${INPUT_CATEGORY_INVENTORY}");
         InputActionRegistry::Register("lastSlot", "${INPUT_ACTION_LAST_SLOT}", "${INPUT_CATEGORY_INVENTORY}");
+        InputActionRegistry::Register("slotMelee", "${INPUT_ACTION_OFFHAND}", "${INPUT_CATEGORY_INVENTORY}");
+        InputActionRegistry::Register("gridLeft", "${INPUT_ACTION_GRID_LEFT}", "${INPUT_CATEGORY_INVENTORY}");
+        InputActionRegistry::Register("gridRight", "${INPUT_ACTION_GRID_RIGHT}", "${INPUT_CATEGORY_INVENTORY}");
+        InputActionRegistry::Register("gridUp", "${INPUT_ACTION_GRID_UP}", "${INPUT_CATEGORY_INVENTORY}");
+        InputActionRegistry::Register("gridDown", "${INPUT_ACTION_GRID_DOWN}", "${INPUT_CATEGORY_INVENTORY}");
 
 
         //Input::AddAction("dbg_simulate")->AddKeyboardKey(SDL_KeyCode::SDLK_j);
 
         ItemsDataBase::LoadItemsDataBase();
+        WeaponDefs::Load();
+        PlayerCharacters::Load();
 
         //Level::Current->AddEntity(new TestBsp());
 
@@ -288,6 +318,9 @@ public:
 
 
         UpdatePaused();
+        Gore::UpdateLookTest();
+        Gore::GibPool::Tick();   // spawns the queued gibs (outside the ECS tick groups)
+        Gore::ChunkPool::Tick();   // spawns the queued meat chunks (outside the ECS tick groups)
 
         if (Input::IsScrenTouched)
         {
@@ -313,10 +346,14 @@ public:
 
                 Level::LoadLevelFromFile(std::string("GameData/maps/") + mapArg->second[0]);
             }
+            else if (EngineMain::MainInstance->Arguments.find("no_map") != EngineMain::MainInstance->Arguments.end())
+            {
+                Logger::Log("-no_map: not opening any map");   // UI tools (UI Studio) want the interface on an empty world
+            }
             else
             {
                 if (NetworkManager::IsServer())
-                    Level::LoadLevelFromFile("GameData/maps/lvl2.bsp");
+                    Level::LoadLevelFromFile("GameData/maps/aitest.bsp");
             }
 
         }
@@ -339,6 +376,8 @@ public:
 
         ImGui::End();
 
+        Gore::DrawDebugWindow();
+
     }
 
     void UpdatePaused()
@@ -349,6 +388,45 @@ public:
 		EngineMain::MainInstance->Paused = PauseGameManager::isGameAnyPaused();
 
 	}
+
+    // The pause menu is the engine kit page on the main menu stack (ui/kit/pages/pause.xml); the stack tells us when the game should pause.
+    static void SetupMenus()
+    {
+        UiMenus::PauseMenu = "ui/kit/pages/pause.xml";
+        // saving is only possible while the player is alive
+        KitPauseMenu::CanSave = []() { return Player::Instance && Player::Instance->dead == false; };
+        UiMenus::OnPauseChanged = [](bool paused)
+        {
+            PauseGameManager::SetGamePaused(paused);
+            if (!paused)
+            {
+                Input::GetAction("pause")->CleanPressed();
+                Input::ReleaseAllActions();
+            }
+        };
+        UiMenus::Stack().OnEmptyBack = nullptr;
+
+        UiInputPrompts::SetProvider([](const std::string& actionName, UiInputDevice device) -> std::string
+        {
+            InputAction* action = Input::GetAction(actionName);
+            if (action == nullptr || action == &InputAction::NullAction)
+                return "";
+            if (device == UiInputDevice::Gamepad)
+            {
+                if (action->buttons.empty())
+                    return "";
+                return InputIconLibrary::GetGamepadIcon(InputBindingSlotGP::FromButton(action->buttons[0]));
+            }
+            if (device == UiInputDevice::KeyboardMouse)
+            {
+                if (!action->keys.empty())
+                    return InputIconLibrary::GetKeyboardIcon(InputBindingSlotKB::FromKey(action->keys[0]));
+                if (!action->mouseButtons.empty())
+                    return InputIconLibrary::GetKeyboardIcon(InputBindingSlotKB::FromMouseButton(action->mouseButtons[0]));
+            }
+            return "";
+        });
+    }
 
     void LoadConstantAssets()
     {
@@ -396,17 +474,7 @@ GameStart::GameStart()
 	PauseGameManager::SetGamePaused(false);
 	PauseGameManager::SetGamePausedGameplay(false);
 
-    // the pause menu is the engine kit page on the main menu stack; saving needs a living player
-    KitSetupMenus([](bool paused)
-		{
-			PauseGameManager::SetGamePaused(paused);
-			if (!paused)
-			{
-				Input::GetAction("pause")->CleanPressed();
-				Input::ReleaseAllActions();
-			}
-		});
-    KitPauseMenu::CanSave = []() { return Player::Instance && Player::Instance->dead == false; };
+    SetupMenus();
 
     NpcBase::globalPhraceDelay = Delay();
 

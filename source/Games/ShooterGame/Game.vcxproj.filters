@@ -399,6 +399,141 @@
     <ClCompile Include="Entities\Enemy\EnemyFire.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerCharacters.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponDefs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Player\PlayerHudView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Player\WeaponIconBaker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Pickup\Weapons\WeaponPickupDynamite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Pickup\Weapons\WeaponPickupMolotov.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\weapon_dynamite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\weapon_molotov.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\WeaponThrowableBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\ThrownProjectileBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\DynamiteProjectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\MolotovProjectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\Projectiles\MolotovFire.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CombatTargetView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CombatBehaviorBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CombatBehaviors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CombatCoordinator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\ApproachMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CoverPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CoverPlanner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CoverFinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CoverMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\CombatThreat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Npc\Combat\RangedFireControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\weapon_crucifix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Entities\Player\Weapons\weapon_sawed.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreCutSolver.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreCap.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreCavity.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreCore.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreTriGrid.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreChunks.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreFlesh.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreGib.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreFx.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreParticles.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreDebug.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreDrawCommands.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreProfile.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreSettings.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreSkeletalMesh.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreSource.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreSystem.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\GoreTypes.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
+    <ClCompile Include="Gore\StealthGoreAdapter.cpp">
+      <Filter>Gore</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entities\Player\Player.hpp">
@@ -634,6 +769,180 @@
     </ClInclude>
     <ClInclude Include="Entities\Enemy\EnemyFire.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Player\Weapons\WeaponThrowableBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Player\Weapons\Projectiles\ThrownProjectileBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Player\Weapons\Projectiles\MolotovFire.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerCharacters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponDefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Player\PlayerHudView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Player\WeaponIconBaker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatTargetView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatTacticBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatBehaviorBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatBehaviors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatCoordinator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticPress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatTuning.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\ApproachMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\CombatMoves.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticKite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticRush.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticWaitForSlot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticAdvance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticCheckLastKnown.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticRegainSight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticSuppressLastKnown.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticHoldAngle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\TargetBelief.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticCoverFight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticCoverFire.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticTakeCover.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CoverPlanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CoverFinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CoverMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CoverTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\CombatThreat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\RangedFireControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticStrafe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entities\Npc\Combat\Tactics\TacticMeleeDuel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreCutSolver.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreCap.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreCavity.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreCore.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreTriGrid.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreChunks.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreFlesh.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreGpu.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreGib.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreComponent.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreDebug.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreDrawCommands.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreEvents.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreProfile.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreRenderState.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreSettings.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreSkeletalMesh.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreSource.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreSystem.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\GoreTypes.h">
+      <Filter>Gore</Filter>
+    </ClInclude>
+    <ClInclude Include="Gore\StealthGoreAdapter.h">
+      <Filter>Gore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

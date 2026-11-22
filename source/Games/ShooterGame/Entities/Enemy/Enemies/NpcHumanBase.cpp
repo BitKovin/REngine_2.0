@@ -6,6 +6,8 @@
 #include <Entities/Player/Player.hpp>
 #include <AiPerception/AiPerceptionSystem.h>
 #include <Network/NetworkManager.h>
+#include "../../../Gore/GoreSkeletalMesh.h"
+#include "../../../Gore/StealthGoreAdapter.h"
 
 // ---------------------------------------------------------------------------
 // Constructor / destructor
@@ -13,7 +15,10 @@
 
 NpcHumanBase::NpcHumanBase()
 {
-    mesh = new SkeletalMesh(this);
+    Gore::GoreSkeletalMesh* goreMesh = new Gore::GoreSkeletalMesh(this);
+    mesh = goreMesh;
+    goreMesh->goreSettings.level = Gore::GoreSettings::Level::Full;
+    goreMesh->goreSettings.severAlive = false;   // limbs and the head only come off with the killing blow
     mesh->CastDetailShadows = true;
     mesh->GravityAlignedRotation = true;
     mesh->MeshCustomShaderParams["rim_color"] = vec4(1.5f, 1.2f, 0.0f, 1.0f);
@@ -40,8 +45,6 @@ NpcHumanBase::NpcHumanBase()
 
     CanMigrateOwner          = true;
     DestroyOnOwnerDisconnect = false;
-
-	UseBoundsCenterForLightVol = false;
 
     Tags.push_back("canBurn");
 }
@@ -105,15 +108,7 @@ void NpcHumanBase::ResolveTarget()
 void NpcHumanBase::UpdatePerception()
 {
 
-	auto currentCluser = Level::Current->BspData.FindClusterAtPosition(Position);
-	auto cameraCluster = Level::Current->BspData.FindClusterAtPosition(Camera::position);
-
-    if (Level::Current->BspData.IsClusterVisible(currentCluser, cameraCluster))
-    {
-		DebugDraw::Line(Position, Camera::position - vec3(0,1,0), 0.1f, 0.02f, DebugColor::Green);
-    }
-
-    if (IsDead()) return;
+    if (IsDead() || aiDisabled) return;
 
     // Create observer lazily so it works after an ownership transfer.
     if (observer == nullptr)
@@ -312,9 +307,28 @@ void NpcHumanBase::PlaySoundEffect(std::string eventName)
 void NpcHumanBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction,
                                   string bone, Entity* DamageCauser, Entity* Weapon)
 {
-    if (IsDead()) return;
+    // The hit zone scales a point hit (headshots and so on).
+    ApplyPointDamage(Damage * mesh->GetHitboxDamageMultiplier(bone), Point, Direction, bone, DamageCauser, Weapon);
+}
 
-    Damage *= mesh->GetHitboxDamageMultiplier(bone);
+void NpcHumanBase::OnRadialDamage(float Damage, vec3 Origin, Entity* DamageCauser, Entity* Weapon)
+{
+    // A blast hurts the whole body the same: the hit zone only tells the effects (blood, gore) where to act,
+    // and that is the part of the body nearest to the blast.
+    vec3 point = Position;
+    const string bone = mesh->GetNearestHitboxBone(Origin, point);
+    ApplyPointDamage(Damage, point, RadialDirection(Origin, point), bone, DamageCauser, Weapon);
+}
+
+void NpcHumanBase::ApplyPointDamage(float Damage, vec3 Point, vec3 Direction,
+                                     string bone, Entity* DamageCauser, Entity* Weapon)
+{
+    if (IsDead())
+    {
+        // A corpse can still be shot to pieces.
+        StealthGore::OnNpcPointDamage(this, Damage, Point, Direction, bone, DamageCauser, Weapon, false);
+        return;
+    }
 
     // Effects – run on every peer.
     GlobalParticleSystem::SpawnParticleAt("hit_flesh", Point,
@@ -336,6 +350,7 @@ void NpcHumanBase::OnPointDamage(float Damage, vec3 Point, vec3 Direction,
 
     OnDamage(Damage, DamageCauser, Weapon);
 
+    StealthGore::OnNpcPointDamage(this, Damage, Point, Direction, bone, DamageCauser, Weapon, true);
 
     // Broadcast to others – post-multiplier damage, bone for ragdoll check.
     NetPacket args(PacketType::RPC);
@@ -367,7 +382,7 @@ void NpcHumanBase::OnDamage(float Damage, Entity* DamageCauser, Entity* Weapon)
         Health = 0;
     }
 
-    if (DamageCauser != nullptr)
+    if (DamageCauser != nullptr && Damage > 10)
     {
         controller.SetVelocity(controller.GetVelocity() / 2.0f);
         speed /= 2.0f;
@@ -756,6 +771,9 @@ void NpcHumanBase::OnRPC(uint8_t rpcId, NetPacket& args)
             }
 
             OnDamage(damage, hasCauser ? this : nullptr);
+
+            // The weapon is not sent over the network: the other peers show the default wound for the hit.
+            StealthGore::OnNpcPointDamage(this, damage, point, direction, bone, nullptr, nullptr, true);
             break;
         }
 
@@ -930,6 +948,7 @@ void NpcHumanBase::UpdateDebugUI()
 void NpcHumanBase::LoadAssets()
 {
     Entity::LoadAssets();
+    StealthGore::LoadAssets();
     getFromRagdollAnimation->LoadFromFile("GameData/animations/npc/standUp.glb");
 }
 

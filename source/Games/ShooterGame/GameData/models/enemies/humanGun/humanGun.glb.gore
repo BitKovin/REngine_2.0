@@ -1,0 +1,4 @@
+{
+  "extends": "GameData/gore/humanoid.gore",
+  "submeshes": { "maleBase_LOD0": "prop" }
+}

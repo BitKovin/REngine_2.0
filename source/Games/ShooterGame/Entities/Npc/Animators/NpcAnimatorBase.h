@@ -18,6 +18,12 @@ public:
 
 	bool scared = false;
 
+	// Movement relative to the body: velocity along the facing (forward) and
+	// to its right, in m/s. Picks the strafe / backpedal clips.
+	float moveForward = 0;
+	float moveRight   = 0;
+	bool  crouched    = false;
+
 	vec3 spineRotation = vec3();
 
 	void Update() override;
@@ -47,6 +53,12 @@ protected:
 
 	virtual void LoadAssets();
 
+	// Locomotion clip for the current speed, stance and movement direction:
+	// idle / walk / run, their _l / _r / _b strafe variants, and the crouch_*
+	// set. With swordVariants the idle and walk clips become the sword ones
+	// (no strafe variants exist for those).
+	std::string PickLocomotionAnimation(bool swordVariants);
+
 	// ── Template-method pattern ─────────────────────────────────────────────
 	//
 	//  ProcessResultPose is sealed here so that task and action overlays are
@@ -58,4 +70,11 @@ protected:
 	//
 	AnimationPose ProcessResultPose() override final;
 	virtual AnimationPose BuildCombatPose();
+
+private:
+
+	enum class MoveSector { Forward, Right, Back, Left };
+	MoveSector moveSector = MoveSector::Forward;
+
+	void UpdateMoveSector();
 };

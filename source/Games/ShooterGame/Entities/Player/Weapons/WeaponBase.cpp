@@ -18,3 +18,8 @@ void Weapon::LoadAssets()
 
 
 }
+
+bool WeaponOffhand::IsSuppressedByMainWeapon() const
+{
+	return owner != nullptr && owner->currentWeapon != nullptr && owner->currentWeapon->SupressOffhandWeapon();
+}

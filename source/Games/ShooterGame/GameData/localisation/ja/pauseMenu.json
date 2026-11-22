@@ -4,6 +4,10 @@
         { "key": "PAUSE_MENU_SAVE",       "value": "セーブ",       "description": "Button that opens the save game flow" },
         { "key": "PAUSE_MENU_LOAD",       "value": "ロード",       "description": "Button that opens the load game flow" },
         { "key": "PAUSE_MENU_SETTINGS",   "value": "設定",         "description": "Button that opens the settings menu" },
-        { "key": "PAUSE_MENU_MAIN_MENU",  "value": "メインメニュー", "description": "Button that quits to the main menu" }
+        { "key": "PAUSE_MENU_MAIN_MENU",  "value": "メインメニュー", "description": "Button that quits to the main menu" },
+        { "key": "PAUSE_MENU_QUIT", "value": "ゲームを終了", "description": "Button that opens the quit confirmation" },
+        { "key": "PAUSE_QUIT_CONFIRM", "value": "ゲームを終了しますか？ 未保存の進行状況は失われます。", "description": "Question of the quit confirmation" },
+        { "key": "PAUSE_QUIT_YES", "value": "はい", "description": "Confirms quitting" },
+        { "key": "PAUSE_QUIT_NO", "value": "いいえ", "description": "Cancels quitting" }
     ]
 }

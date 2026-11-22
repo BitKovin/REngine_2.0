@@ -12,8 +12,8 @@ class DynamiteProjectile : public ThrownProjectileBase
 public:
 
 	static inline const std::string kModel = "GameData/models/player/weapons/dynamite/dynamite_thrown.glb";
-	// Placeholder until the dynamite has an event of its own.
-	static inline const std::string kExplosionSound = "event:/Weapons/cannon/cannon_fire";
+	static inline const std::string kHitSound = "event:/Weapons/dynamite/hit";
+	static constexpr float kHitSoundMinSpeed = 1.0f;   // slower touches make no sound
 
 	// Tip of the fuse in the model's own space (thrown_info.json, spark_point).
 	vec3 fuseTip = vec3(0.0f, 0.153f, 0.0f);
@@ -21,9 +21,9 @@ public:
 	// It goes off the moment it touches anything with this tag, instead of waiting for the fuse.
 	std::string detonateOnTag = "enemy";
 
-	float explosionRadius = 3.5f;
-	float minDamage = 35.0f;
-	float maxDamage = 110.0f;
+	float explosionRadius = 4.0f;
+	float minDamage = 60.0f;
+	float maxDamage = 200.0f;
 	float minPlayerDamage = 30.0f;
 	float maxPlayerDamage = 70.0f;
 
@@ -73,7 +73,12 @@ protected:
 	bool OnImpact(const Physics::HitResult& hit, float speed) override
 	{
 		if (hit.entity == nullptr || !hit.entity->HasTag(detonateOnTag))
+		{
+			// It bounces off: the thud.
+			if (speed > kHitSoundMinSpeed)
+				SoundPlayer::PlayOneshot(kHitSound, 2.0f, 1.0f, false, Position);
 			return false;
+		}
 
 		OnFuseExpired();
 		return true;
@@ -100,8 +105,6 @@ protected:
 
 		Level::Current->AddEntity(explosion);
 		explosion->Start();
-
-		SoundPlayer::PlayOneshot(kExplosionSound, 3.0f, 1.0f, false, Position);
 
 		Finish();
 	}

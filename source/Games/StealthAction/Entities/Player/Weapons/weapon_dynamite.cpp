@@ -9,6 +9,9 @@ public:
 	{
 		params.viewmodelPath = "GameData/models/player/weapons/dynamite/dynamite.glb";
 		params.projectileClass = "dynamiteProjectile";
+		params.drawSound = "event:/Weapons/dynamite/draw";
+		params.throwSound = "event:/Weapons/dynamite/throw";
+		params.burnSound = "event:/Weapons/dynamite/burning";
 
 		// Lit at frame 26 of throw_start. Four seconds from there: about three seconds after the arm is cocked.
 		params.fuseTime = 4.0f;

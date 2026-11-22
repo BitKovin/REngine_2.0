@@ -15,7 +15,7 @@ NpcGuardBase::NpcGuardBase() : NpcBase()
 
 	npcType = NpcType::Guard;
 
-	modelPath = "GameData/models/npc/mobster.glb";
+	modelPath = "GameData/models/npc/guard.glb";
 
 	hostileTags.insert("bandit");
 

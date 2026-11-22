@@ -13,7 +13,7 @@
     "svg": true
   },
   "engine": {
-    "buildId": "Nov 19 2026 21:33:07",
+    "buildId": "Nov 22 2026 01:47:36",
     "previewProtocol": 1,
     "version": "1"
   },
@@ -386,6 +386,27 @@
         {
           "kind": "document",
           "path": "ui/kit/focus_pointer.xml"
+        }
+      ],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Documents",
+      "description": "Layout document",
+      "host": {
+        "kind": "viewport"
+      },
+      "id": "document:ui/kit/pages/pause.xml",
+      "kind": "document",
+      "name": "ui/kit/pages/pause.xml",
+      "parameters": [],
+      "requiredCapabilities": [],
+      "scenarios": [],
+      "sourceRefs": [
+        {
+          "kind": "document",
+          "path": "ui/kit/pages/pause.xml"
         }
       ],
       "supportsLiveCapture": false
@@ -3913,6 +3934,15 @@
         ]
       },
       {
+        "component": false,
+        "imports": [],
+        "path": "ui/kit/pages/pause.xml",
+        "styleSheets": [
+          "ui/theme.css",
+          "ui/kit/styles/kit.css"
+        ]
+      },
+      {
         "path": "ui/kit/tests/CycleA.xml"
       },
       {
@@ -4985,6 +5015,8 @@
           "WEAPON_CANE",
           "WEAPON_CANNON",
           "WEAPON_CRUCIFIX",
+          "WEAPON_DYNAMITE",
+          "WEAPON_MOLOTOV",
           "WEAPON_MPSD",
           "WEAPON_PAIR",
           "WEAPON_PISTOL",
@@ -5005,7 +5037,7 @@
       {
         "current": true,
         "id": "en",
-        "keyCount": 144,
+        "keyCount": 146,
         "name": "en"
       }
     ],
