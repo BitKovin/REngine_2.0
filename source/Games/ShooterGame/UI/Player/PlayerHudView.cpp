@@ -454,15 +454,18 @@ void PlayerHudView::RefreshAmmo(Player* player)
 	}
 
 
-	// Rounds in the magazine (down left) and the total carried (up right). Melee shows neither.
+	// The total ammo carried for the weapon (down left). Melee shows nothing. The reserve label stays empty.
 	std::string magazineText, reserveText;
 	int low = 0;
 	if (firearm != nullptr && firearm->GetAmmoType() != WeaponAmmoType::None)
 	{
-		const int rounds = std::max(0, firearm->Data.magazineAmmo);
-		magazineText = std::to_string(rounds);
-		reserveText = "+ " + std::to_string(player->GetAmmo(firearm->GetAmmoType()));
-		low = rounds * 4 <= firearm->params.magazineSize ? 1 : 0;
+		// The pool is the ammo; with the clip model the loaded magazine is on top of it.
+		int total = player->GetAmmo(firearm->GetAmmoType());
+		if (firearm->reloadConsumesAmmo && firearm->params.canReload)
+			total += std::max(0, firearm->Data.magazineAmmo);
+		total = std::max(0, total);
+		magazineText = std::to_string(total);
+		low = total <= std::max(1, firearm->params.magazineSize / 4) ? 1 : 0;
 	}
 	else if (const WeaponThrowableBase* throwable = dynamic_cast<WeaponThrowableBase*>(weapon))
 	{

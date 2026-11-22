@@ -649,7 +649,9 @@ public:
 	// instance and selects what comes next: another copy of the same weapon, else the
 	// previous selection, else the first weapon of the grid. The swap itself happens in
 	// Update() as soon as the held weapon allows switching.
-	void ConsumeHeldWeapon();
+	// Returns true when the next copy of the same weapon took over: the held weapon object is
+	// given that copy's data and stays in the hand, so nothing is redrawn.
+	bool ConsumeHeldWeapon();
 
 	// Inventory system methods
 	void SetWeaponSystemMode(WeaponSystemMode mode);

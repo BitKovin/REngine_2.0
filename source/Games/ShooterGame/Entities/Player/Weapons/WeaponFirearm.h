@@ -85,6 +85,13 @@ struct FirearmParams
 	// Data.magazineAmmo up to this value, clamped to however much ammo the
 	// player actually has in their shared pool.
 	int magazineSize = 8;
+
+	// Reloading is optional. A weapon that cannot reload has no magazine at all:
+	// it fires straight from the player's ammo pool and the reload key does
+	// nothing for it (Data.magazineAmmo then just mirrors the pool). Only weapons
+	// that opt in (the sawed-off shotgun, with its 2 shells) load rounds into a
+	// magazine of magazineSize and have to reload it.
+	bool canReload = false;
 	std::string reloadAnimation = "reload";
 
 };

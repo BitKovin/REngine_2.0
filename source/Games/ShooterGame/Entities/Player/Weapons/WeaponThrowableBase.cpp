@@ -19,6 +19,7 @@ namespace
 	const char* kAnimEnd = "throw_end";
 
 	constexpr float kIdleBlend = 0.15f;
+	constexpr float kDrawBlend = 0.15f;      // from the end of throw_end to the draw of the next copy
 	constexpr float kStartBlend = 0.12f;
 	// throw_charge starts exactly on the pose throw_start ends on, so it needs no blend.
 	constexpr float kChargeBlend = 0.0f;
@@ -155,7 +156,10 @@ void WeaponThrowableBase::AsyncUpdate()
 		return;
 
 	viewmodel->Update(state == ThrowState::Drawing ? params.drawSpeed : 1.0f);
-	arms->PasteAnimationPose(viewmodel->GetAnimationPose());
+
+	AnimationPose pose = viewmodel->GetAnimationPose();
+
+	arms->PasteAnimationPose(pose);
 }
 
 void WeaponThrowableBase::LateUpdate()
@@ -311,10 +315,23 @@ void WeaponThrowableBase::SpawnProjectile(const vec3& position, const vec3& velo
 
 void WeaponThrowableBase::FinishThrow()
 {
-	state = ThrowState::Spent;
+	// One instance of the weapon is the ammunition. When another copy is left it takes the
+	// place of the used one in the hand and is drawn like any weapon: the whole draw clip, its sound
+	// and the switch delay. Otherwise this weapon is spent
+	// and the player picks the weapon used before, swapped in as soon as the switch is allowed.
+	if (owner != nullptr && owner->ConsumeHeldWeapon())
+	{
+		state = ThrowState::Drawing;
+		lit = false;
+		released = false;
+		fuseRemaining = -1.0f;
+		SwitchDelay.AddDelay(params.switchDelay);
+		viewmodel->PlayAnimation(kAnimDraw, false, kDrawBlend);
 
-	// One instance of the weapon is the ammunition. The player picks the next copy of it
-	// (or the weapon used before) and this one is swapped out as soon as the switch is allowed.
-	if (owner != nullptr)
-		owner->ConsumeHeldWeapon();
+		if (!params.drawSound.empty())
+			SoundPlayer::PlayOneshot(params.drawSound, 3.0f, 1.0f, true);
+		return;
+	}
+
+	state = ThrowState::Spent;
 }

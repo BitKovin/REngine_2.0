@@ -5,7 +5,8 @@ public:
     weapon_sawed() : WeaponFirearm()
     {
         params.ammoType = WeaponAmmoType::ShotgunShells;
-        params.magazineSize = 2; // matches GetDefaultData().startAmmo below
+        params.canReload = true; // the only weapon that reloads
+        params.magazineSize = 2; // the two barrels: two shots, then reload
         params.modelPath = "GameData/models/player/weapons/shotgun/sawed.glb";
         params.modelPathTp = "GameData/models/player/weapons/shotgun/shotgun_tp.glb";
         params.texturesLocation = "GameData/models/player/weapons/shotgun/sawed.glb/";

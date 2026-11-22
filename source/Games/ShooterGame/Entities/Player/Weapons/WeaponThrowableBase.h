@@ -8,7 +8,7 @@
 // Base of the weapons that are thrown after being lit with a lighter (dynamite, molotov).
 //
 // The weapon item is its own ammunition: every pickup is one owned instance, a throw uses the
-// held instance up, and the next copy of the same weapon is drawn (see Player::ConsumeHeldWeapon).
+// held instance up, and the next copy of the same weapon takes its place in the hand (see Player::ConsumeHeldWeapon).
 //
 // One hold of the attack button runs the whole sequence, with the animations of the viewmodel glb:
 //
@@ -17,7 +17,7 @@
 //                                    the arm is cocked below the screen
 //   held            -> throw_charge  (loop) strength grows over chargeTime
 //   button let go   -> throw_end     the throwable leaves the hand at releaseTime
-//   end of throw_end -> the instance is consumed
+//   end of throw_end -> the instance is consumed; with another copy left, the draw clip plays for that copy
 //
 // Releasing the button early does not cancel anything: if it is up when throw_start ends, the sequence finishes with a weak throw.
 // Nothing is buffered: only the state of the button at the moment the animation ends decides.
@@ -35,7 +35,7 @@ public:
 		std::string projectileClass;             // technical name of the thrown entity
 		vec3 weaponOffset = vec3(0.0f);
 
-		float drawSpeed = 2.0f;                  // playback speed of the draw clip: the weapon is ready sooner
+		float drawSpeed = 1.0f;                  // playback speed of the draw clip: 1 = the whole clip is seen
 		float switchDelay = 0.2f;                // seconds after drawing before another weapon can be selected
 
 		// Seconds into the animation, from its frames at 60 fps.

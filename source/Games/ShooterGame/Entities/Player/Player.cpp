@@ -1048,17 +1048,17 @@ int Player::CountOwnedWeapons(const std::string& className) const
 	return count;
 }
 
-void Player::ConsumeHeldWeapon()
+bool Player::ConsumeHeldWeapon()
 {
 	if (currentWeapon == nullptr)
-		return;
+		return false;
 
 	const std::string uuid = currentWeapon->Data.inventoryUUID;
 	const std::string className = currentWeapon->Data.className;
 	const WeaponGridEntry previous = lastEntry;
 
 	if (!RemoveOwnedWeapon(uuid, false))
-		return;
+		return false;
 
 	// RemoveOwnedWeapon rebuilt the grid, which keeps the selection valid by falling back to
 	// the first entry. What should really come next is decided here.
@@ -1085,6 +1085,17 @@ void Player::ConsumeHeldWeapon()
 	if (next != nullptr)
 		currentEntry = *next;
 
+	// Another copy of the same weapon: the weapon in the hand simply becomes that copy.
+	bool sameWeaponStays = false;
+	if (next != nullptr && next->className == className && !next->pair)
+	{
+		if (const WeaponSlotData* owned = FindOwnedWeapon(next->uuid, false))
+		{
+			currentWeapon->SetData(*owned);
+			sameWeaponStays = true;
+		}
+	}
+
 	if (lastEntry.className == className)
 		lastEntry = WeaponGridEntry();
 
@@ -1110,6 +1121,8 @@ void Player::ConsumeHeldWeapon()
 
 	weaponGridShowRequests++;   // show the grid: the HUD reacts to this counter
 	weaponGridRevision++;
+
+	return sameWeaponStays;
 }
 
 // ============================================================================

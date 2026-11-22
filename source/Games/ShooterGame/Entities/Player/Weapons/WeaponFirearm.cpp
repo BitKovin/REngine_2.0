@@ -40,7 +40,12 @@ void WeaponFirearm::SetData(WeaponSlotData data)
 	// back to, or restored from a save) and its persisted count is restored.
 	int pool = owner != nullptr ? owner->GetAmmo(params.ammoType) : 0;
 
-	if (reloadConsumesAmmo)
+	if (!params.canReload)
+	{
+		// No magazine: the pool is the ammo.
+		data.magazineAmmo = pool;
+	}
+	else if (reloadConsumesAmmo)
 	{
 		// Clip model: the magazine owns its rounds, so it must NOT be clamped to
 		// the pool on re-equip (the pool can be 0 while the magazine is full -
@@ -198,8 +203,13 @@ void WeaponFirearm::Update()
 	// what this magazine currently shows. Keep it honest every frame. Not done
 	// when reloadConsumesAmmo is true, since in that mode the magazine's ammo
 	// has genuinely been removed from the pool and is this weapon's own.
-	if (!reloadConsumesAmmo && owner != nullptr)
-		Data.magazineAmmo = std::min(Data.magazineAmmo, owner->GetAmmo(params.ammoType));
+	if (owner != nullptr)
+	{
+		if (!params.canReload)
+			Data.magazineAmmo = owner->GetAmmo(params.ammoType); // no magazine: mirrors the pool
+		else if (!reloadConsumesAmmo)
+			Data.magazineAmmo = std::min(Data.magazineAmmo, owner->GetAmmo(params.ammoType));
+	}
 
 	if (akimbo)
 	{
@@ -252,7 +262,7 @@ void WeaponFirearm::Update()
 	// Buffer the key press: Pressed() is a single-frame event, and CanReload()
 	// can be false on exactly that frame (e.g. CanAttack() is still blocked by
 	// the delay a shot just added), which used to swallow the press entirely.
-	if (Input::GetAction("reload")->Pressed())
+	if (params.canReload && Input::GetAction("reload")->Pressed())
 		reloadBuffer = 0.3f;
 
 	if (reloadBuffer > 0.0f)
@@ -427,7 +437,7 @@ void WeaponFirearm::PerformAttack()
 		// Visual-reload model: the pool is the real ammo, so the shot comes out
 		// of it directly. Clip model: the round already left the pool when the
 		// magazine was loaded - charging it again would double-bill the player.
-		if (!reloadConsumesAmmo)
+		if (!reloadConsumesAmmo || !params.canReload)
 			owner->ConsumeAmmo(GetAmmoType(), 1);
 	}
 
@@ -467,7 +477,7 @@ void WeaponFirearm::PerformAttack()
 
 int WeaponFirearm::GetRoundsToLoad()
 {
-	if (owner == nullptr)
+	if (owner == nullptr || !params.canReload)
 		return 0;
 
 	int pool = owner->GetAmmo(params.ammoType);
@@ -490,6 +500,9 @@ int WeaponFirearm::GetRoundsToLoad()
 
 bool WeaponFirearm::CanReload()
 {
+	if (!params.canReload)
+		return false;
+
 	if (reloading)
 		return false;
 
