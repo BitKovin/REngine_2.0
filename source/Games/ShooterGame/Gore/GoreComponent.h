@@ -33,6 +33,10 @@ namespace Gore
 
         // Severed pieces (GoreGib): the cut 0 keeps its removed side, no further severing, and the body palette at the
         // moment of the cut fixes the bones outside the piece to it.
+        // After a load (GoreSave.cpp): what the gore tick still has to do once the model is ready. Not saved.
+        bool restorePending = false;                        // build the cut faces again, switch the cut parts' hitboxes off
+        std::array<bool, kMaxCuts> capPending{};            // this cut had a face when it was saved
+
         bool isGib = false;
         std::vector<glm::mat4> gibSeverPalette;
     };

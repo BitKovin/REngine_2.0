@@ -422,6 +422,7 @@
     <ClCompile Include="Gore\GoreCap.cpp" />
     <ClCompile Include="Gore\GoreCavity.cpp" />
     <ClCompile Include="Gore\GoreCore.cpp" />
+    <ClCompile Include="Gore\GoreSave.cpp" />
     <ClCompile Include="Gore\GoreTriGrid.cpp" />
     <ClCompile Include="Gore\GoreChunks.cpp" />
     <ClCompile Include="Gore\GoreFlesh.cpp" />
@@ -627,6 +628,7 @@
     <ClInclude Include="Entities\Npc\Combat\CoverPlanner.h" />
     <ClInclude Include="Entities\Npc\Combat\CoverFinder.h" />
     <ClInclude Include="Entities\Npc\Combat\CoverMap.h" />
+    <ClInclude Include="Gore\GoreSave.h" />
     <ClInclude Include="Entities\Npc\Combat\CoverTypes.h" />
     <ClInclude Include="Entities\Npc\Combat\CombatThreat.h" />
     <ClInclude Include="Entities\Npc\Combat\RangedFireControl.h" />

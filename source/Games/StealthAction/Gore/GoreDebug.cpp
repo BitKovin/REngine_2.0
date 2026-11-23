@@ -7,6 +7,7 @@
 #include "GoreFlesh.h"
 #include "GoreGib.h"
 #include "GoreProfile.h"
+#include "GoreSave.h"
 #include "GoreSkeletalMesh.h"
 #include "GoreSource.h"
 #include "GoreSystem.h"
@@ -256,6 +257,17 @@ namespace Gore
         int shotTick = 130;
         auto waitArg = args.find("gore_wait");
         if (waitArg != args.end() && !waitArg->second.empty()) shotTick = std::atoi(waitArg->second[0].c_str());
+
+        // -gore_saveload: the gore state is written to JSON and read back into a fresh component (the generated cut faces are dropped and
+        // built again, the cut parts' hitboxes are switched off again) a while before the picture, as a save game would do it.
+        if (fired && ticks == shotTick - 40 && args.find("gore_saveload") != args.end() && npc->HasComponent<GoreComponent>())
+        {
+            nlohmann::json saved;
+            SaveGoreState(npc, saved);
+            ProbeLog("gore_look: saved " + std::to_string(saved.dump().size()) + " bytes of gore: " + saved.dump().substr(0, 400));
+            LoadGoreState(npc, saved);
+            npc->GetComponent<GoreComponent>()->version += 1000;   // the body already shows a state: make the mesh take the loaded one
+        }
 
         if (fired && ticks == shotTick)
         {

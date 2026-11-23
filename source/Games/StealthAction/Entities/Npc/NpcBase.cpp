@@ -3073,6 +3073,8 @@ void NpcBase::Serialize(json& target)
 
 	InvestigationReason investigationReason = InvestigationReason::None;
 	if (currentInvestigation)
+	StealthGore::Serialize(this, target);
+
 	{
 		investigationReason = currentInvestigation->reason;
 
@@ -3193,6 +3195,8 @@ void NpcBase::Deserialize(json& source)
 
 	InvestigationReason investigationReason = InvestigationReason::None;
 	DESERIALIZE_FIELD(source, investigationReason);
+	StealthGore::Deserialize(this, source);
+
 
 	if (investigationReason != InvestigationReason::None)
 	{

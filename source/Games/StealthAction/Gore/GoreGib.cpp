@@ -104,6 +104,9 @@ namespace Gore
         mesh->TexturesLocation = bodyMesh->TexturesLocation;
         mesh->LoadFromFile(bodyMesh->filePath);
         mesh->PreloadAssets();
+        // The part is a copy of the whole model until its cut is in the render state (the cap is built on the worker, which can take
+        // a while): it stays invisible until PushRenderStateIfChanged shows it with the cut applied.
+        mesh->Visible = false;
 
         // The part's hitboxes only. The root one has no parent; hitboxes whose parent is not in the part are dropped.
         std::vector<HitboxData> kept;

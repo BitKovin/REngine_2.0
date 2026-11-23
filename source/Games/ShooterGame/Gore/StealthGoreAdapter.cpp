@@ -2,6 +2,7 @@
 
 #include "GoreEvents.h"
 #include "GoreProfile.h"
+#include "GoreSave.h"
 #include "GoreSource.h"
 
 #include <Entities/Explosion.h>
@@ -86,6 +87,21 @@ namespace StealthGore
         event.victim = EntityHandle::FromEntity(npc);
         event.hit = hit;
         EcsScheduler::Emit(event);
+    }
+
+    void Serialize(Entity* npc, nlohmann::json& target)
+    {
+        Gore::SaveGoreState(npc, target);
+        if (npc != nullptr && target.contains("gore") && npc->HasComponent<GoreHitCounter>())
+            target["gore"]["adapterHitCounter"] = npc->GetComponent<GoreHitCounter>()->value;   // seeds go on where they stopped
+    }
+
+    void Deserialize(Entity* npc, const nlohmann::json& source)
+    {
+        Gore::LoadGoreState(npc, source);
+        if (npc == nullptr || !source.contains("gore") || !source["gore"].is_object()) return;
+        if (!npc->HasComponent<GoreHitCounter>()) npc->AddComponent<GoreHitCounter>();
+        npc->GetComponent<GoreHitCounter>()->value = source["gore"].value("adapterHitCounter", 0u);
     }
 
     void TagProjectile(Entity* projectile, Entity* weapon)

@@ -3042,6 +3042,8 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, getFromRagdollAnimationSaveState);
 	SERIALIZE_FIELD(target, ragdollPose);
 
+	StealthGore::Serialize(this, target);
+
 	SERIALIZE_FIELD(target, ragdollPelvisWorldPos);
 	SERIALIZE_FIELD(target, pelvisBlendTimer);
 
@@ -3160,6 +3162,8 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, animationStateSaveData);
 	DESERIALIZE_FIELD(source, getFromRagdollAnimationSaveState);
 	DESERIALIZE_FIELD(source, ragdollPose);
+
+	StealthGore::Deserialize(this, source);
 
 	DESERIALIZE_FIELD(source, ragdollPelvisWorldPos);
 	DESERIALIZE_FIELD(source, pelvisBlendTimer);

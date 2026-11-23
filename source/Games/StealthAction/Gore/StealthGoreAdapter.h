@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm.h>
+#include <json.hpp>
 #include <string>
 
 class Entity;
@@ -14,6 +15,11 @@ namespace StealthGore
     // Call right after the damage was applied. wasAliveBefore: the victim was alive before this hit.
     void OnNpcPointDamage(Entity* npc, float damage, const glm::vec3& point, const glm::vec3& direction,
                           const std::string& bone, Entity* causer, Entity* weapon, bool wasAliveBefore);
+
+    // Save games: the gore state of the NPC goes into / comes out of its save record (target["gore"]). Call from the NPC's own
+    // Serialize / Deserialize. Nothing is written for an NPC without gore.
+    void Serialize(Entity* npc, nlohmann::json& target);
+    void Deserialize(Entity* npc, const nlohmann::json& source);
 
     // A projectile fired by a weapon: it carries the weapon's gore source (the weapon is not the one hitting).
     void TagProjectile(Entity* projectile, Entity* weapon);

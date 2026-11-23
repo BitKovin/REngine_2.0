@@ -927,10 +927,52 @@ namespace Gore
         gore.version++;
     }
 
+    // After a load (GoreSave.cpp): the cut faces are generated again and the cut parts leave the physics world again, as soon as the
+    // model, the profile and the hitboxes are there. Returns false while it has to wait (the state is not pushed yet).
+    bool RestoreLoadedGore(GoreSkeletalMesh* mesh, GoreComponent& gore)
+    {
+        const Profile& profile = GetProfile(mesh->filePath, *mesh->GetSkinnedModel());
+        if (!profile.valid)
+        {
+            if (mesh->GetSkinnedModel()->meshes.empty() || profile.loading) return false;   // still preparing
+            gore.restorePending = false;   // this model gets no gore at all
+            return true;
+        }
+
+        // The hitboxes are made when the model has loaded; a model without any has nothing to switch off.
+        if (!mesh->metaData.hitboxes.empty() && mesh->hitboxBodies.empty()) return false;
+
+        for (int i = 0; i < gore.cutCount; ++i)
+        {
+            Cut& cut = gore.cuts[i];
+            if (gore.capPending[i])
+            {
+                cut.cap = RequestCap(*mesh->GetSkinnedModel(), profile, cut);   // built on the worker; the cut is shown once it is ready
+                gore.capPending[i] = false;
+            }
+
+            if (cut.hitboxesBack || cut.boneSkel >= profile.subtreeEnd.size()) continue;
+            std::vector<hashed_string> names;
+            for (const HitboxData& h : mesh->metaData.hitboxes)
+            {
+                const uint16_t skel = mesh->GetSkeletonIndex(hashed_string{ h.boneName });
+                if (skel != INVALID_BONE_IDX && skel >= cut.boneSkel && skel < profile.subtreeEnd[cut.boneSkel])
+                    names.push_back(hashed_string{ h.boneName });
+            }
+            if (!names.empty()) mesh->SetHitboxesActive(names, false);
+        }
+
+        gore.restorePending = false;
+        ++gore.version;
+        return true;
+    }
+
     void PushRenderStateIfChanged(Entity* self, GoreComponent& gore)
     {
         GoreSkeletalMesh* mesh = FindGoreMesh(self);
         if (mesh == nullptr || mesh->GetSkinnedModel() == nullptr) return;
+
+        if (gore.restorePending && !RestoreLoadedGore(mesh, gore)) return;
 
         // Cut caps are built on the worker: a cut is shown (and its gib) only once its cap is ready, a few frames at most. The
         // builds finish in the order they were queued, so the cuts still waiting are the last ones.
@@ -979,6 +1021,9 @@ namespace Gore
         state.profile = &profile;
 
         mesh->SetGoreState(state);
+
+        // A severed part draws the whole model unless a cut clips it: it appears with its cut, not before.
+        if (gore.isGib) mesh->Visible = shownCuts > 0;
     }
 }
 

@@ -849,6 +849,8 @@ void NpcHumanBase::Serialize(json& target)
     auto debuffsJson = SerializeDebuffs();
     SERIALIZE_FIELD(target, debuffsJson);
 
+    StealthGore::Serialize(this, target);
+
     SERIALIZE_FIELD(target, stunnedRagdollDelay);
     SERIALIZE_FIELD(target, ragdollPose);
     SERIALIZE_FIELD(target, getFromRagdollAnimationSaveState);
@@ -885,6 +887,8 @@ void NpcHumanBase::Deserialize(json& source)
     json debuffsJson;
     DESERIALIZE_FIELD(source, debuffsJson);
     DeserializeDebuffs(debuffsJson);
+
+    StealthGore::Deserialize(this, source);
 
     DESERIALIZE_FIELD(source, stunnedRagdollDelay);
     DESERIALIZE_FIELD(source, ragdollPose);
