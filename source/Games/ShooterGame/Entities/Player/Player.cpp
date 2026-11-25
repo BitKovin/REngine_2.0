@@ -3218,34 +3218,49 @@ void Player::LateUpdate()
 
 	float fovScale = Camera::FOV / 75.0f;
 
-	vec3 rotationDelta = vec3(0);
+	glm::vec3 rotationDelta(0.0f);
 
-	vec2 lateDelta = vec2();
+	const glm::vec2 lateDelta =
+		EngineMain::MainInstance->PullAdditionalMouseDelta();
 
+	rotationDelta.y = lateDelta.x * fovScale;
+	rotationDelta.x = -lateDelta.y * fovScale;
 
-	lateDelta = EngineMain::MainInstance->PullAdditionalMouseDelta();
+	// Preserve the previous pitch.
+	const float previousPitch = cameraRotation.x;
 
-	rotationDelta.y += lateDelta.x * fovScale;
-	rotationDelta.x -= lateDelta.y * fovScale;
-
+	// Update the entire rotation accumulator.
 	cameraRotation += rotationDelta;
+
+	// Clamp pitch.
+	cameraRotation.x = glm::clamp(cameraRotation.x, -80.0f, 80.0f);
+
+	// Calculate the actual applied rotation.
+	// Horizontal movement remains completely unchanged.
+	rotationDelta.x = cameraRotation.x - previousPitch;
+
+	// Apply the same rotation to the camera.
 	Camera::rotation += rotationDelta;
 
-	float verticalClampCorrection = cameraRotation.x - glm::clamp(cameraRotation.x, -80.0f, 80.0f);
-	cameraRotation.x -= verticalClampCorrection;
-	Camera::rotation.x -= verticalClampCorrection;
-	rotationDelta.x -= verticalClampCorrection;
-
+	// Apply the exact same rotation to weapons.
 	if (currentOffhandWeapon)
 	{
 		currentOffhandWeapon->Rotation += rotationDelta;
-		currentOffhandWeapon->Position = MathHelper::RotateAroundPoint(currentOffhandWeapon->Position, Camera::position, rotationDelta);
+		currentOffhandWeapon->Position = MathHelper::RotateAroundPoint(
+			currentOffhandWeapon->Position,
+			Camera::position,
+			rotationDelta
+		);
 	}
 
 	if (currentWeapon)
 	{
 		currentWeapon->Rotation += rotationDelta;
-		currentWeapon->Position = MathHelper::RotateAroundPoint(currentWeapon->Position, Camera::position, rotationDelta);
+		currentWeapon->Position = MathHelper::RotateAroundPoint(
+			currentWeapon->Position,
+			Camera::position,
+			rotationDelta
+		);
 	}
 
 	if (playerLight)
