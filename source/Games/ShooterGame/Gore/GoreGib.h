@@ -21,7 +21,7 @@ namespace Gore
         // Copies pose, hitboxes (the part's subtree only) and gore from the body. Call before adding to the level.
         bool Init(Entity* body, GoreSkeletalMesh* bodyMesh, const Profile& profile, uint8_t cutIndex, const glm::vec3& impulse);
 
-        void Update() override;
+        void AsyncUpdate() override;
         void Destroy() override;
         void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone = "", Entity* DamageCauser = nullptr, Entity* Weapon = nullptr) override;
 

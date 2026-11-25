@@ -190,7 +190,7 @@ namespace Gore
         return true;
     }
 
-    void GoreGib::Update()
+    void GoreGib::AsyncUpdate()
     {
         if (mesh == nullptr) return;
         mesh->UpdateHitboxes();
