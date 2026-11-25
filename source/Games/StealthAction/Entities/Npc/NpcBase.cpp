@@ -41,6 +41,8 @@
 #include "Combat/CombatThreat.h"
 #include "../Enemy/Enemies/NpcHelper.h"
 #include "Combat/CombatTuning.h"
+#include "Brain/NpcData.h"
+#include "Brain/NpcMind.h"
 
 #include <tracy/tracy/Tracy.hpp>
 
@@ -181,7 +183,8 @@ void NpcBase::Start()
 	observer = AiPerceptionSystem::CreateObserver(Position + vec3(0, 0.7, 0), movingDirection, 90);
 	observer->owner = Id;
 	observer->ownerPtr = this;
-	observer->maxDistance = 150;
+	observer->ownTarget = observationTarget.get();
+	NpcPerceptionTuning::Get().vision.ApplyTo(*observer);
 	pathFollow.reachedTarget = true;
 
 	StartTask(defaultTask);
@@ -582,6 +585,70 @@ void NpcBase::Update()
 
 }
 
+// The legacy brain: perception, target following, the behaviour tree, combat, schedules and investigations.
+// Brains that replace it override this and leave the rest of AsyncUpdate (movement, animation) alone.
+void NpcBase::UpdateBrain()
+{
+	{
+		ZoneScopedN("UpdateObserver");
+		UpdateObserver();
+	}
+
+	{
+		ZoneScopedN("UpdateTargetFollow");
+		UpdateTargetFollow();
+	}
+
+	{
+		ZoneScopedN("UpdateBT");
+		UpdateBT();
+	}
+
+	{
+		ZoneScopedN("UpdateTargetAttack");
+		UpdateTargetAttack();
+	}
+
+	{
+		ZoneScopedN("UpdateScheduledTask");
+		UpdateScheduledTask();
+	}
+
+	if (currentInvestigation && isStunned() == false)
+	{
+		ZoneScopedN("Investigation Update");
+		std::shared_ptr<InvestigationBase> investigation = currentInvestigation;   // the investigation clears itself when it finishes: keep it alive for the rest of its Update
+		investigation->Update(Time::DeltaTimeF);
+	}
+}
+
+// Whether the body keeps facing a point instead of its walking direction, and which way (combat only here).
+bool NpcBase::ComputeFacingLock(vec3& lockLookVector)
+{
+	bool lockAtTarget = false;
+	lockLookVector = vec3();
+
+	if (combatMoveOrder.active)
+	{
+		if (combatMoveOrder.facing == NpcFacing::Point)
+		{
+			lockAtTarget = true;
+			lockLookVector = ResolveCombatLook(combatMoveOrder.lookAt) - Position;
+		}
+	}
+
+	if (combatMoveOrder.active ? combatMoveOrder.facing == NpcFacing::Target : ShouldFaceTargetInCombat())
+	{
+		if (Level::Current->FindEntityWithId(target_id))
+		{
+			lockAtTarget = true;
+			lockLookVector = ResolveCombatLook(GetCombatLookPoint()) - Position;
+		}
+	}
+
+	return lockAtTarget;
+}
+
 void NpcBase::AsyncUpdate()
 {
 	ZoneScopedN("NpcBase::AsyncUpdate");
@@ -609,37 +676,8 @@ void NpcBase::AsyncUpdate()
 
 	if (dead == false)
 	{
-		{
-			ZoneScopedN("UpdateObserver");
-			UpdateObserver();
-		}
-
-		{
-			ZoneScopedN("UpdateTargetFollow");
-			UpdateTargetFollow();
-		}
-
-		{
-			ZoneScopedN("UpdateBT");
-			UpdateBT();
-		}
-
-		{
-			ZoneScopedN("UpdateTargetAttack");
-			UpdateTargetAttack();
-		}
-
-		{
-			ZoneScopedN("UpdateScheduledTask");
-			UpdateScheduledTask();
-		}
-
-		if (currentInvestigation && isStunned() == false)
-		{
-			ZoneScopedN("Investigation Update");
-			std::shared_ptr<InvestigationBase> investigation = currentInvestigation;   // the investigation clears itself when it finishes: keep it alive for the rest of its Update
-			investigation->Update(Time::DeltaTimeF);
-		}
+		ZoneScopedN("UpdateBrain");
+		UpdateBrain();
 	}
 
 	if (dead)
@@ -683,27 +721,9 @@ void NpcBase::AsyncUpdate()
 
 	vec3 curMove = MathHelper::XZ(controller->GetVelocity());
 
-	// What the NPC keeps looking at instead of its walking direction (combat only).
-	bool lockAtTarget = false;
+	// What the NPC keeps looking at instead of its walking direction.
 	vec3 lockLookVector = vec3();
-
-	if (combatMoveOrder.active)
-	{
-		if (combatMoveOrder.facing == NpcFacing::Point)
-		{
-			lockAtTarget = true;
-			lockLookVector = ResolveCombatLook(combatMoveOrder.lookAt) - Position;
-		}
-	}
-
-	if (combatMoveOrder.active ? combatMoveOrder.facing == NpcFacing::Target : ShouldFaceTargetInCombat())
-	{
-		if (Level::Current->FindEntityWithId(target_id))
-		{
-			lockAtTarget = true;
-			lockLookVector = ResolveCombatLook(GetCombatLookPoint()) - Position;
-		}
-	}
+	bool lockAtTarget = ComputeFacingLock(lockLookVector);
 
 	if (DoingTask)
 		lockAtTarget = false;
@@ -1109,6 +1129,10 @@ void NpcBase::UpdateObserver()
 	std::unique_lock lock(targetsMutex);
 	observer->searchForTriggeredNpc = !target_follow && !target_attack && npcType == NpcType::Guard;
 
+	// The same eyes as the new Npc; a guard in a fight sees as far as an Npc in Combat.
+	const NpcVisionTuning& vision = NpcPerceptionTuning::Get().vision;
+	observer->vision.rangeScale = target_attack ? vision.rangeScale[static_cast<int>(NpcAlert::Combat)] : 1.0f;
+
 	if (distance(Camera::finalizedPosition, Position) < 40)
 	{
 
@@ -1419,7 +1443,7 @@ void NpcBase::UpdateObserver()
 		// if currently seeing and fully detected, add a short delay for lastSeen updates
 		if (info.sees && info.detection_progress >= 1.0f)
 		{
-			info.stopUpdateLastSeenPositionDelay.AddDelay(1.0f);
+			info.stopUpdateLastSeenPositionDelay.AddDelay(info.follow && info.attack ? CombatTuning::Get().belief.lostSightTrackTime : 1.0f);
 			info.seesAndDetected = true;
 		}
 
@@ -1674,20 +1698,6 @@ void NpcBase::UpdateTargetFollow()
 	aimOverrideActive = false;
 
 
-	if (observer)
-	{
-
-
-		if (currentInvestigation && currentInvestigation->Alerted())
-		{
-			observer->fovDeg = 175;
-		}
-		else
-		{
-			observer->fovDeg = 120;
-		}
-
-	}
 
 
 
@@ -2070,6 +2080,21 @@ bool NpcBase::ReadyToFireAtPoint(const vec3& point)
 	}
 
 	return true;
+}
+
+void NpcBase::GetAwareness(std::vector<AwarenessReading>& out) const
+{
+	std::lock_guard<std::recursive_mutex> lock(targetsMutex);
+
+	for (const auto& entry : knownTargets)
+	{
+		if (entry.second.detection_progress <= 0.0f) continue;
+
+		AwarenessReading reading;
+		reading.subject = entry.first;
+		reading.value = entry.second.detection_progress;
+		out.push_back(reading);
+	}
 }
 
 bool NpcBase::HoldsCombatContactWith(const std::string& id) const
@@ -2489,12 +2514,9 @@ vec3 NpcBase::FindAttackLocation()
 	return bestPos;
 }
 
-void NpcBase::UpdateAnimations(bool forceFullUpdate)
+// How the gun is carried and whether the NPC looks scared, from the legacy state.
+void NpcBase::UpdateWeaponPosture()
 {
-
-	//if (dead) return;
-
-
 	if (npcType == NpcType::Guard)
 	{
 		animator->weapon_holds = target_underArrest;
@@ -2544,6 +2566,15 @@ void NpcBase::UpdateAnimations(bool forceFullUpdate)
 	{
 		animator->scared = (target_follow && target_attack) || (report_to_guard && currentInvestigation && currentInvestigation->reason <= InvestigationReason::WeaponFire) || (report_to_guard && found_guard == false);
 	}
+}
+
+void NpcBase::UpdateAnimations(bool forceFullUpdate)
+{
+
+	//if (dead) return;
+
+
+	UpdateWeaponPosture();
 
 	if (EngineMain::MainInstance->SimulatingGameTicks)
 		mesh->WasRended = false;
@@ -3042,6 +3073,8 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, getFromRagdollAnimationSaveState);
 	SERIALIZE_FIELD(target, ragdollPose);
 
+	StealthGore::Serialize(this, target);
+
 	SERIALIZE_FIELD(target, ragdollPelvisWorldPos);
 	SERIALIZE_FIELD(target, pelvisBlendTimer);
 
@@ -3073,8 +3106,6 @@ void NpcBase::Serialize(json& target)
 
 	InvestigationReason investigationReason = InvestigationReason::None;
 	if (currentInvestigation)
-	StealthGore::Serialize(this, target);
-
 	{
 		investigationReason = currentInvestigation->reason;
 
@@ -3099,7 +3130,8 @@ void NpcBase::Serialize(json& target)
 	SERIALIZE_FIELD(target, flee_target);
 
 	// Save behavior tree state
-	btSaveState = behaviorTree.SaveState().dump(0);
+	if (behaviorTree.Owner != nullptr)
+		btSaveState = behaviorTree.SaveState().dump(0);
 	SERIALIZE_FIELD(target, btSaveState);
 
 	// primary detection progress (compat)
@@ -3163,6 +3195,8 @@ void NpcBase::Deserialize(json& source)
 	DESERIALIZE_FIELD(source, getFromRagdollAnimationSaveState);
 	DESERIALIZE_FIELD(source, ragdollPose);
 
+	StealthGore::Deserialize(this, source);
+
 	DESERIALIZE_FIELD(source, ragdollPelvisWorldPos);
 	DESERIALIZE_FIELD(source, pelvisBlendTimer);
 
@@ -3195,8 +3229,6 @@ void NpcBase::Deserialize(json& source)
 
 	InvestigationReason investigationReason = InvestigationReason::None;
 	DESERIALIZE_FIELD(source, investigationReason);
-	StealthGore::Deserialize(this, source);
-
 
 	if (investigationReason != InvestigationReason::None)
 	{
@@ -3522,14 +3554,11 @@ void NpcBase::UpdateTask()
 
 	}
 
-	auto desTask = DesiredTask;
-
+	// A task that hands over to the next one (a patrol point) changes the desired task itself.
 	if (actualDoingTask)
 	{
 		taskPoint->NpcUpdate(this);
 	}
-
-	DesiredTask = desTask;
 
 	DoingTaskOld = actualDoingTask;
 
@@ -3608,8 +3637,6 @@ void NpcBase::UpdateDebugUI()
 		ImGui::Checkbox("Attack In Range", &target_attackInRange);
 
 		ImGui::LabelText("task", taskState.TaskName.c_str());
-
-		ImGui::LabelText("fov", to_string(observer->fovDeg).c_str());
 
 		ImGui::End();
 

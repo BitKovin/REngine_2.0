@@ -286,6 +286,7 @@ public:
 	bool IsInFrustrum(Frustum frustrum);
 
 	BoundingBox GetBoundingBox();
+	BoundingBox GetFinalizedBoundingBox();
 
 	virtual bool isVisible()
 	{

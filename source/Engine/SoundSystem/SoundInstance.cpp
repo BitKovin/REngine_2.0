@@ -183,10 +183,6 @@ ALCcontext* SoundInstance::GetContext() const
     return _isStereo ? SourcePool::stereoContext : SourcePool::monoContext;
 }
 
-bool SoundInstance::IsGamePaused() const
-{
-    return EngineMain::MainInstance->Paused;
-}
 
 float SoundInstance::GetPitchScale() const
 {

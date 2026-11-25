@@ -10,12 +10,13 @@
 #include <deque>
 #include <algorithm>
 #include <array>
-#include <dinput.h>
+#include <atomic>
+#include <cstdint>
+#include <unordered_map>
+#include <vector>
 #include <SDL2/SDL_syswm.h>
 #include <SDL2/SDL_main.h>
 #include <direct.h>
-#pragma comment(lib, "dinput8.lib")
-#pragma comment(lib, "dxguid.lib")
 #include <Windows.h>
 #include <DbgHelp.h>
 #pragma comment(lib, "Dbghelp.lib")
@@ -29,17 +30,16 @@ using namespace PlatformWindowData;
 #pragma message "using windows_main.hpp"
 
 // Global variables
-LPDIRECTINPUT8 g_pDI = nullptr;
-LPDIRECTINPUTDEVICE8 g_pMouse = nullptr;
 EngineMain* engine = nullptr;
 
 // Function declarations
 void update_screen_size(int w, int h);
 void InitImGui();
 void desktop_render_loop();
-bool InitDirectInput(SDL_Window* sdlWindow);
-vec2 ReadMouseDelta();
-void ShutdownDirectInput();
+bool InitRawInput();
+vec2 ReadRawMouseDelta();
+void SetRawInputFocus(bool focused);
+void ShutdownRawInput();
 
 // Function implementations
 void update_screen_size(int w, int h) {
@@ -83,68 +83,381 @@ void InitImGui() {
     ImGui_Implbgfx_Init(255, kImGuiMultiViewport);   // 255 = main ImGui view ID (drawn on top); floating windows use the ids right below it
 }
 
-bool InitDirectInput(SDL_Window* sdlWindow) {
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
-    if (!SDL_GetWindowWMInfo(sdlWindow, &wmInfo)) {
-        SDL_LogError(SDL_LOG_CATEGORY_INPUT, "Failed to get window handle: %s", SDL_GetError());
+// Raw Input is registered on a dedicated message-only window owned by a
+// high-priority thread. SDL's mouse registration is process-wide (one target
+// per usage), so this deliberately takes over the mouse Raw Input target after
+// SDL relative mode has been initialized. RIDEV_INPUTSINK is used without
+// RIDEV_NOLEGACY: SDL's forced warp-relative mode continues receiving ordinary
+// WM_MOUSEMOVE / button messages, while the game gets raw counts independently.
+static constexpr wchar_t kRawInputWindowClass[] = L"SdlWasmEngineRawMouseInputWindow";
+
+static HANDLE g_RawInputThread = nullptr;
+static HANDLE g_RawInputReadyEvent = nullptr;
+static DWORD g_RawInputThreadId = 0;
+static std::atomic<bool> g_RawInputRegistered{ false };
+static DWORD g_RawInputInitError = ERROR_SUCCESS;
+
+// The producer is the Raw Input thread. The consumer can be the main thread
+// (initial per-frame sample) or the asynchronous game-update thread (LateUpdate).
+// A short SRW lock keeps X/Y as one coherent sample and prevents lost updates.
+static SRWLOCK g_RawMouseDeltaLock = SRWLOCK_INIT;
+static bool g_RawInputFocused = false; // protected by g_RawMouseDeltaLock
+static int64_t g_RawMouseDeltaX = 0;
+static int64_t g_RawMouseDeltaY = 0;
+static std::atomic<uint64_t> g_RawInputFocusGeneration{ 0 };
+
+static void AddRawMouseDelta(int64_t dx, int64_t dy)
+{
+    if (dx == 0 && dy == 0)
+        return;
+
+    AcquireSRWLockExclusive(&g_RawMouseDeltaLock);
+    if (g_RawInputFocused)
+    {
+        g_RawMouseDeltaX += dx;
+        g_RawMouseDeltaY += dy;
+    }
+    ReleaseSRWLockExclusive(&g_RawMouseDeltaLock);
+}
+
+void SetRawInputFocus(bool focused)
+{
+    AcquireSRWLockExclusive(&g_RawMouseDeltaLock);
+    if (g_RawInputFocused != focused)
+    {
+        g_RawInputFocused = focused;
+        // Do not carry movement across focus transitions. This also discards
+        // input delivered through RIDEV_INPUTSINK while another app is active.
+        g_RawMouseDeltaX = 0;
+        g_RawMouseDeltaY = 0;
+        g_RawInputFocusGeneration.fetch_add(1, std::memory_order_relaxed);
+    }
+    ReleaseSRWLockExclusive(&g_RawMouseDeltaLock);
+}
+
+vec2 ReadRawMouseDelta()
+{
+    int64_t dx;
+    int64_t dy;
+
+    AcquireSRWLockExclusive(&g_RawMouseDeltaLock);
+    dx = g_RawMouseDeltaX;
+    dy = g_RawMouseDeltaY;
+    g_RawMouseDeltaX = 0;
+    g_RawMouseDeltaY = 0;
+    ReleaseSRWLockExclusive(&g_RawMouseDeltaLock);
+
+    // These are unaccelerated raw device counts, matching DirectInput's
+    // lX/lY units. Sensitivity, /5 scaling and Y inversion remain in the
+    // EngineMain callback so both regular and late samples use identical math.
+    return vec2(static_cast<float>(dx), static_cast<float>(dy));
+}
+
+static void ProcessRawMouseInput(
+    const RAWINPUT* rawInput,
+    std::unordered_map<HANDLE, POINT>& previousAbsolutePositions,
+    uint64_t& lastFocusGeneration)
+{
+    if (!rawInput || rawInput->header.dwType != RIM_TYPEMOUSE)
+        return;
+
+    // RIDEV_INPUTSINK also reports while another application is foreground.
+    // AddRawMouseDelta gates accumulation using SDL_WINDOW_INPUT_FOCUS instead
+    // of WM_INPUT's foreground code, which also supports an SDL child window
+    // embedded in a separate host process.
+
+    const uint64_t focusGeneration = g_RawInputFocusGeneration.load(std::memory_order_relaxed);
+    if (focusGeneration != lastFocusGeneration)
+    {
+        previousAbsolutePositions.clear();
+        lastFocusGeneration = focusGeneration;
+    }
+
+    const RAWMOUSE& mouse = rawInput->data.mouse;
+    int64_t dx = 0;
+    int64_t dy = 0;
+
+    if ((mouse.usFlags & MOUSE_MOVE_ABSOLUTE) == 0)
+    {
+        // Normal physical mice report relative counts. Do not apply Windows
+        // pointer acceleration or DPI scaling: Raw Input already provides the
+        // same count-based values expected by the old DirectInput path.
+        dx = mouse.lLastX;
+        dy = mouse.lLastY;
+    }
+    else
+    {
+        // Absolute devices (for example some remote-desktop/tablet devices)
+        // report normalized screen coordinates. Convert them to screen pixels
+        // and derive per-device deltas instead of treating absolute positions
+        // as enormous relative movements.
+        const bool virtualDesktop = (mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) != 0;
+        const int originX = virtualDesktop ? GetSystemMetrics(SM_XVIRTUALSCREEN) : 0;
+        const int originY = virtualDesktop ? GetSystemMetrics(SM_YVIRTUALSCREEN) : 0;
+        const int width = GetSystemMetrics(virtualDesktop ? SM_CXVIRTUALSCREEN : SM_CXSCREEN);
+        const int height = GetSystemMetrics(virtualDesktop ? SM_CYVIRTUALSCREEN : SM_CYSCREEN);
+        if (width <= 1 || height <= 1)
+            return;
+
+        POINT absolutePosition{};
+        absolutePosition.x = originX + MulDiv(static_cast<int>(mouse.lLastX), width - 1, 65535);
+        absolutePosition.y = originY + MulDiv(static_cast<int>(mouse.lLastY), height - 1, 65535);
+
+        auto [it, inserted] = previousAbsolutePositions.try_emplace(rawInput->header.hDevice, absolutePosition);
+        if (inserted)
+            return; // Establish a baseline; the first absolute report is not motion.
+
+        dx = static_cast<int64_t>(absolutePosition.x) - it->second.x;
+        dy = static_cast<int64_t>(absolutePosition.y) - it->second.y;
+        it->second = absolutePosition;
+    }
+
+    AddRawMouseDelta(dx, dy);
+}
+
+struct RawInputThreadState
+{
+    std::vector<BYTE> buffer;
+    std::unordered_map<HANDLE, POINT> previousAbsolutePositions;
+    uint64_t lastFocusGeneration = 0;
+};
+
+// WM_INPUT is always dispatched on the thread that owns the target HWND.
+// This pointer is therefore thread-local and needs no cross-thread locking.
+static thread_local RawInputThreadState* g_RawInputThreadState = nullptr;
+
+static void DrainRawInputBuffer(RawInputThreadState& state)
+{
+    for (;;)
+    {
+        UINT bufferSize = static_cast<UINT>(state.buffer.size());
+        const UINT count = GetRawInputBuffer(
+            reinterpret_cast<PRAWINPUT>(state.buffer.data()),
+            &bufferSize,
+            sizeof(RAWINPUTHEADER));
+
+        if (count == 0)
+            return;
+
+        if (count == static_cast<UINT>(-1))
+        {
+            const DWORD error = GetLastError();
+            if (error != ERROR_INSUFFICIENT_BUFFER)
+                return;
+
+            const size_t requiredSize = std::max<size_t>(
+                static_cast<size_t>(bufferSize), state.buffer.size() * 2);
+            if (requiredSize <= state.buffer.size())
+                return;
+
+            state.buffer.resize(requiredSize);
+            continue;
+        }
+
+        PRAWINPUT rawInput = reinterpret_cast<PRAWINPUT>(state.buffer.data());
+        for (UINT i = 0; i < count; ++i)
+        {
+            ProcessRawMouseInput(rawInput, state.previousAbsolutePositions, state.lastFocusGeneration);
+            const uintptr_t nextAddress =
+                reinterpret_cast<uintptr_t>(rawInput) + rawInput->header.dwSize;
+
+            constexpr uintptr_t alignment = sizeof(ULONG_PTR);
+
+            rawInput = reinterpret_cast<PRAWINPUT>(
+                (nextAddress + alignment - 1) & ~(alignment - 1));
+        }
+
+        // More reports may have arrived while this batch was being processed.
+    }
+}
+
+static LRESULT CALLBACK RawInputMessageWindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    if (message == WM_INPUT && g_RawInputThreadState)
+    {
+        // Read the packet attached to this message first. Then drain any newer
+        // reports that accumulated while the thread was entering this handler.
+        // This is the recommended hybrid GetRawInputData + GetRawInputBuffer path
+        // for high-frequency mice.
+        RAWINPUT rawInput{};
+        UINT size = sizeof(rawInput);
+        const UINT readResult = GetRawInputData(
+            reinterpret_cast<HRAWINPUT>(lParam),
+            RID_INPUT,
+            &rawInput,
+            &size,
+            sizeof(RAWINPUTHEADER));
+
+        if (readResult != static_cast<UINT>(-1) && readResult >= sizeof(RAWINPUTHEADER))
+        {
+            ProcessRawMouseInput(
+                &rawInput,
+                g_RawInputThreadState->previousAbsolutePositions,
+                g_RawInputThreadState->lastFocusGeneration);
+        }
+
+        DrainRawInputBuffer(*g_RawInputThreadState);
+
+        // RIM_INPUT requires DefWindowProc cleanup. Calling it for RIM_INPUTSINK
+        // is harmless and keeps the message path consistent.
+        return DefWindowProcW(hwnd, message, wParam, lParam);
+    }
+
+    return DefWindowProcW(hwnd, message, wParam, lParam);
+}
+
+static DWORD WINAPI RawInputThreadProc(LPVOID)
+{
+    // High priority is sufficient for prompt delivery without the system-wide
+    // starvation risk of THREAD_PRIORITY_TIME_CRITICAL.
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+
+    RawInputThreadState threadState;
+    threadState.buffer.resize(64 * sizeof(RAWINPUT));
+    threadState.lastFocusGeneration = g_RawInputFocusGeneration.load(std::memory_order_relaxed);
+    g_RawInputThreadState = &threadState;
+
+    const HINSTANCE instance = GetModuleHandleW(nullptr);
+    WNDCLASSEXW windowClass{};
+    windowClass.cbSize = sizeof(windowClass);
+    windowClass.lpfnWndProc = RawInputMessageWindowProc;
+    windowClass.hInstance = instance;
+    windowClass.lpszClassName = kRawInputWindowClass;
+
+    const ATOM classAtom = RegisterClassExW(&windowClass);
+    if (!classAtom)
+    {
+        g_RawInputInitError = GetLastError();
+        g_RawInputThreadState = nullptr;
+        SetEvent(g_RawInputReadyEvent);
+        return 1;
+    }
+
+    HWND rawInputWindow = CreateWindowExW(
+        0,
+        kRawInputWindowClass,
+        L"",
+        0,
+        0, 0, 0, 0,
+        HWND_MESSAGE,
+        nullptr,
+        instance,
+        nullptr);
+
+    if (!rawInputWindow)
+    {
+        g_RawInputInitError = GetLastError();
+        UnregisterClassW(kRawInputWindowClass, instance);
+        g_RawInputThreadState = nullptr;
+        SetEvent(g_RawInputReadyEvent);
+        return 1;
+    }
+
+    RAWINPUTDEVICE mouseDevice{};
+    mouseDevice.usUsagePage = 0x01; // HID_USAGE_PAGE_GENERIC
+    mouseDevice.usUsage = 0x02;     // HID_USAGE_GENERIC_MOUSE
+    mouseDevice.dwFlags = RIDEV_INPUTSINK;
+    mouseDevice.hwndTarget = rawInputWindow;
+
+    if (!RegisterRawInputDevices(&mouseDevice, 1, sizeof(mouseDevice)))
+    {
+        g_RawInputInitError = GetLastError();
+        DestroyWindow(rawInputWindow);
+        UnregisterClassW(kRawInputWindowClass, instance);
+        g_RawInputThreadState = nullptr;
+        SetEvent(g_RawInputReadyEvent);
+        return 1;
+    }
+
+    g_RawInputRegistered.store(true, std::memory_order_release);
+    SetEvent(g_RawInputReadyEvent);
+
+    // GetMessage removes the current WM_INPUT packet; the window procedure reads
+    // it with GetRawInputData and immediately batches any newer queued reports.
+    MSG message{};
+    BOOL getMessageResult = 0;
+    while ((getMessageResult = GetMessageW(&message, nullptr, 0, 0)) > 0)
+    {
+        TranslateMessage(&message);
+        DispatchMessageW(&message);
+    }
+
+    // Raw Input registration is process-wide. Remove our mouse registration
+    // before the SDL window is destroyed and SDL shuts down.
+    RAWINPUTDEVICE removeMouse{};
+    removeMouse.usUsagePage = 0x01;
+    removeMouse.usUsage = 0x02;
+    removeMouse.dwFlags = RIDEV_REMOVE;
+    removeMouse.hwndTarget = nullptr;
+    RegisterRawInputDevices(&removeMouse, 1, sizeof(removeMouse));
+
+    DestroyWindow(rawInputWindow);
+    UnregisterClassW(kRawInputWindowClass, instance);
+    g_RawInputThreadState = nullptr;
+    return 0;
+}
+
+bool InitRawInput()
+{
+    g_RawInputRegistered.store(false, std::memory_order_relaxed);
+    g_RawInputInitError = ERROR_SUCCESS;
+    g_RawInputReadyEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+    if (!g_RawInputReadyEvent)
+    {
+        g_RawInputInitError = GetLastError();
+        SDL_LogError(SDL_LOG_CATEGORY_INPUT, "CreateEvent for Raw Input failed: %lu", g_RawInputInitError);
         return false;
     }
-    HWND hwnd = wmInfo.info.win.window;
-    HRESULT hr = DirectInput8Create(GetModuleHandle(nullptr), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&g_pDI, nullptr);
-    if (FAILED(hr)) {
-        SDL_LogError(SDL_LOG_CATEGORY_INPUT, "DirectInput8Create failed: %08X", hr);
+
+    g_RawInputThread = CreateThread(
+        nullptr, 0, RawInputThreadProc, nullptr, 0, &g_RawInputThreadId);
+    if (!g_RawInputThread)
+    {
+        g_RawInputInitError = GetLastError();
+        SDL_LogError(SDL_LOG_CATEGORY_INPUT, "CreateThread for Raw Input failed: %lu", g_RawInputInitError);
+        CloseHandle(g_RawInputReadyEvent);
+        g_RawInputReadyEvent = nullptr;
         return false;
     }
-    hr = g_pDI->CreateDevice(GUID_SysMouse, &g_pMouse, nullptr);
-    if (FAILED(hr)) {
-        SDL_LogError(SDL_LOG_CATEGORY_INPUT, "CreateDevice failed: %08X", hr);
+
+    WaitForSingleObject(g_RawInputReadyEvent, INFINITE);
+    const bool success = g_RawInputRegistered.load(std::memory_order_acquire);
+    if (!success)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_INPUT, "Raw Input initialization failed: %lu", g_RawInputInitError);
+        WaitForSingleObject(g_RawInputThread, INFINITE);
+        CloseHandle(g_RawInputThread);
+        CloseHandle(g_RawInputReadyEvent);
+        g_RawInputThread = nullptr;
+        g_RawInputReadyEvent = nullptr;
+        g_RawInputThreadId = 0;
         return false;
     }
-    hr = g_pMouse->SetDataFormat(&c_dfDIMouse2);
-    if (FAILED(hr)) {
-        SDL_LogError(SDL_LOG_CATEGORY_INPUT, "SetDataFormat failed: %08X", hr);
-        return false;
-    }
-    hr = g_pMouse->SetCooperativeLevel(hwnd, DISCL_NONEXCLUSIVE | DISCL_BACKGROUND);
-    if (FAILED(hr)) {
-        SDL_LogError(SDL_LOG_CATEGORY_INPUT, "SetCooperativeLevel failed: %08X", hr);
-        return false;
-    }
-    hr = g_pMouse->Acquire();
-    if (FAILED(hr)) {
-        SDL_LogError(SDL_LOG_CATEGORY_INPUT, "Acquire failed: %08X", hr);
-        return false;
-    }
-    SDL_ShowCursor(SDL_DISABLE);
+
+    SDL_Log("Raw Input mouse thread initialized (buffered, high-priority)");
     return true;
 }
 
-vec2 ReadMouseDelta() {
-    DIMOUSESTATE2 mouseState;
-    vec2 mouseDelta = vec2(0, 0);
-    if (!g_pMouse) return mouseDelta;
-    HRESULT hr = g_pMouse->GetDeviceState(sizeof(DIMOUSESTATE2), &mouseState);
-    if (hr == DIERR_INPUTLOST || hr == DIERR_NOTACQUIRED) {
-        g_pMouse->Acquire();
+void ShutdownRawInput()
+{
+    if (g_RawInputThread)
+    {
+        // The thread owns its message queue and window. Post WM_QUIT to that
+        // queue, then wait for it to unregister the device and destroy the HWND.
+        PostThreadMessageW(g_RawInputThreadId, WM_QUIT, 0, 0);
+        WaitForSingleObject(g_RawInputThread, INFINITE);
+        CloseHandle(g_RawInputThread);
+        g_RawInputThread = nullptr;
     }
-    else if (SUCCEEDED(hr)) {
-        mouseDelta.x = static_cast<float>(mouseState.lX);
-        mouseDelta.y = static_cast<float>(mouseState.lY);
-    }
-    return mouseDelta;
-}
 
-void ShutdownDirectInput() {
-    if (g_pMouse) {
-        g_pMouse->Unacquire();
-        g_pMouse->Release();
-        g_pMouse = nullptr;
+    if (g_RawInputReadyEvent)
+    {
+        CloseHandle(g_RawInputReadyEvent);
+        g_RawInputReadyEvent = nullptr;
     }
-    if (g_pDI) {
-        g_pDI->Release();
-        g_pDI = nullptr;
-    }
+
+    g_RawInputThreadId = 0;
+    SetRawInputFocus(false);
 }
 
 bool pendingResize = false;
@@ -177,12 +490,7 @@ void desktop_render_loop() {
     {
         Input::PendingMouseDelta = vec2();
         Input::StartEventsFrame();
-
-        Uint32 flags = SDL_GetWindowFlags(window);
-
-        if (flags & SDL_WINDOW_INPUT_FOCUS) {
-            Input::PendingMouseDelta = ReadMouseDelta();
-        }
+        SetRawInputFocus((SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0);
 
         while (SDL_PollEvent(&event))
         {
@@ -196,6 +504,16 @@ void desktop_render_loop() {
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE &&
                 event.window.windowID == mainWindowId) quit = 1;
 
+            // Track focus transitions immediately instead of waiting until the
+            // next frame; the Raw Input thread filters sink/background packets.
+            if (event.type == SDL_WINDOWEVENT && event.window.windowID == mainWindowId)
+            {
+                if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+                    SetRawInputFocus(true);
+                else if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+                    SetRawInputFocus(false);
+            }
+
             // Events for floating ImGui windows were already given to ImGui above.
             if (IsEventForOtherWindow(event, mainWindowId)) continue;
 
@@ -205,12 +523,20 @@ void desktop_render_loop() {
                     event.window.event == SDL_WINDOWEVENT_RESIZED))
             {
                 SDL_GetWindowSize(window, &currentWidth, &currentHeight);
-				pendingResize = true;
+                pendingResize = true;
             }
 
             Input::ReceiveSdlEvent(event);
         }
 
+        // SDL has finished pumping the window's events. Use Raw Input as the
+        // authoritative game look delta (rather than adding SDL motion a second
+        // time). Reports arriving during GameUpdate/LateUpdate remain available
+        // for PullAdditionalMouseDelta().
+        const bool hasInputFocus = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0;
+        SetRawInputFocus(hasInputFocus);
+        if (hasInputFocus)
+            Input::PendingMouseDelta = ReadRawMouseDelta();
 
         engine->MainLoop();
 
@@ -386,7 +712,7 @@ int main(int argc, char* args[])
 
     // -headless: for automated runs that must not disturb the user. The window is created hidden (never shown, no focus
     // steal; a real one because Direct3D needs a native handle, so SDL's dummy video driver is no option here), SDL
-    // audio uses its dummy driver, there is no multi-viewport ImGui, no DirectInput / mouse capture, and sound is muted.
+    // audio uses its dummy driver, there is no multi-viewport ImGui, no Raw Input thread / mouse capture, and sound is muted.
     // Checked on the raw arguments: ParseCommands splits a single-dash all-letter flag like -headless into letters.
     g_Headless = std::find(args_s.begin(), args_s.end(), "-headless") != args_s.end() ||
         std::find(args_s.begin(), args_s.end(), "--headless") != args_s.end();
@@ -398,43 +724,43 @@ int main(int argc, char* args[])
         Logger::Log("headless mode");
     }
 
-	bgfx::RendererType::Enum renderApi = bgfx::RendererType::Direct3D11;   // default to Direct3D11 on Windows
+    bgfx::RendererType::Enum renderApi = bgfx::RendererType::Direct3D11;   // default to Direct3D11 on Windows
 
-	auto renderApiOverride = args_m.find("renderapi");
+    auto renderApiOverride = args_m.find("renderapi");
     if (renderApiOverride != args_m.end())
     {
         const std::string& renderApiStr = renderApiOverride->second[0];
         if (renderApiStr == "dx11")
         {
             renderApi = bgfx::RendererType::Direct3D11;
-			Logger::Log("Using Direct3D11 renderer");
+            Logger::Log("Using Direct3D11 renderer");
         }
         else if (renderApiStr == "dx12")
         {
             renderApi = bgfx::RendererType::Direct3D12;
-			Logger::Log("Using Direct3D12 renderer");
+            Logger::Log("Using Direct3D12 renderer");
         }
-		else if (renderApiStr == "vk")
-		{
-			renderApi = bgfx::RendererType::Vulkan;
-			Logger::Log("Using Vulkan renderer");
-		}
-		else if (renderApiStr == "gl")
-		{
-			renderApi = bgfx::RendererType::OpenGL;
-			Logger::Log("Using OpenGL renderer");
-		}
-		else if (renderApiStr == "noop")
-		{
-			// No GPU work at all. It cannot find compiled shaders (they are looked up per renderer type), so only use
-			// it for runs that never render.
-			renderApi = bgfx::RendererType::Noop;
-			Logger::Log("Using Noop renderer");
-		}
-		else
-		{
-			Logger::Log("Unknown render API specified: " + renderApiStr + ", using default");
-		}
+        else if (renderApiStr == "vk")
+        {
+            renderApi = bgfx::RendererType::Vulkan;
+            Logger::Log("Using Vulkan renderer");
+        }
+        else if (renderApiStr == "gl")
+        {
+            renderApi = bgfx::RendererType::OpenGL;
+            Logger::Log("Using OpenGL renderer");
+        }
+        else if (renderApiStr == "noop")
+        {
+            // No GPU work at all. It cannot find compiled shaders (they are looked up per renderer type), so only use
+            // it for runs that never render.
+            renderApi = bgfx::RendererType::Noop;
+            Logger::Log("Using Noop renderer");
+        }
+        else
+        {
+            Logger::Log("Unknown render API specified: " + renderApiStr + ", using default");
+        }
     }
 
     // -lock_window: a tool (UI Studio) has put the window inside its own; the click that gives the window focus must still
@@ -455,12 +781,9 @@ int main(int argc, char* args[])
         return 1;
     }
 
-    if (!g_Headless)    // DirectInput reads the real mouse, even in the background
-        InitDirectInput(window);
-
     // ====================== BGFX INITIALIZATION (replaces all OpenGL) ======================
     bgfx::Init init;
-    init.type = renderApi; 
+    init.type = renderApi;
     init.callback = Screenshot::Callback();   // saving frames: console `screenshot`, launch -screenshot <seconds> <file>
     init.debug = false;
     init.profile = false;
@@ -477,14 +800,14 @@ int main(int argc, char* args[])
     init.swapChain.width = 800;
     init.swapChain.height = 600;
     init.swapChain.flags = BGFX_RESET_NONE;   // no vsync (matches your old SDL_GL_SetSwapInterval(0))
-    
+
 
     if (!bgfx::init(init)) {
         fprintf(stderr, "bgfx::init failed!\n");
         return 1;
     }
 
-	BgfxResetManager::swapChainPtr = &init.swapChain;
+    BgfxResetManager::swapChainPtr = &init.swapChain;
 
     //bgfx::setDebug(BGFX_DEBUG_TEXT | BGFX_DEBUG_STATS);
 
@@ -499,20 +822,33 @@ int main(int argc, char* args[])
     SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE);
     SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_CENTER, "1", SDL_HINT_OVERRIDE);
     if (!g_Headless)    // would capture the user's real cursor
+    {
         SDL_SetRelativeMouseMode(SDL_TRUE);
+
+        // Start after SDL relative mode: Raw Input registration is process-wide,
+        // and our message-only window becomes the mouse input target. The forced
+        // SDL warp mode above keeps legacy window mouse events working for SDL/UI.
+        InitRawInput();
+    }
 
     Input::AddAction("test")->AddKeyboardKey(SDL_GetScancodeFromKey(SDLK_t));
     Input::AddAction("fullscreen")->AddKeyboardKey(SDL_GetScancodeFromKey(SDLK_F11));
 
     engine = new EngineMain(window);
     engine->asyncGameUpdate = ThreadPool::Supported();
+
+    engine->SetAdditionalMouseDeltaCallback([]() -> glm::vec2
+        {
+            return ReadRawMouseDelta();
+        });
+
     EngineMain::MainInstance = engine;
     engine->Init(args_s);
 
     desktop_render_loop();
 
     delete engine;
-    ShutdownDirectInput();
+    ShutdownRawInput();
 
     // Renderer backend first (releases the swap chains of floating windows), then the platform backend (closes their OS windows).
     ImGui_Implbgfx_Shutdown();

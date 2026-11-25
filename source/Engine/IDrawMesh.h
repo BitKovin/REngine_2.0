@@ -70,5 +70,6 @@ public:
 	virtual void PreloadAssets(){}
 
 	virtual BoundingBox GetBoundingBox() { return BoundingBox(); }
+	virtual BoundingBox GetFinalizedBoundingBox() { return BoundingBox(); }
 
 };

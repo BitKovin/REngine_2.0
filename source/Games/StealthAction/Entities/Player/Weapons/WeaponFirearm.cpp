@@ -9,6 +9,7 @@
 #include <AiPerception/AiPerceptionSystem.h>
 #include <AiPerception/Observer.h>
 #include "../../Npc/NpcBase.h"
+#include "../../Npc/Brain/NpcSounds.h"
 
 WeaponFirearm::WeaponFirearm(const FirearmParams& initialParams)
 	: params(initialParams)
@@ -566,7 +567,8 @@ void WeaponFirearm::FireSingleBullet(const vec3& startLoc, const vec4& gridOffse
 void WeaponFirearm::NotifyNpcs()
 {
 
-	AiPerceptionSystem::EmitSoundAt(owner->Position, params.npcNotifyRadius, (int)InvestigationReason::WeaponFire, Player::Instance->Id);
+	// Walls muffle the shot (NPC_AI_DESIGN.md 5.4); the new NPCs and the old ones hear it the same way.
+	NpcSounds::Emit(NpcSoundType::Gunshot, owner->Position, Player::Instance->Id, params.npcNotifyRadius);
 
 	auto observers = AiPerceptionSystem::GetObserversInRadius(owner->Position, params.npcNotifyRadius);
 	for (auto observer : observers) {

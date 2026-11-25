@@ -11,6 +11,8 @@ void Door::Start()
 
 	Physics::SetMotionType(LeadBody, JPH::EMotionType::Kinematic);
 
+	watched.Start(*this);
+
 }
 
 void Door::Update()
@@ -54,6 +56,9 @@ void Door::Update()
         doorMesh->Position + vec3(0, doorSize.y / 2, 0),
         doorMesh->Rotation
     );
+
+    // The point NPCs look at is in front of the leaf, so the ray from a viewer does not end inside the door itself.
+    watched.Update(Position + vec3(0, doorSize.y * 0.5f, 0) + MathHelper::GetForwardVector(Rotation) * 0.3f, IsOpen ? "open" : "closed", true);
 
     if (Dirty)
     {

@@ -3,6 +3,7 @@
 #include <UI/UiCanvas.hpp>
 #include "Crosshair.h"
 #include "PlayerHudView.h"
+#include "UiNpcAwareness.h"
 #include <Entity.h>
 
 #include "ScreenMobileControls.h"
@@ -44,6 +45,9 @@ private:
 	std::shared_ptr<PlayerHudView> view;
 
 	std::shared_ptr<UiCanvas> crosshairCanvas;
+
+	// What NPCs know of the player: markers over them and arrows at the screen edge.
+	std::shared_ptr<UiNpcAwareness> awareness;
 	std::shared_ptr<UiCrosshair> crosshair;
 
 };

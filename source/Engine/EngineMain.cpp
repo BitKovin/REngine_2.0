@@ -410,6 +410,8 @@ void EngineMain::FinishFrame()
 
 
     NavigationSystem::DrawNavmesh();
+    NavGrid::DrawDebug();
+    AiPerceptionSystem::DrawDebug();
 
     {
         ZoneScopedN("DebugDraw Finalize");
@@ -537,7 +539,13 @@ void EngineMain::MainLoop()
     Input::UpdateMouse();
 
     
-    if (asyncGameUpdate)
+    const bool frameHooked = FrameHook && FrameHook();
+
+    if (frameHooked)
+    {
+        // the hook stepped the game itself
+    }
+    else if (asyncGameUpdate)
     {
         ZoneScopedN("GameUpdate (Async)");
 
@@ -561,7 +569,7 @@ void EngineMain::MainLoop()
 
     FinishRender();
 
-    if (asyncGameUpdate)
+    if (asyncGameUpdate && frameHooked == false)
     {
         ZoneScopedN("Wait GameUpdate Jobs");
         GameUpdateSingleThreadPool->WaitForFinish();
@@ -570,7 +578,16 @@ void EngineMain::MainLoop()
     }
 
 
+
     Time::Update();
+
+    if (LoadingFrames > 0)
+    {
+
+        Time::GameTime -= Time::DeltaTime;//like it didn't happen
+        Time::DeltaTimeFNoTimeScale = Time::DeltaTime = Time::DeltaTimeF = 0.0001; //making it extreamely slow, but not 0, since some stuff might try to divide by delta time
+
+    }
 
     if (Input::GetAction("fullscreen")->Pressed())
     {
@@ -1039,7 +1056,10 @@ void EngineMain::Render()
         }
 
 		ViewIdManager::GiveNextId();
+
         LoadingScreenSystem::Draw();
+        LoadingScreenSystem::Draw();//2nd draw to tempororaly fix problem of game frame showing when loading finishes.
+
         return;
     }
 

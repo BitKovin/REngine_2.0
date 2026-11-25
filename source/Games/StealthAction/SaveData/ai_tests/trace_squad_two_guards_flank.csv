@@ -1,0 +1,403 @@
+time,name,class,alive,x,y,z,speed,yaw,distance,detection,attacking,following,sees,perceives,hears,tactic,role,lane,contact,est_err,skill,alert
+0.03,,npc_guard_hybrid,1,-4.50,1.36,21.00,0.00,6,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.03,,npc_guard_hybrid,1,-0.50,1.36,21.00,0.00,6,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.30,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,27,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.30,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,27,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.57,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,37,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.57,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,37,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.83,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,42,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.83,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,42,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.10,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,44,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.10,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,44,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.37,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,44,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.37,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,44,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.63,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.63,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.90,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.90,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.17,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.17,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.43,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.43,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.70,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.70,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.97,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.97,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.23,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,13.42,0.17,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.23,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,10.25,0.13,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.50,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,13.42,0.43,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.50,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,10.25,0.40,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.77,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,13.42,0.70,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.77,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,10.25,0.67,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+4.03,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,13.42,0.97,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+4.03,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,10.25,0.93,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+4.30,,npc_guard_hybrid,1,-4.43,1.43,21.03,1.10,58,13.35,1.00,0,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+4.30,,npc_guard_hybrid,1,-0.47,1.43,21.03,0.79,46,10.21,1.00,0,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+4.57,,npc_guard_hybrid,1,-3.94,1.43,21.21,2.35,58,12.84,1.00,1,1,1,1,1,strafe,base of fire,,visible,29.0,,-1
+4.57,,npc_guard_hybrid,1,-0.13,1.43,21.36,2.27,46,9.74,1.00,1,1,1,1,1,strafe,base of fire,,visible,29.0,,-1
+4.83,,npc_guard_hybrid,1,-3.74,1.43,21.42,1.27,57,12.55,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+4.83,,npc_guard_hybrid,1,-0.01,1.43,21.64,1.35,46,9.45,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.10,,npc_guard_hybrid,1,-4.06,1.43,21.84,2.37,60,12.62,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.10,,npc_guard_hybrid,1,-0.42,1.43,21.99,2.39,49,9.53,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.37,,npc_guard_hybrid,1,-4.55,1.43,22.32,2.68,62,12.82,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.37,,npc_guard_hybrid,1,-1.00,1.43,22.37,2.69,53,9.75,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.63,,npc_guard_hybrid,1,-5.09,1.43,22.82,2.77,66,13.09,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.63,,npc_guard_hybrid,1,-1.62,1.43,22.75,2.77,57,10.06,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.90,,npc_guard_hybrid,1,-5.64,1.43,23.32,2.79,68,13.41,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.90,,npc_guard_hybrid,1,-1.93,1.43,22.81,0.94,59,10.28,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.17,,npc_guard_hybrid,1,-5.76,1.43,23.24,1.40,69,13.55,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.17,,npc_guard_hybrid,1,-1.69,1.43,22.39,2.28,57,10.31,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.43,,npc_guard_hybrid,1,-5.54,1.43,22.73,2.42,67,13.54,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.43,,npc_guard_hybrid,1,-1.30,1.43,21.84,2.66,53,10.31,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.70,,npc_guard_hybrid,1,-5.23,1.43,22.11,2.70,64,13.52,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.70,,npc_guard_hybrid,1,-0.87,1.43,21.26,2.76,49,10.35,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.97,,npc_guard_hybrid,1,-4.89,1.43,21.46,2.77,61,13.52,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.97,,npc_guard_hybrid,1,-0.42,1.43,20.66,2.79,45,10.43,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+7.23,,npc_guard_hybrid,1,-4.54,1.43,20.80,2.79,58,13.56,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.23,,npc_guard_hybrid,1,0.29,1.43,19.95,4.20,122,10.50,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+7.50,,npc_guard_hybrid,1,-4.19,1.43,20.14,2.80,55,13.65,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.50,,npc_guard_hybrid,1,1.40,1.43,19.49,4.74,111,10.22,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+7.77,,npc_guard_hybrid,1,-4.22,1.43,20.11,1.33,54,13.69,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.77,,npc_guard_hybrid,1,2.65,1.43,19.15,4.93,105,9.92,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+8.03,,npc_guard_hybrid,1,-4.54,1.43,20.56,2.41,56,13.69,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+8.03,,npc_guard_hybrid,1,3.94,1.43,18.85,4.98,103,9.73,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+8.30,,npc_guard_hybrid,1,-4.93,1.43,21.14,2.70,59,13.72,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+8.30,,npc_guard_hybrid,1,5.24,1.43,18.55,4.99,103,9.71,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+8.57,,npc_guard_hybrid,1,-5.33,1.43,21.74,2.77,62,13.78,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+8.57,,npc_guard_hybrid,1,6.35,1.43,18.06,3.87,123,10.08,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+8.83,,npc_guard_hybrid,1,-5.75,1.43,22.36,2.79,-113,10.81,1.00,1,1,0,0,0,strafe,base of fire,,visible,12.3,,-1
+8.83,,npc_guard_hybrid,1,6.31,1.43,17.14,3.79,-171,10.81,1.00,1,1,1,1,0,take_cover,base of fire,,visible,12.3,,-1
+9.10,,npc_guard_hybrid,1,-6.16,1.43,22.98,2.80,-140,11.51,1.00,1,1,0,0,0,strafe,base of fire,,visible,12.3,,-1
+9.10,,npc_guard_hybrid,1,5.59,1.43,16.81,1.90,-120,10.01,1.00,1,1,1,1,0,cover_fight,base of fire,,visible,12.3,,-1
+9.37,,npc_guard_hybrid,1,-6.31,1.43,23.21,0.33,-144,11.77,1.00,1,1,0,0,0,take_cover,base of fire,,visible,12.3,,-1
+9.37,,npc_guard_hybrid,1,5.41,1.43,16.82,0.22,-120,9.86,1.00,1,1,1,1,0,cover_fight,base of fire,,visible,12.3,,-1
+9.63,,npc_guard_hybrid,1,-6.43,1.43,22.83,3.11,-157,11.44,1.00,1,1,0,0,0,take_cover,base of fire,,visible,12.3,,-1
+9.63,,npc_guard_hybrid,1,5.08,1.43,16.85,1.98,-121,9.60,1.00,1,1,1,1,0,cover_fight,base of fire,,visible,12.3,,-1
+9.90,,npc_guard_hybrid,1,-6.70,1.43,21.79,4.50,-165,10.54,1.00,1,1,0,0,0,take_cover,base of fire,,visible,12.3,,-1
+9.90,,npc_guard_hybrid,1,4.51,1.43,16.90,1.47,-123,9.14,1.00,1,1,1,1,0,cover_fight,base of fire,,visible,12.3,,-1
+10.17,,npc_guard_hybrid,1,-7.00,1.43,20.56,4.87,-166,9.51,1.00,1,1,0,0,0,take_cover,base of fire,,visible,12.3,,-1
+10.17,,npc_guard_hybrid,1,4.37,1.43,16.91,0.17,-124,9.03,1.00,1,1,1,1,0,cover_fight,base of fire,,visible,12.3,,-1
+10.43,,npc_guard_hybrid,1,-7.31,1.43,19.28,4.97,-135,8.51,1.00,1,1,0,0,0,take_cover,base of fire,,visible,12.3,,-1
+10.43,,npc_guard_hybrid,1,4.35,1.43,16.91,0.02,-124,9.01,1.00,1,1,1,1,0,cover_fight,base of fire,,visible,12.3,,-1
+10.70,,npc_guard_hybrid,1,-7.54,1.43,18.45,0.41,143,7.92,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+10.70,,npc_guard_hybrid,1,4.35,1.43,16.91,0.00,-124,9.01,1.00,1,1,1,1,0,cover_fight,base of fire,,visible,12.3,,-1
+10.97,,npc_guard_hybrid,1,-7.59,1.43,18.45,0.48,146,7.95,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+10.97,,npc_guard_hybrid,1,4.36,1.43,16.70,2.43,-150,8.91,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,12.3,,-1
+11.23,,npc_guard_hybrid,1,-8.03,1.43,18.48,2.19,144,8.22,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+11.23,,npc_guard_hybrid,1,4.43,1.43,15.72,3.99,-146,8.48,1.00,1,1,1,1,0,press,flank,done,visible,12.3,,-1
+11.50,,npc_guard_hybrid,1,-8.31,1.43,18.50,0.35,142,8.41,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+11.50,,npc_guard_hybrid,1,4.51,1.43,15.26,1.68,-115,8.35,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+11.77,,npc_guard_hybrid,1,-8.35,1.43,18.50,0.04,142,8.44,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+11.77,,npc_guard_hybrid,1,4.82,1.43,14.76,2.49,-111,8.45,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+12.03,,npc_guard_hybrid,1,-8.35,1.43,18.50,0.00,142,8.44,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+12.03,,npc_guard_hybrid,1,5.27,1.43,14.18,3.34,-145,8.70,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+12.30,,npc_guard_hybrid,1,-8.12,1.43,18.50,1.77,143,8.30,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+12.30,,npc_guard_hybrid,1,5.44,1.43,14.24,2.40,179,8.88,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+12.57,,npc_guard_hybrid,1,-7.62,1.43,18.50,1.06,146,8.00,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+12.57,,npc_guard_hybrid,1,5.13,1.43,15.02,3.06,-109,8.84,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+12.83,,npc_guard_hybrid,1,-7.54,1.43,18.50,0.63,149,7.96,1.00,1,1,0,0,0,regain_sight,base of fire,,visible,12.3,,-1
+12.83,,npc_guard_hybrid,1,4.80,1.43,15.73,2.87,-115,8.82,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+13.10,,npc_guard_hybrid,1,-8.28,1.43,18.50,3.85,-112,8.39,1.00,1,1,0,0,0,regain_sight,base of fire,,visible,12.3,,-1
+13.10,,npc_guard_hybrid,1,4.41,1.43,16.47,2.52,-53,8.82,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+13.37,,npc_guard_hybrid,1,-9.46,1.43,18.47,4.70,-93,9.14,1.00,1,1,0,0,0,regain_sight,base of fire,,visible,12.3,,-1
+13.37,,npc_guard_hybrid,1,4.40,1.43,16.44,1.40,-122,8.80,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+13.63,,npc_guard_hybrid,1,-10.47,1.43,18.42,0.99,-93,9.84,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+13.63,,npc_guard_hybrid,1,4.66,1.43,15.94,2.43,-119,8.78,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+13.90,,npc_guard_hybrid,1,-9.95,1.43,18.43,3.42,115,9.46,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+13.90,,npc_guard_hybrid,1,4.98,1.43,15.33,2.70,-114,8.81,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+14.17,,npc_guard_hybrid,1,-8.84,1.43,18.52,4.56,87,8.76,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+14.17,,npc_guard_hybrid,1,5.33,1.43,14.68,2.77,-109,8.91,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+14.43,,npc_guard_hybrid,1,-7.56,1.43,18.56,4.88,89,8.02,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+14.43,,npc_guard_hybrid,1,5.65,1.43,14.01,2.78,-105,9.03,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+14.70,,npc_guard_hybrid,1,-6.25,1.43,18.56,4.97,90,7.38,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+14.70,,npc_guard_hybrid,1,5.86,1.43,13.30,2.79,-100,9.10,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+14.97,,npc_guard_hybrid,1,-4.92,1.43,18.56,4.99,90,6.92,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+14.97,,npc_guard_hybrid,1,5.94,1.43,12.92,0.37,-97,9.13,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+15.23,,npc_guard_hybrid,1,-3.59,1.43,18.55,5.00,90,6.69,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+15.23,,npc_guard_hybrid,1,5.87,1.43,13.33,2.16,-98,9.11,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+15.50,,npc_guard_hybrid,1,-2.25,1.43,18.54,5.00,90,6.72,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+15.50,,npc_guard_hybrid,1,5.75,1.43,13.98,2.63,-102,9.12,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+15.77,,npc_guard_hybrid,1,-0.92,1.43,18.54,5.00,90,7.02,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+15.77,,npc_guard_hybrid,1,5.63,1.43,14.69,2.76,-107,9.19,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+16.03,,npc_guard_hybrid,1,0.41,1.43,18.53,5.00,90,7.54,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+16.03,,npc_guard_hybrid,1,5.51,1.43,15.34,1.21,-111,9.31,1.00,1,1,1,1,0,press,base of fire,,visible,12.3,,-1
+16.30,,npc_guard_hybrid,1,1.75,1.43,18.52,5.00,90,8.24,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+16.30,,npc_guard_hybrid,1,5.61,1.43,15.15,1.75,-111,9.33,1.00,1,1,1,1,0,strafe,base of fire,,visible,12.3,,-1
+16.57,,npc_guard_hybrid,1,3.08,1.43,18.51,5.00,90,9.09,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+16.57,,npc_guard_hybrid,1,5.82,1.43,14.59,2.52,-108,9.35,1.00,1,1,1,1,0,strafe,base of fire,,visible,12.3,,-1
+16.83,,npc_guard_hybrid,1,4.41,1.43,18.50,5.00,91,10.03,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+16.83,,npc_guard_hybrid,1,6.09,1.43,13.93,2.73,-104,9.44,1.00,1,1,1,1,0,strafe,base of fire,,visible,12.3,,-1
+17.10,,npc_guard_hybrid,1,5.74,1.43,18.44,4.99,93,11.04,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+17.10,,npc_guard_hybrid,1,6.36,1.43,13.25,2.78,-99,9.59,1.00,1,1,1,1,0,strafe,base of fire,,visible,12.3,,-1
+17.37,,npc_guard_hybrid,1,6.81,1.43,18.15,4.31,108,11.75,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+17.37,,npc_guard_hybrid,1,6.64,1.43,12.56,2.79,-95,9.79,1.00,1,1,1,1,0,take_cover,base of fire,,visible,12.3,,-1
+17.63,,npc_guard_hybrid,1,7.95,1.43,17.67,4.82,113,12.50,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+17.63,,npc_guard_hybrid,1,6.92,1.43,12.02,0.70,177,10.05,1.00,1,1,1,1,0,take_cover,base of fire,,visible,12.3,,-1
+17.90,,npc_guard_hybrid,1,9.15,1.43,17.14,4.95,114,13.35,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+17.90,,npc_guard_hybrid,1,6.88,1.43,12.75,3.82,6,10.04,1.00,1,1,0,0,0,take_cover,base of fire,,visible,12.3,,-1
+18.17,,npc_guard_hybrid,1,10.36,1.43,16.59,4.99,114,14.28,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+18.17,,npc_guard_hybrid,1,6.72,1.43,13.91,4.69,-7,10.06,1.00,1,1,1,1,0,take_cover,base of fire,,visible,12.3,,-1
+18.43,,npc_guard_hybrid,1,11.52,1.43,16.06,3.46,115,15.23,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+18.43,,npc_guard_hybrid,1,6.54,1.43,15.19,4.92,-8,10.21,1.00,1,1,1,1,0,take_cover,base of fire,,visible,12.3,,-1
+18.70,,npc_guard_hybrid,1,12.55,1.43,15.59,4.59,115,16.10,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+18.70,,npc_guard_hybrid,1,6.42,1.43,15.94,2.59,-8,10.38,1.00,1,1,1,1,0,take_cover,base of fire,,visible,12.3,,-1
+18.97,,npc_guard_hybrid,1,13.71,1.43,15.06,4.89,115,17.13,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+18.97,,npc_guard_hybrid,1,6.27,1.43,16.94,4.37,-9,10.68,1.00,1,1,1,1,0,take_cover,base of fire,,visible,12.3,,-1
+19.23,,npc_guard_hybrid,1,14.91,1.43,14.51,4.97,115,18.23,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+19.23,,npc_guard_hybrid,1,6.05,1.43,18.16,4.80,-12,11.12,1.00,1,1,0,0,0,take_cover,base of fire,,visible,12.3,,-1
+19.50,,npc_guard_hybrid,1,16.12,1.43,13.96,4.99,115,19.36,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+19.50,,npc_guard_hybrid,1,5.32,1.43,18.90,3.92,-56,10.98,1.00,1,1,0,0,0,take_cover,base of fire,,visible,12.3,,-1
+19.77,,npc_guard_hybrid,1,17.33,1.43,13.41,5.00,115,20.51,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+19.77,,npc_guard_hybrid,1,4.16,1.43,18.93,4.62,-90,10.14,1.00,1,1,0,0,0,take_cover,base of fire,,visible,12.3,,-1
+20.03,,npc_guard_hybrid,1,18.19,1.43,13.01,1.67,115,21.35,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+20.03,,npc_guard_hybrid,1,2.97,1.43,18.70,4.01,-159,9.15,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+20.30,,npc_guard_hybrid,1,18.99,1.43,12.63,4.12,116,22.12,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+20.30,,npc_guard_hybrid,1,2.25,1.43,18.44,1.24,-142,8.49,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+20.57,,npc_guard_hybrid,1,19.71,0.93,12.21,2.68,99,22.84,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+20.57,,npc_guard_hybrid,1,2.15,1.43,18.45,0.27,-141,8.43,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+20.83,,npc_guard_hybrid,1,20.21,0.93,11.79,2.32,84,23.34,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,12.3,,-1
+20.83,,npc_guard_hybrid,1,2.30,1.43,18.47,0.65,-141,8.54,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,12.3,,-1
+21.10,,npc_guard_hybrid,1,20.64,0.93,11.37,2.23,59,23.77,1.00,1,1,0,0,0,regain_sight,flank,done,concealed,0.0,,-1
+21.10,,npc_guard_hybrid,1,2.78,1.43,18.51,2.24,174,8.89,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+21.37,,npc_guard_hybrid,1,20.86,1.40,11.14,0.28,34,24.00,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+21.37,,npc_guard_hybrid,1,2.83,1.43,19.23,3.72,1,9.47,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+21.63,,npc_guard_hybrid,1,20.33,1.43,11.59,3.75,-37,23.46,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+21.63,,npc_guard_hybrid,1,2.46,1.43,20.33,4.65,-19,10.13,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+21.90,,npc_guard_hybrid,1,19.78,1.43,11.66,2.41,-91,22.90,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+21.90,,npc_guard_hybrid,1,1.96,1.43,21.50,4.57,-113,10.89,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+22.17,,npc_guard_hybrid,1,19.65,1.43,10.71,4.26,-167,22.80,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+22.17,,npc_guard_hybrid,1,1.56,1.43,22.40,3.27,-116,11.52,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+22.43,,npc_guard_hybrid,1,19.64,1.43,9.48,4.80,-179,22.89,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+22.43,,npc_guard_hybrid,1,1.31,0.93,22.93,0.95,-114,11.91,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+22.70,,npc_guard_hybrid,1,19.66,1.43,8.17,4.95,179,23.08,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+22.70,,npc_guard_hybrid,1,1.27,0.93,23.01,0.11,-114,11.97,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+22.97,,npc_guard_hybrid,1,19.69,1.43,6.85,4.99,179,23.36,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+22.97,,npc_guard_hybrid,1,1.26,0.93,23.02,0.01,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+23.23,,npc_guard_hybrid,1,19.72,1.43,5.52,5.00,179,23.71,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+23.23,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+23.50,,npc_guard_hybrid,1,19.75,1.43,4.19,5.00,179,24.14,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+23.50,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+23.77,,npc_guard_hybrid,1,19.79,1.43,2.85,5.00,179,24.62,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+23.77,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+24.03,,npc_guard_hybrid,1,19.82,1.43,1.52,5.00,179,25.17,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+24.03,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+24.30,,npc_guard_hybrid,1,19.85,1.43,0.19,5.00,179,25.78,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+24.30,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+24.57,,npc_guard_hybrid,1,19.88,1.43,-1.15,5.00,179,26.44,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+24.57,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+24.83,,npc_guard_hybrid,1,19.92,1.43,-2.48,5.00,179,27.15,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+24.83,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+25.10,,npc_guard_hybrid,1,19.95,1.43,-3.81,5.00,179,27.90,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+25.10,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+25.37,,npc_guard_hybrid,1,19.98,1.43,-5.14,5.00,179,28.70,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+25.37,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+25.63,,npc_guard_hybrid,1,19.95,1.43,-6.48,4.99,-178,29.48,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+25.63,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+25.90,,npc_guard_hybrid,1,19.63,1.43,-7.69,4.73,-159,30.01,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+25.90,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+26.17,,npc_guard_hybrid,1,18.84,1.43,-8.68,4.73,-137,30.08,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+26.17,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+26.43,,npc_guard_hybrid,1,17.77,0.98,-9.29,4.05,-110,29.75,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+26.43,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+26.70,,npc_guard_hybrid,1,17.20,0.93,-9.47,2.07,-100,29.47,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+26.70,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+26.97,,npc_guard_hybrid,1,16.66,0.93,-9.65,2.17,-98,29.24,1.00,1,1,0,0,0,regain_sight,flank,moving,concealed,0.0,,-1
+26.97,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+27.23,,npc_guard_hybrid,1,16.11,0.93,-9.85,2.19,-95,29.01,1.00,1,1,0,0,0,regain_sight,flank,stacked,concealed,0.0,,-1
+27.23,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+27.50,,npc_guard_hybrid,1,15.54,1.40,-10.05,2.43,-41,28.80,1.00,1,1,1,1,0,regain_sight,flank,done,concealed,0.0,,-1
+27.50,,npc_guard_hybrid,1,1.26,0.93,23.02,0.00,-114,11.98,1.00,1,1,0,0,0,hold_angle,hold,moving,concealed,0.0,,-1
+27.77,,npc_guard_hybrid,1,15.13,1.43,-9.97,0.92,-40,28.46,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+27.77,,npc_guard_hybrid,1,1.39,1.43,22.84,2.43,-151,11.86,1.00,1,1,0,0,0,take_cover,base of fire,,visible,0.0,,-1
+28.03,,npc_guard_hybrid,1,15.43,1.43,-9.65,2.18,-41,28.42,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+28.03,,npc_guard_hybrid,1,1.96,1.43,22.04,4.32,150,11.37,1.00,1,1,0,0,0,take_cover,base of fire,,visible,0.0,,-1
+28.30,,npc_guard_hybrid,1,15.99,1.43,-9.30,2.63,-42,28.53,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+28.30,,npc_guard_hybrid,1,2.69,1.43,21.03,4.82,145,10.85,1.00,1,1,0,0,0,take_cover,base of fire,,visible,0.0,,-1
+28.57,,npc_guard_hybrid,1,16.62,1.43,-8.95,2.75,-43,28.70,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+28.57,,npc_guard_hybrid,1,3.45,1.43,19.97,4.95,127,10.43,1.00,1,1,0,0,0,take_cover,base of fire,,visible,0.0,,-1
+28.83,,npc_guard_hybrid,1,17.22,1.43,-8.53,2.75,-45,28.82,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+28.83,,npc_guard_hybrid,1,4.22,1.43,18.90,4.65,-154,10.16,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,0.0,,-1
+29.10,,npc_guard_hybrid,1,17.73,1.43,-8.00,2.78,-46,28.81,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+29.10,,npc_guard_hybrid,1,4.89,1.35,18.43,2.63,-117,10.36,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,0.0,,-1
+29.37,,npc_guard_hybrid,1,18.08,1.43,-7.53,0.60,-47,28.74,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+29.37,,npc_guard_hybrid,1,5.36,1.43,18.51,0.70,-116,10.77,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,0.0,,-1
+29.63,,npc_guard_hybrid,1,17.87,1.43,-7.73,1.91,-47,28.73,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+29.63,,npc_guard_hybrid,1,5.43,1.43,18.52,0.08,-115,10.83,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,0.0,,-1
+29.90,,npc_guard_hybrid,1,17.45,1.43,-8.20,2.57,-46,28.75,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+29.90,,npc_guard_hybrid,1,5.46,1.43,18.51,0.78,-119,10.86,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+30.17,,npc_guard_hybrid,1,16.98,1.43,-8.74,2.74,-45,28.79,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+30.17,,npc_guard_hybrid,1,6.19,1.43,18.28,3.87,141,11.30,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+30.43,,npc_guard_hybrid,1,16.55,1.43,-9.23,1.20,-43,28.85,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+30.43,,npc_guard_hybrid,1,7.04,1.43,17.78,4.23,133,11.76,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+30.70,,npc_guard_hybrid,1,16.71,1.43,-9.10,1.75,-43,28.87,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+30.70,,npc_guard_hybrid,1,7.54,1.43,16.85,4.29,170,11.77,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+30.97,,npc_guard_hybrid,1,17.14,1.43,-8.68,2.52,-44,28.87,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+30.97,,npc_guard_hybrid,1,7.59,1.43,15.63,4.77,-169,11.36,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+31.23,,npc_guard_hybrid,1,17.64,1.43,-8.18,2.73,-46,28.87,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+31.23,,npc_guard_hybrid,1,7.49,1.43,14.62,1.01,-160,10.96,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+31.50,,npc_guard_hybrid,1,18.16,1.43,-7.66,2.78,-47,28.89,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+31.50,,npc_guard_hybrid,1,7.54,1.43,13.84,3.91,-172,10.85,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+31.77,,npc_guard_hybrid,1,18.17,1.43,-7.65,1.33,-48,28.90,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+31.77,,npc_guard_hybrid,1,7.79,1.43,12.68,4.69,179,10.94,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+32.03,,npc_guard_hybrid,1,17.80,1.43,-8.05,2.41,-47,28.89,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+32.03,,npc_guard_hybrid,1,8.16,1.43,11.45,4.92,175,11.30,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+32.30,,npc_guard_hybrid,1,17.31,1.43,-8.55,2.70,-45,28.90,1.00,1,1,1,1,0,press,base of fire,,visible,0.0,,-1
+32.30,,npc_guard_hybrid,1,8.57,1.43,10.19,4.98,174,11.82,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+32.57,,npc_guard_hybrid,1,16.81,0.98,-9.08,2.77,-44,28.92,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+32.57,,npc_guard_hybrid,1,8.96,1.43,8.92,4.98,177,12.44,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+32.83,,npc_guard_hybrid,1,16.57,0.93,-9.33,0.43,-43,28.94,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+32.83,,npc_guard_hybrid,1,9.37,1.43,7.66,4.99,173,13.19,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+33.10,,npc_guard_hybrid,1,16.54,0.93,-9.36,0.05,-43,28.94,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+33.10,,npc_guard_hybrid,1,9.85,1.43,6.41,5.00,171,14.07,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+33.37,,npc_guard_hybrid,1,16.53,1.35,-9.36,0.01,-43,28.94,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+33.37,,npc_guard_hybrid,1,10.35,1.43,5.18,5.00,170,15.04,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+33.63,,npc_guard_hybrid,1,16.21,1.43,-9.10,3.16,-48,28.53,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+33.63,,npc_guard_hybrid,1,10.82,1.43,3.93,5.00,172,16.05,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+33.90,,npc_guard_hybrid,1,15.37,1.43,-8.42,4.52,-51,27.45,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+33.90,,npc_guard_hybrid,1,11.12,1.43,2.65,4.95,-180,16.98,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+34.17,,npc_guard_hybrid,1,14.38,1.43,-7.62,4.87,-51,26.20,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+34.17,,npc_guard_hybrid,1,11.47,1.43,1.37,4.98,176,17.98,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+34.43,,npc_guard_hybrid,1,13.34,1.43,-6.81,4.97,-52,24.90,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+34.43,,npc_guard_hybrid,1,11.87,1.43,0.10,4.99,175,19.07,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+34.70,,npc_guard_hybrid,1,12.29,1.43,-5.99,4.99,-52,23.60,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+34.70,,npc_guard_hybrid,1,12.29,1.43,-1.17,5.00,174,20.19,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+34.97,,npc_guard_hybrid,1,11.31,1.43,-5.25,3.93,-40,22.40,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+34.97,,npc_guard_hybrid,1,12.71,1.43,-2.43,5.00,174,21.34,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+35.23,,npc_guard_hybrid,1,10.58,1.43,-4.73,3.10,-40,21.53,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+35.23,,npc_guard_hybrid,1,13.13,1.43,-3.70,5.00,174,22.51,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+35.50,,npc_guard_hybrid,1,9.93,1.43,-4.28,2.88,-39,20.77,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+35.50,,npc_guard_hybrid,1,13.55,1.43,-4.96,5.00,174,23.70,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+35.77,,npc_guard_hybrid,1,9.29,1.43,-3.87,2.82,-38,20.05,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+35.77,,npc_guard_hybrid,1,13.97,1.43,-6.23,5.00,174,24.90,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+36.03,,npc_guard_hybrid,1,8.65,1.43,-3.48,2.80,-38,19.35,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+36.03,,npc_guard_hybrid,1,14.39,1.00,-7.48,4.57,178,26.10,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+36.30,,npc_guard_hybrid,1,8.00,1.43,-3.11,2.80,-37,18.67,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+36.30,,npc_guard_hybrid,1,14.67,0.93,-8.34,2.82,-168,26.93,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+36.57,,npc_guard_hybrid,1,7.33,1.43,-2.78,2.80,-36,18.00,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+36.57,,npc_guard_hybrid,1,14.88,0.93,-8.98,2.36,-157,27.55,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+36.83,,npc_guard_hybrid,1,6.65,1.43,-2.48,2.80,-34,17.37,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+36.83,,npc_guard_hybrid,1,15.08,1.40,-9.57,2.48,-28,28.13,1.00,1,1,0,0,0,regain_sight,flank,done,visible,0.0,,-1
+37.10,,npc_guard_hybrid,1,5.95,1.43,-2.26,2.65,-33,16.79,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+37.10,,npc_guard_hybrid,1,15.10,0.93,-9.81,0.24,-28,28.33,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+37.37,,npc_guard_hybrid,1,5.31,1.43,-2.43,2.57,-31,16.60,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+37.37,,npc_guard_hybrid,1,15.09,0.93,-9.83,0.03,-28,28.34,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+37.63,,npc_guard_hybrid,1,4.63,1.43,-2.94,3.96,-104,16.72,1.00,1,1,0,0,0,strafe,base of fire,,visible,0.0,,-1
+37.63,,npc_guard_hybrid,1,15.09,0.93,-9.84,0.00,-28,28.34,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+37.90,,npc_guard_hybrid,1,3.96,1.43,-3.55,3.10,-25,16.98,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+37.90,,npc_guard_hybrid,1,15.09,1.40,-9.84,0.00,-28,28.34,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+38.17,,npc_guard_hybrid,1,3.22,1.43,-4.11,3.48,-106,17.20,1.00,1,1,0,0,0,strafe,base of fire,,visible,0.0,,-1
+38.17,,npc_guard_hybrid,1,14.92,1.43,-9.45,3.16,-17,27.94,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+38.43,,npc_guard_hybrid,1,2.30,1.43,-3.94,2.65,-20,16.72,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+38.43,,npc_guard_hybrid,1,14.48,1.43,-8.46,4.52,-12,26.90,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+38.70,,npc_guard_hybrid,1,2.25,1.43,-3.79,2.07,5,16.56,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+38.70,,npc_guard_hybrid,1,13.97,1.43,-7.30,4.87,-11,25.69,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+38.97,,npc_guard_hybrid,1,3.13,1.43,-3.49,4.22,65,16.59,1.00,1,1,0,0,0,strafe,base of fire,,visible,0.0,,-1
+38.97,,npc_guard_hybrid,1,13.47,1.43,-6.08,4.97,-10,24.45,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+39.23,,npc_guard_hybrid,1,3.83,1.43,-2.97,2.87,39,16.39,1.00,1,1,0,0,0,regain_sight,flank,moving,visible,0.0,,-1
+39.23,,npc_guard_hybrid,1,12.98,1.43,-4.85,4.99,-9,23.22,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+39.50,,npc_guard_hybrid,1,3.48,1.43,-2.05,4.29,-20,15.41,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+39.50,,npc_guard_hybrid,1,12.59,1.43,-3.77,3.61,-33,22.17,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+39.77,,npc_guard_hybrid,1,2.82,1.43,-1.00,4.81,-33,14.18,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+39.77,,npc_guard_hybrid,1,12.32,1.43,-2.96,3.01,-34,21.41,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+40.03,,npc_guard_hybrid,1,2.07,1.43,0.07,4.95,-35,12.90,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+40.03,,npc_guard_hybrid,1,12.10,1.43,-2.21,2.86,-35,20.74,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+40.30,,npc_guard_hybrid,1,1.31,1.43,1.16,4.99,-35,11.60,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+40.30,,npc_guard_hybrid,1,11.91,1.43,-1.48,2.81,-36,20.11,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+40.57,,npc_guard_hybrid,1,0.55,1.43,2.25,5.00,-35,10.30,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+40.57,,npc_guard_hybrid,1,11.74,1.43,-0.75,2.80,-37,19.51,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+40.83,,npc_guard_hybrid,1,-0.22,1.43,3.34,5.00,-35,9.02,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+40.83,,npc_guard_hybrid,1,11.61,1.43,-0.02,2.80,-38,18.93,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+41.10,,npc_guard_hybrid,1,-0.99,1.43,4.43,5.00,-35,7.75,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+41.10,,npc_guard_hybrid,1,11.50,1.43,0.72,2.80,-40,18.39,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+41.37,,npc_guard_hybrid,1,-1.75,1.43,5.52,5.00,-35,6.50,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+41.37,,npc_guard_hybrid,1,11.42,1.43,1.46,2.80,-42,17.89,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+41.63,,npc_guard_hybrid,1,-2.52,1.43,6.61,5.00,-35,5.30,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+41.63,,npc_guard_hybrid,1,11.38,1.43,2.21,2.80,-44,17.43,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+41.90,,npc_guard_hybrid,1,-3.29,1.43,7.70,5.00,-35,4.18,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+41.90,,npc_guard_hybrid,1,11.38,1.43,2.95,2.80,-46,17.03,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+42.17,,npc_guard_hybrid,1,-4.05,1.43,8.79,5.00,-35,3.22,1.00,1,1,1,1,0,regain_sight,flank,moving,visible,0.0,,-1
+42.17,,npc_guard_hybrid,1,11.49,1.43,3.67,2.69,-48,16.76,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+42.43,,npc_guard_hybrid,1,-4.72,1.43,9.74,3.71,21,2.67,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+42.43,,npc_guard_hybrid,1,11.84,1.43,4.30,2.75,-50,16.77,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+42.70,,npc_guard_hybrid,1,-5.25,1.43,10.46,3.19,47,2.55,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+42.70,,npc_guard_hybrid,1,12.27,1.43,4.90,2.78,-53,16.90,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+42.97,,npc_guard_hybrid,1,-5.13,1.43,10.92,1.99,61,2.22,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+42.97,,npc_guard_hybrid,1,12.72,1.43,5.49,2.68,-55,17.09,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+43.23,,npc_guard_hybrid,1,-4.53,1.43,11.18,2.70,64,1.57,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+43.23,,npc_guard_hybrid,1,12.87,1.43,6.16,2.64,-58,16.98,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+43.50,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+43.50,,npc_guard_hybrid,1,12.86,1.43,6.57,0.54,-59,16.84,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+43.77,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+43.77,,npc_guard_hybrid,1,12.86,1.43,6.62,0.06,-59,16.82,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+44.03,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+44.03,,npc_guard_hybrid,1,12.84,1.43,6.59,0.79,-59,16.82,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+44.30,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+44.30,,npc_guard_hybrid,1,12.69,1.43,6.14,2.27,-58,16.83,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+44.57,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+44.57,,npc_guard_hybrid,1,12.48,1.43,5.50,2.66,-56,16.86,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+44.83,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+44.83,,npc_guard_hybrid,1,12.26,1.43,4.81,2.76,-53,16.93,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+45.10,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+45.10,,npc_guard_hybrid,1,12.02,1.43,4.09,3.13,-69,17.03,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+45.37,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+45.37,,npc_guard_hybrid,1,11.82,1.43,3.87,1.59,-63,16.96,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+45.63,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+45.63,,npc_guard_hybrid,1,11.78,1.43,4.09,0.27,-50,16.82,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+45.90,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+45.90,,npc_guard_hybrid,1,11.92,1.43,4.39,2.87,-3,16.81,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+46.17,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+46.17,,npc_guard_hybrid,1,12.41,1.43,5.32,4.44,37,16.86,1.00,1,1,0,0,0,strafe,base of fire,,visible,0.0,,-1
+46.43,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+46.43,,npc_guard_hybrid,1,12.89,1.43,6.22,3.34,-58,16.98,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+46.70,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+46.70,,npc_guard_hybrid,1,13.23,1.43,7.04,3.07,-60,17.06,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+46.97,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+46.97,,npc_guard_hybrid,1,13.23,1.43,7.78,2.16,-63,16.86,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+47.23,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+47.23,,npc_guard_hybrid,1,13.22,1.43,7.99,0.26,-64,16.80,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+47.50,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+47.50,,npc_guard_hybrid,1,13.14,1.43,7.73,1.87,-64,16.79,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+47.77,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+47.77,,npc_guard_hybrid,1,13.00,1.43,7.12,2.55,-62,16.81,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+48.03,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+48.03,,npc_guard_hybrid,1,12.84,1.43,6.43,2.74,-59,16.87,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+48.30,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+48.30,,npc_guard_hybrid,1,12.67,1.43,5.71,2.78,-57,16.95,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+48.57,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+48.57,,npc_guard_hybrid,1,12.50,1.43,5.01,1.96,-54,17.07,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+48.83,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+48.83,,npc_guard_hybrid,1,12.40,1.43,5.13,1.59,-54,16.93,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+49.10,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+49.10,,npc_guard_hybrid,1,12.36,1.43,5.41,0.39,-55,16.78,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+49.37,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+49.37,,npc_guard_hybrid,1,12.36,1.43,5.45,0.05,-55,16.76,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+49.63,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+49.63,,npc_guard_hybrid,1,12.37,1.43,5.49,0.80,-55,16.76,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+49.90,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+49.90,,npc_guard_hybrid,1,12.55,1.43,5.93,2.27,-56,16.77,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+50.17,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+50.17,,npc_guard_hybrid,1,12.81,1.43,6.56,2.66,-59,16.80,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+50.43,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+50.43,,npc_guard_hybrid,1,13.09,1.43,7.23,2.76,-61,16.87,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+50.70,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+50.70,,npc_guard_hybrid,1,13.38,1.43,7.91,2.79,-64,16.97,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+50.97,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+50.97,,npc_guard_hybrid,1,13.63,1.43,8.62,2.96,-50,17.07,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+51.23,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+51.23,,npc_guard_hybrid,1,13.49,1.43,9.59,4.22,-15,16.77,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+51.50,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+51.50,,npc_guard_hybrid,1,13.29,1.43,9.50,2.65,-71,16.59,1.00,1,1,0,0,0,strafe,base of fire,,visible,0.0,,-1
+51.77,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+51.77,,npc_guard_hybrid,1,13.17,1.43,8.49,4.37,-155,16.65,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+52.03,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+52.03,,npc_guard_hybrid,1,13.09,1.43,7.28,4.21,-69,16.86,1.00,1,1,0,0,0,strafe,base of fire,,visible,0.0,,-1
+52.30,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+52.30,,npc_guard_hybrid,1,13.05,1.43,6.28,4.04,-119,17.11,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+52.57,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+52.57,,npc_guard_hybrid,1,12.94,1.43,6.10,1.97,-58,17.07,1.00,1,1,0,0,0,strafe,base of fire,,visible,0.0,,-1
+52.83,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+52.83,,npc_guard_hybrid,1,12.84,1.43,6.61,0.89,-59,16.81,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+53.10,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+53.10,,npc_guard_hybrid,1,12.83,1.43,6.73,0.91,-60,16.76,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1
+53.37,,npc_guard_hybrid,1,-4.31,1.43,11.28,0.00,63,1.32,1.00,1,1,1,1,0,melee_duel,base of fire,,visible,0.0,,-1
+53.37,,npc_guard_hybrid,1,12.98,1.43,7.20,2.30,-61,16.77,1.00,1,1,1,1,0,strafe,base of fire,,visible,0.0,,-1

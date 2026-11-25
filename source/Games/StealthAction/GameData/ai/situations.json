@@ -1,0 +1,70 @@
+{
+  "messages": {
+    "shout":  { "radius": 15.0,  "delay": 0.4 },
+    "report": { "radius": 2.5,   "delay": 2.0 },
+    "radio":  { "radius": 100.0, "delay": 1.0 },
+    "toldCertainty": 0.8,
+    "shoutCooldown": 6.0,
+    "reportCooldown": 20.0,
+    "alarm":  { "radius": 60.0,  "delay": 0.0 }
+  },
+  "investigate": {
+    "investigators": 1,
+    "backupsWhenWary": 1
+  },
+  "chase": {
+    "heat": 20.0,
+    "heatFalloff": 0.97,
+    "maxHeatedPerStep": 25,
+    "maxSteps": 30,
+    "stepsPerFrame": 10,
+    "barrierDot": -0.3,
+    "minVelocity": 0.5,
+    "chaseWindow": 4.0,
+    "maxReruns": 3,
+    "rerunDistance": 3.0,
+    "maxTime": 40.0
+  },
+  "search": {
+    "maxCells": 3000,
+    "spreadSpeed": 1.9,
+    "spreadInterval": 0.25,
+    "uncertaintyRadius": 6.0,
+    "raysPerFrame": 64,
+    "clearHeight": 1.0,
+    "visibleHold": 2.0,
+    "endMass": 0.05,
+    "timeout": 90.0,
+    "claimInterval": 1.0,
+    "claimSpacing": 5.0,
+    "claimDwell": 1.5,
+    "maxWatchers": 2,
+    "watchRadius": 8.0,
+    "watchSpacing": 6.0,
+    "frontierInterval": 0.5,
+    "gazeRange": 25.0,
+    "saveRelative": 0.01
+  },
+  "bodySearch": {
+    "freshAge": 20.0,
+    "oldAge": 120.0,
+    "radiusFresh": 12.0,
+    "radiusOld": 5.0
+  },
+  "floors": {
+    "radius": 30.0,
+    "noise":     { "level": "calm",    "duration": -1.0,  "then": "calm" },
+    "bodyFound": { "level": "wary",    "duration": -1.0,  "then": "wary" },
+    "fight":     { "level": "wary",    "duration": -1.0,  "then": "wary" },
+    "power":     { "level": "wary",    "duration": -1.0,  "then": "wary" },
+    "alarm":     { "level": "alarmed", "duration": 180.0, "then": "wary" }
+  },
+  "alarm": {
+    "ringTime": 2.0,
+    "arriveRadius": 1.2,
+    "maxRunDistance": 60.0,
+    "roughRadius": 10.0,
+    "roughMinFraction": 0.5,
+    "roughCertainty": 0.4
+  }
+}

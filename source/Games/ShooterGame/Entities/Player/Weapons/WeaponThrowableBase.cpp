@@ -172,7 +172,7 @@ void WeaponThrowableBase::LateUpdate()
 
 	// Forward and slightly down from the camera, where the lit object is held.
 	if (burnSoundPlayer != nullptr)
-		burnSoundPlayer->Position = Camera::position + MathHelper::GetForwardVector(Camera::rotation) * 1.0f - MathHelper::GetUpVector(Camera::rotation) * 0.5f;
+		burnSoundPlayer->Position = BurnSoundPosition();
 
 	arms->Position = viewmodel->Position;
 	arms->Rotation = viewmodel->Rotation;
@@ -223,9 +223,18 @@ void WeaponThrowableBase::Ignite()
 	{
 		StopBurnSound();
 		burnSoundPlayer = SoundPlayer::Create(params.burnSound);
-		burnSoundPlayer->Position = Camera::position + MathHelper::GetForwardVector(Camera::rotation) * 1.0f - MathHelper::GetUpVector(Camera::rotation) * 0.5f;
+		burnSoundPlayer->Position = BurnSoundPosition();
 		burnSoundPlayer->Play();
 	}
+}
+
+vec3 WeaponThrowableBase::BurnSoundPosition() const
+{
+	// Forward, slightly down and to the right of the camera, where the lit object is held.
+	return Camera::position
+		+ MathHelper::GetForwardVector(Camera::rotation) * 1.0f
+		- MathHelper::GetUpVector(Camera::rotation) * 0.5f
+		+ MathHelper::GetRightVector(Camera::rotation) * 0.25f;
 }
 
 void WeaponThrowableBase::StopBurnSound()
@@ -268,7 +277,6 @@ void WeaponThrowableBase::UpdateFuse(float dt)
 void WeaponThrowableBase::Release(float strength)
 {
 	released = true;
-	StopBurnSound();
 
 	const vec3 forward = MathHelper::GetForwardVector(Camera::rotation);
 	const vec3 right = MathHelper::GetRightVector(Camera::rotation);
@@ -293,24 +301,34 @@ void WeaponThrowableBase::Release(float strength)
 	const float speed = glm::mix(params.minThrowSpeed, params.maxThrowSpeed, strength);
 	const vec3 velocity = direction * speed + owner->controller.GetVelocity() * params.inheritVelocity;
 
-	SpawnProjectile(start, velocity, fuseRemaining);
+	ThrownProjectileBase* projectile = SpawnProjectile(start, velocity, fuseRemaining);
+
+	// The burning goes on with the object: the sound follows it through the air until it is gone.
+	if (projectile != nullptr && burnSoundPlayer != nullptr)
+	{
+		projectile->TakeBurnSound(burnSoundPlayer);
+		burnSoundPlayer = nullptr;
+	}
+	else
+		StopBurnSound();
 
 	if (!params.throwSound.empty())
 		SoundPlayer::PlayOneshot(params.throwSound, 3.0f, 1.0f, true);
 }
 
-void WeaponThrowableBase::SpawnProjectile(const vec3& position, const vec3& velocity, float fuse)
+ThrownProjectileBase* WeaponThrowableBase::SpawnProjectile(const vec3& position, const vec3& velocity, float fuse)
 {
 	ThrownProjectileBase* projectile = dynamic_cast<ThrownProjectileBase*>(Spawn(params.projectileClass));
 	if (projectile == nullptr)
 	{
 		Logger::Log("WeaponThrowableBase: '" + params.projectileClass + "' is not a ThrownProjectileBase");
-		return;
+		return nullptr;
 	}
 
 	projectile->Throw(position, velocity, fuse, owner);
 	projectile->LoadAssetsIfNeeded();
 	projectile->Start();
+	return projectile;
 }
 
 void WeaponThrowableBase::FinishThrow()

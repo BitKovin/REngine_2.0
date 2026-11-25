@@ -277,42 +277,6 @@ namespace
 			brain->GetOwner()->ReceiveSquadSighting(targetId, position, lineOfSight);
 	}
 
-	// Combat awareness (§5.7): a target that moves about close to the squad, or
-	// noisily within earshot, is tracked: the estimate follows it (off by up to
-	// trackError) and the hiding timers restart, so walking round a wall doesn't
-	// shake a squad in a fight. A slow, quiet retreat out of earshot does.
-	void TrackByEar(TargetBelief& belief, const Members& members, const CombatTargetView& view, double now)
-	{
-		const auto& tune = CombatTuning::Get().belief;
-		if (!view.Valid() || now < belief.nextTrackTime) return;
-		belief.nextTrackTime = now + tune.trackInterval;
-
-		float nearest = std::numeric_limits<float>::max();
-		for (const CombatBehaviorBase* brain : members)
-			nearest = std::min(nearest, glm::distance(brain->GetOwner()->Position, view.position));
-
-		const bool noisy = glm::length(MathHelper::XZ(view.velocity)) > tune.trackNoisySpeed;
-		const bool heard = nearest < tune.trackCloseDistance || (noisy && nearest < tune.trackHearingDistance);
-		if (!heard) return;
-
-		const vec3 error = vec3(RandomHelper::RandomFloat() * 2.0f - 1.0f, 0.0f, RandomHelper::RandomFloat() * 2.0f - 1.0f) * tune.trackError;
-
-		// Moved well away from where the squad had it: go and find it.
-		if (glm::distance(MathHelper::XZ(view.position), MathHelper::XZ(belief.estimatePosition)) > tune.relocateDistance)
-			belief.seekUntil = now + tune.seekTime;
-
-		belief.estimatePosition = view.position + error;
-
-		belief.concealedUntil = std::max(belief.concealedUntil,
-			now + RandomBetween(tune.concealedMin, tune.concealedMax) * 0.5);
-		belief.concealedSince = std::max(belief.concealedSince, now - tune.minConcealedTime * 0.5);
-		belief.estimateRadius = 1.0f;
-		belief.emptyTime = 0.0f;
-		RebuildPeekPoints(belief, members);
-
-		ShareWithSquad(members, belief.targetId, belief.estimatePosition, false);
-	}
-
 	// Did any member hear the target this frame (its shots above all), or have a
 	// shot from it whizz past? The position, if so.
 	bool HearTarget(const TargetBelief& belief, const Members& members, vec3& outPosition)
@@ -382,10 +346,8 @@ namespace
 			brain->GetOwner()->ReceiveHeardTarget(belief.targetId, position, false);
 	}
 
-	void UpdateConcealed(TargetBelief& belief, const Members& members, const CombatTargetView& view, float deltaTime, double now)
+	void UpdateConcealed(TargetBelief& belief, const Members& members, float deltaTime, double now)
 	{
-		TrackByEar(belief, members, view, now);
-
 		const double elapsed = belief.ConcealedFor(now);
 
 		belief.estimateRadius = std::min(CombatTuning::Get().belief.maxEstimateRadius + 1.0f,
@@ -1260,7 +1222,7 @@ void CombatCoordinator::UpdateBeliefs()
 			}
 
 			case TargetContact::Concealed:
-				UpdateConcealed(belief, members, view, deltaTime, now);
+				UpdateConcealed(belief, members, deltaTime, now);
 				break;
 
 			case TargetContact::Lost:

@@ -26,6 +26,11 @@ public:
 
 	vec3 spineRotation = vec3();
 
+	// Where the head looks, in degrees from the body's facing (yaw right, pitch down). Spread over the upper spine,
+	// neck and head after every other layer, so what the NPC looks at is readable on the model.
+	float gazeYaw   = 0;
+	float gazePitch = 0;
+
 	void Update() override;
 
 	// ── Task animation ──────────────────────────────────────────────────────
@@ -69,6 +74,8 @@ protected:
 	//  ProcessResultPose directly.
 	//
 	AnimationPose ProcessResultPose() override final;
+
+	void ApplyGaze(AnimationPose& pose) const;
 	virtual AnimationPose BuildCombatPose();
 
 private:

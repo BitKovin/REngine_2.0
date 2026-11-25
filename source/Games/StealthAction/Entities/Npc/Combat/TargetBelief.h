@@ -101,7 +101,6 @@ struct TargetBelief
 
 	double concealedSince = 0.0;
 	double concealedUntil = 0.0;
-	double nextTrackTime = 0.0;   // combat awareness refresh (§5.7)
 	double seekUntil = 0.0;       // the target turned up somewhere else: the squad goes to find it until then
 	double lostSince = 0.0;
 

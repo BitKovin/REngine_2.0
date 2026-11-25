@@ -1,0 +1,53 @@
+{
+  "role": "guard",
+  "model": "GameData/models/npc/guard.glb",
+  "faction": "citizen",
+  "voice": "Officer",
+  "skills": ["raise_alarm", "tend_body", "chase", "search", "investigate", "routine"],
+  "acuity": 1.2,
+  "defaultSuspicion": 1.0,
+  "walkSpeed": 1.9,
+  "runSpeed": 5.0,
+  "glanceTime": 1.0,
+  "eyeHeight": 0.7,
+  "armed": true,
+  "alarmRunner": true,
+  "reports": true,
+  "radio": true,
+  "body": {
+    "headYawLimit": 70.0,
+    "headPitchLimit": 45.0,
+    "headSpeed": 420.0,
+    "turnRateStand": 240.0,
+    "turnRateWalk": 120.0
+  },
+  "investigate": {
+    "reactionTime": 0.3,
+    "postMin": 2.0,
+    "postMax": 4.0,
+    "lookAroundTime": 3.0,
+    "lookAroundYaw": 70.0,
+    "giveUpAfter": 30.0,
+    "arriveRadius": 1.2,
+    "holdDistance": 5.0,
+    "speed": 2.2,
+    "threatSpeed": 4.5,
+    "retargetDistance": 2.5,
+    "backupExtraDistance": 3.0
+  },
+  "pursuit": {
+    "chaseSpeed": 4.5,
+    "chaseLookTime": 2.0,
+    "chaseLookYaw": 70.0,
+    "searchSpeed": 2.6,
+    "searchLookYaw": 50.0,
+    "searchLookPeriod": 3.0,
+    "arriveRadius": 1.5
+  },
+  "tend": {
+    "deadTime": 2.0,
+    "unconsciousTime": 3.0,
+    "speed": 2.4,
+    "arriveRadius": 1.0
+  }
+}

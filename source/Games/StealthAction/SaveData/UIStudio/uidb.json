@@ -13,7 +13,7 @@
     "svg": true
   },
   "engine": {
-    "buildId": "Nov 22 2026 01:47:36",
+    "buildId": "Nov 23 2026 13:53:14",
     "previewProtocol": 1,
     "version": "1"
   },
@@ -386,27 +386,6 @@
         {
           "kind": "document",
           "path": "ui/kit/focus_pointer.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
-      "id": "document:ui/kit/pages/pause.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/pause.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/pause.xml"
         }
       ],
       "supportsLiveCapture": false
@@ -3928,15 +3907,6 @@
         "component": false,
         "imports": [],
         "path": "ui/kit/focus_pointer.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/pause.xml",
         "styleSheets": [
           "ui/theme.css",
           "ui/kit/styles/kit.css"

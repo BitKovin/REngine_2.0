@@ -11,6 +11,7 @@
 #include <shared_mutex>
 
 #include "Navigation/Navigation.hpp"
+#include "Navigation/NavGrid.h"
 
 #include "MeshUtils.hpp"
 

@@ -233,8 +233,8 @@ TargetInfo += contact, lastVisiblePosition, lastVisibleVelocity, lastVisibleTime
 When the last squad member loses sight:
 - `lastVisiblePosition` / `lastVisibleVelocity` = where the target actually was when last seen.
   This is separate from `lastSeenPosition`, which keeps its current meaning for investigations.
-- While engaged, the "keeps tracking the real position" window shrinks from 1.0 s to
-  `LostSightTrackTime()` = 0.4 s (the "saw him duck" moment). Outside combat it stays 1.0 s.
+- While engaged (following and attacking), the "keeps tracking the real position" window shrinks from 1.0 s to
+  `belief.lostSightTrackTime` = 0.4 s (the "saw him duck" moment). Outside combat it stays 1.0 s.
 - `estimatePosition` = last visible position + velocity × 0.4 s, projected onto the navmesh.
   `estimateRadius` starts at 1 m.
 - The hide spot is classified with the cover cache (§10.2) for the direction from the squad to the
@@ -274,8 +274,8 @@ Moves to **Lost**:
 - `concealedUntil` passes, or `estimateRadius` exceeds 6 m. The radius grows by
   0.3 × the target's crouch speed per second without evidence.
 
-Player footsteps do not emit perception sounds today, so sneaking away quietly works by design.
-Making running audible is an open item (§19).
+Walking and crouching make no sound, so sneaking away quietly works by design; running footsteps (8 m) and
+hard landings (6 m) are sounds like any other (NPC_AI_DESIGN.md 5.4).
 
 ### 5.5 What changes in existing code
 
@@ -288,6 +288,9 @@ Making running audible is an open item (§19).
 ---
 
 ### 5.7 Combat awareness and sharing (as implemented)
+- **No knowledge without perception:** the squad learns where the target is only from sight (a member sees it) and
+  from sounds that reach a member. There is no tracking by ear; the automated tests check this on every step
+  (NPC_AI_DESIGN.md 23.1).
 - **Sharing:** every frame somebody in the squad sees the target, all engaged members get that position as their
   last seen / last line-of-sight position (`NpcBase::ReceiveSquadSighting`), whether or not they can see each
   other. Searches and the behaviour tree work from what the squad knows.
@@ -300,14 +303,10 @@ Making running audible is an open item (§19).
   (`belief.heardUpdateDistance`), so aiming, facing and moving work from where the target really is. A holder the
   target has now left out of fighting range (85% of its attack range) moves up to a spot within that range (60 to
   100% of it) that sees the new position, or heads that way if there is none; holders in range stay put.
-- **It moved: go and find it.** When the target turns up (heard, or tracked by ear) more than 5 m from where the
+- **It moved: go and find it.** When the target turns up (heard) more than 5 m from where the
   squad had it, or is heard after the squad had lost it, for 6 s the holders don't hold the old angles: each moves to
   a spot that sees the new position (from 4 m out to its fighting range, up to 40 m of path), or heads straight for
   it when there is none. Suppressors suppress the new spot; flankers are re-planned against it.
-- **Tracking by ear:** while the target hides, once a second the squad checks whether it can hear it: within 8 m of
-  any member, or moving faster than 3 m/s within 25 m. If so the estimate moves to it (off by up to 1.5 m), the
-  hiding timers restart, and the members get the new estimate as last seen. Walking round a wall doesn't shake a
-  squad in a fight; sneaking off slowly and far enough does.
 - **Watching the corner:** an NPC with a wall between it and the believed position faces and aims at the farthest
   point of its path there that it can see (where the target would come into view), not through the wall; if that
   point is more than 100 degrees off the target's direction it faces the target's direction. Without sight of the
@@ -578,7 +577,7 @@ direction from the target to the gun NPCs: the line the squad attacks along.
 | Contact | Roles |
 |---|---|
 | Visible | everybody is the **base of fire** (cover fight, strafe, kite: everyone who sees the target shoots); 1 s into a fight, and 2 s after each flank, **flankers** go round: 1 with 2 or 3 gunners, 2 with 4 or 5, 3 with 6+. Through lanes (§8.7) when the approach map has any well round the front; otherwise the open-ground pincer below, which is skipped against a target without a gun |
-| Concealed | flankers keep going, or are picked after 0.5 s (same counts); the **main force keeps the pressure on from where it is and doesn't walk onto the target**: up to 3 NPCs with a line of fire on the spot **suppress** it for 5 to 8 s (low-accuracy shots into the cover), everybody else **holds** the ways out (the front entry, or a point over / beside its cover), crouched where it stands; a holder with no line on its point (a wall in between) walks up to 12 m to a spot with one. Only the flankers move in; with nobody flanking, 1 NPC (one without a line of fire) **pushes**. Stacked flankers and pushers breach together (§8.7) |
+| Concealed | flankers keep going, or are picked after 0.5 s (same counts); the **main force keeps the pressure on from where it is and doesn't walk onto the target**: up to 3 NPCs with a line of fire on the spot **suppress** it for 5 to 8 s (low-accuracy shots into the cover), everybody else **holds** the ways out (the front entry, or a point over / beside its cover), crouched where it stands; a holder with no line on its point (a wall in between) walks up to 12 m to a spot with one. Only the flankers move in; with nobody flanking nobody pushes (`pushersWithoutFlank = 0`). Stacked flankers and pushers breach together (§8.7) |
 | Lost | nearest member **checks**, coming in through the cheapest lane other than the front one; the second **watches** from the front lane's stack spot; the rest search (§5.6) |
 
 - **How many go round:** at most half the gun NPCs (at least one from two up, at most 3): the main force keeps

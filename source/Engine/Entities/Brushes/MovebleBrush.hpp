@@ -154,8 +154,14 @@ public:
 
 		UpdateObstacle();
 
+
+		if (oldProgress != progress)
+		{
+			updateSleepDelay.AddDelay(0.1);
+		}
+
 		oldProgress = progress;
-		updateSleepDelay.AddDelay(0.1);
+		
 
 	}
 
@@ -166,13 +172,21 @@ public:
 
 		if (action == "open")
 		{
-			open = true;		
+			if (open == false)
+			{
+				open = true;
+				updateSleepDelay.AddDelay(0.2);
+			}
 
 		}
 		else if (action == "close")
 		{
 
-			open = false;
+			if (open == true)
+			{
+				open = false;
+				updateSleepDelay.AddDelay(0.2);
+			}
 
 		}
 

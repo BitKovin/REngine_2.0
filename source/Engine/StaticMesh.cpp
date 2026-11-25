@@ -148,6 +148,15 @@ BoundingBox StaticMesh::GetBoundingBox()
 
 }
 
+BoundingBox StaticMesh::GetFinalizedBoundingBox()
+{
+
+	if(WasRended)
+		return finalizedBoundingBox;
+
+	return GetBoundingBox();
+}
+
 
 bool StaticMesh::PrecalculateCameraVisible()
 {

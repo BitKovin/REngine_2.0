@@ -169,22 +169,14 @@ struct CombatBeliefTuning
 	float emptyCheckViewCos = 0.5f;   // the looker must face the spot (60 degrees either side)
 	float emptyCheckDistance = 15.0f;
 	double lostMaxTime = 12.0;        // backstop for the check-the-spot phase
-
-	// Combat awareness (§5.7): a squad in a fight keeps track of a target moving
-	// about nearby by ear, so it can't vanish just by walking round a wall.
-	// Sneaking off slowly, far enough from all of them, still loses them.
-	double trackInterval = 1.0;       // how often the estimate is refreshed this way
-	float trackCloseDistance = 8.0f;  // within this of any squad member: always tracked
-	float trackHearingDistance = 25.0f; // within this: tracked while it moves faster than trackNoisySpeed
-	float trackNoisySpeed = 3.0f;     // m/s
-	float trackError = 1.5f;          // metres the tracked estimate is off by
+	float lostSightTrackTime = 0.4f;   // seconds after losing sight the real position is still followed, while engaged (§5.2)
 
 	// A sound from a target the NPC fights (a shot) further than this from where
 	// it last had a line of sight on it moves that last-sight position there, so
 	// it doesn't act lost about a target that just gave itself away.
 	float heardUpdateDistance = 2.0f;
 
-	// The target turns up (heard, or tracked) this far from where the squad last
+	// The target turns up (heard) this far from where the squad last
 	// placed it: it has moved, so the squad goes to find it (§5.7). For seekTime
 	// the holders don't hold the old angles: each moves to a spot that sees the
 	// new position, closer if need be.

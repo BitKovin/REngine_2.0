@@ -5,6 +5,7 @@
 #include <imgui/imgui.h>
 #include <StaticMesh.h>
 #include <InteractionSystem/IInteractive.h>
+#include "../Npc/WatchedObject.h"
 
 class Door : public Entity , public IInteractive
 {
@@ -29,6 +30,9 @@ public:
 	dtObstacleRef obstacleRef;
 
 	Body* npcDetectionBody = nullptr;
+
+	// NPCs notice a door that is not in the state they saw it in (NPC_AI_DESIGN.md 13.3).
+	WatchedObject watched;
 
 	bool pendingClose = false;
 	Delay pendingCloseDelay = Delay();

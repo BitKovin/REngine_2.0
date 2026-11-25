@@ -5,7 +5,7 @@
 			<value>false</value>
 		</property>
 		<property name="builtBanksOutputDirectory">
-			<value>../../../../source/Games/StealthAction/GameData/sounds/banks</value>
+			<value>../../../../source/Games/ShooterGame/GameData/sounds/banks</value>
 		</property>
 		<relationship name="masterEventFolder">
 			<destination>{10626052-c98b-4665-b391-646f2512cecd}</destination>

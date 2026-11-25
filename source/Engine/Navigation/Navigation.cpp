@@ -20,6 +20,7 @@
 #include "Detour/DetourCommon.h"
 #include "NavigationGenerationHelpers.hpp"
 #include "NavigationFileHelper.h"
+#include "NavGrid.h"
 #include <Logger.hpp>
 
 // Recast and Detour includes
@@ -34,6 +35,7 @@ std::vector<dtObstacleRef> NavigationSystem::obstacles;
 
 void NavigationSystem::DestroyNavData()
 {
+    NavGrid::Clear();
 
 
 	std::lock_guard<std::recursive_mutex> lock(mainLock);

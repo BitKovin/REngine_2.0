@@ -444,6 +444,7 @@
     <ClCompile Include="includedLibraries\stb_implementation.cpp" />
     <ClCompile Include="Screenshot.cpp" />
     <ClInclude Include="Ecs\EcsGuard.h" />
+    <ClInclude Include="imgui\ImGuiEngineImpl.h" />
     <ClInclude Include="Screenshot.h" />
     <ClCompile Include="LevelTraversalSystem.cpp" />
     <ClCompile Include="LoadingScreen\LoadingScreenSystem.cpp" />
@@ -487,6 +488,7 @@
     <ClCompile Include="Navigation\Detour\DetourTileCacheBuilder.cpp" />
     <ClCompile Include="Navigation\Navigation.cpp" />
     <ClCompile Include="Navigation\NavigationFileHelper.cpp" />
+    <ClCompile Include="Navigation\NavGrid.cpp" />
     <ClCompile Include="Navigation\PathFollowQuery.cpp" />
     <ClCompile Include="Navigation\Recast\Recast.cpp" />
     <ClCompile Include="Navigation\Recast\RecastAlloc.cpp" />
@@ -529,6 +531,7 @@
     <ClCompile Include="skinned_model.cpp" />
     <ClCompile Include="SoundSystem\FmodEventInstance.cpp" />
     <ClCompile Include="SoundSystem\SoundInstance.cpp" />
+    <ClCompile Include="SoundSystem\SoundInstanceBase.cpp" />
     <ClCompile Include="SoundSystem\SoundManager.cpp" />
     <ClCompile Include="SpatialSound\SpatialSoundManager.cpp" />
     <ClCompile Include="StaticMesh.cpp" />
@@ -816,6 +819,7 @@
     <ClInclude Include="Navigation\Detour\DetourTileCacheBuilder.h" />
     <ClInclude Include="Navigation\Navigation.hpp" />
     <ClInclude Include="Navigation\NavigationFileHelper.h" />
+    <ClInclude Include="Navigation\NavGrid.h" />
     <ClInclude Include="Navigation\NavigationGenerationHelpers.hpp" />
     <ClInclude Include="Navigation\PathFollowQuery.h" />
     <ClInclude Include="Navigation\Recast\Recast.h" />

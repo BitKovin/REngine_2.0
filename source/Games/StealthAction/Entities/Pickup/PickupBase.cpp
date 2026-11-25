@@ -13,6 +13,14 @@ void PickupBase::Start()
 
 	SaveGame = true;
 
+	watched.Start(*this);
+}
+
+void PickupBase::Update()
+{
+	Entity::Update();
+
+	watched.Update(Position, pickedUp ? "gone" : "present", false);
 }
 
 void PickupBase::OnBodyEntered(Body* body, Entity* entity)

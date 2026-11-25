@@ -1,0 +1,19 @@
+{
+  "role": "civilian",
+  "model": "GameData/models/npc/base.glb",
+  "faction": "citizen",
+  "voice": "Civilian",
+  "skills": ["investigate", "routine"],
+  "acuity": 0.8,
+  "defaultSuspicion": 0.6,
+  "walkSpeed": 1.7,
+  "runSpeed": 4.5,
+  "glanceTime": 1.2,
+  "eyeHeight": 0.7,
+  "armed": false,
+  "investigate": {
+    "speed": 1.9,
+    "threatSpeed": 3.0,
+    "holdDistance": 8.0
+  }
+}

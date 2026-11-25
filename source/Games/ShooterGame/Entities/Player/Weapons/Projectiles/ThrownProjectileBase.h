@@ -5,6 +5,7 @@
 #include <Physics.h>
 #include <MathHelper.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <Entities/SoundPlayer.h>
 
 // Base of the objects the player throws (dynamite, molotov).
 //
@@ -40,6 +41,9 @@ public:
 	// Sets the start state. Call before Start().
 	void Throw(const vec3& startPosition, const vec3& startVelocity, float fuseSeconds, Entity* thrower);
 
+	// The looping sound of the burning fuse / rag, taken over from the thrower's hand. It follows the object and stops when it is destroyed.
+	void TakeBurnSound(SoundPlayer* player) { burnSound = player; }
+
 	void LoadAssets() override;
 	void Start() override;
 	void Update() override;
@@ -51,6 +55,7 @@ public:
 protected:
 
 	StaticMesh* mesh = nullptr;
+	SoundPlayer* burnSound = nullptr;
 	glm::quat orientation = glm::quat(1, 0, 0, 0);
 
 	// World position of a point given in the model's own space.

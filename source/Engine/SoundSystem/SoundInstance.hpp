@@ -64,7 +64,6 @@ public:
     static void DestroyPool();
 
 protected:
-    bool  IsGamePaused()   const override;
     float GetPitchScale()  const override;
     float GetFinalVolume() const override;
 

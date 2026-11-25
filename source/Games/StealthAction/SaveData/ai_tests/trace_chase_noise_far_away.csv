@@ -1,0 +1,1129 @@
+time,name,class,alive,x,y,z,speed,yaw,distance,detection,attacking,following,sees,perceives,hears,tactic,role,lane,contact,est_err,skill,alert
+0.03,,npc_guard_hybrid,1,25.50,1.40,21.50,0.00,11,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.03,,npc_guard_hybrid,1,24.00,1.40,21.50,0.00,11,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.03,,npc_guard_hybrid,1,21.50,1.40,21.50,0.00,11,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.03,,npc_guard_hybrid,1,20.00,1.40,21.50,0.00,11,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.03,,npc_guard_hybrid,1,18.00,1.40,21.50,0.00,11,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.03,,npc_guard_hybrid,1,-7.00,1.40,21.00,0.00,11,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.03,,npc_guard_hybrid,1,-4.50,1.40,21.00,0.00,11,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.03,,npc_guard_hybrid,1,-0.50,1.40,21.00,0.00,11,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.30,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,29,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.30,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,29,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.30,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,29,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.30,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,29,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.30,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,29,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.30,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,29,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.30,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,29,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.30,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,29,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.57,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,38,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.57,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,38,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.57,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,38,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.57,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,38,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.57,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,38,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.57,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,38,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.57,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,38,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.57,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,38,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.83,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,42,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.83,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,42,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.83,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,42,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.83,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,42,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.83,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,42,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.83,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,42,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.83,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,42,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+0.83,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,42,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.10,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,44,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.10,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,44,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.10,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,44,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.10,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,44,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.10,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,44,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.10,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,44,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.10,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,44,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.10,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,44,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.37,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.37,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.37,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.37,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.37,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.37,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,45,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.37,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.37,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.63,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.63,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.63,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.63,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.63,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.63,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,45,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.63,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.63,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.90,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.90,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.90,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.90,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.90,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.90,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,45,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.90,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+1.90,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.17,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.17,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.17,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.17,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.17,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.17,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,45,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.17,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.17,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.43,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.43,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.43,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.43,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.43,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.43,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,45,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.43,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.43,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.70,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.70,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.70,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.70,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.70,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.70,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,45,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.70,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.70,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.97,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,25.66,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.97,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,24.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.97,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,22.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.97,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,21.26,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.97,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,19.80,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.97,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,45,17.41,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.97,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,15.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+2.97,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,14.23,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.23,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.23,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.23,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.23,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.23,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.23,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,45,15.60,0.13,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.23,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,13.42,0.10,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.23,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,10.25,0.20,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.50,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.50,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.50,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.50,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.50,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.50,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,45,15.60,0.40,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.50,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,13.42,0.37,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.50,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,10.25,0.47,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.77,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.77,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.77,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.77,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.77,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+3.77,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,45,15.60,0.67,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.77,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,13.42,0.63,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+3.77,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,10.25,0.73,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+4.03,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+4.03,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+4.03,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+4.03,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+4.03,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+4.03,,npc_guard_hybrid,1,-7.00,1.43,21.00,0.00,45,15.60,0.93,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+4.03,,npc_guard_hybrid,1,-4.50,1.43,21.00,0.00,45,13.42,0.90,0,0,0,1,0,strafe,base of fire,,none,-1.0,,-1
+4.03,,npc_guard_hybrid,1,-0.50,1.43,21.00,0.00,45,10.25,1.00,0,1,1,1,0,strafe,base of fire,,none,-1.0,,-1
+4.30,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.30,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.30,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.30,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.30,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.30,,npc_guard_hybrid,1,-6.96,1.43,21.02,0.79,63,15.56,1.00,0,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+4.30,,npc_guard_hybrid,1,-4.49,1.43,21.00,0.43,58,13.41,1.00,0,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+4.30,,npc_guard_hybrid,1,-0.41,1.43,21.09,1.36,46,10.13,1.00,0,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+4.57,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.57,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.57,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.57,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.57,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.57,,npc_guard_hybrid,1,-6.54,1.43,21.24,2.27,63,15.08,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+4.57,,npc_guard_hybrid,1,-4.09,1.43,21.15,2.18,58,12.99,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+4.57,,npc_guard_hybrid,1,-0.01,1.43,21.48,2.76,46,9.57,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+4.83,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.83,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.83,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.83,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.83,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+4.83,,npc_guard_hybrid,1,-6.43,1.43,21.48,1.56,63,14.87,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+4.83,,npc_guard_hybrid,1,-3.98,1.43,21.36,1.48,58,12.79,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+4.83,,npc_guard_hybrid,1,0.48,1.43,21.53,3.02,81,9.19,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+5.10,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.10,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.10,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.10,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.10,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.10,,npc_guard_hybrid,1,-6.75,1.43,21.96,2.46,65,14.96,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.10,,npc_guard_hybrid,1,-4.32,1.43,21.81,2.44,60,12.85,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.10,,npc_guard_hybrid,1,1.43,1.43,21.06,4.47,115,8.92,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+5.37,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.37,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.37,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.37,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.37,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.37,,npc_guard_hybrid,1,-7.19,1.43,22.50,2.71,68,15.15,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.37,,npc_guard_hybrid,1,-4.79,1.43,22.33,2.70,63,13.02,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.37,,npc_guard_hybrid,1,2.52,1.43,20.43,4.86,120,8.84,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+5.63,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.63,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.63,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.63,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.63,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.63,,npc_guard_hybrid,1,-7.67,1.43,23.06,2.78,70,15.40,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.63,,npc_guard_hybrid,1,-5.29,1.43,22.86,2.77,66,13.26,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.63,,npc_guard_hybrid,1,3.65,1.43,19.76,4.96,121,8.96,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+5.90,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.90,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.90,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.90,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.90,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+5.90,,npc_guard_hybrid,1,-8.15,1.43,23.59,1.97,73,15.69,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.90,,npc_guard_hybrid,1,-5.81,1.43,23.40,2.79,69,13.54,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+5.90,,npc_guard_hybrid,1,4.79,1.43,19.07,4.99,121,9.29,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+6.17,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+6.17,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+6.17,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+6.17,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+6.17,,npc_guard_hybrid,1,18.00,1.43,21.50,0.00,45,12.95,0.00,0,0,0,0,0,strafe,base of fire,,visible,29.0,,-1
+6.17,,npc_guard_hybrid,1,-8.20,1.43,23.44,1.60,73,15.79,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.17,,npc_guard_hybrid,1,-6.07,1.43,23.55,0.87,71,13.72,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.17,,npc_guard_hybrid,1,5.92,1.43,18.37,4.99,123,9.80,1.00,1,1,0,0,0,take_cover,base of fire,,visible,29.0,,-1
+6.43,,npc_guard_hybrid,1,25.50,1.43,21.50,0.00,45,19.77,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+6.43,,npc_guard_hybrid,1,24.00,1.43,21.50,0.00,45,18.36,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+6.43,,npc_guard_hybrid,1,21.50,1.43,21.50,0.00,45,16.06,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+6.43,,npc_guard_hybrid,1,20.00,1.43,21.50,0.00,45,14.70,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+6.43,,npc_guard_hybrid,1,18.01,1.43,21.48,0.77,50,12.97,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+6.43,,npc_guard_hybrid,1,-8.01,1.43,22.89,2.48,71,15.78,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.43,,npc_guard_hybrid,1,-5.90,1.43,23.11,2.27,69,13.73,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.43,,npc_guard_hybrid,1,6.44,1.43,17.42,3.83,164,10.71,1.00,1,1,0,0,0,take_cover,base of fire,,visible,29.0,,-1
+6.70,,npc_guard_hybrid,1,25.78,1.43,21.63,2.83,57,19.99,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+6.70,,npc_guard_hybrid,1,24.22,1.43,21.27,2.83,97,18.65,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+6.70,,npc_guard_hybrid,1,21.21,1.43,21.61,2.83,-19,15.74,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+6.70,,npc_guard_hybrid,1,19.69,1.43,21.53,2.83,-29,14.41,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+6.70,,npc_guard_hybrid,1,18.19,1.43,20.80,3.02,-58,13.48,0.17,1,1,0,1,0,regain_sight,base of fire,,visible,29.0,,-1
+6.70,,npc_guard_hybrid,1,-7.74,1.43,22.24,2.72,69,15.76,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.70,,npc_guard_hybrid,1,-5.61,1.43,22.50,2.66,66,13.70,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.70,,npc_guard_hybrid,1,5.83,1.43,16.70,3.39,-6,11.47,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,29.0,,-1
+6.97,,npc_guard_hybrid,1,26.73,1.43,22.07,4.43,65,20.76,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+6.97,,npc_guard_hybrid,1,24.94,1.43,20.53,4.43,133,19.60,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+6.97,,npc_guard_hybrid,1,20.29,1.43,21.95,3.56,-65,14.77,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.97,,npc_guard_hybrid,1,18.65,1.43,21.62,4.43,-81,13.45,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.97,,npc_guard_hybrid,1,18.38,1.43,20.11,1.69,-55,14.02,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.97,,npc_guard_hybrid,1,-7.45,1.43,21.56,2.78,66,15.76,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.97,,npc_guard_hybrid,1,-5.29,1.43,21.84,2.76,63,13.69,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+6.97,,npc_guard_hybrid,1,5.06,1.43,16.47,2.87,8,11.80,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,29.0,,-1
+7.23,,npc_guard_hybrid,1,27.86,1.43,22.59,4.51,-59,21.70,0.00,1,1,0,0,0,regain_sight,base of fire,,visible,29.0,,-1
+7.23,,npc_guard_hybrid,1,25.68,1.43,19.76,3.46,-66,20.59,0.67,1,1,0,1,0,regain_sight,base of fire,,visible,29.0,,-1
+7.23,,npc_guard_hybrid,1,19.68,1.43,21.85,2.14,-64,14.26,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.23,,npc_guard_hybrid,1,17.84,1.43,21.47,2.57,-59,12.82,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.23,,npc_guard_hybrid,1,18.51,1.43,20.09,1.37,-55,14.14,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.23,,npc_guard_hybrid,1,-7.16,1.43,20.88,2.79,63,15.80,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.23,,npc_guard_hybrid,1,-4.96,1.43,21.18,2.79,60,13.72,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.23,,npc_guard_hybrid,1,4.77,1.43,16.38,0.80,33,11.93,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,29.0,,-1
+7.50,,npc_guard_hybrid,1,28.64,1.43,22.95,1.59,-77,22.37,0.83,1,1,0,1,0,regain_sight,base of fire,,visible,29.0,,-1
+7.50,,npc_guard_hybrid,1,26.03,1.43,19.40,0.33,-66,21.05,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.50,,npc_guard_hybrid,1,19.39,1.43,21.29,2.54,-62,14.26,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.50,,npc_guard_hybrid,1,17.46,1.43,20.90,2.62,-56,12.82,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.50,,npc_guard_hybrid,1,18.82,1.43,20.58,3.04,-27,14.13,1.00,1,1,1,1,0,take_cover,base of fire,,visible,29.0,,-1
+7.50,,npc_guard_hybrid,1,-6.90,1.43,20.27,1.22,61,15.86,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.50,,npc_guard_hybrid,1,-4.62,1.43,20.52,2.80,57,13.79,1.00,1,1,1,1,0,strafe,base of fire,,visible,29.0,,-1
+7.50,,npc_guard_hybrid,1,5.23,1.43,16.30,2.25,32,11.94,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,29.0,,-1
+7.77,,npc_guard_hybrid,1,28.75,1.43,23.00,0.56,41,412.86,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+7.77,,npc_guard_hybrid,1,25.76,1.43,19.54,1.18,31,417.43,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+7.77,,npc_guard_hybrid,1,19.49,1.38,21.08,0.47,43,420.55,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+7.77,,npc_guard_hybrid,1,17.22,1.43,20.08,3.98,175,422.83,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+7.77,,npc_guard_hybrid,1,18.31,1.43,20.60,3.39,-72,421.72,1.00,1,1,0,0,0,take_cover,base of fire,,visible,453.4,,-1
+7.77,,npc_guard_hybrid,1,-7.04,1.43,20.49,2.61,16,439.52,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+7.77,,npc_guard_hybrid,1,-4.36,1.43,20.00,0.96,45,437.96,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+7.77,,npc_guard_hybrid,1,5.45,1.43,16.28,0.27,44,433.71,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,453.4,,-1
+8.03,,npc_guard_hybrid,1,28.49,1.43,22.88,1.04,-30,413.13,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+8.03,,npc_guard_hybrid,1,25.39,1.43,19.78,3.06,-20,417.51,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+8.03,,npc_guard_hybrid,1,19.38,1.43,20.51,3.54,161,421.05,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+8.03,,npc_guard_hybrid,1,17.00,1.43,18.91,4.73,-171,423.84,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+8.03,,npc_guard_hybrid,1,17.21,1.43,20.38,4.57,-100,422.62,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+8.03,,npc_guard_hybrid,1,-7.51,1.43,21.39,4.37,-24,439.24,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+8.03,,npc_guard_hybrid,1,-4.32,1.43,19.92,1.29,57,437.98,1.00,1,1,0,0,0,strafe,base of fire,,visible,453.4,,-1
+8.03,,npc_guard_hybrid,1,5.47,1.43,16.28,0.03,44,433.69,1.00,1,1,0,0,0,cover_fight,base of fire,,visible,453.4,,-1
+8.30,,npc_guard_hybrid,1,28.51,1.43,22.89,0.90,-21,413.11,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.5,,-1
+8.30,,npc_guard_hybrid,1,24.53,1.43,20.34,2.95,-54,417.67,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.5,,-1
+8.30,,npc_guard_hybrid,1,19.11,1.43,19.40,4.62,-168,422.04,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.5,,-1
+8.30,,npc_guard_hybrid,1,16.94,1.43,18.25,0.75,-176,424.36,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.5,,-1
+8.30,,npc_guard_hybrid,1,15.97,1.43,20.10,4.89,-103,423.68,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.5,,-1
+8.30,,npc_guard_hybrid,1,-8.09,1.43,22.49,4.83,-27,438.88,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.5,,-1
+8.30,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.52,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.5,,-1
+8.30,,npc_guard_hybrid,1,5.48,1.43,16.28,0.00,44,433.69,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.5,,-1
+8.57,,npc_guard_hybrid,1,28.50,1.43,22.89,0.85,-28,413.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.7,,-1
+8.57,,npc_guard_hybrid,1,24.71,1.43,20.22,1.37,-42,417.64,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.7,,-1
+8.57,,npc_guard_hybrid,1,18.86,1.43,18.43,0.96,-165,422.92,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.7,,-1
+8.57,,npc_guard_hybrid,1,16.97,1.43,18.73,0.07,37,424.00,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.7,,-1
+8.57,,npc_guard_hybrid,1,14.69,1.43,19.79,4.97,-104,424.79,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.7,,-1
+8.57,,npc_guard_hybrid,1,-8.69,1.43,23.66,4.96,-27,438.50,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.7,,-1
+8.57,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.26,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.7,,-1
+8.57,,npc_guard_hybrid,1,5.39,1.43,16.30,1.42,28,433.74,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.7,,-1
+8.83,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.9,,-1
+8.83,,npc_guard_hybrid,1,24.68,1.43,20.24,1.54,-40,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.9,,-1
+8.83,,npc_guard_hybrid,1,19.00,1.43,18.88,1.84,49,422.50,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.9,,-1
+8.83,,npc_guard_hybrid,1,16.96,1.43,18.50,1.17,136,424.16,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.9,,-1
+8.83,,npc_guard_hybrid,1,13.83,1.43,19.57,0.13,-105,425.54,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.9,,-1
+8.83,,npc_guard_hybrid,1,-8.81,1.43,23.89,1.90,-27,438.42,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.9,,-1
+8.83,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.23,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.9,,-1
+8.83,,npc_guard_hybrid,1,5.40,1.43,16.30,0.49,31,433.73,1.00,1,1,0,0,0,hold_angle,hold,,concealed,0.9,,-1
+9.10,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.1,,-1
+9.10,,npc_guard_hybrid,1,24.67,1.43,20.24,1.59,-33,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.1,,-1
+9.10,,npc_guard_hybrid,1,18.90,1.43,18.64,0.36,-175,422.74,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.1,,-1
+9.10,,npc_guard_hybrid,1,16.95,1.43,18.58,1.17,84,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.1,,-1
+9.10,,npc_guard_hybrid,1,14.30,1.43,19.69,0.81,111,425.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.1,,-1
+9.10,,npc_guard_hybrid,1,-8.68,1.43,23.64,1.47,109,438.51,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.1,,-1
+9.10,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.54,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.1,,-1
+9.10,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.1,,-1
+9.37,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.4,,-1
+9.37,,npc_guard_hybrid,1,24.67,1.43,20.25,1.60,-22,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.4,,-1
+9.37,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.4,,-1
+9.37,,npc_guard_hybrid,1,16.96,1.43,18.56,0.55,85,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.4,,-1
+9.37,,npc_guard_hybrid,1,14.04,1.43,19.62,0.47,-132,425.35,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.4,,-1
+9.37,,npc_guard_hybrid,1,-8.68,1.43,23.65,2.25,103,438.50,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.4,,-1
+9.37,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.27,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.4,,-1
+9.37,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.4,,-1
+9.63,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.6,,-1
+9.63,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,-6,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.6,,-1
+9.63,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.6,,-1
+9.63,,npc_guard_hybrid,1,16.99,1.43,18.52,0.27,101,424.13,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.6,,-1
+9.63,,npc_guard_hybrid,1,14.13,1.43,19.65,1.85,-173,425.27,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.6,,-1
+9.63,,npc_guard_hybrid,1,-8.72,1.43,23.72,0.85,55,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.6,,-1
+9.63,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.22,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.6,,-1
+9.63,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.6,,-1
+9.90,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.8,,-1
+9.90,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,11,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.8,,-1
+9.90,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.8,,-1
+9.90,,npc_guard_hybrid,1,16.96,1.43,18.57,1.22,65,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.8,,-1
+9.90,,npc_guard_hybrid,1,14.10,1.43,19.64,1.67,-161,425.30,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.8,,-1
+9.90,,npc_guard_hybrid,1,-8.72,1.43,23.72,0.95,52,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.8,,-1
+9.90,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.54,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.8,,-1
+9.90,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,1.8,,-1
+10.17,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.0,,-1
+10.17,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,25,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.0,,-1
+10.17,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.0,,-1
+10.17,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.0,,-1
+10.17,,npc_guard_hybrid,1,14.14,1.43,19.65,0.09,173,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.0,,-1
+10.17,,npc_guard_hybrid,1,-8.74,1.43,23.76,0.69,26,438.46,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.0,,-1
+10.17,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.27,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.0,,-1
+10.17,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.0,,-1
+10.43,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.2,,-1
+10.43,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,36,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.2,,-1
+10.43,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.2,,-1
+10.43,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.2,,-1
+10.43,,npc_guard_hybrid,1,14.12,1.43,19.64,0.03,-177,425.28,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.2,,-1
+10.43,,npc_guard_hybrid,1,-8.70,1.43,23.69,0.68,72,438.49,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.2,,-1
+10.43,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.22,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.2,,-1
+10.43,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.2,,-1
+10.70,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.4,,-1
+10.70,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,44,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.4,,-1
+10.70,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.4,,-1
+10.70,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.4,,-1
+10.70,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.4,,-1
+10.70,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.4,,-1
+10.70,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.54,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.4,,-1
+10.70,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.4,,-1
+10.97,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.6,,-1
+10.97,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,48,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.6,,-1
+10.97,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.6,,-1
+10.97,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.6,,-1
+10.97,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.6,,-1
+10.97,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.6,,-1
+10.97,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.27,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.6,,-1
+10.97,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.6,,-1
+11.23,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.9,,-1
+11.23,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,51,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.9,,-1
+11.23,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.9,,-1
+11.23,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.9,,-1
+11.23,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.9,,-1
+11.23,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.9,,-1
+11.23,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.22,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.9,,-1
+11.23,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,2.9,,-1
+11.50,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.1,,-1
+11.50,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,53,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.1,,-1
+11.50,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.1,,-1
+11.50,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.1,,-1
+11.50,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.1,,-1
+11.50,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.1,,-1
+11.50,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.54,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.1,,-1
+11.50,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.1,,-1
+11.77,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.3,,-1
+11.77,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,55,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.3,,-1
+11.77,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.3,,-1
+11.77,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.3,,-1
+11.77,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.3,,-1
+11.77,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.3,,-1
+11.77,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.27,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.3,,-1
+11.77,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.3,,-1
+12.03,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.5,,-1
+12.03,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,56,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.5,,-1
+12.03,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.5,,-1
+12.03,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.5,,-1
+12.03,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.5,,-1
+12.03,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.5,,-1
+12.03,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.22,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.5,,-1
+12.03,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.5,,-1
+12.30,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.7,,-1
+12.30,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,56,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.7,,-1
+12.30,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.7,,-1
+12.30,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.7,,-1
+12.30,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.7,,-1
+12.30,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.7,,-1
+12.30,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.54,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.7,,-1
+12.30,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.7,,-1
+12.57,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.9,,-1
+12.57,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,56,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.9,,-1
+12.57,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.9,,-1
+12.57,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.9,,-1
+12.57,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.9,,-1
+12.57,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.9,,-1
+12.57,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.27,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.9,,-1
+12.57,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,3.9,,-1
+12.83,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.1,,-1
+12.83,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.1,,-1
+12.83,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.1,,-1
+12.83,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.1,,-1
+12.83,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.1,,-1
+12.83,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.1,,-1
+12.83,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.22,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.1,,-1
+12.83,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.1,,-1
+13.10,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.3,,-1
+13.10,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.3,,-1
+13.10,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.3,,-1
+13.10,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.3,,-1
+13.10,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.3,,-1
+13.10,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.3,,-1
+13.10,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.54,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.3,,-1
+13.10,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.3,,-1
+13.37,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.6,,-1
+13.37,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.6,,-1
+13.37,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.6,,-1
+13.37,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.6,,-1
+13.37,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.6,,-1
+13.37,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.6,,-1
+13.37,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.27,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.6,,-1
+13.37,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.6,,-1
+13.63,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.8,,-1
+13.63,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.8,,-1
+13.63,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.8,,-1
+13.63,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.8,,-1
+13.63,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.8,,-1
+13.63,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.8,,-1
+13.63,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.22,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.8,,-1
+13.63,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,4.8,,-1
+13.90,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.0,,-1
+13.90,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.0,,-1
+13.90,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.0,,-1
+13.90,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.0,,-1
+13.90,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.0,,-1
+13.90,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.0,,-1
+13.90,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.54,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.0,,-1
+13.90,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.0,,-1
+14.17,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.2,,-1
+14.17,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.2,,-1
+14.17,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.2,,-1
+14.17,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.2,,-1
+14.17,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.2,,-1
+14.17,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.2,,-1
+14.17,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.27,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.2,,-1
+14.17,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.2,,-1
+14.43,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.4,,-1
+14.43,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.4,,-1
+14.43,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.4,,-1
+14.43,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.4,,-1
+14.43,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.4,,-1
+14.43,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.4,,-1
+14.43,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.22,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.4,,-1
+14.43,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.4,,-1
+14.70,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.6,,-1
+14.70,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.6,,-1
+14.70,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.6,,-1
+14.70,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.6,,-1
+14.70,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.6,,-1
+14.70,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.6,,-1
+14.70,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.54,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.6,,-1
+14.70,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.6,,-1
+14.97,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.8,,-1
+14.97,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.8,,-1
+14.97,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.8,,-1
+14.97,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.8,,-1
+14.97,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.8,,-1
+14.97,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.8,,-1
+14.97,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.27,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.8,,-1
+14.97,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,5.8,,-1
+15.23,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.1,,-1
+15.23,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.1,,-1
+15.23,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.1,,-1
+15.23,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.1,,-1
+15.23,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.1,,-1
+15.23,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.1,,-1
+15.23,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.22,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.1,,-1
+15.23,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.1,,-1
+15.50,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.3,,-1
+15.50,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.3,,-1
+15.50,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.3,,-1
+15.50,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.3,,-1
+15.50,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.3,,-1
+15.50,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.3,,-1
+15.50,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.54,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.3,,-1
+15.50,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.3,,-1
+15.77,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.5,,-1
+15.77,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.5,,-1
+15.77,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.5,,-1
+15.77,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.5,,-1
+15.77,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.5,,-1
+15.77,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.5,,-1
+15.77,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.27,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.5,,-1
+15.77,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.5,,-1
+16.03,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.7,,-1
+16.03,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.7,,-1
+16.03,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.7,,-1
+16.03,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.7,,-1
+16.03,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.7,,-1
+16.03,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.7,,-1
+16.03,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.22,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.7,,-1
+16.03,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.7,,-1
+16.30,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.9,,-1
+16.30,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.9,,-1
+16.30,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.9,,-1
+16.30,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.9,,-1
+16.30,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.9,,-1
+16.30,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.9,,-1
+16.30,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.54,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.9,,-1
+16.30,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,6.9,,-1
+16.57,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.1,,-1
+16.57,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.1,,-1
+16.57,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.1,,-1
+16.57,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.1,,-1
+16.57,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.1,,-1
+16.57,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.1,,-1
+16.57,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.27,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.1,,-1
+16.57,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.1,,-1
+16.83,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.3,,-1
+16.83,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.3,,-1
+16.83,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.3,,-1
+16.83,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.3,,-1
+16.83,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.3,,-1
+16.83,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.3,,-1
+16.83,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.22,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.3,,-1
+16.83,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.3,,-1
+17.10,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.5,,-1
+17.10,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.5,,-1
+17.10,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.5,,-1
+17.10,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.5,,-1
+17.10,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.5,,-1
+17.10,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.5,,-1
+17.10,,npc_guard_hybrid,1,-4.32,1.43,19.92,0.54,57,437.98,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.5,,-1
+17.10,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.5,,-1
+17.37,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.8,,-1
+17.37,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.8,,-1
+17.37,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.8,,-1
+17.37,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.8,,-1
+17.37,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.8,,-1
+17.37,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.8,,-1
+17.37,,npc_guard_hybrid,1,-4.34,1.43,19.97,0.27,48,437.97,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.8,,-1
+17.37,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,7.8,,-1
+17.63,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,-12,413.09,1.00,1,1,0,0,0,hold_angle,hold,,concealed,8.0,,-1
+17.63,,npc_guard_hybrid,1,24.67,1.43,20.25,1.61,57,417.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,8.0,,-1
+17.63,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,136,422.65,1.00,1,1,0,0,0,hold_angle,hold,,concealed,8.0,,-1
+17.63,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,70,424.12,1.00,1,1,0,0,0,hold_angle,hold,,concealed,8.0,,-1
+17.63,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,168,425.26,1.00,1,1,0,0,0,hold_angle,hold,,concealed,8.0,,-1
+17.63,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,68,438.48,1.00,1,1,0,0,0,hold_angle,hold,,concealed,8.0,,-1
+17.63,,npc_guard_hybrid,1,-4.31,1.43,19.91,1.22,59,437.99,1.00,1,1,0,0,0,hold_angle,hold,,concealed,8.0,,-1
+17.63,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,24,433.75,1.00,1,1,0,0,0,hold_angle,hold,,concealed,8.0,,-1
+17.90,,npc_guard_hybrid,1,28.52,1.00,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,8.2,,-1
+17.90,,npc_guard_hybrid,1,24.66,1.43,20.25,1.27,42,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,8.2,,-1
+17.90,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.2,,-1
+17.90,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.2,,-1
+17.90,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,44,425.26,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.2,,-1
+17.90,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.2,,-1
+17.90,,npc_guard_hybrid,1,-4.31,1.43,19.91,0.20,45,437.99,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.2,,-1
+17.90,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.2,,-1
+18.17,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,8.4,,-1
+18.17,,npc_guard_hybrid,1,24.63,1.43,20.28,0.48,43,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,8.4,,-1
+18.17,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.4,,-1
+18.17,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.4,,-1
+18.17,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.4,,-1
+18.17,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.4,,-1
+18.17,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.4,,-1
+18.17,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.4,,-1
+18.43,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,8.6,,-1
+18.43,,npc_guard_hybrid,1,24.66,1.43,20.26,0.21,43,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,8.6,,-1
+18.43,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.6,,-1
+18.43,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.6,,-1
+18.43,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.6,,-1
+18.43,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.6,,-1
+18.43,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.6,,-1
+18.43,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.6,,-1
+18.70,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,8.8,,-1
+18.70,,npc_guard_hybrid,1,24.67,1.43,20.24,0.03,43,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,8.8,,-1
+18.70,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.8,,-1
+18.70,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.8,,-1
+18.70,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.8,,-1
+18.70,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.8,,-1
+18.70,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.8,,-1
+18.70,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,1.00,1,1,0,0,0,check_last_known,base of fire,,lost,8.8,,-1
+18.97,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,9.0,,-1
+18.97,,npc_guard_hybrid,1,24.67,1.43,20.24,0.00,43,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,9.0,,-1
+18.97,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.0,,-1
+18.97,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.0,,-1
+18.97,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.0,,-1
+18.97,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.0,,-1
+18.97,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.0,,-1
+18.97,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.0,,-1
+19.23,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,9.3,,-1
+19.23,,npc_guard_hybrid,1,24.67,1.43,20.24,0.00,43,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,9.3,,-1
+19.23,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.3,,-1
+19.23,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.3,,-1
+19.23,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.3,,-1
+19.23,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.3,,-1
+19.23,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.3,,-1
+19.23,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.3,,-1
+19.50,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,9.5,,-1
+19.50,,npc_guard_hybrid,1,24.67,1.43,20.24,0.00,43,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,9.5,,-1
+19.50,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.5,,-1
+19.50,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.5,,-1
+19.50,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.5,,-1
+19.50,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.5,,-1
+19.50,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.5,,-1
+19.50,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.5,,-1
+19.77,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,9.7,,-1
+19.77,,npc_guard_hybrid,1,24.67,1.43,20.24,0.00,43,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,9.7,,-1
+19.77,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.7,,-1
+19.77,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.7,,-1
+19.77,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.7,,-1
+19.77,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.7,,-1
+19.77,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.7,,-1
+19.77,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.7,,-1
+20.03,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,9.9,,-1
+20.03,,npc_guard_hybrid,1,24.67,1.43,20.24,0.00,43,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,9.9,,-1
+20.03,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.9,,-1
+20.03,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.9,,-1
+20.03,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.9,,-1
+20.03,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.9,,-1
+20.03,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,9.9,,-1
+20.03,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,9.9,,-1
+20.30,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,10.1,,-1
+20.30,,npc_guard_hybrid,1,24.67,1.43,20.24,0.00,43,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,10.1,,-1
+20.30,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.1,,-1
+20.30,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.1,,-1
+20.30,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.1,,-1
+20.30,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,10.1,,-1
+20.30,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,10.1,,-1
+20.30,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.1,,-1
+20.57,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,10.3,,-1
+20.57,,npc_guard_hybrid,1,24.67,1.43,20.24,0.00,43,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,10.3,,-1
+20.57,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.3,,-1
+20.57,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.3,,-1
+20.57,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.3,,-1
+20.57,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,10.3,,-1
+20.57,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,10.3,,-1
+20.57,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.3,,-1
+20.83,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,10.5,,-1
+20.83,,npc_guard_hybrid,1,24.67,1.43,20.24,0.00,43,417.65,1.00,1,1,0,0,0,check_last_known,watch,,lost,10.5,,-1
+20.83,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.5,,-1
+20.83,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.5,,-1
+20.83,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.5,,-1
+20.83,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,10.5,,-1
+20.83,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,10.5,,-1
+20.83,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.5,,-1
+21.10,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,10.7,,-1
+21.10,,npc_guard_hybrid,1,24.67,1.43,20.24,0.00,43,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,10.7,,-1
+21.10,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.7,,-1
+21.10,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.7,,-1
+21.10,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.7,,-1
+21.10,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,10.7,,-1
+21.10,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,10.7,,-1
+21.10,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,10.7,,-1
+21.37,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,11.0,,-1
+21.37,,npc_guard_hybrid,1,24.67,1.43,20.24,0.00,43,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,11.0,,-1
+21.37,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.0,,-1
+21.37,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.0,,-1
+21.37,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.0,,-1
+21.37,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,11.0,,-1
+21.37,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,11.0,,-1
+21.37,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.0,,-1
+21.63,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,11.2,,-1
+21.63,,npc_guard_hybrid,1,24.67,1.43,20.24,0.00,43,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,11.2,,-1
+21.63,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.2,,-1
+21.63,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.2,,-1
+21.63,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.2,,-1
+21.63,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,11.2,,-1
+21.63,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,11.2,,-1
+21.63,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.2,,-1
+21.90,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,11.4,,-1
+21.90,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,11.4,,-1
+21.90,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.4,,-1
+21.90,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.4,,-1
+21.90,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.4,,-1
+21.90,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,11.4,,-1
+21.90,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,11.4,,-1
+21.90,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.4,,-1
+22.17,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,11.6,,-1
+22.17,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,11.6,,-1
+22.17,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.6,,-1
+22.17,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.6,,-1
+22.17,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.6,,-1
+22.17,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,11.6,,-1
+22.17,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,11.6,,-1
+22.17,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.6,,-1
+22.43,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,11.8,,-1
+22.43,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,11.8,,-1
+22.43,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.8,,-1
+22.43,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.8,,-1
+22.43,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.8,,-1
+22.43,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,11.8,,-1
+22.43,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,11.8,,-1
+22.43,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,11.8,,-1
+22.70,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,12.0,,-1
+22.70,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,12.0,,-1
+22.70,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.0,,-1
+22.70,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.0,,-1
+22.70,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.0,,-1
+22.70,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,12.0,,-1
+22.70,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,12.0,,-1
+22.70,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.0,,-1
+22.97,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,12.2,,-1
+22.97,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,12.2,,-1
+22.97,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.2,,-1
+22.97,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.2,,-1
+22.97,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.2,,-1
+22.97,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,12.2,,-1
+22.97,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,12.2,,-1
+22.97,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.2,,-1
+23.23,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,12.5,,-1
+23.23,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,12.5,,-1
+23.23,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.5,,-1
+23.23,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.5,,-1
+23.23,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.5,,-1
+23.23,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,12.5,,-1
+23.23,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,12.5,,-1
+23.23,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.5,,-1
+23.50,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,12.7,,-1
+23.50,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,12.7,,-1
+23.50,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.7,,-1
+23.50,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.7,,-1
+23.50,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.7,,-1
+23.50,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,12.7,,-1
+23.50,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,12.7,,-1
+23.50,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.7,,-1
+23.77,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,12.9,,-1
+23.77,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,12.9,,-1
+23.77,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.9,,-1
+23.77,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.9,,-1
+23.77,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.9,,-1
+23.77,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,12.9,,-1
+23.77,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,12.9,,-1
+23.77,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,12.9,,-1
+24.03,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,13.1,,-1
+24.03,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,13.1,,-1
+24.03,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.1,,-1
+24.03,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.1,,-1
+24.03,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.1,,-1
+24.03,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,13.1,,-1
+24.03,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,13.1,,-1
+24.03,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.1,,-1
+24.30,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,13.3,,-1
+24.30,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,13.3,,-1
+24.30,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.3,,-1
+24.30,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.3,,-1
+24.30,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.3,,-1
+24.30,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,13.3,,-1
+24.30,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,13.3,,-1
+24.30,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.3,,-1
+24.57,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,13.5,,-1
+24.57,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,13.5,,-1
+24.57,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.5,,-1
+24.57,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.5,,-1
+24.57,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.5,,-1
+24.57,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,13.5,,-1
+24.57,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,13.5,,-1
+24.57,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.5,,-1
+24.83,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,13.7,,-1
+24.83,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,13.7,,-1
+24.83,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.7,,-1
+24.83,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.7,,-1
+24.83,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.7,,-1
+24.83,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,13.7,,-1
+24.83,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,13.7,,-1
+24.83,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.7,,-1
+25.10,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,13.9,,-1
+25.10,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,13.9,,-1
+25.10,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.9,,-1
+25.10,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.9,,-1
+25.10,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.9,,-1
+25.10,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,13.9,,-1
+25.10,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,13.9,,-1
+25.10,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,13.9,,-1
+25.37,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,14.2,,-1
+25.37,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,14.2,,-1
+25.37,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.2,,-1
+25.37,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.2,,-1
+25.37,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.2,,-1
+25.37,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,14.2,,-1
+25.37,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,14.2,,-1
+25.37,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.2,,-1
+25.63,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,14.4,,-1
+25.63,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,14.4,,-1
+25.63,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.4,,-1
+25.63,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.4,,-1
+25.63,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.4,,-1
+25.63,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,14.4,,-1
+25.63,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,14.4,,-1
+25.63,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.4,,-1
+25.90,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,14.6,,-1
+25.90,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,14.6,,-1
+25.90,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.6,,-1
+25.90,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.6,,-1
+25.90,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.6,,-1
+25.90,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,14.6,,-1
+25.90,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,14.6,,-1
+25.90,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.6,,-1
+26.17,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,14.8,,-1
+26.17,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,14.8,,-1
+26.17,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.8,,-1
+26.17,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.8,,-1
+26.17,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.8,,-1
+26.17,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,14.8,,-1
+26.17,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,14.8,,-1
+26.17,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,14.8,,-1
+26.43,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,15.0,,-1
+26.43,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,15.0,,-1
+26.43,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.0,,-1
+26.43,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.0,,-1
+26.43,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.0,,-1
+26.43,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,15.0,,-1
+26.43,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,15.0,,-1
+26.43,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.0,,-1
+26.70,,npc_guard_hybrid,1,28.52,0.93,22.90,0.00,42,413.09,1.00,1,1,0,0,0,check_last_known,check,,lost,15.2,,-1
+26.70,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,15.2,,-1
+26.70,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.2,,-1
+26.70,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.2,,-1
+26.70,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.2,,-1
+26.70,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,15.2,,-1
+26.70,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,15.2,,-1
+26.70,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.2,,-1
+26.97,,npc_guard_hybrid,1,28.52,1.38,22.90,0.00,42,413.09,0.00,0,0,0,0,0,strafe,base of fire,,lost,15.4,,-1
+26.97,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,15.4,,-1
+26.97,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,check,,lost,15.4,,-1
+26.97,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.4,,-1
+26.97,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.4,,-1
+26.97,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,15.4,,-1
+26.97,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,15.4,,-1
+26.97,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.4,,-1
+27.23,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.7,,-1
+27.23,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,15.7,,-1
+27.23,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,check,,lost,15.7,,-1
+27.23,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.7,,-1
+27.23,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.7,,-1
+27.23,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,15.7,,-1
+27.23,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,15.7,,-1
+27.23,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.7,,-1
+27.50,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.9,,-1
+27.50,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,15.9,,-1
+27.50,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,check,,lost,15.9,,-1
+27.50,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.9,,-1
+27.50,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.9,,-1
+27.50,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,15.9,,-1
+27.50,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,15.9,,-1
+27.50,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,15.9,,-1
+27.77,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.1,,-1
+27.77,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,16.1,,-1
+27.77,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,check,,lost,16.1,,-1
+27.77,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.1,,-1
+27.77,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.1,,-1
+27.77,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.1,,-1
+27.77,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.1,,-1
+27.77,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.1,,-1
+28.03,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.3,,-1
+28.03,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,16.3,,-1
+28.03,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,check,,lost,16.3,,-1
+28.03,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.3,,-1
+28.03,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.3,,-1
+28.03,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.3,,-1
+28.03,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.3,,-1
+28.03,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.3,,-1
+28.30,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.5,,-1
+28.30,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,16.5,,-1
+28.30,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,check,,lost,16.5,,-1
+28.30,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.5,,-1
+28.30,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.5,,-1
+28.30,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.5,,-1
+28.30,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.5,,-1
+28.30,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.5,,-1
+28.57,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+28.57,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,16.6,,-1
+28.57,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,check,,lost,16.6,,-1
+28.57,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+28.57,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+28.57,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.6,,-1
+28.57,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.6,,-1
+28.57,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+28.83,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+28.83,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,16.6,,-1
+28.83,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,check,,lost,16.6,,-1
+28.83,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+28.83,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+28.83,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.6,,-1
+28.83,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.6,,-1
+28.83,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.10,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.10,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,16.6,,-1
+29.10,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,check,,lost,16.6,,-1
+29.10,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.10,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.10,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.10,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.10,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.37,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.37,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,16.6,,-1
+29.37,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,check,,lost,16.6,,-1
+29.37,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.37,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.37,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.37,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.37,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.63,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.63,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,watch,,lost,16.6,,-1
+29.63,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,check,,lost,16.6,,-1
+29.63,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.63,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.63,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.63,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.63,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,lost,16.6,,-1
+29.90,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+29.90,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+29.90,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+29.90,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+29.90,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+29.90,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+29.90,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+29.90,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.17,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.17,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.17,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.17,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.17,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.17,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.17,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.17,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.43,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.43,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.43,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.43,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.43,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.43,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.43,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.43,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.70,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.70,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.70,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.70,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.70,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.70,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.70,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.70,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.97,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.97,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.97,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.97,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.97,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.97,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.97,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+30.97,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.23,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.23,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.23,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.23,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.23,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.23,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.23,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.23,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.50,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.50,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.50,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.50,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.50,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.50,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.50,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.50,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.77,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.77,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.77,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.77,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.77,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.77,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.77,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+31.77,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.03,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.03,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.03,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.03,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.03,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.03,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.03,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.03,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.30,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.30,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.30,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.30,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.30,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.30,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.30,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.30,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.57,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.57,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.57,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.57,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.57,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.57,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.57,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.57,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.83,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.83,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.83,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.83,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.83,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.83,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.83,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+32.83,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.10,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.10,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.10,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.10,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.10,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.10,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.10,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.10,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.37,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.37,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.37,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.37,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.37,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.37,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.37,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.37,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.63,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.63,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.63,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.63,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.63,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.63,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.63,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.63,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.90,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.90,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.90,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.90,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.90,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.90,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.90,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+33.90,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.17,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.17,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.17,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.17,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.17,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.17,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.17,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.17,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.43,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.43,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.43,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.43,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.43,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.43,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.43,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.43,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.70,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.70,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.70,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.70,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.70,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.70,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.70,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.70,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.97,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.97,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.97,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.97,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.97,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.97,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.97,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+34.97,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.23,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.23,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.23,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.23,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.23,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.23,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.23,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.23,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.50,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.50,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.50,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.50,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.50,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.50,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.50,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.50,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.77,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.77,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.77,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.77,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.77,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.77,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.77,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+35.77,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.03,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.03,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.03,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.03,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.03,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.03,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.03,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.03,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.30,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.30,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.30,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.30,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.30,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.30,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.30,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.30,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.57,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.57,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.57,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.57,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.57,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.57,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.57,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.57,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.83,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.83,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.83,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.83,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.83,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.83,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.83,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+36.83,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.10,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.10,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.10,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.10,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.10,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.10,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.10,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.10,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.37,,npc_guard_hybrid,1,28.52,1.43,22.90,0.00,42,413.09,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.37,,npc_guard_hybrid,1,24.64,1.43,20.26,0.00,36,417.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.37,,npc_guard_hybrid,1,18.94,1.43,18.73,0.00,43,422.65,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.37,,npc_guard_hybrid,1,16.96,1.43,18.56,0.00,43,424.12,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.37,,npc_guard_hybrid,1,14.15,1.43,19.65,0.00,43,425.26,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.37,,npc_guard_hybrid,1,-8.71,1.43,23.70,0.00,46,438.48,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.37,,npc_guard_hybrid,1,-4.33,1.43,19.95,0.00,45,437.98,0.00,0,0,0,0,0,strafe,base of fire,,none,-1.0,,-1
+37.37,,npc_guard_hybrid,1,5.37,1.43,16.31,0.00,44,433.75,0.00,1,1,0,0,0,strafe,base of fire,,none,-1.0,,-1

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.02.03.00">
+<objects serializationModel="Studio.02.02.00">
 	<object class="Event" id="{f2e3f25e-4083-4f93-a8b6-9fc61b71e768}">
 		<property name="name">
 			<value>shotgun_fire</value>
@@ -113,7 +113,7 @@
 	<object class="MixerBusPanner" id="{9e0de3a3-3262-4670-9379-921a79ce9d6d}" />
 	<object class="SingleSound" id="{076033d9-ce34-43c3-affc-1c8dd813319f}">
 		<property name="start">
-			<value>0.23502577996715926</value>
+			<value>0.40000000000000002</value>
 		</property>
 		<property name="length">
 			<value>0.62500000000000011</value>

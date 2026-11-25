@@ -46,9 +46,13 @@ PlayerHud::~PlayerHud()
 	if (crosshairCanvas)
 		EngineMain::Viewport.RemoveChild(crosshairCanvas);
 
+	if (awareness)
+		EngineMain::Viewport.RemoveChild(awareness);
+
 	if (ScreenControls)
 		EngineMain::Viewport.RemoveChild(ScreenControls);
 
+	awareness.reset();
 	view.reset();
 	crosshairCanvas.reset();
 	ScreenControls.reset();
@@ -72,6 +76,9 @@ void PlayerHud::Init(Player* playerRef)
 	crosshairCanvas->AddChild(crosshair);
 	AddBelowMenus(crosshairCanvas);
 	view->crosshair = crosshair;
+
+	awareness = make_shared<UiNpcAwareness>();
+	AddBelowMenus(awareness);
 }
 
 void PlayerHud::SetVisible(bool visible)
@@ -79,6 +86,7 @@ void PlayerHud::SetVisible(bool visible)
 	if (view) view->visible = visible;
 	if (crosshairCanvas) crosshairCanvas->visible = visible;
 	if (ScreenControls) ScreenControls->visible = visible;
+	if (awareness) awareness->visible = visible;
 }
 
 void PlayerHud::Update()
@@ -87,6 +95,9 @@ void PlayerHud::Update()
 
 	if (view)
 		view->Refresh(player);
+
+	if (awareness)
+		awareness->Refresh(player);
 }
 
 // UI hot reload swaps a fresh PlayerHudView into the viewport and drops ours.

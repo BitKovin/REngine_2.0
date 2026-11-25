@@ -60,6 +60,14 @@ void ThrownProjectileBase::Start()
 void ThrownProjectileBase::Destroy()
 {
 	finished = true;
+
+	if (burnSound != nullptr)
+	{
+		burnSound->Stop();
+		burnSound->Destroy();
+		burnSound = nullptr;
+	}
+
 	Entity::Destroy();
 }
 
@@ -110,6 +118,9 @@ void ThrownProjectileBase::Update()
 
 	Integrate(dt);
 	UpdateVisuals();
+
+	if (burnSound != nullptr)
+		burnSound->Position = Position;
 }
 
 void ThrownProjectileBase::UpdateFlight(float dt)

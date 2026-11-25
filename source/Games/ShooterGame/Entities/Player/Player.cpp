@@ -47,6 +47,10 @@ void Player::Start()
 
 	if (started) return;
 
+
+	Camera::ViewmodelFOV = 60;
+
+
 	Entity::Start();
 
 	playerLight = new PointLight();
@@ -2406,7 +2410,8 @@ void Player::UpdateWeapon()
 			currentWeapon->LeftHandBlend = currentWeapon->HideWeapon;
 		}
 
-		currentWeapon->Position = MathHelper::TransformVector(rotatedWeaponPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale;
+		currentWeapon->Position = MathHelper::TransformVector(rotatedWeaponPos, Camera::GetMatrix()) + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix()) * currentWeapon->bobScale 
+			+ Camera::Forward() * 0.03f;
 		currentWeapon->Rotation = MathHelper::ToYawPitchRoll(qResult);// +vec3(40.0f, 30.0f, 30.0f) * bike_progress;
 
 		if (dead)
@@ -2437,6 +2442,9 @@ void Player::UpdateWeapon()
 		{
 			currentOffhandWeapon->Position = Camera::position + MathHelper::TransformVector(scaledBob, Camera::GetRotationMatrix());
 		}
+
+		currentOffhandWeapon->Position += Camera::Forward() * 0.03f;
+
 		currentOffhandWeapon->Rotation = lerp(cameraRotation, Camera::rotation, 0.3f) + runHideRotation;
 		if (dead)
 			currentOffhandWeapon->Rotation.x += std::min(deathAnimDelay.GetProgress(), 1.0f) * 30.0f;
@@ -2467,6 +2475,8 @@ void Player::UpdateDebugUI()
 	ImGui::Begin("navigation");
 
 	ImGui::Checkbox("draw nav mesh", &NavigationSystem::DebugDrawNavMeshEnabled);
+	ImGui::Checkbox("draw nav grid", &NavGrid::DebugDrawEnabled);
+	ImGui::Checkbox("draw perception", &AiPerceptionSystem::DebugDrawEnabled);
 
 	if (ImGui::Button("PlaceObstacle"))
 	{
@@ -2759,9 +2769,11 @@ void Player::Update()
 	if (Input::LockCursor && dead == false)
 	{
 
-		float fovScale = Camera::FOV / 75.0f;
+		
 
 		//fovScale = mix(fovScale, 1.0f, 0.5f);
+
+		float fovScale = Camera::FOV / 75.0f;
 
 		cameraRotation.y += Input::MouseDelta.x * fovScale;
 		cameraRotation.x -= Input::MouseDelta.y * fovScale;
@@ -3204,6 +3216,38 @@ void Player::LateUpdate()
 
 	Hud.Update();
 
+	float fovScale = Camera::FOV / 75.0f;
+
+	vec3 rotationDelta = vec3(0);
+
+	vec2 lateDelta = vec2();
+
+
+	lateDelta = EngineMain::MainInstance->PullAdditionalMouseDelta();
+
+	rotationDelta.y += lateDelta.x * fovScale;
+	rotationDelta.x -= lateDelta.y * fovScale;
+
+	cameraRotation += rotationDelta;
+	Camera::rotation += rotationDelta;
+
+	float verticalClampCorrection = cameraRotation.x - glm::clamp(cameraRotation.x, -80.0f, 80.0f);
+	cameraRotation.x -= verticalClampCorrection;
+	Camera::rotation.x -= verticalClampCorrection;
+	rotationDelta.x -= verticalClampCorrection;
+
+	if (currentOffhandWeapon)
+	{
+		currentOffhandWeapon->Rotation += rotationDelta;
+		currentOffhandWeapon->Position = MathHelper::RotateAroundPoint(currentOffhandWeapon->Position, Camera::position, rotationDelta);
+	}
+
+	if (currentWeapon)
+	{
+		currentWeapon->Rotation += rotationDelta;
+		currentWeapon->Position = MathHelper::RotateAroundPoint(currentWeapon->Position, Camera::position, rotationDelta);
+	}
+
 	if (playerLight)
 	{
 		playerLight->Position = Camera::position;
@@ -3213,6 +3257,8 @@ void Player::LateUpdate()
 
 	armsMesh->Rotation = Camera::rotation;
 	armsMesh->Position = Camera::position;
+
+	
 
 }
 

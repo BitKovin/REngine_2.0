@@ -5,6 +5,8 @@
 #include <SkeletalMesh.hpp>
 #include <Entities/SoundPlayer.h>
 
+class ThrownProjectileBase;
+
 // Base of the weapons that are thrown after being lit with a lighter (dynamite, molotov).
 //
 // The weapon item is its own ammunition: every pickup is one owned instance, a throw uses the
@@ -107,7 +109,8 @@ private:
 	void Ignite();
 	void Release(float strength);
 	void FinishThrow();
-	void SpawnProjectile(const vec3& position, const vec3& velocity, float fuse);
+	ThrownProjectileBase* SpawnProjectile(const vec3& position, const vec3& velocity, float fuse);
+	vec3 BurnSoundPosition() const;
 	void UpdateFuse(float dt);
 	void StopBurnSound();
 

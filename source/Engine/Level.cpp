@@ -276,6 +276,7 @@ Level* Level::OpenLevel(string filePath)
 		Logger::Info("generating nav mesh");
 
 		NavigationSystem::GenerateNavData();
+		NavGrid::Build();
 
 		Logger::Info("generated nav mesh");
 	}

@@ -43,7 +43,7 @@ public:
 	SoundType Type = SoundType::SFX;
 
 protected:
-    virtual bool  IsGamePaused()   const { return false; }
+    virtual bool  IsGamePaused()   const;
     virtual float GetPitchScale()  const { return 1.0f;  }
     virtual float GetFinalVolume() const { return 1.0f;  }
 };

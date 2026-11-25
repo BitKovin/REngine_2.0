@@ -242,6 +242,28 @@ AnimationPose NpcAnimatorBase::ProcessResultPose()
 		                               0.0f, 1.0f);
 		result = AnimationPose::Lerp(actionAnimation->GetAnimationPose(), result, 1.0f - blend);
 	}
+	else
+	{
+		ApplyGaze(result);
+	}
 
 	return result;
+}
+
+// The same bone axes the aim code above uses: X turns a spine bone sideways, Z nods it.
+void NpcAnimatorBase::ApplyGaze(AnimationPose& pose) const
+{
+	if (gazeYaw == 0.0f && gazePitch == 0.0f) return;
+
+	struct GazeBone { const char* name; float weight; };
+	static const GazeBone chain[] = { { "spine_03", 0.2f }, { "neck_01", 0.3f }, { "head", 0.5f } };
+
+	for (const GazeBone& bone : chain)
+	{
+		const auto found = pose.boneTransforms.find(hashed_string(bone.name));
+		if (found == pose.boneTransforms.end()) continue;
+
+		found->second = found->second * MathHelper::GetRotationMatrix(
+			vec3(gazeYaw * bone.weight, 0.0f, -gazePitch * bone.weight));
+	}
 }

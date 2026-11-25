@@ -142,7 +142,7 @@ private:
 
 	vec3 velocity = vec3(0);
 
-	bool canRun = false;
+	bool canRun = true;
 	bool canDash = true;
 	bool canMantle = false;
 
@@ -431,6 +431,7 @@ private:
 	Delay slideBoostCooldown;          // 2-second cooldown between slide boosts
 
 	bool  wasOnGround = false;
+	float stepDistance = 0.0f; // distance walked since the last footstep noise
 	float airVerticalVelocity = 0.0f;  // vy captured while airborne, consumed on landing
 
 	// Slide tuning constants
@@ -655,6 +656,9 @@ public:
 	void SetWeaponSystemMode(WeaponSystemMode mode);
 	WeaponSystemMode GetWeaponSystemMode() const { return weaponSystemMode; }
 
+	// Running is a character ability, off by default (holding dash then runs); the AI tests turn it on for their puppet.
+	void SetCanRun(bool value) { canRun = value; }
+
 	// Inventory management
 	std::string AddItemToInventory(const std::string& itemID, int stackSize = 1);
 
@@ -718,6 +722,9 @@ public:
 	void UpdateThirdPersonCamera();
 
 	void UpdateBody();
+
+	// What the AI perceives of the player each frame: body points, how it moves, the noise it makes (NPC_AI_DESIGN.md §5).
+	void UpdateAiPresence();
 
 	bool InThirdPerson();
 

@@ -14,7 +14,7 @@ public:
 		params.burnSound = "event:/Weapons/dynamite/burning";
 
 		// Lit at frame 26 of throw_start. Four seconds from there: about three seconds after the arm is cocked.
-		params.fuseTime = 4.0f;
+		params.fuseTime = 6.0f;
 		params.minThrowSpeed = 6.0f;
 		params.maxThrowSpeed = 20.0f;
 

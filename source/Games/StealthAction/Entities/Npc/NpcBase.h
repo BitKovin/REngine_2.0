@@ -176,6 +176,8 @@ struct TargetInfo
 class NpcBase : public Entity
 {
 
+	friend class NpcBody; // the new brain's body (Brain/NpcBody.h) drives the movement fields below
+
 protected:
 
 	CharacterController* controller = nullptr;
@@ -421,8 +423,8 @@ public:
 	void UpdateDoorUpdate();
 
 	void UpdateBT();
-	void UpdateObserver();
-	void UpdateObservationTarget();
+	virtual void UpdateObserver();
+	virtual void UpdateObservationTarget();
 
 	void UpdateTargetFollow();
 
@@ -435,6 +437,18 @@ public:
 	void RunRangedAttack();
 
 	CombatBehaviorBase* GetCombatBehavior() const { return combatBehavior.get(); }
+
+	// ── Awareness for the HUD (main thread) ───────────────────────────────────────────────────────────────────────
+	// How far this NPC has noticed each subject, 0..1 (the "?" and "!" over its head, and the edge arrows).
+	struct AwarenessReading
+	{
+		std::string subject;
+		float value = 0.0f;
+	};
+
+	virtual void GetAwareness(std::vector<AwarenessReading>& out) const;
+	virtual vec3 GetAwarenessAnchor() const { return Position + vec3(0.0f, 0.6f, 0.0f); }
+	virtual bool ShowsAwareness() const { return dead == false; }
 
 	// What the combat brain needs to know about this NPC when it is somebody's target.
 	const std::string& GetTargetId() const { return target_id; }
@@ -571,7 +585,7 @@ public:
 
 	bool InvestigationCanBeReTriggered(InvestigationReason reason, string causer);
 
-	void TryStartInvestigation(InvestigationReason reason, vec3 target, string causer, bool sharedByNpc = false);
+	virtual void TryStartInvestigation(InvestigationReason reason, vec3 target, string causer, bool sharedByNpc = false);
 
 	bool TryCommitCrime(Crime crime, std::string offender, vec3 pos);
 
@@ -632,11 +646,23 @@ public:
 
 	// A bullet passed close (Bullet): pinned down, and if it came from the target
 	// it is after, it now knows where that is.
-	void OnNearMiss(Entity* shooter);
+	virtual void OnNearMiss(Entity* shooter);
 
 protected:
 
 	virtual void UpdateAnimations(bool forceFullUpdate = false);
+
+	// The three places a brain plugs into AsyncUpdate / UpdateAnimations. The defaults are the legacy brain; the
+	// new one (Npc, Brain/) overrides them and leaves movement, animation and ragdoll to this class.
+
+	// Perception, decisions and the orders for this frame's movement (runs while alive).
+	virtual void UpdateBrain();
+
+	// Whether the body keeps facing a point instead of its walking direction; `lockLookVector` is the way.
+	virtual bool ComputeFacingLock(vec3& lockLookVector);
+
+	// The animator's weapon and scared flags (and the gaze), set before the pose is built.
+	virtual void UpdateWeaponPosture();
 
 	void LoadAssets();
 

@@ -485,6 +485,7 @@
     <ClCompile Include="Entities\Triggers\TriggerTravel.cpp" />
     <ClCompile Include="Entities\VideoInWorldTest.cpp" />
     <ClCompile Include="GameStart.cpp" />
+    <ClCompile Include="Gore\GoreSave.cpp" />
     <ClCompile Include="ItemsDataBase.cpp" />
     <ClCompile Include="ParticleSystems\BulletTrail.cpp" />
     <ClCompile Include="ParticleSystems\CaneTrail.cpp" />
@@ -607,6 +608,7 @@
     <ClInclude Include="Entities\TestBsp.h" />
     <ClInclude Include="Entities\Enemy\Enemies\TestNpc.hpp" />
     <ClInclude Include="Entities\TestParticleSystem.hpp" />
+    <ClInclude Include="Gore\GoreSave.h" />
     <ClInclude Include="Helpers\LightVisibilityHelper.h" />
     <ClInclude Include="InteractionSystem\IInteractive.h" />
     <ClInclude Include="ItemsDataBase.h" />

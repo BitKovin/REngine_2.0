@@ -222,7 +222,7 @@ LightVolPointData Entity::GetLightVolData(bool wallCheck)
 
 	if (UseBoundsCenterForLightVol)
 	{
-		auto bounds = GetBoundingBox();
+		auto bounds = GetFinalizedBoundingBox();
 		auto center = bounds.Center();
 		auto light = Level::Current->BspData.GetLightvolColorPoint(center * MAP_SCALE, wallCheck);
 		return light;

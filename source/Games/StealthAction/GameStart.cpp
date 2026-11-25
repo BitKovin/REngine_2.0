@@ -10,6 +10,7 @@
 #include <LoadingScreen/LoadingScreenSystem.h>
 #include "UI/LoadingScreen/UiDefaultLoadingScreen.h"
 #include <EngineMain.h>
+#include "Debug/AiTests/AiTest.h"
 
 #include <UI/Kit/KitPages.h>
 #include <UI/Kit/Settings/InputIconLibrary.h>
@@ -101,7 +102,8 @@ public:
 
         // Automated test runs (-ui_test) stay off the network: no connect, no host socket. The manager still runs as a lone server
         // (the player spawns through it) on a transport that has no socket, so nothing is sent or received.
-        const bool testRun = EngineMain::MainInstance != nullptr && EngineMain::MainInstance->Arguments.count("ui_test") > 0;
+        const bool testRun = EngineMain::MainInstance != nullptr && EngineMain::MainInstance->Arguments.count("ui_test") > 0
+            || EngineMain::MainInstance->Arguments.count("ai_test") > 0;
         
         if (testRun)
         {
@@ -140,6 +142,10 @@ public:
             isServer = !enetTransport->TryConnectOrHost("192.168.0.100", 25666, /*maxClients=*/4);
         }
         
+
+#ifndef DISTRIBUTION
+        AiTest::InitFromArguments(); // -ai_test: automated AI scenarios (Debug/AiTests)
+#endif
 
         NetworkManager::BeginLevelLoad(Level::Current);
         NetworkManager::OnLevelLoaded();

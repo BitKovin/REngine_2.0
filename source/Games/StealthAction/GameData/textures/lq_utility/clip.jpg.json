@@ -1,0 +1,9 @@
+{
+  "hotspots": [],
+  "repeat": {},
+  "transparency": {
+    "cutoff": 0.5,
+    "mode": "translucent",
+    "opacity": 0.35
+  }
+}

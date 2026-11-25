@@ -5,6 +5,7 @@
 #include <EngineMain.h>
 
 #include <AiPerception/AiPerceptionSystem.h>
+#include "../Npc/Brain/NpcSounds.h"
 
 #include "Weapons/WeaponFirearm.h"
 
@@ -288,6 +289,9 @@ void Player::UpdateStateGroundAir(vec2 input)
 	{
 		float fallSpeed = -airVerticalVelocity;
 		float slopeSlant = glm::length(vec2(groundNormal.x, groundNormal.z));
+
+		if (fallSpeed > 3.0f)
+			NpcSounds::Emit(NpcSoundType::Landing, Position - vec3(0.0f, controller.height * 0.5f, 0.0f), Id, 0.0f, true);
 
 		if (fallSpeed > 1.0f && slopeSlant > 0.01f)
 		{
@@ -2454,6 +2458,8 @@ void Player::UpdateDebugUI()
 	ImGui::Begin("navigation");
 
 	ImGui::Checkbox("draw nav mesh", &NavigationSystem::DebugDrawNavMeshEnabled);
+	ImGui::Checkbox("draw nav grid", &NavGrid::DebugDrawEnabled);
+	ImGui::Checkbox("draw perception", &AiPerceptionSystem::DebugDrawEnabled);
 
 	if (ImGui::Button("PlaceObstacle"))
 	{
@@ -3297,10 +3303,55 @@ void Player::UpdateBody()
 
 	observationTarget->position = Position + vec3(0, 0.65f, 0);
 
+	UpdateAiPresence();
 
 	Physics::SetBodyPosition(hitbox, bodyMesh->Position + WorldOrientationManager::TransformDirectionToWorld(playerForward) * 0.1f + WorldOrientationManager::GetUpVector() * cameraHeight - vec3(0, 0.3, 0));
 
 
+}
+
+void Player::UpdateAiPresence()
+{
+	const vec3 center = controller.GetSmoothPosition();
+	const float halfHeight = controller.height * 0.5f;
+	const float speed = glm::length(MathHelper::XZ(controller.GetVelocity()));
+
+	const bool onGround = OnGround();
+	const bool sliding = IsSliding();
+	const bool crouched = controller.isCrouched && !sliding;
+	const bool moving = speed > 0.5f;
+	const bool running = sliding || (RunProgress > 0.5f && moving);
+
+	// Where sight rays go, and how visible the body is for the observer's meter (§5.2, §6.2).
+	observationTarget->chestPoint = center + vec3(0.0f, halfHeight * 0.25f, 0.0f);
+	observationTarget->headPoint = center + vec3(0.0f, halfHeight - 0.15f, 0.0f);
+	observationTarget->hasSamplePoints = true;
+	observationTarget->sampleLight = true;
+	observationTarget->moving = moving;
+
+	if (crouched)
+		observationTarget->motion = moving ? TargetMotion::CrouchWalk : TargetMotion::CrouchStill;
+	else if (running)
+		observationTarget->motion = TargetMotion::Run;
+	else
+		observationTarget->motion = moving ? TargetMotion::Walk : TargetMotion::Still;
+
+	// Footsteps: running makes noise, walking and crouching do not (§5.4). One step per stride.
+	if (running && onGround && !dead)
+	{
+		stepDistance += speed * Time::DeltaTimeF;
+
+		const float stride = 1.8f;
+		if (stepDistance >= stride)
+		{
+			stepDistance = std::fmod(stepDistance, stride);
+			NpcSounds::Emit(NpcSoundType::Footstep, center - vec3(0.0f, halfHeight, 0.0f), Id, 0.0f, true);
+		}
+	}
+	else
+	{
+		stepDistance = 0.0f;
+	}
 }
 
 bool Player::InThirdPerson()

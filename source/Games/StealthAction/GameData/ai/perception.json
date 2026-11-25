@@ -1,0 +1,85 @@
+{
+  "vision": {
+    "focusRange": 25.0,
+    "focusHalfAngle": 30.0,
+    "focusWideRange": 5.0,
+    "focusWideHalfAngle": 60.0,
+    "peripheralRange": 8.0,
+    "peripheralHalfAngle": 100.0,
+    "peripheralFactor": 0.35,
+    "nearRange": 1.5,
+    "nearFactor": 0.6,
+    "hysteresis": 0.1,
+    "closeDistance": 6.0,
+    "farFactor": 0.2,
+    "darkFactor": 0.6,
+    "litLevel": 0.5,
+    "rangeScale": [1.0, 1.0, 1.2, 1.6]
+  },
+  "meter": {
+    "fillRate": 0.6,
+    "notice": 0.35,
+    "suspect": 0.7,
+    "identify": 1.0,
+    "hold": 1.5,
+    "decay": 0.2,
+    "decayAlerted": 0.1,
+    "soundFill": 0.5,
+    "motionStill": 0.7,
+    "motionWalk": 1.0,
+    "motionRun": 1.6,
+    "motionCrouchWalk": 0.6,
+    "motionCrouchStill": 0.4,
+    "stateMul": [1.0, 1.5, 2.0, 6.0]
+  },
+  "alert": {
+    "combatToAlarmed": 8.0,
+    "wearyToCalm": 60.0,
+    "eventLifetime": 60.0,
+    "leadMaxAge": 90.0,
+    "targetLostAfter": 0.5
+  },
+  "fear": {
+    "gunfireNear": 0.1,
+    "heavyDamage": 0.2,
+    "heavyDamageThreshold": 20.0,
+    "safetyDecay": 0.05,
+    "bodySeen": 0.15,
+    "bodyDrained": 0.3
+  },
+  "bodies": {
+    "noticeMultiplier": 1.0,
+    "fillMotion": 1.0,
+    "suspicion": 1.0,
+    "darkLevel": 0.25,
+    "darkSeenDistance": 4.0,
+    "wakeTime": 45.0
+  },
+  "objects": {
+    "settleTime": 6.0,
+    "changedLifetime": 30.0
+  },
+  "missing": {
+    "earshot": 15.0,
+    "companyTime": 10.0,
+    "silentTime": 5.0,
+    "areaRadius": 12.0,
+    "cooldown": 60.0
+  },
+  "sounds": {
+    "gunshot":         { "radius": 40.0, "concern": "alarm",   "suspicion": 1.0 },
+    "explosion":       { "radius": 60.0, "concern": "alarm",   "suspicion": 1.0 },
+    "scream":          { "radius": 15.0, "concern": "alarm",   "suspicion": 1.0 },
+    "melee_clash":     { "radius": 15.0, "concern": "alarm",   "suspicion": 1.0 },
+    "breaking_glass":  { "radius": 20.0, "concern": "alarm",   "suspicion": 1.0 },
+    "feeding_combat":  { "radius": 15.0, "concern": "alarm",   "suspicion": 1.0 },
+    "suppressed_shot": { "radius": 10.0, "concern": "curious", "suspicion": 1.4 },
+    "thrown_object":   { "radius": 10.0, "concern": "curious", "suspicion": 1.5 },
+    "body_fall":       { "radius": 6.0,  "concern": "curious", "suspicion": 1.4 },
+    "feeding_stealth": { "radius": 4.0,  "concern": "curious", "suspicion": 1.4 },
+    "landing":         { "radius": 6.0,  "concern": "curious", "suspicion": 1.0 },
+    "door":            { "radius": 6.0,  "concern": "curious", "suspicion": 1.0 },
+    "footstep":        { "radius": 8.0,  "concern": "curious", "suspicion": 0.5 },
+    "unknown":         { "radius": 10.0, "concern": "curious", "suspicion": 0.5 }
+  }
+}

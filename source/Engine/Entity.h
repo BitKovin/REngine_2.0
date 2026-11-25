@@ -228,8 +228,40 @@ public:
 		{
 			if (mesh->IncludeInEntityBounds == false) continue;
 
-			vec3 meshMin = mesh->GetBoundingBox().Min;
-			vec3 meshMax = mesh->GetBoundingBox().Max;
+			auto bounds = mesh->GetBoundingBox();
+
+			vec3 meshMin = bounds.Min;
+			vec3 meshMax = bounds.Max;
+
+			min = glm::min(min, meshMin);
+			max = glm::max(max, meshMax);
+
+		}
+
+		if (min == vec3(FLT_MAX) && max == vec3(-FLT_MAX))
+		{
+			min = Position;
+			max = Position;
+		}
+
+		return BoundingBox(min, max);
+	}
+
+	//bounding boxes that were alerady computed for render. Skips expensive SkeletalMesh bounds computation
+	BoundingBox GetFinalizedBoundingBox()
+	{
+
+		vec3 min = vec3(FLT_MAX);
+		vec3 max = vec3(-FLT_MAX);
+
+		for (IDrawMesh* mesh : Drawables)
+		{
+			if (mesh->IncludeInEntityBounds == false) continue;
+
+			auto bounds = mesh->GetFinalizedBoundingBox();
+
+			vec3 meshMin = bounds.Min;
+			vec3 meshMax = bounds.Max;
 
 			min = glm::min(min, meshMin);
 			max = glm::max(max, meshMax);

@@ -33,7 +33,6 @@ public:
     static std::shared_ptr<FmodEventInstance> CreateFromId(const std::string& guid);
 
 protected:
-    bool IsGamePaused() const;
     float GetPitchScale() const;
     float GetFinalVolume() const;
 

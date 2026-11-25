@@ -244,11 +244,6 @@ std::shared_ptr<FmodEventInstance> FmodEventInstance::CreateFromId(const std::st
     return instance ? std::make_shared<FmodEventInstance>(instance) : nullptr;
 }
 
-bool FmodEventInstance::IsGamePaused() const
-{
-    if (IsUISound) return false;
-    return EngineMain::MainInstance->Paused;
-}
 
 float FmodEventInstance::GetPitchScale() const
 {

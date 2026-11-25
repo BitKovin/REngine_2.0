@@ -1,0 +1,28 @@
+{
+  "situationSpacing": 2.0,
+  "npcSpacing": 1.5,
+  "overlapRadius": 10.0,
+  "overlapTime": 2.0,
+  "globalCap": 3,
+  "globalWindow": 1.0,
+  "tierUses": [2, 6],
+  "barks": {
+    "notice":            { "priority": 10 },
+    "suspect":           { "priority": 20 },
+    "identify_intruder": { "priority": 60 },
+    "heard_noise":       { "priority": 15 },
+    "heard_shot":        { "priority": 40 },
+    "investigate_start": { "priority": 25 },
+    "investigate_clear": { "priority": 12 },
+    "target_lost":       { "priority": 45 },
+    "give_up":           { "priority": 30 },
+    "search_start":      { "priority": 35 },
+    "search_end":        { "priority": 20 },
+    "body_dead":         { "priority": 70 },
+    "body_drained":      { "priority": 70 },
+    "body_unconscious":  { "priority": 40 },
+    "wake_up":           { "priority": 50 },
+    "missing_ally":      { "priority": 45 },
+    "alarm_raise":       { "priority": 80 }
+  }
+}

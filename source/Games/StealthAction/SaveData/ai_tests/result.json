@@ -1,0 +1,1086 @@
+{
+  "failed": 0,
+  "passed": 93,
+  "scenarios": [
+    {
+      "metrics": {
+        "seconds_to_reach_0.6_standing_12m": 2.0000001043081284,
+        "seconds_to_reach_0.6_standing_20m": 3.1666668318212032,
+        "seconds_to_reach_0.6_standing_5m": 1.433333408087492
+      },
+      "name": "sense_sight_distances",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 12.600000657141209,
+      "tier": "sense"
+    },
+    {
+      "metrics": {
+        "seconds_to_reach_0.6_standing_12m": 2.0000001043081284,
+        "seconds_to_reach_0.6_standing_20m": 3.1666668318212032,
+        "seconds_to_reach_0.6_standing_5m": 1.3666667379438877
+      },
+      "name": "sense_sight_distances",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 12.533333986997604,
+      "tier": "sense"
+    },
+    {
+      "metrics": {
+        "seconds_to_reach_0.6_standing_12m": 2.0000001043081284,
+        "seconds_to_reach_0.6_standing_20m": 3.1666668318212032,
+        "seconds_to_reach_0.6_standing_5m": 1.3333334028720856
+      },
+      "name": "sense_sight_distances",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 12.500000651925802,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_sight_zones",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 21.20000110566616,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_sight_zones",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 21.20000110566616,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_sight_zones",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 21.20000110566616,
+      "tier": "sense"
+    },
+    {
+      "metrics": {
+        "seconds_to_reach_0.6_crouch_still": 3.866666868329048,
+        "seconds_to_reach_0.6_crouch_walk": 3.066666826605797,
+        "seconds_to_reach_0.6_run": 1.3666667379438877,
+        "seconds_to_reach_0.6_still": 2.3000001199543476,
+        "seconds_to_reach_0.6_walk": 1.900000099092722,
+        "strength_seconds_to_reach_0.6_crouch_still": 2.5102512165904045,
+        "strength_seconds_to_reach_0.6_crouch_walk": 1.6748085767030716,
+        "strength_seconds_to_reach_0.6_run": 0.7004618346691132,
+        "strength_seconds_to_reach_0.6_still": 1.4396524466574192,
+        "strength_seconds_to_reach_0.6_walk": 1.0120452158153057
+      },
+      "name": "sense_sight_motion",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 24.500001277774572,
+      "tier": "sense"
+    },
+    {
+      "metrics": {
+        "seconds_to_reach_0.6_crouch_still": 3.9666668735444546,
+        "seconds_to_reach_0.6_crouch_walk": 3.066666826605797,
+        "seconds_to_reach_0.6_run": 1.3666667379438877,
+        "seconds_to_reach_0.6_still": 2.3000001199543476,
+        "seconds_to_reach_0.6_walk": 1.900000099092722,
+        "strength_seconds_to_reach_0.6_crouch_still": 2.5101280510425568,
+        "strength_seconds_to_reach_0.6_crouch_walk": 1.6748085767030716,
+        "strength_seconds_to_reach_0.6_run": 0.7004618346691132,
+        "strength_seconds_to_reach_0.6_still": 1.4396524466574192,
+        "strength_seconds_to_reach_0.6_walk": 1.0120452158153057
+      },
+      "name": "sense_sight_motion",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 24.60000128298998,
+      "tier": "sense"
+    },
+    {
+      "metrics": {
+        "seconds_to_reach_0.6_crouch_still": 3.9666668735444546,
+        "seconds_to_reach_0.6_crouch_walk": 3.066666826605797,
+        "seconds_to_reach_0.6_run": 1.3666667379438877,
+        "seconds_to_reach_0.6_still": 2.3000001199543476,
+        "seconds_to_reach_0.6_walk": 1.900000099092722,
+        "strength_seconds_to_reach_0.6_crouch_still": 2.5101280510425568,
+        "strength_seconds_to_reach_0.6_crouch_walk": 1.6748085767030716,
+        "strength_seconds_to_reach_0.6_run": 0.7004618346691132,
+        "strength_seconds_to_reach_0.6_still": 1.4396524466574192,
+        "strength_seconds_to_reach_0.6_walk": 1.0120452158153057
+      },
+      "name": "sense_sight_motion",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 24.60000128298998,
+      "tier": "sense"
+    },
+    {
+      "metrics": {
+        "seconds_to_identify_total": 0.40000002086162567,
+        "seconds_to_notice": 1.0000000521540642,
+        "seconds_to_suspect_total": 0.9000000469386578
+      },
+      "name": "sense_sight_identify",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 4.400000229477882,
+      "tier": "sense"
+    },
+    {
+      "metrics": {
+        "seconds_to_identify_total": 0.40000002086162567,
+        "seconds_to_notice": 1.0333333872258663,
+        "seconds_to_suspect_total": 0.9000000469386578
+      },
+      "name": "sense_sight_identify",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 4.4333335645496845,
+      "tier": "sense"
+    },
+    {
+      "metrics": {
+        "seconds_to_identify_total": 0.40000002086162567,
+        "seconds_to_notice": 1.0333333872258663,
+        "seconds_to_suspect_total": 0.9000000469386578
+      },
+      "name": "sense_sight_identify",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 4.4333335645496845,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hud_meter_npc",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 5.000000260770321,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hud_meter_npc",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 5.000000260770321,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hud_meter_npc",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 5.000000260770321,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hud_meter_legacy",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 5.000000260770321,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hud_meter_legacy",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 5.000000260770321,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hud_meter_legacy",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 5.000000260770321,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hearing_gunshot",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 12.16666730120778,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hearing_gunshot",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 12.16666730120778,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hearing_gunshot",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 12.16666730120778,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hearing_footsteps",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 7.000000365078449,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hearing_footsteps",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 7.000000365078449,
+      "tier": "sense"
+    },
+    {
+      "metrics": {},
+      "name": "sense_hearing_footsteps",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 7.000000365078449,
+      "tier": "sense"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_hidden_spot": -1.0
+      },
+      "name": "chase_escape_to_hidden_spot",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 197.9333436563611,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_hidden_spot": 28.000001460313797
+      },
+      "name": "chase_escape_to_hidden_spot",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 75.93333729356527,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_hidden_spot": -1.0
+      },
+      "name": "chase_escape_to_hidden_spot",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 196.66667692363262,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_out_of_map": 29.633334878832102,
+        "seconds_until_attack_after_returning_in_view": 0.6333333663642406
+      },
+      "name": "chase_fly_away_and_return",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 74.9000039063394,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_out_of_map": 29.93333489447832,
+        "seconds_until_attack_after_returning_in_view": 0.5333333611488342
+      },
+      "name": "chase_fly_away_and_return",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 75.13333725184202,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_out_of_map": 29.6000015437603,
+        "seconds_until_attack_after_returning_in_view": 0.6000000312924385
+      },
+      "name": "chase_fly_away_and_return",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 74.8666705712676,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_flying_up": 19.566667687147856
+      },
+      "name": "chase_fly_straight_up",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 49.60000258684158,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_flying_up": 22.666667848825455
+      },
+      "name": "chase_fly_straight_up",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 52.70000274851918,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_flying_up": 22.833334524184465
+      },
+      "name": "chase_fly_straight_up",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 52.86666942387819,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_run_away": 28.566668156534433
+      },
+      "name": "chase_run_away",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 50.233335953205824,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_run_away": -1.0
+      },
+      "name": "chase_run_away",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 171.3000089339912,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_run_away": -1.0
+      },
+      "name": "chase_run_away",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 171.80000896006823,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_far_noise": 29.93333489447832
+      },
+      "name": "chase_noise_far_away",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 37.60000196099281,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_far_noise": 29.90000155940652
+      },
+      "name": "chase_noise_far_away",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 37.56666862592101,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "seconds_from_last_evidence_to_fight_over_far_noise": 29.90000155940652
+      },
+      "name": "chase_noise_far_away",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 37.56666862592101,
+      "tier": "chase"
+    },
+    {
+      "metrics": {
+        "closest_guard_to_puppet_m": 0.525506317615509,
+        "closest_to_puppet_while_stacked_m": 27.18326187133789,
+        "first_breach_seconds": 25.200001314282417,
+        "first_flank_order_seconds": 0.7333333715796471,
+        "flankers_breached": 2.0,
+        "flankers_ordered": 7.0,
+        "flankers_stacked": 1.0,
+        "longest_flanker_standing_before_breach_seconds": 2.3333334550261497,
+        "longest_stall_while_moving_lane_seconds": 0.06666667014360428,
+        "longest_wait_in_stack_seconds": 0.30000001564621925
+      },
+      "name": "squad_flankers_do_not_stall",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 60.866669841110706,
+      "tier": "squad"
+    },
+    {
+      "metrics": {
+        "closest_guard_to_puppet_m": 0.6317910552024841,
+        "closest_to_puppet_while_stacked_m": -1.0,
+        "first_breach_seconds": 5.100000265985727,
+        "first_flank_order_seconds": 0.03333333507180214,
+        "flankers_breached": 5.0,
+        "flankers_ordered": 8.0,
+        "flankers_stacked": 0.0,
+        "longest_flanker_standing_before_breach_seconds": 2.366666790097952,
+        "longest_stall_while_moving_lane_seconds": 0.10000000521540642,
+        "longest_wait_in_stack_seconds": 0.0
+      },
+      "name": "squad_flankers_do_not_stall",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 55.33333621919155,
+      "tier": "squad"
+    },
+    {
+      "metrics": {
+        "closest_guard_to_puppet_m": 0.011283216997981071,
+        "closest_to_puppet_while_stacked_m": 28.15717315673828,
+        "first_breach_seconds": 0.20000001043081284,
+        "first_flank_order_seconds": 0.03333333507180214,
+        "flankers_breached": 5.0,
+        "flankers_ordered": 8.0,
+        "flankers_stacked": 1.0,
+        "longest_flanker_standing_before_breach_seconds": 2.1000001095235348,
+        "longest_stall_while_moving_lane_seconds": 0.0,
+        "longest_wait_in_stack_seconds": 0.06666667014360428
+      },
+      "name": "squad_flankers_do_not_stall",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 55.26666954904795,
+      "tier": "squad"
+    },
+    {
+      "metrics": {
+        "closest_guard_to_puppet_m": 1.3239777088165283,
+        "closest_to_puppet_while_stacked_m": 28.90691375732422,
+        "first_breach_seconds": 18.83333431556821,
+        "first_flank_order_seconds": 2.200000114738941,
+        "flankers_breached": 1.0,
+        "flankers_ordered": 2.0,
+        "flankers_stacked": 1.0,
+        "longest_flanker_standing_before_breach_seconds": 0.20000001043081284,
+        "longest_stall_while_moving_lane_seconds": 0.20000001043081284,
+        "longest_wait_in_stack_seconds": 0.1666666753590107
+      },
+      "name": "squad_two_guards_flank",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 53.56666946038604,
+      "tier": "squad"
+    },
+    {
+      "metrics": {
+        "closest_guard_to_puppet_m": 0.6456074714660645,
+        "closest_to_puppet_while_stacked_m": -1.0,
+        "first_breach_seconds": 10.233333867043257,
+        "first_flank_order_seconds": 2.2333334498107433,
+        "flankers_breached": 1.0,
+        "flankers_ordered": 2.0,
+        "flankers_stacked": 0.0,
+        "longest_flanker_standing_before_breach_seconds": 0.0,
+        "longest_stall_while_moving_lane_seconds": 0.0,
+        "longest_wait_in_stack_seconds": 0.0
+      },
+      "name": "squad_two_guards_flank",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 53.56666946038604,
+      "tier": "squad"
+    },
+    {
+      "metrics": {
+        "closest_guard_to_puppet_m": 0.6127133965492249,
+        "closest_to_puppet_while_stacked_m": -1.0,
+        "first_breach_seconds": 6.166666988283396,
+        "first_flank_order_seconds": 2.2666667848825455,
+        "flankers_breached": 2.0,
+        "flankers_ordered": 2.0,
+        "flankers_stacked": 0.0,
+        "longest_flanker_standing_before_breach_seconds": 0.0,
+        "longest_stall_while_moving_lane_seconds": 0.0,
+        "longest_wait_in_stack_seconds": 0.0
+      },
+      "name": "squad_two_guards_flank",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 53.56666946038604,
+      "tier": "squad"
+    },
+    {
+      "metrics": {
+        "seconds_to_reach_the_post": 3.7333335280418396
+      },
+      "name": "stealth_routine_post",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 15.233334127813578,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "seconds_to_reach_the_post": 3.7333335280418396
+      },
+      "name": "stealth_routine_post",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 15.233334127813578,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "seconds_to_reach_the_post": 3.7333335280418396
+      },
+      "name": "stealth_routine_post",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 15.233334127813578,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "leg_1_seconds": 4.800000250339508,
+        "leg_2_seconds": 5.366666946560144,
+        "leg_3_seconds": 6.000000312924385,
+        "leg_4_seconds": 5.166666936129332,
+        "leg_5_seconds": 5.333333611488342,
+        "leg_6_seconds": 5.900000307708979
+      },
+      "name": "stealth_routine_patrol",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 32.60000170022249,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "leg_1_seconds": 4.800000250339508,
+        "leg_2_seconds": 5.333333611488342,
+        "leg_3_seconds": 6.000000312924385,
+        "leg_4_seconds": 5.266666941344738,
+        "leg_5_seconds": 5.433333616703749,
+        "leg_6_seconds": 6.133333653211594
+      },
+      "name": "stealth_routine_patrol",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 33.00000172108412,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "leg_1_seconds": 4.800000250339508,
+        "leg_2_seconds": 5.366666946560144,
+        "leg_3_seconds": 6.000000312924385,
+        "leg_4_seconds": 5.266666941344738,
+        "leg_5_seconds": 5.333333611488342,
+        "leg_6_seconds": 5.933333642780781
+      },
+      "name": "stealth_routine_patrol",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 32.7333350405097,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "investigation_walk_speed": 2.1966934204101563,
+        "look_around_seconds": 3.0333334915339947,
+        "seconds_from_noise_to_first_step": 0.5000000260770321
+      },
+      "name": "stealth_investigate_noise",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 10.500000547617674,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "investigation_walk_speed": 2.19926118850708,
+        "look_around_seconds": 3.0333334915339947,
+        "seconds_from_noise_to_first_step": 0.5000000260770321
+      },
+      "name": "stealth_investigate_noise",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 11.733333945274353,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "investigation_walk_speed": 2.19926118850708,
+        "look_around_seconds": 3.0333334915339947,
+        "seconds_from_noise_to_first_step": 0.5000000260770321
+      },
+      "name": "stealth_investigate_noise",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 11.733333945274353,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "seconds_alarmed": 8.400000438094139,
+        "seconds_from_shot_to_alarmed": 0.0,
+        "seconds_wary_to_calm": 60.00000312924385,
+        "seconds_wary_to_calm_after_the_search": 60.00000312924385
+      },
+      "name": "stealth_alert_cycle",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 139.96667396649718,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "seconds_alarmed": 8.833333794027567,
+        "seconds_from_shot_to_alarmed": 0.0,
+        "seconds_wary_to_calm": 60.00000312924385,
+        "seconds_wary_to_calm_after_the_search": 60.00000312924385
+      },
+      "name": "stealth_alert_cycle",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 140.4000073224306,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "seconds_alarmed": 8.400000438094139,
+        "seconds_from_shot_to_alarmed": 0.0,
+        "seconds_wary_to_calm": 60.00000312924385,
+        "seconds_wary_to_calm_after_the_search": 60.00000312924385
+      },
+      "name": "stealth_alert_cycle",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 139.96667396649718,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {},
+      "name": "stealth_save_load_mid_investigation",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 13.333334028720856,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {},
+      "name": "stealth_save_load_mid_investigation",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 14.533334091305733,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {},
+      "name": "stealth_save_load_mid_investigation",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 14.533334091305733,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "highest_meter_behind_the_guard": 0.22386202216148376
+      },
+      "name": "stealth_w1_crouch_behind_patrol",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 9.03333380445838,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "highest_meter_behind_the_guard": 0.23506203293800354
+      },
+      "name": "stealth_w1_crouch_behind_patrol",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 9.166667144745588,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "highest_meter_behind_the_guard": 0.22386202216148376
+      },
+      "name": "stealth_w1_crouch_behind_patrol",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 9.000000469386578,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {},
+      "name": "stealth_w2_spotted_then_gone",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 31.200001627206802,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {},
+      "name": "stealth_w2_spotted_then_gone",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 31.266668297350407,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {},
+      "name": "stealth_w2_spotted_then_gone",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 31.266668297350407,
+      "tier": "stealth"
+    },
+    {
+      "metrics": {
+        "seconds_to_hear_the_shout": 0.46666669100522995
+      },
+      "name": "social_shout_reaches_range",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 3.4666668474674225,
+      "tier": "social"
+    },
+    {
+      "metrics": {
+        "seconds_to_hear_the_shout": 0.46666669100522995
+      },
+      "name": "social_shout_reaches_range",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 3.4666668474674225,
+      "tier": "social"
+    },
+    {
+      "metrics": {
+        "seconds_to_hear_the_shout": 0.46666669100522995
+      },
+      "name": "social_shout_reaches_range",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 3.4666668474674225,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_dead_shouter",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 4.400000229477882,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_dead_shouter",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 4.400000229477882,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_dead_shouter",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 4.400000229477882,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_destroyed_shouter",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 4.400000229477882,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_destroyed_shouter",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 4.400000229477882,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_destroyed_shouter",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 4.400000229477882,
+      "tier": "social"
+    },
+    {
+      "metrics": {
+        "seconds_to_hear_the_radio": 1.0666667222976685,
+        "seconds_to_hear_the_report": 2.0666667744517326
+      },
+      "name": "social_message_kinds",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 8.133333757519722,
+      "tier": "social"
+    },
+    {
+      "metrics": {
+        "seconds_to_hear_the_radio": 1.0666667222976685,
+        "seconds_to_hear_the_report": 2.0666667744517326
+      },
+      "name": "social_message_kinds",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 8.133333757519722,
+      "tier": "social"
+    },
+    {
+      "metrics": {
+        "seconds_to_hear_the_radio": 1.0666667222976685,
+        "seconds_to_hear_the_report": 2.0666667744517326
+      },
+      "name": "social_message_kinds",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 8.133333757519722,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_investigate_roles",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 7.566667061299086,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_investigate_roles",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 7.566667061299086,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_investigate_roles",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 7.566667061299086,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_search_roles",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 3.7666668631136417,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_search_roles",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 3.7666668631136417,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_search_roles",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 3.7666668631136417,
+      "tier": "social"
+    },
+    {
+      "metrics": {
+        "seconds_lost_to_give_up": 4.566666904836893
+      },
+      "name": "social_lost_target_chase_search",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 18.600000970065594,
+      "tier": "social"
+    },
+    {
+      "metrics": {
+        "seconds_lost_to_give_up": 4.700000245124102
+      },
+      "name": "social_lost_target_chase_search",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 18.933334320783615,
+      "tier": "social"
+    },
+    {
+      "metrics": {
+        "seconds_lost_to_give_up": 4.633333574980497
+      },
+      "name": "social_lost_target_chase_search",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 18.666667640209198,
+      "tier": "social"
+    },
+    {
+      "metrics": {
+        "gaze_on_frontier": 1.0
+      },
+      "name": "social_search_gaze",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 7.7666670717298985,
+      "tier": "social"
+    },
+    {
+      "metrics": {
+        "gaze_on_frontier": 1.0
+      },
+      "name": "social_search_gaze",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 7.7666670717298985,
+      "tier": "social"
+    },
+    {
+      "metrics": {
+        "gaze_on_frontier": 1.0
+      },
+      "name": "social_search_gaze",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 10.500000547617674,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_search_no_leak",
+      "note": "",
+      "outcome": "passed",
+      "run": 1,
+      "simulatedSeconds": 11.433333929628134,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_search_no_leak",
+      "note": "",
+      "outcome": "passed",
+      "run": 2,
+      "simulatedSeconds": 11.83333395048976,
+      "tier": "social"
+    },
+    {
+      "metrics": {},
+      "name": "social_search_no_leak",
+      "note": "",
+      "outcome": "passed",
+      "run": 3,
+      "simulatedSeconds": 11.633333940058947,
+      "tier": "social"
+    }
+  ]
+}

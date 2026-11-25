@@ -3,6 +3,7 @@
 #include <Physics.h>
 #include <Entity.h>
 #include <Network/NetworkedEntity.h>
+#include "../Npc/WatchedObject.h"
 
 class PickupBase : public NetworkedEntity
 {
@@ -26,6 +27,10 @@ public:
 	void Start();
 
 	Body* triggerBody = nullptr;
+
+	// NPCs notice an item that is gone from where it lay.
+	WatchedObject watched;
+	void Update() override;
 
 	void OnBodyEntered(Body* body, Entity* entity) override;
 

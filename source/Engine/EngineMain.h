@@ -14,6 +14,7 @@
 #include "ThreadPool.h"
 
 #include <thread>
+#include <functional>
 
 #include "ImGuiEngineImpl.h"
 
@@ -29,11 +30,37 @@
 
 class EngineMain
 {
+
+public: 
+
+    using AdditionalMouseDeltaCallback = std::function<glm::vec2()>;
+
+
 private:
 
-
+    AdditionalMouseDeltaCallback m_AdditionalMouseDeltaCallback;
 
 public:
+
+    void SetAdditionalMouseDeltaCallback(AdditionalMouseDeltaCallback callback)
+    {
+        m_AdditionalMouseDeltaCallback = std::move(callback);
+    }
+
+    glm::vec2 PullAdditionalMouseDelta()
+    {
+        if (!m_AdditionalMouseDeltaCallback)
+            return glm::vec2(0.0f);
+
+        glm::vec2 delta = m_AdditionalMouseDeltaCallback();
+
+        delta = delta / 5.0f * Input::sensitivity * -1.0f;
+
+        if (Input::FlipMouseY)
+            delta.y *= -1.0f;
+
+        return delta;
+    }
 
     GameSaveData pendingRestoreSaveData;// for platforms like android we just save and reload game when minimized
 
@@ -58,6 +85,13 @@ public:
     unsigned long frame = 0;
 
 	bool SimulatingGameTicks = false;
+
+	// A game can take over the per-frame game update (automated tests step the simulation themselves, several times a
+	// frame). Called once per main-loop frame before GameUpdate; return true when it did the stepping, and the
+	// normal GameUpdate / FinishFrame of this frame are skipped. Rendering still runs.
+	std::function<bool()> FrameHook;
+	void RunGameStep() { GameUpdate(); }
+	void RunFinishFrame() { FinishFrame(); }
     bool SimulatingPreciseGameTicks = false;
 
 	float UiResolutionScale = 1.f;
