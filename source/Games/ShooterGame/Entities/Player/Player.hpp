@@ -546,6 +546,10 @@ public:
 
 	float RunProgress = 0;
 
+	// This frame's movement input: x right, y forward, each -1..1 (keys, stick and touch joystick; zero when dead). Weapons
+	// read it for what the player is steering towards (the sword picks its attack direction from it).
+	vec2 moveInput = vec2(0);
+
 	bool ThirdPersonView = false;
 
 	bool started = false;

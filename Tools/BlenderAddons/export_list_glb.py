@@ -9,6 +9,15 @@ bl_info = {
     "category": "Import-Export",
 }
 
+import argparse
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+
 import bpy
 from fnmatch import fnmatchcase
 from bpy.props import (BoolProperty, CollectionProperty, IntProperty, PointerProperty, StringProperty)
@@ -39,6 +48,7 @@ class ELG_Settings(PropertyGroup):
         description="Same as 'Use Deform Bones' in the glTF exporter (Data > Armature)")
     export_animations: BoolProperty(
         name="Animations", default=False, description="Also export the armature's actions")
+
 
 
 # --------------------------------------------------------------------------------------------- helpers
@@ -140,11 +150,166 @@ def _select_for_export(context, ob, unhidden, skipped):
     return True
 
 
+# --------------------------------------------------------------------------------------------- baked export
+# Some files animate a control rig ("ArmsCtrl") whose pose the exported skeleton ("root") only follows through constraints.
+# The glTF exporter applies an action to the skeleton itself and cannot follow that, so every clip would come out in the pose
+# the control rig happens to have. With Animations on and that rig in the file, the clips are baked onto the skeleton first,
+# in a background Blender working on a temporary copy of the open file (this same script is run there, see bake_worker).
+CONTROL_RIG = "ArmsCtrl"                                   # the object the actions are keyed on
+EXPORT_RIG = "root"                                        # the skeleton that is exported and follows it
+LOCATION_BONES = {"clavicle_l", "clavicle_r", "upperarm_l", "upperarm_r", "weapon"}   # bones whose location is baked, too
+WORKER_FLAG = "--elg-bake-worker"
+
+
+def reset_controls(ctrl):
+    """Every pose bone of the armature back to its rest transform. A clip only keys the controls it moves: whatever it does not key keeps the
+    value the clip evaluated before left there, so the baked pose would depend on the order the clips are baked in."""
+    for pb in ctrl.pose.bones:
+        pb.location = (0.0, 0.0, 0.0)
+        pb.rotation_quaternion = (1.0, 0.0, 0.0, 0.0)
+        pb.rotation_euler = (0.0, 0.0, 0.0)
+        pb.scale = (1.0, 1.0, 1.0)
+
+
+def bake_action(action, ctrl, manny):
+    """The action of the control rig as a new action on the skeleton: what Blender shows of the skeleton for each frame."""
+    from bpy_extras import anim_utils
+    driven = {b.name[4:] for b in ctrl.data.bones if b.name.startswith("MCH-")}
+    if "weapon.R" in ctrl.data.bones and "weapon" in manny.data.bones:
+        driven.add("weapon")
+    reset_controls(ctrl)
+    reset_controls(manny)               # the skeleton keeps the last pose of the previous bake, and its constraints let it leak in
+    for pb in manny.pose.bones:
+        pb.select = pb.name in driven
+    ctrl["Manny_Follow"] = 1.0
+    ctrl.animation_data.action = action
+    ctrl.animation_data.action_slot = action.slots[0]
+    manny.animation_data_create()
+    manny.animation_data.action = None
+    bpy.context.view_layer.update()
+    start, end = (int(v) for v in action.frame_range)
+    opts = anim_utils.BakeOptions(only_selected=True, do_pose=True, do_object=False, do_visual_keying=True,
+                                  do_constraint_clear=False, do_parents_clear=False, do_clean=False,
+                                  do_location=True, do_rotation=True, do_scale=False, do_bbone=False, do_custom_props=False)
+    baked = anim_utils.bake_action(manny, action=None, frames=range(start, end + 1), bake_options=opts)
+    baked.name = f"{action.name}_manny"
+    baked.use_fake_user = True
+    for layer in baked.layers:                              # location only where bones really move (bone lengths never change)
+        for strip in layer.strips:
+            for bag in strip.channelbags:
+                for fc in [f for f in bag.fcurves if f.data_path.endswith(".location")]:
+                    if fc.data_path.split('"')[1] not in LOCATION_BONES:
+                        bag.fcurves.remove(fc)
+    baked.use_frame_range = True
+    baked.frame_start, baked.frame_end = start, end
+    baked.use_cyclic = action.use_cyclic
+    return baked
+
+
+def bake_worker():
+    """Runs in the background Blender on the temporary copy: bakes every control rig action onto the skeleton and writes
+    the glb. The copy is thrown away afterwards, nothing is saved."""
+    argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+    p = argparse.ArgumentParser()
+    p.add_argument(WORKER_FLAG, action="store_true")
+    p.add_argument("--out", required=True)
+    p.add_argument("--objects", required=True, help="comma separated objects written to the glb")
+    a = p.parse_args(argv)
+
+    ctrl, manny = bpy.data.objects[CONTROL_RIG], bpy.data.objects[EXPORT_RIG]
+    export_objects = [bpy.data.objects[n] for n in a.objects.split(",") if n]
+    ctrl.animation_data_create()
+    todo = [x for x in bpy.data.actions if x.slots
+            and any(sl.target_id_type == "OBJECT" and sl.name_display == CONTROL_RIG for sl in x.slots)]
+    if not todo:
+        raise SystemExit("no action of the control rig")
+    for act in todo:
+        if act.frame_range[1] <= act.frame_range[0]:        # a held pose is one key: give it a second frame so the clip has a length
+            act.use_frame_range = True
+            act.frame_end = act.frame_start + 1
+        elif act.use_cyclic and act.frame_range[1] - act.frame_range[0] > 2:
+            act.use_frame_range = True                      # a loop ends on its first pose: the game loops it, so that
+            act.frame_end -= 1                              # frame would be shown twice
+    baked = {}
+    for n, act in enumerate(todo):
+        baked[act.name] = bake_action(act, ctrl, manny)
+        print(f"[{n + 1}/{len(todo)}] baked {act.name}", flush=True)
+    ctrl.animation_data.action = None
+    ctrl["Manny_Follow"] = 0.0
+    for name, act in baked.items():                 # the exporter names an animation after its action: free the plain names
+        bpy.data.actions.remove(bpy.data.actions[name])
+        act.name = name
+    for act in list(bpy.data.actions):              # only the baked actions are written
+        if act.name not in baked:
+            bpy.data.actions.remove(act)
+    for pb in manny.pose.bones:                     # a channel the actions do not key is written from the bone's current pose: rest
+        pb.location = (0.0, 0.0, 0.0)
+        pb.rotation_quaternion = (1.0, 0.0, 0.0, 0.0)
+        pb.rotation_euler = (0.0, 0.0, 0.0)
+        pb.scale = (1.0, 1.0, 1.0)
+    manny.animation_data_create()
+    manny.animation_data.action = None
+    for ob in export_objects:
+        ob.hide_set(False)
+        ob.hide_viewport = False
+    for ob in bpy.context.view_layer.objects:
+        ob.select_set(False)
+    for ob in export_objects:
+        ob.select_set(True)
+    bpy.context.view_layer.objects.active = manny
+    bpy.ops.export_scene.gltf(filepath=a.out, export_format="GLB", use_selection=True, export_animations=True,
+                              export_animation_mode="ACTIONS", export_force_sampling=True, export_frame_range=False,
+                              export_anim_slide_to_zero=True, export_apply=False, export_skins=True, export_yup=True)
+    print("exported", a.out, "with", len(baked), "animations")
+
+
+def uses_control_rig(st, objs):
+    """True when the actions must be baked from the control rig before they can be exported"""
+    rig = bpy.data.objects.get(CONTROL_RIG)
+    return bool(st.export_animations and rig is not None and rig.type == 'ARMATURE'
+                and rig not in objs)
+
+
+def export_baked(context, st, objs, report):
+    """Hand a temporary copy of the open file to a background Blender that bakes every control rig action onto the
+    exported skeleton and writes the glb. The open file, its pose, its actions and its selection stay as they are."""
+    if _split(st.exclude_names) or _split(st.exclude_collections) or st.deform_bones_only:
+        raise RuntimeError("Excluded bones / Deform Bones Only cannot be combined with the baked animation export "
+                           "(clear them to export with animations)")
+    path = bpy.path.abspath(st.filepath)
+    if not path.lower().endswith(".glb"):
+        path += ".glb"
+    if context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+    tmp = tempfile.mkdtemp(prefix="elg_bake_")
+    try:
+        copy = os.path.join(tmp, "copy.blend")
+        bpy.ops.wm.save_as_mainfile(filepath=copy, copy=True, compress=False)
+        out = os.path.join(tmp, "out.glb")                 # written next to the copy first: a failed run never touches the real glb
+        cmd = [bpy.app.binary_path, "-b", copy, "--python", os.path.abspath(__file__), "--", WORKER_FLAG, "--out", out,
+               "--objects", ",".join(o.name for o in objs)]
+        report({'INFO'}, "Baking control rig actions in a background Blender, please wait ...")
+        t0 = time.time()
+        run = subprocess.run(cmd, capture_output=True, text=True)
+        log = (run.stdout + "\n" + run.stderr).strip().splitlines()
+        if run.returncode != 0 or not os.path.isfile(out):
+            raise RuntimeError("Baked export failed: " + " | ".join(log[-6:]))
+        done = [l for l in log if l.startswith("exported ")]
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        shutil.copyfile(out, path)
+        report({'INFO'}, f"Exported {len(objs)} objects to {path} ({done[-1] if done else 'baked'}, {time.time() - t0:.0f} s)")
+        return path
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 # --------------------------------------------------------------------------------------------- export
 def do_export(context, st, report):
     objs = list(dict.fromkeys(i.obj for i in st.items if i.obj))
     if not objs:
         raise RuntimeError("Export list is empty")
+    if uses_control_rig(st, objs):
+        return export_baked(context, st, objs, report)
     names, cols = _split(st.exclude_names), _split(st.exclude_collections)
 
     # ---- decide what really has to be touched. Everything else is exported as the ORIGINAL object, so
@@ -367,6 +532,9 @@ class ELG_PT_panel(Panel):
         col.operator("export_list_glb.clear", icon='TRASH', text="")
         lay.prop(st, "bake_shape_keys")
         lay.prop(st, "export_animations")
+        if st.export_animations and bpy.data.objects.get(CONTROL_RIG):
+            sub = lay.column(align=True)
+            sub.label(text="Control rig actions are baked (about 20 s)", icon='INFO')
         lay.prop(st, "deform_bones_only")
         box = lay.box()
         box.label(text="Bones left out of the skeleton:")
@@ -393,4 +561,7 @@ def unregister():
 
 
 if __name__ == "__main__":
-    register()
+    if WORKER_FLAG in sys.argv:
+        bake_worker()
+    else:
+        register()

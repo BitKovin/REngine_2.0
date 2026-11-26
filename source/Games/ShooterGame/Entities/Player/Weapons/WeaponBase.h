@@ -152,6 +152,13 @@ public:
 		return false;
 	}
 
+	// True for a weapon whose viewmodel clips already carry the body's locomotion (idle, walk, run, jump). The player then
+	// leaves the sprint pose (run tilt, hide rotation and offset) off this weapon, and the weapon sets bobScale itself.
+	virtual bool HasOwnLocomotion() const
+	{
+		return false;
+	}
+
 	// Whether this weapon can block or parry at all (not whether it is doing so
 	// right now: that is Blocking / Parrying). NPCs fight an opponent holding such
 	// a weapon more carefully.

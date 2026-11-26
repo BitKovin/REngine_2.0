@@ -2340,7 +2340,10 @@ void Player::UpdateWeapon()
 
 	vec3 currentWeaponSlideRotation = lerp(vec3(), weaponSlideRotation, slideInterp);
 
-	vec3 currentWeaponRunRotation = lerp(currentWeaponSlideRotation, weaponRunRotation, RunProgress);
+	// A weapon with its own run clips (HasOwnLocomotion) is not tilted and lowered by the sprint pose of the others
+	const float mainRunProgress = (currentWeapon != nullptr && currentWeapon->HasOwnLocomotion()) ? 0.0f : RunProgress;
+
+	vec3 currentWeaponRunRotation = lerp(currentWeaponSlideRotation, weaponRunRotation, mainRunProgress);
 
 	vec3 rotatedWeaponPos = MathHelper::RotateAroundPoint(relativeWeaponPos, runRotatePoint, currentWeaponRunRotation);
 
@@ -2349,11 +2352,11 @@ void Player::UpdateWeapon()
 
 	vec3 runHideRotation = vec3(glm::mix(0.0f, 20.0f, RunProgress), 0, 0);
 
-	glm::quat qRunHide = MathHelper::GetRotationQuaternion(runHideRotation);
+	glm::quat qRunHide = MathHelper::GetRotationQuaternion(vec3(glm::mix(0.0f, 20.0f, mainRunProgress), 0, 0));
 
 	glm::quat qResult = qCurrent * qRunHide * qAdd;
 
-	rotatedWeaponPos -= mix(vec3(), vec3(-0.05f, 0.02, 0.05), RunProgress);
+	rotatedWeaponPos -= mix(vec3(), vec3(-0.05f, 0.02, 0.05), mainRunProgress);
 
 	rotatedWeaponPos -= mix(vec3(), vec3(0, 0.025, 0), slideInterp);
 
@@ -2818,6 +2821,8 @@ void Player::Update()
 	{
 		input = vec2(0);
 	}
+
+	moveInput = input;
 
 	if (canRun)
 	{
