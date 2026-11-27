@@ -60,6 +60,12 @@ namespace bx
 	/// Reinterpret data.
 	BX_DECLARE_TAG(Reinterpret);
 
+	/// Copy tag.
+	BX_DECLARE_TAG(Copy);
+
+	/// Unchecked tag, caller guarantees preconditions and treats failure as fatal.
+	BX_DECLARE_TAG(Unchecked);
+
 	/// Source location with file path, and file line.
 	///
 	struct Location
@@ -220,6 +226,7 @@ namespace bx
 
 	/// Swap two values.
 	template<typename Ty>
+	requires (isMoveConstructible<Ty>() && isMoveAssignable<Ty>() )
 	void swap(Ty& _a, Ty& _b);
 
 	/// Swap memory.
@@ -271,6 +278,17 @@ namespace bx
 	/// Returns a value of type `Ty` by reinterpreting the object representation of `FromT`.
 	template <typename Ty, typename FromT>
 	constexpr Ty bitCast(const FromT& _from);
+
+	/// Returns `_a` unchanged, hidden from the optimizer, so the operation producing it is not
+	/// combined with the one consuming it, e.g. a multiply and an add fused into a multiply-add.
+	/// No instruction for values in registers; classes and unions go through memory.
+	///
+	/// @param[in] _a Value.
+	///
+	/// @returns `_a`.
+	///
+	template<typename Ty>
+	Ty compilerHideValue(Ty _a);
 
 	/// Performs `static_cast` of value `_from`, and if value doesn't fit result type `Ty` it clamps
 	/// the value to `Ty` min/max.
@@ -487,6 +505,30 @@ namespace bx
 	BX_CONSTEXPR_FUNC const Ty* alignUp(const Ty* _ptr, size_t _align);
 
 } // namespace bx
+
+/// Converts KiB to bytes.
+///
+/// @param[in] _size Size in KiB.
+///
+/// @returns Size in bytes. Compile error when it doesn't fit `size_t`.
+///
+consteval size_t operator""_KiB(unsigned long long _size);
+
+/// Converts MiB to bytes.
+///
+/// @param[in] _size Size in MiB.
+///
+/// @returns Size in bytes. Compile error when it doesn't fit `size_t`.
+///
+consteval size_t operator""_MiB(unsigned long long _size);
+
+/// Converts GiB to bytes.
+///
+/// @param[in] _size Size in GiB.
+///
+/// @returns Size in bytes. Compile error when it doesn't fit `size_t`.
+///
+consteval size_t operator""_GiB(unsigned long long _size);
 
 #include "inline/bx.inl"
 

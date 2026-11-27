@@ -230,6 +230,11 @@ extern "C" void* __cdecl _alloca(size_t _size);
 	public: void* operator new[](size_t _size); \
 	public: void  operator delete[](void* _ptr)
 
+/// Objects of the class can move to another address with a memory copy, see
+/// `bx::isTriviallyRelocatable`.
+#define BX_CLASS_TRIVIALLY_RELOCATABLE(_class) \
+	public: using TriviallyRelocatable [[maybe_unused]] = _class
+
 #define BX_CLASS_1(_class, _a1) BX_CONCATENATE(BX_CLASS_, _a1)(_class)
 #define BX_CLASS_2(_class, _a1, _a2) BX_CLASS_1(_class, _a1); BX_CLASS_1(_class, _a2)
 #define BX_CLASS_3(_class, _a1, _a2, _a3) BX_CLASS_2(_class, _a1, _a2); BX_CLASS_1(_class, _a3)
@@ -286,18 +291,18 @@ extern "C" void* __cdecl _alloca(size_t _size);
 
 #define _BX_TRACE(_format, ...)                                                                    \
 	BX_MACRO_BLOCK_BEGIN                                                                           \
-		bx::debugPrintf(__FILE__ "(" BX_STRINGIZE(__LINE__) "): BX " _format "\n", ##__VA_ARGS__); \
+		bx::debugPrintf(__FILE__ "(" BX_STRINGIZE(__LINE__) "): BX " _format "\n" __VA_OPT__(,) __VA_ARGS__); \
 	BX_MACRO_BLOCK_END
 
 #define _BX_TRACE_LOC(_location, _format, ...)                                                          \
 	BX_MACRO_BLOCK_BEGIN                                                                                \
-		bx::debugPrintf("%s(%d): BX " _format "\n", _location.filePath, _location.line, ##__VA_ARGS__); \
+		bx::debugPrintf("%s(%d): BX " _format "\n", _location.filePath, _location.line __VA_OPT__(,) __VA_ARGS__); \
 	BX_MACRO_BLOCK_END
 
 #define _BX_ASSERT(_condition, _format, ...)                                                                      \
 	BX_MACRO_BLOCK_BEGIN                                                                                          \
 		if (!BX_IGNORE_C4127(_condition)                                                                          \
-		&&  bx::assertFunction(bx::Location::current(), 0, "ASSERT %s -> " _format, #_condition, ##__VA_ARGS__) ) \
+		&&  bx::assertFunction(bx::Location::current(), 0, "ASSERT %s -> " _format, #_condition __VA_OPT__(,) __VA_ARGS__) ) \
 		{                                                                                                         \
 			bx::debugBreak();                                                                                     \
 		}                                                                                                         \
@@ -306,7 +311,7 @@ extern "C" void* __cdecl _alloca(size_t _size);
 #define _BX_ASSERT_LOC(_location, _condition, _format, ...)                                          \
 	BX_MACRO_BLOCK_BEGIN                                                                             \
 		if  (!BX_IGNORE_C4127(_condition)                                                            \
-		&&   bx::assertFunction(_location, 0, "ASSERT %s -> " _format, #_condition, ##__VA_ARGS__) ) \
+		&&   bx::assertFunction(_location, 0, "ASSERT %s -> " _format, #_condition __VA_OPT__(,) __VA_ARGS__) ) \
 		{                                                                                            \
 			bx::debugBreak();                                                                        \
 		}                                                                                            \
@@ -316,7 +321,7 @@ extern "C" void* __cdecl _alloca(size_t _size);
 	BX_MACRO_BLOCK_BEGIN                              \
 		if (!BX_IGNORE_C4127(_condition) )            \
 		{                                             \
-			BX_TRACE("WARN " _format, ##__VA_ARGS__); \
+			BX_TRACE("WARN " _format __VA_OPT__(,) __VA_ARGS__); \
 		}                                             \
 	BX_MACRO_BLOCK_END
 
@@ -324,7 +329,7 @@ extern "C" void* __cdecl _alloca(size_t _size);
 	BX_MACRO_BLOCK_BEGIN                                              \
 		if (!BX_IGNORE_C4127(_condition) )                            \
 		{                                                             \
-			_BX_TRACE_LOC(_location, "WARN " _format, ##__VA_ARGS__); \
+			_BX_TRACE_LOC(_location, "WARN " _format __VA_OPT__(,) __VA_ARGS__); \
 		}                                                             \
 	BX_MACRO_BLOCK_END
 

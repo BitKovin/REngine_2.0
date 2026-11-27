@@ -15,7 +15,7 @@
 #ifndef BGFX_DEFINES_H_HEADER_GUARD
 #define BGFX_DEFINES_H_HEADER_GUARD
 
-#define BGFX_API_VERSION UINT32_C(167)
+#define BGFX_API_VERSION UINT32_C(172)
 
 /**
  * Color RGB/alpha/depth write. When it's not specified write will be disabled.
@@ -272,6 +272,28 @@
 #define BGFX_DEBUG_STATS                          UINT32_C(0x00000004) //!< Enable statistics display.
 #define BGFX_DEBUG_TEXT                           UINT32_C(0x00000008) //!< Enable debug text display.
 #define BGFX_DEBUG_PROFILER                       UINT32_C(0x00000010) //!< Enable profiler. This causes per-view statistics to be collected, available through `bgfx::Stats::ViewStats`. This is unrelated to the profiler functions in `bgfx::CallbackI`.
+
+#define BGFX_DIAGNOSTIC_NONE                      UINT32_C(0x00000000) //!< No diagnostics.
+
+/// Report informational debug layer messages, not only warnings and errors.
+/// Requires `Init::debug`.
+#define BGFX_DIAGNOSTIC_VERBOSE                   UINT32_C(0x00000001)
+
+/// Enable GPU-based validation (D3D12 GPU-based validation, Vulkan GPU-assisted
+/// validation). Requires `Init::debug`.
+#define BGFX_DIAGNOSTIC_GPU_VALIDATION            UINT32_C(0x00000002)
+
+/// Enable queue synchronization validation (D3D12 synchronized command queue
+/// validation, Vulkan synchronization validation). Requires `Init::debug`.
+#define BGFX_DIAGNOSTIC_SYNC_VALIDATION           UINT32_C(0x00000004)
+
+/// Wait for the GPU to finish each submitted command buffer before recording
+/// the next one.
+#define BGFX_DIAGNOSTIC_SERIALIZE                 UINT32_C(0x00000008)
+
+/// Check that the type of every fragment shader output a draw call writes matches
+/// the frame buffer attachment it's written to. Requires `Init::debug`.
+#define BGFX_DIAGNOSTIC_DRAW_VALIDATION           UINT32_C(0x00000010)
 
 #define BGFX_BUFFER_NONE                          UINT16_C(0x0000)
 #define BGFX_BUFFER_COMPUTE_READ                  UINT16_C(0x0100) //!< Buffer will be read by shader.
@@ -600,10 +622,11 @@
 #define BGFX_PCI_ID_SOFTWARE_RASTERIZER           UINT16_C(0x0001) //!< Software rasterizer.
 #define BGFX_PCI_ID_AMD                           UINT16_C(0x1002) //!< AMD adapter.
 #define BGFX_PCI_ID_APPLE                         UINT16_C(0x106b) //!< Apple adapter.
-#define BGFX_PCI_ID_INTEL                         UINT16_C(0x8086) //!< Intel adapter.
-#define BGFX_PCI_ID_NVIDIA                        UINT16_C(0x10de) //!< NVIDIA adapter.
-#define BGFX_PCI_ID_MICROSOFT                     UINT16_C(0x1414) //!< Microsoft adapter.
 #define BGFX_PCI_ID_ARM                           UINT16_C(0x13b5) //!< ARM adapter.
+#define BGFX_PCI_ID_GOOGLE                        UINT16_C(0x1ae0) //!< Google adapter.
+#define BGFX_PCI_ID_INTEL                         UINT16_C(0x8086) //!< Intel adapter.
+#define BGFX_PCI_ID_MICROSOFT                     UINT16_C(0x1414) //!< Microsoft adapter.
+#define BGFX_PCI_ID_NVIDIA                        UINT16_C(0x10de) //!< NVIDIA adapter.
 
 #define BGFX_CUBE_MAP_POSITIVE_X                  UINT8_C(0x00) //!< Cubemap +x.
 #define BGFX_CUBE_MAP_NEGATIVE_X                  UINT8_C(0x01) //!< Cubemap -x.

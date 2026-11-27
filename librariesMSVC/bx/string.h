@@ -52,6 +52,10 @@ namespace bx
 		constexpr bool isEmpty() const;
 
 	private:
+		friend class Error;
+
+		constexpr StringLiteral(const char* _ptr, int32_t _len);
+
 		const char* m_ptr;
 		int32_t     m_len;
 	};
@@ -181,8 +185,6 @@ namespace bx
 		constexpr FixedStringT(const StringView& _str);
 
 		///
-		constexpr ~FixedStringT();
-
 		///
 		constexpr void set(const char* _str);
 
@@ -223,61 +225,6 @@ namespace bx
 	using FixedString64   = FixedStringT<64>;
 	using FixedString256  = FixedStringT<256>;
 	using FixedString1024 = FixedStringT<1024>;
-
-	/// Dynamic string
-	///
-	template<AllocatorI** AllocatorT>
-	class StringT
-	{
-	public:
-		///
-		StringT();
-
-		///
-		StringT(const StringT<AllocatorT>& _rhs);
-
-		///
-		StringT(const StringView& _rhs);
-
-		///
-		~StringT();
-
-		///
-		StringT<AllocatorT>& operator=(const StringT<AllocatorT>& _rhs);
-
-		///
-		void set(const StringView& _str);
-
-		///
-		void append(const StringView& _str);
-
-		///
-		void append(const char* _ptr, const char* _term);
-
-		///
-		void clear();
-
-		/// Returns `true` if string is empty.
-		///
-		bool isEmpty() const;
-
-		/// Returns string length.
-		///
-		int32_t getLength() const;
-
-		/// Returns zero-terminated C string pointer.
-		///
-		const char* getCPtr() const;
-
-		/// Implicitly converts StringT to StringView.
-		///
-		operator StringView() const;
-
-	protected:
-		const char* m_ptr;
-		int32_t     m_len;
-		int32_t     m_capacity;
-	};
 
 	typedef bool (*CharTestFn)(char _ch);
 
@@ -495,14 +442,6 @@ namespace bx
 	///
 	int32_t printf(const char* _format, ...);
 
-	/// Templatized snprintf.
-	template <typename Ty>
-	void stringPrintfVargs(Ty& _out, const char* _format, va_list _argList);
-
-	/// Templatized snprintf.
-	template <typename Ty>
-	void stringPrintf(Ty& _out, const char* _format, ...);
-
 	/// Format number to human readable representation.
 	///
 	/// @param[out] _out Output string.
@@ -562,40 +501,134 @@ namespace bx
 	/// Converts string to bool value.
 	bool fromString(bool* _out, const StringView& _str);
 
-	/// Converts string to float value.
+	/// Converts string, a number with optional white space around it, to float value:
+	/// decimal, or hexadecimal with `0x` prefix, with optional fraction and exponent.
+	///
+	/// @param[out] _out Value, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number.
+	///
 	bool fromString(float* _out, const StringView& _str);
 
-	/// Converts string to double value.
+	/// Converts string, a number with optional white space around it, to double value:
+	/// decimal, or hexadecimal with `0x` prefix, with optional fraction and exponent.
+	///
+	/// @param[out] _out Value, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number.
+	///
 	bool fromString(double* _out, const StringView& _str);
 
-	/// Converts string to 8-bit integer value.
+	/// Converts string, a number with optional white space around it, to 8-bit integer value:
+	/// decimal digits, optionally signed.
+	///
+	/// @param[out] _out Value. 0 when there's no number, clamped to the type's range when it
+	///   doesn't fit, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number, and it fits.
+	///
 	bool fromString(int8_t* _out, const StringView& _str);
 
-	/// Converts string to 8-bit unsigned integer value.
+	/// Converts string, a number with optional white space around it, to 8-bit unsigned integer value:
+	/// decimal digits, optionally signed.
+	///
+	/// @param[out] _out Value. 0 when there's no number, clamped to the type's range when it
+	///   doesn't fit, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number, and it fits, unsigned types refuse negative ones.
+	///
 	bool fromString(uint8_t* _out, const StringView& _str);
 
-	/// Converts string to 8-bit integer value.
+	/// Converts string, a number with optional white space around it, to 16-bit integer value:
+	/// decimal digits, optionally signed.
+	///
+	/// @param[out] _out Value. 0 when there's no number, clamped to the type's range when it
+	///   doesn't fit, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number, and it fits.
+	///
 	bool fromString(int16_t* _out, const StringView& _str);
 
-	/// Converts string to 8-bit unsigned integer value.
+	/// Converts string, a number with optional white space around it, to 16-bit unsigned integer value:
+	/// decimal digits, optionally signed.
+	///
+	/// @param[out] _out Value. 0 when there's no number, clamped to the type's range when it
+	///   doesn't fit, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number, and it fits, unsigned types refuse negative ones.
+	///
 	bool fromString(uint16_t* _out, const StringView& _str);
 
-	/// Converts string to 32-bit integer value.
+	/// Converts string, a number with optional white space around it, to 32-bit integer value:
+	/// decimal digits, optionally signed.
+	///
+	/// @param[out] _out Value. 0 when there's no number, clamped to the type's range when it
+	///   doesn't fit, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number, and it fits.
+	///
 	bool fromString(int32_t* _out, const StringView& _str);
 
-	/// Converts string to 32-bit unsigned integer value.
+	/// Converts string, a number with optional white space around it, to 32-bit unsigned integer value:
+	/// decimal digits, optionally signed.
+	///
+	/// @param[out] _out Value. 0 when there's no number, clamped to the type's range when it
+	///   doesn't fit, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number, and it fits, unsigned types refuse negative ones.
+	///
 	bool fromString(uint32_t* _out, const StringView& _str);
 
-	/// Converts string to
+	/// Converts string, a number with optional white space around it, to `long` value:
+	/// decimal digits, optionally signed.
+	///
+	/// @param[out] _out Value. 0 when there's no number, clamped to the type's range when it
+	///   doesn't fit, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number, and it fits.
+	///
 	bool fromString(long* _out, const StringView& _str);
 
-	/// Converts string to
+	/// Converts string, a number with optional white space around it, to `unsigned long` value:
+	/// decimal digits, optionally signed.
+	///
+	/// @param[out] _out Value. 0 when there's no number, clamped to the type's range when it
+	///   doesn't fit, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number, and it fits, unsigned types refuse negative ones.
+	///
 	bool fromString(unsigned long* _out, const StringView& _str);
 
-	/// Converts string to 64-bit long long value.
+	/// Converts string, a number with optional white space around it, to 64-bit integer value:
+	/// decimal digits, optionally signed.
+	///
+	/// @param[out] _out Value. 0 when there's no number, clamped to the type's range when it
+	///   doesn't fit, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number, and it fits.
+	///
 	bool fromString(long long* _out, const StringView& _str);
 
-	/// Converts string to 64-bit unsigned long long value.
+	/// Converts string, a number with optional white space around it, to 64-bit unsigned integer value:
+	/// decimal digits, optionally signed.
+	///
+	/// @param[out] _out Value. 0 when there's no number, clamped to the type's range when it
+	///   doesn't fit, the number it starts with when something follows it.
+	/// @param[in] _str String.
+	///
+	/// @returns True if the string is a number, and it fits, unsigned types refuse negative ones.
+	///
 	bool fromString(unsigned long long* _out, const StringView& _str);
 
 } // namespace bx

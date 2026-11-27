@@ -344,6 +344,12 @@ namespace bx
 	}
 
 	template<>
+	BX_SIMD_FORCE_INLINE simd128_wasm_t simd128_f32_sqrt1(simd128_wasm_t _a)
+	{
+		return wasm_f32x4_sqrt(_a);
+	}
+
+	template<>
 	BX_SIMD_FORCE_INLINE simd128_wasm_t simd128_f32_rsqrt_est(simd128_wasm_t _a)
 	{
 		const simd128_wasm_t one    = wasm_f32x4_splat(1.0f);
@@ -773,6 +779,24 @@ namespace bx
 	}
 
 	template<>
+	BX_SIMD_FORCE_INLINE bool simd128_x8_signbits_any(simd128_wasm_t _a)
+	{
+		return simd_x8_signbits_any_ni(_a);
+	}
+
+	template<>
+	BX_SIMD_FORCE_INLINE int32_t simd128_x8_signbits_first(simd128_wasm_t _a)
+	{
+		return simd_x8_signbits_first_ni(_a);
+	}
+
+	template<>
+	BX_SIMD_FORCE_INLINE int32_t simd128_x8_signbits_last(simd128_wasm_t _a)
+	{
+		return simd_x8_signbits_last_ni(_a);
+	}
+
+	template<>
 	BX_SIMD_FORCE_INLINE simd128_wasm_t simd128_f32_neg(simd128_wasm_t _a)
 	{
 		return wasm_f32x4_neg(_a);
@@ -946,6 +970,12 @@ namespace bx
 
 	template<>
 	BX_SIMD_FORCE_INLINE simd128_wasm_t simd128_f64_sqrt(simd128_wasm_t _a)
+	{
+		return wasm_f64x2_sqrt(_a);
+	}
+
+	template<>
+	BX_SIMD_FORCE_INLINE simd128_wasm_t simd128_f64_sqrt1(simd128_wasm_t _a)
 	{
 		return wasm_f64x2_sqrt(_a);
 	}

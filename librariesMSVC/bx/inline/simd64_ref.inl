@@ -21,67 +21,6 @@ namespace bx
 	typedef uint32_t simd64_u32_langext_t __attribute__((__vector_size__(8), __aligned__(8)));
 #endif // BX_SIMD_LANGEXT
 
-	inline BX_CONSTEXPR_FUNC double simd_floor(double _x)
-	{
-		const uint64_t xi = bitCast<uint64_t>(_x);
-		const int32_t  exp = int32_t((xi >> 52) & 0x7ff) - 1023;
-
-		if (exp < 0)
-		{
-			return (xi >> 63) ? -1.0 : 0.0;
-		}
-
-		if (exp >= 52)
-		{
-			return _x;
-		}
-
-		const uint64_t mask = (UINT64_C(1) << (52 - exp)) - 1;
-
-		if (0 == (xi & mask))
-		{
-			return _x;
-		}
-
-		const uint64_t trunc = xi & ~mask;
-		return (xi >> 63)
-			? bitCast<double>(trunc) - 1.0
-			: bitCast<double>(trunc)
-			;
-	}
-
-	inline BX_CONSTEXPR_FUNC double simd_ceil(double _x)
-	{
-		return -simd_floor(-_x);
-	}
-
-	inline BX_CONSTEXPR_FUNC double simd_round(double _x)
-	{
-		return (bitCast<uint64_t>(_x) >> 63)
-			? -simd_floor(-_x + 0.5)
-			:  simd_floor( _x + 0.5)
-			;
-	}
-
-	inline BX_CONSTEXPR_FUNC double simd_sqrt(double _x)
-	{
-		if (_x <= 0.0)
-		{
-			return 0.0;
-		}
-
-		uint64_t ii = bitCast<uint64_t>(_x);
-		ii = UINT64_C(0x5fe6eb50c7b537a9) - (ii >> 1);
-
-		double yy = bitCast<double>(ii);
-		yy = yy * (1.5 - 0.5 * _x * yy * yy);
-		yy = yy * (1.5 - 0.5 * _x * yy * yy);
-		yy = yy * (1.5 - 0.5 * _x * yy * yy);
-		yy = yy * (1.5 - 0.5 * _x * yy * yy);
-
-		return _x * yy;
-	}
-
 	BX_SIMD_FORCE_INLINE simd64_t simd64_ld(const void* _ptr)
 	{
 		simd64_t result;
@@ -279,35 +218,35 @@ namespace bx
 	inline BX_CONSTEXPR_FUNC simd64_t simd64_f64_sqrt(simd64_t _a)
 	{
 		const simd64_f64_ref_t a = bitCast<simd64_f64_ref_t>(_a);
-		const simd64_f64_ref_t result = { .f64 = simd_sqrt(a.f64) };
+		const simd64_f64_ref_t result = { .f64 = sqrt(a.f64) };
 		return bitCast<simd64_t>(result);
 	}
 
 	inline BX_CONSTEXPR_FUNC simd64_t simd64_f64_rsqrt(simd64_t _a)
 	{
 		const simd64_f64_ref_t a = bitCast<simd64_f64_ref_t>(_a);
-		const simd64_f64_ref_t result = { .f64 = 1.0 / simd_sqrt(a.f64) };
+		const simd64_f64_ref_t result = { .f64 = 1.0 / sqrt(a.f64) };
 		return bitCast<simd64_t>(result);
 	}
 
 	inline BX_CONSTEXPR_FUNC simd64_t simd64_f64_round(simd64_t _a)
 	{
 		const simd64_f64_ref_t a = bitCast<simd64_f64_ref_t>(_a);
-		const simd64_f64_ref_t result = { .f64 = simd_round(a.f64) };
+		const simd64_f64_ref_t result = { .f64 = round(a.f64) };
 		return bitCast<simd64_t>(result);
 	}
 
 	inline BX_CONSTEXPR_FUNC simd64_t simd64_f64_ceil(simd64_t _a)
 	{
 		const simd64_f64_ref_t a = bitCast<simd64_f64_ref_t>(_a);
-		const simd64_f64_ref_t result = { .f64 = simd_ceil(a.f64) };
+		const simd64_f64_ref_t result = { .f64 = ceil(a.f64) };
 		return bitCast<simd64_t>(result);
 	}
 
 	inline BX_CONSTEXPR_FUNC simd64_t simd64_f64_floor(simd64_t _a)
 	{
 		const simd64_f64_ref_t a = bitCast<simd64_f64_ref_t>(_a);
-		const simd64_f64_ref_t result = { .f64 = simd_floor(a.f64) };
+		const simd64_f64_ref_t result = { .f64 = floor(a.f64) };
 		return bitCast<simd64_t>(result);
 	}
 
@@ -466,6 +405,27 @@ namespace bx
 		const simd64_t top      = simd64_x64_srl(gathered, 56);
 		const int      result   = int(top.u64);
 		return result;
+	}
+
+	inline BX_CONSTEXPR_FUNC bool simd64_x8_signbits_any(simd64_t _a)
+	{
+		return 0 != (_a.u64 & UINT64_C(0x8080808080808080) );
+	}
+
+	inline BX_CONSTEXPR_FUNC int32_t simd64_x8_signbits_first(simd64_t _a)
+	{
+		const simd64_t mask  = simd64_splat(UINT64_C(0x8080808080808080) );
+		const simd64_t signs = simd64_and(_a, mask);
+		const simd64_t cnt   = simd64_x64_cnttz(signs);
+		return int32_t(cnt.u64 >> 3);
+	}
+
+	inline BX_CONSTEXPR_FUNC int32_t simd64_x8_signbits_last(simd64_t _a)
+	{
+		const simd64_t mask  = simd64_splat(UINT64_C(0x8080808080808080) );
+		const simd64_t signs = simd64_and(_a, mask);
+		const simd64_t cnt   = simd64_x64_cntlz(signs);
+		return (63 - int32_t(cnt.u64) ) >> 3;
 	}
 
 	inline BX_CONSTEXPR_FUNC simd64_t simd64_x8_shuffle(simd64_t _a, simd64_t _indices)

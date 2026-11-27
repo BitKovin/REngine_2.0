@@ -34,6 +34,9 @@ namespace bx
 	BX_CONSTEXPR_FUNC simd32_t simd32_f32_nmsub(simd32_t _a, simd32_t _b, simd32_t _c);
 	BX_CONSTEXPR_FUNC int      simd32_x32_signbitsmask(simd32_t _a);
 	BX_CONSTEXPR_FUNC int      simd32_x8_signbitsmask(simd32_t _a);
+	BX_CONSTEXPR_FUNC bool     simd32_x8_signbits_any(simd32_t _a);
+	BX_CONSTEXPR_FUNC int32_t  simd32_x8_signbits_first(simd32_t _a);
+	BX_CONSTEXPR_FUNC int32_t  simd32_x8_signbits_last(simd32_t _a);
 	BX_CONSTEXPR_FUNC simd32_t simd32_x8_shuffle(simd32_t _a, simd32_t _indices);
 	BX_CONSTEXPR_FUNC simd32_t simd32_x8_shuffle(simd32_t _a, simd32_t _b, simd32_t _indices);
 	BX_CONSTEXPR_FUNC simd32_t simd32_f32_neg(simd32_t _a);
@@ -111,6 +114,9 @@ namespace bx
 	BX_CONSTEXPR_FUNC simd32_t simd32_x32_sll(simd32_t _a, simd32_t _count);
 	BX_CONSTEXPR_FUNC simd32_t simd32_x32_srl(simd32_t _a, simd32_t _count);
 	BX_CONSTEXPR_FUNC simd32_t simd32_x32_sra(simd32_t _a, simd32_t _count);
+	BX_CONSTEXPR_FUNC simd32_t simd32_x32_cntbits(simd32_t _a);
+	BX_CONSTEXPR_FUNC simd32_t simd32_x32_cntlz(simd32_t _a);
+	BX_CONSTEXPR_FUNC simd32_t simd32_x32_cnttz(simd32_t _a);
 
 	BX_CONSTEXPR_FUNC simd32_t simd32_selb(simd32_t _mask, simd32_t _a, simd32_t _b);
 	BX_CONSTEXPR_FUNC simd32_t simd32_sels(simd32_t _test, simd32_t _a, simd32_t _b);
@@ -170,6 +176,9 @@ namespace bx
 	BX_CONSTEXPR_FUNC simd64_t simd64_f32_nmsub(simd64_t _a, simd64_t _b, simd64_t _c);
 	BX_CONSTEXPR_FUNC int      simd64_x32_signbitsmask(simd64_t _a);
 	BX_CONSTEXPR_FUNC int      simd64_x8_signbitsmask(simd64_t _a);
+	BX_CONSTEXPR_FUNC bool     simd64_x8_signbits_any(simd64_t _a);
+	BX_CONSTEXPR_FUNC int32_t  simd64_x8_signbits_first(simd64_t _a);
+	BX_CONSTEXPR_FUNC int32_t  simd64_x8_signbits_last(simd64_t _a);
 	BX_CONSTEXPR_FUNC simd64_t simd64_x8_shuffle(simd64_t _a, simd64_t _indices);
 	BX_CONSTEXPR_FUNC simd64_t simd64_x8_shuffle(simd64_t _a, simd64_t _b, simd64_t _indices);
 	BX_CONSTEXPR_FUNC simd64_t simd64_f32_neg(simd64_t _a);
@@ -387,6 +396,21 @@ namespace bx
 	template<typename Ty>
 	int simd128_x8_signbitsmask(Ty _a);
 
+	/// 16x8 test if any lane sign bit is set.
+	///
+	template<typename Ty>
+	bool simd128_x8_signbits_any(Ty _a);
+
+	/// 16x8 index of the first lane with sign bit set, 16 when none.
+	///
+	template<typename Ty>
+	int32_t simd128_x8_signbits_first(Ty _a);
+
+	/// 16x8 index of the last lane with sign bit set, -1 when none.
+	///
+	template<typename Ty>
+	int32_t simd128_x8_signbits_last(Ty _a);
+
 	/// Per-byte shuffle within 16-byte lane (single-source).
 	///
 	template<typename Ty>
@@ -441,6 +465,11 @@ namespace bx
 	///
 	template<typename Ty>
 	Ty simd128_f32_sqrt(Ty _a);
+
+	/// Lowest lane f32 square root.
+	///
+	template<typename Ty>
+	Ty simd128_f32_sqrt1(Ty _a);
 
 	/// 4xf32 sqrt Newton-Raphson.
 	///
@@ -962,6 +991,7 @@ namespace bx
 	template<typename Ty> Ty simd128_f64_lerp(Ty _a, Ty _b, Ty _s);
 	template<typename Ty> Ty simd128_f64_rcp(Ty _a);
 	template<typename Ty> Ty simd128_f64_sqrt(Ty _a);
+	template<typename Ty> Ty simd128_f64_sqrt1(Ty _a);
 	template<typename Ty> Ty simd128_f64_rsqrt(Ty _a);
 	template<typename Ty> Ty simd128_f64_round(Ty _a);
 	template<typename Ty> Ty simd128_f64_ceil(Ty _a);
@@ -1013,6 +1043,9 @@ namespace bx
 	template<typename Ty> Ty simd256_f32_nmsub(Ty _a, Ty _b, Ty _c);
 	template<typename Ty> int simd256_x32_signbitsmask(Ty _a);
 	template<typename Ty> int simd256_x8_signbitsmask(Ty _a);
+	template<typename Ty> bool simd256_x8_signbits_any(Ty _a);
+	template<typename Ty> int32_t simd256_x8_signbits_first(Ty _a);
+	template<typename Ty> int32_t simd256_x8_signbits_last(Ty _a);
 	template<typename Ty> Ty simd256_x8_shuffle(Ty _a, Ty _indices);
 	template<typename Ty> Ty simd256_x8_shuffle(Ty _a, Ty _b, Ty _indices);
 	template<typename Ty> Ty simd256_f32_neg(Ty _a);
@@ -1143,6 +1176,15 @@ namespace bx
 	int simd_x8_signbitsmask_ni(Ty _a);
 
 	template<typename Ty>
+	bool simd_x8_signbits_any_ni(Ty _a);
+
+	template<typename Ty>
+	int32_t simd_x8_signbits_first_ni(Ty _a);
+
+	template<typename Ty>
+	int32_t simd_x8_signbits_last_ni(Ty _a);
+
+	template<typename Ty>
 	Ty simd_f32_neg_ni(Ty _a);
 
 	template<typename Ty>
@@ -1177,6 +1219,18 @@ namespace bx
 
 	template<typename Ty>
 	Ty simd_f64_rsqrt_ni(Ty _a);
+
+	template<typename Ty>
+	Ty simd_f64_round_ni(Ty _a);
+
+	template<typename Ty>
+	Ty simd_f64_floor_ni(Ty _a);
+
+	template<typename Ty>
+	Ty simd_f64_ceil_ni(Ty _a);
+
+	template<typename Ty>
+	Ty simd_f64_sqrt_ni(Ty _a);
 
 	template<typename Ty>
 	Ty simd_f64_cmpneq_ni(Ty _a, Ty _b);
@@ -1455,6 +1509,10 @@ namespace bx
 	BX_CONSTEXPR_FUNC float round(float _f);
 	BX_CONSTEXPR_FUNC float trunc(float _f);
 	BX_CONSTEXPR_FUNC float sqrt(float _a);
+	BX_CONSTEXPR_FUNC double floor(double _a);
+	BX_CONSTEXPR_FUNC double ceil(double _a);
+	BX_CONSTEXPR_FUNC double round(double _a);
+	BX_CONSTEXPR_FUNC double sqrt(double _a);
 } // namespace bx
 
 #include "simd32_ref.inl"
@@ -1489,6 +1547,15 @@ namespace bx
 
 	template<>
 	BX_SIMD_FORCE_INLINE int simd_x8_signbitsmask(simd128_t _a) { return simd128_x8_signbitsmask(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE bool simd_x8_signbits_any(simd128_t _a) { return simd128_x8_signbits_any(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE int32_t simd_x8_signbits_first(simd128_t _a) { return simd128_x8_signbits_first(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE int32_t simd_x8_signbits_last(simd128_t _a) { return simd128_x8_signbits_last(_a); }
 
 	template<>
 	BX_SIMD_FORCE_INLINE simd128_t simd_x8_shuffle(simd128_t _a, simd128_t _indices) { return simd128_x8_shuffle(_a, _indices); }
@@ -1548,6 +1615,15 @@ namespace bx
 	BX_SIMD_FORCE_INLINE int simd_x8_signbitsmask(simd256_t _a) { return simd256_x8_signbitsmask(_a); }
 
 	template<>
+	BX_SIMD_FORCE_INLINE bool simd_x8_signbits_any(simd256_t _a) { return simd256_x8_signbits_any(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE int32_t simd_x8_signbits_first(simd256_t _a) { return simd256_x8_signbits_first(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE int32_t simd_x8_signbits_last(simd256_t _a) { return simd256_x8_signbits_last(_a); }
+
+	template<>
 	BX_SIMD_FORCE_INLINE simd256_t simd_x8_shuffle(simd256_t _a, simd256_t _indices) { return simd256_x8_shuffle(_a, _indices); }
 
 	template<>
@@ -1597,6 +1673,9 @@ namespace bx
 
 	template<>
 	BX_SIMD_FORCE_INLINE simd128_t simd_f32_sqrt(simd128_t _a) { return simd128_f32_sqrt(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE simd128_t simd_f32_sqrt1(simd128_t _a) { return simd128_f32_sqrt1(_a); }
 
 	template<>
 	BX_SIMD_FORCE_INLINE simd128_t simd_f32_rsqrt(simd128_t _a) { return simd128_f32_rsqrt(_a); }
@@ -1768,6 +1847,9 @@ namespace bx
 
 	template<>
 	BX_SIMD_FORCE_INLINE simd128_t simd_f64_sqrt(simd128_t _a) { return simd128_f64_sqrt(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE simd128_t simd_f64_sqrt1(simd128_t _a) { return simd128_f64_sqrt1(_a); }
 
 	template<>
 	BX_SIMD_FORCE_INLINE simd128_t simd_f64_rsqrt(simd128_t _a) { return simd128_f64_rsqrt(_a); }
@@ -2754,6 +2836,18 @@ namespace bx
 	BX_SIMD_FORCE_INLINE int simd_x32_signbitsmask(simd32_t _a) { return simd32_x32_signbitsmask(_a); }
 
 	template<>
+	BX_SIMD_FORCE_INLINE int simd_x8_signbitsmask(simd32_t _a) { return simd32_x8_signbitsmask(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE bool simd_x8_signbits_any(simd32_t _a) { return simd32_x8_signbits_any(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE int32_t simd_x8_signbits_first(simd32_t _a) { return simd32_x8_signbits_first(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE int32_t simd_x8_signbits_last(simd32_t _a) { return simd32_x8_signbits_last(_a); }
+
+	template<>
 	BX_SIMD_FORCE_INLINE simd32_t simd_sels(simd32_t _test, simd32_t _a, simd32_t _b) { return simd32_sels(_test, _a, _b); }
 
 	template<>
@@ -3134,6 +3228,18 @@ namespace bx
 
 	template<>
 	BX_SIMD_FORCE_INLINE int simd_x32_signbitsmask(simd64_t _a) { return simd64_x32_signbitsmask(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE int simd_x8_signbitsmask(simd64_t _a) { return simd64_x8_signbitsmask(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE bool simd_x8_signbits_any(simd64_t _a) { return simd64_x8_signbits_any(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE int32_t simd_x8_signbits_first(simd64_t _a) { return simd64_x8_signbits_first(_a); }
+
+	template<>
+	BX_SIMD_FORCE_INLINE int32_t simd_x8_signbits_last(simd64_t _a) { return simd64_x8_signbits_last(_a); }
 
 	template<>
 	BX_SIMD_FORCE_INLINE simd64_t simd_sels(simd64_t _test, simd64_t _a, simd64_t _b) { return simd64_sels(_test, _a, _b); }

@@ -13,33 +13,27 @@
 
 namespace bx
 {
-	template <typename Ty>
-	inline void stringPrintfVargs(Ty& _out, const char* _format, va_list _argList)
+	namespace internal
 	{
-		char temp[2048];
+		const char* strFind(const char* _str, int32_t _len, char _ch);
 
-		char* out = temp;
-		int32_t len = vsnprintf(out, sizeof(temp), _format, _argList);
-		if (int32_t(sizeof(temp) ) < len)
-		{
-			out = (char*)BX_STACK_ALLOC(len);
-			len = vsnprintf(out, len, _format, _argList);
-		}
-		_out.append(out, out+len);
-	}
+		const char* strRFind(const char* _str, int32_t _len, char _ch);
 
-	template <typename Ty>
-	inline void stringPrintf(Ty& _out, const char* _format, ...)
-	{
-		va_list argList;
-		va_start(argList, _format);
-		stringPrintfVargs(_out, _format, argList);
-		va_end(argList);
-	}
+		const char* strFind(const char* _str, int32_t _len, const char* _find, int32_t _findLen);
+
+		const char* strFindI(const char* _str, int32_t _len, const char* _find, int32_t _findLen);
+
+	} // namespace internal
 
 	inline constexpr StringLiteral::StringLiteral()
 		: m_ptr("")
 		, m_len(0)
+	{
+	}
+
+	inline constexpr StringLiteral::StringLiteral(const char* _ptr, int32_t _len)
+		: m_ptr(_ptr)
+		, m_len(_len)
 	{
 	}
 
@@ -118,14 +112,13 @@ namespace bx
 
 	inline constexpr void StringView::set(const char* _ptr, int32_t _len)
 	{
-		clear();
+		const bool    isNull       = NULL == _ptr;
+		const bool    isTerminated = INT32_MAX == _len;
+		const int32_t len          = isTerminated && !isNull ? strLen(_ptr) : _len;
 
-		if (NULL != _ptr)
-		{
-			m_len = INT32_MAX == _len ? strLen(_ptr) : _len;
-			m_ptr = _ptr;
-			m_0terminated = INT32_MAX == _len;
-		}
+		m_ptr         = isNull ? "" : _ptr;
+		m_len         = isNull ? 0  : len;
+		m_0terminated = isNull || isTerminated;
 	}
 
 	inline constexpr void StringView::set(const char* _ptr, const char* _term)
@@ -277,11 +270,6 @@ namespace bx
 	}
 
 	template<uint16_t MaxCapacityT>
-	inline constexpr FixedStringT<MaxCapacityT>::~FixedStringT()
-	{
-	}
-
-	template<uint16_t MaxCapacityT>
 	inline constexpr void FixedStringT<MaxCapacityT>::set(const char* _str)
 	{
 		set(StringView(_str) );
@@ -335,119 +323,6 @@ namespace bx
 	inline typename FixedStringT<MaxCapacityT>::Pod& FixedStringT<MaxCapacityT>::asPod()
 	{
 		return m_pod;
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline StringT<AllocatorT>::StringT()
-		: m_ptr("")
-		, m_len(0)
-		, m_capacity(0)
-	{
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline StringT<AllocatorT>::StringT(const StringT<AllocatorT>& _rhs)
-		: m_ptr("")
-		, m_len(0)
-		, m_capacity(0)
-	{
-		set(_rhs);
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline StringT<AllocatorT>::StringT(const StringView& _rhs)
-		: m_ptr("")
-		, m_len(0)
-		, m_capacity(0)
-	{
-		set(_rhs);
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline StringT<AllocatorT>::~StringT()
-	{
-		clear();
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline StringT<AllocatorT>& StringT<AllocatorT>::operator=(const StringT<AllocatorT>& _rhs)
-	{
-		set(_rhs);
-		return *this;
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline void StringT<AllocatorT>::set(const StringView& _str)
-	{
-		clear();
-		append(_str);
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline void StringT<AllocatorT>::append(const StringView& _str)
-	{
-		if (0 != _str.getLength() )
-		{
-			const int32_t old = m_len;
-			const int32_t len = m_len + _str.getLength();
-
-			char* ptr = const_cast<char*>(m_ptr);
-
-			if (len+1 > m_capacity)
-			{
-				const int32_t capacity = alignUp(len+1, 256);
-				ptr = (char*)realloc(*AllocatorT, 0 != m_capacity ? ptr : NULL, capacity);
-
-				*const_cast<char**>(&m_ptr) = ptr;
-				m_capacity = capacity;
-			}
-
-			m_len = len;
-			strCopy(ptr + old, len-old+1, _str);
-		}
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline void StringT<AllocatorT>::append(const char* _ptr, const char* _term)
-	{
-		append(StringView(_ptr, _term) );
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline void StringT<AllocatorT>::clear()
-	{
-		if (0 != m_capacity)
-		{
-			free(*AllocatorT, const_cast<char*>(m_ptr) );
-
-			m_ptr = "";
-			m_len = 0;
-			m_capacity = 0;
-		}
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline bool StringT<AllocatorT>::isEmpty() const
-	{
-		return 0 == m_len;
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline int32_t StringT<AllocatorT>::getLength() const
-	{
-		return m_len;
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline const char* StringT<AllocatorT>::getCPtr() const
-	{
-		return m_ptr;
-	}
-
-	template<AllocatorI** AllocatorT>
-	inline StringT<AllocatorT>::operator StringView() const
-	{
-		return StringView(m_ptr, m_len);
 	}
 
 	inline BX_CONSTEXPR_FUNC bool isSpace(char _ch)
@@ -743,73 +618,89 @@ namespace bx
 	inline bool fromString(int8_t* _out, const StringView& _str)
 	{
 		long long tmp;
-		fromString(&tmp, _str);
+		const bool result = fromString(&tmp, _str);
+		*_out = saturateCast<int8_t>(tmp);
 
-		return narrowCastTest(_out, tmp);
+		return result
+			&& *_out == tmp
+			;
 	}
 
 	inline bool fromString(uint8_t* _out, const StringView& _str)
 	{
-		long long tmp;
-		fromString(&tmp, _str);
+		unsigned long long tmp;
+		const bool result = fromString(&tmp, _str);
+		*_out = saturateCast<uint8_t>(tmp);
 
-		return narrowCastTest(_out, tmp);
+		return result
+			&& *_out == tmp
+			;
 	}
 
 	inline bool fromString(int16_t* _out, const StringView& _str)
 	{
 		long long tmp;
-		fromString(&tmp, _str);
+		const bool result = fromString(&tmp, _str);
+		*_out = saturateCast<int16_t>(tmp);
 
-		return narrowCastTest(_out, tmp);
+		return result
+			&& *_out == tmp
+			;
 	}
 
 	inline bool fromString(uint16_t* _out, const StringView& _str)
 	{
-		long long tmp;
-		fromString(&tmp, _str);
+		unsigned long long tmp;
+		const bool result = fromString(&tmp, _str);
+		*_out = saturateCast<uint16_t>(tmp);
 
-		return narrowCastTest(_out, tmp);
+		return result
+			&& *_out == tmp
+			;
 	}
 
 	inline bool fromString(int32_t* _out, const StringView& _str)
 	{
 		long long tmp;
-		fromString(&tmp, _str);
+		const bool result = fromString(&tmp, _str);
+		*_out = saturateCast<int32_t>(tmp);
 
-		return narrowCastTest(_out, tmp);
+		return result
+			&& *_out == tmp
+			;
 	}
 
 	inline bool fromString(uint32_t* _out, const StringView& _str)
 	{
-		long long tmp;
-		fromString(&tmp, _str);
+		unsigned long long tmp;
+		const bool result = fromString(&tmp, _str);
+		*_out = saturateCast<uint32_t>(tmp);
 
-		return narrowCastTest(_out, tmp);
+		return result
+			&& *_out == tmp
+			;
 	}
 
 	inline bool fromString(long* _out, const StringView& _str)
 	{
 		long long tmp;
-		fromString(&tmp, _str);
+		const bool result = fromString(&tmp, _str);
+		*_out = saturateCast<long>(tmp);
 
-		return narrowCastTest(_out, tmp);
+		return result
+			&& *_out == tmp
+			;
 	}
 
 	inline bool fromString(unsigned long* _out, const StringView& _str)
 	{
-		long long tmp;
-		fromString(&tmp, _str);
+		unsigned long long tmp;
+		const bool result = fromString(&tmp, _str);
+		*_out = saturateCast<unsigned long>(tmp);
 
-		return narrowCastTest(_out, tmp);
-	}
-
-	inline bool fromString(unsigned long long* _out, const StringView& _str)
-	{
-		long long tmp;
-		fromString(&tmp, _str);
-
-		return narrowCastTest(_out, tmp);
+		return result
+			&& *_out == tmp
+			;
 	}
 
 	template<uint16_t MaxCapacityT>
@@ -847,6 +738,56 @@ namespace bx
 
 		return result;
 	};
+
+	inline StringView strFind(const StringView& _str, char _ch)
+	{
+		const char* ptr = internal::strFind(_str.getPtr(), _str.getLength(), _ch);
+
+		if (NULL == ptr)
+		{
+			return StringView(_str.getTerm(), _str.getTerm() );
+		}
+
+		return StringView(ptr, 1);
+	}
+
+	inline StringView strRFind(const StringView& _str, char _ch)
+	{
+		const char* ptr = internal::strRFind(_str.getPtr(), _str.getLength(), _ch);
+
+		if (NULL == ptr)
+		{
+			return StringView(_str.getTerm(), _str.getTerm() );
+		}
+
+		return StringView(ptr, 1);
+	}
+
+	inline StringView strFind(const StringView& _str, const StringView& _find, int32_t _num)
+	{
+		const int32_t len = min(_find.getLength(), _num);
+		const char*   ptr = internal::strFind(_str.getPtr(), _str.getLength(), _find.getPtr(), len);
+
+		if (NULL == ptr)
+		{
+			return StringView(_str.getTerm(), _str.getTerm() );
+		}
+
+		return StringView(ptr, len);
+	}
+
+	inline StringView strFindI(const StringView& _str, const StringView& _find, int32_t _num)
+	{
+		const int32_t len = min(_find.getLength(), _num);
+		const char*   ptr = internal::strFindI(_str.getPtr(), _str.getLength(), _find.getPtr(), len);
+
+		if (NULL == ptr)
+		{
+			return StringView(_str.getTerm(), _str.getTerm() );
+		}
+
+		return StringView(ptr, len);
+	}
 
 	template<uint16_t MaxCapacityT>
 	inline FixedStringT<MaxCapacityT> toHuman(Ticks _value, uint8_t _numFrac)

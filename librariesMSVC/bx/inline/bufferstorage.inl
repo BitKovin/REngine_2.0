@@ -47,7 +47,7 @@ namespace bx
 	template<typename Ty>
 	inline uint32_t StorageTraits::copy(Ty* _dst, const Ty* _src, uint32_t _count)
 	{
-		if (BX_ENABLED(isTriviallyCopyAssignable<Ty>() ) )
+		if constexpr (isTriviallyCopyAssignable<Ty>() )
 		{
 			memMove(_dst, _src, _count * sizeof(Ty) );
 		}
@@ -76,7 +76,7 @@ namespace bx
 	template<typename Ty>
 	inline void StorageTraits::move(Ty* _dst, Ty* _src, uint32_t _count)
 	{
-		if (BX_ENABLED(isTriviallyMoveAssignable<Ty>() ) )
+		if constexpr (isTriviallyMoveAssignable<Ty>() )
 		{
 			memMove(_dst, _src, _count * sizeof(Ty) );
 		}
@@ -103,7 +103,7 @@ namespace bx
 	template<typename Ty>
 	inline EnableIfType<true
 		&& !IsTriviallyConstructibleT<Ty>::value
-		&& !IsConstructibleT<Ty, InitNoneTag>::value
+		&& (IsAggregateT<Ty>::value || !IsConstructibleT<Ty, InitNoneTag>::value)
 		, void>
 	StorageTraits::constructDefault(Ty* _ptr, uint32_t _count)
 	{
@@ -116,6 +116,7 @@ namespace bx
 	template<typename Ty>
 	inline EnableIfType<true
 		&& !IsTriviallyConstructibleT<Ty>::value
+		&& !IsAggregateT<Ty>::value
 		&&  IsConstructibleT<Ty, InitNoneTag>::value
 		, void>
 	StorageTraits::constructDefault(Ty* _ptr, uint32_t _count)
@@ -138,9 +139,36 @@ namespace bx
 	template<typename Ty, typename... ArgsT>
 	inline uint32_t StorageTraits::constructEmplace(Ty* _ptr, uint32_t _count, ArgsT&&... _args)
 	{
-		for (Ty *ptr = _ptr, *term = _ptr + _count; ptr < term; ++ptr)
+		if (0 == _count)
 		{
-			BX_PLACEMENT_NEW(ptr, Ty)(forward<ArgsT>(_args)...);
+			return 0;
+		}
+
+		Ty* last = _ptr + _count - 1;
+
+		for (Ty* ptr = _ptr; ptr < last; ++ptr)
+		{
+			BX_PLACEMENT_NEW(ptr, Ty)(_args...);
+		}
+
+		BX_PLACEMENT_NEW(last, Ty)(bx::forward<ArgsT>(_args)...);
+
+		return _count;
+	}
+
+	template<typename Ty>
+	inline uint32_t StorageTraits::constructCopy(Ty* _dst, const Ty* _src, uint32_t _count)
+	{
+		if constexpr (isTriviallyCopyConstructible<Ty>() )
+		{
+			memCopy(_dst, _src, _count * sizeof(Ty) );
+		}
+		else
+		{
+			for (uint32_t ii = 0; ii < _count; ++ii)
+			{
+				BX_PLACEMENT_NEW(_dst + ii, Ty)(_src[ii]);
+			}
 		}
 
 		return _count;
@@ -149,15 +177,15 @@ namespace bx
 	template<typename Ty>
 	inline void StorageTraits::constructMove(Ty* _dst, Ty* _src, uint32_t _count)
 	{
-		if (BX_ENABLED(isTriviallyMoveConstructible<Ty>() ) )
+		if constexpr (isTriviallyMoveConstructible<Ty>() )
 		{
 			memMove(_dst, _src, _count * sizeof(Ty) );
 		}
-		else if (BX_ENABLED(isMoveConstructible<Ty>() ) )
+		else if constexpr (isMoveConstructible<Ty>() )
 		{
 			for (uint32_t ii = 0; ii < _count; ++ii)
 			{
-				BX_PLACEMENT_NEW(&_dst[ii], Ty)(bx::move(_src[ii]) );
+				BX_PLACEMENT_NEW(_dst + ii, Ty)(bx::move(_src[ii]) );
 			}
 		}
 		else
@@ -170,7 +198,7 @@ namespace bx
 	template<typename Ty>
 	inline void StorageTraits::destruct(Ty* _ptr, uint32_t _count)
 	{
-		if (!BX_ENABLED(isTriviallyDestructible<Ty>() ) )
+		if constexpr (!isTriviallyDestructible<Ty>() )
 		{
 			for (Ty *ptr = _ptr, *term = _ptr + _count; ptr < term; ++ptr)
 			{
@@ -278,13 +306,13 @@ namespace bx
 			return;
 		}
 
-		const uint32_t dstPos = carve(_storage, _pos, _count, true);
+		const uint32_t dstPos = carve(_storage, _pos, _count);
 
 		BX_ASSERT(!overlap(_storage.getPtr(dstPos), _ptr, _count), "");
 
 		dbgGraph(getCount()+_count, dstPos, _count, 'c');
 
-		m_term += StorageTraits::copy(_storage.getPtr(dstPos), _ptr, _count);
+		m_term += StorageTraits::constructCopy(_storage.getPtr(dstPos), _ptr, _count);
 	}
 
 	template<typename Ty>
@@ -292,19 +320,12 @@ namespace bx
 	inline void StorageViewT<Ty>::add(StorageT& _storage, uint32_t _pos, EmplaceTag, ArgsT&&... _args)
 	{
 		const uint32_t oldCount = getCount();
-		const uint32_t dstPos   = carve(_storage, _pos, 1, false);
-		Ty* dst = _storage.getPtr(dstPos);
-
-		if (dstPos < oldCount)
-		{
-			dbgGraph(oldCount+1, dstPos, 1, 'D');
-
-			StorageTraits::destruct(dst, 1);
-		}
+		const uint32_t dstPos   = carve(_storage, _pos, 1);
 
 		dbgGraph(oldCount+1, dstPos, 1, 'E');
 
-		m_term += StorageTraits::constructEmplace(dst, 1, forward<ArgsT>(_args)...);
+		BX_PLACEMENT_NEW(_storage.getPtr(dstPos), Ty)(bx::forward<ArgsT>(_args)...);
+		++m_term;
 	}
 
 	template<typename Ty>
@@ -356,7 +377,7 @@ namespace bx
 
 	template<typename Ty>
 	template<typename StorageT>
-	inline uint32_t StorageViewT<Ty>::carve(StorageT& _storage, uint32_t _pos, uint32_t _count, bool _init)
+	inline uint32_t StorageViewT<Ty>::carve(StorageT& _storage, uint32_t _pos, uint32_t _count)
 	{
 		const uint32_t dstCount = getCount();
 		const uint32_t newCount = _count + dstCount;
@@ -377,21 +398,26 @@ namespace bx
 		const uint32_t moveCount = dstCount - dstPos;
 		const uint32_t newPos    = dstPos + _count;
 
-		const bool needCtor = _init || dstPos != dstCount;
-
-		dbgGraph(newCount, dstCount, _count, needCtor ? 'C' : '?');
-
-		if (needCtor)
-		{
-			StorageTraits::constructDefault(_storage.getPtr(dstCount), _count);
-		}
-
 		if (0 != moveCount)
 		{
 			dbgGraph(newCount, dstPos, moveCount, 'F');
 			dbgGraph(newCount, newPos, moveCount, 'M');
 
-			StorageTraits::move(_storage.getPtr(newPos), _storage.getPtr(dstPos), moveCount);
+			Ty* ptr = const_cast<Ty*>(m_ptr);
+
+			if constexpr (isTriviallyCopyable<Ty>() )
+			{
+				memMove(ptr + newPos, ptr + dstPos, moveCount * sizeof(Ty) );
+			}
+			else
+			{
+				const uint32_t numConstruct = min(moveCount, _count);
+				const uint32_t numAssign    = moveCount - numConstruct;
+
+				StorageTraits::constructMove(ptr + newCount - numConstruct, ptr + dstCount - numConstruct, numConstruct);
+				StorageTraits::move(ptr + newPos, ptr + dstPos, numAssign);
+				StorageTraits::destruct(ptr + dstPos, numConstruct);
+			}
 		}
 
 		return dstPos;
@@ -457,135 +483,6 @@ namespace bx
 	inline FixedStorageT<Ty, CapacityT>& FixedStorageT<Ty, CapacityT>::operator=(FixedStorageT<Ty, CapacityT>&& _other)
 	{
 		memCopy(m_data, _other.m_data, sizeof(m_data) );
-		return *this;
-	}
-
-	template<typename Ty>
-	inline DynamicStorageT<Ty>::DynamicStorageT()
-		: m_ptr(NULL)
-		, m_capacity(0)
-		, m_allocator(NULL)
-	{
-	}
-
-	template<typename Ty>
-	inline void DynamicStorageT<Ty>::setAllocator(AllocatorI* _allocator)
-	{
-		BX_ASSERT(false
-			|| NULL == m_ptr
-			|| NULL == m_allocator
-			, "Allocator is already set, or storage is not empty!"
-			);
-
-		m_allocator = _allocator;
-	}
-
-	template<typename Ty>
-	inline AllocatorI* DynamicStorageT<Ty>::getAllocator() const
-	{
-		return m_allocator;
-	}
-
-	template<typename Ty>
-	inline DynamicStorageT<Ty>::~DynamicStorageT()
-	{
-		if (NULL != m_ptr)
-		{
-			bx::free(m_allocator, m_ptr, BX_ALIGNOF(Ty) );
-		}
-	}
-
-	template<typename Ty>
-	inline uint32_t DynamicStorageT<Ty>::getCapacity() const
-	{
-		return m_capacity;
-	}
-
-	template<typename Ty>
-	inline void DynamicStorageT<Ty>::setCapacity(uint32_t _capacity, uint32_t _count)
-	{
-		const uint32_t minCapacity = max(_capacity, _count);
-		const uint32_t capacity    = minCapacity == 0 ? 0 : alignUp(minCapacity, 16);
-
-		if (capacity == m_capacity)
-		{
-			return;
-		}
-
-		if (0 == capacity)
-		{
-			bx::free(m_allocator, m_ptr, BX_ALIGNOF(Ty) );
-			m_ptr = NULL;
-		}
-		else if (BX_ENABLED(isTriviallyMoveConstructible<Ty>() ) )
-		{
-			m_ptr = (Ty*)bx::realloc(m_allocator, m_ptr, sizeof(Ty)*capacity, BX_ALIGNOF(Ty) );
-		}
-		else
-		{
-			Ty* ptr = (Ty*)bx::alloc(m_allocator, sizeof(Ty)*capacity, BX_ALIGNOF(Ty) );
-
-			if (0 < _count)
-			{
-				StorageTraits::constructMove(ptr, m_ptr, _count);
-				StorageTraits::destruct(m_ptr, _count);
-			}
-
-			if (NULL != m_ptr)
-			{
-				bx::free(m_allocator, m_ptr, BX_ALIGNOF(Ty) );
-			}
-
-			m_ptr = ptr;
-		}
-
-		m_capacity = capacity;
-	}
-
-	template<typename Ty>
-	inline Ty* DynamicStorageT<Ty>::getPtr(uint32_t _idx)
-	{
-		if (NULL == m_ptr)
-		{
-			return NULL;
-		}
-
-		return m_ptr + _idx;
-	}
-
-	template<typename Ty>
-	inline const Ty* DynamicStorageT<Ty>::getPtr(uint32_t _idx) const
-	{
-		return const_cast<DynamicStorageT<Ty>*>(this)->getPtr(_idx);
-	}
-
-	template<typename Ty>
-	inline Ty* DynamicStorageT<Ty>::getTerm()
-	{
-		return getPtr(getCapacity() );
-	}
-
-	template<typename Ty>
-	inline const Ty* DynamicStorageT<Ty>::getTerm() const
-	{
-		return getPtr(getCapacity() );
-	}
-
-	template<typename Ty>
-	inline DynamicStorageT<Ty>& DynamicStorageT<Ty>::operator=(DynamicStorageT<Ty>&& _other)
-	{
-		if (NULL != m_ptr)
-		{
-			bx::free(m_allocator, m_ptr, BX_ALIGNOF(Ty) );
-		}
-
-		m_ptr       = _other.m_ptr;
-		m_capacity  = _other.m_capacity;
-		m_allocator = _other.m_allocator;
-
-		_other.m_ptr      = NULL;
-		_other.m_capacity = 0;
-
 		return *this;
 	}
 

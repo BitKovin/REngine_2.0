@@ -143,6 +143,7 @@ namespace bx
 	}
 
 	template<typename Ty>
+	requires (isMoveConstructible<Ty>() && isMoveAssignable<Ty>() )
 	inline void swap(Ty& _a, Ty& _b)
 	{
 		Ty tmp = move(_a); _a = move(_b); _b = move(tmp);
@@ -263,6 +264,42 @@ namespace bx
 		return __builtin_bit_cast(Ty, _from);
 	}
 
+	template<typename Ty>
+	inline Ty compilerHideValue(Ty _a)
+	{
+#if BX_COMPILER_GCC || BX_COMPILER_CLANG
+		if constexpr (isInteger<Ty>() || isPointer<Ty>() )
+		{
+			__asm__("" : "+r"(_a) );
+		}
+		else if constexpr (isClass<Ty>() || isUnion<Ty>() )
+		{
+			__asm__("" : "+m"(_a) );
+		}
+		else
+		{
+#	if BX_CPU_X86 && defined(__SSE2__)
+			__asm__("" : "+x"(_a) );
+#	elif BX_CPU_ARM && BX_ARCH_32BIT
+			if constexpr (4 == sizeof(Ty) )
+			{
+				__asm__("" : "+t"(_a) );
+			}
+			else
+			{
+				__asm__("" : "+w"(_a) );
+			}
+#	elif BX_CPU_ARM
+			__asm__("" : "+w"(_a) );
+#	elif !BX_CPU_JIT
+			__asm__("" : "+m"(_a) );
+#	endif // BX_CPU_*
+		}
+#endif // BX_COMPILER_GCC || BX_COMPILER_CLANG
+
+		return _a;
+	}
+
 	BX_PRAGMA_DIAGNOSTIC_POP();
 
 	template<typename Ty, typename FromT>
@@ -274,46 +311,46 @@ namespace bx
 		{
 			return _from;
 		}
-
-		constexpr Ty mx = max<Ty>();
-
-		if constexpr (isSigned<Ty>() && isSigned<FromT>() )
+		else
 		{
-			if constexpr (sizeof(Ty) < sizeof(FromT) )
-			{
-				constexpr FromT mn = min<Ty>();
+			constexpr Ty mx = max<Ty>();
 
-				if (_from < mn)
+			if constexpr (isSigned<Ty>() && isSigned<FromT>() )
+			{
+				if constexpr (sizeof(Ty) < sizeof(FromT) )
 				{
-					return Ty(mn);
+					constexpr FromT mn = min<Ty>();
+
+					if (_from < mn)
+					{
+						return Ty(mn);
+					}
+					else if (_from > mx)
+					{
+						return mx;
+					}
 				}
-				else if (_from > mx)
+			}
+			else if constexpr (isSigned<FromT>() )
+			{
+				if (_from < FromT(0) )
+				{
+					return Ty(0);
+				}
+				else if (asUnsigned<FromT>(_from) > mx)
 				{
 					return mx;
 				}
 			}
-		}
-		else if constexpr (isSigned<FromT>() )
-		{
-			if (_from < FromT(0) )
-			{
-				return Ty(0);
-			}
-			else if (asUnsigned<FromT>(_from) > mx)
+			else if (_from > asUnsigned<Ty>(max<Ty>() ) )
 			{
 				return mx;
 			}
-		}
-		else if (_from > asUnsigned<Ty>(max<Ty>() ) )
-		{
-			return mx;
-		}
 
-		return static_cast<Ty>(_from);
+			return static_cast<Ty>(_from);
+		}
 	}
 
-BX_PRAGMA_DIAGNOSTIC_PUSH()
-BX_PRAGMA_DIAGNOSTIC_IGNORED_MSVC(4702) // warning C4702: unreachable code
 	template<typename Ty, typename FromT>
 	inline constexpr bool narrowCastTest(Ty* _out, const FromT& _from)
 	{
@@ -322,11 +359,12 @@ BX_PRAGMA_DIAGNOSTIC_IGNORED_MSVC(4702) // warning C4702: unreachable code
 			*_out = _from;
 			return true;
 		}
-
-		*_out = static_cast<Ty>(_from);
-		return static_cast<FromT>(*_out) == _from;
+		else
+		{
+			*_out = static_cast<Ty>(_from);
+			return static_cast<FromT>(*_out) == _from;
+		}
 	}
-BX_PRAGMA_DIAGNOSTIC_POP()
 
 	template<typename Ty, typename FromT>
 	inline Ty narrowCast(const FromT& _from, Location _location)
@@ -387,8 +425,8 @@ BX_PRAGMA_DIAGNOSTIC_POP()
 	template<typename Ty>
 	inline BX_CONSTEXPR_FUNC bool isAligned(Ty _a, size_t _align)
 	{
-		const size_t mask = max<size_t>(1, _align) - 1;
-		return 0 == (size_t(_a) & mask);
+		const uint64_t mask = max<uint64_t>(1, _align) - 1;
+		return 0 == (uint64_t(_a) & mask);
 	}
 
 	template<>
@@ -401,8 +439,8 @@ BX_PRAGMA_DIAGNOSTIC_POP()
 	template<typename Ty>
 	inline BX_CONSTEXPR_FUNC Ty alignDown(Ty _a, size_t _align)
 	{
-		const size_t mask = max<size_t>(1, _align) - 1;
-		return Ty(size_t(_a) & ~mask);
+		const uint64_t mask = max<uint64_t>(1, _align) - 1;
+		return Ty(uint64_t(_a) & ~mask);
 	}
 
 	template<typename Ty>
@@ -424,8 +462,8 @@ BX_PRAGMA_DIAGNOSTIC_POP()
 	template<typename Ty>
 	inline BX_CONSTEXPR_FUNC Ty alignUp(Ty _a, size_t _align)
 	{
-		const size_t mask = max<size_t>(1, _align) - 1;
-		return Ty( (size_t(_a) + mask) & ~mask);
+		const uint64_t mask = max<uint64_t>(1, _align) - 1;
+		return Ty( (uint64_t(_a) + mask) & ~mask);
 	}
 
 	template<typename Ty>
@@ -445,3 +483,32 @@ BX_PRAGMA_DIAGNOSTIC_POP()
 	}
 
 } // namespace bx
+
+namespace bx { namespace internal
+{
+	size_t sizeLiteralOverflow();
+
+	consteval size_t sizeLiteral(unsigned long long _size, uint32_t _shift)
+	{
+		return _size <= (size_t(-1) >> _shift)
+			? size_t(_size) << _shift
+			: sizeLiteralOverflow()
+			;
+	}
+
+} } // namespace bx::internal
+
+consteval size_t operator""_KiB(unsigned long long _size)
+{
+	return bx::internal::sizeLiteral(_size, 10);
+}
+
+consteval size_t operator""_MiB(unsigned long long _size)
+{
+	return bx::internal::sizeLiteral(_size, 20);
+}
+
+consteval size_t operator""_GiB(unsigned long long _size)
+{
+	return bx::internal::sizeLiteral(_size, 30);
+}

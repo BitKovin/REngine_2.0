@@ -466,6 +466,23 @@ namespace bgfx
 		};
 	};
 
+	/// View stats type.
+	///
+	/// @attention C99's equivalent binding is `bgfx_view_stats_type_t`.
+	///
+	struct ViewStatsType
+	{
+		/// View stats types:
+		enum Enum
+		{
+			Blit,    //!< Blits submitted to the view.
+			Compute, //!< Compute dispatches submitted to the view.
+			Draw,    //!< Draw calls submitted to the view.
+
+			Count
+		};
+	};
+
 	/// Shading Rate.
 	///
 	/// @attention C99's equivalent binding is `bgfx_shading_rate_t`.
@@ -631,8 +648,8 @@ namespace bgfx
 			uint32_t maxOcclusionQueries;     //!< Maximum number of occlusion query handles.
 			uint32_t maxEncoders;             //!< Maximum number of encoder threads.
 			uint32_t minResourceCbSize;       //!< Minimum resource command buffer size.
-			uint32_t maxTransientVbSize;      //!< Maximum transient vertex buffer size.
-			uint32_t maxTransientIbSize;      //!< Maximum transient index buffer size.
+			uint32_t minTransientVbSize;      //!< Minimum transient vertex buffer size, it grows on demand.
+			uint32_t minTransientIbSize;      //!< Minimum transient index buffer size, it grows on demand.
 			uint32_t minUniformBufferSize;    //!< Mimimum uniform buffer size.
 			uint32_t minUniformCacheSize;     //!< Minimum view and frame uniform cache size.
 			uint32_t blitRowPitchAlign;       //!< Row pitch alignment, in bytes, that buffer to texture blit copies
@@ -699,6 +716,7 @@ namespace bgfx
 	{
 		const Caps* caps; //!< Renderer capabilities.
 		void* context;    //!< GL context, or D3D device.
+		void* queue;      //!< D3D12 or Metal command queue.
 	};
 
 	/// Platform data.
@@ -711,7 +729,7 @@ namespace bgfx
 
 		void* context;                     //!< GL context, D3D device, or Vulkan device. If `NULL`, bgfx
 		                                   ///  will create context/device.
-		void* queue;                       //!< D3D12 Queue. If `NULL` bgfx will create queue.
+		void* queue;                       //!< D3D12 or Metal command queue. If `NULL` bgfx will create queue.
 		NativeWindowHandleType::Enum type; //!< Handle type. Needed for platforms having more than one option.
 	};
 
@@ -779,44 +797,47 @@ namespace bgfx
 			                                ///  `BGFX_CONFIG_DYNAMIC_FRAME_STORAGE` disabled storage for all views
 			                                ///  is allocated up front.
 			uint32_t minResourceCbSize;     //!< Minimum resource command buffer size.
-			uint32_t maxTransientVbSize;    //!< Maximum transient vertex buffer size.
-			uint32_t maxTransientIbSize;    //!< Maximum transient index buffer size.
+			uint32_t minTransientVbSize;    //!< Minimum transient vertex buffer size, it grows on demand.
+			uint32_t minTransientIbSize;    //!< Minimum transient index buffer size, it grows on demand.
 			uint32_t minUniformBufferSize;  //!< Mimimum uniform buffer size.
 			uint32_t minUniformCacheSize;   //!< Minimum view and frame uniform cache size. This is a reservation,
 			                                ///  the cache grows on demand.
 		};
 
-		RendererType::Enum type;   //!< Select rendering backend. When set to RendererType::Count
-		                           ///  a default rendering backend will be selected appropriate to the platform.
-		                           ///  See: `bgfx::RendererType`
-		uint16_t vendorId;         //!< Vendor PCI ID. If set to `BGFX_PCI_ID_NONE`, discrete and integrated
-		                           ///  GPUs will be prioritised.
-		                           ///    - `BGFX_PCI_ID_NONE` - Autoselect adapter.
-		                           ///    - `BGFX_PCI_ID_SOFTWARE_RASTERIZER` - Software rasterizer.
-		                           ///    - `BGFX_PCI_ID_AMD` - AMD adapter.
-		                           ///    - `BGFX_PCI_ID_APPLE` - Apple adapter.
-		                           ///    - `BGFX_PCI_ID_INTEL` - Intel adapter.
-		                           ///    - `BGFX_PCI_ID_NVIDIA` - NVIDIA adapter.
-		                           ///    - `BGFX_PCI_ID_MICROSOFT` - Microsoft adapter.
-		uint16_t deviceId;         //!< Device ID. If set to 0 it will select first device, or device with
-		                           ///  matching ID.
-		uint64_t capabilities;     //!< Capabilities initialization mask (default: UINT64_MAX).
-		bool debug;                //!< Enable device for debugging.
-		bool profile;              //!< Enable device for profiling.
-		bool fallback;             //!< Enable fallback to next available renderer.
-		bool videoDecode;          //!< Enable video decoding.
-		PlatformData platformData; //!< Platform data.
-		SwapChain swapChain;       //!< Swap chain for the window bgfx creates its device on.
-		                           ///  See: `bgfx::SwapChain`.
-		uint32_t reset;            //!< Device and frame global settings. Anything that is a
-		                           ///  property of one surface belongs in `swapChain` instead.
-		                           ///  See: `BGFX_RESET_*`.
-		Limits limits;             //!< Configurable runtime limits parameters.
-		CallbackI* callback;       //!< Provide application specific callback interface.
-		                           ///  See: `bgfx::CallbackI`
-		bx::AllocatorI* allocator; //!< Custom allocator. When a custom allocator is not
-		                           ///  specified, bgfx uses the CRT allocator. Bgfx assumes
-		                           ///  custom allocator is thread safe.
+		RendererType::Enum type;        //!< Select rendering backend. When set to RendererType::Count
+		                                ///  a default rendering backend will be selected appropriate to the platform.
+		                                ///  See: `bgfx::RendererType`
+		RendererType::Enum backendType; //!< Select native API a layered rendering backend (WebGPU) runs on. When
+		                                ///  set to RendererType::Count implementation's default will be selected.
+		uint16_t vendorId;              //!< Vendor PCI ID. If set to `BGFX_PCI_ID_NONE`, discrete and integrated
+		                                ///  GPUs will be prioritised.
+		                                ///    - `BGFX_PCI_ID_NONE` - Autoselect adapter.
+		                                ///    - `BGFX_PCI_ID_SOFTWARE_RASTERIZER` - Software rasterizer.
+		                                ///    - `BGFX_PCI_ID_AMD` - AMD adapter.
+		                                ///    - `BGFX_PCI_ID_APPLE` - Apple adapter.
+		                                ///    - `BGFX_PCI_ID_INTEL` - Intel adapter.
+		                                ///    - `BGFX_PCI_ID_NVIDIA` - NVIDIA adapter.
+		                                ///    - `BGFX_PCI_ID_MICROSOFT` - Microsoft adapter.
+		uint16_t deviceId;              //!< Device ID. If set to 0 it will select first device, or device with
+		                                ///  matching ID.
+		uint64_t capabilities;          //!< Capabilities initialization mask (default: UINT64_MAX).
+		bool debug;                     //!< Enable device for debugging.
+		uint32_t diagnostics;           //!< Diagnostic flags. See: `BGFX_DIAGNOSTIC_*`.
+		bool profile;                   //!< Enable device for profiling.
+		bool fallback;                  //!< Enable fallback to next available renderer.
+		bool videoDecode;               //!< Enable video decoding.
+		PlatformData platformData;      //!< Platform data.
+		SwapChain swapChain;            //!< Swap chain for the window bgfx creates its device on.
+		                                ///  See: `bgfx::SwapChain`.
+		uint32_t reset;                 //!< Device and frame global settings. Anything that is a
+		                                ///  property of one surface belongs in `swapChain` instead.
+		                                ///  See: `BGFX_RESET_*`.
+		Limits limits;                  //!< Configurable runtime limits parameters.
+		CallbackI* callback;            //!< Provide application specific callback interface.
+		                                ///  See: `bgfx::CallbackI`
+		bx::AllocatorI* allocator;      //!< Custom allocator. When a custom allocator is not
+		                                ///  specified, bgfx uses the CRT allocator. Bgfx assumes
+		                                ///  custom allocator is thread safe.
 	};
 
 	/// Memory must be obtained by calling `bgfx::alloc`, `bgfx::copy`, or `bgfx::makeRef`.
@@ -1111,13 +1132,14 @@ namespace bgfx
 	///
 	struct ViewStats
 	{
-		char name[256];       //!< View name.
-		ViewId view;          //!< View id.
-		int64_t cpuTimeBegin; //!< CPU (submit) begin time.
-		int64_t cpuTimeEnd;   //!< CPU (submit) end time.
-		int64_t gpuTimeBegin; //!< GPU begin time.
-		int64_t gpuTimeEnd;   //!< GPU end time.
-		uint32_t gpuFrameNum; //!< Frame which generated gpuTimeBegin, gpuTimeEnd.
+		char name[256];           //!< View name.
+		ViewId view;              //!< View id.
+		ViewStatsType::Enum type; //!< View stats type.
+		int64_t cpuTimeBegin;     //!< CPU (submit) begin time.
+		int64_t cpuTimeEnd;       //!< CPU (submit) end time.
+		int64_t gpuTimeBegin;     //!< GPU begin time.
+		int64_t gpuTimeEnd;       //!< GPU end time.
+		uint32_t gpuFrameNum;     //!< Frame which generated gpuTimeBegin, gpuTimeEnd.
 	};
 
 	/// Encoder stats.
@@ -1188,7 +1210,8 @@ namespace bgfx
 		uint16_t height;                    //!< Backbuffer height in pixels.
 		uint16_t textWidth;                 //!< Debug text width in characters.
 		uint16_t textHeight;                //!< Debug text height in characters.
-		uint16_t numViews;                  //!< Number of view stats.
+		uint16_t numViewStats;              //!< Number of view stats. View has one for each type of work
+		                                    ///  submitted to it. See: `bgfx::ViewStatsType`
 		ViewStats* viewStats;               //!< Array of View stats.
 		uint8_t numEncoders;                //!< Number of encoders used during frame.
 		EncoderStats* encoderStats;         //!< Array of encoder stats.
@@ -2104,6 +2127,10 @@ namespace bgfx
 		///   draw commands are executed after blit and compute commands.
 		///
 		/// @attention Destination texture must be created with `BGFX_TEXTURE_BLIT_DST` flag.
+		///
+		/// @attention A depth texture, or one created with `BGFX_TEXTURE_MSAA_SAMPLE`, can only
+		///   be blitted whole: both sides start at the origin of mips of the same size, and
+		///   the copy covers the whole mip.
 		///
 		/// @attention C99's equivalent binding is `bgfx_encoder_blit`.
 		///
@@ -5307,6 +5334,10 @@ namespace bgfx
 	///   draw commands are executed after blit and compute commands.
 	///
 	/// @attention Destination texture must be created with `BGFX_TEXTURE_BLIT_DST` flag.
+	///
+	/// @attention A depth texture, or one created with `BGFX_TEXTURE_MSAA_SAMPLE`, can only
+	///   be blitted whole: both sides start at the origin of mips of the same size, and
+	///   the copy covers the whole mip.
 	///
 	/// @attention C99's equivalent binding is `bgfx_blit`.
 	///

@@ -449,6 +449,20 @@ typedef enum bgfx_view_mode
 } bgfx_view_mode_t;
 
 /**
+ * View stats type.
+ *
+ */
+typedef enum bgfx_view_stats_type
+{
+    BGFX_VIEW_STATS_TYPE_BLIT,                /** ( 0) Blits submitted to the view.   */
+    BGFX_VIEW_STATS_TYPE_COMPUTE,             /** ( 1) Compute dispatches submitted to the view. */
+    BGFX_VIEW_STATS_TYPE_DRAW,                /** ( 2) Draw calls submitted to the view. */
+
+    BGFX_VIEW_STATS_TYPE_COUNT
+
+} bgfx_view_stats_type_t;
+
+/**
  * Shading Rate.
  *
  */
@@ -681,8 +695,8 @@ typedef struct bgfx_caps_limits_s
     uint32_t             maxOcclusionQueries; /** Maximum number of occlusion query handles. */
     uint32_t             maxEncoders;        /** Maximum number of encoder threads.       */
     uint32_t             minResourceCbSize;  /** Minimum resource command buffer size.    */
-    uint32_t             maxTransientVbSize; /** Maximum transient vertex buffer size.    */
-    uint32_t             maxTransientIbSize; /** Maximum transient index buffer size.     */
+    uint32_t             minTransientVbSize; /** Minimum transient vertex buffer size, it grows on demand. */
+    uint32_t             minTransientIbSize; /** Minimum transient index buffer size, it grows on demand. */
     uint32_t             minUniformBufferSize; /** Mimimum uniform buffer size.             */
     uint32_t             minUniformCacheSize; /** Minimum view and frame uniform cache size. */
     
@@ -777,6 +791,7 @@ typedef struct bgfx_internal_data_s
 {
     const bgfx_caps_t*   caps;               /** Renderer capabilities.                   */
     void*                context;            /** GL context, or D3D device.               */
+    void*                queue;              /** D3D12 or Metal command queue.            */
 
 } bgfx_internal_data_t;
 
@@ -792,7 +807,7 @@ typedef struct bgfx_platform_data_s
      * will create context/device.
      */
     void*                context;
-    void*                queue;              /** D3D12 Queue. If `NULL` bgfx will create queue. */
+    void*                queue;              /** D3D12 or Metal command queue. If `NULL` bgfx will create queue. */
     bgfx_native_window_handle_type_t type;   /** Handle type. Needed for platforms having more than one option. */
 
 } bgfx_platform_data_t;
@@ -882,8 +897,8 @@ typedef struct bgfx_init_limits_s
      */
     uint32_t             minViews;
     uint32_t             minResourceCbSize;  /** Minimum resource command buffer size.    */
-    uint32_t             maxTransientVbSize; /** Maximum transient vertex buffer size.    */
-    uint32_t             maxTransientIbSize; /** Maximum transient index buffer size.     */
+    uint32_t             minTransientVbSize; /** Minimum transient vertex buffer size, it grows on demand. */
+    uint32_t             minTransientIbSize; /** Minimum transient index buffer size, it grows on demand. */
     uint32_t             minUniformBufferSize; /** Mimimum uniform buffer size.             */
     
     /**
@@ -909,6 +924,12 @@ typedef struct bgfx_init_s
     bgfx_renderer_type_t type;
     
     /**
+     * Select native API a layered rendering backend (WebGPU) runs on. When
+     * set to RendererType::Count implementation's default will be selected.
+     */
+    bgfx_renderer_type_t backendType;
+    
+    /**
      * Vendor PCI ID. If set to `BGFX_PCI_ID_NONE`, discrete and integrated
      * GPUs will be prioritised.
      *   - `BGFX_PCI_ID_NONE` - Autoselect adapter.
@@ -928,6 +949,7 @@ typedef struct bgfx_init_s
     uint16_t             deviceId;
     uint64_t             capabilities;       /** Capabilities initialization mask (default: UINT64_MAX). */
     bool                 debug;              /** Enable device for debugging.             */
+    uint32_t             diagnostics;        /** Diagnostic flags. See: `BGFX_DIAGNOSTIC_*`. */
     bool                 profile;            /** Enable device for profiling.             */
     bool                 fallback;           /** Enable fallback to next available renderer. */
     bool                 videoDecode;        /** Enable video decoding.                   */
@@ -1231,6 +1253,7 @@ typedef struct bgfx_view_stats_s
 {
     char                 name[256];          /** View name.                               */
     bgfx_view_id_t       view;               /** View id.                                 */
+    bgfx_view_stats_type_t type;             /** View stats type.                         */
     int64_t              cpuTimeBegin;       /** CPU (submit) begin time.                 */
     int64_t              cpuTimeEnd;         /** CPU (submit) end time.                   */
     int64_t              gpuTimeBegin;       /** GPU begin time.                          */
@@ -1316,7 +1339,12 @@ typedef struct bgfx_stats_s
     uint16_t             height;             /** Backbuffer height in pixels.             */
     uint16_t             textWidth;          /** Debug text width in characters.          */
     uint16_t             textHeight;         /** Debug text height in characters.         */
-    uint16_t             numViews;           /** Number of view stats.                    */
+    
+    /**
+     * Number of view stats. View has one for each type of work
+     * submitted to it. See: `bgfx::ViewStatsType`
+     */
+    uint16_t             numViewStats;
     bgfx_view_stats_t*   viewStats;          /** Array of View stats.                     */
     uint8_t              numEncoders;        /** Number of encoders used during frame.    */
     bgfx_encoder_stats_t* encoderStats;      /** Array of encoder stats.                  */
@@ -3718,6 +3746,10 @@ BGFX_C_API void bgfx_encoder_discard(bgfx_encoder_t* _this, uint8_t _flags);
  *
  * @attention Destination texture must be created with `BGFX_TEXTURE_BLIT_DST` flag.
  *
+ * @attention A depth texture, or one created with `BGFX_TEXTURE_MSAA_SAMPLE`, can only
+ *   be blitted whole: both sides start at the origin of mips of the same size, and
+ *   the copy covers the whole mip.
+ *
  * @param[in] _id View id.
  * @param[in] _dst Destination texture region.
  * @param[in] _src Source texture region.
@@ -4449,6 +4481,10 @@ BGFX_C_API void bgfx_discard(uint8_t _flags);
  *   draw commands are executed after blit and compute commands.
  *
  * @attention Destination texture must be created with `BGFX_TEXTURE_BLIT_DST` flag.
+ *
+ * @attention A depth texture, or one created with `BGFX_TEXTURE_MSAA_SAMPLE`, can only
+ *   be blitted whole: both sides start at the origin of mips of the same size, and
+ *   the copy covers the whole mip.
  *
  * @param[in] _id View id.
  * @param[in] _dst Destination texture region.
