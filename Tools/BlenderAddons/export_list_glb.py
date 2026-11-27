@@ -171,13 +171,26 @@ def reset_controls(ctrl):
         pb.scale = (1.0, 1.0, 1.0)
 
 
-def bake_action(action, ctrl, manny):
+def object_rest(ob):
+    """The object's own transform as it is saved in the file."""
+    return (ob.location.copy(), ob.rotation_euler.copy(), ob.rotation_quaternion.copy(), ob.scale.copy())
+
+
+def restore_object(ob, rest):
+    """A clip may key the control rig object itself (location, rotation, scale): whatever it leaves there would shift every
+    clip baked after it, so every clip starts from the transform the file was saved with."""
+    ob.location, ob.rotation_euler, ob.rotation_quaternion, ob.scale = (v.copy() for v in rest)
+
+
+def bake_action(action, ctrl, manny, ctrl_rest=None):
     """The action of the control rig as a new action on the skeleton: what Blender shows of the skeleton for each frame."""
     from bpy_extras import anim_utils
     driven = {b.name[4:] for b in ctrl.data.bones if b.name.startswith("MCH-")}
     if "weapon.R" in ctrl.data.bones and "weapon" in manny.data.bones:
         driven.add("weapon")
     reset_controls(ctrl)
+    if ctrl_rest is not None:
+        restore_object(ctrl, ctrl_rest)
     reset_controls(manny)               # the skeleton keeps the last pose of the previous bake, and its constraints let it leak in
     for pb in manny.pose.bones:
         pb.select = pb.name in driven
@@ -231,10 +244,12 @@ def bake_worker():
             act.use_frame_range = True                      # a loop ends on its first pose: the game loops it, so that
             act.frame_end -= 1                              # frame would be shown twice
     baked = {}
+    ctrl_rest = object_rest(ctrl)
     for n, act in enumerate(todo):
-        baked[act.name] = bake_action(act, ctrl, manny)
+        baked[act.name] = bake_action(act, ctrl, manny, ctrl_rest)
         print(f"[{n + 1}/{len(todo)}] baked {act.name}", flush=True)
     ctrl.animation_data.action = None
+    restore_object(ctrl, ctrl_rest)
     ctrl["Manny_Follow"] = 0.0
     for name, act in baked.items():                 # the exporter names an animation after its action: free the plain names
         bpy.data.actions.remove(bpy.data.actions[name])

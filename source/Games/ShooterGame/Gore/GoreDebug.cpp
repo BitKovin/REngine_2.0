@@ -12,6 +12,7 @@
 #include "GoreSource.h"
 #include "GoreSystem.h"
 #include "StealthGoreAdapter.h"
+#include <SaveSystem/GameSaveSystem.h>
 
 #include <AssetRegistry.h>
 #include <Camera.h>
@@ -159,6 +160,7 @@ namespace Gore
         static vec3 startEye = vec3(0);   // where the camera was when the npc was placed (shots start there, whatever -gore_cam_up does)
         static bool reloaded = false;     // -gore_reload: another level was opened once, this is the second pass
         static int waited = 0;            // frames spent waiting for the model's gore profile (per level)
+        static bool loadedFromSave = false;   // -gore_savegame: the level was reloaded from a real save file, the second pass only looks
 
         auto& args = EngineMain::MainInstance->Arguments;
         auto look = args.find("gore_look");
@@ -219,7 +221,49 @@ namespace Gore
                 Input::MouseDelta.y = static_cast<float>(std::atof(camPitch->second[0].c_str())) * 0.1f;
         }
 
-        if (npc == nullptr && ticks == 10)
+        // -gore_loadsave <name>: a save made by the player is loaded (the camera comes back as it was saved). The second pass takes the
+        // first body with a cut as the test subject and only waits for the picture.
+        {
+            auto loadSave = args.find("gore_loadsave");
+            if (loadSave != args.end() && !loadSave->second.empty())
+            {
+                if (!loadedFromSave && ticks == 10)
+                {
+                    loadedFromSave = true;
+                    GameSaveSystem::LoadGameFromFile(loadSave->second[0]);
+                    ProbeLog("gore_look: save " + loadSave->second[0] + " loading");
+                    return;
+                }
+                if (loadedFromSave && npc == nullptr && ticks == 10)
+                {
+                    for (auto* object : Level::Current->LevelObjects)
+                    {
+                        Entity* e = dynamic_cast<Entity*>(object);
+                        if (e != nullptr && e->HasComponent<GoreComponent>() && !e->GetComponent<GoreComponent>()->isGib
+                            && e->GetComponent<GoreComponent>()->cutCount > 0)
+                        {
+                            npc = e;
+                            break;
+                        }
+                    }
+                    fired = true;
+                    ProbeLog(std::string("gore_look: after the load the subject is ") + (npc != nullptr ? npc->Name + " " + V3(npc->Position) : "MISSING"));
+                    if (npc == nullptr) { ticks = -1000000; return; }
+                }
+            }
+        }
+
+        // -gore_savegame, second pass: the save game was loaded (the level reloaded, the NPC created by the save system). The test does
+        // not spawn another one: it takes the loaded one and only waits for the picture.
+        if (loadedFromSave && npc == nullptr && ticks == 10)
+        {
+            npc = Level::Current->FindEntityWithName("gore_look_npc");
+            fired = true;
+            ProbeLog(std::string("gore_look: after the load the npc is ") + (npc != nullptr ? "there" : "MISSING"));
+            if (npc == nullptr) { ticks = -1000000; return; }
+        }
+
+        if (!loadedFromSave && npc == nullptr && ticks == 10)
         {
             const float yaw = Camera::finalizedRotation.y;
             const vec3 forward = MathHelper::GetForwardVector(vec3(0, yaw, 0));
@@ -267,6 +311,17 @@ namespace Gore
             ProbeLog("gore_look: saved " + std::to_string(saved.dump().size()) + " bytes of gore: " + saved.dump().substr(0, 400));
             LoadGoreState(npc, saved);
             npc->GetComponent<GoreComponent>()->version += 1000;   // the body already shows a state: make the mesh take the loaded one
+        }
+
+        // -gore_savegame: a real save game (the whole level) is written and loaded a while before the picture, as quicksave and
+        // quickload do it: the level reloads, the save system creates the NPC again and restores it through Deserialize.
+        if (fired && !loadedFromSave && ticks == shotTick - 60 && args.find("gore_savegame") != args.end())
+        {
+            GameSaveSystem::SaveGameToFile("gore_test");
+            loadedFromSave = true;
+            GameSaveSystem::LoadGameFromFile("gore_test");
+            ProbeLog("gore_look: save game written and loaded");
+            return;
         }
 
         if (fired && ticks == shotTick)

@@ -3,6 +3,7 @@
 #include "GoreComponent.h"
 #include "GoreCutSolver.h"
 #include "GoreEvents.h"
+#include "GoreSave.h"
 #include "GoreSettings.h"
 #include "GoreSkeletalMesh.h"
 #include "GoreSystem.h"
@@ -12,9 +13,13 @@
 #include <Level.hpp>
 #include <Physics.h>
 #include <PhysicsConverter.h>
+#include <RegisterLevelObject.h>
 #include <Time.hpp>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <algorithm>
+#include <cmath>
 #include <deque>
 #include <vector>
 
@@ -26,6 +31,34 @@ namespace Gore
         std::vector<EntityHandle> g_live;   // oldest first
         std::vector<uint32_t> g_queuedFrames;   // frame number each queued request was made (parallel to g_queue)
         uint32_t g_frame = 0;
+
+        // Poses are written as {bone: [16 floats]}: the generic form of a matrix is several times longer.
+        json PoseToJson(const AnimationPose& pose)
+        {
+            json j = json::object();
+            for (const auto& kv : pose.boneTransforms)
+            {
+                const float* m = glm::value_ptr(kv.second);
+                j[kv.first.str()] = json::array({ m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7],
+                                                  m[8], m[9], m[10], m[11], m[12], m[13], m[14], m[15] });
+            }
+            return j;
+        }
+
+        AnimationPose PoseFromJson(const json& j)
+        {
+            AnimationPose pose;
+            if (!j.is_object()) return pose;
+            for (auto it = j.begin(); it != j.end(); ++it)
+            {
+                if (!it.value().is_array() || it.value().size() != 16) continue;
+                glm::mat4 m(1.0f);
+                float* f = glm::value_ptr(m);
+                for (int i = 0; i < 16; ++i) f[i] = it.value()[i].get<float>();
+                pose.boneTransforms[hashed_string{ it.key() }] = m;
+            }
+            return pose;
+        }
 
         // A hitbox for the severed bone built from the merged bounds of its subtree (when the model has none there).
         HitboxData MakeFallbackHitbox(const Profile& profile, const roj::SkinnedModel& model, uint16_t S, const std::string& boneName)
@@ -58,7 +91,7 @@ namespace Gore
     GoreGib::GoreGib()
     {
         ClassName = "gore_gib";
-        SaveGame = false;
+        SaveGame = true;   // the part is saved as an entity of its own (Serialize / Deserialize below)
         mesh = new GoreSkeletalMesh(this);
         mesh->CastDetailShadows = false;
         Drawables.push_back(mesh);
@@ -72,41 +105,13 @@ namespace Gore
         if (mesh) mesh->ClearHitboxes();
     }
 
-    bool GoreGib::Init(Entity* body, GoreSkeletalMesh* bodyMesh, const Profile& profile, uint8_t cutIndex, const glm::vec3& impulse)
+    void GoreGib::SelectPartHitboxes(const Profile& profile, const roj::SkinnedModel& model, uint16_t S)
     {
-        if (body == nullptr || bodyMesh == nullptr || bodyMesh->GetSkinnedModel() == nullptr) return false;
-        if (!body->HasComponent<GoreComponent>()) return false;
-
-        auto bodyGore = body->GetComponent<GoreComponent>();
-        if (cutIndex >= bodyGore->cutCount) return false;
-
-        const Cut cut = bodyGore->cuts[cutIndex];
-        const uint16_t S = cut.boneSkel;
-        if (S >= profile.subtreeEnd.size()) return false;
         const uint16_t end = profile.subtreeEnd[S];
-        const roj::SkinnedModel& model = *bodyMesh->GetSkinnedModel();
-
         const SeverableBone* sev = nullptr;
         if (S < profile.severableBySkel.size() && profile.severableBySkel[S] >= 0)
             sev = &profile.severable[profile.severableBySkel[S]];
         const bool rigid = sev == nullptr || sev->gib == SeverableBone::GibKind::Rigid;
-
-        Position = bodyMesh->Position;
-        Rotation = bodyMesh->Rotation;
-        spawnTime = Time::GameTime;
-
-        mesh->Position = bodyMesh->Position;
-        mesh->Rotation = bodyMesh->Rotation;
-        mesh->Scale = bodyMesh->Scale;
-        mesh->GravityAlignedRotation = bodyMesh->GravityAlignedRotation;
-        mesh->Masked = bodyMesh->Masked;
-        mesh->DepthPrePath = bodyMesh->DepthPrePath;
-        mesh->TexturesLocation = bodyMesh->TexturesLocation;
-        mesh->LoadFromFile(bodyMesh->filePath);
-        mesh->PreloadAssets();
-        // The part is a copy of the whole model until its cut is in the render state (the cap is built on the worker, which can take
-        // a while): it stays invisible until PushRenderStateIfChanged shows it with the cut applied.
-        mesh->Visible = false;
 
         // The part's hitboxes only. The root one has no parent; hitboxes whose parent is not in the part are dropped.
         std::vector<HitboxData> kept;
@@ -146,6 +151,40 @@ namespace Gore
             }
         }
         mesh->metaData.hitboxes = kept;
+    }
+
+    bool GoreGib::Init(Entity* body, GoreSkeletalMesh* bodyMesh, const Profile& profile, uint8_t cutIndex, const glm::vec3& impulse)
+    {
+        if (body == nullptr || bodyMesh == nullptr || bodyMesh->GetSkinnedModel() == nullptr) return false;
+        if (!body->HasComponent<GoreComponent>()) return false;
+
+        auto bodyGore = body->GetComponent<GoreComponent>();
+        if (cutIndex >= bodyGore->cutCount) return false;
+
+        const Cut cut = bodyGore->cuts[cutIndex];
+        const uint16_t S = cut.boneSkel;
+        if (S >= profile.subtreeEnd.size()) return false;
+        const uint16_t end = profile.subtreeEnd[S];
+        const roj::SkinnedModel& model = *bodyMesh->GetSkinnedModel();
+
+        Position = bodyMesh->Position;
+        Rotation = bodyMesh->Rotation;
+        spawnTime = Time::GameTime;
+
+        mesh->Position = bodyMesh->Position;
+        mesh->Rotation = bodyMesh->Rotation;
+        mesh->Scale = bodyMesh->Scale;
+        mesh->GravityAlignedRotation = bodyMesh->GravityAlignedRotation;
+        mesh->Masked = bodyMesh->Masked;
+        mesh->DepthPrePath = bodyMesh->DepthPrePath;
+        mesh->TexturesLocation = bodyMesh->TexturesLocation;
+        mesh->LoadFromFile(bodyMesh->filePath);
+        mesh->PreloadAssets();
+        // The part is a copy of the whole model until its cut is in the render state (the cap is built on the worker, which can take
+        // a while): it stays invisible until PushRenderStateIfChanged shows it with the cut applied.
+        mesh->Visible = false;
+
+        SelectPartHitboxes(profile, model, S);
 
         mesh->CreateHitboxes(this);                       // built in the rest pose
         mesh->PasteAnimationPose(bodyMesh->GetAnimationPose());
@@ -190,9 +229,116 @@ namespace Gore
         return true;
     }
 
+    void GoreGib::Serialize(json& target)
+    {
+        Entity::Serialize(target);
+
+        // A part that has not finished loading yet keeps what it was given.
+        if (restorePending)
+        {
+            target["gib"] = restoreData["gib"];
+            if (restoreData.contains("gore")) target["gore"] = restoreData["gore"];
+            return;
+        }
+
+        json g;
+        g["model"] = mesh->filePath;
+        g["textures"] = mesh->TexturesLocation;
+        g["masked"] = mesh->Masked;
+        g["depthPrePass"] = mesh->DepthPrePath;
+        g["gravityAligned"] = mesh->GravityAlignedRotation;
+        g["position"] = mesh->Position;
+        g["rotation"] = mesh->Rotation;
+        g["scale"] = mesh->Scale;
+        g["hitCounter"] = hitCounter;
+        g["pose"] = PoseToJson(mesh->GetAnimationPose());   // the hitboxes write into it every frame
+        g["ragdoll"] = mesh->GetAnimationState();   // where every hitbox body lies (the engine's own save form for ragdolls)
+        target["gib"] = std::move(g);
+
+        SaveGoreState(this, target);
+    }
+
+    void GoreGib::Deserialize(json& source)
+    {
+        Entity::Deserialize(source);
+
+        if (!source.contains("gib") || !source["gib"].is_object() || !source.contains("gore"))
+        {
+            Destroy();   // nothing to rebuild the part from
+            return;
+        }
+        const json& g = source["gib"];
+
+        mesh->TexturesLocation = g.value("textures", mesh->TexturesLocation);
+        mesh->Masked = g.value("masked", mesh->Masked);
+        mesh->DepthPrePath = g.value("depthPrePass", mesh->DepthPrePath);
+        mesh->GravityAlignedRotation = g.value("gravityAligned", mesh->GravityAlignedRotation);
+        if (g.contains("position")) g.at("position").get_to(mesh->Position);
+        if (g.contains("rotation")) g.at("rotation").get_to(mesh->Rotation);
+        if (g.contains("scale")) g.at("scale").get_to(mesh->Scale);
+        hitCounter = g.value("hitCounter", 0u);
+        spawnTime = Time::GameTime;
+
+        mesh->LoadFromFile(g.value("model", std::string()));
+        mesh->PreloadAssets();
+        mesh->Visible = false;   // shown with its cut, like a fresh part
+
+        LoadGoreState(this, source);
+
+        restoreData = json::object();
+        restoreData["gib"] = g;
+        restoreData["gore"] = source["gore"];
+        restorePending = true;
+
+        g_live.push_back(EntityHandle::FromEntity(this));   // counts towards the gib budget again
+        FinishRestore();
+    }
+
+    // The hitboxes, the pose and the velocities, as Init makes them. Needs the profile (which hitboxes belong to the part), so it can
+    // wait a few frames; called from the gore tick until it is done.
+    bool GoreGib::FinishRestore()
+    {
+        if (!restorePending) return true;
+        if (mesh == nullptr || mesh->GetSkinnedModel() == nullptr || mesh->GetSkinnedModel()->meshes.empty()) return false;
+
+        const roj::SkinnedModel& model = *mesh->GetSkinnedModel();
+        const Profile& profile = GetProfile(mesh->filePath, model);
+        if (!profile.valid)
+        {
+            if (profile.loading) return false;
+            restorePending = false;   // this model gets no gore: there is no part to keep
+            Destroy();
+            return true;
+        }
+
+        if (!HasComponent<GoreComponent>() || GetComponent<GoreComponent>()->cutCount == 0
+            || GetComponent<GoreComponent>()->cuts[0].boneSkel >= profile.subtreeEnd.size())
+        {
+            restorePending = false;
+            Destroy();
+            return true;
+        }
+
+        SelectPartHitboxes(profile, model, GetComponent<GoreComponent>()->cuts[0].boneSkel);
+        mesh->CreateHitboxes(this);
+
+        const json& g = restoreData["gib"];
+        mesh->SetAnimationPaused(true);
+        mesh->UpdatePose = false;
+        mesh->RagdollPoseFollowStrength = 0.0f;
+        // The hitbox bodies go where they lay (the engine's own ragdoll restore, as for a dead body); the bones without a body (the
+        // fingers of a rigid hand) take their saved pose.
+        if (g.contains("ragdoll")) mesh->SetAnimationState(g["ragdoll"].get<AnimationState>());
+        if (g.contains("pose")) mesh->PasteAnimationPose(PoseFromJson(g["pose"]));
+
+        restorePending = false;
+        restoreData = json();
+        return true;
+    }
+
     void GoreGib::AsyncUpdate()
     {
-        if (mesh == nullptr) return;
+        if (mesh == nullptr || restorePending) return;
         mesh->UpdateHitboxes();
         wasRendered = mesh->WasRended;
     }
@@ -282,3 +428,6 @@ namespace Gore
         }
     }
 }
+
+using GoreGibEntity = Gore::GoreGib;
+REGISTER_ENTITY(GoreGibEntity, "gore_gib")

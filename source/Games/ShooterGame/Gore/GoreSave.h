@@ -7,8 +7,9 @@ class Entity;
 namespace Gore
 {
     // Save games. The gore state of a body (its wounds, cuts, blood decals and the damage collected towards severing a part) is
-    // written into the save record of the entity as target["gore"]. Nothing is written for a body without gore, and severed
-    // parts (GoreGib) are not saved: after a load the body still shows the stump, the part itself is gone.
+    // written into the save record of the entity as target["gore"]. Nothing is written for a body without gore. A severed part
+    // (GoreGib) is an entity of its own with the same record, plus "isGib" and the palette of the body at the moment of the cut;
+    // it saves its ragdoll itself (GoreGib::Serialize).
     //
     // Times are saved relative to now (the regen clock for wounds and cuts, game time for the effects), so a wound that was half
     // healed continues where it was. The geometry that is generated from the state is not saved: the cut faces and the wound

@@ -2,9 +2,13 @@
 
 #include "GoreComponent.h"
 #include "GoreRenderState.h"
+#include "GoreSkeletalMesh.h"
+#include "GoreSystem.h"
 
 #include <Entity.h>
 #include <Time.hpp>
+
+#include <glm/gtc/type_ptr.hpp>
 
 #include <algorithm>
 
@@ -163,7 +167,6 @@ namespace Gore
     {
         if (entity == nullptr || !entity->HasComponent<GoreComponent>()) return;
         const GoreComponent& gore = *entity->GetComponent<GoreComponent>();
-        if (gore.isGib) return;
         if (gore.woundCount == 0 && gore.cutCount == 0 && gore.splatCount == 0 && gore.hitCounter == 0) return;
 
         const double now = Time::GameTime;
@@ -176,6 +179,21 @@ namespace Gore
         for (int i = 0; i < gore.cutCount; ++i) j["cuts"].push_back(CutToJson(gore.cuts[i], clockNow, now));
         j["splats"] = json::array();
         for (int i = 0; i < gore.splatCount; ++i) j["splats"].push_back(SplatToJson(gore.splats[i]));
+
+        if (gore.isGib)
+        {
+            // A severed part (GoreGib): the palette of the body at the moment of the cut, 16 floats per bone.
+            j["isGib"] = true;
+            json palette = json::array();
+            for (const glm::mat4& m : gore.gibSeverPalette)
+            {
+                const float* f = glm::value_ptr(m);
+                json a = json::array();
+                for (int i = 0; i < 16; ++i) a.push_back(f[i]);
+                palette.push_back(std::move(a));
+            }
+            j["gibPalette"] = std::move(palette);
+        }
 
         j["hitCounter"] = gore.hitCounter;
         j["orderCounter"] = gore.orderCounter;
@@ -217,6 +235,21 @@ namespace Gore
             for (const json& s : j["splats"])
                 if (gore.splatCount < kMaxSplats) gore.splats[gore.splatCount++] = SplatFromJson(s);
 
+        gore.isGib = j.value("isGib", false);
+        if (gore.isGib && j.contains("gibPalette") && j["gibPalette"].is_array())
+        {
+            for (const json& a : j["gibPalette"])
+            {
+                glm::mat4 m(1.0f);
+                if (a.is_array() && a.size() == 16)
+                {
+                    float* f = glm::value_ptr(m);
+                    for (int i = 0; i < 16; ++i) f[i] = a[i].get<float>();
+                }
+                gore.gibSeverPalette.push_back(m);
+            }
+        }
+
         gore.hitCounter = j.value("hitCounter", 0u);
         gore.orderCounter = j.value("orderCounter", 0u);
         if (j.contains("severDamage") && j["severDamage"].is_array())
@@ -225,6 +258,37 @@ namespace Gore
         if (j.contains("severDamageTime") && j["severDamageTime"].is_array())
             for (size_t i = 0; i < gore.severDamageTime.size() && i < j["severDamageTime"].size(); ++i)
                 gore.severDamageTime[i] = now + j["severDamageTime"][i].get<double>();
+
+        // The cut parts' hitboxes leave the physics world NOW, before the owner restores its ragdoll (NpcBase::Deserialize does that
+        // right after this) and before the load simulates the world: their saved bodies lie where the parts were cut off, and while they
+        // are still in the world their constraints pull the rest of the ragdoll apart (the trunk got stretched between the two).
+        // Idempotent; RestoreLoadedGore repeats it for a body whose hitboxes are not there yet.
+        if (gore.cutCount > 0 && !gore.isGib)
+        {
+            GoreSkeletalMesh* mesh = FindGoreMesh(entity);
+            if (mesh != nullptr && mesh->GetSkinnedModel() != nullptr && !mesh->hitboxBodies.empty())
+            {
+                const roj::FlatSkeleton& skeleton = mesh->GetSkinnedModel()->skeleton;
+                std::vector<hashed_string> names;
+                for (int i = 0; i < gore.cutCount; ++i)
+                {
+                    const Cut& cut = gore.cuts[i];
+                    if (cut.hitboxesBack || cut.boneSkel >= skeleton.boneCount) continue;
+                    // skeletons are in depth-first order (parent before child): the subtree is the run of bones below the cut bone
+                    std::vector<uint8_t> inPart(skeleton.boneCount, 0);
+                    inPart[cut.boneSkel] = 1;
+                    uint16_t end = cut.boneSkel + 1;
+                    while (end < skeleton.boneCount && inPart[skeleton.bones[end].parentIdx]) inPart[end++] = 1;
+                    for (const HitboxData& h : mesh->metaData.hitboxes)
+                    {
+                        const uint16_t skel = mesh->GetSkeletonIndex(hashed_string{ h.boneName });
+                        if (skel != INVALID_BONE_IDX && skel >= cut.boneSkel && skel < end)
+                            names.push_back(hashed_string{ h.boneName });
+                    }
+                }
+                if (!names.empty()) mesh->SetHitboxesActive(names, false);
+            }
+        }
 
         gore.version = 2;                // the mesh starts at 0: it draws this state
         gore.restorePending = gore.cutCount > 0;   // caps and hitboxes, applied by the gore tick once the model is ready

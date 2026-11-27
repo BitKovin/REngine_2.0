@@ -939,8 +939,9 @@ namespace Gore
             return true;
         }
 
-        // The hitboxes are made when the model has loaded; a model without any has nothing to switch off.
-        if (!mesh->metaData.hitboxes.empty() && mesh->hitboxBodies.empty()) return false;
+        // The hitboxes are made when the model has loaded; a model without any has nothing to switch off. (A severed part makes its
+        // own hitboxes - the cut part's - in GoreGib::FinishRestore, and keeps them.)
+        if (!gore.isGib && !mesh->metaData.hitboxes.empty() && mesh->hitboxBodies.empty()) return false;
 
         for (int i = 0; i < gore.cutCount; ++i)
         {
@@ -951,7 +952,7 @@ namespace Gore
                 gore.capPending[i] = false;
             }
 
-            if (cut.hitboxesBack || cut.boneSkel >= profile.subtreeEnd.size()) continue;
+            if (gore.isGib || cut.hitboxesBack || cut.boneSkel >= profile.subtreeEnd.size()) continue;
             std::vector<hashed_string> names;
             for (const HitboxData& h : mesh->metaData.hitboxes)
             {
@@ -971,6 +972,13 @@ namespace Gore
     {
         GoreSkeletalMesh* mesh = FindGoreMesh(self);
         if (mesh == nullptr || mesh->GetSkinnedModel() == nullptr) return;
+
+        // A severed part loaded from a save builds its ragdoll first (it needs the profile, like the restore below).
+        if (gore.isGib)
+        {
+            GoreGib* gib = dynamic_cast<GoreGib*>(self);
+            if (gib != nullptr && !gib->FinishRestore()) return;
+        }
 
         if (gore.restorePending && !RestoreLoadedGore(mesh, gore)) return;
 

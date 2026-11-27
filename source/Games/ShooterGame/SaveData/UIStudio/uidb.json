@@ -397,27 +397,6 @@
       "host": {
         "kind": "viewport"
       },
-      "id": "document:ui/kit/pages/pause.xml",
-      "kind": "document",
-      "name": "ui/kit/pages/pause.xml",
-      "parameters": [],
-      "requiredCapabilities": [],
-      "scenarios": [],
-      "sourceRefs": [
-        {
-          "kind": "document",
-          "path": "ui/kit/pages/pause.xml"
-        }
-      ],
-      "supportsLiveCapture": false
-    },
-    {
-      "animationScenarios": [],
-      "category": "Documents",
-      "description": "Layout document",
-      "host": {
-        "kind": "viewport"
-      },
       "id": "document:ui/kit/tests/CycleA.xml",
       "kind": "document",
       "name": "ui/kit/tests/CycleA.xml",
@@ -3928,15 +3907,6 @@
         "component": false,
         "imports": [],
         "path": "ui/kit/focus_pointer.xml",
-        "styleSheets": [
-          "ui/theme.css",
-          "ui/kit/styles/kit.css"
-        ]
-      },
-      {
-        "component": false,
-        "imports": [],
-        "path": "ui/kit/pages/pause.xml",
         "styleSheets": [
           "ui/theme.css",
           "ui/kit/styles/kit.css"

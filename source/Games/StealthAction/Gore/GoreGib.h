@@ -5,6 +5,7 @@
 
 #include <Entity.h>
 #include <EntityHandle.h>
+#include <json.hpp>
 
 namespace Gore
 {
@@ -21,6 +22,12 @@ namespace Gore
         // Copies pose, hitboxes (the part's subtree only) and gore from the body. Call before adding to the level.
         bool Init(Entity* body, GoreSkeletalMesh* bodyMesh, const Profile& profile, uint8_t cutIndex, const glm::vec3& impulse);
 
+        // Save games: the part is saved as an entity of its own (model, ragdoll, gore state). The load builds the same
+        // ragdoll again as Init does; what needs the gore profile waits for it (FinishRestore, from the gore tick).
+        void Serialize(json& target) override;
+        void Deserialize(json& source) override;
+        bool FinishRestore();   // true when nothing is left to restore
+
         void Update() override;
         void Destroy() override;
         void OnPointDamage(float Damage, vec3 Point, vec3 Direction, string bone = "", Entity* DamageCauser = nullptr, Entity* Weapon = nullptr) override;
@@ -29,6 +36,12 @@ namespace Gore
         double spawnTime = 0.0;
         bool wasRendered = false;
         uint32_t hitCounter = 0;
+        bool restorePending = false;
+        nlohmann::json restoreData;
+
+    private:
+        // Keeps only the hitboxes of the severed subtree (a single box for a rigid part) in the mesh's metadata.
+        void SelectPartHitboxes(const Profile& profile, const roj::SkinnedModel& model, uint16_t S);
     };
 
     struct GibRequest
