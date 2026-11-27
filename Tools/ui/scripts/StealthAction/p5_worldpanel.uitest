@@ -1,0 +1,31 @@
+# Phase 5: a WorldPanel centres on the projected point, clamps to the screen edge behind the camera, hides without clamp-to-edge
+wait 6
+console ui_load GameData/ui/kit/tests/p5_worldpanel.xml
+wait_frames 8
+worldpanel_at wp 5 0 0
+wait_frames 6
+expect_worldpanel wp centre_dist < 2
+expect_worldpanel wp clamped == 0
+worldpanel_at wp 5 1 0
+wait_frames 6
+expect_worldpanel wp centre_dist > 20
+expect_worldpanel wp clamped == 0
+worldpanel_at wp -5 0 0
+wait_frames 6
+expect_worldpanel wp clamped == 1
+expect_worldpanel wp edge_dist < 40
+expect_worldpanel wp behind == 1
+worldpanel_at wp 5 40 0
+wait_frames 6
+expect_worldpanel wp clamped == 1
+# without clamp-to-edge an off-screen panel is hidden, and visible again when it is back on screen
+worldpanel_clamp wp 0
+worldpanel_at wp 5 40 0
+wait_frames 6
+expect_worldpanel wp hidden == 1
+worldpanel_at wp 5 0 0
+wait_frames 6
+expect_worldpanel wp hidden == 0
+expect_worldpanel wp centre_dist < 2
+expect_ui_errors 0
+quit

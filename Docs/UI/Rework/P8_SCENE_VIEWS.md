@@ -110,4 +110,30 @@ It must not read or write `Camera::*` statics. If it can't avoid them, it must s
 
 ## Implementation notes
 
-(implementer writes here)
+Status: 8.0 to 8.5 and the UIDB descriptors are done; the test `p8_scene` passes on dx11 (StealthAction). Other backends, the `cross` compare and test 4 (a SceneView inside a world surface) are not run. Nothing is committed.
+
+### 8.0 investigation (what the engine really offers)
+
+- The render entry point is the pattern of the ShooterGame weapon icon baker, not a `RenderSceneView(FrameDrawCommandLists...)` call. A mesh can live outside a level: a `SkeletalMesh(nullptr)` subclass (`UiSceneMesh`) overrides `GetLightVolData()` and returns the scene view's lights. Drawing is `Framebuffer::bind(0, 0, w, h)` (takes a fresh view id), then `PreFinalize`, `FinalizeFrameData`, `CollectDrawCommands`, and `command->DrawForward(view, projection)`. `DrawForward` takes explicit matrices, so the `Camera::*` statics are not read or written. The projection is `glm::perspective`, like `Camera`.
+- Threads: everything runs on the main thread. `UiSceneViews::RenderAll()` is called from `EngineMain::Render` right before `RenderLevel`, so the target is drawn before anything that samples it. The UI snapshot only holds the texture handle.
+- Textures: embedded textures register a little after the geometry. A model stays out of the picture for 0.5 s after the geometry is up (`kSettleSeconds`), is finalized (which requests the textures), and becomes Ready after 0.6 s once every requested base-colour texture is at the Visual tier, or after 2 s. While a model is Loading or Warming the view re-renders every frame; a Ready view with no animation costs nothing.
+- Models: only `widgetPlane.glb` is small in StealthAction `models/engine` and it has no texture (it draws black). The test uses `models/pickups/weapons/shotgun.glb`.
+
+### API
+
+Tags `SceneView` (camera-position, camera-target, fov, background, orbit), `Model` (src, position, rotation, scale, animation, two-sided), `Light` (type directional | ambient | point, direction, position, color, intensity, range). Code: `view->SetCamera(pos, target, fov)`, `view->AddModel(path)`, `view->Find<UiSceneModel>("id")->SetTransform(...)`.
+The target pool is `UiSceneTargets` (RGBA8 + D24S8, sized to the content rect times the main render scale, rounded up to a multiple of 8, max 2048; freed 3 s after its last use).
+
+### Deviations and known gaps
+
+- MSAA is off for scene view targets.
+- Lights: the first directional light, ambient lights, and real point lights (up to the shader's 5) through `LightManager::SetPointLightOverride`, which replaces the level's point lights while the view draws. Spot cones are not exposed.
+- Right-stick orbit is not implemented; orbit is a pointer drag only.
+- Animation is driven by hand: `SetAnimationTime` + `Update(0)` each frame the view renders.
+- A nested SceneView inside a SceneView is not guarded with a warning yet.
+- The statics of this feature (`g_views`, its mutex and the target list) are deliberately never destroyed: UI elements are destroyed in static destruction at exit, and destroying them first crashed the exit.
+- UIDB: capability `sceneView`, host entry `scene-view` (documentation only; a scene view is an element), sample preview `runtime.engine.scene-view`.
+
+### Test
+
+`Tools/ui/scripts/StealthAction/p8_scene.uitest` with the fixture `kit/tests/p8_scene.xml`: size 400x400, idle view renders 0 times in 20 frames, a variable change (`spin`) re-renders, orbit drag changes the yaw and releases outside the view, three screenshots. The `wait 5` after loading is real time (headless frames are faster than the settle timers).

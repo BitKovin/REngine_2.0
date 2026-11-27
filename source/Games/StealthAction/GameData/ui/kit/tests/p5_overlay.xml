@@ -1,0 +1,6 @@
+<root>
+  <styles><style>
+    #ovBox { width: 120px; height: 120px; x: 80px; y: 80px; background-color: #c02020; }
+  </style></styles>
+  <Panel id="ovBox"/>
+</root>

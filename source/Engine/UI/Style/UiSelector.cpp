@@ -14,7 +14,7 @@ namespace
             { "hover", UiPseudo::Hover }, { "active", UiPseudo::Active }, { "focus", UiPseudo::Focus },
             { "focus-within", UiPseudo::FocusWithin }, { "disabled", UiPseudo::Disabled }, { "selected", UiPseudo::Selected },
             { "root", UiPseudo::Root }, { "entering", UiPseudo::Entering }, { "leaving", UiPseudo::Leaving },
-            { "checked", UiPseudo::Checked }, { "dragging", UiPseudo::Dragging } };
+            { "checked", UiPseudo::Checked }, { "dragging", UiPseudo::Dragging }, { "out-of-range", UiPseudo::OutOfRange } };
         const std::vector<UiPulseInfo>& pulses = UiPulses();
         for (size_t i = 0; i < pulses.size(); ++i)
             if (name == pulses[i].Name)
@@ -61,6 +61,7 @@ namespace
             case UiPseudo::Leaving: if (!(e.States & kStateLeaving)) return false; break;
             case UiPseudo::Checked: if (!(e.States & kStateChecked)) return false; break;
             case UiPseudo::Dragging: if (!(e.States & kStateDragging)) return false; break;
+            case UiPseudo::OutOfRange: if (!(e.States & kStateOutOfRange)) return false; break;
             default:   // a pulse
             {
                 const int index = static_cast<int>(p) - static_cast<int>(UiPseudo::PulseFirst);
@@ -98,7 +99,7 @@ namespace
 const std::vector<std::string>& UiPseudoNames()
 {
     static const std::vector<std::string> names = [] {
-        std::vector<std::string> list = { "hover", "active", "focus", "focus-within", "disabled", "selected", "root", "entering", "leaving", "checked", "dragging" };
+        std::vector<std::string> list = { "hover", "active", "focus", "focus-within", "disabled", "selected", "root", "entering", "leaving", "checked", "dragging", "out-of-range" };
         for (const UiPulseInfo& p : UiPulses())
             list.push_back(p.Name);
         return list;

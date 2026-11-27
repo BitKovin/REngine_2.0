@@ -50,7 +50,9 @@ namespace
                 ".dropdown-item { width: 100%; height: 44px; padding: 0 12px; }\n"
                 ".dropdown-item .dropdown-item-text { vertical-align: center; }\n"
                 ".dropdown-item:hover, .dropdown-item:focus { background-color: #444444; }\n"
-                ".dropdown-item:selected { background-color: #3d4b66; }\n";
+                ".dropdown-item:selected { background-color: #3d4b66; }\n"
+                ".hud-hidden { opacity: 0; transition: opacity 0.2s; }\n"
+                ".tooltip { flow-children: down; padding: 8px 12px; background-color: #1c1c1cf2; border: 1px solid #5a5a5a; border-radius: 4px; color: #ffffff; }\n";
             std::vector<SheetRef> list;
             SheetRef ref;
             ref.Sheet = UiParseStyleSheet(text, "<engine default sheet>", 0);
@@ -301,6 +303,8 @@ namespace
         ApplyOverrides(s, e.m_overrides);
         if (e.m_visibleOverrideCollapse)
             s.Visibility = UiVisibility::Collapse;
+        if (e.m_hasTransformOverride)
+            s.Fx.Transform = e.m_transformOverride;
         {
             // sound-enter / sound-exit belong to the rules: the rules that match now are compared with the ones of the last resolve
             std::vector<UiElem::RuleSound> sounds;

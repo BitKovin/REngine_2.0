@@ -30,6 +30,9 @@ public:
 
 	static void ApplyPointLightToShader(Shader* shader, vec3 boundsMin, vec3 boundsMax);
 
+	// While set, shaders get these point lights instead of the level's (UI scene views draw outside any level). nullptr restores the level lights.
+	static void SetPointLightOverride(const std::vector<PointLightInfo>* lights) { m_overrideLights = lights; }
+
 	static vec3 LightDirection;
 
 	static float LightDistance;
@@ -75,6 +78,7 @@ private:
 
 	static inline std::vector<PointLightInfo> m_lights;
 	static inline std::vector<PointLightInfo> m_finalLights;
+	static inline const std::vector<PointLightInfo>* m_overrideLights = nullptr;
 
 };
 

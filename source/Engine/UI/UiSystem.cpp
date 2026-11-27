@@ -32,6 +32,13 @@
 #include <UI/Markup/UiTagRegistry.h>
 #include <UI/Menus/UiActions.h>
 #include <UI/Menus/UiInputPrompts.h>
+#include <UI/Hud/UiElemWorldPanel.h>
+#include <UI/Hud/UiHost.h>
+#include <UI/Hud/UiTooltips.h>
+#include <UI/SceneView/UiElemSceneView.h>
+#include <UI/Hud/UiHudPreviews.h>
+#include <UI/Test/UiTestTerminal.h>
+#include <UI/WorldSpace/UiWorldSurface.h>
 #include <UI/Menus/UiMenuStack.h>
 #include <UI/Preview/UiDatabase.h>
 #include <UI/Studio/UiInspect.h>
@@ -110,6 +117,8 @@ namespace
     {
         using UiTagRegistry::AttributeInfo;
         using UiTagRegistry::TagInfo;
+        UiHud::RegisterTags();
+        UiSceneViews::RegisterTags();
         UiTagRegistry::RegisterBuiltin("Panel", &UiElemPanel::Create, TagInfo{ "Panel", "layout", "Container with a box (background, border, radius)", {} });
         UiTagRegistry::RegisterBuiltin("Label", &UiElemLabel::Create, TagInfo{ "Label", "text", "Text",
             { AttributeInfo{ "text", "text", "", false, "Text to show; the element's text content is used when the attribute is absent" },
@@ -187,13 +196,19 @@ namespace
     float g_lastUiScale = 1.f;
 
     // ── helpers
-    bool IsUnderViewport(const UiElement* e)
+    // The viewport a root hangs under: the main one or the private viewport of a world surface.
+    const UiElement* OwnerViewport(const UiElement* e)
     {
         for (const UiElement* p = e->parent; p != nullptr; p = p->parent)
-            if (p == &EngineMain::Viewport)
-                return true;
-        return false;
+            if (p == &EngineMain::Viewport || UiWorldSurfaces::IsSurfaceViewport(p) || UiSystem::IsRegisteredViewport(p))
+                return p;
+        return nullptr;
     }
+
+    bool IsUnderViewport(const UiElement* e) { return OwnerViewport(e) == &EngineMain::Viewport; }
+    bool OwnedBySurface(const UiElement* e) { const UiElement* v = OwnerViewport(e); return v != nullptr && v != &EngineMain::Viewport; }
+
+    std::vector<const UiElement*> g_extraViewports;
 
     float g_frameDt = 0.f;   // real seconds of the last frame (at most 0.1)
 
@@ -217,13 +232,13 @@ namespace
 
     // The deepest scroll container under a point, for pointers over areas without a hit-testable element (the empty
     // parts of a list). Lists that are covered by a hit-testable element of another page are not reached through this.
-    UiElem* ScrollContainerAt(glm::vec2 point)
+    UiElem* ScrollContainerAt(glm::vec2 point, const UiElement& viewport)
     {
         UiElem* best = nullptr;
         for (auto& w : g_roots)
         {
             auto root = w.lock();
-            if (!root || !IsUnderViewport(root.get()) || root->Computed().Visibility != UiVisibility::Visible)
+            if (!root || OwnerViewport(root.get()) != &viewport || root->Computed().Visibility != UiVisibility::Visible)
                 continue;
             std::vector<UiElem*> all;
             root->CollectElems(all);
@@ -240,13 +255,13 @@ namespace
     }
 
     // Position in the viewport's child list of the root that holds `e` (later = drawn and hit above); -1 when it is not under the viewport.
-    int ViewportIndexOf(const UiElement* e)
+    int ViewportIndexOf(const UiElement* e, const UiElement& viewport)
     {
-        while (e != nullptr && e->parent != &EngineMain::Viewport)
+        while (e != nullptr && e->parent != &viewport)
             e = e->parent;
         if (e == nullptr)
             return -1;
-        const auto& kids = EngineMain::Viewport.children;
+        const auto& kids = viewport.children;
         for (size_t i = 0; i < kids.size(); ++i)
             if (kids[i].get() == e)
                 return static_cast<int>(i);
@@ -254,27 +269,28 @@ namespace
     }
 
     // Pointer events with capture: the element that got the press keeps receiving move and release.
-    void ProcessPointers()
+    void ProcessPointers(UiElement& viewport, const std::unordered_map<int, TouchEvent>& touches, bool main)
     {
-        for (auto& [id, touch] : Input::TouchActions)
+        for (auto& [id, touch] : touches)
         {
             if (touch.pressed)
             {
                 g_captures.erase(id);
-                const std::shared_ptr<UiElement> hit = EngineMain::Viewport.GetHitElementUnderPosition(touch.position);
+                const std::shared_ptr<UiElement> hit = viewport.GetHitElementUnderPosition(touch.position);
                 if (hit && UiElem::IsElem(hit.get()))
                 {
                     const auto element = std::static_pointer_cast<UiElem>(hit);
                     g_captures[id] = Capture{ element, touch.position };
                     element->OnPointerDown(ToLocal(*element, touch.position));
-                    UiDragDrop::Press(id, *element, touch.position);
+                    if (main)
+                        UiDragDrop::Press(id, *element, touch.position);
                 }
                 else
                 {
                     // A press on nothing, or on a legacy element (a HUD touch area) that lies below the menu holding the container:
                     // the scroll container gets it (the scrollbar and the empty parts of a list).
-                    UiElem* container = ScrollContainerAt(touch.position);
-                    if (container != nullptr && hit && ViewportIndexOf(container) <= ViewportIndexOf(hit.get()))
+                    UiElem* container = ScrollContainerAt(touch.position, viewport);
+                    if (container != nullptr && hit && ViewportIndexOf(container, viewport) <= ViewportIndexOf(hit.get(), viewport))
                         container = nullptr;
                     if (container != nullptr)
                         if (auto self = container->weak_from_this().lock())
@@ -298,18 +314,18 @@ namespace
             if (touch.position != found->second.Last)
             {
                 found->second.Last = touch.position;
-                if (!UiDragDrop::Move(id, touch.position))   // a drag in progress keeps the move from scrolling the list under it
+                if (!(main && UiDragDrop::Move(id, touch.position)))   // a drag in progress keeps the move from scrolling the list under it
                     element->OnPointerMove(ToLocal(*element, touch.position));
             }
             if (touch.released)
             {
                 element->OnPointerUp(ToLocal(*element, touch.position));
-                if (UiDragDrop::Release(id, touch.position))
+                if (main && UiDragDrop::Release(id, touch.position))
                     UiElem::SuppressActivate = true;   // a drop or a long press is not a click
                 g_captures.erase(id);
             }
         }
-        if (Input::MouseScrollDelta != 0.f)
+        if (main && Input::MouseScrollDelta != 0.f)
         {
             const auto mouse = Input::TouchActions.find(1);
             if (mouse != Input::TouchActions.end())
@@ -326,7 +342,7 @@ namespace
                 }
                 UiElem* nearest = target != nullptr ? static_cast<UiElem&>(*target).NearestScrollContainer() : nullptr;
                 if (nearest == nullptr)
-                    nearest = ScrollContainerAt(mouse->second.position);
+                    nearest = ScrollContainerAt(mouse->second.position, viewport);
                 if (ownsWheel)
                     nearest = nullptr;
                 if (target != nullptr)
@@ -1450,7 +1466,7 @@ void UiSystem::Init()
     RegisterBuiltins();
     UiComponentRegistry::Discover();
     UiTagRegistry::RegisterCodeBehind("GameData/ui/kit/tests/p2_capture.xml", []() -> std::shared_ptr<UiElem> { return std::make_shared<UiTestCapturePanel>(); });
-    UiMenus::Init();
+    UiHost::Init();   // HUD layer, menu stack, overlay layer
 
     Console& console = Console::Get();
     console.RegisterCommand({ "ui_load", "ui_load <layout> - loads a markup layout into the viewport", CmdLoad });
@@ -1500,6 +1516,7 @@ void UiSystem::Init()
     UiTestRunner::RegisterCommand("mouse_off", TestMouseOff);
     UiTestRunner::RegisterCommand("sim_device", TestSimDevice);
     UiTestRunner::RegisterCommand("prompt_provider_test", TestPromptProvider);
+    UiTestTerminal::RegisterCommands();
     UiTestRunner::RegisterCommand("expect_engine", TestExpectEngine);
     UiTestRunner::RegisterCommand("expect_stack", TestExpectStack);
     UiTestRunner::RegisterCommand("expect_class", TestExpectClass);
@@ -1542,6 +1559,10 @@ void UiSystem::Init()
 
     g_initialised = true;
     UiMenuPreviews::RegisterProviders();
+    UiHudPreviews::RegisterProviders();
+    UiDatabase::SetCapability("hudLayers", true);
+    UiDatabase::SetCapability("worldSurface", true);
+    UiDatabase::SetCapability("sceneView", true);
     UiDatabase::SetCapability("markup", true);
     UiDatabase::SetCapability("events", true);
     UiDatabase::SetCapability("menus", true);
@@ -1601,6 +1622,7 @@ std::string UiSystem::PseudoLocalise(const std::string& text)
 
 void UiSystem::Shutdown()
 {
+    UiHost::Shutdown();
     UiMenus::Shutdown();
     g_roots.clear();
     g_lastGameThreadRoot.reset();
@@ -1693,18 +1715,15 @@ void UiSystem::ResetViewport()
 {
     UiMenus::Stack().Reset();   // forced and silent: the pause menu and every page above it go with the level
     EngineMain::Viewport.ClearChildren();
+    UiHost::Reset();   // the HUD and overlay pages go too, silently
+    UiTooltips::Reset();
     UiDragDrop::Reset();
     g_captures.clear();
     g_queuedEvents.clear();
     UiNavigation::Focused = nullptr;   // dropped, not moved: the elements are gone, nothing is told (no OnUnfocused, no blur / focusout)
     g_lastFocus = nullptr;
     g_lastFocusElem.reset();
-    UiMenuStack& stack = UiMenus::Stack();
-    if (stack.parent != &EngineMain::Viewport || std::find_if(EngineMain::Viewport.children.begin(), EngineMain::Viewport.children.end(),
-            [&](const std::shared_ptr<UiElement>& c) { return c.get() == &stack; }) == EngineMain::Viewport.children.end())
-    {
-        try { EngineMain::Viewport.AddChild(std::static_pointer_cast<UiElement>(stack.shared_from_this())); } catch (...) {}
-    }
+    UiHost::Attach();
 }
 
 std::vector<std::shared_ptr<UiElem>> UiSystem::Roots() { return LiveRoots(); }
@@ -1738,6 +1757,16 @@ UiElem* UiSystem::FindById(const std::string& id)
         if (UiElem* found = inInstance(*root))
             return found;
     }
+    // The HUD and overlay layers: the layer itself, and the pages that were added to it
+    for (UiElemPanel* layer : { &UiHost::Hud(), &UiHost::Overlay() })
+    {
+        if (layer->Id == id)
+            return layer;
+        for (auto& child : layer->children)
+            if (UiElem::IsElem(child.get()))
+                if (UiElem* found = inInstance(static_cast<UiElem&>(*child)))
+                    return found;
+    }
     // Documents loaded into a Frame have their own scope: look through the elements of every root and page.
     auto nested = [&](UiElem& scope) -> UiElem* {
         std::vector<UiElem*> all;
@@ -1764,6 +1793,99 @@ UiElem* UiSystem::FindById(const std::string& id)
             return found;
     }
     return nullptr;
+}
+
+// The per-root work of one UI update: tick, device class, container size, style, layout, transforms, scan. Main roots and the roots of a world surface.
+static void UpdateRoot(UiElem& root, bool focusChanged)
+{
+    TickAll(root);
+
+    // Exactly one input-device class per root, so styles can show keyboard, gamepad or touch variants.
+    {
+        const char* wanted = UiInputPrompts::DeviceClass(UiInputPrompts::LastDevice());
+        for (const char* cls : { "input-mouse", "input-gamepad", "input-touch" })
+            root.SetClass(cls, std::string(cls) == wanted);
+    }
+
+    glm::vec2 size;
+    glm::mat3 base(1.f);
+    if (root.parent == &EngineMain::Viewport)
+        size = EngineMain::Viewport.GetSize();
+    else
+    {
+        size = root.parent->bottomRight - root.parent->topLeft;
+        base = root.parent->worldMatrix;
+    }
+    if (size != root.m_lastContainer || base != root.m_lastBase)
+    {
+        root.m_lastContainer = size;
+        root.m_lastBase = base;
+        root.m_layoutDirty = true;
+    }
+    if (focusChanged)
+        root.m_styleDirty = true;
+
+    // Flags are cleared before the work, so elements that ask for another pass while measuring (an image whose
+    // texture is still loading) keep it requested.
+    if (root.m_styleDirty)
+    {
+        root.m_styleDirty = false;
+        UiStyleResolver::ResolveRoot(root);
+        root.m_layoutDirty = true;
+        root.m_paintDirty = true;
+    }
+    if (root.m_layoutDirty)
+    {
+        root.m_layoutDirty = false;
+        UiFlowLayout::LayoutRoot(root, size, base);
+        root.m_paintDirty = true;
+    }
+    else if (root.m_transformDirty)
+    {
+        UiFlowLayout::PatchTransforms(root, base);   // only a transform changed: no measuring
+        root.m_paintDirty = true;
+    }
+    root.m_transformDirty = false;
+    if (root.m_needsScan)
+    {
+        root.m_needsScan = false;
+        UiActions::Validate(root);
+        FireLoadEvents(root);
+    }
+}
+
+// Changes made after Update in this frame are resolved before recording, then the snapshot is recorded.
+static void FinalizeRoot(UiElem& root)
+{
+    // Changes made after Update in this frame (a legacy menu closing, a pointer handler) are resolved before recording,
+    // so the frame never shows a tree that is missing them (no one-frame flash).
+    if (root.m_styleDirty || root.m_layoutDirty)
+    {
+        glm::vec2 size;
+        glm::mat3 base(1.f);
+        if (root.parent == &EngineMain::Viewport)
+            size = EngineMain::Viewport.GetSize();
+        else
+        {
+            size = root.parent->bottomRight - root.parent->topLeft;
+            base = root.parent->worldMatrix;
+        }
+        if (root.m_styleDirty)
+        {
+            root.m_styleDirty = false;
+            UiStyleResolver::ResolveRoot(root);
+            root.m_layoutDirty = true;
+            root.m_paintDirty = true;
+        }
+        if (root.m_layoutDirty)
+        {
+            root.m_layoutDirty = false;
+            UiFlowLayout::LayoutRoot(root, size, base);
+            root.m_paintDirty = true;
+        }
+    }
+    if (root.m_paintDirty)
+        Record(root);
 }
 
 void UiSystem::Update()
@@ -1811,8 +1933,10 @@ void UiSystem::Update()
             Input::SimulatedMouse->released = true;
     }
 
-    ProcessPointers();
+    if (!UiWorldSurfaces::AnyFocused())
+        ProcessPointers(EngineMain::Viewport, Input::TouchActions, true);
     UiMenus::Update();
+    UiHost::Update();
 
     // Motion runs on real time, also while the game is paused; a long frame never jumps an animation by more than 0.1 s.
     {
@@ -1823,6 +1947,7 @@ void UiSystem::Update()
         g_frameDt = dt;
         UiAnimation::Tick(dt);
         UiDragDrop::Tick(dt);
+        UiTooltips::Update(dt);
     }
 
     // Focus is read by selectors, so a change of focus restyles every root.
@@ -1870,6 +1995,8 @@ void UiSystem::Update()
 
     for (auto& root : roots)
     {
+        if (OwnedBySurface(root.get()))
+            continue;   // updated by its surface, with the surface's pointer and navigation
         if (renderScaleChanged)
             root->m_paintDirty = true;
         if (!IsUnderViewport(root.get()))
@@ -1878,67 +2005,48 @@ void UiSystem::Update()
                 UiMarkupLog::Warning(root->ScopeFile, 0, 0, "markup roots must be attached under the viewport in phase 1; this one is not updated");
             continue;
         }
-        TickAll(*root);
-
-        // Exactly one input-device class per root, so styles can show keyboard, gamepad or touch variants.
-        {
-            const char* wanted = UiInputPrompts::DeviceClass(UiInputPrompts::LastDevice());
-            for (const char* cls : { "input-mouse", "input-gamepad", "input-touch" })
-                root->SetClass(cls, std::string(cls) == wanted);
-        }
-
-        glm::vec2 size;
-        glm::mat3 base(1.f);
-        if (root->parent == &EngineMain::Viewport)
-            size = EngineMain::Viewport.GetSize();
-        else
-        {
-            size = root->parent->bottomRight - root->parent->topLeft;
-            base = root->parent->worldMatrix;
-        }
-        if (size != root->m_lastContainer || base != root->m_lastBase)
-        {
-            root->m_lastContainer = size;
-            root->m_lastBase = base;
-            root->m_layoutDirty = true;
-        }
-        if (focusChanged)
-            root->m_styleDirty = true;
-
-        // Flags are cleared before the work, so elements that ask for another pass while measuring (an image whose
-        // texture is still loading) keep it requested.
-        if (root->m_styleDirty)
-        {
-            root->m_styleDirty = false;
-            UiStyleResolver::ResolveRoot(*root);
-            root->m_layoutDirty = true;
-            root->m_paintDirty = true;
-        }
-        if (root->m_layoutDirty)
-        {
-            root->m_layoutDirty = false;
-            UiFlowLayout::LayoutRoot(*root, size, base);
-            root->m_paintDirty = true;
-        }
-        else if (root->m_transformDirty)
-        {
-            UiFlowLayout::PatchTransforms(*root, base);   // only a transform changed: no measuring
-            root->m_paintDirty = true;
-        }
-        root->m_transformDirty = false;
-        if (root->m_needsScan)
-        {
-            root->m_needsScan = false;
-            UiActions::Validate(*root);
-            FireLoadEvents(*root);
-        }
+        UpdateRoot(*root, focusChanged);
     }
     // Focus moved by gamepad or keyboard: every scroll container above it brings it into view.
     if (focusChanged && focusNow != nullptr && focusNow == UiNavigation::Focused)
         for (UiElement* p = focusNow->parent; p != nullptr; p = p->parent)
             if (UiElem::IsElem(p) && static_cast<UiElem*>(p)->IsScrollContainer())
                 static_cast<UiElem*>(p)->ScrollIntoView(*focusNow, 16.f);
+    UiWorldSurfaces::Update();   // after the main roots: each surface swaps in its own pointer and navigation
     UiImageAtlas::Update();
+}
+
+void UiSystem::RegisterViewport(UiElement& viewport)
+{
+    if (std::find(g_extraViewports.begin(), g_extraViewports.end(), &viewport) == g_extraViewports.end())
+        g_extraViewports.push_back(&viewport);
+}
+
+bool UiSystem::IsRegisteredViewport(const UiElement* viewport)
+{
+    return std::find(g_extraViewports.begin(), g_extraViewports.end(), viewport) != g_extraViewports.end();
+}
+
+void UiSystem::UpdateRootsUnder(UiElement& viewport, bool focusChanged)
+{
+    for (auto& root : LiveRoots())
+        if (OwnerViewport(root.get()) == &viewport)
+            UpdateRoot(*root, focusChanged);
+}
+
+void UiSystem::FinalizeRootsUnder(UiElement& viewport)
+{
+    for (auto& w : g_roots)
+    {
+        auto root = w.lock();
+        if (root && OwnerViewport(root.get()) == &viewport)
+            FinalizeRoot(*root);
+    }
+}
+
+void UiSystem::ProcessPointersFor(UiElement& viewport, const std::unordered_map<int, TouchEvent>& touches)
+{
+    ProcessPointers(viewport, touches, false);
 }
 
 void UiSystem::Finalize()
@@ -1951,36 +2059,9 @@ void UiSystem::Finalize()
         auto root = w.lock();
         if (!root || !IsUnderViewport(root.get()))
             continue;
-        // Changes made after Update in this frame (a legacy menu closing, a pointer handler) are resolved before recording,
-        // so the frame never shows a tree that is missing them (no one-frame flash).
-        if (root->m_styleDirty || root->m_layoutDirty)
-        {
-            glm::vec2 size;
-            glm::mat3 base(1.f);
-            if (root->parent == &EngineMain::Viewport)
-                size = EngineMain::Viewport.GetSize();
-            else
-            {
-                size = root->parent->bottomRight - root->parent->topLeft;
-                base = root->parent->worldMatrix;
-            }
-            if (root->m_styleDirty)
-            {
-                root->m_styleDirty = false;
-                UiStyleResolver::ResolveRoot(*root);
-                root->m_layoutDirty = true;
-                root->m_paintDirty = true;
-            }
-            if (root->m_layoutDirty)
-            {
-                root->m_layoutDirty = false;
-                UiFlowLayout::LayoutRoot(*root, size, base);
-                root->m_paintDirty = true;
-            }
-        }
-        if (root->m_paintDirty)
-            Record(*root);
+        FinalizeRoot(*root);
     }
+    UiWorldSurfaces::Finalize();
     UiDragDrop::RecordGhost();
     UiFontLibrary::FlushUploads();
     UiDatabase::Flush();

@@ -4,7 +4,7 @@
 #include <vector>
 
 // Pulse pseudo-classes (PulseFirst..) are not states: an event puts the element in them for pulse-duration (see UiPulses()).
-enum class UiPseudo { Hover, Active, Focus, FocusWithin, Disabled, Selected, Root, Entering, Leaving, Checked, Dragging,
+enum class UiPseudo { Hover, Active, Focus, FocusWithin, Disabled, Selected, Root, Entering, Leaving, Checked, Dragging, OutOfRange,
                       PulseFirst };
 
 struct UiCompound

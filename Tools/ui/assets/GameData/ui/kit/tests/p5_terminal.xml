@@ -1,0 +1,12 @@
+<root>
+  <styles><style>
+    #term { width: 512px; height: 256px; flow-children: down; gap: 12px; padding: 16px; background-color: #102030; }
+    TextButton { width: 480px; height: 60px; background-color: #303030; border-radius: 8px; }
+    TextButton:hover, TextButton:focus { background-color: #a04030; }
+    TextButton Label { horizontal-align: center; vertical-align: center; }
+  </style></styles>
+  <Panel id="term" interaction="aim" pixels-per-meter="512">
+    <TextButton id="b1" text="One" onactivate="Hit()"/>
+    <TextButton id="b2" text="Two" onactivate="Hit2()"/>
+  </Panel>
+</root>

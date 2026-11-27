@@ -1,0 +1,17 @@
+# Phase 5: the HUD layer hides under a hides-hud page; the overlay layer exists above everything
+wait 6
+hud_add GameData/ui/kit/tests/p5_hud.xml
+overlay_add GameData/ui/kit/tests/p5_overlay.xml
+wait_frames 8
+expect_class hud hud-hidden 0
+expect_exists hudBox
+expect_exists ovBox
+ui_screenshot p5_layers
+console ui_push GameData/ui/kit/tests/p5_hidehud_page.xml
+wait_frames 10
+expect_class hud hud-hidden 1
+console ui_pop
+wait_frames 10
+expect_class hud hud-hidden 0
+expect_ui_errors 0
+quit

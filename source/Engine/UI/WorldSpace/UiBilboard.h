@@ -1,97 +1,47 @@
 #pragma once
 
-#include "../../StaticMesh.h"
-#include "../../Renderer/Abstractions/RenderTexture.h"
+#include "UiWorldSurface.h"
 #include "../UiContentBox.hpp"
 #include "../UiCanvas.hpp"
-#include "../Render/UiRectAllocator.h"
 
-#include <vector>
-#include <memory>
-
-// ---------------------------------------------------------------------------
-// NEW: Atlas system to solve framebuffer exhaustion in bgfx
-// ---------------------------------------------------------------------------
-struct BillboardAllocation
-{
-	class UiBilboardAtlas* atlas = nullptr;
-	ivec4 rect = { 0, 0, 0, 0 };   // x, y, width, height in atlas pixels
-	vec4 uvRect = { 0.0f, 0.0f, 1.0f, 1.0f }; // minU, minV, maxU, maxV
-	bool IsValid() const { return atlas != nullptr && rect.z > 0 && rect.w > 0; }
-};
-
-class UiBilboardAtlas
+// A world widget made of legacy UI (a status icon over a head, a video on a plane). It is a UiWorldSurface that faces the camera
+// and takes no pointer; its Canvas is updated by the surface on the main thread, so Update() is not needed any more.
+class UiBilboard : public UiWorldSurface
 {
 public:
-	UiBilboardAtlas(ivec2 size);
-	~UiBilboardAtlas();
-
-	bool TryAllocate(ivec2 reqSize, BillboardAllocation& outAlloc);
-	void Free(const BillboardAllocation& alloc);
-
-	RenderTexture* GetTexture() const { return texture; }
-
-private:
-	RenderTexture* texture = nullptr;
-	UiRectAllocator allocator;
-};
-
-class UiBillboardAtlasManager
-{
-public:
-	static UiBillboardAtlasManager& Get();
-
-	BillboardAllocation Allocate(ivec2 size);
-	void Free(BillboardAllocation& alloc);
-
-private:
-	std::vector<std::unique_ptr<UiBilboardAtlas>> atlases;
-	const ivec2 kAtlasSize = { 4096, 4096 }; // safe for bgfx, plenty of room for UI billboards
-};
-
-class UiBilboard : public StaticMesh
-{
-public:
-	UiBilboard(Entity* owner) : StaticMesh(owner)
+	UiBilboard(Entity* owner) : UiWorldSurface(owner)
 	{
-		LoadFromFile("GameData/models/engine/widgetPlane.glb", AssetLoadTier::Visual);
-
-		IncludeInEntityBounds = false;
-
-		DepthPrePath = false;
-		DepthWrite = false;
-
-		PixelShader = "fs_unlit_rect";
-
-		Transparent = true; // inert - GetMaterial(0).SurfaceTypeOverride below is what actually matters now
-
-		// ColorTextureId is a raw bgfx handle (the shared atlas), not a Texture* -
-		// EffectiveSurfaceType() can't inspect it for alpha, so it must be forced explicitly.
+		FacingMode = Facing::Billboard;
+		InteractionMode = Interaction::None;
+		ViewportSize = glm::ivec2(512, 512);
+		PixelsPerMeter = 100.0f;
 
 		ContentBox = std::make_shared<UiContentBox>();
 		ContentBox->pivot = vec2(0.5f, 0.5f);
 		ContentBox->origin = vec2(0.5f, 0.5f);
 		Canvas.AddChild(ContentBox);
-
-		blendMode = BgfxStateManager::Blend::Premultiplied;
-
 	}
-	~UiBilboard();
 
-	void FinalizeFrameData() override;
-
-	void Update();
-
-	void PreDraw() override;
+	// Kept so existing callers compile; the surface updates the canvas itself (main thread, only while visible and in range).
+	void Update() {}
 
 	std::shared_ptr<UiContentBox> ContentBox;
 	UiCanvas Canvas;
-	ivec2 ViewportSize = ivec2(512, 512);
-	float PixelPerMeter = 100.0f;
+	float& PixelPerMeter = PixelsPerMeter;   // the old name
 
-private:
-	void DrawUi();
-	void EnsureAtlasAllocation();
+	void FinalizeFrameData() override
+	{
+		Canvas.size = vec2((float)ViewportSize.x, (float)ViewportSize.y);
+		UiWorldSurface::FinalizeFrameData();
+	}
 
-	BillboardAllocation allocation;
+protected:
+	UiElement& ContentRoot() override { return Canvas; }
+	bool AlwaysRender() const override { return true; }
+	void UpdateLegacyContent() override
+	{
+		Canvas.size = vec2((float)ViewportSize.x, (float)ViewportSize.y);
+		Canvas.Update();
+		Canvas.UpdateChildrenOffsetRecursive();
+	}
 };

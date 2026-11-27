@@ -1,0 +1,11 @@
+# Phase 5: a markup loading screen in its own context. The runner cannot run during a blocking load, so loading_test drives the
+# loading system by hand: the first call sets the page, every call draws one loading frame at that progress.
+wait 6
+loading_test GameData/ui/kit/tests/p5_loading.xml 0
+expect lbl text contains 0.00
+loading_test GameData/ui/kit/tests/p5_loading.xml 0.5
+expect lbl text contains 0.50
+loading_test GameData/ui/kit/tests/p5_loading.xml 1
+expect lbl text contains 1.00
+expect_ui_errors 0
+quit

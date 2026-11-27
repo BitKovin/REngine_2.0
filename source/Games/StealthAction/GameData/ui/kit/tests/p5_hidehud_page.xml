@@ -1,0 +1,6 @@
+<root>
+  <styles><style>
+    #cover { width: 200px; height: 100px; x: 300px; y: 200px; background-color: #202080; }
+  </style></styles>
+  <Panel id="cover" hides-hud="true"/>
+</root>

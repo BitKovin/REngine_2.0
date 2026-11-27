@@ -1,0 +1,47 @@
+# Phase 5: a world surface. Hover(x, y) and Click(), aim + interact, out-of-range, focus mode.
+wait 6
+spawn_terminal 1.5
+wait_frames 20
+expect_ui_errors 0
+
+# the simple API: a cursor and a click
+terminal_hover 240 46
+wait_frames 4
+terminal_click
+wait_frames 6
+expect_terminal hits == 1
+expect_terminal hits2 == 0
+terminal_hover 240 118
+wait_frames 4
+terminal_click
+wait_frames 6
+expect_terminal hits2 == 1
+terminal_unhover
+wait_frames 4
+
+# aiming: the terminal is straight ahead; the centre of the surface is over the second button
+mouse_center
+wait_frames 4
+expect_terminal aimed == 1
+expect_terminal interactive == 1
+action interact
+wait_frames 6
+expect_terminal hits2 == 2
+
+# nothing changed: nothing re-renders
+expect_terminal renders >= 0
+wait_frames 10
+expect_terminal renders == 0
+
+# focus mode: ui_down moves to the second button, ui_confirm activates it, ui_cancel leaves
+terminal_focus enter
+wait_frames 6
+expect_terminal focused == 1
+action ui_down
+wait_frames 4
+action ui_confirm
+wait_frames 6
+action ui_cancel
+wait_frames 6
+expect_terminal focused == 0
+quit

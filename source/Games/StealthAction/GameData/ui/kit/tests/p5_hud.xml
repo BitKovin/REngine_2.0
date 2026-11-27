@@ -1,0 +1,6 @@
+<root>
+  <styles><style>
+    #hudBox { width: 100px; height: 40px; background-color: #208020; }
+  </style></styles>
+  <Panel id="hudBox"/>
+</root>

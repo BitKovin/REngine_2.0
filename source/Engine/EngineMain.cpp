@@ -18,6 +18,8 @@
 #include <UI/Preview/UiDatabase.h>
 #include <UI/Render/UiPainterTestCard.h>
 #include <LoadingScreen/LoadingScreenSystem.h>
+#include <UI/WorldSpace/UiWorldSurface.h>
+#include <UI/SceneView/UiElemSceneView.h>
 #include <FileSystem/FileSystem.h>
 #include <BehaviourTree/BehaviorTree.h>
 #include <AiPerception/AiPerceptionSystem.h>
@@ -471,7 +473,7 @@ void EngineMain::MainLoop()
 
     Viewport.ResetTouchInputs();
 
-    if (!UiElement::EditModeActive || DebugUiEnabled == false)
+    if ((!UiElement::EditModeActive || DebugUiEnabled == false) && !UiWorldSurfaces::AnyFocused())
     {
         for (auto& event : Input::TouchActions)
         {
@@ -523,13 +525,14 @@ void EngineMain::MainLoop()
     UiTestRunner::Tick();
     ConsoleStdin::Poll();
 
-    UiNavigation::Update(&Viewport);
+    if (!UiWorldSurfaces::AnyFocused())   // a focused world surface owns the ui_* actions
+        UiNavigation::Update(&Viewport);
 
     UiSystem::Update();
 
     Viewport.Update();
 
-	if (UiElement::EditModeActive == false || DebugUiEnabled == false)
+	if ((UiElement::EditModeActive == false || DebugUiEnabled == false) && !UiWorldSurfaces::AnyFocused())
         UiNavigation::LateUpdate();
 
     Viewport.UpdateChildrenOffsetRecursive();
@@ -911,6 +914,7 @@ void EngineMain::Render()
 
     {
         ZoneScopedN("World Render");
+        UiSceneViews::RenderAll();   // 3D scene views of the UI: their targets are drawn before everything that samples them
         MainRenderer->RenderLevel(Level::Current, FinalFrameRenderTexture->frameBufferHandle());
 
         bgfx::setViewRect(ViewIdManager::GetCurrentId(), 0, 0,

@@ -1,0 +1,7 @@
+# Phase 5: what a world surface looks like (text must read left to right, not mirrored)
+wait 6
+spawn_terminal 1.2
+wait_frames 30
+screenshot p5_look_terminal
+wait 2
+quit

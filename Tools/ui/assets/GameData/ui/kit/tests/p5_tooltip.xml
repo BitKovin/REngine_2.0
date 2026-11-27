@@ -1,0 +1,6 @@
+<root>
+  <styles><style>
+    #tb { width: 200px; height: 60px; x: 100px; y: 100px; background-color: #303030; }
+  </style></styles>
+  <TextButton id="tb" text="Hover me" tooltip="Hello tip"/>
+</root>

@@ -4,9 +4,14 @@
 #include <thread>
 #include <vector>
 
+#include <unordered_map>
+
 #include <glm/glm.hpp>
 
+#include "../Input.h"
+
 class UiElem;
+class UiElement;
 
 class UiSystem
 {
@@ -27,6 +32,12 @@ public:
     static std::thread::id MainThread();
     static bool IsInitialised();
     static int RootCount();
+    // World surfaces (UiWorldSurface) run the per-root work of the main update for the roots under their own viewport.
+    static void UpdateRootsUnder(UiElement& viewport, bool focusChanged);   // tick, style, layout of every root under `viewport`
+    static void FinalizeRootsUnder(UiElement& viewport);                     // resolve what is still dirty, record the snapshots
+    static void ProcessPointersFor(UiElement& viewport, const std::unordered_map<int, TouchEvent>& touches);   // press, move, release with capture
+    static void RegisterViewport(UiElement& viewport);   // another viewport whose roots are updated by their owner (UpdateRootsUnder), never by the main update
+    static bool IsRegisteredViewport(const UiElement* viewport);
     static void ResetViewport();         // universal UI reset (level change): clears the viewport, then re-attaches the menu stack
     static void RequestGameThreadTest(const std::string& path);   // console command ui_gamethread_test
 

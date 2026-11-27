@@ -556,6 +556,12 @@
     <ClCompile Include="UI\Elements\UiElemInputPrompt.cpp" />
     <ClCompile Include="UI\Menus\UiActions.cpp" />
     <ClCompile Include="UI\Menus\UiInputPrompts.cpp" />
+    <ClCompile Include="UI\Hud\UiElemWorldPanel.cpp" />
+    <ClCompile Include="UI\Hud\UiHost.cpp" />
+    <ClCompile Include="UI\SceneView\UiElemSceneView.cpp" />
+    <ClCompile Include="UI\SceneView\UiSceneTargets.cpp" />
+    <ClCompile Include="UI\Hud\UiHudPreviews.cpp" />
+    <ClCompile Include="UI\Hud\UiTooltips.cpp" />
     <ClCompile Include="UI\Menus\UiMenuStack.cpp" />
     <ClCompile Include="UI\Preview\UiMenuPreviews.cpp" />
     <ClCompile Include="UI\Elements\UiElemLabel.cpp" />
@@ -610,9 +616,11 @@
     <ClCompile Include="UI\Studio\UiInspect.cpp" />
     <ClCompile Include="UI\Studio\UiLint.cpp" />
     <ClCompile Include="UI\Test\UiTestRunner.cpp" />
+    <ClCompile Include="UI\Test\UiTestTerminal.cpp" />
     <ClCompile Include="UI\UiRenderer.cpp" />
     <ClCompile Include="UI\UiVideo.hpp" />
     <ClCompile Include="UI\WorldSpace\UiBilboard.cpp" />
+    <ClCompile Include="UI\WorldSpace\UiWorldSurface.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="Video\Video.cpp" />
     <ClCompile Include="Video\VideoInstance.cpp" />
@@ -905,6 +913,12 @@
     <ClInclude Include="UI\Elements\UiElemInputPrompt.h" />
     <ClInclude Include="UI\Menus\UiActions.h" />
     <ClInclude Include="UI\Menus\UiInputPrompts.h" />
+    <ClInclude Include="UI\Hud\UiElemWorldPanel.h" />
+    <ClInclude Include="UI\Hud\UiHost.h" />
+    <ClInclude Include="UI\SceneView\UiElemSceneView.h" />
+    <ClInclude Include="UI\SceneView\UiSceneTargets.h" />
+    <ClInclude Include="UI\Hud\UiHudPreviews.h" />
+    <ClInclude Include="UI\Hud\UiTooltips.h" />
     <ClInclude Include="UI\Menus\UiMenuStack.h" />
     <ClInclude Include="UI\Preview\UiMenuPreviews.h" />
     <ClInclude Include="UI\Elements\UiElemLabel.h" />
@@ -965,6 +979,7 @@
     <ClInclude Include="UI\Studio\UiInspect.h" />
     <ClInclude Include="UI\Studio\UiLint.h" />
     <ClInclude Include="UI\Test\UiTestRunner.h" />
+    <ClInclude Include="UI\Test\UiTestTerminal.h" />
     <ClInclude Include="UI\UiRenderer.h" />
     <ClInclude Include="UI\UiScrollRegion.hpp" />
     <ClInclude Include="UI\UiSlider.hpp" />
@@ -973,6 +988,8 @@
     <ClInclude Include="UI\UiVerticalBox.hpp" />
     <ClInclude Include="UI\UiViewport.hpp" />
     <ClInclude Include="UI\WorldSpace\UiBilboard.h" />
+    <ClInclude Include="UI\WorldSpace\UiBillboardAtlas.h" />
+    <ClInclude Include="UI\WorldSpace\UiWorldSurface.h" />
     <ClInclude Include="utility\hashed_string.hpp" />
     <ClInclude Include="utils.hpp" />
     <ClInclude Include="VertexData.h" />

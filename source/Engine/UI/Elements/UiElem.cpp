@@ -318,7 +318,7 @@ bool UiElem::ApplyAttributeValue(const std::string& name, const std::string& raw
             m_eventCalls[name.substr(2)] = std::move(calls);
         return true;
     }
-    if (name == "close-on-back" || name == "shows-below" || name == "pauses-game" || name == "hides-hud" || name == "confirm-changes")
+    if (name == "close-on-back" || name == "shows-below" || name == "pauses-game" || name == "hides-hud" || name == "confirm-changes" || name == "tooltip" || name == "tooltip-layout" || name == "interaction" || name == "max-distance" || name == "facing" || name == "pixels-per-meter" || name == "update-rate-distance" || name == "freeze-distance")
         return true;
     if (name == "nav-up" || name == "nav-down" || name == "nav-left" || name == "nav-right")
     {
@@ -521,6 +521,26 @@ void UiElem::Listen(const std::string& event, std::weak_ptr<void> guard, EventFn
 bool UiElem::HasSubscribers(const std::string& event) const
 {
     return m_eventCalls.find(event) != m_eventCalls.end() || m_listeners.find(event) != m_listeners.end();
+}
+
+void UiElem::SetTransformOverride(const std::vector<UiTransformFn>& fns)
+{
+    if (m_hasTransformOverride && m_transformOverride == fns)
+        return;
+    m_hasTransformOverride = true;
+    m_transformOverride = fns;
+    m_computed.Fx.Transform = fns;
+    if (UiElem* root = Root())
+        root->m_transformDirty = true;
+}
+
+void UiElem::ClearTransformOverride()
+{
+    if (!m_hasTransformOverride)
+        return;
+    m_hasTransformOverride = false;
+    m_transformOverride.clear();
+    MarkStyleDirty();
 }
 
 void UiElem::TriggerPulse(const std::string& event)

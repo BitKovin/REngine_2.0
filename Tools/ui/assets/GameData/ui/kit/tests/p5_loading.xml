@@ -1,0 +1,7 @@
+<root>
+  <styles><style>
+    #load { width: 100%; height: 100%; background-color: #101820; }
+    #lbl { horizontal-align: center; vertical-align: center; color: #ffffff; }
+  </style></styles>
+  <Panel id="load"><Label id="lbl" text="Loading {progress:%.2f}"/></Panel>
+</root>

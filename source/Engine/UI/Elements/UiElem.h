@@ -18,7 +18,7 @@ class UiDocumentInstance;
 class UiMenuStack;
 struct UiDocumentDef;
 
-enum UiElemState : uint32_t { kStateHover = 1, kStateActive = 2, kStateDisabled = 4, kStateSelected = 8, kStateEntering = 16, kStateLeaving = 32, kStateChecked = 64, kStateDragging = 128 };
+enum UiElemState : uint32_t { kStateHover = 1, kStateActive = 2, kStateDisabled = 4, kStateSelected = 8, kStateEntering = 16, kStateLeaving = 32, kStateChecked = 64, kStateDragging = 128, kStateOutOfRange = 256 };
 
 class UiElem : public UiElement
 {
@@ -170,6 +170,13 @@ public:
     void MarkStyleDirty();
     void MarkLayoutDirty();
     void MarkPaintDirty();
+
+    // Code-driven transform (a WorldPanel follows a point, its arrow turns): wins over the CSS transform and survives restyling.
+    // Cheap: only the transforms are patched, nothing is measured.
+    void SetTransformOverride(const std::vector<UiTransformFn>& fns);
+    void ClearTransformOverride();
+    bool m_hasTransformOverride = false;
+    std::vector<UiTransformFn> m_transformOverride;
 
     // ── legacy integration
     glm::vec2 GetSize() override;

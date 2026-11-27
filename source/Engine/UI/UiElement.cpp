@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include "../Camera.h"
+#include "Hud/UiElemWorldPanel.h"
 #include "../Input.h"
 #include "UiRenderer.h"
 #include "UiNavigation.h"
@@ -460,11 +461,9 @@ glm::vec2 UiElement::WorldToScreenSpace(const glm::vec3& pos) {
 }
 
 glm::vec2 UiElement::WorldToScreenSpace(const glm::vec3& pos, bool& inScreen) {
-    glm::vec4 p = glm::vec4(pos, 1.0f);
-    glm::mat4 vp = Camera::view * Camera::projection;
-    glm::vec4 projected = vp * p;
-    glm::vec2 screenPos = glm::vec2(projected) / projected.w;
-    return vec2();
+    bool behind = false;
+    const glm::vec2 screen = UiWorld::Project(pos, behind, inScreen);
+    return screen;
 }
 
 void UiElement::RemoveFromParent()

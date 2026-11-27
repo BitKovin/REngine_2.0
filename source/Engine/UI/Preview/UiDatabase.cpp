@@ -279,6 +279,33 @@ namespace
             { "triggers", json::array({ "right mouse button (ui_context)", "touch hold 0.5 s", "ui_context action (gamepad focus)" }) },
             { "requiresInput", json::array({ "ui_context" }) } };
         s.Registries["hosts"]["viewport"] = json{ { "name", "viewport" }, { "description", "Plain parent: no lifecycle, no host options" } };
+        // Phase 5: the layers of the main viewport, in draw order (a layer is a root; its pages are children of it)
+        s.Registries["hosts"]["hud-layer"] = json{ { "name", "hud-layer" }, { "id", "hud" }, { "drawOrder", 0 },
+            { "description", "The HUD: pages added with UiHost::AddHud draw below the menu stack" },
+            { "visibilityRules", json::array({ "class hud-hidden (opacity 0, 0.2 s) while a page with hides-hud is on the menu stack" }) },
+            { "context", "main" }, { "interactions", json::array({ "pointer", "focus" }) }, { "hitCheck", false } };
+        s.Registries["hosts"]["overlay"] = json{ { "name", "overlay" }, { "id", "overlay" }, { "drawOrder", 2 },
+            { "description", "Above everything, including legacy elements added later (late draw): tooltips, toasts, drag ghosts" },
+            { "context", "main" }, { "interactions", json::array({ "pointer" }) }, { "hitCheck", false } };
+        s.Registries["hosts"]["loading-screen"] = json{ { "name", "loading-screen" },
+            { "description", "LoadingScreenSystem::SetLoadingScreen(layout): a page in its own viewport, updated while a level loads; the variable progress (0..1) is set each frame" },
+            { "context", "own" }, { "variables", json::array({ "progress" }) }, { "interactions", json::array() } };
+        s.Registries["hosts"]["world-surface"] = json{ { "name", "world-surface" },
+            { "description", "UiWorldSurface: a page on a quad in the world; own pointer, hover, press, capture and focus" },
+            { "context", "own" },
+            { "attributes", json::array({ "interaction", "facing", "pixels-per-meter", "max-distance", "update-rate-distance", "freeze-distance" }) },
+            { "defaults", json{ { "facing", "fixed" }, { "interaction", "aim" }, { "pixelsPerMeter", 512 }, { "maxDistance", 3.0 }, { "maxAngleDeg", 70.0 },
+                                { "updateRateDistance", 15.0 }, { "freezeDistance", 40.0 } } },
+            { "targetModes", json::array({ "own plane" }) },
+            { "interactions", json::array({ "none", "aim", "focus", "both" }) },
+            { "api", json::array({ "SetContent", "On", "Hover(x, y)", "Click()", "EnterFocus", "ExitFocus" }) },
+            { "pseudoClasses", json::array({ "hover", "active", "focus", "out-of-range" }) } };
+        // Phase 8: 3D scene views are elements (tags SceneView / Model / Light), not hosts; this entry only documents the render path
+        s.Registries["hosts"]["scene-view"] = json{ { "name", "scene-view" },
+            { "description", "SceneView element: Model and Light children rendered into a target of the content size before the UI pass; re-renders only when something changed" },
+            { "context", "any" }, { "tags", json::array({ "SceneView", "Model", "Light" }) },
+            { "api", json::array({ "SetCamera", "AddModel", "Find<UiSceneModel>" }) },
+            { "interactions", json::array({ "pointer (orbit)" }) } };
     }
 
     // Phase 3: paint effects, easing functions, animatable properties, and the @keyframes of every sheet that has been loaded.
@@ -450,7 +477,7 @@ void UiDatabase::InitBootstrap()
         s.DisplayName = s.GameId;
     }
     s.Bootstrapped = true;
-    for (const char* cap : { "markup", "events", "hudLayers" })
+    for (const char* cap : { "markup", "events", "hudLayers", "worldSurface", "sceneView" })
         if (!s.Capabilities.count(cap))
             s.Capabilities[cap] = false;
     Rebuild(s, s.Capabilities["markup"]);

@@ -1,0 +1,17 @@
+# Phase 5: a tooltip appears after the hover delay, stays inside the viewport and goes when the pointer leaves
+wait 6
+console ui_load GameData/ui/kit/tests/p5_tooltip.xml
+wait_frames 8
+mouse_move 140 120
+mouse_move 150 130
+wait 0.3
+expect_tooltip 0
+wait 1
+expect_tooltip 1
+ui_screenshot p5_tooltip
+mouse_move 690 490
+mouse_move 700 500
+wait 0.3
+expect_tooltip 0
+expect_ui_errors 0
+quit

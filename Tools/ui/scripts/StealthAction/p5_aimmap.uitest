@@ -1,0 +1,17 @@
+# Phase 5: the aim ray lands on the pixel the picture shows there (not mirrored)
+wait 6
+spawn_terminal 1.2
+wait_frames 20
+terminal_ray -0.2
+wait_frames 6
+expect_terminal pointer_x < 200
+terminal_ray 0.2
+wait_frames 6
+expect_terminal pointer_x > 300
+terminal_ray 0 0.1
+wait_frames 6
+expect_terminal pointer_y < 100
+terminal_ray 0 -0.1
+wait_frames 6
+expect_terminal pointer_y > 150
+quit

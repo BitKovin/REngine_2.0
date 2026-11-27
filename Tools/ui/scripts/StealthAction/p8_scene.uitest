@@ -1,0 +1,29 @@
+# Phase 8: a scene view renders a model; it re-renders only when something changed; a drag orbits the camera
+wait 6
+console ui_load GameData/ui/kit/tests/p8_scene.xml
+set_var sv spin 0
+wait 5
+expect_scene sv target_w == 400
+expect_scene sv target_h == 400
+ui_screenshot p8_scene_a
+expect_scene sv renders >= 0
+wait_frames 20
+expect_scene sv renders == 0
+set_var sv spin 60
+wait_frames 10
+expect_scene sv renders >= 1
+ui_screenshot p8_scene_b
+# orbit: a drag over the view turns the camera, and releasing outside the view still ends it
+expect_scene sv yaw == 0
+mouse_move 300 300
+mouse_down
+mouse_move 360 300
+mouse_move 420 300
+wait_frames 6
+mouse_move 900 900
+mouse_up
+wait_frames 6
+expect_scene sv yaw != 0
+expect_scene sv dragging == 0
+ui_screenshot p8_scene_c
+quit

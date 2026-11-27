@@ -1,0 +1,6 @@
+<root>
+  <styles><style>
+    #wp { width: 40px; height: 40px; background-color: #ff8000; }
+  </style></styles>
+  <Panel id="wpHost"><WorldPanel id="wp" clamp-to-edge="true" edge-margin="32" world-position="0 0 0"/></Panel>
+</root>

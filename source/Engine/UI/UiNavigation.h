@@ -4,6 +4,7 @@
 #include "../Input.h"
 
 #include <vector>
+#include <utility>
 #include <cfloat>
 
 #include <imgui/imgui.h>
@@ -39,6 +40,25 @@ public:
     static inline UiElement* Focused = nullptr;
 
     static inline bool MouseNavigation = false;
+
+    // The whole navigation state of one UI context. A world surface in focus mode swaps its own state in for the length of its update
+    // (so focus, hover focus and the root belong to the surface) and swaps it back: no call site changes.
+    struct State
+    {
+        UiElement* Focused = nullptr;
+        bool MouseNavigation = false;
+        UiElement* Root = nullptr;
+        UiElement* HoverFocus = nullptr;
+        UiElement* LastFocused = nullptr;
+    };
+    static void Swap(State& other)
+    {
+        std::swap(Focused, other.Focused);
+        std::swap(MouseNavigation, other.MouseNavigation);
+        std::swap(s_root, other.Root);
+        std::swap(s_hoverFocus, other.HoverFocus);
+        std::swap(s_lastFocused, other.LastFocused);
+    }
 
     // ── Focus control ─────────────────────────────────────────────────────────
     static void SetFocus(UiElement* element)

@@ -157,7 +157,7 @@ void LightManager::ApplyPointLightToShader(Shader* shader, vec3 boundsMin, vec3 
     const float EPS_LEN_SQ = 1e-12f;
 
     float added = 0;
-    const auto& lights = m_finalLights;
+    const auto& lights = m_overrideLights ? *m_overrideLights : m_finalLights;
     const size_t nLights = lights.size();
 
     for (size_t i = 0; i < nLights && added < maxLights; ++i)
