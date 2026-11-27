@@ -17,6 +17,9 @@ public:
 
     int GetPrimitiveCount() const { return primitiveCount; }
 
+    // No early jobs: see RibbonEmitter.
+    void PreFinalizeEarlyJobs(std::vector<std::function<void()>>&) override {}
+
     // Parallel: builds vertex/index data from finalizedParticles (see RibbonEmitter::PreFinalize).
     void PreFinalize() override;
 

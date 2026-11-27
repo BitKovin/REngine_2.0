@@ -137,113 +137,138 @@ void ParticleEmitter::DestroyBillboardVao()
 
 }
 
-// PreFinalize - parallel, pure CPU math + BSP lightvol reads, no OwnerEntity involved.
-void ParticleEmitter::PreFinalize()
+// SnapshotParticles - commits Particles into finalizedParticles and captures the camera values the instance build reads.
+void ParticleEmitter::SnapshotParticles()
 {
-
     {
         std::lock_guard<std::recursive_mutex> lock(particlesMutex);
         finalizedParticles = Particles;
     }
 
-    const vec3 cameraPosition = Camera::finalizedPosition;
     const vec3 cameraRotation = Camera::finalizedRotation;
-    const vec3 cameraForward = MathHelper::GetForwardVector(cameraRotation);
-    const vec3 cameraRight = MathHelper::GetRightVector(cameraRotation);
-    const vec3 cameraUp = MathHelper::GetUpVector(cameraRotation);
+    earlyCameraPosition = Camera::finalizedPosition;
+    earlyCameraForward = MathHelper::GetForwardVector(cameraRotation);
+    earlyCameraRight = MathHelper::GetRightVector(cameraRotation);
+    earlyCameraUp = MathHelper::GetUpVector(cameraRotation);
 
-    const int cameraC = Level::Current->BspData.FindClusterAtPosition(cameraPosition);
+    earlyCameraCluster = Level::Current->BspData.FindClusterAtPosition(earlyCameraPosition);
 
-    preFinalizedInstances.clear();
+    earlyInstances.resize(finalizedParticles.size());
+}
 
-    if (DepthSorting)
+// BuildInstances - pure CPU math + BSP lightvol reads for earlyInstances[begin, end). Jobs get disjoint ranges.
+void ParticleEmitter::BuildInstances(size_t begin, size_t end)
+{
+    // Depth sorting always culls and only lights when ParticleLighting is on; the unsorted path always lights and culls when ParticleCulling is on.
+    const bool cull = DepthSorting || ParticleCulling;
+    const bool light = DepthSorting ? ParticleLighting : true;
+
+    for (size_t i = begin; i < end; i++)
     {
-        std::vector<std::pair<float, InstanceData>> visible;
-        visible.reserve(finalizedParticles.size());
+        const Particle& particle = finalizedParticles[i];
+        EarlyInstance& out = earlyInstances[i];
+        out.visible = false;
 
-        for (const auto& particle : finalizedParticles)
+        if (cull)
         {
             if (!Camera::frustum.IsSphereVisible(particle.position, particle.Size))
                 continue;
 
             int targetC = Level::Current->BspData.FindClusterAtPosition(particle.position);
-            if (!Level::Current->BspData.IsClusterVisible(cameraC, targetC))
+            if (!Level::Current->BspData.IsClusterVisible(earlyCameraCluster, targetC))
                 continue;
-
-            mat4x4 world;
-            if (particle.UseWorldRotation)
-                world = GetWorldMatrix(particle);
-            else
-                world = MathHelper::CreateBillboardMatrix(
-                    particle.position, cameraPosition,
-                    cameraForward, cameraRight, cameraUp,
-                    vec3(particle.Size), particle.rotation);
-
-            InstanceData data{};
-            data.model[0] = world[0];  // column 0
-            data.model[1] = world[1];
-            data.model[2] = world[2];
-            data.model[3] = world[3];
-            data.Color = particle.Color * (ParticleLighting ? vec4(GetLightForParticle(particle), 1.0f) : vec4(1.0f));
-            data.Color.a *= particle.Transparency;
-
-			data.UvPositionAndScale = particle.UvPositionAndScale;
-
-            float depth = glm::dot(cameraForward, particle.position - cameraPosition);
-            visible.emplace_back(depth, std::move(data));
         }
 
-        if (!visible.empty())
+        mat4x4 world;
+        if (particle.UseWorldRotation)
+            world = GetWorldMatrix(particle);
+        else
+            world = MathHelper::CreateBillboardMatrix(
+                particle.position, earlyCameraPosition,
+                earlyCameraForward, earlyCameraRight, earlyCameraUp,
+                vec3(particle.Size), particle.rotation);
+
+        InstanceData& data = out.data;
+        data.model[0] = world[0];  // column 0
+        data.model[1] = world[1];
+        data.model[2] = world[2];
+        data.model[3] = world[3];
+        data.Color = particle.Color * (light ? vec4(GetLightForParticle(particle), 1.0f) : vec4(1.0f));
+        data.Color.a *= particle.Transparency;
+
+        data.UvPositionAndScale = particle.UvPositionAndScale;
+
+        out.depth = DepthSorting ? glm::dot(earlyCameraForward, particle.position - earlyCameraPosition) : 0.0f;
+        out.visible = true;
+    }
+}
+
+// PreFinalizeEarlyJobs - serial. Snapshots the particles, then splits the instance build into at most MaxEarlyJobs slices.
+void ParticleEmitter::PreFinalizeEarlyJobs(std::vector<std::function<void()>>& outJobs)
+{
+    SnapshotParticles();
+    earlySnapshotTaken = true;
+    earlyJobsHandedOut = false;
+
+    const size_t count = finalizedParticles.size();
+    const size_t jobCount = std::min(MaxEarlyJobs, count / MinParticlesPerEarlyJob);
+    if (jobCount < 2)
+        return;   // too small to be worth a job each - PreFinalize builds it inline
+
+    earlyJobsHandedOut = true;
+
+    const size_t perJob = (count + jobCount - 1) / jobCount;
+    for (size_t begin = 0; begin < count; begin += perJob)
+    {
+        const size_t end = std::min(count, begin + perJob);
+        outJobs.push_back([this, begin, end]() { BuildInstances(begin, end); });
+    }
+}
+
+// PreFinalize - parallel across meshes. The per-particle math is already done if PreFinalizeEarlyJobs handed out jobs;
+// otherwise (small emitter, or called directly without the early stage) it is done here.
+void ParticleEmitter::PreFinalize()
+{
+    if (!earlySnapshotTaken)
+        SnapshotParticles();
+
+    if (!earlyJobsHandedOut)
+        BuildInstances(0, finalizedParticles.size());
+
+    earlySnapshotTaken = false;
+    earlyJobsHandedOut = false;
+
+    preFinalizedInstances.clear();
+
+    if (DepthSorting)
+    {
+        sortScratch.clear();
+        sortScratch.reserve(earlyInstances.size());
+        for (size_t i = 0; i < earlyInstances.size(); i++)
         {
-            std::sort(visible.begin(), visible.end(),
+            if (earlyInstances[i].visible)
+                sortScratch.emplace_back(earlyInstances[i].depth, static_cast<uint32_t>(i));
+        }
+
+        if (!sortScratch.empty())
+        {
+            std::sort(sortScratch.begin(), sortScratch.end(),
                 [](const auto& a, const auto& b) { return a.first > b.first; });
 
-            preFinalizedInstances.reserve(visible.size());
-            for (auto& v : visible)
-                preFinalizedInstances.push_back(std::move(v.second));
+            preFinalizedInstances.reserve(sortScratch.size());
+            for (const auto& s : sortScratch)
+                preFinalizedInstances.push_back(earlyInstances[s.second].data);
         }
     }
     else
     {
-        preFinalizedInstances.reserve(finalizedParticles.size());
-        for (const auto& particle : finalizedParticles)
+        preFinalizedInstances.reserve(earlyInstances.size());
+        for (const auto& e : earlyInstances)
         {
-
-            if (ParticleCulling)
-            {
-                if (!Camera::frustum.IsSphereVisible(particle.position, particle.Size))
-                    continue;
-
-                int targetC = Level::Current->BspData.FindClusterAtPosition(particle.position);
-                if (!Level::Current->BspData.IsClusterVisible(cameraC, targetC))
-                    continue;
-            }
-
-
-            mat4x4 world;
-            if (particle.UseWorldRotation)
-                world = GetWorldMatrix(particle);
-            else
-                world = MathHelper::CreateBillboardMatrix(
-                    particle.position, cameraPosition,
-                    cameraForward, cameraRight, cameraUp,
-                    vec3(particle.Size), particle.rotation);
-
-            InstanceData data{};
-            data.model[0] = world[0];  // column 0
-            data.model[1] = world[1];
-            data.model[2] = world[2];
-            data.model[3] = world[3];
-            data.Color = particle.Color * vec4(GetLightForParticle(particle), 1.0f);
-            data.Color.a *= particle.Transparency;
-
-            data.UvPositionAndScale = particle.UvPositionAndScale;
-
-            preFinalizedInstances.push_back(std::move(data));
+            if (e.visible)
+                preFinalizedInstances.push_back(e.data);
         }
-
     }
-
 }
 
 // FinalizeFrameData - main thread: resolve the texture and commit onto drawCommand.

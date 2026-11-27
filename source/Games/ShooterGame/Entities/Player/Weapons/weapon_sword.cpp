@@ -59,7 +59,7 @@ public:
 	static constexpr float LandingShockRadius = 1.5f;
 	static constexpr float LandingShockForward = 0.9f;
 
-	static constexpr float WalkClipSpeed = 7.0f;             // m/s of the player at which Walk plays at its own speed
+	static constexpr float WalkClipSpeed = 4.0f;             // m/s of the player at which Walk plays at its own speed
 	static constexpr float RunClipSpeed = 7.5f;
 	static constexpr float ClipRateRange[2] = { 0.5f, 1.3f };
 	static constexpr float MoveEnterSpeed = 0.8f;            // m/s: Idle -> Walk
@@ -294,7 +294,7 @@ public:
 		const vec2 input = owner->moveInput;
 
 		if (!HasDirectionInput()) return Direction::R;
-		if (std::abs(input.x) >= HorizontalBias) return input.x < 0 ? Direction::L : Direction::R;
+		if (std::abs(input.x) >= HorizontalBias) return input.x < 0 ? Direction::R : Direction::L;
 		return input.y > 0 ? Direction::T : Direction::B;
 	}
 

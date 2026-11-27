@@ -3,6 +3,7 @@
 #include "EObject.hpp"
 
 #include <vector>
+#include <functional>
 
 #include "glm.h"
 
@@ -50,6 +51,13 @@ public:
 	virtual void CollectDrawCommands(vector<IDrawCommand*>& outCommands) {}
 
 	virtual void FinalizeFrameData(){}
+
+	// Called serially on the game thread by Level::PreFinalize, before the main PreFinalize batch. A mesh with a big
+	// amount of small independent work (e.g. one job per slice of particles) appends its jobs to outJobs; Level runs
+	// every mesh's jobs together in one parallel pass and waits for all of them before any PreFinalize() starts, so
+	// PreFinalize() can consume the results. Default: no jobs. Jobs must not touch anything another job writes.
+	// PreFinalize() may also run without this having been called (direct calls) - it must then do the work itself.
+	virtual void PreFinalizeEarlyJobs(vector<std::function<void()>>& outJobs) {}
 
 	//called in parallel from game thread right at the end of a frame. Used to finalize non GPU data
 	virtual void PreFinalize(){}

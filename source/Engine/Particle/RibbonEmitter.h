@@ -17,6 +17,9 @@ public:
 
     int GetPrimitiveCount() const { return primitiveCount; }
 
+    // No early jobs: this emitter has no per-particle instance data (ParticleEmitter's early stage would be wasted work).
+    void PreFinalizeEarlyJobs(std::vector<std::function<void()>>&) override {}
+
     // Parallel: builds vertex/index data from finalizedParticles.
     void PreFinalize() override;
 

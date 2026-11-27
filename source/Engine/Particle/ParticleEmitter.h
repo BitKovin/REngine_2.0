@@ -122,8 +122,16 @@ public:
 		}
 	}
 
-	// Parallel: commits Particles into finalizedParticles and builds preFinalizedInstances.
+	// Serial, before the PreFinalize batch: snapshots Particles into finalizedParticles and, for big emitters, hands out up to
+	// MaxEarlyJobs jobs that build the per-particle instance data (cull, matrix, light, depth) in parallel.
+	// Ribbon/TrailEmitter override this to nothing - they build geometry from finalizedParticles in their own PreFinalize.
+	void PreFinalizeEarlyJobs(std::vector<std::function<void()>>& outJobs) override;
+
+	// Parallel: runs whatever early jobs didn't, then compacts/sorts the instances into preFinalizedInstances.
 	void PreFinalize() override;
+
+	static constexpr size_t MaxEarlyJobs = 16;
+	static constexpr size_t MinParticlesPerEarlyJob = 32;   // below 2 jobs' worth the emitter is built inline in PreFinalize
 
 	// Main thread: resolves the texture and commits everything onto drawCommand.
 	void FinalizeFrameData();
@@ -186,6 +194,9 @@ protected:
 
 	vec3 GetLightForParticle(const Particle& particle);
 
+	// Snapshots Particles -> finalizedParticles and the camera values the instance build needs. Safe to call from either stage.
+	void SnapshotParticles();
+
 	// Ribbon/TrailEmitter own their own command types, but still need to sync these three flags - kept available to them.
 	void SyncCommandFlags(IDrawCommand& cmd) const
 	{
@@ -199,6 +210,29 @@ private:
 	ParticleDrawCommand drawCommand;
 
 	std::vector<InstanceData> preFinalizedInstances;
+
+	// One slot per finalizedParticles entry, written by BuildInstances() - jobs own disjoint index ranges, so no locking.
+	struct EarlyInstance
+	{
+		InstanceData data;
+		float depth = 0.0f;
+		bool visible = false;
+	};
+	std::vector<EarlyInstance> earlyInstances;
+	std::vector<std::pair<float, uint32_t>> sortScratch;   // depth, index into earlyInstances
+
+	// Camera values captured once per frame by SnapshotParticles(); read-only while jobs run.
+	vec3 earlyCameraPosition = vec3(0);
+	vec3 earlyCameraForward = vec3(0);
+	vec3 earlyCameraRight = vec3(0);
+	vec3 earlyCameraUp = vec3(0);
+	int earlyCameraCluster = 0;
+
+	bool earlySnapshotTaken = false;   // SnapshotParticles() ran for this frame (set by PreFinalizeEarlyJobs, consumed by PreFinalize)
+	bool earlyJobsHandedOut = false;   // jobs were given to Level, so PreFinalize must not rebuild the instances
+
+	// Fills earlyInstances[begin, end) from finalizedParticles - the per-particle math of the old PreFinalize.
+	void BuildInstances(size_t begin, size_t end);
 
 	// Shared billboard geometry — created once, reused by all emitters
 	static bgfx::VertexBufferHandle s_billboardVbh;

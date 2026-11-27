@@ -13,7 +13,7 @@
     "svg": true
   },
   "engine": {
-    "buildId": "Nov 25 2026 15:54:44",
+    "buildId": "Nov 27 2026 03:33:52",
     "previewProtocol": 1,
     "version": "1"
   },
@@ -1334,6 +1334,22 @@
       "id": "element:builtin:ToggleButton",
       "kind": "element",
       "name": "ToggleButton",
+      "parameters": [],
+      "requiredCapabilities": [],
+      "scenarios": [],
+      "sourceRefs": [],
+      "supportsLiveCapture": false
+    },
+    {
+      "animationScenarios": [],
+      "category": "Elements",
+      "description": "Single element",
+      "host": {
+        "kind": "viewport"
+      },
+      "id": "element:builtin:WorldPanel",
+      "kind": "element",
+      "name": "WorldPanel",
       "parameters": [],
       "requiredCapabilities": [],
       "scenarios": [],
@@ -5981,6 +5997,22 @@
             "variables": true
           },
           {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
+            "variables": true
+          },
+          {
             "default": "false",
             "description": "Menu page: back with changed bound settings asks to apply or discard them first",
             "name": "confirm-changes",
@@ -6234,6 +6266,22 @@
             "name": "hides-hud",
             "required": false,
             "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
             "variables": true
           },
           {
@@ -6525,6 +6573,22 @@
             "variables": true
           },
           {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
+            "variables": true
+          },
+          {
             "default": "false",
             "description": "Menu page: back with changed bound settings asks to apply or discard them first",
             "name": "confirm-changes",
@@ -6794,6 +6858,22 @@
             "name": "hides-hud",
             "required": false,
             "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
             "variables": true
           },
           {
@@ -7074,6 +7154,22 @@
             "name": "hides-hud",
             "required": false,
             "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
             "variables": true
           },
           {
@@ -7373,6 +7469,22 @@
             "variables": true
           },
           {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
+            "variables": true
+          },
+          {
             "default": "false",
             "description": "Menu page: back with changed bound settings asks to apply or discard them first",
             "name": "confirm-changes",
@@ -7645,6 +7757,22 @@
             "variables": true
           },
           {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
+            "variables": true
+          },
+          {
             "default": "false",
             "description": "Menu page: back with changed bound settings asks to apply or discard them first",
             "name": "confirm-changes",
@@ -7909,6 +8037,22 @@
             "variables": true
           },
           {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
+            "variables": true
+          },
+          {
             "default": "false",
             "description": "Menu page: back with changed bound settings asks to apply or discard them first",
             "name": "confirm-changes",
@@ -8170,6 +8314,22 @@
             "name": "hides-hud",
             "required": false,
             "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
             "variables": true
           },
           {
@@ -8442,6 +8602,22 @@
             "name": "hides-hud",
             "required": false,
             "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
             "variables": true
           },
           {
@@ -8741,6 +8917,22 @@
             "variables": true
           },
           {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
+            "variables": true
+          },
+          {
             "default": "false",
             "description": "Menu page: back with changed bound settings asks to apply or discard them first",
             "name": "confirm-changes",
@@ -9026,6 +9218,22 @@
             "name": "hides-hud",
             "required": false,
             "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
             "variables": true
           },
           {
@@ -9397,6 +9605,22 @@
             "variables": true
           },
           {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
+            "variables": true
+          },
+          {
             "default": "false",
             "description": "Menu page: back with changed bound settings asks to apply or discard them first",
             "name": "confirm-changes",
@@ -9650,6 +9874,22 @@
             "name": "hides-hud",
             "required": false,
             "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
             "variables": true
           },
           {
@@ -9922,6 +10162,22 @@
             "name": "hides-hud",
             "required": false,
             "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
             "variables": true
           },
           {
@@ -10213,6 +10469,22 @@
             "variables": true
           },
           {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
+            "variables": true
+          },
+          {
             "default": "false",
             "description": "Menu page: back with changed bound settings asks to apply or discard them first",
             "name": "confirm-changes",
@@ -10482,6 +10754,22 @@
             "name": "hides-hud",
             "required": false,
             "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
             "variables": true
           },
           {
@@ -10781,6 +11069,22 @@
             "variables": true
           },
           {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
+            "variables": true
+          },
+          {
             "default": "false",
             "description": "Menu page: back with changed bound settings asks to apply or discard them first",
             "name": "confirm-changes",
@@ -11058,6 +11362,22 @@
             "name": "hides-hud",
             "required": false,
             "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
             "variables": true
           },
           {
@@ -11397,6 +11717,22 @@
             "variables": true
           },
           {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
+            "variables": true
+          },
+          {
             "default": "false",
             "description": "Menu page: back with changed bound settings asks to apply or discard them first",
             "name": "confirm-changes",
@@ -11585,6 +11921,334 @@
         "description": "Button that toggles :checked; events: valuechanged; variable: value (0/1)",
         "legacy": false,
         "name": "ToggleButton"
+      },
+      {
+        "attributes": [
+          {
+            "default": "",
+            "description": "Element id, unique inside its document instance",
+            "name": "id",
+            "required": false,
+            "type": "string",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Space separated style classes",
+            "name": "class",
+            "required": false,
+            "type": "string",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Inline declarations, e.g. width: 100px; height: 20px",
+            "name": "style",
+            "required": false,
+            "type": "string",
+            "variables": true
+          },
+          {
+            "default": "true",
+            "description": "false collapses the element",
+            "name": "visible",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "true",
+            "description": "false disables focus and activation",
+            "name": "enabled",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "Sets the :selected state",
+            "name": "selected",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take pointer hits",
+            "name": "hittest",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "The element a menu page focuses first (first in document order)",
+            "name": "default-focus",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "true",
+            "description": "Host option of a menu page: back pops it",
+            "name": "close-on-back",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "Host option of a menu page: pages under it stay visible",
+            "name": "shows-below",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "Host option of a menu page: the game is paused while it is on the stack",
+            "name": "pauses-game",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "Host option of a menu page: the HUD is hidden while it is on the stack",
+            "name": "hides-hud",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Text shown in a tooltip after 0.5 s of hover or 0.8 s of focus (${KEY} is localised)",
+            "name": "tooltip",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Layout shown as the tooltip instead of a text",
+            "name": "tooltip-layout",
+            "required": false,
+            "type": "path",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "Menu page: back with changed bound settings asks to apply or discard them first",
+            "name": "confirm-changes",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "#id of the element focus moves to on up (overrides spatial navigation)",
+            "name": "nav-up",
+            "required": false,
+            "type": "string",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "#id of the element focus moves to on down",
+            "name": "nav-down",
+            "required": false,
+            "type": "string",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "#id of the element focus moves to on left",
+            "name": "nav-left",
+            "required": false,
+            "type": "string",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "#id of the element focus moves to on right",
+            "name": "nav-right",
+            "required": false,
+            "type": "string",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run when the element is activated, e.g. Push('ui/a.xml'); PlaySound('x.wav')",
+            "name": "onactivate",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run when the pointer enters the element",
+            "name": "onmouseover",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run when the pointer leaves the element",
+            "name": "onmouseout",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run when the element receives navigation focus",
+            "name": "onfocus",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run when the element loses navigation focus",
+            "name": "onblur",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run when back is requested on this page",
+            "name": "oncancel",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run once after the element's first layout",
+            "name": "onload",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "false",
+            "description": "true lets the pointer (after 6 px) or a gamepad confirm pick the element up; see ondragstart",
+            "name": "draggable",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "true makes the element take drops of a dragged element",
+            "name": "droptarget",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "",
+            "description": "Calls run on the dragged element when a drag starts; code sets UiElem::DragPayload here",
+            "name": "ondragstart",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag enters it",
+            "name": "ondragenter",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when a drag leaves it",
+            "name": "ondragleave",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a drop target when the dragged element is dropped on it",
+            "name": "ondrop",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "Calls run on a right click, a 0.5 s touch hold or the ui_context action",
+            "name": "oncontextmenu",
+            "required": false,
+            "type": "actions",
+            "variables": false
+          },
+          {
+            "default": "0 0 0",
+            "description": "World position 'x y z' (metres)",
+            "name": "world-position",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "0 0 0",
+            "description": "Added to the world position, 'x y z'",
+            "name": "world-offset",
+            "required": false,
+            "type": "text",
+            "variables": true
+          },
+          {
+            "default": "false",
+            "description": "Stays on the screen edge when the position is off screen or behind the camera",
+            "name": "clamp-to-edge",
+            "required": false,
+            "type": "bool",
+            "variables": true
+          },
+          {
+            "default": "32",
+            "description": "Distance from the edge when clamped (px)",
+            "name": "edge-margin",
+            "required": false,
+            "type": "number",
+            "variables": false
+          },
+          {
+            "default": "0",
+            "description": "Fully faded at this distance (m); 0 = off",
+            "name": "fade-distance",
+            "required": false,
+            "type": "number",
+            "variables": false
+          },
+          {
+            "default": "0",
+            "description": "Hidden beyond this distance (m); 0 = off",
+            "name": "max-distance",
+            "required": false,
+            "type": "number",
+            "variables": false
+          },
+          {
+            "default": "",
+            "description": "'near far minScale': scale 1 at near, minScale at far",
+            "name": "scale-with-distance",
+            "required": false,
+            "type": "text",
+            "variables": true
+          }
+        ],
+        "category": "layout",
+        "description": "Panel that follows a world position: its border box is centred on the projected point. A child with class .arrow points toward the position while the panel is clamped to the screen edge",
+        "legacy": false,
+        "name": "WorldPanel"
       },
       {
         "attributes": [

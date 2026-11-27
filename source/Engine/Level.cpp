@@ -545,6 +545,26 @@ void Level::PreFinalize() {
 				preFinalizeWork.push_back({ var, d });
 	}
 
+	// Early stage: meshes with lots of small independent work (particles) hand out their jobs here. All of them
+	// run in one parallel pass and are complete before the main batch below, whose PreFinalize() consumes them.
+	{
+		std::vector<std::function<void()>> earlyJobs; // local: jobs capture mesh pointers, must not outlive this stage
+		{
+			ZoneScopedN("PreFinalize early jobs collect");
+			for (const DrawMeshWork& work : preFinalizeWork)
+				work.mesh->PreFinalizeEarlyJobs(earlyJobs);
+		}
+
+		if (!earlyJobs.empty())
+		{
+			asyncUpdateThreadPool->ParallelFor(earlyJobs.size(), [&earlyJobs](size_t i)
+				{
+					ZoneScopedN("PreFinalize early job");
+					earlyJobs[i]();
+				});
+		}
+	}
+
 	// Total jobs = 1 (Navigation) + the number of mesh work items
 	size_t totalJobs = preFinalizeWork.size() + 1;
 
